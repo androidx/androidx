@@ -18,7 +18,7 @@ package androidx.ui.core.selection
 
 import androidx.test.filters.SmallTest
 import androidx.ui.text.TextRange
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
@@ -30,7 +30,7 @@ import org.junit.runners.JUnit4
 class SelectionTest {
     @Test
     fun anchorInfo_constructor() {
-        val direction = TextDirection.Ltr
+        val direction = ResolvedTextDirection.Ltr
         val offset = 0
         val selectable: Selectable = mock()
 
@@ -51,12 +51,12 @@ class SelectionTest {
         val endOffset = 6
         val selectable: Selectable = mock()
         val startAnchor = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = startOffset,
             selectable = selectable
         )
         val endAnchor = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = endOffset,
             selectable = selectable
         )
@@ -79,12 +79,12 @@ class SelectionTest {
         val endOffset1 = 20
         val selectable1: Selectable = mock()
         val startAnchor1 = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = startOffset1,
             selectable = selectable1
         )
         val endAnchor1 = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = endOffset1,
             selectable = selectable1
         )
@@ -97,12 +97,12 @@ class SelectionTest {
         val endOffset2 = 30
         val selectable2: Selectable = mock()
         val startAnchor2 = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = startOffset2,
             selectable = selectable2
         )
         val endAnchor2 = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = endOffset2,
             selectable = selectable2
         )
@@ -127,12 +127,12 @@ class SelectionTest {
         val endOffset1 = 9
         val selectable1: Selectable = mock()
         val startAnchor1 = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = startOffset1,
             selectable = selectable1
         )
         val endAnchor1 = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = endOffset1,
             selectable = selectable1
         )
@@ -145,12 +145,12 @@ class SelectionTest {
         val endOffset2 = 0
         val selectable2: Selectable = mock()
         val startAnchor2 = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = startOffset2,
             selectable = selectable2
         )
         val endAnchor2 = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = endOffset2,
             selectable = selectable2
         )
@@ -174,12 +174,12 @@ class SelectionTest {
         val startOffset = 0
         val endOffset = 6
         val startAnchor = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = startOffset,
             selectable = mock()
         )
         val endAnchor = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = endOffset,
             selectable = mock()
         )
@@ -199,12 +199,12 @@ class SelectionTest {
         val startOffset = 6
         val endOffset = 0
         val startAnchor = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = startOffset,
             selectable = mock()
         )
         val endAnchor = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = endOffset,
             selectable = mock()
         )

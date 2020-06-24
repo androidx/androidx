@@ -30,7 +30,7 @@ import androidx.ui.text.TextFieldState
 import androidx.ui.text.TextLayoutInput
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
 import com.google.common.truth.Truth.assertThat
@@ -98,7 +98,8 @@ class TextFieldSelectionManagerTest {
         whenever(state.layoutResult!!.getOffsetForPosition(dragDistance)).thenReturn(dragOffset)
         whenever(state.layoutResult!!.getWordBoundary(beginOffset)).thenReturn(longPressTextRange)
         whenever(state.layoutResult!!.getWordBoundary(dragOffset)).thenReturn(dragTextRange)
-        whenever(state.layoutResult!!.getBidiRunDirection(any())).thenReturn(TextDirection.Ltr)
+        whenever(state.layoutResult!!.getBidiRunDirection(any()))
+            .thenReturn(ResolvedTextDirection.Ltr)
     }
 
     @Test

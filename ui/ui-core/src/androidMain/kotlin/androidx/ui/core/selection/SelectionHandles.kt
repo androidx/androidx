@@ -27,7 +27,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.text.InternalTextApi
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
@@ -124,7 +124,7 @@ private fun HandleDrawLayout(
 fun SelectionHandle(
     modifier: Modifier,
     isStartHandle: Boolean,
-    directions: Pair<TextDirection, TextDirection>,
+    directions: Pair<ResolvedTextDirection, ResolvedTextDirection>,
     handlesCrossed: Boolean
 ) {
     SelectionHandleLayout(
@@ -137,7 +137,7 @@ fun SelectionHandle(
  */
 internal fun isLeft(
     isStartHandle: Boolean,
-    directions: Pair<TextDirection, TextDirection>,
+    directions: Pair<ResolvedTextDirection, ResolvedTextDirection>,
     handlesCrossed: Boolean
 ): Boolean {
     if (isStartHandle) {
@@ -157,7 +157,10 @@ internal fun isLeft(
  * the right. However, in Rtl context or when handles are crossed, the start handle should point to
  * the right, and the end handle should point to left.
  */
-internal fun isHandleLtrDirection(direction: TextDirection, areHandlesCrossed: Boolean): Boolean {
-    return direction == TextDirection.Ltr && !areHandlesCrossed ||
-            direction == TextDirection.Rtl && areHandlesCrossed
+internal fun isHandleLtrDirection(
+    direction: ResolvedTextDirection,
+    areHandlesCrossed: Boolean
+): Boolean {
+    return direction == ResolvedTextDirection.Ltr && !areHandlesCrossed ||
+            direction == ResolvedTextDirection.Rtl && areHandlesCrossed
 }

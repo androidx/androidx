@@ -20,7 +20,7 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Path
 import androidx.ui.text.font.Font
 import androidx.ui.text.platform.ActualParagraph
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import androidx.ui.unit.Density
 import androidx.ui.geometry.Offset
 
@@ -194,12 +194,12 @@ interface Paragraph {
     /**
      * Get the text direction of the paragraph containing the given offset.
      */
-    fun getParagraphDirection(offset: Int): TextDirection
+    fun getParagraphDirection(offset: Int): ResolvedTextDirection
 
     /**
      * Get the text direction of the character at the given offset.
      */
-    fun getBidiRunDirection(offset: Int): TextDirection
+    fun getBidiRunDirection(offset: Int): ResolvedTextDirection
 
     /** Returns the character offset closest to the given graphical position. */
     fun getOffsetForPosition(position: Offset): Int
