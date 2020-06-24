@@ -42,6 +42,7 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.intl.LocaleList
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextLayoutResult
+import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.toUpperCase
 import kotlin.math.roundToInt
@@ -266,13 +267,21 @@ private fun VariousEditLine(
         imeAction = imeAction,
         visualTransformation = visualTransformation,
         onValueChange = {
-            state.value = TextFieldValue(
-                onValueChange(state.value.text, it.text),
-                it.selection
-            )
+            val value = onValueChange(state.value.text, it.text)
+            val selection = it.selection.constrain(0, value.length)
+            state.value = TextFieldValue(value, selection)
         },
         textStyle = TextStyle(fontSize = fontSize8)
     )
+}
+
+private fun TextRange.constrain(minimumValue: Int, maximumValue: Int): TextRange {
+    val newStart = start.coerceIn(minimumValue, maximumValue)
+    val newEnd = end.coerceIn(minimumValue, maximumValue)
+    if (newStart != start || newEnd != end) {
+        return TextRange(newStart, newEnd)
+    }
+    return this
 }
 
 @Composable
