@@ -17,6 +17,7 @@
 package androidx.camera.integration.uiwidgets.rotations
 
 import android.view.Surface
+import android.view.View
 import androidx.camera.core.CameraSelector
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
@@ -81,7 +82,10 @@ class ImageAnalysisOrientationConfigChangesTest(
 
     private fun ActivityScenario<OrientationConfigChangesOverriddenActivity>.rotate(rotation: Int):
             Boolean {
-        val currentRotation = withActivity { this.display!!.rotation }
+        val currentRotation = withActivity {
+            val root = findViewById<View>(android.R.id.content)
+            root.display.rotation
+        }
         InstrumentationRegistry.getInstrumentation().uiAutomation.setRotation(rotation)
         return currentRotation != rotation
     }
