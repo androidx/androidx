@@ -45,11 +45,6 @@ fun OneLineListItems(
         ListItem(text = { Text("One line list item with no icon") })
         Divider()
         ListItem(
-            text = { Text("פריט ברשימה אחת עם תמונה.") },
-            icon = { Image(icon24x24, colorFilter = ColorFilter.tint(contentColor())) }
-        )
-        Divider()
-        ListItem(
             text = { Text("One line list item with 24x24 icon") },
             icon = { Image(icon24x24, colorFilter = ColorFilter.tint(contentColor())) }
         )
@@ -182,6 +177,107 @@ fun ThreeLineListItems(icon24x24: ImageAsset, vectorIcon: VectorAsset) {
             overlineText = { Text("OVERLINE") },
             secondaryText = { Text("Secondary text") },
             trailing = { Text("meta") }
+        )
+        Divider()
+    }
+}
+
+// Demos for mixing RTL and LTR ListItems:
+
+@Composable
+fun OneLineRtlLtrListItems(icon24x24: ImageAsset, icon40x40: ImageAsset) {
+    Column {
+        ListItem(text = { Text("One line list item with no icon") })
+        Divider()
+        ListItem(
+            text = { Text("פריט ברשימה אחת עם תמונה.") },
+            icon = { Image(icon40x40, colorFilter = ColorFilter.tint(contentColor())) }
+        )
+        Divider()
+        ListItem(
+            text = { Text("One line list item with 24x24 icon") },
+            icon = { Image(icon40x40, colorFilter = ColorFilter.tint(contentColor())) }
+        )
+        Divider()
+        ListItem(
+            text = { Text("عنصر قائمة واحد مع رمز زائدة") },
+            trailing = { Image(icon24x24, colorFilter = ColorFilter.tint(contentColor())) }
+        )
+        Divider()
+    }
+}
+
+@Composable
+fun TwoLineRtlLtrListItems(icon40x40: ImageAsset) {
+    Column {
+        ListItem(
+            text = { Text("Two line list item") },
+            secondaryText = { Text("Secondary text") }
+        )
+        Divider()
+        ListItem(
+            text = { Text("بند قائمة من سطرين") },
+            secondaryText = { Text("نص ثانوي") })
+        Divider()
+        ListItem(
+            text = { Text("Clickable") },
+            secondaryText = { Text("Short item") },
+            onClick = {}
+        )
+        Divider()
+        ListItem(
+            text = { Text("عنصر قائمة مكون من سطرين مع رمز") },
+            overlineText = { Text("فوق الخط") },
+            icon = { Image(icon40x40, colorFilter = ColorFilter.tint(contentColor())) }
+        )
+        Divider()
+        ListItem(
+            text = { Text("Clickable two line item") },
+            secondaryText = { Text("Secondary text") },
+            icon = { Image(icon40x40, colorFilter = ColorFilter.tint(contentColor())) },
+            trailing = {
+                var checked by state { false }
+                Checkbox(checked, onCheckedChange = { checked = !checked })
+            },
+            onClick = {}
+        )
+        Divider()
+        ListItem(
+            text = { Text("بندان قابلان للنقر") },
+            secondaryText = { Text("نص ثانوي") },
+            icon = { Image(icon40x40, colorFilter = ColorFilter.tint(contentColor())) },
+            onClick = {}
+        )
+        Divider()
+    }
+}
+
+@Composable
+fun ThreeLineRtlLtrListItems(icon40x40: ImageAsset) {
+    Column {
+        ListItem(
+            text = { Text("Three line list item") },
+            overlineText = { Text("OVERLINE") },
+            secondaryText = { Text("Secondary text") },
+            trailing = { Text("meta") }
+        )
+        Divider()
+        ListItem(
+            text = { Text("ثلاثة عناصر قائمة بدون رمز") },
+            secondaryText = {
+                Text(
+                    "هذا نص ثانوي طويل لعنصر القائمة الحالي ، معروض على سطرين. " +
+                            "في لغات أخرى قد نحتاج إلى المزيد من النص"
+                )
+            },
+            singleLineSecondaryText = false
+        )
+        Divider()
+        ListItem(
+            text = { Text("ثلاثة عناصر قائمة مع رمز") },
+            overlineText = { Text("فوق الخط") },
+            secondaryText = { Text("نص ثانوي") },
+            icon = { Image(icon40x40, colorFilter = ColorFilter.tint(contentColor())) }
         )
         Divider()
     }
