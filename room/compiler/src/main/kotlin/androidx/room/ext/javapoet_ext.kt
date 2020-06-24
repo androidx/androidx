@@ -146,6 +146,14 @@ object RxJava2TypeNames {
     val COMPLETABLE = ClassName.get("io.reactivex", "Completable")
 }
 
+object RxJava3TypeNames {
+    val FLOWABLE = ClassName.get("io.reactivex.rxjava3.core", "Flowable")
+    val OBSERVABLE = ClassName.get("io.reactivex.rxjava3.core", "Observable")
+    val MAYBE = ClassName.get("io.reactivex.rxjava3.core", "Maybe")
+    val SINGLE = ClassName.get("io.reactivex.rxjava3.core", "Single")
+    val COMPLETABLE = ClassName.get("io.reactivex.rxjava3.core", "Completable")
+}
+
 object ReactiveStreamsTypeNames {
     val PUBLISHER = ClassName.get("org.reactivestreams", "Publisher")
 }
@@ -159,6 +167,14 @@ object RoomRxJava2TypeNames {
     val RX_ROOM_CREATE_FLOWABLE = "createFlowable"
     val RX_ROOM_CREATE_OBSERVABLE = "createObservable"
     val RX_EMPTY_RESULT_SET_EXCEPTION = ClassName.get(ROOM_PACKAGE, "EmptyResultSetException")
+}
+
+object RoomRxJava3TypeNames {
+    val RX_ROOM = ClassName.get("$ROOM_PACKAGE.rxjava3", "RxRoom")
+    val RX_ROOM_CREATE_FLOWABLE = "createFlowable"
+    val RX_ROOM_CREATE_OBSERVABLE = "createObservable"
+    val RX_EMPTY_RESULT_SET_EXCEPTION =
+        ClassName.get("$ROOM_PACKAGE.rxjava3", "EmptyResultSetException")
 }
 
 object RoomCoroutinesTypeNames {

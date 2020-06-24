@@ -27,6 +27,7 @@ import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RoomTypeNames.STRING_UTIL
 import androidx.room.ext.RxJava2TypeNames
+import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
@@ -232,8 +233,8 @@ class TypeAdapterStoreTest {
     }
 
     @Test
-    fun testMissingRxRoom() {
-        simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.FLOWABLE)) { invocation ->
+    fun testMissingRx2Room() {
+        simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.RX2_FLOWABLE)) { invocation ->
             val publisherElement = invocation.processingEnv.elementUtils
                     .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
             assertThat(publisherElement, notNullValue())
@@ -245,87 +246,130 @@ class TypeAdapterStoreTest {
     }
 
     @Test
-    fun testFindPublisher() {
-        simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.FLOWABLE, COMMON.RX2_ROOM)) {
-            invocation ->
-            val publisher = invocation.processingEnv.elementUtils
-                    .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
-            assertThat(publisher, notNullValue())
+    fun testMissingRx3Room() {
+        simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.RX3_FLOWABLE)) { invocation ->
+            val publisherElement = invocation.processingEnv.elementUtils
+                .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
+            assertThat(publisherElement, notNullValue())
             assertThat(
                 RxQueryResultBinderProvider.getAll(invocation.context).any {
-                    it.matches(MoreTypes.asDeclared(publisher.asType()))
+                    it.matches(MoreTypes.asDeclared(publisherElement.asType()))
                 }, `is`(true))
-        }.compilesWithoutError()
+        }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_ROOM_RXJAVA3_ARTIFACT)
+    }
+
+    @Test
+    fun testFindPublisher() {
+        listOf(
+            COMMON.RX2_FLOWABLE to COMMON.RX2_ROOM,
+            COMMON.RX3_FLOWABLE to COMMON.RX3_ROOM
+        ).forEach { (rxTypeSrc, rxRoomSrc) ->
+            simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)) {
+                    invocation ->
+                val publisher = invocation.processingEnv.elementUtils
+                    .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
+                assertThat(publisher, notNullValue())
+                assertThat(
+                    RxQueryResultBinderProvider.getAll(invocation.context).any {
+                        it.matches(MoreTypes.asDeclared(publisher.asType()))
+                    }, `is`(true))
+            }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindFlowable() {
-        simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.FLOWABLE, COMMON.RX2_ROOM)) {
-            invocation ->
-            val flowable = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.FLOWABLE.toString())
-            assertThat(flowable, notNullValue())
-            assertThat(
-                RxQueryResultBinderProvider.getAll(invocation.context).any {
-                    it.matches(MoreTypes.asDeclared(flowable.asType()))
-                }, `is`(true))
-        }.compilesWithoutError()
+        listOf(
+            Triple(COMMON.RX2_FLOWABLE, COMMON.RX2_ROOM, RxJava2TypeNames.FLOWABLE),
+            Triple(COMMON.RX3_FLOWABLE, COMMON.RX3_ROOM, RxJava3TypeNames.FLOWABLE)
+        ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
+            simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)) {
+                invocation ->
+                val flowable = invocation.processingEnv.elementUtils
+                        .getTypeElement(rxTypeClassName.toString())
+                assertThat(flowable, notNullValue())
+                assertThat(
+                    RxQueryResultBinderProvider.getAll(invocation.context).any {
+                        it.matches(MoreTypes.asDeclared(flowable.asType()))
+                    }, `is`(true))
+            }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindObservable() {
-        simpleRun(jfos = *arrayOf(COMMON.OBSERVABLE, COMMON.RX2_ROOM)) {
-            invocation ->
-            val observable = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.OBSERVABLE.toString())
-            assertThat(observable, notNullValue())
-            assertThat(
-                RxQueryResultBinderProvider.getAll(invocation.context).any {
-                    it.matches(MoreTypes.asDeclared(observable.asType()))
-                }, `is`(true))
-        }.compilesWithoutError()
+        listOf(
+            Triple(COMMON.RX2_OBSERVABLE, COMMON.RX2_ROOM, RxJava2TypeNames.OBSERVABLE),
+            Triple(COMMON.RX3_OBSERVABLE, COMMON.RX3_ROOM, RxJava3TypeNames.OBSERVABLE)
+        ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
+            simpleRun(jfos = *arrayOf(rxTypeSrc, rxRoomSrc)) {
+                invocation ->
+                val observable = invocation.processingEnv.elementUtils
+                        .getTypeElement(rxTypeClassName.toString())
+                assertThat(observable, notNullValue())
+                assertThat(
+                    RxQueryResultBinderProvider.getAll(invocation.context).any {
+                        it.matches(MoreTypes.asDeclared(observable.asType()))
+                    }, `is`(true))
+            }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindInsertSingle() {
-        simpleRun(jfos = *arrayOf(COMMON.SINGLE)) {
-            invocation ->
-            val single = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.SINGLE.toString())
-            assertThat(single, notNullValue())
-            assertThat(
-                RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
-                    it.matches(MoreTypes.asDeclared(single.asType()))
-                }, `is`(true))
-        }.compilesWithoutError()
+        listOf(
+            Triple(COMMON.RX2_SINGLE, COMMON.RX2_ROOM, RxJava2TypeNames.SINGLE),
+            Triple(COMMON.RX3_SINGLE, COMMON.RX3_ROOM, RxJava3TypeNames.SINGLE)
+        ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
+            simpleRun(jfos = *arrayOf(rxTypeSrc)) {
+                invocation ->
+                val single = invocation.processingEnv.elementUtils
+                        .getTypeElement(rxTypeClassName.toString())
+                assertThat(single, notNullValue())
+                assertThat(
+                    RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
+                        it.matches(MoreTypes.asDeclared(single.asType()))
+                    }, `is`(true))
+            }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindInsertMaybe() {
-        simpleRun(jfos = *arrayOf(COMMON.MAYBE)) {
-            invocation ->
-            val maybe = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.MAYBE.toString())
-            assertThat(maybe, notNullValue())
-            assertThat(
-                RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
-                    it.matches(MoreTypes.asDeclared(maybe.asType()))
-                }, `is`(true))
-        }.compilesWithoutError()
+        listOf(
+            Triple(COMMON.RX2_MAYBE, COMMON.RX2_ROOM, RxJava2TypeNames.MAYBE),
+            Triple(COMMON.RX3_MAYBE, COMMON.RX3_ROOM, RxJava3TypeNames.MAYBE)
+        ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
+            simpleRun(jfos = *arrayOf(rxTypeSrc)) {
+                invocation ->
+                val maybe = invocation.processingEnv.elementUtils
+                        .getTypeElement(rxTypeClassName.toString())
+                assertThat(maybe, notNullValue())
+                assertThat(
+                    RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
+                        it.matches(MoreTypes.asDeclared(maybe.asType()))
+                    }, `is`(true))
+            }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindInsertCompletable() {
-        simpleRun(jfos = *arrayOf(COMMON.COMPLETABLE)) {
-            invocation ->
-            val completable = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.COMPLETABLE.toString())
-            assertThat(completable, notNullValue())
-            assertThat(
-                RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
-                    it.matches(MoreTypes.asDeclared(completable.asType()))
-                }, `is`(true))
-        }.compilesWithoutError()
+        listOf(
+            Triple(COMMON.RX2_COMPLETABLE, COMMON.RX2_ROOM, RxJava2TypeNames.COMPLETABLE),
+            Triple(COMMON.RX3_COMPLETABLE, COMMON.RX3_ROOM, RxJava3TypeNames.COMPLETABLE)
+        ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
+            simpleRun(jfos = *arrayOf(rxTypeSrc)) {
+                invocation ->
+                val completable = invocation.processingEnv.elementUtils
+                        .getTypeElement(rxTypeClassName.toString())
+                assertThat(completable, notNullValue())
+                assertThat(
+                    RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
+                        it.matches(MoreTypes.asDeclared(completable.asType()))
+                    }, `is`(true))
+            }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -342,7 +386,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindDeleteOrUpdateSingle() {
-        simpleRun(jfos = *arrayOf(COMMON.SINGLE)) {
+        simpleRun(jfos = *arrayOf(COMMON.RX2_SINGLE)) {
             invocation ->
             val single = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.SINGLE.toString())
@@ -356,7 +400,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindDeleteOrUpdateMaybe() {
-        simpleRun(jfos = *arrayOf(COMMON.MAYBE)) {
+        simpleRun(jfos = *arrayOf(COMMON.RX2_MAYBE)) {
             invocation ->
             val maybe = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.MAYBE.toString())
@@ -370,7 +414,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindDeleteOrUpdateCompletable() {
-        simpleRun(jfos = *arrayOf(COMMON.COMPLETABLE)) {
+        simpleRun(jfos = *arrayOf(COMMON.RX2_COMPLETABLE)) {
             invocation ->
             val completable = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.COMPLETABLE.toString())

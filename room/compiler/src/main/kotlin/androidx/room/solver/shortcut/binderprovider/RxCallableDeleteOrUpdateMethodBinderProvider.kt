@@ -17,7 +17,6 @@
 package androidx.room.solver.shortcut.binderprovider
 
 import androidx.room.ext.L
-import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.processor.Context
@@ -61,7 +60,10 @@ open class RxCallableDeleteOrUpdateMethodBinderProvider internal constructor(
         fun getAll(context: Context) = listOf(
             RxCallableDeleteOrUpdateMethodBinderProvider(context, RxType.RX2_SINGLE),
             RxCallableDeleteOrUpdateMethodBinderProvider(context, RxType.RX2_MAYBE),
-            RxCompletableDeleteOrUpdateMethodBinderProvider(context, RxType.RX2_COMPLETABLE)
+            RxCompletableDeleteOrUpdateMethodBinderProvider(context, RxType.RX2_COMPLETABLE),
+            RxCallableDeleteOrUpdateMethodBinderProvider(context, RxType.RX3_SINGLE),
+            RxCallableDeleteOrUpdateMethodBinderProvider(context, RxType.RX3_MAYBE),
+            RxCompletableDeleteOrUpdateMethodBinderProvider(context, RxType.RX3_COMPLETABLE)
         )
     }
 }
@@ -73,7 +75,7 @@ private class RxCompletableDeleteOrUpdateMethodBinderProvider(
 
     private val completableTypeMirror: TypeMirror? by lazy {
         context.processingEnv.elementUtils
-                .getTypeElement(RxJava2TypeNames.COMPLETABLE.toString())?.asType()
+                .getTypeElement(rxType.className.toString())?.asType()
     }
 
     /**

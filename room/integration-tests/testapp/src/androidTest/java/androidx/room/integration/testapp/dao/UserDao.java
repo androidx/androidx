@@ -52,8 +52,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
@@ -184,25 +182,46 @@ public abstract class UserDao {
     public abstract Cursor findUsersAsCursor(int... ids);
 
     @Query("select * from user where mId = :id")
-    public abstract Flowable<User> flowableUserById(int id);
+    public abstract io.reactivex.Flowable<User> rx2_flowableUserById(int id);
 
     @Query("select * from user where mId = :id")
-    public abstract Observable<User> observableUserById(int id);
+    public abstract io.reactivex.rxjava3.core.Flowable<User> rx3_flowableUserById(int id);
 
     @Query("select * from user where mId = :id")
-    public abstract Maybe<User> maybeUserById(int id);
+    public abstract io.reactivex.Observable<User> rx2_observableUserById(int id);
+
+    @Query("select * from user where mId = :id")
+    public abstract io.reactivex.rxjava3.core.Observable<User> rx3_observableUserById(int id);
+
+    @Query("select * from user where mId = :id")
+    public abstract io.reactivex.Maybe<User> rx2_maybeUserById(int id);
+
+    @Query("select * from user where mId = :id")
+    public abstract io.reactivex.rxjava3.core.Maybe<User> rx3_maybeUserById(int id);
 
     @Query("select * from user where mId IN (:ids)")
-    public abstract Maybe<List<User>> maybeUsersByIds(int... ids);
-
-    @Query("select * from user where mId = :id")
-    public abstract Single<User> singleUserById(int id);
+    public abstract io.reactivex.Maybe<List<User>> rx2_maybeUsersByIds(int... ids);
 
     @Query("select * from user where mId IN (:ids)")
-    public abstract Single<List<User>> singleUsersByIds(int... ids);
+    public abstract io.reactivex.rxjava3.core.Maybe<List<User>> rx3_maybeUsersByIds(int... ids);
+
+    @Query("select * from user where mId = :id")
+    public abstract io.reactivex.Single<User> rx2_singleUserById(int id);
+
+    @Query("select * from user where mId = :id")
+    public abstract io.reactivex.rxjava3.core.Single<User> rx3_singleUserById(int id);
+
+    @Query("select * from user where mId IN (:ids)")
+    public abstract io.reactivex.Single<List<User>> rx2_singleUsersByIds(int... ids);
+
+    @Query("select * from user where mId IN (:ids)")
+    public abstract io.reactivex.rxjava3.core.Single<List<User>> rx3_singleUsersByIds(int... ids);
 
     @Query("select COUNT(*) from user")
-    public abstract Flowable<Integer> flowableCountUsers();
+    public abstract io.reactivex.Flowable<Integer> rx2_flowableCountUsers();
+
+    @Query("select COUNT(*) from user")
+    public abstract io.reactivex.rxjava3.core.Flowable<Integer> rx3_flowableCountUsers();
 
     @Query("select COUNT(*) from user")
     public abstract Publisher<Integer> publisherCountUsers();

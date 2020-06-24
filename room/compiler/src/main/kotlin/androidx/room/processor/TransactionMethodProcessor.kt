@@ -19,6 +19,7 @@ package androidx.room.processor
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.RxJava2TypeNames
+import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.findKotlinDefaultImpl
 import androidx.room.ext.hasAnyOf
 import androidx.room.vo.TransactionMethod
@@ -85,6 +86,11 @@ class TransactionMethodProcessor(
             RxJava2TypeNames.MAYBE,
             RxJava2TypeNames.SINGLE,
             RxJava2TypeNames.COMPLETABLE,
+            RxJava3TypeNames.FLOWABLE,
+            RxJava3TypeNames.OBSERVABLE,
+            RxJava3TypeNames.MAYBE,
+            RxJava3TypeNames.SINGLE,
+            RxJava3TypeNames.COMPLETABLE,
             GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
     }
 }

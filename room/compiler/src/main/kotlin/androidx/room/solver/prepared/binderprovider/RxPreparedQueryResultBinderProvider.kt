@@ -17,7 +17,6 @@
 package androidx.room.solver.prepared.binderprovider
 
 import androidx.room.ext.L
-import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
@@ -65,7 +64,10 @@ open class RxPreparedQueryResultBinderProvider internal constructor(
         fun getAll(context: Context) = listOf(
             RxPreparedQueryResultBinderProvider(context, RxType.RX2_SINGLE),
             RxPreparedQueryResultBinderProvider(context, RxType.RX2_MAYBE),
-            RxCompletablePreparedQueryResultBinderProvider(context, RxType.RX2_COMPLETABLE)
+            RxCompletablePreparedQueryResultBinderProvider(context, RxType.RX2_COMPLETABLE),
+            RxPreparedQueryResultBinderProvider(context, RxType.RX3_SINGLE),
+            RxPreparedQueryResultBinderProvider(context, RxType.RX3_MAYBE),
+            RxCompletablePreparedQueryResultBinderProvider(context, RxType.RX3_COMPLETABLE)
         )
     }
 }
@@ -77,7 +79,7 @@ private class RxCompletablePreparedQueryResultBinderProvider(
 
     private val completableType: TypeMirror? by lazy {
         context.processingEnv.elementUtils
-            .getTypeElement(RxJava2TypeNames.COMPLETABLE.toString())?.asType()
+            .getTypeElement(rxType.className.toString())?.asType()
     }
 
     override fun matches(declared: DeclaredType): Boolean {
