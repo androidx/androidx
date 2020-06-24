@@ -845,6 +845,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 int nextIdx) throws RemoteException {
             mSessionImpl.getSessionCompat().setMetadata(item == null ? null
                     : MediaUtils.convertToMediaMetadataCompat(item.getMetadata()));
+            mSessionImpl.getSessionCompat().setPlaybackState(
+                    mSessionImpl.createPlaybackStateCompat());
         }
 
         @Override
