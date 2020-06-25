@@ -194,7 +194,7 @@ private fun AlertDialogButtonLayout(
     }
 }
 
-private val AlertDialogWidth = Modifier.preferredWidth(280.dp)
+private val AlertDialogWidth = Modifier.preferredWidth(312.dp)
 private val ButtonsBoxModifier = Modifier.fillMaxWidth().padding(all = 8.dp)
 private val ButtonsWidthSpace = Modifier.preferredWidth(8.dp)
 private val ButtonsHeightSpace = Modifier.preferredHeight(12.dp)
