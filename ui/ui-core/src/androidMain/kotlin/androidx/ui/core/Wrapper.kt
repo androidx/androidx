@@ -144,7 +144,7 @@ fun ComponentActivity.setContent(
         ?: AndroidOwner(this, this).also {
             setContentView(it.view, DefaultLayoutParams)
         }
-    return doSetContent(composeView, recomposer, content)
+    return doSetContent(composeView, recomposer, null, content)
 }
 
 /**
@@ -160,14 +160,20 @@ private inline fun WrapWithSelectionContainer(noinline content: @Composable () -
 /**
  * Composes the given composable into the given view.
  *
+ * The new composition can be logically "linked" to an existing one, by providing a non-null
+ * [parentComposition]. This will ensure that invalidations and ambients will flow through
+ * the two compositions as if they were not separate.
+ *
  * Note that this [ViewGroup] should have an unique id for the saved instance state mechanism to
  * be able to save and restore the values used within the composition. See [View.setId].
  *
- * @param recomposer The [Recomposer] to coordinate scheduling of composition updates
+ * @param recomposer The [Recomposer] to coordinate scheduling of composition updates.
+ * @param parentComposition The parent composition reference, if applicable.
  * @param content Composable that will be the content of the view.
  */
 fun ViewGroup.setContent(
     recomposer: Recomposer,
+    parentComposition: CompositionReference? = null,
     content: @Composable () -> Unit
 ): Composition {
     FrameManager.ensureStarted()
@@ -176,9 +182,8 @@ fun ViewGroup.setContent(
             getChildAt(0) as? AndroidOwner
         } else {
             removeAllViews(); null
-        }
-            ?: AndroidOwner(context).also { addView(it.view, DefaultLayoutParams) }
-    return doSetContent(composeView, recomposer, content)
+        } ?: AndroidOwner(context).also { addView(it.view, DefaultLayoutParams) }
+    return doSetContent(composeView, recomposer, parentComposition, content)
 }
 
 /**
@@ -198,11 +203,12 @@ fun ViewGroup.setContent(
 )
 fun ViewGroup.setContent(
     content: @Composable () -> Unit
-): Composition = setContent(Recomposer.current(), content)
+): Composition = setContent(recomposer = Recomposer.current(), content = content)
 
 private fun doSetContent(
     owner: AndroidOwner,
     recomposer: Recomposer,
+    parentComposition: CompositionReference?,
     content: @Composable () -> Unit
 ): Composition {
     if (inspectionWanted(owner)) {
@@ -210,7 +216,7 @@ private fun doSetContent(
                 Collections.newSetFromMap(WeakHashMap<SlotTable, Boolean>()))
     }
     @OptIn(ExperimentalComposeApi::class)
-    val original = compositionFor(owner.root, UiApplier(owner.root), recomposer)
+    val original = compositionFor(owner.root, UiApplier(owner.root), recomposer, parentComposition)
     val wrapped = owner.view.getTag(R.id.wrapped_composition_tag)
             as? WrappedComposition
         ?: WrappedComposition(owner, original).also {

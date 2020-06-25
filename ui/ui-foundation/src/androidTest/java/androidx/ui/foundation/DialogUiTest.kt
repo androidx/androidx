@@ -15,6 +15,8 @@
  */
 package androidx.ui.foundation
 
+import androidx.compose.Providers
+import androidx.compose.ambientOf
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
@@ -24,6 +26,8 @@ import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByText
+import androidx.ui.test.runOnIdleCompose
+import org.junit.Assert.assertEquals
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -174,5 +178,21 @@ class DialogUiTest {
 
         // The Dialog should still be visible
         findByText(defaultText).assertIsDisplayed()
+    }
+
+    @Test
+    fun dialog_preservesAmbients() {
+        val ambient = ambientOf<Float>()
+        var value = 0f
+        composeTestRule.setContent {
+            Providers(ambient provides 1f) {
+                Dialog(onCloseRequest = {}) {
+                    value = ambient.current
+                }
+            }
+        }
+        runOnIdleCompose {
+            assertEquals(1f, value)
+        }
     }
 }
