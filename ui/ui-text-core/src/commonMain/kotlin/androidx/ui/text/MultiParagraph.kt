@@ -20,7 +20,7 @@ import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Path
 import androidx.ui.text.font.Font
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import androidx.ui.unit.Density
 import androidx.ui.geometry.Offset
 import androidx.ui.util.fastForEach
@@ -352,7 +352,7 @@ class MultiParagraph(
     /**
      * Get the text direction of the paragraph containing the given offset.
      */
-    fun getParagraphDirection(offset: Int): TextDirection {
+    fun getParagraphDirection(offset: Int): ResolvedTextDirection {
         requireIndexInRangeInclusiveEnd(offset)
 
         val paragraphIndex = if (offset == annotatedString.length) {
@@ -369,7 +369,7 @@ class MultiParagraph(
     /**
      * Get the text direction of the character at the given offset.
      */
-    fun getBidiRunDirection(offset: Int): TextDirection {
+    fun getBidiRunDirection(offset: Int): ResolvedTextDirection {
         requireIndexInRangeInclusiveEnd(offset)
 
         val paragraphIndex = if (offset == annotatedString.length) {

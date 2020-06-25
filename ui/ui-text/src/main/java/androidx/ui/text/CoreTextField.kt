@@ -53,7 +53,7 @@ import androidx.ui.input.NO_SESSION
 import androidx.ui.input.VisualTransformation
 import androidx.ui.semantics.onClick
 import androidx.ui.text.selection.TextFieldSelectionManager
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import kotlin.math.roundToInt
 
 @Suppress("DEPRECATION")
@@ -386,10 +386,10 @@ internal class TextFieldState(
      * screen changes selection instead of moving the cursor.
      */
     var selectionIsOn: Boolean = false
-    /** The [TextDirection] for the start of the selection. */
-    var selectionStartDirection: TextDirection = TextDirection.Ltr
-    /** The [TextDirection] for the end of the selection. */
-    var selectionEndDirection: TextDirection = TextDirection.Ltr
+    /** The [ResolvedTextDirection] for the start of the selection. */
+    var selectionStartDirection: ResolvedTextDirection = ResolvedTextDirection.Ltr
+    /** The [ResolvedTextDirection] for the end of the selection. */
+    var selectionEndDirection: ResolvedTextDirection = ResolvedTextDirection.Ltr
 }
 
 private fun chainedFocusModifier(modifier: Modifier): FocusModifier? {

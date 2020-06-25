@@ -357,7 +357,7 @@ package androidx.ui.text {
   public final class MultiParagraph {
     ctor public MultiParagraph(androidx.ui.text.MultiParagraphIntrinsics intrinsics, int maxLines, boolean ellipsis, androidx.ui.text.ParagraphConstraints constraints);
     ctor public MultiParagraph(androidx.ui.text.AnnotatedString annotatedString, androidx.ui.text.TextStyle style, java.util.List<androidx.ui.text.AnnotatedString.Range<androidx.ui.text.Placeholder>> placeholders, int maxLines, boolean ellipsis, androidx.ui.text.ParagraphConstraints constraints, androidx.ui.unit.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
-    method public androidx.ui.text.style.TextDirection getBidiRunDirection(int offset);
+    method public androidx.ui.text.style.ResolvedTextDirection getBidiRunDirection(int offset);
     method public androidx.ui.geometry.Rect getBoundingBox(int offset);
     method public androidx.ui.geometry.Rect getCursorRect(int offset);
     method public boolean getDidExceedMaxLines();
@@ -382,7 +382,7 @@ package androidx.ui.text {
     method public int getMaxLines();
     method public float getMinIntrinsicWidth();
     method public int getOffsetForPosition(androidx.ui.geometry.Offset position);
-    method public androidx.ui.text.style.TextDirection getParagraphDirection(int offset);
+    method public androidx.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.ui.geometry.Rect> getPlaceholderRects();
     method public float getWidth();
@@ -416,7 +416,7 @@ package androidx.ui.text {
   }
 
   public interface Paragraph {
-    method public androidx.ui.text.style.TextDirection getBidiRunDirection(int offset);
+    method public androidx.ui.text.style.ResolvedTextDirection getBidiRunDirection(int offset);
     method public androidx.ui.geometry.Rect getBoundingBox(int offset);
     method public androidx.ui.geometry.Rect getCursorRect(int offset);
     method public boolean getDidExceedMaxLines();
@@ -439,7 +439,7 @@ package androidx.ui.text {
     method public float getMaxIntrinsicWidth();
     method public float getMinIntrinsicWidth();
     method public int getOffsetForPosition(androidx.ui.geometry.Offset position);
-    method public androidx.ui.text.style.TextDirection getParagraphDirection(int offset);
+    method public androidx.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.ui.geometry.Rect> getPlaceholderRects();
     method public float getWidth();
@@ -607,7 +607,7 @@ package androidx.ui.text {
     method public androidx.ui.text.TextLayoutInput component1();
     method public androidx.ui.unit.IntSize component3();
     method public androidx.ui.text.TextLayoutResult copy(androidx.ui.text.TextLayoutInput layoutInput, androidx.ui.text.MultiParagraph multiParagraph, androidx.ui.unit.IntSize size);
-    method public androidx.ui.text.style.TextDirection getBidiRunDirection(int offset);
+    method public androidx.ui.text.style.ResolvedTextDirection getBidiRunDirection(int offset);
     method public androidx.ui.geometry.Rect getBoundingBox(int offset);
     method public androidx.ui.geometry.Rect getCursorRect(int offset);
     method public boolean getDidOverflowHeight();
@@ -623,7 +623,7 @@ package androidx.ui.text {
     method public int getLineStart(int lineIndex);
     method public float getLineTop(int lineIndex);
     method public int getOffsetForPosition(androidx.ui.geometry.Offset position);
-    method public androidx.ui.text.style.TextDirection getParagraphDirection(int offset);
+    method public androidx.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.ui.geometry.Rect> getPlaceholderRects();
     method public androidx.ui.unit.IntSize getSize();
@@ -948,6 +948,13 @@ package androidx.ui.text.style {
     method @androidx.compose.Stable public static float lerp-7csQwvo(float start, float stop, float fraction);
   }
 
+  public enum ResolvedTextDirection {
+    method public static androidx.ui.text.style.ResolvedTextDirection valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.text.style.ResolvedTextDirection[] values();
+    enum_constant public static final androidx.ui.text.style.ResolvedTextDirection Ltr;
+    enum_constant public static final androidx.ui.text.style.ResolvedTextDirection Rtl;
+  }
+
   public enum TextAlign {
     method public static androidx.ui.text.style.TextAlign valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.ui.text.style.TextAlign[] values();
@@ -975,13 +982,6 @@ package androidx.ui.text.style {
     property public final androidx.ui.text.style.TextDecoration LineThrough;
     property public final androidx.ui.text.style.TextDecoration None;
     property public final androidx.ui.text.style.TextDecoration Underline;
-  }
-
-  public enum TextDirection {
-    method public static androidx.ui.text.style.TextDirection valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.ui.text.style.TextDirection[] values();
-    enum_constant public static final androidx.ui.text.style.TextDirection Ltr;
-    enum_constant public static final androidx.ui.text.style.TextDirection Rtl;
   }
 
   public enum TextDirectionAlgorithm {

@@ -43,7 +43,7 @@ import androidx.ui.text.platform.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
 import androidx.ui.text.platform.selection.WordBoundary
 import androidx.ui.text.platform.style.PlaceholderSpan
 import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import androidx.ui.unit.Density
 import androidx.ui.geometry.Offset
 import androidx.ui.util.annotation.VisibleForTesting
@@ -167,9 +167,9 @@ internal class AndroidParagraph constructor(
                 val direction = getBidiRunDirection(start)
 
                 val left = when (direction) {
-                    TextDirection.Ltr ->
+                    ResolvedTextDirection.Ltr ->
                         getHorizontalPosition(start, true)
-                    TextDirection.Rtl ->
+                    ResolvedTextDirection.Rtl ->
                         getHorizontalPosition(start, true) - span.widthPx
                 }
                 val right = left + span.widthPx
@@ -295,14 +295,17 @@ internal class AndroidParagraph constructor(
             layout.getSecondaryHorizontal(offset)
         }
 
-    override fun getParagraphDirection(offset: Int): TextDirection {
+    override fun getParagraphDirection(offset: Int): ResolvedTextDirection {
         val lineIndex = layout.getLineForOffset(offset)
         val direction = layout.getParagraphDirection(lineIndex)
-        return if (direction == 1) TextDirection.Ltr else TextDirection.Rtl
+        return if (direction == 1) ResolvedTextDirection.Ltr else ResolvedTextDirection.Rtl
     }
 
-    override fun getBidiRunDirection(offset: Int): TextDirection {
-        return if (layout.isRtlCharAt(offset)) TextDirection.Rtl else TextDirection.Ltr
+    override fun getBidiRunDirection(offset: Int): ResolvedTextDirection {
+        return if (layout.isRtlCharAt(offset))
+            ResolvedTextDirection.Rtl
+        else
+            ResolvedTextDirection.Ltr
     }
 
     /**
@@ -338,7 +341,8 @@ private fun toLayoutAlign(align: TextAlign?): Int = when (align) {
     else -> DEFAULT_ALIGNMENT
 }
 
-// TODO(b/159152328): temporary workaround for ui-desktop. remove when full support of MPP will be in-place
+// TODO(b/159152328): temporary workaround for ui-desktop. remove when full support of MPP will
+//  be in-place
 @Deprecated(
     "Temporary workaround. Supposed to be used only in ui-desktop before MPP",
     level = DeprecationLevel.ERROR

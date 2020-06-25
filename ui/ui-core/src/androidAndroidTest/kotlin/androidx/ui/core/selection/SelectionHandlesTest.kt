@@ -27,7 +27,7 @@ import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.text.InternalTextApi
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
@@ -53,12 +53,12 @@ class SelectionHandlesTest {
 
     private val selectionLtrHandleDirection = Selection(
         start = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = 0,
             selectable = mock()
         ),
         end = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = 0,
             selectable = mock()
         ),
@@ -66,12 +66,12 @@ class SelectionHandlesTest {
     )
     private val selectionRtlHandleDirection = Selection(
         start = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = 0,
             selectable = mock()
         ),
         end = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = 0,
             selectable = mock()
         ),
@@ -182,24 +182,29 @@ class SelectionHandlesTest {
 
     @Test
     fun isHandleLtrDirection_ltr_handles_not_cross_return_true() {
-        assertThat(isHandleLtrDirection(direction = TextDirection.Ltr, areHandlesCrossed = false))
-            .isTrue()
+        assertThat(
+            isHandleLtrDirection(direction = ResolvedTextDirection.Ltr, areHandlesCrossed = false)
+        ).isTrue()
     }
 
     @Test
     fun isHandleLtrDirection_ltr_handles_cross_return_false() {
-        assertThat(isHandleLtrDirection(direction = TextDirection.Ltr, areHandlesCrossed = true))
-            .isFalse()
+        assertThat(
+            isHandleLtrDirection(direction = ResolvedTextDirection.Ltr, areHandlesCrossed = true)
+        ).isFalse()
     }
 
     @Test
     fun isHandleLtrDirection_rtl_handles_not_cross_return_false() {
-        assertThat(isHandleLtrDirection(direction = TextDirection.Rtl, areHandlesCrossed = false))
-            .isFalse()
+        assertThat(
+            isHandleLtrDirection(direction = ResolvedTextDirection.Rtl, areHandlesCrossed = false)
+        ).isFalse()
     }
 
     @Test
     fun isHandleLtrDirection_rtl_handles_cross_return_true() {
-        assertThat(isHandleLtrDirection(direction = TextDirection.Rtl, areHandlesCrossed = true))
+        assertThat(
+            isHandleLtrDirection(direction = ResolvedTextDirection.Rtl, areHandlesCrossed = true)
+        ).isTrue()
     }
 }

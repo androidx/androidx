@@ -21,7 +21,7 @@ import androidx.compose.frames.inFrame
 import androidx.compose.frames.open
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -50,12 +50,12 @@ class SelectionManagerLongPressDragTest {
 
     private val fakeInitialSelection: Selection = Selection(
         start = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = 0,
             selectable = startSelectable
         ),
         end = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = 5,
             selectable = endSelectable
         )
@@ -63,12 +63,12 @@ class SelectionManagerLongPressDragTest {
 
     private val fakeResultSelection: Selection = Selection(
         start = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = 5,
             selectable = endSelectable
         ),
         end = Selection.AnchorInfo(
-            direction = TextDirection.Ltr,
+            direction = ResolvedTextDirection.Ltr,
             offset = 0,
             selectable = startSelectable
         )

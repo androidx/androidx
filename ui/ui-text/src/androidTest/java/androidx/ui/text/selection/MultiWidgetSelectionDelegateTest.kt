@@ -40,7 +40,7 @@ import androidx.ui.text.font.ResourceFont
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.font.font
 import androidx.ui.text.font.test.R
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import androidx.ui.unit.Density
 import androidx.ui.geometry.Offset
 import androidx.ui.text.InternalTextApi
@@ -105,12 +105,12 @@ class MultiWidgetSelectionDelegateTest {
 
                 val selection = Selection(
                     start = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
                         selectable = selectableInvalid
                     ),
                     end = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
                         selectable = selectableInvalid
                     ),
@@ -162,12 +162,12 @@ class MultiWidgetSelectionDelegateTest {
 
                 val selection = Selection(
                     start = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
                         selectable = selectableInvalid
                     ),
                     end = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
                         selectable = selectableInvalid
                     ),
@@ -214,12 +214,12 @@ class MultiWidgetSelectionDelegateTest {
 
                 val selection = Selection(
                     start = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
                         selectable = selectable
                     ),
                     end = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
                         selectable = selectable
                     ),
@@ -268,12 +268,12 @@ class MultiWidgetSelectionDelegateTest {
 
                 val selection = Selection(
                     start = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
                         selectable = selectable
                     ),
                     end = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
                         selectable = selectable
                     ),
@@ -322,12 +322,12 @@ class MultiWidgetSelectionDelegateTest {
 
                 val selection = Selection(
                     start = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
                         selectable = selectable
                     ),
                     end = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
                         selectable = selectable
                     ),
@@ -376,12 +376,12 @@ class MultiWidgetSelectionDelegateTest {
 
                 val selection = Selection(
                     start = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
                         selectable = selectable
                     ),
                     end = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
                         selectable = selectable
                     ),
@@ -432,12 +432,12 @@ class MultiWidgetSelectionDelegateTest {
 
                 val selection = Selection(
                     start = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
                         selectable = selectable
                     ),
                     end = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
                         selectable = selectable
                     ),
@@ -488,12 +488,12 @@ class MultiWidgetSelectionDelegateTest {
 
                 val selection = Selection(
                     start = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
                         selectable = selectable
                     ),
                     end = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
                         selectable = selectable
                     ),
@@ -542,12 +542,12 @@ class MultiWidgetSelectionDelegateTest {
 
                 val selection = Selection(
                     start = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
                         selectable = selectable
                     ),
                     end = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
                         selectable = selectable
                     ),
@@ -596,12 +596,12 @@ class MultiWidgetSelectionDelegateTest {
 
                 val selection = Selection(
                     start = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
                         selectable = selectable
                     ),
                     end = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
                         selectable = selectable
                     ),
@@ -650,12 +650,12 @@ class MultiWidgetSelectionDelegateTest {
 
                 val selection = Selection(
                     start = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
                         selectable = selectable
                     ),
                     end = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
                         selectable = selectable
                     ),
@@ -704,12 +704,12 @@ class MultiWidgetSelectionDelegateTest {
 
                 val selection = Selection(
                     start = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
                         selectable = selectable
                     ),
                     end = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
                         selectable = selectable
                     ),
@@ -760,12 +760,12 @@ class MultiWidgetSelectionDelegateTest {
 
                 val selection = Selection(
                     start = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
                         selectable = selectable
                     ),
                     end = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
                         selectable = selectable
                     ),
@@ -816,12 +816,12 @@ class MultiWidgetSelectionDelegateTest {
 
                 val selection = Selection(
                     start = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
                         selectable = selectable
                     ),
                     end = Selection.AnchorInfo(
-                        direction = TextDirection.Ltr,
+                        direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
                         selectable = selectable
                     ),
@@ -1027,13 +1027,13 @@ class MultiWidgetSelectionDelegateTest {
 
         assertThat(textSelectionInfo?.start).isNotNull()
         textSelectionInfo?.start?.let {
-            assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+            assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
             assertThat(it.offset).isEqualTo(0)
         }
 
         assertThat(textSelectionInfo?.end).isNotNull()
         textSelectionInfo?.end?.let {
-            assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+            assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
             assertThat(it.offset).isEqualTo("hello".length)
         }
     }
@@ -1066,13 +1066,13 @@ class MultiWidgetSelectionDelegateTest {
 
         assertThat(textSelectionInfo?.start).isNotNull()
         textSelectionInfo?.start?.let {
-            assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+            assertThat(it.direction).isEqualTo(ResolvedTextDirection.Rtl)
             assertThat(it.offset).isEqualTo(text.indexOf("\u05D3"))
         }
 
         assertThat(textSelectionInfo?.end).isNotNull()
         textSelectionInfo?.end?.let {
-            assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+            assertThat(it.direction).isEqualTo(ResolvedTextDirection.Rtl)
             assertThat(it.offset).isEqualTo(text.indexOf("\u05D5") + 1)
         }
     }
@@ -1107,13 +1107,13 @@ class MultiWidgetSelectionDelegateTest {
 
         assertThat(textSelectionInfo?.start).isNotNull()
         textSelectionInfo?.start?.let {
-            assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+            assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
             assertThat(it.offset).isEqualTo(0)
         }
 
         assertThat(textSelectionInfo?.end).isNotNull()
         textSelectionInfo?.end?.let {
-            assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+            assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
             assertThat(it.offset).isEqualTo(text.length)
         }
         assertThat(textSelectionInfo?.handlesCrossed).isFalse()
@@ -1150,13 +1150,13 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(text.length)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(0)
             }
             assertThat(textSelectionInfo?.handlesCrossed).isTrue()
@@ -1195,13 +1195,13 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(endOffset)
             }
         }
@@ -1245,13 +1245,13 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Rtl)
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Rtl)
                 assertThat(it.offset).isEqualTo(endOffset)
             }
         }
@@ -1297,13 +1297,13 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Rtl)
                 assertThat(it.offset).isEqualTo(endOffset)
             }
         }
@@ -1337,13 +1337,13 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(endOffset)
             }
             assertThat(textSelectionInfo?.handlesCrossed).isTrue()
@@ -1385,13 +1385,13 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Rtl)
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Rtl)
                 assertThat(it.offset).isEqualTo(endOffset)
             }
             assertThat(textSelectionInfo?.handlesCrossed).isTrue()
@@ -1435,13 +1435,13 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Rtl)
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(endOffset)
             }
             assertThat(textSelectionInfo?.handlesCrossed).isTrue()
@@ -1466,12 +1466,12 @@ class MultiWidgetSelectionDelegateTest {
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
                     offset = oldStartOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
                     offset = oldEndOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 handlesCrossed = false
@@ -1496,7 +1496,7 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(oldStartOffset - 1)
             }
 
@@ -1522,12 +1522,12 @@ class MultiWidgetSelectionDelegateTest {
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
                     offset = oldStartOffset,
-                    direction = TextDirection.Rtl,
+                    direction = ResolvedTextDirection.Rtl,
                     selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
                     offset = oldEndOffset,
-                    direction = TextDirection.Rtl,
+                    direction = ResolvedTextDirection.Rtl,
                     selectable = selectable
                 ),
                 handlesCrossed = false
@@ -1558,7 +1558,7 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Rtl)
                 assertThat(it.offset).isEqualTo(oldStartOffset - 1)
             }
 
@@ -1584,12 +1584,12 @@ class MultiWidgetSelectionDelegateTest {
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
                     offset = oldStartOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
                     offset = oldEndOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 handlesCrossed = false
@@ -1613,7 +1613,7 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo((oldEndOffset + 1))
             }
 
@@ -1641,12 +1641,12 @@ class MultiWidgetSelectionDelegateTest {
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
                     offset = oldStartOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
                     offset = oldEndOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 handlesCrossed = true
@@ -1670,7 +1670,7 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo((oldEndOffset - 1))
             }
 
@@ -1698,12 +1698,12 @@ class MultiWidgetSelectionDelegateTest {
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
                     offset = oldStartOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
                     offset = oldEndOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 handlesCrossed = false
@@ -1745,12 +1745,12 @@ class MultiWidgetSelectionDelegateTest {
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
                     offset = oldStartOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
                     offset = oldEndOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 handlesCrossed = true
@@ -1792,12 +1792,12 @@ class MultiWidgetSelectionDelegateTest {
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
                     offset = oldStartOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
                     offset = oldEndOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 handlesCrossed = false
@@ -1841,12 +1841,12 @@ class MultiWidgetSelectionDelegateTest {
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
                     offset = oldStartOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
                     offset = oldEndOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 handlesCrossed = true
@@ -1888,12 +1888,12 @@ class MultiWidgetSelectionDelegateTest {
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
                     offset = oldStartOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
                     offset = oldEndOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 handlesCrossed = true
@@ -1919,7 +1919,7 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo((oldStartOffset + 1))
             }
 
@@ -1945,12 +1945,12 @@ class MultiWidgetSelectionDelegateTest {
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
                     offset = oldStartOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
                     offset = oldEndOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 handlesCrossed = false
@@ -1992,12 +1992,12 @@ class MultiWidgetSelectionDelegateTest {
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
                     offset = oldStartOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
                     offset = oldEndOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 handlesCrossed = true
@@ -2039,12 +2039,12 @@ class MultiWidgetSelectionDelegateTest {
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
                     offset = oldStartOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
                     offset = oldEndOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 handlesCrossed = false
@@ -2088,12 +2088,12 @@ class MultiWidgetSelectionDelegateTest {
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
                     offset = oldStartOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
                     offset = oldEndOffset,
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     selectable = selectable
                 ),
                 handlesCrossed = true
@@ -2147,13 +2147,13 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(0)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(endOffset)
             }
         }
@@ -2188,13 +2188,13 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(text.length)
             }
         }
@@ -2229,13 +2229,13 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(text.length)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(endOffset)
             }
             assertThat(textSelectionInfo?.handlesCrossed).isTrue()
@@ -2271,13 +2271,13 @@ class MultiWidgetSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.direction).isEqualTo(ResolvedTextDirection.Ltr)
                 assertThat(it.offset).isEqualTo(0)
             }
             assertThat(textSelectionInfo?.handlesCrossed).isTrue()

@@ -40,18 +40,18 @@ enum class TextAlign {
     /**
      * Align the text on the leading edge of the container.
      *
-     * For Left to Right text ([TextDirection.Ltr]), this is the left edge.
+     * For Left to Right text ([ResolvedTextDirection.Ltr]), this is the left edge.
      *
-     * For Right to Left text ([TextDirection.Rtl]), like Arabic, this is the right edge.
+     * For Right to Left text ([ResolvedTextDirection.Rtl]), like Arabic, this is the right edge.
      */
     Start,
 
     /**
      * Align the text on the trailing edge of the container.
      *
-     * For Left to Right text text ([TextDirection.Ltr]), this is the right edge.
+     * For Left to Right text ([ResolvedTextDirection.Ltr]), this is the right edge.
      *
-     * For Right to Left text ([TextDirection.Rtl]), like Arabic, this is the left edge.
+     * For Right to Left text ([ResolvedTextDirection.Rtl]), like Arabic, this is the left edge.
      */
     End
 }
