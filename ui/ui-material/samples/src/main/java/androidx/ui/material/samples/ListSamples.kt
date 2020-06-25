@@ -24,6 +24,8 @@ import androidx.compose.state
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.contentColor
+import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.layout.Column
@@ -40,17 +42,33 @@ fun OneLineListItems(
     vectorIcon: VectorAsset
 ) {
     Column {
-        ListItem(text = "One line list item with no icon")
+        ListItem(text = { Text("One line list item with no icon") })
         Divider()
-        ListItem(text = "פריט ברשימה אחת עם תמונה.", icon = icon24x24)
+        ListItem(
+            text = { Text("פריט ברשימה אחת עם תמונה.") },
+            icon = { Image(icon24x24, colorFilter = ColorFilter.tint(contentColor())) }
+        )
         Divider()
-        ListItem(text = "One line list item with 24x24 icon", icon = icon24x24)
+        ListItem(
+            text = { Text("One line list item with 24x24 icon") },
+            icon = { Image(icon24x24, colorFilter = ColorFilter.tint(contentColor())) }
+        )
         Divider()
-        ListItem(text = "One line list item with 40x40 icon", icon = icon40x40)
+        ListItem(
+            text = { Text("One line list item with 40x40 icon") },
+            icon = { Image(icon40x40, colorFilter = ColorFilter.tint(contentColor())) }
+        )
         Divider()
-        ListItem(text = "One line list item with 56x56 icon", icon = icon56x56)
+        ListItem(
+            text = { Text("One line list item with 56x56 icon") },
+            icon = { Image(icon56x56, colorFilter = ColorFilter.tint(contentColor())) }
+        )
         Divider()
-        ListItem(text = "One line clickable list item", icon = icon56x56, onClick = {})
+        ListItem(
+            text = { Text("One line clickable list item") },
+            icon = { Image(icon56x56, colorFilter = ColorFilter.tint(contentColor())) },
+            onClick = {}
+        )
         Divider()
         ListItem(
             text = { Text("One line list item with trailing icon") },
@@ -59,7 +77,7 @@ fun OneLineListItems(
         Divider()
         ListItem(
             text = { Text("One line list item") },
-            icon = { Image(icon40x40) },
+            icon = { Image(icon40x40, colorFilter = ColorFilter.tint(contentColor())) },
             trailing = { Icon(vectorIcon) }
         )
         Divider()
@@ -71,34 +89,40 @@ fun OneLineListItems(
 // TODO(popam, b/159689286): material icons instead of ImageAsset when they can have custom sizes
 fun TwoLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset) {
     Column {
-        ListItem(text = "Two line list item", secondaryText = "Secondary text")
-        Divider()
-        ListItem(text = "Two line list item", overlineText = "OVERLINE")
-        Divider()
         ListItem(
-            text = "Two line list item with 24x24 icon",
-            secondaryText = "Secondary text",
-            icon = icon24x24
+            text = { Text("Two line list item") },
+            secondaryText = { Text("Secondary text") }
         )
         Divider()
         ListItem(
-            text = "Two line list item with 40x40 icon",
-            secondaryText = "Secondary text",
-            icon = icon40x40
+            text = { Text("Two line list item") },
+            overlineText = { Text("OVERLINE") }
         )
         Divider()
         ListItem(
-            text = "Two line list item with 40x40 icon",
-            secondaryText = "Secondary text",
-            metaText = "meta",
-            icon = icon40x40
+            text = { Text("Two line list item with 24x24 icon") },
+            secondaryText = { Text("Secondary text") },
+            icon = { Image(icon24x24, colorFilter = ColorFilter.tint(contentColor())) }
+        )
+        Divider()
+        ListItem(
+            text = { Text("Two line list item with 40x40 icon") },
+            secondaryText = { Text("Secondary text") },
+            icon = { Image(icon40x40, colorFilter = ColorFilter.tint(contentColor())) }
+        )
+        Divider()
+        ListItem(
+            text = { Text("Two line list item with 40x40 icon") },
+            secondaryText = { Text("Secondary text") },
+            trailing = { Text("meta") },
+            icon = { Image(icon40x40, colorFilter = ColorFilter.tint(contentColor())) }
         )
         Divider()
         var checked by state { false }
         ListItem(
             text = { Text("Two line list item") },
             secondaryText = { Text("Secondary text") },
-            icon = { Image(icon40x40) },
+            icon = { Image(icon40x40, colorFilter = ColorFilter.tint(contentColor())) },
             trailing = {
                 Checkbox(checked, onCheckedChange = { checked = !checked })
             }
@@ -112,40 +136,52 @@ fun TwoLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset) {
 fun ThreeLineListItems(icon24x24: ImageAsset, vectorIcon: VectorAsset) {
     Column {
         ListItem(
-            text = "Three line list item",
-            secondaryText = "This is a long secondary text for the current list item, displayed" +
-                    " on two lines",
+            text = { Text("Three line list item") },
+            secondaryText = {
+                Text(
+                    "This is a long secondary text for the current list item, " +
+                            "displayed on two lines"
+                )
+            },
             singleLineSecondaryText = false,
-            metaText = "meta"
+            trailing = { Text("meta") }
         )
         Divider()
         ListItem(
-            text = "Three line list item",
-            overlineText = "OVERLINE",
-            secondaryText = "Secondary text"
+            text = { Text("Three line list item") },
+            overlineText = { Text("OVERLINE") },
+            secondaryText = { Text("Secondary text") }
         )
         Divider()
         ListItem(
-            text = "Three line list item with 24x24 icon",
-            secondaryText = "This is a long secondary text for the current list item, displayed" +
-                    " on two lines",
+            text = { Text("Three line list item with 24x24 icon") },
+            secondaryText = {
+                Text(
+                    "This is a long secondary text for the current list item " +
+                            "displayed on two lines"
+                )
+            },
             singleLineSecondaryText = false,
-            icon = icon24x24
+            icon = { Image(icon24x24, colorFilter = ColorFilter.tint(contentColor())) }
         )
         Divider()
         ListItem(
             text = { Text("Three line list item with trailing icon") },
-            secondaryText = { Text("This is a long secondary text for the current list" +
-                " item, displayed on two lines") },
+            secondaryText = {
+                Text(
+                    "This is a long secondary text for the current list" +
+                            " item, displayed on two lines"
+                )
+            },
             singleLineSecondaryText = false,
             trailing = { Icon(vectorIcon) }
         )
         Divider()
         ListItem(
-            text = "Three line list item",
-            overlineText = "OVERLINE",
-            secondaryText = "Secondary text",
-            metaText = "meta"
+            text = { Text("Three line list item") },
+            overlineText = { Text("OVERLINE") },
+            secondaryText = { Text("Secondary text") },
+            trailing = { Text("meta") }
         )
         Divider()
     }
