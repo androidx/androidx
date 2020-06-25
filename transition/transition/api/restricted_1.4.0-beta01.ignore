@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.transition.FragmentTransitionSupport#setListenerForTransitionEnd(Fragment, Object, androidx.core.os.CancellationSignal, Runnable):
+    Removed method androidx.transition.FragmentTransitionSupport.setListenerForTransitionEnd(Fragment,Object,androidx.core.os.CancellationSignal,Runnable)
