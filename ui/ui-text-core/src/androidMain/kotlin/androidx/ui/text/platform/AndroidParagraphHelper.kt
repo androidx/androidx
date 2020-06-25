@@ -18,9 +18,9 @@ package androidx.ui.text.platform
 
 import android.graphics.Typeface
 import android.os.Build
+import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
-import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
@@ -30,23 +30,19 @@ import android.text.style.RelativeSizeSpan
 import android.text.style.ScaleXSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
-import androidx.annotation.RequiresApi
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Shadow
 import androidx.ui.graphics.isSet
 import androidx.ui.graphics.toArgb
-import androidx.ui.intl.AndroidLocale
 import androidx.ui.intl.Locale
-import androidx.ui.intl.LocaleList
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Placeholder
 import androidx.ui.text.PlaceholderVerticalAlign
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.font.FontFamily
-import androidx.ui.text.font.FontListFontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.platform.extensions.toAndroidLocaleList
+import androidx.ui.text.platform.extensions.toJavaLocale
 import androidx.ui.text.platform.style.BaselineShiftSpan
 import androidx.ui.text.platform.style.FontFeatureSpan
 import androidx.ui.text.platform.style.FontSpan
@@ -57,10 +53,7 @@ import androidx.ui.text.platform.style.LineHeightSpan
 import androidx.ui.text.platform.style.PlaceholderSpan
 import androidx.ui.text.platform.style.ShadowSpan
 import androidx.ui.text.platform.style.SkewXSpan
-import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
-import androidx.ui.text.style.TextDirection
-import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.Density
 import androidx.ui.unit.TextUnit
@@ -69,110 +62,6 @@ import androidx.ui.unit.sp
 import androidx.ui.util.fastForEach
 import kotlin.math.ceil
 import kotlin.math.roundToInt
-import android.os.LocaleList as AndroidLocaleList
-import java.util.Locale as JavaLocale
-
-internal fun TextPaint.applySpanStyle(
-    style: SpanStyle,
-    typefaceAdapter: TypefaceAdapter,
-    density: Density
-): SpanStyle {
-    when (style.fontSize.type) {
-        TextUnitType.Sp -> with(density) {
-            textSize = style.fontSize.toPx()
-        }
-        TextUnitType.Em -> {
-            textSize *= style.fontSize.value
-        }
-        TextUnitType.Inherit -> {} // Do nothing
-    }
-
-    if (style.hasFontAttributes()) {
-        typeface = createTypeface(style, typefaceAdapter)
-    }
-
-    if (style.localeList != null && style.localeList != LocaleList.current) {
-        if (Build.VERSION.SDK_INT >= 24) {
-            textLocales = style.localeList.toAndroidLocaleList()
-        } else {
-            val locale = if (style.localeList.isEmpty()) {
-                Locale.current
-            } else {
-                style.localeList[0]
-            }
-            textLocale = locale.toJavaLocale()
-        }
-    }
-
-    if (style.color.isSet) {
-        color = style.color.toArgb()
-    }
-
-    when (style.letterSpacing.type) {
-        TextUnitType.Em -> { letterSpacing = style.letterSpacing.value }
-        TextUnitType.Sp -> {} // Sp will be handled by applying a span
-        TextUnitType.Inherit -> {} // Do nothing
-    }
-
-    if (style.fontFeatureSettings != null && style.fontFeatureSettings != "") {
-        fontFeatureSettings = style.fontFeatureSettings
-    }
-
-    if (style.textGeometricTransform != null &&
-        style.textGeometricTransform != TextGeometricTransform.None
-    ) {
-        textScaleX *= style.textGeometricTransform.scaleX
-        textSkewX += style.textGeometricTransform.skewX
-    }
-
-    if (style.shadow != null && style.shadow != Shadow.None) {
-        setShadowLayer(
-            style.shadow.blurRadius,
-            style.shadow.offset.x,
-            style.shadow.offset.y,
-            style.shadow.color.toArgb()
-        )
-    }
-
-    if (style.textDecoration != null && style.textDecoration != TextDecoration.None) {
-        if (style.textDecoration.contains(TextDecoration.Underline)) {
-            isUnderlineText = true
-        }
-        if (style.textDecoration.contains(TextDecoration.LineThrough)) {
-            isStrikeThruText = true
-        }
-    }
-
-    // When FontFamily is a custom font(FontListFontFamily), it needs to be applied on Paint to
-    // compute empty paragraph height. Meanwhile, we also need a FontSpan for
-    // FontStyle/FontWeight span to work correctly.
-    // letterSpacing with unit Sp needs to be handled by span.
-    // baselineShift and bgColor is reset in the Android Layout constructor,
-    // therefore we cannot apply them on paint, have to use spans.
-    return SpanStyle(
-        fontFamily = if (style.fontFamily != null && style.fontFamily is FontListFontFamily) {
-            style.fontFamily
-        } else {
-            null
-        },
-        letterSpacing = if (style.letterSpacing.type == TextUnitType.Sp &&
-                    style.letterSpacing.value != 0f) {
-            style.letterSpacing
-        } else {
-            TextUnit.Inherit
-        },
-        background = if (style.background == Color.Transparent) {
-            Color.Unset // No need to add transparent background for default text style.
-        } else {
-            style.background
-        },
-        baselineShift = if (style.baselineShift == BaselineShift.None) {
-            null
-        } else {
-            style.baselineShift
-        }
-    )
-}
 
 private data class SpanRange(
     val span: Any,
@@ -205,24 +94,22 @@ internal fun createStyledText(
     ) {
         return text
     }
+
     val spannableString = SpannableString(text)
 
-    val lowPrioritySpans = ArrayList<SpanRange>()
     when (lineHeight.type) {
         TextUnitType.Sp -> with(density) {
             spannableString.setSpan(
                 LineHeightSpan(ceil(lineHeight.toPx()).toInt()),
                 0,
-                text.length,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                text.length
             )
         }
         TextUnitType.Em -> {
             spannableString.setSpan(
                 LineHeightSpan(ceil(lineHeight.value * contextFontSize).toInt()),
                 0,
-                text.length,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                text.length
             )
         }
         TextUnitType.Inherit -> {} // Do nothing
@@ -248,11 +135,12 @@ internal fun createStyledText(
                     ceil(restLine).toInt()
                 ),
                 0,
-                text.length,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                text.length
             )
         }
     }
+
+    val lowPrioritySpans = ArrayList<SpanRange>()
 
     for (spanStyle in spanStyles) {
         val start = spanStyle.start
@@ -264,39 +152,19 @@ internal fun createStyledText(
         // Be aware that SuperscriptSpan needs to be applied before all other spans which
         // affect FontMetrics
         style.baselineShift?.let {
-            spannableString.setSpan(
-                BaselineShiftSpan(it.multiplier),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+            spannableString.setSpan(BaselineShiftSpan(it.multiplier), start, end)
         }
 
         if (style.color.isSet) {
-            spannableString.setSpan(
-                ForegroundColorSpan(style.color.toArgb()),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+            spannableString.setSpan(ForegroundColorSpan(style.color.toArgb()), start, end)
         }
 
         style.textDecoration?.let {
             if (it.contains(TextDecoration.Underline)) {
-                spannableString.setSpan(
-                    UnderlineSpan(),
-                    start,
-                    end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
+                spannableString.setSpan(UnderlineSpan(), start, end)
             }
             if (it.contains(TextDecoration.LineThrough)) {
-                spannableString.setSpan(
-                    StrikethroughSpan(),
-                    start,
-                    end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
+                spannableString.setSpan(StrikethroughSpan(), start, end)
             }
         }
 
@@ -305,27 +173,62 @@ internal fun createStyledText(
                 spannableString.setSpan(
                     AbsoluteSizeSpan(style.fontSize.toPx().roundToInt(), true),
                     start,
-                    end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    end
                 )
             }
             TextUnitType.Em -> {
-                spannableString.setSpan(
-                    RelativeSizeSpan(style.fontSize.value),
-                    start,
-                    end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
+                spannableString.setSpan(RelativeSizeSpan(style.fontSize.value), start, end)
             }
             TextUnitType.Inherit -> {} // Do nothing
         }
 
         style.fontFeatureSettings?.let {
+            spannableString.setSpan(FontFeatureSpan(it), start, end)
+        }
+
+        if (style.fontStyle != null || style.fontWeight != null) {
+            val weight = style.fontWeight?.weight ?: 0
+            val fontStyle = when (style.fontStyle) {
+                FontStyle.Normal -> FontWeightStyleSpan.STYLE_NORMAL
+                FontStyle.Italic -> FontWeightStyleSpan.STYLE_ITALIC
+                else -> FontWeightStyleSpan.STYLE_NONE
+            }
+            spannableString.setSpan(FontWeightStyleSpan(weight, fontStyle), start, end)
+        }
+
+        style.textGeometricTransform?.let {
+            if (it.scaleX != 1.0f) {
+                spannableString.setSpan(ScaleXSpan(it.scaleX), start, end)
+            }
+            if (it.skewX != 0f) {
+                spannableString.setSpan(SkewXSpan(it.skewX), start, end)
+            }
+        }
+
+        style.localeList?.let {
             spannableString.setSpan(
-                FontFeatureSpan(it),
+                if (Build.VERSION.SDK_INT >= 24) {
+                    LocaleSpan(it.toAndroidLocaleList())
+                } else {
+                    val locale = if (it.isEmpty()) Locale.current else it[0]
+                    LocaleSpan(locale.toJavaLocale())
+                },
                 start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                end
+            )
+        }
+        if (style.background.isSet) {
+            spannableString.setSpan(
+                BackgroundColorSpan(style.background.toArgb()),
+                start,
+                end
+            )
+        }
+        style.shadow?.let {
+            spannableString.setSpan(
+                ShadowSpan(it.color.toArgb(), it.offset.x, it.offset.y, it.blurRadius),
+                start,
+                end
             )
         }
 
@@ -346,43 +249,6 @@ internal fun createStyledText(
                     SPAN_PRIORITY_FONT
                 )
             )
-        }
-
-        if (style.fontStyle != null || style.fontWeight != null) {
-            val weight = style.fontWeight?.weight ?: 0
-            val fontStyle = when (style.fontStyle) {
-                FontStyle.Normal -> FontWeightStyleSpan.STYLE_NORMAL
-                FontStyle.Italic -> FontWeightStyleSpan.STYLE_ITALIC
-                else -> FontWeightStyleSpan.STYLE_NONE
-            }
-            spannableString.setSpan(
-                FontWeightStyleSpan(weight, fontStyle),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-
-        style.textGeometricTransform?.let {
-            if (it.scaleX != 1.0f) {
-                spannableString.setSpan(
-                    ScaleXSpan(it.scaleX),
-                    start,
-                    end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
-        }
-
-        style.textGeometricTransform?.let {
-            if (it.skewX != 0f) {
-                spannableString.setSpan(
-                    SkewXSpan(it.skewX),
-                    start,
-                    end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
         }
 
         when (style.letterSpacing.type) {
@@ -408,45 +274,11 @@ internal fun createStyledText(
             }
             TextUnitType.Inherit -> {}
         }
-
-        style.localeList?.let {
-            spannableString.setSpan(
-                if (Build.VERSION.SDK_INT >= 24) {
-                    LocaleSpan(it.toAndroidLocaleList())
-                } else {
-                    val locale = if (it.isEmpty()) Locale.current else it[0]
-                    LocaleSpan(locale.toJavaLocale())
-                },
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-        if (style.background.isSet) {
-            spannableString.setSpan(
-                BackgroundColorSpan(style.background.toArgb()),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-        style.shadow?.let {
-            spannableString.setSpan(
-                ShadowSpan(it.color.toArgb(), it.offset.x, it.offset.y, it.blurRadius),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
     }
+
     lowPrioritySpans.sortBy { it.priority }
     lowPrioritySpans.fastForEach { (span, start, end) ->
-        spannableString.setSpan(
-            span,
-            start,
-            end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
+        spannableString.setSpan(span, start, end)
     }
 
     placeholders.fastForEach {
@@ -462,28 +294,11 @@ internal fun createStyledText(
                     verticalAlign = placeholderVerticalAlign.spanVerticalAlign
                 ),
                 start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                end
             )
         }
     }
     return spannableString
-}
-
-/**
- * Returns true if this [SpanStyle] contains any font style attributes set.
- */
-private fun SpanStyle.hasFontAttributes(): Boolean {
-    return fontFamily != null || fontStyle != null || fontWeight != null
-}
-
-private fun createTypeface(style: SpanStyle, typefaceAdapter: TypefaceAdapter): Typeface {
-    return typefaceAdapter.create(
-        fontFamily = style.fontFamily,
-        fontWeight = style.fontWeight ?: FontWeight.Normal,
-        fontStyle = style.fontStyle ?: FontStyle.Normal,
-        fontSynthesis = style.fontSynthesis ?: FontSynthesis.All
-    )
 }
 
 private fun createTypeface(
@@ -504,31 +319,9 @@ private fun createTypeface(
     )
 }
 
-/**
- * For a given [TextDirection] return [TextLayout] constants for text direction
- * heuristics.
- */
-@OptIn(InternalPlatformTextApi::class)
-internal fun resolveTextDirectionHeuristics(
-    textDirection: TextDirection
-): Int {
-    return when (textDirection) {
-        TextDirection.ContentOrLtr -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
-        TextDirection.ContentOrRtl -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
-        TextDirection.ForceLtr -> LayoutCompat.TEXT_DIRECTION_LTR
-        TextDirection.ForceRtl -> LayoutCompat.TEXT_DIRECTION_RTL
-    }
-}
-
-private fun Locale.toJavaLocale(): JavaLocale = (platformLocale as AndroidLocale).javaLocale
-
-@RequiresApi(api = 24)
-private fun LocaleList.toAndroidLocaleList(): AndroidLocaleList =
-    AndroidLocaleList(*map { it.toJavaLocale() }.toTypedArray())
-
 /** Helper function that converts [TextUnit.type] to the unit in [PlaceholderSpan]. */
 @OptIn(InternalPlatformTextApi::class)
-internal val TextUnit.spanUnit: Int
+private val TextUnit.spanUnit: Int
     get() = when (type) {
         TextUnitType.Sp -> PlaceholderSpan.UNIT_SP
         TextUnitType.Em -> PlaceholderSpan.UNIT_EM
@@ -540,7 +333,7 @@ internal val TextUnit.spanUnit: Int
  * [PlaceholderSpan].
  */
 @OptIn(InternalPlatformTextApi::class)
-internal val PlaceholderVerticalAlign.spanVerticalAlign: Int
+private val PlaceholderVerticalAlign.spanVerticalAlign: Int
     get() = when (this) {
         PlaceholderVerticalAlign.AboveBaseline -> PlaceholderSpan.ALIGN_ABOVE_BASELINE
         PlaceholderVerticalAlign.Top -> PlaceholderSpan.ALIGN_TOP
@@ -550,3 +343,7 @@ internal val PlaceholderVerticalAlign.spanVerticalAlign: Int
         PlaceholderVerticalAlign.TextBottom -> PlaceholderSpan.ALIGN_TEXT_BOTTOM
         PlaceholderVerticalAlign.TextCenter -> PlaceholderSpan.ALIGN_TEXT_CENTER
     }
+
+private fun Spannable.setSpan(span: Any, start: Int, end: Int) {
+    setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+}
