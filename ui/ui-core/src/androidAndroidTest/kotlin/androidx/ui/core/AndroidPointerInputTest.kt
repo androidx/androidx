@@ -185,7 +185,7 @@ class AndroidPointerInputTest {
                         .onPositioned {
                             latch.countDown()
                         }
-                ) { _, _, _ ->
+                ) { _, _ ->
                     val sizePx = size.value
                     layout(sizePx, sizePx) {}
                 }
@@ -248,7 +248,7 @@ class AndroidPointerInputTest {
                                         .onPositioned {
                                             latch.countDown()
                                         }
-                                ) { _, _, _ ->
+                                ) { _, _ ->
                                     layout(5, 5) {}
                                 }
                             }
@@ -433,7 +433,7 @@ private class LogEventsGestureFilter(val log: MutableList<List<PointerInputChang
 
 @Composable
 fun FillLayout(modifier: Modifier = Modifier) {
-    Layout(emptyContent(), modifier) { _, constraints, _ ->
+    Layout(emptyContent(), modifier) { _, constraints ->
         layout(constraints.maxWidth, constraints.maxHeight) {}
     }
 }

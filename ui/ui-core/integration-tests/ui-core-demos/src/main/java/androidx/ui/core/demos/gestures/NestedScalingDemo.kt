@@ -46,7 +46,7 @@ fun NestedScalingDemo() {
                 Scalable(.66666666f, Color(0xFFffeb3b.toInt())) {
                     Scalable(.5f, Color(0xFF4caf50.toInt())) {}
                 }
-            }) { measurables, constraints, _ ->
+            }) { measurables, constraints ->
             val placeable = measurables.first().measure(constraints)
 
             layout(constraints.maxWidth, constraints.maxHeight) {
@@ -86,7 +86,7 @@ private fun Scalable(
         modifier = Modifier.wrapContentSize(Alignment.Center)
             .rawScaleGestureFilter(outerScaleObserver)
             .drawBackground(color = color),
-        measureBlock = { measurables, constraints, _ ->
+        measureBlock = { measurables, constraints ->
             val newConstraints =
                 constraints.copy(
                     maxWidth = (constraints.maxWidth * currentPercent.value).roundToInt(),

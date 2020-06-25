@@ -93,7 +93,7 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
 
     @Composable
     fun PlaceConditionally(place: Boolean, child: @Composable () -> Unit) {
-        Layout(children = child) { measurables, constraints, _ ->
+        Layout(children = child) { measurables, constraints ->
             if (place) {
                 val placeable = measurables[0].measure(constraints)
                 layout(placeable.width, placeable.height) {

@@ -145,7 +145,7 @@ fun SimpleLayout(modifier: Modifier, children: @Composable () -> Unit = emptyCon
     Layout(
         children,
         modifier
-    ) { measurables, constraints, _ ->
+    ) { measurables, constraints ->
         val childConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val placeables = measurables.map { it.measure(childConstraints) }
         var containerWidth = constraints.minWidth

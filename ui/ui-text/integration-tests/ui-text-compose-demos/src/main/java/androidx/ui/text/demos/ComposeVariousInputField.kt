@@ -247,7 +247,7 @@ fun VariousInputFieldDemo() {
             Layout(
                 children = emptyContent(),
                 modifier = Modifier.drawBackground(Color.Red)
-            ) { _, constraints, _ -> layout(4, constraints.maxHeight) {} }
+            ) { _, constraints -> layout(4, constraints.maxHeight) {} }
         }
     }
 }
@@ -294,7 +294,7 @@ private fun HintEditText(hintText: @Composable () -> Unit) {
         Layout({
             inputField()
             Box(Modifier.layoutId("hintText"), children = hintText)
-        }) { measurable, constraints, _ ->
+        }) { measurable, constraints ->
             val inputFieldPlacable =
                 measurable.first { it.id == "inputField" }.measure(constraints)
             val hintTextPlacable = measurable.first { it.id == "hintText" }.measure(constraints)
@@ -319,7 +319,7 @@ private fun CustomCursorTextField(cursor: @Composable () -> Unit) {
             onTextLayout = { layoutResult.value = it }
         )
         Box(Modifier.layoutId("cursor"), children = cursor)
-    }) { measurable, constraints, _ ->
+    }) { measurable, constraints ->
         val inputFieldPlacable =
             measurable.first { it.id == "inputField" }.measure(constraints)
 

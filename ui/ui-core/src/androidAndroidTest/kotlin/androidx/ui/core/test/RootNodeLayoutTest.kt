@@ -63,7 +63,7 @@ class RootNodeLayoutTest {
         val latch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContent {
-                Layout({}) { _, constraints, _ ->
+                Layout({}) { _, constraints ->
                     realConstraints = constraints
                     latch.countDown()
                     layout(10, 10) {}
@@ -86,7 +86,7 @@ class RootNodeLayoutTest {
                 Layout({}, Modifier.onPositioned {
                     coordinates = it
                     latch.countDown()
-                }) { _, _, _ ->
+                }) { _, _ ->
                     layout(10, 10) {}
                 }
             }
@@ -110,7 +110,7 @@ class RootNodeLayoutTest {
             child.setContent(Recomposer.current()) {
                 Layout({}, Modifier.onPositioned {
                     latch.countDown()
-                }) { _, _, _ ->
+                }) { _, _ ->
                     layout(10, 15) {}
                 }
             }
@@ -133,7 +133,7 @@ class RootNodeLayoutTest {
             child.setContent(Recomposer.current()) {
                 Layout({}, Modifier.fillMaxSize().onPositioned {
                     latch.countDown()
-                }) { _, _, _ ->
+                }) { _, _ ->
                     layout(10, 15) {}
                 }
             }

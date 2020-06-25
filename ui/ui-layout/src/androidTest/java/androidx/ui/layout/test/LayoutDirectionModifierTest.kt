@@ -47,49 +47,49 @@ class LayoutDirectionModifierTest : LayoutTest() {
     @Test
     fun testModifiedLayoutDirection_inMeasureScope() {
         val latch = CountDownLatch(1)
-        val layoutDirection = Ref<LayoutDirection>()
+        val resultLayoutDirection = Ref<LayoutDirection>()
 
         show {
             Layout(
                 children = @Composable {},
                 modifier = Modifier.rtl
-            ) { _, _, incomingLayoutDirection ->
-                layoutDirection.value = incomingLayoutDirection
+            ) { _, _ ->
+                resultLayoutDirection.value = layoutDirection
                 latch.countDown()
                 layout(0, 0) {}
             }
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertTrue(LayoutDirection.Rtl == layoutDirection.value)
+        assertTrue(LayoutDirection.Rtl == resultLayoutDirection.value)
     }
 
     @Test
     fun testModifiedLayoutDirection_inIntrinsicsMeasure() {
         val latch = CountDownLatch(1)
-        val layoutDirection = Ref<LayoutDirection>()
+        var resultLayoutDirection: LayoutDirection? = null
 
         show {
             @OptIn(ExperimentalLayout::class)
             Layout(
                 children = @Composable {},
                 modifier = Modifier.preferredWidth(IntrinsicSize.Max).rtl,
-                minIntrinsicWidthMeasureBlock = { _, _, _ -> 0 },
-                minIntrinsicHeightMeasureBlock = { _, _, _ -> 0 },
-                maxIntrinsicWidthMeasureBlock = { _, _, incomingLayoutDirection ->
-                    layoutDirection.value = incomingLayoutDirection
+                minIntrinsicWidthMeasureBlock = { _, _ -> 0 },
+                minIntrinsicHeightMeasureBlock = { _, _ -> 0 },
+                maxIntrinsicWidthMeasureBlock = { _, _ ->
+                    resultLayoutDirection = this.layoutDirection
                     latch.countDown()
                     0
                 },
-                maxIntrinsicHeightMeasureBlock = { _, _, _ -> 0 }
-            ) { _, _, _ ->
+                maxIntrinsicHeightMeasureBlock = { _, _ -> 0 }
+            ) { _, _ ->
                 layout(0, 0) {}
             }
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertNotNull(layoutDirection)
-        assertTrue(LayoutDirection.Rtl == layoutDirection.value)
+        assertNotNull(resultLayoutDirection)
+        assertTrue(LayoutDirection.Rtl == resultLayoutDirection)
     }
 
     @Test
@@ -103,7 +103,7 @@ class LayoutDirectionModifierTest : LayoutTest() {
                     LayoutDirection.Ltr -> Modifier.ltr
                     LayoutDirection.Rtl -> Modifier.rtl
                 }
-                Layout(emptyContent(), restoreModifier) { _, _, layoutDirection ->
+                Layout(emptyContent(), restoreModifier) { _, _ ->
                     resultLayoutDirection.value = layoutDirection
                     latch.countDown()
                     layout(0, 0) {}

@@ -74,7 +74,7 @@ fun SelectionHandleLayout(
 @InternalTextApi
 @Composable
 fun SelectionLayout(modifier: Modifier = Modifier, children: @Composable () -> Unit) {
-    Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
+    Layout(modifier = modifier, children = children) { measurables, constraints ->
         val placeables = measurables.map { measurable ->
             measurable.measure(constraints)
         }
@@ -105,7 +105,7 @@ internal fun SimpleContainer(
     height: Dp? = null,
     children: @Composable () -> Unit
 ) {
-    Layout(children, modifier) { measurables, incomingConstraints, _ ->
+    Layout(children, modifier) { measurables, incomingConstraints ->
         val containerConstraints = Constraints()
             .copy(
                 width?.toIntPx() ?: 0,

@@ -187,7 +187,7 @@ fun Popup(
 
         // Update the popup's position
         popupLayout.updatePosition()
-    }) { _, _, layoutDirection ->
+    }) { _, _ ->
         popupLayout.popupPositionProperties.parentLayoutDirection = layoutDirection
         layout(0, 0) {}
     }
@@ -219,7 +219,7 @@ fun Popup(
 @Suppress("NOTHING_TO_INLINE")
 @Composable
 private inline fun SimpleStack(modifier: Modifier, noinline children: @Composable () -> Unit) {
-    Layout(children = children, modifier = modifier) { measurables, constraints, _ ->
+    Layout(children = children, modifier = modifier) { measurables, constraints ->
         when (measurables.size) {
             0 -> layout(0, 0) {}
             1 -> {

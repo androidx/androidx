@@ -37,7 +37,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
-import androidx.ui.core.MeasureBlock
+import androidx.ui.core.MeasureBlock2
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
@@ -109,11 +109,11 @@ class WithConstraintsTest {
                         }
                         WithConstraints(drawModifier) {
                             paddedConstraints.value = constraints
-                            Layout(measureBlock = { _, childConstraints, _ ->
+                            Layout(measureBlock = { _, childConstraints ->
                                 firstChildConstraints.value = childConstraints
                                 layout(size, size) { }
                             }, children = { })
-                            Layout(measureBlock = { _, chilConstraints, _ ->
+                            Layout(measureBlock = { _, chilConstraints ->
                                 secondChildConstraints.value = chilConstraints
                                 layout(size, size) { }
                             }, children = { })
@@ -157,10 +157,10 @@ class WithConstraintsTest {
                         Layout(
                             children = {},
                             modifier = innerModifier
-                        ) { measurables, constraints2, _ ->
+                        ) { measurables, constraints2 ->
                             layout(model.size, model.size) {}
                         }
-                    }, modifier = outerModifier) { measurables, constraints3, _ ->
+                    }, modifier = outerModifier) { measurables, constraints3 ->
                         val placeable = measurables[0].measure(
                             Constraints.fixed(
                                 model.size,
@@ -241,7 +241,7 @@ class WithConstraintsTest {
                             /* intentionally empty */
                         }
                     )
-                    Layout(modifier = background, children = {}) { _, _, _ ->
+                    Layout(modifier = background, children = {}) { _, _ ->
                         // read the model
                         model.value
                         latch.countDown()
@@ -409,7 +409,7 @@ class WithConstraintsTest {
                                     Layout(
                                         {},
                                         countdownLatchBackgroundModifier(Color.Yellow)
-                                    ) { _, _, _ ->
+                                    ) { _, _ ->
                                         // the same as the value inside ValueModel
                                         val size = receivedConstraints.maxWidth
                                         layout(size, size) {}
@@ -450,7 +450,7 @@ class WithConstraintsTest {
                             if (model) {
                                 latch.countDown()
                             }
-                        }) { _, _, _ ->
+                        }) { _, _ ->
                             if (!model) {
                                 model = true
                             }
@@ -488,7 +488,7 @@ class WithConstraintsTest {
                                     Layout(
                                         children = {},
                                         modifier = countdownLatchBackgroundModifier(Color.Yellow)
-                                    ) { _, _, _ ->
+                                    ) { _, _ ->
                                         layout(model.value, model.value) {}
                                     }
                                 }
@@ -529,7 +529,7 @@ class WithConstraintsTest {
                     assertTrue(lastLayoutValue)
                     drawlatch.countDown()
                 }
-                Layout(children = {}, modifier = drawModifier) { _, _, _ ->
+                Layout(children = {}, modifier = drawModifier) { _, _ ->
                     lastLayoutValue = state.value
                     // this registers the value read
                     if (!state.value) {
@@ -562,7 +562,7 @@ class WithConstraintsTest {
                         WithConstraints {
                             assertEquals(1, innerComposeLatch.count)
                             innerComposeLatch.countDown()
-                            Layout(children = emptyContent()) { _, _, _ ->
+                            Layout(children = emptyContent()) { _, _ ->
                                 assertEquals(1, innerMeasureLatch.count)
                                 innerMeasureLatch.countDown()
                                 layout(100, 100) {
@@ -571,7 +571,7 @@ class WithConstraintsTest {
                                 }
                             }
                         }
-                    }) { measurables, constraints, _ ->
+                    }) { measurables, constraints ->
                         assertEquals(1, outerMeasureLatch.count)
                         outerMeasureLatch.countDown()
                         layout(100, 100) {
@@ -582,7 +582,7 @@ class WithConstraintsTest {
                     }
                 }
 
-                Layout(children) { measurables, _, _ ->
+                Layout(children) { measurables, _ ->
                     layout(100, 100) {
                         // we fix the constraints used by children so if the constraints given
                         // by the android view will change it would not affect the test
@@ -610,7 +610,7 @@ class WithConstraintsTest {
                         Layout(
                             children = {},
                             modifier = countdownLatchBackgroundModifier(Color.Transparent)
-                        ) { _, _, _ ->
+                        ) { _, _ ->
                             // read and write once inside measureBlock
                             if (state.value == 0) {
                                 state.value = 1
@@ -643,7 +643,7 @@ class WithConstraintsTest {
                         }
                     },
                     modifier = layoutDirectionModifier(LayoutDirection.Rtl)
-                ) { m, c, _ ->
+                ) { m, c ->
                     val p = m.first().measure(c)
                     layout(0, 0) {
                         p.place(Offset.Zero)
@@ -673,7 +673,7 @@ class WithConstraintsTest {
                         }
                     },
                     modifier = layoutDirectionModifier(LayoutDirection.Ltr)
-                ) { m, c, _ ->
+                ) { m, c ->
                     val p = m.first().measure(c)
                     layout(0, 0) {
                         p.place(Offset.Zero)
@@ -694,7 +694,7 @@ class WithConstraintsTest {
         val zeroConstraints = Constraints.fixed(0, 0)
         rule.runOnUiThreadIR {
             activity.setContent {
-                Layout(measureBlock = { measurables, _, _ ->
+                Layout(measureBlock = { measurables, _ ->
                     layout(0, 0) {
                         // there was a bug when the child of WithConstraints wasn't marking
                         // needsRemeasure and it was only measured because the constraints
@@ -706,7 +706,7 @@ class WithConstraintsTest {
                 }, children = {
                     WithConstraints {
                         compositionLatch.countDown()
-                        Layout(children = {}) { _, _, _ ->
+                        Layout(children = {}) { _, _ ->
                             childMeasureLatch.countDown()
                             layout(0, 0) {}
                         }
@@ -772,7 +772,7 @@ class WithConstraintsTest {
                             latch.countDown()
                         }
                     }
-                ) { m, _, _ ->
+                ) { m, _ ->
                     layout(0, 0) {
                         m.first().measure(Constraints(dpConstraints)).place(Offset.Zero)
                     }
@@ -815,7 +815,7 @@ private fun TestLayout(@Suppress("UNUSED_PARAMETER") someInput: Int) {
         WithConstraints {
             NeedsOtherMeasurementComposable(10)
         }
-    }) { measurables, constraints, _ ->
+    }) { measurables, constraints ->
         val withConstraintsPlaceable = measurables[0].measure(constraints)
 
         layout(30, 30) {
@@ -829,7 +829,7 @@ private fun NeedsOtherMeasurementComposable(foo: Int) {
     Layout(
         children = {},
         modifier = backgroundModifier(Color.Red)
-    ) { _, _, _ ->
+    ) { _, _ ->
         layout(foo, foo) { }
     }
 }
@@ -845,8 +845,8 @@ fun Container(
     Layout(
         children = children,
         modifier = modifier,
-        measureBlock = remember<MeasureBlock>(width, height) {
-            { measurables, _, _ ->
+        measureBlock = remember<MeasureBlock2>(width, height) {
+            { measurables, _ ->
                 val constraint = Constraints(maxWidth = width, maxHeight = height)
                 layout(width, height) {
                     measurables.forEach {
@@ -868,8 +868,8 @@ fun ContainerChildrenAffectsParentSize(
     height: Int,
     children: @Composable () -> Unit
 ) {
-    Layout(children = children, measureBlock = remember<MeasureBlock>(width, height) {
-        { measurables, _, _ ->
+    Layout(children = children, measureBlock = remember<MeasureBlock2>(width, height) {
+        { measurables, _ ->
             val constraint = Constraints(maxWidth = width, maxHeight = height)
             val placeables = measurables.map { it.measure(constraint) }
             layout(width, height) {
@@ -883,7 +883,7 @@ fun ContainerChildrenAffectsParentSize(
 
 @Composable
 private fun ChangingConstraintsLayout(size: State<Int>, children: @Composable () -> Unit) {
-    Layout(children) { measurables, _, _ ->
+    Layout(children) { measurables, _ ->
         layout(100, 100) {
             val constraints = Constraints.fixed(size.value, size.value)
             measurables.first().measure(constraints).place(0, 0)
@@ -896,7 +896,7 @@ private fun ChangingLayoutDirectionLayout(
     direction: State<LayoutDirection>,
     children: @Composable () -> Unit
 ) {
-    Layout(children) { measurables, _, _ ->
+    Layout(children) { measurables, _ ->
         layout(100, 100) {
             val constraints = Constraints.fixed(100, 100)
             measurables.first().measure(constraints, direction.value).place(0, 0)

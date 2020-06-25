@@ -654,7 +654,7 @@ fun FixedSize(
     modifier: Modifier = Modifier,
     children: @Composable () -> Unit = emptyContent()
 ) {
-    Layout(children = children, modifier = modifier) { measurables, _, _ ->
+    Layout(children = children, modifier = modifier) { measurables, _ ->
         val newConstraints = Constraints.fixed(size.value, size.value)
         val placeables = measurables.map { m ->
             m.measure(newConstraints)

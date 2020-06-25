@@ -73,7 +73,7 @@ internal class InnerPlaceable(
 
     override fun minIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int {
         return layoutNode.measureBlocks.minIntrinsicWidth(
-            layoutNode.measureScope,
+            measureScope,
             layoutNode.children,
             height,
             layoutDirection
@@ -82,7 +82,7 @@ internal class InnerPlaceable(
 
     override fun minIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int {
         return layoutNode.measureBlocks.minIntrinsicHeight(
-            layoutNode.measureScope,
+            measureScope,
             layoutNode.children,
             width,
             layoutDirection
@@ -91,7 +91,7 @@ internal class InnerPlaceable(
 
     override fun maxIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int {
         return layoutNode.measureBlocks.maxIntrinsicWidth(
-            layoutNode.measureScope,
+            measureScope,
             layoutNode.children,
             height,
             layoutDirection
@@ -100,7 +100,7 @@ internal class InnerPlaceable(
 
     override fun maxIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int {
         return layoutNode.measureBlocks.maxIntrinsicHeight(
-            layoutNode.measureScope,
+            measureScope,
             layoutNode.children,
             width,
             layoutDirection

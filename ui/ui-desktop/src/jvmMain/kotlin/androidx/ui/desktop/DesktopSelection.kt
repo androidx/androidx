@@ -35,7 +35,7 @@ import androidx.ui.core.gesture.rawPressStartGestureFilter
 
 @Composable
 private fun Wrap(modifier: Modifier = Modifier, children: @Composable () -> Unit) {
-    Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
+    Layout(modifier = modifier, children = children) { measurables, constraints ->
         val placeables = measurables.map { measurable ->
             measurable.measure(constraints)
         }

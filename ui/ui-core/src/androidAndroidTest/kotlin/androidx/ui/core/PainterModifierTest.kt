@@ -418,7 +418,7 @@ class PainterModifierTest {
      */
     @Composable
     fun NoMinSizeContainer(children: @Composable () -> Unit) {
-        Layout(children) { measurables, constraints, _ ->
+        Layout(children) { measurables, constraints ->
             val loosenedConstraints = constraints.copy(minWidth = 0, minHeight = 0)
             val placeables = measurables.map { it.measure(loosenedConstraints) }
             val maxPlaceableWidth = placeables.maxBy { it.width }?.width ?: 0
@@ -439,7 +439,7 @@ class PainterModifierTest {
         modifier: Modifier = Modifier,
         children: @Composable () -> Unit
     ) {
-        Layout(children, modifier) { measurables, constraints, _ ->
+        Layout(children, modifier) { measurables, constraints ->
             val placeables = measurables.map { it.measure(constraints) }
             val width = max(
                 placeables.maxBy { it.width }?.width ?: 0, constraints
