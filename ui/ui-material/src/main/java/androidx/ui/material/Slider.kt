@@ -29,6 +29,7 @@ import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.Alignment
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
@@ -115,6 +116,7 @@ fun Slider(
     position.onValueChange = onValueChange
     position.scaledValue = value
     WithConstraints(modifier.sliderSemantics(value, position, onValueChange, valueRange, steps)) {
+        val isRtl = layoutDirection == LayoutDirection.Rtl
         val maxPx = constraints.maxWidth.toFloat()
         val minPx = 0f
         position.setBounds(minPx, maxPx)
@@ -135,7 +137,7 @@ fun Slider(
 
         val press = Modifier.pressIndicatorGestureFilter(
             onStart = { pos ->
-                position.holder.snapTo(pos.x)
+                position.holder.snapTo(if (isRtl) maxPx - pos.x else pos.x)
                 interactionState.addInteraction(Interaction.Pressed, pos)
             },
             onStop = {
@@ -148,7 +150,8 @@ fun Slider(
         )
 
         val drag = Modifier.draggable(
-            dragDirection = DragDirection.Horizontal,
+            dragDirection =
+            if (isRtl) DragDirection.ReversedHorizontal else DragDirection.Horizontal,
             interactionState = interactionState,
             onDragDeltaConsumptionRequested = { delta ->
                 position.holder.snapTo(position.holder.value + delta)
@@ -240,17 +243,20 @@ private fun Track(
     val activeTickColor = MaterialTheme.colors.onPrimary.copy(alpha = TickColorAlpha)
     val inactiveTickColor = color.copy(alpha = TickColorAlpha)
     Canvas(modifier) {
-        val sliderStart = Offset(thumbPx, center.y)
-        val sliderMax = Offset(size.width - thumbPx, center.y)
+        val isRtl = layoutDirection == LayoutDirection.Rtl
+        val sliderLeft = Offset(thumbPx, center.y)
+        val sliderRight = Offset(size.width - thumbPx, center.y)
+        val sliderStart = if (isRtl) sliderRight else sliderLeft
+        val sliderEnd = if (isRtl) sliderLeft else sliderRight
         drawLine(
             color.copy(alpha = InactiveTrackColorAlpha),
             sliderStart,
-            sliderMax,
+            sliderEnd,
             trackStrokeWidth,
             StrokeCap.round
         )
         val sliderValue = Offset(
-            sliderStart.x + (sliderMax.x - sliderStart.x) * positionFraction,
+            sliderStart.x + (sliderEnd.x - sliderStart.x) * positionFraction,
             center.y
         )
 
@@ -258,7 +264,7 @@ private fun Track(
         tickFractions.groupBy { it > positionFraction }.forEach { (afterFraction, list) ->
             drawPoints(
                 list.map {
-                    Offset(lerp(sliderStart, sliderMax, it).x, center.y)
+                    Offset(lerp(sliderStart, sliderEnd, it).x, center.y)
                 },
                 PointMode.points,
                 if (afterFraction) inactiveTickColor else activeTickColor,

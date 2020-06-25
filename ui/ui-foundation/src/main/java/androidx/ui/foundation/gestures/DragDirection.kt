@@ -53,6 +53,30 @@ sealed class DragDirection {
     }
 
     /**
+     * Horizontal direction of dragging in [draggable] or [scrollable], but reversed.
+     *
+     * Reversed means that if you drag in the positive direction (to the right), you're going to
+     * receive a negative delta in [draggable] or [scrollable].
+     *
+     * Typically used when [androidx.ui.core.LayoutDirection.Rtl] is on to support RTL in
+     * draggable components.
+     */
+    // TODO(malkov) This should be named RtlAwareHorizontal and automatically handle reversal when
+    // b/150774151 is fixed
+    object ReversedHorizontal : DragDirection() {
+        internal override val xProjection: (Float) -> Float = { -it }
+        internal override val yProjection: (Float) -> Float = { 0f }
+        internal override val isDraggableInDirection:
+                    (direction: Direction, currentValue: Float) -> Boolean = { direction, _ ->
+            when (direction) {
+                Direction.RIGHT -> true
+                Direction.LEFT -> true
+                else -> false
+            }
+        }
+    }
+
+    /**
      * Vertical direction of dragging in [draggable] or [scrollable].
      */
     object Vertical : DragDirection() {
