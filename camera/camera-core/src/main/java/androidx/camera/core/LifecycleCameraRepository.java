@@ -45,7 +45,8 @@ import java.util.Map;
  * <p> The repository ensures that only a single LifecycleCamera is active at a time so if the
  * Lifecycle of a camera starts then it will take over as the current active camera. This means
  * that at anytime only one of the LifecycleCamera in the repo will be in the unsuspended state.
- * All others will be suspended.
+ * All others will be suspended. In addition to having the most recently started LifecycleCamera
+ * be active, a LifecycleCamera can also be explicitly set as the current active camera.
  *
  * <p> When the Lifecycle of the most recently active camera stops then it will make sure
  * that the next most recently started camera become the active camera.
@@ -152,6 +153,17 @@ final class LifecycleCameraRepository {
         }
     }
 
+    /**
+     * Set the specified {@link LifecycleCamera} as the current active camera.
+     *
+     * <p>This will take over as the current active camera, meaning if there was another
+     * LifecycleCamera that was currently active it will be moved into an inactive state.
+     */
+    public void setActive(@NonNull LifecycleCamera lifecycleCamera) {
+        setActive(Key.create(lifecycleCamera.getLifecycleOwner(),
+                lifecycleCamera.getCameraUseCaseAdapter().getCameraId()));
+    }
+
     // Sets the LifecycleCamera with the associated key as the current active camera. This will
     // suspend all other cameras which are tracked by the repository.
     void setActive(Key key) {
@@ -164,7 +176,7 @@ final class LifecycleCameraRepository {
                     mActiveCameras.push(key);
                 } else {
                     Key currentActiveCamera = mActiveCameras.peek();
-                    if (currentActiveCamera != key) {
+                    if (!key.equals(currentActiveCamera)) {
                         Preconditions.checkNotNull(
                                 mCameraMap.get(currentActiveCamera)).suspend();
                         mActiveCameras.push(key);
@@ -211,9 +223,10 @@ final class LifecycleCameraRepository {
 
     private static class LifecycleCameraRepositoryObserver implements LifecycleObserver {
         private final LifecycleCameraRepository mLifecycleCameraRepository;
+        @NonNull
         private final Key mKey;
 
-        LifecycleCameraRepositoryObserver(Key key,
+        LifecycleCameraRepositoryObserver(@NonNull Key key,
                 LifecycleCameraRepository lifecycleCameraRepository) {
             mKey = key;
             mLifecycleCameraRepository = lifecycleCameraRepository;
