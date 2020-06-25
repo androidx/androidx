@@ -226,6 +226,16 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
                 .addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE)
                 .build();
 
+        mMediaRouter.setOnPrepareTransferListener(new MediaRouter.OnPrepareTransferListener() {
+            @Override
+            public void onPrepareTransfer(@NonNull RouteInfo fromRoute, @NonNull RouteInfo toRoute,
+                    @NonNull MediaRouter.TransferNotifier notifier) {
+                Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
+                        + ", to=" + toRoute.getId());
+                notifier.notifyPrepareFinished();
+            }
+        });
+
         // Add a fragment to take care of media route discovery.
         // This fragment automatically adds or removes a callback whenever the activity
         // is started or stopped.
