@@ -89,6 +89,7 @@ class VectorTest {
             testCase.createTestVector()
         }
 
+        latch1.await()
         val size = testCase.vectorSize
         takeScreenShot(size).apply {
             assertEquals(Color.Blue.toArgb(), getPixel(5, size - 5))

@@ -291,7 +291,7 @@ internal class ParameterFactory {
      * Prefer the font closest to [FontWeight.Normal] and [FontStyle.Normal]
      */
     private fun findBestResourceFont(value: FontListFontFamily): ResourceFont? =
-        value.fonts.asSequence().filterIsInstance<ResourceFont>().minBy {
+        value.fonts.asSequence().filterIsInstance<ResourceFont>().minByOrNull {
             abs(it.weight.weight - FontWeight.Normal.weight) + it.style.ordinal
         }
 

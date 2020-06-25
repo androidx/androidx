@@ -100,5 +100,5 @@ internal fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
 
     return longestWordCandidates.map { pair ->
         Layout.getDesiredWidth(text, pair.first, pair.second, paint)
-    }.max() ?: 0f
+    }.maxOrNull() ?: 0f
 }

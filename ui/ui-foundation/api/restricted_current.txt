@@ -392,7 +392,7 @@ package androidx.ui.foundation.shape {
   public final class GenericShape implements androidx.ui.graphics.Shape {
     ctor public GenericShape(kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Path,? super androidx.ui.geometry.Size,kotlin.Unit> builder);
     method public androidx.ui.foundation.shape.GenericShape copy(kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Path,? super androidx.ui.geometry.Size,kotlin.Unit> builder);
-    method public androidx.ui.graphics.Outline createOutline(androidx.ui.geometry.Size size, androidx.ui.unit.Density density);
+    method public androidx.ui.graphics.Outline createOutline-SwJi8iY(long size, androidx.ui.unit.Density density);
   }
 
 }
@@ -403,8 +403,8 @@ package androidx.ui.foundation.shape.corner {
     ctor public CornerBasedShape(androidx.ui.foundation.shape.corner.CornerSize topLeft, androidx.ui.foundation.shape.corner.CornerSize topRight, androidx.ui.foundation.shape.corner.CornerSize bottomRight, androidx.ui.foundation.shape.corner.CornerSize bottomLeft);
     method public abstract androidx.ui.foundation.shape.corner.CornerBasedShape copy(androidx.ui.foundation.shape.corner.CornerSize topLeft = topLeft, androidx.ui.foundation.shape.corner.CornerSize topRight = topRight, androidx.ui.foundation.shape.corner.CornerSize bottomRight = bottomRight, androidx.ui.foundation.shape.corner.CornerSize bottomLeft = bottomLeft);
     method public final androidx.ui.foundation.shape.corner.CornerBasedShape copy(androidx.ui.foundation.shape.corner.CornerSize all);
-    method public final androidx.ui.graphics.Outline createOutline(androidx.ui.geometry.Size size, androidx.ui.unit.Density density);
-    method public abstract androidx.ui.graphics.Outline createOutline(androidx.ui.geometry.Size size, float topLeft, float topRight, float bottomRight, float bottomLeft);
+    method public abstract androidx.ui.graphics.Outline createOutline-0bCqP4M(long size, float topLeft, float topRight, float bottomRight, float bottomLeft);
+    method public final androidx.ui.graphics.Outline createOutline-SwJi8iY(long size, androidx.ui.unit.Density density);
     method public final androidx.ui.foundation.shape.corner.CornerSize getBottomLeft();
     method public final androidx.ui.foundation.shape.corner.CornerSize getBottomRight();
     method public final androidx.ui.foundation.shape.corner.CornerSize getTopLeft();
@@ -412,7 +412,7 @@ package androidx.ui.foundation.shape.corner {
   }
 
   @androidx.compose.Immutable public interface CornerSize {
-    method public float toPx(androidx.ui.geometry.Size shapeSize, androidx.ui.unit.Density density);
+    method public float toPx-SwJi8iY(long shapeSize, androidx.ui.unit.Density density);
   }
 
   public final class CornerSizeKt {
@@ -425,7 +425,7 @@ package androidx.ui.foundation.shape.corner {
   public final class CutCornerShape extends androidx.ui.foundation.shape.corner.CornerBasedShape {
     ctor public CutCornerShape(androidx.ui.foundation.shape.corner.CornerSize topLeft, androidx.ui.foundation.shape.corner.CornerSize topRight, androidx.ui.foundation.shape.corner.CornerSize bottomRight, androidx.ui.foundation.shape.corner.CornerSize bottomLeft);
     method public androidx.ui.foundation.shape.corner.CutCornerShape copy(androidx.ui.foundation.shape.corner.CornerSize topLeft, androidx.ui.foundation.shape.corner.CornerSize topRight, androidx.ui.foundation.shape.corner.CornerSize bottomRight, androidx.ui.foundation.shape.corner.CornerSize bottomLeft);
-    method public androidx.ui.graphics.Outline createOutline(androidx.ui.geometry.Size size, float topLeft, float topRight, float bottomRight, float bottomLeft);
+    method public androidx.ui.graphics.Outline createOutline-0bCqP4M(long size, float topLeft, float topRight, float bottomRight, float bottomLeft);
   }
 
   public final class CutCornerShapeKt {
@@ -441,7 +441,7 @@ package androidx.ui.foundation.shape.corner {
   public final class RoundedCornerShape extends androidx.ui.foundation.shape.corner.CornerBasedShape {
     ctor public RoundedCornerShape(androidx.ui.foundation.shape.corner.CornerSize topLeft, androidx.ui.foundation.shape.corner.CornerSize topRight, androidx.ui.foundation.shape.corner.CornerSize bottomRight, androidx.ui.foundation.shape.corner.CornerSize bottomLeft);
     method public androidx.ui.foundation.shape.corner.RoundedCornerShape copy(androidx.ui.foundation.shape.corner.CornerSize topLeft, androidx.ui.foundation.shape.corner.CornerSize topRight, androidx.ui.foundation.shape.corner.CornerSize bottomRight, androidx.ui.foundation.shape.corner.CornerSize bottomLeft);
-    method public androidx.ui.graphics.Outline createOutline(androidx.ui.geometry.Size size, float topLeft, float topRight, float bottomRight, float bottomLeft);
+    method public androidx.ui.graphics.Outline createOutline-0bCqP4M(long size, float topLeft, float topRight, float bottomRight, float bottomLeft);
   }
 
   public final class RoundedCornerShapeKt {

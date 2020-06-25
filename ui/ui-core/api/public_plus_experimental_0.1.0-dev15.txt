@@ -256,7 +256,7 @@ package androidx.ui.core {
   }
 
   @androidx.compose.Stable public interface ContentScale {
-    method public float scale(androidx.ui.geometry.Size srcSize, androidx.ui.geometry.Size dstSize);
+    method public float scale-8JNMT64(long srcSize, long dstSize);
     field public static final androidx.ui.core.ContentScale.Companion Companion;
   }
 
@@ -359,7 +359,7 @@ package androidx.ui.core {
     method public float component1();
     method @androidx.compose.Immutable public androidx.ui.core.FixedScale copy(float value);
     method public float getValue();
-    method public float scale(androidx.ui.geometry.Size srcSize, androidx.ui.geometry.Size dstSize);
+    method public float scale-8JNMT64(long srcSize, long dstSize);
   }
 
   public final class HorizontalAlignmentLine extends androidx.ui.core.AlignmentLine {
@@ -2108,14 +2108,14 @@ package androidx.ui.graphics.vector {
   }
 
   public final class VectorPainter extends androidx.ui.graphics.painter.Painter {
-    method public androidx.ui.geometry.Size getIntrinsicSize();
+    method public long getIntrinsicSize();
     method protected void onDraw(androidx.ui.graphics.drawscope.DrawScope);
-    property public androidx.ui.geometry.Size intrinsicSize;
+    property public long intrinsicSize;
   }
 
   public final class VectorPainterKt {
     method @androidx.compose.Composable public static androidx.ui.graphics.vector.VectorPainter VectorPainter(androidx.ui.graphics.vector.VectorAsset asset);
-    method @androidx.compose.Composable public static androidx.ui.graphics.vector.VectorPainter VectorPainter-CZQlTzY(float defaultWidth, float defaultHeight, float viewportWidth = Float.NaN, float viewportHeight = Float.NaN, String name = "VectorRootGroup", kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
+    method @androidx.compose.Composable public static androidx.ui.graphics.vector.VectorPainter VectorPainter-CZQlTzY(float defaultWidth, float defaultHeight, float viewportWidth = (0.0f/0.0f), float viewportHeight = (0.0f/0.0f), String name = "VectorRootGroup", kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
     field public static final String RootGroupName = "VectorRootGroup";
   }
 

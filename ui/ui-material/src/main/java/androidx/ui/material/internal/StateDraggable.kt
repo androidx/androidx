@@ -101,8 +101,8 @@ internal fun <T> Modifier.stateDraggable(
         },
         adjustTarget = { target ->
             // Find the two anchors the target lies between.
-            val a = anchors.filter { it <= target }.max()
-            val b = anchors.filter { it >= target }.min()
+            val a = anchors.filter { it <= target }.maxOrNull()
+            val b = anchors.filter { it >= target }.minOrNull()
             // Compute which anchor to fling to.
             val adjusted: Float =
                 if (a == null && b == null) {

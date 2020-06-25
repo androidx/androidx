@@ -134,7 +134,7 @@ private fun CustomLayout(rtlSupport: Boolean) {
             e.measure(constraints.copy(minWidth = 0, minHeight = 0))
         }
         val w = p.fold(0) { sum, e -> sum + e.width }
-        val h = p.maxBy { it.height }!!.height
+        val h = p.maxByOrNull { it.height }!!.height
         layout(w, h) {
             var xPosition = 0
             for (child in p) {

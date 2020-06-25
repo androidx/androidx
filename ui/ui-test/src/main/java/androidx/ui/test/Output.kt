@@ -116,7 +116,7 @@ internal fun Collection<SemanticsNode>.printToString(maxDepth: Int = 0): String 
         }
         sb.append(it.printToString(maxDepth))
         if (i < size) {
-            sb.appendln()
+            sb.appendLine()
         }
         ++i
     }
@@ -170,7 +170,7 @@ private fun SemanticsNode.printToStringInner(
         val childrenCount = children.size
         val siblingsCount = (parent?.children?.size ?: 1) - 1
         if (childrenCount > 0 || (siblingsCount > 0 && nestingLevel == 0)) {
-            sb.appendln()
+            sb.appendLine()
             sb.append(newIndent)
             sb.append("Has ")
             if (childrenCount > 1) {
@@ -196,7 +196,7 @@ private fun SemanticsNode.printToStringInner(
     val children = this.children.toList()
     children.forEachIndexed { index, child ->
         val hasSibling = index < children.size - 1
-        sb.appendln()
+        sb.appendLine()
         child.printToStringInner(sb, maxDepth, childrenLevel, newIndent, hasSibling)
     }
 }
@@ -211,7 +211,7 @@ private fun StringBuilder.appendConfigInfo(config: SemanticsConfiguration, inden
             continue
         }
 
-        appendln()
+        appendLine()
         append(indent)
         append(key.name)
         append(" = '")
@@ -232,7 +232,7 @@ private fun StringBuilder.appendConfigInfo(config: SemanticsConfiguration, inden
     }
 
     if (config.isMergingSemanticsOfDescendants) {
-        appendln()
+        appendLine()
         append(indent)
         append("MergeDescendants = 'true'")
     }

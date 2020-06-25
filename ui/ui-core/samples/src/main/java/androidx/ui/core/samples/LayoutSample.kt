@@ -35,16 +35,16 @@ fun LayoutWithProvidedIntrinsicsUsage(children: @Composable () -> Unit) {
             // The min intrinsic width of this layout will be twice the largest min intrinsic
             // width of a child. Note that we call minIntrinsicWidth with h / 2 for children,
             // since we should be double the size of the children.
-            (measurables.map { it.minIntrinsicWidth(h / 2) }.maxBy { it } ?: 0) * 2
+            (measurables.map { it.minIntrinsicWidth(h / 2) }.maxByOrNull { it } ?: 0) * 2
         },
         minIntrinsicHeightMeasureBlock = { measurables, w ->
-            (measurables.map { it.minIntrinsicHeight(w / 2) }.maxBy { it } ?: 0) * 2
+            (measurables.map { it.minIntrinsicHeight(w / 2) }.maxByOrNull { it } ?: 0) * 2
         },
         maxIntrinsicWidthMeasureBlock = { measurables, h ->
-            (measurables.map { it.maxIntrinsicHeight(h / 2) }.maxBy { it } ?: 0) * 2
+            (measurables.map { it.maxIntrinsicHeight(h / 2) }.maxByOrNull { it } ?: 0) * 2
         },
         maxIntrinsicHeightMeasureBlock = { measurables, w ->
-            (measurables.map { it.maxIntrinsicHeight(w / 2) }.maxBy { it } ?: 0) * 2
+            (measurables.map { it.maxIntrinsicHeight(w / 2) }.maxByOrNull { it } ?: 0) * 2
         }
     ) { measurables, constraints ->
         // measurables contains one element corresponding to each of our layout children.
@@ -58,8 +58,8 @@ fun LayoutWithProvidedIntrinsicsUsage(children: @Composable () -> Unit) {
         // We measure the children with half our constraints, to ensure we can be double
         // the size of the children.
         val placeables = measurables.map { it.measure(childConstraints) }
-        val layoutWidth = (placeables.maxBy { it.width }?.width ?: 0) * 2
-        val layoutHeight = (placeables.maxBy { it.height }?.height ?: 0) * 2
+        val layoutWidth = (placeables.maxByOrNull { it.width }?.width ?: 0) * 2
+        val layoutHeight = (placeables.maxByOrNull { it.height }?.height ?: 0) * 2
         // We call layout to set the size of the current layout and to provide the positioning
         // of the children. The children are placed relative to the current layout place.
         layout(layoutWidth, layoutHeight) {
@@ -85,8 +85,8 @@ fun LayoutUsage(children: @Composable () -> Unit) {
         // We measure the children with half our constraints, to ensure we can be double
         // the size of the children.
         val placeables = measurables.map { it.measure(childConstraints) }
-        val layoutWidth = (placeables.maxBy { it.width }?.width ?: 0) * 2
-        val layoutHeight = (placeables.maxBy { it.height }?.height ?: 0) * 2
+        val layoutWidth = (placeables.maxByOrNull { it.width }?.width ?: 0) * 2
+        val layoutHeight = (placeables.maxByOrNull { it.height }?.height ?: 0) * 2
         // We call layout to set the size of the current layout and to provide the positioning
         // of the children. The children are placed relative to the current layout place.
         layout(layoutWidth, layoutHeight) {

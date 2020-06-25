@@ -93,9 +93,6 @@ package androidx.ui.animation {
 
   public final class SingleValueAnimationKt {
     method @androidx.compose.Composable public static float animate(float target, androidx.animation.AnimationSpec<java.lang.Float> animSpec = androidx.ui.animation.SingleValueAnimationKt.defaultAnimation, float visibilityThreshold = 0.01f, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>? endListener = null);
-    method @androidx.compose.Composable public static androidx.ui.geometry.Size animate(androidx.ui.geometry.Size target, androidx.animation.AnimationSpec<androidx.ui.geometry.Size> animSpec = remember({ 
-    return <init>(Size(PxVisibilityThreshold, PxVisibilityThreshold))
-}), kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Size,kotlin.Unit>? endListener = null);
     method @androidx.compose.Composable public static androidx.ui.unit.Bounds animate(androidx.ui.unit.Bounds target, androidx.animation.AnimationSpec<androidx.ui.unit.Bounds> animSpec = remember({ 
     return <init>(BoundsToVectorConverter.invoke(DpVisibilityThreshold4D))
 }), kotlin.jvm.functions.Function1<? super androidx.ui.unit.Bounds,kotlin.Unit>? endListener = null);
@@ -126,6 +123,9 @@ package androidx.ui.animation {
     method @androidx.compose.Composable public static long animate-MNu1-i4(long target, androidx.animation.AnimationSpec<androidx.ui.unit.Position> animSpec = remember({ 
     return <init>(Position(DpVisibilityThreshold.dp, DpVisibilityThreshold.dp))
 }), kotlin.jvm.functions.Function1<? super androidx.ui.unit.Position,kotlin.Unit>? endListener = null);
+    method @androidx.compose.Composable public static long animate-_lqcFKk(long target, androidx.animation.AnimationSpec<androidx.ui.geometry.Size> animSpec = remember({ 
+    return <init>(Size(PxVisibilityThreshold, PxVisibilityThreshold))
+}), kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Size,kotlin.Unit>? endListener = null);
     method @androidx.compose.Composable public static long animate-zJFKTE8(long target, androidx.animation.AnimationSpec<androidx.ui.graphics.Color> animSpec = remember({ 
     return <init>()
 }), kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,kotlin.Unit>? endListener = null);

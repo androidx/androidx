@@ -46,13 +46,13 @@ class MultiParagraphIntrinsics(
 ) : ParagraphIntrinsics {
 
     override val minIntrinsicWidth: Float by lazy {
-        infoList.maxBy {
+        infoList.maxByOrNull {
             it.intrinsics.minIntrinsicWidth
         }?.intrinsics?.minIntrinsicWidth ?: 0f
     }
 
     override val maxIntrinsicWidth: Float by lazy {
-        infoList.maxBy {
+        infoList.maxByOrNull {
             it.intrinsics.maxIntrinsicWidth
         }?.intrinsics?.maxIntrinsicWidth ?: 0f
     }
