@@ -397,19 +397,17 @@ public final class SliceLiveData {
                 try {
                     Slice s = mUri != null ? mSliceViewManager.bindSlice(mUri)
                             : mSliceViewManager.bindSlice(mIntent);
-                    if (s == null) {
-                        onSliceError(OnErrorListener.ERROR_SLICE_NO_LONGER_PRESENT, null);
-                        return;
-                    }
-                    if (mUri == null) {
+                    if (mUri == null && s != null) {
                         mUri = s.getUri();
                         mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
                     }
                     postValue(s);
                 } catch (IllegalArgumentException e) {
                     onSliceError(OnErrorListener.ERROR_INVALID_INPUT, e);
+                    postValue(null);
                 } catch (Exception e) {
                     onSliceError(OnErrorListener.ERROR_UNKNOWN, e);
+                    postValue(null);
                 }
             }
         };
@@ -417,18 +415,11 @@ public final class SliceLiveData {
         final SliceViewManager.SliceCallback mSliceCallback = this::postValue;
 
         void onSliceError(int error, Throwable t) {
-            if (mUri != null) {
-                mSliceViewManager.unregisterSliceCallback(mUri, mSliceCallback);
-            }
             if (mListener != null) {
                 mListener.onSliceError(error, t);
                 return;
             }
-            if (t != null) {
-                Log.e(TAG, "Error binding slice", t);
-            } else {
-                Log.e(TAG, "Error binding slice, error code: " + error);
-            }
+            Log.e(TAG, "Error binding slice", t);
         }
     }
 
