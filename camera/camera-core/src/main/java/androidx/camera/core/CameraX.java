@@ -348,6 +348,8 @@ public final class CameraX {
             throw new IllegalArgumentException(e.getMessage());
         }
 
+        cameraX.mLifecycleCameraRepository.setActive(lifecycleCameraToBind);
+
         return lifecycleCameraToBind;
     }
 

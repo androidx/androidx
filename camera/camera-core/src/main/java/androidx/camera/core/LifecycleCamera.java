@@ -25,6 +25,7 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.OnLifecycleEvent;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -147,6 +148,12 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
         }
     }
 
+    public LifecycleOwner getLifecycleOwner() {
+        synchronized (mLock) {
+            return mLifecycleOwner;
+        }
+    }
+
     public CameraUseCaseAdapter getCameraUseCaseAdapter() {
         return mCameraUseCaseAdapter;
     }
@@ -174,7 +181,9 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
      */
     void unbind(Collection<UseCase> useCases) {
         synchronized (mLock) {
-            mCameraUseCaseAdapter.removeUseCases(useCases);
+            List<UseCase> useCasesToRemove = new ArrayList<>(useCases);
+            useCasesToRemove.retainAll(mCameraUseCaseAdapter.getUseCases());
+            mCameraUseCaseAdapter.removeUseCases(useCasesToRemove);
         }
     }
 
