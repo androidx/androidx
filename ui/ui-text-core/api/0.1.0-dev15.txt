@@ -927,6 +927,12 @@ package androidx.ui.text.platform.extensions {
   public final class LocaleExtensionsKt {
   }
 
+  public final class PlaceholderExtensionsKt {
+  }
+
+  public final class SpannableExtensionsKt {
+  }
+
   public final class TextPaintExtensionsKt {
   }
 
