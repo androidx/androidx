@@ -429,7 +429,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
 
         @Override
         public void onUnselect(int reason) {
-            Log.d(TAG, mRouteId + ": Unselected");
+            Log.d(TAG, mRouteId + ": Unselected. reason=" + reason);
 
             for (RouteController controller : getValidMemberControllers()) {
                 controller.onUnselect(reason);
