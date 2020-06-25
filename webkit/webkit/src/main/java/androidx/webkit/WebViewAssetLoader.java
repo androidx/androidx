@@ -60,16 +60,34 @@ import java.util.List;
  * <pre class="prettyprint">
  * final WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
  *          .addPathHandler("/assets/", new AssetsPathHandler(this))
- *          .addPathHandler("/res/", new ResourcesPathHandler(this))
  *          .build();
  *
  * webView.setWebViewClient(new WebViewClient() {
  *     {@literal @}Override
+ *     {@literal @}RequiresApi(21)
  *     public WebResourceResponse shouldInterceptRequest(WebView view,
  *                                      WebResourceRequest request) {
  *         return assetLoader.shouldInterceptRequest(request.getUrl());
  *     }
+ *
+ *     {@literal @}Override
+ *     {@literal @}SuppressWarnings("deprecation") // for API < 21
+ *     public WebResourceResponse shouldInterceptRequest(WebView view,
+ *                                      WebResourceRequest request) {
+ *         return assetLoader.shouldInterceptRequest(Uri.parse(request));
+ *     }
  * });
+ *
+ * WebSettings webViewSettings = webView.getSettings();
+ * // Setting this off for security. Off by default for SDK versions >= 16.
+ * webViewSettings.setAllowFileAccessFromFileURLs(false);
+ * // Off by default, deprecated for SDK versions >= 30.
+ * webViewSettings.setAllowUniversalAccessFromFileURLs(false);
+ * // Keeping these off is less critical but still a good idea, especially if your app is not
+ * // using file:// or content:// URLs.
+ * webViewSettings.setAllowFileAccess(false);
+ * webViewSettings.setAllowContentAccess(false);
+ *
  * // Assets are hosted under http(s)://appassets.androidplatform.net/assets/... .
  * // If the application's assets are in the "main/assets" folder this will read the file
  * // from "main/assets/www/index.html" and load it as if it were hosted on:
