@@ -40,8 +40,8 @@ import androidx.ui.unit.Position
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
+import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.clickable
-import androidx.ui.layout.Column
 import androidx.ui.layout.ColumnScope
 import androidx.ui.layout.ExperimentalLayout
 import androidx.ui.layout.IntrinsicSize
@@ -137,12 +137,15 @@ fun DropdownMenu(
                     }
                     Card(
                         modifier = drawLayer
-                            // Padding to account for the elevation, otherwise it is clipped.
-                            .padding(MenuElevationInset),
+                            // MenuVerticalMargin corresponds to the one Material row margin
+                            // required between the menu and the display edges. The
+                            // MenuElevationInset is needed for drawing the elevation,
+                            // otherwise it is clipped. TODO(popam): remove it after b/156890315
+                            .padding(MenuElevationInset, MenuVerticalMargin),
                         elevation = MenuElevation
                     ) {
                         @OptIn(ExperimentalLayout::class)
-                        Column(
+                        VerticalScroller(
                             modifier = dropdownModifier
                                 .padding(vertical = DropdownMenuVerticalPadding)
                                 .preferredWidth(IntrinsicSize.Max),
@@ -201,7 +204,8 @@ fun DropdownMenuItem(
 
 // Size constants.
 private val MenuElevation = 8.dp
-internal val MenuElevationInset = 16.dp
+internal val MenuElevationInset = 32.dp
+private val MenuVerticalMargin = 32.dp
 private val DropdownMenuHorizontalPadding = 16.dp
 internal val DropdownMenuVerticalPadding = 8.dp
 private val DropdownMenuItemDefaultMinWidth = 112.dp
@@ -313,6 +317,8 @@ internal data class DropdownMenuPositionProvider(
         layoutDirection: LayoutDirection,
         popupSize: IntSize
     ): IntOffset {
+        // The min margin above and below the menu, relative to the screen.
+        val verticalMargin = with(density) { MenuVerticalMargin.toIntPx() }
         // The padding inset that accommodates elevation, needs to be taken into account.
         val inset = with(density) { MenuElevationInset.toIntPx() }
         val realPopupWidth = popupSize.width - inset * 2
@@ -339,9 +345,10 @@ internal data class DropdownMenuPositionProvider(
         val toBottom = parentBottom + contentOffsetY
         val toTop = parentLayoutPosition.y - contentOffsetY - realPopupHeight
         val toCenter = parentLayoutPosition.y - realPopupHeight / 2
-        val toDisplayBottom = displayMetrics.heightPixels - realPopupHeight
+        val toDisplayBottom = displayMetrics.heightPixels - realPopupHeight - verticalMargin
         val y = sequenceOf(toBottom, toTop, toCenter, toDisplayBottom).firstOrNull {
-            it >= 0 && it + realPopupHeight <= displayMetrics.heightPixels
+            it >= verticalMargin &&
+                    it + realPopupHeight <= displayMetrics.heightPixels - verticalMargin
         } ?: toTop
 
         // TODO(popam, b/159596546): we should probably have androidx.ui.unit.IntBounds instead
