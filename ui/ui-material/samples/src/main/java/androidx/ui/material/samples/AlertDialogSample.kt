@@ -19,12 +19,17 @@ package androidx.ui.material.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Row
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
 import androidx.ui.material.AlertDialog
 import androidx.ui.material.AlertDialogButtonLayout
 import androidx.ui.material.Button
+import androidx.ui.material.TextButton
+import androidx.ui.unit.dp
 
 @Sampled
 @Composable
@@ -43,18 +48,20 @@ fun SideBySideAlertDialogSample() {
                 Text(text = "Title")
             },
             text = {
-                Text("This area typically contains the supportive text" +
-                        " which presents the details regarding the Dialog's purpose.")
+                Text(
+                    "This area typically contains the supportive text " +
+                            "which presents the details regarding the Dialog's purpose."
+                )
             },
             confirmButton = {
-                Button(onClick = {
+                TextButton(onClick = {
                     openDialog.value = false
                 }) {
                     Text("Confirm")
                 }
             },
             dismissButton = {
-                Button(onClick = {
+                TextButton(onClick = {
                     openDialog.value = false
                 }) {
                     Text("Dismiss")
@@ -81,18 +88,20 @@ fun StackedAlertDialogSample() {
                 Text(text = "Title")
             },
             text = {
-                Text("This area typically contains the supportive text" +
-                        " which presents the details regarding the Dialog's purpose.")
+                Text(
+                    "This area typically contains the supportive text " +
+                            "which presents the details regarding the Dialog's purpose."
+                )
             },
             confirmButton = {
-                Button(onClick = {
+                TextButton(onClick = {
                     openDialog.value = false
                 }) {
                     Text("Long Confirm Button")
                 }
             },
             dismissButton = {
-                Button(onClick = {
+                TextButton(onClick = {
                     openDialog.value = false
                 }) {
                     Text("Long Dismiss Button")
@@ -117,13 +126,21 @@ fun CustomAlertDialogSample() {
                 Text(text = "Title")
             },
             text = {
-                Text("This area typically contains the supportive text" +
-                        " which presents the details regarding the Dialog's purpose.")
+                Text(
+                    "This area typically contains the supportive text " +
+                            "which presents the details regarding the Dialog's purpose."
+                )
             },
             buttons = {
-                Row(horizontalArrangement = Arrangement.Center) {
-                    Button(onClick = { openDialog.value = false }) {
-                        Text("Button")
+                Row(
+                    modifier = Modifier.padding(all = 8.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { openDialog.value = false }
+                    ) {
+                        Text("Dismiss")
                     }
                 }
             }

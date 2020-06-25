@@ -72,6 +72,8 @@ fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit) {
 
     onCommit {
         dialog.setContent {
+            // TODO(b/159900354): draw a scrim and add margins around the Compose Dialog, and
+            //  consume clicks so they can't pass through to the underlying UI
             Box(Modifier.semantics { this.dialog = true }, children = children)
         }
     }
@@ -93,6 +95,8 @@ private class DialogWrapper(
         ViewTreeLifecycleOwner.set(frameLayout, ViewTreeLifecycleOwner.get(composeView))
         ViewTreeViewModelStoreOwner.set(frameLayout, ViewTreeViewModelStoreOwner.get(composeView))
     }
+
+    // TODO(b/159900354): Make the Android Dialog full screen and the scrim fully transparent
 
     fun setContent(children: @Composable () -> Unit) {
         // TODO: This should probably create a child composition of the original

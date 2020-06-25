@@ -20,13 +20,19 @@ import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
 import androidx.ui.material.samples.BottomDrawerSample
+import androidx.ui.material.samples.CustomAlertDialogSample
 import androidx.ui.material.samples.EmphasisSample
 import androidx.ui.material.samples.ModalDrawerSample
 import androidx.ui.material.samples.ScaffoldWithBottomBarAndCutout
 import androidx.ui.material.samples.SideBySideAlertDialogSample
+import androidx.ui.material.samples.StackedAlertDialogSample
 
 val MaterialDemos = DemoCategory("Material", listOf(
-    ComposableDemo("AlertDialog") { SideBySideAlertDialogSample() },
+    DemoCategory("AlertDialog", listOf(
+        ComposableDemo("Side by side buttons") { SideBySideAlertDialogSample() },
+        ComposableDemo("Stacked buttons") { StackedAlertDialogSample() },
+        ComposableDemo("Custom buttons") { CustomAlertDialogSample() }
+    )),
     ComposableDemo("App Bars") { AppBarDemo() },
     ComposableDemo("Bottom Navigation") { BottomNavigationDemo() },
     ComposableDemo("Buttons & FABs") { ButtonDemo() },
