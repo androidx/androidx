@@ -100,6 +100,7 @@ public class AppSearchManager {
             /** Adds one or more types to the schema. */
             @NonNull
             public Builder addSchema(@NonNull AppSearchSchema... schemas) {
+                Preconditions.checkNotNull(schemas);
                 return addSchema(Arrays.asList(schemas));
             }
 
@@ -121,6 +122,7 @@ public class AppSearchManager {
             @NonNull
             public Builder addDataClass(@NonNull Class<?>... dataClasses)
                     throws AppSearchException {
+                Preconditions.checkNotNull(dataClasses);
                 return addDataClass(Arrays.asList(dataClasses));
             }
 
@@ -170,7 +172,7 @@ public class AppSearchManager {
     }
 
     /**
-     * Sets the schema being used by documents provided to the #putDocuments method.
+     * Sets the schema being used by documents provided to the {@link #putDocuments} method.
      *
      * <p>The schema provided here is compared to the stored copy of the schema previously supplied
      * to {@link #setSchema}, if any, to determine how to treat existing documents. The following
@@ -215,9 +217,8 @@ public class AppSearchManager {
      * efficiently.
      *
      * @param request The schema update request.
-     * @return a ListenableFuture representing the pending result of performing this operation.
+     * @return The pending result of performing this operation.
      */
-    // TODO(b/143789408): Linkify #putDocuments after that API is made public
     @NonNull
     public ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
@@ -258,6 +259,7 @@ public class AppSearchManager {
             /** Adds one or more documents to the request. */
             @NonNull
             public Builder addGenericDocument(@NonNull GenericDocument... documents) {
+                Preconditions.checkNotNull(documents);
                 return addGenericDocument(Arrays.asList(documents));
             }
 
@@ -278,6 +280,7 @@ public class AppSearchManager {
              */
             @NonNull
             public Builder addDataClass(@NonNull Object... dataClasses) throws AppSearchException {
+                Preconditions.checkNotNull(dataClasses);
                 return addDataClass(Arrays.asList(dataClasses));
             }
 
@@ -319,16 +322,16 @@ public class AppSearchManager {
     }
 
     /**
-     * Index {@link GenericDocument}s into AppSearch.
+     * Indexes documents into AppSearch.
      *
      * <p>Each {@link GenericDocument}'s {@code schemaType} field must be set to the name of a
      * schema type previously registered via the {@link #setSchema} method.
      *
      * @param request {@link PutDocumentsRequest} containing documents to be indexed
-     * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
-     *     {@code Void}&gt;&gt;. Where mapping the document URIs to {@link Void} if they were
-     *     successfully indexed, or a {@link Throwable} describing the failure if they could not
-     *     be indexed.
+     * @return The pending result of performing this operation. The keys of the returned
+     *     {@link AppSearchBatchResult} are the URIs of the input documents. The values are
+     *     {@code null} if they were successfully indexed, or a failed {@link AppSearchResult}
+     *     otherwise.
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> putDocuments(
@@ -352,34 +355,86 @@ public class AppSearchManager {
     }
 
     /**
+     * Encapsulates a request to retrieve documents by namespace and URI.
+     *
+     * @see AppSearchManager#getDocuments
+     */
+    public static final class GetDocumentsRequest {
+        final String mNamespace;
+        final Set<String> mUris;
+
+        GetDocumentsRequest(String namespace, Set<String> uris) {
+            mNamespace = namespace;
+            mUris = uris;
+        }
+
+        /** Builder for {@link GetDocumentsRequest} objects. */
+        public static final class Builder {
+            private String mNamespace = GenericDocument.DEFAULT_NAMESPACE;
+            private final Set<String> mUris = new ArraySet<>();
+            private boolean mBuilt = false;
+
+            /**
+             * Sets which namespace these documents will be retrieved from.
+             *
+             * <p>If this is not set, it defaults to {@link GenericDocument#DEFAULT_NAMESPACE}.
+             */
+            @NonNull
+            public Builder setNamespace(@NonNull String namespace) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                Preconditions.checkNotNull(namespace);
+                mNamespace = namespace;
+                return this;
+            }
+
+            /** Adds one or more URIs to the request. */
+            @NonNull
+            public Builder addUris(@NonNull String... uris) {
+                Preconditions.checkNotNull(uris);
+                return addUris(Arrays.asList(uris));
+            }
+
+            /** Adds one or more URIs to the request. */
+            @NonNull
+            public Builder addUris(@NonNull Collection<String> uris) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                Preconditions.checkNotNull(uris);
+                mUris.addAll(uris);
+                return this;
+            }
+
+            /** Builds a new {@link GetDocumentsRequest}. */
+            @NonNull
+            public GetDocumentsRequest build() {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                mBuilt = true;
+                return new GetDocumentsRequest(mNamespace, mUris);
+            }
+        }
+    }
+
+    /**
      * Retrieves {@link GenericDocument}s by URI.
      *
-     * @param namespace The namespace these documents reside in.
-     * @param uris URIs of the documents to look up.
-     * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
-     *     {@link GenericDocument}&gt;&gt;.
-     *     If the call fails to start, {@link ListenableFuture} will be completed exceptionally.
-     *     Otherwise, {@link ListenableFuture} will be completed with an
-     *     {@link AppSearchBatchResult}&lt;{@link String}, {@link GenericDocument}&gt;
-     *     mapping the document URIs to
-     *     {@link GenericDocument} values if they were successfully retrieved, a {@code null}
-     *     failure if they were not found, or a {@link Throwable} failure describing the problem
-     *     if an error occurred.
+     * @param request {@link GetDocumentsRequest} containing URIs to be retrieved.
+     * @return The pending result of performing this operation. The keys of the returned
+     *     {@link AppSearchBatchResult} are the input URIs. The values are the returned
+     *     {@link GenericDocument}s on success, or a failed {@link AppSearchResult} otherwise.
+     *     URIs that are not found will return a failed {@link AppSearchResult} with a result code
+     *     of {@link AppSearchResult#RESULT_NOT_FOUND}.
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getDocuments(
-            @NonNull String namespace,
-            @NonNull List<String> uris) {
+            @NonNull GetDocumentsRequest request) {
         // TODO(b/146386470): Transmit the result documents as a RemoteStream instead of sending
         //     them in one big list.
         return execute(QUERY_EXECUTOR, () -> {
             AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
-            for (int i = 0; i < uris.size(); i++) {
-                String uri = uris.get(i);
+            for (String uri : request.mUris) {
                 try {
-                    DocumentProto documentProto = mAppSearchImpl.getDocument(mInstanceName,
-                            namespace, uri);
+                    DocumentProto documentProto =
+                            mAppSearchImpl.getDocument(mInstanceName, request.mNamespace, uri);
                     if (documentProto == null) {
                         resultBuilder.setFailure(
                                 uri, AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null);
@@ -400,26 +455,6 @@ public class AppSearchManager {
             }
             return resultBuilder.build();
         });
-    }
-
-    /**
-     * Retrieves {@link GenericDocument}s by URI in default namespace.
-     *
-     * @param uris URIs of the documents to look up.
-     * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
-     *     {@link GenericDocument}&gt;&gt;.
-     *     If the call fails to start, {@link ListenableFuture} will be completed exceptionally.
-     *     Otherwise, {@link ListenableFuture} will be completed with an
-     *     {@link AppSearchBatchResult}&lt;{@link String}, {@link GenericDocument}&gt;
-     *     mapping the document URIs to
-     *     {@link GenericDocument} values if they were successfully retrieved, a {@code null}
-     *     failure if they were not found, or a {@link Throwable} failure describing the problem
-     *     if an error occurred.
-     */
-    @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getDocuments(
-            @NonNull List<String> uris) {
-        return getDocuments(GenericDocument.DEFAULT_NAMESPACE, uris);
     }
 
     /**

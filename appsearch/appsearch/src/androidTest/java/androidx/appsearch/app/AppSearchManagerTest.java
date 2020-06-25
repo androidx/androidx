@@ -16,6 +16,7 @@
 
 package androidx.appsearch.app;
 
+import static androidx.appsearch.app.AppSearchManager.GetDocumentsRequest;
 import static androidx.appsearch.app.AppSearchManager.PutDocumentsRequest;
 import static androidx.appsearch.app.AppSearchManager.SetSchemaRequest;
 
@@ -33,7 +34,6 @@ import org.junit.After;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -143,9 +143,8 @@ public class AppSearchManagerTest {
         assertThat(outEmail).isEqualTo(inEmail);
 
         // Can't get the document in the other instance.
-        AppSearchBatchResult<String, GenericDocument> failResult =
-                mAppSearch2.getDocuments(Arrays.asList("uri1")).get();
-
+        AppSearchBatchResult<String, GenericDocument> failResult = mAppSearch2.getDocuments(
+                new GetDocumentsRequest.Builder().addUris("uri1").build()).get();
         assertThat(failResult.isSuccess()).isFalse();
         assertThat(failResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
@@ -308,8 +307,9 @@ public class AppSearchManagerTest {
         checkIsSuccess(mAppSearch1.delete(ImmutableList.of("uri1")));
 
         // Make sure it's really gone
-        AppSearchBatchResult<String, GenericDocument> getResult =
-                mAppSearch1.getDocuments(ImmutableList.of("uri1", "uri2")).get();
+        AppSearchBatchResult<String, GenericDocument> getResult = mAppSearch1.getDocuments(
+                new GetDocumentsRequest.Builder().addUris("uri1", "uri2").build())
+                .get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
@@ -355,8 +355,8 @@ public class AppSearchManagerTest {
         checkIsSuccess(mAppSearch1.delete(ImmutableList.of("uri1")));
 
         // Make sure it's really gone
-        AppSearchBatchResult<String, GenericDocument> getResult =
-                mAppSearch1.getDocuments(ImmutableList.of("uri1")).get();
+        AppSearchBatchResult<String, GenericDocument> getResult = mAppSearch1.getDocuments(
+                new GetDocumentsRequest.Builder().addUris("uri1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
@@ -403,8 +403,9 @@ public class AppSearchManagerTest {
         checkIsSuccess(mAppSearch1.deleteByTypes(ImmutableList.of(AppSearchEmail.SCHEMA_TYPE)));
 
         // Make sure it's really gone
-        AppSearchBatchResult<String, GenericDocument> getResult =
-                mAppSearch1.getDocuments(ImmutableList.of("uri1", "uri2", "uri3")).get();
+        AppSearchBatchResult<String, GenericDocument> getResult = mAppSearch1.getDocuments(
+                new GetDocumentsRequest.Builder().addUris("uri1", "uri2", "uri3").build())
+                .get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
@@ -449,22 +450,23 @@ public class AppSearchManagerTest {
         checkIsSuccess(mAppSearch1.deleteByTypes(ImmutableList.of(AppSearchEmail.SCHEMA_TYPE)));
 
         // Make sure it's really gone in instance 1
-        AppSearchBatchResult<String, GenericDocument> getResult =
-                mAppSearch1.getDocuments(ImmutableList.of("uri1")).get();
+        AppSearchBatchResult<String, GenericDocument> getResult = mAppSearch1.getDocuments(
+                new GetDocumentsRequest.Builder().addUris("uri1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
 
         // Make sure it's still in instance 2.
-        getResult = mAppSearch2.getDocuments(ImmutableList.of("uri2")).get();
+        getResult = mAppSearch2.getDocuments(
+                new GetDocumentsRequest.Builder().addUris("uri2").build()).get();
         assertThat(getResult.isSuccess()).isTrue();
         assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
     }
 
-    private List<GenericDocument> doGet(AppSearchManager instance, String... uris)
+    private static List<GenericDocument> doGet(AppSearchManager instance, String... uris)
             throws Exception {
         Future<AppSearchBatchResult<String, GenericDocument>> future =
-                instance.getDocuments(Arrays.asList(uris));
+                instance.getDocuments(new GetDocumentsRequest.Builder().addUris(uris).build());
         checkIsSuccess(future);
         AppSearchBatchResult<String, GenericDocument> result = future.get();
         assertThat(result.getSuccesses()).hasSize(uris.length);
@@ -497,7 +499,7 @@ public class AppSearchManagerTest {
         return documents;
     }
 
-    private <T> void checkIsSuccess(Future<T> future) throws Exception {
+    private static <T> void checkIsSuccess(Future<T> future) throws Exception {
         T futureGet = future.get();
         if (futureGet instanceof AppSearchBatchResult) {
             AppSearchBatchResult<?, ?> result = (AppSearchBatchResult<?, ?>) futureGet;
