@@ -21,41 +21,60 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricManager.Authenticators
 import androidx.biometric.BiometricPrompt
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import java.util.concurrent.Executor
 
 /**
  * Main activity for the AndroidX Biometric test app.
  */
 @SuppressLint("SyntheticAccessor")
 class BiometricTestActivity : FragmentActivity() {
-    // Prompt-related fields.
-    private lateinit var executor: Executor
+    // The prompt used for authentication.
     private lateinit var biometricPrompt: BiometricPrompt
 
     // Individual UI elements.
-    private lateinit var deviceCredentialCheckbox: CheckBox
+    private lateinit var allowBiometricStrongCheckbox: CheckBox
+    private lateinit var allowBiometricWeakCheckbox: CheckBox
+    private lateinit var allowDeviceCredentialCheckbox: CheckBox
     private lateinit var cancelOnConfigChangeCheckbox: CheckBox
     private lateinit var requireConfirmationCheckbox: CheckBox
     private lateinit var logView: TextView
 
+    /**
+     * A bit field representing the currently allowed authenticator type(s).
+     */
+    private val allowedAuthenticators: Int
+        get() {
+            var authenticators = 0
+            if (allowBiometricStrongCheckbox.isChecked) {
+                authenticators = authenticators or Authenticators.BIOMETRIC_STRONG
+            }
+            if (allowBiometricWeakCheckbox.isChecked) {
+                authenticators = authenticators or Authenticators.BIOMETRIC_WEAK
+            }
+            if (allowDeviceCredentialCheckbox.isChecked) {
+                authenticators = authenticators or Authenticators.DEVICE_CREDENTIAL
+            }
+            return authenticators
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_biometric_test)
-        executor = ContextCompat.getMainExecutor(this)
-
-        val showPromptButton = findViewById<Button>(R.id.button_show_prompt)
-        showPromptButton.setOnClickListener { showPrompt() }
 
         // Get checkboxes from the UI so we can access their checked state later.
-        deviceCredentialCheckbox = findViewById(R.id.checkbox_device_credential)
+        allowBiometricStrongCheckbox = findViewById(R.id.checkbox_allow_biometric_strong)
+        allowBiometricWeakCheckbox = findViewById(R.id.checkbox_allow_biometric_weak)
+        allowDeviceCredentialCheckbox = findViewById(R.id.checkbox_allow_device_credential)
         cancelOnConfigChangeCheckbox = findViewById(R.id.checkbox_cancel_config_change)
         requireConfirmationCheckbox = findViewById(R.id.checkbox_require_confirmation)
 
-        val clearLogButton = findViewById<Button>(R.id.button_clear_log)
-        clearLogButton.setOnClickListener { clearLogs() }
+        // Set the button callbacks.
+        findViewById<Button>(R.id.button_can_authenticate).setOnClickListener { canAuthenticate() }
+        findViewById<Button>(R.id.button_authenticate).setOnClickListener { authenticate() }
+        findViewById<Button>(R.id.button_clear_log).setOnClickListener { clearLog() }
 
         // Restore logged messages on activity recreation (e.g. due to device rotation).
         logView = findViewById(R.id.text_view_log)
@@ -63,10 +82,9 @@ class BiometricTestActivity : FragmentActivity() {
             logView.text = savedInstanceState.getCharSequence(KEY_LOG_TEXT, "")
         }
 
-        // Reconnect the prompt by reinitializing with the new executor and callback.
+        // Reconnect the prompt by reinitializing with the new callback.
         biometricPrompt = BiometricPrompt(
             this,
-            executor,
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     super.onAuthenticationError(errorCode, errString)
@@ -77,7 +95,7 @@ class BiometricTestActivity : FragmentActivity() {
                     result: BiometricPrompt.AuthenticationResult
                 ) {
                     super.onAuthenticationSucceeded(result)
-                    log("onAuthenticationSuccess: crypto = ${result.cryptoObject}")
+                    log("onAuthenticationSucceeded: crypto = ${result.cryptoObject}")
                 }
 
                 override fun onAuthenticationFailed() {
@@ -105,16 +123,24 @@ class BiometricTestActivity : FragmentActivity() {
     }
 
     /**
+     * Logs the authentication status given by [BiometricManager.canAuthenticate].
+     */
+    private fun canAuthenticate() {
+        val result = BiometricManager.from(this).canAuthenticate(allowedAuthenticators)
+        log("canAuthenticate: ${result.toAuthenticationStatusString()}")
+    }
+
+    /**
      * Launches the [BiometricPrompt] to begin authentication.
      */
-    private fun showPrompt() {
+    private fun authenticate() {
         val infoBuilder = BiometricPrompt.PromptInfo.Builder()
             .setTitle(getString(R.string.biometric_prompt_title))
             .setSubtitle(getString(R.string.biometric_prompt_subtitle))
             .setDescription(getString(R.string.biometric_prompt_description))
             .setConfirmationRequired(requireConfirmationCheckbox.isChecked)
 
-        if (deviceCredentialCheckbox.isChecked) {
+        if (allowedAuthenticators and Authenticators.DEVICE_CREDENTIAL != 0) {
             infoBuilder.setDeviceCredentialAllowed(true)
         } else {
             infoBuilder.setNegativeButtonText(getString(R.string.biometric_prompt_negative_label))
@@ -126,7 +152,7 @@ class BiometricTestActivity : FragmentActivity() {
     /**
      * Clears all logged messages from the in-app [TextView].
      */
-    private fun clearLogs() {
+    private fun clearLog() {
         logView.text = ""
     }
 
@@ -139,5 +165,20 @@ class BiometricTestActivity : FragmentActivity() {
 
     companion object {
         private const val KEY_LOG_TEXT = "key_log_text"
+
+        /**
+         * Converts an authentication status code to a string that represents the status.
+         */
+        private fun Int.toAuthenticationStatusString(): String = when (this) {
+            BiometricManager.BIOMETRIC_SUCCESS -> "SUCCESS"
+            BiometricManager.BIOMETRIC_STATUS_UNKNOWN -> "STATUS_UNKNOWN"
+            BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED -> "ERROR_UNSUPPORTED"
+            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> "ERROR_HW_UNAVAILABLE"
+            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> "ERROR_NONE_ENROLLED"
+            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> "ERROR_NO_HARDWARE"
+            BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED ->
+                "ERROR_SECURITY_UPDATE_REQUIRED"
+            else -> "Unknown error: $this"
+        }
     }
 }

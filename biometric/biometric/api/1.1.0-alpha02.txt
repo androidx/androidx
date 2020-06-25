@@ -2,12 +2,22 @@
 package androidx.biometric {
 
   public class BiometricManager {
-    method public int canAuthenticate();
+    method @Deprecated public int canAuthenticate();
+    method public int canAuthenticate(int);
     method public static androidx.biometric.BiometricManager from(android.content.Context);
     field public static final int BIOMETRIC_ERROR_HW_UNAVAILABLE = 1; // 0x1
     field public static final int BIOMETRIC_ERROR_NONE_ENROLLED = 11; // 0xb
     field public static final int BIOMETRIC_ERROR_NO_HARDWARE = 12; // 0xc
+    field public static final int BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED = 15; // 0xf
+    field public static final int BIOMETRIC_ERROR_UNSUPPORTED = -2; // 0xfffffffe
+    field public static final int BIOMETRIC_STATUS_UNKNOWN = -1; // 0xffffffff
     field public static final int BIOMETRIC_SUCCESS = 0; // 0x0
+  }
+
+  public static interface BiometricManager.Authenticators {
+    field public static final int BIOMETRIC_STRONG = 15; // 0xf
+    field public static final int BIOMETRIC_WEAK = 255; // 0xff
+    field public static final int DEVICE_CREDENTIAL = 32768; // 0x8000
   }
 
   public class BiometricPrompt {

@@ -36,6 +36,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.biometric.BiometricManager.Authenticators;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -284,7 +285,7 @@ public class BiometricFragment extends Fragment {
         // Fall back to device credential immediately if no biometrics are enrolled.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
                 && isManagingDeviceCredentialButton()
-                && BiometricManager.from(activity).canAuthenticate()
+                && BiometricManager.from(activity).canAuthenticate(Authenticators.BIOMETRIC_WEAK)
                         != BiometricManager.BIOMETRIC_SUCCESS) {
             mViewModel.setAwaitingResult(true);
             launchConfirmCredentialActivity();
@@ -595,14 +596,7 @@ public class BiometricFragment extends Fragment {
         }
 
         // Get the KeyguardManager service in whichever way the platform supports.
-        final KeyguardManager keyguardManager;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            keyguardManager = Api23Impl.getKeyguardManager(activity);
-        } else {
-            final Object service = activity.getSystemService(Context.KEYGUARD_SERVICE);
-            keyguardManager = service instanceof KeyguardManager ? (KeyguardManager) service : null;
-        }
-
+        final KeyguardManager keyguardManager = KeyguardUtils.getKeyguardManager(activity);
         if (keyguardManager == null) {
             Log.e(TAG, "Failed to check device credential. KeyguardManager not found.");
             handleConfirmCredentialResult(Activity.RESULT_CANCELED);
@@ -1005,23 +999,6 @@ public class BiometricFragment extends Fragment {
                 @NonNull android.hardware.biometrics.BiometricPrompt.AuthenticationCallback
                         callback) {
             biometricPrompt.authenticate(crypto, cancellationSignal, executor, callback);
-        }
-    }
-
-    /**
-     * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
-     */
-    @RequiresApi(Build.VERSION_CODES.M)
-    private static class Api23Impl {
-        /**
-         * Gets an instance of the {@link KeyguardManager} system service.
-         *
-         * @param context The application or activity context.
-         * @return An instance of {@link KeyguardManager}.
-         */
-        @Nullable
-        static KeyguardManager getKeyguardManager(@NonNull Context context) {
-            return context.getSystemService(KeyguardManager.class);
         }
     }
 

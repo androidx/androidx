@@ -37,3 +37,7 @@
         class androidx.biometric.FingerprintDialogFragment$Api* {
     <methods>;
 }
+-keepclassmembernames,allowobfuscation,allowshrinking
+        class androidx.biometric.KeyguardUtils$Api* {
+    <methods>;
+}
