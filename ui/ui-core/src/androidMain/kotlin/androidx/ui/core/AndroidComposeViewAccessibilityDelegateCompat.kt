@@ -20,7 +20,6 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.TextUtils
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewParent
@@ -124,7 +123,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         val info: AccessibilityNodeInfoCompat = AccessibilityNodeInfoCompat.obtain()
         // the hidden property is often not there
         info.isVisibleToUser = true
-        var semanticsNode: SemanticsNode?
+        val semanticsNode: SemanticsNode?
         if (virtualViewId == AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
             info.setSource(view)
             semanticsNode = view.semanticsOwner.rootSemanticsNode
@@ -189,21 +188,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         // TODO: we need a AnnotedString to CharSequence conversion function
         info.text = trimToSize(semanticsNode.config.getOrNull(SemanticsProperties.Text)?.text,
             ParcelSafeTextLength)
-        // TODO(b/151847522): use state description when android R is available
-        var state = semanticsNode.config.getOrNull(SemanticsProperties.AccessibilityValue)
-        info.contentDescription = state
-        var content = semanticsNode.config.getOrNull(SemanticsProperties.AccessibilityLabel)
-        if (content != null) {
-            if (info.contentDescription != null) {
-                info.contentDescription = TextUtils.concat(content, ",", info.contentDescription)
-            } else {
-                info.contentDescription = content
-            }
-        }
-        // This is part of b/151847522 because content description overwrite text.
-        if (content == null && state != null && info.text != null) {
-            info.contentDescription = TextUtils.concat(info.contentDescription, ",", info.text)
-        }
+        info.stateDescription =
+            semanticsNode.config.getOrNull(SemanticsProperties.AccessibilityValue)
+        info.contentDescription =
+            semanticsNode.config.getOrNull(SemanticsProperties.AccessibilityLabel)
         info.isEnabled = semanticsNode.config.getOrElse(SemanticsProperties.Enabled) { true }
         info.isVisibleToUser = !(semanticsNode.config.getOrElse(
             SemanticsProperties.Hidden) { false })
@@ -504,8 +492,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
             // TODO: handling for other system actions
             else -> {
-                var label = actionIdToLabel[virtualViewId]?.get(action) ?: return false
-                var customActions = node.config.getOrNull(CustomActions) ?: return false
+                val label = actionIdToLabel[virtualViewId]?.get(action) ?: return false
+                val customActions = node.config.getOrNull(CustomActions) ?: return false
                 for (customAction in customActions) {
                     if (customAction.label == label) {
                         return customAction.action()
@@ -688,8 +676,12 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     continue
                 }
                 when (entry.key) {
-                    // we are in aosp, so can't use the state description yet.
-                    SemanticsProperties.AccessibilityValue,
+                    SemanticsProperties.AccessibilityValue ->
+                        sendEventForVirtualView(
+                            semanticsNodeIdToAccessibilityVirtualNodeId(id),
+                            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
+                            AccessibilityEvent.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION
+                        )
                     SemanticsProperties.AccessibilityLabel ->
                         sendEventForVirtualView(
                             semanticsNodeIdToAccessibilityVirtualNodeId(id),
