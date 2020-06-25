@@ -22,7 +22,7 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Path
 import androidx.ui.text.font.Font
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntSize
@@ -217,7 +217,7 @@ data class TextLayoutResult internal constructor(
      * @param offset a character offset
      * @return the paragraph direction
      */
-    fun getParagraphDirection(offset: Int): TextDirection =
+    fun getParagraphDirection(offset: Int): ResolvedTextDirection =
         multiParagraph.getParagraphDirection(offset)
 
     /**
@@ -227,7 +227,8 @@ data class TextLayoutResult internal constructor(
      * @param offset a character offset
      * @return the direction of the BiDi run of the given character offset.
      */
-    fun getBidiRunDirection(offset: Int): TextDirection = multiParagraph.getBidiRunDirection(offset)
+    fun getBidiRunDirection(offset: Int): ResolvedTextDirection =
+        multiParagraph.getBidiRunDirection(offset)
 
     /**
      *  Returns the character offset closest to the given graphical position.

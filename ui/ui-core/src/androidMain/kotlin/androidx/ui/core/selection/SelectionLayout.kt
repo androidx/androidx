@@ -28,7 +28,7 @@ import androidx.ui.core.hasFixedHeight
 import androidx.ui.core.hasFixedWidth
 import androidx.ui.geometry.Offset
 import androidx.ui.text.InternalTextApi
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
@@ -44,7 +44,7 @@ fun SelectionHandleLayout(
     startHandlePosition: Offset?,
     endHandlePosition: Offset?,
     isStartHandle: Boolean,
-    directions: Pair<TextDirection, TextDirection>,
+    directions: Pair<ResolvedTextDirection, ResolvedTextDirection>,
     handlesCrossed: Boolean,
     handle: @Composable () -> Unit
 ) {

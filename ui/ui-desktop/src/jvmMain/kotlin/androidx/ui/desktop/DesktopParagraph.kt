@@ -23,7 +23,7 @@ import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.ParagraphIntrinsics
 import androidx.ui.text.TextRange
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import androidx.ui.geometry.Offset
 import org.jetbrains.skija.Paragraph as SkParagraph
 
@@ -151,9 +151,11 @@ internal class DesktopParagraph(
         return 0.0f
     }
 
-    override fun getParagraphDirection(offset: Int): TextDirection = TextDirection.Ltr
+    override fun getParagraphDirection(offset: Int): ResolvedTextDirection =
+        ResolvedTextDirection.Ltr
 
-    override fun getBidiRunDirection(offset: Int): TextDirection = TextDirection.Ltr
+    override fun getBidiRunDirection(offset: Int): ResolvedTextDirection =
+        ResolvedTextDirection.Ltr
 
     override fun getOffsetForPosition(position: Offset): Int {
         return para.getGlyphPositionAtCoordinate(position.x, position.y).position

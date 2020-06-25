@@ -18,7 +18,7 @@ package androidx.ui.core.selection
 
 import androidx.compose.Immutable
 import androidx.ui.text.TextRange
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 
 /**
  * Information about the current Selection.
@@ -53,7 +53,7 @@ data class Selection(
         /**
          * Text direction of the character in selection edge.
          */
-        val direction: TextDirection,
+        val direction: ResolvedTextDirection,
 
         /**
          * Character offset for the selection edge. This offset is within individual child text

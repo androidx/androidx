@@ -22,7 +22,7 @@ package androidx.ui.text.style
  * @see androidx.ui.text.Paragraph.getParagraphDirection
  * @see androidx.ui.text.Paragraph.getBidiRunDirection
  */
-enum class TextDirection {
+enum class ResolvedTextDirection {
     /**
      * Represents the text that is left-to-right.
      */

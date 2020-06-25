@@ -19,7 +19,7 @@ package androidx.ui.text.style
 /**
  * Defines the algorithm to be used while determining the text direction.
  *
- * @see TextDirection
+ * @see ResolvedTextDirection
  */
 enum class TextDirectionAlgorithm {
     /**

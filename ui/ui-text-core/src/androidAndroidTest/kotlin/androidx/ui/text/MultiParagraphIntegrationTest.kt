@@ -25,7 +25,7 @@ import androidx.ui.graphics.PathOperation
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.Density
@@ -332,10 +332,10 @@ class MultiParagraphIntegrationTest {
         val text = createAnnotatedString("a", "\u05D0", " ")
         val paragraph = simpleMultiParagraph(text = text)
 
-        assertThat(paragraph.getParagraphDirection(0)).isEqualTo(TextDirection.Ltr)
-        assertThat(paragraph.getParagraphDirection(1)).isEqualTo(TextDirection.Rtl)
-        assertThat(paragraph.getParagraphDirection(2)).isEqualTo(TextDirection.Ltr)
-        assertThat(paragraph.getParagraphDirection(3)).isEqualTo(TextDirection.Ltr)
+        assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
+        assertThat(paragraph.getParagraphDirection(1)).isEqualTo(ResolvedTextDirection.Rtl)
+        assertThat(paragraph.getParagraphDirection(2)).isEqualTo(ResolvedTextDirection.Ltr)
+        assertThat(paragraph.getParagraphDirection(3)).isEqualTo(ResolvedTextDirection.Ltr)
     }
 
     @Test
@@ -347,10 +347,10 @@ class MultiParagraphIntegrationTest {
                 textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
             )
         )
-        assertThat(paragraph.getParagraphDirection(0)).isEqualTo(TextDirection.Ltr)
-        assertThat(paragraph.getParagraphDirection(1)).isEqualTo(TextDirection.Rtl)
-        assertThat(paragraph.getParagraphDirection(2)).isEqualTo(TextDirection.Ltr)
-        assertThat(paragraph.getParagraphDirection(3)).isEqualTo(TextDirection.Ltr)
+        assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
+        assertThat(paragraph.getParagraphDirection(1)).isEqualTo(ResolvedTextDirection.Rtl)
+        assertThat(paragraph.getParagraphDirection(2)).isEqualTo(ResolvedTextDirection.Ltr)
+        assertThat(paragraph.getParagraphDirection(3)).isEqualTo(ResolvedTextDirection.Ltr)
     }
 
     @Test
@@ -362,10 +362,10 @@ class MultiParagraphIntegrationTest {
                 textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrRtl
             )
         )
-        assertThat(paragraph.getParagraphDirection(0)).isEqualTo(TextDirection.Ltr)
-        assertThat(paragraph.getParagraphDirection(1)).isEqualTo(TextDirection.Rtl)
-        assertThat(paragraph.getParagraphDirection(2)).isEqualTo(TextDirection.Rtl)
-        assertThat(paragraph.getParagraphDirection(3)).isEqualTo(TextDirection.Rtl)
+        assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
+        assertThat(paragraph.getParagraphDirection(1)).isEqualTo(ResolvedTextDirection.Rtl)
+        assertThat(paragraph.getParagraphDirection(2)).isEqualTo(ResolvedTextDirection.Rtl)
+        assertThat(paragraph.getParagraphDirection(3)).isEqualTo(ResolvedTextDirection.Rtl)
     }
 
     @Test
@@ -380,7 +380,7 @@ class MultiParagraphIntegrationTest {
 
         for (i in 0..text.length) {
             assertWithMessage("getParagraphDirection($i) failed")
-                .that(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Ltr)
+                .that(paragraph.getParagraphDirection(i)).isEqualTo(ResolvedTextDirection.Ltr)
         }
     }
 
@@ -396,7 +396,7 @@ class MultiParagraphIntegrationTest {
 
         for (i in 0..text.length) {
             assertWithMessage("getParagraphDirection($i) failed")
-                .that(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Rtl)
+                .that(paragraph.getParagraphDirection(i)).isEqualTo(ResolvedTextDirection.Rtl)
         }
     }
 
@@ -422,11 +422,11 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString("a\u05D0", "\u05D0a")
             val paragraph = simpleMultiParagraph(text = text)
 
-            assertThat(paragraph.getBidiRunDirection(0)).isEqualTo(TextDirection.Ltr)
-            assertThat(paragraph.getBidiRunDirection(1)).isEqualTo(TextDirection.Rtl)
+            assertThat(paragraph.getBidiRunDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
+            assertThat(paragraph.getBidiRunDirection(1)).isEqualTo(ResolvedTextDirection.Rtl)
 
-            assertThat(paragraph.getBidiRunDirection(2)).isEqualTo(TextDirection.Rtl)
-            assertThat(paragraph.getBidiRunDirection(3)).isEqualTo(TextDirection.Ltr)
+            assertThat(paragraph.getBidiRunDirection(2)).isEqualTo(ResolvedTextDirection.Rtl)
+            assertThat(paragraph.getBidiRunDirection(3)).isEqualTo(ResolvedTextDirection.Ltr)
         }
     }
 
@@ -1256,10 +1256,10 @@ class MultiParagraphIntegrationTest {
         )
 
         // the first character uses TextDirectionAlgorithm.ContentOrLtr
-        assertThat(paragraph.getParagraphDirection(0)).isEqualTo(TextDirection.Ltr)
+        assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
         // the second character should use TextDirectionAlgorithm.ForceRtlsince it should inherit
         // from main [ParagraphStyle]
-        assertThat(paragraph.getParagraphDirection(1)).isEqualTo(TextDirection.Rtl)
+        assertThat(paragraph.getParagraphDirection(1)).isEqualTo(ResolvedTextDirection.Rtl)
     }
 
     @Test

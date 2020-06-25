@@ -36,7 +36,7 @@ import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.matchers.assertThat
 import androidx.ui.text.matchers.isZero
 import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
@@ -1287,7 +1287,7 @@ class ParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Ltr)
+                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(ResolvedTextDirection.Ltr)
             }
         }
     }
@@ -1309,7 +1309,7 @@ class ParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Rtl)
+                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(ResolvedTextDirection.Rtl)
             }
         }
     }
@@ -1328,7 +1328,7 @@ class ParagraphIntegrationTest {
             )
 
             for (i in text.indices) {
-                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Rtl)
+                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(ResolvedTextDirection.Rtl)
             }
         }
     }
@@ -1350,7 +1350,7 @@ class ParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Ltr)
+                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(ResolvedTextDirection.Ltr)
             }
         }
     }
@@ -1371,7 +1371,7 @@ class ParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Ltr)
+                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(ResolvedTextDirection.Ltr)
             }
         }
     }
@@ -1395,7 +1395,7 @@ class ParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Ltr)
+                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(ResolvedTextDirection.Ltr)
             }
         }
     }
@@ -1419,7 +1419,7 @@ class ParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Rtl)
+                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(ResolvedTextDirection.Rtl)
             }
         }
     }
@@ -1438,7 +1438,7 @@ class ParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Ltr)
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(ResolvedTextDirection.Ltr)
             }
         }
     }
@@ -1460,7 +1460,7 @@ class ParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Ltr)
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(ResolvedTextDirection.Ltr)
             }
         }
     }
@@ -1479,7 +1479,7 @@ class ParagraphIntegrationTest {
             )
 
             for (i in text.indices) {
-                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Rtl)
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(ResolvedTextDirection.Rtl)
             }
         }
     }
@@ -1501,9 +1501,11 @@ class ParagraphIntegrationTest {
             )
 
             for (i in 0 until text.length - 1) {
-                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Rtl)
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(ResolvedTextDirection.Rtl)
             }
-            assertThat(paragraph.getBidiRunDirection(text.length - 1)).isEqualTo(TextDirection.Ltr)
+            assertThat(
+                paragraph.getBidiRunDirection(text.length - 1)
+            ).isEqualTo(ResolvedTextDirection.Ltr)
         }
     }
 
@@ -1523,11 +1525,11 @@ class ParagraphIntegrationTest {
             )
 
             for (i in ltrText.indices) {
-                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Ltr)
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(ResolvedTextDirection.Ltr)
             }
 
             for (i in ltrText.length until text.length) {
-                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Rtl)
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(ResolvedTextDirection.Rtl)
             }
         }
     }
@@ -1551,11 +1553,11 @@ class ParagraphIntegrationTest {
             )
 
             for (i in ltrText.indices) {
-                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Ltr)
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(ResolvedTextDirection.Ltr)
             }
 
             for (i in ltrText.length until text.length) {
-                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Rtl)
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(ResolvedTextDirection.Rtl)
             }
         }
     }
@@ -1579,11 +1581,11 @@ class ParagraphIntegrationTest {
             )
 
             for (i in ltrText.indices) {
-                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Ltr)
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(ResolvedTextDirection.Ltr)
             }
 
             for (i in ltrText.length until text.length) {
-                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Rtl)
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(ResolvedTextDirection.Rtl)
             }
         }
     }

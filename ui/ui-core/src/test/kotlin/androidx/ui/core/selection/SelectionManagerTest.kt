@@ -28,7 +28,7 @@ import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.geometry.Rect
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.length
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.ResolvedTextDirection
 import androidx.ui.text.subSequence
 import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
@@ -67,12 +67,12 @@ class SelectionManagerTest {
     private val fakeSelection =
         Selection(
             start = Selection.AnchorInfo(
-                direction = TextDirection.Ltr,
+                direction = ResolvedTextDirection.Ltr,
                 offset = 0,
                 selectable = startSelectable
             ),
             end = Selection.AnchorInfo(
-                direction = TextDirection.Ltr,
+                direction = ResolvedTextDirection.Ltr,
                 offset = 5,
                 selectable = endSelectable
             )
@@ -207,11 +207,11 @@ class SelectionManagerTest {
         whenever(selectable.getText()).thenReturn(annotatedString)
         selectionManager.selection = Selection(
             start = Selection.AnchorInfo(
-                direction = TextDirection.Ltr,
+                direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
                 selectable = selectable),
             end = Selection.AnchorInfo(
-                direction = TextDirection.Ltr,
+                direction = ResolvedTextDirection.Ltr,
                 offset = endOffset,
                 selectable = selectable
             ),
@@ -232,11 +232,11 @@ class SelectionManagerTest {
         whenever(selectable.getText()).thenReturn(annotatedString)
         selectionManager.selection = Selection(
             start = Selection.AnchorInfo(
-                direction = TextDirection.Ltr,
+                direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
                 selectable = selectable),
             end = Selection.AnchorInfo(
-                direction = TextDirection.Ltr,
+                direction = ResolvedTextDirection.Ltr,
                 offset = endOffset,
                 selectable = selectable
             ),
@@ -265,11 +265,11 @@ class SelectionManagerTest {
         whenever(endSelectable.getText()).thenReturn(annotatedString)
         selectionManager.selection = Selection(
             start = Selection.AnchorInfo(
-                direction = TextDirection.Ltr,
+                direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
                 selectable = startSelectable),
             end = Selection.AnchorInfo(
-                direction = TextDirection.Ltr,
+                direction = ResolvedTextDirection.Ltr,
                 offset = endOffset,
                 selectable = endSelectable
             ),
@@ -303,11 +303,11 @@ class SelectionManagerTest {
         whenever(endSelectable.getText()).thenReturn(annotatedString)
         selectionManager.selection = Selection(
             start = Selection.AnchorInfo(
-                direction = TextDirection.Ltr,
+                direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
                 selectable = startSelectable),
             end = Selection.AnchorInfo(
-                direction = TextDirection.Ltr,
+                direction = ResolvedTextDirection.Ltr,
                 offset = endOffset,
                 selectable = endSelectable
             ),
@@ -342,11 +342,11 @@ class SelectionManagerTest {
         whenever(selectable.getText()).thenReturn(annotatedString)
         selectionManager.selection = Selection(
             start = Selection.AnchorInfo(
-                direction = TextDirection.Ltr,
+                direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
                 selectable = selectable),
             end = Selection.AnchorInfo(
-                direction = TextDirection.Ltr,
+                direction = ResolvedTextDirection.Ltr,
                 offset = endOffset,
                 selectable = selectable
             ),
@@ -372,11 +372,11 @@ class SelectionManagerTest {
         whenever(selectable.getText()).thenReturn(annotatedString)
         selectionManager.selection = Selection(
             start = Selection.AnchorInfo(
-                direction = TextDirection.Ltr,
+                direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
                 selectable = selectable),
             end = Selection.AnchorInfo(
-                direction = TextDirection.Ltr,
+                direction = ResolvedTextDirection.Ltr,
                 offset = endOffset,
                 selectable = selectable
             ),
@@ -397,12 +397,12 @@ class SelectionManagerTest {
         val fakeSelection =
             Selection(
                 start = Selection.AnchorInfo(
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     offset = 0,
                     selectable = startSelectable
                 ),
                 end = Selection.AnchorInfo(
-                    direction = TextDirection.Ltr,
+                    direction = ResolvedTextDirection.Ltr,
                     offset = 5,
                     selectable = endSelectable
                 )

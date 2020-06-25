@@ -1821,12 +1821,12 @@ package androidx.ui.core.selection {
   }
 
   @androidx.compose.Immutable public static final class Selection.AnchorInfo {
-    ctor public Selection.AnchorInfo(androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.selection.Selectable selectable);
-    method public androidx.ui.text.style.TextDirection component1();
+    ctor public Selection.AnchorInfo(androidx.ui.text.style.ResolvedTextDirection direction, int offset, androidx.ui.core.selection.Selectable selectable);
+    method public androidx.ui.text.style.ResolvedTextDirection component1();
     method public int component2();
     method public androidx.ui.core.selection.Selectable component3();
-    method @androidx.compose.Immutable public androidx.ui.core.selection.Selection.AnchorInfo copy(androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.selection.Selectable selectable);
-    method public androidx.ui.text.style.TextDirection getDirection();
+    method @androidx.compose.Immutable public androidx.ui.core.selection.Selection.AnchorInfo copy(androidx.ui.text.style.ResolvedTextDirection direction, int offset, androidx.ui.core.selection.Selectable selectable);
+    method public androidx.ui.text.style.ResolvedTextDirection getDirection();
     method public int getOffset();
     method public androidx.ui.core.selection.Selectable getSelectable();
   }
