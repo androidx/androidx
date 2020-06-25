@@ -30,6 +30,7 @@ import androidx.compose.remember
 import androidx.compose.withRunningRecomposer
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
@@ -52,13 +53,13 @@ class ComposedModifierTest {
      * Confirm that a [composed] modifier correctly constructs separate instances when materialized
      */
     @Test
-    fun materializeComposedModifier() = runBlocking {
+    fun materializeComposedModifier() = runBlocking(TestFrameClock()) {
         // Note: assumes single-threaded composition
         var counter = 0
         val sourceMod = Modifier.testTag("static", 0)
             .composed { testTag("dynamic", ++counter) }
 
-        withRunningRecomposer(TestFrameClock()) { recomposer ->
+        withRunningRecomposer { recomposer ->
             lateinit var firstMaterialized: Modifier
             lateinit var secondMaterialized: Modifier
             compose(recomposer) {
@@ -117,27 +118,29 @@ class ComposedModifierTest {
         }
 
         val frameClock = TestFrameClock()
-        withRunningRecomposer(frameClock) { recomposer ->
-            lateinit var materialized: Modifier
-            compose(recomposer) {
-                materialized = currentComposer.materialize(sourceMod)
+        withContext(frameClock) {
+            withRunningRecomposer { recomposer ->
+                lateinit var materialized: Modifier
+                compose(recomposer) {
+                    materialized = currentComposer.materialize(sourceMod)
+                }
+
+                assertEquals(
+                    "initial composition value",
+                    0,
+                    materialized.getTestTag("changing", Int.MIN_VALUE)
+                )
+
+                value = 5
+                invalidator()
+                frameClock.frame(0L)
+
+                assertEquals(
+                    "recomposed composition value",
+                    5,
+                    materialized.getTestTag("changing", Int.MIN_VALUE)
+                )
             }
-
-            assertEquals(
-                "initial composition value",
-                0,
-                materialized.getTestTag("changing", Int.MIN_VALUE)
-            )
-
-            value = 5
-            invalidator()
-            frameClock.frame(0L)
-
-            assertEquals(
-                "recomposed composition value",
-                5,
-                materialized.getTestTag("changing", Int.MIN_VALUE)
-            )
         }
     }
 
@@ -152,24 +155,26 @@ class ComposedModifierTest {
 
         val frameClock = TestFrameClock()
 
-        withRunningRecomposer(frameClock) { recomposer ->
-            val results = mutableListOf<Any?>()
-            val notFound = Any()
-            compose(recomposer) {
-                results.add(
-                    currentComposer.materialize(sourceMod).getTestTag("remembered", notFound)
-                )
+        withContext(frameClock) {
+            withRunningRecomposer { recomposer ->
+                val results = mutableListOf<Any?>()
+                val notFound = Any()
+                compose(recomposer) {
+                    results.add(
+                        currentComposer.materialize(sourceMod).getTestTag("remembered", notFound)
+                    )
+                }
+
+                assertTrue("one item added for initial composition", results.size == 1)
+                assertNotNull("remembered object not null", results[0])
+
+                invalidator()
+                frameClock.frame(0)
+
+                assertEquals("two items added after recomposition", 2, results.size)
+                assertTrue("no null items", results.none { it === notFound })
+                assertEquals("remembered references are equal", results[0], results[1])
             }
-
-            assertTrue("one item added for initial composition", results.size == 1)
-            assertNotNull("remembered object not null", results[0])
-
-            invalidator()
-            frameClock.frame(0)
-
-            assertEquals("two items added after recomposition", 2, results.size)
-            assertTrue("no null items", results.none { it === notFound })
-            assertEquals("remembered references are equal", results[0], results[1])
         }
     }
 
@@ -183,17 +188,19 @@ class ComposedModifierTest {
 
         val frameClock = TestFrameClock()
 
-        withRunningRecomposer(frameClock) { recomposer ->
-            lateinit var materialized: Modifier
-            compose(recomposer) {
-                materialized = currentComposer.materialize(mod)
-            }
+        withContext(frameClock) {
+            withRunningRecomposer { recomposer ->
+                lateinit var materialized: Modifier
+                compose(recomposer) {
+                    materialized = currentComposer.materialize(mod)
+                }
 
-            assertEquals(
-                "fully unwrapped composed modifier value",
-                10,
-                materialized.getTestTag("nested", 0)
-            )
+                assertEquals(
+                    "fully unwrapped composed modifier value",
+                    10,
+                    materialized.getTestTag("nested", 0)
+                )
+            }
         }
     }
 }
