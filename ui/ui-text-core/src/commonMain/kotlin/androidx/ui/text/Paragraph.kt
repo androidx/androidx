@@ -240,7 +240,7 @@ interface Paragraph {
  * @param density density of the device
  * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [SpanStyle]s
  *
- * @throws IllegalArgumentException if [ParagraphStyle.textDirectionAlgorithm] is not set
+ * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set
  */
 fun Paragraph(
     text: String,

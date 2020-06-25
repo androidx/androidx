@@ -58,7 +58,7 @@ class MultiParagraph(
      * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [SpanStyle]s
      *
      * @see Placeholder
-     * @throws IllegalArgumentException if [ParagraphStyle.textDirectionAlgorithm] is not set, or
+     * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set, or
      * any of the [placeholders] crosses paragraph boundary.
      */
     constructor(
