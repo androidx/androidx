@@ -922,6 +922,16 @@ package androidx.ui.text.platform {
 
 }
 
+package androidx.ui.text.platform.extensions {
+
+  public final class LocaleExtensionsKt {
+  }
+
+  public final class TextPaintExtensionsKt {
+  }
+
+}
+
 package androidx.ui.text.style {
 
   @androidx.compose.Immutable public final inline class BaselineShift {
