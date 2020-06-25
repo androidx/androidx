@@ -1738,10 +1738,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param childFragment child fragment being attached
      *
-     * @deprecated Call
+     * @deprecated The responsibility for listening for fragments being attached has been moved
+     * to FragmentManager. You can add a listener to
+     * {@link #getChildFragmentManager()} the child FragmentManager} by calling
      * {@link FragmentManager#addFragmentOnAttachListener(FragmentOnAttachListener)}
-     * with this Fragment's {@link #getChildFragmentManager()} in {@link #onAttach(Context)}
-     * to get callbacks when a child fragment is attached.
+     *  in {@link #onAttach(Context)} to get callbacks when a child fragment is attached.
      */
     @SuppressWarnings({"unused", "DeprecatedIsStillUsed"})
     @Deprecated

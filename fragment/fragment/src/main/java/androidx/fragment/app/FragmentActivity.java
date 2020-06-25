@@ -541,10 +541,12 @@ public class FragmentActivity extends ComponentActivity implements
      * the attached fragment's <code>onCreate</code> if the fragment has not yet had a previous
      * call to <code>onCreate</code>.</p>
      *
-     * @deprecated Call
+     * @deprecated The responsibility for listening for fragments being attached has been moved
+     * to FragmentManager. You can add a listener to
+     * {@link #getSupportFragmentManager() this Activity's FragmentManager} by calling
      * {@link FragmentManager#addFragmentOnAttachListener(FragmentOnAttachListener)}
-     * with this Fragment's {@link #getSupportFragmentManager()} in your constructor
-     * to get callbacks when a fragment is attached.
+     * in your constructor to get callbacks when a fragment is attached directly to
+     * the activity's FragmentManager.
      */
     @SuppressWarnings({"unused", "DeprecatedIsStillUsed"})
     @Deprecated
