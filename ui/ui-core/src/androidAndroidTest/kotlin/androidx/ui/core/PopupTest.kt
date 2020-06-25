@@ -17,6 +17,8 @@ package androidx.ui.core
 
 import android.view.View
 import androidx.compose.Composable
+import androidx.compose.Providers
+import androidx.compose.ambientOf
 import androidx.compose.emptyContent
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.test.espresso.Espresso
@@ -917,6 +919,22 @@ class PopupTest {
             )
 
         Truth.assertThat(positionRight).isEqualTo(expectedPositionRight)
+    }
+
+    @Test
+    fun popup_preservesAmbients() {
+        val ambient = ambientOf<Float>()
+        var value = 0f
+        composeTestRule.setContent {
+            Providers(ambient provides 1f) {
+                Popup {
+                    value = ambient.current
+                }
+            }
+        }
+        runOnIdleCompose {
+            Truth.assertThat(value).isEqualTo(1f)
+        }
     }
 
     private fun matchesAndroidComposeView(): BoundedMatcher<View, View> {

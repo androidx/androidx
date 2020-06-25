@@ -18,7 +18,10 @@ package androidx.ui.core.test
 import android.widget.FrameLayout
 import androidx.compose.Composable
 import androidx.compose.Composition
+import androidx.compose.Providers
 import androidx.compose.Recomposer
+import androidx.compose.ambientOf
+import androidx.compose.compositionReference
 import androidx.compose.invalidate
 import androidx.compose.onActive
 import androidx.compose.onCommit
@@ -27,12 +30,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewTreeLifecycleOwner
-import androidx.test.filters.SmallTest
+import androidx.test.filters.MediumTest
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.viewinterop.AndroidView
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,7 +48,7 @@ import java.util.concurrent.TimeUnit
 @Composable private fun Recompose(body: @Composable (recompose: () -> Unit) -> Unit) =
     body(invalidate)
 
-@SmallTest
+@MediumTest
 @RunWith(JUnit4::class)
 class WrapperTest {
     @Suppress("DEPRECATION")
@@ -132,6 +137,34 @@ class WrapperTest {
             composition!!.dispose()
             assertEquals(0, owner.registry.observerCount)
         }
+    }
+
+    @Test
+    @Ignore("b/159106722")
+    fun compositionLinked_whenParentProvided() {
+        val composedLatch = CountDownLatch(1)
+        var value = 0f
+
+        activityTestRule.runOnUiThread {
+            val frameLayout = FrameLayout(activity)
+            activity.setContent {
+                val ambient = ambientOf<Float>()
+                Providers(ambient provides 1f) {
+                    val recomposer = Recomposer.current()
+                    val composition = compositionReference()
+
+                    AndroidView(frameLayout)
+                    onCommit {
+                        frameLayout.setContent(recomposer, composition) {
+                            value = ambient.current
+                            composedLatch.countDown()
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(composedLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1f, value)
     }
 
     private class RegistryOwner : LifecycleOwner {

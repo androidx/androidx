@@ -23,8 +23,10 @@ import android.view.Window
 import android.widget.FrameLayout
 import androidx.compose.Composable
 import androidx.compose.Composition
+import androidx.compose.CompositionReference
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Recomposer
+import androidx.compose.compositionReference
 import androidx.compose.currentComposer
 import androidx.compose.onActive
 import androidx.compose.onCommit
@@ -70,8 +72,9 @@ fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit) {
         }
     }
 
+    val composition = compositionReference()
     onCommit {
-        dialog.setContent {
+        dialog.setContent(composition) {
             // TODO(b/159900354): draw a scrim and add margins around the Compose Dialog, and
             //  consume clicks so they can't pass through to the underlying UI
             Box(Modifier.semantics { this.dialog = true }, children = children)
@@ -98,9 +101,9 @@ private class DialogWrapper(
 
     // TODO(b/159900354): Make the Android Dialog full screen and the scrim fully transparent
 
-    fun setContent(children: @Composable () -> Unit) {
+    fun setContent(parentComposition: CompositionReference, children: @Composable () -> Unit) {
         // TODO: This should probably create a child composition of the original
-        composition = frameLayout.setContent(recomposer, children)
+        composition = frameLayout.setContent(recomposer, parentComposition, children)
     }
 
     fun disposeComposition() {
