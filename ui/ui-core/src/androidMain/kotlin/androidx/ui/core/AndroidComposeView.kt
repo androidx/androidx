@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:OptIn(ExperimentalComposeApi::class)
 package androidx.ui.core
 
 import android.annotation.SuppressLint
@@ -34,6 +36,8 @@ import android.view.ViewStructure
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import androidx.compose.ExperimentalComposeApi
+import androidx.compose.snapshots.SnapshotStateObserver
 import androidx.core.os.HandlerCompat
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.LifecycleOwner
@@ -189,7 +193,7 @@ internal class AndroidComposeView constructor(
         return sendKeyEvent(keyEvent)
     }
 
-    private val modelObserver = ModelObserver { command ->
+    private val snapshotObserver = SnapshotStateObserver { command ->
         if (handler.looper === Looper.myLooper()) {
             command()
         } else {
@@ -221,7 +225,8 @@ internal class AndroidComposeView constructor(
     override var showLayoutBounds = false
 
     override fun pauseModelReadObserveration(block: () -> Unit) =
-        modelObserver.pauseObservingReads(block)
+        @OptIn(ExperimentalComposeApi::class)
+        snapshotObserver.pauseObservingReads(block)
 
     init {
         setWillNotDraw(false)
@@ -255,7 +260,7 @@ internal class AndroidComposeView constructor(
 
     override fun onDetach(node: LayoutNode) {
         measureAndLayoutDelegate.onNodeDetached(node)
-        modelObserver.clear(node)
+        snapshotObserver.clear(node)
     }
 
     private val androidViewsHandler by lazy(LazyThreadSafetyMode.NONE) {
@@ -353,15 +358,15 @@ internal class AndroidComposeView constructor(
     // [ Layout block end ]
 
     override fun observeLayoutModelReads(node: LayoutNode, block: () -> Unit) {
-        modelObserver.observeReads(node, onCommitAffectingLayout, block)
+        snapshotObserver.observeReads(node, onCommitAffectingLayout, block)
     }
 
     override fun observeMeasureModelReads(node: LayoutNode, block: () -> Unit) {
-        modelObserver.observeReads(node, onCommitAffectingMeasure, block)
+        snapshotObserver.observeReads(node, onCommitAffectingMeasure, block)
     }
 
     fun observeLayerModelReads(layer: OwnedLayer, block: () -> Unit) {
-        modelObserver.observeReads(layer, onCommitAffectingLayer, block)
+        snapshotObserver.observeReads(layer, onCommitAffectingLayer, block)
     }
 
     override fun onDraw(canvas: android.graphics.Canvas) {
@@ -391,7 +396,7 @@ internal class AndroidComposeView constructor(
     }
 
     private fun updateLayerProperties(layer: OwnedLayer) {
-        modelObserver.observeReads(layer, onCommitAffectingLayerParams) {
+        snapshotObserver.observeReads(layer, onCommitAffectingLayerParams) {
             layer.updateLayerProperties()
         }
     }
@@ -437,7 +442,7 @@ internal class AndroidComposeView constructor(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         showLayoutBounds = getIsShowingLayoutBounds()
-        modelObserver.enableModelUpdatesObserving(true)
+        snapshotObserver.enableStateUpdatesObserving(true)
         ifDebug { if (autofillSupported()) _autofill?.registerCallback() }
         root.attach(this)
 
@@ -460,7 +465,7 @@ internal class AndroidComposeView constructor(
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        modelObserver.enableModelUpdatesObserving(false)
+        snapshotObserver.enableStateUpdatesObserving(false)
         ifDebug { if (autofillSupported()) _autofill?.unregisterCallback() }
         if (measureAndLayoutScheduled) {
             measureAndLayoutHandler.removeMessages(0)

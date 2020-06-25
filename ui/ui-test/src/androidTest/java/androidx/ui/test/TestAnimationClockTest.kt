@@ -23,11 +23,11 @@ import androidx.animation.transitionDefinition
 import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.ExperimentalComposeApi
-import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.State
 import androidx.compose.currentComposer
 import androidx.compose.mutableStateOf
+import androidx.compose.snapshots.Snapshot
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.MediumTest
 import androidx.ui.animation.Transition
@@ -144,7 +144,8 @@ class TestAnimationClockTest {
             assertThat(ComposeIdlingResource.isIdle()).isFalse()
 
             // Force model changes down the pipeline
-            FrameManager.nextFrame()
+            @OptIn(ExperimentalComposeApi::class)
+            Snapshot.sendApplyNotifications()
         }
 
         recomposer.awaitIdle()
@@ -159,7 +160,8 @@ class TestAnimationClockTest {
         // Avoid synchronization steps when doing this: if we would synchronize, we would never
         // know it if advanceClock didn't work.
         runOnUiThread {
-            FrameManager.nextFrame()
+            @OptIn(ExperimentalComposeApi::class)
+            Snapshot.sendApplyNotifications()
         }
 
         recomposer.awaitIdle()

@@ -18,9 +18,9 @@ package androidx.ui.test.android
 
 import android.os.Handler
 import android.os.Looper
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Recomposer
-import androidx.compose.frames.currentFrame
-import androidx.compose.frames.inFrame
+import androidx.compose.snapshots.Snapshot
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
 import androidx.ui.test.TestAnimationClock
@@ -83,9 +83,10 @@ internal object ComposeIdlingResource : BaseIdlingResource() {
     /**
      * Returns whether or not Compose is idle, without starting to poll if it is not.
      */
+    @OptIn(ExperimentalComposeApi::class)
     fun isIdle(): Boolean {
         return runOnUiThread {
-            !(inFrame && currentFrame().hasPendingChanges()) &&
+            !(Snapshot.current.hasPendingChanges()) &&
                     !Recomposer.current().hasPendingChanges() &&
                     areAllClocksIdle()
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,39 +14,33 @@
  * limitations under the License.
  */
 
-package androidx.ui.benchmark.test
+package androidx.compose.benchmark
 
 import android.os.Handler
 import android.os.Looper
-import androidx.compose.FrameManager
-import androidx.compose.frames.commit
-import androidx.compose.frames.inFrame
-import androidx.compose.frames.open
+import androidx.benchmark.junit4.measureRepeated
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.mutableStateOf
+import androidx.compose.snapshots.Snapshot
+import androidx.compose.snapshots.SnapshotStateObserver
 import androidx.test.filters.LargeTest
-import androidx.ui.benchmark.ComposeBenchmarkRule
-import androidx.ui.core.ModelObserver
-import androidx.ui.integration.test.foundation.RectsInColumnSharedModelTestCase
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import kotlin.random.Random
 
-/**
- * Benchmark that runs [RectsInColumnSharedModelTestCase].
- */
 @LargeTest
 @RunWith(Parameterized::class)
-class ModelObserverBenchmark(
+@OptIn(ExperimentalComposeApi::class)
+class SnapshotStateObserverBenchmark(
     private val numberOfModels: Int,
     private val numberOfNodes: Int
-) {
+) : ComposeBenchmarkBase() {
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "models = {0}, nodes = {1}")
+        @Parameterized.Parameters(name = "states = {0}, nodes = {1}")
         fun initParameters(): Array<Any> = arrayOf(
             arrayOf(1000, 1000),
             arrayOf(10000, 100),
@@ -57,48 +51,41 @@ class ModelObserverBenchmark(
 
     private val doNothing: (Int) -> Unit = { _ -> }
 
-    @get:Rule
-    val rule = ComposeBenchmarkRule(enableTransitions = false)
-
-    lateinit var modelObserver: ModelObserver
-    val models = List(numberOfModels) { mutableStateOf(0) }
-    val nodes = List(numberOfNodes) { it }
-    lateinit var random: Random
-    val numObservations = numberOfModels / 10
+    private lateinit var stateObserver: SnapshotStateObserver
+    private val models = List(numberOfModels) { mutableStateOf(0) }
+    private val nodes = List(numberOfNodes) { it }
+    private lateinit var random: Random
+    private val numObservations = numberOfModels / 10
 
     @Before
     fun setup() {
         random = Random(0)
-        rule.runOnUiThread {
+        runOnUiThread {
             val handler = Handler(Looper.getMainLooper())
-            modelObserver = ModelObserver { command ->
+            stateObserver = SnapshotStateObserver { command ->
                 if (Looper.myLooper() !== handler.looper) {
                     handler.post(command)
                 } else {
                     command()
                 }
             }
-            FrameManager.ensureStarted()
         }
-        if (!inFrame) {
-            open(readOnly = true)
-        }
-        modelObserver.enableModelUpdatesObserving(true)
+        stateObserver.enableStateUpdatesObserving(true)
         setupObservations()
-        commit()
+        Snapshot.sendApplyNotifications()
     }
 
     @After
     fun teardown() {
-        rule.runOnUiThread {
-            modelObserver.enableModelUpdatesObserving(false)
+        runOnUiThread {
+            stateObserver.enableStateUpdatesObserving(false)
         }
     }
 
     @Test
     fun modelObservation() {
-        rule.runOnUiThread {
-            rule.measureRepeated {
+        runOnUiThread {
+            benchmarkRule.measureRepeated {
                 random = Random(0)
                 val node = nodes[random.nextInt(numberOfNodes)]
                 observeForNode(node)
@@ -108,9 +95,9 @@ class ModelObserverBenchmark(
 
     @Test
     fun nestedModelObservation() {
-        rule.runOnUiThread {
-            modelObserver.observeReads(nodes[0], doNothing) {
-                rule.measureRepeated {
+        runOnUiThread {
+            stateObserver.observeReads(nodes[0], doNothing) {
+                benchmarkRule.measureRepeated {
                     random = Random(0)
                     val node = nodes[random.nextInt(numberOfNodes)]
                     observeForNode(node)
@@ -121,11 +108,11 @@ class ModelObserverBenchmark(
 
     @Test
     fun modelClear() {
-        rule.runOnUiThread {
-            rule.measureRepeated {
+        runOnUiThread {
+            benchmarkRule.measureRepeated {
                 random = Random(0)
                 val node = nodes[random.nextInt(numberOfNodes)]
-                modelObserver.clear(node)
+                stateObserver.clear(node)
                 runWithTimingDisabled {
                     observeForNode(node)
                 }
@@ -133,31 +120,11 @@ class ModelObserverBenchmark(
         }
     }
 
-    @Test
-    fun modelNotification() {
-        // assume 5 model changes
-        val fakeChanges = setOf(
-            models[random.nextInt(numberOfModels)],
-            models[random.nextInt(numberOfModels)],
-            models[random.nextInt(numberOfModels)],
-            models[random.nextInt(numberOfModels)],
-            models[random.nextInt(numberOfModels)]
-        )
-        val fakeFrame = open(readOnly = true)
-        commit(fakeFrame)
-        rule.runOnUiThread {
-            rule.measureRepeated {
-                modelObserver.frameCommitObserver(fakeChanges, fakeFrame)
-            }
-        }
-    }
-
-    private fun setupObservations() {
-        nodes.forEach { observeForNode(it) }
-    }
+    private fun runOnUiThread(block: () -> Unit) = activityRule.runOnUiThread(block)
+    private fun setupObservations() = nodes.forEach { observeForNode(it) }
 
     private fun observeForNode(node: Int) {
-        modelObserver.observeReads(node, doNothing) {
+        stateObserver.observeReads(node, doNothing) {
             repeat(numObservations) {
                 // just access the value
                 models[random.nextInt(numberOfModels)].value

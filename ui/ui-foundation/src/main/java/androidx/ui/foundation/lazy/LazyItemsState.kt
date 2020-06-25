@@ -21,8 +21,8 @@ import androidx.compose.ComposableContract
 import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.ExperimentalComposeApi
-import androidx.compose.FrameManager
 import androidx.compose.Recomposer
+import androidx.compose.snapshots.Snapshot
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutNode
@@ -265,8 +265,9 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
                 // if there were models created and read inside this subcomposition
                 // and we are going to modify these models within the same frame,
                 // the composables which read this model will not be recomposed.
-                // to make this possible we should switch to the next frame.
-                FrameManager.nextFrame()
+                // to make this possible we should switch apply global changes.
+                @OptIn(ExperimentalComposeApi::class)
+                Snapshot.notifyObjectsInitialized()
             }
 
             this@LazyItemsState.layoutDirection = layoutDirection

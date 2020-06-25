@@ -25,11 +25,11 @@ import androidx.animation.Spring
 import androidx.animation.TwoWayConverter
 import androidx.compose.Composable
 import androidx.compose.Stable
-import androidx.compose.StructurallyEqual
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.compose.setValue
+import androidx.compose.structuralEqualityPolicy
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.graphics.Color
 
@@ -110,7 +110,7 @@ class AnimatedValueModel<T, V : AnimationVector>(
     clock: AnimationClockObservable,
     visibilityThreshold: T? = null
 ) : AnimatedValue<T, V>(typeConverter, clock, visibilityThreshold) {
-    override var value: T by mutableStateOf(initialValue, StructurallyEqual)
+    override var value: T by mutableStateOf(initialValue, structuralEqualityPolicy())
 }
 
 /**
@@ -128,5 +128,5 @@ class AnimatedFloatModel(
     clock: AnimationClockObservable,
     visibilityThreshold: Float = Spring.DefaultDisplacementThreshold
 ) : AnimatedFloat(clock, visibilityThreshold) {
-    override var value: Float by mutableStateOf(initialValue, StructurallyEqual)
+    override var value: Float by mutableStateOf(initialValue, structuralEqualityPolicy())
 }

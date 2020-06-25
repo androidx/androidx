@@ -16,9 +16,6 @@
 
 package androidx.ui.core.selection
 
-import androidx.compose.frames.commit
-import androidx.compose.frames.inFrame
-import androidx.compose.frames.open
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.text.style.ResolvedTextDirection
@@ -32,7 +29,6 @@ import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,7 +76,6 @@ class SelectionManagerLongPressDragTest {
 
     @Before
     fun setup() {
-        if (!inFrame) open(false) // we open a Frame so state reads are allowed
         val containerLayoutCoordinates = mock<LayoutCoordinates> {
             on { isAttached } doReturn true
         }
@@ -101,11 +96,6 @@ class SelectionManagerLongPressDragTest {
         selectionManager.onSelectionChange = spyLambda
         selectionManager.selection = selection
         selectionManager.hapticFeedBack = mock()
-    }
-
-    @After
-    fun after() {
-        commit() // we close the Frame
     }
 
     @Test

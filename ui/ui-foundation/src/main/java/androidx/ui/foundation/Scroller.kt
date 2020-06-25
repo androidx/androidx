@@ -19,12 +19,13 @@ package androidx.ui.foundation
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationEndReason
 import androidx.compose.Composable
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Stable
-import androidx.compose.StructurallyEqual
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.compose.setValue
+import androidx.compose.structuralEqualityPolicy
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
@@ -116,7 +117,10 @@ class ScrollerPosition(
     /**
      * current scroller position value in pixels
      */
-    var value by mutableStateOf(initial, StructurallyEqual)
+    var value by mutableStateOf(
+        initial,
+        @OptIn(ExperimentalComposeApi::class) structuralEqualityPolicy()
+    )
         private set
 
     /**
@@ -129,7 +133,10 @@ class ScrollerPosition(
      * maxPosition this scroller that consume this ScrollerPosition can reach in pixels, or
      * [Float.POSITIVE_INFINITY] if still unknown
      */
-    var maxPosition by mutableStateOf(Float.POSITIVE_INFINITY, StructurallyEqual)
+    var maxPosition by mutableStateOf(
+        Float.POSITIVE_INFINITY,
+        @OptIn(ExperimentalComposeApi::class) structuralEqualityPolicy()
+    )
         private set
 
     /**

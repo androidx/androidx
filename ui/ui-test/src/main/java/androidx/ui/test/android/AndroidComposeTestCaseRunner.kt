@@ -30,11 +30,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.compose.Composition
-import androidx.compose.FrameManager
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Recomposer
 import androidx.compose.dispatch.MonotonicFrameClock
-import androidx.compose.frames.currentFrame
-import androidx.compose.frames.inFrame
+import androidx.compose.snapshots.Snapshot
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.setContent
 import androidx.ui.test.ComposeBenchmarkScope
@@ -127,14 +126,16 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         // We will emulate the restoration of the empty state to trigger the real composition.
         ownerView.restoreHierarchyState(SparseArray())
         view = ownerView
-        FrameManager.nextFrame()
+        @OptIn(ExperimentalComposeApi::class)
+        Snapshot.notifyObjectsInitialized()
         simulationState = SimulationState.EmitContentDone
     }
 
-    // TODO: This method may advance the current frame and should be just a getter
+    // TODO: This method may advance the global snapshot and should be just a getter
     override fun hasPendingChanges(): Boolean {
         if (recomposer.hasPendingChanges() || hasPendingChangesInFrame()) {
-            FrameManager.nextFrame()
+            @OptIn(ExperimentalComposeApi::class)
+            Snapshot.sendApplyNotifications()
         }
 
         return recomposer.hasPendingChanges()
@@ -147,7 +148,8 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
      * need to recompose.
      */
     private fun hasPendingChangesInFrame(): Boolean {
-        return inFrame && currentFrame().hasPendingChanges()
+        @OptIn(ExperimentalComposeApi::class)
+        return Snapshot.current.hasPendingChanges()
     }
 
     override fun measure() {
