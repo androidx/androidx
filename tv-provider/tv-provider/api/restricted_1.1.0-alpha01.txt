@@ -207,6 +207,7 @@ package androidx.tvprovider.media.tv {
     method public int getReviewRatingStyle();
     method public String! getSeasonNumber();
     method public String! getSeasonTitle();
+    method public String? getSeriesId();
     method public long getStartTimeUtcMillis();
     method public String! getStartingPrice();
     method public int getThumbnailAspectRatio();
@@ -275,6 +276,7 @@ package androidx.tvprovider.media.tv {
     method public androidx.tvprovider.media.tv.PreviewProgram.Builder! setSeasonNumber(int);
     method public androidx.tvprovider.media.tv.PreviewProgram.Builder! setSeasonNumber(String!, int);
     method public androidx.tvprovider.media.tv.PreviewProgram.Builder! setSeasonTitle(String!);
+    method public androidx.tvprovider.media.tv.PreviewProgram.Builder setSeriesId(String?);
     method public androidx.tvprovider.media.tv.PreviewProgram.Builder! setStartTimeUtcMillis(long);
     method public androidx.tvprovider.media.tv.PreviewProgram.Builder! setStartingPrice(String!);
     method public androidx.tvprovider.media.tv.PreviewProgram.Builder! setThumbnailAspectRatio(int);
@@ -315,6 +317,7 @@ package androidx.tvprovider.media.tv {
     method public int getReviewRatingStyle();
     method public String! getSeasonNumber();
     method public String! getSeasonTitle();
+    method public String? getSeriesId();
     method public long getStartTimeUtcMillis();
     method public android.net.Uri! getThumbnailUri();
     method public String! getTitle();
@@ -357,6 +360,7 @@ package androidx.tvprovider.media.tv {
     method public androidx.tvprovider.media.tv.Program.Builder! setSeasonNumber(int);
     method public androidx.tvprovider.media.tv.Program.Builder! setSeasonNumber(String!, int);
     method public androidx.tvprovider.media.tv.Program.Builder! setSeasonTitle(String!);
+    method public androidx.tvprovider.media.tv.Program.Builder setSeriesId(String?);
     method public androidx.tvprovider.media.tv.Program.Builder! setStartTimeUtcMillis(long);
     method public androidx.tvprovider.media.tv.Program.Builder! setThumbnailUri(android.net.Uri!);
     method public androidx.tvprovider.media.tv.Program.Builder! setTitle(String!);
@@ -597,6 +601,7 @@ package androidx.tvprovider.media.tv {
     field public static final String COLUMN_SEARCHABLE = "searchable";
     field public static final String COLUMN_SEASON_DISPLAY_NUMBER = "season_display_number";
     field public static final String COLUMN_SEASON_TITLE = "season_title";
+    field public static final String COLUMN_SERIES_ID = "series_id";
     field public static final String COLUMN_SHORT_DESCRIPTION = "short_description";
     field public static final String COLUMN_THUMBNAIL_URI = "thumbnail_uri";
     field public static final String COLUMN_TITLE = "title";
@@ -638,6 +643,7 @@ package androidx.tvprovider.media.tv {
     field public static final String COLUMN_SEASON_DISPLAY_NUMBER = "season_display_number";
     field @Deprecated public static final String COLUMN_SEASON_NUMBER = "season_number";
     field public static final String COLUMN_SEASON_TITLE = "season_title";
+    field public static final String COLUMN_SERIES_ID = "series_id";
     field public static final String COLUMN_SHORT_DESCRIPTION = "short_description";
     field public static final String COLUMN_START_TIME_UTC_MILLIS = "start_time_utc_millis";
     field public static final String COLUMN_THUMBNAIL_URI = "thumbnail_uri";
@@ -702,6 +708,7 @@ package androidx.tvprovider.media.tv {
     field public static final String COLUMN_SEARCHABLE = "searchable";
     field public static final String COLUMN_SEASON_DISPLAY_NUMBER = "season_display_number";
     field public static final String COLUMN_SEASON_TITLE = "season_title";
+    field public static final String COLUMN_SERIES_ID = "series_id";
     field public static final String COLUMN_SHORT_DESCRIPTION = "short_description";
     field public static final String COLUMN_START_TIME_UTC_MILLIS = "start_time_utc_millis";
     field public static final String COLUMN_THUMBNAIL_URI = "thumbnail_uri";
@@ -736,6 +743,7 @@ package androidx.tvprovider.media.tv {
     field public static final String COLUMN_SEARCHABLE = "searchable";
     field public static final String COLUMN_SEASON_DISPLAY_NUMBER = "season_display_number";
     field public static final String COLUMN_SEASON_TITLE = "season_title";
+    field public static final String COLUMN_SERIES_ID = "series_id";
     field public static final String COLUMN_SHORT_DESCRIPTION = "short_description";
     field public static final String COLUMN_THUMBNAIL_URI = "thumbnail_uri";
     field public static final String COLUMN_TITLE = "title";
@@ -804,6 +812,7 @@ package androidx.tvprovider.media.tv {
     method public int getReviewRatingStyle();
     method public String! getSeasonNumber();
     method public String! getSeasonTitle();
+    method public String? getSeriesId();
     method public long getStartTimeUtcMillis();
     method public String! getStartingPrice();
     method public int getThumbnailAspectRatio();
@@ -873,6 +882,7 @@ package androidx.tvprovider.media.tv {
     method public androidx.tvprovider.media.tv.WatchNextProgram.Builder! setSeasonNumber(int);
     method public androidx.tvprovider.media.tv.WatchNextProgram.Builder! setSeasonNumber(String!, int);
     method public androidx.tvprovider.media.tv.WatchNextProgram.Builder! setSeasonTitle(String!);
+    method public androidx.tvprovider.media.tv.WatchNextProgram.Builder setSeriesId(String?);
     method public androidx.tvprovider.media.tv.WatchNextProgram.Builder! setStartTimeUtcMillis(long);
     method public androidx.tvprovider.media.tv.WatchNextProgram.Builder! setStartingPrice(String!);
     method public androidx.tvprovider.media.tv.WatchNextProgram.Builder! setThumbnailAspectRatio(int);

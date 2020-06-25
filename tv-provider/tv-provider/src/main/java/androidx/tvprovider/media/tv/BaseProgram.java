@@ -25,6 +25,8 @@ import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.tvprovider.media.tv.TvContractCompat.BaseTvColumns;
 import androidx.tvprovider.media.tv.TvContractCompat.ProgramColumns;
@@ -290,6 +292,16 @@ public abstract class BaseProgram {
         return mValues.getAsString(Programs.COLUMN_REVIEW_RATING);
     }
 
+    /**
+     *
+     * @return The series ID for the program.
+     * @see androidx.tvprovider.media.tv.TvContractCompat.Programs#COLUMN_SERIES_ID
+     */
+    @Nullable
+    public String getSeriesId() {
+        return mValues.getAsString(Programs.COLUMN_SERIES_ID);
+    }
+
     @Override
     public int hashCode() {
         return mValues.hashCode();
@@ -466,6 +478,10 @@ public abstract class BaseProgram {
                 builder.setReviewRating(cursor.getString(index));
             }
         }
+        if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_SERIES_ID)) >= 0
+                && !cursor.isNull(index)) {
+            builder.setSeriesId(cursor.getString(index));
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -490,7 +506,8 @@ public abstract class BaseProgram {
                 ProgramColumns.COLUMN_CONTENT_RATING,
                 ProgramColumns.COLUMN_VIDEO_WIDTH,
                 ProgramColumns.COLUMN_VIDEO_HEIGHT,
-                ProgramColumns.COLUMN_INTERNAL_PROVIDER_DATA
+                ProgramColumns.COLUMN_INTERNAL_PROVIDER_DATA,
+                ProgramColumns.COLUMN_SERIES_ID,
         };
         String[] marshmallowColumns = new String[] {
                 ProgramColumns.COLUMN_SEARCHABLE,
@@ -899,6 +916,19 @@ public abstract class BaseProgram {
          */
         public T setSeasonTitle(String seasonTitle) {
             mValues.put(ProgramColumns.COLUMN_SEASON_TITLE, seasonTitle);
+            return (T) this;
+        }
+
+        /**
+         * Sets the series ID for this program.
+         *
+         * @param seriesId The series ID for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see androidx.tvprovider.media.tv.TvContractCompat.Programs#COLUMN_SERIES_ID
+         */
+        @NonNull
+        public T setSeriesId(@Nullable String seriesId) {
+            mValues.put(ProgramColumns.COLUMN_SERIES_ID, seriesId);
             return (T) this;
         }
     }
