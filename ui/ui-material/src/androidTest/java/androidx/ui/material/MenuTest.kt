@@ -37,7 +37,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.find
 import androidx.ui.test.findByTag
-import androidx.ui.test.hasAnyChildThat
+import androidx.ui.test.hasAnyDescendantThat
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.isPopup
 import androidx.ui.test.runOnIdleCompose
@@ -118,8 +118,8 @@ class MenuTest {
         findByTag("MenuContent1").assertExists()
         findByTag("MenuContent2").assertExists()
         val node = find(
-            isPopup() and hasAnyChildThat(hasTestTag("MenuContent1")) and
-                    hasAnyChildThat(hasTestTag("MenuContent2"))
+            isPopup() and hasAnyDescendantThat(hasTestTag("MenuContent1")) and
+                    hasAnyDescendantThat(hasTestTag("MenuContent2"))
         ).assertExists().fetchSemanticsNode()
         with(composeTestRule.density) {
             assertThat(node.size.width).isEqualTo(130 + MenuElevationInset.toIntPx() * 2)
