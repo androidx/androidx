@@ -69,12 +69,11 @@ fun VectorPainter(
     val vpHeight = if (viewportHeight.isNaN()) heightPx else viewportHeight
 
     return remember { VectorPainter() }.apply {
-        // This assignment is thread safe as the internal VectorComponent parameter is backed
-        // by a mutableState object
+        // This assignment is thread safe as the internal Size and VectorComponent parameters are
+        // backed by mutableState objects
+        size = Size(widthPx, heightPx)
         vector = createVector(
             name = name,
-            defaultWidth = widthPx,
-            defaultHeight = heightPx,
             viewportWidth = vpWidth,
             viewportHeight = vpHeight,
             children = children
@@ -108,12 +107,13 @@ fun VectorPainter(asset: VectorAsset): VectorPainter {
 class VectorPainter internal constructor() : Painter() {
 
     internal var vector by mutableStateOf<VectorComponent?>(null)
+    internal var size by mutableStateOf(Size.zero)
 
     private var currentAlpha: Float = 1.0f
     private var currentColorFilter: ColorFilter? = null
 
     override val intrinsicSize: Size
-        get() = vector?.let { Size(it.defaultWidth, it.defaultHeight) } ?: Size.zero
+        get() = size
 
     override fun DrawScope.onDraw() {
         vector?.let { with (it) { draw(currentAlpha, currentColorFilter) } }
@@ -133,10 +133,8 @@ class VectorPainter internal constructor() : Painter() {
 @Composable
 private fun createVector(
     name: String,
-    defaultWidth: Float,
-    defaultHeight: Float,
-    viewportWidth: Float = defaultWidth,
-    viewportHeight: Float = defaultHeight,
+    viewportWidth: Float,
+    viewportHeight: Float,
     children: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit
 ): VectorComponent {
     val vector =
@@ -144,9 +142,7 @@ private fun createVector(
             VectorComponent(
                 name = name,
                 viewportWidth = viewportWidth,
-                viewportHeight = viewportHeight,
-                defaultWidth = defaultWidth,
-                defaultHeight = defaultHeight
+                viewportHeight = viewportHeight
             )
         }
 
