@@ -327,12 +327,18 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             }
         }
         if (sessionId == null) {
-            Log.w(TAG, "setDynamicRouteDescriptor: Couldn't find a routing session");
+            Log.w(TAG, "setDynamicRouteDescriptor: Ignoring null session Id");
             return;
         }
         RoutingSessionInfo sessionInfo = getSessionInfo(sessionId);
         if (sessionInfo == null) {
-            Log.w(TAG, "setDynamicRouteDescriptor: Couldn't find a routing session");
+            Log.w(TAG, "setDynamicRouteDescriptor: Couldn't find a routing session. "
+                    + "sessionId=" + sessionId);
+            return;
+        }
+
+        if (!groupRoute.isEnabled()) {
+            onReleaseSession(REQUEST_ID_NONE, sessionId);
             return;
         }
 
