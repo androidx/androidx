@@ -157,13 +157,18 @@ public class FakeIcing {
         return false;
     }
 
-    /** Deletes all document. */
-    public void deleteAll() {
+    /** Deletes all documents having the given namespace. */
+    public void deleteByNamespace(@NonNull String namespace) {
         synchronized (mLock) {
-            mDocStore.clear();
-            mUriToDocIdMap.clear();
-            mIndex.clear();
-            mNextDocId.set(0);
+            for (int i = 0; i < mDocStore.size(); i++) {
+                DocumentProto document = mDocStore.valueAt(i);
+                if (namespace.equals(document.getNamespace())) {
+                    String integratedUri = document.getNamespace() + ":" + document.getUri();
+                    mDocStore.removeAt(i);
+                    mUriToDocIdMap.remove(integratedUri);
+                    i--;
+                }
+            }
         }
     }
 

@@ -231,9 +231,11 @@ public final class AppSearchImpl {
         return mFakeIcing.deleteByType(qualifiedType);
     }
 
-    /**  Deletes all documents owned by the calling app. */
-    public void deleteAll() {
-        mFakeIcing.deleteAll();
+    /**  Deletes all documents owned by the calling app in given database. */
+    public void deleteAll(@NonNull String databaseName) {
+        for (String namespace : getSharedSet(databaseName, NAMESPACE_SET_NAME)) {
+            mFakeIcing.deleteByNamespace(getDatabasePrefix(databaseName) + namespace);
+        }
     }
 
     /**
