@@ -374,7 +374,7 @@ class MultiParagraphIntegrationTest {
         val paragraph = simpleMultiParagraph(
             text = text,
             style = TextStyle(
-                textDirection = TextDirection.ForceLtr
+                textDirection = TextDirection.Ltr
             )
         )
 
@@ -390,7 +390,7 @@ class MultiParagraphIntegrationTest {
         val paragraph = simpleMultiParagraph(
             text = text,
             style = TextStyle(
-                textDirection = TextDirection.ForceRtl
+                textDirection = TextDirection.Rtl
             )
         )
 
@@ -1080,7 +1080,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                style = TextStyle(textDirection = TextDirection.ForceLtr),
+                style = TextStyle(textDirection = TextDirection.Ltr),
                 width = width
             )
 
@@ -1112,7 +1112,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                style = TextStyle(textDirection = TextDirection.ForceRtl),
+                style = TextStyle(textDirection = TextDirection.Rtl),
                 width = width
             )
 
@@ -1225,7 +1225,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun annotatedString_haveParagraphStyle_withoutTextDirection() {
-        val textDirectionAlgorithm = TextDirection.ForceRtl
+        val textDirectionAlgorithm = TextDirection.Rtl
         // Provide an LTR text
         val text = AnnotatedString(
             text = "ab",

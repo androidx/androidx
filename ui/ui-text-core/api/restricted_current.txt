@@ -1005,8 +1005,8 @@ package androidx.ui.text.style {
     method public static androidx.ui.text.style.TextDirection[] values();
     enum_constant public static final androidx.ui.text.style.TextDirection ContentOrLtr;
     enum_constant public static final androidx.ui.text.style.TextDirection ContentOrRtl;
-    enum_constant public static final androidx.ui.text.style.TextDirection ForceLtr;
-    enum_constant public static final androidx.ui.text.style.TextDirection ForceRtl;
+    enum_constant public static final androidx.ui.text.style.TextDirection Ltr;
+    enum_constant public static final androidx.ui.text.style.TextDirection Rtl;
   }
 
   @androidx.compose.Immutable public final class TextGeometricTransform {
