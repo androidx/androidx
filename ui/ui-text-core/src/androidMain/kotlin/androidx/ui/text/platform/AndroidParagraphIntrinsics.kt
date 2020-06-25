@@ -25,6 +25,8 @@ import androidx.ui.text.Placeholder
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
+import androidx.ui.text.platform.extensions.applySpanStyle
+import androidx.ui.text.style.TextDirection
 
 @OptIn(InternalPlatformTextApi::class)
 internal class AndroidParagraphIntrinsics(
@@ -79,6 +81,22 @@ internal class AndroidParagraphIntrinsics(
         )
 
         layoutIntrinsics = LayoutIntrinsics(charSequence, textPaint, textDirectionHeuristic)
+    }
+}
+
+/**
+ * For a given [TextDirection] return [TextLayout] constants for text direction
+ * heuristics.
+ */
+@OptIn(InternalPlatformTextApi::class)
+private fun resolveTextDirectionHeuristics(
+    textDirection: TextDirection
+): Int {
+    return when (textDirection) {
+        TextDirection.ContentOrLtr -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
+        TextDirection.ContentOrRtl -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
+        TextDirection.ForceLtr -> LayoutCompat.TEXT_DIRECTION_LTR
+        TextDirection.ForceRtl -> LayoutCompat.TEXT_DIRECTION_RTL
     }
 }
 
