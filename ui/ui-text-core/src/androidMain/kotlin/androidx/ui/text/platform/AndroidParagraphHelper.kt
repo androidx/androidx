@@ -59,7 +59,7 @@ import androidx.ui.text.platform.style.ShadowSpan
 import androidx.ui.text.platform.style.SkewXSpan
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
-import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.Density
@@ -505,18 +505,18 @@ private fun createTypeface(
 }
 
 /**
- * For a given [TextDirectionAlgorithm] return [TextLayout] constants for text direction
+ * For a given [TextDirection] return [TextLayout] constants for text direction
  * heuristics.
  */
 @OptIn(InternalPlatformTextApi::class)
 internal fun resolveTextDirectionHeuristics(
-    textDirectionAlgorithm: TextDirectionAlgorithm
+    textDirection: TextDirection
 ): Int {
-    return when (textDirectionAlgorithm) {
-        TextDirectionAlgorithm.ContentOrLtr -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
-        TextDirectionAlgorithm.ContentOrRtl -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
-        TextDirectionAlgorithm.ForceLtr -> LayoutCompat.TEXT_DIRECTION_LTR
-        TextDirectionAlgorithm.ForceRtl -> LayoutCompat.TEXT_DIRECTION_RTL
+    return when (textDirection) {
+        TextDirection.ContentOrLtr -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
+        TextDirection.ContentOrRtl -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
+        TextDirection.ForceLtr -> LayoutCompat.TEXT_DIRECTION_LTR
+        TextDirection.ForceRtl -> LayoutCompat.TEXT_DIRECTION_RTL
     }
 }
 

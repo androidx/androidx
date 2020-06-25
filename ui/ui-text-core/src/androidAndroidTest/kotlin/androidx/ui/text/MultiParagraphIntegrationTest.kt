@@ -26,7 +26,7 @@ import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.ResolvedTextDirection
-import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.Density
 import androidx.ui.geometry.Offset
@@ -344,7 +344,7 @@ class MultiParagraphIntegrationTest {
         val paragraph = simpleMultiParagraph(
             text = text,
             style = TextStyle(
-                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                textDirection = TextDirection.ContentOrLtr
             )
         )
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
@@ -359,7 +359,7 @@ class MultiParagraphIntegrationTest {
         val paragraph = simpleMultiParagraph(
             text = text,
             style = TextStyle(
-                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrRtl
+                textDirection = TextDirection.ContentOrRtl
             )
         )
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
@@ -374,7 +374,7 @@ class MultiParagraphIntegrationTest {
         val paragraph = simpleMultiParagraph(
             text = text,
             style = TextStyle(
-                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
+                textDirection = TextDirection.ForceLtr
             )
         )
 
@@ -390,7 +390,7 @@ class MultiParagraphIntegrationTest {
         val paragraph = simpleMultiParagraph(
             text = text,
             style = TextStyle(
-                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+                textDirection = TextDirection.ForceRtl
             )
         )
 
@@ -1016,7 +1016,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                style = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr),
+                style = TextStyle(textDirection = TextDirection.ContentOrLtr),
                 width = width
             )
 
@@ -1048,7 +1048,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                style = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrRtl),
+                style = TextStyle(textDirection = TextDirection.ContentOrRtl),
                 width = width
             )
 
@@ -1080,7 +1080,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                style = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr),
+                style = TextStyle(textDirection = TextDirection.ForceLtr),
                 width = width
             )
 
@@ -1112,7 +1112,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                style = TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl),
+                style = TextStyle(textDirection = TextDirection.ForceRtl),
                 width = width
             )
 
@@ -1225,14 +1225,14 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun annotatedString_haveParagraphStyle_withoutTextDirection() {
-        val textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+        val textDirectionAlgorithm = TextDirection.ForceRtl
         // Provide an LTR text
         val text = AnnotatedString(
             text = "ab",
             paragraphStyles = listOf(
                 ParagraphStyleRange(
                     item = ParagraphStyle(
-                        textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                        textDirection = TextDirection.ContentOrLtr
                     ),
                     start = 0,
                     end = "a".length
@@ -1249,7 +1249,7 @@ class MultiParagraphIntegrationTest {
 
         val paragraph = MultiParagraph(
             annotatedString = text,
-            style = TextStyle(textDirectionAlgorithm = textDirectionAlgorithm),
+            style = TextStyle(textDirection = textDirectionAlgorithm),
             constraints = ParagraphConstraints(Float.MAX_VALUE),
             density = defaultDensity,
             resourceLoader = TestFontResourceLoader(context)
@@ -1280,7 +1280,7 @@ class MultiParagraphIntegrationTest {
             style = TextStyle(
                 fontSize = fontSize.sp,
                 fontFamily = fontFamilyMeasureFont,
-                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                textDirection = TextDirection.ContentOrLtr
             ),
             placeholders = placeholders,
             constraints = ParagraphConstraints(Float.MAX_VALUE),
@@ -1312,7 +1312,7 @@ class MultiParagraphIntegrationTest {
             style = TextStyle(
                 fontSize = fontSize.sp,
                 fontFamily = fontFamilyMeasureFont,
-                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                textDirection = TextDirection.ContentOrLtr
             ),
             placeholders = placeholders,
             constraints = ParagraphConstraints(Float.MAX_VALUE),
@@ -1345,7 +1345,7 @@ class MultiParagraphIntegrationTest {
             style = TextStyle(
                 fontSize = fontSize.sp,
                 fontFamily = fontFamilyMeasureFont,
-                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                textDirection = TextDirection.ContentOrLtr
             ),
             placeholders = placeholders,
             constraints = ParagraphConstraints(Float.MAX_VALUE),
@@ -1388,7 +1388,7 @@ class MultiParagraphIntegrationTest {
             style = TextStyle(
                 fontSize = fontSize.sp,
                 fontFamily = fontFamilyMeasureFont,
-                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                textDirection = TextDirection.ContentOrLtr
             ),
             placeholders = placeholders,
             constraints = ParagraphConstraints(Float.MAX_VALUE),
@@ -1434,7 +1434,7 @@ class MultiParagraphIntegrationTest {
             style = TextStyle(
                 fontSize = fontSize.sp,
                 fontFamily = fontFamilyMeasureFont,
-                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                textDirection = TextDirection.ContentOrLtr
             ),
             placeholders = placeholders,
             constraints = ParagraphConstraints(Float.MAX_VALUE),
@@ -1472,7 +1472,7 @@ class MultiParagraphIntegrationTest {
             style = TextStyle(
                 fontFamily = fontFamilyMeasureFont,
                 fontSize = fontSize,
-                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                textDirection = TextDirection.ContentOrLtr
             ),
             placeholders = placeholders,
             density = defaultDensity,
@@ -1492,7 +1492,7 @@ class MultiParagraphIntegrationTest {
             style = TextStyle(
                 fontFamily = fontFamilyMeasureFont,
                 fontSize = fontSize,
-                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                textDirection = TextDirection.ContentOrLtr
             ).merge(style),
             maxLines = maxLines,
             constraints = ParagraphConstraints(width),
@@ -1513,7 +1513,7 @@ class MultiParagraphIntegrationTest {
             style = TextStyle(
                 fontFamily = fontFamilyMeasureFont,
                 fontSize = fontSize,
-                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                textDirection = TextDirection.ContentOrLtr
             ).merge(style),
             maxLines = maxLines,
             constraints = ParagraphConstraints(width),

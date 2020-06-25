@@ -21,7 +21,7 @@ package androidx.ui.text.style
  *
  * @see ResolvedTextDirection
  */
-enum class TextDirectionAlgorithm {
+enum class TextDirection {
     /**
      * This value indicates that the text direction depends on the first strong directional
      * character in the text according to the Unicode Bidirectional Algorithm. If no strong

@@ -31,7 +31,7 @@ import androidx.ui.text.font.FontWeight
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDecoration
-import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.TextUnit
@@ -70,7 +70,7 @@ private val DefaultColor = Color.Black
  * @param textDecoration The decorations to paint on the text (e.g., an underline).
  * @param shadow The shadow effect applied on the text.
  * @param textAlign The alignment of the text within the lines of the paragraph.
- * @param textDirectionAlgorithm The algorithm to be used to resolve the final text and paragraph
+ * @param textDirection The algorithm to be used to resolve the final text and paragraph
  * direction: Left To Right or Right To Left.
  * @param textIndent The indentation of the paragraph.
  * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
@@ -96,7 +96,7 @@ data class TextStyle(
     val textDecoration: TextDecoration? = null,
     val shadow: Shadow? = null,
     val textAlign: TextAlign? = null,
-    val textDirectionAlgorithm: TextDirectionAlgorithm? = null,
+    val textDirection: TextDirection? = null,
     val lineHeight: TextUnit = TextUnit.Inherit,
     val textIndent: TextIndent? = null
 ) {
@@ -116,7 +116,7 @@ data class TextStyle(
         textDecoration = spanStyle.textDecoration,
         shadow = spanStyle.shadow,
         textAlign = paragraphStyle.textAlign,
-        textDirectionAlgorithm = paragraphStyle.textDirectionAlgorithm,
+        textDirection = paragraphStyle.textDirection,
         lineHeight = paragraphStyle.lineHeight,
         textIndent = paragraphStyle.textIndent
     )
@@ -151,7 +151,7 @@ data class TextStyle(
     @Stable
     fun toParagraphStyle(): ParagraphStyle = ParagraphStyle(
         textAlign = textAlign,
-        textDirectionAlgorithm = textDirectionAlgorithm,
+        textDirection = textDirection,
         lineHeight = lineHeight,
         textIndent = textIndent
     )
@@ -275,23 +275,23 @@ fun resolveDefaults(style: TextStyle, direction: LayoutDirection) = TextStyle(
     textDecoration = style.textDecoration ?: TextDecoration.None,
     shadow = style.shadow ?: Shadow.None,
     textAlign = style.textAlign ?: TextAlign.Start,
-    textDirectionAlgorithm = resolveTextDirectionAlgorithm(direction, style.textDirectionAlgorithm),
+    textDirection = resolveTextDirectionAlgorithm(direction, style.textDirection),
     lineHeight = if (style.lineHeight.isInherit) DefaultLineHeight else style.lineHeight,
     textIndent = style.textIndent ?: TextIndent.None
 )
 
 /**
- * If [textDirectionAlgorithm] is null returns a [TextDirectionAlgorithm] based on
+ * If [textDirection] is null returns a [TextDirection] based on
  * [layoutDirection].
  */
 @VisibleForTesting
 internal fun resolveTextDirectionAlgorithm(
     layoutDirection: LayoutDirection,
-    textDirectionAlgorithm: TextDirectionAlgorithm?
-): TextDirectionAlgorithm {
-    return textDirectionAlgorithm
+    textDirection: TextDirection?
+): TextDirection {
+    return textDirection
         ?: when (layoutDirection) {
-            LayoutDirection.Ltr -> TextDirectionAlgorithm.ContentOrLtr
-            LayoutDirection.Rtl -> TextDirectionAlgorithm.ContentOrRtl
+            LayoutDirection.Ltr -> TextDirection.ContentOrLtr
+            LayoutDirection.Rtl -> TextDirection.ContentOrRtl
         }
 }

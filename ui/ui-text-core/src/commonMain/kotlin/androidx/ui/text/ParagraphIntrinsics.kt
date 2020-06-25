@@ -37,7 +37,7 @@ interface ParagraphIntrinsics {
 }
 
 /**
- * @throws IllegalArgumentException if [ParagraphStyle.textDirectionAlgorithm] is not set
+ * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set
  *
  * @see ParagraphIntrinsics
  */
