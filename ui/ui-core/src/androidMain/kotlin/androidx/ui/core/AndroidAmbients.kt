@@ -21,10 +21,11 @@ import android.content.res.Configuration
 import android.view.View
 import androidx.animation.rootAnimationClockFactory
 import androidx.compose.Composable
-import androidx.compose.NeverEqual
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Providers
 import androidx.compose.ambientOf
 import androidx.compose.getValue
+import androidx.compose.neverEqualPolicy
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
@@ -41,7 +42,10 @@ import kotlinx.coroutines.Dispatchers
  * The Android [Configuration]. The [Configuration] is useful for determining how to organize the
  * UI.
  */
-val ConfigurationAmbient = ambientOf<Configuration>(NeverEqual)
+val ConfigurationAmbient = ambientOf<Configuration>(
+    @OptIn(ExperimentalComposeApi::class)
+    neverEqualPolicy()
+)
 
 /**
  * Provides a [Context] that can be used by Android applications.
@@ -66,7 +70,10 @@ val ViewModelStoreOwnerAmbient = staticAmbientOf<ViewModelStoreOwner>()
 @Composable
 internal fun ProvideAndroidAmbients(owner: AndroidOwner, content: @Composable () -> Unit) {
     val context = owner.view.context
-    var configuration by state(NeverEqual) {
+    var configuration by state(
+        @OptIn(ExperimentalComposeApi::class)
+        neverEqualPolicy()
+    ) {
         context.applicationContext.resources.configuration
     }
     // onConfigurationChange is the correct hook to update configuration, however it is

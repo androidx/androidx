@@ -17,12 +17,12 @@
 package androidx.ui.text
 
 import androidx.compose.Composable
-import androidx.compose.StructurallyEqual
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.compose.setValue
+import androidx.compose.structuralEqualityPolicy
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.FontLoaderAmbient
@@ -293,7 +293,7 @@ private class TextState(
      * This should be a state as every time we update the value during the selection we
      * need to redraw it. state observation during onDraw callback will make it work.
      */
-    var selectionRange by mutableStateOf<TextRange?>(null, StructurallyEqual)
+    var selectionRange by mutableStateOf<TextRange?>(null, structuralEqualityPolicy())
     /** The last layout coordinates for the Text's layout, used by selection */
     var layoutCoordinates: LayoutCoordinates? = null
     /** The latest TextLayoutResult calculated in the measure block */

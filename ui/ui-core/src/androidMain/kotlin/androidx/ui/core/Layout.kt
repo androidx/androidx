@@ -21,7 +21,6 @@ import androidx.compose.ComposableContract
 import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.ExperimentalComposeApi
-import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.Stable
 import androidx.compose.compositionReference
@@ -29,6 +28,7 @@ import androidx.compose.currentComposer
 import androidx.compose.emit
 import androidx.compose.onDispose
 import androidx.compose.remember
+import androidx.compose.snapshots.Snapshot
 import androidx.ui.core.LayoutNode.LayoutState
 import androidx.ui.node.UiApplier
 import androidx.ui.unit.Density
@@ -548,8 +548,10 @@ private class WithConstrainsState {
                 // if there were models created and read inside this subcomposition
                 // and we are going to modify this models within the same frame
                 // the composables which read this model will not be recomposed.
-                // to make this possible we should switch to the next frame.
-                FrameManager.nextFrame()
+                // to make this possible we should apply global changes to ensure
+                // these are observed as changes.
+                @OptIn(ExperimentalComposeApi::class)
+                Snapshot.notifyObjectsInitialized()
             }
 
             // Measure the obtained children and compute our size.

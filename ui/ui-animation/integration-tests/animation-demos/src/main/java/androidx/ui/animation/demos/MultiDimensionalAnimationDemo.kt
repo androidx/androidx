@@ -20,9 +20,9 @@ import androidx.animation.spring
 import androidx.animation.transitionDefinition
 import androidx.animation.tween
 import androidx.compose.Composable
-import androidx.compose.StructurallyEqual
 import androidx.compose.remember
 import androidx.compose.state
+import androidx.compose.structuralEqualityPolicy
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.RectPropKey
 import androidx.ui.animation.Transition
@@ -46,8 +46,9 @@ fun MultiDimensionalAnimationDemo() {
             AnimState.PutAway -> AnimState.Collapsed
         }
     }
-    val width = state(areEquivalent = StructurallyEqual) { 0f }
-    val height = state(areEquivalent = StructurallyEqual) { 0f }
+
+    val width = state(policy = structuralEqualityPolicy()) { 0f }
+    val height = state(policy = structuralEqualityPolicy()) { 0f }
     Transition(
         definition = remember(width.value, height.value) {
             createTransDef(width.value, height.value)

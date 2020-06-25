@@ -23,10 +23,10 @@ import androidx.animation.TweenSpec
 import androidx.compose.Composable
 import androidx.compose.Stable
 import androidx.compose.State
-import androidx.compose.StructurallyEqual
-import androidx.compose.frames.modelListOf
 import androidx.compose.remember
+import androidx.compose.mutableStateListOf
 import androidx.compose.state
+import androidx.compose.structuralEqualityPolicy
 import androidx.ui.animation.AnimatedFloatModel
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
@@ -77,7 +77,7 @@ fun RippleIndication(
     val theme = RippleThemeAmbient.current
     val clock = AnimationClockAmbient.current.asDisposableClock()
     val resolvedColor = color.useOrElse { theme.defaultColor() }
-    val colorState = state(StructurallyEqual) { resolvedColor }
+    val colorState = state(structuralEqualityPolicy()) { resolvedColor }
     colorState.value = resolvedColor
     val interactionOpacity = theme.rippleOpacity()
     return remember(bounded, radius, theme, clock) {
@@ -148,7 +148,7 @@ private class RippleIndicationInstance internal constructor(
 
     private val stateLayer = StateLayer(clock, bounded, rippleOpacity)
 
-    private val ripples = modelListOf<RippleAnimation>()
+    private val ripples = mutableStateListOf<RippleAnimation>()
     private var currentPressPosition: Offset? = null
     private var currentRipple: RippleAnimation? = null
 

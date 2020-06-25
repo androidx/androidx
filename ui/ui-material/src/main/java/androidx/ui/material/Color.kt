@@ -18,13 +18,13 @@ package androidx.ui.material
 
 import androidx.compose.Ambient
 import androidx.compose.Composable
-import androidx.compose.StructurallyEqual
 import androidx.compose.mutableStateOf
 import androidx.compose.Providers
 import androidx.compose.getValue
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.staticAmbientOf
+import androidx.compose.structuralEqualityPolicy
 import androidx.ui.foundation.contentColor
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.useOrElse
@@ -256,19 +256,19 @@ private class ObservableColorPalette(
         isLight = colorPalette.isLight
     )
 
-    override var primary by mutableStateOf(primary, StructurallyEqual)
-    override var primaryVariant by mutableStateOf(primaryVariant, StructurallyEqual)
-    override var secondary by mutableStateOf(secondary, StructurallyEqual)
-    override var secondaryVariant by mutableStateOf(secondaryVariant, StructurallyEqual)
-    override var background by mutableStateOf(background, StructurallyEqual)
-    override var surface by mutableStateOf(surface, StructurallyEqual)
-    override var error by mutableStateOf(error, StructurallyEqual)
-    override var onPrimary by mutableStateOf(onPrimary, StructurallyEqual)
-    override var onSecondary by mutableStateOf(onSecondary, StructurallyEqual)
-    override var onBackground by mutableStateOf(onBackground, StructurallyEqual)
-    override var onSurface by mutableStateOf(onSurface, StructurallyEqual)
-    override var onError by mutableStateOf(onError, StructurallyEqual)
-    override var isLight by mutableStateOf(isLight, StructurallyEqual)
+    override var primary by mutableStateOf(primary, structuralEqualityPolicy())
+    override var primaryVariant by mutableStateOf(primaryVariant, structuralEqualityPolicy())
+    override var secondary by mutableStateOf(secondary, structuralEqualityPolicy())
+    override var secondaryVariant by mutableStateOf(secondaryVariant, structuralEqualityPolicy())
+    override var background by mutableStateOf(background, structuralEqualityPolicy())
+    override var surface by mutableStateOf(surface, structuralEqualityPolicy())
+    override var error by mutableStateOf(error, structuralEqualityPolicy())
+    override var onPrimary by mutableStateOf(onPrimary, structuralEqualityPolicy())
+    override var onSecondary by mutableStateOf(onSecondary, structuralEqualityPolicy())
+    override var onBackground by mutableStateOf(onBackground, structuralEqualityPolicy())
+    override var onSurface by mutableStateOf(onSurface, structuralEqualityPolicy())
+    override var onError by mutableStateOf(onError, structuralEqualityPolicy())
+    override var isLight by mutableStateOf(isLight, structuralEqualityPolicy())
 }
 
 /**

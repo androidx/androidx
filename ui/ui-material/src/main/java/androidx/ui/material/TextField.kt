@@ -24,13 +24,13 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.Stable
-import androidx.compose.StructurallyEqual
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.compose.stateFor
+import androidx.compose.structuralEqualityPolicy
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
@@ -963,8 +963,8 @@ internal fun TextFieldScroller(
 @VisibleForTesting
 @Stable
 internal class TextFieldScrollerPosition(private val initial: Float = 0f) {
-    var current by mutableStateOf(initial, StructurallyEqual)
-    var maximum by mutableStateOf(Float.POSITIVE_INFINITY, StructurallyEqual)
+    var current by mutableStateOf(initial, structuralEqualityPolicy())
+    var maximum by mutableStateOf(Float.POSITIVE_INFINITY, structuralEqualityPolicy())
 
     companion object {
         val Saver = Saver<TextFieldScrollerPosition, Float>(

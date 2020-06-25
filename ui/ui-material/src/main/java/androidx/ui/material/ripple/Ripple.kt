@@ -20,12 +20,12 @@ package androidx.ui.material.ripple
 
 import androidx.animation.AnimationClockObservable
 import androidx.compose.CompositionLifecycleObserver
-import androidx.compose.StructurallyEqual
-import androidx.compose.frames.modelListOf
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.compose.setValue
+import androidx.compose.mutableStateListOf
+import androidx.compose.structuralEqualityPolicy
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.AnimationClockAmbient
@@ -101,10 +101,10 @@ fun Modifier.ripple(
 
 private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycleObserver {
 
-    var color: Color by mutableStateOf(Color.Transparent, StructurallyEqual)
+    var color: Color by mutableStateOf(Color.Transparent, structuralEqualityPolicy())
 
     private var size: IntSize = IntSize(0, 0)
-    private var effects = modelListOf<RippleAnimation>()
+    private var effects = mutableStateListOf<RippleAnimation>()
     private var currentEffect: RippleAnimation? = null
 
     override fun MeasureScope.measure(

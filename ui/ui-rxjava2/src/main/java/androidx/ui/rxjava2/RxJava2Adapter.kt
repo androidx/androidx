@@ -17,7 +17,6 @@
 package androidx.ui.rxjava2
 
 import androidx.compose.Composable
-import androidx.compose.FrameManager
 import androidx.compose.State
 import androidx.compose.onPreCommit
 import androidx.compose.state
@@ -190,7 +189,7 @@ private inline fun <T, S> S.asState(
     val state = state { initial }
     onPreCommit(this) {
         val disposable = subscribe {
-            FrameManager.framed { state.value = it }
+            state.value = it
         }
         onDispose { disposable.dispose() }
     }
