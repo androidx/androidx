@@ -137,7 +137,6 @@ public abstract class MediaRouteProviderService extends Service {
 
     static final int PRIVATE_MSG_CLIENT_DIED = 1;
 
-    //TODO: move implementations to the impl class (WIP).
     interface MediaRouteProviderServiceImpl {
         IBinder onBind(Intent intent);
         void attachBaseContext(Context context);
