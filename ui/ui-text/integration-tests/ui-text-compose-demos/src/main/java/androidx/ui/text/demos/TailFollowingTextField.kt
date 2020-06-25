@@ -84,7 +84,7 @@ private fun HorizontalTailFollowingTextField(
             )
         },
         modifier = modifier
-    ) { measurable, constraints, _ ->
+    ) { measurable, constraints ->
 
         val p = measurable[0].measure(
             Constraints(
@@ -120,7 +120,7 @@ private fun VerticalTailFollowintTextField(
             )
         },
         modifier = modifier
-    ) { measurable, constraints, _ ->
+    ) { measurable, constraints ->
 
         val p = measurable[0].measure(
             Constraints(

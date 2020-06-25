@@ -67,7 +67,7 @@ class ModelReadsTest {
                     // read from the model
                     offset.value
                     drawLatch.countDown()
-                }) { _, _, _ ->
+                }) { _, _ ->
                     layout(10, 10) {
                         // read from the model
                         offset.value
@@ -110,7 +110,7 @@ class ModelReadsTest {
                     // read from the model
                     drawModel.value
                     drawLatch.countDown()
-                }) { _, _, _ ->
+                }) { _, _ ->
                     layout(10, 10) {
                         // read from the model
                         positionModel.value
@@ -152,7 +152,7 @@ class ModelReadsTest {
                     // read from the model
                     offset.value
                     drawLatch.countDown()
-                }) { _, _, _ ->
+                }) { _, _ ->
                     measureLatch.countDown()
                     // read from the model
                     layout(offset.value, 10) {}
@@ -189,7 +189,7 @@ class ModelReadsTest {
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContent {
-                Layout({}) { _, _, _ ->
+                Layout({}) { _, _ ->
                     measureLatch.countDown()
                     // read from the model
                     layout(measureModel.value, 10) {
@@ -248,7 +248,7 @@ class ModelReadsTest {
         val model = mutableStateOf(0)
         rule.runOnUiThread {
             activity.setContent {
-                Layout({}) { _, _, _ ->
+                Layout({}) { _, _ ->
                     if (enabled.value) {
                         // read the model
                         model.value
@@ -269,7 +269,7 @@ class ModelReadsTest {
         val model = mutableStateOf(0)
         rule.runOnUiThread {
             activity.setContent {
-                Layout({}) { _, _, _ ->
+                Layout({}) { _, _ ->
                     layout(10, 10) {
                         if (enabled.value) {
                             // read the model
@@ -313,7 +313,7 @@ class ModelReadsTest {
         rule.runOnUiThread {
             activity.setContent {
                 if (enabled.value) {
-                    Layout({}) { _, _, _ ->
+                    Layout({}) { _, _ ->
                         // read the model
                         model.value
                         latch.countDown()
@@ -334,7 +334,7 @@ class ModelReadsTest {
         rule.runOnUiThread {
             activity.setContent {
                 if (enabled.value) {
-                    Layout({}) { _, _, _ ->
+                    Layout({}) { _, _ ->
                         layout(10, 10) {
                             // read the model
                             model.value
@@ -355,7 +355,7 @@ class ModelReadsTest {
         val model = mutableStateOf(0)
         rule.runOnUiThread {
             activity.setContent {
-                Layout({}) { _, _, _ ->
+                Layout({}) { _, _ ->
                     if (model.value == 1) {
                         // this will trigger remeasure request for this node we currently measure
                         model.value = 2
@@ -389,7 +389,7 @@ class ModelReadsTest {
         var modelAlreadyChanged = false
         rule.runOnUiThread {
             activity.setContent {
-                Layout({}) { _, _, _ ->
+                Layout({}) { _, _ ->
                     valueReadDuringMeasure = remeasureModel.value
                     remeasureLatch.countDown()
                     layout(100, 100) {
@@ -433,7 +433,7 @@ class ModelReadsTest {
         val relayoutModel = mutableStateOf(0)
         rule.runOnUiThread {
             activity.setContent {
-                Layout({}) { _, _, _ ->
+                Layout({}) { _, _ ->
                     if (remeasureModel.value != 0) {
                         // this will trigger relayout request for this node we currently measure
                         relayoutModel.value = 1
@@ -469,7 +469,7 @@ class ModelReadsTest {
         val model = mutableStateOf(0)
         rule.runOnUiThread {
             activity.setContent {
-                Layout({}) { _, _, _ ->
+                Layout({}) { _, _ ->
                     layout(100, 100) {
                         if (model.value == 1) {
                             // this will trigger relayout request for this node we currently layout

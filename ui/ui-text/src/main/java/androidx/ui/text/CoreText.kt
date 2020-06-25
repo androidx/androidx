@@ -152,11 +152,11 @@ fun CoreText(
                 state.previousGlobalPosition = newGlobalPosition
             }
         },
-        minIntrinsicWidthMeasureBlock = { _, _, layoutDirection ->
+        minIntrinsicWidthMeasureBlock = { _, _ ->
             state.textDelegate.layoutIntrinsics(layoutDirection)
             state.textDelegate.minIntrinsicWidth
         },
-        minIntrinsicHeightMeasureBlock = { _, width, layoutDirection ->
+        minIntrinsicHeightMeasureBlock = { _, width ->
             // given the width constraint, determine the min height
             state.textDelegate
                 .layout(
@@ -169,11 +169,11 @@ fun CoreText(
                     layoutDirection
                 ).size.height
         },
-        maxIntrinsicWidthMeasureBlock = { _, _, layoutDirection ->
+        maxIntrinsicWidthMeasureBlock = { _, _ ->
             state.textDelegate.layoutIntrinsics(layoutDirection)
             state.textDelegate.maxIntrinsicWidth
         },
-        maxIntrinsicHeightMeasureBlock = { _, width, layoutDirection ->
+        maxIntrinsicHeightMeasureBlock = { _, width ->
             state.textDelegate
                 .layout(
                     Constraints(
@@ -185,7 +185,7 @@ fun CoreText(
                     layoutDirection
                 ).size.height
         }
-    ) { measurables, constraints, layoutDirection ->
+    ) { measurables, constraints ->
         val layoutResult = state.textDelegate.layout(
             constraints,
             layoutDirection,
@@ -265,7 +265,7 @@ internal fun InlineChildren(
     inlineContents.fastForEach { (content, start, end) ->
         Layout(
             children = { content(text.subSequence(start, end).text) }
-        ) { children, constrains, _ ->
+        ) { children, constrains ->
             val placeables = children.map { it.measure(constrains) }
             layout(width = constrains.maxWidth, height = constrains.maxHeight) {
                 placeables.fastForEach { it.place(0, 0) }

@@ -62,7 +62,7 @@ fun AlignmentLineOffset(
     after: Dp = 0.dp,
     children: @Composable () -> Unit
 ) {
-    Layout(children, modifier) { measurables, constraints, _ ->
+    Layout(children, modifier) { measurables, constraints ->
         require(measurables.isNotEmpty()) { "No child found in AlignmentLineOffset" }
         val placeable = measurables.first().measure(
             // Loose constraints perpendicular on the alignment line.

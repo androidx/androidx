@@ -374,7 +374,7 @@ class ContainerTest : LayoutTest() {
                             modifier = Modifier.onPositioned { layoutLatch.countDown() }
                         )
                     }
-                }) { measurables, constraints, _ ->
+                }) { measurables, constraints ->
                     val placeable = measurables.first().measure(constraints)
                     ++measure
                     layout(placeable.width, placeable.height) {
@@ -412,7 +412,7 @@ class ContainerTest : LayoutTest() {
                             modifier = Modifier.onPositioned { layoutLatch.countDown() }
                         )
                     }
-                }) { measurables, constraints, _ ->
+                }) { measurables, constraints ->
                     val placeable = measurables.first().measure(constraints)
                     ++measure
                     layout(placeable.width, placeable.height) {
@@ -450,7 +450,7 @@ class ContainerTest : LayoutTest() {
                             modifier = Modifier.onPositioned { layoutLatch.countDown() }
                         )
                     }
-                }) { measurables, constraints, _ ->
+                }) { measurables, constraints ->
                     val placeable = measurables.first().measure(constraints)
                     ++measure
                     layout(placeable.width, placeable.height) {
@@ -474,7 +474,7 @@ class ContainerTest : LayoutTest() {
 
     @Composable
     fun EmptyBox(width: Dp, height: Dp, modifier: Modifier = Modifier) {
-        Layout(modifier = modifier, children = { }) { _, constraints, _ ->
+        Layout(modifier = modifier, children = { }) { _, constraints ->
             layout(
                 constraints.constrainWidth(width.toIntPx()),
                 constraints.constrainHeight(height.toIntPx())

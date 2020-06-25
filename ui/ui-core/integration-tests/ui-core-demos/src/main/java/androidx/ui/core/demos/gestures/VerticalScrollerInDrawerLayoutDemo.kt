@@ -171,7 +171,7 @@ private fun Scrollable(orientation: Orientation, children: @Composable () -> Uni
         children = children,
         modifier = Modifier.scrollGestureFilter(scrollObserver, orientation, canDrag) +
                 ClipModifier,
-        measureBlock = { measurables, constraints, _ ->
+        measureBlock = { measurables, constraints ->
             val placeable =
                 when (orientation) {
                     Orientation.Horizontal -> measurables.first().measure(

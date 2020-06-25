@@ -33,7 +33,7 @@ import androidx.ui.core.hasFixedWidth
  */
 @Composable
 fun Spacer(modifier: Modifier) {
-    Layout(emptyContent(), modifier) { _, constraints, _ ->
+    Layout(emptyContent(), modifier) { _, constraints ->
         with(constraints) {
             val width = if (hasFixedWidth) maxWidth else 0
             val height = if (hasFixedHeight) maxHeight else 0

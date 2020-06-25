@@ -129,7 +129,7 @@ private fun CustomLayout(rtlSupport: Boolean) {
         Stack(boxSize.drawBackground(Color.Red)) {}
         Stack(boxSize.drawBackground(Color.Green)) {}
         Stack(boxSize.drawBackground(Color.Blue)) {}
-    }) { measurables, constraints, _ ->
+    }) { measurables, constraints ->
         val p = measurables.map { e ->
             e.measure(constraints.copy(minWidth = 0, minHeight = 0))
         }

@@ -123,7 +123,7 @@ fun SimpleRelativeToSiblingsInColumn() {
         Layout(
             children = { },
             modifier = modifier.drawBackground(color = color)
-        ) { _, constraints, _ ->
+        ) { _, constraints ->
             val widthPx = max(width.toIntPx(), constraints.minWidth)
             val heightPx = max(height.toIntPx(), constraints.minHeight)
             layout(widthPx, heightPx, mapOf(start to 0, end to widthPx)) {}

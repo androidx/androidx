@@ -182,13 +182,13 @@ class RtlLayoutTest {
         activityTestRule.runOnUiThread {
             activity.setContent {
                 val children = @Composable {
-                    Layout({}) { _, _, layoutDirection ->
+                    Layout({}) { _, _ ->
                         actualDirection = layoutDirection
                         latch.countDown()
                         layout(100, 100) {}
                     }
                 }
-                Layout(children) { measurables, constraints, _ ->
+                Layout(children) { measurables, constraints ->
                     layout(100, 100) {
                         measurables.first().measure(constraints, direction.value)
                             .place(0, 0)
@@ -307,23 +307,23 @@ class RtlLayoutTest {
                 ) {
                     Layout(
                         children = {},
-                        minIntrinsicWidthMeasureBlock = { _, _, layoutDirection ->
+                        minIntrinsicWidthMeasureBlock = { _, _ ->
                             assertEquals(LayoutDirection.Rtl, layoutDirection)
                             0
                         },
-                        minIntrinsicHeightMeasureBlock = { _, _, layoutDirection ->
+                        minIntrinsicHeightMeasureBlock = { _, _ ->
                             assertEquals(LayoutDirection.Rtl, layoutDirection)
                             0
                         },
-                        maxIntrinsicWidthMeasureBlock = { _, _, layoutDirection ->
+                        maxIntrinsicWidthMeasureBlock = { _, _ ->
                             assertEquals(LayoutDirection.Rtl, layoutDirection)
                             0
                         },
-                        maxIntrinsicHeightMeasureBlock = { _, _, layoutDirection ->
+                        maxIntrinsicHeightMeasureBlock = { _, _ ->
                             assertEquals(LayoutDirection.Rtl, layoutDirection)
                             0
                         }
-                    ) { _, _, layoutDirection ->
+                    ) { _, _ ->
                         assertEquals(LayoutDirection.Rtl, layoutDirection)
                         latch.countDown()
                         layout(0, 0) {}
@@ -353,7 +353,7 @@ class RtlLayoutTest {
                 }
             },
             modifier = modifier
-        ) { measurables, constraints, _ ->
+        ) { measurables, constraints ->
             val placeables = measurables.map { it.measure(constraints) }
             val width = placeables.fold(0) { sum, p -> sum + p.width }
             val height = placeables.fold(0) { sum, p -> sum + p.height }
@@ -375,7 +375,7 @@ class RtlLayoutTest {
 
     @Composable
     private fun UpdateLayoutDirection(ld: LayoutDirection, children: @Composable () -> Unit) {
-        Layout(children) { measurables, constraints, _ ->
+        Layout(children) { measurables, constraints ->
             val placeable = measurables[0].measure(constraints, ld)
             layout(placeable.width, placeable.height) {
                 placeable.place(0, 0)
@@ -391,7 +391,7 @@ class RtlLayoutTest {
         bottom: Dp,
         children: @Composable () -> Unit
     ) {
-        Layout(children) { measurables, constraints, _ ->
+        Layout(children) { measurables, constraints ->
             val childConstraints = constraints.offset(
                 -start.toIntPx() - end.toIntPx(),
                 -top.toIntPx() - bottom.toIntPx()

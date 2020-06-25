@@ -967,7 +967,7 @@ class PopupTest {
 
 @Composable
 private fun TestAlign(children: @Composable () -> Unit) {
-    Layout(children) { measurables, constraints, _ ->
+    Layout(children) { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
         val placeable = measurable?.measure(constraints.copy(minWidth = 0, minHeight = 0))

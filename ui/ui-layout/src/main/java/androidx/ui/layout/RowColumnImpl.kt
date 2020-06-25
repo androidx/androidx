@@ -23,7 +23,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntrinsicMeasurable
-import androidx.ui.core.IntrinsicMeasureBlock
+import androidx.ui.core.IntrinsicMeasureBlock2
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Measured
@@ -63,7 +63,7 @@ internal fun RowColumnImpl(
         minIntrinsicHeightMeasureBlock = MinIntrinsicHeightMeasureBlock(orientation),
         maxIntrinsicWidthMeasureBlock = MaxIntrinsicWidthMeasureBlock(orientation),
         maxIntrinsicHeightMeasureBlock = MaxIntrinsicHeightMeasureBlock(orientation)
-    ) { measurables, outerConstraints, layoutDirection ->
+    ) { measurables, outerConstraints ->
         val constraints = OrientationIndependentConstraints(outerConstraints, orientation)
 
         var totalWeight = 0f
@@ -902,7 +902,7 @@ private /*inline*/ fun MaxIntrinsicHeightMeasureBlock(orientation: LayoutOrienta
     }
 
 private object IntrinsicMeasureBlocks {
-    val HorizontalMinWidth: IntrinsicMeasureBlock = { measurables, availableHeight, _ ->
+    val HorizontalMinWidth: IntrinsicMeasureBlock2 = { measurables, availableHeight ->
         intrinsicSize(
             measurables,
             { h -> minIntrinsicWidth(h) },
@@ -912,7 +912,7 @@ private object IntrinsicMeasureBlocks {
             LayoutOrientation.Horizontal
         )
     }
-    val VerticalMinWidth: IntrinsicMeasureBlock = { measurables, availableHeight, _ ->
+    val VerticalMinWidth: IntrinsicMeasureBlock2 = { measurables, availableHeight ->
         intrinsicSize(
             measurables,
             { h -> minIntrinsicWidth(h) },
@@ -922,7 +922,7 @@ private object IntrinsicMeasureBlocks {
             LayoutOrientation.Horizontal
         )
     }
-    val HorizontalMinHeight: IntrinsicMeasureBlock = { measurables, availableWidth, _ ->
+    val HorizontalMinHeight: IntrinsicMeasureBlock2 = { measurables, availableWidth ->
         intrinsicSize(
             measurables,
             { w -> minIntrinsicHeight(w) },
@@ -932,7 +932,7 @@ private object IntrinsicMeasureBlocks {
             LayoutOrientation.Vertical
         )
     }
-    val VerticalMinHeight: IntrinsicMeasureBlock = { measurables, availableWidth, _ ->
+    val VerticalMinHeight: IntrinsicMeasureBlock2 = { measurables, availableWidth ->
         intrinsicSize(
             measurables,
             { w -> minIntrinsicHeight(w) },
@@ -942,7 +942,7 @@ private object IntrinsicMeasureBlocks {
             LayoutOrientation.Vertical
         )
     }
-    val HorizontalMaxWidth: IntrinsicMeasureBlock = { measurables, availableHeight, _ ->
+    val HorizontalMaxWidth: IntrinsicMeasureBlock2 = { measurables, availableHeight ->
         intrinsicSize(
             measurables,
             { h -> maxIntrinsicWidth(h) },
@@ -952,7 +952,7 @@ private object IntrinsicMeasureBlocks {
             LayoutOrientation.Horizontal
         )
     }
-    val VerticalMaxWidth: IntrinsicMeasureBlock = { measurables, availableHeight, _ ->
+    val VerticalMaxWidth: IntrinsicMeasureBlock2 = { measurables, availableHeight ->
         intrinsicSize(
             measurables,
             { h -> maxIntrinsicWidth(h) },
@@ -962,7 +962,7 @@ private object IntrinsicMeasureBlocks {
             LayoutOrientation.Horizontal
         )
     }
-    val HorizontalMaxHeight: IntrinsicMeasureBlock = { measurables, availableWidth, _ ->
+    val HorizontalMaxHeight: IntrinsicMeasureBlock2 = { measurables, availableWidth ->
         intrinsicSize(
             measurables,
             { w -> maxIntrinsicHeight(w) },
@@ -972,7 +972,7 @@ private object IntrinsicMeasureBlocks {
             LayoutOrientation.Vertical
         )
     }
-    val VerticalMaxHeight: IntrinsicMeasureBlock = { measurables, availableWidth, _ ->
+    val VerticalMaxHeight: IntrinsicMeasureBlock2 = { measurables, availableWidth ->
         intrinsicSize(
             measurables,
             { w -> maxIntrinsicHeight(w) },

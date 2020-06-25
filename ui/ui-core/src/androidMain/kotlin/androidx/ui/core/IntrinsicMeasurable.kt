@@ -54,5 +54,9 @@ interface IntrinsicMeasurable {
 /**
  * A function for performing intrinsic measurement.
  */
+typealias IntrinsicMeasureBlock2 =
+        IntrinsicMeasureScope.(List<IntrinsicMeasurable>, Int) -> Int
+
+@Deprecated("Use IntrinsicMeasureBlock2 instead")
 typealias IntrinsicMeasureBlock =
         IntrinsicMeasureScope.(List<IntrinsicMeasurable>, Int, LayoutDirection) -> Int

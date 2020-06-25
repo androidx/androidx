@@ -111,7 +111,7 @@ class ClipPointerInputTest {
                     Layout(
                         children = children,
                         modifier = Modifier.clipToBounds()
-                    ) { measurables, constraints, _ ->
+                    ) { measurables, constraints ->
                         val placeables = measurables.map { m ->
                             m.measure(constraints)
                         }
@@ -124,7 +124,7 @@ class ClipPointerInputTest {
                     }
                 }
 
-                Layout(children = middle) { measurables, constraints, _ ->
+                Layout(children = middle) { measurables, constraints ->
                     val placeables = measurables.map { m ->
                         m.measure(constraints)
                     }
@@ -236,7 +236,7 @@ class ClipPointerInputTest {
                         Layout(
                             children = children,
                             modifier = Modifier.clipToBounds()
-                        ) { measurables, constraints, _ ->
+                        ) { measurables, constraints ->
                             val placeables = measurables.map { m ->
                                 m.measure(constraints)
                             }
@@ -246,7 +246,7 @@ class ClipPointerInputTest {
                         }
                     }
 
-                    Layout(children = middle) { measurables, constraints, _ ->
+                    Layout(children = middle) { measurables, constraints ->
                         val placeables = measurables.map { m ->
                             m.measure(constraints)
                         }
@@ -311,7 +311,7 @@ class ClipPointerInputTest {
 
     @Composable
     fun child(modifier: Modifier) {
-        Layout(children = emptyContent(), modifier = modifier) { _, _, _ ->
+        Layout(children = emptyContent(), modifier = modifier) { _, _ ->
             layout(2, 2) {}
         }
     }

@@ -1622,7 +1622,7 @@ class RowColumnTest : LayoutTest() {
                             assertEquals(Constraints(), constraints)
                             FixedSizeLayout(noWeightChildWidth.toIntPx(), 0, mapOf())
                         }
-                        Layout({}, Modifier.weight(1f)) { _, constraints, _ ->
+                        Layout({}, Modifier.weight(1f)) { _, constraints ->
                             assertEquals(
                                 rowMinWidth.toIntPx() - noWeightChildWidth.toIntPx() * 2,
                                 constraints.minWidth
@@ -2073,7 +2073,7 @@ class RowColumnTest : LayoutTest() {
                                 assertEquals(Constraints(), constraints)
                                 FixedSizeLayout(0, noWeightChildHeight.toIntPx(), mapOf())
                             }
-                            Layout(emptyContent(), Modifier.weight(1f)) { _, constraints, _ ->
+                            Layout(emptyContent(), Modifier.weight(1f)) { _, constraints ->
                                 assertEquals(
                                     columnMinHeight.toIntPx() - noWeightChildHeight.toIntPx() * 2,
                                     constraints.minHeight
@@ -4619,7 +4619,7 @@ private fun BaselineTestLayout(
     modifier: Modifier,
     children: @Composable () -> Unit
 ) {
-    Layout(children = children, modifier = modifier, measureBlock = { _, constraints, _ ->
+    Layout(children = children, modifier = modifier, measureBlock = { _, constraints ->
         val widthPx = max(width.toIntPx(), constraints.minWidth)
         val heightPx = max(height.toIntPx(), constraints.minHeight)
         layout(
@@ -4632,7 +4632,7 @@ private fun BaselineTestLayout(
 // Center composable function is deprected whereas FlexTest tests heavily depend on it.
 @Composable
 private fun Center(children: @Composable () -> Unit) {
-    Layout(children) { measurables, constraints, _ ->
+    Layout(children) { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
         val placeable = measurable?.measure(constraints.copy(minWidth = 0, minHeight = 0))

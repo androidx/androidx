@@ -77,7 +77,7 @@ fun ConstraintLayout(
     MultiMeasureLayout(modifier = modifier, children = {
         scope.reset()
         scope.children()
-    }) { measurables, constraints, layoutDirection ->
+    }) { measurables, constraints ->
         val constraintSet = object : ConstraintSet {
             override fun applyTo(state: State, measurables: List<Measurable>) {
                 scope.applyTo(state)
@@ -123,7 +123,7 @@ fun ConstraintLayout(
 ) {
     val measurer = remember { Measurer() }
     @Suppress("Deprecation")
-    MultiMeasureLayout(modifier, children) { measurables, constraints, layoutDirection ->
+    MultiMeasureLayout(modifier, children) { measurables, constraints ->
         val layoutSize = measurer.performMeasure(
             constraints,
             layoutDirection,

@@ -73,7 +73,7 @@ class LongPressDragGestureFilterTest {
                 Stack {
                     Layout(
                         modifier = Modifier.longPressDragGestureFilter(longPressDragObserver),
-                        measureBlock = { _, _, _ ->
+                        measureBlock = { _, _ ->
                             layout(100, 100) {
                                 setupLatch.countDown()
                             }

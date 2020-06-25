@@ -69,7 +69,7 @@ class AlignmentLineTest : LayoutTest() {
                             layoutLatch.countDown()
                         }
                         .relativePaddingFrom(testLine, beforeDp, afterDp)
-                ) { _, _, _ ->
+                ) { _, _ ->
                     layout(childDp.toIntPx(), 0, mapOf(testLine to lineDp.toIntPx())) {}
                 }
             }
@@ -119,7 +119,7 @@ class AlignmentLineTest : LayoutTest() {
                         }
                         .relativePaddingFrom(testLine, beforeDp, afterDp),
                     children = {}
-                ) { _, _, _ ->
+                ) { _, _ ->
                     layout(0, childDp.toIntPx(), mapOf(testLine to lineDp.toIntPx())) {}
                 }
             }
@@ -157,7 +157,7 @@ class AlignmentLineTest : LayoutTest() {
                         .saveLayoutInfo(childSize, childPosition, layoutLatch)
                         .relativePaddingFrom(testLine, beforeDp, afterDp),
                     children = {}
-                ) { _, _, _ ->
+                ) { _, _ ->
                     layout(childDp.toIntPx(), 0, mapOf(testLine to lineDp.toIntPx())) { }
                 }
             }
@@ -191,7 +191,7 @@ class AlignmentLineTest : LayoutTest() {
                     Modifier
                         .saveLayoutInfo(childSize, childPosition, layoutLatch)
                         .relativePaddingFrom(testLine, beforeDp, afterDp)
-                ) { _, _, _ ->
+                ) { _, _ ->
                     layout(0, childDp.toIntPx(), mapOf(testLine to lineDp.toIntPx())) { }
                 }
             }
@@ -227,7 +227,7 @@ class AlignmentLineTest : LayoutTest() {
                         .preferredSizeIn(maxWidth = maxWidth)
                         .saveLayoutInfo(childSize, childPosition, layoutLatch)
                         .relativePaddingFrom(testLine, beforeDp, afterDp)
-                ) { _, _, _ ->
+                ) { _, _ ->
                     layout(
                         childDp.toIntPx(),
                         0,
@@ -268,7 +268,7 @@ class AlignmentLineTest : LayoutTest() {
                         .preferredSizeIn(maxHeight = maxHeight)
                         .saveLayoutInfo(childSize, childPosition, layoutLatch)
                         .relativePaddingFrom(testLine, beforeDp, afterDp)
-                ) { _, _, _ ->
+                ) { _, _ ->
                     layout(
                         0,
                         childDp.toIntPx(),
