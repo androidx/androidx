@@ -16,7 +16,6 @@
 
 package androidx.ui.core
 
-import android.graphics.Matrix
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
@@ -76,5 +75,5 @@ interface OwnedLayer {
      * Returns a matrix that this layer will use to transform the contents.
      * The caller must not modify the returned Matrix.
      */
-    fun getMatrix(): Matrix
+    fun getMatrix(): NativeMatrix
 }

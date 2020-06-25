@@ -183,6 +183,9 @@ package androidx.ui.core {
     method public static androidx.compose.ProvidableAmbient<androidx.ui.platform.UriHandler> getUriHandlerAmbient();
   }
 
+  public final class AndroidActualsKt {
+  }
+
   public final class AndroidAmbientsKt {
     method public static androidx.compose.ProvidableAmbient<android.content.res.Configuration> getConfigurationAmbient();
     method public static androidx.compose.ProvidableAmbient<android.content.Context> getContextAmbient();
@@ -287,7 +290,6 @@ package androidx.ui.core {
   }
 
   public final class DebugUtilsKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static String simpleIdentityToString(Object obj, String? name = null);
   }
 
   @kotlin.PublishedApi internal final class DefaultIntrinsicMeasurable implements androidx.ui.core.Measurable {
@@ -321,7 +323,7 @@ package androidx.ui.core {
     method @FloatRange(from=0.0, to=360.0) public default float getRotationZ();
     method public default float getScaleX();
     method public default float getScaleY();
-    method @FloatRange(from=0.0) public default float getShadowElevation();
+    method @FloatRange(from=0.0, to=3.4E38) public default float getShadowElevation();
     method public default androidx.ui.graphics.Shape getShape();
     method public default long getTransformOrigin();
     method public default float getTranslationX();
@@ -333,7 +335,7 @@ package androidx.ui.core {
     property @FloatRange(from=0.0, to=360.0) public default float rotationZ;
     property public default float scaleX;
     property public default float scaleY;
-    property @FloatRange(from=0.0) public default float shadowElevation;
+    property @FloatRange(from=0.0, to=3.4E38) public default float shadowElevation;
     property public default androidx.ui.graphics.Shape shape;
     property public default long transformOrigin;
     property public default float translationX;

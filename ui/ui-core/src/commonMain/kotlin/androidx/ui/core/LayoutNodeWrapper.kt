@@ -18,7 +18,6 @@
 
 package androidx.ui.core
 
-import android.graphics.RectF
 import androidx.ui.core.focus.ModifiedFocusNode
 import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
@@ -87,7 +86,7 @@ internal abstract class LayoutNodeWrapper(
     var isShallowPlacing = false
 
     // TODO(mount): This is not thread safe.
-    private var rectCache: RectF? = null
+    private var rectCache: NativeRectF? = null
 
     /**
      * Whether a pointer that is relative to the device screen is in the bounds of this
@@ -246,7 +245,7 @@ internal abstract class LayoutNodeWrapper(
      * Modifies bounds to be in the parent LayoutNodeWrapper's coordinates, including clipping,
      * scaling, etc.
      */
-    protected open fun rectInParent(bounds: RectF) {
+    protected open fun rectInParent(bounds: NativeRectF) {
         val x = position.x
         bounds.left += x
         bounds.right += x
@@ -259,7 +258,7 @@ internal abstract class LayoutNodeWrapper(
     override fun childBoundingBox(child: LayoutCoordinates): PxBounds {
         check(isAttached) { ExpectAttachedLayoutCoordinates }
         check(child.isAttached) { "Child $child is not attached!" }
-        val bounds = rectCache ?: RectF().also { rectCache = it }
+        val bounds = rectCache ?: NativeRectF().also { rectCache = it }
         bounds.set(
             0f,
             0f,

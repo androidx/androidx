@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.ui.core
 
-package androidx.ui.util
-
-actual fun Any?.identityHashCode(): Int = if (this == null) 0 else System.identityHashCode(this)
-
-actual fun String.format(vararg args: Any?): String = java.lang.String.format(this, *args)
-
-actual fun StringBuilder.deleteAt(index: Int): StringBuilder {
-    this.deleteCharAt(index)
-    return this
+internal inline fun ifDebug(block: () -> Unit) {
+    // Right now, we always run these.  At a later point, we may revisit this
+    block()
 }
 
-actual fun Any.nativeClass(): Any = this.javaClass
+internal expect fun simpleIdentityToString(obj: Any, name: String?): String

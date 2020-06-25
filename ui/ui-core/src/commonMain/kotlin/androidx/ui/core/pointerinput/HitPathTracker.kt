@@ -16,7 +16,6 @@
 
 package androidx.ui.core.pointerinput
 
-import androidx.annotation.VisibleForTesting
 import androidx.ui.core.CustomEvent
 import androidx.ui.core.CustomEventDispatcher
 import androidx.ui.core.InternalPointerEvent
@@ -27,6 +26,7 @@ import androidx.ui.core.PointerEvent
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.plus
+import androidx.ui.util.annotation.VisibleForTesting
 
 /**
  * Organizes pointers and the [PointerInputFilter]s that they hit into a hierarchy such that
@@ -40,17 +40,19 @@ internal class HitPathTracker {
     private val hitPathsToRetain: MutableMap<PointerId, Int> = mutableMapOf()
     private val retainedHitPaths: MutableSet<PointerId> = mutableSetOf()
 
-    private val dispatchChangesRetVal = object : DispatchChangesRetVal {
+    internal interface DispatchChangesRetVal {
+        operator fun component1(): InternalPointerEvent
+        operator fun component2(): Boolean
+    }
+    private class DispatchChangesRetValImpl : DispatchChangesRetVal {
         lateinit var internalPointerEvent: InternalPointerEvent
         var wasDispatchedToSomething: Boolean = false
         override operator fun component1() = internalPointerEvent
         override operator fun component2() = wasDispatchedToSomething
     }
 
-    internal interface DispatchChangesRetVal {
-        operator fun component1(): InternalPointerEvent
-        operator fun component2(): Boolean
-    }
+    // See https://youtrack.jetbrains.com/issue/KT-39905.
+    private val dispatchChangesRetVal = DispatchChangesRetValImpl()
 
     /**
      * Associates a [pointerId] to a list of hit [pointerInputFilters] and keeps track of them.
