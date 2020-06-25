@@ -96,8 +96,9 @@ internal fun loadVectorResource(
     val attrs = Xml.asAttributeSet(parser)
     val builder = parser.seekToStartTag().createVectorImageBuilder(res, theme, attrs)
 
+    var nestedGroups = 0
     while (!parser.isAtEnd()) {
-        parser.parseCurrentVectorNode(res, attrs, theme, builder)
+        nestedGroups = parser.parseCurrentVectorNode(res, attrs, theme, builder, nestedGroups)
         parser.next()
     }
     return builder.build()
