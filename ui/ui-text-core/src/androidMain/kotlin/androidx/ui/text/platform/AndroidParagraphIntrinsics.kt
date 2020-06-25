@@ -63,7 +63,7 @@ internal class AndroidParagraphIntrinsics(
             density
         )
 
-        charSequence = createStyledText(
+        charSequence = createCharSequence(
             text = text,
             contextFontSize = textPaint.textSize,
             lineHeight = style.lineHeight,
