@@ -33,22 +33,36 @@ import androidx.ui.graphics.vector.Path
 import androidx.ui.graphics.vector.PathBuilder
 import androidx.ui.graphics.vector.PathData
 import androidx.ui.graphics.vector.VectorPainter
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
-import androidx.ui.layout.wrapContentSize
 import androidx.ui.res.loadVectorResource
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
 @Composable
 fun VectorGraphicsDemo() {
-    Column(modifier = Modifier.wrapContentSize(Alignment.Center)) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalGravity = Alignment.CenterHorizontally
+    ) {
         val vectorAsset = loadVectorResource(R.drawable.ic_crane)
         vectorAsset.resource.resource?.let {
             Image(
                 asset = it,
                 modifier = Modifier.preferredSize(200.dp, 200.dp),
                 contentScale = ContentScale.Inside
+            )
+        }
+
+        val complexVectorAsset = loadVectorResource(R.drawable.ic_hourglass)
+        complexVectorAsset.resource.resource?.let {
+            Image(
+                asset = it,
+                modifier = Modifier.preferredSize(64.dp, 64.dp),
+                contentScale = ContentScale.Fit
             )
         }
 

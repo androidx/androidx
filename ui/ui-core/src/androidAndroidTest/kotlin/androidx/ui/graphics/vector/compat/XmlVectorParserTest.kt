@@ -125,17 +125,32 @@ class XmlVectorParserTest {
         assertEquals(6f, group.translationX, delta)
         assertEquals(7f, group.translationY, delta)
 
-        val path = group[0].assertType<VectorPath>().pathData
+        val clipPathGroup = group[0].assertType<VectorGroup>()
+        val clipPath = clipPathGroup.clipPathData
+        assertEquals(3, clipPath.size)
 
+        clipPath[0].assertType<PathNode.MoveTo>().let { moveTo ->
+            assertEquals(1.0f, moveTo.x, delta)
+            assertEquals(2.0f, moveTo.y, delta)
+        }
+        clipPath[1].assertType<PathNode.LineTo>().let { lineTo ->
+            assertEquals(3.0f, lineTo.x, delta)
+            assertEquals(4.0f, lineTo.y, delta)
+        }
+        clipPath[2].assertType<PathNode.Close>()
+
+        val path = clipPathGroup[0].assertType<VectorPath>().pathData
         assertEquals(3, path.size)
 
-        val moveTo = path[0].assertType<PathNode.MoveTo>()
-        assertEquals(20.0f, moveTo.x)
-        assertEquals(10.0f, moveTo.y)
+        path[0].assertType<PathNode.MoveTo>().let { moveTo ->
+            assertEquals(5.0f, moveTo.x)
+            assertEquals(6.0f, moveTo.y)
+        }
 
-        val lineTo = path[1].assertType<PathNode.LineTo>()
-        assertEquals(10.0f, lineTo.x)
-        assertEquals(0.0f, lineTo.y)
+        path[1].assertType<PathNode.LineTo>().let { lineTo ->
+            assertEquals(7.0f, lineTo.x)
+            assertEquals(8.0f, lineTo.y)
+        }
 
         path[2].assertType<PathNode.Close>()
     }

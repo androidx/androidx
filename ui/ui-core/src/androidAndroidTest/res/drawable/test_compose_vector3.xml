@@ -27,10 +27,10 @@
         android:scaleY="5"
         android:translateX="6"
         android:translateY="7">
-        <clip-path android:pathData="M20,10, 10,0z" />
+        <clip-path android:pathData="M1,2, 3,4z" />
         <path
             android:fillColor="#FFFF0000"
-            android:pathData="M20,10, 10,0z" />
+            android:pathData="M5,6, 7,8z" />
     </group>
 </vector>
 

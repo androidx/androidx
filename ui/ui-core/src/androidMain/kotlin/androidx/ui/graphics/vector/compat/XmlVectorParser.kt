@@ -20,7 +20,6 @@ import android.content.res.Resources
 import android.util.AttributeSet
 import androidx.core.content.res.ComplexColorCompat
 import androidx.core.content.res.TypedArrayUtils
-import androidx.ui.unit.dp
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shader
@@ -39,6 +38,7 @@ import androidx.ui.graphics.vector.EmptyPath
 import androidx.ui.graphics.vector.PathNode
 import androidx.ui.graphics.vector.VectorAssetBuilder
 import androidx.ui.graphics.vector.addPathNodes
+import androidx.ui.unit.dp
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 
@@ -76,12 +76,18 @@ internal fun XmlPullParser.isAtEnd(): Boolean =
     eventType == XmlPullParser.END_DOCUMENT ||
             (depth < 1 && eventType == XmlPullParser.END_TAG)
 
+/**
+ * @param nestedGroups The number of additionally nested VectorGroups to represent clip paths.
+ * @return The number of nested VectorGroups that are not `<group>` in XML, but represented as
+ * VectorGroup in the [builder]. These are also popped when this function sees `</group>`.
+ */
 internal fun XmlPullParser.parseCurrentVectorNode(
     res: Resources,
     attrs: AttributeSet,
     theme: Resources.Theme? = null,
-    builder: VectorAssetBuilder
-) {
+    builder: VectorAssetBuilder,
+    nestedGroups: Int
+): Int {
     when (eventType) {
         XmlPullParser.START_TAG -> {
             when (name) {
@@ -89,7 +95,8 @@ internal fun XmlPullParser.parseCurrentVectorNode(
                     parsePath(res, theme, attrs, builder)
                 }
                 SHAPE_CLIP_PATH -> {
-                    // TODO: b/147418351 - parse clipping paths
+                    parseClipPath(res, theme, attrs, builder)
+                    return nestedGroups + 1
                 }
                 SHAPE_GROUP -> {
                     parseGroup(res, theme, attrs, builder)
@@ -98,10 +105,14 @@ internal fun XmlPullParser.parseCurrentVectorNode(
         }
         XmlPullParser.END_TAG -> {
             if (SHAPE_GROUP == name) {
-                builder.popGroup()
+                repeat(nestedGroups + 1) {
+                    builder.popGroup()
+                }
+                return 0
             }
         }
     }
+    return nestedGroups
 }
 
 /**
@@ -318,6 +329,35 @@ private fun obtainBrushFromComplexColor(complexColor: ComplexColorCompat): Brush
         null
     }
 
+internal fun XmlPullParser.parseClipPath(
+    res: Resources,
+    theme: Resources.Theme?,
+    attrs: AttributeSet,
+    builder: VectorAssetBuilder
+) {
+    val a = TypedArrayUtils.obtainAttributes(
+        res,
+        theme,
+        attrs,
+        AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH
+    )
+    val name: String = a.getString(
+        AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_NAME
+    ) ?: ""
+    val pathData = addPathNodes(a.getString(
+        AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_PATH_DATA
+    ))
+    a.recycle()
+
+    // <clip-path> is parsed out as an additional VectorGroup.
+    // This allows us to replicate the behavior of VectorDrawable where <clip-path> only affects
+    // <path> that comes after it in <group>.
+    builder.pushGroup(
+        name = name,
+        clipPathData = pathData
+    )
+}
+
 @SuppressWarnings("RestrictedApi")
 internal fun XmlPullParser.parseGroup(
     res: Resources,
@@ -392,9 +432,6 @@ internal fun XmlPullParser.parseGroup(
     val name: String =
         a.getString(AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_GROUP_NAME) ?: ""
 
-    // TODO parse clip path
-    val clipPathData = EmptyPath
-
     a.recycle()
 
     builder.pushGroup(
@@ -406,6 +443,6 @@ internal fun XmlPullParser.parseGroup(
         scaleY,
         translateX,
         translateY,
-        clipPathData
+        EmptyPath
     )
 }
