@@ -81,14 +81,15 @@ private data class PainterModifier(
         height: Int,
         layoutDirection: LayoutDirection
     ): Int {
-        val constraints = Constraints(maxHeight = height)
-        val layoutWidth =
-            measurable.minIntrinsicWidth(modifyConstraints(constraints).maxHeight)
-        val painterIntrinsicWidth =
-            painter.intrinsicSize.width.takeUnless {
-                !sizeToIntrinsics || it == Float.POSITIVE_INFINITY
-            }?.roundToInt() ?: layoutWidth
-        return max(painterIntrinsicWidth, layoutWidth)
+        return if (sizeToIntrinsics) {
+            val constraints = Constraints(maxHeight = height)
+            val layoutWidth =
+                measurable.minIntrinsicWidth(modifyConstraints(constraints).maxHeight)
+            val scaledSize = calculateScaledSize(Size(layoutWidth.toFloat(), height.toFloat()))
+            max(scaledSize.width.roundToInt(), layoutWidth)
+        } else {
+            measurable.minIntrinsicWidth(height)
+        }
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
@@ -96,14 +97,15 @@ private data class PainterModifier(
         height: Int,
         layoutDirection: LayoutDirection
     ): Int {
-        val constraints = Constraints(maxHeight = height)
-        val layoutWidth =
-            measurable.maxIntrinsicWidth(modifyConstraints(constraints).maxHeight)
-        val painterIntrinsicWidth =
-            painter.intrinsicSize.width.takeUnless {
-                !sizeToIntrinsics || it == Float.POSITIVE_INFINITY
-            }?.roundToInt() ?: layoutWidth
-        return max(painterIntrinsicWidth, layoutWidth)
+        return if (sizeToIntrinsics) {
+            val constraints = Constraints(maxHeight = height)
+            val layoutWidth =
+                measurable.maxIntrinsicWidth(modifyConstraints(constraints).maxHeight)
+            val scaledSize = calculateScaledSize(Size(layoutWidth.toFloat(), height.toFloat()))
+            max(scaledSize.width.roundToInt(), layoutWidth)
+        } else {
+            measurable.maxIntrinsicWidth(height)
+        }
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
@@ -111,14 +113,15 @@ private data class PainterModifier(
         width: Int,
         layoutDirection: LayoutDirection
     ): Int {
-        val constraints = Constraints(maxWidth = width)
-        val layoutHeight =
-            measurable.minIntrinsicHeight(modifyConstraints(constraints).maxWidth)
-        val painterIntrinsicHeight =
-            painter.intrinsicSize.height.takeUnless {
-                !sizeToIntrinsics || it == Float.POSITIVE_INFINITY
-            }?.roundToInt() ?: layoutHeight
-        return max(painterIntrinsicHeight, layoutHeight)
+        return if (sizeToIntrinsics) {
+            val constraints = Constraints(maxWidth = width)
+            val layoutHeight =
+                measurable.minIntrinsicHeight(modifyConstraints(constraints).maxWidth)
+            val scaledSize = calculateScaledSize(Size(width.toFloat(), layoutHeight.toFloat()))
+            max(scaledSize.height.roundToInt(), layoutHeight)
+        } else {
+            measurable.minIntrinsicHeight(width)
+        }
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
@@ -126,35 +129,85 @@ private data class PainterModifier(
         width: Int,
         layoutDirection: LayoutDirection
     ): Int {
-        val constraints = Constraints(maxWidth = width)
-        val layoutHeight =
-            measurable.maxIntrinsicHeight(modifyConstraints(constraints).maxWidth)
-        val painterIntrinsicHeight =
-            painter.intrinsicSize.height.takeUnless {
-                !sizeToIntrinsics || it == Float.POSITIVE_INFINITY
-            }?.roundToInt() ?: layoutHeight
-        return max(painterIntrinsicHeight, layoutHeight)
+        return if (sizeToIntrinsics) {
+            val constraints = Constraints(maxWidth = width)
+            val layoutHeight =
+                measurable.maxIntrinsicHeight(modifyConstraints(constraints).maxWidth)
+            val scaledSize = calculateScaledSize(Size(width.toFloat(), layoutHeight.toFloat()))
+            max(scaledSize.height.roundToInt(), layoutHeight)
+        } else {
+            measurable.maxIntrinsicHeight(width)
+        }
+    }
+
+    private fun calculateScaledSize(dstSize: Size): Size {
+        return if (!sizeToIntrinsics) {
+            dstSize
+        } else {
+            val intrinsicWidth = painter.intrinsicSize.width
+            val intrinsicHeight = painter.intrinsicSize.height
+            val srcWidth = if (intrinsicWidth == Float.POSITIVE_INFINITY) {
+                dstSize.width
+            } else {
+                intrinsicWidth
+            }
+
+            val srcHeight = if (intrinsicHeight == Float.POSITIVE_INFINITY) {
+                dstSize.height
+            } else {
+                intrinsicHeight
+            }
+
+            val srcSize = Size(srcWidth, srcHeight)
+            srcSize * contentScale.scale(srcSize, dstSize)
+        }
     }
 
     private fun modifyConstraints(constraints: Constraints): Constraints {
+        if (!sizeToIntrinsics || (constraints.hasFixedWidth && constraints.hasFixedHeight)) {
+            // If we have fixed constraints or we are not attempting to size the
+            // composable based on the size of the Painter, do not attempt to
+            // modify them. Otherwise rely on Alignment and ContentScale
+            // to determine how to position the drawing contents of the Painter within
+            // the provided bounds
+            return constraints
+        }
+
         val intrinsicSize = painter.intrinsicSize
         val intrinsicWidth =
-            intrinsicSize.width.takeUnless {
-                !sizeToIntrinsics || it == Float.POSITIVE_INFINITY
-            }?.roundToInt() ?: constraints.minWidth
+            if (intrinsicSize.width != Float.POSITIVE_INFINITY) {
+                intrinsicSize.width.roundToInt()
+            } else {
+                constraints.minWidth
+            }
+
         val intrinsicHeight =
-            intrinsicSize.height.takeUnless {
-                !sizeToIntrinsics || it == Float.POSITIVE_INFINITY
-            }?.roundToInt() ?: constraints.minHeight
+            if (intrinsicSize.height != Float.POSITIVE_INFINITY) {
+                intrinsicSize.height.roundToInt()
+            } else {
+                constraints.minHeight
+            }
 
-        val minWidth = constraints.constrainWidth(intrinsicWidth)
-        val minHeight = constraints.constrainHeight(intrinsicHeight)
+        // Scale the width and height appropriately based on the given constraints
+        // and ContentScale
+        val constrainedWidth = constraints.constrainWidth(intrinsicWidth)
+        val constrainedHeight = constraints.constrainHeight(intrinsicHeight)
+        val scaledSize = calculateScaledSize(
+            Size(constrainedWidth.toFloat(), constrainedHeight.toFloat())
+        )
 
-        return if (minWidth == constraints.minWidth && minHeight == constraints.minHeight) {
-            constraints
+        val minWidth = if (constraints.hasFixedWidth) {
+            constraints.minWidth
         } else {
-            constraints.copy(minWidth = minWidth, minHeight = minHeight)
+            scaledSize.width.roundToInt()
         }
+
+        val minHeight = if (constraints.hasFixedHeight) {
+            constraints.minHeight
+        } else {
+            scaledSize.height.roundToInt()
+        }
+        return constraints.copy(minWidth = minWidth, minHeight = minHeight)
     }
 
     override fun ContentDrawScope.draw() {
