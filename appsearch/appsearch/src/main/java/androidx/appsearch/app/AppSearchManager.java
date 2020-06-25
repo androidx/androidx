@@ -632,7 +632,7 @@ public class AppSearchManager {
     }
 
     /**
-     * Deletes all documents owned by the calling app.
+     * Deletes all documents owned by this instance.
      *
      * @return A {@link ListenableFuture}&lt;{@link AppSearchResult}&lt;{@link Void}&gt;&gt;.
      *     Will be completed with the result of the call.
@@ -641,7 +641,7 @@ public class AppSearchManager {
     public <ValueType> ListenableFuture<AppSearchResult<ValueType>> deleteAll() {
         return execute(MUTATE_EXECUTOR, () -> {
             try {
-                mAppSearchImpl.deleteAll();
+                mAppSearchImpl.deleteAll(mInstanceName);
                 return AppSearchResult.newSuccessfulResult(null);
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
