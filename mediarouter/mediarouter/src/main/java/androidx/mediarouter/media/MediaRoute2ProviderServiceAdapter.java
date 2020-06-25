@@ -24,7 +24,6 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_U
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_DATA_ERROR;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROL_REQUEST_FAILED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED;
-import static androidx.mediarouter.media.MediaRouter.UNSELECT_REASON_UNKNOWN;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -197,7 +196,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             notifyRequestFailed(requestId, REASON_INVALID_COMMAND);
             return;
         }
-        controller.onUnselect(UNSELECT_REASON_UNKNOWN);
+        controller.onUnselect(MediaRouter.UNSELECT_REASON_STOPPED);
         controller.onRelease();
         notifySessionReleased(sessionId);
     }
