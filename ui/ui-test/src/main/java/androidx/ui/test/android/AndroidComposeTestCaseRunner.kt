@@ -211,8 +211,8 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     override fun recompose() {
         if (hasPendingChanges()) {
             didLastRecomposeHaveChanges = true
-            runBlocking {
-                recomposer.recomposeAndApplyChanges(this, frameClock, 1)
+            runBlocking(frameClock) {
+                recomposer.recomposeAndApplyChanges(this, 1)
             }
         } else {
             didLastRecomposeHaveChanges = false
@@ -220,9 +220,10 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         simulationState = SimulationState.RecomposeDone
     }
 
-    override fun launchRecomposeIn(coroutineScope: CoroutineScope): Job = coroutineScope.launch {
-        recomposer.runRecomposeAndApplyChanges(frameClock)
-    }
+    override fun launchRecomposeIn(coroutineScope: CoroutineScope): Job =
+        coroutineScope.launch(frameClock) {
+            recomposer.runRecomposeAndApplyChanges()
+        }
 
     override fun doFrame() {
         if (view == null) {
