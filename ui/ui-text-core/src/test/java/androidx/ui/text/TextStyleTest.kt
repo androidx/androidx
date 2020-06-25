@@ -415,8 +415,8 @@ class TextStyleTest {
 
     @Test
     fun `merge textDirectionAlgorithm uses other's textDirectionAlgorithm`() {
-        val style = TextStyle(textDirection = TextDirection.ForceRtl)
-        val otherStyle = TextStyle(textDirection = TextDirection.ForceLtr)
+        val style = TextStyle(textDirection = TextDirection.Rtl)
+        val otherStyle = TextStyle(textDirection = TextDirection.Ltr)
 
         val newStyle = style.merge(otherStyle)
 
@@ -425,7 +425,7 @@ class TextStyleTest {
 
     @Test
     fun `merge textDirectionAlgorithm other null, returns original`() {
-        val style = TextStyle(textDirection = TextDirection.ForceRtl)
+        val style = TextStyle(textDirection = TextDirection.Rtl)
 
         val newStyle = style.merge(TextStyle(textDirection = null))
 
@@ -503,7 +503,7 @@ class TextStyleTest {
             color = Color.Red,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            textDirection = TextDirection.ForceRtl
+            textDirection = TextDirection.Rtl
         ) + TextStyle(
             color = Color.Green,
             fontFamily = FontFamily.Cursive,
@@ -517,7 +517,7 @@ class TextStyleTest {
                 fontWeight = FontWeight.Bold, // SpanStyle attribute from LHS,
                 fontFamily = FontFamily.Cursive, // SpanStyle attribute from RHS
                 textAlign = TextAlign.Justify, // ParagraphStyle attribute overridden by RHS
-                textDirection = TextDirection.ForceRtl, // from LHS,
+                textDirection = TextDirection.Rtl, // from LHS,
                 lineHeight = 12.sp // ParagraphStyle attribute from RHS
             )
         )
@@ -549,7 +549,7 @@ class TextStyleTest {
         val style = TextStyle(
             color = Color.Red,
             textAlign = TextAlign.Center,
-            textDirection = TextDirection.ForceRtl
+            textDirection = TextDirection.Rtl
         ) + ParagraphStyle(
             textAlign = TextAlign.Justify,
             lineHeight = 12.sp
@@ -559,7 +559,7 @@ class TextStyleTest {
             TextStyle(
                 color = Color.Red, // SpanStyle from LHS
                 textAlign = TextAlign.Justify, // ParagraphStyle attribute overridden by RHS
-                textDirection = TextDirection.ForceRtl, // from LHS,
+                textDirection = TextDirection.Rtl, // from LHS,
                 lineHeight = 12.sp // ParagraphStyle attribute from RHS
             )
         )
@@ -894,7 +894,7 @@ class TextStyleTest {
     @Test
     fun `lerp textDirectionAlgorithm with a null, b not null and t is smaller than half`() {
         val style1 = TextStyle(textDirection = null)
-        val style2 = TextStyle(textDirection = TextDirection.ForceRtl)
+        val style2 = TextStyle(textDirection = TextDirection.Rtl)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = 0.4f)
 
@@ -903,8 +903,8 @@ class TextStyleTest {
 
     @Test
     fun `lerp textDirectionAlgorithm with a and b are not Null and t is smaller than half`() {
-        val style1 = TextStyle(textDirection = TextDirection.ForceLtr)
-        val style2 = TextStyle(textDirection = TextDirection.ForceRtl)
+        val style1 = TextStyle(textDirection = TextDirection.Ltr)
+        val style2 = TextStyle(textDirection = TextDirection.Rtl)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = 0.4f)
 
@@ -913,8 +913,8 @@ class TextStyleTest {
 
     @Test
     fun `lerp textDirectionAlgorithm with a and b are not Null and t is larger than half`() {
-        val style1 = TextStyle(textDirection = TextDirection.ForceLtr)
-        val style2 = TextStyle(textDirection = TextDirection.ForceRtl)
+        val style1 = TextStyle(textDirection = TextDirection.Ltr)
+        val style2 = TextStyle(textDirection = TextDirection.Rtl)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = 0.6f)
 
@@ -1025,7 +1025,7 @@ class TextStyleTest {
     @Test
     fun `toParagraphStyle return attributes with correct values`() {
         val textAlign = TextAlign.Justify
-        val textDirectionAlgorithm = TextDirection.ForceRtl
+        val textDirectionAlgorithm = TextDirection.Rtl
         val lineHeight = 100.sp
         val textIndent = TextIndent(firstLine = 20.sp, restLine = 40.sp)
 

@@ -95,8 +95,8 @@ private fun resolveTextDirectionHeuristics(
     return when (textDirection) {
         TextDirection.ContentOrLtr -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
         TextDirection.ContentOrRtl -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
-        TextDirection.ForceLtr -> LayoutCompat.TEXT_DIRECTION_LTR
-        TextDirection.ForceRtl -> LayoutCompat.TEXT_DIRECTION_RTL
+        TextDirection.Ltr -> LayoutCompat.TEXT_DIRECTION_LTR
+        TextDirection.Rtl -> LayoutCompat.TEXT_DIRECTION_RTL
     }
 }
 

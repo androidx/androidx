@@ -823,7 +823,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceRtl
+                    textDirection = TextDirection.Rtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -850,7 +850,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceLtr
+                    textDirection = TextDirection.Ltr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -880,7 +880,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceLtr
+                    textDirection = TextDirection.Ltr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -913,7 +913,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceRtl
+                    textDirection = TextDirection.Rtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -979,7 +979,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceRtl
+                    textDirection = TextDirection.Rtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1000,7 +1000,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceLtr
+                    textDirection = TextDirection.Ltr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1086,7 +1086,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceRtl
+                    textDirection = TextDirection.Rtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1114,7 +1114,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceLtr
+                    textDirection = TextDirection.Ltr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1143,7 +1143,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceLtr
+                    textDirection = TextDirection.Ltr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1176,7 +1176,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceRtl
+                    textDirection = TextDirection.Rtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1243,7 +1243,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceRtl
+                    textDirection = TextDirection.Rtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1264,7 +1264,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceLtr
+                    textDirection = TextDirection.Ltr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1303,7 +1303,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceRtl
+                    textDirection = TextDirection.Rtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1344,7 +1344,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceLtr
+                    textDirection = TextDirection.Ltr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1389,7 +1389,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceLtr
+                    textDirection = TextDirection.Ltr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1413,7 +1413,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceRtl
+                    textDirection = TextDirection.Rtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1454,7 +1454,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceRtl
+                    textDirection = TextDirection.Rtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1495,7 +1495,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceLtr
+                    textDirection = TextDirection.Ltr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1547,7 +1547,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceLtr
+                    textDirection = TextDirection.Ltr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1575,7 +1575,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceRtl
+                    textDirection = TextDirection.Rtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -2204,7 +2204,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceLtr
+                    textDirection = TextDirection.Ltr
                 ),
                 constraints = ParagraphConstraints(width = layoutWidth)
             )
@@ -2228,7 +2228,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirection = TextDirection.ForceRtl
+                    textDirection = TextDirection.Rtl
                 ),
                 constraints = ParagraphConstraints(width = layoutWidth)
             )
