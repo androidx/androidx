@@ -16,12 +16,12 @@
 
 package androidx.webkit;
 
-import android.annotation.SuppressLint;
 import android.os.Build;
 import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.RequiresApi;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -113,7 +113,7 @@ public class WebViewRenderProcessTest {
 
     @LargeTest
     @Test
-    @SuppressLint("NewApi")
+    @RequiresApi(Build.VERSION_CODES.O)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     public void testGetWebViewRenderProcess() throws Throwable {
         if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROCESS)
