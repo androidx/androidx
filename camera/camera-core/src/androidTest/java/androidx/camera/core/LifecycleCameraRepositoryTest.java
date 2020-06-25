@@ -138,6 +138,30 @@ public final class LifecycleCameraRepositoryTest {
     }
 
     @Test
+    public void setActiveCamera() {
+        // Arrange.
+        // Starts first lifecycle and check LifecycleCamera active state is true.
+        LifecycleCamera firstLifecycleCamera = mRepository.createLifecycleCamera(
+                mLifecycle, mCameraUseCaseAdapter);
+        mLifecycle.start();
+
+        // Starts second lifecycle and check previous LifecycleCamera is stopped.
+        FakeLifecycleOwner secondLifecycle = new FakeLifecycleOwner();
+        LifecycleCamera secondLifecycleCamera =
+                mRepository.createLifecycleCamera(
+                        secondLifecycle, mCameraUseCaseAdapter);
+        secondLifecycle.start();
+
+        // Act. Call setActive()
+        mRepository.setActive(firstLifecycleCamera);
+
+        // Assert. The camera that was set as active should be active now. All other cameras will
+        // be inactive.
+        assertThat(firstLifecycleCamera.isActive()).isTrue();
+        assertThat(secondLifecycleCamera.isActive()).isFalse();
+    }
+
+    @Test
     public void lifecycleCameraOf2ndActiveLifecycleIsStarted_when1stActiveLifecycleIsStopped() {
         // Starts first lifecycle and check LifecycleCamera active state is true.
         LifecycleCamera firstLifecycleCamera = mRepository.createLifecycleCamera(
