@@ -39,10 +39,10 @@ enum class TextDirection {
     /**
      * Always sets the text direction to be Left to Right.
      */
-    ForceLtr,
+    Ltr,
 
     /**
      * Always sets the text direction to be Right to Left.
      */
-    ForceRtl,
+    Rtl,
 }

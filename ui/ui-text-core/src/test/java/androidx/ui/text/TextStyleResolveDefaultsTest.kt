@@ -251,10 +251,10 @@ class TextStyleResolveDefaultsTest {
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirection = TextDirection.ForceLtr),
+                TextStyle(textDirection = TextDirection.Ltr),
                 direction = LayoutDirection.Ltr
             ).textDirection
-        ).isEqualTo(TextDirection.ForceLtr)
+        ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
             resolveDefaults(
@@ -265,10 +265,10 @@ class TextStyleResolveDefaultsTest {
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirection = TextDirection.ForceRtl),
+                TextStyle(textDirection = TextDirection.Rtl),
                 direction = LayoutDirection.Ltr
             ).textDirection
-        ).isEqualTo(TextDirection.ForceRtl)
+        ).isEqualTo(TextDirection.Rtl)
     }
 
     @Test
@@ -282,10 +282,10 @@ class TextStyleResolveDefaultsTest {
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirection = TextDirection.ForceLtr),
+                TextStyle(textDirection = TextDirection.Ltr),
                 direction = LayoutDirection.Ltr
             ).textDirection
-        ).isEqualTo(TextDirection.ForceLtr)
+        ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
             resolveDefaults(
@@ -296,10 +296,10 @@ class TextStyleResolveDefaultsTest {
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirection = TextDirection.ForceRtl),
+                TextStyle(textDirection = TextDirection.Rtl),
                 direction = LayoutDirection.Ltr
             ).textDirection
-        ).isEqualTo(TextDirection.ForceRtl)
+        ).isEqualTo(TextDirection.Rtl)
     }
 
     @Test
@@ -313,10 +313,10 @@ class TextStyleResolveDefaultsTest {
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirection = TextDirection.ForceLtr),
+                TextStyle(textDirection = TextDirection.Ltr),
                 direction = LayoutDirection.Ltr
             ).textDirection
-        ).isEqualTo(TextDirection.ForceLtr)
+        ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
             resolveDefaults(
@@ -327,10 +327,10 @@ class TextStyleResolveDefaultsTest {
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirection = TextDirection.ForceRtl),
+                TextStyle(textDirection = TextDirection.Rtl),
                 direction = LayoutDirection.Ltr
             ).textDirection
-        ).isEqualTo(TextDirection.ForceRtl)
+        ).isEqualTo(TextDirection.Rtl)
     }
 
     @Test

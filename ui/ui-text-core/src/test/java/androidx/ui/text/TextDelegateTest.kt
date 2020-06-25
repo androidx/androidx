@@ -166,16 +166,16 @@ class TextDelegateTest {
         assertThat(
             resolveTextDirectionAlgorithm(
                 LayoutDirection.Ltr,
-                TextDirection.ForceLtr
+                TextDirection.Ltr
             )
-        ).isEqualTo(TextDirection.ForceLtr)
+        ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
             resolveTextDirectionAlgorithm(
                 LayoutDirection.Rtl,
-                TextDirection.ForceLtr
+                TextDirection.Ltr
             )
-        ).isEqualTo(TextDirection.ForceLtr)
+        ).isEqualTo(TextDirection.Ltr)
     }
 
     @Test
@@ -183,15 +183,15 @@ class TextDelegateTest {
         assertThat(
             resolveTextDirectionAlgorithm(
                 LayoutDirection.Ltr,
-                TextDirection.ForceRtl
+                TextDirection.Rtl
             )
-        ).isEqualTo(TextDirection.ForceRtl)
+        ).isEqualTo(TextDirection.Rtl)
 
         assertThat(
             resolveTextDirectionAlgorithm(
                 LayoutDirection.Rtl,
-                TextDirection.ForceRtl
+                TextDirection.Rtl
             )
-        ).isEqualTo(TextDirection.ForceRtl)
+        ).isEqualTo(TextDirection.Rtl)
     }
 }

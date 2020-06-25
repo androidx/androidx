@@ -68,8 +68,8 @@ class ParagraphStyleTest {
 
     @Test
     fun `merge textDirectionAlgorithm uses other's textDirectionAlgorithm`() {
-        val style = ParagraphStyle(textDirection = TextDirection.ForceRtl)
-        val otherStyle = ParagraphStyle(textDirection = TextDirection.ForceLtr)
+        val style = ParagraphStyle(textDirection = TextDirection.Rtl)
+        val otherStyle = ParagraphStyle(textDirection = TextDirection.Ltr)
 
         val newStyle = style.merge(otherStyle)
 
@@ -80,7 +80,7 @@ class ParagraphStyleTest {
 
     @Test
     fun `merge textDirectionAlgorithm other null, returns original`() {
-        val style = ParagraphStyle(textDirection = TextDirection.ForceRtl)
+        val style = ParagraphStyle(textDirection = TextDirection.Rtl)
         val otherStyle = ParagraphStyle(textDirection = null)
 
         val newStyle = style.merge(otherStyle)
@@ -162,7 +162,7 @@ class ParagraphStyleTest {
     fun `plus operator merges`() {
         val style = ParagraphStyle(
             textAlign = TextAlign.Center,
-            textDirection = TextDirection.ForceRtl
+            textDirection = TextDirection.Rtl
         ) + ParagraphStyle(
             textAlign = TextAlign.Justify,
             lineHeight = 12.sp
@@ -171,7 +171,7 @@ class ParagraphStyleTest {
         assertThat(style).isEqualTo(
             ParagraphStyle(
                 textAlign = TextAlign.Justify, // overridden by RHS
-                textDirection = TextDirection.ForceRtl, // from LHS,
+                textDirection = TextDirection.Rtl, // from LHS,
                 lineHeight = 12.sp // from RHS
             )
         )
@@ -210,7 +210,7 @@ class ParagraphStyleTest {
     @Test
     fun `lerp textDirectionAlgorithm with a null, b not null and t is smaller than half`() {
         val style1 = ParagraphStyle(textDirection = null)
-        val style2 = ParagraphStyle(textDirection = TextDirection.ForceRtl)
+        val style2 = ParagraphStyle(textDirection = TextDirection.Rtl)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = 0.4f)
 
@@ -219,8 +219,8 @@ class ParagraphStyleTest {
 
     @Test
     fun `lerp textDirectionAlgorithm with a and b are not Null and t is smaller than half`() {
-        val style1 = ParagraphStyle(textDirection = TextDirection.ForceLtr)
-        val style2 = ParagraphStyle(textDirection = TextDirection.ForceRtl)
+        val style1 = ParagraphStyle(textDirection = TextDirection.Ltr)
+        val style2 = ParagraphStyle(textDirection = TextDirection.Rtl)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = 0.4f)
 
@@ -229,8 +229,8 @@ class ParagraphStyleTest {
 
     @Test
     fun `lerp textDirectionAlgorithm with a and b are not Null and t is larger than half`() {
-        val style1 = ParagraphStyle(textDirection = TextDirection.ForceLtr)
-        val style2 = ParagraphStyle(textDirection = TextDirection.ForceRtl)
+        val style1 = ParagraphStyle(textDirection = TextDirection.Ltr)
+        val style2 = ParagraphStyle(textDirection = TextDirection.Rtl)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = 0.6f)
 
