@@ -19,8 +19,8 @@ package androidx.ui.core
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
+import androidx.ui.graphics.drawscope.translate
 import androidx.ui.graphics.painter.Painter
-import androidx.ui.graphics.drawscope.withTransform
 import androidx.ui.unit.IntSize
 import kotlin.math.ceil
 import kotlin.math.max
@@ -227,22 +227,26 @@ private data class PainterModifier(
         val srcSize = Size(srcWidth, srcHeight)
         val scale = contentScale.scale(srcSize, size)
 
+        // Compute the offset to translate the content based on the given alignment
+        // and size to draw based on the ContentScale parameter
+        val scaledSize = srcSize * scale
         val alignedPosition = alignment.align(
             IntSize(
-                ceil(size.width - (srcWidth * scale)).toInt(),
-                ceil(size.height - (srcHeight * scale)).toInt()
+                ceil(size.width - (scaledSize.width)).toInt(),
+                ceil(size.height - (scaledSize.height)).toInt()
             )
         )
 
         val dx = alignedPosition.x.toFloat()
         val dy = alignedPosition.y.toFloat()
 
-        withTransform({
-            translate(dx, dy)
-            scale(scale, scale, 0.0f, 0.0f)
-        }) {
+        // Only translate the current drawing position while delegating the Painter to draw
+        // with scaled size.
+        // Individual Painter implementations should be responsible for scaling their drawing
+        // content accordingly to fit within the drawing area.
+        translate(dx, dy) {
             with(painter) {
-                draw(size = srcSize, alpha = alpha, colorFilter = colorFilter)
+                draw(size = scaledSize, alpha = alpha, colorFilter = colorFilter)
             }
         }
     }

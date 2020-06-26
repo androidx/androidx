@@ -23,6 +23,7 @@ import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.toSize
+import kotlin.math.roundToInt
 
 /**
  * [Painter] implementation used to draw an [ImageAsset] into the provided canvas
@@ -55,6 +56,10 @@ data class ImagePainter(
             image,
             srcOffset,
             srcSize,
+            dstSize = IntSize(
+                this@onDraw.size.width.roundToInt(),
+                this@onDraw.size.height.roundToInt()
+            ),
             alpha = alpha,
             colorFilter = colorFilter
         )
