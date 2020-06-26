@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -30,6 +31,8 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.Futures;
 
 /**
  * A SessionConfig to act a Metering repeating use case.
@@ -60,13 +63,21 @@ class MeteringRepeatingSession {
         builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
 
         mDeferrableSurface = new ImmediateSurface(surface);
-        mDeferrableSurface.getTerminationFuture().addListener(() -> {
-            if (DEBUG) {
-                Log.d(TAG, "Release metering surface and surface texture");
+
+        Futures.addCallback(mDeferrableSurface.getTerminationFuture(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(@Nullable Void result) {
+                surface.release();
+                surfaceTexture.release();
             }
-            surface.release();
-            surfaceTexture.release();
+
+            @Override
+            public void onFailure(Throwable t) {
+                throw new IllegalStateException("Future should never "
+                        + "fail. Did it get completed by GC?", t);
+            }
         }, CameraXExecutors.directExecutor());
+
         builder.addSurface(mDeferrableSurface);
 
         mSessionConfig = builder.build();

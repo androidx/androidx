@@ -18,22 +18,20 @@ package androidx.camera.camera2.internal;
 
 import static org.junit.Assume.assumeTrue;
 
-import android.app.Instrumentation;
 import android.content.Context;
 
 import androidx.camera.camera2.Camera2Config;
-import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -56,10 +54,6 @@ public class TorchControlDeviceTest {
     public GrantPermissionRule mCameraPermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
 
-    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-
-    private FakeLifecycleOwner mLifecycleOwner;
-    private Camera mCamera;
     private TorchControl mTorchControl;
 
     @Before
@@ -73,27 +67,22 @@ public class TorchControlDeviceTest {
         CameraX.initialize(context, config);
 
         // Prepare TorchControl
-        mLifecycleOwner = new FakeLifecycleOwner();
-        mLifecycleOwner.startAndResume();
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(LENS_FACING).build();
         // To get a functional Camera2CameraControl, it needs to bind an active UseCase and the
         // UseCase must have repeating surface. Create and bind ImageAnalysis as repeating surface.
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
         // Make ImageAnalysis active.
-        imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), (image) -> image.close());
-        mInstrumentation.runOnMainSync(() ->
-                mCamera =
-                        CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, imageAnalysis));
-        Camera2CameraControl cameraControl = (Camera2CameraControl) mCamera.getCameraControl();
+        imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), ImageProxy::close);
+        CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.getCameraAndAttachUseCase(context,
+                cameraSelector, imageAnalysis);
+        Camera2CameraControl cameraControl = (Camera2CameraControl)
+                cameraUseCaseAdapter.getCameraControlInternal();
         mTorchControl = cameraControl.getTorchControl();
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        }
         CameraX.shutdown().get();
     }
 

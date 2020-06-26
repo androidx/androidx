@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.lifecycle;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraInfo;
+import androidx.camera.core.UseCase;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.State;
@@ -58,6 +62,13 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
     LifecycleCamera(LifecycleOwner lifecycleOwner, CameraUseCaseAdapter cameraUseCaseAdaptor) {
         mLifecycleOwner = lifecycleOwner;
         mCameraUseCaseAdapter = cameraUseCaseAdaptor;
+
+        // Make sure that the attach state of mCameraUseCaseAdapter matches that of the lifecycle
+        if (mLifecycleOwner.getLifecycle().getCurrentState().isAtLeast(State.STARTED)) {
+            mCameraUseCaseAdapter.attachUseCases();
+        } else {
+            mCameraUseCaseAdapter.detachUseCases();
+        }
         lifecycleOwner.getLifecycle().addObserver(this);
     }
 
@@ -168,9 +179,6 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
     void bind(Collection<UseCase> useCases) throws CameraUseCaseAdapter.CameraException {
         synchronized (mLock) {
             mCameraUseCaseAdapter.addUseCases(useCases);
-            for (UseCase useCase : useCases) {
-                useCase.notifyState();
-            }
         }
     }
 

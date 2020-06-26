@@ -39,13 +39,12 @@ import android.util.Range;
 
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.Camera2Config;
-import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -59,6 +58,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -68,9 +68,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class Camera2InteropDeviceTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private CameraSelector mCameraSelector;
-    private FakeLifecycleOwner mLifecycleOwner;
     private CameraCaptureSession.CaptureCallback mMockCaptureCallback =
             mock(CameraCaptureSession.CaptureCallback.class);
+    private Context mContext;
 
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
@@ -79,19 +79,15 @@ public final class Camera2InteropDeviceTest {
     @Before
     public void setUp() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
-        Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, Camera2Config.defaultConfig());
+        mContext = ApplicationProvider.getApplicationContext();
+        CameraX.initialize(mContext, Camera2Config.defaultConfig());
         mCameraSelector = new CameraSelector.Builder().requireLensFacing(
                 CameraSelector.LENS_FACING_BACK).build();
-        mLifecycleOwner = new FakeLifecycleOwner();
         mMockCaptureCallback = mock(CameraCaptureSession.CaptureCallback.class);
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        }
         CameraX.shutdown().get();
     }
 
@@ -112,10 +108,7 @@ public final class Camera2InteropDeviceTest {
         imageAnalysis.setAnalyzer(CameraXExecutors.highPriorityExecutor(),
                 mock(ImageAnalysis.Analyzer.class));
 
-        mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, imageAnalysis);
-            mLifecycleOwner.startAndResume();
-        });
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, imageAnalysis);
 
         verify(mMockCaptureCallback, timeout(5000).atLeastOnce()).onCaptureCompleted(
                 any(CameraCaptureSession.class),
@@ -226,14 +219,15 @@ public final class Camera2InteropDeviceTest {
 
     private Rect getZoom2XCropRegion() throws Exception {
         AtomicReference<String> cameraIdRef = new AtomicReference<>();
-        mInstrumentation.runOnMainSync(() -> {
-            ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
-            Camera camera = CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector,
-                    imageAnalysis);
-            String cameraId = Camera2CameraInfo.extractCameraId(camera.getCameraInfo());
-            cameraIdRef.set(cameraId);
-            CameraX.unbind(imageAnalysis);
-        });
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+                mCameraSelector, imageAnalysis);
+        String cameraId = Camera2CameraInfo.extractCameraId(camera.getCameraInfoInternal());
+        cameraIdRef.set(cameraId);
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                camera.removeUseCases(Collections.singleton(imageAnalysis))
+        );
 
         CameraManager cameraManager =
                 (CameraManager) mInstrumentation.getContext().getSystemService(
@@ -264,10 +258,7 @@ public final class Camera2InteropDeviceTest {
         imageAnalysis.setAnalyzer(CameraXExecutors.highPriorityExecutor(),
                 mock(ImageAnalysis.Analyzer.class));
 
-        mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, imageAnalysis);
-            mLifecycleOwner.startAndResume();
-        });
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, imageAnalysis);
     }
 
     private <T> void verifyCaptureRequestParameter(

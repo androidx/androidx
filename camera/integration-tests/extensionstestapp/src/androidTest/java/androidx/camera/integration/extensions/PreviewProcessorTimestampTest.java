@@ -44,6 +44,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.PreviewConfig;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.extensions.AutoImageCaptureExtender;
 import androidx.camera.extensions.AutoPreviewExtender;
 import androidx.camera.extensions.BeautyImageCaptureExtender;
@@ -57,6 +58,7 @@ import androidx.camera.extensions.ImageCaptureExtender;
 import androidx.camera.extensions.NightImageCaptureExtender;
 import androidx.camera.extensions.NightPreviewExtender;
 import androidx.camera.extensions.PreviewExtender;
+import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.GLUtil;
 import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.TimestampCaptureProcessor;
@@ -209,10 +211,6 @@ public class PreviewProcessorTimestampTest {
 
     @After
     public void cleanUp() throws InterruptedException, ExecutionException {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        }
-
         CameraX.shutdown().get();
     }
 
@@ -264,9 +262,13 @@ public class PreviewProcessorTimestampTest {
                         }
                     }));
 
-            CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, preview, imageCapture);
-
-            mLifecycleOwner.startAndResume();
+            CameraUseCaseAdapter cameraUseCaseAdapter =
+                    CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+            try {
+                cameraUseCaseAdapter.addUseCases(Arrays.asList(preview, imageCapture));
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                e.printStackTrace();
+            }
         });
 
         assertTrue(mSurfaceTextureLatch.await(1000, TimeUnit.MILLISECONDS));

@@ -95,10 +95,10 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
 
     @After
     fun tearDown() {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync { CameraX.unbindAll() }
+        mInstrumentation.runOnMainSync {
+            mCameraProvider.unbindAll()
         }
-        CameraX.shutdown().get()
+        mCameraProvider.shutdown().get()
     }
 
     private fun startPreview(

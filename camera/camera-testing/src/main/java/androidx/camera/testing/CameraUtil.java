@@ -36,12 +36,17 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -54,6 +59,7 @@ import org.junit.runners.model.Statement;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -249,19 +255,60 @@ public final class CameraUtil {
                         .getSystemService(Context.CAMERA_SERVICE);
     }
 
+
     /**
-     * Detach multiple use cases from a camera.
+     * Retrieves the CameraUseCaseAdapter that would be created with the given CameraSelector.
      *
-     * <p>Sets the use cases to be inactive and remove from the online list.
+     * <p> This requires that {@link CameraX#initialize(Context, CameraXConfig)} has been called
+     * to properly initialize the cameras.
      *
-     * @param cameraInternal to detach from
-     * @param useCases       to be detached
+     * @param context The context used to initialize CameraX
+     * @param cameraSelector The selector to select cameras with.
+     * @hide
      */
-    public static void detachUseCaseFromCamera(CameraInternal cameraInternal, UseCase... useCases) {
-        for (UseCase useCase : useCases) {
-            cameraInternal.onUseCaseInactive(useCase);
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public static CameraUseCaseAdapter getCameraUseCaseAdapter(@NonNull Context context,
+            @NonNull CameraSelector cameraSelector) {
+        try {
+            CameraX cameraX = CameraX.getOrCreateInstance(context).get(5000, TimeUnit.MILLISECONDS);
+            LinkedHashSet<CameraInternal> cameras =
+                    cameraSelector.filter(cameraX.getCameraRepository().getCameras());
+            return new CameraUseCaseAdapter(cameras.iterator().next(), cameras,
+                    cameraX.getCameraDeviceSurfaceManager());
+        } catch (ExecutionException | InterruptedException | TimeoutException e) {
+            throw new RuntimeException("Unable to retrieve CameraX instance");
         }
-        cameraInternal.detachUseCases(Arrays.asList(useCases));
+    }
+
+    /**
+     * Retrieves the CameraUseCaseAdapter that would be created with the given CameraSelector and
+     * attaches the UseCases.
+     *
+     * <p> This requires that {@link CameraX#initialize(Context, CameraXConfig)} has been called
+     * to properly initialize the cameras.
+     *
+     * @param context The context used to initialize CameraX
+     * @param cameraSelector The selector to select cameras with.
+     * @param useCases The UseCases to attach to the CameraUseCaseAdapter.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public static CameraUseCaseAdapter getCameraAndAttachUseCase(@NonNull Context context,
+            @NonNull CameraSelector cameraSelector, @NonNull UseCase ... useCases) {
+        CameraUseCaseAdapter cameraUseCaseAdapter = getCameraUseCaseAdapter(context,
+                cameraSelector);
+
+        // TODO(b/160249108) move off of main thread once UseCases can be attached on any
+        //  thread
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            try {
+                cameraUseCaseAdapter.addUseCases(Arrays.asList(useCases));
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                throw new IllegalArgumentException("Unable to attach use cases to camera.");
+            }
+        });
+
+        return cameraUseCaseAdapter;
     }
 
     /**

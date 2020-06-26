@@ -30,6 +30,7 @@ dependencies {
     api(GUAVA_LISTENABLE_FUTURE)
     api(project(":camera:camera-core"))
     implementation("androidx.core:core:1.1.0")
+    implementation(AUTO_VALUE_ANNOTATIONS)
     annotationProcessor(AUTO_VALUE)
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
@@ -37,9 +38,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
-    androidTestImplementation project(":camera:camera-testing"), {
-        exclude group: "androidx.camera", module: "camera-core"
-    }
+    androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
     androidTestImplementation(project(":annotation:annotation-experimental"))
