@@ -26,6 +26,8 @@ import androidx.ui.benchmark.benchmarkFirstMeasure
 import androidx.ui.benchmark.benchmarkLayoutPerf
 import androidx.ui.integration.test.core.text.TextBasicTestCase
 import androidx.ui.integration.test.TextBenchmarkTestRule
+import androidx.ui.unit.dp
+import androidx.ui.unit.sp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,6 +41,11 @@ import org.junit.runners.Parameterized
 class TextBasicBenchmark(
     private val textLength: Int
 ) {
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "length={0}")
+        fun initParameters(): Array<Any> = arrayOf(32, 512)
+    }
 
     @get:Rule
     val textBenchmarkRule = TextBenchmarkTestRule()
@@ -46,11 +53,8 @@ class TextBasicBenchmark(
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "length={0}")
-        fun initParameters(): Array<Any> = arrayOf(32, 512)
-    }
+    val width = textBenchmarkRule.widthDp.dp
+    val fontSize = textBenchmarkRule.fontSizeSp.sp
 
     /**
      * Measure the time taken to compose a [Text] composable from scratch with the given input.
@@ -60,7 +64,7 @@ class TextBasicBenchmark(
     fun first_compose() {
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.benchmarkFirstCompose {
-                TextBasicTestCase(textLength, textGenerator)
+                TextBasicTestCase(width, fontSize, textLength, textGenerator)
             }
         }
     }
@@ -73,7 +77,7 @@ class TextBasicBenchmark(
     fun first_measure() {
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.benchmarkFirstMeasure {
-                TextBasicTestCase(textLength, textGenerator)
+                TextBasicTestCase(width, fontSize, textLength, textGenerator)
             }
         }
     }
@@ -86,7 +90,7 @@ class TextBasicBenchmark(
     fun first_layout() {
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.benchmarkFirstLayout {
-                TextBasicTestCase(textLength, textGenerator)
+                TextBasicTestCase(width, fontSize, textLength, textGenerator)
             }
         }
     }
@@ -98,7 +102,7 @@ class TextBasicBenchmark(
     fun first_draw() {
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.benchmarkFirstDraw {
-                TextBasicTestCase(textLength, textGenerator)
+                TextBasicTestCase(width, fontSize, textLength, textGenerator)
             }
         }
     }
@@ -111,7 +115,7 @@ class TextBasicBenchmark(
     fun layout() {
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.benchmarkLayoutPerf {
-                TextBasicTestCase(textLength, textGenerator)
+                TextBasicTestCase(width, fontSize, textLength, textGenerator)
             }
         }
     }
@@ -123,7 +127,7 @@ class TextBasicBenchmark(
     fun draw() {
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.benchmarkDrawPerf {
-                TextBasicTestCase(textLength, textGenerator)
+                TextBasicTestCase(width, fontSize, textLength, textGenerator)
             }
         }
     }
