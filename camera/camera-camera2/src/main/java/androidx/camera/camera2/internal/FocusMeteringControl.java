@@ -187,6 +187,10 @@ class FocusMeteringControl {
         }
     }
 
+    private boolean isValid(@NonNull final MeteringPoint pt) {
+        return pt.getX() >= 0f && pt.getX() <= 1f && pt.getY() >= 0f && pt.getY() <= 1f;
+    }
+
     @WorkerThread
     private PointF getFovAdjustedPoint(@NonNull MeteringPoint meteringPoint,
             @NonNull Rational cropRegionAspectRatio,
@@ -280,8 +284,8 @@ class FocusMeteringControl {
                 mCameraControl.getMaxAeRegionCount());
         int supportedAwbCount = Math.min(action.getMeteringPointsAwb().size(),
                 mCameraControl.getMaxAwbRegionCount());
-        int totatlSupportedCount = supportedAfCount + supportedAeCount + supportedAwbCount;
-        if (totatlSupportedCount <= 0) {
+        int totalSupportedCount = supportedAfCount + supportedAeCount + supportedAwbCount;
+        if (totalSupportedCount <= 0) {
             completer.setException(
                     new IllegalArgumentException("None of the specified AF/AE/AWB MeteringPoints "
                             + "is supported on this camera."));
@@ -315,6 +319,9 @@ class FocusMeteringControl {
         List<MeteringRectangle> meteringRectanglesListAWB = new ArrayList<>();
 
         for (MeteringPoint meteringPoint : meteringPointListAF) {
+            if (!isValid(meteringPoint)) {
+                continue;
+            }
             PointF adjustedPoint = getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio,
                     defaultAspectRatio);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
@@ -326,6 +333,9 @@ class FocusMeteringControl {
         }
 
         for (MeteringPoint meteringPoint : meteringPointListAE) {
+            if (!isValid(meteringPoint)) {
+                continue;
+            }
             PointF adjustedPoint = getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio,
                     defaultAspectRatio);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
@@ -337,6 +347,9 @@ class FocusMeteringControl {
         }
 
         for (MeteringPoint meteringPoint : meteringPointListAWB) {
+            if (!isValid(meteringPoint)) {
+                continue;
+            }
             PointF adjustedPoint = getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio,
                     defaultAspectRatio);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
