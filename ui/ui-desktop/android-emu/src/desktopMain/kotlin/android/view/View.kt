@@ -163,6 +163,8 @@ open class View(val context: Context) {
 
     var isLayoutRequested = false
 
+    var name = "View"
+
     fun layout(left: Int, top: Int, right: Int, bottom: Int) {
         this.left = left
         this.top = top

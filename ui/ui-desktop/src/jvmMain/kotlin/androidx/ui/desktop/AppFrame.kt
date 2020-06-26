@@ -13,27 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.desktop.examples
+package androidx.ui.desktop
 
 import androidx.compose.Composable
-import androidx.ui.desktop.SkiaWindow
-import androidx.ui.desktop.setContent
 
-import javax.swing.WindowConstants
+abstract class AppFrame {
 
-fun mainWith(title: String, app: @Composable () -> Unit) {
-    val width = 1024
-    val height = 768
+    var locked = false
 
-    val frame = SkiaWindow(width = width, height = height)
+    var title = ""
+        protected set
 
-    frame.title = title
-    frame.setLocation(400, 400)
-    frame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
+    var width = 0
+        protected set
 
-    frame.setContent {
-        app()
-    }
+    var height = 0
+        protected set
 
-    frame.setVisible(true)
+    var x = 0
+        protected set
+
+    var y = 0
+        protected set
+
+    var isCentered: Boolean = true
+        protected set
+
+    var onDismissEvent: (() -> Unit)? = null
+
+    abstract fun setPosition(x: Int, y: Int)
+
+    abstract fun setWindowCentered()
+
+    abstract fun setSize(width: Int, height: Int)
+
+    abstract fun show(content: @Composable () -> Unit)
+
+    abstract fun close()
 }
