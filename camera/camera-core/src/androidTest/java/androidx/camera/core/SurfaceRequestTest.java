@@ -191,18 +191,18 @@ public final class SurfaceRequestTest {
     }
 
     @Test
-    public void createSurfaceRequestWithViewPort_viewPortIsSet() {
-        assertThat(createNewRequest(FAKE_SIZE, FAKE_VIEW_PORT_RECT).getViewPortRect()).isEqualTo(
+    public void createSurfaceRequestWithViewPort_cropRectIsSet() {
+        assertThat(createNewRequest(FAKE_SIZE, FAKE_VIEW_PORT_RECT).getCropRect()).isEqualTo(
                 FAKE_VIEW_PORT_RECT);
     }
 
     @Test
-    public void createSurfaceRequestWithNullViewPort_viewPortIsFullSurface() {
+    public void createSurfaceRequestWithNullViewPort_cropRectIsFullSize() {
         // Arrange.
         Size size = new Size(200, 100);
 
         // Assert.
-        assertThat(createNewRequest(size, null).getViewPortRect()).isEqualTo(
+        assertThat(createNewRequest(size, null).getCropRect()).isEqualTo(
                 new Rect(0, 0, size.getWidth(), size.getHeight()));
     }
 

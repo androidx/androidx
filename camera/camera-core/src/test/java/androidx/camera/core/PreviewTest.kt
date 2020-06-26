@@ -86,7 +86,7 @@ class PreviewTest {
         // FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.
         val expectedPadding = (FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.width -
                 FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height) / 2
-        Truth.assertThat(expectedSurfaceRequest.viewPortRect).isEqualTo(
+        Truth.assertThat(expectedSurfaceRequest.cropRect).isEqualTo(
             Rect(
                 expectedPadding,
                 0,

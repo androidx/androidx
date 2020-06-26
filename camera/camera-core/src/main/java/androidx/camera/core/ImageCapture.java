@@ -1973,8 +1973,7 @@ public final class ImageCapture extends UseCase {
             // Update the crop rect aspect ratio after it has been rotated into the buffer
             // orientation
             if (mViewPortCropRect != null) {
-                // ViewPort rect has higher priority than the custom aspect ratio.
-                dispatchedImageProxy.setViewPortRect(mViewPortCropRect);
+                // If Viewport is present, use the crop rect based on Viewport.
                 dispatchedImageProxy.setCropRect(mViewPortCropRect);
             } else if (mTargetRatio != null) {
                 // Fall back to custom aspect ratio if view port is not available.

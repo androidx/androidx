@@ -370,7 +370,6 @@ public final class ImageAnalysis extends UseCase {
             mImageAnalysisAbstractAnalyzer.open();
             mImageAnalysisAbstractAnalyzer.setAnalyzer(executor, image -> {
                 if (getViewPortCropRect() != null) {
-                    image.setViewPortRect(getViewPortCropRect());
                     image.setCropRect(getViewPortCropRect());
                 }
                 analyzer.analyze(image);
