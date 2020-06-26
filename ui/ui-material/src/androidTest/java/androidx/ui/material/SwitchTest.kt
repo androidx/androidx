@@ -16,6 +16,7 @@
 
 package androidx.ui.material
 
+import androidx.compose.mutableStateOf
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
@@ -23,6 +24,7 @@ import androidx.ui.core.testTag
 import androidx.ui.foundation.Strings
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
+import androidx.ui.layout.rtl
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertIsEnabled
 import androidx.ui.test.assertIsOff
@@ -30,8 +32,13 @@ import androidx.ui.test.assertIsOn
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
+import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.sendSwipeLeft
+import androidx.ui.test.sendSwipeRight
 import androidx.ui.unit.dp
+import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -134,6 +141,66 @@ class SwitchTest {
     @Test
     fun switch_materialSizes_whenUnchecked() {
         materialSizesTestForValue(false)
+    }
+
+    @Test
+    fun switch_testDraggable() {
+        val state = mutableStateOf(false)
+        composeTestRule.setMaterialContent {
+
+            // Stack is needed because otherwise the control will be expanded to fill its parent
+            Stack {
+                Switch(
+                    modifier = Modifier.testTag(defaultSwitchTag),
+                    checked = state.value,
+                    onCheckedChange = { state.value = it }
+                )
+            }
+        }
+
+        findByTag(defaultSwitchTag)
+            .doGesture { sendSwipeRight() }
+
+        runOnIdleCompose {
+            Truth.assertThat(state.value).isEqualTo(true)
+        }
+
+        findByTag(defaultSwitchTag)
+            .doGesture { sendSwipeLeft() }
+
+        runOnIdleCompose {
+            Truth.assertThat(state.value).isEqualTo(false)
+        }
+    }
+
+    @Test
+    fun switch_testDraggable_rtl() {
+        val state = mutableStateOf(false)
+        composeTestRule.setMaterialContent {
+
+            // Stack is needed because otherwise the control will be expanded to fill its parent
+            Stack(Modifier.rtl) {
+                Switch(
+                    modifier = Modifier.testTag(defaultSwitchTag),
+                    checked = state.value,
+                    onCheckedChange = { state.value = it }
+                )
+            }
+        }
+
+        findByTag(defaultSwitchTag)
+            .doGesture { sendSwipeLeft() }
+
+        runOnIdleCompose {
+            Truth.assertThat(state.value).isEqualTo(true)
+        }
+
+        findByTag(defaultSwitchTag)
+            .doGesture { sendSwipeRight() }
+
+        runOnIdleCompose {
+            Truth.assertThat(state.value).isEqualTo(false)
+        }
     }
 
     private fun materialSizesTestForValue(checked: Boolean) {

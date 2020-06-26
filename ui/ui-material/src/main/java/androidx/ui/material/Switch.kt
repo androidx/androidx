@@ -23,7 +23,9 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
+import androidx.ui.core.WithConstraints
 import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Interaction
@@ -76,37 +78,41 @@ fun Switch(
     val maxBound = with(DensityAmbient.current) { ThumbPathLength.toPx() }
     val thumbPosition = state { if (checked) maxBound else minBound }
     val interactionState = remember { InteractionState() }
-    Stack(
-        modifier
-            .semantics(mergeAllDescendants = true)
-            .toggleable(
-                value = checked,
-                onValueChange = onCheckedChange,
+    WithConstraints {
+        val isRtl = layoutDirection == LayoutDirection.Rtl
+        Stack(
+            modifier
+                .semantics(mergeAllDescendants = true)
+                .toggleable(
+                    value = checked,
+                    onValueChange = onCheckedChange,
+                    enabled = enabled,
+                    interactionState = interactionState,
+                    indication = null
+                )
+                .stateDraggable(
+                    state = checked,
+                    onStateChange = onCheckedChange,
+                    anchorsToState = listOf(minBound to false, maxBound to true),
+                    animationSpec = AnimationSpec,
+                    dragDirection =
+                    if (isRtl) DragDirection.ReversedHorizontal else DragDirection.Horizontal,
+                    minValue = minBound,
+                    maxValue = maxBound,
+                    enabled = enabled,
+                    interactionState = interactionState,
+                    onNewValue = { thumbPosition.value = it }
+                )
+                .padding(DefaultSwitchPadding)
+        ) {
+            SwitchImpl(
+                checked = checked,
                 enabled = enabled,
-                interactionState = interactionState,
-                indication = null
+                checkedColor = color,
+                thumbValue = thumbPosition,
+                interactionState = interactionState
             )
-            .stateDraggable(
-                state = checked,
-                onStateChange = onCheckedChange,
-                anchorsToState = listOf(minBound to false, maxBound to true),
-                animationSpec = AnimationSpec,
-                dragDirection = DragDirection.Horizontal,
-                minValue = minBound,
-                maxValue = maxBound,
-                enabled = enabled,
-                interactionState = interactionState,
-                onNewValue = { thumbPosition.value = it }
-            )
-            .padding(DefaultSwitchPadding)
-    ) {
-        SwitchImpl(
-            checked = checked,
-            enabled = enabled,
-            checkedColor = color,
-            thumbValue = thumbPosition,
-            interactionState = interactionState
-        )
+        }
     }
 }
 

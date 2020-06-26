@@ -27,6 +27,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
+import androidx.ui.layout.rtl
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.center
@@ -73,6 +74,16 @@ class SwitchScreenshotTest {
     }
 
     @Test
+    fun switchTest_checked_rtl() {
+        composeTestRule.setMaterialContent {
+            Box(wrapperModifier.rtl) {
+                Switch(checked = true, onCheckedChange = { })
+            }
+        }
+        assertToggeableAgainstGolden("switch_checked_rtl")
+    }
+
+    @Test
     fun switchTest_checked_customColor() {
         composeTestRule.setMaterialContent {
             Box(wrapperModifier) {
@@ -90,6 +101,16 @@ class SwitchScreenshotTest {
             }
         }
         assertToggeableAgainstGolden("switch_unchecked")
+    }
+
+    @Test
+    fun switchTest_unchecked_rtl() {
+        composeTestRule.setMaterialContent {
+            Box(wrapperModifier.rtl) {
+                Switch(checked = false, onCheckedChange = { })
+            }
+        }
+        assertToggeableAgainstGolden("switch_unchecked_rtl")
     }
 
     @Test

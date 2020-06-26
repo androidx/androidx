@@ -21,6 +21,7 @@ import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.state
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.foundation.Box
@@ -100,12 +101,14 @@ fun ModalDrawerLayout(
 
         val anchors = listOf(minValue to DrawerState.Closed, maxValue to DrawerState.Opened)
         val drawerPosition = state { maxValue }
+        val isRtl = layoutDirection == LayoutDirection.Rtl
         Stack(Modifier.stateDraggable(
             state = drawerState,
             onStateChange = onStateChange,
             anchorsToState = anchors,
             animationSpec = AnimationSpec,
-            dragDirection = DragDirection.Horizontal,
+            dragDirection =
+            if (isRtl) DragDirection.ReversedHorizontal else DragDirection.Horizontal,
             minValue = minValue,
             maxValue = maxValue,
             enabled = gesturesEnabled,

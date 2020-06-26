@@ -24,23 +24,37 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.foundation.drawBackground
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.ltr
+import androidx.ui.layout.rtl
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.captureToBitmap
+import androidx.ui.test.center
+import androidx.ui.test.centerX
+import androidx.ui.test.centerY
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.doPartialGesture
 import androidx.ui.test.findByTag
+import androidx.ui.test.left
+import androidx.ui.test.right
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
+import androidx.ui.test.sendDown
+import androidx.ui.test.sendMoveBy
+import androidx.ui.test.sendUp
 import androidx.ui.unit.dp
+import com.google.common.truth.Truth
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.sqrt
@@ -101,6 +115,132 @@ class SliderTest {
         findByTag(tag)
             .assertValueEquals("50 percent")
     }
+
+    @Test
+    fun slider_drag() {
+        val state = mutableStateOf(0f)
+
+        composeTestRule
+            .setMaterialContent {
+                Slider(
+                    modifier = Modifier.testTag(tag).ltr,
+                    value = state.value,
+                    onValueChange = { state.value = it }
+                )
+            }
+
+        runOnUiThread {
+            Truth.assertThat(state.value).isEqualTo(0f)
+        }
+
+        var expected = 0f
+
+        findByTag(tag)
+            .doPartialGesture {
+                sendDown(center)
+                sendMoveBy(Offset(100f, 0f))
+                sendUp()
+                expected = calculateFraction(left, right, centerX + 100)
+            }
+        runOnIdleCompose {
+            Truth.assertThat(abs(state.value - expected)).isLessThan(0.001f)
+        }
+    }
+
+    @Test
+    fun slider_tap() {
+        val state = mutableStateOf(0f)
+
+        composeTestRule
+            .setMaterialContent {
+                Slider(
+                    modifier = Modifier.testTag(tag).ltr,
+                    value = state.value,
+                    onValueChange = { state.value = it }
+                )
+            }
+
+        runOnUiThread {
+            Truth.assertThat(state.value).isEqualTo(0f)
+        }
+
+        var expected = 0f
+
+        findByTag(tag)
+            .doPartialGesture {
+                sendDown(Offset(centerX + 50, centerY))
+                sendUp()
+                expected = calculateFraction(left, right, centerX + 50)
+            }
+        runOnIdleCompose {
+            Truth.assertThat(abs(state.value - expected)).isLessThan(0.001f)
+        }
+    }
+
+    @Test
+    fun slider_drag_rtl() {
+        val state = mutableStateOf(0f)
+
+        composeTestRule
+            .setMaterialContent {
+                Slider(
+                    modifier = Modifier.testTag(tag).rtl,
+                    value = state.value,
+                    onValueChange = { state.value = it }
+                )
+            }
+
+        runOnUiThread {
+            Truth.assertThat(state.value).isEqualTo(0f)
+        }
+
+        var expected = 0f
+
+        findByTag(tag)
+            .doPartialGesture {
+                sendDown(center)
+                sendMoveBy(Offset(100f, 0f))
+                sendUp()
+                // subtract here as we're in rtl and going in the opposite direction
+                expected = calculateFraction(left, right, centerX - 100)
+            }
+        runOnIdleCompose {
+            Truth.assertThat(abs(state.value - expected)).isLessThan(0.001f)
+        }
+    }
+
+    @Test
+    fun slider_tap_rtl() {
+        val state = mutableStateOf(0f)
+
+        composeTestRule
+            .setMaterialContent {
+                Slider(
+                    modifier = Modifier.testTag(tag).rtl,
+                    value = state.value,
+                    onValueChange = { state.value = it }
+                )
+            }
+
+        runOnUiThread {
+            Truth.assertThat(state.value).isEqualTo(0f)
+        }
+
+        var expected = 0f
+
+        findByTag(tag)
+            .doPartialGesture {
+                sendDown(Offset(centerX + 50, centerY))
+                sendUp()
+                expected = calculateFraction(left, right, centerX - 50)
+            }
+        runOnIdleCompose {
+            Truth.assertThat(abs(state.value - expected)).isLessThan(0.001f)
+        }
+    }
+
+    private fun calculateFraction(a: Float, b: Float, pos: Float) =
+        ((pos - a) / (b - a)).coerceIn(0f, 1f)
 
     @Test
     fun slider_sizes() {
