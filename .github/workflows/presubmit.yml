@@ -1,5 +1,11 @@
 name: AndroidX Presubmits
-on: [pull_request]
+on:
+  pull_request:
+    branches:
+      - master
+      - androidx-master-dev
+  repository_dispatch:
+    if: always()
 
 jobs:
   # This workflow contains a single job called "build"
@@ -17,7 +23,7 @@ jobs:
         uses: tikurahul/github-workflow-webhook-action@master
         with:
           url: 'https://androidx.dev/github/androidX/presubmit/hook'
-          payload: '{ "platform": "${{ matrix.os }}", "token": "${{ secrets.GITHUB_TOKEN }}" }'
+          payload: '{ "platform": "${{ matrix.os }}", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "started"}'
       - name: Setup Java environment based on setup-java
         uses: actions/setup-java@v1
         with:
@@ -67,4 +73,5 @@ jobs:
         uses: tikurahul/github-workflow-webhook-action@master
         with:
           url: 'https://androidx.dev/github/androidX/presubmit/hook'
-          payload: '{ "platform": "${{ matrix.os }}", "token": "${{ secrets.GITHUB_TOKEN }}" }'
+          # TODO: extract the state of the build on server step
+          payload: '{ "platform": "${{ matrix.os }}", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": true }'
