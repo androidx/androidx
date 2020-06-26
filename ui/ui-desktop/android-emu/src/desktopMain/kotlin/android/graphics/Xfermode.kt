@@ -13,30 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package android.graphics
 
-import org.jetbrains.skija.Rect as SkRect
+open class Xfermode
 
-class Rect(
-    @kotlin.jvm.JvmField
-    var left: Int,
-    @kotlin.jvm.JvmField
-    var top: Int,
-    @kotlin.jvm.JvmField
-    var right: Int,
-    @kotlin.jvm.JvmField
-    var bottom: Int
-) {
-    constructor() : this(0, 0, 0, 0)
-
-    fun set(left: Int, top: Int, right: Int, bottom: Int) {
-        this.left = left
-        this.top = top
-        this.right = right
-        this.bottom = bottom
-    }
-}
-
-internal fun Rect.toSkia() =
-    SkRect.makeLTRB(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat())
+class PorterDuffXfermode(val mode: PorterDuff.Mode) : Xfermode()

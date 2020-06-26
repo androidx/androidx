@@ -16,6 +16,9 @@
 
 package android.graphics
 
+import org.jetbrains.skija.FilterQuality
+
+@Suppress("unused")
 open class Paint {
     enum class Style(val skija: org.jetbrains.skija.PaintMode) {
         FILL(org.jetbrains.skija.PaintMode.FILL),
@@ -54,11 +57,21 @@ open class Paint {
         }
     }
 
-    val skijaPaint = org.jetbrains.skija.Paint()
+    companion object {
+        const val ANTI_ALIAS_FLAG = 1
+        const val FILTER_BITMAP_FLAG = 2
+    }
+
+    internal val skijaPaint = org.jetbrains.skija.Paint()
+
+    constructor()
 
     constructor(flags: Int) {
-        if (flags and 1 == 1) {
-            skijaPaint.setAntiAlias(true)
+        if (flags and ANTI_ALIAS_FLAG == ANTI_ALIAS_FLAG) {
+            isAntiAlias = true
+        }
+        if (flags and FILTER_BITMAP_FLAG == FILTER_BITMAP_FLAG) {
+            isFilterBitmap = true
         }
     }
 
@@ -92,10 +105,19 @@ open class Paint {
         set(value) {
             skijaPaint.setStrokeJoin(value.skija)
         }
-    var antiAlias: Boolean
+    var isAntiAlias: Boolean
         get() = skijaPaint.isAntiAlias()
         set(value) {
             skijaPaint.setAntiAlias(value)
+        }
+    var isFilterBitmap: Boolean
+        get() = skijaPaint.filterQuality != FilterQuality.NONE
+        set(value) {
+            skijaPaint.filterQuality = if (value) {
+                FilterQuality.LOW
+            } else {
+                FilterQuality.NONE
+            }
         }
 
     var alpha: Int
@@ -108,23 +130,90 @@ open class Paint {
 
     private var typeface: Typeface? = null
     fun getTypeface(): Typeface? = typeface
-    fun setTypeface(newTypeface: Typeface?): Typeface? {
-        val oldTypeface = typeface
-        typeface = newTypeface
-        return oldTypeface
+    fun setTypeface(typeface: Typeface?): Typeface? {
+        this.typeface = typeface
+        return typeface
     }
+
+    private var xfermode: Xfermode? = null
+    fun getXfermode(): Xfermode? = xfermode
+    fun setXfermode(xfermode: Xfermode?): Xfermode? {
+        xfermode as PorterDuffXfermode?
+        this.xfermode = xfermode
+        skijaPaint.blendMode = xfermode?.mode?.toSkia()
+        return xfermode
+    }
+
+    private var colorFilter: ColorFilter? = null
+    fun getColorFilter(): ColorFilter? = colorFilter
+    fun setColorFilter(colorFilter: ColorFilter?): ColorFilter? {
+        colorFilter as PorterDuffColorFilter?
+        this.colorFilter = colorFilter
+        if (colorFilter != null) {
+            skijaPaint.colorFilter = org.jetbrains.skija.ColorFilter.makeBlend(
+                colorFilter.color, colorFilter.mode.toSkia()
+            )
+        } else {
+            skijaPaint.colorFilter = null
+        }
+        return colorFilter
+    }
+
+    private var shader: Shader? = null
+    fun getShader(): Shader? = shader
+    fun setShader(shader: Shader?): Shader? {
+        this.shader = shader
+        skijaPaint.shader = shader?.skija
+        return shader
+    }
+
+    private var pathEffect: PathEffect? = null
+    fun getPathEffect(): PathEffect? = pathEffect
+    fun setPathEffect(pathEffect: PathEffect?): PathEffect? {
+        this.pathEffect = pathEffect
+        skijaPaint.pathEffect = pathEffect?.skija
+        return pathEffect
+    }
+
     var textLocale: java.util.Locale = java.util.Locale.getDefault()
+        set(value) {
+            field = value
+            println("Paint.textLocale not implemented yet")
+        }
+
     var fontFeatureSettings: String? = null
+        set(value) {
+            field = value
+            println("Paint.fontFeatureSettings not implemented yet")
+        }
+
     var textScaleX: Float = 1f
+        set(value) {
+            field = value
+            println("Paint.textScaleX not implemented yet")
+        }
     var textSkewX: Float = 1f
+        set(value) {
+            field = value
+            println("Paint.textSkewX not implemented yet")
+        }
+    var letterSpacing: Float = 0f
+        set(value) {
+            field = value
+            println("Paint.letterSpacing not implemented yet")
+        }
+    var underlineText: Boolean = false
+        set(value) {
+            field = value
+            println("Paint.underlineText not implemented yet")
+        }
+    var strikeThruText: Boolean = false
+        set(value) {
+            field = value
+            println("Paint.strikeThruText not implemented yet")
+        }
 
     fun setShadowLayer(radius: Float, dx: Float, dy: Float, shadowColor: Int) {
-        println("Paint.setShadowLayer")
-    }
-
-    fun setPathEffect(effect: PathEffect?): PathEffect? {
-        if (effect != null)
-            println("setPathEffect not implemented yet")
-        return effect
+        println("Paint.setShadowLayer not implemented yet")
     }
 }

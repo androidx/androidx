@@ -18,6 +18,4 @@ package android.text
 
 import android.graphics.Paint
 
-class TextPaint(flags: Int) : Paint(flags) {
-    fun setUnderlineText(value: Boolean) {}
-}
+class TextPaint(flags: Int) : Paint(flags)
