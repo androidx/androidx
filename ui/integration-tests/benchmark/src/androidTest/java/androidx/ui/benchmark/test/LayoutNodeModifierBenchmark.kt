@@ -22,6 +22,7 @@ import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
 import androidx.ui.core.AndroidOwner
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
@@ -51,6 +52,7 @@ import org.junit.runners.model.Statement
  */
 @LargeTest
 @RunWith(Parameterized::class)
+@OptIn(ExperimentalLayoutNodeApi::class)
 class LayoutNodeModifierBenchmark(
     private val numberOfModifiers: Int
 ) {

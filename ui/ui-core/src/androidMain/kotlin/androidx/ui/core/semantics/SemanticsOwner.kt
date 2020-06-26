@@ -16,6 +16,7 @@
 
 package androidx.ui.core.semantics
 
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsPropertyKey
@@ -27,6 +28,7 @@ import androidx.ui.util.fastForEach
  * Owns [SemanticsNode] objects and notifies listeners of changes to the
  * semantics tree
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 class SemanticsOwner(val rootNode: LayoutNode) {
     /**
      * The root node of the semantics tree.  Does not contain any unmerged data.

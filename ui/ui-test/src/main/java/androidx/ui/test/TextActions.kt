@@ -17,6 +17,7 @@
 package androidx.ui.test
 
 import androidx.ui.core.AndroidOwner
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.DeleteAllEditOp
 import androidx.ui.input.EditOperation
@@ -105,6 +106,7 @@ fun SemanticsNodeInteraction.doSendImeAction(alreadyHasFocus: Boolean = false) {
             "Failed to send IME action as current node does not specify any.", selector, node))
     }
 
+    @OptIn(ExperimentalLayoutNodeApi::class)
     val owner = node.componentNode.owner as AndroidOwner
 
     runOnUiThread {
@@ -120,6 +122,7 @@ fun SemanticsNodeInteraction.doSendImeAction(alreadyHasFocus: Boolean = false) {
 internal fun SemanticsNodeInteraction.sendTextInputCommand(command: List<EditOperation>) {
     val errorOnFail = "Failed to send text input."
     val node = fetchSemanticsNode(errorOnFail)
+    @OptIn(ExperimentalLayoutNodeApi::class)
     val owner = node.componentNode.owner as AndroidOwner
 
     assert(hasInputMethodsSupport()) { errorOnFail }

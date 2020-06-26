@@ -24,6 +24,7 @@ import androidx.compose.isJoinedKey
 import androidx.compose.joinedKeyLeft
 import androidx.compose.joinedKeyRight
 import androidx.compose.keySourceInfoOf
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.ModifierInfo
 import androidx.ui.core.globalPosition
@@ -131,6 +132,7 @@ internal val emptyBox = Bounds(0, 0, 0, 0)
 /**
  * Iterate the slot table and extract a group tree that corresponds to the content of the table.
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 private fun SlotReader.getGroup(): Group {
     val key = convertKey(groupKey)
     val nodeGroup = isNode
@@ -176,6 +178,7 @@ private fun SlotReader.getGroup(): Group {
         CallGroup(key, box, extractParameterInfo(data), data, children)
 }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 private fun boundsOfLayoutNode(node: LayoutNode): Bounds {
     if (node.owner == null) {
         return Bounds(

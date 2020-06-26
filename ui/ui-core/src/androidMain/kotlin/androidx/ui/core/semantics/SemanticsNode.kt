@@ -17,6 +17,7 @@
 package androidx.ui.core.semantics
 
 import androidx.ui.core.AlignmentLine
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.LayoutNodeWrapper
 import androidx.ui.core.boundsInRoot
@@ -42,6 +43,7 @@ internal typealias SemanticsNodeVisitor = (node: SemanticsNode) -> Boolean
 /**
  * A node that represents some semantic data.
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 class SemanticsNode internal constructor(
     /**
      * The unique identifier for this node.
@@ -256,6 +258,7 @@ class SemanticsNode internal constructor(
 /**
  * Returns the outermost semantics node on a LayoutNode.
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal val LayoutNode.outerSemantics: SemanticsWrapper?
     get() {
         return (this as? LayoutNode)?.outerLayoutNodeWrapper?.nearestSemantics
@@ -301,6 +304,7 @@ internal fun SemanticsNode.findChildById(id: Int): SemanticsNode? {
     return null
 }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 private fun LayoutNode.findOneLayerOfSemanticsWrappers(): List<SemanticsWrapper> {
     val childSemanticsLayoutNodes = mutableListOf<SemanticsWrapper>()
     children.fastForEach { child ->
@@ -309,6 +313,7 @@ private fun LayoutNode.findOneLayerOfSemanticsWrappers(): List<SemanticsWrapper>
     return childSemanticsLayoutNodes
 }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 private fun LayoutNode.findOneLayerOfSemanticsWrappersRecursive(
     list: MutableList<SemanticsWrapper>,
     node: LayoutNode

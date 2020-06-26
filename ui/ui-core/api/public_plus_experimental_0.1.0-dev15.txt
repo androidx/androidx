@@ -197,7 +197,7 @@ package androidx.ui.core {
   }
 
   public interface AndroidOwner extends androidx.ui.core.Owner {
-    method public void addAndroidView(android.view.View view, androidx.ui.core.LayoutNode layoutNode);
+    method @androidx.ui.core.ExperimentalLayoutNodeApi public void addAndroidView(android.view.View view, androidx.ui.core.LayoutNode layoutNode);
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getConfigurationChangeObserver();
     method public android.view.View getView();
     method public androidx.ui.core.AndroidOwner.ViewTreeOwners? getViewTreeOwners();
@@ -345,6 +345,9 @@ package androidx.ui.core {
     enum_constant public static final androidx.ui.core.DropDownAlignment Start;
   }
 
+  @kotlin.RequiresOptIn(level=RequiresOptIn.Level.ERROR, message="This is an experimental API for Compose UI LayoutNode and is likely to change " + "before becoming stable.") @kotlin.annotation.Target(allowedTargets={AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY}) public @interface ExperimentalLayoutNodeApi {
+  }
+
   @androidx.compose.Immutable public final class FixedScale implements androidx.ui.core.ContentScale {
     ctor public FixedScale(float value);
     method public float component1();
@@ -439,7 +442,7 @@ package androidx.ui.core {
     method public default int minIntrinsicWidth(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
   }
 
-  public final class LayoutNode implements androidx.ui.core.Measurable {
+  @androidx.ui.core.ExperimentalLayoutNodeApi public final class LayoutNode implements androidx.ui.core.Measurable {
     ctor public LayoutNode();
     method public void attach(androidx.ui.core.Owner owner);
     method public void detach();

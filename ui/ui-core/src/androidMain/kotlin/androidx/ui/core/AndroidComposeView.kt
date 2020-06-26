@@ -105,6 +105,7 @@ fun AndroidOwner(
     AndroidOwner.onAndroidOwnerCreatedCallback?.invoke(it)
 }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 internal class AndroidComposeView constructor(
     context: Context,

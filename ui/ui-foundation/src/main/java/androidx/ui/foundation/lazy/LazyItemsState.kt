@@ -24,6 +24,7 @@ import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Recomposer
 import androidx.compose.snapshots.Snapshot
 import androidx.ui.core.Constraints
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Measurable
@@ -49,6 +50,7 @@ private inline class DataIndex(val value: Int) {
 
 private inline class LayoutIndex(val value: Int)
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal class LazyItemsState<T>(val isVertical: Boolean) {
     lateinit var recomposer: Recomposer
     lateinit var itemContent: @Composable (T) -> Unit
@@ -115,6 +117,7 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
     private val Placeable.crossAxisSize get() = if (!isVertical) height else width
 
     // TODO: really want an Int here
+    @OptIn(ExperimentalLayoutNodeApi::class)
     private fun onScroll(distance: Float): Float {
         check(abs(scrollToBeConsumed) < 0.5f) {
             "entered drag with non-zero pending scroll: $scrollToBeConsumed"
@@ -247,9 +250,11 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
         lastItemRemainingSpace += delta
         // Scrolling forward is negative delta and adds offset, so subtract the negative
         firstItemScrollOffset -= delta
+        @OptIn(ExperimentalLayoutNodeApi::class)
         rootNode.requestRemeasure()
     }
 
+    @OptIn(ExperimentalLayoutNodeApi::class)
     private inner class ListMeasureBlocks : LayoutNode.NoIntrinsicsMeasureBlocks(
         error = "Intrinsic measurements are not supported by AdapterList (yet)"
     ) {

@@ -36,6 +36,7 @@ import androidx.ui.util.trace
  * dispatch [OnPositionedModifier] callbacks for the nodes affected by the previous
  * [measureAndLayout] execution.
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
 
     /**

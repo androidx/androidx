@@ -16,17 +16,14 @@
 
 package androidx.ui.core
 
-@OptIn(ExperimentalLayoutNodeApi::class)
-internal class ModifiedParentDataNode(
-    wrapped: LayoutNodeWrapper,
-    parentDataModifier: ParentDataModifier
-) : DelegatingLayoutNodeWrapper<ParentDataModifier>(wrapped, parentDataModifier) {
-    override val parentData: Any?
-        get() = with(modifier) {
-            /**
-             * ParentData provided through the parentData node will override the data provided
-             * through a modifier
-             */
-            layoutNode.measureScope.modifyParentData(wrapped.parentData)
-        }
-}
+@RequiresOptIn(
+    level = RequiresOptIn.Level.ERROR,
+    message = "This is an experimental API for Compose UI LayoutNode and is likely to change " +
+            "before becoming stable."
+)
+@Target(
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY
+)
+annotation class ExperimentalLayoutNodeApi
