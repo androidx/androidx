@@ -225,13 +225,19 @@ public final class AppSearchImpl {
         return mFakeIcing.delete(qualifiedNamespace, uri);
     }
 
-    /** Removes all documents having the given {@code schemaType}. */
+    /** Removes all documents having the given {@code schemaType} in given database. */
     public boolean removeByType(@NonNull String databaseName, @NonNull String schemaType) {
         String qualifiedType = getDatabasePrefix(databaseName) + schemaType;
         return mFakeIcing.deleteByType(qualifiedType);
     }
 
-    /**  Removes all documents owned by the calling app in given database. */
+    /**  Removes all documents having the given {@code namespace} in given database. */
+    public boolean removeByNamespace(@NonNull String databaseName, @NonNull String namespace) {
+        String qualifiedNamespace = getDatabasePrefix(databaseName) + namespace;
+        return mFakeIcing.deleteByNamespace(qualifiedNamespace);
+    }
+
+    /**  Removes all documents in given database. */
     public void removeAll(@NonNull String databaseName) {
         for (String namespace : getSharedSet(databaseName, NAMESPACE_SET_NAME)) {
             mFakeIcing.deleteByNamespace(getDatabasePrefix(databaseName) + namespace);
@@ -239,21 +245,20 @@ public final class AppSearchImpl {
     }
 
     /**
-     * Rewrites all types mentioned in the given {@code schemaBuilder} to prepend
-     * {@code typePrefix}.
+     * Rewrites all types mentioned in the given {@code schemaBuilder} to prepend {@code prefix}.
      *
-     * @param typePrefix The prefix to add
+     * @param prefix The prefix to add
      * @param schemaBuilder The schema to mutate
      */
     @VisibleForTesting
     void rewriteSchemaTypes(
-            @NonNull String typePrefix, @NonNull SchemaProto.Builder schemaBuilder) {
+            @NonNull String prefix, @NonNull SchemaProto.Builder schemaBuilder) {
         for (int typeIdx = 0; typeIdx < schemaBuilder.getTypesCount(); typeIdx++) {
             SchemaTypeConfigProto.Builder typeConfigBuilder =
                     schemaBuilder.getTypes(typeIdx).toBuilder();
 
             // Rewrite SchemaProto.types.schema_type
-            String newSchemaType = typePrefix + typeConfigBuilder.getSchemaType();
+            String newSchemaType = prefix + typeConfigBuilder.getSchemaType();
             typeConfigBuilder.setSchemaType(newSchemaType);
 
             // Rewrite SchemaProto.types.properties.schema_type
@@ -264,7 +269,7 @@ public final class AppSearchImpl {
                         typeConfigBuilder.getProperties(propertyIdx).toBuilder();
                 if (!propertyConfigBuilder.getSchemaType().isEmpty()) {
                     String newPropertySchemaType =
-                            typePrefix + propertyConfigBuilder.getSchemaType();
+                            prefix + propertyConfigBuilder.getSchemaType();
                     propertyConfigBuilder.setSchemaType(newPropertySchemaType);
                     typeConfigBuilder.setProperties(propertyIdx, propertyConfigBuilder);
                 }
@@ -275,38 +280,36 @@ public final class AppSearchImpl {
     }
 
     /**
-     * Rewrites all types mentioned anywhere in {@code documentBuilder} to prepend or remove
-     * {@code typePrefix}.
+     * Rewrites all types and namespaces mentioned anywhere in {@code documentBuilder} to prepend
+     * or remove {@code prefix}.
      *
-     * @param typePrefix The prefix to add or remove
+     * @param prefix The prefix to add or remove
      * @param documentBuilder The document to mutate
-     * @param add Whether to add typePrefix to the types. If {@code false}, typePrefix will be
-     *     removed from the types.
-     * @throws IllegalArgumentException If {@code add=false} and the document has a type that
-     *     doesn't start with {@code typePrefix}.
+     * @param add Whether to add prefix to the types and namespaces. If {@code false}, prefix will
+     *            be removed.
+     * @throws IllegalStateException If {@code add=false} and the document has a type or namespace
+     *         that doesn't start with {@code prefix}.
      */
     @VisibleForTesting
     void rewriteDocumentTypes(
-            @NonNull String typePrefix,
+            @NonNull String prefix,
             @NonNull DocumentProto.Builder documentBuilder,
             boolean add) {
-        // Rewrite the type name to include/remove the app's prefix
+        // Rewrite the type name to include/remove the prefix.
         String newSchema;
         if (add) {
-            newSchema = typePrefix + documentBuilder.getSchema();
+            newSchema = prefix + documentBuilder.getSchema();
         } else {
-            newSchema = removePrefix(typePrefix, documentBuilder.getSchema());
+            newSchema = removePrefix(prefix, "schemaType", documentBuilder.getSchema());
         }
         documentBuilder.setSchema(newSchema);
 
+        // Rewrite the namespace to include/remove the prefix.
         if (add) {
-            documentBuilder.setNamespace(typePrefix + documentBuilder.getNamespace());
-        } else if (!documentBuilder.getNamespace().startsWith(typePrefix)) {
-            throw new IllegalStateException(
-                    "Unexpected namespace \"" + documentBuilder.getNamespace()
-                            + "\" (expected \"" + typePrefix + "\")");
+            documentBuilder.setNamespace(prefix + documentBuilder.getNamespace());
         } else {
-            documentBuilder.setNamespace(removePrefix(typePrefix, documentBuilder.getNamespace()));
+            documentBuilder.setNamespace(
+                    removePrefix(prefix, "namespace", documentBuilder.getNamespace()));
         }
 
         // Recurse into derived documents
@@ -320,7 +323,7 @@ public final class AppSearchImpl {
                 for (int documentIdx = 0; documentIdx < documentCount; documentIdx++) {
                     DocumentProto.Builder derivedDocumentBuilder =
                             propertyBuilder.getDocumentValues(documentIdx).toBuilder();
-                    rewriteDocumentTypes(typePrefix, derivedDocumentBuilder, add);
+                    rewriteDocumentTypes(prefix, derivedDocumentBuilder, add);
                     propertyBuilder.setDocumentValues(documentIdx, derivedDocumentBuilder);
                 }
                 documentBuilder.setProperties(propertyIdx, propertyBuilder);
@@ -334,10 +337,12 @@ public final class AppSearchImpl {
     }
 
     @NonNull
-    private static String removePrefix(@NonNull String prefix, @NonNull String input) {
+    private static String removePrefix(@NonNull String prefix, @NonNull String inputType,
+            @NonNull String input) {
         if (!input.startsWith(prefix)) {
-            throw new IllegalArgumentException(
-                    "Input \"" + input + "\" does not start with \"" + prefix + "\"");
+            throw new IllegalStateException(
+                    "Unexpected " + inputType + " \"" + input
+                            + "\" does not start with \"" + prefix + "\"");
         }
         return input.substring(prefix.length());
     }

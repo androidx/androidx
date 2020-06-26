@@ -619,8 +619,6 @@ public class AppSearchManager {
         });
     }
 
-    //TODO(b/153118598): Implement removeByNamespace after we port to real icing.
-
     /**
      * Removes {@link GenericDocument}s from the index by schema type.
      *
@@ -668,6 +666,59 @@ public class AppSearchManager {
                     }
                 } catch (Throwable t) {
                     resultBuilder.setResult(schemaType, throwableToFailedResult(t));
+                }
+            }
+            return resultBuilder.build();
+        });
+    }
+
+    /**
+     * Removes {@link GenericDocument}s from the index by namespace.
+     *
+     * @param namespaces Namespaces whose documents to delete.
+     * @return The pending result of performing this operation. The keys of the returned
+     *     {@link AppSearchBatchResult} are the input namespaces. The values are {@code null} on
+     *     success, or a failed {@link AppSearchResult} otherwise. Namespaces that are not found
+     *     will return a failed {@link AppSearchResult} with a result code of
+     *     {@link AppSearchResult#RESULT_NOT_FOUND}.
+     */
+    @NonNull
+    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
+            @NonNull String... namespaces) {
+        Preconditions.checkNotNull(namespaces);
+        return removeByNamespace(Arrays.asList(namespaces));
+    }
+
+    /**
+     * Removes {@link GenericDocument}s from the index by namespace.
+     *
+     * @param namespaces Namespaces whose documents to delete.
+     * @return The pending result of performing this operation. The keys of the returned
+     *     {@link AppSearchBatchResult} are the input namespaces. The values are {@code null} on
+     *     success, or a failed {@link AppSearchResult} otherwise. Namespaces that are not found
+     *     will return a failed {@link AppSearchResult} with a result code of
+     *     {@link AppSearchResult#RESULT_NOT_FOUND}.
+     */
+    @NonNull
+    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
+            @NonNull List<String> namespaces) {
+        Preconditions.checkNotNull(namespaces);
+        return execute(MUTATE_EXECUTOR, () -> {
+            AppSearchBatchResult.Builder<String, Void> resultBuilder =
+                    new AppSearchBatchResult.Builder<>();
+            for (int i = 0; i < namespaces.size(); i++) {
+                String namespace = namespaces.get(i);
+                try {
+                    if (!mAppSearchImpl.removeByNamespace(mInstanceName, namespace)) {
+                        resultBuilder.setFailure(
+                                namespace,
+                                AppSearchResult.RESULT_NOT_FOUND,
+                                /*errorMessage=*/ null);
+                    } else {
+                        resultBuilder.setSuccess(namespace, /*result=*/ null);
+                    }
+                } catch (Throwable t) {
+                    resultBuilder.setResult(namespace, throwableToFailedResult(t));
                 }
             }
             return resultBuilder.build();
