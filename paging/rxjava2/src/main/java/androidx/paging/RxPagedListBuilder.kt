@@ -286,7 +286,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      *
      * @return The [Observable] of PagedLists
      */
-    @Suppress("DEPRECATION")
+    @Suppress("BuilderSetStyle", "DEPRECATION")
     fun buildObservable(): Observable<PagedList<Value>> {
         @SuppressLint("RestrictedApi")
         val notifyScheduler = notifyScheduler
@@ -329,7 +329,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      * @param backpressureStrategy BackpressureStrategy for the [Flowable] to use.
      * @return The [Flowable] of PagedLists
      */
-    @Suppress("DEPRECATION")
+    @Suppress("BuilderSetStyle", "DEPRECATION")
     fun buildFlowable(backpressureStrategy: BackpressureStrategy): Flowable<PagedList<Value>> {
         return buildObservable().toFlowable(backpressureStrategy)
     }

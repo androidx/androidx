@@ -146,6 +146,7 @@ class PagingConfig @JvmOverloads constructor(
          * When [maxSize] is set to [MAX_SIZE_UNBOUNDED], the maximum number of items loaded is
          * unbounded, and pages will never be dropped.
          */
+        @Suppress("MinMaxConstant")
         const val MAX_SIZE_UNBOUNDED = Int.MAX_VALUE
         internal const val DEFAULT_INITIAL_PAGE_MULTIPLIER = 3
     }

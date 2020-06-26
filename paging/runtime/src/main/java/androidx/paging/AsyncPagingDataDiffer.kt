@@ -43,8 +43,11 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class AsyncPagingDataDiffer<T : Any> @JvmOverloads constructor(
     private val diffCallback: DiffUtil.ItemCallback<T>,
+    @Suppress("ListenerLast") // have to suppress for each, due to defaults / JvmOverloads
     private val updateCallback: ListUpdateCallback,
+    @Suppress("ListenerLast") // have to suppress for each, due to defaults / JvmOverloads
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
+    @Suppress("ListenerLast") // have to suppress for each, due to defaults / JvmOverloads
     private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) {
     internal val callback = object : PresenterCallback {
