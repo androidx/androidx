@@ -214,8 +214,8 @@ public final class AppSearchImpl {
         return searchResultsBuilder.build();
     }
 
-    /** Deletes the given document by URI */
-    public boolean delete(@NonNull String databaseName, @NonNull String namespace,
+    /** Removes the given document by URI */
+    public boolean remove(@NonNull String databaseName, @NonNull String namespace,
             @NonNull String uri) {
         String qualifiedNamespace = getDatabasePrefix(databaseName) + namespace;
         DocumentProto document = mFakeIcing.get(qualifiedNamespace, uri);
@@ -225,14 +225,14 @@ public final class AppSearchImpl {
         return mFakeIcing.delete(qualifiedNamespace, uri);
     }
 
-    /** Deletes all documents having the given {@code schemaType}. */
-    public boolean deleteByType(@NonNull String databaseName, @NonNull String schemaType) {
+    /** Removes all documents having the given {@code schemaType}. */
+    public boolean removeByType(@NonNull String databaseName, @NonNull String schemaType) {
         String qualifiedType = getDatabasePrefix(databaseName) + schemaType;
         return mFakeIcing.deleteByType(qualifiedType);
     }
 
-    /**  Deletes all documents owned by the calling app in given database. */
-    public void deleteAll(@NonNull String databaseName) {
+    /**  Removes all documents owned by the calling app in given database. */
+    public void removeAll(@NonNull String databaseName) {
         for (String namespace : getSharedSet(databaseName, NAMESPACE_SET_NAME)) {
             mFakeIcing.deleteByNamespace(getDatabasePrefix(databaseName) + namespace);
         }
