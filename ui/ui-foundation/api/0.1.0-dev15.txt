@@ -277,6 +277,10 @@ package androidx.ui.foundation.gestures {
     field public static final androidx.ui.foundation.gestures.DragDirection.Horizontal INSTANCE;
   }
 
+  public static final class DragDirection.ReversedHorizontal extends androidx.ui.foundation.gestures.DragDirection {
+    field public static final androidx.ui.foundation.gestures.DragDirection.ReversedHorizontal INSTANCE;
+  }
+
   public static final class DragDirection.Vertical extends androidx.ui.foundation.gestures.DragDirection {
     field public static final androidx.ui.foundation.gestures.DragDirection.Vertical INSTANCE;
   }

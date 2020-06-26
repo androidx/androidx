@@ -26,6 +26,7 @@ import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.foundation.Interaction
 import androidx.ui.foundation.InteractionState
 import androidx.ui.geometry.Offset
+import kotlin.math.sign
 
 /**
  * Configure touch dragging for the UI element in a single [DragDirection]. The drag distance is
@@ -87,9 +88,13 @@ fun Modifier.draggable(
                 val consumed = onDragDeltaConsumptionRequested(projected)
                 dragState.value = dragState.value + consumed
                 val fractionConsumed = if (projected == 0f) 0f else consumed / projected
+                val projectionX = dragDirection.xProjection(dragDistance.x)
+                val projectionY = dragDirection.yProjection(dragDistance.y)
                 return Offset(
-                    dragDirection.xProjection(dragDistance.x) * fractionConsumed,
-                    dragDirection.yProjection(dragDistance.y) * fractionConsumed
+                    // TODO (malkov): temporary negate reversed direction with sign
+                    //  remove when b/159618405 is fixed
+                    projectionX * fractionConsumed * sign(dragDirection.xProjection(1f)),
+                    projectionY * fractionConsumed * sign(dragDirection.yProjection(1f))
                 )
             }
 

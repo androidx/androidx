@@ -26,8 +26,11 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.clickable
+import androidx.ui.foundation.drawBackground
 import androidx.ui.geometry.Offset
+import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.rtl
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
@@ -35,6 +38,10 @@ import androidx.ui.test.globalBounds
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendClick
+import androidx.ui.test.sendSwipeDown
+import androidx.ui.test.sendSwipeLeft
+import androidx.ui.test.sendSwipeRight
+import androidx.ui.test.sendSwipeUp
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
@@ -330,5 +337,98 @@ class DrawerTest {
 
         assertThat(drawerClicks).isEqualTo(1)
         assertThat(bodyClicks).isEqualTo(1)
+    }
+
+    @Test
+    fun modalDrawer_openBySwipe() {
+        val drawerState = mutableStateOf(DrawerState.Closed)
+        composeTestRule.setMaterialContent {
+            // emulate click on the screen
+            Box(Modifier.testTag("Drawer")) {
+                ModalDrawerLayout(drawerState.value, { drawerState.value = it },
+                    drawerContent = {
+                        Box(Modifier.fillMaxSize().drawBackground(Color.Magenta))
+                    },
+                    bodyContent = {
+                        Box(Modifier.fillMaxSize().drawBackground(Color.Red))
+                    })
+            }
+        }
+
+        findByTag("Drawer")
+            .doGesture { sendSwipeRight() }
+
+        runOnIdleCompose {
+            assertThat(drawerState.value).isEqualTo(DrawerState.Opened)
+        }
+
+        findByTag("Drawer")
+            .doGesture { sendSwipeLeft() }
+
+        runOnIdleCompose {
+            assertThat(drawerState.value).isEqualTo(DrawerState.Closed)
+        }
+    }
+
+    @Test
+    fun modalDrawer_openBySwipe_rtl() {
+        val drawerState = mutableStateOf(DrawerState.Closed)
+        composeTestRule.setMaterialContent {
+            // emulate click on the screen
+            Box(Modifier.testTag("Drawer").rtl) {
+                ModalDrawerLayout(drawerState.value, { drawerState.value = it },
+                    drawerContent = {
+                        Box(Modifier.fillMaxSize().drawBackground(Color.Magenta))
+                    },
+                    bodyContent = {
+                        Box(Modifier.fillMaxSize().drawBackground(Color.Red))
+                    })
+            }
+        }
+
+        findByTag("Drawer")
+            .doGesture { sendSwipeLeft() }
+
+        runOnIdleCompose {
+            assertThat(drawerState.value).isEqualTo(DrawerState.Opened)
+        }
+
+        findByTag("Drawer")
+            .doGesture { sendSwipeRight() }
+
+        runOnIdleCompose {
+            assertThat(drawerState.value).isEqualTo(DrawerState.Closed)
+        }
+    }
+
+    @Test
+    fun bottomDrawer_openBySwipe() {
+        val drawerState = mutableStateOf(DrawerState.Closed)
+        composeTestRule.setMaterialContent {
+            // emulate click on the screen
+            Box(Modifier.testTag("Drawer")) {
+                BottomDrawerLayout(drawerState.value, { drawerState.value = it },
+                    drawerContent = {
+                        Box(Modifier.fillMaxSize().drawBackground(Color.Magenta))
+                    },
+                    bodyContent = {
+                        Box(Modifier.fillMaxSize().drawBackground(Color.Red))
+                    })
+            }
+        }
+
+        findByTag("Drawer")
+            .doGesture { sendSwipeUp() }
+
+        runOnIdleCompose {
+            assertThat(drawerState.value).isEqualTo(DrawerState.Opened)
+        }
+
+        findByTag("Drawer")
+            .doGesture { sendSwipeDown() }
+
+        runOnIdleCompose {
+            assertThat(drawerState.value).isEqualTo(DrawerState.Closed)
+        }
     }
 }
