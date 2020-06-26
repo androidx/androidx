@@ -20,6 +20,7 @@ package androidx.ui.core
  * Tracks the nodes being positioned and dispatches OnPositioned callbacks when we finished
  * the measure/layout pass.
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal class OnPositionedDispatcher {
 
     private var topDepth = Int.MAX_VALUE

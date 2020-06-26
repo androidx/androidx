@@ -26,6 +26,7 @@ import androidx.ui.unit.IntOffset
 /**
  * [LayoutNodeWrapper] with default implementations for methods.
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
     override var wrapped: LayoutNodeWrapper,
     open var modifier: T

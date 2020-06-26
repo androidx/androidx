@@ -18,6 +18,7 @@ package androidx.ui.test
 
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.AndroidOwner
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.unit.Bounds
 import androidx.ui.unit.Density
@@ -208,6 +209,7 @@ private fun <R> SemanticsNodeInteraction.withDensity(
     operation: Density.(SemanticsNode) -> R
 ): R {
     val node = fetchSemanticsNode("Failed to retrieve density for the node.")
+    @OptIn(ExperimentalLayoutNodeApi::class)
     val density = (node.componentNode.owner as AndroidOwner).density
     return operation.invoke(density, node)
 }
@@ -216,6 +218,7 @@ private fun SemanticsNodeInteraction.withBoundsInRoot(
     assertion: Density.(PxBounds) -> Unit
 ): SemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to retrieve bounds of the node.")
+    @OptIn(ExperimentalLayoutNodeApi::class)
     val density = (node.componentNode.owner as AndroidOwner).density
 
     assertion.invoke(density, node.boundsInRoot)

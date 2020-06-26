@@ -36,6 +36,7 @@ import androidx.ui.unit.toOffset
 /**
  * Measurable and Placeable type that has a position.
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal abstract class LayoutNodeWrapper(
     internal val layoutNode: LayoutNode
 ) : Placeable(), Measurable, LayoutCoordinates {

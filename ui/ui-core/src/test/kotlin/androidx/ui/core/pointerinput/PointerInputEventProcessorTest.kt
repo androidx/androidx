@@ -18,6 +18,7 @@ package androidx.ui.core.pointerinput
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.ConsumedData
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Modifier
 import androidx.ui.core.Owner
@@ -72,6 +73,7 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
+@OptIn(ExperimentalLayoutNodeApi::class)
 class PointerInputEventProcessorTest {
 
     private lateinit var root: LayoutNode
@@ -2650,6 +2652,7 @@ class PointerInputEventProcessorTest {
 abstract class TestOwner : Owner {
     var position = IntOffset.Origin
 
+    @ExperimentalLayoutNodeApi
     override val root: LayoutNode
         get() = LayoutNode()
 

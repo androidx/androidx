@@ -22,6 +22,7 @@ import androidx.ui.core.LayoutNode.UsageByParent
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal class OuterMeasurablePlaceable(
     private val layoutNode: LayoutNode,
     var outerWrapper: LayoutNodeWrapper

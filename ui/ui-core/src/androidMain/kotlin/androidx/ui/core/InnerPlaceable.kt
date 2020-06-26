@@ -30,6 +30,7 @@ import androidx.ui.unit.IntOffset
 import androidx.ui.util.fastAny
 import androidx.ui.util.fastForEach
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal class InnerPlaceable(
     layoutNode: LayoutNode
 ) : LayoutNodeWrapper(layoutNode), Density by layoutNode.measureScope {

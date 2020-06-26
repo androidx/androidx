@@ -19,6 +19,7 @@ package androidx.ui.core
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal class ModifiedDrawNode(
     wrapped: LayoutNodeWrapper,
     drawModifier: DrawModifier

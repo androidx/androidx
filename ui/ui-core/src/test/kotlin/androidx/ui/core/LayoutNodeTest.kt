@@ -44,6 +44,7 @@ import org.mockito.Mockito.verify
 
 @SmallTest
 @RunWith(JUnit4::class)
+@OptIn(ExperimentalLayoutNodeApi::class)
 class LayoutNodeTest {
     @get:Rule
     val thrown = ExpectedException.none()!!
@@ -1631,6 +1632,7 @@ class LayoutNodeTest {
         PointerInputModifier
 }
 
+@ExperimentalLayoutNodeApi
 internal fun mockOwner(
     position: IntOffset = IntOffset.Origin,
     targetRoot: LayoutNode = LayoutNode()
@@ -1647,6 +1649,7 @@ internal fun mockOwner(
         }
     }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Modifier) =
     LayoutNode().apply {
         this.modifier = modifier

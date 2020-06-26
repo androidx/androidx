@@ -16,6 +16,7 @@
 package androidx.ui.core.focus
 
 import androidx.ui.core.DelegatingLayoutNodeWrapper
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNodeWrapper
 import androidx.ui.core.focus.FocusDetailedState.Active
 import androidx.ui.core.focus.FocusDetailedState.ActiveParent
@@ -24,6 +25,7 @@ import androidx.ui.core.focus.FocusDetailedState.Disabled
 import androidx.ui.core.focus.FocusDetailedState.Inactive
 import androidx.ui.util.fastForEach
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal class ModifiedFocusNode(
     wrapped: LayoutNodeWrapper,
     modifier: FocusModifierImpl

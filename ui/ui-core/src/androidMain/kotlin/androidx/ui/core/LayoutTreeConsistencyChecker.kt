@@ -24,6 +24,7 @@ import androidx.ui.util.fastForEach
  * which is hard to enforce but important to maintain. This method is intended to do the
  * work only during our tests and will iterate through the tree to validate the states consistency.
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal class LayoutTreeConsistencyChecker(
     private val root: LayoutNode,
     private val relayoutNodes: DepthSortedSet,

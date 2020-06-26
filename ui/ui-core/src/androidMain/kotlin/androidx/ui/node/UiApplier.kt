@@ -21,6 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Applier
 import androidx.compose.ExperimentalComposeApi
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
 import androidx.ui.viewinterop.AndroidViewHolder
 
@@ -38,6 +39,7 @@ private class Stack<T> {
     fun clear() = backing.clear()
 }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 class UiApplier(root: Any) : Applier<Any> {
     private val stack = Stack<Any>()
     private data class PendingInsert(val index: Int, val instance: Any)

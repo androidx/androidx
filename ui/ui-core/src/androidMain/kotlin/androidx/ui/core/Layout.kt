@@ -72,6 +72,7 @@ import kotlin.math.max
  * @see WithConstraints
  */
 @Composable
+@OptIn(ExperimentalLayoutNodeApi::class)
 /*inline*/ fun Layout(
     /*crossinline*/
     children: @Composable () -> Unit,
@@ -148,6 +149,7 @@ import kotlin.math.max
 )
 @Suppress("DEPRECATION")
 @Composable
+@OptIn(ExperimentalLayoutNodeApi::class)
 /*inline*/ fun Layout(
     /*crossinline*/
     children: @Composable () -> Unit,
@@ -221,6 +223,7 @@ import kotlin.math.max
  * @see WithConstraints
  */
 @Composable
+@OptIn(ExperimentalLayoutNodeApi::class)
 /*inline*/ fun Layout(
     /*crossinline*/
     children: @Composable () -> Unit,
@@ -241,6 +244,7 @@ import kotlin.math.max
 )
 @Suppress("DEPRECATION")
 @Composable
+@OptIn(ExperimentalLayoutNodeApi::class)
 /*inline*/ fun Layout(
     /*crossinline*/
     children: @Composable () -> Unit,
@@ -253,6 +257,7 @@ import kotlin.math.max
     Layout(children, measureBlocks, modifier)
 }
 
+@ExperimentalLayoutNodeApi
 /*@PublishedApi*/ @Composable internal /*inline*/ fun Layout(
     /*crossinline*/
     children: @Composable () -> Unit,
@@ -273,6 +278,7 @@ import kotlin.math.max
 @Composable
 @Deprecated("This composable is temporary to enable quicker prototyping in ConstraintLayout. " +
         "It should not be used in app code directly.")
+@OptIn(ExperimentalLayoutNodeApi::class)
 fun MultiMeasureLayout(
     modifier: Modifier = Modifier,
     children: @Composable () -> Unit,
@@ -372,6 +378,7 @@ internal class DefaultIntrinsicMeasurable(
  * Receiver scope for [Layout]'s layout lambda when used in an intrinsics call.
  */
 @PublishedApi
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal class IntrinsicsMeasureScope(
     density: Density,
     override val layoutDirection: LayoutDirection
@@ -380,6 +387,7 @@ internal class IntrinsicsMeasureScope(
  * Default [LayoutNode.MeasureBlocks] object implementation, providing intrinsic measurements
  * that use the measure block replacing the measure calls with intrinsic measurement calls.
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock2) =
     object : LayoutNode.MeasureBlocks {
         override fun measure(
@@ -443,6 +451,7 @@ fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock2) =
         }
     }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 @Deprecated("Use MeasuringIntrinsicsMeasureBlocks with MeasureBlock2 instead")
 @Suppress("DEPRECATION")
 fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
@@ -662,6 +671,7 @@ private inline fun Density.MeasuringMaxIntrinsicHeight(
  * @param modifier Modifier to be applied to the introduced layout.
  */
 @Composable
+@OptIn(ExperimentalLayoutNodeApi::class)
 fun WithConstraints(
     modifier: Modifier = Modifier,
     children: @Composable WithConstraintsScope.() -> Unit
@@ -740,6 +750,7 @@ interface WithConstraintsScope {
     val maxHeight: Dp
 }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 private class WithConstrainsState {
     lateinit var recomposer: Recomposer
     var compositionRef: CompositionReference? = null

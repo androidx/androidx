@@ -26,6 +26,7 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
+@OptIn(ExperimentalLayoutNodeApi::class)
 class DepthSortedSetTest {
 
     @Test
