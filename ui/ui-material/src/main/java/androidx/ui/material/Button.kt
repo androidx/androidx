@@ -19,19 +19,22 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Border
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.clickable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.InnerPadding
+import androidx.ui.layout.Row
+import androidx.ui.layout.RowScope
 import androidx.ui.layout.defaultMinSizeConstraints
+import androidx.ui.layout.padding
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -51,6 +54,11 @@ import androidx.ui.unit.dp
  * [ColorPalette.onPrimary].
  *
  * @sample androidx.ui.material.samples.ButtonSample
+ *
+ * If you need to add an icon just put it inside the [content] slot together with a spacing
+ * and a text:
+ *
+ * @sample androidx.ui.material.samples.ButtonWithIconSample
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -81,7 +89,7 @@ fun Button(
     contentColor: Color = contentColorFor(backgroundColor),
     disabledContentColor: Color = Button.defaultDisabledContentColor,
     padding: InnerPadding = Button.DefaultInnerPadding,
-    text: @Composable () -> Unit
+    content: @Composable RowScope.() -> Unit
 ) {
     Surface(
         shape = shape,
@@ -94,20 +102,20 @@ fun Button(
             // merge all descendants, or we'll get multiple nodes
             .semantics(mergeAllDescendants = true)
     ) {
-        Box(
-            Modifier.defaultMinSizeConstraints(
-                minWidth = Button.DefaultMinWidth,
-                minHeight = Button.DefaultMinHeight
-            ).clickable(onClick = onClick, enabled = enabled),
-            paddingStart = padding.start,
-            paddingTop = padding.top,
-            paddingEnd = padding.end,
-            paddingBottom = padding.bottom,
-            gravity = ContentGravity.Center
+        ProvideTextStyle(
+            value = MaterialTheme.typography.button
         ) {
-            ProvideTextStyle(
-                value = MaterialTheme.typography.button,
-                children = text
+            Row(
+                Modifier
+                    .defaultMinSizeConstraints(
+                        minWidth = Button.DefaultMinWidth,
+                        minHeight = Button.DefaultMinHeight
+                    )
+                    .clickable(onClick = onClick, enabled = enabled)
+                    .padding(padding),
+                horizontalArrangement = Arrangement.Center,
+                verticalGravity = Alignment.CenterVertically,
+                children = content
             )
         }
     }
@@ -160,7 +168,7 @@ inline fun OutlinedButton(
     contentColor: Color = MaterialTheme.colors.primary,
     disabledContentColor: Color = Button.defaultDisabledContentColor,
     padding: InnerPadding = Button.DefaultInnerPadding,
-    noinline text: @Composable () -> Unit
+    noinline content: @Composable RowScope.() -> Unit
 ) = Button(
     modifier = modifier,
     onClick = onClick,
@@ -174,7 +182,7 @@ inline fun OutlinedButton(
     contentColor = contentColor,
     disabledContentColor = disabledContentColor,
     padding = padding,
-    text = text
+    content = content
 )
 
 /**
@@ -219,7 +227,7 @@ inline fun TextButton(
     contentColor: Color = MaterialTheme.colors.primary,
     disabledContentColor: Color = Button.defaultDisabledContentColor,
     padding: InnerPadding = TextButton.DefaultInnerPadding,
-    noinline text: @Composable () -> Unit
+    noinline content: @Composable RowScope.() -> Unit
 ) = Button(
     modifier = modifier,
     onClick = onClick,
@@ -233,7 +241,7 @@ inline fun TextButton(
     contentColor = contentColor,
     disabledContentColor = disabledContentColor,
     padding = padding,
-    text = text
+    content = content
 )
 
 /**
@@ -264,6 +272,20 @@ object Button {
      * Note that you can override it by applying [Modifier.heightIn] directly on [Button].
      */
     val DefaultMinHeight = 36.dp
+
+    /**
+     * The default size of the icon when used inside a [Button].
+     *
+     * @sample androidx.ui.material.samples.ButtonWithIconSample
+     */
+    val DefaultIconSize = 18.dp
+
+    /**
+     * The default size of the spacing between an icon and a text when they used inside a [Button].
+     *
+     * @sample androidx.ui.material.samples.ButtonWithIconSample
+     */
+    val DefaultIconSpacing = 8.dp
 
     /**
      * The default disabled background color used by Contained [Button]s

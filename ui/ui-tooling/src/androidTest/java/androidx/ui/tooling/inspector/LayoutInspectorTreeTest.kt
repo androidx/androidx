@@ -38,6 +38,7 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -65,6 +66,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
         view = activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
     }
 
+    @Ignore("b/159974680")
     @Test
     fun buildTree() {
         val slotTableRecord = SlotTableRecord.create()

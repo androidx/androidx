@@ -43,13 +43,16 @@ import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.Column
 import androidx.ui.layout.InnerPadding
+import androidx.ui.layout.RowScope
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.height
 import androidx.ui.layout.heightIn
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.size
+import androidx.ui.layout.width
 import androidx.ui.layout.widthIn
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
@@ -68,6 +71,7 @@ import androidx.ui.test.findByText
 import androidx.ui.test.hasClickAction
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.Dp
+import androidx.ui.unit.PxBounds
 import androidx.ui.unit.center
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
@@ -265,21 +269,21 @@ class ButtonTest {
     @Test
     fun containedButtonHorPaddingIsFromSpec() {
         assertLeftPaddingIs(16.dp) { text ->
-            Button(onClick = {}, text = text)
+            Button(onClick = {}, content = text)
         }
     }
 
     @Test
     fun outlinedButtonHorPaddingIsFromSpec() {
         assertLeftPaddingIs(16.dp) { text ->
-            OutlinedButton(onClick = {}, text = text)
+            OutlinedButton(onClick = {}, content = text)
         }
     }
 
     @Test
     fun textButtonHorPaddingIsFromSpec() {
         assertLeftPaddingIs(8.dp) { text ->
-            TextButton(onClick = {}, text = text)
+            TextButton(onClick = {}, content = text)
         }
     }
 
@@ -601,9 +605,33 @@ class ButtonTest {
             .assertHeightIsEqualTo(15.dp)
     }
 
+    @Test
+    fun buttonContentIsRow() {
+        var buttonBounds = PxBounds(0f, 0f, 0f, 0f)
+        var item1Bounds = PxBounds(0f, 0f, 0f, 0f)
+        var item2Bounds = PxBounds(0f, 0f, 0f, 0f)
+        composeTestRule.setMaterialContent {
+            Button(onClick = {}, modifier = Modifier.onPositioned {
+                buttonBounds = it.boundsInRoot
+            }) {
+                Spacer(Modifier.size(10.dp).onPositioned {
+                    item1Bounds = it.boundsInRoot
+                })
+                Spacer(Modifier.width(10.dp).height(5.dp).onPositioned {
+                    item2Bounds = it.boundsInRoot
+                })
+            }
+        }
+
+        assertThat(item1Bounds.center().y).isWithin(1f).of(buttonBounds.center().y)
+        assertThat(item2Bounds.center().y).isWithin(1f).of(buttonBounds.center().y)
+        assertThat(item1Bounds.right).isWithin(1f).of(buttonBounds.center().x)
+        assertThat(item2Bounds.left).isWithin(1f).of(buttonBounds.center().x)
+    }
+
     private fun assertLeftPaddingIs(
         padding: Dp,
-        button: @Composable (@Composable () -> Unit) -> Unit
+        button: @Composable (@Composable RowScope.() -> Unit) -> Unit
     ) {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
