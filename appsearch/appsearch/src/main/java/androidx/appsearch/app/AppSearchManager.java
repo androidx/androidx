@@ -222,8 +222,6 @@ public class AppSearchManager {
     @NonNull
     public ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
-
-        // Prepare the merged schema for transmission.
         return execute(MUTATE_EXECUTOR, () -> {
             SchemaProto.Builder schemaProtoBuilder = SchemaProto.newBuilder();
             for (AppSearchSchema schema : request.mSchemas) {
@@ -338,6 +336,7 @@ public class AppSearchManager {
             @NonNull PutDocumentsRequest request) {
         // TODO(b/146386470): Transmit these documents as a RemoteStream instead of sending them in
         // one big list.
+        Preconditions.checkNotNull(request);
         return execute(MUTATE_EXECUTOR, () -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
@@ -428,6 +427,7 @@ public class AppSearchManager {
             @NonNull GetDocumentsRequest request) {
         // TODO(b/146386470): Transmit the result documents as a RemoteStream instead of sending
         //     them in one big list.
+        Preconditions.checkNotNull(request);
         return execute(QUERY_EXECUTOR, () -> {
             AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
@@ -459,9 +459,6 @@ public class AppSearchManager {
 
     /**
      * Searches a document based on a given query string.
-     *
-     * <p>You should not call this method directly; instead, use the {@code AppSearch#query()} API
-     * provided by JetPack.
      *
      * <p>Currently we support following features in the raw query format:
      * <ul>
@@ -495,16 +492,9 @@ public class AppSearchManager {
      *     ‘Video’ schema type.
      * </ul>
      *
-     * <p> It is strongly recommended to use Jetpack APIs.
-     *
      * @param queryExpression Query String to search.
      * @param searchSpec Spec for setting filters, raw query etc.
-     * @return  A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
-     *     {@link SearchResults}&gt;&gt;.
-     *     If the call fails to start, {@link ListenableFuture} will be completed exceptionally.
-     *     Otherwise, {@link ListenableFuture} will be completed with an
-     *     {@link AppSearchBatchResult}&lt;{@link String}, {@link SearchResults}&gt;
-     *     where the keys are document URIs, and the values are serialized Document protos.
+     * @return The pending result of performing this operation.
      */
     @NonNull
     public ListenableFuture<AppSearchResult<SearchResults>> query(
@@ -512,6 +502,8 @@ public class AppSearchManager {
             @NonNull SearchSpec searchSpec) {
         // TODO(b/146386470): Transmit the result documents as a RemoteStream instead of sending
         //     them in one big list.
+        Preconditions.checkNotNull(queryExpression);
+        Preconditions.checkNotNull(searchSpec);
         return execute(QUERY_EXECUTOR, () -> {
             try {
                 SearchSpecProto searchSpecProto = searchSpec.getSearchSpecProto();
@@ -536,30 +528,84 @@ public class AppSearchManager {
     }
 
     /**
-     * Deletes {@link GenericDocument}s by URI.
+     * Encapsulates a request to remove documents by namespace and URI.
      *
-     * <p>You should not call this method directly; instead, use the {@code AppSearch#delete()} API
-     * provided by JetPack.
+     * @see AppSearchManager#removeDocuments
+     */
+    public static final class RemoveDocumentsRequest {
+        final String mNamespace;
+        final Set<String> mUris;
+
+        RemoveDocumentsRequest(String namespace, Set<String> uris) {
+            mNamespace = namespace;
+            mUris = uris;
+        }
+
+        /** Builder for {@link RemoveDocumentsRequest} objects. */
+        public static final class Builder {
+            private String mNamespace = GenericDocument.DEFAULT_NAMESPACE;
+            private final Set<String> mUris = new ArraySet<>();
+            private boolean mBuilt = false;
+
+            /**
+             * Sets which namespace these documents will be removed from.
+             *
+             * <p>If this is not set, it defaults to {@link GenericDocument#DEFAULT_NAMESPACE}.
+             */
+            @NonNull
+            public Builder setNamespace(@NonNull String namespace) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                Preconditions.checkNotNull(namespace);
+                mNamespace = namespace;
+                return this;
+            }
+
+            /** Adds one or more URIs to the request. */
+            @NonNull
+            public Builder addUris(@NonNull String... uris) {
+                Preconditions.checkNotNull(uris);
+                return addUris(Arrays.asList(uris));
+            }
+
+            /** Adds one or more URIs to the request. */
+            @NonNull
+            public Builder addUris(@NonNull Collection<String> uris) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                Preconditions.checkNotNull(uris);
+                mUris.addAll(uris);
+                return this;
+            }
+
+            /** Builds a new {@link RemoveDocumentsRequest}. */
+            @NonNull
+            public RemoveDocumentsRequest build() {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                mBuilt = true;
+                return new RemoveDocumentsRequest(mNamespace, mUris);
+            }
+        }
+    }
+
+    /**
+     * Removes {@link GenericDocument}s from the index by URI.
      *
-     * @param namespace The namespace these documents reside in.
-     * @param uris URIs of the documents to delete
-     * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
-     *     {@link Void}&gt;&gt;. If the call fails to start, {@link ListenableFuture} will be
-     *     completed exceptionally.Otherwise, {@link ListenableFuture} will be completed with an
-     *     {@link AppSearchBatchResult}&lt;{@link String}, {@link Void}&gt;
-     *     where the keys are schema types. If a schema type doesn't exist, it will be reported as a
-     *     failure where the {@code throwable} is {@code null}.
+     * @param request {@link GetDocumentsRequest} containing URIs to be removed.
+     * @return The pending result of performing this operation. The keys of the returned
+     *     {@link AppSearchBatchResult} are the input URIs. The values are {@code null} on success,
+     *     or a failed {@link AppSearchResult} otherwise. URIs that are not found will return a
+     *     failed {@link AppSearchResult} with a result code of
+     *     {@link AppSearchResult#RESULT_NOT_FOUND}.
      */
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> delete(@NonNull String namespace,
-            @NonNull List<String> uris) {
+    public ListenableFuture<AppSearchBatchResult<String, Void>> removeDocuments(
+            @NonNull RemoveDocumentsRequest request) {
+        Preconditions.checkNotNull(request);
         return execute(MUTATE_EXECUTOR, () -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
-            for (int i = 0; i < uris.size(); i++) {
-                String uri = uris.get(i);
+            for (String uri : request.mUris) {
                 try {
-                    if (!mAppSearchImpl.delete(mInstanceName, namespace, uri)) {
+                    if (!mAppSearchImpl.remove(mInstanceName, request.mNamespace, uri)) {
                         resultBuilder.setFailure(
                                 uri, AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null);
                     } else {
@@ -573,49 +619,46 @@ public class AppSearchManager {
         });
     }
 
-    /**
-     * Deletes {@link GenericDocument}s by URI in default namespace.
-     *
-     * <p>You should not call this method directly; instead, use the {@code AppSearch#delete()} API
-     * provided by JetPack.
-     *
-     * @param uris URIs of the documents to delete
-     * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
-     *     {@link Void}&gt;&gt;. If the call fails to start, {@link ListenableFuture} will be
-     *     completed exceptionally.Otherwise, {@link ListenableFuture} will be completed with an
-     *     {@link AppSearchBatchResult}&lt;{@link String}, {@link Void}&gt;
-     *     where the keys are schema types. If a schema type doesn't exist, it will be reported as a
-     *     failure where the {@code throwable} is {@code null}.
-     */
-    @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> delete(@NonNull List<String> uris) {
-        return delete(GenericDocument.DEFAULT_NAMESPACE, uris);
-    }
-
-    //TODO(b/153118598): Implement deleteByNamespace after we port to real icing.
+    //TODO(b/153118598): Implement removeByNamespace after we port to real icing.
 
     /**
-     * Deletes {@link GenericDocument}s by schema type.
+     * Removes {@link GenericDocument}s from the index by schema type.
      *
      * @param schemaTypes Schema types whose documents to delete.
-     * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
-     *     {@link Void}&gt;&gt;.
-     *     If the call fails to start, {@link ListenableFuture} will be completed exceptionally.
-     *     Otherwise, {@link ListenableFuture} will be completed with an
-     *     {@link AppSearchBatchResult}&lt;{@link String}, {@link Void}&gt;
-     *     where the keys are schema types. If a schema type doesn't exist, it will be reported as a
-     *     failure where the {@code throwable} is {@code null}.
+     * @return The pending result of performing this operation. The keys of the returned
+     *     {@link AppSearchBatchResult} are the input schema types. The values are {@code null} on
+     *     success, or a failed {@link AppSearchResult} otherwise. Types that are not found will
+     *     return a failed {@link AppSearchResult} with a result code of
+     *     {@link AppSearchResult#RESULT_NOT_FOUND}.
      */
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> deleteByTypes(
+    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
+            @NonNull String... schemaTypes) {
+        Preconditions.checkNotNull(schemaTypes);
+        return removeByType(Arrays.asList(schemaTypes));
+    }
+
+    /**
+     * Removes {@link GenericDocument}s from the index by schema type.
+     *
+     * @param schemaTypes Schema types whose documents to delete.
+     * @return The pending result of performing this operation. The keys of the returned
+     *     {@link AppSearchBatchResult} are the input schema types. The values are {@code null} on
+     *     success, or a failed {@link AppSearchResult} otherwise. Types that are not found will
+     *     return a failed {@link AppSearchResult} with a result code of
+     *     {@link AppSearchResult#RESULT_NOT_FOUND}.
+     */
+    @NonNull
+    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
             @NonNull List<String> schemaTypes) {
+        Preconditions.checkNotNull(schemaTypes);
         return execute(MUTATE_EXECUTOR, () -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < schemaTypes.size(); i++) {
                 String schemaType = schemaTypes.get(i);
                 try {
-                    if (!mAppSearchImpl.deleteByType(mInstanceName, schemaType)) {
+                    if (!mAppSearchImpl.removeByType(mInstanceName, schemaType)) {
                         resultBuilder.setFailure(
                                 schemaType,
                                 AppSearchResult.RESULT_NOT_FOUND,
@@ -632,16 +675,15 @@ public class AppSearchManager {
     }
 
     /**
-     * Deletes all documents owned by this instance.
+     * Removes all documents owned by this instance.
      *
-     * @return A {@link ListenableFuture}&lt;{@link AppSearchResult}&lt;{@link Void}&gt;&gt;.
-     *     Will be completed with the result of the call.
+     * @return The pending result of performing this operation.
      */
     @NonNull
-    public <ValueType> ListenableFuture<AppSearchResult<ValueType>> deleteAll() {
+    public ListenableFuture<AppSearchResult<Void>> removeAll() {
         return execute(MUTATE_EXECUTOR, () -> {
             try {
-                mAppSearchImpl.deleteAll(mInstanceName);
+                mAppSearchImpl.removeAll(mInstanceName);
                 return AppSearchResult.newSuccessfulResult(null);
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
