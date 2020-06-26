@@ -1,5 +1,5 @@
 name: AndroidX Presubmits
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   # This workflow contains a single job called "build"
