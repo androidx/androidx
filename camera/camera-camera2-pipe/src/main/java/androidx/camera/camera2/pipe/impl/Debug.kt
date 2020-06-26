@@ -19,6 +19,7 @@
 package androidx.camera.camera2.pipe.impl
 
 import android.os.Trace
+import android.os.Build
 
 /**
  * Internal debug utilities, constants, and checks.
@@ -67,3 +68,44 @@ object Debug {
         }
     }
 }
+
+/**
+ * Asserts that the method was invoked on a specific API version or higher.
+ *
+ * Example: checkApi(Build.VERSION_CODES.LOLLIPOP, "createCameraDevice")
+ */
+inline fun checkApi(requiredApi: Int, methodName: String) {
+    check(Build.VERSION.SDK_INT >= requiredApi) {
+        "$methodName is not supported on API ${Build.VERSION.SDK_INT} (requires API $requiredApi)"
+    }
+}
+
+/** Asserts that this method was invoked on Android L (API 21) or higher. */
+inline fun checkLOrHigher(methodName: String) = checkApi(
+    Build.VERSION_CODES.LOLLIPOP, methodName
+)
+
+/** Asserts that this method was invoked on Android M (API 23) or higher. */
+inline fun checkMOrHigher(methodName: String) = checkApi(
+    Build.VERSION_CODES.M, methodName
+)
+
+/** Asserts that this method was invoked on Android N (API 24) or higher. */
+inline fun checkNOrHigher(methodName: String) = checkApi(
+    Build.VERSION_CODES.N, methodName
+)
+
+/** Asserts that this method was invoked on Android O (API 26) or higher. */
+inline fun checkOOrHigher(methodName: String) = checkApi(
+    Build.VERSION_CODES.O, methodName
+)
+
+/** Asserts that this method was invoked on Android P (API 28) or higher. */
+inline fun checkPOrHigher(methodName: String) = checkApi(
+    Build.VERSION_CODES.P, methodName
+)
+
+/** Asserts that this method was invoked on Android Q (API 29) or higher. */
+inline fun checkQOrHigher(methodName: String) = checkApi(
+    Build.VERSION_CODES.Q, methodName
+)

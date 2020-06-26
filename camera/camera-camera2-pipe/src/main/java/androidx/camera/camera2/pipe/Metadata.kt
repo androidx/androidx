@@ -100,11 +100,11 @@ interface RequestMetadata : Metadata, UnsafeWrapper<CaptureRequest> {
     val template: RequestTemplate
 
     /**
-     * A Map of Surface(s) that were submitted with this CaptureRequest and the StreamId they
-     * were associated with for this request. It's possible that not all streams specified in the
-     * request object are present in this map.
+     * A Map of StreamId(s) that were submitted with this CaptureRequest and the Surface(s) used
+     * fot this request. It's possible that not all of the streamId's specified in the [Request]
+     * are present in the CaptureRequest.
      */
-    val streams: Map<Surface, StreamId>
+    val streams: Map<StreamId, Surface>
 
     /** The request object that was used to create this [CaptureRequest] */
     val request: Request
@@ -169,3 +169,24 @@ inline class FrameNumber(val value: Long)
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 inline class CameraTimestamp(val value: Long)
+
+/**
+ * Utility function to help deal with the unsafe nature of the typed Key/Value pairs.
+ */
+fun CaptureRequest.Builder.writeParameters(
+    parameters: Map<*, Any>
+) {
+    for ((key, value) in parameters) {
+        if (key is CaptureRequest.Key<*>) {
+            @Suppress("UNCHECKED_CAST")
+            this.writeParameter(key as CaptureRequest.Key<Any>, value)
+        }
+    }
+}
+
+/**
+ * Utility function to help deal with the unsafe nature of the typed Key/Value pairs.
+ */
+fun <T> CaptureRequest.Builder.writeParameter(key: CaptureRequest.Key<T>, value: T) {
+    this.set(key, value)
+}
