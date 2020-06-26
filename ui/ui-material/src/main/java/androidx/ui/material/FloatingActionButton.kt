@@ -96,6 +96,12 @@ fun FloatingActionButton(
  *
  * @sample androidx.ui.material.samples.SimpleExtendedFabWithIcon
  *
+ * If you want FAB’s container to have a fluid width (to be defined by its relationship to something
+ * else on screen, such as screen width or the layout grid) just apply an appropriate modifier.
+ * For example to fill the whole available width you can do:
+ *
+ * @sample androidx.ui.material.samples.FluidExtendedFab
+ *
  * @param text Text label displayed inside this FAB
  * @param icon Optional icon for this FAB, typically this will be a [androidx.ui.foundation.Icon]
  * @param modifier [Modifier] to be applied to this FAB
