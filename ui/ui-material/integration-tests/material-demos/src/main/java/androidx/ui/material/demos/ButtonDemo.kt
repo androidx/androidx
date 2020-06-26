@@ -37,6 +37,7 @@ import androidx.ui.material.OutlinedButton
 import androidx.ui.material.TextButton
 import androidx.ui.material.samples.ButtonSample
 import androidx.ui.material.samples.ButtonWithIconSample
+import androidx.ui.material.samples.FluidExtendedFab
 import androidx.ui.material.samples.IconButtonSample
 import androidx.ui.material.samples.IconToggleButtonSample
 import androidx.ui.material.samples.OutlinedButtonSample
@@ -107,6 +108,8 @@ private fun Fabs() {
         SimpleExtendedFabNoIcon()
         SimpleExtendedFabWithIcon()
     }
+    Spacer(Modifier.preferredHeight(DefaultSpace))
+    FluidExtendedFab()
 }
 
 @Composable
