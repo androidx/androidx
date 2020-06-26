@@ -131,9 +131,4 @@ internal open class AndroidViewHolder(context: Context) : ViewGroup(context) {
         onRequestDisallowInterceptTouchEvent?.invoke(disallowIntercept)
         super.requestDisallowInterceptTouchEvent(disallowIntercept)
     }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        view = null
-    }
 }

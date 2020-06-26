@@ -107,6 +107,7 @@ internal fun AndroidViewHolder.toLayoutNode(): LayoutNode {
     }
     layoutNode.onDetach = { owner ->
         (owner as? AndroidOwner)?.removeAndroidView(this)
+        view = null
     }
     layoutNode.measureBlocks = object : LayoutNode.NoIntrinsicsMeasureBlocks(
         "Intrinsics not supported for Android views"
