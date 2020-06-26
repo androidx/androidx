@@ -17,22 +17,22 @@
 package android.graphics
 
 open class Paint {
-    enum class Style(val skija: org.jetbrains.skija.Paint.Style) {
-        FILL(org.jetbrains.skija.Paint.Style.FILL),
-        FILL_AND_STROKE(org.jetbrains.skija.Paint.Style.STROKE_AND_FILL),
-        STROKE(org.jetbrains.skija.Paint.Style.STROKE)
+    enum class Style(val skija: org.jetbrains.skija.PaintMode) {
+        FILL(org.jetbrains.skija.PaintMode.FILL),
+        FILL_AND_STROKE(org.jetbrains.skija.PaintMode.STROKE_AND_FILL),
+        STROKE(org.jetbrains.skija.PaintMode.STROKE)
     }
 
-    enum class Cap(val skija: org.jetbrains.skija.Paint.Cap) {
-        BUTT(org.jetbrains.skija.Paint.Cap.BUTT),
-        ROUND(org.jetbrains.skija.Paint.Cap.ROUND),
-        SQUARE(org.jetbrains.skija.Paint.Cap.SQUARE)
+    enum class Cap(val skija: org.jetbrains.skija.PaintStrokeCap) {
+        BUTT(org.jetbrains.skija.PaintStrokeCap.BUTT),
+        ROUND(org.jetbrains.skija.PaintStrokeCap.ROUND),
+        SQUARE(org.jetbrains.skija.PaintStrokeCap.SQUARE)
     }
 
-    enum class Join(val skija: org.jetbrains.skija.Paint.Join) {
-        BEVEL(org.jetbrains.skija.Paint.Join.BEVEL),
-        MITER(org.jetbrains.skija.Paint.Join.MITER),
-        ROUND((org.jetbrains.skija.Paint.Join.ROUND))
+    enum class Join(val skija: org.jetbrains.skija.PaintStrokeJoin) {
+        BEVEL(org.jetbrains.skija.PaintStrokeJoin.BEVEL),
+        MITER(org.jetbrains.skija.PaintStrokeJoin.MITER),
+        ROUND((org.jetbrains.skija.PaintStrokeJoin.ROUND))
     }
 
     open class FontMetricsInt {
@@ -73,9 +73,9 @@ open class Paint {
             skijaPaint.setStrokeWidth(value)
         }
     var style: Style
-        get() = Style.values().first { it.skija == skijaPaint.getStyle() }
+        get() = Style.values().first { it.skija == skijaPaint.getMode() }
         set(value) {
-            skijaPaint.setStyle(value.skija)
+            skijaPaint.setMode(value.skija)
         }
     var strokeCap: Cap
         get() = Cap.values().first { it.skija == skijaPaint.getStrokeCap() }

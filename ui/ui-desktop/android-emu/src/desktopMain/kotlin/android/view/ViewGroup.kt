@@ -21,7 +21,7 @@ import android.graphics.Canvas
 import android.graphics.Region
 import android.graphics.Outline
 import android.graphics.Rect
-import org.jetbrains.skija.RoundedRect
+import org.jetbrains.skija.RRect
 
 abstract class ViewGroup(context: Context) : View(context), ViewParent {
     var clipChildren: Boolean = true
@@ -98,8 +98,8 @@ abstract class ViewGroup(context: Context) : View(context), ViewParent {
         if (path != null) {
             clipPath(path, Region.Op.INTERSECT)
         } else if (radius != null && rect != null) {
-            skijaCanvas!!.clipRoundedRect(
-                RoundedRect.makeLTRB(
+            skijaCanvas!!.clipRRect(
+                RRect.makeLTRB(
                     rect.left.toFloat(),
                     rect.top.toFloat(),
                     rect.right.toFloat(),

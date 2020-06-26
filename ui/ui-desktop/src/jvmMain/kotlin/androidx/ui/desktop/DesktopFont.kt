@@ -15,15 +15,15 @@
 */
 package androidx.ui.desktop
 
-import org.jetbrains.skija.SkTypeface
 import androidx.ui.text.font.Font as uiFont
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontListFontFamily
-import org.jetbrains.skija.FontCollection
-import org.jetbrains.skija.FontManager
-import org.jetbrains.skija.TypefaceFontProvider
+import org.jetbrains.skija.FontMgr
+import org.jetbrains.skija.Typeface
+import org.jetbrains.skija.paragraph.FontCollection
+import org.jetbrains.skija.paragraph.TypefaceFontProvider
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.io.File
@@ -47,7 +47,7 @@ class FontLoader() : uiFont.ResourceLoader {
     private val fontProvider = TypefaceFontProvider()
 
     init {
-        fonts.setDefaultFontManager(FontManager.getDefault())
+        fonts.setDefaultFontManager(FontMgr.getDefault())
         fonts.setAssetFontManager(fontProvider)
     }
 
@@ -77,9 +77,9 @@ class FontLoader() : uiFont.ResourceLoader {
 }
 
 // TODO: get fontFamily from loaded typeface via SkTypeface.getFamilyName
-private fun typefaceResource(resourcePath: String): SkTypeface {
+private fun typefaceResource(resourcePath: String): Typeface {
     val path = getFontPathAsString(resourcePath)
-    return SkTypeface.makeFromFile(path, 0)
+    return Typeface.makeFromFile(path, 0)
 }
 
 // TODO: add to skija an ability to load typefaces from memory

@@ -19,11 +19,11 @@ package android.graphics
 class Path {
     val skijaPath = org.jetbrains.skija.Path()
 
-    enum class Direction(val skija: org.jetbrains.skija.Path.Direction) {
+    enum class Direction(val skija: org.jetbrains.skija.PathDirection) {
         @JvmStatic
-        CW(org.jetbrains.skija.Path.Direction.CLOCKWISE),
+        CW(org.jetbrains.skija.PathDirection.CLOCKWISE),
         @JvmStatic
-        CCW(org.jetbrains.skija.Path.Direction.COUNTER_CLOCKWISE)
+        CCW(org.jetbrains.skija.PathDirection.COUNTER_CLOCKWISE)
     }
 
     fun addRoundRect(
@@ -35,7 +35,7 @@ class Path {
         ry: Float,
         dir: Direction
     ) {
-        skijaPath.addRoundedRect(org.jetbrains.skija.RoundedRect.makeLTRB(
+        skijaPath.addRRect(org.jetbrains.skija.RRect.makeLTRB(
             left, top, right, bottom, rx, ry), dir.skija)
     }
 
@@ -48,7 +48,7 @@ class Path {
         radii: FloatArray,
         dir: Direction
     ) {
-        skijaPath.addRoundedRect(org.jetbrains.skija.RoundedRect.makeComplexLTRB(
+        skijaPath.addRRect(org.jetbrains.skija.RRect.makeComplexLTRB(
             rect.left, rect.top, rect.right, rect.bottom, radii), dir.skija)
     }
 

@@ -17,8 +17,8 @@
 package android.graphics
 
 import org.jetbrains.skija.Canvas
+import org.jetbrains.skija.RRect
 import org.jetbrains.skija.Rect
-import org.jetbrains.skija.RoundedRect
 
 public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas?) {
 
@@ -109,8 +109,7 @@ public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas?) {
     ) {
         val typeface = paint.getTypeface() ?: Typeface.DEFAULT
         val skijaFont = org.jetbrains.skija.Font(typeface.skijaTypeface, paint.textSize)
-        val buffer = skijaFont.hbFont.shape(text.toString(), org.jetbrains.skija.FontFeature.EMPTY)
-        skijaCanvas!!.drawTextBuffer(buffer, x, y, skijaFont.skFont, paint.skijaPaint)
+        skijaCanvas!!.drawString(text.substring(start, end), x, y, skijaFont, paint.skijaPaint)
     }
 
     fun drawText(
@@ -131,8 +130,8 @@ public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas?) {
         ry: Float,
         paint: android.graphics.Paint
     ) {
-        val skijaRoundedRect = RoundedRect.makeLTRB(left, top, right, bottom, rx, ry)
-        skijaCanvas!!.drawRoundedRect(skijaRoundedRect, paint.skijaPaint)
+        val skijaRoundedRect = RRect.makeLTRB(left, top, right, bottom, rx, ry)
+        skijaCanvas!!.drawRRect(skijaRoundedRect, paint.skijaPaint)
     }
 
     fun drawPath(path: Path, paint: Paint) {

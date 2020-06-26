@@ -35,8 +35,11 @@ import org.jetbrains.skija.BackendRenderTarget
 import org.jetbrains.skija.Canvas
 import org.jetbrains.skija.ColorSpace
 import org.jetbrains.skija.Context
-import org.jetbrains.skija.JNI
+import org.jetbrains.skija.FramebufferFormat
+import org.jetbrains.skija.Library
 import org.jetbrains.skija.Surface
+import org.jetbrains.skija.SurfaceColorFormat
+import org.jetbrains.skija.SurfaceOrigin
 
 private class SkijaState {
     var context: Context? = null
@@ -80,7 +83,7 @@ class SkiaWindow(
     @OptIn(androidx.ui.text.platform.InternalPlatformTextApi::class)
     companion object {
         init {
-            JNI.loadLibrary("/", "skija")
+            Library.load("/", "skija")
             // Until https://github.com/Kotlin/kotlinx.coroutines/issues/2039 is resolved
             // we have to set this property manually for coroutines to work.
             System.getProperties().setProperty("kotlinx.coroutines.fast.service.loader", "false")
@@ -206,19 +209,19 @@ class SkiaWindow(
             val intBuf1 = IntBuffer.allocate(1)
             glCanvas.gl.glGetIntegerv(GL.GL_DRAW_FRAMEBUFFER_BINDING, intBuf1)
             val fbId = intBuf1[0]
-            renderTarget = BackendRenderTarget.newGL(
+            renderTarget = BackendRenderTarget.makeGL(
                 (width * dpiX).toInt(),
                 (height * dpiY).toInt(),
                 0,
                 8,
                 fbId,
-                BackendRenderTarget.FramebufferFormat.GR_GL_RGBA8
+                FramebufferFormat.GR_GL_RGBA8
             )
             surface = Surface.makeFromBackendRenderTarget(
                 context,
                 renderTarget,
-                Surface.Origin.BOTTOM_LEFT,
-                Surface.ColorType.RGBA_8888,
+                SurfaceOrigin.BOTTOM_LEFT,
+                SurfaceColorFormat.RGBA_8888,
                 ColorSpace.getSRGB()
             )
             canvas = surface!!.canvas
