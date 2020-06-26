@@ -22,6 +22,8 @@ import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.window.WindowBackend
 import androidx.window.sample.backend.MidScreenFoldBackend
+import androidx.window.sample.backend.MidScreenFoldBackend.FoldAxis.LONG_DIMENSION
+import androidx.window.sample.backend.MidScreenFoldBackend.FoldAxis.SHORT_DIMENSION
 import java.util.concurrent.Executor
 
 /**
@@ -36,7 +38,8 @@ open class BaseSampleActivity : AppCompatActivity() {
         const val BACKEND_TYPE_EXTRA = "backend_type"
 
         const val BACKEND_TYPE_DEVICE_DEFAULT = 0
-        const val BACKEND_TYPE_MID_SCREEN_FOLD = 1
+        const val BACKEND_TYPE_SHORT_DIMENSION_FOLD = 1
+        const val BACKEND_TYPE_LONG_DIMENSION_FOLD = 2
     }
 
     private val handler = Handler(Looper.getMainLooper())
@@ -44,7 +47,8 @@ open class BaseSampleActivity : AppCompatActivity() {
 
     fun getTestBackend(): WindowBackend? {
         return when (intent.getIntExtra(BACKEND_TYPE_EXTRA, BACKEND_TYPE_DEVICE_DEFAULT)) {
-            BACKEND_TYPE_MID_SCREEN_FOLD -> MidScreenFoldBackend()
+            BACKEND_TYPE_SHORT_DIMENSION_FOLD -> MidScreenFoldBackend(SHORT_DIMENSION)
+            BACKEND_TYPE_LONG_DIMENSION_FOLD -> MidScreenFoldBackend(LONG_DIMENSION)
             else -> null
         }
     }
