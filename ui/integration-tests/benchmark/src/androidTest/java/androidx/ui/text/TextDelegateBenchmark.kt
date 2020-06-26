@@ -16,9 +16,12 @@
 
 package androidx.ui.text
 
+import android.content.Context
+import android.util.TypedValue
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.benchmark.measureRepeatedRecordingCanvas
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
@@ -32,6 +35,7 @@ import androidx.ui.integration.test.cartesian
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.sp
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,6 +78,20 @@ class TextDelegateBenchmark(
         }
     }
 
+    lateinit var instrumentationContext: Context
+    // Width is initialized in setup().
+    private var width: Int = 0
+    private val fontSize = textBenchmarkTestRule.fontSizeSp.sp
+    @Before
+    fun setup() {
+        instrumentationContext = InstrumentationRegistry.getInstrumentation().context
+        width = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            textBenchmarkTestRule.widthDp,
+            instrumentationContext.resources.displayMetrics
+        ).roundToInt()
+    }
+
     private fun textDelegate(textGenerator: RandomTextGenerator): TextDelegate {
         val text = textGenerator.nextAnnotatedString(
             length = textLength,
@@ -83,8 +101,8 @@ class TextDelegateBenchmark(
 
         return TextDelegate(
             text = text,
-            density = Density(density = 1f),
-            style = TextStyle(fontSize = 12.sp),
+            density = Density(density = instrumentationContext.resources.displayMetrics.density),
+            style = TextStyle(fontSize = fontSize),
             resourceLoader = resourceLoader
         )
     }
@@ -104,7 +122,7 @@ class TextDelegateBenchmark(
                 TextDelegate(
                     text = text,
                     density = Density(density = 1f),
-                    style = TextStyle(fontSize = 12.sp),
+                    style = TextStyle(fontSize = fontSize),
                     resourceLoader = resourceLoader
                 )
             }
@@ -117,15 +135,11 @@ class TextDelegateBenchmark(
     @Test
     fun first_layout() {
         textBenchmarkTestRule.generator { textGenerator ->
-            val maxWidth = textDelegate(textGenerator).let {
-                it.layout(Constraints(), layoutDirection)
-                (it.maxIntrinsicWidth / 4f).toIntPx()
-            }
             benchmarkRule.measureRepeated {
                 val textDelegate = runWithTimingDisabled {
                     textDelegate(textGenerator)
                 }
-                textDelegate.layout(Constraints(maxWidth = maxWidth), layoutDirection)
+                textDelegate.layout(Constraints(maxWidth = width), layoutDirection)
             }
         }
     }
@@ -136,10 +150,6 @@ class TextDelegateBenchmark(
     @Test
     fun layout() {
         textBenchmarkTestRule.generator { textGenerator ->
-            val width = textDelegate(textGenerator).let {
-                it.layout(Constraints(), layoutDirection)
-                (it.maxIntrinsicWidth / 4f).toIntPx()
-            }
             val textDelegate = textDelegate(textGenerator)
 
             val offset = 20
@@ -158,15 +168,11 @@ class TextDelegateBenchmark(
     @Test
     fun first_paint() {
         textBenchmarkTestRule.generator { textGenerator ->
-            val maxWidth = textDelegate(textGenerator).let {
-                it.layout(Constraints(), layoutDirection)
-                (it.maxIntrinsicWidth / 4f).toIntPx()
-            }
             benchmarkRule.measureRepeated {
                 val (canvas, layoutResult) = runWithTimingDisabled {
                     textDelegate(textGenerator).let {
                         val layoutResult = it.layout(
-                            Constraints(maxWidth = maxWidth),
+                            Constraints(maxWidth = width),
                             layoutDirection
                         )
                         val canvas = Canvas(
@@ -189,13 +195,9 @@ class TextDelegateBenchmark(
     @Test
     fun paint() {
         textBenchmarkTestRule.generator { textGenerator ->
-            val maxWidth = textDelegate(textGenerator).let {
-                it.layout(Constraints(), layoutDirection)
-                (it.maxIntrinsicWidth / 4f).toIntPx()
-            }
             val textDelegate = textDelegate(textGenerator)
             val layoutResult = textDelegate.layout(
-                Constraints(maxWidth = maxWidth),
+                Constraints(maxWidth = width),
                 layoutDirection
             )
             val canvas = Canvas(
@@ -214,13 +216,9 @@ class TextDelegateBenchmark(
     @Test
     fun paintBackground() {
         textBenchmarkTestRule.generator { textGenerator ->
-            val maxWidth = textDelegate(textGenerator).let {
-                it.layout(Constraints(), layoutDirection)
-                (it.maxIntrinsicWidth / 4f).toIntPx()
-            }
             val textDelegate = textDelegate(textGenerator)
             val layoutResult = textDelegate.layout(
-                Constraints(maxWidth = maxWidth),
+                Constraints(maxWidth = width),
                 layoutDirection
             )
             val paint = Paint().also { it.color = Color.Yellow }

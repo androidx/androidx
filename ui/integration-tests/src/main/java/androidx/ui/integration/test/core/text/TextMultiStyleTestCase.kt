@@ -27,14 +27,16 @@ import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextStyle
-import androidx.ui.unit.dp
-import androidx.ui.unit.sp
+import androidx.ui.unit.Dp
+import androidx.ui.unit.TextUnit
 
 /**
  * The benchmark test case for [Text], where the input is an [AnnotatedString] with [TextStyle]s
  * on it.
  */
 class TextMultiStyleTestCase(
+    private val width: Dp,
+    private val fontSize: TextUnit,
     textLength: Int,
     styleCount: Int,
     randomTextGenerator: RandomTextGenerator
@@ -53,8 +55,8 @@ class TextMultiStyleTestCase(
     @Composable
     override fun emitContent() {
         Text(
-            text = text, color = Color.Black, fontSize = 8.sp,
-            modifier = Modifier.wrapContentSize(Alignment.Center).preferredWidth(160.dp)
+            text = text, color = Color.Black, fontSize = fontSize,
+            modifier = Modifier.wrapContentSize(Alignment.Center).preferredWidth(width)
         )
     }
 }
