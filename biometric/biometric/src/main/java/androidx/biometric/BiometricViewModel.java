@@ -42,6 +42,8 @@ import java.util.concurrent.Executor;
 public class BiometricViewModel extends ViewModel {
     /**
      * The executor that will run authentication callback methods.
+     *
+     * <p>If unset, callbacks are invoked on the main thread with {@link Looper#getMainLooper()}.
      */
     @Nullable private Executor mClientExecutor;
 

@@ -18,8 +18,6 @@ package com.example.android.biometric;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -31,8 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
-
-import java.util.concurrent.Executor;
 
 /**
  * Controller for the biometric prompt demo app. Coordinates the logic of initializing buttons,
@@ -60,8 +56,6 @@ abstract class BiometricPromptDemoController {
     private static final int MODE_CANCEL_AFTER_THREE_FAILURES = 3;
 
     BiometricPrompt mBiometricPrompt;
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
-    final Executor mExecutor = mHandler::post;
     private int mCounter;
 
     private final Button mCanAuthenticateButton;
