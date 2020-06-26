@@ -82,8 +82,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     private val pageEventCh = Channel<PageEvent<Value>>(BUFFERED)
     private val stateLock = Mutex()
     private val state = PagerState<Key, Value>(
-        pageSize = config.pageSize,
-        maxSize = config.maxSize,
+        config = config,
         hasRemoteState = remoteMediatorAccessor != null
     )
 
@@ -339,7 +338,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 if (insertApplied) {
                     stateLock.withLock {
                         with(state) {
-                            pageEventCh.send(result.toPageEvent(REFRESH, config.enablePlaceholders))
+                            pageEventCh.send(result.toPageEvent(REFRESH))
                         }
                     }
                 }
@@ -459,7 +458,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             }
 
             stateLock.withLock {
-                state.dropInfo(dropType, generationalHint.hint, config.prefetchDistance)
+                state.dropInfo(dropType, generationalHint.hint)
                     ?.let { info ->
                         state.drop(dropType, info.pageCount, info.placeholdersRemaining)
                         pageEventCh.send(Drop(dropType, info.pageCount, info.placeholdersRemaining))
@@ -494,7 +493,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
                 // Send page event for successful insert, now that PagerState has been updated.
                 val pageEvent = with(state) {
-                    result.toPageEvent(loadType, config.enablePlaceholders)
+                    result.toPageEvent(loadType)
                 }
 
                 pageEventCh.send(pageEvent)
@@ -574,7 +573,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
                         // Push an empty insert event to update LoadState.
                         val pageEvent = with(state) {
-                            emptyPage.toPageEvent(loadType, config.enablePlaceholders)
+                            emptyPage.toPageEvent(loadType)
                         }
 
                         pageEventCh.send(pageEvent)
