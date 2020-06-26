@@ -449,6 +449,70 @@ public class BiometricPrompt implements BiometricConstants {
      * {@code authenticate()} and persists across device configuration changes by default.
      *
      * <p>If authentication is in progress, calling this constructor to recreate the prompt will
+     * also update the {@link AuthenticationCallback} for the current session. Thus, this method
+     * should be called by the client activity each time the configuration changes
+     * (e.g. in {@code onCreate()}).
+     *
+     * @param activity The activity of the client application that will host the prompt.
+     * @param callback The object that will receive and process authentication events.
+     *
+     * @see #BiometricPrompt(Fragment, AuthenticationCallback)
+     * @see #BiometricPrompt(FragmentActivity, Executor, AuthenticationCallback)
+     * @see #BiometricPrompt(Fragment, Executor, AuthenticationCallback)
+     */
+    @SuppressWarnings("ConstantConditions")
+    public BiometricPrompt(
+            @NonNull FragmentActivity activity, @NonNull AuthenticationCallback callback) {
+
+        if (activity == null) {
+            throw new IllegalArgumentException("FragmentActivity must not be null.");
+        }
+        if (callback == null) {
+            throw new IllegalArgumentException("AuthenticationCallback must not be null.");
+        }
+
+        final FragmentManager fragmentManager = activity.getSupportFragmentManager();
+        init(activity, fragmentManager, null /* executor */, callback);
+    }
+
+    /**
+     * Constructs a {@link BiometricPrompt}, which can be used to prompt the user to authenticate
+     * with a biometric such as fingerprint or face. The prompt can be shown to the user by calling
+     * {@code authenticate()} and persists across device configuration changes by default.
+     *
+     * <p>If authentication is in progress, calling this constructor to recreate the prompt will
+     * also update the {@link AuthenticationCallback} for the current session. Thus, this method
+     * should be called by the client fragment each time the configuration changes
+     * (e.g. in {@code onCreate()}).
+     *
+     * @param fragment The fragment of the client application that will host the prompt.
+     * @param callback The object that will receive and process authentication events.
+     *
+     * @see #BiometricPrompt(FragmentActivity, AuthenticationCallback)
+     * @see #BiometricPrompt(FragmentActivity, Executor, AuthenticationCallback)
+     * @see #BiometricPrompt(Fragment, Executor, AuthenticationCallback)
+     */
+    @SuppressWarnings("ConstantConditions")
+    public BiometricPrompt(@NonNull Fragment fragment, @NonNull AuthenticationCallback callback) {
+
+        if (fragment == null) {
+            throw new IllegalArgumentException("Fragment must not be null.");
+        }
+        if (callback == null) {
+            throw new IllegalArgumentException("AuthenticationCallback must not be null.");
+        }
+
+        final FragmentActivity activity = fragment.getActivity();
+        final FragmentManager fragmentManager = fragment.getChildFragmentManager();
+        init(activity, fragmentManager, null /* executor */, callback);
+    }
+
+    /**
+     * Constructs a {@link BiometricPrompt}, which can be used to prompt the user to authenticate
+     * with a biometric such as fingerprint or face. The prompt can be shown to the user by calling
+     * {@code authenticate()} and persists across device configuration changes by default.
+     *
+     * <p>If authentication is in progress, calling this constructor to recreate the prompt will
      * also update the {@link Executor} and {@link AuthenticationCallback} for the current session.
      * Thus, this method should be called by the client activity each time the configuration changes
      * (e.g. in {@code onCreate()}).
@@ -457,6 +521,8 @@ public class BiometricPrompt implements BiometricConstants {
      * @param executor The executor that will be used to run {@link AuthenticationCallback} methods.
      * @param callback The object that will receive and process authentication events.
      *
+     * @see #BiometricPrompt(FragmentActivity, AuthenticationCallback)
+     * @see #BiometricPrompt(Fragment, AuthenticationCallback)
      * @see #BiometricPrompt(Fragment, Executor, AuthenticationCallback)
      */
     @SuppressLint("LambdaLast")
@@ -467,16 +533,17 @@ public class BiometricPrompt implements BiometricConstants {
             @NonNull AuthenticationCallback callback) {
 
         if (activity == null) {
-            throw new IllegalArgumentException("FragmentActivity must not be null");
+            throw new IllegalArgumentException("FragmentActivity must not be null.");
         }
         if (executor == null) {
-            throw new IllegalArgumentException("Executor must not be null");
+            throw new IllegalArgumentException("Executor must not be null.");
         }
         if (callback == null) {
-            throw new IllegalArgumentException("AuthenticationCallback must not be null");
+            throw new IllegalArgumentException("AuthenticationCallback must not be null.");
         }
 
-        init(activity, activity.getSupportFragmentManager(), executor, callback);
+        final FragmentManager fragmentManager = activity.getSupportFragmentManager();
+        init(activity, fragmentManager, executor, callback);
     }
 
     /**
@@ -493,6 +560,8 @@ public class BiometricPrompt implements BiometricConstants {
      * @param executor The executor that will be used to run {@link AuthenticationCallback} methods.
      * @param callback The object that will receive and process authentication events.
      *
+     * @see #BiometricPrompt(FragmentActivity, AuthenticationCallback)
+     * @see #BiometricPrompt(Fragment, AuthenticationCallback)
      * @see #BiometricPrompt(FragmentActivity, Executor, AuthenticationCallback)
      */
     @SuppressLint("LambdaLast")
@@ -503,16 +572,18 @@ public class BiometricPrompt implements BiometricConstants {
             @NonNull AuthenticationCallback callback) {
 
         if (fragment == null) {
-            throw new IllegalArgumentException("Fragment must not be null");
+            throw new IllegalArgumentException("Fragment must not be null.");
         }
         if (executor == null) {
-            throw new IllegalArgumentException("Executor must not be null");
+            throw new IllegalArgumentException("Executor must not be null.");
         }
         if (callback == null) {
-            throw new IllegalArgumentException("AuthenticationCallback must not be null");
+            throw new IllegalArgumentException("AuthenticationCallback must not be null.");
         }
 
-        init(fragment.getActivity(), fragment.getChildFragmentManager(), executor, callback);
+        final FragmentActivity activity = fragment.getActivity();
+        final FragmentManager fragmentManager = fragment.getChildFragmentManager();
+        init(activity, fragmentManager, executor, callback);
     }
 
     /**
@@ -521,12 +592,13 @@ public class BiometricPrompt implements BiometricConstants {
      * @param activity The client activity that will host the prompt.
      * @param fragmentManager The fragment manager that will be used to attach the prompt.
      * @param executor The executor that will be used to run {@link AuthenticationCallback} methods.
+     *                 If this argument is {@link null}, a default executor will be used.
      * @param callback The object that will receive and process authentication events.
      */
     private void init(
             @Nullable FragmentActivity activity,
             @Nullable FragmentManager fragmentManager,
-            @NonNull Executor executor,
+            @Nullable Executor executor,
             @NonNull AuthenticationCallback callback) {
 
         mClientFragmentManager = fragmentManager;
@@ -534,7 +606,9 @@ public class BiometricPrompt implements BiometricConstants {
         if (activity != null) {
             final BiometricViewModel viewModel =
                     new ViewModelProvider(activity).get(BiometricViewModel.class);
-            viewModel.setClientExecutor(executor);
+            if (executor != null) {
+                viewModel.setClientExecutor(executor);
+            }
             viewModel.setClientCallback(callback);
         }
     }
