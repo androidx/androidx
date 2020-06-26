@@ -143,7 +143,7 @@ class PointerInputEventProcessorTest {
         verify(
             pointerInputFilter,
             times(PointerEventPass.values().size * expectedChanges.size)
-        ).onPointerInput(any(), any(), any())
+        ).onPointerEvent(any(), any(), any())
 
         // Verify call values
         inOrder(pointerInputFilter) {
@@ -208,7 +208,7 @@ class PointerInputEventProcessorTest {
         // Assert
 
         // Verify call count
-        verify(pointerInputFilter, times(expectedChanges.size)).onPointerInput(
+        verify(pointerInputFilter, times(expectedChanges.size)).onPointerEvent(
             any(),
             eq(PointerEventPass.InitialDown),
             any()
@@ -261,7 +261,7 @@ class PointerInputEventProcessorTest {
 
         // Assert
 
-        verify(pointerInputFilter, never()).onPointerInput(any(), any(), any())
+        verify(pointerInputFilter, never()).onPointerEvent(any(), any(), any())
     }
 
     @Test
@@ -330,51 +330,51 @@ class PointerInputEventProcessorTest {
 
         when (numberOfChildrenHit) {
             3 -> {
-                verify(parentPointerInputFilter).onPointerInput(
+                verify(parentPointerInputFilter).onPointerEvent(
                     any(),
                     eq(PointerEventPass.InitialDown),
                     any()
                 )
-                verify(middlePointerInputFilter).onPointerInput(
+                verify(middlePointerInputFilter).onPointerEvent(
                     any(),
                     eq(PointerEventPass.InitialDown),
                     any()
                 )
-                verify(childPointerInputFilter).onPointerInput(
+                verify(childPointerInputFilter).onPointerEvent(
                     any(),
                     eq(PointerEventPass.InitialDown),
                     any()
                 )
             }
             2 -> {
-                verify(parentPointerInputFilter).onPointerInput(
+                verify(parentPointerInputFilter).onPointerEvent(
                     any(),
                     eq(PointerEventPass.InitialDown),
                     any()
                 )
-                verify(middlePointerInputFilter).onPointerInput(
+                verify(middlePointerInputFilter).onPointerEvent(
                     any(),
                     eq(PointerEventPass.InitialDown),
                     any()
                 )
-                verify(childPointerInputFilter, never()).onPointerInput(
+                verify(childPointerInputFilter, never()).onPointerEvent(
                     any(),
                     any(),
                     any()
                 )
             }
             1 -> {
-                verify(parentPointerInputFilter).onPointerInput(
+                verify(parentPointerInputFilter).onPointerEvent(
                     any(),
                     eq(PointerEventPass.InitialDown),
                     any()
                 )
-                verify(middlePointerInputFilter, never()).onPointerInput(
+                verify(middlePointerInputFilter, never()).onPointerEvent(
                     any(),
                     any(),
                     any()
                 )
-                verify(childPointerInputFilter, never()).onPointerInput(
+                verify(childPointerInputFilter, never()).onPointerEvent(
                     any(),
                     any(),
                     any()
@@ -606,7 +606,7 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         pointerInputHandlers.forEach {
-            verify(it, times(PointerEventPass.values().size)).onPointerInput(
+            verify(it, times(PointerEventPass.values().size)).onPointerEvent(
                 any(),
                 any(),
                 any()
@@ -705,9 +705,9 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(childPointerInputFilter1, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
         verify(childPointerInputFilter2, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
 
         // Verify call values
         for (pointerEventPass in PointerEventPass.values()) {
@@ -828,11 +828,11 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(childPointerInputFilter1, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
         verify(childPointerInputFilter2, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
         verify(childPointerInputFilter3, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
 
         // Verify call values
         for (pointerEventPass in PointerEventPass.values()) {
@@ -946,9 +946,9 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(childPointerInputFilter1, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
         verify(childPointerInputFilter2, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
 
         // Verify call values
         for (pointerEventPass in PointerEventPass.values()) {
@@ -1051,9 +1051,9 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(childPointerInputFilter1, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
         verify(childPointerInputFilter2, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
 
         // Verify call values
         for (pointerEventPass in PointerEventPass.values()) {
@@ -1353,7 +1353,7 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(singlePointerInputFilter, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
 
         // Verify call values
         PointerEventPass.values().forEach { pointerEventPass ->
@@ -1413,11 +1413,11 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(pointerInputFilter1, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
         verify(pointerInputFilter2, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
         verify(pointerInputFilter3, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
 
         // Verify call values
         for (pointerEventPass in PointerEventPass.values()) {
@@ -1493,7 +1493,7 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(pointerInputFilter, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
 
         // Verify call values
         for (pointerEventPass in PointerEventPass.values()) {
@@ -1586,13 +1586,13 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(pointerInputFilter1, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
         verify(pointerInputFilter2, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
         verify(pointerInputFilter3, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
         verify(pointerInputFilter4, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
         PointerEventPass.values()
 
         // Verify call values
@@ -1657,8 +1657,8 @@ class PointerInputEventProcessorTest {
         pointerInputEventProcessor.process(down)
 
         // Assert
-        verify(pointerInputFilter2, times(5)).onPointerInput(any(), any(), any())
-        verify(pointerInputFilter1, never()).onPointerInput(any(), any(), any())
+        verify(pointerInputFilter2, times(5)).onPointerEvent(any(), any(), any())
+        verify(pointerInputFilter1, never()).onPointerEvent(any(), any(), any())
     }
 
     @Test
@@ -1683,7 +1683,7 @@ class PointerInputEventProcessorTest {
         pointerInputEventProcessor.process(down)
 
         // Assert
-        verify(pointerInputFilter1, never()).onPointerInput(any(), any(), any())
+        verify(pointerInputFilter1, never()).onPointerEvent(any(), any(), any())
     }
 
     // Cancel Handlers
@@ -1736,7 +1736,7 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(pointerInputFilter, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
 
         // Verify call values
         inOrder(pointerInputFilter) {
@@ -1846,7 +1846,7 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(pointerInputFilter, times(PointerEventPass.values().size * 2))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
 
         // Verify call values
         inOrder(pointerInputFilter) {
@@ -1942,9 +1942,9 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(pointerInputFilter1, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
         verify(pointerInputFilter2, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
 
         // Verify call values
         inOrder(pointerInputFilter1) {
@@ -2036,7 +2036,7 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(pointerInputFilter, times(PointerEventPass.values().size * 2))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
 
         // Verify call values
         inOrder(pointerInputFilter) {
@@ -2100,7 +2100,7 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(pointerInputFilter, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
 
         // Verify call values
         inOrder(pointerInputFilter) {
@@ -2180,7 +2180,7 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(pointerInputFilter, times(PointerEventPass.values().size * 2))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
 
         // Verify call values
         inOrder(pointerInputFilter) {
@@ -2252,9 +2252,9 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(parentPointerInputFilter, times(PointerEventPass.values().size * 2))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
         verify(childPointerInputFilter, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
 
         // Verify call values
         PointerEventPass.values().forEach {
@@ -2358,9 +2358,9 @@ class PointerInputEventProcessorTest {
 
         // Verify call count
         verify(parentPointerInputFilter, times(PointerEventPass.values().size * 2))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
         verify(childPointerInputFilter, times(PointerEventPass.values().size))
-            .onPointerInput(any(), any(), any())
+            .onPointerEvent(any(), any(), any())
 
         // Verify call values
         PointerEventPass.values().forEach {

@@ -23,6 +23,28 @@ import androidx.ui.unit.IntSize
 import androidx.ui.unit.Uptime
 
 /**
+ * Represents a pointer input event internally.
+ *
+ * [PointerInputChange]s are stored in a map so that as this internal event traverses the tree,
+ * it is efficient to split the changes between those that are relevant to the sub tree and those
+ * that are not.
+ */
+internal data class InternalPointerEvent(
+    var changes: MutableMap<PointerId, PointerInputChange>
+)
+
+/**
+ * Describes a pointer input change event that has occurred at a particular point in time.
+ *
+ * Right now this just contains a list of [PointerInputChange]s but as refactoring continues,
+ * will contain more data that is global to the change, such as the current [Uptime] and the
+ * [Uptime] of the previous [PointerEvent].
+ */
+data class PointerEvent(
+    val changes: List<PointerInputChange>
+)
+
+/**
  * Describes a change that has occurred for a particular pointer, as well as how much of the change
  * has been consumed (meaning, used by a node in the UI).
  *
@@ -60,7 +82,8 @@ data class PointerInputChange(
  */
 inline class PointerId(val value: Long)
 
-// TODO(shepshapard): Uptime will be an Inline Class, so it should not be nullable.
+// TODO(shepshapard): Uptime should be removed for each pointer, because each pointer has the
+//  same uptime for a given event.
 /**
  * Data associated with a pointer.
  *

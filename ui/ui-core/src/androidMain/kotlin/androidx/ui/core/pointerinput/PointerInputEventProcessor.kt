@@ -17,6 +17,7 @@
 package androidx.ui.core.pointerinput
 
 import androidx.ui.core.ConsumedData
+import androidx.ui.core.InternalPointerEvent
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
@@ -24,8 +25,6 @@ import androidx.ui.core.PointerInputData
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
-import androidx.ui.unit.Uptime
-import androidx.ui.util.fastAny
 import androidx.ui.util.fastForEach
 
 /**
@@ -49,20 +48,25 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
     fun process(pointerEvent: PointerInputEvent): ProcessResult {
 
         // Gets a new PointerInputChangeEvent with the PointerInputEvent.
-        val pointerInputChangeEvent =
+        val internalPointerEvent =
             pointerInputChangeEventProducer.produce(pointerEvent)
 
+        // TODO(shepshapard): Create fast forEach for maps?
+
         // Add new hit paths to the tracker due to down events.
-        pointerInputChangeEvent.changes.filter { it.changedToDownIgnoreConsumed() }.fastForEach {
-            val hitResult: MutableList<PointerInputFilter> = mutableListOf()
-            root.hitTest(
-                it.current.position!!,
-                hitResult
-            )
-            if (hitResult.isNotEmpty()) {
-                hitPathTracker.addHitPath(it.id, hitResult)
+        internalPointerEvent
+            .changes
+            .filter { (_, pointerInputChange) -> pointerInputChange.changedToDownIgnoreConsumed() }
+            .forEach { (_, pointerInputChange) ->
+                val hitResult: MutableList<PointerInputFilter> = mutableListOf()
+                root.hitTest(
+                    pointerInputChange.current.position!!,
+                    hitResult
+                )
+                if (hitResult.isNotEmpty()) {
+                    hitPathTracker.addHitPath(pointerInputChange.id, hitResult)
+                }
             }
-        }
 
         // Remove [PointerInputFilter]s that are no longer valid and refresh the offset information
         // for those that are.
@@ -70,17 +74,20 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
 
         // Dispatch to PointerInputFilters
         val (resultingChanges, dispatchedToSomething) =
-            hitPathTracker.dispatchChanges(pointerInputChangeEvent.changes)
+            hitPathTracker.dispatchChanges(internalPointerEvent)
 
         // Remove hit paths from the tracker due to up events.
-        pointerInputChangeEvent.changes.filter { it.changedToUpIgnoreConsumed() }.fastForEach {
-            hitPathTracker.removeHitPath(it.id)
-        }
+        internalPointerEvent
+            .changes
+            .filter { (_, pointerInputChange) -> pointerInputChange.changedToUpIgnoreConsumed() }
+            .forEach { (_, pointerInputChange) ->
+                hitPathTracker.removeHitPath(pointerInputChange.id)
+            }
 
         // TODO(shepshapard): Don't allocate on every call.
         return ProcessResult(
             dispatchedToSomething,
-            resultingChanges.fastAny { it.anyPositionChangeConsumed() })
+            resultingChanges.changes.any { (_, value) -> value.anyPositionChangeConsumed() })
     }
 
     /**
@@ -98,33 +105,32 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
 }
 
 /**
- * Produces [PointerInputChangeEvent]s by tracking changes between [PointerInputEvent]s
+ * Produces [InternalPointerEvent]s by tracking changes between [PointerInputEvent]s
  */
 private class PointerInputChangeEventProducer {
     private val previousPointerInputData: MutableMap<PointerId, PointerInputData> = mutableMapOf()
 
     /**
-     * Produces [PointerInputChangeEvent]s by tracking changes between [PointerInputEvent]s
+     * Produces [InternalPointerEvent]s by tracking changes between [PointerInputEvent]s
      */
-    internal fun produce(pointerEvent: PointerInputEvent):
-            PointerInputChangeEvent {
-        val changes: MutableList<PointerInputChange> = mutableListOf()
-        pointerEvent.pointers.fastForEach {
-            changes.add(
+    internal fun produce(pointerInputEvent: PointerInputEvent):
+            InternalPointerEvent {
+        val changes: MutableMap<PointerId, PointerInputChange> = mutableMapOf()
+        pointerInputEvent.pointers.fastForEach {
+            changes[it.id] =
                 PointerInputChange(
                     it.id,
                     it.pointerInputData,
                     previousPointerInputData[it.id] ?: PointerInputData(),
                     ConsumedData()
                 )
-            )
             if (it.pointerInputData.down) {
                 previousPointerInputData[it.id] = it.pointerInputData
             } else {
                 previousPointerInputData.remove(it.id)
             }
         }
-        return PointerInputChangeEvent(pointerEvent.uptime, changes)
+        return InternalPointerEvent(changes)
     }
 
     /**
@@ -134,14 +140,6 @@ private class PointerInputChangeEventProducer {
         previousPointerInputData.clear()
     }
 }
-
-// TODO(shepshapard): The uptime property probably doesn't need to exist (and therefore, nor does
-// this class, but going to wait to refactor it out till after things like API review to avoid
-// thrashing.
-private data class PointerInputChangeEvent(
-    val uptime: Uptime,
-    val changes: List<PointerInputChange>
-)
 
 /**
  * The result of a call to [PointerInputEventProcessor.process].
