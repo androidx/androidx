@@ -1099,64 +1099,67 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onTracksChanged() throws InterruptedException {
-        final List<SessionPlayer.TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
+        List<SessionPlayer.TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
+        AtomicReference<List<SessionPlayer.TrackInfo>> returnedTracksRef = new AtomicReference<>();
 
-        final CountDownLatch latch = new CountDownLatch(1);
-        final MediaController.ControllerCallback callback =
+        CountDownLatch latch = new CountDownLatch(1);
+        MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
                     public void onTracksChanged(@NonNull MediaController controller,
                             @NonNull List<TrackInfo> tracks) {
-                        assertEquals(testTracks, tracks);
+                        returnedTracksRef.set(tracks);
                         latch.countDown();
                     }
                 };
-        MediaController controller = createController(mRemoteSession2.getToken(), true, null,
-                callback);
+        createController(mRemoteSession2.getToken(), true, null, callback);
         mRemoteSession2.getMockPlayer().notifyTracksChanged(testTracks);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(testTracks, returnedTracksRef.get());
     }
 
     @Test
     public void onTrackSelected() throws InterruptedException {
-        final SessionPlayer.TrackInfo testTrack = MediaTestUtils.createTrackInfo(1,
+        SessionPlayer.TrackInfo testTrack = MediaTestUtils.createTrackInfo(1,
                 SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
+        AtomicReference<SessionPlayer.TrackInfo> returnedTrackRef = new AtomicReference<>();
 
-        final CountDownLatch latch = new CountDownLatch(1);
-        final MediaController.ControllerCallback callback =
+        CountDownLatch latch = new CountDownLatch(1);
+        MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
                     public void onTrackSelected(@NonNull MediaController controller,
                             @NonNull SessionPlayer.TrackInfo trackInfo) {
-                        assertEquals(testTrack, trackInfo);
+                        returnedTrackRef.set(trackInfo);
                         latch.countDown();
                     }
                 };
-        MediaController controller = createController(mRemoteSession2.getToken(), true, null,
-                callback);
+        createController(mRemoteSession2.getToken(), true, null, callback);
         mRemoteSession2.getMockPlayer().notifyTrackSelected(testTrack);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(testTrack, returnedTrackRef.get());
     }
 
     @Test
     public void onTrackDeselected() throws InterruptedException {
-        final SessionPlayer.TrackInfo testTrack = MediaTestUtils.createTrackInfo(1,
+        SessionPlayer.TrackInfo testTrack = MediaTestUtils.createTrackInfo(1,
                 SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
+        AtomicReference<SessionPlayer.TrackInfo> returnedTrackRef = new AtomicReference<>();
 
-        final CountDownLatch latch = new CountDownLatch(1);
-        final MediaController.ControllerCallback callback =
+        CountDownLatch latch = new CountDownLatch(1);
+        MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
                     public void onTrackDeselected(@NonNull MediaController controller,
                             @NonNull SessionPlayer.TrackInfo trackInfo) {
-                        assertEquals(testTrack, trackInfo);
+                        returnedTrackRef.set(trackInfo);
                         latch.countDown();
                     }
                 };
-        MediaController controller = createController(mRemoteSession2.getToken(), true, null,
-                callback);
+        createController(mRemoteSession2.getToken(), true, null, callback);
         mRemoteSession2.getMockPlayer().notifyTrackDeselected(testTrack);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(testTrack, returnedTrackRef.get());
     }
 
     @Test
