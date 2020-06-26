@@ -16,6 +16,7 @@
 
 package androidx.ui.graphics.vector
 
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
@@ -81,18 +82,14 @@ sealed class VNode {
 }
 
 internal class VectorComponent(
-    var viewportWidth: Float,
-    var viewportHeight: Float,
-    var defaultWidth: Float,
-    var defaultHeight: Float,
+    viewportWidth: Float,
+    viewportHeight: Float,
     val name: String = ""
 ) : VNode() {
 
     val root = GroupComponent(this@VectorComponent.name).apply {
         pivotX = 0.0f
         pivotY = 0.0f
-        scaleX = defaultWidth / viewportWidth
-        scaleY = defaultHeight / viewportHeight
         invalidateListener = {
             isDirty = true
         }
@@ -102,8 +99,23 @@ internal class VectorComponent(
 
     private val cacheDrawScope = DrawCache()
 
-    val size: Int
-        get() = root.size
+    var viewportWidth: Float = viewportWidth
+        set(value) {
+            if (field != value) {
+                field = value
+                isDirty = true
+            }
+        }
+
+    var viewportHeight: Float = viewportHeight
+        set(value) {
+            if (field != value) {
+                field = value
+                isDirty = true
+            }
+        }
+
+    private var previousDrawSize: Size = Size.UnspecifiedSize
 
     /**
      * Cached lambda used to avoid allocating the lambda on each draw invocation
@@ -113,14 +125,19 @@ internal class VectorComponent(
     }
 
     fun DrawScope.draw(alpha: Float, colorFilter: ColorFilter?) {
-        if (isDirty) {
+        // If the content of the vector has changed, or we are drawing a different size
+        // update the cached image to ensure we are scaling the vector appropriately
+        if (isDirty || previousDrawSize != size) {
+            root.scaleX = size.width / viewportWidth
+            root.scaleY = size.height / viewportHeight
             cacheDrawScope.drawCachedImage(
-                IntSize(ceil(defaultWidth).toInt(), ceil(defaultHeight).toInt()),
+                IntSize(ceil(size.width).toInt(), ceil(size.height).toInt()),
                 this@draw,
                 layoutDirection,
                 drawVectorBlock
             )
             isDirty = false
+            previousDrawSize = size
         }
         cacheDrawScope.drawInto(this, alpha, colorFilter)
     }
@@ -133,8 +150,6 @@ internal class VectorComponent(
         return buildString {
             append("Params: ")
             append("\tname: ").append(name).append("\n")
-            append("\twidth: ").append(defaultWidth).append("\n")
-            append("\theight: ").append(defaultHeight).append("\n")
             append("\tviewportWidth: ").append(viewportWidth).append("\n")
             append("\tviewportHeight: ").append(viewportHeight).append("\n")
         }
@@ -396,7 +411,7 @@ internal data class GroupComponent(val name: String = DefaultGroupName) : VNode(
     }
 
     fun insertAt(index: Int, instance: VNode) {
-        if (index < size) {
+        if (index < numChildren) {
             children[index] = instance
         } else {
             children.add(instance)
@@ -458,7 +473,7 @@ internal data class GroupComponent(val name: String = DefaultGroupName) : VNode(
         }
     }
 
-    val size: Int
+    val numChildren: Int
         get() = children.size
 
     override fun toString(): String {

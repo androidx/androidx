@@ -27,20 +27,30 @@ import androidx.ui.core.test.FixedSize
 import androidx.ui.core.test.Padding
 import androidx.ui.core.test.background
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.drawBackground
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.BlendMode
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
+import androidx.ui.graphics.ImageAsset
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.toArgb
+import androidx.ui.graphics.vector.Path
+import androidx.ui.graphics.vector.PathData
+import androidx.ui.graphics.vector.VectorPainter
 import androidx.ui.layout.height
 import androidx.ui.layout.heightIn
 import androidx.ui.layout.ltr
 import androidx.ui.layout.rtl
 import androidx.ui.layout.width
+import androidx.ui.unit.dp
 import androidx.ui.layout.widthIn
 import androidx.ui.layout.wrapContentHeight
 import androidx.ui.test.assertHeightIsEqualTo
@@ -48,7 +58,6 @@ import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findRoot
-import androidx.ui.unit.dp
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -492,6 +501,115 @@ class PainterModifierTest {
         findRoot()
             .assertWidthIsEqualTo(composableWidth.dp)
             .assertHeightIsEqualTo(composableHeight.dp)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testImagePainterScalesContent() {
+        // ImagePainter should handle scaling its content image up to fill the
+        // corresponding content bounds. Because the composable is twice the
+        // height of the image and we are providing ContentScale.FillHeight
+        // the ImagePainter should draw the image with twice its original
+        // height and width centered within the bounds of the composable
+        val boxWidth = 600
+        val boxHeight = 400
+        val srcImage = ImageAsset(100, 200)
+        val canvas = Canvas(srcImage)
+        val paint = Paint().apply { this.color = Color.Red }
+        canvas.drawRect(0f, 0f, 400f, 200f, paint)
+
+        val testTag = "testTag"
+
+        val paintLatch = CountDownLatch(1)
+        rule.setContent {
+            Box(
+                modifier = Modifier
+                    .testTag(testTag)
+                    .drawWithContent {
+                        drawContent()
+                        paintLatch.countDown()
+                    }
+                    .drawBackground(Color.Gray)
+                    .width((boxWidth / DensityAmbient.current.density).dp)
+                    .height((boxHeight / DensityAmbient.current.density).dp)
+                    .paint(ImagePainter(srcImage), contentScale = ContentScale.FillHeight)
+            )
+        }
+
+        obtainScreenshotBitmap(
+            boxWidth,
+            boxHeight
+        ).apply {
+            assertEquals(width, boxWidth)
+            assertEquals(height, boxHeight)
+            assertEquals(Color.Gray.toArgb(), getPixel(boxWidth / 2 - srcImage.width - 5, 0))
+            assertEquals(Color.Gray.toArgb(),
+                getPixel(boxWidth / 2 + srcImage.width + 5, boxHeight - 1))
+            assertEquals(Color.Red.toArgb(), getPixel(boxWidth / 2 - srcImage.width + 5, 0))
+            assertEquals(Color.Red.toArgb(),
+                getPixel(boxWidth / 2 + srcImage.width - 5, boxHeight - 1))
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testVectorPainterScalesContent() {
+        // VectorPainter should handle scaling its content vector up to fill the
+        // corresponding content bounds. Because the composable is twice the
+        // height of the vector and we are providing ContentScale.FillHeight
+        // the VectorPainter should draw the vector with twice its original
+        // height and width centered within the bounds of the composable
+        val boxWidth = 600
+        val boxHeight = 400
+
+        val vectorWidth = 100
+        val vectorHeight = 200
+        val paintLatch = CountDownLatch(1)
+        rule.setContent {
+            val vectorWidthDp = (vectorWidth / DensityAmbient.current.density).dp
+            val vectorHeightDp = (vectorHeight / DensityAmbient.current.density).dp
+            Box(
+                modifier = Modifier
+                    .drawWithContent {
+                        drawContent()
+                        paintLatch.countDown()
+                    }
+                    .drawBackground(Color.Gray)
+                    .width((boxWidth / DensityAmbient.current.density).dp)
+                    .height((boxHeight / DensityAmbient.current.density).dp)
+                    .paint(
+                        VectorPainter(
+                            defaultWidth = vectorWidthDp,
+                            defaultHeight = vectorHeightDp
+                        ) { viewportWidth, viewportHeight ->
+                            Path(fill = SolidColor(Color.Red),
+                                pathData = PathData {
+                                    horizontalLineToRelative(viewportWidth)
+                                    verticalLineToRelative(viewportHeight)
+                                    horizontalLineToRelative(-viewportWidth)
+                                    close()
+                                }
+                            )
+                        },
+                        contentScale = ContentScale.FillHeight
+                    )
+            )
+        }
+
+        paintLatch.await()
+        obtainScreenshotBitmap(
+            boxWidth,
+            boxHeight
+        ).apply {
+            assertEquals(width, boxWidth)
+            assertEquals(height, boxHeight)
+            assertEquals(Color.Gray.toArgb(), getPixel(boxWidth / 2 - vectorWidth - 5, 0))
+            assertEquals(Color.Gray.toArgb(),
+                getPixel(boxWidth / 2 + vectorWidth + 5, boxHeight - 1))
+            assertEquals(Color.Red.toArgb(), getPixel(boxWidth / 2 - vectorWidth + 5, 0))
+            assertEquals(Color.Red.toArgb(),
+                getPixel(boxWidth / 2 + vectorWidth - 5, boxHeight - 1))
+        }
     }
 
     @Composable
