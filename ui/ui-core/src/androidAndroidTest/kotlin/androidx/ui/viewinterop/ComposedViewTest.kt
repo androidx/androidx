@@ -24,6 +24,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
+import androidx.compose.Recomposer
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
@@ -34,8 +35,10 @@ import androidx.test.espresso.matcher.ViewMatchers.withClassName
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
+import androidx.ui.core.setContent
 import androidx.ui.core.test.R
 import androidx.ui.core.testTag
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.size
@@ -216,6 +219,20 @@ class ComposedViewTest {
                     throw exception
                 }
             }
+    }
+
+    @Test
+    fun androidView_notDetachedFromWindowTwice() {
+        // Should not crash.
+        composeTestRule.setContent {
+            Box {
+                emitView(::FrameLayout) {
+                    it.setContent(Recomposer()) {
+                        Box()
+                    }
+                }
+            }
+        }
     }
 
     private fun Dp.toPx(displayMetrics: DisplayMetrics) =
