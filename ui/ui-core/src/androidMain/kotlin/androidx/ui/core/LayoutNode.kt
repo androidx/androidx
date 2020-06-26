@@ -421,12 +421,6 @@ class LayoutNode : Measurable {
     private var isCalculatingAlignmentLines = false
 
     /**
-     * `true` when the current node is positioned during the measure pass,
-     * since it needs to compute alignment lines.
-     */
-    private var positionedDuringMeasurePass: Boolean = false
-
-    /**
      * `true` when the parent reads our alignment lines
      */
     private var alignmentLinesRead = false
@@ -718,7 +712,6 @@ class LayoutNode : Measurable {
         if (layoutState == NeedsRelayout) {
             layoutState = LayoutState.LayingOut
             val owner = requireOwner()
-            val parent = parent
             owner.observeLayoutModelReads(this) {
                 children.fastForEach { child ->
                     child.isPlaced = false
@@ -731,9 +724,6 @@ class LayoutNode : Measurable {
                     }
                     child.alignmentLinesQueriedSinceLastLayout = false
                 }
-                positionedDuringMeasurePass = parent != null &&
-                        (parent.layoutState == Measuring ||
-                                parent.positionedDuringMeasurePass)
                 innerLayoutNodeWrapper.measureResult.placeChildren(layoutDirection)
                 children.fastForEach { child ->
                     child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
