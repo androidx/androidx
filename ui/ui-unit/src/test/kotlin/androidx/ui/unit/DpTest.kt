@@ -358,4 +358,26 @@ class DpTest {
         val bounds = Bounds(10.dp, 5.dp, 25.dp, 15.dp)
         assertEquals(10.dp, bounds.height)
     }
+
+    @Test
+    fun testPositionCopy() {
+        val position = Position(12.dp, 27.dp)
+        assertEquals(position, position.copy())
+    }
+
+    @Test
+    fun testPositionCopyOverwriteX() {
+        val position = Position(15.dp, 32.dp)
+        val copy = position.copy(x = 59.dp)
+        assertEquals(59.dp, copy.x)
+        assertEquals(32.dp, copy.y)
+    }
+
+    @Test
+    fun testPositionCopyOverwriteY() {
+        val position = Position(19.dp, 42.dp)
+        val copy = position.copy(y = 67.dp)
+        assertEquals(19.dp, copy.x)
+        assertEquals(67.dp, copy.y)
+    }
 }

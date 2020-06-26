@@ -502,6 +502,12 @@ inline class Position(@PublishedApi internal val packedValue: Long) {
         get() = unpackFloat2(packedValue).dp
 
     /**
+     * Returns a copy of this Position instance optionally overriding the
+     * x or y parameter
+     */
+    fun copy(x: Dp = this.x, y: Dp = this.y): Position = Position(x, y)
+
+    /**
      * Subtract a [Position] from another one.
      */
     @Stable

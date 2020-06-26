@@ -316,6 +316,7 @@ package androidx.ui.unit {
   @androidx.compose.Immutable public final inline class Position {
     ctor public Position();
     method public static long constructor-impl(internal long packedValue);
+    method public static long copy-98Cn76g(long $this, float x = this.x, float y = this.y);
     method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public static float getX-impl(long $this);
