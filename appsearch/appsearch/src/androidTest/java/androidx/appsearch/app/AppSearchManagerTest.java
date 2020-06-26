@@ -18,6 +18,7 @@ package androidx.appsearch.app;
 
 import static androidx.appsearch.app.AppSearchManager.GetDocumentsRequest;
 import static androidx.appsearch.app.AppSearchManager.PutDocumentsRequest;
+import static androidx.appsearch.app.AppSearchManager.RemoveDocumentsRequest;
 import static androidx.appsearch.app.AppSearchManager.SetSchemaRequest;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -25,8 +26,6 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.customer.EmailDataClass;
 import androidx.test.core.app.ApplicationProvider;
-
-import com.google.common.collect.ImmutableList;
 
 import junit.framework.AssertionFailedError;
 
@@ -45,9 +44,9 @@ public class AppSearchManagerTest {
 
     @After
     public void tearDown() throws Exception {
-        Future<AppSearchResult<Void>> future = mAppSearch1.deleteAll();
+        Future<AppSearchResult<Void>> future = mAppSearch1.removeAll();
         future.get();
-        future = mAppSearch2.deleteAll();
+        future = mAppSearch2.removeAll();
         future.get();
     }
 
@@ -304,7 +303,8 @@ public class AppSearchManagerTest {
         assertThat(doGet(mAppSearch1, "uri2")).hasSize(1);
 
         // Delete the document
-        checkIsSuccess(mAppSearch1.delete(ImmutableList.of("uri1")));
+        checkIsSuccess(mAppSearch1.removeDocuments(
+                new RemoveDocumentsRequest.Builder().addUris("uri1").build()));
 
         // Make sure it's really gone
         AppSearchBatchResult<String, GenericDocument> getResult = mAppSearch1.getDocuments(
@@ -316,8 +316,9 @@ public class AppSearchManagerTest {
         assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
 
         // Test if we delete a nonexistent URI.
-        AppSearchBatchResult<String, Void> deleteResult =
-                mAppSearch1.delete(ImmutableList.of("uri1")).get();
+        AppSearchBatchResult<String, Void> deleteResult = mAppSearch1.removeDocuments(
+                new RemoveDocumentsRequest.Builder().addUris("uri1").build()).get();
+
         assertThat(deleteResult.getFailures()).containsExactly("uri1",
                 AppSearchResult.newFailedResult(
                         AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null));
@@ -344,15 +345,16 @@ public class AppSearchManagerTest {
         assertThat(doGet(mAppSearch1, "uri1")).hasSize(1);
 
         // Can't delete in the other instance.
-        AppSearchBatchResult<String, Void> deleteResult =
-                mAppSearch2.delete(ImmutableList.of("uri1")).get();
+        AppSearchBatchResult<String, Void> deleteResult = mAppSearch2.removeDocuments(
+                new RemoveDocumentsRequest.Builder().addUris("uri1").build()).get();
         assertThat(deleteResult.getFailures()).containsExactly("uri1",
                 AppSearchResult.newFailedResult(
                         AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null));
         assertThat(doGet(mAppSearch1, "uri1")).hasSize(1);
 
         // Delete the document
-        checkIsSuccess(mAppSearch1.delete(ImmutableList.of("uri1")));
+        checkIsSuccess(mAppSearch1.removeDocuments(
+                new RemoveDocumentsRequest.Builder().addUris("uri1").build()));
 
         // Make sure it's really gone
         AppSearchBatchResult<String, GenericDocument> getResult = mAppSearch1.getDocuments(
@@ -362,7 +364,8 @@ public class AppSearchManagerTest {
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
 
         // Test if we delete a nonexistent URI.
-        deleteResult = mAppSearch1.delete(ImmutableList.of("uri1")).get();
+        deleteResult = mAppSearch1.removeDocuments(
+                new RemoveDocumentsRequest.Builder().addUris("uri1").build()).get();
         assertThat(deleteResult.getFailures()).containsExactly("uri1",
                 AppSearchResult.newFailedResult(
                         AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null));
@@ -400,7 +403,7 @@ public class AppSearchManagerTest {
         assertThat(doGet(mAppSearch1, "uri1", "uri2", "uri3")).hasSize(3);
 
         // Delete the email type
-        checkIsSuccess(mAppSearch1.deleteByTypes(ImmutableList.of(AppSearchEmail.SCHEMA_TYPE)));
+        checkIsSuccess(mAppSearch1.removeByType(AppSearchEmail.SCHEMA_TYPE));
 
         // Make sure it's really gone
         AppSearchBatchResult<String, GenericDocument> getResult = mAppSearch1.getDocuments(
@@ -447,7 +450,7 @@ public class AppSearchManagerTest {
         assertThat(doGet(mAppSearch2, "uri2")).hasSize(1);
 
         // Delete the email type in instance 1
-        checkIsSuccess(mAppSearch1.deleteByTypes(ImmutableList.of(AppSearchEmail.SCHEMA_TYPE)));
+        checkIsSuccess(mAppSearch1.removeByType(AppSearchEmail.SCHEMA_TYPE));
 
         // Make sure it's really gone in instance 1
         AppSearchBatchResult<String, GenericDocument> getResult = mAppSearch1.getDocuments(
@@ -496,7 +499,7 @@ public class AppSearchManagerTest {
         assertThat(doGet(mAppSearch2, "uri2")).hasSize(1);
 
         // Delete the all document in instance 1
-        checkIsSuccess(mAppSearch1.deleteAll());
+        checkIsSuccess(mAppSearch1.removeAll());
 
         // Make sure it's really gone in instance 1
         AppSearchBatchResult<String, GenericDocument> getResult = mAppSearch1.getDocuments(
