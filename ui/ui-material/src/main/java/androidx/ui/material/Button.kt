@@ -85,10 +85,10 @@ fun Button(
     shape: Shape = MaterialTheme.shapes.small,
     border: Border? = null,
     backgroundColor: Color = MaterialTheme.colors.primary,
-    disabledBackgroundColor: Color = Button.defaultDisabledBackgroundColor,
+    disabledBackgroundColor: Color = ButtonConstants.defaultDisabledBackgroundColor,
     contentColor: Color = contentColorFor(backgroundColor),
-    disabledContentColor: Color = Button.defaultDisabledContentColor,
-    padding: InnerPadding = Button.DefaultInnerPadding,
+    disabledContentColor: Color = ButtonConstants.defaultDisabledContentColor,
+    padding: InnerPadding = ButtonConstants.DefaultInnerPadding,
     content: @Composable RowScope.() -> Unit
 ) {
     Surface(
@@ -108,8 +108,8 @@ fun Button(
             Row(
                 Modifier
                     .defaultMinSizeConstraints(
-                        minWidth = Button.DefaultMinWidth,
-                        minHeight = Button.DefaultMinHeight
+                        minWidth = ButtonConstants.DefaultMinWidth,
+                        minHeight = ButtonConstants.DefaultMinHeight
                     )
                     .clickable(onClick = onClick, enabled = enabled)
                     .padding(padding),
@@ -166,8 +166,8 @@ inline fun OutlinedButton(
     ),
     backgroundColor: Color = MaterialTheme.colors.surface,
     contentColor: Color = MaterialTheme.colors.primary,
-    disabledContentColor: Color = Button.defaultDisabledContentColor,
-    padding: InnerPadding = Button.DefaultInnerPadding,
+    disabledContentColor: Color = ButtonConstants.defaultDisabledContentColor,
+    padding: InnerPadding = ButtonConstants.DefaultInnerPadding,
     noinline content: @Composable RowScope.() -> Unit
 ) = Button(
     modifier = modifier,
@@ -225,8 +225,8 @@ inline fun TextButton(
     border: Border? = null,
     backgroundColor: Color = Color.Transparent,
     contentColor: Color = MaterialTheme.colors.primary,
-    disabledContentColor: Color = Button.defaultDisabledContentColor,
-    padding: InnerPadding = TextButton.DefaultInnerPadding,
+    disabledContentColor: Color = ButtonConstants.defaultDisabledContentColor,
+    padding: InnerPadding = TextButtonConstants.DefaultInnerPadding,
     noinline content: @Composable RowScope.() -> Unit
 ) = Button(
     modifier = modifier,
@@ -247,7 +247,7 @@ inline fun TextButton(
 /**
  * Contains the default values used by [Button]
  */
-object Button {
+object ButtonConstants {
     private val ButtonHorizontalPadding = 16.dp
     private val ButtonVerticalPadding = 8.dp
 
@@ -312,13 +312,13 @@ object Button {
 /**
  * Contains the default values used by [TextButton]
  */
-object TextButton {
+object TextButtonConstants {
     private val TextButtonHorizontalPadding = 8.dp
 
     /**
      * The default inner padding used by [TextButton]
      */
-    val DefaultInnerPadding = Button.DefaultInnerPadding.copy(
+    val DefaultInnerPadding = ButtonConstants.DefaultInnerPadding.copy(
         start = TextButtonHorizontalPadding,
         end = TextButtonHorizontalPadding
     )

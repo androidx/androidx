@@ -24,6 +24,7 @@ import androidx.ui.foundation.Text
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.size
 import androidx.ui.material.Button
+import androidx.ui.material.ButtonConstants
 import androidx.ui.material.OutlinedButton
 import androidx.ui.material.TextButton
 import androidx.ui.material.icons.Icons
@@ -57,8 +58,8 @@ fun TextButtonSample() {
 @Composable
 fun ButtonWithIconSample() {
     Button(onClick = { /* Do something! */ }) {
-        Icon(Icons.Filled.Favorite, Modifier.size(Button.DefaultIconSize))
-        Spacer(Modifier.size(Button.DefaultIconSpacing))
+        Icon(Icons.Filled.Favorite, Modifier.size(ButtonConstants.DefaultIconSize))
+        Spacer(Modifier.size(ButtonConstants.DefaultIconSpacing))
         Text("Like")
     }
 }
