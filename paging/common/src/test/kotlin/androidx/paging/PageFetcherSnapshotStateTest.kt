@@ -36,7 +36,7 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_valid() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
             config = PagingConfig(2, 6),
             hasRemoteState = false
         )
@@ -59,7 +59,7 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_coerceOnlyIndexInPage() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
             config = PagingConfig(pageSize = 2, maxSize = 6),
             hasRemoteState = false
         )
@@ -85,7 +85,7 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_coerceStart() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
             config = PagingConfig(pageSize = 2, maxSize = 6),
             hasRemoteState = false
         )
@@ -111,7 +111,7 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_coerceStartMultiplePages() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
             config = PagingConfig(pageSize = 2, maxSize = 6),
             hasRemoteState = false
         )
@@ -137,7 +137,7 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_coerceStartWithIndexInPage() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
             config = PagingConfig(pageSize = 2, maxSize = 6),
             hasRemoteState = false
         )
@@ -181,7 +181,7 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_coerceEnd() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
             config = PagingConfig(pageSize = 2, maxSize = 6),
             hasRemoteState = false
         )
@@ -207,7 +207,7 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_coerceEndMultiplePages() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
             config = PagingConfig(pageSize = 2, maxSize = 6),
             hasRemoteState = false
         )
@@ -251,7 +251,7 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_coerceEndWithIndexInPageOffset() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
             config = PagingConfig(2, 6),
             hasRemoteState = false
         )
@@ -277,7 +277,7 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun placeholders_uncounted() {
-        val pagerState = PagerState<Int, Int>(
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
             config = PagingConfig(2, enablePlaceholders = false),
             hasRemoteState = false
         )
@@ -354,7 +354,7 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun placeholders_counted() {
-        val pagerState = PagerState<Int, Int>(
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
             config = PagingConfig(2, enablePlaceholders = true),
             hasRemoteState = false
         )

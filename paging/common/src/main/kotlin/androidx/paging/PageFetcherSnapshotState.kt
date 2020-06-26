@@ -36,7 +36,7 @@ import kotlinx.coroutines.flow.onStart
 /**
  * Internal state of [PageFetcherSnapshot] whose updates can be consumed as a [Flow] of [PageEvent].
  */
-internal class PagerState<Key : Any, Value : Any>(
+internal class PageFetcherSnapshotState<Key : Any, Value : Any>(
     private val config: PagingConfig,
     hasRemoteState: Boolean
 ) {
