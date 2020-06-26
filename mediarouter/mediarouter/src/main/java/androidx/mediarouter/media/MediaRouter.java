@@ -872,6 +872,25 @@ public final class MediaRouter {
     }
 
     /**
+     * Gets {@link MediaRouterParams parameters} of the media router service associated with this
+     * media router.
+     */
+    @Nullable
+    public MediaRouterParams getRouterParams() {
+        return sGlobal.getRouterParams();
+    }
+
+    /**
+     * Sets {@link MediaRouterParams parameters} of the media router service associated with this
+     * media router.
+     *
+     * @param params The parameter to set
+     */
+    public void setRouterParams(@Nullable MediaRouterParams params) {
+        sGlobal.setRouterParams(params);
+    }
+
+    /**
      * Ensures that calls into the media router are on the correct thread.
      * It pays to be a little paranoid when global state invariants are at risk.
      */
@@ -2240,6 +2259,7 @@ public final class MediaRouter {
         final SystemMediaRouteProvider mSystemProvider;
         private final boolean mLowRam;
 
+        private MediaRouterParams mRouterParams;
         private RegisteredMediaRouteProviderWatcher mRegisteredProviderWatcher;
         private RouteInfo mDefaultRoute;
         private RouteInfo mBluetoothRoute;
@@ -2404,6 +2424,16 @@ public final class MediaRouter {
             return mRoutes;
         }
 
+        @Nullable
+        MediaRouterParams getRouterParams() {
+            return mRouterParams;
+        }
+
+        void setRouterParams(@Nullable MediaRouterParams params) {
+            mRouterParams = params;
+        }
+
+        @Nullable
         List<ProviderInfo> getProviders() {
             return mProviders;
         }
