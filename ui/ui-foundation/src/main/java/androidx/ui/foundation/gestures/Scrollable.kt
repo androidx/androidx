@@ -29,8 +29,9 @@ import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
-import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.dragGestureFilter
+import androidx.ui.core.gesture.ScrollCallback
+import androidx.ui.core.gesture.scrollGestureFilter
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.geometry.Offset
@@ -167,8 +168,23 @@ fun Modifier.scrollable(
     onDispose {
         scrollableState.stopAnimation()
     }
-    dragGestureFilter(
-        dragObserver = object : DragObserver {
+
+    val orientation =
+        when (dragDirection) {
+            DragDirection.Horizontal -> Orientation.Horizontal
+            DragDirection.ReversedHorizontal -> Orientation.Horizontal
+            DragDirection.Vertical -> Orientation.Vertical
+        }
+
+    val sign =
+        when (dragDirection) {
+            DragDirection.Horizontal -> 1
+            DragDirection.Vertical -> 1
+            DragDirection.ReversedHorizontal -> -1
+        }
+
+    scrollGestureFilter(
+        scrollCallback = object : ScrollCallback {
 
             override fun onStart(downPosition: Offset) {
                 if (enabled) {
@@ -177,16 +193,14 @@ fun Modifier.scrollable(
                 }
             }
 
-            override fun onDrag(dragDistance: Offset): Offset {
-                if (!enabled) return Offset.Zero
-                val projected = dragDirection.project(dragDistance)
-                val consumed = scrollableState.onScrollDeltaConsumptionRequested(projected)
+            override fun onScroll(scrollDistance: Float): Float {
+                if (!enabled) return 0f
+                val consumed =
+                    scrollableState.onScrollDeltaConsumptionRequested(scrollDistance * sign)
                 scrollableState.value = scrollableState.value + consumed
-                val fractionConsumed = if (projected == 0f) 0f else consumed / projected
-                return Offset(
-                    dragDirection.xProjection(dragDistance.x) * fractionConsumed,
-                    dragDirection.yProjection(dragDistance.y) * fractionConsumed
-                )
+                // TODO (malkov): temporary negate reversed direction with sign
+                //  remove when b/159618405 is fixed.
+                return consumed * sign
             }
 
             override fun onCancel() {
@@ -194,15 +208,16 @@ fun Modifier.scrollable(
                 if (enabled) onScrollStopped(0f)
             }
 
-            override fun onStop(velocity: Offset) {
+            override fun onStop(velocity: Float) {
                 if (enabled) {
-                    scrollableState.fling(dragDirection.project(velocity), onScrollStopped)
+                    scrollableState.fling(velocity * sign, onScrollStopped)
                 }
             }
         },
-        canDrag = { direction ->
-            enabled && dragDirection.isDraggableInDirection(direction, -scrollableState.value)
-        },
+        orientation = orientation,
+        // TODO(shepshapard): canDrag is intended to prevent something from starting a scroll in
+        //  a direction where scrolling is already at it's max.  This code is not yet doing that.
+        canDrag = { enabled },
         startDragImmediately = scrollableState.isAnimating
     )
 }
