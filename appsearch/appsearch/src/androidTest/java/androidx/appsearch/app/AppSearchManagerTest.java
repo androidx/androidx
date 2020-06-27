@@ -136,7 +136,8 @@ public class AppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
 
         // Get the document
-        List<GenericDocument> outDocuments = doGet(mAppSearch1, "uri1");
+        List<GenericDocument> outDocuments = doGet(mAppSearch1,
+                GenericDocument.DEFAULT_NAMESPACE, "uri1");
         assertThat(outDocuments).hasSize(1);
         AppSearchEmail outEmail = new AppSearchEmail(outDocuments.get(0));
         assertThat(outEmail).isEqualTo(inEmail);
@@ -164,7 +165,8 @@ public class AppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addDataClass(inEmail).build()));
 
         // Get the document
-        List<GenericDocument> outDocuments = doGet(mAppSearch1, "uri1");
+        List<GenericDocument> outDocuments = doGet(mAppSearch1,
+                GenericDocument.DEFAULT_NAMESPACE, "uri1");
         assertThat(outDocuments).hasSize(1);
         EmailDataClass outEmail = outDocuments.get(0).toDataClass(EmailDataClass.class);
         assertThat(inEmail.uri).isEqualTo(outEmail.uri);
@@ -275,7 +277,7 @@ public class AppSearchManagerTest {
     }
 
     @Test
-    public void testDelete() throws Exception {
+    public void testRemove() throws Exception {
         // Schema registration
         checkIsSuccess(mAppSearch1.setSchema(
                 new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
@@ -299,8 +301,8 @@ public class AppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email1, email2).build()));
 
         // Check the presence of the documents
-        assertThat(doGet(mAppSearch1, "uri1")).hasSize(1);
-        assertThat(doGet(mAppSearch1, "uri2")).hasSize(1);
+        assertThat(doGet(mAppSearch1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
+        assertThat(doGet(mAppSearch1, GenericDocument.DEFAULT_NAMESPACE, "uri2")).hasSize(1);
 
         // Delete the document
         checkIsSuccess(mAppSearch1.removeDocuments(
@@ -325,7 +327,7 @@ public class AppSearchManagerTest {
     }
 
     @Test
-    public void testDelete_TwoInstances() throws Exception {
+    public void testRemove_TwoInstances() throws Exception {
         // Schema registration
         checkIsSuccess(mAppSearch1.setSchema(new SetSchemaRequest.Builder()
                 .addSchema(AppSearchEmail.SCHEMA).build()));
@@ -342,7 +344,7 @@ public class AppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email1).build()));
 
         // Check the presence of the documents
-        assertThat(doGet(mAppSearch1, "uri1")).hasSize(1);
+        assertThat(doGet(mAppSearch1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
 
         // Can't delete in the other instance.
         AppSearchBatchResult<String, Void> deleteResult = mAppSearch2.removeDocuments(
@@ -350,7 +352,7 @@ public class AppSearchManagerTest {
         assertThat(deleteResult.getFailures()).containsExactly("uri1",
                 AppSearchResult.newFailedResult(
                         AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null));
-        assertThat(doGet(mAppSearch1, "uri1")).hasSize(1);
+        assertThat(doGet(mAppSearch1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
 
         // Delete the document
         checkIsSuccess(mAppSearch1.removeDocuments(
@@ -372,7 +374,7 @@ public class AppSearchManagerTest {
     }
 
     @Test
-    public void testDeleteByTypes() throws Exception {
+    public void testRemoveByTypes() throws Exception {
         // Schema registration
         checkIsSuccess(mAppSearch1.setSchema(
                 new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
@@ -400,7 +402,8 @@ public class AppSearchManagerTest {
                         .build()));
 
         // Check the presence of the documents
-        assertThat(doGet(mAppSearch1, "uri1", "uri2", "uri3")).hasSize(3);
+        assertThat(doGet(mAppSearch1, GenericDocument.DEFAULT_NAMESPACE,
+                "uri1", "uri2", "uri3")).hasSize(3);
 
         // Delete the email type
         checkIsSuccess(mAppSearch1.removeByType(AppSearchEmail.SCHEMA_TYPE));
@@ -418,7 +421,7 @@ public class AppSearchManagerTest {
     }
 
     @Test
-    public void testDeleteByTypes_TwoInstances() throws Exception {
+    public void testRemoveByTypes_TwoInstances() throws Exception {
         // Schema registration
         checkIsSuccess(mAppSearch1.setSchema(new SetSchemaRequest.Builder()
                 .addSchema(AppSearchEmail.SCHEMA).build()));
@@ -446,8 +449,8 @@ public class AppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email2).build()));
 
         // Check the presence of the documents
-        assertThat(doGet(mAppSearch1, "uri1")).hasSize(1);
-        assertThat(doGet(mAppSearch2, "uri2")).hasSize(1);
+        assertThat(doGet(mAppSearch1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
+        assertThat(doGet(mAppSearch2, GenericDocument.DEFAULT_NAMESPACE, "uri2")).hasSize(1);
 
         // Delete the email type in instance 1
         checkIsSuccess(mAppSearch1.removeByType(AppSearchEmail.SCHEMA_TYPE));
@@ -462,6 +465,113 @@ public class AppSearchManagerTest {
         // Make sure it's still in instance 2.
         getResult = mAppSearch2.getDocuments(
                 new GetDocumentsRequest.Builder().addUris("uri2").build()).get();
+        assertThat(getResult.isSuccess()).isTrue();
+        assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
+    }
+
+    @Test
+    public void testRemoveByNamespace() throws Exception {
+        // Schema registration
+        checkIsSuccess(mAppSearch1.setSchema(
+                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
+
+        // Index documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("email")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("uri2")
+                        .setNamespace("email")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example 2")
+                        .setBody("This is the body of the testPut second email")
+                        .build();
+        GenericDocument document1 =
+                new GenericDocument.Builder<>("uri3", "schemaType")
+                        .setNamespace("document")
+                        .setProperty("foo", "bar").build();
+        checkIsSuccess(mAppSearch1.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email1, email2, document1)
+                        .build()));
+
+        // Check the presence of the documents
+        assertThat(doGet(mAppSearch1, /*namespace=*/"email", "uri1", "uri2")).hasSize(2);
+        assertThat(doGet(mAppSearch1, /*namespace=*/"document", "uri3")).hasSize(1);
+
+        // Delete the email namespace
+        checkIsSuccess(mAppSearch1.removeByNamespace("email"));
+
+        // Make sure it's really gone
+        AppSearchBatchResult<String, GenericDocument> getResult = mAppSearch1.getDocuments(
+                new GetDocumentsRequest.Builder().setNamespace("email")
+                        .addUris("uri1", "uri2").build()).get();
+        assertThat(getResult.isSuccess()).isFalse();
+        assertThat(getResult.getFailures().get("uri1").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+        assertThat(getResult.getFailures().get("uri2").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+        getResult = mAppSearch1.getDocuments(
+                new GetDocumentsRequest.Builder().setNamespace("document")
+                        .addUris("uri3").build()).get();
+        assertThat(getResult.isSuccess()).isTrue();
+        assertThat(getResult.getSuccesses().get("uri3")).isEqualTo(document1);
+    }
+
+    @Test
+    public void testRemoveByNamespaces_TwoInstances() throws Exception {
+        // Schema registration
+        checkIsSuccess(mAppSearch1.setSchema(new SetSchemaRequest.Builder()
+                .addSchema(AppSearchEmail.SCHEMA).build()));
+        checkIsSuccess(mAppSearch2.setSchema(new SetSchemaRequest.Builder()
+                .addSchema(AppSearchEmail.SCHEMA).build()));
+
+        // Index documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("email")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("uri2")
+                        .setNamespace("email")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example 2")
+                        .setBody("This is the body of the testPut second email")
+                        .build();
+        checkIsSuccess(mAppSearch1.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email1).build()));
+        checkIsSuccess(mAppSearch2.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email2).build()));
+
+        // Check the presence of the documents
+        assertThat(doGet(mAppSearch1, /*namespace=*/"email", "uri1")).hasSize(1);
+        assertThat(doGet(mAppSearch2, /*namespace=*/"email", "uri2")).hasSize(1);
+
+        // Delete the email namespace in instance 1
+        checkIsSuccess(mAppSearch1.removeByNamespace("email"));
+
+        // Make sure it's really gone in instance 1
+        AppSearchBatchResult<String, GenericDocument> getResult = mAppSearch1.getDocuments(
+                new GetDocumentsRequest.Builder().setNamespace("email")
+                        .addUris("uri1").build()).get();
+        assertThat(getResult.isSuccess()).isFalse();
+        assertThat(getResult.getFailures().get("uri1").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+
+        // Make sure it's still in instance 2.
+        getResult = mAppSearch2.getDocuments(
+                new GetDocumentsRequest.Builder().setNamespace("email")
+                        .addUris("uri2").build()).get();
         assertThat(getResult.isSuccess()).isTrue();
         assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
     }
@@ -495,8 +605,8 @@ public class AppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email2).build()));
 
         // Check the presence of the documents
-        assertThat(doGet(mAppSearch1, "uri1")).hasSize(1);
-        assertThat(doGet(mAppSearch2, "uri2")).hasSize(1);
+        assertThat(doGet(mAppSearch1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
+        assertThat(doGet(mAppSearch2, GenericDocument.DEFAULT_NAMESPACE, "uri2")).hasSize(1);
 
         // Delete the all document in instance 1
         checkIsSuccess(mAppSearch1.removeAll());
@@ -515,10 +625,12 @@ public class AppSearchManagerTest {
         assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
     }
 
-    private static List<GenericDocument> doGet(AppSearchManager instance, String... uris)
+    private static List<GenericDocument> doGet(AppSearchManager instance,
+            String namespace, String... uris)
             throws Exception {
         Future<AppSearchBatchResult<String, GenericDocument>> future =
-                instance.getDocuments(new GetDocumentsRequest.Builder().addUris(uris).build());
+                instance.getDocuments(new GetDocumentsRequest.Builder()
+                        .setNamespace(namespace).addUris(uris).build());
         checkIsSuccess(future);
         AppSearchBatchResult<String, GenericDocument> result = future.get();
         assertThat(result.getSuccesses()).hasSize(uris.length);
