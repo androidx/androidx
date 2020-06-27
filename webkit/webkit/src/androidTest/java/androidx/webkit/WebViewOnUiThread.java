@@ -243,10 +243,10 @@ public class WebViewOnUiThread {
                 () -> WebViewCompat.removeWebMessageListener(mWebView, jsObjectName));
     }
 
-    public ScriptReferenceCompat addDocumentStartJavascript(
+    public ScriptReferenceCompat addDocumentStartJavaScript(
             String script, Set<String> allowedOriginRules) {
         return WebkitUtils.onMainThreadSync(() -> {
-            return WebViewCompat.addDocumentStartJavascript(mWebView, script, allowedOriginRules);
+            return WebViewCompat.addDocumentStartJavaScript(mWebView, script, allowedOriginRules);
         });
     }
 
