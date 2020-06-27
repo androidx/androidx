@@ -684,8 +684,8 @@ public class FileProvider extends ContentProvider {
     }
 
     /**
-     * Strategy that provides access to files living under a narrow whitelist of
-     * filesystem roots. It will throw {@link SecurityException} if callers try
+     * Strategy that provides access to files living under a narrow allowed list
+     * of filesystem roots. It will throw {@link SecurityException} if callers try
      * accessing files outside the configured roots.
      * <p>
      * For example, if configured with
