@@ -20,6 +20,7 @@ import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagingSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -35,7 +36,10 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_valid() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(2, 6, hasRemoteState = false)
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
+            config = PagingConfig(2, 6),
+            hasRemoteState = false
+        )
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
@@ -55,7 +59,10 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_coerceOnlyIndexInPage() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(pageSize = 2, maxSize = 6, hasRemoteState = false)
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
+            config = PagingConfig(pageSize = 2, maxSize = 6),
+            hasRemoteState = false
+        )
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
@@ -78,7 +85,10 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_coerceStart() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(pageSize = 2, maxSize = 6, hasRemoteState = false)
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
+            config = PagingConfig(pageSize = 2, maxSize = 6),
+            hasRemoteState = false
+        )
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
@@ -101,7 +111,10 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_coerceStartMultiplePages() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(pageSize = 2, maxSize = 6, hasRemoteState = false)
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
+            config = PagingConfig(pageSize = 2, maxSize = 6),
+            hasRemoteState = false
+        )
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
@@ -124,7 +137,10 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_coerceStartWithIndexInPage() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(pageSize = 2, maxSize = 6, hasRemoteState = false)
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
+            config = PagingConfig(pageSize = 2, maxSize = 6),
+            hasRemoteState = false
+        )
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
@@ -165,7 +181,10 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_coerceEnd() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(pageSize = 2, maxSize = 6, hasRemoteState = false)
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
+            config = PagingConfig(pageSize = 2, maxSize = 6),
+            hasRemoteState = false
+        )
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
@@ -188,7 +207,10 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_coerceEndMultiplePages() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(pageSize = 2, maxSize = 6, hasRemoteState = false)
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
+            config = PagingConfig(pageSize = 2, maxSize = 6),
+            hasRemoteState = false
+        )
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
@@ -229,7 +251,10 @@ class PageFetcherSnapshotStateTest {
 
     @Test
     fun coerceWithHint_coerceEndWithIndexInPageOffset() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(2, 6, hasRemoteState = false)
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
+            config = PagingConfig(2, 6),
+            hasRemoteState = false
+        )
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
@@ -248,5 +273,167 @@ class PageFetcherSnapshotStateTest {
                 assertEquals(3, hintOffset)
             }
         }
+    }
+
+    @Test
+    fun placeholders_uncounted() {
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
+            config = PagingConfig(2, enablePlaceholders = false),
+            hasRemoteState = false
+        )
+
+        assertEquals(0, pagerState.placeholdersBefore)
+        assertEquals(0, pagerState.placeholdersAfter)
+
+        pagerState.insert(
+            loadId = 0, loadType = REFRESH, page = Page(
+                data = listOf(),
+                prevKey = -1,
+                nextKey = 1,
+                itemsBefore = 50,
+                itemsAfter = 50
+            )
+        )
+
+        assertEquals(0, pagerState.placeholdersBefore)
+        assertEquals(0, pagerState.placeholdersAfter)
+
+        pagerState.insert(
+            loadId = 0, loadType = PREPEND, page = Page(
+                data = listOf(),
+                prevKey = -2,
+                nextKey = 0,
+                itemsBefore = 25
+            )
+        )
+        pagerState.insert(
+            loadId = 0, loadType = APPEND, page = Page(
+                data = listOf(),
+                prevKey = 0,
+                nextKey = 2,
+                itemsBefore = 25
+            )
+        )
+
+        assertEquals(0, pagerState.placeholdersBefore)
+        assertEquals(0, pagerState.placeholdersAfter)
+
+        // Should automatically decrement remaining placeholders when counted.
+        pagerState.insert(
+            loadId = 0,
+            loadType = PREPEND,
+            page = Page(
+                data = listOf(0),
+                prevKey = -3,
+                nextKey = 0,
+                itemsBefore = COUNT_UNDEFINED,
+                itemsAfter = COUNT_UNDEFINED
+            )
+        )
+        pagerState.insert(
+            loadId = 0,
+            loadType = APPEND,
+            page = Page(
+                data = listOf(0),
+                prevKey = 0,
+                nextKey = 3,
+                itemsBefore = COUNT_UNDEFINED,
+                itemsAfter = COUNT_UNDEFINED
+            )
+        )
+
+        assertEquals(0, pagerState.placeholdersBefore)
+        assertEquals(0, pagerState.placeholdersAfter)
+
+        pagerState.drop(loadType = PREPEND, pageCount = 1, placeholdersRemaining = 100)
+        pagerState.drop(loadType = APPEND, pageCount = 1, placeholdersRemaining = 100)
+
+        assertEquals(0, pagerState.placeholdersBefore)
+        assertEquals(0, pagerState.placeholdersAfter)
+    }
+
+    @Test
+    fun placeholders_counted() {
+        val pagerState = PageFetcherSnapshotState<Int, Int>(
+            config = PagingConfig(2, enablePlaceholders = true),
+            hasRemoteState = false
+        )
+
+        assertEquals(0, pagerState.placeholdersBefore)
+        assertEquals(0, pagerState.placeholdersAfter)
+
+        pagerState.insert(
+            loadId = 0,
+            loadType = REFRESH,
+            page = Page(
+                data = listOf(),
+                prevKey = -1,
+                nextKey = 1,
+                itemsBefore = 50,
+                itemsAfter = 50
+            )
+        )
+
+        assertEquals(50, pagerState.placeholdersBefore)
+        assertEquals(50, pagerState.placeholdersAfter)
+
+        pagerState.insert(
+            loadId = 0,
+            loadType = PREPEND,
+            page = Page(
+                data = listOf(),
+                prevKey = -2,
+                nextKey = 0,
+                itemsBefore = 25,
+                itemsAfter = COUNT_UNDEFINED
+            )
+        )
+        pagerState.insert(
+            loadId = 0,
+            loadType = APPEND,
+            page = Page(
+                data = listOf(),
+                prevKey = 0,
+                nextKey = 2,
+                itemsBefore = COUNT_UNDEFINED,
+                itemsAfter = 25
+            )
+        )
+
+        assertEquals(25, pagerState.placeholdersBefore)
+        assertEquals(25, pagerState.placeholdersAfter)
+
+        // Should automatically decrement remaining placeholders when counted.
+        pagerState.insert(
+            loadId = 0,
+            loadType = PREPEND,
+            page = Page(
+                data = listOf(0),
+                prevKey = -3,
+                nextKey = 0,
+                itemsBefore = COUNT_UNDEFINED,
+                itemsAfter = COUNT_UNDEFINED
+            )
+        )
+        pagerState.insert(
+            loadId = 0,
+            loadType = APPEND,
+            page = Page(
+                data = listOf(0),
+                prevKey = 0,
+                nextKey = 3,
+                itemsBefore = COUNT_UNDEFINED,
+                itemsAfter = COUNT_UNDEFINED
+            )
+        )
+
+        assertEquals(24, pagerState.placeholdersBefore)
+        assertEquals(24, pagerState.placeholdersAfter)
+
+        pagerState.drop(loadType = PREPEND, pageCount = 1, placeholdersRemaining = 100)
+        pagerState.drop(loadType = APPEND, pageCount = 1, placeholdersRemaining = 100)
+
+        assertEquals(100, pagerState.placeholdersBefore)
+        assertEquals(100, pagerState.placeholdersAfter)
     }
 }

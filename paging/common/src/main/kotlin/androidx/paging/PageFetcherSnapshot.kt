@@ -55,8 +55,8 @@ import kotlin.math.absoluteValue
 
 /**
  * Holds a generation of pageable data, a snapshot of data loaded by [PagingSource]. An instance
- * of [PageFetcherSnapshot] and its corresponding [PagerState] should be launched within a scope
- * that is cancelled when [PagingSource.invalidate] is called.
+ * of [PageFetcherSnapshot] and its corresponding [PageFetcherSnapshotState] should be launched
+ * within a scope that is cancelled when [PagingSource.invalidate] is called.
  */
 internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     internal val initialKey: Key?,
@@ -81,9 +81,8 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     private val pageEventChCollected = AtomicBoolean(false)
     private val pageEventCh = Channel<PageEvent<Value>>(BUFFERED)
     private val stateLock = Mutex()
-    private val state = PagerState<Key, Value>(
-        pageSize = config.pageSize,
-        maxSize = config.maxSize,
+    private val state = PageFetcherSnapshotState<Key, Value>(
+        config = config,
         hasRemoteState = remoteMediatorAccessor != null
     )
 
@@ -300,7 +299,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         pageSize = config.pageSize
     )
 
-    private suspend fun doInitialLoad(scope: CoroutineScope, state: PagerState<Key, Value>) {
+    private suspend fun doInitialLoad(
+        scope: CoroutineScope,
+        state: PageFetcherSnapshotState<Key, Value>
+    ) {
         stateLock.withLock { state.setLoading(REFRESH, false) }
 
         val params = loadParams(REFRESH, initialKey)
@@ -339,7 +341,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 if (insertApplied) {
                     stateLock.withLock {
                         with(state) {
-                            pageEventCh.send(result.toPageEvent(REFRESH, config.enablePlaceholders))
+                            pageEventCh.send(result.toPageEvent(REFRESH))
                         }
                     }
                 }
@@ -371,7 +373,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     // TODO: Consider making this a transform operation which emits PageEvents
     private suspend fun doLoad(
         scope: CoroutineScope,
-        state: PagerState<Key, Value>,
+        state: PageFetcherSnapshotState<Key, Value>,
         loadType: LoadType,
         generationalHint: GenerationalViewportHint
     ) {
@@ -459,7 +461,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             }
 
             stateLock.withLock {
-                state.dropInfo(dropType, generationalHint.hint, config.prefetchDistance)
+                state.dropInfo(dropType, generationalHint.hint)
                     ?.let { info ->
                         state.drop(dropType, info.pageCount, info.placeholdersRemaining)
                         pageEventCh.send(Drop(dropType, info.pageCount, info.placeholdersRemaining))
@@ -494,7 +496,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
                 // Send page event for successful insert, now that PagerState has been updated.
                 val pageEvent = with(state) {
-                    result.toPageEvent(loadType, config.enablePlaceholders)
+                    result.toPageEvent(loadType)
                 }
 
                 pageEventCh.send(pageEvent)
@@ -574,7 +576,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
                         // Push an empty insert event to update LoadState.
                         val pageEvent = with(state) {
-                            emptyPage.toPageEvent(loadType, config.enablePlaceholders)
+                            emptyPage.toPageEvent(loadType)
                         }
 
                         pageEventCh.send(pageEvent)
@@ -584,7 +586,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         }
     }
 
-    private suspend fun PagerState<Key, Value>.setLoading(
+    private suspend fun PageFetcherSnapshotState<Key, Value>.setLoading(
         loadType: LoadType,
         fromMediator: Boolean
     ) {
@@ -598,7 +600,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     /**
      * The next load key for a [loadType] or `null` if we should stop loading in that direction.
      */
-    private fun PagerState<Key, Value>.nextLoadKeyOrNull(
+    private fun PageFetcherSnapshotState<Key, Value>.nextLoadKeyOrNull(
         loadType: LoadType,
         generationId: Int,
         indexInPage: Int,
@@ -627,7 +629,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
      * The key to use to load next page to prepend or null if we should stop loading in this
      * direction for the provided [prefetchDistance] and [loadId].
      */
-    private fun PagerState<Key, Value>.nextPrependKey(
+    private fun PageFetcherSnapshotState<Key, Value>.nextPrependKey(
         loadId: Int,
         pageIndex: Int,
         indexInPage: Int,
@@ -647,7 +649,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
      * The key to use to load next page to append or null if we should stop loading in this
      * direction for the provided [prefetchDistance] and [loadId].
      */
-    private fun PagerState<Key, Value>.nextAppendKey(
+    private fun PageFetcherSnapshotState<Key, Value>.nextAppendKey(
         loadId: Int,
         pageIndex: Int,
         indexInPage: Int,
@@ -663,7 +665,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         return if (shouldLoad) pages.last().nextKey else null
     }
 
-    private suspend fun PagerState<Key, Value>.currentPagingState(
+    private suspend fun PageFetcherSnapshotState<Key, Value>.currentPagingState(
         lastHint: ViewportHint?
     ): PagingState<Key, Value> {
         val anchorPosition = when {

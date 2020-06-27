@@ -475,7 +475,7 @@ class PageFetcherSnapshotTest {
             createAppend(pageOffset = 2, range = 53..53)
         )
 
-        assertEvents(expected, fetcherState.pageEventLists[0])
+        assertThat(fetcherState.pageEventLists[0]).isEqualTo(expected)
         fetcherState.job.cancel()
     }
 
