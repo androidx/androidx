@@ -31,32 +31,40 @@ class PagingData<T : Any> internal constructor(
     internal val flow: Flow<PageEvent<T>>,
     internal val receiver: UiReceiver
 ) {
-    private inline fun <R : Any> transform(crossinline transform: (PageEvent<T>) -> PageEvent<R>) =
-        PagingData(
-            flow = flow.map { transform(it) },
-            receiver = receiver
-        )
-
     /**
      * Returns a [PagingData] containing the result of applying the given [transform] to each
      * element, as it is loaded.
+     *
+     * @see map
      */
+    @JvmName("map")
     @CheckResult
-    fun <R : Any> map(transform: (T) -> R): PagingData<R> = transform { it.map(transform) }
+    fun <R : Any> mapSync(transform: (T) -> R): PagingData<R> = transform { event ->
+        event.map { transform(it) }
+    }
 
     /**
      * Returns a [PagingData] of all elements returned from applying the given [transform]
      * to each element, as it is loaded.
+     *
+     * @see flatMap
      */
+    @JvmName("flatMap")
     @CheckResult
-    fun <R : Any> flatMap(transform: (T) -> Iterable<R>): PagingData<R> =
-        transform { it.flatMap(transform) }
+    fun <R : Any> flatMapSync(transform: (T) -> Iterable<R>): PagingData<R> = transform { event ->
+        event.flatMap { transform(it) }
+    }
 
     /**
      * Returns a [PagingData] containing only elements matching the given [predicate]
+     *
+     * @see filter
      */
+    @JvmName("filter")
     @CheckResult
-    fun filter(predicate: (T) -> Boolean): PagingData<T> = transform { it.filter(predicate) }
+    fun filterSync(predicate: (T) -> Boolean): PagingData<T> = transform { event ->
+        event.filter { predicate(it) }
+    }
 
     /**
      * Returns a [PagingData] containing each original element, with the passed header [item] added
@@ -208,10 +216,49 @@ class PagingData<T : Any> internal constructor(
             pagingData: PagingData<T>,
             generator: (T?, T?) -> R?
         ): PagingData<R> {
-            return pagingData.insertSeparators(generator)
+            return pagingData.insertSeparators { before, after -> generator(before, after) }
         }
     }
 }
+
+private inline fun <T : Any, R : Any> PagingData<T>.transform(
+    crossinline transform: suspend (PageEvent<T>) -> PageEvent<R>
+) = PagingData(
+    flow = flow.map { transform(it) },
+    receiver = receiver
+)
+
+/**
+ * Returns a [PagingData] containing the result of applying the given [transform] to each
+ * element, as it is loaded.
+ *
+ * @see PagingData.mapSync
+ */
+@CheckResult
+fun <T : Any, R : Any> PagingData<T>.map(
+    transform: suspend (T) -> R
+): PagingData<R> = transform { it.map(transform) }
+
+/**
+ * Returns a [PagingData] of all elements returned from applying the given [transform]
+ * to each element, as it is loaded.
+ *
+ * @see PagingData.flatMapSync
+ */
+@CheckResult
+fun <T : Any, R : Any> PagingData<T>.flatMap(
+    transform: suspend (T) -> Iterable<R>
+): PagingData<R> = transform { it.flatMap(transform) }
+
+/**
+ * Returns a [PagingData] containing only elements matching the given [predicate]
+ *
+ * @see PagingData.filterSync
+ */
+@CheckResult
+fun <T : Any> PagingData<T>.filter(
+    predicate: suspend (T) -> Boolean
+): PagingData<T> = transform { it.filter(predicate) }
 
 /**
  * Returns a [PagingData] containing each original element, with an optional separator
@@ -225,10 +272,12 @@ class PagingData<T : Any> internal constructor(
  *
  * @sample androidx.paging.samples.insertSeparatorsSample
  * @sample androidx.paging.samples.insertSeparatorsUiModelSample
+ *
+ * @see PagingData.insertSeparators
  */
 @CheckResult
 fun <T : R, R : Any> PagingData<T>.insertSeparators(
-    generator: (T?, T?) -> R?
+    generator: suspend (T?, T?) -> R?
 ): PagingData<R> {
     // This function must be an extension method, as it indirectly imposes a constraint on
     // the type of T (because T extends R). Ideally it would be declared not be an

@@ -23,6 +23,8 @@ import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.LoadStateUpdate
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -59,6 +61,7 @@ internal fun <T : Any> adjacentInsertEvent(
     )
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class PageEventTest {
     @Test
@@ -115,7 +118,7 @@ class PageEventTest {
     }
 
     @Test
-    fun dropTransform() {
+    fun dropTransform() = runBlockingTest {
         val drop = Drop<Char>(
             loadType = PREPEND,
             count = 0,
@@ -128,7 +131,7 @@ class PageEventTest {
     }
 
     @Test
-    fun stateTransform() {
+    fun stateTransform() = runBlockingTest {
         val state = LoadStateUpdate<Char>(
             loadType = REFRESH,
             fromMediator = false,
@@ -141,7 +144,7 @@ class PageEventTest {
     }
 
     @Test
-    fun insertMap() {
+    fun insertMap() = runBlockingTest {
         val insert = Append(
             pages = listOf(TransformablePage(listOf('a', 'b'))),
             placeholdersAfter = 4,
@@ -163,7 +166,7 @@ class PageEventTest {
     }
 
     @Test
-    fun insertMapTransformed() {
+    fun insertMapTransformed() = runBlockingTest {
         assertEquals(
             Append(
                 pages = listOf(
@@ -193,7 +196,7 @@ class PageEventTest {
     }
 
     @Test
-    fun insertFilter() {
+    fun insertFilter() = runBlockingTest {
         val insert = Append(
             pages = listOf(TransformablePage(listOf('a', 'b', 'c', 'd'))),
             placeholdersAfter = 4,
@@ -237,7 +240,7 @@ class PageEventTest {
     }
 
     @Test
-    fun insertFlatMap() {
+    fun insertFlatMap() = runBlockingTest {
         val insert = Append(
             pages = listOf(TransformablePage(listOf('a', 'b'))),
             placeholdersAfter = 4,

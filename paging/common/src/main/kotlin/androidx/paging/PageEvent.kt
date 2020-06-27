@@ -17,8 +17,8 @@
 package androidx.paging
 
 import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadType.REFRESH
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -60,16 +60,18 @@ internal sealed class PageEvent<T : Any> {
             combinedLoadStates = combinedLoadStates
         )
 
-        override fun <R : Any> map(transform: (T) -> R): PageEvent<R> = mapPages {
+        override suspend fun <R : Any> map(transform: suspend (T) -> R): PageEvent<R> = mapPages {
             TransformablePage(
                 originalPageOffset = it.originalPageOffset,
-                data = it.data.map(transform),
+                data = it.data.map { item -> transform(item) },
                 originalPageSize = it.originalPageSize,
                 originalIndices = it.originalIndices
             )
         }
 
-        override fun <R : Any> flatMap(transform: (T) -> Iterable<R>): PageEvent<R> = mapPages {
+        override suspend fun <R : Any> flatMap(
+            transform: suspend (T) -> Iterable<R>
+        ): PageEvent<R> = mapPages {
             val data = mutableListOf<R>()
             val originalIndices = mutableListOf<Int>()
             it.data.forEachIndexed { index, t ->
@@ -87,7 +89,7 @@ internal sealed class PageEvent<T : Any> {
             )
         }
 
-        override fun filter(predicate: (T) -> Boolean): PageEvent<T> = mapPages {
+        override suspend fun filter(predicate: suspend (T) -> Boolean): PageEvent<T> = mapPages {
             val data = mutableListOf<T>()
             val originalIndices = mutableListOf<Int>()
             it.data.forEachIndexed { index, t ->
@@ -173,17 +175,20 @@ internal sealed class PageEvent<T : Any> {
     }
 
     @Suppress("UNCHECKED_CAST")
-    open fun <R : Any> map(transform: (T) -> R): PageEvent<R> = this as PageEvent<R>
+    open suspend fun <R : Any> map(transform: suspend (T) -> R): PageEvent<R> = this as PageEvent<R>
 
     @Suppress("UNCHECKED_CAST")
-    open fun <R : Any> flatMap(transform: (T) -> Iterable<R>): PageEvent<R> = this as PageEvent<R>
+    open suspend fun <R : Any> flatMap(transform: suspend (T) -> Iterable<R>): PageEvent<R> {
+        return this as PageEvent<R>
+    }
 
-    open fun filter(predicate: (T) -> Boolean): PageEvent<T> = this
+    open suspend fun filter(predicate: suspend (T) -> Boolean): PageEvent<T> = this
 }
 
 private fun <T> MutableList<T>.removeFirst(count: Int) {
     repeat(count) { removeAt(0) }
 }
+
 private fun <T> MutableList<T>.removeLast(count: Int) {
     repeat(count) { removeAt(lastIndex) }
 }
