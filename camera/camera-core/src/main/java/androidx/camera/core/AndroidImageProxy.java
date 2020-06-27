@@ -35,9 +35,6 @@ final class AndroidImageProxy implements ImageProxy {
 
     private final ImageInfo mImageInfo;
 
-    @Nullable
-    private Rect mViewPortRect;
-
     /**
      * Creates a new instance which wraps the given image.
      *
@@ -74,17 +71,6 @@ final class AndroidImageProxy implements ImageProxy {
     @Override
     public synchronized void setCropRect(@Nullable Rect rect) {
         mImage.setCropRect(rect);
-    }
-
-    @NonNull
-    @Override
-    public Rect getViewPortRect() {
-        return mViewPortRect != null ? mViewPortRect : getCropRect();
-    }
-
-    @Override
-    public void setViewPortRect(@Nullable Rect viewPortRect) {
-        mViewPortRect = viewPortRect;
     }
 
     @Override
