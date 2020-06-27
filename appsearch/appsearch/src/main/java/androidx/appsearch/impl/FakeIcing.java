@@ -157,8 +157,13 @@ public class FakeIcing {
         return false;
     }
 
-    /** Deletes all documents having the given namespace. */
-    public void deleteByNamespace(@NonNull String namespace) {
+    /**
+     * Deletes all documents having the given namespace.
+     *
+     * @return true if any documents were deleted.
+     */
+    public boolean deleteByNamespace(@NonNull String namespace) {
+        boolean deletedAny = false;
         synchronized (mLock) {
             for (int i = 0; i < mDocStore.size(); i++) {
                 DocumentProto document = mDocStore.valueAt(i);
@@ -167,9 +172,11 @@ public class FakeIcing {
                     mDocStore.removeAt(i);
                     mUriToDocIdMap.remove(integratedUri);
                     i--;
+                    deletedAny = true;
                 }
             }
         }
+        return deletedAny;
     }
 
     /**
