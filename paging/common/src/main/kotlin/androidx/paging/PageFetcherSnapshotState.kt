@@ -36,16 +36,39 @@ import kotlinx.coroutines.flow.onStart
 /**
  * Internal state of [PageFetcherSnapshot] whose updates can be consumed as a [Flow] of [PageEvent].
  */
-internal class PagerState<Key : Any, Value : Any>(
-    private val pageSize: Int,
-    private val maxSize: Int,
+internal class PageFetcherSnapshotState<Key : Any, Value : Any>(
+    private val config: PagingConfig,
     hasRemoteState: Boolean
 ) {
     private val _pages = mutableListOf<Page<Key, Value>>()
     internal val pages: List<Page<Key, Value>> = _pages
     private var initialPageIndex = 0
-    internal var placeholdersBefore = COUNT_UNDEFINED
-    internal var placeholdersAfter = COUNT_UNDEFINED
+
+    private var _placeholdersBefore = 0
+    internal var placeholdersBefore
+        get() = when {
+            config.enablePlaceholders -> _placeholdersBefore
+            else -> 0
+        }
+        set(value) {
+            _placeholdersBefore = when (value) {
+                COUNT_UNDEFINED -> 0
+                else -> value
+            }
+        }
+
+    private var _placeholdersAfter = 0
+    internal var placeholdersAfter
+        get() = when {
+            config.enablePlaceholders -> _placeholdersAfter
+            else -> 0
+        }
+        set(value) {
+            _placeholdersAfter = when (value) {
+                COUNT_UNDEFINED -> 0
+                else -> value
+            }
+        }
 
     internal var prependLoadId = 0
         private set
@@ -82,10 +105,7 @@ internal class PagerState<Key : Any, Value : Any>(
      * TODO: Move this into Pager, which owns pageEventCh, since this logic is sensitive to its
      *  implementation.
      */
-    internal fun Page<Key, Value>.toPageEvent(
-        loadType: LoadType,
-        placeholdersEnabled: Boolean
-    ): PageEvent<Value> {
+    internal fun Page<Key, Value>.toPageEvent(loadType: LoadType): PageEvent<Value> {
         val sourcePageIndex = when (loadType) {
             REFRESH -> 0
             PREPEND -> 0 - initialPageIndex
@@ -95,18 +115,18 @@ internal class PagerState<Key : Any, Value : Any>(
         return when (loadType) {
             REFRESH -> Refresh(
                 pages = pages,
-                placeholdersBefore = if (placeholdersEnabled) placeholdersBefore else 0,
-                placeholdersAfter = if (placeholdersEnabled) placeholdersAfter else 0,
+                placeholdersBefore = placeholdersBefore,
+                placeholdersAfter = placeholdersAfter,
                 combinedLoadStates = loadStates.snapshot()
             )
             PREPEND -> Prepend(
                 pages = pages,
-                placeholdersBefore = if (placeholdersEnabled) placeholdersBefore else 0,
+                placeholdersBefore = placeholdersBefore,
                 combinedLoadStates = loadStates.snapshot()
             )
             APPEND -> Append(
                 pages = pages,
-                placeholdersAfter = if (placeholdersEnabled) placeholdersAfter else 0,
+                placeholdersAfter = placeholdersAfter,
                 combinedLoadStates = loadStates.snapshot()
             )
         }
@@ -124,16 +144,8 @@ internal class PagerState<Key : Any, Value : Any>(
 
                 _pages.add(page)
                 initialPageIndex = 0
-                placeholdersAfter = if (page.itemsAfter != COUNT_UNDEFINED) {
-                    page.itemsAfter
-                } else {
-                    0
-                }
-                placeholdersBefore = if (page.itemsBefore != COUNT_UNDEFINED) {
-                    page.itemsBefore
-                } else {
-                    0
-                }
+                placeholdersAfter = page.itemsAfter
+                placeholdersBefore = page.itemsBefore
             }
             PREPEND -> {
                 check(pages.isNotEmpty()) { "should've received an init before prepend" }
@@ -186,14 +198,16 @@ internal class PagerState<Key : Any, Value : Any>(
             PREPEND -> {
                 repeat(pageCount) { _pages.removeAt(0) }
                 initialPageIndex -= pageCount
-                this.placeholdersBefore = placeholdersRemaining
+
+                placeholdersBefore = placeholdersRemaining
 
                 prependLoadId++
                 prependLoadIdCh.offer(prependLoadId)
             }
             APPEND -> {
                 repeat(pageCount) { _pages.removeAt(pages.size - 1) }
-                this.placeholdersAfter = placeholdersRemaining
+
+                placeholdersAfter = placeholdersRemaining
 
                 appendLoadId++
                 appendLoadIdCh.offer(appendLoadId)
@@ -204,8 +218,7 @@ internal class PagerState<Key : Any, Value : Any>(
 
     suspend fun dropInfo(
         loadType: LoadType,
-        loadHint: ViewportHint,
-        prefetchDistance: Int
+        loadHint: ViewportHint
     ): DropInfo? {
         // Never drop below 2 pages as this can cause UI flickering with certain configs and it's
         // much more important to protect against this behaviour over respecting a config where
@@ -222,7 +235,7 @@ internal class PagerState<Key : Any, Value : Any>(
                 val prefetchWindowStartPageIndex =
                     loadHint.withCoercedHint { indexInPage, pageIndex, _ ->
                         var prefetchWindowStartPageIndex = pageIndex
-                        var prefetchWindowItems = prefetchDistance - (indexInPage + 1)
+                        var prefetchWindowItems = config.prefetchDistance - (indexInPage + 1)
                         while (prefetchWindowStartPageIndex > 0 && prefetchWindowItems > 0) {
                             prefetchWindowItems -= pages[prefetchWindowStartPageIndex].data.size
                             prefetchWindowStartPageIndex--
@@ -234,7 +247,7 @@ internal class PagerState<Key : Any, Value : Any>(
                 // TODO: Incrementally compute this.
                 val currentSize = pages.sumBy { it.data.size }
                 if (
-                    maxSize != MAX_SIZE_UNBOUNDED && currentSize > maxSize &&
+                    config.maxSize != MAX_SIZE_UNBOUNDED && currentSize > config.maxSize &&
                     prefetchWindowStartPageIndex > 0
                 ) {
                     var pageCount = 0
@@ -243,12 +256,17 @@ internal class PagerState<Key : Any, Value : Any>(
                         pageCount++
                         itemCount += it.data.size
 
-                        currentSize - itemCount > maxSize &&
+                        currentSize - itemCount > config.maxSize &&
                                 // Do not drop pages that would fulfill prefetchDistance.
                                 pageCount < prefetchWindowStartPageIndex
                     }
 
-                    return DropInfo(pageCount, placeholdersBefore + itemCount)
+                    val placeholdersRemaining = when {
+                        config.enablePlaceholders -> placeholdersBefore + itemCount
+                        else -> 0
+                    }
+
+                    return DropInfo(pageCount, placeholdersRemaining)
                 }
             }
             APPEND -> {
@@ -258,7 +276,7 @@ internal class PagerState<Key : Any, Value : Any>(
                     loadHint.withCoercedHint { indexInPage, pageIndex, _ ->
                         var prefetchWindowEndPageIndex = pageIndex
                         var prefetchWindowItems =
-                            prefetchDistance - pages[pageIndex].data.size + indexInPage
+                            config.prefetchDistance - pages[pageIndex].data.size + indexInPage
                         while (
                             prefetchWindowEndPageIndex < pages.lastIndex &&
                             prefetchWindowItems > 0
@@ -273,7 +291,7 @@ internal class PagerState<Key : Any, Value : Any>(
                 // TODO: Incrementally compute this.
                 val currentSize = pages.sumBy { it.data.size }
                 if (
-                    maxSize != MAX_SIZE_UNBOUNDED && currentSize > maxSize &&
+                    config.maxSize != MAX_SIZE_UNBOUNDED && currentSize > config.maxSize &&
                     prefetchWindowEndPageIndex < pages.lastIndex
                 ) {
                     var pageCount = 0
@@ -282,11 +300,17 @@ internal class PagerState<Key : Any, Value : Any>(
                         pageCount++
                         itemCount += it.data.size
 
-                        currentSize - itemCount > maxSize &&
+                        currentSize - itemCount > config.maxSize &&
                                 // Do not drop pages that would fulfill prefetchDistance.
                                 pages.lastIndex - pageCount > prefetchWindowEndPageIndex
                     }
-                    return DropInfo(pageCount, placeholdersAfter + itemCount)
+
+                    val placeholdersRemaining = when {
+                        config.enablePlaceholders -> placeholdersAfter + itemCount
+                        else -> 0
+                    }
+
+                    return DropInfo(pageCount, placeholdersRemaining)
                 }
             }
         }
@@ -324,13 +348,13 @@ internal class PagerState<Key : Any, Value : Any>(
 
         // Coerce pageIndex to >= 0, snap indexInPage to 0 if pageIndex is coerced.
         if (pageIndex < 0) {
-            hintOffset = pageIndex * pageSize + indexInPage
+            hintOffset = pageIndex * config.pageSize + indexInPage
 
             pageIndex = 0
             indexInPage = 0
         } else if (pageIndex > pages.lastIndex) {
             // Number of items after last loaded item that this hint refers to.
-            hintOffset = (pageIndex - pages.lastIndex - 1) * pageSize + indexInPage + 1
+            hintOffset = (pageIndex - pages.lastIndex - 1) * config.pageSize + indexInPage + 1
 
             pageIndex = pages.lastIndex
             indexInPage = pages.last().data.lastIndex
@@ -353,20 +377,3 @@ internal class PagerState<Key : Any, Value : Any>(
 }
 
 internal class DropInfo(val pageCount: Int, val placeholdersRemaining: Int)
-
-/**
- * Sealed class wrapping both user-provided intents of mapping a recoverable error, or one that
- * should be displayed as opposed to throwing an exception.
- *  * [PagingSource.LoadResult.Error] returned from [PagingSource.load]
- *  * [RemoteMediator.MediatorResult.Error] returned from [RemoteMediator.load]
- */
-internal sealed class LoadError<Key : Any, Value : Any>(val loadType: LoadType) {
-    internal class Hint<Key : Any, Value : Any>(
-        loadType: LoadType,
-        val viewportHint: ViewportHint
-    ) : LoadError<Key, Value>(loadType)
-
-    internal class Mediator<Key : Any, Value : Any>(
-        loadType: LoadType
-    ) : LoadError<Key, Value>(loadType)
-}
