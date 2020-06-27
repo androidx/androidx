@@ -402,6 +402,52 @@ class PageFetcherSnapshotTest {
     }
 
     @Test
+    fun prepend_viewportHintPrioritizesGenerationId() = testScope.runBlockingTest {
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 2,
+            enablePlaceholders = true,
+            initialLoadSize = 3,
+            maxSize = 5
+        )
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+
+        // PREPEND a few pages.
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 0))
+        advanceUntilIdle()
+
+        // APPEND a few pages causing PREPEND pages to drop
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 2))
+        advanceUntilIdle()
+
+        // PREPEND a page, this hint would normally be ignored, but has a newer generationId.
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 1))
+        advanceUntilIdle()
+
+        val expected: List<PageEvent<Int>> = listOf(
+            LoadStateUpdate(loadType = REFRESH, fromMediator = false, loadState = Loading),
+            createRefresh(range = 50..52),
+            LoadStateUpdate(loadType = PREPEND, fromMediator = false, loadState = Loading),
+            createPrepend(pageOffset = -1, range = 49..49, startState = Loading),
+            createPrepend(pageOffset = -2, range = 48..48),
+            LoadStateUpdate(loadType = APPEND, fromMediator = false, loadState = Loading),
+            Drop(loadType = PREPEND, count = 1, placeholdersRemaining = 49),
+            createAppend(pageOffset = 1, range = 53..53, endState = Loading),
+            Drop(loadType = PREPEND, count = 1, placeholdersRemaining = 50),
+            createAppend(pageOffset = 2, range = 54..54),
+            LoadStateUpdate(loadType = PREPEND, fromMediator = false, loadState = Loading),
+            Drop(loadType = APPEND, count = 1, placeholdersRemaining = 46),
+            createPrepend(pageOffset = -1, range = 49..49)
+        )
+
+        assertThat(fetcherState.pageEventLists[0]).isEqualTo(expected)
+        fetcherState.job.cancel()
+    }
+
+    @Test
     fun append() = testScope.runBlockingTest {
         val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
@@ -550,6 +596,52 @@ class PageFetcherSnapshotTest {
             assertEvents(expected, fetcherState.pageEventLists[0])
             fetcherState.job.cancel()
         }
+    }
+
+    @Test
+    fun append_viewportHintPrioritizesGenerationId() = testScope.runBlockingTest {
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 2,
+            enablePlaceholders = true,
+            initialLoadSize = 3,
+            maxSize = 5
+        )
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+
+        // APPEND a few pages.
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 2))
+        advanceUntilIdle()
+
+        // PREPEND a few pages causing PREPEND pages to drop
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 0))
+        advanceUntilIdle()
+
+        // APPEND a page, this hint would normally be ignored, but has a newer generationId.
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 1))
+        advanceUntilIdle()
+
+        val expected: List<PageEvent<Int>> = listOf(
+            LoadStateUpdate(loadType = REFRESH, fromMediator = false, loadState = Loading),
+            createRefresh(range = 50..52),
+            LoadStateUpdate(loadType = APPEND, fromMediator = false, loadState = Loading),
+            createAppend(pageOffset = 1, range = 53..53, endState = Loading),
+            createAppend(pageOffset = 2, range = 54..54),
+            LoadStateUpdate(loadType = PREPEND, fromMediator = false, loadState = Loading),
+            Drop(loadType = APPEND, count = 1, placeholdersRemaining = 46),
+            createPrepend(pageOffset = -1, range = 49..49, startState = Loading),
+            Drop(loadType = APPEND, count = 1, placeholdersRemaining = 47),
+            createPrepend(pageOffset = -2, range = 48..48),
+            LoadStateUpdate(loadType = APPEND, fromMediator = false, loadState = Loading),
+            Drop(loadType = PREPEND, count = 1, placeholdersRemaining = 49),
+            createAppend(pageOffset = 1, range = 53..53)
+        )
+
+        assertThat(fetcherState.pageEventLists[0]).isEqualTo(expected)
+        fetcherState.job.cancel()
     }
 
     @Test
