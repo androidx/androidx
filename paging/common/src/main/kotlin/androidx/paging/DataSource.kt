@@ -358,6 +358,7 @@ internal constructor(internal val type: KeyType) {
      * [DataSource].
      */
     @AnyThread
+    @Suppress("RegistrationName")
     open fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
         onInvalidatedCallbacks.add(onInvalidatedCallback)
     }
@@ -376,6 +377,7 @@ internal constructor(internal val type: KeyType) {
      * [DataSource].
      */
     @AnyThread
+    @Suppress("RegistrationName")
     fun addInvalidatedCallback(onInvalidatedCallback: () -> Unit) {
         onInvalidatedCallbacks.add(OnInvalidatedWrapper(onInvalidatedCallback))
     }
@@ -386,6 +388,7 @@ internal constructor(internal val type: KeyType) {
      * @param onInvalidatedCallback The previously added callback.
      */
     @AnyThread
+    @Suppress("RegistrationName")
     open fun removeInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
         onInvalidatedCallbacks.remove(onInvalidatedCallback)
     }
@@ -398,6 +401,7 @@ internal constructor(internal val type: KeyType) {
      * @param onInvalidatedCallback The previously added callback.
      */
     @AnyThread
+    @Suppress("RegistrationName")
     fun removeInvalidatedCallback(onInvalidatedCallback: () -> Unit) {
         onInvalidatedCallbacks.removeAll {
             it is OnInvalidatedWrapper && it.callback === onInvalidatedCallback
