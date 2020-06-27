@@ -1,31 +1,3 @@
 // Baseline format: 1.0
 AutoBoxing: androidx.paging.PagingState#getAnchorPosition():
     Must avoid boxed primitives (`java.lang.Integer`)
-
-
-DocumentExceptions: androidx.paging.PagedList#loadAround(int):
-    Method PagedList.loadAround appears to be throwing java.lang.IndexOutOfBoundsException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.paging.PagedList.Config.Builder#build():
-    Method Builder.build appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.paging.PagedList.Config.Builder#setPageSize(int):
-    Method Builder.setPageSize appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-
-
-MinMaxConstant: androidx.paging.PagedList.Config#MAX_SIZE_UNBOUNDED:
-    If min/max could change in future, make them dynamic methods: androidx.paging.PagedList.Config#MAX_SIZE_UNBOUNDED
-MinMaxConstant: androidx.paging.PagingConfig#MAX_SIZE_UNBOUNDED:
-    If min/max could change in future, make them dynamic methods: androidx.paging.PagingConfig#MAX_SIZE_UNBOUNDED
-
-
-RegistrationName: androidx.paging.DataSource#addInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback):
-    Callback methods should be named register/unregister; was addInvalidatedCallback
-RegistrationName: androidx.paging.DataSource#addInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit>):
-    Callback methods should be named register/unregister; was addInvalidatedCallback
-RegistrationName: androidx.paging.DataSource#removeInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback):
-    Callback methods should be named register/unregister; was removeInvalidatedCallback
-RegistrationName: androidx.paging.DataSource#removeInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit>):
-    Callback methods should be named register/unregister; was removeInvalidatedCallback
-RegistrationName: androidx.paging.PagedList#addWeakCallback(androidx.paging.PagedList.Callback):
-    Callback methods should be named register/unregister; was addWeakCallback
-RegistrationName: androidx.paging.PagedList#removeWeakCallback(androidx.paging.PagedList.Callback):
-    Callback methods should be named register/unregister; was removeWeakCallback
