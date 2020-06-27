@@ -127,7 +127,7 @@ internal actual fun NativePaint.setNativeFilterQuality(value: FilterQuality) {
     this.isFilterBitmap = value != FilterQuality.none
 }
 
-internal actual fun NativePaint.setNativeShader(value: NativeShader?) {
+internal actual fun NativePaint.setNativeShader(value: Shader?) {
     this.shader = value
 }
 
