@@ -35,13 +35,13 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Test {@link WebViewCompat#addDocumentStartJavascript()}
+ * Test {@link WebViewCompat#addDocumentStartJavaScript()}
  *
  * Test in Chromium JsJavaInteractionTest.java for these APIs are more comprehensive.
  */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class WebViewDocumentStartJavascriptTest {
+public class WebViewDocumentStartJavaScriptTest {
     private static final String BASE_URI = "http://www.example.com";
     private static final String JS_OBJECT_NAME = "myObject";
     private static final String BASIC_USAGE = "<!DOCTYPE html><html><body></body></html>";
@@ -100,9 +100,9 @@ public class WebViewDocumentStartJavascriptTest {
     }
 
     @Test
-    public void testAddDocumentStartJavascriptBasicUsage() throws Exception {
+    public void testAddDocumentStartJavaScriptBasicUsage() throws Exception {
         mWebViewOnUiThread.addWebMessageListener(JS_OBJECT_NAME, MATCH_EXAMPLE_COM, mListener);
-        mWebViewOnUiThread.addDocumentStartJavascript(BASIC_SCRIPT, MATCH_EXAMPLE_COM);
+        mWebViewOnUiThread.addDocumentStartJavaScript(BASIC_SCRIPT, MATCH_EXAMPLE_COM);
 
         loadHtmlSync(BASIC_USAGE);
         TestWebMessageListener.Data data = mListener.waitForOnPostMessage();
@@ -112,10 +112,10 @@ public class WebViewDocumentStartJavascriptTest {
     }
 
     @Test
-    public void testAddDocumentStartJavascriptRemoveScript() throws Exception {
+    public void testAddDocumentStartJavaScriptRemoveScript() throws Exception {
         mWebViewOnUiThread.addWebMessageListener(JS_OBJECT_NAME, MATCH_EXAMPLE_COM, mListener);
         ScriptReferenceCompat scriptReference =
-                mWebViewOnUiThread.addDocumentStartJavascript(BASIC_SCRIPT, MATCH_EXAMPLE_COM);
+                mWebViewOnUiThread.addDocumentStartJavaScript(BASIC_SCRIPT, MATCH_EXAMPLE_COM);
 
         loadHtmlSync(BASIC_USAGE);
         TestWebMessageListener.Data data = mListener.waitForOnPostMessage();

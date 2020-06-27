@@ -667,14 +667,14 @@ public class WebViewCompat {
     @RequiresFeature(
             name = WebViewFeature.DOCUMENT_START_SCRIPT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static @NonNull ScriptReferenceCompat addDocumentStartJavascript(
+    public static @NonNull ScriptReferenceCompat addDocumentStartJavaScript(
             @NonNull WebView webview,
             @NonNull String script,
             @NonNull Set<String> allowedOriginRules) {
         final WebViewFeatureInternal feature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.DOCUMENT_START_SCRIPT);
         if (feature.isSupportedByWebView()) {
-            return getProvider(webview).addDocumentStartJavascript(
+            return getProvider(webview).addDocumentStartJavaScript(
                     script, allowedOriginRules.toArray(new String[0]));
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
