@@ -255,17 +255,16 @@ public final class SurfaceRequest {
      * Returns the crop rect rectangle.
      *
      * <p> The returned value dictates how the {@link Surface} provided in
-     * {@link #provideSurface(Surface, Executor, Consumer)} should be displayed. The {@link Rect}
-     * is based on the Surface coordinates. The caller should update the UI so that only the area
-     * defined by the {@link Rect} is visible to app users.
+     * {@link #provideSurface(Surface, Executor, Consumer)} should be displayed. The crop
+     * rectangle specifies the region of valid pixels in the buffer, using coordinates from (0,
+     * 0) to the (width, height) of {@link #getResolution()}. The caller should arrange the UI so
+     * that only the valid region is visible to app users.
      *
      * <p> If {@link Preview} is configured with a {@link ViewPort}, this value is calculated
      * based on the configuration of {@link ViewPort}; if not, it returns the full rect of the
      * buffer.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalUseCaseGroup
     @NonNull
     public Rect getCropRect() {
         return mViewPortRect;

@@ -291,6 +291,7 @@ package androidx.camera.core {
 
   public final class SurfaceRequest {
     method public void addRequestCancellationListener(java.util.concurrent.Executor, Runnable);
+    method @androidx.camera.core.ExperimentalUseCaseGroup public android.graphics.Rect getCropRect();
     method public android.util.Size getResolution();
     method public void provideSurface(android.view.Surface, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.core.SurfaceRequest.Result!>);
     method public boolean willNotProvideSurface();
