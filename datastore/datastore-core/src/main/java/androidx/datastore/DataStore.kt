@@ -38,13 +38,12 @@ import kotlinx.coroutines.flow.Flow
 interface DataStore<T> {
     /**
      * Provides efficient, cached (when possible) access to the latest durably persisted state.
-     * The flow will always either emit a value or throw an exception when attempting to read
-     * from disk. If an exception is encountered, collecting again will attempt to get the data
-     * again.
+     * The flow will always either emit a value or throw an exception encountered when attempting
+     * to read from disk. If an exception is encountered, collecting again will attempt to read the
+     * data again.
      *
-     * Do not layer a cache on top of this API: it will be be impossible to
-     * guarantee consistency. Instead, use data.first() to access a single
-     * snapshot.
+     * Do not layer a cache on top of this API: it will be be impossible to guarantee consistency.
+     * Instead, use data.first() to access a single snapshot.
      *
      * @return a flow representing the current state of the data.
      */
@@ -56,8 +55,8 @@ interface DataStore<T> {
      * such as RPCs.
      *
      * The coroutine completes when the data has been persisted durably to disk (after which
-     * {@link #data} will reflect the update). If storage or the transform fail, the transaction
-     * is aborted and an exception is returned.
+     * [data] will reflect the update). If the transform or write to disk fails, the
+     * transaction is aborted and an exception is thrown.
      *
      * @return the snapshot returned by the transform.
      */

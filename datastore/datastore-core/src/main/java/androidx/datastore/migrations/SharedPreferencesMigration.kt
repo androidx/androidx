@@ -31,6 +31,9 @@ class SharedPreferencesMigration<T> private constructor() {
     companion object {
         internal val MIGRATE_ALL_KEYS = null
 
+        /**
+         * Returns a factory function which creates a SharedPreferences Data Migration.
+         */
         @JvmStatic
         fun <T> create(
             /** Context used for getting SharedPreferences. */
@@ -54,7 +57,8 @@ class SharedPreferencesMigration<T> private constructor() {
              * migration runs, the leftover SharedPreferences file is deleted. Note that this
              * cleanup runs only if the migration itself runs, i.e., if the keys were never in
              * SharedPreferences to begin with then the (potentially) empty SharedPreferences
-             * won't be cleaned up by this option.
+             * won't be cleaned up by this option. This functionality is best effort - if there
+             * is an issue deleting the SharedPreferences file it will be silently ignored.
              */
             deleteEmptyPreferences: Boolean = true
         ): () -> DataMigration<T> = {

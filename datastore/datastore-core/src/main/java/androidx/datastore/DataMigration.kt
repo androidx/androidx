@@ -17,7 +17,8 @@
 package androidx.datastore
 
 /**
- * Interface for migrations to DataStore.
+ * Interface for migrations to DataStore. If you're migrating from SharedPreferences see
+ * [SharedPreferencesMigration].
  */
 interface DataMigration<T> {
 
@@ -25,6 +26,9 @@ interface DataMigration<T> {
      * Return whether this migration needs to be performed. If this returns false, no migration or
      * cleanup will occur. Apps should do the cheapest possible check to determine if this migration
      * should run, since this will be called every time the DataStore is initialized.
+     *
+     * @param currentData the current data (which might already populated from previous runs of this
+     * or other migrations)
      */
     suspend fun shouldMigrate(currentData: T): Boolean
 

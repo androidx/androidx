@@ -16,6 +16,7 @@
 
 package androidx.datastore.preferences
 
+import androidx.datastore.CorruptionException
 import androidx.datastore.DataMigration
 import androidx.datastore.DataStore
 import androidx.datastore.DataStoreFactory
@@ -44,9 +45,9 @@ class PreferenceDataStoreFactory {
          */
         produceFile: () -> File,
         /**
-         * The corruptionHandler is invoked if PreferenceDataStore encounters a
-         * {@link Serializer.CorruptionException} when attempting to read data. CorruptionExceptions
-         * are thrown when the data can not be de-serialized.
+         * The corruptionHandler is invoked if DataStore encounters a [CorruptionException] when
+         * attempting to read data. CorruptionExceptions are thrown by serializers when data can
+         * not be de-serialized.
          */
         corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
         /**
