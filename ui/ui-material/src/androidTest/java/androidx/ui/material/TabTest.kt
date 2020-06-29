@@ -239,7 +239,7 @@ class TabTest {
     fun twoLineTab_textBaseline() {
         composeTestRule.setMaterialContent {
             var state by state { 0 }
-            val titles = listOf("VERY LONG TAB TITLE THAT WILL BE FORCED TO GO TO TWO LINES")
+            val titles = listOf("Two line \n text")
 
             Box {
                 TabRow(
