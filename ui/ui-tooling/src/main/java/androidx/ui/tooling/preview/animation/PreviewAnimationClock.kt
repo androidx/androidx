@@ -74,7 +74,8 @@ internal open class PreviewAnimationClock(private val initialTimeMs: Long = 0L) 
     }
 
     /**
-     * Sets [clock] time to the given [animationTimeMs], relative to [initialTimeMs].
+     * Sets [clock] time to the given [animationTimeMs], relative to [initialTimeMs]. Expected to
+     * be called via reflection from Android Studio.
      *
      * @suppress
      */
