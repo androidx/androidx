@@ -25,6 +25,7 @@ import androidx.ui.core.test.AlignTopLeft
 import androidx.ui.core.test.AtLeastSize
 import androidx.ui.core.test.FixedSize
 import androidx.ui.core.test.Padding
+import androidx.ui.core.test.assertColorsEqual
 import androidx.ui.core.test.background
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
@@ -60,13 +61,10 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.findRoot
 import org.junit.Assert
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -79,25 +77,13 @@ class PainterModifierTest {
 
     @get:Rule
     val rule = createComposeRule()
-    private lateinit var drawLatch: CountDownLatch
-
-    @Before
-    fun setup() {
-        drawLatch = CountDownLatch(1)
-    }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testPainterModifierColorFilter() {
-        val paintLatch = CountDownLatch(1)
         rule.setContent {
-            testPainter(
-                colorFilter = ColorFilter(Color.Cyan, BlendMode.srcIn),
-                latch = paintLatch
-            )
+            testPainter(colorFilter = ColorFilter(Color.Cyan, BlendMode.srcIn))
         }
-
-        paintLatch.await(5, TimeUnit.SECONDS)
 
         obtainScreenshotBitmap(
             containerWidth.roundToInt(),
@@ -110,15 +96,9 @@ class PainterModifierTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testPainterModifierAlpha() {
-        val paintLatch = CountDownLatch(1)
         rule.setContent {
-            testPainter(
-                alpha = 0.5f,
-                latch = paintLatch
-            )
+            testPainter(alpha = 0.5f)
         }
-
-        paintLatch.await(5, TimeUnit.SECONDS)
 
         obtainScreenshotBitmap(
             containerWidth.roundToInt(),
@@ -132,25 +112,16 @@ class PainterModifierTest {
             ).compositeOver(Color.White)
 
             val result = Color(getPixel(50, 50))
-            assertEquals(expected.red, result.red, 0.01f)
-            assertEquals(expected.green, result.green, 0.01f)
-            assertEquals(expected.blue, result.blue, 0.01f)
-            assertEquals(expected.alpha, result.alpha, 0.01f)
+            assertColorsEqual(expected, result)
         }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testPainterModifierRtl() {
-        val paintLatch = CountDownLatch(1)
         rule.setContent {
-            testPainter(
-                rtl = true,
-                latch = paintLatch
-            )
+            testPainter(rtl = true)
         }
-
-        paintLatch.await(5, TimeUnit.SECONDS)
 
         obtainScreenshotBitmap(
             containerWidth.roundToInt(),
@@ -163,7 +134,6 @@ class PainterModifierTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testPainterAspectRatioMaintainedInSmallerParent() {
-        val paintLatch = CountDownLatch(1)
         val containerSizePx = containerWidth.roundToInt() * 3
         rule.setContent {
             FixedSize(size = containerSizePx, modifier = Modifier.background(Color.White)) {
@@ -173,10 +143,9 @@ class PainterModifierTest {
                 Padding(containerWidth.roundToInt()) {
                     AtLeastSize(size = containerWidth.roundToInt(),
                         modifier = Modifier.paint(
-                            LatchPainter(
+                            TestPainter(
                                 containerWidth * 2,
-                                containerHeight * 2,
-                                paintLatch
+                                containerHeight * 2
                             ),
                             alignment = Alignment.Center,
                             contentScale = ContentScale.Inside
@@ -186,8 +155,6 @@ class PainterModifierTest {
                 }
             }
         }
-
-        paintLatch.await(5, TimeUnit.SECONDS)
 
         obtainScreenshotBitmap(
             containerSizePx,
@@ -207,15 +174,13 @@ class PainterModifierTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testPainterAlignedBottomRightIfSmallerThanParent() {
-        val paintLatch = CountDownLatch(1)
         val containerSizePx = containerWidth.roundToInt() * 2
         rule.setContent {
             AtLeastSize(size = containerWidth.roundToInt() * 2,
                 modifier = Modifier.background(Color.White).paint(
-                    LatchPainter(
+                    TestPainter(
                         containerWidth,
-                        containerHeight,
-                        paintLatch
+                        containerHeight
                     ),
                     alignment = Alignment.BottomEnd,
                     contentScale = ContentScale.Inside
@@ -224,8 +189,6 @@ class PainterModifierTest {
                 // Intentionally empty
             }
         }
-
-        paintLatch.await(5, TimeUnit.SECONDS)
 
         val bottom = containerSizePx - 1
         val right = containerSizePx - 1
@@ -249,18 +212,16 @@ class PainterModifierTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testPainterModifierIntrinsicSize() {
-        val paintLatch = CountDownLatch(1)
         rule.setContent {
             NoMinSizeContainer {
                 NoIntrinsicSizeContainer(
-                    Modifier.paint(LatchPainter(containerWidth, containerHeight, paintLatch))
+                    Modifier.paint(TestPainter(containerWidth, containerHeight))
                 ) {
                     // Intentionally empty
                 }
             }
         }
 
-        paintLatch.await()
         obtainScreenshotBitmap(
             containerWidth.roundToInt(),
             containerHeight.roundToInt()
@@ -280,7 +241,6 @@ class PainterModifierTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testPainterIntrinsicSizeDoesNotExceedMax() {
-        val paintLatch = CountDownLatch(1)
         val containerSize = containerWidth.roundToInt() / 2
         rule.setContent {
             NoIntrinsicSizeContainer(
@@ -289,10 +249,9 @@ class PainterModifierTest {
             ) {
                 NoIntrinsicSizeContainer(
                     AlignTopLeft + FixedSizeModifier(containerSize).paint(
-                        LatchPainter(
+                        TestPainter(
                             containerWidth,
-                            containerHeight,
-                            paintLatch
+                            containerHeight
                         ),
                         alignment = Alignment.TopStart
                     )
@@ -302,7 +261,6 @@ class PainterModifierTest {
             }
         }
 
-        paintLatch.await()
         obtainScreenshotBitmap(
             containerWidth.roundToInt(),
             containerHeight.roundToInt()
@@ -326,7 +284,6 @@ class PainterModifierTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testPainterNotSizedToIntrinsics() {
-        val paintLatch = CountDownLatch(1)
         val containerSize = containerWidth.roundToInt() / 2
         rule.setContent {
             NoIntrinsicSizeContainer(
@@ -335,10 +292,9 @@ class PainterModifierTest {
             ) {
                 NoIntrinsicSizeContainer(
                     FixedSizeModifier(containerSize).paint(
-                        LatchPainter(
+                        TestPainter(
                             containerWidth,
-                            containerHeight,
-                            paintLatch
+                            containerHeight
                         ),
                         sizeToIntrinsics = false, alignment = Alignment.TopStart)
                 ) {
@@ -347,7 +303,6 @@ class PainterModifierTest {
             }
         }
 
-        paintLatch.await()
         obtainScreenshotBitmap(
             containerSize,
             containerSize
@@ -472,8 +427,6 @@ class PainterModifierTest {
         composableWidthPx: Float,
         composableHeightPx: Float
     ) {
-        val paintLatch = CountDownLatch(1)
-
         var composableWidth = 0f
         var composableHeight = 0f
         rule.setContent {
@@ -489,15 +442,11 @@ class PainterModifierTest {
                 override fun DrawScope.onDraw() { /* no-op */ }
             }
             Box(modifier =
-                Modifier.drawWithContent {
-                    drawContent()
-                    paintLatch.countDown()
-                }.plus(modifier)
+                Modifier.plus(modifier)
                 .paint(painter, contentScale = contentScale)
             )
         }
 
-        paintLatch.await()
         findRoot()
             .assertWidthIsEqualTo(composableWidth.dp)
             .assertHeightIsEqualTo(composableHeight.dp)
@@ -520,15 +469,10 @@ class PainterModifierTest {
 
         val testTag = "testTag"
 
-        val paintLatch = CountDownLatch(1)
         rule.setContent {
             Box(
                 modifier = Modifier
                     .testTag(testTag)
-                    .drawWithContent {
-                        drawContent()
-                        paintLatch.countDown()
-                    }
                     .drawBackground(Color.Gray)
                     .width((boxWidth / DensityAmbient.current.density).dp)
                     .height((boxHeight / DensityAmbient.current.density).dp)
@@ -564,17 +508,11 @@ class PainterModifierTest {
 
         val vectorWidth = 100
         val vectorHeight = 200
-        val paintLatch = CountDownLatch(1)
         rule.setContent {
             val vectorWidthDp = (vectorWidth / DensityAmbient.current.density).dp
             val vectorHeightDp = (vectorHeight / DensityAmbient.current.density).dp
             Box(
-                modifier = Modifier
-                    .drawWithContent {
-                        drawContent()
-                        paintLatch.countDown()
-                    }
-                    .drawBackground(Color.Gray)
+                modifier = Modifier.drawBackground(Color.Gray)
                     .width((boxWidth / DensityAmbient.current.density).dp)
                     .height((boxHeight / DensityAmbient.current.density).dp)
                     .paint(
@@ -596,7 +534,6 @@ class PainterModifierTest {
             )
         }
 
-        paintLatch.await()
         obtainScreenshotBitmap(
             boxWidth,
             boxHeight
@@ -616,10 +553,9 @@ class PainterModifierTest {
     private fun testPainter(
         alpha: Float = DefaultAlpha,
         colorFilter: ColorFilter? = null,
-        rtl: Boolean = false,
-        latch: CountDownLatch
+        rtl: Boolean = false
     ) {
-        val p = LatchPainter(containerWidth, containerHeight, latch)
+        val p = TestPainter(containerWidth, containerHeight)
         AtLeastSize(
             modifier = Modifier.background(Color.White)
                 .plus(if (rtl) Modifier.rtl else Modifier.ltr)
@@ -637,10 +573,9 @@ class PainterModifierTest {
         return bitmap
     }
 
-    private class LatchPainter(
+    private class TestPainter(
         val width: Float,
-        val height: Float,
-        val latch: CountDownLatch
+        val height: Float
     ) : Painter() {
 
         var color = Color.Red
@@ -655,7 +590,6 @@ class PainterModifierTest {
 
         override fun DrawScope.onDraw() {
             drawRect(color = color)
-            latch.countDown()
         }
     }
 
