@@ -359,7 +359,7 @@ package androidx.ui.graphics {
     method public void setColor-QEYXlZo(long color);
     method public void setColorFilter(androidx.ui.graphics.ColorFilter? value);
     method public void setFilterQuality(androidx.ui.graphics.FilterQuality value);
-    method public void setShader-DcPGf4I(android.graphics.Shader? value);
+    method public void setShader(android.graphics.Shader? value);
     method public void setStrokeCap(androidx.ui.graphics.StrokeCap value);
     method public void setStrokeJoin(androidx.ui.graphics.StrokeJoin value);
     method public void setStrokeMiterLimit(float value);
@@ -469,17 +469,8 @@ package androidx.ui.graphics {
     method public static androidx.ui.graphics.Shape getRectangleShape();
   }
 
-  public final inline class Shader {
-    ctor public Shader();
-    method public static android.graphics.Shader! constructor-impl(android.graphics.Shader nativeShader);
-    method public static inline boolean equals-impl(android.graphics.Shader! p, Object? p1);
-    method public static boolean equals-impl0(android.graphics.Shader p1, android.graphics.Shader p2);
-    method public android.graphics.Shader getNativeShader();
-    method public static inline int hashCode-impl(android.graphics.Shader! p);
-    method public static inline String! toString-impl(android.graphics.Shader! p);
-  }
-
   public class ShaderBrush extends androidx.ui.graphics.Brush {
+    ctor public ShaderBrush(android.graphics.Shader shader);
     method public final void applyTo(androidx.ui.graphics.Paint p, float alpha);
     method public final android.graphics.Shader getShader();
   }

@@ -45,7 +45,7 @@ internal expect fun NativePaint.getNativeStrokeMiterLimit(): Float
 internal expect fun NativePaint.setNativeStrokeMiterLimit(value: Float)
 internal expect fun NativePaint.getNativeFilterQuality(): FilterQuality
 internal expect fun NativePaint.setNativeFilterQuality(value: FilterQuality)
-internal expect fun NativePaint.setNativeShader(value: NativeShader?)
+internal expect fun NativePaint.setNativeShader(value: Shader?)
 internal expect fun NativePaint.setNativePathEffect(value: NativePathEffect?)
 
 class Paint {
@@ -203,7 +203,7 @@ class Paint {
         get() = internalShader
         set(value) {
             internalShader = value
-            internalPaint.setNativeShader(internalShader?.nativeShader)
+            internalPaint.setNativeShader(internalShader)
         }
 
     // A color filter to apply when a shape is drawn or when a layer is

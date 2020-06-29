@@ -49,7 +49,6 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
-import androidx.ui.graphics.Shader
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.isSet
 import androidx.ui.graphics.toArgb
@@ -331,7 +330,7 @@ private class ColorWheel(diameter: Int) {
     val image = ImageAsset(diameter, diameter).also { asset ->
         val canvas = Canvas(asset)
         val center = Offset(radius, radius)
-        val paint = Paint().apply { shader = Shader(sweepShader) }
+        val paint = Paint().apply { shader = sweepShader }
         canvas.drawCircle(center, radius, paint)
     }
 }

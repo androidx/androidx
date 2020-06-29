@@ -22,12 +22,7 @@ import androidx.ui.geometry.Offset
  * Class that represents the corresponding Shader implementation on a platform. This maps
  * to Gradients or ImageShaders
  */
-expect class NativeShader
-
-/**
- * Inline class used to represent primitives used to render gradients or to tile an [ImageAsset]
- */
-inline class Shader(val nativeShader: NativeShader)
+expect class Shader
 
 /**
  * Creates a linear gradient from `from` to `to`.
