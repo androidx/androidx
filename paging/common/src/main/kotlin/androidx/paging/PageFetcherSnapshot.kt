@@ -250,7 +250,11 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     emitAll(generationalHints)
                 }
                 .scan(GenerationalViewportHint.PREPEND_INITIAL_VALUE) { acc, it ->
-                    if (acc.hint < it.hint) acc else it
+                    when {
+                        it.generationId > acc.generationId -> it
+                        acc.hint < it.hint -> acc
+                        else -> it
+                    }
                 }
                 .filter { it != GenerationalViewportHint.PREPEND_INITIAL_VALUE }
                 .conflate()
@@ -281,7 +285,11 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     emitAll(generationalHints)
                 }
                 .scan(GenerationalViewportHint.APPEND_INITIAL_VALUE) { acc, it ->
-                    if (acc.hint > it.hint) acc else it
+                    when {
+                        it.generationId > acc.generationId -> it
+                        acc.hint > it.hint -> acc
+                        else -> it
+                    }
                 }
                 .filter { it != GenerationalViewportHint.APPEND_INITIAL_VALUE }
                 .conflate()
