@@ -22,9 +22,11 @@ package androidx.datastore
  */
 interface CorruptionHandler<T> {
     /**
-     * This function should not interact with any DataStore API. This function will be called by
-     * DataStore when it encounters corruption. If an exception is thrown, it will be propagated
-     * to the original call to DataStore. Otherwise, the returned data will be written to disk.
+     * This function will be called by DataStore when it encounters corruption. If the
+     * implementation of this function throws an exception, it will be propagated to the original
+     * call to DataStore. Otherwise, the returned data will be written to disk.
+     *
+     * This function should not interact with any DataStore API - doing so can result in a deadlock.
      *
      * @param ex is the exception encountered when attempting to deserialize data from disk.
      * @return The value that DataStore should attempt to write to disk.

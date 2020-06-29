@@ -50,9 +50,9 @@ class DataStoreFactory {
          */
         serializer: Serializer<T>,
         /**
-         * The corruptionHandler is invoked if DataStore encounters a
-         * {@link Serializer.CorruptionException} when attempting to read data. CorruptionExceptions
-         * are thrown when the data can not be de-serialized.
+         * The corruptionHandler is invoked if DataStore encounters a [CorruptionException] when
+         * attempting to read data. CorruptionExceptions are thrown by serializers when data can
+         * not be de-serialized.
          */
         corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
         /**
