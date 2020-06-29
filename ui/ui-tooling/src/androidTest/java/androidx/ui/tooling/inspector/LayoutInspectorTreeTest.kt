@@ -66,7 +66,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
         view = activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
     }
 
-    @Ignore("b/159974680")
+    @Ignore("Manual test")
     @Test
     fun buildTree() {
         val slotTableRecord = SlotTableRecord.create()
@@ -129,16 +129,9 @@ class LayoutInspectorTreeTest : ToolingTest() {
         }
 
         validate(
-            name = "Box",
-            fileName = "Box.kt",
-            function = "androidx.ui.foundation.BoxKt.Box",
-            left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
-            children = listOf("Column")
-        )
-        validate(
             name = "Column",
-            fileName = "Box.kt",
-            function = "androidx.ui.foundation.BoxKt.Box",
+            fileName = "Column.kt",
+            function = "androidx.ui.layout.ColumnKt.Column",
             left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
             children = listOf("RowColumnImpl")
         )
@@ -214,34 +207,27 @@ class LayoutInspectorTreeTest : ToolingTest() {
             fileName = "Surface.kt",
             function = "androidx.ui.material.SurfaceKt.Surface",
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
-            children = listOf("Box")
-        )
-        validate(
-            name = "Box",
-            fileName = "Button.kt",
-            function = "androidx.ui.material.ButtonKt\$Button[###].invoke",
-            left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
-            children = listOf("Column")
-        )
-        validate(
-            name = "Column",
-            fileName = "Box.kt",
-            function = "androidx.ui.foundation.BoxKt.Box",
-            left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
-            children = listOf("RowColumnImpl")
-        )
-        validate(
-            name = "RowColumnImpl",
-            fileName = "Column.kt",
-            function = "androidx.ui.layout.ColumnKt.Column",
-            left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
             children = listOf("ProvideTextStyle")
         )
         validate(
             name = "ProvideTextStyle",
             fileName = "Button.kt",
             function = "androidx.ui.material.ButtonKt\$Button[###].invoke",
-            left = 21.8.dp, top = 27.6.dp, width = 20.4.dp, height = 18.9.dp,
+            left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
+            children = listOf("Row")
+        )
+        validate(
+            name = "Row",
+            fileName = "Button.kt",
+            function = "androidx.ui.material.ButtonKt\$Button[###].invoke",
+            left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
+            children = listOf("RowColumnImpl")
+        )
+        validate(
+            name = "RowColumnImpl",
+            fileName = "Row.kt",
+            function = "androidx.ui.layout.RowKt.Row",
+            left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
             children = listOf("Text")
         )
         validate(
