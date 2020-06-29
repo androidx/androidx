@@ -46,6 +46,7 @@ import androidx.ui.input.TextFieldValue
 import androidx.ui.input.TextInputService
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
+import androidx.ui.layout.height
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.savedinstancestate.rememberSavedInstanceState
@@ -99,7 +100,7 @@ class TextFieldTest {
     private val ExpectedPadding = 16.dp
     private val IconPadding = 12.dp
     private val ExpectedBaselineOffset = 20.dp
-    private val ExpectedLastBaselineOffset = 16.dp
+    private val TopPaddingFilledTextfield = 3.dp
     private val IconColorAlpha = 0.54f
     private val TextfieldTag = "textField"
 
@@ -363,7 +364,7 @@ class TextFieldTest {
                     onValueChange = {},
                     label = {
                         Text(text = "label", modifier = Modifier.onPositioned {
-                            labelPosition.value = it.globalPosition
+                            labelPosition.value = it.positionInRoot
                             labelSize.value = it.size
                             baseline.value = it[FirstBaseline].toFloat() + labelPosition.value!!.y
                         })
@@ -437,7 +438,7 @@ class TextFieldTest {
                     onValueChange = {},
                     label = {
                         Text(text = "label", modifier = Modifier.onPositioned {
-                            labelPosition.value = it.globalPosition
+                            labelPosition.value = it.positionInRoot
                             labelSize.value = it.size
                             baseline.value =
                                 it[FirstBaseline].toFloat() + labelPosition.value!!.y
@@ -496,7 +497,6 @@ class TextFieldTest {
     fun testFilledTextField_placeholderPosition_withLabel() {
         val placeholderSize = Ref<IntSize>()
         val placeholderPosition = Ref<Offset>()
-        val placeholderBaseline = Ref<Float>()
         testRule.setMaterialContent {
             Box {
                 FilledTextField(
@@ -508,10 +508,8 @@ class TextFieldTest {
                     label = { Text("label") },
                     placeholder = {
                         Text(text = "placeholder", modifier = Modifier.onPositioned {
-                            placeholderPosition.value = it.globalPosition
+                            placeholderPosition.value = it.positionInRoot
                             placeholderSize.value = it.size
-                            placeholderBaseline.value =
-                                it[FirstBaseline].toFloat() + placeholderPosition.value!!.y
                         })
                     }
                 )
@@ -529,10 +527,10 @@ class TextFieldTest {
             assertThat(placeholderPosition.value?.x).isEqualTo(
                 ExpectedPadding.toIntPx().toFloat()
             )
-            assertThat(placeholderBaseline.value)
+            assertThat(placeholderPosition.value?.y)
                 .isEqualTo(
-                    60.dp.toIntPx().toFloat() -
-                            ExpectedLastBaselineOffset.toIntPx().toFloat()
+                    (ExpectedBaselineOffset.toIntPx() + TopPaddingFilledTextfield.toIntPx())
+                        .toFloat()
                 )
         }
     }
@@ -583,7 +581,6 @@ class TextFieldTest {
     fun testFilledTextField_placeholderPosition_whenNoLabel() {
         val placeholderSize = Ref<IntSize>()
         val placeholderPosition = Ref<Offset>()
-        val placeholderBaseline = Ref<Float>()
         val height = 60.dp
         testRule.setMaterialContent {
             Box {
@@ -593,11 +590,9 @@ class TextFieldTest {
                     onValueChange = {},
                     label = {},
                     placeholder = {
-                        Text(text = "placeholder", modifier = Modifier.onPositioned {
+                        Text(text = "placeholder", modifier = Modifier.height(20.dp).onPositioned {
                             placeholderPosition.value = it.positionInRoot
                             placeholderSize.value = it.size
-                            placeholderBaseline.value =
-                                it[FirstBaseline].toFloat() + placeholderPosition.value!!.y
                         })
                     }
                 )
@@ -609,14 +604,16 @@ class TextFieldTest {
         testRule.runOnIdleComposeWithDensity {
             // size
             assertThat(placeholderSize.value).isNotNull()
-            assertThat(placeholderSize.value?.height).isGreaterThan(0)
+            assertThat(placeholderSize.value?.height).isEqualTo(20.dp.toIntPx())
             assertThat(placeholderSize.value?.width).isGreaterThan(0)
             // centered position
             assertThat(placeholderPosition.value?.x).isEqualTo(
                 ExpectedPadding.toIntPx().toFloat()
             )
             assertThat(placeholderPosition.value?.y).isEqualTo(
-                ((height.toIntPx() - placeholderSize.value!!.height) / 2f).roundToInt().toFloat()
+                ((height.toIntPx().toFloat() - placeholderSize.value!!.height) / 2f)
+                    .roundToInt()
+                    .toFloat()
             )
         }
     }
