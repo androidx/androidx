@@ -77,7 +77,7 @@ class LayoutHelper(val layout: Layout) {
      *
      *  @param paragraphIndex a paragraph index
      */
-    private fun analyzeBidi(paragraphIndex: Int): Bidi? {
+    fun analyzeBidi(paragraphIndex: Int): Bidi? {
         // If we already analyzed target paragraph, just return the result.
         if (bidiProcessedParagraphs[paragraphIndex]) {
             return paragraphBidi[paragraphIndex]
