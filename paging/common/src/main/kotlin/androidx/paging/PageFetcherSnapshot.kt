@@ -137,11 +137,12 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 }
         }
 
-        // Trigger RemoteMediator initialization blockingly.
         if (triggerRemoteRefresh) {
             remoteMediatorAccessor?.run {
                 val pagingState = stateLock.withLock { state.currentPagingState(null) }
-                doBoundaryCall(this@cancelableChannelFlow, REFRESH, pagingState)
+                launch {
+                    doBoundaryCall(this@cancelableChannelFlow, REFRESH, pagingState)
+                }
             }
         }
 
