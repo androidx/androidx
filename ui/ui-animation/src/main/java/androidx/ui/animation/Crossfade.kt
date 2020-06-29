@@ -38,11 +38,13 @@ import androidx.ui.util.fastForEach
  * @param current is a key representing your current layout state. every time you change a key
  * the animation will be triggered. The [children] called with the old key will be faded out while
  * the [children] called with the new key will be faded in.
+ * @param modifier Modifier to be applied to the animation container.
  * @param animation the [AnimationSpec] to configure the animation.
  */
 @Composable
 fun <T> Crossfade(
     current: T,
+    modifier: Modifier = Modifier,
     animation: AnimationSpec<Float> = tween(),
     children: @Composable (T) -> Unit
 ) {
@@ -73,7 +75,7 @@ fun <T> Crossfade(
             }
         }
     }
-    Stack {
+    Stack(modifier) {
         state.invalidate = invalidate
         state.items.fastForEach { (item, opacity) ->
             key(item) {

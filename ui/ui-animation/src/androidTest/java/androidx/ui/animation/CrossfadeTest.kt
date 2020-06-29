@@ -97,7 +97,8 @@ class CrossfadeTest {
         var disposed = false
         composeTestRule.setContent {
             Crossfade(
-                showFirst, TweenSpec(durationMillis = duration)
+                showFirst,
+                animation = TweenSpec(durationMillis = duration)
             ) {
                 Text(if (it) First else Second)
                 onDispose {
