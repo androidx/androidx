@@ -22,7 +22,6 @@ import androidx.core.content.res.ComplexColorCompat
 import androidx.core.content.res.TypedArrayUtils
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Shader
 import androidx.ui.graphics.ShaderBrush
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.StrokeCap
@@ -321,7 +320,7 @@ private fun obtainBrushFromComplexColor(complexColor: ComplexColorCompat): Brush
     if (complexColor.willDraw()) {
         val shader = complexColor.shader
         if (shader != null) {
-            ShaderBrush(Shader(shader))
+            ShaderBrush(shader)
         } else {
             SolidColor(Color(complexColor.color))
         }

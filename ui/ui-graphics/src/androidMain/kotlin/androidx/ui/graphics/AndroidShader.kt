@@ -21,7 +21,7 @@ import android.graphics.BitmapShader
 import android.graphics.LinearGradient
 import android.graphics.RadialGradient
 
-actual typealias NativeShader = android.graphics.Shader
+actual typealias Shader = android.graphics.Shader
 
 internal actual fun ActualLinearGradientShader(
     from: Offset,
@@ -31,8 +31,7 @@ internal actual fun ActualLinearGradientShader(
     tileMode: TileMode
 ): Shader {
     validateColorStops(colors, colorStops)
-    return Shader(
-        LinearGradient(
+    return LinearGradient(
             from.x,
             from.y,
             to.x,
@@ -41,7 +40,6 @@ internal actual fun ActualLinearGradientShader(
             colorStops?.toFloatArray(),
             tileMode.toNativeTileMode()
         )
-    )
 }
 
 internal actual fun ActualRadialGradientShader(
@@ -52,8 +50,7 @@ internal actual fun ActualRadialGradientShader(
     tileMode: TileMode
 ): Shader {
     validateColorStops(colors, colorStops)
-    return Shader(
-        RadialGradient(
+    return RadialGradient(
             center.x,
             center.y,
             radius,
@@ -61,7 +58,6 @@ internal actual fun ActualRadialGradientShader(
             colorStops?.toFloatArray(),
             tileMode.toNativeTileMode()
         )
-    )
 }
 
 internal actual fun ActualImageShader(
@@ -69,13 +65,11 @@ internal actual fun ActualImageShader(
     tileModeX: TileMode,
     tileModeY: TileMode
 ): Shader {
-    return Shader(
-        BitmapShader(
+    return BitmapShader(
             image.asAndroidBitmap(),
             tileModeX.toNativeTileMode(),
             tileModeY.toNativeTileMode()
         )
-    )
 }
 
 private fun List<Color>.toIntArray(): IntArray =
