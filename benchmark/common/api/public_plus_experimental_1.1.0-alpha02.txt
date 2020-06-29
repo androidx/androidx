@@ -24,5 +24,8 @@ package androidx.benchmark {
   public final class MetricNameUtilsKt {
   }
 
+  public final class ProfilerKt {
+  }
+
 }
 
