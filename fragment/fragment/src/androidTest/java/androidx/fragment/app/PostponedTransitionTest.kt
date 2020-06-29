@@ -339,7 +339,7 @@ class PostponedTransitionTest {
 
     // Do a bunch of things to one fragment in a transaction and see if it can screw things up.
     @Test
-    fun crazyTransition() {
+    fun extensiveTransition() {
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
