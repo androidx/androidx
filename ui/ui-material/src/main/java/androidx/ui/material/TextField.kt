@@ -1022,9 +1022,12 @@ private object FilledTextField {
             modifier = modifier
         ) { measurables, constraints ->
             val placeholderPlaceable =
-                measurables.find { it.id == PlaceholderId }?.measure(constraints)
+                measurables.find { it.id == PlaceholderId }
+                    ?.measure(constraints.copy(minWidth = 0, minHeight = 0))
 
             val baseLineOffset = FirstBaselineOffset.toIntPx()
+            val lastBaselineOffset = LastBaselineOffset.toIntPx()
+            val padding = FilledTextFieldTopPadding.toIntPx()
 
             val labelConstraints = constraints
                 .offset(vertical = -LastBaselineOffset.toIntPx())
@@ -1034,10 +1037,11 @@ private object FilledTextField {
                 if (it != AlignmentLine.Unspecified) it else labelPlaceable.height
             }
             val labelEndPosition = (baseLineOffset - labelBaseline).coerceAtLeast(0)
+            // to support cases where label is not a text
             val effectiveLabelBaseline = max(labelBaseline, baseLineOffset)
 
             val textFieldConstraints = constraints
-                .offset(vertical = -LastBaselineOffset.toIntPx() - effectiveLabelBaseline)
+                .offset(vertical = -lastBaselineOffset - padding - effectiveLabelBaseline)
                 .copy(minHeight = 0)
             val textFieldPlaceable = measurables
                 .first { it.id == TextFieldId }
@@ -1047,7 +1051,7 @@ private object FilledTextField {
 
             val width = max(textFieldPlaceable.width, constraints.minWidth)
             val height = max(
-                effectiveLabelBaseline + textFieldPlaceable.height + LastBaselineOffset.toIntPx(),
+                effectiveLabelBaseline + padding + textFieldLastBaseline + lastBaselineOffset,
                 constraints.minHeight
             )
 
@@ -1055,9 +1059,6 @@ private object FilledTextField {
                 // Text field and label are placed with respect to the baseline offsets.
                 // But if label is empty, then the text field should be centered vertically.
                 if (labelPlaceable.width != 0) {
-                    // only respects the offset from the last baseline to the bottom of the text field
-                    val textfieldPositionY = height - LastBaselineOffset.toIntPx() -
-                            min(textFieldLastBaseline, textFieldPlaceable.height)
                     placeLabelAndTextfield(
                         width,
                         height,
@@ -1065,11 +1066,11 @@ private object FilledTextField {
                         labelPlaceable,
                         placeholderPlaceable,
                         labelEndPosition,
-                        textfieldPositionY,
+                        effectiveLabelBaseline + padding,
                         animationProgress
                     )
                 } else {
-                    placeTextfield(width, height, textFieldPlaceable, placeholderPlaceable)
+                    placeTextfield(height, textFieldPlaceable, placeholderPlaceable)
                 }
             }
         }
@@ -1184,19 +1185,18 @@ private object FilledTextField {
      * Places the provided text field and placeholder center vertically in [FilledTextField]
      */
     private fun Placeable.PlacementScope.placeTextfield(
-        width: Int,
         height: Int,
         textPlaceable: Placeable,
         placeholderPlaceable: Placeable?
     ) {
-        val textCenterPosition = Alignment.CenterStart.align(
-            IntSize(
-                width - textPlaceable.width,
-                height - textPlaceable.height
-            )
+        textPlaceable.place(
+            0,
+            Alignment.CenterVertically.align(height - textPlaceable.height)
         )
-        textPlaceable.place(0, textCenterPosition.y)
-        placeholderPlaceable?.place(0, textCenterPosition.y)
+        placeholderPlaceable?.place(
+            0,
+            Alignment.CenterVertically.align(height - placeholderPlaceable.height)
+        )
     }
 }
 
@@ -1676,6 +1676,7 @@ private val LastBaselineOffset = 16.dp
 private val TextFieldPadding = 16.dp
 private val HorizontalIconPadding = 12.dp
 private val OutlinedTextFieldInnerPadding = 4.dp
+private val FilledTextFieldTopPadding = 3.dp
 
 // TODO(b/158077409) support shape in OutlinedTextField
 private val OutlinedTextFieldCornerRadius = 4.dp
