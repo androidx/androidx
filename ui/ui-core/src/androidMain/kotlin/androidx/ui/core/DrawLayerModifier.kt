@@ -58,6 +58,15 @@ inline class TransformOrigin(@PublishedApi internal val packedValue: Long) {
     val pivotFractionY: Float
         get() = unpackFloat2(packedValue)
 
+    /**
+     * Returns a copy of this TransformOrigin instance optionally overriding the
+     * pivotFractionX or pivotFractionY parameter
+     */
+    fun copy(
+        pivotFractionX: Float = this.pivotFractionX,
+        pivotFractionY: Float = this.pivotFractionY
+    ) = TransformOrigin(pivotFractionX, pivotFractionY)
+
     companion object {
 
         /**

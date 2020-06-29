@@ -68,4 +68,26 @@ class SizeTest {
             Size(40f, 40f) / 4.0f
         )
     }
+
+    @Test
+    fun testSizeCopy() {
+        val size = Size(100f, 200f)
+        Assert.assertEquals(size, size.copy())
+    }
+
+    @Test
+    fun testSizeCopyOverwriteWidth() {
+        val size = Size(100f, 200f)
+        val copy = size.copy(width = 50f)
+        Assert.assertEquals(50f, copy.width)
+        Assert.assertEquals(200f, copy.height)
+    }
+
+    @Test
+    fun testSizeCopyOverwriteHeight() {
+        val size = Size(100f, 200f)
+        val copy = size.copy(height = 300f)
+        Assert.assertEquals(100f, copy.width)
+        Assert.assertEquals(300f, copy.height)
+    }
 }

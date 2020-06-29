@@ -71,6 +71,12 @@ inline fun Offset(x: Float, y: Float) = Offset(packFloats(x, y))
     val y: Float
         get() = unpackFloat2(packedValue)
 
+    /**
+     * Returns a copy of this Offset instance optionally overriding the
+     * x or y parameter
+     */
+    fun copy(x: Float = this.x, y: Float = this.y) = Offset(x, y)
+
     companion object {
         /**
          * An offset with zero magnitude.

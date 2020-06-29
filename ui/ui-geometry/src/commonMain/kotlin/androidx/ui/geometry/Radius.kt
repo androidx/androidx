@@ -48,6 +48,12 @@ inline class Radius(@PublishedApi internal val packedValue: Long) {
     val y: Float
         get() = unpackFloat2(packedValue)
 
+    /**
+     * Returns a copy of this Radius instance optionally overriding the
+     * radius parameter for the x or y axis
+     */
+    fun copy(x: Float = this.x, y: Float = this.y) = Radius(x, y)
+
     companion object {
 
         /**

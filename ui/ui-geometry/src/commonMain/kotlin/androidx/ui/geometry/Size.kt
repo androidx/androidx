@@ -52,11 +52,19 @@ fun Size(width: Float, height: Float) = Size(packFloats(width, height))
     val height: Float
         get() = unpackFloat2(packedValue)
 
+    /**
+     * Returns a copy of this Size instance optionally overriding the
+     * width or height parameter
+     */
+    fun copy(width: Float = this.width, height: Float = this.height) = Size(width, height)
+
     companion object {
         /**
          * Creates an instance of [Size] that has the same values as another.
          */
         // Used by the rendering library's _DebugSize hack.
+        @Deprecated("Use copy(width, height) on the desired Size instance instead",
+            ReplaceWith("source.copy()"))
         fun copy(source: Size): Size {
             return Size(source.width, source.height)
         }

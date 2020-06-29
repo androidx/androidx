@@ -3,6 +3,7 @@ package androidx.ui.geometry {
 
   @androidx.compose.Immutable public final class Offset {
     ctor public Offset(internal long packedValue);
+    method public androidx.ui.geometry.Offset copy(float x = this.x, float y = this.y);
     method @androidx.compose.Immutable public androidx.ui.geometry.Offset copy(long packedValue);
     method @androidx.compose.Stable public operator androidx.ui.geometry.Offset div(float operand);
     method @androidx.compose.Stable public float getDistance();
@@ -122,6 +123,7 @@ package androidx.ui.geometry {
   @androidx.compose.Immutable public final inline class Radius {
     ctor public Radius();
     method public static long constructor-impl(internal long packedValue);
+    method public static long copy-impl(long $this, float x = this.x, float y = this.y);
     method @androidx.compose.Stable public static operator long div-impl(long $this, float operand);
     method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
@@ -218,6 +220,7 @@ package androidx.ui.geometry {
     method @androidx.compose.Stable public androidx.ui.geometry.Offset centerLeft(androidx.ui.geometry.Offset origin);
     method @androidx.compose.Stable public androidx.ui.geometry.Offset centerRight(androidx.ui.geometry.Offset origin);
     method @androidx.compose.Stable public boolean contains(androidx.ui.geometry.Offset offset);
+    method public androidx.ui.geometry.Size copy(float width = this.width, float height = this.height);
     method @androidx.compose.Immutable public androidx.ui.geometry.Size copy(long packedValue);
     method @androidx.compose.Stable public operator androidx.ui.geometry.Size div(float operand);
     method @androidx.compose.Stable public androidx.ui.geometry.Size getFlipped();
@@ -243,7 +246,7 @@ package androidx.ui.geometry {
   }
 
   public static final class Size.Companion {
-    method public androidx.ui.geometry.Size copy(androidx.ui.geometry.Size source);
+    method @Deprecated public androidx.ui.geometry.Size copy(androidx.ui.geometry.Size source);
     method public androidx.ui.geometry.Size fromHeight(float height);
     method public androidx.ui.geometry.Size fromRadius(float radius);
     method public androidx.ui.geometry.Size fromWidth(float width);
