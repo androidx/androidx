@@ -154,14 +154,16 @@ final class LifecycleCameraRepository {
     }
 
     /**
-     * Set the specified {@link LifecycleCamera} as the current active camera.
+     * Prioritizes the specified {@link LifecycleCamera} as the current active camera.
      *
-     * <p>This will take over as the current active camera, meaning if there was another
-     * LifecycleCamera that was currently active it will be moved into an inactive state.
+     * <p>This will take over as the current active camera if the camera is in a STARTED state.
      */
-    public void setActive(@NonNull LifecycleCamera lifecycleCamera) {
-        setActive(Key.create(lifecycleCamera.getLifecycleOwner(),
-                lifecycleCamera.getCameraUseCaseAdapter().getCameraId()));
+    public void prioritize(@NonNull LifecycleCamera lifecycleCamera) {
+        LifecycleOwner lifecycleOwner = lifecycleCamera.getLifecycleOwner();
+        if (lifecycleOwner.getLifecycle().getCurrentState().isAtLeast(State.STARTED)) {
+            setActive(Key.create(lifecycleOwner,
+                    lifecycleCamera.getCameraUseCaseAdapter().getCameraId()));
+        }
     }
 
     // Sets the LifecycleCamera with the associated key as the current active camera. This will
@@ -179,6 +181,7 @@ final class LifecycleCameraRepository {
                     if (!key.equals(currentActiveCamera)) {
                         Preconditions.checkNotNull(
                                 mCameraMap.get(currentActiveCamera)).suspend();
+                        mActiveCameras.remove(key);
                         mActiveCameras.push(key);
                     }
                 }
