@@ -284,22 +284,16 @@ class Commit:
 			return line[releaseNoteStartIndex:].strip(' "')
 		return ""
 
-	def getReleaseNoteString(self):
-		releaseNoteString = self.releaseNote
-		releaseNoteString += " " + str(getChangeIdAOSPLink(self.changeId))
-		for bug in self.bugs:
-			releaseNoteString += " " + str(getBuganizerLink(bug))
-		return releaseNoteString
-
 	def isIgnoredChange(self, releaseNote):
 		notApplicableStringOptions = ['na', 'n/a', 'n a']
 		return releaseNote.lower().strip() in notApplicableStringOptions
 
 	def __str__(self):
 		commitString = self.summary
-		commitString += " " + str(getChangeIdAOSPLink(self.changeId))
+		commitString += " (" + str(getChangeIdAOSPLink(self.changeId))
 		for bug in self.bugs:
-			commitString += " " + str(getBuganizerLink(bug))
+			commitString += ", " + str(getBuganizerLink(bug))
+		commitString += ")"
 		return commitString
 
 def getChangeIdAOSPLink(changeId):

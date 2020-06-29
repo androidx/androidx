@@ -168,6 +168,73 @@ class TestGitClient(unittest.TestCase):
 			commitWithApiChange.files
 		)
 		self.assertEqual("Added an awesome new API!", commitWithApiChange.releaseNote)
+		self.assertEqual(
+			"Added a new API! ([myChan]" +
+			"(https://android-review.googlesource.com/#/q/myChangeId), " +
+			"[b/123456](https://issuetracker.google.com/issues/123456), " +
+			"[b/1234567](https://issuetracker.google.com/issues/1234567), " +
+			"[b/123123](https://issuetracker.google.com/issues/123123))",
+			str(commitWithApiChange)
+		)
+
+	def test_parseAPICommitWithOneBug(self):
+		commitWithApiChangeString = """
+				_CommitStart
+				_CommitSHA:mySha
+				_Author:anemail@google.com
+				_Date:Tue Aug 6 15:05:55 2019 -0700
+				_Subject:Added a new API!
+				_Body:Also fixed some other bugs
+
+				Relnote: Added an awesome new API!
+
+				Bug: 123456
+				Test: ./gradlew buildOnServer
+				Change-Id: myChangeId
+
+				projectdir/a.java
+				projectdir/api/current.txt
+			"""
+		commitWithApiChange = Commit(commitWithApiChangeString, "/projectdir/")
+		self.assertEqual("Added an awesome new API!", commitWithApiChange.releaseNote)
+		self.assertEqual([123456], commitWithApiChange.bugs)
+		self.assertEqual(
+			"Added a new API! ([myChan]" +
+			"(https://android-review.googlesource.com/#/q/myChangeId), " +
+			"[b/123456](https://issuetracker.google.com/issues/123456))",
+			str(commitWithApiChange)
+		)
+
+	def test_parseAPICommitWithMultipleBugs(self):
+		commitWithApiChangeString = """
+				_CommitStart
+				_CommitSHA:mySha
+				_Author:anemail@google.com
+				_Date:Tue Aug 6 15:05:55 2019 -0700
+				_Subject:Added a new API!
+				_Body:Also fixed some other bugs
+
+				Relnote: Added an awesome new API!
+
+				Bug: 123456, 1234567
+				Fixes: 123123
+				Test: ./gradlew buildOnServer
+				Change-Id: myChangeId
+
+				projectdir/a.java
+				projectdir/api/current.txt
+			"""
+		commitWithApiChange = Commit(commitWithApiChangeString, "/projectdir/")
+		self.assertEqual("Added an awesome new API!", commitWithApiChange.releaseNote)
+		self.assertEqual([123456, 1234567, 123123], commitWithApiChange.bugs)
+		self.assertEqual(
+			"Added a new API! ([myChan]" +
+			"(https://android-review.googlesource.com/#/q/myChangeId), " +
+			"[b/123456](https://issuetracker.google.com/issues/123456), " +
+			"[b/1234567](https://issuetracker.google.com/issues/1234567), " +
+			"[b/123123](https://issuetracker.google.com/issues/123123))",
+			str(commitWithApiChange)
+		)
 
 	def test_parseAPICommitWithDefaultDelimitersAndNonstandardQuoteCharacters(self):
 		commitWithApiChangeString = """

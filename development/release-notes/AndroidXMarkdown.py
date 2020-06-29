@@ -40,15 +40,27 @@ class CommitMarkdownList:
 	def getListItemStr(self):
 		return "- "
 
+	def formatReleaseNoteString(self):
+		if commit.releaseNote != "":
+			releaseNoteString = commit.releaseNote
+		else:
+			releaseNoteString = self.getListItemStr() + commit.summary
+		newLineCharCount = releaseNoteString.count("\n")
+		if releaseNoteString[-1] == "\n":
+			newLineCharCount = newLineCharCount - 1
+		releaseNoteString = releaseNoteString.replace("\n", "\n  ", newLineCharCount)
+		releaseNoteString += " (" + str(getChangeIdAOSPLink(commit.changeId))
+		for bug in commit.bugs:
+			releaseNoteString += ", " + str(getBuganizerLink(bug))
+		releaseNoteString += ")"
+		return self.getListItemStr() + releaseNoteString
+
 	def makeReleaseNotesSection(self, sectionCommitType):
 		sectionHeader = MarkdownBoldText(getTitleFromCommitType(sectionCommitType))
 		markdownStringSection = ""
 		for commit in self.commits:
 			if commit.changeType != sectionCommitType: continue
-			if commit.releaseNote != "":
-				commitString = self.getListItemStr() + commit.getReleaseNoteString()
-			else:
-				commitString = self.getListItemStr() + str(commit)
+			commitString = self.formatReleaseNoteString(commit)
 			if self.forceIncludeAllCommits or commit.releaseNote != "":
 				markdownStringSection = markdownStringSection + commitString
 				if markdownStringSection[-1] != '\n':
