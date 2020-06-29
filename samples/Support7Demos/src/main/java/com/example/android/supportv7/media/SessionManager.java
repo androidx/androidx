@@ -234,6 +234,7 @@ public class SessionManager implements Player.Callback {
     }
 
     void syncWithManager(SessionManager manager) {
+        manager.updateStatus();
         mSessionId = manager.mSessionId;
         mItemId = manager.mItemId;
         mPaused = manager.mPaused;
