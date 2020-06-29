@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+// See tools/metalava/API-LINT.md for how to update this file.
+
+RemovedInterface: androidx.media2.common.SessionPlayer:
+    Class androidx.media2.common.SessionPlayer no longer implements java.lang.AutoCloseable
