@@ -48,6 +48,12 @@ internal inline class Motion(val packedValue: Long) {
         get() = unpackFloat1(packedValue)
     val velocity: Float
         get() = unpackFloat2(packedValue)
+
+    /**
+     * Returns a copy of this Motion instance optionally overriding the
+     * value or velocity parameters
+     */
+    fun copy(value: Float = this.value, velocity: Float = this.velocity) = Motion(value, velocity)
 }
 
 internal fun Motion(value: Float, velocity: Float) = Motion(packFloats(value, velocity))

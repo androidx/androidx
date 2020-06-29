@@ -892,6 +892,7 @@ package androidx.ui.core {
   @androidx.compose.Immutable public final inline class TransformOrigin {
     ctor public TransformOrigin();
     method public static long constructor-impl(internal long packedValue);
+    method public static long copy-impl(long $this, float pivotFractionX = this.pivotFractionX, float pivotFractionY = this.pivotFractionY);
     method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public static float getPivotFractionX-impl(long $this);
