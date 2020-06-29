@@ -237,7 +237,7 @@ import kotlin.math.max
 }
 
 @Deprecated(
-    """Use Layout() function with 
+    """Use Layout() function with
         'MeasureScope.(List<Measurable>, Constraints) -> MeasureScope.MeasureResult'
         measure block instead.""",
     ReplaceWith("Layout(children, modifier, {measurables, constraints -> measureBlock})")
@@ -447,7 +447,7 @@ fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock2) =
             return simpleIdentityToString(
                 this,
                 "MeasuringIntrinsicsMeasureBlocks"
-            ) + "{ measureBlock=${simpleIdentityToString(measureBlock)} }"
+            ) + "{ measureBlock=${simpleIdentityToString(measureBlock, null)} }"
         }
     }
 
@@ -513,7 +513,7 @@ fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
             return simpleIdentityToString(
                 this,
                 "MeasuringIntrinsicsMeasureBlocks"
-            ) + "{ measureBlock=${simpleIdentityToString(measureBlock)} }"
+            ) + "{ measureBlock=${simpleIdentityToString(measureBlock, null)} }"
         }
     }
 

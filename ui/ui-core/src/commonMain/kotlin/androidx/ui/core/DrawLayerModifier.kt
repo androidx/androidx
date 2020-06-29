@@ -16,11 +16,11 @@
 
 package androidx.ui.core
 
-import androidx.annotation.FloatRange
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
+import androidx.ui.util.annotation.FloatRange
 import androidx.ui.util.packFloats
 import androidx.ui.util.unpackFloat1
 import androidx.ui.util.unpackFloat2
@@ -116,7 +116,7 @@ interface DrawLayerModifier : Modifier.Element {
      * Sets the elevation for the shadow in pixels. With the [shadowElevation] > 0f and
      * [shape] set, a shadow is produced.
      */
-    @get:FloatRange(from = 0.0)
+    @get:FloatRange(from = 0.0, to = 3.4e38 /* POSITIVE_INFINITY */)
     val shadowElevation: Float get() = 0f
 
     /**

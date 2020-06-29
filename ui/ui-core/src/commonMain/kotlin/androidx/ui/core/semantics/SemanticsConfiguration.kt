@@ -128,9 +128,7 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as SemanticsConfiguration
+        if (other !is SemanticsConfiguration) return false
 
         if (isMergingSemanticsOfDescendants != other.isMergingSemanticsOfDescendants) return false
         if (props != other.props) return false
@@ -162,7 +160,7 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
             propsString.append(value)
             nextSeparator = CommaSeparator
         }
-        return "${simpleIdentityToString(this@SemanticsConfiguration)}{ $propsString }"
+        return "${simpleIdentityToString(this@SemanticsConfiguration, null)}{ $propsString }"
     }
 }
 

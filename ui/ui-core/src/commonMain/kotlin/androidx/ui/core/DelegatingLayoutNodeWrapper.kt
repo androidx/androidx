@@ -22,6 +22,7 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.IntOffset
+import androidx.ui.util.nativeClass
 
 /**
  * [LayoutNodeWrapper] with default implementations for methods.
@@ -55,7 +56,7 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
      */
     fun setModifierTo(modifier: Modifier.Element) {
         if (modifier !== this.modifier) {
-            require(modifier.javaClass == this.modifier.javaClass)
+            require(modifier.nativeClass() == this.modifier.nativeClass())
             @Suppress("UNCHECKED_CAST")
             this.modifier = modifier as T
         }
