@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.datastore.DataMigration
 import androidx.datastore.DataStore
-import androidx.datastore.migrations.SharedPreferencesMigration
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -64,7 +63,7 @@ class SharedPreferencesToPreferencesTest {
 
         assertThat(sharedPrefs.edit().putString(stringKey, stringValue).commit()).isTrue()
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName
         )
@@ -84,7 +83,7 @@ class SharedPreferencesToPreferencesTest {
 
         assertThat(sharedPrefs.edit().putString(stringKey, stringValue).commit()).isTrue()
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName
         )
@@ -104,7 +103,7 @@ class SharedPreferencesToPreferencesTest {
 
         assertThat(sharedPrefs.edit().putString(stringKey, stringValue).commit()).isTrue()
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName
         )
@@ -122,7 +121,7 @@ class SharedPreferencesToPreferencesTest {
 
         assertThat(sharedPrefs.edit().putInt(integerKey, integerValue).commit()).isTrue()
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName
         )
@@ -140,7 +139,7 @@ class SharedPreferencesToPreferencesTest {
 
         assertThat(sharedPrefs.edit().putFloat(floatKey, floatValue).commit()).isTrue()
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName
         )
@@ -158,7 +157,7 @@ class SharedPreferencesToPreferencesTest {
 
         assertThat(sharedPrefs.edit().putBoolean(booleanKey, booleanValue).commit()).isTrue()
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName
         )
@@ -176,7 +175,7 @@ class SharedPreferencesToPreferencesTest {
 
         assertThat(sharedPrefs.edit().putLong(longKey, longValue).commit()).isTrue()
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName
         )
@@ -194,7 +193,7 @@ class SharedPreferencesToPreferencesTest {
 
         assertThat(sharedPrefs.edit().putStringSet(stringSetKey, stringSetValue).commit()).isTrue()
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName
         )
@@ -214,7 +213,7 @@ class SharedPreferencesToPreferencesTest {
         val sharedPrefsSet = sharedPrefs.getStringSet(stringSetKey, mutableSetOf())!!
         assertThat(sharedPrefsSet).isEqualTo(stringSetValue)
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName
         )
@@ -236,7 +235,7 @@ class SharedPreferencesToPreferencesTest {
 
         assertThat(sharedPrefs.edit().putInt(integerKey, 123).commit()).isTrue()
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName,
             keysToMigrate = setOf(integerKey),
@@ -255,7 +254,7 @@ class SharedPreferencesToPreferencesTest {
 
         assertThat(sharedPrefs.edit().putInt(integerKey, 123).commit()).isTrue()
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName,
             keysToMigrate = setOf(integerKey),
@@ -276,7 +275,7 @@ class SharedPreferencesToPreferencesTest {
         assertThat(sharedPrefs.edit().putInt(integerKey1, 123).putInt(integerKey2, 123).commit())
             .isTrue()
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName,
             keysToMigrate = setOf(integerKey1),
@@ -300,7 +299,7 @@ class SharedPreferencesToPreferencesTest {
         assertThat(sharedPrefsFile.exists()).isTrue()
         assertThat(sharedPrefsFile.renameTo(sharedPrefsBackupFile)).isTrue()
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName,
             keysToMigrate = setOf(integerKey),
@@ -331,7 +330,7 @@ class SharedPreferencesToPreferencesTest {
                 .commit()
         ).isTrue()
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName,
             keysToMigrate = setOf(stringKey, integerKey)
@@ -354,7 +353,7 @@ class SharedPreferencesToPreferencesTest {
     fun missingSpecifiedKeyIsNotMigrated() = runBlockingTest {
         val missingKey = "missing_key"
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName,
             keysToMigrate = setOf(missingKey)
@@ -376,7 +375,7 @@ class SharedPreferencesToPreferencesTest {
 
         assertThat(sharedPrefs.edit().putInt(integerKey, integerValue).commit()).isTrue()
 
-        val migration = SharedPreferencesMigration.create(
+        val migration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName,
             keysToMigrate = setOf(integerKey, missingKey)
