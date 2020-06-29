@@ -48,7 +48,7 @@ class MarkdownLink:
         self.linkText = linkText
         self.linkUrl = linkUrl
     def __str__(self):
-        return "([%s](%s))" % (self.linkText, self.linkUrl)
+        return "[%s](%s)" % (self.linkText, self.linkUrl)
 
 class MarkdownBoldText:
     def __init__(self, inputText=""):
