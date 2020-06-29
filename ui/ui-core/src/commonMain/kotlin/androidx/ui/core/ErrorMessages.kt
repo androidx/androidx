@@ -17,6 +17,8 @@
 
 package androidx.ui.core
 
+import androidx.ui.util.format
+
 internal enum class ErrorMessages(val message: String) {
     ComponentNodeHasParent("Inserting an instance that already has a parent"),
     SizeAlreadyExists("Layout can only be used once within a MeasureBox"),

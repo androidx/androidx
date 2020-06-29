@@ -35,7 +35,9 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.unit.Density
+import androidx.ui.util.deleteAt
 import androidx.ui.util.fastForEach
+import androidx.ui.util.nativeClass
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
@@ -232,7 +234,7 @@ class LayoutNode : Measurable {
         }
 
     override fun toString(): String {
-        return "${simpleIdentityToString(this)} children: ${_children.size} " +
+        return "${simpleIdentityToString(this, null)} children: ${_children.size} " +
                 "measureBlocks: $measureBlocks"
     }
 
@@ -254,7 +256,7 @@ class LayoutNode : Measurable {
 
         if (depth == 0) {
             // Delete trailing newline
-            tree.deleteCharAt(tree.length - 1)
+            tree.deleteAt(tree.length - 1)
         }
         return tree.toString()
     }
@@ -960,7 +962,7 @@ class LayoutNode : Measurable {
         while (index >= 0) {
             val wrapper = wrapperCache[index]
             if (wrapper != null && (wrapper.modifier === modifier ||
-                        wrapper.modifier.javaClass == modifier.javaClass)) {
+                        wrapper.modifier.nativeClass() == modifier.nativeClass())) {
                     return index
             }
             index--
@@ -1037,15 +1039,16 @@ class LayoutNode : Measurable {
     }
 
     internal companion object {
-        private val ErrorMeasureBlocks = object : NoIntrinsicsMeasureBlocks(
-            error = "Undefined intrinsics block and it is required"
-        ) {
-            override fun measure(
-                measureScope: MeasureScope,
-                measurables: List<Measurable>,
-                constraints: Constraints,
-                layoutDirection: LayoutDirection
-            ) = error("Undefined measure and it is required")
+        private val ErrorMeasureBlocks: NoIntrinsicsMeasureBlocks =
+            object : NoIntrinsicsMeasureBlocks(
+                error = "Undefined intrinsics block and it is required"
+            ) {
+                override fun measure(
+                    measureScope: MeasureScope,
+                    measurables: List<Measurable>,
+                    constraints: Constraints,
+                    layoutDirection: LayoutDirection
+                ) = error("Undefined measure and it is required")
         }
     }
 

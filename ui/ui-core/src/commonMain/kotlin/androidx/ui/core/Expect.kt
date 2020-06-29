@@ -14,15 +14,27 @@
  * limitations under the License.
  */
 
-package androidx.ui.util
+package androidx.ui.core
 
-actual fun Any?.identityHashCode(): Int = if (this == null) 0 else System.identityHashCode(this)
+// TODO(b/160140398): rewrite depending code using androidx.ui.geometry.Rect and androidx.ui.vectormath64.Matrix3.
+expect class NativeRectF() {
+    var left: Float
+    var right: Float
+    var top: Float
+    var bottom: Float
 
-actual fun String.format(vararg args: Any?): String = java.lang.String.format(this, *args)
+    fun set(left: Float, right: Float, top: Float, bottom: Float)
 
-actual fun StringBuilder.deleteAt(index: Int): StringBuilder {
-    this.deleteCharAt(index)
-    return this
+    fun intersect(left: Float, right: Float, top: Float, bottom: Float): Boolean
+
+    fun setEmpty()
 }
 
-actual fun Any.nativeClass(): Any = this.javaClass
+expect class NativeMatrix() {
+    fun isIdentity(): Boolean
+
+    fun invert(inverted: NativeMatrix): Boolean
+
+    fun mapPoints(points: FloatArray)
+    fun mapRect(rect: NativeRectF): Boolean
+}

@@ -16,8 +16,6 @@
 
 package androidx.ui.core
 
-import android.graphics.Matrix
-import android.graphics.RectF
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Offset
@@ -60,7 +58,7 @@ internal class LayerWrapper(
     // TODO(mount): This cache isn't thread safe at all.
     private var positionCache: FloatArray? = null
     // TODO (njawad): This cache matrix is not thread safe
-    private var inverseMatrixCache: Matrix? = null
+    private var inverseMatrixCache: NativeMatrix? = null
 
     override fun performMeasure(
         constraints: Constraints,
@@ -92,8 +90,8 @@ internal class LayerWrapper(
     override fun fromParentPosition(position: Offset): Offset {
         val matrix = layer.getMatrix()
         val targetPosition =
-            if (!matrix.isIdentity) {
-                val inverse = inverseMatrixCache ?: Matrix().also { inverseMatrixCache = it }
+            if (!matrix.isIdentity()) {
+                val inverse = inverseMatrixCache ?: NativeMatrix().also { inverseMatrixCache = it }
                 matrix.invert(inverse)
                 mapPointsFromMatrix(inverse, position)
             } else {
@@ -105,7 +103,7 @@ internal class LayerWrapper(
     override fun toParentPosition(position: Offset): Offset {
         val matrix = layer.getMatrix()
         val targetPosition =
-            if (!matrix.isIdentity) {
+            if (!matrix.isIdentity()) {
                 mapPointsFromMatrix(matrix, position)
             } else {
                 position
@@ -117,7 +115,7 @@ internal class LayerWrapper(
      * Return a transformed [Offset] based off of the provided matrix transformation
      * and untransformed position.
      */
-    private fun mapPointsFromMatrix(matrix: Matrix, position: Offset): Offset {
+    private fun mapPointsFromMatrix(matrix: NativeMatrix, position: Offset): Offset {
         val x = position.x
         val y = position.y
         val cache = positionCache
@@ -132,7 +130,7 @@ internal class LayerWrapper(
         return Offset(point[0], point[1])
     }
 
-    override fun rectInParent(bounds: RectF) {
+    override fun rectInParent(bounds: NativeRectF) {
         if (modifier.clip &&
             !bounds.intersect(0f, 0f, size.width.toFloat(), size.height.toFloat())
         ) {
