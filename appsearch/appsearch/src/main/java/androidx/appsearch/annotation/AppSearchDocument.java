@@ -16,7 +16,6 @@
 
 package androidx.appsearch.annotation;
 
-import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
 
 import java.lang.annotation.Documented;
@@ -54,13 +53,10 @@ import java.lang.annotation.Target;
  * </ol>
  *
  * <p>The class must also have exactly one member annotated with {@link Uri @Uri}.
- *
- * @hide
  */
 @Documented
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public @interface AppSearchDocument {
     /**
      * Marks a member field of a document as the document's URI.
@@ -205,9 +201,10 @@ public @interface AppSearchDocument {
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
          *
          * <p>Please make sure you understand the consequences of required fields on
-         * {@link androidx.appsearch.app.AppSearchManager#setSchema schema migration} before setting
+         * {@code androidx.appsearch.app.AppSearchManager#setSchema schema migration} before setting
          * this attribute to {@code true}.
          */
+        // TODO(b/157082794) Linkify AppSearchManager once that API is public.
         boolean required() default false;
     }
 

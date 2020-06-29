@@ -1,4 +1,34 @@
 // Signature format: 3.0
+package androidx.appsearch.annotation {
+
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface AppSearchDocument {
+    method public abstract String name() default "";
+  }
+
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) public static @interface AppSearchDocument.CreationTimestampMillis {
+  }
+
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) public static @interface AppSearchDocument.Namespace {
+  }
+
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) public static @interface AppSearchDocument.Property {
+    method public abstract int indexingType() default androidx.appsearch.app.AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE;
+    method public abstract String name() default "";
+    method public abstract boolean required() default false;
+    method public abstract int tokenizerType() default androidx.appsearch.app.AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN;
+  }
+
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) public static @interface AppSearchDocument.Score {
+  }
+
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) public static @interface AppSearchDocument.TtlMillis {
+  }
+
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) public static @interface AppSearchDocument.Uri {
+  }
+
+}
+
 package androidx.appsearch.app {
 
   public final class AppSearchBatchResult<KeyType, ValueType> {
@@ -61,6 +91,7 @@ package androidx.appsearch.app {
   public class GenericDocument {
     ctor protected GenericDocument(androidx.appsearch.app.GenericDocument);
     method public long getCreationTimestampMillis();
+    method public static int getMaxIndexedProperties();
     method public String getNamespace();
     method public boolean getPropertyBoolean(String);
     method public boolean[]? getPropertyBooleanArray(String);
