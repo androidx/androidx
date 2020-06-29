@@ -117,6 +117,8 @@
             </intent-filter>
         </service>
 
+        <receiver android:name="androidx.mediarouter.media.MediaTransferReceiver" />
+
         <!-- GridLayout Support Samples -->
 
         <activity android:name=".view.GridLayout1"
@@ -753,8 +755,6 @@
             </intent-filter>
         </activity>
 
-        <meta-data android:name="androidx.mediarouter.FEATURE"
-            android:value="seamless_transfer" />
     </application>
 
 </manifest>
