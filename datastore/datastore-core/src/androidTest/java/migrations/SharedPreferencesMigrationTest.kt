@@ -58,16 +58,16 @@ class SharedPreferencesMigrationTest {
 
     @Test
     fun testShouldMigrateSkipsMigration() = runBlockingTest {
-        val migration = object : SharedPreferencesMigration.Migration<Byte> {
+        val migration = object : MigrationFromSharedPreferences<Byte> {
             override suspend fun shouldMigrate(currentData: Byte) = false
 
             override suspend fun migrate(
-                prefs: SharedPreferencesMigration.SharedPreferencesView,
+                prefs: SharedPreferencesView,
                 currentData: Byte
             ) = throw IllegalStateException("Migration is skipped.")
         }
 
-        val sharedPrefsMigration = SharedPreferencesMigration.create(
+        val sharedPrefsMigration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName,
             migration = migration
@@ -91,11 +91,11 @@ class SharedPreferencesMigrationTest {
                 .putInt(notMigratedKey, 123).commit()
         ).isTrue()
 
-        val migration = object : SharedPreferencesMigration.Migration<Byte> {
+        val migration = object : MigrationFromSharedPreferences<Byte> {
             override suspend fun shouldMigrate(currentData: Byte) = true
 
             override suspend fun migrate(
-                prefs: SharedPreferencesMigration.SharedPreferencesView,
+                prefs: SharedPreferencesView,
                 currentData: Byte
             ): Byte {
                 assertThat(prefs.getInt(includedKey, -1)).isEqualTo(includedVal)
@@ -107,7 +107,7 @@ class SharedPreferencesMigrationTest {
             }
         }
 
-        val sharedPrefsMigration = SharedPreferencesMigration.create(
+        val sharedPrefsMigration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName,
             migration = migration,
@@ -135,11 +135,11 @@ class SharedPreferencesMigrationTest {
                 .commit()
         ).isTrue()
 
-        val migration = object : SharedPreferencesMigration.Migration<Byte> {
+        val migration = object : MigrationFromSharedPreferences<Byte> {
             override suspend fun shouldMigrate(currentData: Byte) = true
 
             override suspend fun migrate(
-                prefs: SharedPreferencesMigration.SharedPreferencesView,
+                prefs: SharedPreferencesView,
                 currentData: Byte
             ): Byte {
                 assertThat(prefs.getInt(key1, -1)).isEqualTo(val1)
@@ -151,7 +151,7 @@ class SharedPreferencesMigrationTest {
             }
         }
 
-        val sharedPrefsMigration = SharedPreferencesMigration.create(
+        val sharedPrefsMigration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName,
             migration = migration

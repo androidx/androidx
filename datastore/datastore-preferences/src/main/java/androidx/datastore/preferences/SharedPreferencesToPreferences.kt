@@ -18,12 +18,14 @@ package androidx.datastore.preferences
 
 import android.content.Context
 import androidx.datastore.DataMigration
+import androidx.datastore.migrations.MigrationFromSharedPreferences
+import androidx.datastore.migrations.SharedPreferencesView
 import androidx.datastore.migrations.SharedPreferencesMigration
 
 /**
  * Creates a SharedPreferencesMigration for DataStore<Preferences>.
  */
-fun SharedPreferencesMigration.Companion.create(
+fun SharedPreferencesMigration(
     /** Context used for getting SharedPreferences. */
     context: Context,
     /** The name of the SharedPreferences. */
@@ -48,7 +50,7 @@ fun SharedPreferencesMigration.Companion.create(
      */
     deleteEmptyPreferences: Boolean = true
 ): () -> DataMigration<Preferences> {
-    return create(
+    return SharedPreferencesMigration(
         context,
         sharedPreferencesName,
         SharedPreferencesToPreferences(keysToMigrate),
@@ -64,7 +66,7 @@ fun SharedPreferencesMigration.Companion.create(
  */
 internal class SharedPreferencesToPreferences(
     private val keysToMigrate: Set<String>?
-) : SharedPreferencesMigration.Migration<Preferences> {
+) : MigrationFromSharedPreferences<Preferences> {
 
     companion object {
         internal val MIGRATE_ALL_KEYS = null
@@ -81,7 +83,7 @@ internal class SharedPreferencesToPreferences(
     }
 
     override suspend fun migrate(
-        prefs: SharedPreferencesMigration.SharedPreferencesView,
+        prefs: SharedPreferencesView,
         currentData: Preferences
     ): Preferences {
         // prefs.getAll is already filtered to our key set.
