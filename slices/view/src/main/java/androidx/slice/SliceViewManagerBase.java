@@ -87,10 +87,10 @@ public abstract class SliceViewManagerBase extends SliceViewManager {
 
     private class SliceListenerImpl {
 
-        final Uri mUri;
+        Uri mUri;
         final Executor mExecutor;
         final SliceCallback mCallback;
-        boolean mPinned;
+        private boolean mPinned;
 
         SliceListenerImpl(Uri uri, Executor executor, SliceCallback callback) {
             mUri = uri;
@@ -119,23 +119,13 @@ public abstract class SliceViewManagerBase extends SliceViewManager {
             }
         }
 
-        @SuppressWarnings("deprecation") /* AsyncTask */
         void stopListening() {
             mContext.getContentResolver().unregisterContentObserver(mObserver);
             if (mPinned) {
-                mHandler.post(() -> android.os.AsyncTask.execute(mUnpinSlice));
+                unpinSlice(mUri);
+                mPinned = false;
             }
         }
-
-        private final Runnable mUnpinSlice = new Runnable() {
-            @Override
-            public void run() {
-                if (mPinned) {
-                    unpinSlice(mUri);
-                    mPinned = false;
-                }
-            }
-        };
 
         final Runnable mUpdateSlice = new Runnable() {
             @Override
@@ -151,9 +141,8 @@ public abstract class SliceViewManagerBase extends SliceViewManager {
             }
         };
 
-        private final Handler mHandler = new Handler(Looper.getMainLooper());
-
-        private final ContentObserver mObserver = new ContentObserver(mHandler) {
+        private final ContentObserver mObserver = new ContentObserver(
+                new Handler(Looper.getMainLooper())) {
             @Override
             @SuppressWarnings("deprecation") /* AsyncTask */
             public void onChange(boolean selfChange) {
