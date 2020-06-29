@@ -234,8 +234,7 @@ internal class ComposeViewAdapter : FrameLayout {
      *
      * @suppress
      */
-    @VisibleForTesting
-    internal lateinit var clock: PreviewAnimationClock
+    private lateinit var clock: PreviewAnimationClock
 
     /**
      * Wraps a given [Preview] method an does any necessary setup.
@@ -314,23 +313,6 @@ internal class ComposeViewAdapter : FrameLayout {
     internal fun dispose() {
         composition?.dispose()
         composition = null
-    }
-
-    /**
-     * Sets the relative time of the [PreviewAnimationClock] that controls inspected animations.
-     *
-     * Expected to be called via reflection from Android Studio and will fail otherwise, since
-     * [clock] will not be initialized in that case.
-     *
-     * @suppress
-     */
-    fun setClockTime(timeMs: Long) {
-        try {
-            clock.setClockTime(timeMs)
-        } catch (e: UninitializedPropertyAccessException) {
-            throw IllegalStateException("This method is expected to be called from Android Studio" +
-                    " via reflection, otherwise 'clock' is expected to be null.")
-        }
     }
 
     private fun init(attrs: AttributeSet) {
