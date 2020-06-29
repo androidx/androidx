@@ -25,6 +25,8 @@ import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.vector.VectorAssetBuilder
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Menu
+import androidx.ui.test.assertHeightIsEqualTo
+import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.createComposeRule
 import androidx.ui.unit.dp
 import org.junit.Rule
@@ -44,11 +46,11 @@ class IconTest {
         val height = 24.dp
         val vector = Icons.Filled.Menu
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 Icon(vector)
             }
-            .assertWidthEqualsTo(width)
-            .assertHeightEqualsTo(height)
+            .assertWidthIsEqualTo(width)
+            .assertHeightIsEqualTo(height)
     }
 
     @Test
@@ -58,11 +60,11 @@ class IconTest {
         val vector = VectorAssetBuilder(defaultWidth = width, defaultHeight = height,
             viewportWidth = width.value, viewportHeight = height.value).build()
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 Icon(vector)
             }
-            .assertWidthEqualsTo(width)
-            .assertHeightEqualsTo(height)
+            .assertWidthIsEqualTo(width)
+            .assertHeightIsEqualTo(height)
     }
 
     @Test
@@ -70,15 +72,15 @@ class IconTest {
         val width = 24.dp
         val height = 24.dp
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 val dummyImage = with(DensityAmbient.current) {
                     ImageAsset(width.toIntPx(), height.toIntPx())
                 }
 
                 Icon(dummyImage)
             }
-            .assertWidthEqualsTo(width)
-            .assertHeightEqualsTo(height)
+            .assertWidthIsEqualTo(width)
+            .assertHeightIsEqualTo(height)
     }
 
     @Test
@@ -87,15 +89,15 @@ class IconTest {
         val height = 83.dp
 
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 val dummyImage = with(DensityAmbient.current) {
                     ImageAsset(width.toIntPx(), height.toIntPx())
                 }
 
                 Icon(dummyImage)
             }
-            .assertWidthEqualsTo(width)
-            .assertHeightEqualsTo(height)
+            .assertWidthIsEqualTo(width)
+            .assertHeightIsEqualTo(height)
     }
 
     @Test
@@ -104,11 +106,11 @@ class IconTest {
         val height = 24.dp
         val painter = ColorPainter(Color.Red)
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 Icon(painter)
             }
-            .assertWidthEqualsTo(width)
-            .assertHeightEqualsTo(height)
+            .assertWidthIsEqualTo(width)
+            .assertHeightIsEqualTo(height)
     }
 
     @Test
@@ -117,7 +119,7 @@ class IconTest {
         val height = 83.dp
 
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 val dummyImage = with(DensityAmbient.current) {
                     ImageAsset(width.toIntPx(), height.toIntPx())
                 }
@@ -125,7 +127,7 @@ class IconTest {
                 val imagePainter = ImagePainter(dummyImage)
                 Icon(imagePainter)
             }
-            .assertWidthEqualsTo(width)
-            .assertHeightEqualsTo(height)
+            .assertWidthIsEqualTo(width)
+            .assertHeightIsEqualTo(height)
     }
 }

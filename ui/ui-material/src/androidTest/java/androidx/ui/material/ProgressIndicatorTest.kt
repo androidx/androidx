@@ -21,9 +21,11 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Strings
 import androidx.ui.semantics.AccessibilityRangeInfo
+import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertRangeInfoEquals
 import androidx.ui.test.assertValueEquals
+import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnUiThread
@@ -72,11 +74,11 @@ class ProgressIndicatorTest {
     @Test
     fun determinateLinearProgressIndicator_Size() {
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 LinearProgressIndicator(progress = 0f)
             }
-            .assertWidthEqualsTo(ExpectedLinearWidth)
-            .assertHeightEqualsTo(ExpectedLinearHeight)
+            .assertWidthIsEqualTo(ExpectedLinearWidth)
+            .assertHeightIsEqualTo(ExpectedLinearHeight)
     }
 
     @Test
@@ -97,11 +99,11 @@ class ProgressIndicatorTest {
     @Ignore("b/154757752")
     fun indeterminateLinearProgressIndicator_Size() {
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 LinearProgressIndicator()
             }
-            .assertWidthEqualsTo(ExpectedLinearWidth)
-            .assertHeightEqualsTo(ExpectedLinearHeight)
+            .assertWidthIsEqualTo(ExpectedLinearWidth)
+            .assertHeightIsEqualTo(ExpectedLinearHeight)
     }
 
     @Test
@@ -135,10 +137,10 @@ class ProgressIndicatorTest {
     @Test
     fun determinateCircularProgressIndicator_Size() {
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 CircularProgressIndicator(progress = 0f)
             }
-            .assertIsSquareWithSize { 4.dp.toIntPx() * 2 + 40.dp.toIntPx() }
+            .assertIsSquareWithSize(4.dp * 2 + 40.dp)
     }
 
     @Test
@@ -159,9 +161,9 @@ class ProgressIndicatorTest {
     @Ignore("b/154757752")
     fun indeterminateCircularProgressIndicator_Size() {
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 CircularProgressIndicator()
             }
-            .assertIsSquareWithSize { 4.dp.toIntPx() * 2 + 40.dp.toIntPx() }
+            .assertIsSquareWithSize(4.dp * 2 + 40.dp)
     }
 }

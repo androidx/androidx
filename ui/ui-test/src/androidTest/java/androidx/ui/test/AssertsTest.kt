@@ -23,13 +23,10 @@ import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.semantics.inMutuallyExclusiveGroup
 import androidx.ui.foundation.semantics.selected
 import androidx.ui.foundation.semantics.toggleableState
-import androidx.ui.geometry.Size
 import androidx.ui.layout.Column
 import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.hidden
 import androidx.ui.semantics.testTag
-import androidx.ui.unit.Density
-import androidx.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 
@@ -226,30 +223,6 @@ class AssertsTest {
 
         findByTag("test")
             .assertIsInMutuallyExclusiveGroup()
-    }
-
-    @Test
-    fun assertSizesTest_testPixelAssertion() {
-        val size = Size(50f, 31f)
-        val spec = CollectedSizes(size, Density(0f))
-        spec.assertWidthEqualsTo { 50 }
-        spec.assertHeightEqualsTo { 31 }
-    }
-
-    @Test
-    fun assertSizesTest_testDpAssertion() {
-        val size = Size(50f, 30f)
-        val spec = CollectedSizes(size, Density(2f))
-        spec.assertWidthEqualsTo(25.dp)
-        spec.assertHeightEqualsTo(15.dp)
-    }
-
-    @Test
-    fun assertSizesTest_testSquare() {
-        val size = Size(50f, 50f)
-        val spec = CollectedSizes(size, Density(2f))
-        spec.assertIsSquareWithSize(25.dp)
-        spec.assertIsSquareWithSize { 50 }
     }
 
     @Composable

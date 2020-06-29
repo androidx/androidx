@@ -182,9 +182,9 @@ class RadioButtonTest {
 
     private fun materialSizesTestForValue(selected: Boolean) {
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 RadioButton(selected = selected, onClick = {})
             }
-            .assertIsSquareWithSize { 2.dp.toIntPx() * 2 + 20.dp.toIntPx() }
+            .assertIsSquareWithSize(2.dp * 2 + 20.dp)
     }
 }
