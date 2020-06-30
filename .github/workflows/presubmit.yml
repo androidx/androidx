@@ -61,7 +61,20 @@ jobs:
       - name: test environment
         run: echo $DIST_DIR && ls $HOME/Library/Android/sdk
       - name: build on server
-        run: cd playground && ./gradlew -Pandroidx.sdkPath=$(echo $HOME)/Library/Android/sdk :buildOnServer && cd ..
+        run: |
+          cd playground
+          ./gradlew -Pandroidx.sdkPath=$(echo $HOME)/Library/Android/sdk :buildOnServer
+        id: gradlew_bos
+      - name: Set webhook outputs from ./gradlew
+        if: always()
+        run: |
+          if [ "${{ steps.gradlew_bos.outcome }}" == "success" ] || [ "${{ steps.gradlew_bos.outcome }}" == "skipped" ]
+          then
+            echo "##[set-output name=success;]true"
+          else
+            echo "##[set-output name=success;]false"
+          fi
+        id: gradlew_bos_outputs
       - name: Upload Results
         if: always()
         uses: actions/upload-artifact@v2
@@ -74,4 +87,4 @@ jobs:
         with:
           url: 'https://androidx.dev/github/androidX/presubmit/hook'
           # TODO: extract the state of the build on server step
-          payload: '{ "platform": "${{ matrix.os }}", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": true }'
+          payload: '{ "platform": "${{ matrix.os }}", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": ${{ steps.gradlew_bos_outputs.outputs.success }} }'
