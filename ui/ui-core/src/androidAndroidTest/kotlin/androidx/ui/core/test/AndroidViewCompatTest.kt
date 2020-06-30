@@ -29,13 +29,17 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.compose.Composable
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
+import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Constraints
+import androidx.ui.core.ContextAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
@@ -48,6 +52,8 @@ import androidx.ui.core.drawLayer
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.core.testTag
+import androidx.ui.foundation.Box
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
@@ -56,6 +62,8 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
+import androidx.ui.viewinterop.AndroidView
 import androidx.ui.viewinterop.emitView
 import junit.framework.TestCase.assertNotNull
 import org.hamcrest.CoreMatchers.`is`
@@ -372,6 +380,28 @@ class AndroidViewCompatTest {
             assertEquals(20, viewRef.value!!.minimumWidth)
             assertEquals(30, viewRef.value!!.minimumHeight)
         }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testRedrawing_onSubsequentRemeasuring() {
+        var size by mutableStateOf(20)
+        composeTestRule.setContent {
+            Box(Modifier.drawLayer().fillMaxSize()) {
+                val context = ContextAmbient.current
+                val view = remember { View(context) }
+                AndroidView(view, Modifier.testTag("view"))
+                view.layoutParams = ViewGroup.LayoutParams(size, size)
+                view.setBackgroundColor(android.graphics.Color.BLUE)
+            }
+        }
+        findByTag("view").captureToBitmap().assertPixels(IntSize(size, size)) { Color.Blue }
+
+        runOnIdleCompose { size += 20 }
+        findByTag("view").captureToBitmap().assertPixels(IntSize(size, size)) { Color.Blue }
+
+        runOnIdleCompose { size += 20 }
+        findByTag("view").captureToBitmap().assertPixels(IntSize(size, size)) { Color.Blue }
     }
 
     class ColoredSquareView(context: Context) : View(context) {
