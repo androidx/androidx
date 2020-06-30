@@ -66,7 +66,7 @@ public interface CameraControl {
      *
      * <p>It will trigger an auto focus action and enable AF/AE/AWB metering regions. The action
      * is configured by a {@link FocusMeteringAction} which contains the configuration of
-     * multiple AF/AE/AWB {@link MeteringPoint}s, auto-cancel duration. See
+     * multiple AF/AE/AWB {@link MeteringPoint}s and an auto-cancel duration. See
      * {@link FocusMeteringAction} for more details.
      *
      * <p>Only one {@link FocusMeteringAction} is allowed to run at a time. If multiple
@@ -74,7 +74,7 @@ public interface CameraControl {
      * other actions will be cancelled.
      *
      * <p>If the {@link FocusMeteringAction} specifies more AF/AE/AWB points than what is
-     * supported on current device, only the first point and then in order up to the number of
+     * supported on the current device, only the first point and then in order up to the number of
      * points supported by the device will be enabled.
      *
      * <p>If none of the points with either AF/AE/AWB can be supported on the device or none of

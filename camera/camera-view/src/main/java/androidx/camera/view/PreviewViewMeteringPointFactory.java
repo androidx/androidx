@@ -42,7 +42,6 @@ import androidx.camera.view.PreviewView.ScaleType;
  * (1) Calculate the new width/height of factory based on the FIT/FULL scaleType to make it
  * represent the full preview
  * (2) Add offset to the (x, y) in convertPoint based on the BEGIN/CENTER/END scaleType.
- *
  */
 class PreviewViewMeteringPointFactory extends MeteringPointFactory {
     private DisplayOrientedMeteringPointFactory mDisplayOrientedMeteringPointFactory;
@@ -147,7 +146,6 @@ class PreviewViewMeteringPointFactory extends MeteringPointFactory {
                 adjustedY);
         return new PointF(pt.getX(), pt.getY());
     }
-
 
     private boolean isNaturalPortrait(Display display) {
         final Point deviceSize = new Point();
