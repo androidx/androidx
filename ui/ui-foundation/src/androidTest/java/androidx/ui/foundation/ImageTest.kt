@@ -215,8 +215,7 @@ class ImageTest {
                         .preferredSize(
                             (imageComposableWidth / density).dp,
                             (imageComposableHeight / density).dp
-                        ),
-                    contentScale = ContentScale.Fit
+                        )
                 )
             }
         }
@@ -258,6 +257,8 @@ class ImageTest {
                             (imageComposableWidth / density).dp,
                             (imageComposableHeight / density).dp
                         ),
+                    // Intentionally do not scale up the contents of the ImageAsset
+                    contentScale = ContentScale.Inside,
                     alignment = Alignment.BottomEnd
                 )
             }
@@ -307,8 +308,7 @@ class ImageTest {
                             minWidth = minWidth,
                             minHeight = minHeight
                         )
-                        .drawBehind { vectorLatch.countDown() },
-                        contentScale = ContentScale.Fit
+                        .drawBehind { vectorLatch.countDown() }
                     )
                 }
             }
