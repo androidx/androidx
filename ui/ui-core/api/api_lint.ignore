@@ -17,8 +17,6 @@ BuilderSetStyle: androidx.ui.graphics.vector.VectorAssetBuilder#pushGroup(String
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.VectorAssetBuilder.pushGroup(String,float,float,float,float,float,float,float,java.util.List<? extends androidx.ui.graphics.vector.PathNode>)
 
 
-CallbackName: androidx.ui.core.ModelObserver:
-    Class should be named ModelCallback
 CallbackName: androidx.ui.core.gesture.DragObserver:
     Class should be named DragCallback
 CallbackName: androidx.ui.core.gesture.LongPressDragObserver:
