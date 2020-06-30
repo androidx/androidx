@@ -26,3 +26,5 @@ actual fun StringBuilder.deleteAt(index: Int): StringBuilder {
 }
 
 actual fun Any.nativeClass(): Any = this.javaClass
+
+actual typealias TreeSet<T> = java.util.TreeSet<T>

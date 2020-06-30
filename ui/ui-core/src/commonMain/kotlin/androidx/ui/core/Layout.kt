@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import androidx.compose.Applier
 import androidx.compose.Composable
 import androidx.compose.ComposableContract
 import androidx.compose.Composition
@@ -30,7 +31,6 @@ import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.compose.snapshots.Snapshot
 import androidx.ui.core.LayoutNode.LayoutState
-import androidx.ui.node.UiApplier
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntOffset
@@ -265,7 +265,9 @@ import kotlin.math.max
     modifier: Modifier
 ) {
     val materialized = currentComposer.materialize(modifier)
-    emit<LayoutNode, UiApplier>(
+
+    @OptIn(ExperimentalComposeApi::class)
+    emit<LayoutNode, Applier<Any>>(
         ctor = LayoutEmitHelper.constructor,
         update = {
             set(materialized, LayoutEmitHelper.setModifier)
@@ -286,7 +288,8 @@ fun MultiMeasureLayout(
 ) {
     val measureBlocks = remember(measureBlock) { MeasuringIntrinsicsMeasureBlocks(measureBlock) }
     val materialized = currentComposer.materialize(modifier)
-    emit<LayoutNode, UiApplier>(
+    @OptIn(ExperimentalComposeApi::class)
+    emit<LayoutNode, Applier<Any>>(
         ctor = LayoutEmitHelper.constructor,
         update = {
             set(materialized, LayoutEmitHelper.setModifier)
@@ -686,7 +689,8 @@ fun WithConstraints(
     state.forceRecompose = true
 
     val materialized = currentComposer.materialize(modifier)
-    emit<LayoutNode, UiApplier>(
+    @OptIn(ExperimentalComposeApi::class)
+    emit<LayoutNode, Applier<Any>>(
         ctor = LayoutEmitHelper.constructor,
         update = {
             set(materialized, LayoutEmitHelper.setModifier)
