@@ -902,6 +902,66 @@ class PageFetcherSnapshotTest {
     }
 
     @Test
+    fun retry_hintPriority() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pageSource = pagingSourceFactory()
+            val pager = PageFetcherSnapshot(
+                initialKey = 50,
+                pagingSource = pageSource,
+                config = PagingConfig(pageSize = 1, prefetchDistance = 2, initialLoadSize = 4),
+                retryFlow = retryCh.asFlow()
+            )
+
+            collectPagerData(pager) { pageEvents, _ ->
+                val expected = listOf<PageEvent<Int>>(
+                    LoadStateUpdate(REFRESH, false, Loading),
+                    createRefresh(50..53),
+                    LoadStateUpdate(APPEND, false, Loading),
+                    LoadStateUpdate(APPEND, false, Error(LOAD_ERROR)),
+                    LoadStateUpdate(APPEND, false, Loading),
+                    createAppend(pageOffset = 1, range = 54..54),
+                    LoadStateUpdate(PREPEND, false, Loading),
+                    LoadStateUpdate(PREPEND, false, Error(LOAD_ERROR)),
+                    LoadStateUpdate(PREPEND, false, Loading),
+                    createPrepend(pageOffset = -1, range = 49..49)
+                )
+
+                advanceUntilIdle()
+
+                // Failed hint that would've appended exactly 1 more page if it succeeded.
+                pageSource.errorNextLoad = true
+                pager.addHint(ViewportHint(0, 2))
+                advanceUntilIdle()
+
+                // Ignored hint due to failure that would normally be prioritized due to
+                // prefetchDistance and append 2 pages if not for retried hints taking priority.
+                pager.addHint(ViewportHint(0, 3))
+                advanceUntilIdle()
+
+                // This should trigger retry using the first hint, which appends exactly 1 page.
+                retryCh.offer(Unit)
+                advanceUntilIdle()
+
+                // Failed hint that would've prepended exactly 1 more page if it succeeded.
+                pageSource.errorNextLoad = true
+                pager.addHint(ViewportHint(0, 1))
+                advanceUntilIdle()
+
+                // Ignored hint due to failure that would normally be prioritized due to
+                // prefetchDistance and prepend 2 pages if not for retried hints taking priority.
+                pager.addHint(ViewportHint(0, 0))
+                advanceUntilIdle()
+
+                // This should trigger retry using the first hint, which prepends exactly 1 page.
+                retryCh.offer(Unit)
+                advanceUntilIdle()
+
+                assertThat(pageEvents).isEqualTo(expected)
+            }
+        }
+    }
+
+    @Test
     fun retry_remotePrepend() = testScope.runBlockingTest {
         @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
