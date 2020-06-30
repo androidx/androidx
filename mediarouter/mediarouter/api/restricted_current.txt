@@ -347,6 +347,7 @@ package androidx.mediarouter.media {
     method public static androidx.mediarouter.media.MediaRouter! getInstance(android.content.Context);
     method public android.support.v4.media.session.MediaSessionCompat.Token! getMediaSessionToken();
     method public java.util.List<androidx.mediarouter.media.MediaRouter.ProviderInfo!>! getProviders();
+    method public androidx.mediarouter.media.MediaRouterParams? getRouterParams();
     method public java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo!>! getRoutes();
     method public androidx.mediarouter.media.MediaRouter.RouteInfo getSelectedRoute();
     method public boolean isRouteAvailable(androidx.mediarouter.media.MediaRouteSelector, int);
@@ -356,6 +357,7 @@ package androidx.mediarouter.media {
     method public void selectRoute(androidx.mediarouter.media.MediaRouter.RouteInfo);
     method public void setMediaSession(Object!);
     method public void setMediaSessionCompat(android.support.v4.media.session.MediaSessionCompat!);
+    method public void setRouterParams(androidx.mediarouter.media.MediaRouterParams?);
     method public void unselect(int);
     method public androidx.mediarouter.media.MediaRouter.RouteInfo updateSelectedRoute(androidx.mediarouter.media.MediaRouteSelector);
     field public static final int AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE = 1; // 0x1
@@ -441,6 +443,15 @@ package androidx.mediarouter.media {
     field public static final int PLAYBACK_TYPE_REMOTE = 1; // 0x1
     field public static final int PLAYBACK_VOLUME_FIXED = 0; // 0x0
     field public static final int PLAYBACK_VOLUME_VARIABLE = 1; // 0x1
+  }
+
+  public class MediaRouterParams {
+    ctor public MediaRouterParams();
+    method public int getDialogType();
+    method public void setDialogType(int);
+    field public static final int DIALOG_TYPE_DEFAULT = 1; // 0x1
+    field public static final int DIALOG_TYPE_DYNAMIC_GROUP = 2; // 0x2
+    field public static final int DIALOG_TYPE_OUTPUT_SWITCHER = 3; // 0x3
   }
 
   public final class MediaSessionStatus {
