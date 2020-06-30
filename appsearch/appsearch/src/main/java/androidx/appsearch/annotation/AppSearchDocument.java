@@ -63,15 +63,6 @@ import java.lang.annotation.Target;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public @interface AppSearchDocument {
     /**
-     * The maximum number of indexed properties a document can have.
-     *
-     * <p>Indexed properties are properties where the {@link Property#indexingType()} constant is
-     * anything other than {@link
-     * androidx.appsearch.app.AppSearchSchema.PropertyConfig.IndexingType#INDEXING_TYPE_NONE}.
-     */
-    int MAX_INDEXED_PROPERTIES = 16;
-
-    /**
      * Marks a member field of a document as the document's URI.
      *
      * <p>Indexing a document with a particular {@link java.net.URI} replaces any existing
@@ -173,8 +164,9 @@ public @interface AppSearchDocument {
      * Configures a member field of a class as a property known to Appsearch.
      *
      * <p>Properties contain the document's data. They may be indexed or non-indexed (the default).
-     * Only indexed properties can be searched for in queries. There is a limit of {@link
-     * AppSearchDocument#MAX_INDEXED_PROPERTIES} indexed properties in one document.
+     * Only indexed properties can be searched for in queries. There is a limit of
+     * {@link androidx.appsearch.app.GenericDocument#getMaxIndexedProperties} indexed properties in
+     * one document.
      */
     @Documented
     @Retention(RetentionPolicy.CLASS)
