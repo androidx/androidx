@@ -54,7 +54,7 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
             new SimpleArrayMap<>();
 
     private ExtensionCallbackInterface mExtensionCallback;
-    private SidecarAdapter mSidecarAdapter;
+    private final SidecarAdapter mSidecarAdapter;
 
     @VisibleForTesting
     final SidecarInterface mSidecar;
@@ -107,7 +107,7 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
                 }
 
                 extensionCallback.onWindowLayoutChanged(activity,
-                        mSidecarAdapter.translate(activity, newLayout));
+                        mSidecarAdapter.translate(activity, newLayout, mSidecar.getDeviceState()));
             }
         });
     }
@@ -118,7 +118,7 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         IBinder windowToken = getActivityWindowToken(activity);
 
         SidecarWindowLayoutInfo windowLayoutInfo = mSidecar.getWindowLayoutInfo(windowToken);
-        return mSidecarAdapter.translate(activity, windowLayoutInfo);
+        return mSidecarAdapter.translate(activity, windowLayoutInfo, mSidecar.getDeviceState());
     }
 
     @Override

@@ -22,6 +22,7 @@ import static androidx.window.TestBoundUtil.invalidHingeBounds;
 import static androidx.window.TestBoundUtil.validFoldBound;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -37,6 +38,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.window.extensions.ExtensionDeviceState;
 import androidx.window.extensions.ExtensionDisplayFeature;
+import androidx.window.extensions.ExtensionFoldingFeature;
 import androidx.window.extensions.ExtensionInterface;
 import androidx.window.extensions.ExtensionWindowLayoutInfo;
 
@@ -62,19 +64,17 @@ public final class ExtensionCompatTest extends WindowTestBase
     private static final Rect WINDOW_BOUNDS = new Rect(0, 0, 50, 100);
 
     ExtensionCompat mExtensionCompat;
-    private ExtensionInterface mMockExtensionInterface;
     private Activity mActivity;
 
     @Before
     public void setUp() {
-        mMockExtensionInterface = mock(ExtensionInterface.class);
-        mExtensionCompat = new ExtensionCompat(mMockExtensionInterface, new ExtensionAdapter());
+        mExtensionCompat = new ExtensionCompat(mock(ExtensionInterface.class),
+                new ExtensionAdapter());
         mActivity = mock(Activity.class);
 
         TestWindowBoundsHelper mWindowBoundsHelper = new TestWindowBoundsHelper();
         mWindowBoundsHelper.setCurrentBounds(WINDOW_BOUNDS);
         WindowBoundsHelper.setForTesting(mWindowBoundsHelper);
-
     }
 
     @After
@@ -141,7 +141,8 @@ public final class ExtensionCompatTest extends WindowTestBase
         mExtensionCompat.onWindowLayoutChangeListenerAdded(mActivity);
         Rect bounds = new Rect(WINDOW_BOUNDS.left, WINDOW_BOUNDS.top, WINDOW_BOUNDS.width(), 1);
         ExtensionDisplayFeature extensionDisplayFeature =
-                new ExtensionDisplayFeature(bounds, ExtensionDisplayFeature.TYPE_HINGE);
+                new ExtensionFoldingFeature(bounds, ExtensionFoldingFeature.TYPE_HINGE,
+                        ExtensionFoldingFeature.STATE_FLIPPED);
         List<ExtensionDisplayFeature> displayFeatures = new ArrayList<>();
         displayFeatures.add(extensionDisplayFeature);
         ExtensionWindowLayoutInfo extensionWindowLayoutInfo =
@@ -156,7 +157,10 @@ public final class ExtensionCompatTest extends WindowTestBase
         WindowLayoutInfo capturedLayout = windowLayoutInfoCaptor.getValue();
         assertEquals(1, capturedLayout.getDisplayFeatures().size());
         DisplayFeature capturedDisplayFeature = capturedLayout.getDisplayFeatures().get(0);
-        assertEquals(DisplayFeature.TYPE_HINGE, capturedDisplayFeature.getType());
+
+        FoldingFeature foldingFeature = (FoldingFeature) capturedDisplayFeature;
+        assertNotNull(foldingFeature);
+        assertEquals(FoldingFeature.TYPE_HINGE, foldingFeature.getType());
         assertEquals(bounds, capturedDisplayFeature.getBounds());
     }
 
@@ -263,13 +267,15 @@ public final class ExtensionCompatTest extends WindowTestBase
             List<ExtensionDisplayFeature> malformedFeatures = new ArrayList<>();
 
             for (Rect malformedBound : invalidFoldBounds(WINDOW_BOUNDS)) {
-                malformedFeatures.add(new ExtensionDisplayFeature(malformedBound,
-                        ExtensionDisplayFeature.TYPE_FOLD));
+                malformedFeatures.add(new ExtensionFoldingFeature(malformedBound,
+                        ExtensionFoldingFeature.TYPE_FOLD,
+                        ExtensionFoldingFeature.STATE_FLAT));
             }
 
             for (Rect malformedBound : invalidHingeBounds(WINDOW_BOUNDS)) {
-                malformedFeatures.add(new ExtensionDisplayFeature(malformedBound,
-                        ExtensionDisplayFeature.TYPE_HINGE));
+                malformedFeatures.add(new ExtensionFoldingFeature(malformedBound,
+                        ExtensionFoldingFeature.TYPE_HINGE,
+                        ExtensionFoldingFeature.STATE_FLAT));
             }
 
             return new ExtensionWindowLayoutInfo(malformedFeatures);
@@ -278,8 +284,8 @@ public final class ExtensionCompatTest extends WindowTestBase
         private ExtensionWindowLayoutInfo validWindowLayoutInfo() {
             List<ExtensionDisplayFeature> validFeatures = new ArrayList<>();
 
-            validFeatures.add(new ExtensionDisplayFeature(validFoldBound(WINDOW_BOUNDS),
-                    ExtensionDisplayFeature.TYPE_FOLD));
+            validFeatures.add(new ExtensionFoldingFeature(validFoldBound(WINDOW_BOUNDS),
+                    ExtensionFoldingFeature.TYPE_FOLD, ExtensionFoldingFeature.STATE_FLAT));
 
             return new ExtensionWindowLayoutInfo(validFeatures);
         }

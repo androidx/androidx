@@ -23,9 +23,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
+ * @deprecated Use {@link FoldingFeature} to get the state of the hinge instead. Will be removed in
+ * alpha03.
  * Information about the state of the device.
  * <p>Currently only includes the description of the state for foldable devices.
  */
+@Deprecated
 public final class DeviceState {
 
     @Posture

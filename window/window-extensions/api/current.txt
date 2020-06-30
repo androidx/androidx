@@ -11,10 +11,18 @@ package androidx.window.extensions {
     field public static final int POSTURE_UNKNOWN = 0; // 0x0
   }
 
-  public class ExtensionDisplayFeature {
-    ctor public ExtensionDisplayFeature(android.graphics.Rect, int);
+  public interface ExtensionDisplayFeature {
     method public android.graphics.Rect getBounds();
+  }
+
+  public class ExtensionFoldingFeature implements androidx.window.extensions.ExtensionDisplayFeature {
+    ctor public ExtensionFoldingFeature(android.graphics.Rect, int, int);
+    method public android.graphics.Rect getBounds();
+    method public int getState();
     method public int getType();
+    field public static final int STATE_FLAT = 1; // 0x1
+    field public static final int STATE_FLIPPED = 3; // 0x3
+    field public static final int STATE_HALF_OPENED = 2; // 0x2
     field public static final int TYPE_FOLD = 1; // 0x1
     field public static final int TYPE_HINGE = 2; // 0x2
   }

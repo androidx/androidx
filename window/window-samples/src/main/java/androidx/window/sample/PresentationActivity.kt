@@ -28,7 +28,8 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.util.Consumer
-import androidx.window.DeviceState
+import androidx.window.FoldingFeature
+import androidx.window.WindowLayoutInfo
 import androidx.window.WindowManager
 
 /**
@@ -39,7 +40,7 @@ class PresentationActivity : BaseSampleActivity() {
     private val TAG = "FoldablePresentation"
 
     private lateinit var windowManager: WindowManager
-    private val deviceStateChangeCallback = DeviceStateChangeCallback()
+    private val deviceStateChangeCallback = WindowLayoutInfoChangeCallback()
     private var presentation: DemoPresentation? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +49,7 @@ class PresentationActivity : BaseSampleActivity() {
 
         windowManager = getTestBackend()?.let { backend -> WindowManager(this, backend) }
             ?: WindowManager(this)
-        windowManager.registerDeviceStateChangeCallback(
+        windowManager.registerLayoutChangeCallback(
             mainThreadExecutor,
             deviceStateChangeCallback
         )
@@ -56,7 +57,7 @@ class PresentationActivity : BaseSampleActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        windowManager.unregisterDeviceStateChangeCallback(deviceStateChangeCallback)
+        windowManager.unregisterLayoutChangeCallback(deviceStateChangeCallback)
     }
 
     internal fun startPresentation(context: Context) {
@@ -137,26 +138,36 @@ class PresentationActivity : BaseSampleActivity() {
     }
 
     /**
-     * Updates the display of the current device state.
+     * Updates the display of the current fold feature state.
      */
-    internal fun updateCurrentState(deviceState: DeviceState) {
+    internal fun updateCurrentState(info: WindowLayoutInfo) {
         val stateStringBuilder = StringBuilder()
+
         stateStringBuilder.append(getString(R.string.deviceState))
             .append(": ")
-            .append(deviceState)
-            .append("\n")
+
+        info.displayFeatures
+            .mapNotNull { it as? FoldingFeature }
+            .forEach { feature ->
+                stateStringBuilder.append(feature.stateString())
+                    .append("\n")
+            }
 
         findViewById<TextView>(R.id.currentState).text = stateStringBuilder.toString()
     }
 
-    inner class DeviceStateChangeCallback : Consumer<DeviceState> {
-        override fun accept(newDeviceState: DeviceState) {
-            updateCurrentState(newDeviceState)
-            if (newDeviceState.posture == DeviceState.POSTURE_CLOSED) {
-                startPresentation(this@PresentationActivity)
-            } else {
-                stopPresentation(null)
-            }
+    private fun FoldingFeature.stateString(): String {
+        return when (state) {
+            FoldingFeature.STATE_FLAT -> "FLAT"
+            FoldingFeature.STATE_FLIPPED -> "FLIPPED"
+            FoldingFeature.STATE_HALF_OPENED -> "HALF_OPENED"
+            else -> "Unknown feature state ($state)"
+        }
+    }
+
+    inner class WindowLayoutInfoChangeCallback : Consumer<WindowLayoutInfo> {
+        override fun accept(info: WindowLayoutInfo) {
+            updateCurrentState(info)
         }
     }
 }
