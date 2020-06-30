@@ -29,7 +29,6 @@ import androidx.compose.currentComposer
 import androidx.compose.emit
 import androidx.compose.onDispose
 import androidx.compose.remember
-import androidx.compose.snapshots.Snapshot
 import androidx.ui.core.LayoutNode.LayoutState
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
@@ -785,13 +784,6 @@ private class WithConstrainsState {
             ) {
                 scope = WithConstraintsScopeImpl(measureScope, constraints, layoutDirection)
                 root.ignoreModelReads { subcompose() }
-                // if there were models created and read inside this subcomposition
-                // and we are going to modify this models within the same frame
-                // the composables which read this model will not be recomposed.
-                // to make this possible we should apply global changes to ensure
-                // these are observed as changes.
-                @OptIn(ExperimentalComposeApi::class)
-                Snapshot.notifyObjectsInitialized()
             }
 
             // Measure the obtained children and compute our size.
