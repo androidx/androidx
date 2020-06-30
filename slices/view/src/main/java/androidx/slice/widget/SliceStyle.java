@@ -137,6 +137,11 @@ public class SliceStyle {
             mRowSingleTextWithRangeHeight = (int) a.getDimension(
                     R.styleable.SliceView_rowRangeSingleTextHeight,
                     defaultRowSingleTextWithRangeHeight);
+
+            int defaultRowInlineRangeHeight = context.getResources().getDimensionPixelSize(
+                    R.dimen.abc_slice_row_range_inline_height);
+            mRowInlineRangeHeight = (int) a.getDimension(
+                    R.styleable.SliceView_rowInlineRangeHeight, defaultRowInlineRangeHeight);
         } finally {
             a.recycle();
         }
@@ -152,7 +157,6 @@ public class SliceStyle {
                 R.dimen.abc_slice_row_selection_multi_text_height);
         mRowSingleTextWithSelectionHeight = r.getDimensionPixelSize(
                 R.dimen.abc_slice_row_selection_single_text_height);
-        mRowInlineRangeHeight = r.getDimensionPixelSize(R.dimen.abc_slice_row_range_inline_height);
 
         mGridBigPicMinHeight = r.getDimensionPixelSize(R.dimen.abc_slice_big_pic_min_height);
         mGridBigPicMaxHeight = r.getDimensionPixelSize(R.dimen.abc_slice_big_pic_max_height);
@@ -171,6 +175,10 @@ public class SliceStyle {
 
     public int getRowMaxHeight() {
         return mRowMaxHeight;
+    }
+
+    public int getRowInlineRangeHeight() {
+        return mRowInlineRangeHeight;
     }
 
     public void setTintColor(int tint) {

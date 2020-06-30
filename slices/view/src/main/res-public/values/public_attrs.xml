@@ -49,6 +49,7 @@
     <public type="attr" name="rowMinHeight" />
     <public type="attr" name="rowMaxHeight" />
     <public type="attr" name="rowRangeHeight" />
+    <public type="attr" name="rowInlineRangeHeight" />
     <public type="attr" name="rowRangeSingleTextHeight" />
     <public type="attr" name="seekBarInlineWidth" />
     <public type="attr" name="progressBarInlineWidth" />
