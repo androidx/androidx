@@ -67,6 +67,8 @@
         <attr name="rowRangeHeight" format="dimension" />
         <!-- Size of text area row with one line of text and then a range element-->
         <attr name="rowRangeSingleTextHeight" format="dimension" />
+        <!-- Size of row view when range is inline -->
+        <attr name="rowInlineRangeHeight" format="dimension" />
     </declare-styleable>
 
     <!-- To apply a style for all slices shown within an activity or app you
