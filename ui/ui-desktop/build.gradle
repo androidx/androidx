@@ -108,7 +108,7 @@ kotlin {
             api(KOTLIN_STDLIB_JDK8)
             api(KOTLIN_COROUTINES_CORE)
 
-            api "org.jetbrains.skija:skija:0.2.41"
+            api "org.jetbrains.skija:skija:0.4.1"
 
             api project(":ui:ui-desktop:android-emu")
 

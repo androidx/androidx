@@ -25,7 +25,8 @@ import androidx.ui.text.ParagraphIntrinsics
 import androidx.ui.text.TextRange
 import androidx.ui.text.style.ResolvedTextDirection
 import androidx.ui.geometry.Offset
-import org.jetbrains.skija.Paragraph as SkParagraph
+import org.jetbrains.skija.paragraph.RectHeightMode
+import org.jetbrains.skija.paragraph.RectWidthMode
 
 internal class DesktopParagraph(
     intrinsics: ParagraphIntrinsics,
@@ -62,10 +63,10 @@ internal class DesktopParagraph(
 
     override val didExceedMaxLines: Boolean
         // TODO: support text ellipsize.
-        get() = para.lineNumber() < maxLines
+        get() = para.lineNumber < maxLines
 
     override val lineCount: Int
-        get() = para.lineNumber().toInt()
+        get() = para.lineNumber.toInt()
 
     override val placeholderRects: List<Rect?> get() {
         println("Paragraph.placeholderRects")
@@ -76,8 +77,8 @@ internal class DesktopParagraph(
         val boxes = para.getRectsForRange(
             start,
             end,
-            SkParagraph.RectHeightStyle.MAX,
-            SkParagraph.RectWidthStyle.MAX
+            RectHeightMode.MAX,
+            RectWidthMode.MAX
         )
         val path = Path() as AndroidPath
         for (b in boxes) {
