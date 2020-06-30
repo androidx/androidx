@@ -106,7 +106,7 @@ public class VideoCaptureTest {
 
     @Test
     public void useCaseBecomesActive_whenStartingVideoRecording() {
-        VideoCapture useCase = new VideoCapture(mDefaultConfig);
+        VideoCapture useCase = VideoCapture.Builder.fromConfig(mDefaultConfig).build();
         mInstrumentation.runOnMainSync(() -> {
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCase);
             mLifecycleOwner.startAndResume();

@@ -63,7 +63,6 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
-import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
@@ -579,7 +578,7 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     void enableVideoCapture() {
-        mVideoCapture = new VideoCaptureConfig.Builder()
+        mVideoCapture = new VideoCapture.Builder()
                 .setTargetName("VideoCapture")
                 .build();
 

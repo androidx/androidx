@@ -55,7 +55,6 @@ import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize;
 import androidx.camera.core.impl.SurfaceConfig.ConfigType;
 import androidx.camera.core.impl.UseCaseConfig;
-import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.Configs;
@@ -677,7 +676,7 @@ public final class SupportedSurfaceCombinationTest {
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
-        VideoCapture videoCapture = new VideoCaptureConfig.Builder()
+        VideoCapture videoCapture = new VideoCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
         Preview preview = new Preview.Builder()
@@ -705,7 +704,7 @@ public final class SupportedSurfaceCombinationTest {
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
-        VideoCapture videoCapture = new VideoCaptureConfig.Builder()
+        VideoCapture videoCapture = new VideoCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
         Preview preview = new Preview.Builder()
@@ -854,7 +853,7 @@ public final class SupportedSurfaceCombinationTest {
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setSupportedResolutions(formatResolutionsPairList)
                 .build();
-        VideoCapture videoCapture = new VideoCaptureConfig.Builder()
+        VideoCapture videoCapture = new VideoCapture.Builder()
                 .setSupportedResolutions(formatResolutionsPairList)
                 .build();
         Preview preview = new Preview.Builder()
