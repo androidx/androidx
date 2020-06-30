@@ -54,23 +54,22 @@ final class OpenGLRenderer {
                     String.format(Locale.US, "GLRenderer-%03d", RENDERER_COUNT.incrementAndGet()),
                     Process.THREAD_PRIORITY_DEFAULT); // Use UI thread priority (DEFAULT)
 
-    private Size mPreviewResolution;
+    private Size mTextureSize;
     private SurfaceTexture mPreviewTexture;
     private final float[] mPreviewTransform = new float[16];
-    private float mNaturalPreviewWidth = 0;
-    private float mNaturalPreviewHeight = 0;
 
     private Size mSurfaceSize = null;
     private int mSurfaceRotationDegrees = 0;
     private final float[] mSurfaceTransform = new float[16];
-
-    private final float[] mTempVec = new float[8];
 
     private Rect mPreviewCropRect;
 
     private final float[] mCropRectTransform = new float[16];
 
     private final float[] mFragmentShaderTransform = new float[16];
+
+    private static final float[] TEST_VECTOR = {0, 1f, 0, 0};
+    private float[] mTempVec = new float[4];
 
     private long mNativeContext = 0;
 
@@ -236,7 +235,7 @@ final class OpenGLRenderer {
                     }
                 },
                 mExecutor.getHandler());
-        mPreviewResolution = size;
+        mTextureSize = size;
         return mPreviewTexture;
     }
 
@@ -274,27 +273,26 @@ final class OpenGLRenderer {
     }
 
     /**
-     * Calculates the dimensions of the source texture after it has been transformed from the raw
-     * sensor texture to an image which is in the device's 'natural' orientation.
+     * Calculates the rotation of the source texture between the sensor coordinate space and
+     * the device's 'natural' orientation.
      *
-     * <p>The required transform is passed along with each texture update and is retrieved from
-     * {@link
-     * SurfaceTexture#getTransformMatrix(float[])}.
+     * <p>A required transform matrix is passed along with each texture update and is retrieved by
+     * {@link SurfaceTexture#getTransformMatrix(float[])}.
      *
      * <pre>{@code
      *        TEXTURE FROM SENSOR:
      * ^
-     * |
-     * |          .###########
-     * |           ***********
-     * |   ....############## ####. /           Sensor may be rotated relative
-     * |  ################### #( )#.            to the device's 'natural'
-     * |       ############## ######            orientation.
-     * |  ################### #( )#*
-     * |   ****############## ####* \
-     * |           ...........
-     * |          *###########
-     * |
+     * |                  +-----------+
+     * |          .#######|###        |
+     * |           *******|***        |
+     * |   ....###########|## ####. / |         Sensor may be rotated relative
+     * |  ################|## #( )#.  |         to the device's 'natural'
+     * |       ###########|## ######  |         orientation.
+     * |  ################|## #( )#*  |
+     * |   ****###########|## ####* \ |
+     * |           .......|...        |
+     * |          *#######|###        |
+     * |                  +-----------+
      * +-------------------------------->
      *                                               TRANSFORMED IMAGE:
      *                 | |                   ^
@@ -312,108 +310,72 @@ final class OpenGLRenderer {
      * }</pre>
      *
      * <p>The transform matrix is a 4x4 affine transform matrix that operates on standard normalized
-     * texture coordinates which are in the range of [0,1] for both s and t dimensions. Once the
-     * transform is applied, we scale by the width and height of the source texture.
+     * texture coordinates which are in the range of [0,1] for both s and t dimensions. Before
+     * the transform is applied, the texture may have dimensions that are larger than the
+     * dimensions of the SurfaceTexture we provided in order to accommodate hardware limitations.
+     *
+     * <p>For this method we are only interested in the rotation component of the transform
+     * matrix, so the calculations need to make sure to avoid the scaling and translation
+     * components.
      */
     @WorkerThread
-    private void calculateInputDimensions() {
-
-        // Although the transform is normally used to rotate, it can also handle scale and
-        // translation.
-        // In order to accommodate for this, we use test vectors representing the boundaries of the
-        // input, and run them through the transform to find the boundaries of the output.
+    private int getTextureRotationDegrees() {
+        // The final output image should have the requested dimensions AFTER applying the
+        // transform matrix, but width and height may be swapped. We know that the transform
+        // matrix from SurfaceTexture#getTransformMatrix() is an affine transform matrix that
+        // will only rotate in 90 degree increments, so we only need to worry about the rotation
+        // component.
         //
-        //                                Top Bound (Vt):    Right Bound (Vr):
-        //
-        //                                ^ (0.5,1)             ^
-        //                                |    ^                |
-        //                                |    |                |
-        //                                |    |                |        (1,0.5)
-        //          Texture               |    +                |     +---->
-        //          Coordinates:          |                     |
-        //          ^                     |                     |
-        //          |                     +----------->         +----------->
-        //        (0,1)     (1,1)
-        //          +---------+           Bottom Bound (Vb):     Left Bound (Vl):
-        //          |         |
-        //          |         |           ^                     ^
-        //          |    +    |           |                     |
-        //          |(0.5,0.5)|           |                     |
-        //          |         |           |                  (0,0.5)
-        //          +------------>        |    +                <----+
-        //        (0,0)     (1,0)         |    |                |
-        //                                |    |                |
-        //                                +----v------>         +----------->
-        //                                  (0.5,0)
-        //
-        // Using the above test vectors, we can calculate the transformed height using transform
-        // matrix M as:
-        //
-        // Voh = |M x (Vt * h) - M x (Vb * h)| = |M x (Vt - Vb) * h| = |M x Vih| = |M x [0 h 0 0]|
-        // where:
-        // Vih = input, pre-transform height vector,
-        // Voh = output transformed height vector,
-        //   h = pre-transform texture height,
-        //  || denotes element-wise absolute value,
-        //   x denotes matrix-vector multiplication, and
-        //   * denotes element-wise multiplication.
-        //
-        // Similarly, the transformed width will be calculated as:
-        //
-        // Vow = |M x (Vr * w) - M x (Vl * w)| = |M x (Vr - Vl) * w| = |M x Viw| = |M x [w 0 0 0]|
-        // where:
-        // Vow = output transformed width vector, and w = pre-transform texture width
-        //
-        // Since the transform matrix can potentially swap width and height, we must hold on to both
-        // elements of each output vector. However, since we assume rotations in multiples of 90
-        // degrees, and the vectors are orthogonal, we can calculate the final transformed vector
-        // as:
-        //
-        // Vo = |M x Vih| + |M x Viw|
+        // We can test this by using an test vector of [s, t, p, q] = [0, 1, 0, 0]. Using 'q = 0'
+        // will ignore the translation component of the matrix. We will only need to check if the
+        // 's' component becomes a scaled version of the 't' component and the 't' component
+        // becomes 0.
+        Matrix.multiplyMV(mTempVec, 0, mPreviewTransform, 0, TEST_VECTOR, 0);
 
-        // Initialize the components we care about for the output vector. This will be
-        // accumulated from
-        // Voh and Vow.
-        mNaturalPreviewWidth = 0;
-        mNaturalPreviewHeight = 0;
+        // Calculate the normalized vector and round to integers so we can do integer comparison.
+        // Normalizing the vector removes the effects of the scaling component of the
+        // transform matrix. Once normalized, we can round and do integer comparison.
+        float length = Matrix.length(mTempVec[0], mTempVec[1], 0);
+        int s = Math.round(mTempVec[0] / length);
+        int t = Math.round(mTempVec[1] / length);
+        if (s == 0 && t == 1) {
+            //       (0,1)                               (0,1)
+            //    +----^----+          0 deg          +----^----+
+            //    |    |    |        Rotation         |    |    |
+            //    |    +    |         +----->         |    +    |
+            //    |  (0,0)  |                         |  (0,0)  |
+            //    +---------+                         +---------+
+            return 0;
+        } else if (s == -1 && t == 0) {
+            //       (0,1)
+            //    +----^----+          90 deg         +---------+
+            //    |    |    |        Rotation         |         |
+            //    |    +    |         +----->   (-1,0)<----+    |
+            //    |  (0,0)  |                         |  (0,0)  |
+            //    +---------+                         +---------+
+            return 90;
+        } else if (s == 0 && t == -1) {
+            //       (0,1)
+            //    +----^----+         180 deg         +---------+
+            //    |    |    |        Rotation         |  (0,0)  |
+            //    |    +    |         +----->         |    +    |
+            //    |  (0,0)  |                         |    |    |
+            //    +---------+                         +----v----+
+            //                                           (0,-1)
+            return 180;
+        }  else if (s == 1 && t == 0) {
+            //       (0,1)
+            //    +----^----+         270 deg         +---------+
+            //    |    |    |        Rotation         |         |
+            //    |    +    |         +----->         |    +---->(1,0)
+            //    |  (0,0)  |                         |  (0,0)  |
+            //    +---------+                         +---------+
+            return 270;
+        }
 
-        // Calculate Voh. We use our allocated temporary vector to avoid excessive allocations since
-        // this is done per-frame.
-        float[] vih = mTempVec;
-        vih[0] = 0;
-        vih[1] = mPreviewResolution.getHeight();
-        vih[2] = 0;
-        vih[3] = 0;
-
-        // Apply the transform. Second half of the array is the result vector Voh.
-        Matrix.multiplyMV(
-                /*resultVec=*/ mTempVec, /*resultVecOffset=*/ 4,
-                /*lhsMat=*/ mPreviewTransform, /*lhsMatOffset=*/ 0,
-                /*rhsVec=*/ vih, /*rhsVecOffset=*/ 0);
-
-        // Accumulate output from Voh.
-        mNaturalPreviewWidth += Math.abs(mTempVec[4]);
-        mNaturalPreviewHeight += Math.abs(mTempVec[5]);
-
-        // Calculate Vow.
-        float[] voh = mTempVec;
-        voh[0] = mPreviewResolution.getWidth();
-        voh[1] = 0;
-        voh[2] = 0;
-        voh[3] = 0;
-
-        // Apply the transform. Second half of the array is the result vector Vow.
-        Matrix.multiplyMV(
-                /*resultVec=*/ mTempVec,
-                /*resultVecOffset=*/ 4,
-                /*lhsMat=*/ mPreviewTransform,
-                /*lhsMatOffset=*/ 0,
-                /*rhsVec=*/ voh,
-                /*rhsVecOffset=*/ 0);
-
-        // Accumulate output from Vow. This now represents the fully transformed coordinates.
-        mNaturalPreviewWidth += Math.abs(mTempVec[4]);
-        mNaturalPreviewHeight += Math.abs(mTempVec[5]);
+        throw new RuntimeException(String.format("Unexpected texture transform matrix. Expected "
+                + "test vector [0, 1] to rotate to [0,1], [1, 0], [0, -1] or [-1, 0], but instead"
+                + "was [%d, %d].", s, t));
     }
 
 
@@ -424,8 +386,8 @@ final class OpenGLRenderer {
         // If the crop rect is the same size as the preview, do custom transformation for fragment
         // shader to sample the whole surface.
         return mPreviewCropRect != null && mPreviewCropRect.left == 0 && mPreviewCropRect.top == 0
-                && mPreviewCropRect.width() == mPreviewResolution.getWidth()
-                && mPreviewCropRect.height() == mPreviewResolution.getHeight();
+                && mPreviewCropRect.width() == mTextureSize.getWidth()
+                && mPreviewCropRect.height() == mTextureSize.getHeight();
     }
 
     /**
@@ -445,27 +407,31 @@ final class OpenGLRenderer {
      */
     @WorkerThread
     private void calculateCustomTransformation() {
-        // Calculate the dimensions of the source texture in the 'natural' orientation of the
-        // device.
-        calculateInputDimensions();
+        // Swap the dimensions of the source texture if the transformation to 'natural'
+        // orientation contains a rotation of 90 or 270 degrees.
+        int textureRotation = getTextureRotationDegrees();
+        float naturalTextureWidth = mTextureSize.getWidth();
+        float naturalTextureHeight = mTextureSize.getHeight();
+        if (textureRotation == 90 || textureRotation == 270) {
+            // If the raw texture is rotated in natural orientation, swap the width and height.
+            naturalTextureWidth = mTextureSize.getHeight();
+            naturalTextureHeight = mTextureSize.getWidth();
+        }
 
-        // Transform surface width and height to natural orientation
-        Matrix.setRotateM(mSurfaceTransform, 0, -mSurfaceRotationDegrees, 0, 0, 1.0f);
+        // Swap the dimensions of the surface we are drawing the texture onto if rotating it to
+        // 'natural' orientation would require a 90 degree or 270 degree rotation.
+        float naturalSurfaceWidth = mSurfaceSize.getWidth();
+        float naturalSurfaceHeight = mSurfaceSize.getHeight();
+        if (mSurfaceRotationDegrees == 90 || mSurfaceRotationDegrees == 270) {
+            // If the surface needs to be rotated, swap the width and height
+            naturalSurfaceWidth = mSurfaceSize.getHeight();
+            naturalSurfaceHeight = mSurfaceSize.getWidth();
+        }
 
-        // Since rotation is a linear transform, we don't need to worry about the affine component
-        mTempVec[0] = mSurfaceSize.getWidth();
-        mTempVec[1] = mSurfaceSize.getHeight();
-
-        // Apply the transform to surface dimensions
-        Matrix.multiplyMV(mTempVec, 4, mSurfaceTransform, 0, mTempVec, 0);
-
-        float naturalSurfaceWidth = Math.abs(mTempVec[4]);
-        float naturalSurfaceHeight = Math.abs(mTempVec[5]);
-
-        // Now that both preview and surface are in the same coordinate system, calculate the ratio
-        // of width/height between preview/surface to determine which dimension to scale
-        float heightRatio = mNaturalPreviewHeight / naturalSurfaceHeight;
-        float widthRatio = mNaturalPreviewWidth / naturalSurfaceWidth;
+        // Now that both texture and surface are in the same coordinate system, calculate the ratio
+        // of width/height between texture/surface to determine which dimension to scale
+        float heightRatio = naturalTextureHeight / naturalSurfaceHeight;
+        float widthRatio = naturalTextureWidth / naturalSurfaceWidth;
 
         // Now that we have calculated scale, we must apply rotation and scale in the correct order
         // such that it will apply to the vertex shader's vertices consistently.
@@ -473,10 +439,9 @@ final class OpenGLRenderer {
 
         // Apply the scale depending on whether the width or the height needs to be scaled to match
         // a "center crop" scale type. Because vertex coordinates are already normalized, we must
-        // remove
-        // the implicit scaling (through division) before scaling by the opposite dimension.
-        if (mNaturalPreviewWidth * naturalSurfaceHeight
-                > mNaturalPreviewHeight * naturalSurfaceWidth) {
+        // remove the implicit scaling (through division) before scaling by the opposite dimension.
+        if (naturalTextureWidth * naturalSurfaceHeight
+                > naturalTextureHeight * naturalSurfaceWidth) {
             Matrix.scaleM(mSurfaceTransform, 0, heightRatio / widthRatio, 1.0f, 1.0f);
         } else {
             Matrix.scaleM(mSurfaceTransform, 0, 1.0f, widthRatio / heightRatio, 1.0f);
@@ -497,12 +462,12 @@ final class OpenGLRenderer {
     private void calculateViewportTransformation() {
         // Append the transformations so that only the area within the crop rect is sampled.
         Matrix.setIdentityM(mCropRectTransform, 0);
-        float translateX = (float) mPreviewCropRect.left / mPreviewResolution.getWidth();
-        float translateY = (float) mPreviewCropRect.top / mPreviewResolution.getHeight();
+        float translateX = (float) mPreviewCropRect.left / mTextureSize.getWidth();
+        float translateY = (float) mPreviewCropRect.top / mTextureSize.getHeight();
         Matrix.translateM(mCropRectTransform, 0, translateX, translateY, 0f);
 
-        float scaleX = (float) mPreviewCropRect.width() / mPreviewResolution.getWidth();
-        float scaleY = (float) mPreviewCropRect.height() / mPreviewResolution.getHeight();
+        float scaleX = (float) mPreviewCropRect.width() / mTextureSize.getWidth();
+        float scaleY = (float) mPreviewCropRect.height() / mTextureSize.getHeight();
         Matrix.scaleM(mCropRectTransform, 0, scaleX, scaleY, 1f);
 
         Matrix.multiplyMM(mFragmentShaderTransform, 0, mCropRectTransform, 0,
