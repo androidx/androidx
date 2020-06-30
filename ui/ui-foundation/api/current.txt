@@ -76,9 +76,9 @@ package androidx.ui.foundation {
   }
 
   public final class ImageKt {
-    method @androidx.compose.Composable public static inline void Image(androidx.ui.graphics.ImageAsset asset, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
-    method @androidx.compose.Composable public static inline void Image(androidx.ui.graphics.vector.VectorAsset asset, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
-    method @androidx.compose.Composable public static void Image(androidx.ui.graphics.painter.Painter painter, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
+    method @androidx.compose.Composable public static inline void Image(androidx.ui.graphics.ImageAsset asset, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
+    method @androidx.compose.Composable public static inline void Image(androidx.ui.graphics.vector.VectorAsset asset, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
+    method @androidx.compose.Composable public static void Image(androidx.ui.graphics.painter.Painter painter, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
   }
 
   @androidx.compose.Stable public interface Indication {
