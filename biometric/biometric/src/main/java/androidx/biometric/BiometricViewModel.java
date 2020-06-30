@@ -80,10 +80,10 @@ public class BiometricViewModel extends ViewModel {
     /**
      * A label for the negative button shown on the prompt.
      *
-     * <p>If {@code null}, this value is instead read from the current
-     * {@link androidx.biometric.BiometricPrompt.PromptInfo}.
+     * <p>If set, this value overrides the one returned by
+     * {@link BiometricPrompt.PromptInfo#getNegativeButtonText()}.
      */
-    @Nullable private CharSequence mNegativeButtonText;
+    @Nullable private CharSequence mNegativeButtonTextOverride;
 
     /**
      * An integer indicating where the dialog was last canceled from.
@@ -187,36 +187,102 @@ public class BiometricViewModel extends ViewModel {
         mClientCallback = clientCallback;
     }
 
-    @Nullable
-    BiometricPrompt.PromptInfo getPromptInfo() {
-        return mPromptInfo;
-    }
-
     void setPromptInfo(@Nullable BiometricPrompt.PromptInfo promptInfo) {
         mPromptInfo = promptInfo;
     }
 
+    /**
+     * Gets the title to be shown on the biometric prompt.
+     *
+     * <p>This method relies on the {@link BiometricPrompt.PromptInfo} set by
+     * {@link #setPromptInfo(BiometricPrompt.PromptInfo)}.
+     *
+     * @return The title for the prompt, or {@code null} if not set.
+     */
     @Nullable
     CharSequence getTitle() {
         return mPromptInfo != null ? mPromptInfo.getTitle() : null;
     }
 
+    /**
+     * Gets the subtitle to be shown on the biometric prompt.
+     *
+     * <p>This method relies on the {@link BiometricPrompt.PromptInfo} set by
+     * {@link #setPromptInfo(BiometricPrompt.PromptInfo)}.
+     *
+     * @return The subtitle for the prompt, or {@code null} if not set.
+     */
     @Nullable
     CharSequence getSubtitle() {
         return mPromptInfo != null ? mPromptInfo.getSubtitle() : null;
     }
 
+    /**
+     * Gets the description to be shown on the biometric prompt.
+     *
+     * <p>This method relies on the {@link BiometricPrompt.PromptInfo} set by
+     * {@link #setPromptInfo(BiometricPrompt.PromptInfo)}.
+     *
+     * @return The description for the prompt, or {@code null} if not set.
+     */
     @Nullable
     CharSequence getDescription() {
         return mPromptInfo != null ? mPromptInfo.getDescription() : null;
     }
 
-    boolean isDeviceCredentialAllowed() {
-        return mPromptInfo != null && mPromptInfo.isDeviceCredentialAllowed();
+    /**
+     * Gets the text that should be shown for the negative button on the biometric prompt.
+     *
+     * <p>If non-null, the value set by {@link #setNegativeButtonTextOverride(CharSequence)} is
+     * used. Otherwise, falls back to the value returned by
+     * {@link BiometricPrompt.PromptInfo#getNegativeButtonText()}, or {@code null} if a non-null
+     * {@link BiometricPrompt.PromptInfo} has not been set by
+     * {@link #setPromptInfo(BiometricPrompt.PromptInfo)}.
+     *
+     * @return The negative button text for the prompt, or {@code null} if not set.
+     */
+    @Nullable
+    CharSequence getNegativeButtonText() {
+        if (mNegativeButtonTextOverride != null) {
+            return mNegativeButtonTextOverride;
+        } else if (mPromptInfo != null) {
+            return mPromptInfo.getNegativeButtonText();
+        } else {
+            return null;
+        }
     }
 
+    /**
+     * Checks if the confirmation required option is enabled for the biometric prompt.
+     *
+     * <p>This method relies on the {@link BiometricPrompt.PromptInfo} set by
+     * {@link #setPromptInfo(BiometricPrompt.PromptInfo)}.
+     *
+     * @return Whether the confirmation required option is enabled.
+     */
     boolean isConfirmationRequired() {
         return mPromptInfo == null || mPromptInfo.isConfirmationRequired();
+    }
+
+    /**
+     * Gets the type(s) of authenticators that may be invoked by the biometric prompt.
+     *
+     * <p>If a non-null {@link BiometricPrompt.PromptInfo} has been set by
+     * {@link #setPromptInfo(BiometricPrompt.PromptInfo)}, this is the single consolidated set of
+     * authenticators allowed by the prompt, taking into account the values of
+     * {@link BiometricPrompt.PromptInfo#getAllowedAuthenticators()},
+     * {@link BiometricPrompt.PromptInfo#isDeviceCredentialAllowed()}, and
+     * {@link #getCryptoObject()}.
+     *
+     * @return A bit field representing all valid authenticator types that may be invoked by
+     * the prompt, or 0 if not set.
+     */
+    @SuppressWarnings("deprecation")
+    @BiometricManager.AuthenticatorTypes
+    int getAllowedAuthenticators() {
+        return mPromptInfo != null
+                ? AuthenticatorUtils.getConsolidatedAuthenticators(mPromptInfo, mCryptoObject)
+                : 0;
     }
 
     @Nullable
@@ -286,19 +352,8 @@ public class BiometricViewModel extends ViewModel {
         return mNegativeButtonListener;
     }
 
-    @Nullable
-    CharSequence getNegativeButtonText() {
-        if (mNegativeButtonText != null) {
-            return mNegativeButtonText;
-        } else if (mPromptInfo != null) {
-            return mPromptInfo.getNegativeButtonText();
-        } else {
-            return null;
-        }
-    }
-
-    void setNegativeButtonText(@Nullable CharSequence negativeButtonText) {
-        mNegativeButtonText = negativeButtonText;
+    void setNegativeButtonTextOverride(@Nullable CharSequence negativeButtonTextOverride) {
+        mNegativeButtonTextOverride = negativeButtonTextOverride;
     }
 
     int getCanceledFrom() {

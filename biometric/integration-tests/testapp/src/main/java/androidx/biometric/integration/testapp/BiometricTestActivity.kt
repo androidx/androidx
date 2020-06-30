@@ -139,10 +139,10 @@ class BiometricTestActivity : FragmentActivity() {
             .setSubtitle(getString(R.string.biometric_prompt_subtitle))
             .setDescription(getString(R.string.biometric_prompt_description))
             .setConfirmationRequired(requireConfirmationCheckbox.isChecked)
+            .setAllowedAuthenticators(allowedAuthenticators)
 
-        if (allowedAuthenticators and Authenticators.DEVICE_CREDENTIAL != 0) {
-            infoBuilder.setDeviceCredentialAllowed(true)
-        } else {
+        // Set the negative button text ONLY if device credential authentication is not enabled.
+        if (allowedAuthenticators and Authenticators.DEVICE_CREDENTIAL == 0) {
             infoBuilder.setNegativeButtonText(getString(R.string.biometric_prompt_negative_label))
         }
 

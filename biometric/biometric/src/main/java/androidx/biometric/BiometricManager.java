@@ -116,6 +116,7 @@ public class BiometricManager {
      * authenticators (e.g. {@code DEVICE_CREDENTIAL | BIOMETRIC_WEAK}).
      *
      * @see #canAuthenticate(int)
+     * @see BiometricPrompt.PromptInfo.Builder#setAllowedAuthenticators(int)
      */
     public interface Authenticators {
         /**

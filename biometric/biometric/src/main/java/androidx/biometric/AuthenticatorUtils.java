@@ -18,6 +18,8 @@ package androidx.biometric;
 
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.biometric.BiometricManager.Authenticators;
 
 /**
@@ -26,6 +28,64 @@ import androidx.biometric.BiometricManager.Authenticators;
 class AuthenticatorUtils {
     // Prevent instantiation.
     private AuthenticatorUtils() {}
+
+    /**
+     * Converts the given set of allowed authenticator types to a unique, developer-readable string.
+     *
+     * @param authenticators A bit field representing a set of allowed authenticator types.
+     * @return A string that uniquely identifies the set of authenticators and can be used in
+     * developer-facing contexts (e.g. error messages).
+     */
+    static String convertToString(@BiometricManager.AuthenticatorTypes int authenticators) {
+        switch (authenticators) {
+            case Authenticators.BIOMETRIC_STRONG:
+                return "BIOMETRIC_STRONG";
+            case Authenticators.BIOMETRIC_WEAK:
+                return "BIOMETRIC_WEAK";
+            case Authenticators.DEVICE_CREDENTIAL:
+                return "DEVICE_CREDENTIAL";
+            case Authenticators.BIOMETRIC_STRONG | Authenticators.DEVICE_CREDENTIAL:
+                return "BIOMETRIC_STRONG | DEVICE_CREDENTIAL";
+            case Authenticators.BIOMETRIC_WEAK | Authenticators.DEVICE_CREDENTIAL:
+                return "BIOMETRIC_WEAK | DEVICE_CREDENTIAL";
+            default:
+                return String.valueOf(authenticators);
+        }
+    }
+
+    /**
+     * Combines relevant information from the given {@link BiometricPrompt.PromptInfo} and
+     * {@link BiometricPrompt.CryptoObject} to determine which type(s) of authenticators should be
+     * allowed for a given authentication session.
+     *
+     * @param info   The {@link BiometricPrompt.PromptInfo} for a given authentication session.
+     * @param crypto The {@link BiometricPrompt.CryptoObject} for a given crypto-based
+     *               authentication session, or {@code null} for non-crypto authentication.
+     * @return A bit field representing all valid authenticator types that may be invoked.
+     */
+    @SuppressWarnings("deprecation")
+    @BiometricManager.AuthenticatorTypes
+    static int getConsolidatedAuthenticators(
+            @NonNull BiometricPrompt.PromptInfo info,
+            @Nullable BiometricPrompt.CryptoObject crypto) {
+
+        @BiometricManager.AuthenticatorTypes int authenticators;
+        if (info.getAllowedAuthenticators() != 0) {
+            // Use explicitly allowed authenticators if set.
+            authenticators = info.getAllowedAuthenticators();
+        } else {
+            // Crypto auth requires a Class 3 (Strong) biometric.
+            authenticators = crypto != null
+                    ? Authenticators.BIOMETRIC_STRONG
+                    : Authenticators.BIOMETRIC_WEAK;
+
+            if (info.isDeviceCredentialAllowed()) {
+                authenticators |= Authenticators.DEVICE_CREDENTIAL;
+            }
+        }
+
+        return authenticators;
+    }
 
     /**
      * Checks if the given set of allowed authenticator types is supported on this Android version.

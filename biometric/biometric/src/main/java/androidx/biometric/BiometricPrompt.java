@@ -17,12 +17,14 @@
 package androidx.biometric;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.biometric.BiometricManager.Authenticators;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -73,7 +75,7 @@ public class BiometricPrompt implements BiometricConstants {
             ERROR_NO_DEVICE_CREDENTIAL
     })
     @Retention(RetentionPolicy.SOURCE)
-    @interface BiometricError {}
+    @interface AuthenticationError {}
 
     /**
      * Tag used to identify the {@link BiometricFragment} attached to the client activity/fragment.
@@ -189,7 +191,7 @@ public class BiometricPrompt implements BiometricConstants {
          * @param errString A human-readable string that describes the error.
          */
         public void onAuthenticationError(
-                @BiometricError int errorCode, @NonNull CharSequence errString) {}
+                @AuthenticationError int errorCode, @NonNull CharSequence errString) {}
 
         /**
          * Called when a biometric (e.g. fingerprint, face, etc.) is recognized, indicating that the
@@ -224,6 +226,7 @@ public class BiometricPrompt implements BiometricConstants {
             @Nullable private CharSequence mNegativeButtonText = null;
             private boolean mIsConfirmationRequired = true;
             private boolean mIsDeviceCredentialAllowed = false;
+            @BiometricManager.AuthenticatorTypes private int mAllowedAuthenticators = 0;
 
             /**
              * Required: Sets the title for the prompt.
@@ -264,13 +267,14 @@ public class BiometricPrompt implements BiometricConstants {
             /**
              * Required: Sets the text for the negative button on the prompt.
              *
-             * <p>Note that this option is incompatible with
-             * {@link PromptInfo.Builder#setDeviceCredentialAllowed(boolean)} and must NOT be set
-             * if the latter is enabled.
+             * <p>Note that this option is incompatible with device credential authentication and
+             * must NOT be set if the latter is enabled via {@link #setAllowedAuthenticators(int)}
+             * or {@link #setDeviceCredentialAllowed(boolean)}.
              *
              * @param negativeButtonText The label to be used for the negative button on the prompt.
              * @return This builder.
              */
+            @SuppressWarnings("deprecation")
             @NonNull
             public Builder setNegativeButtonText(@NonNull CharSequence negativeButtonText) {
                 mNegativeButtonText = negativeButtonText;
@@ -322,8 +326,11 @@ public class BiometricPrompt implements BiometricConstants {
              *
              * @param deviceCredentialAllowed Whether this option should be enabled.
              * @return This builder.
+             *
+             * @deprecated Use {@link #setAllowedAuthenticators(int)} instead.
              */
             @SuppressWarnings("deprecation")
+            @Deprecated
             @NonNull
             public Builder setDeviceCredentialAllowed(boolean deviceCredentialAllowed) {
                 mIsDeviceCredentialAllowed = deviceCredentialAllowed;
@@ -331,32 +338,80 @@ public class BiometricPrompt implements BiometricConstants {
             }
 
             /**
+             * Optional: Specifies the type(s) of authenticators that may be invoked by
+             * {@link BiometricPrompt} to authenticate the user. Available authenticator types are
+             * defined in {@link Authenticators} and can be combined via bitwise OR. Defaults to:
+             * <ul>
+             *     <li>{@link Authenticators#BIOMETRIC_WEAK} for non-crypto authentication, or</li>
+             *     <li>{@link Authenticators#BIOMETRIC_STRONG} for crypto-based authentication.</li>
+             * </ul>
+             *
+             * <p>Note that not all combinations of authenticator types are supported prior to
+             * Android 11 (API 30). Specifically, {@code DEVICE_CREDENTIAL} alone is unsupported
+             * prior to API 30, and {@code BIOMETRIC_STRONG | DEVICE_CREDENTIAL} is unsupported on
+             * API 28-29. Setting an unsupported value on an affected Android version will result in
+             * an error when calling {@link #build()}.
+             *
+             * <p>This method should be preferred over {@link #setDeviceCredentialAllowed(boolean)}
+             * and overrides the latter if both are used. Using this method to enable device
+             * credential authentication (with {@link Authenticators#DEVICE_CREDENTIAL}) will
+             * replace the negative button on the prompt, making it an error to also call
+             * {@link #setNegativeButtonText(CharSequence)}.
+             *
+             * <p>If this method is used and no authenticator of any of the specified types is
+             * available at the time {@code authenticate()} is called,
+             * {@link AuthenticationCallback#onAuthenticationError(int, CharSequence)} will be
+             * invoked with an appropriate error code.
+             *
+             * @param allowedAuthenticators A bit field representing all valid authenticator types
+             *                              that may be invoked by the prompt.
+             * @return This builder.
+             */
+            @NonNull
+            public Builder setAllowedAuthenticators(
+                    @BiometricManager.AuthenticatorTypes int allowedAuthenticators) {
+                mAllowedAuthenticators = allowedAuthenticators;
+                return this;
+            }
+
+            /**
              * Creates a {@link PromptInfo} object with the specified options.
              *
              * @return The {@link PromptInfo} object.
+             *
              * @throws IllegalArgumentException If any required option is not set, or if any
-             *  illegal combination of options is present.
+             *                                  illegal combination of options is present.
              */
             @NonNull
             public PromptInfo build() {
                 if (TextUtils.isEmpty(mTitle)) {
                     throw new IllegalArgumentException("Title must be set and non-empty.");
                 }
-                if (TextUtils.isEmpty(mNegativeButtonText) && !mIsDeviceCredentialAllowed) {
+                if (!AuthenticatorUtils.isSupportedCombination(mAllowedAuthenticators)) {
+                    throw new IllegalArgumentException("Authenticator combination is unsupported "
+                            + "on API " + Build.VERSION.SDK_INT + ": "
+                            + AuthenticatorUtils.convertToString(mAllowedAuthenticators));
+                }
+
+                final boolean isDeviceCredentialAllowed = mAllowedAuthenticators != 0
+                        ? AuthenticatorUtils.isDeviceCredentialAllowed(mAllowedAuthenticators)
+                        : mIsDeviceCredentialAllowed;
+                if (TextUtils.isEmpty(mNegativeButtonText) && !isDeviceCredentialAllowed) {
                     throw new IllegalArgumentException("Negative text must be set and non-empty.");
                 }
-                if (!TextUtils.isEmpty(mNegativeButtonText) && mIsDeviceCredentialAllowed) {
+                if (!TextUtils.isEmpty(mNegativeButtonText) && isDeviceCredentialAllowed) {
                     throw new IllegalArgumentException("Negative text must not be set if device "
                             + "credential authentication is allowed.");
                 }
-                //noinspection ConstantConditions
+
                 return new PromptInfo(
                         mTitle,
                         mSubtitle,
                         mDescription,
                         mNegativeButtonText,
                         mIsConfirmationRequired,
-                        mIsDeviceCredentialAllowed);
+                        mIsDeviceCredentialAllowed,
+                        mAllowedAuthenticators);
             }
         }
 
@@ -367,6 +422,7 @@ public class BiometricPrompt implements BiometricConstants {
         @Nullable private final CharSequence mNegativeButtonText;
         private final boolean mIsConfirmationRequired;
         private final boolean mIsDeviceCredentialAllowed;
+        @BiometricManager.AuthenticatorTypes private final int mAllowedAuthenticators;
 
         // Prevent direct instantiation.
         @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -376,13 +432,15 @@ public class BiometricPrompt implements BiometricConstants {
                 @Nullable CharSequence description,
                 @Nullable CharSequence negativeButtonText,
                 boolean confirmationRequired,
-                boolean deviceCredentialAllowed) {
+                boolean deviceCredentialAllowed,
+                @BiometricManager.AuthenticatorTypes int allowedAuthenticators) {
             mTitle = title;
             mSubtitle = subtitle;
             mDescription = description;
             mNegativeButtonText = negativeButtonText;
             mIsConfirmationRequired = confirmationRequired;
             mIsDeviceCredentialAllowed = deviceCredentialAllowed;
+            mAllowedAuthenticators = allowedAuthenticators;
         }
 
         /**
@@ -451,9 +509,26 @@ public class BiometricPrompt implements BiometricConstants {
          * @return Whether this option is enabled.
          *
          * @see Builder#setDeviceCredentialAllowed(boolean)
+         *
+         * @deprecated Will be removed with {@link Builder#setDeviceCredentialAllowed(boolean)}.
          */
+        @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
+        @Deprecated
         public boolean isDeviceCredentialAllowed() {
             return mIsDeviceCredentialAllowed;
+        }
+
+        /**
+         * Gets the type(s) of authenticators that may be invoked by the prompt.
+         *
+         * @return A bit field representing all valid authenticator types that may be invoked by
+         * the prompt, or 0 if not set.
+         *
+         * @see Builder#setAllowedAuthenticators(int)
+         */
+        @BiometricManager.AuthenticatorTypes
+        public int getAllowedAuthenticators() {
+            return mAllowedAuthenticators;
         }
     }
 
@@ -608,11 +683,11 @@ public class BiometricPrompt implements BiometricConstants {
     /**
      * Initializes or updates the data needed by the prompt.
      *
-     * @param activity The client activity that will host the prompt.
+     * @param activity        The client activity that will host the prompt.
      * @param fragmentManager The fragment manager that will be used to attach the prompt.
-     * @param executor The executor that will be used to run {@link AuthenticationCallback} methods.
-     *                 If this argument is {@link null}, a default executor will be used.
-     * @param callback The object that will receive and process authentication events.
+     * @param executor        The executor that will be used to run callback methods, or
+     *                        {@link null} if a default executor should be used.
+     * @param callback        The object that will receive and process authentication events.
      */
     private void init(
             @Nullable FragmentActivity activity,
@@ -636,10 +711,19 @@ public class BiometricPrompt implements BiometricConstants {
      * Shows the biometric prompt to the user. The prompt survives lifecycle changes by default. To
      * cancel authentication and dismiss the prompt, use {@link #cancelAuthentication()}.
      *
-     * @param info A {@link PromptInfo} object describing the appearance and behavior of the prompt.
+     * <p>Calling this method invokes crypto-based authentication, which is incompatible with
+     * <strong>Class 2</strong> (formerly <strong>Weak</strong>) biometrics and (prior to Android
+     * 11) device credential. Therefore, it is an error for {@code info} to explicitly allow any
+     * of these authenticator types on an incompatible Android version.
+     *
+     * @param info   An object describing the appearance and behavior of the prompt.
      * @param crypto A crypto object to be associated with this authentication.
      *
+     * @throws IllegalArgumentException If any of the allowed authenticator types specified by
+     *                                  {@code info} do not support crypto-based authentication.
+     *
      * @see #authenticate(PromptInfo)
+     * @see PromptInfo.Builder#setAllowedAuthenticators(int)
      */
     @SuppressWarnings("ConstantConditions")
     public void authenticate(@NonNull PromptInfo info, @NonNull CryptoObject crypto) {
@@ -649,8 +733,18 @@ public class BiometricPrompt implements BiometricConstants {
         if (crypto == null) {
             throw new IllegalArgumentException("CryptoObject cannot be null.");
         }
-        if (info.isDeviceCredentialAllowed()) {
-            throw new IllegalArgumentException("Device credential not supported with crypto.");
+
+        // Ensure that all allowed authenticators support crypto auth.
+        @BiometricManager.AuthenticatorTypes final int authenticators =
+                AuthenticatorUtils.getConsolidatedAuthenticators(info, crypto);
+        if (AuthenticatorUtils.isWeakBiometricAllowed(authenticators)) {
+            throw new IllegalArgumentException("Crypto-based authentication is not supported for "
+                    + "Class 2 (Weak) biometrics.");
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+                && AuthenticatorUtils.isDeviceCredentialAllowed(authenticators)) {
+            throw new IllegalArgumentException("Crypto-based authentication is not supported for "
+                    + "device credential prior to API 30.");
         }
 
         authenticateInternal(info, crypto);
@@ -660,7 +754,7 @@ public class BiometricPrompt implements BiometricConstants {
      * Shows the biometric prompt to the user. The prompt survives lifecycle changes by default. To
      * cancel authentication and dismiss the prompt, use {@link #cancelAuthentication()}.
      *
-     * @param info A {@link PromptInfo} object describing the appearance and behavior of the prompt.
+     * @param info An object describing the appearance and behavior of the prompt.
      *
      * @see #authenticate(PromptInfo, CryptoObject)
      */
@@ -676,7 +770,7 @@ public class BiometricPrompt implements BiometricConstants {
     /**
      * Shows the biometric prompt to the user and begins authentication.
      *
-     * @param info A {@link PromptInfo} object describing the appearance and behavior of the prompt.
+     * @param info   An object describing the appearance and behavior of the prompt.
      * @param crypto A crypto object to be associated with this authentication.
      */
     private void authenticateInternal(@NonNull PromptInfo info, @Nullable CryptoObject crypto) {
@@ -721,8 +815,8 @@ public class BiometricPrompt implements BiometricConstants {
      * fragment.
      *
      * @param fragmentManager The fragment manager that will be used to search for the fragment.
-     * @return An instance of {@link BiometricFragment} found by the fragment manager, or {@code
-     *  null} if no such fragment is found.
+     * @return An instance of {@link BiometricFragment} found by the fragment manager, or
+     * {@code null} if no such fragment is found.
      */
     @Nullable
     private static BiometricFragment findBiometricFragment(

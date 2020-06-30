@@ -167,6 +167,9 @@ class AuthenticationCallbackProvider {
      */
     @RequiresApi(Build.VERSION_CODES.P)
     private static class Api28Impl {
+        // Prevent instantiation.
+        private Api28Impl() {}
+
         /**
          * Creates a {@link android.hardware.biometrics.BiometricPrompt.AuthenticationCallback} that
          * delegates events to the given listener.
