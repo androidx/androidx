@@ -72,22 +72,64 @@ import kotlin.math.max
  */
 @Composable
 @OptIn(ExperimentalLayoutNodeApi::class)
-/*inline*/ fun Layout(
-    /*crossinline*/
+fun Layout(
     children: @Composable () -> Unit,
-    /*crossinline*/
     minIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock2,
-    /*crossinline*/
     minIntrinsicHeightMeasureBlock: IntrinsicMeasureBlock2,
-    /*crossinline*/
     maxIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock2,
-    /*crossinline*/
     maxIntrinsicHeightMeasureBlock: IntrinsicMeasureBlock2,
     modifier: Modifier = Modifier,
-    /*crossinline*/
     measureBlock: MeasureBlock2
 ) {
-    val measureBlocks = object : LayoutNode.MeasureBlocks {
+    val measureBlocks = measureBlocksOf(
+        minIntrinsicWidthMeasureBlock,
+        minIntrinsicHeightMeasureBlock,
+        maxIntrinsicWidthMeasureBlock,
+        maxIntrinsicHeightMeasureBlock,
+        measureBlock
+    )
+    Layout(children, measureBlocks, modifier)
+}
+
+/**
+ * Creates an instance of [LayoutNode.MeasureBlocks] to pass to [Layout] given
+ * intrinsic measures and a measure block.
+ *
+ * @sample androidx.ui.core.samples.LayoutWithMeasureBlocksWithIntrinsicUsage
+ *
+ * Intrinsic measurement blocks define the intrinsic sizes of the current layout. These
+ * can be queried by the parent in order to understand, in specific cases, what constraints
+ * should the layout be measured with:
+ * - [minIntrinsicWidthMeasureBlock] defines the minimum width this layout can take, given
+ *   a specific height, such that the content of the layout will be painted correctly
+ * - [minIntrinsicHeightMeasureBlock] defines the minimum height this layout can take, given
+ *   a specific width, such that the content of the layout will be painted correctly
+ * - [maxIntrinsicWidthMeasureBlock] defines the minimum width such that increasing it further
+ *   will not decrease the minimum intrinsic height
+ * - [maxIntrinsicHeightMeasureBlock] defines the minimum height such that increasing it further
+ *   will not decrease the minimum intrinsic width
+ *
+ * For a composable able to define its content according to the incoming constraints,
+ * see [WithConstraints].
+ *
+ * @param minIntrinsicWidthMeasureBlock The minimum intrinsic width of the layout.
+ * @param minIntrinsicHeightMeasureBlock The minimum intrinsic height of the layout.
+ * @param maxIntrinsicWidthMeasureBlock The maximum intrinsic width of the layout.
+ * @param maxIntrinsicHeightMeasureBlock The maximum intrinsic height of the layout.
+ * @param measureBlock The block defining the measurement and positioning of the layout.
+ *
+ * @see Layout
+ * @see WithConstraints
+ */
+@ExperimentalLayoutNodeApi
+fun measureBlocksOf(
+    minIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock2,
+    minIntrinsicHeightMeasureBlock: IntrinsicMeasureBlock2,
+    maxIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock2,
+    maxIntrinsicHeightMeasureBlock: IntrinsicMeasureBlock2,
+    measureBlock: MeasureBlock2
+): LayoutNode.MeasureBlocks {
+    return object : LayoutNode.MeasureBlocks {
         override fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
@@ -131,7 +173,6 @@ import kotlin.math.max
             return receiver.maxIntrinsicHeightMeasureBlock(measurables, w)
         }
     }
-    Layout(children, measureBlocks, modifier)
 }
 
 @Deprecated(
@@ -230,7 +271,6 @@ import kotlin.math.max
     /*noinline*/
     measureBlock: MeasureBlock2
 ) {
-
     val measureBlocks = remember(measureBlock) { MeasuringIntrinsicsMeasureBlocks(measureBlock) }
     Layout(children, measureBlocks, modifier)
 }
@@ -256,12 +296,34 @@ import kotlin.math.max
     Layout(children, measureBlocks, modifier)
 }
 
+/**
+ * [Layout] is the main core component for layout. It can be used to measure and position
+ * zero or more children.
+ *
+ * The intrinsic measurements of this layout will be calculated by using the [measureBlocks]
+ * instance.
+ *
+ * For a composable able to define its content according to the incoming constraints,
+ * see [WithConstraints].
+ *
+ * Example usage:
+ * @sample androidx.ui.core.samples.LayoutWithMeasureBlocksWithIntrinsicUsage
+ *
+ * @param children The children composable to be laid out.
+ * @param modifier Modifiers to be applied to the layout.
+ * @param measureBlocks An [LayoutNode.MeasureBlocks] instance defining the measurement and
+ * positioning of the layout.
+ *
+ * @see Layout
+ * @see measureBlocksOf
+ * @see WithConstraints
+ */
+
 @ExperimentalLayoutNodeApi
-/*@PublishedApi*/ @Composable internal /*inline*/ fun Layout(
-    /*crossinline*/
+@Composable inline fun Layout(
     children: @Composable () -> Unit,
     measureBlocks: LayoutNode.MeasureBlocks,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     val materialized = currentComposer.materialize(modifier)
 

@@ -118,11 +118,9 @@ class BoundsTest : ToolingTest() {
             val trees = slotTableRecord.store.map { it.asTree() }
             val boundingBoxes = trees.map {
                 it.all().filter {
-                    it.box.right > 0 && it.key.let {
-                        it is String && it.contains("BoundsTest.kt")
-                    }
+                    it.box.right > 0 && it.location?.sourceFile == "BoundsTest.kt"
                 }
-            }.flatten().groupBy { it.key }
+            }.flatten().groupBy { it.location }
 
             Assert.assertTrue(boundingBoxes.size >= 6)
         }
