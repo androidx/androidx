@@ -67,8 +67,7 @@ protobuf {
 
 androidx {
     name = "Android Preferences DataStore"
-    publish = Publish.SNAPSHOT_ONLY
-    generateDocs = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android Preferences DataStore"
