@@ -17,7 +17,6 @@
 package androidx.biometric;
 
 import android.annotation.SuppressLint;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -80,14 +79,6 @@ public class BiometricPrompt implements BiometricConstants {
      * Tag used to identify the {@link BiometricFragment} attached to the client activity/fragment.
      */
     private static final String BIOMETRIC_FRAGMENT_TAG = "androidx.biometric.BiometricFragment";
-
-    // Bundle keys used to store and retrieve PromptInfo options.
-    private static final String KEY_TITLE = "title";
-    private static final String KEY_SUBTITLE = "subtitle";
-    private static final String KEY_DESCRIPTION = "description";
-    private static final String KEY_NEGATIVE_TEXT = "negative_text";
-    private static final String KEY_REQUIRE_CONFIRMATION = "require_confirmation";
-    private static final String KEY_ALLOW_DEVICE_CREDENTIAL = "allow_device_credential";
 
     /**
      * A wrapper class for the crypto objects supported by {@link BiometricPrompt}. Currently, the
@@ -226,7 +217,13 @@ public class BiometricPrompt implements BiometricConstants {
          * A builder used to set individual options for the {@link PromptInfo} class.
          */
         public static class Builder {
-            private final Bundle mBundle = new Bundle();
+            // Mutable options to be set on the builder.
+            @Nullable private CharSequence mTitle = null;
+            @Nullable private CharSequence mSubtitle = null;
+            @Nullable private CharSequence mDescription = null;
+            @Nullable private CharSequence mNegativeButtonText = null;
+            private boolean mIsConfirmationRequired = true;
+            private boolean mIsDeviceCredentialAllowed = false;
 
             /**
              * Required: Sets the title for the prompt.
@@ -236,7 +233,7 @@ public class BiometricPrompt implements BiometricConstants {
              */
             @NonNull
             public Builder setTitle(@NonNull CharSequence title) {
-                mBundle.putCharSequence(KEY_TITLE, title);
+                mTitle = title;
                 return this;
             }
 
@@ -248,7 +245,7 @@ public class BiometricPrompt implements BiometricConstants {
              */
             @NonNull
             public Builder setSubtitle(@Nullable CharSequence subtitle) {
-                mBundle.putCharSequence(KEY_SUBTITLE, subtitle);
+                mSubtitle = subtitle;
                 return this;
             }
 
@@ -260,7 +257,7 @@ public class BiometricPrompt implements BiometricConstants {
              */
             @NonNull
             public Builder setDescription(@Nullable CharSequence description) {
-                mBundle.putCharSequence(KEY_DESCRIPTION, description);
+                mDescription = description;
                 return this;
             }
 
@@ -276,7 +273,7 @@ public class BiometricPrompt implements BiometricConstants {
              */
             @NonNull
             public Builder setNegativeButtonText(@NonNull CharSequence negativeButtonText) {
-                mBundle.putCharSequence(KEY_NEGATIVE_TEXT, negativeButtonText);
+                mNegativeButtonText = negativeButtonText;
                 return this;
             }
 
@@ -299,7 +296,7 @@ public class BiometricPrompt implements BiometricConstants {
              */
             @NonNull
             public Builder setConfirmationRequired(boolean confirmationRequired) {
-                mBundle.putBoolean(KEY_REQUIRE_CONFIRMATION, confirmationRequired);
+                mIsConfirmationRequired = confirmationRequired;
                 return this;
             }
 
@@ -329,7 +326,7 @@ public class BiometricPrompt implements BiometricConstants {
             @SuppressWarnings("deprecation")
             @NonNull
             public Builder setDeviceCredentialAllowed(boolean deviceCredentialAllowed) {
-                mBundle.putBoolean(KEY_ALLOW_DEVICE_CREDENTIAL, deviceCredentialAllowed);
+                mIsDeviceCredentialAllowed = deviceCredentialAllowed;
                 return this;
             }
 
@@ -342,99 +339,121 @@ public class BiometricPrompt implements BiometricConstants {
              */
             @NonNull
             public PromptInfo build() {
-                final CharSequence title = mBundle.getCharSequence(KEY_TITLE);
-                final CharSequence negativeText = mBundle.getCharSequence(KEY_NEGATIVE_TEXT);
-                final boolean allowDeviceCredential =
-                        mBundle.getBoolean(KEY_ALLOW_DEVICE_CREDENTIAL);
-
-                if (TextUtils.isEmpty(title)) {
+                if (TextUtils.isEmpty(mTitle)) {
                     throw new IllegalArgumentException("Title must be set and non-empty.");
                 }
-                if (TextUtils.isEmpty(negativeText) && !allowDeviceCredential) {
+                if (TextUtils.isEmpty(mNegativeButtonText) && !mIsDeviceCredentialAllowed) {
                     throw new IllegalArgumentException("Negative text must be set and non-empty.");
                 }
-                if (!TextUtils.isEmpty(negativeText) && allowDeviceCredential) {
+                if (!TextUtils.isEmpty(mNegativeButtonText) && mIsDeviceCredentialAllowed) {
                     throw new IllegalArgumentException("Negative text must not be set if device "
                             + "credential authentication is allowed.");
                 }
-                return new PromptInfo(mBundle);
+                //noinspection ConstantConditions
+                return new PromptInfo(
+                        mTitle,
+                        mSubtitle,
+                        mDescription,
+                        mNegativeButtonText,
+                        mIsConfirmationRequired,
+                        mIsDeviceCredentialAllowed);
             }
         }
 
-        @NonNull private Bundle mBundle;
+        // Immutable fields for the prompt info object.
+        @NonNull private final CharSequence mTitle;
+        @Nullable private final CharSequence mSubtitle;
+        @Nullable private final CharSequence mDescription;
+        @Nullable private final CharSequence mNegativeButtonText;
+        private final boolean mIsConfirmationRequired;
+        private final boolean mIsDeviceCredentialAllowed;
 
         // Prevent direct instantiation.
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        PromptInfo(@NonNull Bundle bundle) {
-            mBundle = bundle;
+        PromptInfo(
+                @NonNull CharSequence title,
+                @Nullable CharSequence subtitle,
+                @Nullable CharSequence description,
+                @Nullable CharSequence negativeButtonText,
+                boolean confirmationRequired,
+                boolean deviceCredentialAllowed) {
+            mTitle = title;
+            mSubtitle = subtitle;
+            mDescription = description;
+            mNegativeButtonText = negativeButtonText;
+            mIsConfirmationRequired = confirmationRequired;
+            mIsDeviceCredentialAllowed = deviceCredentialAllowed;
         }
 
         /**
-         * Gets a bundle containing the options that have been set for the prompt.
-         *
-         * @return A bundle of set options.
-         */
-        @NonNull
-        Bundle getBundle() {
-            return mBundle;
-        }
-
-        /**
-         * See {@link Builder#setTitle(CharSequence)}.
+         * Gets the title for the prompt.
          *
          * @return The title to be displayed on the prompt.
+         *
+         * @see Builder#setTitle(CharSequence)
          */
         @NonNull
         public CharSequence getTitle() {
-            return mBundle.getCharSequence(KEY_TITLE, "");
+            return mTitle;
         }
 
         /**
-         * See {@link Builder#setSubtitle(CharSequence)}.
+         * Gets the subtitle for the prompt.
          *
          * @return The subtitle to be displayed on the prompt.
+         *
+         * @see Builder#setSubtitle(CharSequence)
          */
         @Nullable
         public CharSequence getSubtitle() {
-            return mBundle.getCharSequence(KEY_SUBTITLE);
+            return mSubtitle;
         }
 
         /**
-         * See {@link Builder#setDescription(CharSequence)}.
+         * Gets the description for the prompt.
          *
          * @return The description to be displayed on the prompt.
+         *
+         * @see Builder#setDescription(CharSequence)
          */
         @Nullable
         public CharSequence getDescription() {
-            return mBundle.getCharSequence(KEY_DESCRIPTION);
+            return mDescription;
         }
 
         /**
-         * See {@link Builder#setNegativeButtonText(CharSequence)}.
+         * Gets the text for the negative button on the prompt.
          *
-         * @return The label to be used for the negative button on the prompt.
+         * @return The label to be used for the negative button on the prompt, or an empty string if
+         * not set.
+         *
+         * @see Builder#setNegativeButtonText(CharSequence)
          */
         @NonNull
         public CharSequence getNegativeButtonText() {
-            return mBundle.getCharSequence(KEY_NEGATIVE_TEXT, "");
+            return mNegativeButtonText != null ? mNegativeButtonText : "";
         }
 
         /**
-         * See {@link Builder#setConfirmationRequired(boolean)}.
+         * Checks if the confirmation required option is enabled for the prompt.
          *
          * @return Whether this option is enabled.
+         *
+         * @see Builder#setConfirmationRequired(boolean)
          */
         public boolean isConfirmationRequired() {
-            return mBundle.getBoolean(KEY_REQUIRE_CONFIRMATION);
+            return mIsConfirmationRequired;
         }
 
         /**
-         * See {@link Builder#setDeviceCredentialAllowed(boolean)}.
+         * Checks if the device credential allowed option is enabled for the prompt.
          *
          * @return Whether this option is enabled.
+         *
+         * @see Builder#setDeviceCredentialAllowed(boolean)
          */
         public boolean isDeviceCredentialAllowed() {
-            return mBundle.getBoolean(KEY_ALLOW_DEVICE_CREDENTIAL);
+            return mIsDeviceCredentialAllowed;
         }
     }
 
@@ -630,7 +649,7 @@ public class BiometricPrompt implements BiometricConstants {
         if (crypto == null) {
             throw new IllegalArgumentException("CryptoObject cannot be null.");
         }
-        if (info.getBundle().getBoolean(KEY_ALLOW_DEVICE_CREDENTIAL)) {
+        if (info.isDeviceCredentialAllowed()) {
             throw new IllegalArgumentException("Device credential not supported with crypto.");
         }
 
