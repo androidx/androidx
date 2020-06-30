@@ -27,10 +27,10 @@ import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.TextUnit
 import kotlin.math.ceil
-import org.jetbrains.skija.Paragraph
-import org.jetbrains.skija.ParagraphBuilder
-import org.jetbrains.skija.ParagraphStyle
-import org.jetbrains.skija.TextStyle as SkTextStyle
+import org.jetbrains.skija.paragraph.Paragraph
+import org.jetbrains.skija.paragraph.ParagraphBuilder
+import org.jetbrains.skija.paragraph.ParagraphStyle
+import org.jetbrains.skija.paragraph.TextStyle as SkTextStyle
 
 internal class DesktopParagraphIntrinsics(
     val text: String,
