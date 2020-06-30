@@ -43,7 +43,6 @@ import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -55,8 +54,8 @@ import java.util.concurrent.ExecutionException;
 @LargeTest
 public class CameraDisconnectTest {
 
-    @ClassRule
-    public static TestRule sCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
+    @Rule
+    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
 
     @Rule
     public ActivityTestRule<CameraXTestActivity> mCameraXTestActivityRule =
