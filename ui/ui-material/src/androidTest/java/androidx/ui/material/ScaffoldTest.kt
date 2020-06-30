@@ -42,6 +42,8 @@ import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.size
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
+import androidx.ui.test.assertHeightIsEqualTo
+import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
@@ -72,15 +74,15 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_onlyContent_takesWholeScreen() {
-        composeTestRule.setMaterialContentAndCollectSizes(
+        composeTestRule.setMaterialContentForSizeAssertions(
             parentConstraints = DpConstraints(maxWidth = 100.dp, maxHeight = 100.dp)
         ) {
             Scaffold {
                 Text("Scaffold body")
             }
         }
-            .assertWidthEqualsTo(100.dp)
-            .assertHeightEqualsTo(100.dp)
+            .assertWidthIsEqualTo(100.dp)
+            .assertHeightIsEqualTo(100.dp)
     }
 
     @Test

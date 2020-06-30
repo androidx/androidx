@@ -17,40 +17,30 @@
 package androidx.ui.foundation
 
 import android.os.Build
-import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.onPositioned
-import androidx.ui.core.testTag
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.toArgb
-import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
+import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertShape
+import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findRoot
-import androidx.ui.test.findByTag
-import androidx.ui.test.setContentAndCollectSizes
-import androidx.ui.unit.Density
-import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import com.google.common.truth.Truth
 import org.junit.Assert
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -137,93 +127,55 @@ class CanvasTest {
 
     @Test
     fun canvas_noSize_emptyCanvas() {
-        composeTestRule.setContentAndCollectSizes {
+        composeTestRule.setContentForSizeAssertions {
             Canvas(modifier = Modifier) {
                 drawRect(Color.Black)
             }
         }
-            .assertHeightEqualsTo(0.dp)
-            .assertWidthEqualsTo(0.dp)
+            .assertHeightIsEqualTo(0.dp)
+            .assertWidthIsEqualTo(0.dp)
     }
 
     @Test
     fun canvas_exactSizes() {
-        var canvasSize: IntSize? = null
-        val latch = CountDownLatch(1)
-        composeTestRule.setContentAndCollectSizes {
-            SemanticParent {
-                Canvas(
-                    Modifier.preferredSize(100.dp)
-                        .onPositioned { position -> canvasSize = position.size }
-                ) {
-                    drawRect(Color.Red)
-
-                    latch.countDown()
-                }
+        composeTestRule.setContentForSizeAssertions {
+            Canvas(Modifier.preferredSize(100.dp)) {
+                drawRect(Color.Red)
             }
         }
-
-        assertTrue(latch.await(5, TimeUnit.SECONDS))
-
-        with(composeTestRule.density) {
-            Truth.assertThat(canvasSize!!.width).isEqualTo(100.dp.toIntPx())
-            Truth.assertThat(canvasSize!!.height).isEqualTo(100.dp.toIntPx())
-        }
-
-        val bitmap = findByTag(contentTag).captureToBitmap()
-        bitmap.assertShape(
-            density = composeTestRule.density,
-            backgroundColor = Color.Red,
-            shapeColor = Color.Red,
-            shape = RectangleShape
-        )
+            .assertWidthIsEqualTo(100.dp)
+            .assertHeightIsEqualTo(100.dp)
+            .captureToBitmap()
+            .assertShape(
+                density = composeTestRule.density,
+                backgroundColor = Color.Red,
+                shapeColor = Color.Red,
+                shape = RectangleShape
+            )
     }
 
     @Test
     fun canvas_exactSizes_drawCircle() {
-        var canvasSize: IntSize? = null
-        val latch = CountDownLatch(1)
-        composeTestRule.setContentAndCollectSizes {
-            SemanticParent {
-                Canvas(
-                    Modifier.preferredSize(100.dp)
-                        .onPositioned { position -> canvasSize = position.size }
-                ) {
-                    drawRect(Color.Red)
-                    drawCircle(
-                        Color.Blue,
-                        radius = 10.0f
-                    )
-                    latch.countDown()
-                }
+        composeTestRule.setContentForSizeAssertions {
+            Canvas(Modifier.preferredSize(100.dp)) {
+                drawRect(Color.Red)
+                drawCircle(
+                    Color.Blue,
+                    radius = 10.0f
+                )
             }
         }
-
-        assertTrue(latch.await(5, TimeUnit.SECONDS))
-
-        with(composeTestRule.density) {
-            Truth.assertThat(canvasSize!!.width).isEqualTo(100.dp.toIntPx())
-            Truth.assertThat(canvasSize!!.height).isEqualTo(100.dp.toIntPx())
-        }
-
-        val bitmap = findByTag(contentTag).captureToBitmap()
-        bitmap.assertShape(
-            density = composeTestRule.density,
-            backgroundColor = Color.Red,
-            shapeColor = Color.Blue,
-            shape = CircleShape,
-            shapeSizeX = 20.0f,
-            shapeSizeY = 20.0f,
-            shapeOverlapPixelCount = 2.0f
-        )
-    }
-
-    @Composable
-    fun SemanticParent(children: @Composable Density.() -> Unit) {
-        Stack(Modifier.testTag(contentTag)) {
-            Box {
-                DensityAmbient.current.children()
-            }
-        }
+            .assertWidthIsEqualTo(100.dp)
+            .assertHeightIsEqualTo(100.dp)
+            .captureToBitmap()
+            .assertShape(
+                density = composeTestRule.density,
+                backgroundColor = Color.Red,
+                shapeColor = Color.Blue,
+                shape = CircleShape,
+                shapeSizeX = 20.0f,
+                shapeSizeY = 20.0f,
+                shapeOverlapPixelCount = 2.0f
+            )
     }
 }

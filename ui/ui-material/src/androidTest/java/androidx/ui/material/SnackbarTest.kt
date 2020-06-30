@@ -90,16 +90,15 @@ class SnackbarTest {
 
     @Test
     fun snackbar_shortTextOnly_defaultSizes() {
-        composeTestRule.setMaterialContentWithConstraints(DpConstraints(maxWidth = 300.dp)) {
+        val snackbar = composeTestRule.setMaterialContentForSizeAssertions(
+            DpConstraints(maxWidth = 300.dp)
+        ) {
             Snackbar(
-                modifier = Modifier.testTag("snackbar"),
                 text = {
                     Text("Message")
                 }
             )
         }
-
-        findByTag("snackbar")
             .assertWidthIsEqualTo(300.dp)
             .assertHeightIsEqualTo(48.dp)
 
@@ -108,7 +107,7 @@ class SnackbarTest {
         firstBaseLine.assertIsNotEqualTo(0.dp, "first baseline")
         firstBaseLine.assertIsEqualTo(lastBaseLine, "first baseline")
 
-        val snackBounds = findByTag("snackbar").getBoundsInRoot()
+        val snackBounds = snackbar.getBoundsInRoot()
         val textBounds = findByText("Message").getBoundsInRoot()
 
         val textTopOffset = textBounds.top - snackBounds.top
@@ -119,16 +118,15 @@ class SnackbarTest {
 
     @Test
     fun snackbar_shortTextOnly_bigFont_centered() {
-        composeTestRule.setMaterialContentWithConstraints(DpConstraints(maxWidth = 300.dp)) {
+        val snackbar = composeTestRule.setMaterialContentForSizeAssertions(
+            DpConstraints(maxWidth = 300.dp)
+        ) {
             Snackbar(
-                modifier = Modifier.testTag("snackbar"),
                 text = {
                     Text("Message", fontSize = 30.sp)
                 }
             )
         }
-
-        findByTag("snackbar")
             .assertWidthIsEqualTo(300.dp)
 
         val firstBaseLine = findByText("Message").getAlignmentLinePosition(FirstBaseline)
@@ -136,7 +134,7 @@ class SnackbarTest {
         firstBaseLine.assertIsNotEqualTo(0.dp, "first baseline")
         firstBaseLine.assertIsEqualTo(lastBaseLine, "first baseline")
 
-        val snackBounds = findByTag("snackbar").getBoundsInRoot()
+        val snackBounds = snackbar.getBoundsInRoot()
         val textBounds = findByText("Message").getBoundsInRoot()
 
         val textTopOffset = textBounds.top - snackBounds.top
@@ -147,9 +145,10 @@ class SnackbarTest {
 
     @Test
     fun snackbar_shortTextAndButton_alignment() {
-        composeTestRule.setMaterialContentWithConstraints(DpConstraints(maxWidth = 300.dp)) {
+        val snackbar = composeTestRule.setMaterialContentForSizeAssertions(
+            DpConstraints(maxWidth = 300.dp)
+        ) {
             Snackbar(
-                modifier = Modifier.testTag("snackbar"),
                 text = {
                     Text("Message")
                 },
@@ -163,8 +162,6 @@ class SnackbarTest {
                 }
             )
         }
-
-        findByTag("snackbar")
             .assertWidthIsEqualTo(300.dp)
             .assertHeightIsEqualTo(48.dp)
 
@@ -173,7 +170,7 @@ class SnackbarTest {
         textBaseLine.assertIsNotEqualTo(0.dp, "text baseline")
         buttonBaseLine.assertIsNotEqualTo(0.dp, "button baseline")
 
-        val snackBounds = findByTag("snackbar").getBoundsInRoot()
+        val snackBounds = snackbar.getBoundsInRoot()
         val textBounds = findByText("Message").getBoundsInRoot()
         val buttonBounds = findByText("Undo").getBoundsInRoot()
 
@@ -187,10 +184,11 @@ class SnackbarTest {
 
     @Test
     fun snackbar_shortTextAndButton_bigFont_alignment() {
-        composeTestRule.setMaterialContentWithConstraints(DpConstraints(maxWidth = 400.dp)) {
+        val snackbar = composeTestRule.setMaterialContentForSizeAssertions(
+            DpConstraints(maxWidth = 400.dp)
+        ) {
             val fontSize = 30.sp
             Snackbar(
-                modifier = Modifier.testTag("snackbar"),
                 text = {
                     Text("Message", fontSize = fontSize)
                 },
@@ -210,7 +208,7 @@ class SnackbarTest {
         textBaseLine.assertIsNotEqualTo(0.dp, "text baseline")
         buttonBaseLine.assertIsNotEqualTo(0.dp, "button baseline")
 
-        val snackBounds = findByTag("snackbar").getBoundsInRoot()
+        val snackBounds = snackbar.getBoundsInRoot()
         val textBounds = findByText("Message").getBoundsInRoot()
         val buttonBounds = findByText("Undo").getBoundsInRoot()
 
@@ -224,16 +222,15 @@ class SnackbarTest {
 
     @Test
     fun snackbar_longText_sizes() {
-        composeTestRule.setMaterialContentWithConstraints(DpConstraints(maxWidth = 300.dp)) {
+        val snackbar = composeTestRule.setMaterialContentForSizeAssertions(
+            DpConstraints(maxWidth = 300.dp)
+        ) {
             Snackbar(
-                modifier = Modifier.testTag("snackbar"),
                 text = {
                     Text(longText, Modifier.testTag("text"), maxLines = 2)
                 }
             )
         }
-
-        findByTag("snackbar")
             .assertWidthIsEqualTo(300.dp)
             .assertHeightIsEqualTo(68.dp)
 
@@ -244,7 +241,7 @@ class SnackbarTest {
         lastBaseline.assertIsNotEqualTo(0.dp, "last baseline")
         firstBaseline.assertIsNotEqualTo(lastBaseline, "first baseline")
 
-        val snackBounds = findByTag("snackbar").getBoundsInRoot()
+        val snackBounds = snackbar.getBoundsInRoot()
         val textBounds = findByTag("text").getBoundsInRoot()
 
         val textTopOffset = textBounds.top - snackBounds.top
@@ -255,9 +252,10 @@ class SnackbarTest {
 
     @Test
     fun snackbar_longTextAndButton_alignment() {
-        composeTestRule.setMaterialContentWithConstraints(DpConstraints(maxWidth = 300.dp)) {
+        val snackbar = composeTestRule.setMaterialContentForSizeAssertions(
+            DpConstraints(maxWidth = 300.dp)
+        ) {
             Snackbar(
-                modifier = Modifier.testTag("snackbar"),
                 text = {
                     Text(longText, Modifier.testTag("text"), maxLines = 2)
                 },
@@ -271,8 +269,6 @@ class SnackbarTest {
                 }
             )
         }
-
-        findByTag("snackbar")
             .assertWidthIsEqualTo(300.dp)
             .assertHeightIsEqualTo(68.dp)
 
@@ -287,7 +283,7 @@ class SnackbarTest {
             .assertTopPositionInRootIsEqualTo(30.dp - textFirstBaseLine)
 
         val buttonBounds = findByTag("button").getBoundsInRoot()
-        val snackBounds = findByTag("snackbar").getBoundsInRoot()
+        val snackBounds = snackbar.getBoundsInRoot()
 
         val buttonCenter = buttonBounds.top + (buttonBounds.height / 2)
         buttonCenter.assertIsEqualTo(snackBounds.height / 2, "button center")
@@ -295,9 +291,10 @@ class SnackbarTest {
 
     @Test
     fun snackbar_textAndButtonOnSeparateLine_alignment() {
-        composeTestRule.setMaterialContentWithConstraints(DpConstraints(maxWidth = 300.dp)) {
+        val snackbar = composeTestRule.setMaterialContentForSizeAssertions(
+            DpConstraints(maxWidth = 300.dp)
+        ) {
             Snackbar(
-                modifier = Modifier.testTag("snackbar"),
                 text = {
                     Text("Message")
                 },
@@ -324,7 +321,7 @@ class SnackbarTest {
         findByTag("button")
             .assertTopPositionInRootIsEqualTo(18.dp + textBounds.top + textLastBaseLine)
 
-        findByTag("snackbar")
+        snackbar
             .assertHeightIsEqualTo(8.dp + buttonBounds.top + buttonBounds.height)
             .assertWidthIsEqualTo(8.dp + buttonBounds.left + buttonBounds.width)
     }

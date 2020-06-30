@@ -75,16 +75,6 @@ package androidx.ui.test {
     method public static androidx.ui.unit.Bounds getBoundsInRoot(androidx.ui.test.SemanticsNodeInteraction);
   }
 
-  public final class CollectedSizes {
-    ctor public CollectedSizes(androidx.ui.geometry.Size size, androidx.ui.unit.Density density);
-    method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,java.lang.Integer> expectedHeightPx);
-    method public androidx.ui.test.CollectedSizes assertHeightEqualsTo-ipo6vVg(float expectedHeight);
-    method public androidx.ui.test.CollectedSizes assertIsSquareWithSize(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,java.lang.Integer> expectedSquarePx);
-    method public androidx.ui.test.CollectedSizes assertIsSquareWithSize-ipo6vVg(float expectedSize);
-    method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,java.lang.Integer> expectedWidthPx);
-    method public androidx.ui.test.CollectedSizes assertWidthEqualsTo-ipo6vVg(float expectedWidth);
-  }
-
   public interface ComposeBenchmarkScope<T> extends androidx.ui.test.ComposeExecutionControl {
     method public void createTestCase();
     method public void disposeContent();
@@ -334,12 +324,6 @@ package androidx.ui.test {
   }
 
   public final class SemanticsSelectorKt {
-  }
-
-  public final class SizesTestingKt {
-    method public static androidx.ui.layout.DpConstraints getBigTestConstraints();
-    method public static androidx.ui.test.CollectedSizes setContentAndCollectSizes(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static androidx.ui.geometry.Size setContentAndGetPixelSize(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> performSetContent = { setContent(it) }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class StateRestorationTester {

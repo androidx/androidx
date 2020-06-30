@@ -31,7 +31,9 @@ import androidx.ui.graphics.toArgb
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.ltr
 import androidx.ui.layout.rtl
+import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertValueEquals
+import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.center
 import androidx.ui.test.centerX
@@ -246,11 +248,11 @@ class SliderTest {
     fun slider_sizes() {
         val state = mutableStateOf(0f)
         composeTestRule
-            .setMaterialContentAndCollectSizes(
+            .setMaterialContentForSizeAssertions(
                 parentConstraints = DpConstraints(maxWidth = 100.dp, maxHeight = 100.dp)
             ) { Slider(value = state.value, onValueChange = { state.value = it }) }
-            .assertHeightEqualsTo(48.dp)
-            .assertWidthEqualsTo(100.dp)
+            .assertHeightIsEqualTo(48.dp)
+            .assertWidthIsEqualTo(100.dp)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

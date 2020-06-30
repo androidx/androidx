@@ -20,6 +20,7 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
@@ -27,16 +28,23 @@ import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.samples.BottomNavigationSample
 import androidx.ui.test.assertCountEquals
+import androidx.ui.test.assertHeightIsEqualTo
+import androidx.ui.test.assertIsEqualTo
 import androidx.ui.test.assertIsNotDisplayed
 import androidx.ui.test.assertIsSelected
 import androidx.ui.test.assertIsUnselected
+import androidx.ui.test.assertLeftPositionInRootIsEqualTo
+import androidx.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findAll
+import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
+import androidx.ui.test.getBoundsInRoot
 import androidx.ui.test.isInMutuallyExclusiveGroup
-import androidx.ui.text.LastBaseline
 import androidx.ui.unit.dp
+import androidx.ui.unit.height
+import androidx.ui.unit.width
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -54,17 +62,12 @@ class BottomNavigationTest {
 
     @Test
     fun bottomNavigation_size() {
-        lateinit var parentCoords: LayoutCoordinates
         val height = 56.dp
-        composeTestRule.setMaterialContentAndCollectSizes(
-            modifier = Modifier.onPositioned { coords: LayoutCoordinates ->
-                parentCoords = coords
-            }
-        ) {
+        composeTestRule.setMaterialContentForSizeAssertions {
             BottomNavigationSample()
         }
-            .assertWidthEqualsTo { parentCoords.size.width }
-            .assertHeightEqualsTo(height)
+            .assertWidthFillsRoot()
+            .assertHeightIsEqualTo(height)
     }
 
     @Test
@@ -110,25 +113,18 @@ class BottomNavigationTest {
 
     @Test
     fun bottomNavigationItemContent_withLabel_sizeAndPosition() {
-        lateinit var itemCoords: LayoutCoordinates
-        lateinit var iconCoords: LayoutCoordinates
-        lateinit var textCoords: LayoutCoordinates
         composeTestRule.setMaterialContent {
             Box {
                 BottomNavigation {
                     BottomNavigationItem(
-                        modifier = Modifier.onPositioned { coords: LayoutCoordinates ->
-                            itemCoords = coords
-                        },
+                        modifier = Modifier.testTag("item"),
                         icon = {
                             Icon(Icons.Filled.Favorite,
-                                Modifier.onPositioned { iconCoords = it }
+                                Modifier.testTag("icon")
                             )
                         },
                         text = {
-                            Text("Item",
-                                Modifier.onPositioned { textCoords = it }
-                            )
+                            Text("ItemText")
                         },
                         selected = true,
                         onSelected = {}
@@ -137,51 +133,44 @@ class BottomNavigationTest {
             }
         }
 
-        composeTestRule.runOnIdleComposeWithDensity {
-            // Distance from the bottom to the text baseline and from the text baseline to the
-            // bottom of the icon
-            val textBaseline = 12.dp.toIntPx().toFloat()
+        val itemBounds = findByTag("item").getBoundsInRoot()
+        val iconBounds = findByTag("icon").getBoundsInRoot()
+        val textBounds = findByText("ItemText").getBoundsInRoot()
 
-            // Relative position of the baseline to the top of text
-            val relativeTextBaseline = textCoords[LastBaseline].toFloat()
-            // Absolute y position of the text baseline
-            val absoluteTextBaseline = textCoords.globalPosition.y + relativeTextBaseline
+        // Distance from the bottom to the text baseline and from the text baseline to the
+        // bottom of the icon
+        val textBaseline = 12.dp
 
-            val itemBottom = itemCoords.size.height.toFloat() + itemCoords.globalPosition.y
-            // Text baseline should be 12.dp from the bottom of the item
-            Truth.assertThat(absoluteTextBaseline).isEqualTo(itemBottom - textBaseline)
+        // Relative position of the baseline to the top of text
+        val relativeTextBaseline = findByText("ItemText").getLastBaselinePosition()
+        // Absolute y position of the text baseline
+        val absoluteTextBaseline = textBounds.top + relativeTextBaseline
 
+        val itemBottom = itemBounds.height + itemBounds.top
+        // Text baseline should be 12.dp from the bottom of the item
+        absoluteTextBaseline.assertIsEqualTo(itemBottom - textBaseline)
+
+        findByTag("icon")
             // The icon should be centered in the item
-            val iconExpectedX = (itemCoords.size.width.toFloat() - iconCoords.size.width
-                .toFloat()) / 2
+            .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             // The bottom of the icon is 12.dp above the text baseline
-            val iconExpectedY =
-                absoluteTextBaseline - 12.dp.toIntPx().toFloat() -
-                        iconCoords.size.height
-
-            Truth.assertThat(iconCoords.globalPosition.x).isWithin(1f).of(iconExpectedX)
-            Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY)
-        }
+            .assertTopPositionInRootIsEqualTo(absoluteTextBaseline - 12.dp - iconBounds.height)
     }
 
     @Test
     fun bottomNavigationItemContent_withLabel_unselected_sizeAndPosition() {
-        lateinit var itemCoords: LayoutCoordinates
-        lateinit var iconCoords: LayoutCoordinates
         composeTestRule.setMaterialContent {
             Box {
                 BottomNavigation {
                     BottomNavigationItem(
-                        modifier = Modifier.onPositioned { coords: LayoutCoordinates ->
-                            itemCoords = coords
-                        },
+                        modifier = Modifier.testTag("item"),
                         icon = {
                             Icon(Icons.Filled.Favorite,
-                                Modifier.onPositioned { iconCoords = it }
+                                Modifier.testTag("icon")
                             )
                         },
                         text = {
-                            Text("Item")
+                            Text("ItemText")
                         },
                         selected = false,
                         onSelected = {},
@@ -193,34 +182,26 @@ class BottomNavigationTest {
 
         // The text should not be placed, since the item is not selected and alwaysShowLabels
         // is false
-        findByText("Item").assertIsNotDisplayed()
+        findByText("ItemText").assertIsNotDisplayed()
 
-        composeTestRule.runOnIdleComposeWithDensity {
-            // The icon should be centered in the item
-            val iconExpectedX = (itemCoords.size.width.toFloat() -
-                    iconCoords.size.width.toFloat()) / 2
-            val iconExpectedY = ((itemCoords.size.height - iconCoords.size.height) / 2)
-                .toFloat()
+        val itemBounds = findByTag("item").getBoundsInRoot()
+        val iconBounds = findByTag("icon").getBoundsInRoot()
 
-            Truth.assertThat(iconCoords.globalPosition.x).isWithin(1f).of(iconExpectedX)
-            Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY)
-        }
+        findByTag("icon")
+            .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
+            .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
     }
 
     @Test
     fun bottomNavigationItemContent_withoutLabel_sizeAndPosition() {
-        lateinit var itemCoords: LayoutCoordinates
-        lateinit var iconCoords: LayoutCoordinates
         composeTestRule.setMaterialContent {
             Box {
                 BottomNavigation {
                     BottomNavigationItem(
-                        modifier = Modifier.onPositioned { coords: LayoutCoordinates ->
-                            itemCoords = coords
-                        },
+                        modifier = Modifier.testTag("item"),
                         icon = {
                             Icon(Icons.Filled.Favorite,
-                                Modifier.onPositioned { iconCoords = it }
+                                Modifier.testTag("icon")
                             )
                         },
                         text = {},
@@ -231,16 +212,13 @@ class BottomNavigationTest {
             }
         }
 
-        composeTestRule.runOnIdleComposeWithDensity {
-            // The icon should be centered in the item, as there is no text placeable provided
-            val iconExpectedX = (itemCoords.size.width - iconCoords.size.width) / 2
-            val iconExpectedY = (itemCoords.size.height - iconCoords.size.height) / 2
+        val itemBounds = findByTag("item").getBoundsInRoot()
+        val iconBounds = findByTag("icon").getBoundsInRoot()
 
-            Truth.assertThat(iconCoords.globalPosition.x).isWithin(1f).of(
-                iconExpectedX.toFloat()
-            )
-            Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY.toFloat())
-        }
+        // The icon should be centered in the item, as there is no text placeable provided
+        findByTag("icon")
+            .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
+            .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
     }
 
     @Test
