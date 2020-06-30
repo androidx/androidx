@@ -26,10 +26,12 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
 import androidx.ui.layout.rtl
 import androidx.ui.test.assertHasNoClickAction
+import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsEnabled
 import androidx.ui.test.assertIsOff
 import androidx.ui.test.assertIsOn
 import androidx.ui.test.assertValueEquals
+import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.doGesture
@@ -204,11 +206,10 @@ class SwitchTest {
     }
 
     private fun materialSizesTestForValue(checked: Boolean) {
-        composeTestRule
-            .setMaterialContentAndCollectSizes {
-                Switch(checked = checked, onCheckedChange = {}, enabled = false)
-            }
-            .assertWidthEqualsTo { 34.dp.toIntPx() + 2.dp.toIntPx() * 2 }
-            .assertHeightEqualsTo { 20.dp.toIntPx() + 2.dp.toIntPx() * 2 }
+        composeTestRule.setMaterialContentForSizeAssertions {
+            Switch(checked = checked, onCheckedChange = {}, enabled = false)
+        }
+            .assertWidthIsEqualTo(34.dp + 2.dp * 2)
+            .assertHeightIsEqualTo(20.dp + 2.dp * 2)
     }
 }

@@ -31,6 +31,10 @@ import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.rtl
+import androidx.ui.test.assertIsEqualTo
+import androidx.ui.test.assertLeftPositionInRootIsEqualTo
+import androidx.ui.test.assertTopPositionInRootIsEqualTo
+import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
@@ -42,7 +46,6 @@ import androidx.ui.test.sendSwipeDown
 import androidx.ui.test.sendSwipeLeft
 import androidx.ui.test.sendSwipeRight
 import androidx.ui.test.sendSwipeUp
-import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
 import androidx.ui.unit.width
@@ -65,17 +68,14 @@ class DrawerTest {
 
     @Test
     fun modalDrawer_testOffset_whenOpened() {
-        var position: Offset? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Opened, {}, drawerContent = {
-                Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
-                    position = coords.localToGlobal(Offset.Zero)
-                })
+                Box(Modifier.fillMaxSize().testTag("content"))
             }, bodyContent = emptyContent())
         }
-        runOnIdleCompose {
-            assertThat(position!!.x).isEqualTo(0f)
-        }
+
+        findByTag("content")
+            .assertLeftPositionInRootIsEqualTo(0.dp)
     }
 
     @Test
@@ -84,52 +84,42 @@ class DrawerTest {
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Closed, {}, drawerContent = {
                 Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
-                    position = coords.localToGlobal(Offset.Zero)
+                    position = coords.localToRoot(Offset.Zero)
                 })
             }, bodyContent = emptyContent())
         }
-        val width = composeTestRule.displayMetrics.widthPixels
-        runOnIdleCompose {
-            assertThat(position!!.x.roundToInt()).isEqualTo(-width)
+
+        val width = rootWidth()
+        composeTestRule.runOnIdleComposeWithDensity {
+            position!!.x.toDp().assertIsEqualTo(-width)
         }
     }
 
     @Test
     fun modalDrawer_testEndPadding_whenOpened() {
-        var size: IntSize? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Opened, {}, drawerContent = {
-                Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
-                    size = coords.size
-                })
+                Box(Modifier.fillMaxSize().testTag("content"))
             }, bodyContent = emptyContent())
         }
 
-        val width = composeTestRule.displayMetrics.widthPixels
-        composeTestRule.runOnIdleComposeWithDensity {
-            assertThat(size!!.width)
-                .isEqualTo(width - 56.dp.toPx().roundToInt())
-        }
+        findByTag("content")
+            .assertWidthIsEqualTo(rootWidth() - 56.dp)
     }
 
     @Test
     fun bottomDrawer_testOffset_whenOpened() {
-        var position: Offset? = null
         composeTestRule.setMaterialContent {
             BottomDrawerLayout(DrawerState.Opened, {}, drawerContent = {
-                Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
-                    position = coords.localToGlobal(Offset.Zero)
-                })
+                Box(Modifier.fillMaxSize().testTag("content"))
             }, bodyContent = emptyContent())
         }
 
-        val width = composeTestRule.displayMetrics.widthPixels
-        val height = composeTestRule.displayMetrics.heightPixels
-        // temporary calculation of landscape screen
-        val expectedHeight = if (width > height) 0 else (height / 2f).roundToInt()
-        runOnIdleCompose {
-            assertThat(position!!.y.roundToInt()).isEqualTo(expectedHeight)
-        }
+        val width = rootWidth()
+        val height = rootHeight()
+        val expectedHeight = if (width > height) 0.dp else (height / 2)
+        findByTag("content")
+            .assertTopPositionInRootIsEqualTo(expectedHeight)
     }
 
     @Test
@@ -138,13 +128,14 @@ class DrawerTest {
         composeTestRule.setMaterialContent {
             BottomDrawerLayout(DrawerState.Closed, {}, drawerContent = {
                 Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
-                    position = coords.localToGlobal(Offset.Zero)
+                    position = coords.localToRoot(Offset.Zero)
                 })
             }, bodyContent = emptyContent())
         }
-        val height = composeTestRule.displayMetrics.heightPixels
-        runOnIdleCompose {
-            assertThat(position!!.y.roundToInt()).isEqualTo(height)
+
+        val height = rootHeight()
+        composeTestRule.runOnIdleComposeWithDensity {
+            position!!.y.toDp().assertIsEqualTo(height)
         }
     }
 

@@ -67,32 +67,26 @@ class TabTest {
 
     @Test
     fun textTab_height() {
-        composeTestRule.setMaterialContent {
-            Box(Modifier.testTag("tab")) {
+        composeTestRule
+            .setMaterialContentForSizeAssertions {
                 Tab(text = { Text("Text") }, selected = true, onSelected = {})
             }
-        }
-
-        findByTag("tab")
             .assertHeightIsEqualTo(ExpectedSmallTabHeight)
     }
 
     @Test
     fun iconTab_height() {
-        composeTestRule.setMaterialContent {
-            Box(Modifier.testTag("tab")) {
+        composeTestRule
+            .setMaterialContentForSizeAssertions {
                 Tab(icon = { Icon(icon) }, selected = true, onSelected = {})
             }
-        }
-
-        findByTag("tab")
             .assertHeightIsEqualTo(ExpectedSmallTabHeight)
     }
 
     @Test
     fun textAndIconTab_height() {
-        composeTestRule.setMaterialContent {
-            Box(Modifier.testTag("tab")) {
+        composeTestRule
+            .setMaterialContentForSizeAssertions {
                 Surface {
                     Tab(
                         text = { Text("Text and Icon") },
@@ -102,9 +96,6 @@ class TabTest {
                     )
                 }
             }
-        }
-
-        findByTag("tab")
             .assertHeightIsEqualTo(ExpectedLargeTabHeight)
     }
 

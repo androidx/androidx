@@ -27,6 +27,7 @@ import androidx.ui.foundation.Image
 import androidx.ui.foundation.Text
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.ImageAsset
+import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.createComposeRule
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntSize
@@ -51,107 +52,99 @@ class ListItemTest {
 
     @Test
     fun listItem_oneLine_size() {
-        val dm = composeTestRule.displayMetrics
         val expectedHeightNoIcon = 48.dp
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 ListItem(text = "Primary text")
             }
-            .assertHeightEqualsTo(expectedHeightNoIcon)
-            .assertWidthEqualsTo { dm.widthPixels }
+            .assertHeightIsEqualTo(expectedHeightNoIcon)
+            .assertWidthFillsRoot()
     }
 
     @Test
     fun listItem_oneLine_withIcon24_size() {
-        val dm = composeTestRule.displayMetrics
         val expectedHeightSmallIcon = 56.dp
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 ListItem(text = "Primary text", icon = icon24x24)
             }
-            .assertHeightEqualsTo(expectedHeightSmallIcon)
-            .assertWidthEqualsTo { dm.widthPixels }
+            .assertHeightIsEqualTo(expectedHeightSmallIcon)
+            .assertWidthFillsRoot()
     }
 
     @Test
     fun listItem_oneLine_withIcon56_size() {
-        val dm = composeTestRule.displayMetrics
         val expectedHeightLargeIcon = 72.dp
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 ListItem(text = "Primary text", icon = icon56x56)
             }
-            .assertHeightEqualsTo(expectedHeightLargeIcon)
-            .assertWidthEqualsTo { dm.widthPixels }
+            .assertHeightIsEqualTo(expectedHeightLargeIcon)
+            .assertWidthFillsRoot()
     }
 
     @Test
     fun listItem_twoLine_size() {
-        val dm = composeTestRule.displayMetrics
         val expectedHeightNoIcon = 64.dp
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 ListItem(text = "Primary text", secondaryText = "Secondary text")
             }
-            .assertHeightEqualsTo(expectedHeightNoIcon)
-            .assertWidthEqualsTo { dm.widthPixels }
+            .assertHeightIsEqualTo(expectedHeightNoIcon)
+            .assertWidthFillsRoot()
     }
 
     @Test
     fun listItem_twoLine_withIcon_size() {
-        val dm = composeTestRule.displayMetrics
         val expectedHeightWithIcon = 72.dp
 
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 ListItem(
                     text = "Primary text",
                     secondaryText = "Secondary text",
                     icon = icon24x24
                 )
             }
-            .assertHeightEqualsTo(expectedHeightWithIcon)
-            .assertWidthEqualsTo { dm.widthPixels }
+            .assertHeightIsEqualTo(expectedHeightWithIcon)
+            .assertWidthFillsRoot()
     }
 
     @Test
     fun listItem_threeLine_size() {
-        val dm = composeTestRule.displayMetrics
         val expectedHeight = 88.dp
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 ListItem(
                     overlineText = "OVERLINE",
                     text = "Primary text",
                     secondaryText = "Secondary text"
                 )
             }
-            .assertHeightEqualsTo(expectedHeight)
-            .assertWidthEqualsTo { dm.widthPixels }
+            .assertHeightIsEqualTo(expectedHeight)
+            .assertWidthFillsRoot()
     }
 
     @Test
     fun listItem_threeLine_noSingleLine_size() {
-        val dm = composeTestRule.displayMetrics
         val expectedHeight = 88.dp
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 ListItem(
                     text = "Primary text",
                     secondaryText = "Secondary text with long text",
                     singleLineSecondaryText = false
                 )
             }
-            .assertHeightEqualsTo(expectedHeight)
-            .assertWidthEqualsTo { dm.widthPixels }
+            .assertHeightIsEqualTo(expectedHeight)
+            .assertWidthFillsRoot()
     }
 
     @Test
     fun listItem_threeLine_metaText_size() {
-        val dm = composeTestRule.displayMetrics
         val expectedHeight = 88.dp
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 ListItem(
                     overlineText = "OVERLINE",
                     text = "Primary text",
@@ -159,16 +152,15 @@ class ListItemTest {
                     metaText = "meta"
                 )
             }
-            .assertHeightEqualsTo(expectedHeight)
-            .assertWidthEqualsTo { dm.widthPixels }
+            .assertHeightIsEqualTo(expectedHeight)
+            .assertWidthFillsRoot()
     }
 
     @Test
     fun listItem_threeLine_noSingleLine_metaText_size() {
-        val dm = composeTestRule.displayMetrics
         val expectedHeight = 88.dp
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 ListItem(
                     text = "Primary text",
                     secondaryText = "Secondary text with long text",
@@ -176,8 +168,8 @@ class ListItemTest {
                     metaText = "meta"
                 )
             }
-            .assertHeightEqualsTo(expectedHeight)
-            .assertWidthEqualsTo { dm.widthPixels }
+            .assertHeightIsEqualTo(expectedHeight)
+            .assertWidthFillsRoot()
     }
 
     @Test
@@ -657,7 +649,7 @@ class ListItemTest {
         size: Ref<IntSize>,
         baseline: Ref<Float> = Ref()
     ): Modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-        coords.value = coordinates.localToGlobal(Offset.Zero)
+        coords.value = coordinates.localToRoot(Offset.Zero)
         baseline.value = coordinates[FirstBaseline].toFloat() + coords.value!!.y
         size.value = coordinates.size
     }

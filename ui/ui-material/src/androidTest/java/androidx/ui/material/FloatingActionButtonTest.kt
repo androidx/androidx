@@ -99,7 +99,7 @@ class FloatingActionButtonTest {
     @Test
     fun defaultFabHasSizeFromSpec() {
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 FloatingActionButton(onClick = {}) {
                     Icon(Icons.Filled.Favorite)
                 }
