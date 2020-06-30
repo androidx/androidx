@@ -89,18 +89,6 @@ MissingBuildMethod: androidx.ui.graphics.vector.PathBuilder:
     androidx.ui.graphics.vector.PathBuilder does not declare a `build()` method, but builder classes are expected to
 
 
-MissingNullability: androidx.ui.graphics.Shader#constructor-impl(android.graphics.Shader):
-    Missing nullability on method `constructor-impl` return
-MissingNullability: androidx.ui.graphics.Shader#equals-impl(android.graphics.Shader, Object) parameter #0:
-    Missing nullability on parameter `p` in method `equals-impl`
-MissingNullability: androidx.ui.graphics.Shader#hashCode-impl(android.graphics.Shader) parameter #0:
-    Missing nullability on parameter `p` in method `hashCode-impl`
-MissingNullability: androidx.ui.graphics.Shader#toString-impl(android.graphics.Shader):
-    Missing nullability on method `toString-impl` return
-MissingNullability: androidx.ui.graphics.Shader#toString-impl(android.graphics.Shader) parameter #0:
-    Missing nullability on parameter `p` in method `toString-impl`
-
-
 NotCloseable: androidx.ui.graphics.AndroidPath:
     Classes that release resources (close()) should implement AutoClosable and CloseGuard: class androidx.ui.graphics.AndroidPath
 NotCloseable: androidx.ui.graphics.Path:
