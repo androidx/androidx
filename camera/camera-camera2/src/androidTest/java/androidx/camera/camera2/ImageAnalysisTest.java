@@ -50,7 +50,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
@@ -77,8 +77,8 @@ public final class ImageAnalysisTest {
     private CameraSelector mCameraSelector;
     private FakeLifecycleOwner mLifecycleOwner;
 
-    @ClassRule
-    public static TestRule sCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
+    @Rule
+    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
 
     @Before
     public void setUp() {
