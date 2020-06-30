@@ -44,18 +44,18 @@ import java.util.concurrent.TimeUnit;
  * <p>When specifying a {@link MeteringPoint}, a metering mode can also be specified. Metering
  * mode is a combination of flags consisting of {@link #FLAG_AF}, {@link #FLAG_AE}, and
  * {@link #FLAG_AWB}. This combination indicates whether the {@link MeteringPoint} is
- * used to set AF(Auto Focus) region, AE(Auto Exposure) region or AWB(Auto White Balance) region.
+ * used to set an AF(Auto Focus) region, AE(Auto Exposure) region or AWB(Auto White Balance) region.
  * The default meteringMode is {@link #FLAG_AF} | {@link #FLAG_AE} | {@link #FLAG_AWB} which
  * means the point is used for all AF/AE/AWB regions. Apps can set the proper metering mode to
- * optionally exclude some 3A regions. Multiple regions for specific 3A type are also supported
+ * optionally exclude some 3A regions. Multiple regions for specific 3A types are also supported
  * via {@link Builder#addPoint(MeteringPoint)} or {@link Builder#addPoint(MeteringPoint, int)}.
- * App can also this API to enable different region for AF and AE respectively.
+ * An app can also use this API to enable different regions for AF and AE respectively.
  *
  * <p>If any AF points are specified, it will trigger autofocus to start a manual scan. When
- * focus is locked and specified AF/AE/AWB regions are updated in capture result, the returned
+ * focus is locked and the specified AF/AE/AWB regions are updated in capture result, the returned
  * {@link ListenableFuture} in {@link CameraControl#startFocusAndMetering(FocusMeteringAction)}
- * will completed with {@link FocusMeteringResult#isFocusSuccessful()} set to indicate if focus is
- * done successfully or not. If AF point is not specified, it will not trigger autofocus and
+ * will complete with {@link FocusMeteringResult#isFocusSuccessful()} set to indicate if focus is
+ * done successfully or not. If an AF point is not specified, it will not trigger autofocus and
  * simply wait for specified AE/AWB regions being updated to complete the returned
  * {@link ListenableFuture}. In the case of AF points not specified,
  * {@link FocusMeteringResult#isFocusSuccessful()} will be set to false. If Af points are
@@ -165,7 +165,7 @@ public final class FocusMeteringAction {
                 long mAutoCancelDurationInMillis = DEFAULT_AUTOCANCEL_DURATION;
 
         /**
-         * Creates the Builder from a {@link MeteringPoint} with default mode {@link #FLAG_AF} |
+         * Creates a Builder from a {@link MeteringPoint} with default mode {@link #FLAG_AF} |
          * {@link #FLAG_AE} | {@link #FLAG_AWB}.
          */
         public Builder(@NonNull MeteringPoint point) {
@@ -173,7 +173,7 @@ public final class FocusMeteringAction {
         }
 
         /**
-         * Creates the Builder from a {@link MeteringPoint} and MeteringMode.
+         * Creates a Builder from a {@link MeteringPoint} and MeteringMode.
          *
          * <p>Metering mode is a combination of flags consisting of {@link #FLAG_AF},
          * {@link #FLAG_AE}, and {@link #FLAG_AWB}. This combination indicates whether the

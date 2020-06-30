@@ -298,6 +298,21 @@ public class FocusMeteringControlTest {
     }
 
     @Test
+    public void startFocusAndMetering_invalidPoint() {
+        final MeteringPoint invalidPoint = mPointFactory.createPoint(1F, 1.1F);
+        mFocusMeteringControl.startFocusAndMetering(
+                new FocusMeteringAction.Builder(invalidPoint).build(), new Rational(16, 9));
+
+        final MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
+        final MeteringRectangle[] aeRects = getAeRects(mFocusMeteringControl);
+        final MeteringRectangle[] awbRects = getAwbRects(mFocusMeteringControl);
+
+        assertThat(afRects.length).isEqualTo(0);
+        assertThat(aeRects.length).isEqualTo(0);
+        assertThat(awbRects.length).isEqualTo(0);
+    }
+
+    @Test
     public void startFocusAndMetering_defaultPoint_3ARectssAreCorrect() {
         mFocusMeteringControl.startFocusAndMetering(
                 new FocusMeteringAction.Builder(mPoint1).build(),
@@ -496,7 +511,7 @@ public class FocusMeteringControlTest {
     @Test
     public void withAFPoints_AFIsTriggered() {
         mFocusMeteringControl.startFocusAndMetering(new FocusMeteringAction.Builder(mPoint1,
-                        FLAG_AF | FLAG_AE | FLAG_AWB).build(), PREVIEW_ASPECT_RATIO_4_X_3);
+                FLAG_AF | FLAG_AE | FLAG_AWB).build(), PREVIEW_ASPECT_RATIO_4_X_3);
 
         verify(mFocusMeteringControl).triggerAf(any());
         Mockito.reset(mFocusMeteringControl);

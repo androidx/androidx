@@ -41,7 +41,7 @@ import androidx.annotation.RestrictTo;
  *
  * <p>Besides defining the center point of the metering rectangle, there is also the size of the
  * {@link MeteringPoint}. The size of the {@link MeteringPoint} ranges from 0 to 1.0.
- * The size are the percentage of sensor width and height (or crop region width/height if
+ * The size is the percentage of sensor width and height (or crop region width/height if
  * crop region is set). See formula below:
  * <p><pre>Metering rectangle width = size * sensorSizeOrCropRegion.width
  * Metering rectangle height = size * sensorSizeOrCropRegion.height
