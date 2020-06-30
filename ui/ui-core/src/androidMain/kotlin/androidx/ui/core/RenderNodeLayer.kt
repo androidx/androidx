@@ -171,7 +171,6 @@ internal class RenderNodeLayer(
 
     override fun updateDisplayList() {
         if (isDirty || !renderNode.hasDisplayList()) {
-            isDirty = false
             canvasHolder.drawInto(renderNode.beginRecording()) {
                 val clipPath = outlineResolver.clipPath
                 val manuallyClip = renderNode.clipToOutline && clipPath != null
@@ -187,6 +186,7 @@ internal class RenderNodeLayer(
                 }
             }
             renderNode.endRecording()
+            isDirty = false
         }
     }
 
