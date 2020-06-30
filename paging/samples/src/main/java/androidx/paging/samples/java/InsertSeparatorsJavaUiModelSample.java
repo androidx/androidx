@@ -51,7 +51,7 @@ class InsertSeparatorsJavaUiModelSample {
          * The operator would output a list of UiModels corresponding to:
          *     "A", "apple", "apricot", "B", "banana", "C", "carrot"
          */
-        pagingDataStream.map((itemPagingData) -> {
+        pagingDataStream.map(itemPagingData -> {
             // map outer stream, so we can perform transformations on each paging generation
 
             // first convert items in stream to UiModel.Item
