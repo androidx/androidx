@@ -635,7 +635,7 @@ class SeparatorsTest {
          * Creates an upper-case letter at the beginning of each section of strings that start
          * with the same letter, and the string "END" at the very end.
          */
-        val LETTER_SEPARATOR_GENERATOR: (String?, String?) -> String? = { before, after ->
+        val LETTER_SEPARATOR_GENERATOR: suspend (String?, String?) -> String? = { before, after ->
             if (after == null) {
                 "END"
             } else if (before == null || before.first() != after.first()) {
