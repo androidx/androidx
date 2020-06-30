@@ -22,6 +22,7 @@ import android.util.Log;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.collection.ArrayMap;
 import androidx.core.util.Preconditions;
@@ -56,6 +57,24 @@ public class GenericDocument {
      * {@link String}s longer than this.
      */
     private static final int MAX_STRING_LENGTH = 20_000;
+
+    /** The maximum number of indexed properties a document can have. */
+    private static final int MAX_INDEXED_PROPERTIES = 16;
+
+    /**
+     * The maximum number of indexed properties a document can have.
+     *
+     * <p>Indexed properties are properties where the
+     * {@link androidx.appsearch.annotation.AppSearchDocument.Property#indexingType} constant is
+     * anything other than {@link
+     * androidx.appsearch.app.AppSearchSchema.PropertyConfig.IndexingType#INDEXING_TYPE_NONE}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static int getMaxIndexedProperties() {
+        return MAX_INDEXED_PROPERTIES;
+    }
 
     /**
      * Contains {@link GenericDocument} basic information (uri, schemaType etc) and properties
