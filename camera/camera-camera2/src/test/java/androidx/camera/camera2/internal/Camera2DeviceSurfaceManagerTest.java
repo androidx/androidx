@@ -340,7 +340,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
-        VideoCapture videoCapture = new VideoCaptureConfig.Builder()
+        VideoCapture videoCapture = new VideoCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
         Preview preview = new Preview.Builder()
@@ -370,7 +370,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
-        VideoCapture videoCapture = new VideoCaptureConfig.Builder()
+        VideoCapture videoCapture = new VideoCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
         Preview preview = new Preview.Builder()
