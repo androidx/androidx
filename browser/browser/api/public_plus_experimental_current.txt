@@ -254,6 +254,18 @@ package androidx.browser.customtabs {
 
 package androidx.browser.trusted {
 
+  public final class ScreenOrientation {
+    field public static final int ANY = 5; // 0x5
+    field public static final int DEFAULT = 0; // 0x0
+    field public static final int LANDSCAPE = 6; // 0x6
+    field public static final int LANDSCAPE_PRIMARY = 3; // 0x3
+    field public static final int LANDSCAPE_SECONDARY = 4; // 0x4
+    field public static final int NATURAL = 8; // 0x8
+    field public static final int PORTRAIT = 7; // 0x7
+    field public static final int PORTRAIT_PRIMARY = 1; // 0x1
+    field public static final int PORTRAIT_SECONDARY = 2; // 0x2
+  }
+
   public final class Token {
     method public static androidx.browser.trusted.Token? create(String, android.content.pm.PackageManager);
     method public static androidx.browser.trusted.Token deserialize(byte[]);
@@ -304,7 +316,7 @@ package androidx.browser.trusted {
     ctor public TrustedWebActivityIntentBuilder(android.net.Uri);
     method public androidx.browser.trusted.TrustedWebActivityIntent build(androidx.browser.customtabs.CustomTabsSession);
     method public androidx.browser.customtabs.CustomTabsIntent buildCustomTabsIntent();
-    method public androidx.browser.trusted.TrustedWebActivityDisplayMode? getDisplayMode();
+    method public androidx.browser.trusted.TrustedWebActivityDisplayMode getDisplayMode();
     method public android.net.Uri getUri();
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setAdditionalTrustedOrigins(java.util.List<java.lang.String!>);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setColorScheme(int);
@@ -312,11 +324,13 @@ package androidx.browser.trusted {
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setDisplayMode(androidx.browser.trusted.TrustedWebActivityDisplayMode);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setNavigationBarColor(@ColorInt int);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setNavigationBarDividerColor(@ColorInt int);
+    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setScreenOrientation(int);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setShareParams(androidx.browser.trusted.sharing.ShareTarget, androidx.browser.trusted.sharing.ShareData);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setSplashScreenParams(android.os.Bundle);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setToolbarColor(@ColorInt int);
     field public static final String EXTRA_ADDITIONAL_TRUSTED_ORIGINS = "android.support.customtabs.extra.ADDITIONAL_TRUSTED_ORIGINS";
     field public static final String EXTRA_DISPLAY_MODE = "androidx.browser.trusted.extra.DISPLAY_MODE";
+    field public static final String EXTRA_SCREEN_ORIENTATION = "androidx.browser.trusted.extra.SCREEN_ORIENTATION";
     field public static final String EXTRA_SHARE_DATA = "androidx.browser.trusted.extra.SHARE_DATA";
     field public static final String EXTRA_SHARE_TARGET = "androidx.browser.trusted.extra.SHARE_TARGET";
     field public static final String EXTRA_SPLASH_SCREEN_PARAMS = "androidx.browser.trusted.EXTRA_SPLASH_SCREEN_PARAMS";
