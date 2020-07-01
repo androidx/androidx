@@ -19,7 +19,7 @@ package androidx.room.solver
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaBaseTypeNames
 import androidx.room.ext.extendsBoundOrSelf
-import androidx.room.ext.isAssignableWithoutVariance
+import androidx.room.ext.isAssignableFromWithoutVariance
 import androidx.room.ext.isEntityElement
 import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
@@ -96,6 +96,7 @@ import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.collect.ImmutableList
+import isAssignableFrom
 import java.util.LinkedList
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.TypeKind
@@ -512,8 +513,11 @@ class TypeAdapterStore private constructor(
 
     fun findQueryParameterAdapter(typeMirror: TypeMirror): QueryParameterAdapter? {
         val typeUtils = context.processingEnv.typeUtils
-        if (MoreTypes.isType(typeMirror) && typeUtils.isAssignable(typeMirror,
-                typeUtils.erasure(context.COMMON_TYPES.COLLECTION))) {
+        if (MoreTypes.isType(typeMirror) &&
+            typeUtils.erasure(context.COMMON_TYPES.COLLECTION).isAssignableFrom(
+                typeUtils,
+                typeMirror
+            )) {
             val declared = MoreTypes.asDeclared(typeMirror)
             val binder = findStatementValueBinder(
                 declared.typeArguments.first().extendsBoundOrSelf(), null)
@@ -561,7 +565,7 @@ class TypeAdapterStore private constructor(
         val queue = LinkedList<TypeConverter>()
         fun exactMatch(candidates: List<TypeConverter>): TypeConverter? {
             return candidates.firstOrNull {
-                outputs.any { output -> types.isAssignableWithoutVariance(output, it.to) }
+                outputs.any { output -> it.to.isAssignableFromWithoutVariance(types, output) }
             }
         }
         inputs.forEach { input ->
@@ -609,7 +613,7 @@ class TypeAdapterStore private constructor(
         // for input, check assignability because it defines whether we can use the method or not.
         // for excludes, use exact match
         return typeConverters.filter { converter ->
-            types.isAssignable(input, converter.from) &&
+            converter.from.isAssignableFrom(types, input) &&
                     !excludes.any { types.isSameType(it, converter.to) }
         }.sortedByDescending {
             // if it is the same, prioritize

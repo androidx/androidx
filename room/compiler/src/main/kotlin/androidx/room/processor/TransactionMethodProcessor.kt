@@ -23,6 +23,7 @@ import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.findKotlinDefaultImpl
 import androidx.room.ext.hasAnyOf
 import androidx.room.vo.TransactionMethod
+import isAssignableFrom
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.Modifier.DEFAULT
@@ -52,7 +53,7 @@ class TransactionMethodProcessor(
 
         DEFERRED_TYPES.firstOrNull { className ->
             context.processingEnv.elementUtils.getTypeElement(className.toString())?.asType()?.let {
-                context.processingEnv.typeUtils.isAssignable(it, erasureReturnType)
+                erasureReturnType.isAssignableFrom(context.processingEnv.typeUtils, it)
             } ?: false
         }?.let { returnTypeName ->
             context.logger.e(

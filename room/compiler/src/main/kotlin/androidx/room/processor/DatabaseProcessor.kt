@@ -36,6 +36,7 @@ import asTypeElement
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
+import isAssignableFrom
 import java.util.Locale
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
@@ -46,7 +47,7 @@ import javax.lang.model.type.TypeMirror
 class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
     val context = baseContext.fork(element)
 
-    val baseClassElement: TypeMirror by lazy {
+    val roomDatabaseType: TypeMirror by lazy {
         context.processingEnv.elementUtils.getTypeElement(
                 RoomTypeNames.ROOM_DB.packageName() + "." + RoomTypeNames.ROOM_DB.simpleName())
                 .asType()
@@ -68,8 +69,11 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         validateForeignKeys(element, entities)
         validateExternalContentFts(element, entities)
 
-        val extendsRoomDb = context.processingEnv.typeUtils.isAssignable(
-                MoreElements.asType(element).asType(), baseClassElement)
+        val typeUtils = context.processingEnv.typeUtils
+        val extendsRoomDb = roomDatabaseType.isAssignableFrom(
+            typeUtils,
+            MoreElements.asType(element).asType()
+        )
         context.checker.check(extendsRoomDb, element, ProcessorErrors.DB_MUST_EXTEND_ROOM_DB)
 
         val allMembers = context.processingEnv.elementUtils.getAllMembers(element)

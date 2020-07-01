@@ -24,6 +24,7 @@ import androidx.room.processor.Context
 import androidx.room.solver.RxType
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
+import isAssignableFrom
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
@@ -86,8 +87,9 @@ private class RxCompletablePreparedQueryResultBinderProvider(
         if (completableType == null) {
             return false
         }
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
-        return context.processingEnv.typeUtils.isAssignable(completableType, erasure)
+        val typeUtils = context.processingEnv.typeUtils
+        val erasure = typeUtils.erasure(declared)
+        return erasure.isAssignableFrom(typeUtils, completableType!!)
     }
 
     override fun extractTypeArg(declared: DeclaredType) = context.COMMON_TYPES.VOID

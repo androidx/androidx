@@ -19,6 +19,7 @@ package androidx.room.processor
 import androidx.room.ext.extendsBound
 import androidx.room.vo.ShortcutQueryParameter
 import com.google.auto.common.MoreTypes
+import isAssignableFrom
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.ArrayType
@@ -82,7 +83,7 @@ class ShortcutParameterProcessor(
 
         val iterableType = typeUtils.erasure(elementUtils
                 .getTypeElement("java.lang.Iterable").asType())
-        if (typeUtils.isAssignable(typeMirror, iterableType)) {
+        if (iterableType.isAssignableFrom(typeUtils, typeMirror)) {
             val declared = MoreTypes.asDeclared(typeMirror)
             val pojo = extractPojoTypeFromIterator(declared)
             return verifyAndPair(pojo, true)

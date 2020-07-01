@@ -28,6 +28,7 @@ import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVE
 import androidx.room.vo.RawQueryMethod
 import asTypeElement
 import com.google.auto.common.MoreTypes
+import isAssignableFrom
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
@@ -113,14 +114,14 @@ class RawQueryMethodProcessor(
             val elementUtils = context.processingEnv.elementUtils
             val supportQueryType = elementUtils
                     .getTypeElement(SupportDbTypeNames.QUERY.toString()).asType()
-            val isSupportSql = types.isAssignable(param, supportQueryType)
+            val isSupportSql = supportQueryType.isAssignableFrom(types, param)
             if (isSupportSql) {
                 return RawQueryMethod.RuntimeQueryParameter(
                         paramName = extractParams[0].simpleName.toString(),
                         type = supportQueryType.typeName())
             }
             val stringType = elementUtils.getTypeElement("java.lang.String").asType()
-            val isString = types.isAssignable(param, stringType)
+            val isString = stringType.isAssignableFrom(types, param)
             if (isString) {
                 // special error since this was initially allowed but removed in 1.1 beta1
                 context.logger.e(executableElement, RAW_QUERY_STRING_PARAMETER_REMOVED)
