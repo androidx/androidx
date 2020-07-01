@@ -251,7 +251,11 @@ public final class ImageCapture extends UseCase {
     private final CaptureProcessor mCaptureProcessor;
     /** synthetic accessor */
     @SuppressWarnings("WeakerAccess")
-    ImageReaderProxy mImageReader;
+    SafeCloseImageReaderProxy mImageReader;
+
+    @SuppressWarnings("WeakerAccess")
+    ProcessingImageReader mProcessingImageReader;
+
     /** Callback used to match the {@link ImageProxy} with the {@link ImageInfo}. */
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
     private ImageCaptureConfig mConfig;
@@ -321,13 +325,15 @@ public final class ImageCapture extends UseCase {
 
         // Setup the ImageReader to do processing
         if (config.getImageReaderProxyProvider() != null) {
-            mImageReader = config.getImageReaderProxyProvider().newInstance(resolution.getWidth(),
-                    resolution.getHeight(), getImageFormat(), MAX_IMAGES, 0);
+            mImageReader =
+                    new SafeCloseImageReaderProxy(
+                            config.getImageReaderProxyProvider().newInstance(resolution.getWidth(),
+                                    resolution.getHeight(), getImageFormat(), MAX_IMAGES, 0));
             mMetadataMatchingCaptureCallback = new CameraCaptureCallback() {
             };
         } else if (mCaptureProcessor != null) {
             // TODO: To allow user to use an Executor for the image processing.
-            ProcessingImageReader processingImageReader =
+            mProcessingImageReader =
                     new ProcessingImageReader(
                             resolution.getWidth(),
                             resolution.getHeight(),
@@ -335,13 +341,13 @@ public final class ImageCapture extends UseCase {
                             /* postProcessExecutor */mExecutor,
                             getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle()),
                             mCaptureProcessor);
-            mMetadataMatchingCaptureCallback = processingImageReader.getCameraCaptureCallback();
-            mImageReader = processingImageReader;
+            mMetadataMatchingCaptureCallback = mProcessingImageReader.getCameraCaptureCallback();
+            mImageReader = new SafeCloseImageReaderProxy(mProcessingImageReader);
         } else {
             MetadataImageReader metadataImageReader = new MetadataImageReader(resolution.getWidth(),
                     resolution.getHeight(), getImageFormat(), MAX_IMAGES);
             mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
-            mImageReader = metadataImageReader;
+            mImageReader = new SafeCloseImageReaderProxy(metadataImageReader);
         }
         mImageCaptureRequestProcessor = new ImageCaptureRequestProcessor(MAX_IMAGES,
                 request -> takePictureInternal(request));
@@ -350,13 +356,13 @@ public final class ImageCapture extends UseCase {
         mImageReader.setOnImageAvailableListener(mClosingListener,
                 CameraXExecutors.mainThreadExecutor());
 
-        ImageReaderProxy imageReaderProxy = mImageReader;
+        SafeCloseImageReaderProxy imageReaderProxy = mImageReader;
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
         }
         mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
         mDeferrableSurface.getTerminationFuture().addListener(
-                () -> imageReaderProxy.close(), CameraXExecutors.mainThreadExecutor());
+                imageReaderProxy::safeClose, CameraXExecutors.mainThreadExecutor());
         sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
@@ -385,6 +391,7 @@ public final class ImageCapture extends UseCase {
         DeferrableSurface deferrableSurface = mDeferrableSurface;
         mDeferrableSurface = null;
         mImageReader = null;
+        mProcessingImageReader = null;
 
         if (deferrableSurface != null) {
             deferrableSurface.close();
@@ -1218,7 +1225,7 @@ public final class ImageCapture extends UseCase {
         final List<ListenableFuture<Void>> futureList = new ArrayList<>();
         final List<CaptureConfig> captureConfigs = new ArrayList<>();
         CaptureBundle captureBundle;
-        if (mCaptureProcessor != null) {
+        if (mProcessingImageReader != null) {
             // If the Processor is provided, check if we have valid CaptureBundle and update
             // ProcessingImageReader before actually issuing a take picture request.
             captureBundle = getCaptureBundle(null);
@@ -1233,7 +1240,7 @@ public final class ImageCapture extends UseCase {
                         "ImageCapture has CaptureStages > Max CaptureStage size"));
             }
 
-            ((ProcessingImageReader) mImageReader).setCaptureBundle(captureBundle);
+            mProcessingImageReader.setCaptureBundle(captureBundle);
         } else {
             captureBundle = getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle());
             if (captureBundle.getCaptureStages().size() > 1) {

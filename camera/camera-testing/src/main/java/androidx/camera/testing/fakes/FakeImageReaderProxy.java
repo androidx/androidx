@@ -27,6 +27,8 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -55,6 +57,10 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
     // Queue of ImageProxys which have not yet been acquired.
     private BlockingQueue<ImageProxy> mImageProxyAcquisitionQueue;
+
+    // List of all ImageProxy which have been acquired. Close them all once the ImageReader is
+    // closed
+    private List<ImageProxy> mOutboundImageProxy = new ArrayList<>();
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
@@ -88,18 +94,22 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
     @Override
     public ImageProxy acquireLatestImage() {
-        ImageProxy imageProxy;
+        ImageProxy imageProxy = null;
 
         try {
             // Remove and close all ImageProxy aside from last one
             do {
+                if (imageProxy != null) {
+                    imageProxy.close();
+                }
                 imageProxy = mImageProxyAcquisitionQueue.remove();
-                imageProxy.close();
             } while (mImageProxyAcquisitionQueue.size() > 1);
         } catch (NoSuchElementException e) {
             throw new IllegalStateException(
                     "Unable to acquire latest image from empty FakeImageReader");
         }
+
+        mOutboundImageProxy.add(imageProxy);
 
         return imageProxy;
     }
@@ -120,6 +130,9 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
     @Override
     public void close() {
+        for (ImageProxy imageProxy : mOutboundImageProxy) {
+            imageProxy.close();
+        }
         mIsClosed = true;
     }
 

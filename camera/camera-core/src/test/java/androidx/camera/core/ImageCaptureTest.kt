@@ -150,6 +150,26 @@ class ImageCaptureTest {
     }
 
     @Test
+    fun capturedImageValidAfterUnbind() {
+        // Arrange
+        val imageCapture = bindImageCapture(
+            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
+        )
+
+        // Act
+        imageCapture.takePicture(executor, onImageCapturedCallback)
+        // Send fake image.
+        fakeImageReaderProxy?.triggerImageAvailable("tag", 0)
+        flushHandler(callbackHandler)
+        CameraX.unbind(imageCapture)
+
+        // Assert.
+        // The captured image should still be valid even if the ImageCapture has been unbound. It
+        // is the consumer of the ImageProxy who determines when the ImageProxy will be closed.
+        capturedImage?.format
+    }
+
+    @Test
     fun capturedImageSize_isEqualToSurfaceSize() {
         // Act/arrange.
         val imageCapture = bindImageCapture()
