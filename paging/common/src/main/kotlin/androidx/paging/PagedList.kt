@@ -1249,7 +1249,11 @@ abstract class PagedList<T : Any> internal constructor(
  * @param boundaryCallback [PagedList.BoundaryCallback] for listening to out-of-data events.
  * @param initialKey [Key] the [DataSource] should load around as part of initialization.
  */
-@Suppress("FunctionName", "DEPRECATION")
+@Suppress(
+    "MissingJvmstatic", // Separate Java API
+    "FunctionName",
+    "DEPRECATION"
+)
 @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
 fun <Key : Any, Value : Any> PagedList(
     dataSource: DataSource<Key, Value>,

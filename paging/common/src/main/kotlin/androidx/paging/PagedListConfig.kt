@@ -26,7 +26,11 @@ package androidx.paging
  * @param maxSize Maximum number of items to keep in memory, or
  * [PagedList.Config.MAX_SIZE_UNBOUNDED] to disable page dropping.
  */
-@Suppress("FunctionName", "DEPRECATION")
+@Suppress(
+    "MissingJvmstatic", // Separate Java API
+    "FunctionName",
+    "DEPRECATION"
+)
 fun Config(
     pageSize: Int,
     prefetchDistance: Int = pageSize,
