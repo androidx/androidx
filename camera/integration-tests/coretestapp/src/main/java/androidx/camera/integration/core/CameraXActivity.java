@@ -36,6 +36,7 @@ import android.os.StrictMode;
 import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Rational;
 import android.view.Display;
 import android.view.TextureView;
 import android.view.View;
@@ -51,19 +52,24 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.VideoCapture;
+import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.lifecycle.ExperimentalUseCaseGroupLifecycle;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
@@ -71,7 +77,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -126,6 +131,7 @@ public class CameraXActivity extends AppCompatActivity {
     // TODO: Move the analysis processing, capture processing to separate threads, so
     // there is smaller impact on the preview.
     private String mCurrentCameraDirection = "BACKWARD";
+    private View mViewFinder;
     private Preview mPreview;
     private ImageAnalysis mImageAnalysis;
     private ImageCapture mImageCapture;
@@ -634,8 +640,11 @@ public class CameraXActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera_xmain);
         OpenGLRenderer previewRenderer = mPreviewRenderer = new OpenGLRenderer();
         ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
-        View viewFinder = OpenGLActivity.chooseViewFinder(getIntent().getExtras(), viewFinderStub,
+        mViewFinder = OpenGLActivity.chooseViewFinder(getIntent().getExtras(), viewFinderStub,
                 previewRenderer);
+        mViewFinder.addOnLayoutChangeListener(
+                (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom)
+                        -> trySetupCamera());
 
         mDisplayListener = new DisplayManager.DisplayListener() {
             @Override
@@ -650,7 +659,7 @@ public class CameraXActivity extends AppCompatActivity {
 
             @Override
             public void onDisplayChanged(int displayId) {
-                Display viewFinderDisplay = viewFinder.getDisplay();
+                Display viewFinderDisplay = mViewFinder.getDisplay();
                 if (viewFinderDisplay != null && viewFinderDisplay.getDisplayId() == displayId) {
                     previewRenderer.invalidateSurface(
                             Surfaces.toSurfaceRotationDegrees(viewFinderDisplay.getRotation()));
@@ -697,9 +706,7 @@ public class CameraXActivity extends AppCompatActivity {
             mInitializationIdlingResource.decrement();
             if (cameraProviderResult.hasProvider()) {
                 mCameraProvider = cameraProviderResult.getProvider();
-                if (allPermissionsGranted()) {
-                    setupCamera();
-                }
+                trySetupCamera();
             } else {
                 Log.e(TAG, "Failed to retrieve ProcessCameraProvider",
                         cameraProviderResult.getError());
@@ -720,9 +727,14 @@ public class CameraXActivity extends AppCompatActivity {
         mPreviewRenderer.shutdown();
     }
 
-    void setupCamera() {
-        // Only call setupCamera if permissions are granted
-        Preconditions.checkState(allPermissionsGranted());
+    void trySetupCamera() {
+        boolean isViewFinderReady = mViewFinder.getWidth() != 0 && mViewFinder.getHeight() != 0;
+        boolean isCameraReady = mCameraProvider != null;
+        if (!allPermissionsGranted() || !isCameraReady || !isViewFinderReady) {
+            // No-op if permission if something is not ready. It will try again upon the
+            // next thing being ready.
+            return;
+        }
 
         Log.d(TAG, "Camera direction: " + mCurrentCameraDirection);
         if (mCurrentCameraDirection.equalsIgnoreCase("BACKWARD")) {
@@ -790,17 +802,13 @@ public class CameraXActivity extends AppCompatActivity {
                                         return;
                                     }
                                 }
-
-                                // All permissions granted.
-                                if (mCameraProvider != null) {
-                                    setupCamera();
-                                }
+                                trySetupCamera();
                             });
 
             permissionLauncher.launch(REQUIRED_PERMISSIONS);
-        } else if (mCameraProvider != null) {
+        } else {
             // Permissions already granted. Start camera.
-            setupCamera();
+            trySetupCamera();
         }
     }
 
@@ -825,11 +833,26 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    @UseExperimental(markerClass = ExperimentalUseCaseGroupLifecycle.class)
     @Nullable
     private Camera bindToLifecycleSafely(UseCase useCase, int buttonViewId) {
+        return bindToLifecycleSafelyWithExperimental(useCase, buttonViewId);
+    }
+
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    @ExperimentalUseCaseGroupLifecycle
+    @Nullable
+    private Camera bindToLifecycleSafelyWithExperimental(UseCase useCase, int buttonViewId) {
         try {
+            // TODO(b/1323379): bind all use cases in one group.
+            ViewPort viewPort = new ViewPort.Builder(new Rational(mViewFinder.getWidth(),
+                    mViewFinder.getHeight()),
+                    mViewFinder.getDisplay().getRotation())
+                    .setScaleType(ViewPort.FILL_CENTER).build();
+            UseCaseGroup useCaseGroup = new UseCaseGroup.Builder().addUseCase(useCase).setViewPort(
+                    viewPort).build();
             mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector,
-                    useCase);
+                    useCaseGroup);
             return mCamera;
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "bindToLifecycle() failed.", e);
