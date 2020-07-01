@@ -94,12 +94,10 @@ internal class PagePresenter<T : Any>(
         return pages[pageIndex].data[indexInPage]
     }
 
-    /**
-     * For a given index location, returns a ViewportHint reporting the nearest page and index.
-     */
-    fun loadAround(index: Int): ViewportHint {
-        checkIndex(index)
-
+    private inline fun <T> withIndex(
+        index: Int,
+        block: (pageIndex: Int, indexInPage: Int) -> T
+    ): T {
         var pageIndex = 0
         var indexInPage = index - placeholdersBefore
         while (indexInPage >= pages[pageIndex].data.size && pageIndex < pages.lastIndex) {
@@ -107,7 +105,33 @@ internal class PagePresenter<T : Any>(
             indexInPage -= pages[pageIndex].data.size
             pageIndex++
         }
-        return pages[pageIndex].getLoadHint(indexInPage)
+
+        return block(pageIndex, indexInPage)
+    }
+
+    /**
+     * @return For a given index location, returns a [ViewportHint] reporting the nearest page and
+     * index.
+     */
+    fun indexToHint(index: Int): ViewportHint {
+        checkIndex(index)
+
+        return withIndex(index) { pageIndex, indexInPage ->
+            pages[pageIndex].getLoadHint(indexInPage)
+        }
+    }
+
+    /**
+     * @return For a given index location, returns a [ViewportHint] reporting the nearest page and
+     * index if it is a placeholder, `null` otherwise.
+     */
+    fun placeholderIndexToHintOrNull(
+        index: Int
+    ): ViewportHint? = withIndex(index) { pageIndex, indexInPage ->
+        when (indexInPage) {
+            in pages[pageIndex].data.indices -> null
+            else -> pages[pageIndex].getLoadHint(indexInPage)
+        }
     }
 
     override val size: Int

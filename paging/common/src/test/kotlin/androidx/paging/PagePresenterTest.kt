@@ -510,10 +510,10 @@ class PagePresenterTest {
             indexOfInitialPage = 0
         )
         assertFailsWith<IndexOutOfBoundsException> {
-            presenter.loadAround(-1)
+            presenter.indexToHint(-1)
         }
         assertFailsWith<IndexOutOfBoundsException> {
-            presenter.loadAround(4)
+            presenter.indexToHint(4)
         }
     }
 
@@ -525,9 +525,9 @@ class PagePresenterTest {
             trailingNullCount = 1,
             indexOfInitialPage = 0
         )
-        assertEquals(ViewportHint(0, -1), pagePresenter.loadAround(0))
-        assertEquals(ViewportHint(0, 0), pagePresenter.loadAround(1))
-        assertEquals(ViewportHint(0, 1), pagePresenter.loadAround(2))
+        assertEquals(ViewportHint(0, -1), pagePresenter.indexToHint(0))
+        assertEquals(ViewportHint(0, 0), pagePresenter.indexToHint(1))
+        assertEquals(ViewportHint(0, 1), pagePresenter.indexToHint(2))
     }
 
     @Test
@@ -542,13 +542,13 @@ class PagePresenterTest {
             trailingNullCount = 2,
             indexOfInitialPage = 1
         )
-        assertEquals(ViewportHint(-1, -1), pagePresenter.loadAround(0))
-        assertEquals(ViewportHint(-1, 0), pagePresenter.loadAround(1))
-        assertEquals(ViewportHint(0, 0), pagePresenter.loadAround(2))
-        assertEquals(ViewportHint(0, 1), pagePresenter.loadAround(3))
-        assertEquals(ViewportHint(1, 0), pagePresenter.loadAround(4))
-        assertEquals(ViewportHint(1, 1), pagePresenter.loadAround(5))
-        assertEquals(ViewportHint(1, 2), pagePresenter.loadAround(6))
+        assertEquals(ViewportHint(-1, -1), pagePresenter.indexToHint(0))
+        assertEquals(ViewportHint(-1, 0), pagePresenter.indexToHint(1))
+        assertEquals(ViewportHint(0, 0), pagePresenter.indexToHint(2))
+        assertEquals(ViewportHint(0, 1), pagePresenter.indexToHint(3))
+        assertEquals(ViewportHint(1, 0), pagePresenter.indexToHint(4))
+        assertEquals(ViewportHint(1, 1), pagePresenter.indexToHint(5))
+        assertEquals(ViewportHint(1, 2), pagePresenter.indexToHint(6))
     }
 
     companion object {
