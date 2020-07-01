@@ -42,7 +42,10 @@ val MaterialDemos = DemoCategory("Material", listOf(
     )),
     ComposableDemo("Elevation") { ElevationDemo() },
     ComposableDemo("Emphasis") { EmphasisSample() },
-    ComposableDemo("ListItems") { ListItemDemo() },
+    DemoCategory("ListItems", listOf(
+        ComposableDemo("ListItems") { ListItemDemo() },
+        ComposableDemo("Mixing RTL and LTR") { MixedRtlLtrListItemDemo() }
+    )),
     DemoCategory("TextFields", listOf(
         ComposableDemo("FilledTextField/OutlinedTextField") { MaterialTextFieldDemo() },
         ComposableDemo("Multiple text fields") { TextFieldsDemo() }
