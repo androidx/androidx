@@ -27,14 +27,19 @@ import androidx.room.solver.query.result.GuavaListenableFutureQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 import javax.lang.model.type.DeclaredType
 
-class GuavaListenableFutureQueryResultBinderProvider(val context: Context) :
-    QueryResultBinderProvider {
+@Suppress("FunctionName")
+fun GuavaListenableFutureQueryResultBinderProvider(context: Context): QueryResultBinderProvider =
+    GuavaListenableFutureQueryResultBinderProviderImpl(
+        context = context
+    ).requireArtifact(
+        context = context,
+        requiredType = RoomGuavaTypeNames.GUAVA_ROOM,
+        missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_GUAVA_ARTIFACT
+    )
 
-    private val hasGuavaRoom by lazy {
-        context.processingEnv.elementUtils
-                .getTypeElement(RoomGuavaTypeNames.GUAVA_ROOM.toString()) != null
-    }
-
+class GuavaListenableFutureQueryResultBinderProviderImpl(
+    val context: Context
+) : QueryResultBinderProvider {
     /**
      * Returns the {@link GuavaListenableFutureQueryResultBinder} instance for the input type, if
      * possible.
@@ -42,10 +47,6 @@ class GuavaListenableFutureQueryResultBinderProvider(val context: Context) :
      * <p>Emits a compiler error if the Guava Room extension library is not linked.
      */
     override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
-        if (!hasGuavaRoom) {
-            context.logger.e(ProcessorErrors.MISSING_ROOM_GUAVA_ARTIFACT)
-        }
-
         // Use the type T inside ListenableFuture<T> as the type to adapt and to pass into
         // the binder.
         val adapter = context.typeAdapterStore.findQueryResultAdapter(

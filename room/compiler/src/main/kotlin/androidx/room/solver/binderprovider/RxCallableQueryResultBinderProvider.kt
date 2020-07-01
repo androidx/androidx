@@ -29,11 +29,6 @@ class RxCallableQueryResultBinderProvider private constructor(
     val context: Context,
     private val rxType: RxType
 ) : QueryResultBinderProvider {
-    private val hasRxJavaArtifact by lazy {
-        context.processingEnv.elementUtils
-            .getTypeElement(rxType.version.rxRoomClassName.toString()) != null
-    }
-
     override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
         val typeArg = declared.typeArguments.first()
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query)
@@ -45,11 +40,7 @@ class RxCallableQueryResultBinderProvider private constructor(
 
     private fun matchesRxType(declared: DeclaredType): Boolean {
         val erasure = context.processingEnv.typeUtils.erasure(declared)
-        val match = erasure.typeName() == rxType.className
-        if (match && !hasRxJavaArtifact) {
-            context.logger.e(rxType.version.missingArtifactMessage)
-        }
-        return match
+        return erasure.typeName() == rxType.className
     }
 
     companion object {
@@ -58,6 +49,12 @@ class RxCallableQueryResultBinderProvider private constructor(
             RxType.RX2_MAYBE,
             RxType.RX3_SINGLE,
             RxType.RX3_MAYBE
-        ).map { RxCallableQueryResultBinderProvider(context, it) }
+        ).map {
+            RxCallableQueryResultBinderProvider(context, it).requireArtifact(
+                context = context,
+                requiredType = it.version.rxRoomClassName,
+                missingArtifactErrorMsg = it.version.missingArtifactMessage
+            )
+        }
     }
 }
