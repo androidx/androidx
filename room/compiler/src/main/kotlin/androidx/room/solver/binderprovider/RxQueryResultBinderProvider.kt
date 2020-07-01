@@ -22,6 +22,7 @@ import androidx.room.solver.RxType
 import androidx.room.solver.query.result.QueryResultAdapter
 import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.query.result.RxQueryResultBinder
+import isAssignableFrom
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
@@ -60,8 +61,9 @@ class RxQueryResultBinderProvider private constructor(
         if (typeMirror == null) {
             return false
         }
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
-        val match = context.processingEnv.typeUtils.isAssignable(typeMirror, erasure)
+        val typeUtils = context.processingEnv.typeUtils
+        val erasure = typeUtils.erasure(declared)
+        val match = erasure.isAssignableFrom(typeUtils, typeMirror!!)
         if (match && !hasRxJavaArtifact) {
             context.logger.e(rxType.version.missingArtifactMessage)
         }

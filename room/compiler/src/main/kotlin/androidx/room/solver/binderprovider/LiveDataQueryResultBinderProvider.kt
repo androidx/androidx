@@ -22,6 +22,7 @@ import androidx.room.solver.ObservableQueryResultBinderProvider
 import androidx.room.solver.query.result.LiveDataQueryResultBinder
 import androidx.room.solver.query.result.QueryResultAdapter
 import androidx.room.solver.query.result.QueryResultBinder
+import isAssignableFrom
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
@@ -52,7 +53,8 @@ class LiveDataQueryResultBinderProvider(context: Context) :
         if (liveDataTypeMirror == null) {
             return false
         }
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
-        return context.processingEnv.typeUtils.isAssignable(liveDataTypeMirror, erasure)
+        val typeUtils = context.processingEnv.typeUtils
+        val erasure = typeUtils.erasure(declared)
+        return erasure.isAssignableFrom(typeUtils, liveDataTypeMirror!!)
     }
 }

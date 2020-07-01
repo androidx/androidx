@@ -17,7 +17,7 @@
 package androidx.room.solver
 
 import androidx.room.ext.getAllFieldsIncludingPrivateSupers
-import androidx.room.ext.isAssignableWithoutVariance
+import androidx.room.ext.isAssignableFromWithoutVariance
 import androidx.room.testing.TestInvocation
 import com.google.testing.compile.JavaFileObjects
 import org.hamcrest.CoreMatchers.`is`
@@ -54,8 +54,8 @@ class TypeAssignmentTest {
             val testObject = typeElement("foo.bar.MyObject")
             val string = testObject.getField(processingEnv, "mString")
             val integer = testObject.getField(processingEnv, "mInteger")
-            assertThat(typeUtils.isAssignableWithoutVariance(string.asType(),
-                    integer.asType()),
+            assertThat( integer.asType()
+                .isAssignableFromWithoutVariance(typeUtils, string.asType()),
                     `is`(false))
         }
     }
@@ -66,14 +66,8 @@ class TypeAssignmentTest {
             val testObject = typeElement("foo.bar.MyObject")
             val set = testObject.getField(processingEnv, "mSet").asType()
             val hashSet = testObject.getField(processingEnv, "mHashSet").asType()
-            assertThat(typeUtils.isAssignableWithoutVariance(
-                    from = set,
-                    to = hashSet
-            ), `is`(false))
-            assertThat(typeUtils.isAssignableWithoutVariance(
-                    from = hashSet,
-                    to = set
-            ), `is`(true))
+            assertThat(hashSet.isAssignableFromWithoutVariance(typeUtils, set), `is`(false))
+            assertThat(set.isAssignableFromWithoutVariance(typeUtils, hashSet), `is`(true))
         }
     }
 
@@ -89,14 +83,8 @@ class TypeAssignmentTest {
             val testObject = typeElement("foo.bar.MyObject")
             val set = testObject.getField(processingEnv, "mSet").asType()
             val varianceSet = testObject.getField(processingEnv, "mVarianceSet").asType()
-            assertThat(typeUtils.isAssignableWithoutVariance(
-                    from = set,
-                    to = varianceSet
-            ), `is`(true))
-            assertThat(typeUtils.isAssignableWithoutVariance(
-                    from = varianceSet,
-                    to = set
-            ), `is`(true))
+            assertThat(varianceSet.isAssignableFromWithoutVariance(typeUtils, set), `is`(true))
+            assertThat(set.isAssignableFromWithoutVariance(typeUtils, varianceSet), `is`(true))
         }
     }
 
@@ -106,14 +94,8 @@ class TypeAssignmentTest {
             val testObject = typeElement("foo.bar.MyObject")
             val unbounded = testObject.getField(processingEnv, "mUnboundedMap").asType()
             val objectMap = testObject.getField(processingEnv, "mStringMap").asType()
-            assertThat(typeUtils.isAssignableWithoutVariance(
-                    from = unbounded,
-                    to = objectMap
-            ), `is`(false))
-            assertThat(typeUtils.isAssignableWithoutVariance(
-                    from = objectMap,
-                    to = unbounded
-            ), `is`(true))
+            assertThat(objectMap.isAssignableFromWithoutVariance(typeUtils, unbounded), `is`(false))
+            assertThat(unbounded.isAssignableFromWithoutVariance(typeUtils, objectMap), `is`(true))
         }
     }
 

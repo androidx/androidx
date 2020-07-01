@@ -25,6 +25,7 @@ import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.PositionalDataSourceQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
+import isAssignableFrom
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
@@ -56,8 +57,12 @@ class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryRe
         if (dataSourceFactoryTypeMirror == null) {
             return false
         }
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
+        val typeUtils = context.processingEnv.typeUtils
+        val erasure = typeUtils.erasure(declared)
         // we don't want to return paged list unless explicitly requested
-        return context.processingEnv.typeUtils.isAssignable(dataSourceFactoryTypeMirror, erasure)
+        return erasure.isAssignableFrom(
+            typeUtils,
+            dataSourceFactoryTypeMirror!!
+        )
     }
 }

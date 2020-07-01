@@ -32,6 +32,7 @@ import androidx.room.vo.Dao
 import androidx.room.vo.KotlinDefaultMethodDelegate
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
+import isAssignableFrom
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.ABSTRACT
@@ -158,7 +159,7 @@ class DaoProcessor(
         val typeUtils = context.processingEnv.typeUtils
         val goodConstructor = constructors.firstOrNull {
             it.parameters.size == 1 &&
-                    typeUtils.isAssignable(dbType, it.parameters[0].asType())
+                    it.parameters[0].asType().isAssignableFrom(typeUtils, dbType)
         }
         val constructorParamType = if (goodConstructor != null) {
             goodConstructor.parameters[0].asType().typeName()
