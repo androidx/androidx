@@ -18,7 +18,10 @@ package androidx.ui.test.android
 
 import android.view.Choreographer
 import androidx.compose.onCommit
+import androidx.test.espresso.AppNotIdleException
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.IdlingResourceTimeoutException
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.getAllSemanticsNodes
@@ -52,7 +55,8 @@ internal object SynchronizedTreeCollector {
 
         return AndroidOwnerRegistry.getOwners().also {
             // TODO(b/153632210): This check should be done by callers of collectOwners
-            check(it.isNotEmpty()) { "No AndroidOwners found. Is your Activity resumed?" }
+            check(it.isNotEmpty()) { "No compose views found in the app. Is your Activity " +
+                    "resumed?" }
         }.flatMap { it.semanticsOwner.getAllSemanticsNodes() }
     }
 
@@ -74,11 +78,11 @@ internal object SynchronizedTreeCollector {
 
         registerComposeWithEspresso()
         // First wait for Android mechanisms to settle down
-        Espresso.onIdle()
+        runEspressoOnIdle()
         // Then wait until we have an AndroidOwner (in case an Activity is being started)
         waitForAndroidOwners()
         // And when we have an AndroidOwner, we need to wait until it has composed
-        Espresso.onIdle()
+        runEspressoOnIdle()
 
         // TODO(b/155774664): waitForAndroidOwners() may be satisfied by an AndroidOwner from an
         //  Activity that is about to be paused, in cases where a new Activity is being started.
@@ -88,6 +92,76 @@ internal object SynchronizedTreeCollector {
 
         // Wait for onCommit callbacks last, as they might be posted while waiting for idle
         waitForOnCommitCallbacks()
+    }
+
+    private fun runEspressoOnIdle() {
+        fun rethrowWithMoreInfo(e: Throwable, wasMasterTimeout: Boolean) {
+            var diagnosticInfo = ""
+            val listOfIdlingResources = mutableListOf<String>()
+            IdlingRegistry.getInstance().resources.forEach { resource ->
+                if (resource is IdlingResourceWithDiagnostics) {
+                    val message = resource.getDiagnosticMessageIfBusy()
+                    if (message != null) {
+                        diagnosticInfo += "$message \n"
+                    }
+                }
+                listOfIdlingResources.add(resource.name)
+            }
+            if (diagnosticInfo.isNotEmpty()) {
+                val prefix = if (wasMasterTimeout) {
+                    "Global time out"
+                } else {
+                    "Idling resource timed out"
+                }
+                throw ComposeNotIdleException("$prefix: possibly due to compose being busy.\n" +
+                        "$diagnosticInfo" +
+                        "All registered idling resources: " +
+                        "${listOfIdlingResources.joinToString(", ")}", e)
+            }
+            // No extra info, re-throw the original exception
+            throw e
+        }
+
+        try {
+            Espresso.onIdle()
+        } catch (e: Throwable) {
+            // Happens on the global time out, usually when master idling time out is less
+            // or equal to dynamic idling time out or when the timeout is not due to individual
+            // idling resource. This does not necessary mean that it can't be due to idling
+            // resource being busy. So we try to check if it failed due to compose being busy and
+            // add some extra information to the developer.
+            val appNotIdleMaybe = tryToFindCause<AppNotIdleException>(e)
+            if (appNotIdleMaybe != null) {
+                rethrowWithMoreInfo(appNotIdleMaybe, wasMasterTimeout = true)
+            }
+
+            // Happens on idling resource taking too long. Espresso gives out which resources caused
+            // it but it won't allow us to give any extra information. So we check if it was our
+            // resource and give more info if we can.
+            val resourceNotIdleMaybe = tryToFindCause<IdlingResourceTimeoutException>(e)
+            if (resourceNotIdleMaybe != null) {
+                rethrowWithMoreInfo(resourceNotIdleMaybe, wasMasterTimeout = false)
+            }
+
+            // No match, rethrow
+            throw e
+        }
+    }
+
+    /**
+     * Tries to find if the given exception or any of its cause is of the type of the provided
+     * throwable T. Returns null if there is no match. This is required as some exceptions end up
+     * wrapped in Runtime or Concurrent exceptions.
+     */
+    private inline fun <reified T : Throwable> tryToFindCause(e: Throwable): Throwable? {
+        var causeToCheck: Throwable? = e
+        while (causeToCheck != null) {
+            if (causeToCheck is T) {
+                return causeToCheck
+            }
+            causeToCheck = causeToCheck.cause
+        }
+        return null
     }
 
     private fun ensureAndroidOwnerRegistryIsSetUp() {
@@ -134,3 +208,8 @@ internal object SynchronizedTreeCollector {
         }
     }
 }
+
+/**
+ * Thrown in cases where Compose can't get idle in Espresso's defined time limit.
+ */
+class ComposeNotIdleException(message: String?, cause: Throwable?) : Throwable(message, cause)
