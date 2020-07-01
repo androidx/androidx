@@ -28,13 +28,7 @@ Jetpack Compose is in very early stages of development. Developers wanting to bu
 
 Run the `demos` app to see examples of individual components.
 
-A sample implementation of the [Material Rally app](https://material.io/design/material-studies/rally.html) is under `material/integration-tests/material-studies`.
-
-To build the Material Rally app via the command line run:
-
-    cd path/to/checkout/frameworks/support/ui/
-    ./gradlew :ui-material:integration-tests:ui-material-studies:assembleDebug
-
+A sample implementation of the [Material Rally app](https://material.io/design/material-studies/rally.html) is under `material/integration-tests/material-studies`. This can be viewed from inside the `demos` app, under the 'Material Studies' section.
 
 ## Structure
 Library code for Jetpack Compose lives under the `frameworks/support/ui` directory. Additionally, sample code can be found within each module in the `integration-tests` subdirectories and the compiler and runtime code can be found in `frameworks/support/compose`.

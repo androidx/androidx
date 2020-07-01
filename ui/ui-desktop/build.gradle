@@ -131,28 +131,28 @@ kotlin {
 }
 
 def uiComponents = [
-        "ui-android-view",
-        "ui-animation",
-        "ui-animation-core",
-        "ui-core",
-        "ui-foundation",
-        "ui-geometry",
-        "ui-graphics",
-        "ui-layout",
-        "ui-livedata",
-        "ui-material",
-        "ui-saved-instance-state",
-        "ui-text",
-        "ui-text-android",
-        "ui-text-core",
-        "ui-unit",
-        "ui-util"
+        ":ui:ui-android-view",
+        ":ui:ui-animation",
+        ":ui:ui-animation-core",
+        ":ui:ui-core",
+        ":ui:ui-foundation",
+        ":ui:ui-geometry",
+        ":ui:ui-graphics",
+        ":ui:ui-layout",
+        ":ui:ui-livedata",
+        ":ui:ui-saved-instance-state",
+        ":ui:ui-text",
+        ":ui:ui-text-android",
+        ":ui:ui-text-core",
+        ":ui:ui-unit",
+        ":ui:ui-util",
+        ":compose:material:material"
 ]
 
-def androidxComponents = [
-        "core:core",
-        "lifecycle:lifecycle-runtime"
-]
+// Returns the artifact name (project name) from a project path
+static String uiComponentArtifactName(String component) {
+    return component.tokenize(':').last()
+}
 
 void makeLinkOrCopy(String from, String to) {
     def fromPath = Paths.get(from)
@@ -237,10 +237,11 @@ project.tasks.register("extractJars").configure {
     inputs.files(project.provider {
         def result = []
         uiComponents.each { component ->
-            def depProject = project(":ui:" + component)
+            def depProject = project(component)
             def task = depProject.tasks.named("assemble").get()
             def srcJar = findInDeps(task, { absolutePath ->
-                absolutePath.endsWith("classes.jar") && absolutePath.contains(component)
+                def componentPath = component.replaceAll(":", "/")
+                absolutePath.endsWith("classes.jar") && absolutePath.contains(componentPath)
             })
             result.add(file(srcJar))
         }
@@ -268,12 +269,7 @@ project.tasks.register("extractJars").configure {
     outputs.files(project.provider {
         def result = [fileTree(dir: composeClassDir, include: [])]
         uiComponents.each { component ->
-            def depProject = project(":ui:" + component)
-            def task = depProject.tasks.named("assemble").get()
-            def srcJar = findInDeps(task, { absolutePath ->
-                absolutePath.endsWith("classes.jar") && absolutePath.contains(component)
-            })
-            result.add(file(composeClassDir + component + ".jar"))
+            result.add(file(composeClassDir + uiComponentArtifactName(component) + ".jar"))
         }
         configurations.ui_components.getIncoming().artifactView(
                 { config ->
@@ -291,15 +287,16 @@ project.tasks.register("extractJars").configure {
         // Find all JAR files matching components.
         file(composeClassDir).mkdir()
         uiComponents.each { component ->
-            def depProject = project(":ui:" + component)
+            def depProject = project(component)
             def task = depProject.tasks.named("assemble").get()
             def srcJar = findInDeps(task, { absolutePath ->
-                absolutePath.endsWith("classes.jar") && absolutePath.contains(component)
+                def componentPath = component.replaceAll(":", "/")
+                absolutePath.endsWith("classes.jar") && absolutePath.contains(componentPath)
             })
             if (srcJar == null) {
                 throw new Error("cannot find classes.jar in "+ task)
             } else {
-                def destJar = composeClassDir + component + ".jar"
+                def destJar = composeClassDir + uiComponentArtifactName(component) + ".jar"
                 makeLinkOrCopy(srcJar, destJar)
             }
         }
@@ -321,7 +318,7 @@ project.tasks.register("extractJars").configure {
 
 extractJars.configure {
     uiComponents.each { component ->
-        extractJars.dependsOn(":ui:" + component + ":assemble")
+        extractJars.dependsOn(component + ":assemble")
     }
 }
 

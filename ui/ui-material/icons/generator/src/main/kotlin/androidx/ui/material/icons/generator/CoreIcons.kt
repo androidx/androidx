@@ -18,7 +18,7 @@ package androidx.ui.material.icons.generator
 
 /**
  * List of 'core' icons that will be added to the 'core' icons module, and depended on by
- * ui-material. These icons are the set of most commonly used icons, including icons used by
+ * material. These icons are the set of most commonly used icons, including icons used by
  * Material components directly (such as the menu icon in an AppBar). All icons not specified
  * here will be generated to the 'extended' icons module.
  */

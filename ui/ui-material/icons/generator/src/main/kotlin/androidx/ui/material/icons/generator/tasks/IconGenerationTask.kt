@@ -117,7 +117,7 @@ abstract class IconGenerationTask : DefaultTask() {
 }
 
 // Path to the generator project
-private const val GeneratorProject = ":ui:ui-material:icons:generator"
+private const val GeneratorProject = ":compose:material:material:icons:generator"
 
 /**
  * Registers a new [T] in [this], and sets [IconGenerationTask.buildDirectory] depending on
