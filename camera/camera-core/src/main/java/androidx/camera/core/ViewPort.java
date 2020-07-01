@@ -30,7 +30,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * The FOV of one or many {@link UseCase}s.
+ * The field of view of one or many {@link UseCase}s.
+ *
+ * <p> The {@link ViewPort} defines a FOV which is used by CameraX to calculate output crop rects.
+ * For use cases associated with the same {@link ViewPort} in a {@link UseCaseGroup}, the output
+ * crop rect will be mapped to the same camera sensor area. Usually {@link ViewPort} is
+ * configured to optimize for the {@link Preview} use case, with the aspect ratio and rotation
+ * set to match that of the {@link Preview} viewfinder.
+ *
+ * <p> For {@link ImageAnalysis} and in-memory {@link ImageCapture}, the crop rect is
+ * {@link ImageProxy#getCropRect()}; for on-disk {@link ImageCapture}, the image is cropped before
+ * saving; for {@link Preview}, the crop rect is {@link SurfaceRequest#getCropRect()}. Caller
+ * should transform the output in a way that only the area defined by the crop rect is visible
+ * to end users. Once the crop rect is applied, all the use cases will produce the same image
+ * with possible different resolutions.
  */
 @ExperimentalUseCaseGroup
 public final class ViewPort {
@@ -196,18 +209,20 @@ public final class ViewPort {
         @LayoutDirection
         private int mLayoutDirection = DEFAULT_LAYOUT_DIRECTION;
 
-
         /**
-         * Creates {@link ViewPort.Builder} with aspect ratio and rotation
+         * Creates {@link ViewPort.Builder} with aspect ratio and rotation.
          *
-         * <p> The rotation value is relative to the "natural" rotation. This is one of four
-         * valid values: {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
-         * {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}. For example, if the desired
-         * the orientation is the gravity, the value should be set with the value
-         * of {@link Display#getRotation()}.
-         *
-         * <p> The aspect ratio is the desired crop rect after rotation is applied. In practice,
-         * this is usually the aspect ratio of the view finder.
+         * @param aspectRatio desired aspect ratio of crop rect obtained from
+         *                    {@link SurfaceRequest#getCropRect()} and/or
+         *                    {@link ImageProxy#getCropRect()}, if the scale type is FILL_*. This
+         *                    is usually the width/height of the preview viewfinder that displays
+         *                    the camera feed.
+         * @param rotation    Similar to {@link ImageCapture#setTargetRotation(int)}, the rotation
+         *                    value is one of four valid values: {@link Surface#ROTATION_0},
+         *                    {@link Surface#ROTATION_90}, {@link Surface#ROTATION_180},
+         *                    {@link Surface#ROTATION_270}. If the viewport is based on
+         *                    {@link Preview}, it is usually set with the value of
+         *                    {@link Display#getRotation()}.
          */
         public Builder(@NonNull Rational aspectRatio,
                 @ImageOutputConfig.RotationValue int rotation) {
