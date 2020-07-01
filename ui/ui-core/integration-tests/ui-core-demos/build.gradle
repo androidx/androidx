@@ -21,7 +21,7 @@ dependencies {
     implementation project(":ui:ui-text-core")
     implementation project(":ui:ui-animation")
     implementation project(":ui:ui-foundation")
-    implementation project(":ui:ui-material")
+    implementation project(":compose:material:material")
     implementation project(":ui:ui-livedata")
 }
 

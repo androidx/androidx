@@ -33,7 +33,7 @@ dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
     implementation(KOTLIN_STDLIB)
 
-    api project(":ui:ui-material-icons-core")
+    api project(":compose:material:material-icons-core")
     implementation project(":compose:compose-runtime")
 
     androidTestImplementation project(":ui:ui-foundation")
@@ -59,7 +59,7 @@ androidx {
     name = "AndroidX Extended Material Icons"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
+    mavenGroup = LibraryGroups.Compose.MATERIAL
     // This module has a large number (5000+) of generated source files and so doc generation /
     // API tracking will simply take too long
     toolingProject = true
