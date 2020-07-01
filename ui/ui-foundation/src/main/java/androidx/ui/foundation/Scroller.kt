@@ -26,6 +26,7 @@ import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.structuralEqualityPolicy
+import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
@@ -60,7 +61,7 @@ fun ScrollerPosition(
     initial: Float = 0f,
     isReversed: Boolean = false
 ): ScrollerPosition {
-    val clock = AnimationClockAmbient.current
+    val clock = AnimationClockAmbient.current.asDisposableClock()
     val config = FlingConfig()
     return rememberSavedInstanceState(
         clock, config,
