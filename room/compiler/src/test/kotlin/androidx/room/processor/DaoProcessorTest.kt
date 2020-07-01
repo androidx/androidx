@@ -18,14 +18,15 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.asDeclaredType
+import androidx.room.ext.asTypeElement
 import androidx.room.ext.requireTypeMirror
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Dao
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
+import asDeclaredType
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -169,8 +170,8 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                 abstract User users();
             }
             """) { dao, invocation ->
-            val dbType = MoreTypes.asDeclared(invocation.context.processingEnv
-                    .requireTypeMirror(RoomTypeNames.ROOM_DB.toString()))
+            val dbType = invocation.context.processingEnv
+                    .requireTypeMirror(RoomTypeNames.ROOM_DB).asDeclaredType()
             val daoProcessor =
                 DaoProcessor(invocation.context, dao.element, dbType, null)
 
@@ -180,7 +181,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
             dao.queryMethods.forEach {
                 assertThat(QueryMethodProcessor(
                         baseContext = daoProcessor.context,
-                        containing = MoreTypes.asDeclared(dao.element.asType()),
+                        containing = dao.element.asDeclaredType(),
                         executableElement = it.element,
                         dbVerifier = null).context.logger.suppressedWarnings,
                         `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH)))
@@ -198,8 +199,8 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                 abstract User users();
             }
             """) { dao, invocation ->
-            val dbType = MoreTypes.asDeclared(invocation.context.processingEnv
-                    .requireTypeMirror(RoomTypeNames.ROOM_DB))
+            val dbType = invocation.context.processingEnv
+                    .requireTypeMirror(RoomTypeNames.ROOM_DB).asDeclaredType()
             val daoProcessor =
                 DaoProcessor(invocation.context, dao.element, dbType, null)
             assertThat(daoProcessor.context.logger
@@ -208,7 +209,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
             dao.queryMethods.forEach {
                 assertThat(QueryMethodProcessor(
                         baseContext = daoProcessor.context,
-                        containing = MoreTypes.asDeclared(dao.element.asType()),
+                        containing = dao.element.asDeclaredType(),
                         executableElement = it.element,
                         dbVerifier = null).context.logger.suppressedWarnings,
                         `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH)))
@@ -328,11 +329,11 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                             } else {
                                 null
                             }
-                            val dbType = MoreTypes.asDeclared(
-                                    invocation.context.processingEnv
-                                            .requireTypeMirror(RoomTypeNames.ROOM_DB))
+                            val dbType = invocation.context.processingEnv
+                                            .requireTypeMirror(RoomTypeNames.ROOM_DB)
+                                .asDeclaredType()
                             val parser = DaoProcessor(invocation.context,
-                                    MoreElements.asType(dao), dbType, dbVerifier)
+                                    dao.asTypeElement(), dbType, dbVerifier)
 
                             val parsedDao = parser.process()
                             handler(parsedDao, invocation)

@@ -18,11 +18,11 @@ package androidx.room.writer
 
 import COMMON
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.asDeclaredType
+import androidx.room.ext.asTypeElement
 import androidx.room.ext.requireTypeElement
 import androidx.room.processor.DaoProcessor
 import androidx.room.testing.TestProcessor
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaSourcesSubjectFactory
@@ -93,10 +93,10 @@ class DaoWriterTest {
                                     .firstOrNull()
                                     ?: invocation.context.processingEnv
                                         .requireTypeElement(RoomTypeNames.ROOM_DB)
-                            val dbType = MoreTypes.asDeclared(db.asType())
+                            val dbType = db.asDeclaredType()
                             val parser = DaoProcessor(
                                     baseContext = invocation.context,
-                                    element = MoreElements.asType(dao),
+                                    element = dao.asTypeElement(),
                                     dbType = dbType,
                                     dbVerifier = createVerifierFromEntitiesAndViews(invocation))
                             val parsedDao = parser.process()

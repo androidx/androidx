@@ -38,7 +38,6 @@ import androidx.room.vo.Warning
 import androidx.room.vo.columnNames
 import androidx.room.vo.findFieldByColumnName
 import asTypeElement
-import com.google.auto.common.MoreTypes
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind
@@ -208,7 +207,7 @@ class TableEntityProcessor internal constructor(
                 return@map null
             }
             val parentElement = try {
-                MoreTypes.asElement(it.parent) as TypeElement
+                it.parent.asTypeElement()
             } catch (noClass: IllegalArgumentException) {
                 context.logger.e(element, ProcessorErrors.FOREIGN_KEY_CANNOT_FIND_PARENT)
                 return@map null

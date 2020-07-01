@@ -18,6 +18,7 @@ package androidx.room.solver
 
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaBaseTypeNames
+import androidx.room.ext.asTypeElement
 import androidx.room.ext.extendsBoundOrSelf
 import androidx.room.ext.isAssignableFromWithoutVariance
 import androidx.room.ext.isEntityElement
@@ -91,12 +92,14 @@ import androidx.room.solver.types.StatementValueBinder
 import androidx.room.solver.types.StringColumnTypeAdapter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.vo.ShortcutQueryParameter
+import asDeclaredType
+import asElement
 import asTypeElement
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.collect.ImmutableList
 import isAssignableFrom
+import isType
+import isTypeOf
 import java.util.LinkedList
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.TypeKind
@@ -318,7 +321,7 @@ class TypeAdapterStore private constructor(
     fun findDeleteOrUpdateMethodBinder(typeMirror: TypeMirror): DeleteOrUpdateMethodBinder {
         val adapter = findDeleteOrUpdateAdapter(typeMirror)
         return if (typeMirror.kind == TypeKind.DECLARED) {
-            val declared = MoreTypes.asDeclared(typeMirror)
+            val declared = typeMirror.asDeclaredType()
             deleteOrUpdateBinderProvider.first {
                 it.matches(declared)
             }.provide(declared)
@@ -332,7 +335,7 @@ class TypeAdapterStore private constructor(
         params: List<ShortcutQueryParameter>
     ): InsertMethodBinder {
         return if (typeMirror.kind == TypeKind.DECLARED) {
-            val declared = MoreTypes.asDeclared(typeMirror)
+            val declared = typeMirror.asDeclaredType()
             insertBinderProviders.first {
                 it.matches(declared)
             }.provide(declared, params)
@@ -343,7 +346,7 @@ class TypeAdapterStore private constructor(
 
     fun findQueryResultBinder(typeMirror: TypeMirror, query: ParsedQuery): QueryResultBinder {
         return if (typeMirror.kind == TypeKind.DECLARED) {
-            val declared = MoreTypes.asDeclared(typeMirror)
+            val declared = typeMirror.asDeclaredType()
             return queryResultBinderProviders.first {
                 it.matches(declared)
             }.provide(declared, query)
@@ -357,7 +360,7 @@ class TypeAdapterStore private constructor(
         query: ParsedQuery
     ): PreparedQueryResultBinder {
         return if (typeMirror.kind == TypeKind.DECLARED) {
-            val declared = MoreTypes.asDeclared(typeMirror)
+            val declared = typeMirror.asDeclaredType()
             return preparedQueryResultBinderProviders.first {
                 it.matches(declared)
             }.provide(declared, query)
@@ -385,7 +388,7 @@ class TypeAdapterStore private constructor(
             return null
         }
         if (typeMirror.kind == TypeKind.DECLARED) {
-            val declared = MoreTypes.asDeclared(typeMirror)
+            val declared = typeMirror.asDeclaredType()
 
             if (declared.typeArguments.isEmpty()) {
                 val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
@@ -405,11 +408,11 @@ class TypeAdapterStore private constructor(
                 val typeArg = declared.typeArguments.first()
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null
                 return OptionalQueryResultAdapter(SingleEntityQueryResultAdapter(rowAdapter))
-            } else if (MoreTypes.isTypeOf(ImmutableList::class.java, typeMirror)) {
+            } else if (typeMirror.isTypeOf(ImmutableList::class)) {
                 val typeArg = declared.typeArguments.first().extendsBoundOrSelf()
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null
                 return ImmutableListQueryResultAdapter(rowAdapter)
-            } else if (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror)) {
+            } else if (typeMirror.isTypeOf(java.util.List::class)) {
                 val typeArg = declared.typeArguments.first().extendsBoundOrSelf()
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null
                 return ListQueryResultAdapter(rowAdapter)
@@ -434,7 +437,7 @@ class TypeAdapterStore private constructor(
             return null
         }
         if (typeMirror.kind == TypeKind.DECLARED) {
-            val declared = MoreTypes.asDeclared(typeMirror)
+            val declared = typeMirror.asDeclaredType()
             if (declared.typeArguments.isNotEmpty()) {
                 // TODO one day support this
                 return null
@@ -463,11 +466,11 @@ class TypeAdapterStore private constructor(
 
             if (rowAdapter == null && query.resultInfo == null) {
                 // we don't know what query returns. Check for entity.
-                val asElement = MoreTypes.asElement(typeMirror)
+                val asElement = typeMirror.asElement()
                 if (asElement.isEntityElement()) {
                     return EntityRowAdapter(EntityProcessor(
                             context = context,
-                            element = MoreElements.asType(asElement)
+                            element = asElement.asTypeElement()
                     ).process())
                 }
             }
@@ -513,12 +516,12 @@ class TypeAdapterStore private constructor(
 
     fun findQueryParameterAdapter(typeMirror: TypeMirror): QueryParameterAdapter? {
         val typeUtils = context.processingEnv.typeUtils
-        if (MoreTypes.isType(typeMirror) &&
+        if (typeMirror.isType() &&
             typeUtils.erasure(context.COMMON_TYPES.COLLECTION).isAssignableFrom(
                 typeUtils,
                 typeMirror
             )) {
-            val declared = MoreTypes.asDeclared(typeMirror)
+            val declared = typeMirror.asDeclaredType()
             val binder = findStatementValueBinder(
                 declared.typeArguments.first().extendsBoundOrSelf(), null)
             if (binder != null) {

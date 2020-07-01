@@ -24,7 +24,7 @@ import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.vo.findFieldByColumnName
 import asTypeElement
-import com.google.auto.common.MoreTypes
+import isTypeOf
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
@@ -64,7 +64,7 @@ class ShortcutMethodProcessor(
         context.checker.check(params.isNotEmpty(), executableElement, missingParamError)
 
         val targetEntity = if (targetEntityType != null &&
-            !MoreTypes.isTypeOf(Any::class.java, targetEntityType)) {
+            !targetEntityType.isTypeOf(Any::class)) {
             processEntity(
                 element = targetEntityType.asTypeElement(),
                 onInvalid = {

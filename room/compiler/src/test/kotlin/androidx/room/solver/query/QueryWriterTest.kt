@@ -20,11 +20,13 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.ext.RoomTypeNames.ROOM_SQL_QUERY
 import androidx.room.ext.RoomTypeNames.STRING_UTIL
+import androidx.room.ext.asDeclaredType
+import androidx.room.ext.asExecutableElement
+import androidx.room.ext.asTypeElement
+import androidx.room.ext.hasAnnotation
 import androidx.room.processor.QueryMethodProcessor
 import androidx.room.testing.TestProcessor
 import androidx.room.writer.QueryWriter
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -304,17 +306,16 @@ class QueryWriterTest {
                                     .map {
                                         Pair(it,
                                                 invocation.processingEnv.elementUtils
-                                                        .getAllMembers(MoreElements.asType(it))
+                                                        .getAllMembers(it.asTypeElement())
                                                         .filter {
-                                                            MoreElements.isAnnotationPresent(it,
-                                                                    Query::class.java)
+                                                            it.hasAnnotation(Query::class)
                                                         }
                                         )
                                     }.first { it.second.isNotEmpty() }
                             val parser = QueryMethodProcessor(
                                     baseContext = invocation.context,
-                                    containing = MoreTypes.asDeclared(owner.asType()),
-                                    executableElement = MoreElements.asExecutable(methods.first()))
+                                    containing = owner.asDeclaredType(),
+                                    executableElement = methods.first().asExecutableElement())
                             val method = parser.process()
                             handler(QueryWriter(method))
                             true

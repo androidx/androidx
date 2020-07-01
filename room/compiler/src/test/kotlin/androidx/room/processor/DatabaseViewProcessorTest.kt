@@ -17,13 +17,13 @@
 package androidx.room.processor
 
 import androidx.annotation.NonNull
+import androidx.room.ext.asTypeElement
 import androidx.room.parser.ParserErrors
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.verifier.ColumnInfo
 import androidx.room.vo.DatabaseView
-import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.CompileTester
@@ -200,7 +200,7 @@ class DatabaseViewProcessorTest {
                                 createVerifierFromEntitiesAndViews(invocation)
                             } else null
                             val processor = DatabaseViewProcessor(invocation.context,
-                                    MoreElements.asType(view))
+                                    view.asTypeElement())
                             val processedView = processor.process()
                             processedView.query.resultInfo =
                                     verifier?.analyze(processedView.query.original)

@@ -23,20 +23,21 @@ import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
-import com.google.auto.common.MoreTypes
+import asArray
+import asDeclaredType
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import isArray
+import isBoxedLong
 import isKotlinUnit
 import isList
-import isBoxedLong
-import isPrimitiveLong
 import isLong
+import isPrimitiveLong
 import isVoid
 import isVoidObject
-import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
 /**
@@ -94,8 +95,8 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
                 InsertionType.INSERT_VOID_OBJECT
             } else if (returnType.isKotlinUnit()) {
                 InsertionType.INSERT_UNIT
-            } else if (returnType.kind == TypeKind.ARRAY) {
-                val arrayType = MoreTypes.asArray(returnType)
+            } else if (returnType.isArray()) {
+                val arrayType = returnType.asArray()
                 val param = arrayType.componentType
                 when {
                     param.isPrimitiveLong() -> InsertionType.INSERT_ID_ARRAY
@@ -103,7 +104,7 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
                     else -> null
                 }
             } else if (returnType.isList()) {
-                val declared = MoreTypes.asDeclared(returnType)
+                val declared = returnType.asDeclaredType()
                 val param = declared.typeArguments.first()
                 if (param.isBoxedLong()) {
                     InsertionType.INSERT_ID_LIST

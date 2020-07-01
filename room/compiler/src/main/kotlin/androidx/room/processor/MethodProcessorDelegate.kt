@@ -21,6 +21,7 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.T
+import androidx.room.ext.asMemberOf
 import androidx.room.ext.findTypeElement
 import androidx.room.ext.getSuspendFunctionReturnType
 import androidx.room.ext.requireTypeMirror
@@ -34,14 +35,14 @@ import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.C
 import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
-import androidx.room.solver.transaction.binder.InstantTransactionMethodBinder
 import androidx.room.solver.transaction.binder.CoroutineTransactionMethodBinder
+import androidx.room.solver.transaction.binder.InstantTransactionMethodBinder
 import androidx.room.solver.transaction.binder.TransactionMethodBinder
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
 import androidx.room.vo.QueryParameter
 import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.vo.TransactionMethod
-import com.google.auto.common.MoreTypes
+import asExecutableType
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
@@ -134,8 +135,11 @@ class DefaultMethodProcessorDelegate(
 ) : MethodProcessorDelegate(context, containing, executableElement, classMetadata) {
 
     override fun extractReturnType(): TypeMirror {
-        val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
-        return MoreTypes.asExecutable(asMember).returnType
+        val asMember = executableElement.asMemberOf(
+            context.processingEnv.typeUtils,
+            containing
+        )
+        return asMember.asExecutableType().returnType
     }
 
     override fun extractParams() = executableElement.parameters
@@ -183,8 +187,11 @@ class SuspendMethodProcessorDelegate(
     }
 
     override fun extractReturnType(): TypeMirror {
-        val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
-        return MoreTypes.asExecutable(asMember).getSuspendFunctionReturnType()
+        val asMember = executableElement.asMemberOf(
+            context.processingEnv.typeUtils,
+            containing
+        )
+        return asMember.asExecutableType().getSuspendFunctionReturnType()
     }
 
     override fun extractParams() =

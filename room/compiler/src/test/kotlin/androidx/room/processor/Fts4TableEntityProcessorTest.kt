@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import androidx.room.Fts4
 import androidx.room.FtsOptions
+import androidx.room.ext.asTypeElement
 import androidx.room.parser.FtsVersion
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CallType
@@ -25,7 +26,6 @@ import androidx.room.vo.Field
 import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
 import androidx.room.vo.Fields
-import com.google.auto.common.MoreElements
 import com.google.testing.compile.JavaFileObjects
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
@@ -82,7 +82,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 """)) { invocation ->
                     val entity = invocation.roundEnv.getElementsAnnotatedWith(Fts4::class.java)
                             .first { it.toString() == "foo.bar.MyEntity" }
-                    FtsTableEntityProcessor(invocation.context, MoreElements.asType(entity))
+                    FtsTableEntityProcessor(invocation.context, entity.asTypeElement())
                             .process()
                 }
                 .failsToCompile()

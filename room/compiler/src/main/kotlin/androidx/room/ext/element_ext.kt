@@ -18,6 +18,8 @@
 
 package androidx.room.ext
 
+import asDeclaredType
+import asExecutableType
 import asTypeElement
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
@@ -33,6 +35,7 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
+import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.ExecutableType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
@@ -403,3 +406,32 @@ fun ExecutableType.getSuspendFunctionReturnType(): TypeMirror {
     val typeParam = MoreTypes.asDeclared(parameterTypes.last()).typeArguments.first()
     return typeParam.extendsBoundOrSelf() // reduce the type param
 }
+
+fun Element.getPackage() = MoreElements.getPackage(this).qualifiedName.toString()
+
+fun Element.asTypeElement() = MoreElements.asType(this)
+
+fun Element.asVariableElement() = MoreElements.asVariable(this)
+
+fun Element.asExecutableElement() = MoreElements.asExecutable(this)
+
+fun Element.isType() = MoreElements.isType(this)
+
+fun Element.asDeclaredType() = asType().asDeclaredType()
+
+fun TypeElement.getLocalAndInheritedMethods(
+    processingEnvironment: ProcessingEnvironment
+) = MoreElements.getLocalAndInheritedMethods(
+    this,
+    processingEnvironment.typeUtils,
+    processingEnvironment.elementUtils)
+
+fun VariableElement.asMemberOf(
+    types: Types,
+    container: DeclaredType?
+) = MoreTypes.asMemberOf(types, container, this)
+
+fun ExecutableElement.asMemberOf(
+    types: Types,
+    container: DeclaredType?
+) = types.asMemberOf(container, this).asExecutableType()

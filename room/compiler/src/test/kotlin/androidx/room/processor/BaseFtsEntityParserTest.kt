@@ -20,10 +20,10 @@ import androidx.annotation.NonNull
 import androidx.room.Embedded
 import androidx.room.Fts3
 import androidx.room.Fts4
+import androidx.room.ext.asTypeElement
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.FtsEntity
-import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -98,7 +98,7 @@ abstract class BaseFtsEntityParserTest {
                                 it.toString() == "foo.bar.MyEntity"
                             }
                             val processor = FtsTableEntityProcessor(invocation.context,
-                                    MoreElements.asType(entity))
+                                    entity.asTypeElement())
                             val processedEntity = processor.process()
                             handler(processedEntity, invocation)
                             true

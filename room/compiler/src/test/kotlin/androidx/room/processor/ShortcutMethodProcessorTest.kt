@@ -22,12 +22,14 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
+import androidx.room.ext.asDeclaredType
+import androidx.room.ext.asExecutableElement
+import androidx.room.ext.asTypeElement
+import androidx.room.ext.hasAnnotation
 import androidx.room.ext.typeName
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.ShortcutMethod
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -472,17 +474,16 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                                     .map {
                                         Pair(it,
                                                 invocation.processingEnv.elementUtils
-                                                        .getAllMembers(MoreElements.asType(it))
+                                                        .getAllMembers(it.asTypeElement())
                                                         .filter {
-                                                            MoreElements.isAnnotationPresent(it,
-                                                                    annotation.java)
+                                                            it.hasAnnotation(annotation)
                                                         }
                                         )
                                     }.first { it.second.isNotEmpty() }
                             val processed = process(
                                     baseContext = invocation.context,
-                                    containing = MoreTypes.asDeclared(owner.asType()),
-                                    executableElement = MoreElements.asExecutable(methods.first()))
+                                    containing = owner.asDeclaredType(),
+                                    executableElement = methods.first().asExecutableElement())
                             handler(processed, invocation)
                             true
                         }

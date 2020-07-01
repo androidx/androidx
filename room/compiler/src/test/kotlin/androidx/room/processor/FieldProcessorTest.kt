@@ -17,6 +17,9 @@
 package androidx.room.processor
 
 import androidx.room.Entity
+import androidx.room.ext.asDeclaredType
+import androidx.room.ext.asTypeElement
+import androidx.room.ext.asVariableElement
 import androidx.room.ext.requireTypeMirror
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
@@ -24,8 +27,6 @@ import androidx.room.solver.types.ColumnTypeAdapter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Field
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -440,19 +441,19 @@ class FieldProcessorTest {
                                     .getElementsAnnotatedWith(Entity::class.java)
                                     .map {
                                         Pair(it, invocation.processingEnv.elementUtils
-                                                .getAllMembers(MoreElements.asType(it))
+                                                .getAllMembers(it.asTypeElement())
                                                 .firstOrNull { it.kind == ElementKind.FIELD })
                                     }
                                     .first { it.second != null }
                             val entityContext =
                                     TableEntityProcessor(
                                             baseContext = invocation.context,
-                                            element = MoreElements.asType(owner)
+                                            element = owner.asTypeElement()
                                     ).context
                             val parser = FieldProcessor(
                                     baseContext = entityContext,
-                                    containing = MoreTypes.asDeclared(owner.asType()),
-                                    element = fieldElement!!,
+                                    containing = owner.asDeclaredType(),
+                                    element = fieldElement!!.asVariableElement(),
                                     bindingScope = FieldProcessor.BindingScope.TWO_WAY,
                                     fieldParent = null,
                                     onBindingError = { field, errorMsg ->

@@ -29,6 +29,7 @@ import androidx.room.ext.RoomTypeNames.STRING_UTIL
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.T
+import androidx.room.ext.asDeclaredType
 import androidx.room.ext.requireTypeElement
 import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.typeName
@@ -48,7 +49,7 @@ import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
-import com.google.auto.common.MoreTypes
+import asDeclaredType
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -239,7 +240,7 @@ class TypeAdapterStoreTest {
             assertThat(publisherElement, notNullValue())
             assertThat(
                 RxQueryResultBinderProvider.getAll(invocation.context).any {
-                    it.matches(MoreTypes.asDeclared(publisherElement.asType()))
+                    it.matches(publisherElement.asDeclaredType())
                 }, `is`(true))
         }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT)
     }
@@ -252,7 +253,7 @@ class TypeAdapterStoreTest {
             assertThat(publisherElement, notNullValue())
             assertThat(
                 RxQueryResultBinderProvider.getAll(invocation.context).any {
-                    it.matches(MoreTypes.asDeclared(publisherElement.asType()))
+                    it.matches(publisherElement.asDeclaredType())
                 }, `is`(true))
         }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_ROOM_RXJAVA3_ARTIFACT)
     }
@@ -270,7 +271,7 @@ class TypeAdapterStoreTest {
                 assertThat(publisher, notNullValue())
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
-                        it.matches(MoreTypes.asDeclared(publisher.asType()))
+                        it.matches(publisher.asDeclaredType())
                     }, `is`(true))
             }.compilesWithoutError()
         }
@@ -287,7 +288,7 @@ class TypeAdapterStoreTest {
                 val flowable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
-                        it.matches(MoreTypes.asDeclared(flowable.asType()))
+                        it.matches(flowable.asDeclaredType())
                     }, `is`(true))
             }.compilesWithoutError()
         }
@@ -305,7 +306,7 @@ class TypeAdapterStoreTest {
                 assertThat(observable, notNullValue())
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
-                        it.matches(MoreTypes.asDeclared(observable.asType()))
+                        it.matches(observable.asDeclaredType())
                     }, `is`(true))
             }.compilesWithoutError()
         }
@@ -323,7 +324,7 @@ class TypeAdapterStoreTest {
                 assertThat(single, notNullValue())
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
-                        it.matches(MoreTypes.asDeclared(single.asType()))
+                        it.matches(single.asDeclaredType())
                     }, `is`(true))
             }.compilesWithoutError()
         }
@@ -340,7 +341,7 @@ class TypeAdapterStoreTest {
                 val maybe = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
-                        it.matches(MoreTypes.asDeclared(maybe.asType()))
+                        it.matches(maybe.asDeclaredType())
                     }, `is`(true))
             }.compilesWithoutError()
         }
@@ -357,7 +358,7 @@ class TypeAdapterStoreTest {
                 val completable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
-                        it.matches(MoreTypes.asDeclared(completable.asType()))
+                        it.matches(completable.asDeclaredType())
                     }, `is`(true))
             }.compilesWithoutError()
         }
@@ -370,7 +371,7 @@ class TypeAdapterStoreTest {
             val future = invocation.processingEnv
                 .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
             assertThat(GuavaListenableFutureInsertMethodBinderProvider(invocation.context).matches(
-                MoreTypes.asDeclared(future.asType())), `is`(true))
+                future.asDeclaredType()), `is`(true))
         }.compilesWithoutError()
     }
 
@@ -382,7 +383,7 @@ class TypeAdapterStoreTest {
             assertThat(single, notNullValue())
             assertThat(
                 RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
-                    it.matches(MoreTypes.asDeclared(single.asType()))
+                    it.matches(single.asDeclaredType())
                 }, `is`(true))
         }.compilesWithoutError()
     }
@@ -395,7 +396,7 @@ class TypeAdapterStoreTest {
             assertThat(maybe, notNullValue())
             assertThat(
                 RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
-                    it.matches(MoreTypes.asDeclared(maybe.asType()))
+                    it.matches(maybe.asDeclaredType())
                 }, `is`(true))
         }.compilesWithoutError()
     }
@@ -409,7 +410,7 @@ class TypeAdapterStoreTest {
             assertThat(completable, notNullValue())
             assertThat(
                 RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
-                    it.matches(MoreTypes.asDeclared(completable.asType()))
+                    it.matches(completable.asDeclaredType())
                 }, `is`(true))
         }.compilesWithoutError()
     }
@@ -422,7 +423,7 @@ class TypeAdapterStoreTest {
                 .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
             assertThat(future, notNullValue())
             assertThat(GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(invocation.context)
-                .matches(MoreTypes.asDeclared(future.asType())), `is`(true))
+                .matches(future.asDeclaredType()), `is`(true))
         }.compilesWithoutError()
     }
 
@@ -434,7 +435,7 @@ class TypeAdapterStoreTest {
                     .requireTypeElement(LifecyclesTypeNames.LIVE_DATA)
             assertThat(liveData, notNullValue())
             assertThat(LiveDataQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(liveData.asType())), `is`(true))
+                    liveData.asDeclaredType()), `is`(true))
         }.compilesWithoutError()
     }
 
@@ -449,7 +450,7 @@ class TypeAdapterStoreTest {
 
             assertThat(pagingSourceIntIntType, notNullValue())
             assertThat(PagingSourceQueryResultBinderProvider(invocation.context)
-                .matches(MoreTypes.asDeclared(pagingSourceIntIntType)), `is`(true))
+                .matches(pagingSourceIntIntType.asDeclaredType()), `is`(true))
         }
     }
 
@@ -464,7 +465,7 @@ class TypeAdapterStoreTest {
 
             assertThat(pagingSourceIntIntType, notNullValue())
             assertThat(PagingSourceQueryResultBinderProvider(invocation.context)
-                .matches(MoreTypes.asDeclared(pagingSourceIntIntType)), `is`(true))
+                .matches(pagingSourceIntIntType.asDeclaredType()), `is`(true))
         }.failsToCompile().withErrorContaining(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_TYPE)
     }
 
@@ -475,7 +476,7 @@ class TypeAdapterStoreTest {
             val dataSource = invocation.processingEnv.requireTypeElement(DataSource::class)
             assertThat(dataSource, notNullValue())
             assertThat(DataSourceQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(dataSource.asType())), `is`(true))
+                    dataSource.asDeclaredType()), `is`(true))
         }.failsToCompile().withErrorContaining(ProcessorErrors.PAGING_SPECIFY_DATA_SOURCE_TYPE)
     }
 
@@ -488,7 +489,7 @@ class TypeAdapterStoreTest {
                 .requireTypeElement(androidx.paging.PositionalDataSource::class)
             assertThat(dataSource, notNullValue())
             assertThat(DataSourceQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(dataSource.asType())), `is`(true))
+                    dataSource.asDeclaredType()), `is`(true))
         }.compilesWithoutError()
     }
 
@@ -500,7 +501,7 @@ class TypeAdapterStoreTest {
                     .requireTypeElement(PagingTypeNames.DATA_SOURCE_FACTORY)
             assertThat(pagedListProvider, notNullValue())
             assertThat(DataSourceFactoryQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(pagedListProvider.asType())), `is`(true))
+                    pagedListProvider.asDeclaredType()), `is`(true))
         }.compilesWithoutError()
     }
 

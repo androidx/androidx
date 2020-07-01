@@ -17,7 +17,9 @@
 package androidx.room.processor.autovalue
 
 import androidx.room.Ignore
+import androidx.room.ext.asDeclaredType
 import androidx.room.ext.getAllMethodsIncludingSupers
+import androidx.room.ext.getPackage
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
 import androidx.room.ext.typeName
@@ -30,8 +32,6 @@ import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Field
 import androidx.room.vo.Pojo
 import androidx.room.vo.Warning
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.auto.value.AutoValue.CopyAnnotations
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
@@ -48,7 +48,7 @@ class AutoValuePojoProcessorDelegate(
 ) : PojoProcessor.Delegate {
 
     private val autoValueDeclaredType: DeclaredType by lazy {
-        MoreTypes.asDeclared(autoValueElement.asType())
+        autoValueElement.asDeclaredType()
     }
 
     override fun onPreProcess(element: TypeElement) {
@@ -118,7 +118,7 @@ class AutoValuePojoProcessorDelegate(
                 type = type.enclosingElement as TypeElement
                 name = "${type.simpleName}_$name"
             }
-            val pkg = MoreElements.getPackage(type).qualifiedName.toString()
+            val pkg = type.getPackage()
             return "$pkg${if (pkg.isEmpty()) "" else "."}AutoValue_$name"
         }
     }
