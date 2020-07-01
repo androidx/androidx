@@ -34,10 +34,6 @@ class RxQueryResultBinderProvider private constructor(
         context.processingEnv.elementUtils
             .getTypeElement(rxType.className.toString())?.asType()
     }
-    private val hasRxJavaArtifact by lazy {
-        context.processingEnv.elementUtils
-            .getTypeElement(rxType.version.rxRoomClassName.toString()) != null
-    }
 
     override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
 
@@ -63,11 +59,7 @@ class RxQueryResultBinderProvider private constructor(
         }
         val typeUtils = context.processingEnv.typeUtils
         val erasure = typeUtils.erasure(declared)
-        val match = erasure.isAssignableFrom(typeUtils, typeMirror!!)
-        if (match && !hasRxJavaArtifact) {
-            context.logger.e(rxType.version.missingArtifactMessage)
-        }
-        return match
+        return erasure.isAssignableFrom(typeUtils, typeMirror!!)
     }
 
     companion object {
@@ -76,6 +68,12 @@ class RxQueryResultBinderProvider private constructor(
             RxType.RX2_OBSERVABLE,
             RxType.RX3_FLOWABLE,
             RxType.RX3_OBSERVABLE
-        ).map { RxQueryResultBinderProvider(context, it) }
+        ).map {
+            RxQueryResultBinderProvider(context, it).requireArtifact(
+                context = context,
+                requiredType = it.version.rxRoomClassName,
+                missingArtifactErrorMsg = it.version.missingArtifactMessage
+            )
+        }
     }
 }
