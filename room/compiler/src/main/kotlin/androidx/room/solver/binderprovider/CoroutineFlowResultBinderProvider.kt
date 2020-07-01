@@ -27,19 +27,25 @@ import androidx.room.solver.query.result.CoroutineFlowResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 import javax.lang.model.type.DeclaredType
 
-class CoroutineFlowResultBinderProvider(val context: Context) : QueryResultBinderProvider {
+@Suppress("FunctionName")
+fun CoroutineFlowResultBinderProvider(context: Context): QueryResultBinderProvider =
+    CoroutineFlowResultBinderProviderImpl(
+        context
+    ).requireArtifact(
+        context = context,
+        requiredType = RoomCoroutinesTypeNames.COROUTINES_ROOM,
+        missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_COROUTINE_ARTIFACT
+    )
 
+private class CoroutineFlowResultBinderProviderImpl(
+    val context: Context
+) : QueryResultBinderProvider {
     companion object {
         val CHANNEL_TYPE_NAMES = listOf(
             KotlinTypeNames.CHANNEL,
             KotlinTypeNames.SEND_CHANNEL,
             KotlinTypeNames.RECEIVE_CHANNEL
         )
-    }
-
-    private val hasCoroutinesArtifact by lazy {
-        context.processingEnv.elementUtils
-            .getTypeElement(RoomCoroutinesTypeNames.COROUTINES_ROOM.toString()) != null
     }
 
     override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
@@ -62,10 +68,6 @@ class CoroutineFlowResultBinderProvider(val context: Context) : QueryResultBinde
             context.logger.e(ProcessorErrors.invalidChannelType(typeName.toString()))
             return false
         }
-        val match = typeName == KotlinTypeNames.FLOW
-        if (match && !hasCoroutinesArtifact) {
-            context.logger.e(ProcessorErrors.MISSING_ROOM_COROUTINE_ARTIFACT)
-        }
-        return match
+        return typeName == KotlinTypeNames.FLOW
     }
 }
