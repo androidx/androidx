@@ -4,8 +4,8 @@
 Material iconography is split across three modules:
 
  1. The `generator` module, in `generator/` - this module processes and generates Kotlin source files as part of the build step of the other modules. This module is not shipped as an artifact, and caches its outputs based on the input icons (found in `generator/raw-icons`).
- 2. `ui-material-icons-core` , in `core/` - this module contains _core_ icons, the set of most-commonly-used icons used by applications, including the icons that are required by Material components themselves, such as the menu icon. This module is fairly small and is depended on by `ui-material`.
- 3. `ui-material-icons-extended`, in `extended/` - this module contains every icon that is not in `ui-material-icons-core`, and has a transitive `api` dependency on `ui-material-icons-core`, so depending on this module will provide every single Material icon (over 5000 at the time of writing). Due to the excessive size of this module, this module should ***NOT*** be included as a direct dependency of any other library, and should only be used if Proguard / R8 is enabled.
+ 2. `material-icons-core` , in `core/` - this module contains _core_ icons, the set of most-commonly-used icons used by applications, including the icons that are required by Material components themselves, such as the menu icon. This module is fairly small and is depended on by `material`.
+ 3. `material-icons-extended`, in `extended/` - this module contains every icon that is not in `material-icons-core`, and has a transitive `api` dependency on `material-icons-core`, so depending on this module will provide every single Material icon (over 5000 at the time of writing). Due to the excessive size of this module, this module should ***NOT*** be included as a direct dependency of any other library, and should only be used if Proguard / R8 is enabled.
 
 ## Icon Generation
 
