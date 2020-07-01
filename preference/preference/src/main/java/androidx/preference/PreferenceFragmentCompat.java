@@ -457,7 +457,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
                     .onPreferenceStartScreen(this, preferenceScreen);
         }
         if (!handled && getContext() instanceof OnPreferenceStartScreenCallback) {
-            ((OnPreferenceStartScreenCallback) getContext())
+            handled = ((OnPreferenceStartScreenCallback) getContext())
                     .onPreferenceStartScreen(this, preferenceScreen);
         }
         // Check the Activity as well in case getContext was overridden to return something other
