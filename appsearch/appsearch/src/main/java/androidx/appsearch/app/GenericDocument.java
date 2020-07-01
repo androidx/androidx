@@ -22,7 +22,6 @@ import android.util.Log;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.collection.ArrayMap;
 import androidx.core.util.Preconditions;
@@ -68,10 +67,7 @@ public class GenericDocument {
      * {@link androidx.appsearch.annotation.AppSearchDocument.Property#indexingType} constant is
      * anything other than {@link
      * androidx.appsearch.app.AppSearchSchema.PropertyConfig.IndexingType#INDEXING_TYPE_NONE}.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static int getMaxIndexedProperties() {
         return MAX_INDEXED_PROPERTIES;
     }
@@ -441,9 +437,8 @@ public class GenericDocument {
      * would be an empty or partially populated result.
      *
      * @param dataClass a non-inner class annotated with
-     *     {@code androidx.appsearch.annotation.AppSearchDocument}.
+     *     {@link androidx.appsearch.annotation.AppSearchDocument}.
      */
-    //TODO(b/157082794): Linkify to AppSearchDocument once that API is public
     @NonNull
     public <T> T toDataClass(@NonNull Class<T> dataClass) throws AppSearchException {
         Preconditions.checkNotNull(dataClass);
