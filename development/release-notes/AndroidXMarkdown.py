@@ -16,7 +16,7 @@
 #
 
 from ReleaseNoteMarkdown import *
-from GitClient import CommitType, getTitleFromCommitType
+from GitClient import CommitType, getTitleFromCommitType, getChangeIdAOSPLink, getBuganizerLink
 
 class CommitMarkdownList:
 	"""Generates the markdown list of commits with sections defined by enum [CommitType], in the format:
@@ -40,7 +40,7 @@ class CommitMarkdownList:
 	def getListItemStr(self):
 		return "- "
 
-	def formatReleaseNoteString(self):
+	def formatReleaseNoteString(self, commit):
 		if commit.releaseNote != "":
 			releaseNoteString = commit.releaseNote
 		else:
