@@ -671,20 +671,23 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
                 .build();
         mSession.updatePlayer(playerConfig);
 
-        AtomicReference<MediaControllerCompat.PlaybackInfo> infoRef = new AtomicReference<>();
+        int targetVolume = 3;
         CountDownLatch latch = new CountDownLatch(1);
         MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
             @Override
             public void onAudioInfoChanged(MediaControllerCompat.PlaybackInfo info) {
-                infoRef.set(info);
-                latch.countDown();
+                // Filter out onAudioInfoChanged without current volume changes because it can
+                // sometimes be called prior to the current volume change as MediaSessionCompat
+                // doesn't update the playback type and the current volume atomically.
+                if (info.getCurrentVolume() == targetVolume) {
+                    latch.countDown();
+                }
             }
         };
         mControllerCompat.registerCallback(callback, sHandler);
 
-        int targetVolume = 3;
         mSession.getMockPlayer().notifyVolumeChanged(targetVolume);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertEquals(targetVolume, infoRef.get().getCurrentVolume());
+        assertEquals(targetVolume, mControllerCompat.getPlaybackInfo().getCurrentVolume());
     }
 }
