@@ -24,6 +24,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.widget.FrameLayout
 import androidx.annotation.VisibleForTesting
+import androidx.compose.AtomicReference
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.Providers
@@ -127,6 +128,13 @@ internal class ComposeViewAdapter : FrameLayout {
     internal var viewInfos: List<ViewInfo> = emptyList()
     private val slotTableRecord = SlotTableRecord.create()
 
+    /**
+     * Saved exception from the last composition. Since we can not handle the exception during the
+     * composition, we save it and throw it during onLayout, this allows Studio to catch it and
+     * display it to the user.
+     */
+    private val delayedException = AtomicReference<Throwable?>(null)
+
     private val debugBoundsPaint = Paint().apply {
         pathEffect = DashPathEffect(floatArrayOf(5f, 10f, 15f, 20f), 0f)
         style = Paint.Style.STROKE
@@ -196,6 +204,11 @@ internal class ComposeViewAdapter : FrameLayout {
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
+        delayedException.getAndSet(null)?.let { exception ->
+            // There was a pending exception. Throw it here since Studio will catch it and show
+            // it to the user.
+            throw exception
+        }
         viewInfos = slotTableRecord.store.map { it.asTree() }.map { it.toViewInfo() }.toList()
 
         if (debugViewInfos) {
@@ -285,12 +298,24 @@ internal class ComposeViewAdapter : FrameLayout {
                 // composable to ensure all the right initialization has happened and the Composable
                 // class loads correctly.
                 val composable = {
-                    invokeComposableViaReflection(
-                        className,
-                        methodName,
-                        composer,
-                        *getPreviewProviderParameters(parameterProvider, parameterProviderIndex)
-                    )
+                    try {
+                        invokeComposableViaReflection(
+                            className,
+                            methodName,
+                            composer,
+                            *getPreviewProviderParameters(parameterProvider, parameterProviderIndex)
+                        )
+                    } catch (t: Throwable) {
+                        // If there is an exception, store it for later but do not catch it so
+                        // compose can handle it and dispose correctly.
+                        var exception: Throwable = t
+                        // Find the root cause and use that for the delayedException.
+                        while (exception is ReflectiveOperationException) {
+                            exception = exception.cause ?: break
+                        }
+                        delayedException.set(exception)
+                        throw t
+                    }
                 }
                 if (animationClockStartTime >= 0) {
                     // Provide a custom clock when animation inspection is enabled, i.e. when a
