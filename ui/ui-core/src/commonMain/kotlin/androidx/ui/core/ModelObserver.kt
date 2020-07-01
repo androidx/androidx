@@ -18,14 +18,11 @@
 
 package androidx.ui.core
 
-import androidx.annotation.RestrictTo
 import androidx.compose.ObserverMap
 import androidx.compose.frames.FrameCommitObserver
 import androidx.compose.frames.FrameReadObserver
 import androidx.compose.frames.observeAllReads
 import androidx.ui.util.fastForEach
-import androidx.ui.util.synchronized
-import org.jetbrains.annotations.TestOnly
 
 /**
  * Allows for easy model read observation. To begin observe a change, you must pass a
@@ -119,8 +116,7 @@ class ModelObserver(private val commitExecutor: (command: () -> Unit) -> Unit) {
      * @suppress
      */
     val frameCommitObserver: FrameCommitObserver
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @TestOnly
+        @InternalCoreApi
         get() = commitObserver
 
     /**

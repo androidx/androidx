@@ -94,10 +94,10 @@ fun Activity.setViewContent(composable: @Composable () -> Unit): Composition {
 // instead.
 @MainThread
 @OptIn(ExperimentalComposeApi::class, ExperimentalLayoutNodeApi::class)
-fun subcomposeInto(
+internal actual fun actualSubcomposeInto(
     container: LayoutNode,
     recomposer: Recomposer,
-    parent: CompositionReference? = null,
+    parent: CompositionReference?,
     composable: @Composable () -> Unit
 ): Composition = compositionFor(
     container,

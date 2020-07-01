@@ -25,7 +25,6 @@ import androidx.ui.core.LayoutNode.UsageByParent.InLayoutBlock
 import androidx.ui.core.LayoutNode.UsageByParent.InMeasureBlock
 import androidx.ui.core.LayoutNode.UsageByParent.NotUsed
 import androidx.ui.util.fastForEach
-import androidx.ui.util.trace
 
 /**
  * Keeps track of [LayoutNode]s which needs to be remeasured or relaid out.
@@ -195,45 +194,43 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             return false
         }
         var rootNodeResized = false
-        trace("AndroidOwner:measureAndLayout") {
-            if (relayoutNodes.isNotEmpty()) {
-                duringMeasureLayout = true
-                relayoutNodes.popEach { layoutNode ->
-                    val alignmentLinesOwner = layoutNode.alignmentLinesQueryOwner
-                    if (layoutNode.isPlaced ||
-                        layoutNode.canAffectPlacedParent ||
-                        (alignmentLinesOwner != null && alignmentLinesOwner
-                            .alignmentUsageByParent != NotUsed)
-                    ) {
-                        if (layoutNode.layoutState == NeedsRemeasure) {
-                            if (doRemeasure(layoutNode)) {
-                                rootNodeResized = true
-                            }
-                        }
-                        if (layoutNode.layoutState == NeedsRelayout && layoutNode.isPlaced) {
-                            if (layoutNode === root) {
-                                layoutNode.place(0, 0)
-                            } else {
-                                layoutNode.replace()
-                            }
-                            onPositionedDispatcher.onNodePositioned(layoutNode)
-                            consistencyChecker?.assertConsistent()
-                        }
-                        measureIteration++
-                        // execute postponed `onRequestMeasure`
-                        if (postponedMeasureRequests.isNotEmpty()) {
-                            postponedMeasureRequests.fastForEach {
-                                if (it.isAttached()) {
-                                    requestRemeasure(it)
-                                }
-                            }
-                            postponedMeasureRequests.clear()
+        if (relayoutNodes.isNotEmpty()) {
+            duringMeasureLayout = true
+            relayoutNodes.popEach { layoutNode ->
+                val alignmentLinesOwner = layoutNode.alignmentLinesQueryOwner
+                if (layoutNode.isPlaced ||
+                    layoutNode.canAffectPlacedParent ||
+                    (alignmentLinesOwner != null && alignmentLinesOwner
+                        .alignmentUsageByParent != NotUsed)
+                ) {
+                    if (layoutNode.layoutState == NeedsRemeasure) {
+                        if (doRemeasure(layoutNode)) {
+                            rootNodeResized = true
                         }
                     }
+                    if (layoutNode.layoutState == NeedsRelayout && layoutNode.isPlaced) {
+                        if (layoutNode === root) {
+                            layoutNode.place(0, 0)
+                        } else {
+                            layoutNode.replace()
+                        }
+                        onPositionedDispatcher.onNodePositioned(layoutNode)
+                        consistencyChecker?.assertConsistent()
+                    }
+                    measureIteration++
+                    // execute postponed `onRequestMeasure`
+                    if (postponedMeasureRequests.isNotEmpty()) {
+                        postponedMeasureRequests.fastForEach {
+                            if (it.isAttached()) {
+                                requestRemeasure(it)
+                            }
+                        }
+                        postponedMeasureRequests.clear()
+                    }
                 }
-                duringMeasureLayout = false
-                consistencyChecker?.assertConsistent()
             }
+            duringMeasureLayout = false
+            consistencyChecker?.assertConsistent()
         }
         return rootNodeResized
     }

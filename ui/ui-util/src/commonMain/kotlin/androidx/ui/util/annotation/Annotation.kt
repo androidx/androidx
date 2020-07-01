@@ -57,3 +57,7 @@ expect annotation class VisibleForTesting(
 @OptionalExpectation
 @ExperimentalMultiplatform
 expect annotation class CallSuper()
+
+@OptionalExpectation
+@ExperimentalMultiplatform
+expect annotation class MainThread()

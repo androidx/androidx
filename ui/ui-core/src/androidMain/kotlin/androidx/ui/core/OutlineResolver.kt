@@ -16,27 +16,28 @@
 
 package androidx.ui.core
 
+import android.graphics.Outline as AndroidOutline
 import android.os.Build
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
 import androidx.ui.geometry.isSimple
+import androidx.ui.graphics.asAndroidPath
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
-import androidx.ui.graphics.asAndroidPath
 import androidx.ui.unit.Density
 import kotlin.math.roundToInt
 
 /**
- * Resolves the Android [android.graphics.Outline] from the [Shape] of an [OwnedLayer].
+ * Resolves the [AndroidOutline] from the [Shape] of an [OwnedLayer].
  */
 internal class OutlineResolver(private val density: Density) {
     /**
      * The Android Outline that is used in the layer.
      */
-    private val cachedOutline = android.graphics.Outline().apply { alpha = 1f }
+    private val cachedOutline = AndroidOutline().apply { alpha = 1f }
 
     /**
      * The size of the layer. This is used in generating the [Outline] from the [Shape].
@@ -78,7 +79,7 @@ internal class OutlineResolver(private val density: Density) {
     /**
      * Returns the Android Outline to be used in the layer.
      */
-    val outline: android.graphics.Outline?
+    val outline: AndroidOutline?
         get() {
             updateCache()
             return if (!outlineNeeded || cachedOutline.isEmpty) null else cachedOutline

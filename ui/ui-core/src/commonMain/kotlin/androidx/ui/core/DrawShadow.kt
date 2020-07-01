@@ -16,12 +16,12 @@
 
 package androidx.ui.core
 
-import androidx.annotation.FloatRange
 import androidx.compose.Stable
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
+import androidx.ui.util.annotation.FloatRange
 
 /**
  * Creates a [DrawLayerModifier] that draws the shadow. The [elevation] defines the visual
