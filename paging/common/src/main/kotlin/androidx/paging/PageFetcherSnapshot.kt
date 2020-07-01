@@ -252,6 +252,8 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 }
                 .scan(GenerationalViewportHint.PREPEND_INITIAL_VALUE) { acc, it ->
                     when {
+                        // Prioritize incoming retried hints over prefetchDistance.
+                        it.hint.fromRetry -> it
                         it.generationId > acc.generationId -> it
                         acc.hint < it.hint -> acc
                         else -> it
@@ -287,6 +289,8 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 }
                 .scan(GenerationalViewportHint.APPEND_INITIAL_VALUE) { acc, it ->
                     when {
+                        // Prioritize incoming retried hints over prefetchDistance.
+                        it.hint.fromRetry -> it
                         it.generationId > acc.generationId -> it
                         acc.hint > it.hint -> acc
                         else -> it
