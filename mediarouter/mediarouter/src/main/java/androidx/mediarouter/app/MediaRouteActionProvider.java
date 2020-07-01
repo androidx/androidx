@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ActionProvider;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
+import androidx.mediarouter.media.MediaRouterParams;
 
 import java.lang.ref.WeakReference;
 
@@ -138,7 +139,6 @@ public class MediaRouteActionProvider extends ActionProvider {
     private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
     private MediaRouteDialogFactory mDialogFactory = MediaRouteDialogFactory.getDefault();
     private MediaRouteButton mButton;
-    private boolean mUseDynamicGroup;
     private boolean mAlwaysVisible;
 
     /**
@@ -207,12 +207,17 @@ public class MediaRouteActionProvider extends ActionProvider {
      *
      * @see MediaRouteButton#enableDynamicGroup()
      * @see androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController
+     *
+     * @deprecated Use {@link androidx.mediarouter.media.MediaRouterParams#setDialogType(int)}
+     * with {@link androidx.mediarouter.media.MediaRouterParams#DIALOG_TYPE_DYNAMIC_GROUP} instead.
      */
+    @Deprecated
     public void enableDynamicGroup() {
-        mUseDynamicGroup = true;
-        if (mButton != null) {
-            mButton.enableDynamicGroup();
-        }
+        MediaRouterParams oldParams = mRouter.getRouterParams();
+        MediaRouterParams newParams = oldParams == null ? new MediaRouterParams() :
+                new MediaRouterParams(oldParams);
+        newParams.setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP);
+        mRouter.setRouterParams(newParams);
     }
 
     /**
@@ -295,9 +300,6 @@ public class MediaRouteActionProvider extends ActionProvider {
         mButton = onCreateMediaRouteButton();
         mButton.setCheatSheetEnabled(true);
         mButton.setRouteSelector(mSelector);
-        if (mUseDynamicGroup) {
-            mButton.enableDynamicGroup();
-        }
         mButton.setAlwaysVisible(mAlwaysVisible);
         mButton.setDialogFactory(mDialogFactory);
         mButton.setLayoutParams(new ViewGroup.LayoutParams(

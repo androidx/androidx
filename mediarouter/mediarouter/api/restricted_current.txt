@@ -3,7 +3,7 @@ package androidx.mediarouter.app {
 
   public class MediaRouteActionProvider extends androidx.core.view.ActionProvider {
     ctor public MediaRouteActionProvider(android.content.Context!);
-    method public void enableDynamicGroup();
+    method @Deprecated public void enableDynamicGroup();
     method public androidx.mediarouter.app.MediaRouteDialogFactory getDialogFactory();
     method public androidx.mediarouter.app.MediaRouteButton? getMediaRouteButton();
     method public androidx.mediarouter.media.MediaRouteSelector getRouteSelector();
@@ -18,7 +18,7 @@ package androidx.mediarouter.app {
     ctor public MediaRouteButton(android.content.Context!);
     ctor public MediaRouteButton(android.content.Context!, android.util.AttributeSet!);
     ctor public MediaRouteButton(android.content.Context!, android.util.AttributeSet!, int);
-    method public void enableDynamicGroup();
+    method @Deprecated public void enableDynamicGroup();
     method public androidx.mediarouter.app.MediaRouteDialogFactory getDialogFactory();
     method public androidx.mediarouter.media.MediaRouteSelector getRouteSelector();
     method public void onAttachedToWindow();
@@ -446,11 +446,13 @@ package androidx.mediarouter.media {
 
   public class MediaRouterParams {
     ctor public MediaRouterParams();
+    ctor public MediaRouterParams(androidx.mediarouter.media.MediaRouterParams);
     method public int getDialogType();
+    method public boolean isOutputSwitcherEnabled();
     method public void setDialogType(int);
+    method public void setOutputSwitcherEnabled(boolean);
     field public static final int DIALOG_TYPE_DEFAULT = 1; // 0x1
     field public static final int DIALOG_TYPE_DYNAMIC_GROUP = 2; // 0x2
-    field public static final int DIALOG_TYPE_OUTPUT_SWITCHER = 3; // 0x3
   }
 
   public final class MediaSessionStatus {
