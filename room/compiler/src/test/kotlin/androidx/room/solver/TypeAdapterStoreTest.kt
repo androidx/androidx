@@ -29,6 +29,8 @@ import androidx.room.ext.RoomTypeNames.STRING_UTIL
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.T
+import androidx.room.ext.requireTypeElement
+import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.Context
@@ -88,9 +90,7 @@ class TypeAdapterStoreTest {
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
             val boolean = invocation
                     .processingEnv
-                    .elementUtils
-                    .getTypeElement("java.lang.Boolean")
-                    .asType()
+                    .requireTypeMirror("java.lang.Boolean")
             val adapter = store.findColumnTypeAdapter(boolean, null)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
@@ -134,8 +134,7 @@ class TypeAdapterStoreTest {
         singleRun { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv),
                     pointTypeConverters(invocation.processingEnv))
-            val pointType = invocation.processingEnv.elementUtils
-                    .getTypeElement("foo.bar.Point").asType()
+            val pointType = invocation.processingEnv.requireTypeMirror("foo.bar.Point")
             val adapter = store.findColumnTypeAdapter(pointType, null)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
@@ -167,7 +166,7 @@ class TypeAdapterStoreTest {
         singleRun { (processingEnv) ->
             val store = TypeAdapterStore.create(Context(processingEnv),
                     dateTypeConverters(processingEnv))
-            val tDate = processingEnv.elementUtils.getTypeElement("java.util.Date").asType()
+            val tDate = processingEnv.requireTypeMirror("java.util.Date")
             val adapter = store.findCursorValueReader(tDate, SQLTypeAffinity.INTEGER)
             assertThat(adapter, notNullValue())
             assertThat(adapter?.typeMirror(), `is`(tDate))
@@ -235,8 +234,8 @@ class TypeAdapterStoreTest {
     @Test
     fun testMissingRx2Room() {
         simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.RX2_FLOWABLE)) { invocation ->
-            val publisherElement = invocation.processingEnv.elementUtils
-                    .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
+            val publisherElement = invocation.processingEnv
+                    .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
             assertThat(publisherElement, notNullValue())
             assertThat(
                 RxQueryResultBinderProvider.getAll(invocation.context).any {
@@ -248,8 +247,8 @@ class TypeAdapterStoreTest {
     @Test
     fun testMissingRx3Room() {
         simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.RX3_FLOWABLE)) { invocation ->
-            val publisherElement = invocation.processingEnv.elementUtils
-                .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
+            val publisherElement = invocation.processingEnv
+                .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
             assertThat(publisherElement, notNullValue())
             assertThat(
                 RxQueryResultBinderProvider.getAll(invocation.context).any {
@@ -266,8 +265,8 @@ class TypeAdapterStoreTest {
         ).forEach { (rxTypeSrc, rxRoomSrc) ->
             simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)) {
                     invocation ->
-                val publisher = invocation.processingEnv.elementUtils
-                    .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
+                val publisher = invocation.processingEnv
+                    .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
                 assertThat(publisher, notNullValue())
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
@@ -285,9 +284,7 @@ class TypeAdapterStoreTest {
         ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
             simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)) {
                 invocation ->
-                val flowable = invocation.processingEnv.elementUtils
-                        .getTypeElement(rxTypeClassName.toString())
-                assertThat(flowable, notNullValue())
+                val flowable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
                         it.matches(MoreTypes.asDeclared(flowable.asType()))
@@ -304,8 +301,7 @@ class TypeAdapterStoreTest {
         ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
             simpleRun(jfos = *arrayOf(rxTypeSrc, rxRoomSrc)) {
                 invocation ->
-                val observable = invocation.processingEnv.elementUtils
-                        .getTypeElement(rxTypeClassName.toString())
+                val observable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(observable, notNullValue())
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
@@ -323,8 +319,7 @@ class TypeAdapterStoreTest {
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
             simpleRun(jfos = *arrayOf(rxTypeSrc)) {
                 invocation ->
-                val single = invocation.processingEnv.elementUtils
-                        .getTypeElement(rxTypeClassName.toString())
+                val single = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(single, notNullValue())
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
@@ -342,9 +337,7 @@ class TypeAdapterStoreTest {
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
             simpleRun(jfos = *arrayOf(rxTypeSrc)) {
                 invocation ->
-                val maybe = invocation.processingEnv.elementUtils
-                        .getTypeElement(rxTypeClassName.toString())
-                assertThat(maybe, notNullValue())
+                val maybe = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
                         it.matches(MoreTypes.asDeclared(maybe.asType()))
@@ -361,9 +354,7 @@ class TypeAdapterStoreTest {
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
             simpleRun(jfos = *arrayOf(rxTypeSrc)) {
                 invocation ->
-                val completable = invocation.processingEnv.elementUtils
-                        .getTypeElement(rxTypeClassName.toString())
-                assertThat(completable, notNullValue())
+                val completable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
                         it.matches(MoreTypes.asDeclared(completable.asType()))
@@ -376,9 +367,8 @@ class TypeAdapterStoreTest {
     fun testFindInsertListenableFuture() {
         simpleRun(jfos = *arrayOf(COMMON.LISTENABLE_FUTURE)) {
                 invocation ->
-            val future = invocation.processingEnv.elementUtils
-                .getTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.toString())
-            assertThat(future, notNullValue())
+            val future = invocation.processingEnv
+                .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
             assertThat(GuavaListenableFutureInsertMethodBinderProvider(invocation.context).matches(
                 MoreTypes.asDeclared(future.asType())), `is`(true))
         }.compilesWithoutError()
@@ -388,8 +378,7 @@ class TypeAdapterStoreTest {
     fun testFindDeleteOrUpdateSingle() {
         simpleRun(jfos = *arrayOf(COMMON.RX2_SINGLE)) {
             invocation ->
-            val single = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.SINGLE.toString())
+            val single = invocation.processingEnv.requireTypeElement(RxJava2TypeNames.SINGLE)
             assertThat(single, notNullValue())
             assertThat(
                 RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
@@ -402,8 +391,7 @@ class TypeAdapterStoreTest {
     fun testFindDeleteOrUpdateMaybe() {
         simpleRun(jfos = *arrayOf(COMMON.RX2_MAYBE)) {
             invocation ->
-            val maybe = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.MAYBE.toString())
+            val maybe = invocation.processingEnv.requireTypeElement(RxJava2TypeNames.MAYBE)
             assertThat(maybe, notNullValue())
             assertThat(
                 RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
@@ -416,8 +404,8 @@ class TypeAdapterStoreTest {
     fun testFindDeleteOrUpdateCompletable() {
         simpleRun(jfos = *arrayOf(COMMON.RX2_COMPLETABLE)) {
             invocation ->
-            val completable = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.COMPLETABLE.toString())
+            val completable = invocation.processingEnv
+                    .requireTypeElement(RxJava2TypeNames.COMPLETABLE)
             assertThat(completable, notNullValue())
             assertThat(
                 RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
@@ -430,8 +418,8 @@ class TypeAdapterStoreTest {
     fun testFindDeleteOrUpdateListenableFuture() {
         simpleRun(jfos = *arrayOf(COMMON.LISTENABLE_FUTURE)) {
                 invocation ->
-            val future = invocation.processingEnv.elementUtils
-                .getTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.toString())
+            val future = invocation.processingEnv
+                .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
             assertThat(future, notNullValue())
             assertThat(GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(invocation.context)
                 .matches(MoreTypes.asDeclared(future.asType())), `is`(true))
@@ -442,8 +430,8 @@ class TypeAdapterStoreTest {
     fun testFindLiveData() {
         simpleRun(jfos = *arrayOf(COMMON.COMPUTABLE_LIVE_DATA, COMMON.LIVE_DATA)) {
             invocation ->
-            val liveData = invocation.processingEnv.elementUtils
-                    .getTypeElement(LifecyclesTypeNames.LIVE_DATA.toString())
+            val liveData = invocation.processingEnv
+                    .requireTypeElement(LifecyclesTypeNames.LIVE_DATA)
             assertThat(liveData, notNullValue())
             assertThat(LiveDataQueryResultBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(liveData.asType())), `is`(true))
@@ -453,11 +441,9 @@ class TypeAdapterStoreTest {
     @Test
     fun findPagingSourceIntKey() {
         simpleRun { invocation ->
-            val pagingSourceElement = invocation.processingEnv.elementUtils
-                .getTypeElement(PagingSource::class.java.canonicalName)
-            val intType = invocation.processingEnv.elementUtils
-                .getTypeElement(Integer::class.java.canonicalName)
-                .asType()
+            val pagingSourceElement = invocation.processingEnv
+                .requireTypeElement(PagingSource::class)
+            val intType = invocation.processingEnv.requireTypeMirror(Integer::class)
             val pagingSourceIntIntType = invocation.processingEnv.typeUtils
                 .getDeclaredType(pagingSourceElement, intType, intType)
 
@@ -470,11 +456,9 @@ class TypeAdapterStoreTest {
     @Test
     fun findPagingSourceStringKey() {
         simpleRun { invocation ->
-            val pagingSourceElement = invocation.processingEnv.elementUtils
-                .getTypeElement(PagingSource::class.java.canonicalName)
-            val stringType = invocation.processingEnv.elementUtils
-                .getTypeElement(String::class.java.canonicalName)
-                .asType()
+            val pagingSourceElement = invocation.processingEnv
+                .requireTypeElement(PagingSource::class)
+            val stringType = invocation.processingEnv.requireTypeMirror(String::class)
             val pagingSourceIntIntType = invocation.processingEnv.typeUtils
                 .getDeclaredType(pagingSourceElement, stringType, stringType)
 
@@ -488,8 +472,7 @@ class TypeAdapterStoreTest {
     fun findDataSource() {
         simpleRun {
             invocation ->
-            val dataSource = invocation.processingEnv.elementUtils
-                    .getTypeElement(DataSource::class.java.canonicalName)
+            val dataSource = invocation.processingEnv.requireTypeElement(DataSource::class)
             assertThat(dataSource, notNullValue())
             assertThat(DataSourceQueryResultBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(dataSource.asType())), `is`(true))
@@ -501,8 +484,8 @@ class TypeAdapterStoreTest {
         simpleRun {
             invocation ->
             @Suppress("DEPRECATION")
-            val dataSource = invocation.processingEnv.elementUtils
-                    .getTypeElement(androidx.paging.PositionalDataSource::class.java.canonicalName)
+            val dataSource = invocation.processingEnv
+                .requireTypeElement(androidx.paging.PositionalDataSource::class)
             assertThat(dataSource, notNullValue())
             assertThat(DataSourceQueryResultBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(dataSource.asType())), `is`(true))
@@ -513,8 +496,8 @@ class TypeAdapterStoreTest {
     fun findDataSourceFactory() {
         simpleRun(jfos = *arrayOf(COMMON.DATA_SOURCE_FACTORY)) {
             invocation ->
-            val pagedListProvider = invocation.processingEnv.elementUtils
-                    .getTypeElement(PagingTypeNames.DATA_SOURCE_FACTORY.toString())
+            val pagedListProvider = invocation.processingEnv
+                    .requireTypeElement(PagingTypeNames.DATA_SOURCE_FACTORY)
             assertThat(pagedListProvider, notNullValue())
             assertThat(DataSourceFactoryQueryResultBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(pagedListProvider.asType())), `is`(true))
@@ -522,12 +505,9 @@ class TypeAdapterStoreTest {
     }
 
     private fun createIntListToStringBinders(invocation: TestInvocation): List<TypeConverter> {
-        val intType = invocation.processingEnv.elementUtils
-                .getTypeElement(Integer::class.java.canonicalName)
-                .asType()
-        val listType = invocation.processingEnv.elementUtils
-                .getTypeElement(java.util.List::class.java.canonicalName)
-        val listOfInts = invocation.processingEnv.typeUtils.getDeclaredType(listType, intType)
+        val intType = invocation.processingEnv.requireTypeMirror(Integer::class)
+        val listElement = invocation.processingEnv.requireTypeElement(java.util.List::class)
+        val listOfInts = invocation.processingEnv.typeUtils.getDeclaredType(listElement, intType)
 
         val intListConverter = object : TypeConverter(listOfInts,
                 invocation.context.COMMON_TYPES.STRING) {
@@ -598,7 +578,7 @@ class TypeAdapterStoreTest {
     }
 
     fun pointTypeConverters(env: ProcessingEnvironment): List<TypeConverter> {
-        val tPoint = env.elementUtils.getTypeElement("foo.bar.Point").asType()
+        val tPoint = env.requireTypeMirror("foo.bar.Point")
         val tBoolean = env.typeUtils.getPrimitiveType(TypeKind.BOOLEAN)
         return listOf(
                 object : TypeConverter(tPoint, tBoolean) {
@@ -628,8 +608,8 @@ class TypeAdapterStoreTest {
     }
 
     fun dateTypeConverters(env: ProcessingEnvironment): List<TypeConverter> {
-        val tDate = env.elementUtils.getTypeElement("java.util.Date").asType()
-        val tLong = env.elementUtils.getTypeElement("java.lang.Long").asType()
+        val tDate = env.requireTypeMirror("java.util.Date")
+        val tLong = env.requireTypeMirror("java.lang.Long")
         return listOf(
                 object : TypeConverter(tDate, tLong) {
                     override fun convert(

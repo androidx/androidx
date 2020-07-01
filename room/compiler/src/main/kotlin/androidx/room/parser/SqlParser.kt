@@ -17,6 +17,7 @@
 package androidx.room.parser
 
 import androidx.room.ColumnInfo
+import androidx.room.ext.requireTypeMirror
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
 import javax.annotation.processing.ProcessingEnvironment
@@ -191,7 +192,7 @@ enum class SQLTypeAffinity {
     fun getTypeMirrors(env: ProcessingEnvironment): List<TypeMirror>? {
         val typeUtils = env.typeUtils
         return when (this) {
-            TEXT -> listOf(env.elementUtils.getTypeElement("java.lang.String").asType())
+            TEXT -> listOf(env.requireTypeMirror("java.lang.String"))
             INTEGER -> withBoxedTypes(
                 env, TypeKind.INT, TypeKind.BYTE, TypeKind.CHAR,
                 TypeKind.LONG, TypeKind.SHORT

@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.ext.hasAnnotation
+import androidx.room.ext.requireTypeMirror
 import androidx.room.log.RLog
 import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.parser.optimization.RemoveUnusedColumnQueryRewriter
@@ -96,13 +97,13 @@ class Context private constructor(
 
     class CommonTypes(val processingEnv: ProcessingEnvironment) {
         val VOID: TypeMirror by lazy {
-            processingEnv.elementUtils.getTypeElement("java.lang.Void").asType()
+            processingEnv.requireTypeMirror("java.lang.Void")
         }
         val STRING: TypeMirror by lazy {
-            processingEnv.elementUtils.getTypeElement("java.lang.String").asType()
+            processingEnv.requireTypeMirror("java.lang.String")
         }
         val COLLECTION: TypeMirror by lazy {
-            processingEnv.elementUtils.getTypeElement("java.util.Collection").asType()
+            processingEnv.requireTypeMirror("java.util.Collection")
         }
     }
 

@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.requireTypeMirror
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Dao
@@ -168,8 +169,8 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                 abstract User users();
             }
             """) { dao, invocation ->
-            val dbType = MoreTypes.asDeclared(invocation.context.processingEnv.elementUtils
-                    .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType())
+            val dbType = MoreTypes.asDeclared(invocation.context.processingEnv
+                    .requireTypeMirror(RoomTypeNames.ROOM_DB.toString()))
             val daoProcessor =
                 DaoProcessor(invocation.context, dao.element, dbType, null)
 
@@ -197,8 +198,8 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                 abstract User users();
             }
             """) { dao, invocation ->
-            val dbType = MoreTypes.asDeclared(invocation.context.processingEnv.elementUtils
-                    .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType())
+            val dbType = MoreTypes.asDeclared(invocation.context.processingEnv
+                    .requireTypeMirror(RoomTypeNames.ROOM_DB))
             val daoProcessor =
                 DaoProcessor(invocation.context, dao.element, dbType, null)
             assertThat(daoProcessor.context.logger
@@ -328,9 +329,8 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                                 null
                             }
                             val dbType = MoreTypes.asDeclared(
-                                    invocation.context.processingEnv.elementUtils
-                                            .getTypeElement(RoomTypeNames.ROOM_DB.toString())
-                                            .asType())
+                                    invocation.context.processingEnv
+                                            .requireTypeMirror(RoomTypeNames.ROOM_DB))
                             val parser = DaoProcessor(invocation.context,
                                     MoreElements.asType(dao), dbType, dbVerifier)
 

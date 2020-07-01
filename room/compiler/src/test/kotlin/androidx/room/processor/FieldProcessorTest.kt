@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import androidx.room.Entity
+import androidx.room.ext.requireTypeMirror
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.types.ColumnTypeAdapter
@@ -106,7 +107,7 @@ class FieldProcessorTest {
         }
 
         private fun TypeKind.box(invocation: TestInvocation): TypeMirror {
-            return invocation.processingEnv.elementUtils.getTypeElement(box()).asType()
+            return invocation.processingEnv.requireTypeMirror(box())
         }
     }
 

@@ -18,6 +18,7 @@ package androidx.room.writer
 
 import COMMON
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.requireTypeElement
 import androidx.room.processor.DaoProcessor
 import androidx.room.testing.TestProcessor
 import com.google.auto.common.MoreElements
@@ -90,14 +91,9 @@ class DaoWriterTest {
                                     .getElementsAnnotatedWith(
                                             androidx.room.Database::class.java)
                                     .firstOrNull()
-                                    ?: invocation.context.processingEnv.elementUtils
-                                        .getTypeElement(RoomTypeNames.ROOM_DB.toString())
-                            val dbType = if (db != null) {
-                                db.asType()
-                            } else {
-                                invocation.context.processingEnv.elementUtils
-                                    .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType()
-                            }.let { MoreTypes.asDeclared(it) }
+                                    ?: invocation.context.processingEnv
+                                        .requireTypeElement(RoomTypeNames.ROOM_DB)
+                            val dbType = MoreTypes.asDeclared(db.asType())
                             val parser = DaoProcessor(
                                     baseContext = invocation.context,
                                     element = MoreElements.asType(dao),

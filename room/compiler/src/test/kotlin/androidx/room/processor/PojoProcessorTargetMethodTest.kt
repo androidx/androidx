@@ -16,6 +16,7 @@
 
 package androidx.room.processor
 
+import androidx.room.ext.requireTypeElement
 import com.google.testing.compile.CompileTester
 import com.squareup.javapoet.ClassName
 import org.junit.Test
@@ -404,7 +405,7 @@ class PojoProcessorTargetMethodTest {
 
     private fun singleRun(vararg jfos: JavaFileObject) = simpleRun(*jfos) { invocation ->
         PojoProcessor.createFor(context = invocation.context,
-            element = invocation.typeElement(MY_POJO.toString()),
+            element = invocation.processingEnv.requireTypeElement(MY_POJO),
             bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
             parent = null).process()
     }
@@ -439,7 +440,7 @@ class PojoProcessorTargetMethodTest {
         val all = (jfos.toList() + pojoJFO + autoValuePojoJFO).toTypedArray()
         return simpleRun(*all) { invocation ->
             PojoProcessor.createFor(context = invocation.context,
-                element = invocation.typeElement(MY_POJO.toString()),
+                element = invocation.processingEnv.requireTypeElement(MY_POJO),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                 parent = null).process()
         }

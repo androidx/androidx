@@ -17,6 +17,7 @@
 package androidx.room.solver.types
 
 import androidx.room.ext.L
+import androidx.room.ext.requireTypeMirror
 import androidx.room.solver.CodeGenScope
 import javax.annotation.processing.ProcessingEnvironment
 
@@ -25,10 +26,8 @@ import javax.annotation.processing.ProcessingEnvironment
  */
 object BoxedBooleanToBoxedIntConverter {
     fun create(processingEnvironment: ProcessingEnvironment): List<TypeConverter> {
-        val tBoolean = processingEnvironment.elementUtils.getTypeElement("java.lang.Boolean")
-                .asType()
-        val tInt = processingEnvironment.elementUtils.getTypeElement("java.lang.Integer")
-                .asType()
+        val tBoolean = processingEnvironment.requireTypeMirror("java.lang.Boolean")
+        val tInt = processingEnvironment.requireTypeMirror("java.lang.Integer")
         return listOf(
                 object : TypeConverter(tBoolean, tInt) {
                     override fun convert(

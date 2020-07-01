@@ -18,6 +18,8 @@ package androidx.room.solver.prepared.binderprovider
 
 import androidx.room.ext.L
 import androidx.room.ext.T
+import androidx.room.ext.findTypeElement
+import androidx.room.ext.findTypeMirror
 import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
@@ -34,8 +36,7 @@ open class RxPreparedQueryResultBinderProvider internal constructor(
 ) : PreparedQueryResultBinderProvider {
 
     private val hasRxJavaArtifact by lazy {
-        context.processingEnv.elementUtils
-            .getTypeElement(rxType.version.rxRoomClassName.toString()) != null
+        context.processingEnv.findTypeElement(rxType.version.rxRoomClassName) != null
     }
 
     override fun matches(declared: DeclaredType): Boolean =
@@ -79,8 +80,7 @@ private class RxCompletablePreparedQueryResultBinderProvider(
 ) : RxPreparedQueryResultBinderProvider(context, rxType) {
 
     private val completableType: TypeMirror? by lazy {
-        context.processingEnv.elementUtils
-            .getTypeElement(rxType.className.toString())?.asType()
+        context.processingEnv.findTypeMirror(rxType.className)
     }
 
     override fun matches(declared: DeclaredType): Boolean {

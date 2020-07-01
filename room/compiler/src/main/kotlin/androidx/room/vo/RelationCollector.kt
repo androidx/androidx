@@ -21,6 +21,9 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
+import androidx.room.ext.findTypeElement
+import androidx.room.ext.requireTypeElement
+import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SQLTypeAffinity
@@ -249,8 +252,8 @@ data class RelationCollector(
                 val usingLongSparseArray =
                     tmpMapType.rawType == CollectionTypeNames.LONG_SPARSE_ARRAY
                 val queryParam = if (usingLongSparseArray) {
-                    val longSparseArrayElement = context.processingEnv.elementUtils
-                            .getTypeElement(CollectionTypeNames.LONG_SPARSE_ARRAY.toString())
+                    val longSparseArrayElement = context.processingEnv
+                            .requireTypeElement(CollectionTypeNames.LONG_SPARSE_ARRAY)
                     QueryParameter(
                             name = RelationCollectorMethodWriter.PARAM_MAP_VARIABLE,
                             sqlName = RelationCollectorMethodWriter.PARAM_MAP_VARIABLE,
@@ -259,7 +262,7 @@ data class RelationCollector(
                     )
                 } else {
                     val keyTypeMirror = keyTypeMirrorFor(context, affinity)
-                    val set = context.processingEnv.elementUtils.getTypeElement("java.util.Set")
+                    val set = context.processingEnv.requireTypeElement("java.util.Set")
                     val keySet = context.processingEnv.typeUtils.getDeclaredType(set, keyTypeMirror)
                     QueryParameter(
                             name = RelationCollectorMethodWriter.KEY_SET_VARIABLE,
@@ -389,10 +392,10 @@ data class RelationCollector(
             keyType: TypeName,
             relationTypeName: TypeName
         ): ParameterizedTypeName {
-            val canUseLongSparseArray = context.processingEnv.elementUtils
-                .getTypeElement(CollectionTypeNames.LONG_SPARSE_ARRAY.toString()) != null
-            val canUseArrayMap = context.processingEnv.elementUtils
-                .getTypeElement(CollectionTypeNames.ARRAY_MAP.toString()) != null
+            val canUseLongSparseArray = context.processingEnv
+                .findTypeElement(CollectionTypeNames.LONG_SPARSE_ARRAY) != null
+            val canUseArrayMap = context.processingEnv
+                .findTypeElement(CollectionTypeNames.ARRAY_MAP) != null
             return when {
                 canUseLongSparseArray && affinity == SQLTypeAffinity.INTEGER -> {
                     ParameterizedTypeName.get(CollectionTypeNames.LONG_SPARSE_ARRAY,
@@ -411,12 +414,12 @@ data class RelationCollector(
 
         // Gets the type mirror of the relationship key.
         private fun keyTypeMirrorFor(context: Context, affinity: SQLTypeAffinity): TypeMirror {
-            val elements = context.processingEnv.elementUtils
+            val processingEnv = context.processingEnv
             return when (affinity) {
-                SQLTypeAffinity.INTEGER -> elements.getTypeElement("java.lang.Long").asType()
-                SQLTypeAffinity.REAL -> elements.getTypeElement("java.lang.Double").asType()
+                SQLTypeAffinity.INTEGER -> processingEnv.requireTypeMirror("java.lang.Long")
+                SQLTypeAffinity.REAL -> processingEnv.requireTypeMirror("java.lang.Double")
                 SQLTypeAffinity.TEXT -> context.COMMON_TYPES.STRING
-                SQLTypeAffinity.BLOB -> elements.getTypeElement("java.nio.ByteBuffer").asType()
+                SQLTypeAffinity.BLOB -> processingEnv.requireTypeMirror("java.nio.ByteBuffer")
                 else -> {
                     context.COMMON_TYPES.STRING
                 }
