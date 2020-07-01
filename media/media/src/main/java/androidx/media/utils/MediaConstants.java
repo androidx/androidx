@@ -83,5 +83,19 @@ public final class MediaConstants {
     public static final String PLAYBACK_STATE_EXTRAS_KEY_MEDIA_ID =
             "androidx.media.PlaybackStateCompat.Extras.KEY_MEDIA_ID";
 
+    /**
+     * Bundle key used for media content id in {@link MediaMetadataCompat metadata}, should contain
+     * the same ID provided to Media Actions Catalog in reference to this title (e.g., episode,
+     * movie). Google uses this information to allow users to resume watching this title on your
+     * app across the supported surfaces (e.g., Android TV's Play Next row)
+     *
+     * <p>TYPE: String</p>
+     *
+     * @see MediaMetadataCompat
+     */
+    @SuppressLint("IntentName")
+    public static final String METADATA_KEY_CONTENT_ID =
+            "androidx.media.MediaMetadatCompat.METADATA_KEY_CONTENT_ID";
+
     private MediaConstants() {}
 }
