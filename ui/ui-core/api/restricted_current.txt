@@ -634,10 +634,8 @@ package androidx.ui.core {
     ctor @Deprecated public ModelObserver(kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> commitExecutor);
     method @Deprecated public void clear(Object target);
     method @Deprecated public void enableModelUpdatesObserving(boolean enabled);
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @org.jetbrains.annotations.TestOnly public kotlin.jvm.functions.Function2<java.util.Set<?>,androidx.compose.frames.Frame,kotlin.Unit> getFrameCommitObserver();
     method @Deprecated public <T> void observeReads(T target, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> onCommit, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method @Deprecated public void pauseObservingReads(kotlin.jvm.functions.Function0<kotlin.Unit> block);
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @org.jetbrains.annotations.TestOnly public final kotlin.jvm.functions.Function2<java.util.Set<?>,androidx.compose.frames.Frame,kotlin.Unit> frameCommitObserver;
   }
 
   @androidx.compose.Stable public interface Modifier {
@@ -887,6 +885,10 @@ package androidx.ui.core {
   public final class SavedStateDelegateKt {
   }
 
+  public final class SubcompositionKt {
+    method @MainThread public static androidx.compose.Composition subcomposeInto(androidx.ui.core.LayoutNode container, androidx.compose.Recomposer recomposer, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+  }
+
   public final class TestTagKt {
     method @androidx.compose.Stable public static androidx.ui.core.Modifier testTag(androidx.ui.core.Modifier, String tag);
   }
@@ -934,7 +936,6 @@ package androidx.ui.core {
     method @Deprecated public static androidx.compose.Composition setContent(android.view.ViewGroup, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.Composition setViewContent(android.view.ViewGroup, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public static androidx.compose.Composition setViewContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
-    method @MainThread public static androidx.compose.Composition subcomposeInto(androidx.ui.core.LayoutNode container, androidx.compose.Recomposer recomposer, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method @Deprecated @MainThread public static androidx.compose.Composition subcomposeInto(androidx.ui.core.LayoutNode container, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
   }
 

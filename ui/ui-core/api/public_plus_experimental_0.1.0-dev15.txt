@@ -833,6 +833,10 @@ package androidx.ui.core {
   public final class SavedStateDelegateKt {
   }
 
+  public final class SubcompositionKt {
+    method @MainThread public static androidx.compose.Composition subcomposeInto(androidx.ui.core.LayoutNode container, androidx.compose.Recomposer recomposer, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+  }
+
   public final class TestTagKt {
     method @androidx.compose.Stable public static androidx.ui.core.Modifier testTag(androidx.ui.core.Modifier, String tag);
   }
@@ -880,7 +884,6 @@ package androidx.ui.core {
     method @Deprecated public static androidx.compose.Composition setContent(android.view.ViewGroup, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.Composition setViewContent(android.view.ViewGroup, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public static androidx.compose.Composition setViewContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
-    method @MainThread public static androidx.compose.Composition subcomposeInto(androidx.ui.core.LayoutNode container, androidx.compose.Recomposer recomposer, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method @Deprecated @MainThread public static androidx.compose.Composition subcomposeInto(androidx.ui.core.LayoutNode container, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
   }
 
