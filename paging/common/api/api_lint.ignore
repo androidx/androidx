@@ -1,9 +1,3 @@
 // Baseline format: 1.0
 AutoBoxing: androidx.paging.PagingState#getAnchorPosition():
     Must avoid boxed primitives (`java.lang.Integer`)
-
-
-MissingJvmstatic: androidx.paging.PagedListConfigKt#Config(int, int, boolean, int, int):
-    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
-MissingJvmstatic: androidx.paging.PagedListKt#PagedList(androidx.paging.DataSource<Key,Value>, androidx.paging.PagedList.Config, java.util.concurrent.Executor, java.util.concurrent.Executor, androidx.paging.PagedList.BoundaryCallback<Value>, Key):
-    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
