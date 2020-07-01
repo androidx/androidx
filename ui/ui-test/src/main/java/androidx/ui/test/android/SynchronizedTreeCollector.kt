@@ -81,8 +81,6 @@ internal object SynchronizedTreeCollector {
         runEspressoOnIdle()
         // Then wait until we have an AndroidOwner (in case an Activity is being started)
         waitForAndroidOwners()
-        // And when we have an AndroidOwner, we need to wait until it has composed
-        runEspressoOnIdle()
 
         // TODO(b/155774664): waitForAndroidOwners() may be satisfied by an AndroidOwner from an
         //  Activity that is about to be paused, in cases where a new Activity is being started.
@@ -90,8 +88,17 @@ internal object SynchronizedTreeCollector {
         //  between now and when the new Activity has created its AndroidOwner, even though
         //  waitForAndroidOwners() suggests that we are now guaranteed one.
 
-        // Wait for onCommit callbacks last, as they might be posted while waiting for idle
-        waitForOnCommitCallbacks()
+        // And when we have an AndroidOwner, we need to wait until it has composed
+        do {
+            // First await the composition
+            runEspressoOnIdle()
+            // Than await onCommit callbacks, which are posted on the Choreographer
+            waitForOnCommitCallbacks()
+            // Keep doing this for as long as onCommit callbacks triggered new compositions
+        } while (!ComposeIdlingResource.isIdle())
+        // TODO(b/160399857): The above do-while loop works most of the times, but
+        //  seems to still fail about 1% of the time, which is most likely explained
+        //  by the race condition documented in waitForOnCommitCallbacks()
     }
 
     private fun runEspressoOnIdle() {
@@ -177,7 +184,17 @@ internal object SynchronizedTreeCollector {
     private fun waitForOnCommitCallbacks() {
         require(!isOnUiThread())
         val latch = CountDownLatch(1)
+        // Race: between here and ..
         runOnUiThread {
+            // .. here, the Choreographer may have just dispatched a frame, in which the onCommit
+            // callbacks were executed. If those onCommits triggered a new composition X, that
+            // composition is scheduled but not yet executed. Now we schedule our frame callback Y
+            // in the line below, which will be the first one to execute on the next frame. Then
+            // composition X is executed, which may schedule more onCommit callbacks. On the next
+            // frame, Y is executed first, finishing our latch, waitForOnCommitCallbacks() ends
+            // and ComposeIdlingResource.isIdle() is checked on the calling site. At this point,
+            // Compose is considered idle because composition X is finished, and none of the
+            // onCommit callbacks have executed yet that could trigger a new composition.
             Choreographer.getInstance().postFrameCallbackDelayed({ latch.countDown() }, 1)
         }
         latch.await(1, TimeUnit.SECONDS)
