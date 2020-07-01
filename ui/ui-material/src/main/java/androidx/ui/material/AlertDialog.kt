@@ -140,9 +140,9 @@ fun AlertDialog(
                         ProvideTextStyle(textStyle, text)
                     }
                 }
+                Spacer(TextToButtonsHeight)
+                buttons()
             }
-            Spacer(TextToButtonsHeight)
-            buttons()
         }
     }
 }
