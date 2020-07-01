@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.Embedded
+import androidx.room.ext.requireTypeElement
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
@@ -93,7 +94,7 @@ class PojoProcessorTest {
                 """.toJFO(MY_POJO.toString()),
                 parent.toJFO("foo.bar.x.BaseClass")) { invocation ->
             val pojo = PojoProcessor.createFor(context = invocation.context,
-                    element = invocation.typeElement(MY_POJO.toString()),
+                    element = invocation.processingEnv.requireTypeElement(MY_POJO),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                     parent = null).process()
             assertThat(pojo.fields.find { it.name == "myField" }, notNullValue())
@@ -847,7 +848,7 @@ class PojoProcessorTest {
             $FOOTER
             """.toJFO(MY_POJO.toString())
         simpleRun(pojo) { invocation ->
-            val element = invocation.typeElement(MY_POJO.toString())
+            val element = invocation.processingEnv.requireTypeElement(MY_POJO)
             val pojo1 = PojoProcessor.createFor(invocation.context, element,
                     FieldProcessor.BindingScope.BIND_TO_STMT, null).process()
             assertThat(pojo1, notNullValue())
@@ -1029,7 +1030,7 @@ class PojoProcessorTest {
             String mLastName;
         """) { _, invocation ->
             val process2 = PojoProcessor.createFor(context = invocation.context,
-                    element = invocation.typeElement(MY_POJO.toString()),
+                    element = invocation.processingEnv.requireTypeElement(MY_POJO),
                     bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
                     parent = null).process()
             assertThat(process2.constructor, nullValue())
@@ -1043,7 +1044,7 @@ class PojoProcessorTest {
             String mLastName;
         """) { _, invocation ->
             val process2 = PojoProcessor.createFor(context = invocation.context,
-                    element = invocation.typeElement(MY_POJO.toString()),
+                    element = invocation.processingEnv.requireTypeElement(MY_POJO),
                     bindingScope = FieldProcessor.BindingScope.TWO_WAY,
                     parent = null).process()
             assertThat(process2.constructor, notNullValue())
@@ -1336,7 +1337,7 @@ class PojoProcessorTest {
             simpleRun { invocation ->
                 PojoProcessor.createFor(
                         context = invocation.context,
-                        element = invocation.typeElement(it),
+                        element = invocation.processingEnv.requireTypeElement(it),
                         bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                         parent = null
                 ).process()
@@ -1349,8 +1350,8 @@ class PojoProcessorTest {
         simpleRun { invocation ->
             PojoProcessor.createFor(
                     context = invocation.context,
-                    element = invocation.typeElement(
-                            TestData.WithJvmOverloads::class.java.canonicalName!!
+                    element = invocation.processingEnv.requireTypeElement(
+                            TestData.WithJvmOverloads::class
                     ),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                     parent = null
@@ -1372,7 +1373,7 @@ class PojoProcessorTest {
                 }
                 """.toJFO(MY_POJO.toString())) { invocation ->
             val pojo = PojoProcessor.createFor(context = invocation.context,
-                    element = invocation.typeElement(MY_POJO.toString()),
+                    element = invocation.processingEnv.requireTypeElement(MY_POJO),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                     parent = null).process()
             assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
@@ -1403,7 +1404,7 @@ class PojoProcessorTest {
                 }
                 """.toJFO(MY_POJO.toString())) { invocation ->
             val pojo = PojoProcessor.createFor(context = invocation.context,
-                element = invocation.typeElement(MY_POJO.toString()),
+                element = invocation.processingEnv.requireTypeElement(MY_POJO),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                     parent = null).process()
             assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
@@ -1433,7 +1434,7 @@ class PojoProcessorTest {
                 }
                 """.toJFO(MY_POJO.toString())) { invocation ->
             val pojo = PojoProcessor.createFor(context = invocation.context,
-                element = invocation.typeElement(MY_POJO.toString()),
+                element = invocation.processingEnv.requireTypeElement(MY_POJO),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                 parent = null).process()
             assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
@@ -1456,7 +1457,7 @@ class PojoProcessorTest {
                 }
                 """.toJFO(MY_POJO.toString())) { invocation ->
             val pojo = PojoProcessor.createFor(context = invocation.context,
-                    element = invocation.typeElement(MY_POJO.toString()),
+                    element = invocation.processingEnv.requireTypeElement(MY_POJO),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                     parent = null).process()
             assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
@@ -1478,7 +1479,7 @@ class PojoProcessorTest {
                 }
                 """.toJFO(MY_POJO.toString())) { invocation ->
             val pojo = PojoProcessor.createFor(context = invocation.context,
-                    element = invocation.typeElement(MY_POJO.toString()),
+                    element = invocation.processingEnv.requireTypeElement(MY_POJO),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                     parent = null).process()
             assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
@@ -1502,7 +1503,7 @@ class PojoProcessorTest {
                 }
                 """.toJFO(MY_POJO.toString())) { invocation ->
             PojoProcessor.createFor(context = invocation.context,
-                element = invocation.typeElement(MY_POJO.toString()),
+                element = invocation.processingEnv.requireTypeElement(MY_POJO),
                 bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
                 parent = null).process()
         }.compilesWithoutError()
@@ -1523,7 +1524,7 @@ class PojoProcessorTest {
                 }
                 """.toJFO(MY_POJO.toString())) { invocation ->
             PojoProcessor.createFor(context = invocation.context,
-                element = invocation.typeElement(MY_POJO.toString()),
+                element = invocation.processingEnv.requireTypeElement(MY_POJO),
                 bindingScope = FieldProcessor.BindingScope.TWO_WAY,
                 parent = null).process()
         }.failsToCompile().withErrorContaining("Cannot find setter for field.")
@@ -1544,7 +1545,7 @@ class PojoProcessorTest {
                 }
                 """.toJFO(MY_POJO.toString())) { invocation ->
             PojoProcessor.createFor(context = invocation.context,
-                element = invocation.typeElement(MY_POJO.toString()),
+                element = invocation.processingEnv.requireTypeElement(MY_POJO),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                 parent = null).process()
         }.failsToCompile().withErrorContaining("Cannot find setter for field.")
@@ -1565,7 +1566,7 @@ class PojoProcessorTest {
                 }
                 """.toJFO(MY_POJO.toString())) { invocation ->
             PojoProcessor.createFor(context = invocation.context,
-                element = invocation.typeElement(MY_POJO.toString()),
+                element = invocation.processingEnv.requireTypeElement(MY_POJO),
                 bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
                 parent = null).process()
         }.failsToCompile().withErrorContaining("Cannot find getter for field.")
@@ -1586,7 +1587,7 @@ class PojoProcessorTest {
                 }
                 """.toJFO(MY_POJO.toString())) { invocation ->
             PojoProcessor.createFor(context = invocation.context,
-                element = invocation.typeElement(MY_POJO.toString()),
+                element = invocation.processingEnv.requireTypeElement(MY_POJO),
                 bindingScope = FieldProcessor.BindingScope.TWO_WAY,
                 parent = null).process()
         }.failsToCompile().withErrorContaining("Cannot find getter for field.")
@@ -1607,7 +1608,7 @@ class PojoProcessorTest {
                 }
                 """.toJFO(MY_POJO.toString())) { invocation ->
             PojoProcessor.createFor(context = invocation.context,
-                element = invocation.typeElement(MY_POJO.toString()),
+                element = invocation.processingEnv.requireTypeElement(MY_POJO),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                 parent = null).process()
         }.compilesWithoutError()
@@ -1653,7 +1654,7 @@ class PojoProcessorTest {
         return simpleRun(*all, classpathFiles = classpathFiles) { invocation ->
             handler.invoke(
                 PojoProcessor.createFor(context = invocation.context,
-                        element = invocation.typeElement(MY_POJO.toString()),
+                        element = invocation.processingEnv.requireTypeElement(MY_POJO),
                         bindingScope = FieldProcessor.BindingScope.TWO_WAY,
                         parent = null).process(),
                 invocation

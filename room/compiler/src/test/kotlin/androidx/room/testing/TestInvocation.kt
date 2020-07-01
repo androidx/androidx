@@ -28,9 +28,5 @@ data class TestInvocation(
 ) {
     val context = Context(processingEnv)
 
-    fun typeElement(qName: String): TypeElement {
-        return processingEnv.elementUtils.getTypeElement(qName)
-    }
-
     val typeUtils by lazy { processingEnv.typeUtils }
 }

@@ -21,6 +21,7 @@ import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.findKotlinDefaultImpl
+import androidx.room.ext.findTypeMirror
 import androidx.room.ext.hasAnyOf
 import androidx.room.vo.TransactionMethod
 import isAssignableFrom
@@ -41,19 +42,19 @@ class TransactionMethodProcessor(
 
     fun process(): TransactionMethod {
         val delegate = MethodProcessorDelegate.createFor(context, containing, executableElement)
-        val kotlinDefaultImpl =
-                executableElement.findKotlinDefaultImpl(context.processingEnv.typeUtils)
+        val typeUtils = context.processingEnv.typeUtils
+        val kotlinDefaultImpl = executableElement.findKotlinDefaultImpl(typeUtils)
         context.checker.check(
                 !executableElement.hasAnyOf(PRIVATE, FINAL) &&
                         (!executableElement.hasAnyOf(ABSTRACT) || kotlinDefaultImpl != null),
                 executableElement, ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
 
         val returnType = delegate.extractReturnType()
-        val erasureReturnType = context.processingEnv.typeUtils.erasure(returnType)
+        val erasureReturnType = typeUtils.erasure(returnType)
 
         DEFERRED_TYPES.firstOrNull { className ->
-            context.processingEnv.elementUtils.getTypeElement(className.toString())?.asType()?.let {
-                erasureReturnType.isAssignableFrom(context.processingEnv.typeUtils, it)
+            context.processingEnv.findTypeMirror(className)?.let {
+                erasureReturnType.isAssignableFrom(typeUtils, it)
             } ?: false
         }?.let { returnTypeName ->
             context.logger.e(

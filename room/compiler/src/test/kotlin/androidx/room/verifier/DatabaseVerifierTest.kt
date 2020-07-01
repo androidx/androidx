@@ -16,6 +16,7 @@
 
 package androidx.room.verifier
 
+import androidx.room.ext.requireTypeElement
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
@@ -289,7 +290,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         tableName: String,
         vararg fields: Field
     ): Entity {
-        val element = invocation.typeElement("Dummy")
+        val element = invocation.processingEnv.requireTypeElement("Dummy")
         return Entity(
             element = element,
             tableName = tableName,

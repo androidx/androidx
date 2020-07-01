@@ -21,6 +21,7 @@ import androidx.room.ext.AnnotationBox
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
+import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.toAnnotationBox
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
@@ -48,9 +49,8 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
     val context = baseContext.fork(element)
 
     val roomDatabaseType: TypeMirror by lazy {
-        context.processingEnv.elementUtils.getTypeElement(
+        context.processingEnv.requireTypeMirror(
                 RoomTypeNames.ROOM_DB.packageName() + "." + RoomTypeNames.ROOM_DB.simpleName())
-                .asType()
     }
 
     fun process(): Database {

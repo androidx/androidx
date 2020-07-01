@@ -21,6 +21,7 @@ import androidx.room.Transaction
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.isEntityElement
+import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.typeName
 import androidx.room.parser.SqlParser
@@ -111,16 +112,15 @@ class RawQueryMethodProcessor(
                     types,
                     containing,
                     extractParams[0])
-            val elementUtils = context.processingEnv.elementUtils
-            val supportQueryType = elementUtils
-                    .getTypeElement(SupportDbTypeNames.QUERY.toString()).asType()
+            val processingEnv = context.processingEnv
+            val supportQueryType = processingEnv.requireTypeMirror(SupportDbTypeNames.QUERY)
             val isSupportSql = supportQueryType.isAssignableFrom(types, param)
             if (isSupportSql) {
                 return RawQueryMethod.RuntimeQueryParameter(
                         paramName = extractParams[0].simpleName.toString(),
                         type = supportQueryType.typeName())
             }
-            val stringType = elementUtils.getTypeElement("java.lang.String").asType()
+            val stringType = processingEnv.requireTypeMirror("java.lang.String")
             val isString = stringType.isAssignableFrom(types, param)
             if (isString) {
                 // special error since this was initially allowed but removed in 1.1 beta1

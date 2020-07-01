@@ -18,6 +18,7 @@ package androidx.room.solver.shortcut.binderprovider
 
 import androidx.room.ext.L
 import androidx.room.ext.T
+import androidx.room.ext.findTypeMirror
 import androidx.room.ext.typeName
 import androidx.room.processor.Context
 import androidx.room.solver.RxType
@@ -79,8 +80,7 @@ private class RxCompletableInsertMethodBinderProvider(
 ) : RxCallableInsertMethodBinderProvider(context, rxType) {
 
     private val completableTypeMirror: TypeMirror? by lazy {
-        context.processingEnv.elementUtils
-                .getTypeElement(rxType.className.toString())?.asType()
+        context.processingEnv.findTypeMirror(rxType.className)
     }
 
     /**

@@ -21,7 +21,9 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.T
+import androidx.room.ext.findTypeElement
 import androidx.room.ext.getSuspendFunctionReturnType
+import androidx.room.ext.requireTypeMirror
 import androidx.room.kotlin.KotlinMetadataElement
 import androidx.room.parser.ParsedQuery
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
@@ -98,8 +100,8 @@ abstract class MethodProcessorDelegate(
             val kotlinMetadata =
                 KotlinMetadataElement.createFor(context, executableElement.enclosingElement)
             return if (kotlinMetadata?.isSuspendFunction(executableElement) == true) {
-                val hasCoroutineArtifact = context.processingEnv.elementUtils
-                    .getTypeElement(RoomCoroutinesTypeNames.COROUTINES_ROOM.toString()) != null
+                val hasCoroutineArtifact = context.processingEnv
+                    .findTypeElement(RoomCoroutinesTypeNames.COROUTINES_ROOM.toString()) != null
                 if (!hasCoroutineArtifact) {
                     context.logger.e(ProcessorErrors.MISSING_ROOM_COROUTINE_ARTIFACT)
                 }
@@ -172,9 +174,8 @@ class SuspendMethodProcessorDelegate(
     private val continuationParam: VariableElement by lazy {
         val typesUtil = context.processingEnv.typeUtils
         val continuationType = typesUtil.erasure(
-            context.processingEnv.elementUtils
-                .getTypeElement(KotlinTypeNames.CONTINUATION.toString())
-                .asType()
+            context.processingEnv
+                .requireTypeMirror(KotlinTypeNames.CONTINUATION.toString())
         )
         executableElement.parameters.last {
             typesUtil.isSameType(typesUtil.erasure(it.asType()), continuationType)

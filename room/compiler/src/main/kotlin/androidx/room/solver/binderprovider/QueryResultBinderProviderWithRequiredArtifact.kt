@@ -15,6 +15,7 @@
  */
 package androidx.room.solver.binderprovider
 
+import androidx.room.ext.findTypeElement
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.solver.QueryResultBinderProvider
@@ -43,7 +44,7 @@ private class QueryResultBinderProviderWithRequiredArtifact(
     val delegate: QueryResultBinderProvider
 ) : QueryResultBinderProvider {
     private val hasRequiredArtifact by lazy(LazyThreadSafetyMode.NONE) {
-        context.processingEnv.elementUtils.getTypeElement(requiredType.toString()) != null
+        context.processingEnv.findTypeElement(requiredType) != null
     }
 
     override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {

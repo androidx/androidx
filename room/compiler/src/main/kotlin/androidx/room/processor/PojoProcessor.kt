@@ -23,6 +23,7 @@ import androidx.room.Junction
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import androidx.room.ext.extendsBoundOrSelf
+import androidx.room.ext.findTypeElement
 import androidx.room.ext.getAllFieldsIncludingPrivateSupers
 import androidx.room.ext.getAllMethodsIncludingSupers
 import androidx.room.ext.hasAnnotation
@@ -99,10 +100,10 @@ class PojoProcessor private constructor(
             referenceStack: LinkedHashSet<Name> = LinkedHashSet()
         ): PojoProcessor {
             val (pojoElement, delegate) = if (element.hasAnnotation(AutoValue::class)) {
-                val elementUtils = context.processingEnv.elementUtils
+                val processingEnv = context.processingEnv
                 val autoValueGeneratedElement = element.let {
                     val typeName = AutoValuePojoProcessorDelegate.getGeneratedClassName(it)
-                    elementUtils.getTypeElement(typeName) ?: throw MissingTypeException(typeName)
+                    processingEnv.findTypeElement(typeName) ?: throw MissingTypeException(typeName)
                 }
                 autoValueGeneratedElement to AutoValuePojoProcessorDelegate(context, element)
             } else {

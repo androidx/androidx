@@ -17,6 +17,7 @@
 package androidx.room.solver.binderprovider
 
 import androidx.room.ext.PagingTypeNames
+import androidx.room.ext.findTypeMirror
 import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
@@ -33,8 +34,7 @@ import javax.lang.model.type.TypeMirror
 
 class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
     private val pagingSourceTypeMirror: TypeMirror? by lazy {
-        context.processingEnv.elementUtils
-            .getTypeElement(PagingTypeNames.PAGING_SOURCE.toString())?.asType()
+        context.processingEnv.findTypeMirror(PagingTypeNames.PAGING_SOURCE)
     }
 
     override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {

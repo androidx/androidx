@@ -16,6 +16,7 @@
 
 package androidx.room.solver
 
+import androidx.room.ext.requireTypeMirror
 import androidx.room.processor.Context
 import androidx.room.testing.TestInvocation
 import com.squareup.javapoet.ClassName
@@ -176,7 +177,7 @@ class BasicColumnTypeAdaptersTest(
             return if (typeKind.isPrimitive) {
                 processingEnv.typeUtils.getPrimitiveType(typeKind)
             } else {
-                processingEnv.elementUtils.getTypeElement(qName).asType()
+                processingEnv.requireTypeMirror(qName!!)
             }
         }
 

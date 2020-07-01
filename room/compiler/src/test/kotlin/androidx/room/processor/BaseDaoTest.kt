@@ -2,6 +2,7 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.requireTypeElement
 import androidx.room.vo.Dao
 import androidx.room.writer.DaoWriter
 import com.google.auto.common.MoreTypes
@@ -158,9 +159,9 @@ class BaseDaoTest {
             }
         """.toJFO("foo.bar.MyDao")
         simpleRun(baseClass, extension, COMMON.USER) { invocation ->
-            val daoElm = invocation.processingEnv.elementUtils.getTypeElement("foo.bar.MyDao")
-            val dbElm = invocation.context.processingEnv.elementUtils
-                .getTypeElement(RoomTypeNames.ROOM_DB.toString())
+            val daoElm = invocation.processingEnv.requireTypeElement("foo.bar.MyDao")
+            val dbElm = invocation.context.processingEnv
+                .requireTypeElement(RoomTypeNames.ROOM_DB)
             val dbType = MoreTypes.asDeclared(dbElm.asType())
             val processedDao = DaoProcessor(
                 invocation.context, daoElm, dbType, null

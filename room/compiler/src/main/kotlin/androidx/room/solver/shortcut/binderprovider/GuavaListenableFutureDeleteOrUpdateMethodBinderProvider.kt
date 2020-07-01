@@ -21,6 +21,7 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.T
+import androidx.room.ext.findTypeElement
 import androidx.room.ext.typeName
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
@@ -36,8 +37,7 @@ class GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(
 ) : DeleteOrUpdateMethodBinderProvider {
 
     private val hasGuavaRoom by lazy {
-        context.processingEnv.elementUtils
-            .getTypeElement(RoomGuavaTypeNames.GUAVA_ROOM.toString()) != null
+        context.processingEnv.findTypeElement(RoomGuavaTypeNames.GUAVA_ROOM) != null
     }
 
     override fun matches(declared: DeclaredType): Boolean =

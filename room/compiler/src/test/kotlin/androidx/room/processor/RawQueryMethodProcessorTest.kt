@@ -26,6 +26,7 @@ import androidx.room.RawQuery
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.hasAnnotation
+import androidx.room.ext.requireTypeElement
 import androidx.room.ext.typeName
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
 import androidx.room.testing.TestInvocation
@@ -197,7 +198,7 @@ class RawQueryMethodProcessorTest {
     fun suspendUnit() {
         simpleRun { invocation ->
             val daoElement =
-                invocation.typeElement(RawQuerySuspendUnitDao::class.java.canonicalName!!)
+                invocation.processingEnv.requireTypeElement(RawQuerySuspendUnitDao::class)
             val daoFunctionElement = ElementFilter.methodsIn(daoElement.enclosedElements).first()
             RawQueryMethodProcessor(
                 baseContext = invocation.context,
