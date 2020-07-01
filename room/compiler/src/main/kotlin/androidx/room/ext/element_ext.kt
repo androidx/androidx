@@ -22,6 +22,7 @@ import asTypeElement
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
+import isAssignableFrom
 import java.lang.reflect.Proxy
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.AnnotationMirror
@@ -301,8 +302,13 @@ private fun <T : Enum<*>> AnnotationValue.getAsEnum(enumClass: Class<T>): T {
 }
 
 // a variant of Types.isAssignable that ignores variance.
-fun Types.isAssignableWithoutVariance(from: TypeMirror, to: TypeMirror): Boolean {
-    val assignable = isAssignable(from, to)
+fun TypeMirror.isAssignableFromWithoutVariance(
+    typeUtils: Types,
+    from: TypeMirror
+) = typeUtils.isAssignableWithoutVariance(from = from, to = this)
+
+private fun Types.isAssignableWithoutVariance(from: TypeMirror, to: TypeMirror): Boolean {
+    val assignable = to.isAssignableFrom(this, from)
     if (assignable) {
         return true
     }
@@ -318,7 +324,7 @@ fun Types.isAssignableWithoutVariance(from: TypeMirror, to: TypeMirror): Boolean
         return false
     }
     // check erasure version first, if it does not match, no reason to proceed
-    if (!isAssignable(erasure(from), erasure(to))) {
+    if (!erasure(to).isAssignableFrom(this, erasure(from))) {
         return false
     }
     // convert from args to their upper bounds if it exists

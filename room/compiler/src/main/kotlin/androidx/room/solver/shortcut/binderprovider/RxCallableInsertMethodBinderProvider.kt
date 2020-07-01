@@ -24,6 +24,7 @@ import androidx.room.solver.RxType
 import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
 import androidx.room.vo.ShortcutQueryParameter
+import isAssignableFrom
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
@@ -95,7 +96,8 @@ private class RxCompletableInsertMethodBinderProvider(
         if (completableTypeMirror == null) {
             return false
         }
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
-        return context.processingEnv.typeUtils.isAssignable(completableTypeMirror, erasure)
+        val typeUtils = context.processingEnv.typeUtils
+        val erasure = typeUtils.erasure(declared)
+        return erasure.isAssignableFrom(typeUtils, completableTypeMirror!!)
     }
 }

@@ -25,6 +25,7 @@ import javax.lang.model.type.TypeKind.INT
 import javax.lang.model.type.TypeKind.LONG
 import javax.lang.model.type.TypeKind.SHORT
 import javax.lang.model.type.TypeMirror
+import javax.lang.model.util.Types
 
 fun TypeMirror.defaultValue(): String {
     return when (this.kind) {
@@ -60,3 +61,7 @@ fun TypeMirror.isVoidObject() =
 
 fun TypeMirror.isKotlinUnit() =
     MoreTypes.isType(this) && MoreTypes.isTypeOf(Unit::class.java, this)
+
+fun TypeMirror.isAssignableFrom(typeUtils: Types, other: TypeMirror): Boolean {
+    return typeUtils.isAssignable(other, this)
+}

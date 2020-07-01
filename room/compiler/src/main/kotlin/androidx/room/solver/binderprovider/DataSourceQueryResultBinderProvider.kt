@@ -24,6 +24,7 @@ import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.PositionalDataSourceQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
+import isAssignableFrom
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
@@ -58,14 +59,18 @@ class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBin
         if (declared.typeArguments.isEmpty()) {
             return false
         }
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
-        val isDataSource = context.processingEnv.typeUtils
-                .isAssignable(erasure, dataSourceTypeMirror)
+        val typeUtils = context.processingEnv.typeUtils
+        val erasure = typeUtils.erasure(declared)
+        val isDataSource = dataSourceTypeMirror!!.isAssignableFrom(
+            typeUtils,
+            erasure
+        )
         if (!isDataSource) {
             return false
         }
-        val isPositional = context.processingEnv.typeUtils
-                .isAssignable(erasure, positionalDataSourceTypeMirror)
+        val isPositional = positionalDataSourceTypeMirror!!.isAssignableFrom(
+            typeUtils, erasure
+        )
         if (!isPositional) {
             context.logger.e(ProcessorErrors.PAGING_SPECIFY_DATA_SOURCE_TYPE)
         }

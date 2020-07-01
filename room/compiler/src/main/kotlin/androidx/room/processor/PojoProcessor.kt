@@ -27,7 +27,7 @@ import androidx.room.ext.getAllFieldsIncludingPrivateSupers
 import androidx.room.ext.getAllMethodsIncludingSupers
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
-import androidx.room.ext.isAssignableWithoutVariance
+import androidx.room.ext.isAssignableFromWithoutVariance
 import androidx.room.ext.isCollection
 import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.typeName
@@ -313,7 +313,7 @@ class PojoProcessor private constructor(
                         false
                     } else {
                         // see: b/69164099
-                        typeUtils.isAssignableWithoutVariance(paramType, field.type)
+                        field.type.isAssignableFromWithoutVariance(typeUtils, paramType)
                     }
                 }
 
@@ -829,7 +829,7 @@ class PojoProcessor private constructor(
         val matching = candidates
                 .filter {
                     // b/69164099
-                    types.isAssignableWithoutVariance(getType(it), field.type) &&
+                    field.type.isAssignableFromWithoutVariance(types, getType(it)) &&
                             (field.nameWithVariations.contains(it.name) ||
                             nameVariations.contains(it.name))
                 }
