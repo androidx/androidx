@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.core;
 
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.opengl.Matrix;
 import android.os.Process;
@@ -26,6 +27,8 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
+import androidx.annotation.experimental.UseExperimental;
+import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.Preview;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
@@ -61,6 +64,13 @@ final class OpenGLRenderer {
     private final float[] mSurfaceTransform = new float[16];
 
     private final float[] mTempVec = new float[8];
+
+    private Rect mPreviewCropRect;
+
+    private final float[] mCropRectTransform = new float[16];
+
+    private final float[] mFragmentShaderTransform = new float[16];
+
     private long mNativeContext = 0;
 
     private boolean mIsShutdown = false;
@@ -68,6 +78,7 @@ final class OpenGLRenderer {
 
     private Pair<Executor, Consumer<Long>> mFrameUpdateListener;
 
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     @MainThread
     void attachInputPreview(@NonNull Preview preview) {
         preview.setSurfaceProvider(
@@ -86,6 +97,7 @@ final class OpenGLRenderer {
                             surfaceRequest.getResolution());
                     Surface inputSurface = new Surface(surfaceTexture);
                     mNumOutstandingSurfaces++;
+                    mPreviewCropRect = surfaceRequest.getCropRect();
                     surfaceRequest.provideSurface(
                             inputSurface,
                             mExecutor,
@@ -240,10 +252,19 @@ final class OpenGLRenderer {
         // Get texture transform from surface texture (transform to natural orientation).
         // This will be used to transform texture coordinates in the fragment shader.
         mPreviewTexture.getTransformMatrix(mPreviewTransform);
+
         if (mSurfaceSize != null) {
-            calculateSurfaceTransform();
+            // If the crop rect matches the preview surface, it means either the viewport is not
+            // set, or it's set but the crop rect happens to be the same as the preview surface.
+            // Either way, use the entire surface for sampling and do additional custom
+            // transformation if necessary.
+            if (isCropRectMatchPreview()) {
+                calculateCustomTransformation();
+            } else {
+                calculateViewportTransformation();
+            }
             boolean success = renderTexture(mNativeContext, timestampNs, mSurfaceTransform,
-                    mPreviewTransform);
+                    mFragmentShaderTransform);
             if (success && mFrameUpdateListener != null) {
                 Executor executor = mFrameUpdateListener.first;
                 Consumer<Long> listener = mFrameUpdateListener.second;
@@ -401,26 +422,35 @@ final class OpenGLRenderer {
         mNaturalPreviewHeight += Math.abs(mTempVec[5]);
     }
 
+
+    /**
+     * Returns true if the crop rect matches the preview surface.
+     */
+    private boolean isCropRectMatchPreview() {
+        // If the crop rect is the same size as the preview, do custom transformation for fragment
+        // shader to sample the whole surface.
+        return mPreviewCropRect != null && mPreviewCropRect.left == 0 && mPreviewCropRect.top == 0
+                && mPreviewCropRect.width() == mPreviewResolution.getWidth()
+                && mPreviewCropRect.height() == mPreviewResolution.getHeight();
+    }
+
     /**
      * Calculates the vertex shader transform matrix needed to transform the output from device
      * 'natural' orientation coordinates to a "center-crop" view of the camera viewport.
      *
      * <p>A device's 'natural' orientation is the orientation where the Display rotation is
      * Surface.ROTATION_0. For most phones, this will be a portrait orientation, whereas some
-     * tablets
-     * may use landscape as their natural orientation. The Surface rotation is always provided
-     * relative to the device's 'natural' orientation.
+     * tablets may use landscape as their natural orientation. The Surface rotation is always
+     * provided relative to the device's 'natural' orientation.
      *
      * <p>Because the camera sensor (or crop of the camera sensor) may have a different aspect ratio
      * than the Surface that is meant to display it, we also want to fit the image from the
-     * camera so
-     * the entire Surface is filled. This generally requires scaling the input texture and cropping
-     * pixels from either the width or height. We call this transform "center-crop" and is
-     * equivalent
-     * to the ScaleType with the same name in ImageView.
+     * camera so the entire Surface is filled. This generally requires scaling the input texture
+     * and cropping pixels from either the width or height. We call this transform "center-crop"
+     * and is equivalent to the ScaleType with the same name in ImageView.
      */
     @WorkerThread
-    private void calculateSurfaceTransform() {
+    private void calculateCustomTransformation() {
         // Calculate the dimensions of the source texture in the 'natural' orientation of the
         // device.
         calculateInputDimensions();
@@ -459,6 +489,33 @@ final class OpenGLRenderer {
         }
 
         // Finally add in rotation. This will be applied to vertices first.
+        Matrix.rotateM(mSurfaceTransform, 0, -mSurfaceRotationDegrees, 0, 0, 1.0f);
+
+        // For custom transformation, the fragment shader uses the SurfaceTexture transformation
+        // directly.
+        System.arraycopy(mPreviewTransform, 0, mFragmentShaderTransform, 0,
+                mFragmentShaderTransform.length);
+    }
+
+    /**
+     * Calculates the transformation based on viewport crop rect.
+     */
+    private void calculateViewportTransformation() {
+        // Append the transformations so that only the area within the crop rect is sampled.
+        Matrix.setIdentityM(mCropRectTransform, 0);
+        float translateX = (float) mPreviewCropRect.left / mPreviewResolution.getWidth();
+        float translateY = (float) mPreviewCropRect.top / mPreviewResolution.getHeight();
+        Matrix.translateM(mCropRectTransform, 0, translateX, translateY, 0f);
+
+        float scaleX = (float) mPreviewCropRect.width() / mPreviewResolution.getWidth();
+        float scaleY = (float) mPreviewCropRect.height() / mPreviewResolution.getHeight();
+        Matrix.scaleM(mCropRectTransform, 0, scaleX, scaleY, 1f);
+
+        Matrix.multiplyMM(mFragmentShaderTransform, 0, mCropRectTransform, 0,
+                mPreviewTransform, 0);
+
+        // Correct for display rotation.
+        Matrix.setIdentityM(mSurfaceTransform, 0);
         Matrix.rotateM(mSurfaceTransform, 0, -mSurfaceRotationDegrees, 0, 0, 1.0f);
     }
 
