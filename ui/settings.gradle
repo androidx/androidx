@@ -77,9 +77,10 @@ if (!startParameter.projectProperties.containsKey('compose.desktop.disable')) {
     includeProject(":ui:ui-desktop:android-emu", "ui-desktop/android-emu")
     includeProject(":ui:ui-desktop:samples", "ui-desktop/samples")
 }
-includeProject(":ui:ui-foundation", "ui-foundation")
-includeProject(":ui:ui-foundation:integration-tests:ui-foundation-demos", "ui-foundation/integration-tests/foundation-demos")
-includeProject(":ui:ui-foundation:samples", "ui-foundation/samples")
+includeProject(":compose:foundation", "../compose/foundation")
+includeProject(":compose:foundation:foundation", "ui-foundation")
+includeProject(":compose:foundation:foundation:integration-tests:foundation-demos", "ui-foundation/integration-tests/foundation-demos")
+includeProject(":compose:foundation:foundation:samples", "ui-foundation/samples")
 includeProject(":ui:ui-internal-lint-checks", "ui-internal-lint-checks")
 includeProject(":ui:ui-geometry", "ui-geometry")
 includeProject(":ui:ui-graphics", "ui-graphics")

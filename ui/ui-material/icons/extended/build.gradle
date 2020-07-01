@@ -36,7 +36,7 @@ dependencies {
     api project(":compose:material:material-icons-core")
     implementation project(":compose:compose-runtime")
 
-    androidTestImplementation project(":ui:ui-foundation")
+    androidTestImplementation project(":compose:foundation:foundation")
     androidTestImplementation project(":ui:ui-layout")
     androidTestImplementation project(":ui:ui-core")
     androidTestImplementation project(":ui:ui-test")

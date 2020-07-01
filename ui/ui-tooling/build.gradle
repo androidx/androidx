@@ -47,7 +47,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation project(":ui:ui-layout")
-    androidTestImplementation project(":ui:ui-foundation")
+    androidTestImplementation project(":compose:foundation:foundation")
     androidTestImplementation(TRUTH)
     androidTestImplementation(KOTLIN_REFLECT)
 }
