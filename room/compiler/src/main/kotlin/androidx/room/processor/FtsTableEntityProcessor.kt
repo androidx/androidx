@@ -22,6 +22,7 @@ import androidx.room.FtsOptions.MatchInfo
 import androidx.room.FtsOptions.Order
 import androidx.room.ext.AnnotationBox
 import androidx.room.ext.hasAnnotation
+import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.toAnnotationBox
 import androidx.room.parser.FtsVersion
 import androidx.room.parser.SQLTypeAffinity
@@ -157,8 +158,7 @@ class FtsTableEntityProcessor internal constructor(
             return null
         }
 
-        val defaultType = context.processingEnv.elementUtils
-                    .getTypeElement(Object::class.java.canonicalName).asType()
+        val defaultType = context.processingEnv.requireTypeMirror(Object::class)
         if (context.processingEnv.typeUtils.isSameType(entityType, defaultType)) {
             return null
         }

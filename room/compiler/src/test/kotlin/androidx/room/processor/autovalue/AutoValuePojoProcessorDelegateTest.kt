@@ -16,6 +16,7 @@
 
 package androidx.room.processor.autovalue
 
+import androidx.room.ext.requireTypeElement
 import androidx.room.processor.FieldProcessor
 import androidx.room.processor.PojoProcessor
 import androidx.room.processor.ProcessorErrors
@@ -102,7 +103,7 @@ class AutoValuePojoProcessorDelegateTest {
         )
         simpleRun(classpathFiles = libraryClasspath) { invocation ->
                 PojoProcessor.createFor(context = invocation.context,
-                    element = invocation.typeElement(MY_POJO.toString()),
+                    element = invocation.processingEnv.requireTypeElement(MY_POJO),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                     parent = null).process()
         }.compilesWithoutError().withWarningCount(0)
@@ -265,7 +266,7 @@ class AutoValuePojoProcessorDelegateTest {
         return simpleRun(*all, classpathFiles = classpathFiles) { invocation ->
             handler.invoke(
                     PojoProcessor.createFor(context = invocation.context,
-                            element = invocation.typeElement(MY_POJO.toString()),
+                            element = invocation.processingEnv.requireTypeElement(MY_POJO),
                             bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                             parent = null).process(),
                     invocation

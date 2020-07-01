@@ -16,6 +16,7 @@
 
 package androidx.room.kotlin
 
+import androidx.room.ext.requireTypeElement
 import androidx.room.processor.Context
 import androidx.room.testing.TestInvocation
 import com.google.auto.common.MoreElements
@@ -97,7 +98,7 @@ class KotlinMetadataElementTest {
     }
 
     private fun getMetadataElement(invocation: TestInvocation, klass: KClass<*>) =
-        invocation.typeElement(klass.java.canonicalName!!).let {
+        invocation.processingEnv.requireTypeElement(klass).let {
             it to KotlinMetadataElement.createFor(Context(invocation.processingEnv), it)!!
         }
 

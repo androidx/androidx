@@ -24,6 +24,7 @@ import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.hasAnnotation
+import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.typeName
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
@@ -372,8 +373,8 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 }
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.parameters.first().type,
-                    `is`(invocation.processingEnv.elementUtils
-                            .getTypeElement("java.lang.Integer").asType()))
+                    `is`(invocation.processingEnv
+                            .requireTypeMirror("java.lang.Integer")))
         }.compilesWithoutError()
     }
 

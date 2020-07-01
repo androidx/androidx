@@ -16,6 +16,7 @@
 
 package androidx.room.solver.binderprovider
 
+import androidx.room.ext.findTypeMirror
 import androidx.room.processor.Context
 import androidx.room.solver.ObservableQueryResultBinderProvider
 import androidx.room.solver.RxType
@@ -31,8 +32,7 @@ class RxQueryResultBinderProvider private constructor(
     private val rxType: RxType
 ) : ObservableQueryResultBinderProvider(context) {
     private val typeMirror: TypeMirror? by lazy {
-        context.processingEnv.elementUtils
-            .getTypeElement(rxType.className.toString())?.asType()
+        context.processingEnv.findTypeMirror(rxType.className)
     }
 
     override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
