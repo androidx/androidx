@@ -76,7 +76,7 @@ class IconButtonTest {
         }
 
         // Icon should be centered inside the IconButton
-        findByTag("icon")
+        findByTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(24.dp / 2)
             .assertTopPositionInRootIsEqualTo(24.dp / 2)
     }
@@ -97,7 +97,7 @@ class IconButtonTest {
         }
 
         // Icon should be centered inside the IconButton
-        findByTag("icon")
+        findByTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((48.dp - width) / 2)
             .assertTopPositionInRootIsEqualTo((48.dp - height) / 2)
     }
@@ -129,7 +129,7 @@ class IconButtonTest {
         }
 
         // Icon should be centered inside the IconButton
-        findByTag("icon")
+        findByTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(24.dp / 2)
             .assertTopPositionInRootIsEqualTo(24.dp / 2)
     }
@@ -149,7 +149,7 @@ class IconButtonTest {
         }
 
         // Icon should be centered inside the IconButton
-        findByTag("icon")
+        findByTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((48.dp - width) / 2)
             .assertTopPositionInRootIsEqualTo((48.dp - height) / 2)
     }

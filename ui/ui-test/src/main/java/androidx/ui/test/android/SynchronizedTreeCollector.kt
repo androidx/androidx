@@ -46,7 +46,7 @@ internal object SynchronizedTreeCollector {
      * Can crash in case Espresso hits time out. This is not supposed to be handled as it
      * surfaces only in incorrect tests.
      */
-    internal fun getAllSemanticsNodes(): List<SemanticsNode> {
+    internal fun getAllSemanticsNodes(useUnmergedTree: Boolean): List<SemanticsNode> {
         ensureAndroidOwnerRegistryIsSetUp()
 
         // TODO(pavlis): Instead of returning a flatMap, let all consumers handle a tree
@@ -57,7 +57,7 @@ internal object SynchronizedTreeCollector {
             // TODO(b/153632210): This check should be done by callers of collectOwners
             check(it.isNotEmpty()) { "No compose views found in the app. Is your Activity " +
                     "resumed?" }
-        }.flatMap { it.semanticsOwner.getAllSemanticsNodes() }
+        }.flatMap { it.semanticsOwner.getAllSemanticsNodes(useUnmergedTree) }
     }
 
     /**

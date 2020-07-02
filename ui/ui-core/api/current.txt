@@ -1929,8 +1929,8 @@ package androidx.ui.core.semantics {
     method public androidx.ui.core.semantics.SemanticsConfiguration getConfig();
     method public androidx.ui.unit.PxBounds getGlobalBounds();
     method public androidx.ui.geometry.Offset getGlobalPosition();
-    method public boolean getHasChildren();
     method public int getId();
+    method public boolean getMergingEnabled();
     method public androidx.ui.core.semantics.SemanticsNode? getParent();
     method public androidx.ui.unit.IntSize getSize();
     method public androidx.ui.core.semantics.SemanticsConfiguration getUnmergedConfig();
@@ -1941,7 +1941,6 @@ package androidx.ui.core.semantics {
     property public final androidx.ui.core.semantics.SemanticsConfiguration config;
     property public final androidx.ui.unit.PxBounds globalBounds;
     property public final androidx.ui.geometry.Offset globalPosition;
-    property public final boolean hasChildren;
     property public final boolean isRoot;
     property public final androidx.ui.core.semantics.SemanticsNode? parent;
     property public final androidx.ui.unit.IntSize size;
@@ -1960,11 +1959,13 @@ package androidx.ui.core.semantics {
     ctor public SemanticsOwner(androidx.ui.core.LayoutNode rootNode);
     method public androidx.ui.core.LayoutNode getRootNode();
     method public androidx.ui.core.semantics.SemanticsNode getRootSemanticsNode();
+    method public androidx.ui.core.semantics.SemanticsNode getUnmergedRootSemanticsNode();
     property public final androidx.ui.core.semantics.SemanticsNode rootSemanticsNode;
+    property public final androidx.ui.core.semantics.SemanticsNode unmergedRootSemanticsNode;
   }
 
   public final class SemanticsOwnerKt {
-    method public static java.util.List<androidx.ui.core.semantics.SemanticsNode> getAllSemanticsNodes(androidx.ui.core.semantics.SemanticsOwner);
+    method public static java.util.List<androidx.ui.core.semantics.SemanticsNode> getAllSemanticsNodes(androidx.ui.core.semantics.SemanticsOwner, boolean mergingEnabled);
   }
 
 }
