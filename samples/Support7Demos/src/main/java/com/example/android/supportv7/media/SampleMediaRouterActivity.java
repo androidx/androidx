@@ -65,6 +65,7 @@ import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.MediaRouter.Callback;
 import androidx.mediarouter.media.MediaRouter.ProviderInfo;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
+import androidx.mediarouter.media.MediaRouterParams;
 
 import com.example.android.supportv7.R;
 
@@ -217,6 +218,11 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
 
         // Get the media router service.
         mMediaRouter = MediaRouter.getInstance(this);
+
+        MediaRouterParams params = new MediaRouterParams();
+        params.setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP);
+        params.setOutputSwitcherEnabled(true); // Output switcher will be shown from Android R+.
+        mMediaRouter.setRouterParams(params);
 
         // Create a route selector for the type of routes that we care about.
         mSelector = new MediaRouteSelector.Builder()
@@ -508,7 +514,6 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         MediaRouteActionProvider mediaRouteActionProvider =
                 (MediaRouteActionProvider) MenuItemCompat.getActionProvider(mediaRouteMenuItem);
         mediaRouteActionProvider.setRouteSelector(mSelector);
-        mediaRouteActionProvider.enableDynamicGroup();
         mediaRouteActionProvider.setDialogFactory(new MediaRouteDialogFactory() {
             @Override
             public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {
