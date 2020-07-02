@@ -412,7 +412,7 @@ package androidx.ui.foundation.shape.corner {
 
   public final class CornerSizeKt {
     method @androidx.compose.Stable public static androidx.ui.foundation.shape.corner.CornerSize CornerSize(float size);
-    method @androidx.compose.Stable public static androidx.ui.foundation.shape.corner.CornerSize CornerSize(@IntRange(from=0, to=50) int percent);
+    method @androidx.compose.Stable public static androidx.ui.foundation.shape.corner.CornerSize CornerSize(@IntRange(from=0, to=100) int percent);
     method @androidx.compose.Stable public static androidx.ui.foundation.shape.corner.CornerSize CornerSize-ipo6vVg(float size);
     method public static androidx.ui.foundation.shape.corner.CornerSize getZeroCornerSize();
   }
@@ -428,7 +428,7 @@ package androidx.ui.foundation.shape.corner {
     method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape(float size);
     method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape(int percent);
     method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape(float topLeft = 0.0f, float topRight = 0.0f, float bottomRight = 0.0f, float bottomLeft = 0.0f);
-    method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape(@IntRange(from=0, to=50) int topLeftPercent = 0, @IntRange(from=0, to=50) int topRightPercent = 0, @IntRange(from=0, to=50) int bottomRightPercent = 0, @IntRange(from=0, to=50) int bottomLeftPercent = 0);
+    method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape(@IntRange(from=0, to=100) int topLeftPercent = 0, @IntRange(from=0, to=100) int topRightPercent = 0, @IntRange(from=0, to=100) int bottomRightPercent = 0, @IntRange(from=0, to=100) int bottomLeftPercent = 0);
     method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape-ipo6vVg(float size);
     method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape-rIHlIKc(float topLeft = 0.dp, float topRight = 0.dp, float bottomRight = 0.dp, float bottomLeft = 0.dp);
   }
@@ -444,7 +444,7 @@ package androidx.ui.foundation.shape.corner {
     method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(float size);
     method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(int percent);
     method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(float topLeft = 0.0f, float topRight = 0.0f, float bottomRight = 0.0f, float bottomLeft = 0.0f);
-    method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(@IntRange(from=0, to=50) int topLeftPercent = 0, @IntRange(from=0, to=50) int topRightPercent = 0, @IntRange(from=0, to=50) int bottomRightPercent = 0, @IntRange(from=0, to=50) int bottomLeftPercent = 0);
+    method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(@IntRange(from=0, to=100) int topLeftPercent = 0, @IntRange(from=0, to=100) int topRightPercent = 0, @IntRange(from=0, to=100) int bottomRightPercent = 0, @IntRange(from=0, to=100) int bottomLeftPercent = 0);
     method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape-ipo6vVg(float size);
     method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape-rIHlIKc(float topLeft = 0.dp, float topRight = 0.dp, float bottomRight = 0.dp, float bottomLeft = 0.dp);
     method public static androidx.ui.foundation.shape.corner.RoundedCornerShape getCircleShape();

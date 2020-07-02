@@ -146,10 +146,10 @@ val CircleShape = RoundedCornerShape(50)
  * Creates [RoundedCornerShape] with sizes defined in percents of the shape's smaller side.
  */
 /*inline*/ fun RoundedCornerShape(
-    @IntRange(from = 0, to = 50) topLeftPercent: Int = 0,
-    @IntRange(from = 0, to = 50) topRightPercent: Int = 0,
-    @IntRange(from = 0, to = 50) bottomRightPercent: Int = 0,
-    @IntRange(from = 0, to = 50) bottomLeftPercent: Int = 0
+    @IntRange(from = 0, to = 100) topLeftPercent: Int = 0,
+    @IntRange(from = 0, to = 100) topRightPercent: Int = 0,
+    @IntRange(from = 0, to = 100) bottomRightPercent: Int = 0,
+    @IntRange(from = 0, to = 100) bottomLeftPercent: Int = 0
 ) = RoundedCornerShape(
     CornerSize(topLeftPercent),
     CornerSize(topRightPercent),
