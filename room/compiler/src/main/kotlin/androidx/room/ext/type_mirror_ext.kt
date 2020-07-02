@@ -16,11 +16,14 @@
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.ArrayType
+import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeKind.ARRAY
 import javax.lang.model.type.TypeKind.BOOLEAN
 import javax.lang.model.type.TypeKind.BYTE
 import javax.lang.model.type.TypeKind.CHAR
+import javax.lang.model.type.TypeKind.DECLARED
 import javax.lang.model.type.TypeKind.DOUBLE
 import javax.lang.model.type.TypeKind.FLOAT
 import javax.lang.model.type.TypeKind.INT
@@ -28,6 +31,8 @@ import javax.lang.model.type.TypeKind.LONG
 import javax.lang.model.type.TypeKind.SHORT
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.Types
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
 fun TypeMirror.defaultValue(): String {
@@ -61,6 +66,28 @@ fun TypeMirror.isList() =
 
 fun TypeMirror.isVoid() = kind == TypeKind.VOID
 
+fun TypeMirror.isNotVoid() = !isVoid()
+
+fun TypeMirror.isError() = kind == TypeKind.ERROR
+
+fun TypeMirror.isNotError() = !isError()
+
+fun TypeMirror.isNone() = kind == TypeKind.NONE
+
+fun TypeMirror.isNotNone() = !isNone()
+
+fun TypeMirror.isByte() = kind == BYTE
+
+fun TypeMirror.isNotByte() = !isByte()
+
+@OptIn(ExperimentalContracts::class)
+fun TypeMirror.isDeclared(): Boolean {
+    contract {
+        returns(true) implies (this@isDeclared is DeclaredType)
+    }
+    return kind == DECLARED
+}
+
 fun TypeMirror.isVoidObject() =
     MoreTypes.isType(this) && MoreTypes.isTypeOf(Void::class.java, this)
 
@@ -82,7 +109,13 @@ fun TypeMirror.isTypeOf(klass: KClass<*>) = MoreTypes.isTypeOf(
     this
 )
 
-fun TypeMirror.isArray() = kind == ARRAY
+@OptIn(ExperimentalContracts::class)
+fun TypeMirror.isArray(): Boolean {
+    contract {
+        returns(true) implies (this@isArray is ArrayType)
+    }
+    return kind == ARRAY
+}
 
 fun TypeMirror.asArray() = MoreTypes.asArray(this)
 

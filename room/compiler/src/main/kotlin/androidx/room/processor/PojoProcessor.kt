@@ -58,7 +58,10 @@ import androidx.room.vo.findFieldByColumnName
 import asDeclaredType
 import asTypeElement
 import com.google.auto.value.AutoValue
+import isError
+import isNotVoid
 import isTypeOf
+import isVoid
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.Modifier.PRIVATE
@@ -70,7 +73,6 @@ import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.ElementFilter
 
@@ -239,11 +241,11 @@ class PojoProcessor private constructor(
                 }
 
         val getterCandidates = methods.filter {
-            it.element.parameters.size == 0 && it.resolvedType.returnType.kind != TypeKind.VOID
+            it.element.parameters.size == 0 && it.resolvedType.returnType.isNotVoid()
         }
 
         val setterCandidates = methods.filter {
-            it.element.parameters.size == 1 && it.resolvedType.returnType.kind == TypeKind.VOID
+            it.element.parameters.size == 1 && it.resolvedType.returnType.isVoid()
         }
 
         // don't try to find a constructor for binding to statement.
@@ -468,7 +470,7 @@ class PojoProcessor private constructor(
             context.processingEnv.typeUtils,
             container
         )
-        if (asMember.kind == TypeKind.ERROR) {
+        if (asMember.isError()) {
             context.logger.e(ProcessorErrors.CANNOT_FIND_TYPE, element)
             return null
         }
@@ -478,7 +480,7 @@ class PojoProcessor private constructor(
         } else {
             asMember
         }
-        if (asType.kind == TypeKind.ERROR) {
+        if (asType.isError()) {
             context.logger.e(asType.asTypeElement(), ProcessorErrors.CANNOT_FIND_TYPE)
             return null
         }
