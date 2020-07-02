@@ -229,17 +229,18 @@ abstract class PagingSource<Key : Any, Value : Any> {
          * @sample androidx.paging.samples.pageKeyedPage
          * @sample androidx.paging.samples.pageIndexedPage
          */
-        data class Page<Key : Any, Value : Any>(
+        data class Page<Key : Any, Value : Any> constructor(
             /**
              * Loaded data
              */
             val data: List<Value>,
             /**
-             * Key for previous page if more data can be loaded in that direction, null otherwise.
+             * [Key] for previous page if more data can be loaded in that direction, `null`
+             * otherwise.
              */
             val prevKey: Key?,
             /**
-             * Key for next page if more data can be loaded in that direction, null otherwise.
+             * [Key] for next page if more data can be loaded in that direction, `null` otherwise.
              */
             val nextKey: Key?,
             /**
@@ -253,6 +254,22 @@ abstract class PagingSource<Key : Any, Value : Any> {
             @IntRange(from = COUNT_UNDEFINED.toLong())
             val itemsAfter: Int = COUNT_UNDEFINED
         ) : LoadResult<Key, Value>() {
+
+            /**
+             * Success result object for [PagingSource.load].
+             *
+             * @param data Loaded data
+             * @param prevKey [Key] for previous page if more data can be loaded in that direction,
+             * `null` otherwise.
+             * @param nextKey [Key] for next page if more data can be loaded in that direction,
+             * `null` otherwise.
+             */
+            constructor(
+                data: List<Value>,
+                prevKey: Key?,
+                nextKey: Key?
+            ) : this(data, prevKey, nextKey, COUNT_UNDEFINED, COUNT_UNDEFINED)
+
             init {
                 require(itemsBefore == COUNT_UNDEFINED || itemsBefore >= 0) {
                     "itemsBefore cannot be negative"
