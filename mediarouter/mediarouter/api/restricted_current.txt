@@ -449,8 +449,10 @@ package androidx.mediarouter.media {
     ctor public MediaRouterParams(androidx.mediarouter.media.MediaRouterParams);
     method public int getDialogType();
     method public boolean isOutputSwitcherEnabled();
+    method public boolean isTransferToLocalEnabled();
     method public void setDialogType(int);
     method public void setOutputSwitcherEnabled(boolean);
+    method public void setTransferToLocalEnabled(boolean);
     field public static final int DIALOG_TYPE_DEFAULT = 1; // 0x1
     field public static final int DIALOG_TYPE_DYNAMIC_GROUP = 2; // 0x2
   }
