@@ -42,7 +42,6 @@ import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.media2.common.MediaItem;
@@ -123,13 +122,6 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
                     public MediaItem onCreateMediaItem(@NonNull MediaSession session,
                             @NonNull ControllerInfo controller, @NonNull String mediaId) {
                         return MediaTestUtils.createMediaItem(mediaId);
-                    }
-
-                    @Override
-                    public int onSetMediaUri(@NonNull MediaSession session,
-                            @NonNull ControllerInfo controller, @NonNull Uri uri,
-                            @Nullable Bundle extras) {
-                        return RESULT_SUCCESS;
                     }
                 })
                 .setSessionActivity(mIntent)
