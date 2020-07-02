@@ -17,9 +17,12 @@
 package androidx.animation
 
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.lang.Float.min
 
 @RunWith(JUnit4::class)
 class TransitionAnimationTest {
@@ -69,6 +72,64 @@ class TransitionAnimationTest {
         clock.clockTimeMillis += 100000
         assertEquals(AnimState.B, lastState)
     }
+
+    @Test
+    @OptIn(InternalAnimationApi::class)
+    fun testNonMonotonicTransition() {
+        var finished = false
+        val clock = ManualAnimationClock(0)
+        val anim = TransitionAnimation(def2, clock, AnimState.A)
+        anim.monotonic = false
+        anim.onStateChangeFinished = {
+            finished = true
+        }
+        anim.toState(AnimState.B)
+
+        listOf(0, 200, 499, 500, 600, 300, 100, 0, 505).forEach { timeStamp ->
+            clock.clockTimeMillis = timeStamp.toLong()
+            assertEquals(min(timeStamp.toFloat(), 200f), anim[prop1])
+            assertEquals(min(timeStamp.toFloat(), 500f), anim[prop2])
+        }
+        assertFalse(finished)
+
+        // Changing monotonic to true should result in another frame being pumped with the last
+        // time stamp.
+        anim.monotonic = true
+        assertTrue(finished)
+    }
+
+    @Test
+    @OptIn(InternalAnimationApi::class)
+    fun testSnapToState() {
+        val clock = ManualAnimationClock(0)
+        val anim = TransitionAnimation(def2, clock, AnimState.A)
+
+        // Animate A -> B
+        anim.toState(AnimState.B)
+        clock.clockTimeMillis = 100
+        assertEquals(100f, anim[prop1])
+        assertEquals(100f, anim[prop2])
+
+        // Snap to end state
+        anim.snapToState(AnimState.B)
+        assertEquals(200f, anim[prop1])
+        assertEquals(500f, anim[prop2])
+        assertFalse(anim.isRunning)
+
+        clock.clockTimeMillis = 0
+        // Animate B->A
+        anim.toState(AnimState.A)
+        clock.clockTimeMillis = 250
+        assertEquals(0f, anim[prop1])
+        assertEquals(250f, anim[prop2])
+
+        assertTrue(anim.isRunning)
+        // Snap to start state
+        anim.snapToState(AnimState.B)
+        assertEquals(200f, anim[prop1])
+        assertEquals(500f, anim[prop2])
+        assertFalse(anim.isRunning)
+    }
 }
 
 private enum class AnimState {
@@ -92,5 +153,21 @@ private val def1 = transitionDefinition {
     state(AnimState.C) {
         this[prop1] = 1000f
         this[prop2] = -250f
+    }
+}
+
+private val def2 = transitionDefinition {
+    state(AnimState.A) {
+        this[prop1] = 0f
+        this[prop2] = 0f
+    }
+    state(AnimState.B) {
+        this[prop1] = 200f
+        this[prop2] = 500f
+    }
+
+    transition {
+        prop1 using TweenSpec(durationMillis = 200, easing = LinearEasing)
+        prop2 using TweenSpec(durationMillis = 500, easing = LinearEasing)
     }
 }
