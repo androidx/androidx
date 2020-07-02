@@ -24,9 +24,10 @@ import androidx.ui.core.boundsInRoot
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.globalBounds
 import androidx.ui.core.globalPosition
+import androidx.ui.core.positionInRoot
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.PxBounds
-import androidx.ui.geometry.Offset
 import androidx.ui.util.fastForEach
 
 /**
@@ -71,23 +72,45 @@ class SemanticsNode internal constructor(
 
     // GEOMETRY
 
-    /** The size of the bounding box for this node */
+    /**
+     * The size of the bounding box for this node, with no clipping applied
+     */
     val size: IntSize
         get() {
             return componentNode.coordinates.size
         }
 
-    /** The bounding box for this node relative to the root of this Compose hierarchy */
+    /**
+     * The bounding box for this node relative to the root of this Compose hierarchy, with
+     * clipping applied. To get the bounds with no clipping applied, use
+     * PxBounds([positionInRoot], [size].toSize())
+     */
     val boundsInRoot: PxBounds
         get() {
             return componentNode.coordinates.boundsInRoot
         }
 
+    /**
+     * The position of this node relative to the root of this Compose hierarchy, with no clipping
+     * applied
+     */
+    val positionInRoot: Offset
+        get() {
+            return componentNode.coordinates.positionInRoot
+        }
+
+    /**
+     * The bounding box for this node relative to the screen, with clipping applied. To get the
+     * bounds with no clipping applied, use PxBounds([globalPosition], [size].toSize())
+     */
     val globalBounds: PxBounds
         get() {
             return componentNode.coordinates.globalBounds
         }
 
+    /**
+     * The position of this node relative to the screen, with no clipping applied
+     */
     val globalPosition: Offset
         get() {
             return componentNode.coordinates.globalPosition

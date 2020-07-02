@@ -19,11 +19,14 @@ package androidx.ui.test.assertions
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.core.clipToBounds
 import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ltr
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -60,7 +63,7 @@ class BoundsAssertionsTest {
                 .fillMaxSize()
                 .wrapContentSize(Alignment.TopStart)
             ) {
-                Box(modifier = Modifier.padding(start = 50.dp, top = 100.dp)) {
+                Box(modifier = Modifier.ltr.padding(start = 50.dp, top = 100.dp)) {
                     Box(modifier = Modifier
                         .testTag(tag)
                         .size(80.dp, 100.dp)
@@ -99,7 +102,7 @@ class BoundsAssertionsTest {
     }
 
     @Test
-    fun assertEquals() {
+    fun assertSizeEquals() {
         composeBox()
 
         onNodeWithTag(tag)
@@ -108,7 +111,7 @@ class BoundsAssertionsTest {
     }
 
     @Test
-    fun assertAtLeast() {
+    fun assertSizeAtLeast() {
         composeBox()
 
         onNodeWithTag(tag)
@@ -119,7 +122,7 @@ class BoundsAssertionsTest {
     }
 
     @Test
-    fun assertEquals_fail() {
+    fun assertSizeEquals_fail() {
         composeBox()
 
         expectError<AssertionError> {
@@ -134,7 +137,7 @@ class BoundsAssertionsTest {
     }
 
     @Test
-    fun assertAtLeast_fail() {
+    fun assertSizeAtLeast_fail() {
         composeBox()
 
         expectError<AssertionError> {
@@ -171,5 +174,44 @@ class BoundsAssertionsTest {
             onNodeWithTag(tag)
                 .assertPositionInRootIsEqualTo(expectedLeft = 49.dp, expectedTop = 99.dp)
         }
+    }
+
+    private fun composeClippedBox() {
+        composeTestRule.setContent {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .clipToBounds()
+                .wrapContentSize(Alignment.TopStart)
+            ) {
+                // Box is shifted 30dp to the left and 10dp to the top,
+                // so it is clipped to a size of 50 x 90
+                Box(modifier = Modifier
+                    .testTag(tag)
+                    .ltr
+                    .offset((-30).dp, (-10).dp)
+                    .size(80.dp, 100.dp)
+                    .background(color = Color.Black)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun assertClippedPosition() {
+        composeClippedBox()
+
+        onNodeWithTag(tag)
+            .assertPositionInRootIsEqualTo(expectedLeft = (-30).dp, expectedTop = (-10).dp)
+            .assertLeftPositionInRootIsEqualTo((-30).dp)
+            .assertTopPositionInRootIsEqualTo((-10).dp)
+    }
+
+    @Test
+    fun assertClippedSize() {
+        composeClippedBox()
+
+        onNodeWithTag(tag)
+            .assertWidthIsEqualTo(80.dp)
+            .assertHeightIsEqualTo(100.dp)
     }
 }

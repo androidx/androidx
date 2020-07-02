@@ -328,7 +328,7 @@ private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
 }
 
 @OptIn(ExperimentalLayoutNodeApi::class)
-private fun SemanticsNode.nodeBoundsInWindow(): Rect {
+private fun SemanticsNode.clippedNodeBoundsInWindow(): Rect {
     val composeView = (componentNode.owner as AndroidOwner).view
     val rootLocationInWindow = intArrayOf(0, 0).let {
         composeView.getLocationInWindow(it)
@@ -342,7 +342,7 @@ private fun SemanticsNode.isInScreenBounds(): Boolean {
     val composeView = (componentNode.owner as AndroidOwner).view
 
     // Window relative bounds of our node
-    val nodeBoundsInWindow = nodeBoundsInWindow()
+    val nodeBoundsInWindow = clippedNodeBoundsInWindow()
     if (nodeBoundsInWindow.width == 0f || nodeBoundsInWindow.height == 0f) {
         return false
     }
