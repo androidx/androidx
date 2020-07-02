@@ -28,10 +28,13 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
+import androidx.ui.core.onPositioned
+import androidx.ui.core.positionInRoot
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.util.fastFirstOrNull
 import androidx.ui.util.fastForEach
 import androidx.ui.viewinterop.AndroidViewHolder
+import kotlin.math.roundToInt
 
 /**
  * @suppress
@@ -101,6 +104,10 @@ internal fun AndroidViewHolder.toLayoutNode(): LayoutNode {
         .pointerInteropModifier(this)
         .drawBehind {
             drawCanvas { canvas, _ -> draw(canvas.nativeCanvas) }
+        }.onPositioned {
+            // The global position of this LayoutNode can change with it being replaced. For these
+            // cases, we need to inform the View.
+            layoutAccordingTo(layoutNode)
         }
     layoutNode.modifier = modifier + coreModifier
     onModifierChanged = { layoutNode.modifier = it + coreModifier }
@@ -142,16 +149,19 @@ internal fun AndroidViewHolder.toLayoutNode(): LayoutNode {
                 )
             )
             return measureScope.layout(measuredWidth, measuredHeight) {
-                layout(
-                    0,
-                    0,
-                    measuredWidth,
-                    measuredHeight
-                )
+                layoutAccordingTo(layoutNode)
             }
         }
     }
     return layoutNode
+}
+
+@OptIn(ExperimentalLayoutNodeApi::class)
+private fun View.layoutAccordingTo(layoutNode: LayoutNode) {
+    val position = layoutNode.coordinates.positionInRoot
+    val x = position.x.roundToInt()
+    val y = position.y.roundToInt()
+    layout(x, y, x + measuredWidth, y + measuredHeight)
 }
 
 internal class MergedViewAdapter : ViewAdapter {
