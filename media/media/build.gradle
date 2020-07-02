@@ -21,6 +21,9 @@ dependencies {
 }
 
 android {
+    buildFeatures {
+        aidl = true
+    }
     sourceSets {
         main.java.srcDirs += [
         ]

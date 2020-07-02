@@ -61,17 +61,13 @@ android {
 
         buildConfigField "String", "CAMERA_VERSION", "\"1.1.0\""
     }
+    buildFeatures {
+        // Enable generating BuildConfig.java since support library default disable it.
+        buildConfig = true
+    }
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
-}
-
-// Enable generating BuildConfig.java since support library default disable it.
-// Need to track on https://issuetracker.google.com/issues/72050365
-android.libraryVariants.all { variant ->
-    variant.generateBuildConfigProvider.configure {
-        it.enabled = true
-    }
 }
 
 androidx {

@@ -41,6 +41,9 @@ dependencies {
 }
 
 android {
+    buildFeatures {
+        aidl = true
+    }
     testOptions.unitTests.includeAndroidResources = true
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_7
