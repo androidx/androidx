@@ -259,7 +259,7 @@ abstract class MediaRouteProviderProtocol {
 
     /**
      * The client version used from androidx 1.2.0.
-     * Seamless transfer feature is added in this version.
+     * Media transfer feature is added in this version.
      */
     public static final int CLIENT_VERSION_4 = 4;
 
@@ -285,7 +285,7 @@ abstract class MediaRouteProviderProtocol {
 
     /**
      * The service version used from androidx 1.2.0.
-     * Seamless transfer feature is added in this version.
+     * Media transfer feature is added in this version.
      */
     public static final int SERVICE_VERSION_3 = 3;
 

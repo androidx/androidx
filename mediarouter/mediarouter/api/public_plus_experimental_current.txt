@@ -366,7 +366,6 @@ package androidx.mediarouter.media {
     field public static final int CALLBACK_FLAG_PERFORM_ACTIVE_SCAN = 1; // 0x1
     field public static final int CALLBACK_FLAG_REQUEST_DISCOVERY = 4; // 0x4
     field public static final int CALLBACK_FLAG_UNFILTERED_EVENTS = 2; // 0x2
-    field public static final String METADATA_NAME_FEATURE = "androidx.mediarouter.FEATURE";
     field public static final int UNSELECT_REASON_DISCONNECTED = 1; // 0x1
     field public static final int UNSELECT_REASON_ROUTE_CHANGED = 3; // 0x3
     field public static final int UNSELECT_REASON_STOPPED = 2; // 0x2
@@ -474,6 +473,11 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaSessionStatus.Builder! setQueuePaused(boolean);
     method public androidx.mediarouter.media.MediaSessionStatus.Builder! setSessionState(int);
     method public androidx.mediarouter.media.MediaSessionStatus.Builder! setTimestamp(long);
+  }
+
+  public final class MediaTransferReceiver extends android.content.BroadcastReceiver {
+    ctor public MediaTransferReceiver();
+    method public void onReceive(android.content.Context, android.content.Intent);
   }
 
   public class RemotePlaybackClient {

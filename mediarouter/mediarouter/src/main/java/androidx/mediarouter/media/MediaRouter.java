@@ -26,8 +26,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -83,33 +81,6 @@ import java.util.Set;
  * to ask the route's destination to perform certain remote control functions
  * such as playing media.
  * </p><p>
- * Features of MediaRouter can be enabled by adding a
- * <a href="{@docRoot}guide/topics/manifest/meta-data-element.html">&lt;meta-data&gt;</a> element
- * as a child of the <code>&lt;application&gt;</code> element. Set the
- * <code>&lt;meta-data&gt;</code> element's "android:name" attribute to
- * {@link #METADATA_NAME_FEATURE "androidx.mediarouter.FEATURE"}, and set the
- * "android:value" attribute as one of the followings:
- * <ol>
- *     <li><code>default</code>: Basic route selection and controls.</li>
- *     <li><code>dynamic_group</code>: Grouping/Ungrouping multiple routes can be done while
- *          routing. Also, the default implementation of
- *          {@link androidx.mediarouter.app.MediaRouteButton} will show the different dialogs
- *          appropriate for adding/removing routes from a group. This constant includes the
- *          <code>default</code> feature above.</li>
- *     <li><code>seamless_transfer</code>: Routes selection/controls can be done via System UI.
- *          Also, the transfer of media can be done seamlessly. Enabling this feature will make the
- *          users be able to control the routing even outside of your app's activity.
- *          Includes the <code>dynamic_group</code> feature above.</li>
- * </ol>
- * For example:
- * <pre class="prettyprint">{@code
- * <application>
- *     <meta-data
- *          android:name="androidx.mediarouter.FEATURE"
- *          android:value="seamless_transfer" />
- * </activity>
- * }</pre>
- * </p><p>
  * See also {@link MediaRouteProvider} for information on how an application
  * can publish new media routes to the media router.
  * </p><p>
@@ -117,18 +88,10 @@ import java.util.Set;
  * done from the main thread of the process.
  * </p>
  */
-// TODO: Refer {@link Callback#onPrepareTransfer()} in seamless_transfer when the API is ready.
 // TODO: Add the javadoc for manifest requirements about 'Package visibility' in Android 11
 public final class MediaRouter {
     static final String TAG = "MediaRouter";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-
-    /**
-     * The name of the meta-data element for specifying media router feature.
-     */
-    public static final String METADATA_NAME_FEATURE = "androidx.mediarouter.FEATURE";
-    static final String METADATA_FEATURE_DYNAMIC_GROUP = "dynamic_group";
-    static final String METADATA_FEATURE_SEAMLESS_TRANSFER = "seamless_transfer";
 
     @IntDef({UNSELECT_REASON_UNKNOWN, UNSELECT_REASON_DISCONNECTED, UNSELECT_REASON_STOPPED,
             UNSELECT_REASON_ROUTE_CHANGED})
@@ -902,17 +865,17 @@ public final class MediaRouter {
     }
 
     /**
-     * Returns whether the seamless transfer feature is enabled.
+     * Returns whether the media transfer feature is enabled.
      *
      * @see MediaRouter
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public static boolean isTransferEnabled() {
+    public static boolean isMediaTransferEnabled() {
         if (sGlobal == null) {
             return false;
         }
-        return sGlobal.isTransferEnabled();
+        return sGlobal.isMediaTransferEnabled();
     }
 
     /**
@@ -2242,8 +2205,7 @@ public final class MediaRouter {
             implements SystemMediaRouteProvider.SyncCallback,
             RegisteredMediaRouteProviderWatcher.Callback {
         final Context mApplicationContext;
-        final boolean mDynamicGroupEnabled;
-        final boolean mTransferEnabled;
+        final boolean mMediaTransferEnabled;
         final MediaRoute2Provider mMr2Provider;
         final ArrayList<WeakReference<MediaRouter>> mRouters = new ArrayList<>();
         private final ArrayList<RouteInfo> mRoutes = new ArrayList<>();
@@ -2295,29 +2257,13 @@ public final class MediaRouter {
                     (ActivityManager)applicationContext.getSystemService(
                             Context.ACTIVITY_SERVICE));
 
-            String feature = null;
-            try {
-                int flags = PackageManager.GET_META_DATA;
-                ApplicationInfo appInfo = applicationContext.getPackageManager()
-                        .getApplicationInfo(applicationContext.getPackageName(), flags);
-                feature = appInfo.metaData.getString(METADATA_NAME_FEATURE);
-            } catch (Exception ex) {
-                Log.w(TAG, "GlobalMediaRouter: Exception while getting feature.", ex);
-            }
-
-            if (TextUtils.equals(feature, METADATA_FEATURE_SEAMLESS_TRANSFER)) {
-                mDynamicGroupEnabled = true;
-                mTransferEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
-            } else if (TextUtils.equals(feature, METADATA_FEATURE_DYNAMIC_GROUP)) {
-                mDynamicGroupEnabled = true;
-                mTransferEnabled = false;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                mMediaTransferEnabled = MediaTransferReceiver.isDeclared(mApplicationContext);
             } else {
-                // Note: Includes 'default'
-                mDynamicGroupEnabled = false;
-                mTransferEnabled = false;
+                mMediaTransferEnabled = false;
             }
 
-            if (mTransferEnabled) {
+            if (mMediaTransferEnabled) {
                 mMr2Provider = new MediaRoute2Provider(
                         mApplicationContext, new Mr2ProviderCallback());
             } else {
@@ -2633,15 +2579,8 @@ public final class MediaRouter {
             return mCallbackCount;
         }
 
-        // TODO: Branch code by using this method.
-        //       (e.g. Show the dynamic controller dialog only when this method returns true).
-        // TODO: Create MediaRouter#isDynamicGroupEnabled() (static method) if needed.
-        boolean isDynamicGroupEnabled() {
-            return mDynamicGroupEnabled;
-        }
-
-        boolean isTransferEnabled() {
-            return mTransferEnabled;
+        boolean isMediaTransferEnabled() {
+            return mMediaTransferEnabled;
         }
 
         @Override
@@ -3224,7 +3163,8 @@ public final class MediaRouter {
                 mPlaybackInfo.volumeHandling = mSelectedRoute.getVolumeHandling();
                 mPlaybackInfo.playbackStream = mSelectedRoute.getPlaybackStream();
                 mPlaybackInfo.playbackType = mSelectedRoute.getPlaybackType();
-                if (mTransferEnabled && mSelectedRoute.getProviderInstance() == mMr2Provider) {
+                if (mMediaTransferEnabled
+                        && mSelectedRoute.getProviderInstance() == mMr2Provider) {
                     mPlaybackInfo.volumeControlId = MediaRoute2Provider
                             .getSessionIdForRouteController(mSelectedRouteController);
                 } else {

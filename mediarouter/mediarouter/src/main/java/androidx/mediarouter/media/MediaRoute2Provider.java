@@ -59,7 +59,7 @@ import java.util.stream.Collectors;
 
 /**
  * Provides routes and RouteController by using MediaRouter2.
- * This provider is added only when seamless transfer feature is enabled.
+ * This provider is added only when media transfer feature is enabled.
  */
 @RequiresApi(Build.VERSION_CODES.R)
 @SuppressWarnings({"unused", "ClassCanBeStatic"}) // TODO: Remove this.
@@ -221,7 +221,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
     void setDynamicRouteDescriptors(MediaRouter2.RoutingController routingController) {
         GroupRouteController controller = mControllerMap.get(routingController);
         if (controller == null) {
-            Log.w(TAG, "onControllerUpdated: No matching routeController found. "
+            Log.w(TAG, "setDynamicRouteDescriptors: No matching routeController found. "
                     + "routingController=" + routingController);
             return;
         }
@@ -265,7 +265,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
         MediaRouteProviderDescriptor providerDescriptor = getDescriptor();
         if (providerDescriptor == null) {
-            Log.w(TAG, "onControllerUpdated: providerDescriptor is not set.");
+            Log.w(TAG, "setDynamicRouteDescriptors: providerDescriptor is not set.");
             return;
         }
 
