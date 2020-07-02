@@ -111,7 +111,7 @@ final class RegisteredMediaRouteProviderWatcher {
             if (serviceInfo == null) {
                 continue;
             }
-            if (MediaRouter.isTransferEnabled()
+            if (MediaRouter.isMediaTransferEnabled()
                     && listContainsServiceInfo(mediaRoute2ProviderServices, serviceInfo)) {
                 // Do not register services which supports MediaRoute2ProviderService,
                 // since we will communicate with them via MediaRouter2.

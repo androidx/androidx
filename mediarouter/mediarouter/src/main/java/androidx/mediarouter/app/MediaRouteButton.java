@@ -311,7 +311,7 @@ public class MediaRouteButton extends View {
             return false;
         }
 
-        if (USE_OUTPUT_SWITCHER_IF_AVAILABLE && MediaRouter.isTransferEnabled()) {
+        if (USE_OUTPUT_SWITCHER_IF_AVAILABLE && MediaRouter.isMediaTransferEnabled()) {
             Context context = getContext();
 
             Intent intent = new Intent()
