@@ -30,7 +30,6 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.selection.triStateToggleable
@@ -129,7 +128,6 @@ fun TriStateCheckbox(
     CheckboxImpl(
         value = state,
         modifier = modifier
-            .semantics(mergeAllDescendants = true)
             .triStateToggleable(
                 state = state,
                 onClick = onClick,

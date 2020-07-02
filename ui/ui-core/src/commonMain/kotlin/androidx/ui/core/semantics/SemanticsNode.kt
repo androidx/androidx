@@ -119,7 +119,11 @@ class SemanticsNode internal constructor(
     //               optimize this when the merging algorithm is improved.
     val config: SemanticsConfiguration
         get() {
-            return buildMergedConfig()
+            if (isMergingSemanticsOfDescendants) {
+                return buildMergedConfig(SemanticsConfiguration())
+            } else {
+                return unmergedConfig
+            }
         }
 
     /**
@@ -131,48 +135,21 @@ class SemanticsNode internal constructor(
     }
 
     private fun buildMergedConfig(
-        parentNode: SemanticsNode? = null,
-        mergedConfigFromParent: SemanticsConfiguration? = null,
-        mergeAllChildren: Boolean = false
+        mergedConfig: SemanticsConfiguration
     ): SemanticsConfiguration {
-        // The forced merging might not start at the top-level node,
-        // so we need to check at each level
-        @Suppress("NAME_SHADOWING")
-        val mergeAllChildren = mergeAllChildren || mergeAllDescendantsIntoThisNode
+        mergedConfig.absorb(unmergedConfig, ignoreAlreadySet = true)
 
-        val mergedConfig: SemanticsConfiguration
-        if (mergedConfigFromParent == null || parentNode == null) {
-            // Start by copying our configuration so that we can add
-            // our children's configuration to it
-            mergedConfig = unmergedConfig.copy()
-        } else {
-            // We're being merged into our parent - add our node's data
-            mergedConfig = mergedConfigFromParent
-            // If we are forcibly merging, we want to ignore conflicts
-            mergedConfig.absorb(unmergedConfig, ignoreAlreadySet = mergeAllChildren)
-        }
-
-        if (!mergeAllChildren) {
-            return mergedConfig
-        }
-
-        // If we're merging children, then collect semantic information here.
-        // Order is significant here because we will attempt to merge duplicate keys.
-        // This affects, for instance, the label text.
-        for (child in unmergedChildren()) {
-            // Recursively walk down the tree and collect child data
-            child.buildMergedConfig(
-                parentNode = this,
-                mergedConfigFromParent = mergedConfig,
-                mergeAllChildren = mergeAllChildren
-            )
+        unmergedChildren().fastForEach { child ->
+            if (child.isMergingSemanticsOfDescendants == false) {
+                child.buildMergedConfig(mergedConfig)
+            }
         }
 
         return mergedConfig
     }
 
     /** Whether this node and all of its descendants should be treated as one logical entity. */
-    private val mergeAllDescendantsIntoThisNode: Boolean
+    private val isMergingSemanticsOfDescendants: Boolean
         get() = unmergedConfig.isMergingSemanticsOfDescendants
 
     // CHILDREN
@@ -193,9 +170,11 @@ class SemanticsNode internal constructor(
     //               optimize this when the merging algorithm is improved.
     val children: List<SemanticsNode>
         get() {
-            if (mergeAllDescendantsIntoThisNode) {
-                // All of our descendants will be merged, so we have no children after merging
-                return emptyList()
+            if (isMergingSemanticsOfDescendants) {
+                // In most common merging scenarios like Buttons, this will return nothing.
+                // In cases like a clickable Drawer itself containing a Button, this will
+                // return the Button as a child.
+                return findOneLayerOfMergingSemanticsNodes()
             }
 
             return unmergedChildren()
@@ -220,8 +199,7 @@ class SemanticsNode internal constructor(
     }
 
     /**
-     * Visit all the descendants of this node.
-     *
+     * Visit all the descendants of this node.  *
      * This function calls visitor for each descendant in a pre-order traversal
      * until visitor returns false. Returns true if all the visitor calls
      * returned true, otherwise returns false.
@@ -241,10 +219,18 @@ class SemanticsNode internal constructor(
         get() = parent == null
 
     /** The parent of this node in the tree. */
-    // TODO(b/145947383): this needs to be the *merged* parent
     val parent: SemanticsNode?
         get() {
-            var node = componentNode.findClosestParentNode { it.outerSemantics != null }
+            var node: LayoutNode?
+            node = componentNode.findClosestParentNode {
+                it.outerSemantics
+                    ?.collapsedSemanticsConfiguration()
+                    ?.isMergingSemanticsOfDescendants == true
+            }
+
+            if (node == null) {
+                node = componentNode.findClosestParentNode { it.outerSemantics != null }
+            }
 
             return node?.outerSemantics?.semanticsNode()
         }
@@ -253,6 +239,19 @@ class SemanticsNode internal constructor(
         action: SemanticsPropertyKey<AccessibilityAction<T>>
     ) =
         this.config.contains(action)
+
+    private fun findOneLayerOfMergingSemanticsNodes(
+        list: MutableList<SemanticsNode> = mutableListOf<SemanticsNode>()
+    ): List<SemanticsNode> {
+        unmergedChildren().fastForEach { child ->
+            if (child.isMergingSemanticsOfDescendants == true) {
+                list.add(child)
+            } else {
+                child.findOneLayerOfMergingSemanticsNodes(list)
+            }
+        }
+        return list
+    }
 }
 
 /**
@@ -305,25 +304,16 @@ internal fun SemanticsNode.findChildById(id: Int): SemanticsNode? {
 }
 
 @OptIn(ExperimentalLayoutNodeApi::class)
-private fun LayoutNode.findOneLayerOfSemanticsWrappers(): List<SemanticsWrapper> {
-    val childSemanticsLayoutNodes = mutableListOf<SemanticsWrapper>()
+private fun LayoutNode.findOneLayerOfSemanticsWrappers(
+    list: MutableList<SemanticsWrapper> = mutableListOf<SemanticsWrapper>()
+): List<SemanticsWrapper> {
     children.fastForEach { child ->
-        findOneLayerOfSemanticsWrappersRecursive(childSemanticsLayoutNodes, child)
-    }
-    return childSemanticsLayoutNodes
-}
-
-@OptIn(ExperimentalLayoutNodeApi::class)
-private fun LayoutNode.findOneLayerOfSemanticsWrappersRecursive(
-    list: MutableList<SemanticsWrapper>,
-    node: LayoutNode
-) {
-    if (node.outerSemantics != null) {
-        list.add(node.outerSemantics!!)
-        // Stop, we're done
-    } else {
-        node.children.fastForEach { child ->
-            findOneLayerOfSemanticsWrappersRecursive(list, child)
+        val outerSemantics = child.outerSemantics
+        if (outerSemantics != null) {
+            list.add(outerSemantics)
+        } else {
+            child.findOneLayerOfSemanticsWrappers(list)
         }
     }
+    return list
 }

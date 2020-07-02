@@ -26,7 +26,6 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
-import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Interaction
 import androidx.ui.foundation.InteractionState
@@ -82,7 +81,6 @@ fun Switch(
         val isRtl = layoutDirection == LayoutDirection.Rtl
         Stack(
             modifier
-                .semantics(mergeAllDescendants = true)
                 .toggleable(
                     value = checked,
                     onValueChange = onCheckedChange,

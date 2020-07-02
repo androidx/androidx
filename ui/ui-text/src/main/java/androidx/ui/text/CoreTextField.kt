@@ -442,7 +442,7 @@ private fun textInputEventObserver(
         onBlur(false)
     }
 
-    val semantics = Modifier.semantics(mergeAllDescendants = true,
+    val semantics = Modifier.semantics(
         properties = {
             this.imeAction = imeAction
             this.supportsInputMethods = true

@@ -54,7 +54,6 @@ import androidx.ui.core.focus.focusState
 import androidx.ui.core.id
 import androidx.ui.core.layoutId
 import androidx.ui.core.offset
-import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ProvideTextStyle
@@ -727,7 +726,6 @@ private fun TextFieldImpl(
     }
 
     val textFieldModifier = modifier
-        .semantics(mergeAllDescendants = true)
         .clickable(indication = RippleIndication(bounded = false)) {
             focusModifier.requestFocus()
             keyboardController.value?.showSoftwareKeyboard()

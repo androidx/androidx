@@ -64,6 +64,25 @@ class SemanticsTests {
     }
 
     @Test
+    fun nestedMergedSubtree() {
+        val tag1 = "tag1"
+        val tag2 = "tag2"
+        val label1 = "foo"
+        val label2 = "bar"
+        composeTestRule.setContent {
+            SimpleTestLayout(Modifier.semantics(mergeAllDescendants = true).testTag(tag1)) {
+                SimpleTestLayout(Modifier.semantics { accessibilityLabel = label1 }) { }
+                SimpleTestLayout(Modifier.semantics(mergeAllDescendants = true).testTag(tag2)) {
+                    SimpleTestLayout(Modifier.semantics { accessibilityLabel = label2 }) { }
+                }
+            }
+        }
+
+        findByTag(tag1).assertLabelEquals(label1)
+        findByTag(tag2).assertLabelEquals(label2)
+    }
+
+    @Test
     fun removingMergedSubtree_updatesSemantics() {
         val label = "foo"
         val showSubtree = mutableStateOf(true)

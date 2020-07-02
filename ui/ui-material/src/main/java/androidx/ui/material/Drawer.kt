@@ -24,9 +24,9 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
+import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.clickable
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.DpConstraints
@@ -279,12 +279,17 @@ private fun Scrim(
     onStateChange: (DrawerState) -> Unit,
     fraction: () -> Float
 ) {
-    val enabled = state == DrawerState.Opened
     val color = MaterialTheme.colors.onSurface
+    val dismissDrawer = if (state == DrawerState.Opened) {
+        Modifier.tapGestureFilter { _ -> onStateChange(DrawerState.Closed) }
+    } else {
+        Modifier
+    }
+
     Canvas(
         Modifier
             .fillMaxSize()
-            .clickable(enabled = enabled, indication = null) { onStateChange(DrawerState.Closed) }
+            .plus(dismissDrawer)
     ) {
         drawRect(color, alpha = fraction() * ScrimDefaultOpacity)
     }
