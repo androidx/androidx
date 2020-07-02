@@ -30,7 +30,7 @@ dependencies {
 
     implementation(KOTLIN_STDLIB)
     implementation project(":annotation:annotation-sampled")
-    implementation project(":ui:ui-rxjava2")
+    implementation project(":compose:runtime:runtime-rxjava2")
     implementation project(":compose:foundation:foundation")
 }
 
