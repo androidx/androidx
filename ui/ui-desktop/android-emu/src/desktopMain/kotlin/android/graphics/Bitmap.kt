@@ -19,7 +19,7 @@ package android.graphics
 import org.jetbrains.skija.Image
 
 class Bitmap(bytes: ByteArray) {
-    val skiaImage = Image.makeFromEncoded(bytes)
+    internal val skiaImage = Image.makeFromEncoded(bytes)
 
     val width = skiaImage.width
     val height = skiaImage.height
