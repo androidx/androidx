@@ -53,12 +53,12 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX UI Tooling"
+    name = "Compose Tooling"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
+    mavenGroup = LibraryGroups.Compose.TOOLING
     inceptionYear = "2019"
-    description = "AndroidX UI Tooling support"
+    description = "Compose Tooling support"
 }
 
 tasks.withType(KotlinCompile).configureEach {
