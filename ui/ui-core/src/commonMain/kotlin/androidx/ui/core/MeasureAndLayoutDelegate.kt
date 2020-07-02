@@ -238,8 +238,14 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     /**
      * Dispatch [OnPositionedModifier] callbacks for the nodes affected by the previous
      * [measureAndLayout] execution.
+     *
+     * @param forceDispatch true means the whole tree should dispatch the callback (for example
+     * when the global position of the Owner has been changed)
      */
-    fun dispatchOnPositionedCallbacks() {
+    fun dispatchOnPositionedCallbacks(forceDispatch: Boolean = false) {
+        if (forceDispatch) {
+            onPositionedDispatcher.onNodePositioned(root)
+        }
         onPositionedDispatcher.dispatch()
     }
 

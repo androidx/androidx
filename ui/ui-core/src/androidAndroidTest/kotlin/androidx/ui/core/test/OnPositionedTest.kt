@@ -16,6 +16,12 @@
 
 package androidx.ui.core.test
 
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import androidx.compose.Recomposer
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
@@ -296,5 +302,76 @@ class OnPositionedTest {
 
             assertEquals(PxBounds(0f, 0f, 20f, 20f), root.boundsInParent)
         }
+    }
+
+    @Test
+    fun onPositionedIsCalledWhenComposeContainerIsScrolled() {
+        var positionedLatch = CountDownLatch(1)
+        var coordinates: LayoutCoordinates? = null
+        var scrollView: ScrollView? = null
+
+        rule.runOnUiThread {
+            scrollView = ScrollView(rule.activity)
+            activity.setContentView(scrollView, ViewGroup.LayoutParams(100, 100))
+            val frameLayout = FrameLayout(rule.activity)
+            scrollView!!.addView(frameLayout)
+            frameLayout.setContent(Recomposer.current()) {
+                Layout({}, modifier = Modifier.onPositioned {
+                    coordinates = it
+                    positionedLatch.countDown()
+                }) { _, _ ->
+                    layout(100, 200) {}
+                }
+            }
+        }
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+        val startY = coordinates!!.globalPosition.y
+        positionedLatch = CountDownLatch(1)
+
+        rule.runOnUiThread {
+            scrollView!!.scrollBy(0, 50)
+        }
+
+        assertTrue(
+            "OnPositioned is not called when the container scrolled",
+            positionedLatch.await(1, TimeUnit.SECONDS)
+        )
+        assertEquals(startY - 50f, coordinates!!.globalPosition.y)
+    }
+
+    @Test
+    fun onPositionedIsCalledWhenComposeContainerPositionChanged() {
+        var positionedLatch = CountDownLatch(1)
+        var coordinates: LayoutCoordinates? = null
+        var topView: View? = null
+
+        rule.runOnUiThread {
+            val linearLayout = LinearLayout(rule.activity)
+            linearLayout.orientation = LinearLayout.VERTICAL
+            activity.setContentView(linearLayout, ViewGroup.LayoutParams(100, 200))
+            topView = View(rule.activity)
+            linearLayout.addView(topView!!, ViewGroup.LayoutParams(100, 100))
+            val frameLayout = FrameLayout(rule.activity)
+            linearLayout.addView(frameLayout, ViewGroup.LayoutParams(100, 100))
+            frameLayout.setContent(Recomposer.current()) {
+                Layout({}, modifier = Modifier.onPositioned {
+                    coordinates = it
+                    positionedLatch.countDown()
+                }) { _, constraints ->
+                    layout(constraints.maxWidth, constraints.maxHeight) {}
+                }
+            }
+        }
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+        val startY = coordinates!!.globalPosition.y
+        positionedLatch = CountDownLatch(1)
+
+        rule.runOnUiThread {
+            topView!!.visibility = View.GONE
+        }
+
+        assertTrue("OnPositioned is not called when the container moved",
+            positionedLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(startY - 100f, coordinates!!.globalPosition.y)
     }
 }

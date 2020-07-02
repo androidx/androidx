@@ -33,6 +33,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStructure
+import android.view.ViewTreeObserver
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -353,7 +354,21 @@ internal class AndroidComposeView constructor(
         // we postpone onPositioned callbacks until onLayout as LayoutCoordinates
         // are currently wrong if you try to get the global(activity) coordinates -
         // View is not yet laid out.
-        measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+        dispatchOnPositioned()
+    }
+
+    private var globalPosition: IntOffset = IntOffset.Origin
+
+    private val tmpPositionArray = intArrayOf(0, 0)
+
+    private fun dispatchOnPositioned() {
+        var positionChanged = false
+        getLocationOnScreen(tmpPositionArray)
+        if (globalPosition.x != tmpPositionArray[0] || globalPosition.y != tmpPositionArray[1]) {
+            globalPosition = IntOffset(tmpPositionArray[0], tmpPositionArray[1])
+            positionChanged = true
+        }
+        measureAndLayoutDelegate.dispatchOnPositionedCallbacks(forceDispatch = positionChanged)
     }
 
     // [ Layout block end ]
@@ -440,6 +455,19 @@ internal class AndroidComposeView constructor(
 
     private var onViewTreeOwnersAvailable: ((ViewTreeOwners) -> Unit)? = null
 
+    // executed when the layout pass has been finished. as a result of it our view could be moved
+    // inside the window (we are interested not only in the event when our parent positioned us
+    // on a different position, but also in the position of each of the grandparents as all these
+    // positions add up to final global position)
+    private val globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
+        dispatchOnPositioned()
+    }
+    // executed when a scrolling container like ScrollView of RecyclerView performed the scroll,
+    // this could affect our global position
+    private val scrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
+        dispatchOnPositioned()
+    }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         showLayoutBounds = getIsShowingLayoutBounds()
@@ -462,6 +490,8 @@ internal class AndroidComposeView constructor(
             this.viewTreeOwners = viewTreeOwners
             onViewTreeOwnersAvailable?.invoke(viewTreeOwners)
         }
+        viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
+        viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
     }
 
     override fun onDetachedFromWindow() {
@@ -472,6 +502,8 @@ internal class AndroidComposeView constructor(
             measureAndLayoutHandler.removeMessages(0)
         }
         root.detach()
+        viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
+        viewTreeObserver.removeOnScrollChangedListener(scrollChangedListener)
     }
 
     override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {
@@ -535,11 +567,7 @@ internal class AndroidComposeView constructor(
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? =
         textInputServiceAndroid.createInputConnection(outAttrs)
 
-    override fun calculatePosition(): IntOffset {
-        val positionArray = intArrayOf(0, 0)
-        getLocationOnScreen(positionArray)
-        return IntOffset(positionArray[0], positionArray[1])
-    }
+    override fun calculatePosition(): IntOffset = globalPosition
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
