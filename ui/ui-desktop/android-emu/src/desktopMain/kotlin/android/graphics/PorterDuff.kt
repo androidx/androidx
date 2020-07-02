@@ -16,6 +16,9 @@
 
 package android.graphics
 
+import org.jetbrains.skija.BlendMode
+
+@Suppress("unused")
 class PorterDuff {
     enum class Mode {
         ADD,
@@ -37,4 +40,25 @@ class PorterDuff {
         SRC_OVER,
         XOR
     }
+}
+
+internal fun PorterDuff.Mode.toSkia() = when (this) {
+    PorterDuff.Mode.ADD -> BlendMode.PLUS
+    PorterDuff.Mode.CLEAR -> BlendMode.CLEAR
+    PorterDuff.Mode.DARKEN -> BlendMode.DARKEN
+    PorterDuff.Mode.DST -> BlendMode.DST
+    PorterDuff.Mode.DST_ATOP -> BlendMode.DST_ATOP
+    PorterDuff.Mode.DST_IN -> BlendMode.DST_IN
+    PorterDuff.Mode.DST_OUT -> BlendMode.DST_OUT
+    PorterDuff.Mode.DST_OVER -> BlendMode.DST_OVER
+    PorterDuff.Mode.LIGHTEN -> BlendMode.LIGHTEN
+    PorterDuff.Mode.MULTIPLY -> BlendMode.MULTIPLY
+    PorterDuff.Mode.OVERLAY -> BlendMode.OVERLAY
+    PorterDuff.Mode.SCREEN -> BlendMode.SCREEN
+    PorterDuff.Mode.SRC -> BlendMode.SRC
+    PorterDuff.Mode.SRC_ATOP -> BlendMode.SRC_ATOP
+    PorterDuff.Mode.SRC_IN -> BlendMode.SRC_IN
+    PorterDuff.Mode.SRC_OUT -> BlendMode.SRC_OUT
+    PorterDuff.Mode.SRC_OVER -> BlendMode.SRC_OVER
+    PorterDuff.Mode.XOR -> BlendMode.XOR
 }

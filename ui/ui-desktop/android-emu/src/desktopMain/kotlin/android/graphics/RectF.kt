@@ -36,7 +36,21 @@ class RectF(
         this.right = right
         this.bottom = bottom
     }
+
+    fun set(src: RectF) {
+        this.left = src.left
+        this.top = src.top
+        this.right = src.right
+        this.bottom = src.bottom
+    }
+
+    fun set(src: Rect) {
+        this.left = src.left.toFloat()
+        this.top = src.top.toFloat()
+        this.right = src.right.toFloat()
+        this.bottom = src.bottom.toFloat()
+    }
 }
 
-fun RectF.toSkia() =
+internal fun RectF.toSkia() =
     SkRect.makeLTRB(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat())

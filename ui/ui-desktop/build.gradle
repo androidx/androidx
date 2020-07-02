@@ -127,6 +127,10 @@ kotlin {
         jvmTest.dependencies {
             implementation(JUNIT)
         }
+
+        jvmTest {
+            resources.srcDirs += "src/jvmTest/res"
+        }
     }
 }
 

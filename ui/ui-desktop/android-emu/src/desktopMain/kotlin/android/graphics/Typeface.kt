@@ -25,7 +25,7 @@ private const val BOLD_FONT_NAME = "NotoSans-Bold"
 private const val ITALIC_FONT_NAME = "NotoSans-Italic"
 private const val BOLD_ITALIC_FONT_NAME = "NotoSans-BoldItalic"
 
-class Typeface(val skijaTypeface: org.jetbrains.skija.Typeface) {
+class Typeface(internal val skijaTypeface: org.jetbrains.skija.Typeface) {
     companion object {
         // TODO: Skija should make it possible to make fonts from non-file in-memory source
         val NORMAL_TYPEFACE = Typeface(org.jetbrains.skija.Typeface.makeFromFile(

@@ -16,12 +16,36 @@
 
 package android.graphics
 
+import org.jetbrains.skija.Matrix33
+
+@Suppress("unused")
 class Matrix() {
-    fun isIdentity() = true
+    companion object {
+        val identityArray = floatArrayOf(
+            1f, 0f, 0f,
+            0f, 1f, 0f,
+            0f, 0f, 1f
+        )
+    }
+
+    internal var skija = Matrix33(*identityArray)
+        private set
+
+    fun isIdentity() = skija.mat!!.contentEquals(identityArray)
+
+    fun getValues(values: FloatArray) {
+        skija.mat.copyInto(values)
+    }
+
+    fun setValues(values: FloatArray) {
+        skija = Matrix33(*values)
+    }
 
     fun reset() {
+        skija = Matrix33(*identityArray)
     }
 
     fun setTranslate(dx: Float, dy: Float) {
+        skija = skija.makeConcat(Matrix33.makeTranslate(dx, dy))
     }
 }

@@ -17,7 +17,7 @@
 package android.graphics
 
 class Region {
-    enum class Op(val skija: org.jetbrains.skija.ClipMode) {
+    enum class Op(internal val skija: org.jetbrains.skija.ClipMode) {
         DIFFERENCE(org.jetbrains.skija.ClipMode.DIFFERENCE),
         INTERSECT(org.jetbrains.skija.ClipMode.INTERSECT)
     }
