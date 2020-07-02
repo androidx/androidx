@@ -2420,14 +2420,6 @@ package androidx.ui.semantics {
 
 }
 
-package androidx.ui.temputils {
-
-  public final class CoroutineUtilsKt {
-    method public static kotlinx.coroutines.Job delay(androidx.ui.unit.Duration duration, kotlin.coroutines.CoroutineContext context, kotlin.jvm.functions.Function0<kotlin.Unit> block);
-  }
-
-}
-
 package androidx.ui.testutils {
 
   public final class PointerInputTestUtilKt {

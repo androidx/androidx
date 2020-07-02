@@ -16,7 +16,6 @@
 
 package androidx.ui.core.gesture.scrollorientationlocking
 
-import androidx.annotation.VisibleForTesting
 import androidx.ui.core.CustomEvent
 import androidx.ui.core.CustomEventDispatcher
 import androidx.ui.core.PointerEventPass
@@ -26,6 +25,7 @@ import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.gesture.ExperimentalPointerInput
 import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.util.annotation.VisibleForTesting
 import androidx.ui.util.fastForEach
 
 // TODO(shepshapard): This should be in a more generic place.

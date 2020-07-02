@@ -32,7 +32,6 @@ import androidx.ui.core.gesture.customevents.DelayUpEvent
 import androidx.ui.core.gesture.customevents.DelayUpMessage
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.geometry.Offset
-import androidx.ui.temputils.delay
 import androidx.ui.unit.IntSize
 import androidx.ui.util.fastAny
 import kotlinx.coroutines.Job

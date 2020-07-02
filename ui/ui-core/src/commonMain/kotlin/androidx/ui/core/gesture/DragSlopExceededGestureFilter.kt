@@ -34,6 +34,7 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.positionChange
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntSize
+import kotlin.math.abs
 
 /**
  * This gesture filter detects when the average distance change of all pointers surpasses the touch
@@ -152,8 +153,8 @@ internal class DragSlopExceededGestureFilter(
                 val canDragX = directionX != null && canDrag?.invoke(directionX) ?: true
                 val canDragY = directionY != null && canDrag?.invoke(directionY) ?: true
 
-                val passedSlopX = canDragX && Math.abs(dxUnderSlop) > touchSlop
-                val passedSlopY = canDragY && Math.abs(dyUnderSlop) > touchSlop
+                val passedSlopX = canDragX && abs(dxUnderSlop) > touchSlop
+                val passedSlopY = canDragY && abs(dyUnderSlop) > touchSlop
 
                 if (passedSlopX || passedSlopY) {
                     passedSlop = true
