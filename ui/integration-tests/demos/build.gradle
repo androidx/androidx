@@ -13,7 +13,7 @@ dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 
     implementation project(":ui:ui-android-view:integration-tests:ui-android-view-demos")
-    implementation project(":ui:ui-animation:integration-tests:ui-animation-demos")
+    implementation project(":compose:animation:animation:integration-tests:animation-demos")
     implementation project(":compose:foundation:foundation:integration-tests:foundation-demos")
     implementation project(":ui:ui-core:integration-tests:ui-core-demos")
     implementation project(":ui:ui-layout:integration-tests:ui-layout-demos")
@@ -39,7 +39,7 @@ dependencies {
 
     // TODO: presumably shouldn't need to specify these again? figure out why this is needed.
     androidTestImplementation project(":ui:ui-android-view:integration-tests:ui-android-view-demos")
-    androidTestImplementation project(":ui:ui-animation:integration-tests:ui-animation-demos")
+    androidTestImplementation project(":compose:animation:animation:integration-tests:animation-demos")
     androidTestImplementation project(":compose:foundation:foundation:integration-tests:foundation-demos")
     androidTestImplementation project(":ui:ui-core:integration-tests:ui-core-demos")
     androidTestImplementation project(":ui:ui-layout:integration-tests:ui-layout-demos")

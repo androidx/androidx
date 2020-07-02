@@ -45,7 +45,7 @@ dependencies {
     api project(":ui:ui-animation-core")
 
     implementation project(":ui:ui-layout")
-    implementation project(":ui:ui-animation")
+    implementation project(":compose:animation:animation")
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)
