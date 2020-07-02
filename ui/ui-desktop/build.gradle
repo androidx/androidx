@@ -135,7 +135,7 @@ def uiComponents = [
         ":ui:ui-animation",
         ":ui:ui-animation-core",
         ":ui:ui-core",
-        ":ui:ui-foundation",
+        ":compose:foundation:foundation",
         ":ui:ui-geometry",
         ":ui:ui-graphics",
         ":ui:ui-layout",

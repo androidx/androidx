@@ -14,7 +14,7 @@ dependencies {
 
     implementation project(":ui:ui-android-view:integration-tests:ui-android-view-demos")
     implementation project(":ui:ui-animation:integration-tests:ui-animation-demos")
-    implementation project(":ui:ui-foundation:integration-tests:ui-foundation-demos")
+    implementation project(":compose:foundation:foundation:integration-tests:foundation-demos")
     implementation project(":ui:ui-core:integration-tests:ui-core-demos")
     implementation project(":ui:ui-layout:integration-tests:ui-layout-demos")
     implementation project(":compose:material:material:integration-tests:material-demos")
@@ -29,7 +29,7 @@ dependencies {
     implementation project(":ui:ui-core")
     implementation project(":ui:ui-layout")
     implementation project(":ui:ui-text")
-    implementation project(":ui:ui-foundation")
+    implementation project(":compose:foundation:foundation")
     implementation project(":compose:material:material")
     implementation project(":ui:integration-tests:demos:common")
 
@@ -40,7 +40,7 @@ dependencies {
     // TODO: presumably shouldn't need to specify these again? figure out why this is needed.
     androidTestImplementation project(":ui:ui-android-view:integration-tests:ui-android-view-demos")
     androidTestImplementation project(":ui:ui-animation:integration-tests:ui-animation-demos")
-    androidTestImplementation project(":ui:ui-foundation:integration-tests:ui-foundation-demos")
+    androidTestImplementation project(":compose:foundation:foundation:integration-tests:foundation-demos")
     androidTestImplementation project(":ui:ui-core:integration-tests:ui-core-demos")
     androidTestImplementation project(":ui:ui-layout:integration-tests:ui-layout-demos")
     androidTestImplementation project(":compose:material:material:integration-tests:material-demos")
