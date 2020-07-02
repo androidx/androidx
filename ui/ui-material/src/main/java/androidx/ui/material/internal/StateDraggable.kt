@@ -24,6 +24,7 @@ import androidx.animation.Spring
 import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.compose.state
+import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
@@ -88,10 +89,10 @@ internal fun <T> Modifier.stateDraggable(
                 }
             }
         })
-    val clocks = AnimationClockAmbient.current
-    val position = remember(clocks) {
+    val clock = AnimationClockAmbient.current.asDisposableClock()
+    val position = remember(clock) {
         onNewValue(currentValue)
-        NotificationBasedAnimatedFloat(currentValue, clocks, onNewValue)
+        NotificationBasedAnimatedFloat(currentValue, clock, onNewValue)
     }
     position.onNewValue = onNewValue
     position.setBounds(minValue, maxValue)
