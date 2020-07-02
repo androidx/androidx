@@ -19,10 +19,12 @@ package androidx.dynamicanimation.animation;
 import android.annotation.SuppressLint;
 import android.os.Looper;
 import android.util.AndroidRuntimeException;
+import android.view.Choreographer;
 import android.view.View;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
 
@@ -324,6 +326,10 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
 
     // List of update listeners
     private final ArrayList<OnAnimationUpdateListener> mUpdateListeners = new ArrayList<>();
+
+    // Animation handler used to schedule updates for this animation.
+    private AnimationHandler mAnimationHandler;
+
 
     // Internal state for value/velocity pair.
     static class MassState {
@@ -635,7 +641,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
                 throw new IllegalArgumentException("Starting value need to be in between min"
                         + " value and max value");
             }
-            AnimationHandler.getInstance().addAnimationFrameCallback(this, 0);
+            getAnimationHandler().addAnimationFrameCallback(this, 0);
         }
     }
 
@@ -687,7 +693,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     private void endAnimationInternal(boolean canceled) {
         mRunning = false;
-        AnimationHandler.getInstance().removeCallback(this);
+        getAnimationHandler().removeCallback(this);
         mLastFrameTime = 0;
         mStartValueIsSet = false;
         for (int i = 0; i < mEndListeners.size(); i++) {
@@ -725,6 +731,36 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
     @SuppressWarnings("unchecked")
     private float getPropertyValue() {
         return mProperty.getValue(mTarget);
+    }
+
+    /**
+     * Returns the {@link AnimationHandler} used to schedule updates for this animator.
+     *
+     * This is initialized to an {@code AnimationHandler} that uses the thread's
+     * {@link Choreographer}.
+     *
+     * @return the {@code AnimationHandler} for this animator.
+     */
+    @NonNull
+    public AnimationHandler getAnimationHandler() {
+        return mAnimationHandler != null ? mAnimationHandler : AnimationHandler.getInstance();
+    }
+
+    /**
+     * Sets the animation handler used to schedule updates for this animator. Note this should
+     * not be called during an animation, as it would lead to discontinuity in animations.
+     *
+     * @param animationHandler The {@link AnimationHandler} that will be used to schedule updates
+     *                         for this animator.
+     * @throws AndroidRuntimeException if this method called when animation running
+     */
+    public void setAnimationHandler(@NonNull AnimationHandler animationHandler) {
+        if (mRunning) {
+            throw new AndroidRuntimeException("Animations are still running and the animation"
+                    + "handler should not be set at this timming");
+        }
+
+        mAnimationHandler = animationHandler;
     }
 
     /****************Sub class animations**************/
