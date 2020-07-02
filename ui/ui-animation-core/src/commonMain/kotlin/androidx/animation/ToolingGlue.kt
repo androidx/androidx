@@ -32,23 +32,22 @@ annotation class InternalAnimationApi
 @InternalAnimationApi
 class SeekableAnimation<T>(
     val def: TransitionDefinition<T>,
-    fromState: T,
-    toState: T
+    val fromState: T,
+    val toState: T
 ) {
     private val currentValues: MutableMap<PropKey<Any, AnimationVector>, Any> = mutableMapOf()
     private val currentAnimWrappers: MutableMap<PropKey<Any, AnimationVector>,
             Animation<Any, AnimationVector>> = mutableMapOf()
-    private val toState = def.states[toState]!!
-    private val fromState = def.states[fromState]!!
 
     init {
-        currentValues.putAll(this.fromState.props)
+        val to = def.states[toState]!!
+        val from = def.states[fromState]!!
+        currentValues.putAll(from.props)
         val transSpec: TransitionSpec<T> = def.getSpec(fromState, toState)
         // Initialize currentAnimWrappers
-        for ((prop, _) in this.toState.props) {
+        for ((prop, _) in to.props) {
             currentAnimWrappers[prop] = prop.createAnimationWrapper(
-                transSpec.getAnimationForProp(prop), this.fromState[prop], null,
-                this.toState[prop]
+                transSpec.getAnimationForProp(prop), from[prop], null, to[prop]
             )
         }
     }
@@ -68,9 +67,9 @@ class SeekableAnimation<T>(
      */
     fun getAnimValuesAt(playTime: Long): Map<PropKey<Any, AnimationVector>, Any> {
         if (playTime <= 0) {
-            currentValues.putAll(fromState.props)
+            currentValues.putAll(def.states[fromState]!!.props)
         } else if (playTime >= duration) {
-            currentValues.putAll(toState.props)
+            currentValues.putAll(def.states[toState]!!.props)
         } else {
             for ((prop, animation) in currentAnimWrappers) {
                 currentValues[prop] = animation.getValue(playTime)

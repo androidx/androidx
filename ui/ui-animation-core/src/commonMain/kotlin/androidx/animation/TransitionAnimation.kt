@@ -75,10 +75,12 @@ class TransitionAnimation<T>(
     inner class TransitionAnimationClockObserver : AnimationClockObserver {
         // This API is intended for tools' use only. Hence the @InternalAnimationApi.
         val animation: TransitionAnimation<T> = this@TransitionAnimation
+
         override fun onAnimationFrame(frameTimeMillis: Long) {
             doAnimationFrame(frameTimeMillis)
         }
     }
+
     private val animationClockObserver: AnimationClockObserver = TransitionAnimationClockObserver()
 
     // TODO("Create a more efficient code path for default only transition def")
@@ -159,6 +161,59 @@ class TransitionAnimation<T>(
     }
 
     /**
+     * This indicates whether animation assumes time stamps increase monotonically. If false,
+     * animation will anticipate that the time may go backwards, therefore it won't ever finish,
+     * until it's set to true again.
+     * @suppress
+     */
+    @InternalAnimationApi
+    var monotonic: Boolean = true
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            // Changing from false to true
+            if (value && isRunning) {
+                // Pump in another frame to properly finish
+                doAnimationFrame(lastFrameTime)
+            }
+        }
+
+    /**
+     * This immediately and violently snaps the animation to the new state, regardless whether
+     * there's an on-going animation. This will also put the animation in an finished state,
+     * effectively unsubscribing the animation from the clock.
+     *
+     * @param toState the state that animation will be snapped to
+     *
+     * @suppress
+     */
+    @InternalAnimationApi
+    fun snapToState(toState: T) {
+        val stateChanged = toState == fromState.name
+
+        // Snap all values to end value
+        val newState = def.states[toState]!!
+        for (prop in newState.props.keys) {
+            currentState[prop] = newState[prop]
+        }
+        startVelocityMap.clear()
+
+        if (isRunning) {
+            endAnimation()
+            currentAnimWrappers.clear()
+            fromState = newState
+            this.toState = newState
+            pendingState = null
+        }
+
+        if (stateChanged) {
+            onStateChangeFinished?.invoke(toState)
+        }
+    }
+
+    /**
      * Gets the value of a property with a given property key.
      *
      * @param propKey Property key (defined in [TransitionDefinition]) for a specific property
@@ -185,19 +240,22 @@ class TransitionAnimation<T>(
         }
 
         val playTime = getPlayTime()
+        var finished = true
         for ((prop, animation) in currentAnimWrappers) {
-            currentState[prop] = animation.getValue(playTime)
-        }
-
-        // Prune the finished animations
-        currentAnimWrappers.entries.removeAll {
-            it.value.isFinished(playTime)
+            if (!animation.isFinished(playTime)) {
+                currentState[prop] = animation.getValue(playTime)
+                finished = false
+            } else {
+                currentState[prop] = toState[prop]
+            }
         }
 
         onUpdate?.invoke()
 
-        // call end animation when all animations end
-        if (currentAnimWrappers.isEmpty()) {
+        // When all the sub-animations have finished, we'll only end the transition or move on to
+        // the pending state when the transition is monotonic, as we know time won't go backward.
+        // Otherwise, we'll stay subscribed to the animation clock indefinitely.
+        if (finished && monotonic) {
             // All animations have finished. Snap all values to end value
             for (prop in toState.props.keys) {
                 currentState[prop] = toState[prop]
