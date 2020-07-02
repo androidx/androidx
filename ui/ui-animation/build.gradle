@@ -52,7 +52,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(JUNIT)
     androidTestImplementation project(":compose:foundation:foundation")
-    androidTestImplementation project(":ui:ui-test")
+    androidTestImplementation project(":compose:test:test-core")
 }
 
 androidx {

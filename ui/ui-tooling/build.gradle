@@ -41,7 +41,7 @@ dependencies {
     // kotlin-reflect is provided by Studio at runtime
     compileOnly(KOTLIN_REFLECT)
 
-    androidTestImplementation project(":ui:ui-test")
+    androidTestImplementation project(":compose:test:test-core")
 
     androidTestImplementation(JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

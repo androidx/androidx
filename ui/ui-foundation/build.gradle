@@ -48,7 +48,7 @@ dependencies {
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
 
-    androidTestImplementation project(':ui:ui-test')
+    androidTestImplementation project(':compose:test:test-core')
 
     androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
     androidTestImplementation(ANDROIDX_TEST_RULES)
