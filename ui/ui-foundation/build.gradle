@@ -64,10 +64,10 @@ dependencies {
 }
 
 androidx {
-    name = "Compose Foundation Ui"
+    name = "Compose Foundation"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
+    mavenGroup = LibraryGroups.Compose.FOUNDATION
     inceptionYear = "2018"
     description = "Compose components that build the foundations from which to build a complete design system. This is for example used by Material to build its set of components."
 }

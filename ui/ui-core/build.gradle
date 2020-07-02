@@ -91,7 +91,7 @@ kotlin {
             implementation project(":ui:ui-test")
             implementation project(":ui:ui-test-font")
             implementation project(":ui:ui-layout")
-            implementation project(":ui:ui-foundation")
+            implementation project(":compose:foundation:foundation")
         }
     }
 }

@@ -36,7 +36,7 @@ dependencies {
     api project(":ui:ui-unit")
     implementation project(":ui:ui-util")
     implementation project(":ui:ui-graphics")
-    implementation project(":ui:ui-foundation")
+    implementation project(":compose:foundation:foundation")
 }
 
 android {
