@@ -24,6 +24,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import android.util.Property;
+
 import androidx.annotation.NonNull;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -824,6 +826,60 @@ public class AnimatorSetTest {
         mAnimatorSet.cancel();
     }
 
+    @UiThreadTest
+    @Test
+    public void testMultipleAnimatorsSingleProperty() {
+        final SampleTarget target = new SampleTarget();
+        final ObjectAnimator a1 = ObjectAnimator.ofFloat(target, SampleTarget.VALUE, 0f, 1000f);
+        a1.setDuration(1000);
+        a1.setInterpolator(new LinearInterpolator());
+        final ObjectAnimator a2 = ObjectAnimator.ofFloat(target, SampleTarget.VALUE, 1000f, 2000f);
+        a2.setDuration(1000);
+        a2.setStartDelay(1000);
+        a2.setInterpolator(new LinearInterpolator());
+        final AnimatorSet set = new AnimatorSet();
+        set.playTogether(a1, a2);
+
+        set.start();
+
+        final float delta = 0.001f;
+        assertEquals(0f, target.mValue, delta);
+
+        sAnimatorTestRule.advanceTimeBy(500);
+        assertEquals(500f, (float) a1.getAnimatedValue(), delta);
+        assertEquals(500f, target.mValue, delta);
+
+        sAnimatorTestRule.advanceTimeBy(1000);
+        assertEquals(1500f, target.mValue, delta);
+
+        sAnimatorTestRule.advanceTimeBy(5000);
+        assertEquals(2000f, target.mValue, delta);
+        assertFalse(set.isRunning());
+
+        // Rewind
+        set.setCurrentPlayTime(1500);
+        assertEquals(1500f, target.mValue, delta);
+
+        set.setCurrentPlayTime(500);
+        assertEquals(500f, target.mValue, delta);
+    }
+
+    static class SampleTarget {
+
+        static final Property<SampleTarget, Float> VALUE = new FloatProperty<SampleTarget>() {
+            @Override
+            public void setValue(@NonNull SampleTarget object, float value) {
+                object.mValue = value;
+            }
+
+            @Override
+            public Float get(SampleTarget sampleTarget) {
+                return sampleTarget.mValue;
+            }
+        };
+
+        float mValue;
+    }
 
     static class AnimEvent {
         enum EventType {

@@ -791,16 +791,6 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
             }
         }
 
-        // Seek unfinished animation to the right time.
-        for (int i = 0; i < unfinishedNodes.size(); i++) {
-            Node node = unfinishedNodes.get(i);
-            long playTime = getPlayTimeForNode(currentPlayTime, node, inReverse);
-            if (!inReverse) {
-                playTime -= node.mAnimation.getStartDelay();
-            }
-            node.mAnimation.animateBasedOnPlayTime(playTime, lastPlayTime, inReverse);
-        }
-
         // Seek not yet started animations.
         for (int i = 0; i < mEvents.size(); i++) {
             AnimationEvent event = mEvents.get(i);
@@ -810,6 +800,16 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
             }
         }
 
+        // Seek unfinished animations to the right time. These should be the last because their
+        // results should not be overwritten by finished or not-yet-started animations.
+        for (int i = 0; i < unfinishedNodes.size(); i++) {
+            Node node = unfinishedNodes.get(i);
+            long playTime = getPlayTimeForNode(currentPlayTime, node, inReverse);
+            if (!inReverse) {
+                playTime -= node.mAnimation.getStartDelay();
+            }
+            node.mAnimation.animateBasedOnPlayTime(playTime, lastPlayTime, inReverse);
+        }
     }
 
     @Override
