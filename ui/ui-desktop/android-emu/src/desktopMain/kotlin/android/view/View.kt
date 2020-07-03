@@ -111,7 +111,7 @@ open class View(val context: Context) {
 
     var parent: ViewParent? = null
 
-    var viewTreeObserver: ViewTreeObserver? = null
+    var viewTreeObserver: ViewTreeObserver? = ViewTreeObserver()
 
     class MeasureSpec {
         companion object {
