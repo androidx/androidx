@@ -21,6 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Applier
 import androidx.compose.ExperimentalComposeApi
+import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
 import androidx.ui.viewinterop.AndroidViewHolder
@@ -73,7 +74,6 @@ class UiApplier(
             if (pendingInsert.instance == instance) {
                 val index = pendingInsert.index
                 pendingInserts.pop()
-
                 when (parent) {
                     is ViewGroup ->
                         when (instance) {
@@ -82,17 +82,11 @@ class UiApplier(
                                 parent.addView(instance, index)
                                 adapter?.didInsert(instance, parent)
                             }
-//                            is LayoutNode -> {
-//                                val adaptedView = adapters?.adapt(parent, instance) as? View
-//                                    ?: error(
-//                                        "Could not convert ${
-//                                        instance.javaClass.simpleName
-//                                        } to a View"
-//                                    )
-//                                adapter?.willInsert(adaptedView, parent)
-//                                parent.addView(adaptedView, index)
-//                                adapter?.didInsert(adaptedView, parent)
-//                            }
+                            is LayoutNode -> {
+                                val composeView = AndroidComposeView(parent.context, null, null)
+                                parent.addView(composeView, index)
+                                composeView.root.insertAt(0, instance)
+                            }
                             else -> invalidNode(instance)
                         }
                     is LayoutNode ->

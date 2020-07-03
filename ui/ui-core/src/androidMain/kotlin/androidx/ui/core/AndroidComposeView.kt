@@ -102,9 +102,7 @@ fun AndroidOwner(
     context,
     lifecycleOwner,
     viewModelStoreOwner
-).also {
-    AndroidOwner.onAndroidOwnerCreatedCallback?.invoke(it)
-}
+)
 
 @OptIn(ExperimentalLayoutNodeApi::class)
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -240,6 +238,7 @@ internal class AndroidComposeView constructor(
         clipChildren = false
         root.isPlaced = true
         ViewCompat.setAccessibilityDelegate(this, accessibilityDelegate)
+        AndroidOwner.onAndroidOwnerCreatedCallback?.invoke(this)
     }
 
     override fun onInvalidate(layoutNode: LayoutNode) {
@@ -263,9 +262,15 @@ internal class AndroidComposeView constructor(
         snapshotObserver.clear(node)
     }
 
-    private val androidViewsHandler by lazy(LazyThreadSafetyMode.NONE) {
-        AndroidViewsHandler(context).also { addView(it) }
-    }
+    private var _androidViewsHandler: AndroidViewsHandler? = null
+    private val androidViewsHandler: AndroidViewsHandler
+        get() {
+            if (_androidViewsHandler == null) {
+                _androidViewsHandler = AndroidViewsHandler(context)
+                addView(_androidViewsHandler)
+            }
+            return _androidViewsHandler!!
+        }
     private val viewLayersContainer by lazy(LazyThreadSafetyMode.NONE) {
         ViewLayerContainer(context).also { addView(it) }
     }
@@ -353,6 +358,12 @@ internal class AndroidComposeView constructor(
         // are currently wrong if you try to get the global(activity) coordinates -
         // View is not yet laid out.
         dispatchOnPositioned()
+        if (_androidViewsHandler != null && androidViewsHandler.isLayoutRequested) {
+            // Even if we laid out during onMeasure, this can happen when the Views hierarchy
+            // receives forceLayout(). We need to relayout to clear the isLayoutRequested info
+            // on the Views, as otherwise further layout requests will be discarded.
+            androidViewsHandler.layout(0, 0, r - l, b - t)
+        }
     }
 
     private var globalPosition: IntOffset = IntOffset.Origin

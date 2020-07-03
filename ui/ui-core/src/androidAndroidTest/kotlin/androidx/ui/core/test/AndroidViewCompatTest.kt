@@ -30,23 +30,33 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.compose.Applier
 import androidx.compose.Composable
+import androidx.compose.ExperimentalComposeApi
+import androidx.compose.emit
 import androidx.compose.getValue
+import androidx.compose.key
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
+import androidx.test.espresso.matcher.ViewMatchers.withClassName
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.ui.core.AlignmentLine
+import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.LayoutDirection
+import androidx.ui.core.LayoutEmitHelper
 import androidx.ui.core.LayoutModifier
+import androidx.ui.core.LayoutNode
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
@@ -54,16 +64,19 @@ import androidx.ui.core.Owner
 import androidx.ui.core.Ref
 import androidx.ui.core.drawLayer
 import androidx.ui.core.globalPosition
+import androidx.ui.core.isAttached
 import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.drawBackground
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.Offset
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
+import androidx.ui.layout.size
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertPixels
@@ -73,12 +86,18 @@ import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
+import androidx.ui.unit.dp
 import androidx.ui.viewinterop.AndroidView
 import androidx.ui.viewinterop.emitView
 import junit.framework.TestCase.assertNotNull
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.allOf
+import org.hamcrest.CoreMatchers.endsWith
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.not
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -482,6 +501,195 @@ class AndroidViewCompatTest {
         }
     }
 
+    @Test
+    fun testComposeInsideView_simpleLayout() {
+        val padding = 10f
+        val paddingDp = with(composeTestRule.density) { padding.toDp() }
+        val size = 20f
+        val sizeDp = with(composeTestRule.density) { size.toDp() }
+
+        lateinit var outer: Offset
+        lateinit var inner1: Offset
+        lateinit var inner2: Offset
+        composeTestRule.setContent {
+            Box(Modifier.onPositioned { outer = it.globalPosition }) {
+                Box(paddingStart = paddingDp, paddingTop = paddingDp) {
+                    emitView(::LinearLayout, {}) {
+                        Box(Modifier.size(sizeDp).drawBackground(Color.Blue).onPositioned {
+                            inner1 = it.globalPosition
+                        })
+                        Box(Modifier.size(sizeDp).drawBackground(Color.Gray).onPositioned {
+                            inner2 = it.globalPosition
+                        })
+                    }
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            assertEquals(Offset(padding, padding), inner1 - outer)
+            assertEquals(Offset(padding + size, padding), inner2 - outer)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testComposeInsideView_simpleDraw() {
+        val padding = 10f
+        val paddingDp = with(composeTestRule.density) { padding.toDp() }
+        val size = 20f
+        val sizeDp = with(composeTestRule.density) { size.toDp() }
+
+        composeTestRule.setContent {
+            Box(Modifier.testTag("box")) {
+                Box(padding = paddingDp, backgroundColor = Color.Blue) {
+                    emitView(::LinearLayout, {}) {
+                        Box(Modifier.size(sizeDp).drawBackground(Color.White))
+                        Box(Modifier.size(sizeDp).drawBackground(Color.Gray))
+                    }
+                }
+            }
+        }
+
+        findByTag("box").captureToBitmap().assertPixels(
+            IntSize((padding * 2 + size * 2).roundToInt(), (padding * 2 + size).roundToInt())
+        ) { offset ->
+            if (offset.y < padding || offset.y >= padding + size || offset.x < padding ||
+                offset.x >= padding + size * 2) {
+                Color.Blue
+            } else if (offset.x >= padding && offset.x < padding + size) {
+                Color.White
+            } else {
+                Color.Gray
+            }
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalLayoutNodeApi::class, ExperimentalComposeApi::class)
+    fun testComposeInsideView_attachingAndDetaching() {
+        var composeContent by mutableStateOf(true)
+        var node: LayoutNode? = null
+        composeTestRule.setContent {
+            if (composeContent) {
+                Box {
+                    emitView(::LinearLayout, {}) {
+                        emit<LayoutNode, Applier<Any>>(
+                            ctor = LayoutEmitHelper.constructor,
+                            update = {
+                                node = this.node
+                                set(noOpMeasureBlocks, LayoutEmitHelper.setMeasureBlocks)
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        Espresso.onView(
+            allOf(
+                withClassName(endsWith("AndroidComposeView")),
+                not(isDescendantOfA(withClassName(endsWith("AndroidComposeView"))))
+            )
+        ).check { view, exception ->
+            view as AndroidComposeView
+            // The root layout node should have one child, the Box.
+            if (view.root.children.size != 1) throw exception
+        }
+        var innerAndroidComposeView: AndroidComposeView? = null
+        Espresso.onView(
+            allOf(
+                withClassName(endsWith("AndroidComposeView")),
+                isDescendantOfA(withClassName(endsWith("AndroidComposeView")))
+            )
+        ).check { view, exception ->
+            innerAndroidComposeView = view as AndroidComposeView
+            // It should have one layout node child, the inner emitted LayoutNode.
+            if (view.root.children.size != 1) throw exception
+        }
+        // The layout node and its AndroidComposeView should be attached.
+        assertNotNull(innerAndroidComposeView)
+        assertTrue(innerAndroidComposeView!!.isAttachedToWindow)
+        assertNotNull(node)
+        assertTrue(node!!.isAttached())
+
+        runOnIdleCompose { composeContent = false }
+
+        // The composition has been disposed.
+        runOnIdleCompose {
+            assertFalse(innerAndroidComposeView!!.isAttachedToWindow)
+            assertFalse(node!!.isAttached())
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testComposeInsideView_remove() {
+        val size = 40.dp
+        val sizePx = with(composeTestRule.density) { size.toIntPx() }
+
+        var first by mutableStateOf(true)
+        composeTestRule.setContent {
+            Box(Modifier.testTag("view")) {
+                emitView(::LinearLayout, {}) {
+                    if (first) {
+                        Box(Modifier.size(size), backgroundColor = Color.Green)
+                    } else {
+                        Box(Modifier.size(size), backgroundColor = Color.Blue)
+                    }
+                }
+            }
+        }
+
+        findByTag("view").captureToBitmap().assertPixels(IntSize(sizePx, sizePx)) { Color.Green }
+
+        runOnIdleCompose { first = false }
+
+        findByTag("view").captureToBitmap().assertPixels(IntSize(sizePx, sizePx)) { Color.Blue }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testComposeInsideView_move() {
+        val size = 40.dp
+        val sizePx = with(composeTestRule.density) { size.toIntPx() }
+
+        var first by mutableStateOf(true)
+        composeTestRule.setContent {
+            Box(Modifier.testTag("view")) {
+                emitView(::LinearLayout, {}) {
+                    if (first) {
+                        key("green") {
+                            Box(Modifier.size(size), backgroundColor = Color.Green)
+                        }
+                        key("blue") {
+                            Box(Modifier.size(size), backgroundColor = Color.Blue)
+                        }
+                    } else {
+                        key("blue") {
+                            Box(Modifier.size(size), backgroundColor = Color.Blue)
+                        }
+                        key("green") {
+                            Box(Modifier.size(size), backgroundColor = Color.Green)
+                        }
+                    }
+                }
+            }
+        }
+
+        findByTag("view").captureToBitmap()
+            .assertPixels(IntSize(sizePx * 2, sizePx)) {
+                if (it.x < sizePx) Color.Green else Color.Blue
+            }
+
+        runOnIdleCompose { first = false }
+
+        findByTag("view").captureToBitmap()
+            .assertPixels(IntSize(sizePx * 2, sizePx)) {
+                if (it.x < sizePx) Color.Blue else Color.Green
+            }
+    }
+
     class ColoredSquareView(context: Context) : View(context) {
         var size: Int = 100
             set(value) {
@@ -499,7 +707,6 @@ class AndroidViewCompatTest {
                 }
             }
 
-        // TODO(popam): can we merge the android-view Ref with the one in core?
         var ref: Ref<ColoredSquareView>? = null
             set(value) {
                 field = value
@@ -558,6 +765,23 @@ class AndroidViewCompatTest {
             val placeable = measurables[0].measure(constraints)
             layout(placeable.width, placeable.height) {
                 placeable.place(0, 0)
+            }
+        }
+    }
+
+    @OptIn(ExperimentalLayoutNodeApi::class)
+    private val noOpMeasureBlocks = object : LayoutNode.NoIntrinsicsMeasureBlocks("") {
+        override fun measure(
+            measureScope: MeasureScope,
+            measurables: List<Measurable>,
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
+        ): MeasureScope.MeasureResult {
+            return object : MeasureScope.MeasureResult {
+                override val width = 0
+                override val height = 0
+                override val alignmentLines: Map<AlignmentLine, Int> get() = mapOf()
+                override fun placeChildren(layoutDirection: LayoutDirection) {}
             }
         }
     }
