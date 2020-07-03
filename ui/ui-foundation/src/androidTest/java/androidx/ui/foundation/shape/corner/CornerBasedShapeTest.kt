@@ -64,7 +64,7 @@ class CornerBasedShapeTest {
     }
 
     @Test
-    fun cornersSizesAreNotLargerThenMinDimension() {
+    fun topCornersSizesAreNotLargerThenMinDimension() {
         val density = Density(2f, 1f)
         val sizeWithLargerWidth = Size(6.0f, 4.0f)
         val sizeWithLargerHeight = Size(4.0f, 6.0f)
@@ -76,10 +76,10 @@ class CornerBasedShapeTest {
                             bottomRight: Float,
                             bottomLeft: Float ->
             sizesList.add(size)
-            assertThat(topLeft).isEqualTo(2.0f)
-            assertThat(topRight).isEqualTo(2.0f)
-            assertThat(bottomRight).isEqualTo(1.0f)
-            assertThat(bottomLeft).isEqualTo(2.0f)
+            assertThat(topLeft).isEqualTo(4.0f)
+            assertThat(topRight).isEqualTo(4.0f)
+            assertThat(bottomRight).isEqualTo(0.0f)
+            assertThat(bottomLeft).isEqualTo(0.0f)
         }
 
         val impl = Impl(
@@ -87,6 +87,72 @@ class CornerBasedShapeTest {
             topRight = CornerSize(6.dp),
             bottomRight = CornerSize(1.0f),
             bottomLeft = CornerSize(2.0f),
+            onOutlineRequested = assertSizes
+        )
+
+        impl.createOutline(sizeWithLargerWidth, density)
+        impl.createOutline(sizeWithLargerHeight, density)
+
+        assertThat(sizesList).isEqualTo(mutableListOf(sizeWithLargerWidth, sizeWithLargerHeight))
+    }
+
+    @Test
+    fun largerBottomCornersUseRemainingFromMinDimensionSize() {
+        val density = Density(2f, 1f)
+        val sizeWithLargerWidth = Size(6.0f, 4.0f)
+        val sizeWithLargerHeight = Size(4.0f, 6.0f)
+
+        val sizesList = mutableListOf<Size>()
+        val assertSizes = { size: Size,
+                            topLeft: Float,
+                            topRight: Float,
+                            bottomRight: Float,
+                            bottomLeft: Float ->
+            sizesList.add(size)
+            assertThat(topLeft).isEqualTo(1.0f)
+            assertThat(topRight).isEqualTo(1.0f)
+            assertThat(bottomRight).isEqualTo(3.0f)
+            assertThat(bottomLeft).isEqualTo(3.0f)
+        }
+
+        val impl = Impl(
+            topLeft = CornerSize(1.0f),
+            topRight = CornerSize(0.5f.dp),
+            bottomRight = CornerSize(10f),
+            bottomLeft = CornerSize(100),
+            onOutlineRequested = assertSizes
+        )
+
+        impl.createOutline(sizeWithLargerWidth, density)
+        impl.createOutline(sizeWithLargerHeight, density)
+
+        assertThat(sizesList).isEqualTo(mutableListOf(sizeWithLargerWidth, sizeWithLargerHeight))
+    }
+
+    @Test
+    fun topCornersUse100Percent() {
+        val density = Density(2f, 1f)
+        val sizeWithLargerWidth = Size(6.0f, 4.0f)
+        val sizeWithLargerHeight = Size(4.0f, 6.0f)
+
+        val sizesList = mutableListOf<Size>()
+        val assertSizes = { size: Size,
+                            topLeft: Float,
+                            topRight: Float,
+                            bottomRight: Float,
+                            bottomLeft: Float ->
+            sizesList.add(size)
+            assertThat(topLeft).isEqualTo(4.0f)
+            assertThat(topRight).isEqualTo(4.0f)
+            assertThat(bottomRight).isEqualTo(0.0f)
+            assertThat(bottomLeft).isEqualTo(0.0f)
+        }
+
+        val impl = Impl(
+            topLeft = CornerSize(100),
+            topRight = CornerSize(100),
+            bottomRight = CornerSize(0),
+            bottomLeft = CornerSize(0),
             onOutlineRequested = assertSizes
         )
 

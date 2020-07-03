@@ -66,23 +66,23 @@ private data class PxCornerSize(private val size: Float) : CornerSize {
 /**
  * Creates [CornerSize] with provided size.
  * @param percent the corner size defined in percents of the shape's smaller side.
- * Can't be negative or larger then 50 percents.
+ * Can't be negative or larger then 100 percents.
  */
 @Stable
-fun CornerSize(@IntRange(from = 0, to = 50) percent: Int): CornerSize =
+fun CornerSize(@IntRange(from = 0, to = 100) percent: Int): CornerSize =
     PercentCornerSize(percent.toFloat())
 
 /**
  * Creates [CornerSize] with provided size.
  * @param percent the corner size defined in float percents of the shape's smaller side.
- * Can't be negative or larger then 50 percents.
+ * Can't be negative or larger then 100 percents.
  */
 private data class PercentCornerSize(
-    @FloatRange(from = 0.0, to = 50.0) private val percent: Float
+    @FloatRange(from = 0.0, to = 100.0) private val percent: Float
 ) : CornerSize {
     init {
-        if (percent < 0 || percent > 50) {
-            throw IllegalArgumentException("The percent should be in the range of [0, 50]")
+        if (percent < 0 || percent > 100) {
+            throw IllegalArgumentException("The percent should be in the range of [0, 100]")
         }
     }
 

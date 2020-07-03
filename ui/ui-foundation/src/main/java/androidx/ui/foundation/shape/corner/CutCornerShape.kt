@@ -140,10 +140,10 @@ class CutCornerShape(
  * Creates [CutCornerShape] with sizes defined in percents of the shape's smaller side.
  */
 /*inline*/ fun CutCornerShape(
-    @IntRange(from = 0, to = 50) topLeftPercent: Int = 0,
-    @IntRange(from = 0, to = 50) topRightPercent: Int = 0,
-    @IntRange(from = 0, to = 50) bottomRightPercent: Int = 0,
-    @IntRange(from = 0, to = 50) bottomLeftPercent: Int = 0
+    @IntRange(from = 0, to = 100) topLeftPercent: Int = 0,
+    @IntRange(from = 0, to = 100) topRightPercent: Int = 0,
+    @IntRange(from = 0, to = 100) bottomRightPercent: Int = 0,
+    @IntRange(from = 0, to = 100) bottomLeftPercent: Int = 0
 ) = CutCornerShape(
     CornerSize(topLeftPercent),
     CornerSize(topRightPercent),
