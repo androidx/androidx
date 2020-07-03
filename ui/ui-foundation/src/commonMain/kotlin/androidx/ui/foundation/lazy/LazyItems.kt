@@ -29,8 +29,9 @@ import androidx.ui.core.LayoutNode
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.clipToBounds
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.materialize
-import androidx.ui.foundation.gestures.DragDirection
+import androidx.ui.foundation.gestures.rememberScrollableController
 import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.layout.Spacer
 
@@ -88,15 +89,11 @@ private fun <T> LazyItems(
     state.compositionRef = compositionReference()
     state.forceRecompose = true
 
-    val dragDirection = if (isVertical) DragDirection.Vertical else DragDirection.Horizontal
     val materialized = currentComposer.materialize(
         modifier
             .scrollable(
-                dragDirection = dragDirection,
-                scrollableState = androidx.ui.foundation.gestures.ScrollableState(
-                    onScrollDeltaConsumptionRequested =
-                    state.onScrollDeltaConsumptionRequestedListener
-                )
+                orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
+                controller = rememberScrollableController(consumeScrollDelta = state.onScrollDelta)
             )
             .clipToBounds()
     )

@@ -42,7 +42,7 @@ import androidx.ui.unit.sp
 @Composable
 fun ZoomableSample() {
     Box(
-        Modifier.preferredSize(700.dp).clipToBounds(),
+        Modifier.preferredSize(300.dp).clipToBounds(),
         backgroundColor = Color.LightGray
     ) {
         var scale by state(structuralEqualityPolicy()) { 1f }

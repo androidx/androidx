@@ -32,10 +32,11 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.animation.FlingConfig
-import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.ScrollableState
+import androidx.ui.foundation.animation.defaultFlingConfig
+import androidx.ui.foundation.gestures.ScrollableController
 import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.layout.Column
 import androidx.ui.layout.ColumnScope
@@ -62,7 +63,7 @@ fun ScrollerPosition(
     isReversed: Boolean = false
 ): ScrollerPosition {
     val clock = AnimationClockAmbient.current.asDisposableClock()
-    val config = FlingConfig()
+    val config = defaultFlingConfig()
     return rememberSavedInstanceState(
         clock, config,
         saver = ScrollerPosition.Saver(config, isReversed, clock)
@@ -112,8 +113,8 @@ class ScrollerPosition(
         directionalValue(consumed)
     }
 
-    internal val scrollableState =
-        ScrollableState(consumeDelta, flingConfig, animationClock)
+    internal val scrollableController =
+        ScrollableController(consumeDelta, flingConfig, animationClock)
 
     /**
      * current scroller position value in pixels
@@ -128,7 +129,7 @@ class ScrollerPosition(
      * whether this [ScrollerPosition] is currently animating/flinging
      */
     val isAnimating
-        get() = scrollableState.isAnimating
+        get() = scrollableController.isAnimationRunning
 
     /**
      * maxPosition this scroller that consume this ScrollerPosition can reach in pixels, or
@@ -163,7 +164,10 @@ class ScrollerPosition(
         value: Float,
         onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
     ) {
-        scrollableState.smoothScrollBy(directionalValue(value), onEnd)
+        scrollableController.smoothScrollBy(
+            value = directionalValue(value),
+            onEnd = onEnd
+        )
     }
 
     /**
@@ -281,8 +285,6 @@ private fun Scroller(
     isScrollable: Boolean,
     child: @Composable () -> Unit
 ) {
-    val direction =
-        if (isVertical) DragDirection.Vertical else DragDirection.Horizontal
     ScrollerLayout(
         scrollerPosition = scrollerPosition,
         modifier = modifier
@@ -300,9 +302,10 @@ private fun Scroller(
                 }
             }
             .scrollable(
-                scrollableState = scrollerPosition.scrollableState,
-                dragDirection = direction,
-                enabled = isScrollable
+                orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
+                reverseDirection = scrollerPosition.isReversed,
+                enabled = isScrollable,
+                controller = scrollerPosition.scrollableController
             ),
         isVertical = isVertical,
         child = child

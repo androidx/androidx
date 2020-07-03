@@ -33,6 +33,7 @@ import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
@@ -41,7 +42,7 @@ import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.Strings
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
-import androidx.ui.foundation.gestures.DragDirection
+import androidx.ui.foundation.animation.defaultFlingConfig
 import androidx.ui.foundation.gestures.draggable
 import androidx.ui.foundation.indication
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -121,13 +122,15 @@ fun Slider(
         val minPx = 0f
         position.setBounds(minPx, maxPx)
 
-        val flingConfig = SliderFlingConfig(position, position.anchorsPx) { endValue ->
-            position.holder.snapTo(endValue)
-            onValueChangeEnd()
-        }
+        val flingConfig = SliderFlingConfig(position, position.anchorsPx)
         val gestureEndAction = { velocity: Float ->
             if (flingConfig != null) {
-                position.holder.fling(flingConfig, velocity)
+                position.holder.fling(velocity, flingConfig) { reason, endValue, _ ->
+                    if (reason != AnimationEndReason.Interrupted) {
+                        position.holder.snapTo(endValue)
+                        onValueChangeEnd()
+                    }
+                }
             } else {
                 onValueChangeEnd()
             }
@@ -150,16 +153,12 @@ fun Slider(
         )
 
         val drag = Modifier.draggable(
-            dragDirection =
-            if (isRtl) DragDirection.ReversedHorizontal else DragDirection.Horizontal,
+            orientation = Orientation.Horizontal,
+            reverseDirection = isRtl,
             interactionState = interactionState,
-            onDragDeltaConsumptionRequested = { delta ->
-                position.holder.snapTo(position.holder.value + delta)
-                // consume all so slider won't participate in nested scrolling
-                delta
-            },
             onDragStopped = gestureEndAction,
-            startDragImmediately = position.holder.isRunning
+            startDragImmediately = position.holder.isRunning,
+            onDrag = { position.holder.snapTo(position.holder.value + it) }
         )
         val coerced = value.coerceIn(position.startValue, position.endValue)
         val fraction = calcFraction(position.startValue, position.endValue, coerced)
@@ -286,11 +285,10 @@ private fun calcFraction(a: Float, b: Float, pos: Float) =
 @Composable
 private fun SliderFlingConfig(
     value: SliderPosition,
-    anchors: List<Float>,
-    onSuccessfulEnd: (Float) -> Unit
+    anchors: List<Float>
 ): FlingConfig? {
-    if (anchors.isEmpty()) {
-        return null
+    return if (anchors.isEmpty()) {
+        null
     } else {
         val adjustTarget: (Float) -> TargetAnimation? = { _ ->
             val now = value.holder.value
@@ -298,14 +296,7 @@ private fun SliderFlingConfig(
             val adjusted = point ?: now
             TargetAnimation(adjusted, SliderToTickAnimation)
         }
-        return FlingConfig(
-            adjustTarget = adjustTarget,
-            onAnimationEnd = { reason, endValue, _ ->
-                if (reason != AnimationEndReason.Interrupted) {
-                    onSuccessfulEnd(endValue)
-                }
-            }
-        )
+        defaultFlingConfig(adjustTarget = adjustTarget)
     }
 }
 

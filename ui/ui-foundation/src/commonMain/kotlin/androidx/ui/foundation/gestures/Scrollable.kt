@@ -20,54 +20,57 @@ import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationClockObserver
 import androidx.animation.AnimationEndReason
+import androidx.animation.AnimationSpec
 import androidx.animation.Spring
+import androidx.animation.SpringSpec
 import androidx.compose.Composable
 import androidx.compose.mutableStateOf
 import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
+import androidx.ui.core.Direction
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.core.gesture.ScrollCallback
 import androidx.ui.core.gesture.scrollGestureFilter
 import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.foundation.animation.FlingConfig
+import androidx.ui.foundation.animation.defaultFlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.geometry.Offset
 
 /**
- * Create [ScrollableState] for [scrollable] with default [FlingConfig] and
+ * Create and remember [ScrollableController] for [scrollable] with default [FlingConfig] and
  * [AnimationClockObservable]
  *
- * @param onScrollDeltaConsumptionRequested callback invoked when scrollable drag/fling/smooth
- * scrolling occurs. The callback receives the delta in pixels. Callers should update their state
- * in this lambda and return amount of delta consumed
+ * @param consumeScrollDelta callback invoked when scrollable drag/fling/smooth scrolling occurs.
+ * The callback receives the delta in pixels. Callers should update their state in this lambda
+ * and return amount of delta consumed
  */
 @Composable
-fun ScrollableState(
-    onScrollDeltaConsumptionRequested: (Float) -> Float
-): ScrollableState {
+fun rememberScrollableController(
+    consumeScrollDelta: (Float) -> Float
+): ScrollableController {
     val clocks = AnimationClockAmbient.current.asDisposableClock()
-    val flingConfig = FlingConfig()
+    val flingConfig = defaultFlingConfig()
     return remember(clocks, flingConfig) {
-        ScrollableState(onScrollDeltaConsumptionRequested, flingConfig, clocks)
+        ScrollableController(consumeScrollDelta, flingConfig, clocks)
     }
 }
 
 /**
- * State of the [scrollable] composable. Contains necessary information about ongoing fling and
- * provides smooth scrolling capabilities.
+ * Controller to control the [scrollable] modifier with. Contains necessary information about the
+ * ongoing fling and provides smooth scrolling capabilities.
  *
- * @param onScrollDeltaConsumptionRequested callback invoked when scrollable drag/fling/smooth
- * scrolling occurs. The callback receives the delta in pixels. Callers should update their state
- * in this lambda and return amount of delta consumed
- * @param flingConfig configuration that specifies fling logic when scrolling ends with velocity
- * @param animationClock clock observable to run animation on. Consider querying
- * [AnimationClockAmbient] to get current composition value
+ * @param consumeScrollDelta callback invoked when drag/fling/smooth scrolling occurs. The
+ * callback receives the delta in pixels. Callers should update their state in this lambda and
+ * return the amount of delta consumed
+ * @param flingConfig fling configuration to use for flinging
+ * @param animationClock animation clock to run flinging and smooth scrolling on
  */
-class ScrollableState(
-    val onScrollDeltaConsumptionRequested: (Float) -> Float,
+class ScrollableController(
+    val consumeScrollDelta: (Float) -> Float,
     val flingConfig: FlingConfig,
     animationClock: AnimationClockObservable
 ) {
@@ -75,14 +78,16 @@ class ScrollableState(
      * Smooth scroll by [value] amount of pixels
      *
      * @param value delta to scroll by
+     * @param spec [AnimationSpec] to be used for this smooth scrolling
      * @param onEnd lambda to be called when smooth scrolling has ended
      */
     fun smoothScrollBy(
         value: Float,
+        spec: AnimationSpec<Float> = SpringSpec(),
         onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
     ) {
         val to = animatedFloat.value + value
-        animatedFloat.animateTo(to, onEnd = onEnd)
+        animatedFloat.animateTo(to, anim = spec, onEnd = onEnd)
     }
 
     private val isAnimationRunningState = mutableStateOf(false)
@@ -100,22 +105,22 @@ class ScrollableState(
     }
 
     /**
-     * whether this [ScrollableState] is currently animating/flinging
+     * whether this [ScrollableController] is currently animating/flinging
      */
-    val isAnimating
+    val isAnimationRunning
         get() = isAnimationRunningState.value
 
     /**
-     * Stop any animation, smooth scrolling or fling ongoing for this scrollable
+     * Stop any ongoing animation, smooth scrolling or fling
      *
-     * Call this to stop receiving scrollable deltas in [onScrollDeltaConsumptionRequested]
+     * Call this to stop receiving scrollable deltas in [consumeScrollDelta]
      */
     fun stopAnimation() {
         animatedFloat.stop()
     }
 
     private val animatedFloat =
-        DeltaAnimatedFloat(0f, clocksProxy, onScrollDeltaConsumptionRequested)
+        DeltaAnimatedFloat(0f, clocksProxy, consumeScrollDelta)
 
     /**
      * current position for scrollable
@@ -125,100 +130,90 @@ class ScrollableState(
         set(value) = animatedFloat.snapTo(value)
 
     internal fun fling(velocity: Float, onScrollEnd: (Float) -> Unit) {
-        val config = flingConfig.copy(
-            onAnimationEnd = { endReason, valueLeft, velocityLeft ->
-                flingConfig.onAnimationEnd?.invoke(endReason, valueLeft, velocityLeft)
+        animatedFloat.fling(
+            config = flingConfig,
+            startVelocity = velocity,
+            onAnimationEnd = { _, _, velocityLeft ->
                 onScrollEnd(velocityLeft)
-            }
-        )
-        animatedFloat.fling(config = config, startVelocity = velocity)
+            })
     }
 }
 
 /**
- * Enable scrolling and flinging of the modified UI element.
+ * Configure touch scrolling and flinging for the UI element in a single [Orientation].
  *
- * Although [ScrollableState] is required for this composable to work correctly, users of this
- * composable should own, update and reflect their own state. When constructing
- * [ScrollableState], you must provide a [ScrollableState.onScrollDeltaConsumptionRequested]
- * lambda, which will be invoked every time with the delta in pixels when scroll is happening (by
- * gesture input, by smooth scrolling or flinging). In this lambda callers should update their own
- * state and reflect it on UI. The amount of scrolling delta consumed must be returned from this
- * lambda.
+ * Users should update their state via [ScrollableController.consumeScrollDelta] and reflect
+ * their own state in UI when using this component.
+ *
+ * [ScrollableController] is required for this modifier to work correctly. When constructing
+ * [ScrollableController], you must provide a [ScrollableController.consumeScrollDelta] lambda,
+ * which will be invoked whenever scroll happens (by gesture input, by smooth scrolling or
+ * flinging) with the delta in pixels. The amount of scrolling delta consumed must be returned
+ * from this lambda to ensure proper nested scrolling.
  *
  * @sample androidx.ui.foundation.samples.ScrollableSample
  *
- * @param dragDirection axis to scroll alongside
- * @param scrollableState [ScrollableState] object that holds internal state of this Scrollable,
- * invokes [ScrollableState.onScrollDeltaConsumptionRequested] callback and provides smooth
- * scrolling capabilities
+ * @param orientation orientation of the scrolling
+ * @param controller [ScrollableController] object that is responsible for redirecting scroll
+ * deltas to [ScrollableController.consumeScrollDelta] callback and provides smooth scrolling
+ * capabilities
+ * @param enabled whether of not scrolling in enabled
+ * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will
+ * behave like bottom to top and left to right will behave like right to left.
+ * @param canScroll callback to indicate whether or not scroll is allowed for given [Direction]
  * @param onScrollStarted callback to be invoked when scroll has started from the certain
  * position on the screen
  * @param onScrollStopped callback to be invoked when scroll stops with amount of velocity
  * unconsumed provided
- * @param enabled whether of not scrolling in enabled
  */
 fun Modifier.scrollable(
-    dragDirection: DragDirection,
-    scrollableState: ScrollableState,
+    orientation: Orientation,
+    controller: ScrollableController,
+    enabled: Boolean = true,
+    reverseDirection: Boolean = false,
+    canScroll: (Direction) -> Boolean = { enabled },
     onScrollStarted: (startedPosition: Offset) -> Unit = {},
-    onScrollStopped: (velocity: Float) -> Unit = {},
-    enabled: Boolean = true
+    onScrollStopped: (velocity: Float) -> Unit = {}
 ): Modifier = composed {
     onDispose {
-        scrollableState.stopAnimation()
+        controller.stopAnimation()
     }
-
-    val orientation =
-        when (dragDirection) {
-            DragDirection.Horizontal -> Orientation.Horizontal
-            DragDirection.ReversedHorizontal -> Orientation.Horizontal
-            DragDirection.Vertical -> Orientation.Vertical
-        }
-
-    val sign =
-        when (dragDirection) {
-            DragDirection.Horizontal -> 1
-            DragDirection.Vertical -> 1
-            DragDirection.ReversedHorizontal -> -1
-        }
 
     scrollGestureFilter(
         scrollCallback = object : ScrollCallback {
 
             override fun onStart(downPosition: Offset) {
                 if (enabled) {
-                    scrollableState.stopAnimation()
+                    controller.stopAnimation()
                     onScrollStarted(downPosition)
                 }
             }
 
             override fun onScroll(scrollDistance: Float): Float {
                 if (!enabled) return 0f
-                val consumed =
-                    scrollableState.onScrollDeltaConsumptionRequested(scrollDistance * sign)
-                scrollableState.value = scrollableState.value + consumed
-                // TODO (malkov): temporary negate reversed direction with sign
-                //  remove when b/159618405 is fixed.
-                return consumed * sign
+                controller.stopAnimation()
+                val toConsume = if (reverseDirection) scrollDistance * -1 else scrollDistance
+                val consumed = controller.consumeScrollDelta(toConsume)
+                controller.value = controller.value + consumed
+                return if (reverseDirection) consumed * -1 else consumed
             }
 
             override fun onCancel() {
-                scrollableState.stopAnimation()
                 if (enabled) onScrollStopped(0f)
             }
 
             override fun onStop(velocity: Float) {
                 if (enabled) {
-                    scrollableState.fling(velocity * sign, onScrollStopped)
+                    controller.fling(
+                        velocity = if (reverseDirection) velocity * -1 else velocity,
+                        onScrollEnd = onScrollStopped
+                    )
                 }
             }
         },
         orientation = orientation,
-        // TODO(shepshapard): canDrag is intended to prevent something from starting a scroll in
-        //  a direction where scrolling is already at it's max.  This code is not yet doing that.
-        canDrag = { enabled },
-        startDragImmediately = scrollableState.isAnimating
+        canDrag = canScroll,
+        startDragImmediately = controller.isAnimationRunning
     )
 }
 

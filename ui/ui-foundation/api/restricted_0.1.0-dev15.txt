@@ -198,27 +198,6 @@ package androidx.ui.foundation {
 
 package androidx.ui.foundation.animation {
 
-  public final class AndroidFlingCalculator {
-    ctor public AndroidFlingCalculator(androidx.ui.unit.Density density);
-    method public float flingDistance(float velocity);
-    method public long flingDuration(float velocity);
-    method public androidx.ui.foundation.animation.AndroidFlingCalculator.FlingInfo flingInfo(float velocity);
-    method public androidx.ui.unit.Density getDensity();
-  }
-
-  public static final class AndroidFlingCalculator.FlingInfo {
-    ctor public AndroidFlingCalculator.FlingInfo(float initialVelocity, float distance, long duration);
-    method public float component1();
-    method public float component2();
-    method public long component3();
-    method public androidx.ui.foundation.animation.AndroidFlingCalculator.FlingInfo copy(float initialVelocity, float distance, long duration);
-    method public float getDistance();
-    method public long getDuration();
-    method public float getInitialVelocity();
-    method public float position(long time);
-    method public float velocity(long time);
-  }
-
   public final class AndroidFlingCalculatorKt {
   }
 
@@ -226,88 +205,54 @@ package androidx.ui.foundation.animation {
   }
 
   public final class AndroidFlingDecaySpec implements androidx.animation.FloatDecayAnimationSpec {
-    ctor public AndroidFlingDecaySpec(androidx.ui.foundation.animation.AndroidFlingCalculator flingCalculator);
+    ctor public AndroidFlingDecaySpec(androidx.ui.unit.Density density);
     method public float getAbsVelocityThreshold();
     method public long getDurationMillis(float start, float startVelocity);
-    method public androidx.ui.foundation.animation.AndroidFlingCalculator getFlingCalculator();
     method public float getTarget(float start, float startVelocity);
     method public float getValue(long playTime, float start, float startVelocity);
     method public float getVelocity(long playTime, float start, float startVelocity);
     property public float absVelocityThreshold;
-    property public final androidx.ui.foundation.animation.AndroidFlingCalculator flingCalculator;
-  }
-
-  public final class AndroidFlingSpline {
-    method public double deceleration(float velocity, float friction);
-    method public androidx.ui.foundation.animation.AndroidFlingSpline.FlingResult flingPosition(float time);
-    field public static final androidx.ui.foundation.animation.AndroidFlingSpline INSTANCE;
-  }
-
-  public static final class AndroidFlingSpline.FlingResult {
-    ctor public AndroidFlingSpline.FlingResult(float distanceCoefficient, float velocityCoefficient);
-    method public float component1();
-    method public float component2();
-    method public androidx.ui.foundation.animation.AndroidFlingSpline.FlingResult copy(float distanceCoefficient, float velocityCoefficient);
-    method public float getDistanceCoefficient();
-    method public float getVelocityCoefficient();
   }
 
   public final class AndroidFlingSplineKt {
   }
 
   @androidx.compose.Immutable public final class FlingConfig {
-    ctor public FlingConfig(androidx.animation.FloatDecayAnimationSpec decayAnimation, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
+    ctor public FlingConfig(androidx.animation.FloatDecayAnimationSpec decayAnimation, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
     method public androidx.animation.FloatDecayAnimationSpec component1();
-    method public kotlin.jvm.functions.Function3<androidx.animation.AnimationEndReason,java.lang.Float,java.lang.Float,kotlin.Unit>? component2();
-    method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.animation.TargetAnimation> component3();
-    method @androidx.compose.Immutable public androidx.ui.foundation.animation.FlingConfig copy(androidx.animation.FloatDecayAnimationSpec decayAnimation, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
+    method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.animation.TargetAnimation> component2();
+    method @androidx.compose.Immutable public androidx.ui.foundation.animation.FlingConfig copy(androidx.animation.FloatDecayAnimationSpec decayAnimation, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
     method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.animation.TargetAnimation> getAdjustTarget();
     method public androidx.animation.FloatDecayAnimationSpec getDecayAnimation();
-    method public kotlin.jvm.functions.Function3<androidx.animation.AnimationEndReason,java.lang.Float,java.lang.Float,kotlin.Unit>? getOnAnimationEnd();
   }
 
   public final class FlingConfigKt {
-    method public static androidx.ui.foundation.animation.FlingConfig AnchorsFlingConfig(java.util.List<java.lang.Float> anchors, androidx.animation.AnimationSpec<java.lang.Float> animationSpec = androidx.animation.SpringSpec(), kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null, androidx.animation.FloatDecayAnimationSpec decayAnimation = androidx.animation.ExponentialDecay());
-    method @androidx.compose.Composable public static androidx.ui.foundation.animation.FlingConfig FlingConfig(kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget = { return null });
-    method public static void fling(androidx.animation.AnimatedFloat, androidx.ui.foundation.animation.FlingConfig config, float startVelocity);
+    method public static androidx.ui.foundation.animation.FlingConfig FlingConfig(java.util.List<java.lang.Float> anchors, androidx.animation.AnimationSpec<java.lang.Float> animationSpec = androidx.animation.SpringSpec(), androidx.animation.FloatDecayAnimationSpec decayAnimation = androidx.animation.ExponentialDecay());
+    method @androidx.compose.Composable public static androidx.ui.foundation.animation.FlingConfig defaultFlingConfig(kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget = { return null });
+    method public static void fling(androidx.animation.AnimatedFloat, float startVelocity, androidx.ui.foundation.animation.FlingConfig config, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null);
   }
 
 }
 
 package androidx.ui.foundation.gestures {
 
-  public abstract sealed class DragDirection {
-  }
-
-  public static final class DragDirection.Horizontal extends androidx.ui.foundation.gestures.DragDirection {
-    field public static final androidx.ui.foundation.gestures.DragDirection.Horizontal INSTANCE;
-  }
-
-  public static final class DragDirection.ReversedHorizontal extends androidx.ui.foundation.gestures.DragDirection {
-    field public static final androidx.ui.foundation.gestures.DragDirection.ReversedHorizontal INSTANCE;
-  }
-
-  public static final class DragDirection.Vertical extends androidx.ui.foundation.gestures.DragDirection {
-    field public static final androidx.ui.foundation.gestures.DragDirection.Vertical INSTANCE;
-  }
-
   public final class DraggableKt {
-    method public static androidx.ui.core.Modifier draggable(androidx.ui.core.Modifier, androidx.ui.foundation.gestures.DragDirection dragDirection, kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, boolean enabled = true, androidx.ui.foundation.InteractionState? interactionState = null, boolean startDragImmediately = false, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onDragDeltaConsumptionRequested);
+    method public static androidx.ui.core.Modifier draggable(androidx.ui.core.Modifier, androidx.ui.core.gesture.scrollorientationlocking.Orientation orientation, boolean enabled = true, boolean reverseDirection = false, androidx.ui.foundation.InteractionState? interactionState = null, boolean startDragImmediately = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean> canDrag = { return enabled }, kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, kotlin.jvm.functions.Function2<? super androidx.ui.unit.Density,? super java.lang.Float,kotlin.Unit> onDrag);
+  }
+
+  public final class ScrollableController {
+    ctor public ScrollableController(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> consumeScrollDelta, androidx.ui.foundation.animation.FlingConfig flingConfig, androidx.animation.AnimationClockObservable animationClock);
+    method public kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> getConsumeScrollDelta();
+    method public androidx.ui.foundation.animation.FlingConfig getFlingConfig();
+    method public boolean isAnimationRunning();
+    method public void smoothScrollBy(float value, androidx.animation.AnimationSpec<java.lang.Float> spec = androidx.animation.SpringSpec(), kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
+    method public void stopAnimation();
+    property public final boolean isAnimationRunning;
   }
 
   public final class ScrollableKt {
-    method @androidx.compose.Composable public static androidx.ui.foundation.gestures.ScrollableState ScrollableState(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onScrollDeltaConsumptionRequested);
-    method public static androidx.ui.core.Modifier scrollable(androidx.ui.core.Modifier, androidx.ui.foundation.gestures.DragDirection dragDirection, androidx.ui.foundation.gestures.ScrollableState scrollableState, kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit> onScrollStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onScrollStopped = {}, boolean enabled = true);
-  }
-
-  public final class ScrollableState {
-    ctor public ScrollableState(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onScrollDeltaConsumptionRequested, androidx.ui.foundation.animation.FlingConfig flingConfig, androidx.animation.AnimationClockObservable animationClock);
-    method public androidx.ui.foundation.animation.FlingConfig getFlingConfig();
-    method public kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> getOnScrollDeltaConsumptionRequested();
-    method public boolean isAnimating();
-    method public void smoothScrollBy(float value, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
-    method public void stopAnimation();
-    property public final boolean isAnimating;
+    method @androidx.compose.Composable public static androidx.ui.foundation.gestures.ScrollableController rememberScrollableController(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> consumeScrollDelta);
+    method public static androidx.ui.core.Modifier scrollable(androidx.ui.core.Modifier, androidx.ui.core.gesture.scrollorientationlocking.Orientation orientation, androidx.ui.foundation.gestures.ScrollableController controller, boolean enabled = true, boolean reverseDirection = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean> canScroll = { return enabled }, kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit> onScrollStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onScrollStopped = {});
   }
 
   public final class ZoomableKt {

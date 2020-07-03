@@ -17,7 +17,6 @@
 package androidx.ui.foundation.animation
 
 import androidx.animation.AnimatedFloat
-import androidx.animation.AnimationEndReason
 import androidx.animation.AnimationSpec
 import androidx.animation.ExponentialDecay
 import androidx.animation.FloatDecayAnimationSpec
@@ -39,57 +38,31 @@ import kotlin.math.abs
  * e.g fling friction or result target adjustment.
  *
  * If you want to only be able to drag/animate between predefined set of values,
- * consider using [AnchorsFlingConfig] function to generate such behaviour.
+ * consider using [FlingConfig] function with anchors to generate such behaviour.
  *
  * @param decayAnimation the animation to control fling behaviour
- * @param onAnimationEnd callback to be invoked when fling finishes by decay
- * or being interrupted by gesture input.
- * Consider second boolean param "cancelled" to know what happened.
  * @param adjustTarget callback to be called at the start of fling
  * so the final value for fling can be adjusted
  */
 @Immutable
 data class FlingConfig(
     val decayAnimation: FloatDecayAnimationSpec,
-    val onAnimationEnd: OnAnimationEnd? = null,
     val adjustTarget: (Float) -> TargetAnimation? = { null }
 )
 
-@Composable
-internal expect fun ActualFlingConfig(
-    onAnimationEnd: OnAnimationEnd?,
-    adjustTarget: (Float) -> TargetAnimation?
-): FlingConfig
-
 /**
- * Specify fling behavior configured for the current composition. See [FlingConfig].
+ * Default [FlingConfig] curve.
  *
- * @param onAnimationEnd callback to be invoked when fling finishes by decay
- * or being interrupted by gesture input.
- * Consider second boolean param "cancelled" to know what happened.
- * @param adjustTarget callback to be called at the start of fling
- * so the final value for fling can be adjusted
+ * @param adjustTarget callback to be called at the start of fling so the final value for fling
+ * can be adjusted
  */
 @Composable
-fun FlingConfig(
-    onAnimationEnd: OnAnimationEnd? = null,
+fun defaultFlingConfig(
     adjustTarget: (Float) -> TargetAnimation? = { null }
-): FlingConfig = ActualFlingConfig(onAnimationEnd, adjustTarget)
+): FlingConfig = actualFlingConfig(adjustTarget)
 
-/**
- * Starts a fling animation with the specified starting velocity and fling configuration.
- *
- * @param config configuration that specifies fling behaviour
- * @param startVelocity Starting velocity of the fling animation
- */
-fun AnimatedFloat.fling(config: FlingConfig, startVelocity: Float) {
-    fling(
-        startVelocity,
-        config.decayAnimation,
-        config.adjustTarget,
-        config.onAnimationEnd
-    )
-}
+@Composable
+internal expect fun actualFlingConfig(adjustTarget: (Float) -> TargetAnimation?): FlingConfig
 
 /**
  * Create fling config with anchors will make sure that after drag has ended,
@@ -99,17 +72,13 @@ fun AnimatedFloat.fling(config: FlingConfig, startVelocity: Float) {
  * point in provided list considering velocity.
  *
  * @param anchors set of anchors to animate to
- * @param onAnimationEnd callback to be invoked when animation value reaches desired anchor
- * or fling being interrupted by gesture input.
- * Consult [AnimationEndReason] param to know what happened.
  * @param animationSpec animation which will be used for animations
  * @param decayAnimation decay animation to be used to calculate closest point in the anchors set
  * considering velocity.
  */
-fun AnchorsFlingConfig(
+fun FlingConfig(
     anchors: List<Float>,
     animationSpec: AnimationSpec<Float> = SpringSpec(),
-    onAnimationEnd: OnAnimationEnd? = null,
     decayAnimation: FloatDecayAnimationSpec = ExponentialDecay()
 ): FlingConfig {
     val adjustTarget: (Float) -> TargetAnimation? = { target ->
@@ -117,5 +86,27 @@ fun AnchorsFlingConfig(
         val adjusted = point ?: target
         TargetAnimation(adjusted, animationSpec)
     }
-    return FlingConfig(decayAnimation, onAnimationEnd, adjustTarget)
+    return FlingConfig(decayAnimation, adjustTarget)
+}
+
+/**
+ * Starts a fling animation with the specified starting velocity and fling configuration.
+ *
+ * @param startVelocity Starting velocity of the fling animation
+ * @param config configuration that specifies fling behaviour
+ * @param onAnimationEnd callback to be invoked when fling finishes by decay
+ * or being interrupted by gesture input.
+ * Consider second boolean param "cancelled" to know what happened.
+ */
+fun AnimatedFloat.fling(
+    startVelocity: Float,
+    config: FlingConfig,
+    onAnimationEnd: OnAnimationEnd? = null
+) {
+    fling(
+        startVelocity,
+        config.decayAnimation,
+        config.adjustTarget,
+        onAnimationEnd
+    )
 }

@@ -22,9 +22,10 @@ import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.testTag
-import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.draggable
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.test.center
@@ -39,7 +40,6 @@ import androidx.ui.test.swipe
 import androidx.ui.test.swipeWithVelocity
 import androidx.ui.test.up
 import androidx.ui.test.size
-import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
@@ -61,13 +61,7 @@ class DraggableTest {
     fun draggable_horizontalDrag() {
         var total = 0f
         setDraggableContent {
-            Modifier.draggable(
-                dragDirection = DragDirection.Horizontal,
-                onDragDeltaConsumptionRequested = { delta ->
-                    total += delta
-                    delta
-                }
-            )
+            Modifier.draggable(Orientation.Horizontal) { total += it }
         }
         onNodeWithTag(draggableBoxTag).performGesture {
             this.swipe(
@@ -106,13 +100,7 @@ class DraggableTest {
     fun draggable_verticalDrag() {
         var total = 0f
         setDraggableContent {
-            Modifier.draggable(
-                dragDirection = DragDirection.Vertical,
-                onDragDeltaConsumptionRequested = { delta ->
-                    total += delta
-                    delta
-                }
-            )
+            Modifier.draggable(Orientation.Vertical) { total += it }
         }
         onNodeWithTag(draggableBoxTag).performGesture {
             this.swipe(
@@ -153,17 +141,10 @@ class DraggableTest {
         var stopTrigger = 0f
         setDraggableContent {
             Modifier.draggable(
-                dragDirection = DragDirection.Horizontal,
-                onDragStarted = {
-                    startTrigger += 1
-                },
-                onDragStopped = {
-                    stopTrigger += 1
-                },
-                onDragDeltaConsumptionRequested = { delta ->
-                    delta
-                }
-            )
+                Orientation.Horizontal,
+                onDragStarted = { startTrigger += 1 },
+                onDragStopped = { stopTrigger += 1 }
+            ) {}
         }
         runOnIdle {
             assertThat(startTrigger).isEqualTo(0)
@@ -187,14 +168,9 @@ class DraggableTest {
         var total = 0f
         val enabled = mutableStateOf(true)
         setDraggableContent {
-            Modifier.draggable(
-                dragDirection = DragDirection.Horizontal,
-                onDragDeltaConsumptionRequested = { delta ->
-                    total += delta
-                    delta
-                },
-                enabled = enabled.value
-            )
+            Modifier.draggable(Orientation.Horizontal, enabled = enabled.value) {
+                total += it
+            }
         }
         onNodeWithTag(draggableBoxTag).performGesture {
             this.swipe(
@@ -225,14 +201,11 @@ class DraggableTest {
         var velocityTriggered = 0f
         setDraggableContent {
             Modifier.draggable(
-                dragDirection = DragDirection.Horizontal,
+                Orientation.Horizontal,
                 onDragStopped = {
                     velocityTriggered = it
-                },
-                onDragDeltaConsumptionRequested = { delta ->
-                    delta
                 }
-            )
+            ) {}
         }
         onNodeWithTag(draggableBoxTag).performGesture {
             this.swipeWithVelocity(
@@ -252,14 +225,9 @@ class DraggableTest {
     fun draggable_startWithoutSlop_ifAnimating() {
         var total = 0f
         setDraggableContent {
-            Modifier.draggable(
-                dragDirection = DragDirection.Horizontal,
-                onDragDeltaConsumptionRequested = { delta ->
-                    total += delta
-                    delta
-                },
-                startDragImmediately = true
-            )
+            Modifier.draggable(Orientation.Horizontal, startDragImmediately = true) {
+                total += it
+            }
         }
         onNodeWithTag(draggableBoxTag).performGesture {
             this.swipe(
@@ -281,14 +249,10 @@ class DraggableTest {
         setDraggableContent {
             if (total < 20f) {
                 Modifier.draggable(
-                    dragDirection = DragDirection.Horizontal,
-                    onDragDeltaConsumptionRequested = { delta ->
-                        total += delta
-                        delta
-                    },
+                    Orientation.Horizontal,
                     onDragStopped = { dragStopped += 1 },
                     startDragImmediately = true
-                )
+                ) { total += it }
             } else Modifier
         }
         onNodeWithTag(draggableBoxTag).performGesture {
@@ -306,7 +270,7 @@ class DraggableTest {
     }
 
     @Test
-    fun draggable_nestedDrag() {
+    fun draggable_noNestedDrag() {
         var innerDrag = 0f
         var outerDrag = 0f
         composeTestRule.setContent {
@@ -315,22 +279,16 @@ class DraggableTest {
                     modifier = Modifier
                         .testTag(draggableBoxTag)
                         .preferredSize(300.dp)
-                        .draggable(
-                            dragDirection = DragDirection.Horizontal,
-                            onDragDeltaConsumptionRequested = { delta ->
-                                outerDrag += delta
-                                delta
-                            }
-                        )
+                        .draggable(Orientation.Horizontal) {
+                            outerDrag += it
+                        }
                 ) {
-                    Box(modifier = Modifier.preferredSize(300.dp)
-                        .draggable(
-                            dragDirection = DragDirection.Horizontal,
-                            onDragDeltaConsumptionRequested = { delta ->
-                                innerDrag += delta / 2
-                                delta / 2
-                            }
-                        ))
+                    Box(modifier = Modifier
+                        .preferredSize(300.dp)
+                        .draggable(Orientation.Horizontal) { delta ->
+                            innerDrag += delta / 2
+                        }
+                    )
                 }
             }
         }
@@ -343,9 +301,8 @@ class DraggableTest {
         }
         runOnIdle {
             assertThat(innerDrag).isGreaterThan(0f)
-            assertThat(outerDrag).isGreaterThan(0f)
-            // we consumed half delta in child, so exactly half should go to the parent
-            assertThat(outerDrag).isEqualTo(innerDrag)
+            // draggable doesn't participate in nested scrolling, so outer should receive 0 events
+            assertThat(outerDrag).isEqualTo(0f)
         }
     }
 
@@ -355,9 +312,9 @@ class DraggableTest {
 
         setDraggableContent {
             Modifier.draggable(
-                DragDirection.Horizontal,
+                Orientation.Horizontal,
                 interactionState = interactionState
-            ) { 0f }
+            ) {}
         }
 
         runOnIdle {
@@ -396,9 +353,9 @@ class DraggableTest {
                         .testTag(draggableBoxTag)
                         .preferredSize(100.dp)
                         .draggable(
-                            DragDirection.Horizontal,
+                            orientation = Orientation.Horizontal,
                             interactionState = interactionState
-                        ) { 0f }
+                        ) {}
                     )
                 }
             }
@@ -432,9 +389,11 @@ class DraggableTest {
         composeTestRule.setContent {
             Stack {
                 val draggable = draggableFactory()
-                Box(modifier = Modifier
-                    .testTag(draggableBoxTag)
-                    .preferredSize(100.dp) + draggable
+                Box(
+                    modifier = Modifier
+                        .testTag(draggableBoxTag)
+                        .preferredSize(100.dp)
+                        .plus(draggable)
                 )
             }
         }

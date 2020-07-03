@@ -26,10 +26,10 @@ import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.testTag
 import androidx.ui.foundation.animation.FlingConfig
-import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.ScrollableState
+import androidx.ui.foundation.gestures.ScrollableController
 import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
@@ -66,8 +66,8 @@ class ScrollableTest {
     fun scrollable_horizontalScroll() {
         val clocks = ManualAnimationClock(0L)
         var total = 0f
-        val state = ScrollableState(
-            onScrollDeltaConsumptionRequested = {
+        val controller = ScrollableController(
+            consumeScrollDelta = {
                 total += it
                 it
             },
@@ -76,8 +76,8 @@ class ScrollableTest {
         )
         setScrollableContent {
             Modifier.scrollable(
-                scrollableState = state,
-                dragDirection = DragDirection.Horizontal
+                controller = controller,
+                orientation = Orientation.Horizontal
             )
         }
         onNodeWithTag(scrollableBoxTag).performGesture {
@@ -87,7 +87,7 @@ class ScrollableTest {
                 duration = 100.milliseconds
             )
         }
-        advanceClockAndAwaitAnimation(state, clocks)
+        advanceClockAndAwaitAnimation(controller, clocks)
 
         val lastTotal = runOnIdle {
             assertThat(total).isGreaterThan(0)
@@ -100,7 +100,7 @@ class ScrollableTest {
                 duration = 100.milliseconds
             )
         }
-        advanceClockAndAwaitAnimation(state, clocks)
+        advanceClockAndAwaitAnimation(controller, clocks)
 
         runOnIdle {
             assertThat(total).isEqualTo(lastTotal)
@@ -112,7 +112,7 @@ class ScrollableTest {
                 duration = 100.milliseconds
             )
         }
-        advanceClockAndAwaitAnimation(state, clocks)
+        advanceClockAndAwaitAnimation(controller, clocks)
         runOnIdle {
             assertThat(total).isLessThan(0.01f)
         }
@@ -122,8 +122,8 @@ class ScrollableTest {
     fun scrollable_verticalScroll() {
         val clocks = ManualAnimationClock(0L)
         var total = 0f
-        val state = ScrollableState(
-            onScrollDeltaConsumptionRequested = {
+        val controller = ScrollableController(
+            consumeScrollDelta = {
                 total += it
                 it
             },
@@ -132,8 +132,8 @@ class ScrollableTest {
         )
         setScrollableContent {
             Modifier.scrollable(
-                scrollableState = state,
-                dragDirection = DragDirection.Vertical
+                controller = controller,
+                orientation = Orientation.Vertical
             )
         }
         onNodeWithTag(scrollableBoxTag).performGesture {
@@ -143,7 +143,7 @@ class ScrollableTest {
                 duration = 100.milliseconds
             )
         }
-        advanceClockAndAwaitAnimation(state, clocks)
+        advanceClockAndAwaitAnimation(controller, clocks)
 
         val lastTotal = runOnIdle {
             assertThat(total).isGreaterThan(0)
@@ -156,7 +156,7 @@ class ScrollableTest {
                 duration = 100.milliseconds
             )
         }
-        advanceClockAndAwaitAnimation(state, clocks)
+        advanceClockAndAwaitAnimation(controller, clocks)
 
         runOnIdle {
             assertThat(total).isEqualTo(lastTotal)
@@ -168,7 +168,7 @@ class ScrollableTest {
                 duration = 100.milliseconds
             )
         }
-        advanceClockAndAwaitAnimation(state, clocks)
+        advanceClockAndAwaitAnimation(controller, clocks)
         runOnIdle {
             assertThat(total).isLessThan(0.01f)
         }
@@ -180,8 +180,8 @@ class ScrollableTest {
         var stopTrigger = 0f
         val clocks = ManualAnimationClock(0L)
         var total = 0f
-        val state = ScrollableState(
-            onScrollDeltaConsumptionRequested = {
+        val controller = ScrollableController(
+            consumeScrollDelta = {
                 total += it
                 it
             },
@@ -190,8 +190,8 @@ class ScrollableTest {
         )
         setScrollableContent {
             Modifier.scrollable(
-                scrollableState = state,
-                dragDirection = DragDirection.Horizontal,
+                controller = controller,
+                orientation = Orientation.Horizontal,
                 onScrollStarted = { startTrigger++ },
                 onScrollStopped = { stopTrigger++ }
             )
@@ -212,7 +212,7 @@ class ScrollableTest {
             assertThat(startTrigger).isEqualTo(1)
             assertThat(stopTrigger).isEqualTo(0)
         }
-        advanceClockAndAwaitAnimation(state, clocks)
+        advanceClockAndAwaitAnimation(controller, clocks)
         // after wait we expect stop to trigger
         runOnIdle {
             assertThat(startTrigger).isEqualTo(1)
@@ -225,8 +225,8 @@ class ScrollableTest {
         var enabled = mutableStateOf(true)
         val clocks = ManualAnimationClock(0L)
         var total = 0f
-        val state = ScrollableState(
-            onScrollDeltaConsumptionRequested = {
+        val controller = ScrollableController(
+            consumeScrollDelta = {
                 total += it
                 it
             },
@@ -235,8 +235,8 @@ class ScrollableTest {
         )
         setScrollableContent {
             Modifier.scrollable(
-                scrollableState = state,
-                dragDirection = DragDirection.Horizontal,
+                controller = controller,
+                orientation = Orientation.Horizontal,
                 enabled = enabled.value
             )
         }
@@ -247,7 +247,7 @@ class ScrollableTest {
                 duration = 100.milliseconds
             )
         }
-        advanceClockAndAwaitAnimation(state, clocks)
+        advanceClockAndAwaitAnimation(controller, clocks)
         val prevTotal = runOnIdle {
             assertThat(total).isGreaterThan(0f)
             enabled.value = false
@@ -260,7 +260,7 @@ class ScrollableTest {
                 duration = 100.milliseconds
             )
         }
-        advanceClockAndAwaitAnimation(state, clocks)
+        advanceClockAndAwaitAnimation(controller, clocks)
         runOnIdle {
             assertThat(total).isEqualTo(prevTotal)
         }
@@ -271,8 +271,8 @@ class ScrollableTest {
         var velocityTriggered = 0f
         val clocks = ManualAnimationClock(0L)
         var total = 0f
-        val state = ScrollableState(
-            onScrollDeltaConsumptionRequested = {
+        val controller = ScrollableController(
+            consumeScrollDelta = {
                 total += it
                 it
             },
@@ -281,8 +281,8 @@ class ScrollableTest {
         )
         setScrollableContent {
             Modifier.scrollable(
-                scrollableState = state,
-                dragDirection = DragDirection.Horizontal,
+                controller = controller,
+                orientation = Orientation.Horizontal,
                 onScrollStopped = { velocity ->
                     velocityTriggered = velocity
                 }
@@ -318,8 +318,8 @@ class ScrollableTest {
     fun scrollable_startWithoutSlop_ifFlinging() {
         val clocks = ManualAnimationClock(0L)
         var total = 0f
-        val state = ScrollableState(
-            onScrollDeltaConsumptionRequested = {
+        val controller = ScrollableController(
+            consumeScrollDelta = {
                 total += it
                 it
             },
@@ -328,8 +328,8 @@ class ScrollableTest {
         )
         setScrollableContent {
             Modifier.scrollable(
-                scrollableState = state,
-                dragDirection = DragDirection.Horizontal
+                controller = controller,
+                orientation = Orientation.Horizontal
             )
         }
         onNodeWithTag(scrollableBoxTag).performGesture {
@@ -363,8 +363,8 @@ class ScrollableTest {
         var total by mutableStateOf(0f)
         var dragStopped = 0f
         val clocks = ManualAnimationClock(0L)
-        val state = ScrollableState(
-            onScrollDeltaConsumptionRequested = {
+        val controller = ScrollableController(
+            consumeScrollDelta = {
                 total += it
                 it
             },
@@ -374,8 +374,8 @@ class ScrollableTest {
         setScrollableContent {
             if (total < 20) {
                 Modifier.scrollable(
-                    scrollableState = state,
-                    dragDirection = DragDirection.Horizontal,
+                    controller = controller,
+                    orientation = Orientation.Horizontal,
                     onScrollStopped = {
                         dragStopped++
                     }
@@ -401,8 +401,8 @@ class ScrollableTest {
     fun scrollable_snappingScrolling() {
         var total = 0f
         val clocks = ManualAnimationClock(0L)
-        val state = ScrollableState(
-            onScrollDeltaConsumptionRequested = {
+        val controller = ScrollableController(
+            consumeScrollDelta = {
                 total += it
                 it
             },
@@ -410,22 +410,22 @@ class ScrollableTest {
             animationClock = clocks
         )
         setScrollableContent {
-            Modifier.scrollable(dragDirection = DragDirection.Vertical, scrollableState = state)
+            Modifier.scrollable(orientation = Orientation.Vertical, controller = controller)
         }
         runOnIdle {
             assertThat(total).isEqualTo(0f)
         }
         runOnIdle {
-            state.smoothScrollBy(1000f)
+            controller.smoothScrollBy(1000f)
         }
-        advanceClockAndAwaitAnimation(state, clocks)
+        advanceClockAndAwaitAnimation(controller, clocks)
         runOnIdle {
             assertThat(total).isEqualTo(1000f)
         }
         runOnIdle {
-            state.smoothScrollBy(-200f)
+            controller.smoothScrollBy(-200f)
         }
-        advanceClockAndAwaitAnimation(state, clocks)
+        advanceClockAndAwaitAnimation(controller, clocks)
         runOnIdle {
             assertThat(total).isEqualTo(800f)
         }
@@ -436,8 +436,8 @@ class ScrollableTest {
         val disposed = mutableStateOf(false)
         var total = 0f
         val clocks = ManualAnimationClock(0L)
-        val state = ScrollableState(
-            onScrollDeltaConsumptionRequested = {
+        val controller = ScrollableController(
+            consumeScrollDelta = {
                 Truth.assertWithMessage("Animating after dispose!").that(disposed.value).isFalse()
                 total += it
                 it
@@ -447,16 +447,16 @@ class ScrollableTest {
         )
         setScrollableContent {
             if (!disposed.value) {
-                Modifier.scrollable(dragDirection = DragDirection.Vertical, scrollableState = state)
+                Modifier.scrollable(orientation = Orientation.Vertical, controller = controller)
             } else {
                 Modifier
             }
         }
         runOnUiThread {
-            state.smoothScrollBy(1000f)
+            controller.smoothScrollBy(1000f)
             disposed.value = true
         }
-        advanceClockAndAwaitAnimation(state, clocks)
+        advanceClockAndAwaitAnimation(controller, clocks)
         runOnIdle {
             assertThat(total).isEqualTo(0f)
         }
@@ -467,8 +467,8 @@ class ScrollableTest {
         val disposed = mutableStateOf(false)
         var total = 0f
         val clocks = ManualAnimationClock(0L)
-        val state = ScrollableState(
-            onScrollDeltaConsumptionRequested = {
+        val controller = ScrollableController(
+            consumeScrollDelta = {
                 Truth.assertWithMessage("Animating after dispose!").that(disposed.value).isFalse()
                 total += it
                 it
@@ -478,26 +478,26 @@ class ScrollableTest {
         )
         setScrollableContent {
             if (!disposed.value) {
-                Modifier.scrollable(dragDirection = DragDirection.Vertical, scrollableState = state)
+                Modifier.scrollable(orientation = Orientation.Vertical, controller = controller)
             } else {
                 Modifier
             }
         }
         runOnIdle {
-            state.smoothScrollBy(300f)
+            controller.smoothScrollBy(300f)
         }
-        advanceClockAndAwaitAnimation(state, clocks)
+        advanceClockAndAwaitAnimation(controller, clocks)
         runOnIdle {
             assertThat(total).isEqualTo(300f)
         }
         runOnIdle {
-            state.smoothScrollBy(200f)
+            controller.smoothScrollBy(200f)
         }
         // don't advance clocks yet, toggle disposed value
         runOnUiThread {
             disposed.value = true
         }
-        advanceClockAndAwaitAnimation(state, clocks)
+        advanceClockAndAwaitAnimation(controller, clocks)
         // still 300 and didn't fail in onScrollConsumptionRequested.. lambda
         runOnIdle {
             assertThat(total).isEqualTo(300f)
@@ -509,16 +509,16 @@ class ScrollableTest {
         var innerDrag = 0f
         var outerDrag = 0f
         val clocks = ManualAnimationClock(0L)
-        val outerState = ScrollableState(
-            onScrollDeltaConsumptionRequested = {
+        val outerState = ScrollableController(
+            consumeScrollDelta = {
                 outerDrag += it
                 it
             },
             flingConfig = FlingConfig(decayAnimation = ExponentialDecay()),
             animationClock = clocks
         )
-        val innerState = ScrollableState(
-            onScrollDeltaConsumptionRequested = {
+        val innerState = ScrollableController(
+            consumeScrollDelta = {
                 innerDrag += it / 2
                 it / 2
             },
@@ -534,14 +534,14 @@ class ScrollableTest {
                         .testTag(scrollableBoxTag)
                         .preferredSize(300.dp)
                         .scrollable(
-                            scrollableState = outerState,
-                            dragDirection = DragDirection.Horizontal
+                            controller = outerState,
+                            orientation = Orientation.Horizontal
                         )
                 ) {
                     Box(
                         modifier = Modifier.preferredSize(300.dp).scrollable(
-                            scrollableState = innerState,
-                            dragDirection = DragDirection.Horizontal
+                            controller = innerState,
+                            orientation = Orientation.Horizontal
                         )
                     )
                 }
@@ -573,22 +573,23 @@ class ScrollableTest {
         composeTestRule.setContent {
             Stack {
                 val scrollable = scrollableModifierFactory()
-                Box(modifier = Modifier
-                    .testTag(scrollableBoxTag)
-                    .preferredSize(100.dp) +
-                        scrollable
+                Box(
+                    modifier = Modifier
+                        .testTag(scrollableBoxTag)
+                        .preferredSize(100.dp) +
+                            scrollable
                 )
             }
         }
     }
 
     // TODO(b/147291885): This should not be needed in the future.
-    private fun awaitScrollAnimation(state: ScrollableState) {
+    private fun awaitScrollAnimation(controller: ScrollableController) {
         val latch = CountDownLatch(1)
         val handler = Handler(Looper.getMainLooper())
         handler.post(object : Runnable {
             override fun run() {
-                if (state.isAnimating) {
+                if (controller.isAnimationRunning) {
                     handler.post(this)
                 } else {
                     latch.countDown()
@@ -599,10 +600,13 @@ class ScrollableTest {
             .that(latch.await(20, TimeUnit.SECONDS)).isTrue()
     }
 
-    private fun advanceClockAndAwaitAnimation(state: ScrollableState, clock: ManualAnimationClock) {
+    private fun advanceClockAndAwaitAnimation(
+        controller: ScrollableController,
+        clock: ManualAnimationClock
+    ) {
         runOnIdle {
             clock.clockTimeMillis += 5000
         }
-        awaitScrollAnimation(state)
+        awaitScrollAnimation(controller)
     }
 }
