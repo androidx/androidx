@@ -19,8 +19,14 @@ package androidx.ui.core.gesture
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
+import androidx.ui.unit.Duration
 import androidx.ui.unit.IntSize
+import androidx.ui.unit.inMilliseconds
 import androidx.ui.util.fastAny
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 // TODO(shepshapard): This continues to be very confusing to use.  Have to come up with a better
 //  way of easily expressing this.
@@ -43,3 +49,14 @@ fun List<PointerInputChange>.anyPointersInBounds(bounds: IntSize) =
 
 internal class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
     PointerInputModifier
+
+/**
+ * Run [block] after [duration] time passes using [context].
+ *
+ * @return [Job] which is a reference to the running coroutine such that it can be cancelled via [Job.cancel].
+ */
+internal fun delay(duration: Duration, context: CoroutineContext, block: () -> Unit): Job =
+    CoroutineScope(context).launch {
+        kotlinx.coroutines.delay(duration.inMilliseconds())
+        block()
+    }

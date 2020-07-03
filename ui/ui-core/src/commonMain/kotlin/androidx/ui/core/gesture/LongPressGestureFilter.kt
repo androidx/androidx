@@ -33,7 +33,6 @@ import androidx.ui.core.consumeDownChange
 import androidx.ui.core.gesture.customevents.LongPressFiredEvent
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.geometry.Offset
-import androidx.ui.temputils.delay
 import androidx.ui.unit.IntSize
 import androidx.ui.util.fastAny
 import kotlinx.coroutines.Job
