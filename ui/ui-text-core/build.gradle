@@ -34,11 +34,11 @@ kotlin {
         commonMain.dependencies {
             implementation(KOTLIN_STDLIB_COMMON)
 
-            api project(":ui:ui-unit")
-            api project(":ui:ui-graphics")
+            api project(":compose:core:core-unit")
+            api project(":compose:core:core-graphics")
 
             implementation project(":compose:compose-runtime")
-            implementation project(":ui:ui-util")
+            implementation project(":compose:core:core-util")
             implementation project(":ui:ui-saved-instance-state")
         }
 

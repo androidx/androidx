@@ -46,7 +46,7 @@ dependencies {
     implementation project(":compose:animation:animation")
     implementation project(":compose:foundation:foundation")
     implementation project(":ui:ui-layout")
-    implementation project(":ui:ui-util")
+    implementation project(":compose:core:core-util")
     implementation project(":ui:ui-text")
     implementation project(":ui:ui-saved-instance-state")
 

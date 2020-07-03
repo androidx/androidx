@@ -40,7 +40,7 @@ kotlin {
             implementation(KOTLIN_COROUTINES_CORE)
             api project(":ui:ui-core")
             api project(":ui:ui-text-core")
-            api project(":ui:ui-util")
+            api project(":compose:core:core-util")
         }
 
         androidMain.dependencies {

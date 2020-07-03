@@ -39,15 +39,15 @@ kotlin {
             implementation(KOTLIN_STDLIB_COMMON)
             implementation(KOTLIN_COROUTINES_CORE)
 
-            api project(":ui:ui-unit")
-            api project(":ui:ui-geometry")
-            api project(":ui:ui-graphics")
+            api project(":compose:core:core-unit")
+            api project(":compose:core:core-geometry")
+            api project(":compose:core:core-graphics")
             api project(":ui:ui-text-core")
             // TODO: b/160602714 create a lower level module to avoid this dependency on the
             // animation group
             api project(":compose:animation:animation-core")
             api project(":ui:ui-saved-instance-state")
-            implementation project(":ui:ui-util")
+            implementation project(":compose:core:core-util")
             implementation project(":compose:compose-runtime")
         }
 
