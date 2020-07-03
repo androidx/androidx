@@ -85,7 +85,8 @@ public final class CameraUtil {
      */
     @RequiresPermission(Manifest.permission.CAMERA)
     @NonNull
-    public static CameraDeviceHolder getCameraDevice()
+    public static CameraDeviceHolder getCameraDevice(
+            @Nullable CameraDevice.StateCallback stateCallback)
             throws CameraAccessException, InterruptedException, TimeoutException,
             ExecutionException {
         // Use the first camera available.
@@ -96,7 +97,7 @@ public final class CameraUtil {
         }
         String cameraName = cameraIds.get(0);
 
-        return new CameraDeviceHolder(getCameraManager(), cameraName);
+        return new CameraDeviceHolder(getCameraManager(), cameraName, stateCallback);
     }
 
     /**
@@ -118,12 +119,14 @@ public final class CameraUtil {
         private ListenableFuture<Void> mCloseFuture;
 
         @RequiresPermission(Manifest.permission.CAMERA)
-        CameraDeviceHolder(@NonNull CameraManager cameraManager, @NonNull String cameraId)
+        CameraDeviceHolder(@NonNull CameraManager cameraManager, @NonNull String cameraId,
+                @Nullable CameraDevice.StateCallback stateCallback)
                 throws InterruptedException, ExecutionException, TimeoutException {
             mHandlerThread = new HandlerThread(String.format("CameraThread-%s", cameraId));
             mHandlerThread.start();
 
-            ListenableFuture<Void> cameraOpenFuture = openCamera(cameraManager, cameraId);
+            ListenableFuture<Void> cameraOpenFuture = openCamera(cameraManager, cameraId,
+                    stateCallback);
 
             // Wait for the open future to complete before continuing.
             cameraOpenFuture.get(CAMERA_OPEN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -132,7 +135,8 @@ public final class CameraUtil {
         @RequiresPermission(Manifest.permission.CAMERA)
         // Should only be called once during initialization.
         private ListenableFuture<Void> openCamera(@NonNull CameraManager cameraManager,
-                @NonNull String cameraId) {
+                @NonNull String cameraId,
+                @Nullable CameraDevice.StateCallback extraStateCallback) {
             return CallbackToFutureAdapter.getFuture(openCompleter -> {
                 mCloseFuture = CallbackToFutureAdapter.getFuture(closeCompleter -> {
                     cameraManager.openCamera(cameraId, new CameraDevice.StateCallback() {
@@ -144,11 +148,17 @@ public final class CameraUtil {
                                         + "should not have been opened yet.");
                                 mCameraDevice = cameraDevice;
                             }
+                            if (extraStateCallback != null) {
+                                extraStateCallback.onOpened(cameraDevice);
+                            }
                             openCompleter.set(null);
                         }
 
                         @Override
                         public void onClosed(@NonNull CameraDevice cameraDevice) {
+                            if (extraStateCallback != null) {
+                                extraStateCallback.onClosed(cameraDevice);
+                            }
                             closeCompleter.set(null);
                             mHandlerThread.quitSafely();
                         }
@@ -157,6 +167,9 @@ public final class CameraUtil {
                         public void onDisconnected(@NonNull CameraDevice cameraDevice) {
                             synchronized (mLock) {
                                 mCameraDevice = null;
+                            }
+                            if (extraStateCallback != null) {
+                                extraStateCallback.onDisconnected(cameraDevice);
                             }
                             cameraDevice.close();
                         }
@@ -170,6 +183,9 @@ public final class CameraUtil {
                                 } else {
                                     mCameraDevice = null;
                                 }
+                            }
+                            if (extraStateCallback != null) {
+                                extraStateCallback.onError(cameraDevice, i);
                             }
 
                             if (notifyOpenFailed) {
@@ -219,7 +235,8 @@ public final class CameraUtil {
     /**
      * Cleans up resources that need to be kept around while the camera device is active.
      *
-     * @param cameraDeviceHolder camera that was obtained via {@link #getCameraDevice()}
+     * @param cameraDeviceHolder camera that was obtained via
+     * {@link #getCameraDevice(CameraDevice.StateCallback)}
      */
     public static void releaseCameraDevice(@NonNull CameraDeviceHolder cameraDeviceHolder)
             throws ExecutionException, InterruptedException {
@@ -551,7 +568,7 @@ public final class CameraUtil {
         CameraDeviceHolder deviceHolder = null;
         boolean ret = true;
         try {
-            deviceHolder = new CameraDeviceHolder(getCameraManager(), cameraId);
+            deviceHolder = new CameraDeviceHolder(getCameraManager(), cameraId, null);
             if (deviceHolder.get() == null) {
                 ret = false;
             }
