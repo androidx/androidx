@@ -27,10 +27,10 @@ package androidx.paging
  * [PagedList.Config.MAX_SIZE_UNBOUNDED] to disable page dropping.
  */
 @Suppress(
-    "MissingJvmstatic", // Separate Java API
     "FunctionName",
     "DEPRECATION"
 )
+@JvmSynthetic
 fun Config(
     pageSize: Int,
     prefetchDistance: Int = pageSize,

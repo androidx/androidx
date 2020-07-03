@@ -1250,10 +1250,10 @@ abstract class PagedList<T : Any> internal constructor(
  * @param initialKey [Key] the [DataSource] should load around as part of initialization.
  */
 @Suppress(
-    "MissingJvmstatic", // Separate Java API
     "FunctionName",
     "DEPRECATION"
 )
+@JvmSynthetic
 @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
 fun <Key : Any, Value : Any> PagedList(
     dataSource: DataSource<Key, Value>,
