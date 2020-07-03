@@ -18,8 +18,12 @@ package androidx.mediarouter.media;
 
 import static android.media.MediaRoute2Info.FEATURE_LIVE_AUDIO;
 import static android.media.MediaRoute2Info.FEATURE_LIVE_VIDEO;
+import static android.media.MediaRoute2Info.FEATURE_REMOTE_AUDIO_PLAYBACK;
 import static android.media.MediaRoute2Info.FEATURE_REMOTE_PLAYBACK;
+import static android.media.MediaRoute2Info.FEATURE_REMOTE_VIDEO_PLAYBACK;
 
+import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER;
+import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_TV;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN;
 
 import android.annotation.SuppressLint;
@@ -47,6 +51,8 @@ import java.util.stream.Collectors;
 @RequiresApi(api = Build.VERSION_CODES.R)
 class MediaRouter2Utils {
     static final String FEATURE_EMPTY = "android.media.route.feature.EMPTY";
+    static final String FEATURE_REMOTE_GROUP_PLAYBACK =
+            "android.media.route.feature.REMOTE_GROUP_PLAYBACK";
 
     // Used in MediaRoute2Info#getExtras()
     static final String KEY_EXTRAS = "androidx.mediarouter.media.KEY_EXTRAS";
@@ -78,6 +84,17 @@ class MediaRouter2Utils {
                 //TODO: set client package name
                 //.setClientPackageName(clientMap.get(device.getDeviceId()))
                 ;
+
+        switch (descriptor.getDeviceType()) {
+            case DEVICE_TYPE_TV:
+                builder.addFeature(FEATURE_REMOTE_VIDEO_PLAYBACK);
+                // fall through
+            case DEVICE_TYPE_SPEAKER:
+                builder.addFeature(FEATURE_REMOTE_AUDIO_PLAYBACK);
+        }
+        if (!descriptor.getGroupMemberIds().isEmpty()) {
+            builder.addFeature(FEATURE_REMOTE_GROUP_PLAYBACK);
+        }
 
         // Since MediaRouter2Info has no public APIs to get/set device types and control filters,
         // We use extras for passing those kinds of information.
