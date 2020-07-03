@@ -95,7 +95,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
 
     override val clockTestRule = AnimationClockTestRule()
 
-    private var disposeContentHook: (() -> Unit)? = null
+    internal var disposeContentHook: (() -> Unit)? = null
 
     override val density: Density get() =
         Density(getActivity().resources.displayMetrics.density)

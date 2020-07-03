@@ -399,6 +399,10 @@ package androidx.ui.test.android {
     method public static void unregisterTestClock(androidx.ui.test.TestAnimationClock clock);
   }
 
+  public final class ComposeNotIdleException extends java.lang.Throwable {
+    ctor public ComposeNotIdleException(String? message, Throwable? cause);
+  }
+
   public final class WindowCaptureKt {
   }
 
