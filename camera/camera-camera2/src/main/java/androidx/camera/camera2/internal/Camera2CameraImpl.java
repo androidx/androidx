@@ -121,7 +121,7 @@ final class Camera2CameraImpl implements CameraInternal {
     private final LiveDataObservable<CameraInternal.State> mObservableState =
             new LiveDataObservable<>();
     /** The camera control shared across all use cases bound to this Camera. */
-    private final Camera2CameraControl mCameraControlInternal;
+    private final Camera2CameraControlImpl mCameraControlInternal;
     private final StateCallback mStateCallback;
     /** Information about the characteristics of this camera */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -199,7 +199,7 @@ final class Camera2CameraImpl implements CameraInternal {
         try {
             CameraCharacteristics cameraCharacteristics =
                     mCameraManager.getCameraCharacteristics(cameraId);
-            mCameraControlInternal = new Camera2CameraControl(cameraCharacteristics,
+            mCameraControlInternal = new Camera2CameraControlImpl(cameraCharacteristics,
                     executorScheduler, mExecutor, new ControlUpdateListenerInternal());
             mCameraInfoInternal = new Camera2CameraInfoImpl(
                     cameraId,
@@ -1084,7 +1084,7 @@ final class Camera2CameraImpl implements CameraInternal {
         return true;
     }
 
-    /** Returns the Camera2CameraControl attached to Camera */
+    /** Returns the Camera2CameraControlImpl attached to Camera */
     @NonNull
     @Override
     public CameraControlInternal getCameraControlInternal() {

@@ -76,7 +76,7 @@ public class TorchControlTest {
 
     private TorchControl mNoFlashUnitTorchControl;
     private TorchControl mTorchControl;
-    private Camera2CameraControl.CaptureResultListener mCaptureResultListener;
+    private Camera2CameraControlImpl.CaptureResultListener mCaptureResultListener;
     private TestLifecycleOwner mLifecycleOwner;
 
     @Before
@@ -90,8 +90,8 @@ public class TorchControlTest {
         CameraCharacteristics cameraCharacteristics0 =
                 cameraManager.getCameraCharacteristics(CAMERA0_ID);
 
-        Camera2CameraControl camera2CameraControl0 =
-                spy(new Camera2CameraControl(cameraCharacteristics0,
+        Camera2CameraControlImpl camera2CameraControl0 =
+                spy(new Camera2CameraControlImpl(cameraCharacteristics0,
                         CameraXExecutors.mainThreadExecutor(),
                         CameraXExecutors.mainThreadExecutor(),
                         mock(CameraControlInternal.ControlUpdateCallback.class)));
@@ -103,18 +103,18 @@ public class TorchControlTest {
         CameraCharacteristics cameraCharacteristics1 =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
 
-        Camera2CameraControl camera2CameraControl1 =
-                spy(new Camera2CameraControl(cameraCharacteristics1,
+        Camera2CameraControlImpl camera2CameraControlImpl1 =
+                spy(new Camera2CameraControlImpl(cameraCharacteristics1,
                         CameraXExecutors.mainThreadExecutor(),
                         CameraXExecutors.mainThreadExecutor(),
                         mock(CameraControlInternal.ControlUpdateCallback.class)));
-        mTorchControl = new TorchControl(camera2CameraControl1, cameraCharacteristics1,
+        mTorchControl = new TorchControl(camera2CameraControlImpl1, cameraCharacteristics1,
                 CameraXExecutors.mainThreadExecutor());
         mTorchControl.setActive(true);
 
-        ArgumentCaptor<Camera2CameraControl.CaptureResultListener> argumentCaptor =
-                ArgumentCaptor.forClass(Camera2CameraControl.CaptureResultListener.class);
-        verify(camera2CameraControl1).addCaptureResultListener(argumentCaptor.capture());
+        ArgumentCaptor<Camera2CameraControlImpl.CaptureResultListener> argumentCaptor =
+                ArgumentCaptor.forClass(Camera2CameraControlImpl.CaptureResultListener.class);
+        verify(camera2CameraControlImpl1).addCaptureResultListener(argumentCaptor.capture());
         mCaptureResultListener = argumentCaptor.getValue();
 
         /* Prepare Lifecycle for test LiveData */

@@ -673,8 +673,8 @@ public final class Camera2CameraImplTest {
         verify(useCase3, times(0)).onStateDetached();
     }
 
-    private boolean isCameraControlActive(Camera2CameraControl camera2CameraControl) {
-        ListenableFuture<Void> listenableFuture = camera2CameraControl.setZoomRatio(2.0f);
+    private boolean isCameraControlActive(Camera2CameraControlImpl camera2CameraControlImpl) {
+        ListenableFuture<Void> listenableFuture = camera2CameraControlImpl.setZoomRatio(2.0f);
         try {
             // setZoom() will fail immediately when Cameracontrol is not active.
             listenableFuture.get(50, TimeUnit.MILLISECONDS);
@@ -689,35 +689,35 @@ public final class Camera2CameraImplTest {
 
     @Test
     public void activateCameraControl_whenExistsAttachedUseCases() throws InterruptedException {
-        Camera2CameraControl camera2CameraControl =
-                (Camera2CameraControl) mCamera2CameraImpl.getCameraControlInternal();
+        Camera2CameraControlImpl camera2CameraControlImpl =
+                (Camera2CameraControlImpl) mCamera2CameraImpl.getCameraControlInternal();
 
-        assertThat(isCameraControlActive(camera2CameraControl)).isFalse();
+        assertThat(isCameraControlActive(camera2CameraControlImpl)).isFalse();
 
         UseCase useCase1 = createUseCase();
 
         mCamera2CameraImpl.attachUseCases(Collections.singletonList(useCase1));
         HandlerUtil.waitForLooperToIdle(sCameraHandler);
 
-        assertThat(isCameraControlActive(camera2CameraControl)).isTrue();
+        assertThat(isCameraControlActive(camera2CameraControlImpl)).isTrue();
 
         mCamera2CameraImpl.detachUseCases(Collections.singletonList(useCase1));
     }
 
     @Test
     public void deactivateCameraControl_whenNoAttachedUseCases() throws InterruptedException {
-        Camera2CameraControl camera2CameraControl =
-                (Camera2CameraControl) mCamera2CameraImpl.getCameraControlInternal();
+        Camera2CameraControlImpl camera2CameraControlImpl =
+                (Camera2CameraControlImpl) mCamera2CameraImpl.getCameraControlInternal();
         UseCase useCase1 = createUseCase();
 
         mCamera2CameraImpl.attachUseCases(Arrays.asList(useCase1));
         HandlerUtil.waitForLooperToIdle(sCameraHandler);
-        assertThat(isCameraControlActive(camera2CameraControl)).isTrue();
+        assertThat(isCameraControlActive(camera2CameraControlImpl)).isTrue();
 
         mCamera2CameraImpl.detachUseCases(Arrays.asList(useCase1));
         HandlerUtil.waitForLooperToIdle(sCameraHandler);
 
-        assertThat(isCameraControlActive(camera2CameraControl)).isFalse();
+        assertThat(isCameraControlActive(camera2CameraControlImpl)).isFalse();
     }
 
     private DeferrableSurface getUseCaseSurface(UseCase useCase) {

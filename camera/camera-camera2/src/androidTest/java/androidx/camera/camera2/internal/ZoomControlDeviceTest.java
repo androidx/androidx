@@ -74,7 +74,7 @@ import java.util.concurrent.TimeoutException;
 public final class ZoomControlDeviceTest {
     private static final int TOLERANCE = 5;
     private ZoomControl mZoomControl;
-    private Camera2CameraControl mCamera2CameraControl;
+    private Camera2CameraControlImpl mCamera2CameraControlImpl;
     private HandlerThread mHandlerThread;
     private ControlUpdateCallback mControlUpdateCallback;
     private CameraCharacteristics mCameraCharacteristics;
@@ -101,14 +101,14 @@ public final class ZoomControlDeviceTest {
         mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
-        mCamera2CameraControl = new Camera2CameraControl(mCameraCharacteristics,
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(mCameraCharacteristics,
                 executorService, executorService, mControlUpdateCallback);
 
-        mZoomControl = new ZoomControl(mCamera2CameraControl, mCameraCharacteristics,
+        mZoomControl = new ZoomControl(mCamera2CameraControlImpl, mCameraCharacteristics,
                 executorService);
         mZoomControl.setActive(true);
 
-        // Await Camera2CameraControl updateSessionConfig to complete.
+        // Await Camera2CameraControlImpl updateSessionConfig to complete.
         HandlerUtil.waitForLooperToIdle(mHandler);
         Mockito.reset(mControlUpdateCallback);
     }

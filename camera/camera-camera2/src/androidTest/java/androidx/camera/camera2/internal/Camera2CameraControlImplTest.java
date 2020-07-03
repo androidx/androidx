@@ -100,12 +100,12 @@ import java.util.concurrent.TimeoutException;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public final class Camera2CameraControlTest {
+public final class Camera2CameraControlImplTest {
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
 
-    private Camera2CameraControl mCamera2CameraControl;
+    private Camera2CameraControlImpl mCamera2CameraControlImpl;
     private CameraControlInternal.ControlUpdateCallback mControlUpdateCallback;
     private ArgumentCaptor<SessionConfig> mSessionConfigArgumentCaptor =
             ArgumentCaptor.forClass(SessionConfig.class);
@@ -139,14 +139,14 @@ public final class Camera2CameraControlTest {
         mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
-        mCamera2CameraControl = new Camera2CameraControl(mCameraCharacteristics,
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(mCameraCharacteristics,
                 executorService, executorService, mControlUpdateCallback);
 
-        mCamera2CameraControl.incrementUseCount();
-        mCamera2CameraControl.setActive(true);
+        mCamera2CameraControlImpl.incrementUseCount();
+        mCamera2CameraControlImpl.setActive(true);
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        // Reset the method call onCameraControlUpdateSessionConfig() in Camera2CameraControl
+        // Reset the method call onCameraControlUpdateSessionConfig() in Camera2CameraControlImpl
         // constructor.
         reset(mControlUpdateCallback);
     }
@@ -174,27 +174,27 @@ public final class Camera2CameraControlTest {
     @Test
     public void canIncrementDecrementUseCount() {
         // incrementUseCount() in setup()
-        assertThat(mCamera2CameraControl.getUseCount()).isEqualTo(1);
+        assertThat(mCamera2CameraControlImpl.getUseCount()).isEqualTo(1);
 
-        mCamera2CameraControl.decrementUseCount();
+        mCamera2CameraControlImpl.decrementUseCount();
 
-        assertThat(mCamera2CameraControl.getUseCount()).isEqualTo(0);
+        assertThat(mCamera2CameraControlImpl.getUseCount()).isEqualTo(0);
     }
 
     @Test(expected = IllegalStateException.class)
     public void decrementUseCountLessThanZero_getException() {
         // incrementUseCount() in setup()
-        assertThat(mCamera2CameraControl.getUseCount()).isEqualTo(1);
+        assertThat(mCamera2CameraControlImpl.getUseCount()).isEqualTo(1);
 
-        mCamera2CameraControl.decrementUseCount();
-        mCamera2CameraControl.decrementUseCount();
+        mCamera2CameraControlImpl.decrementUseCount();
+        mCamera2CameraControlImpl.decrementUseCount();
     }
 
     @Test
     public void setCropRegion_cropRectSetAndRepeatingRequestUpdated() throws InterruptedException {
         Rect rect = new Rect(0, 0, 10, 10);
 
-        mCamera2CameraControl.setCropRegion(rect);
+        mCamera2CameraControlImpl.setCropRegion(rect);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -208,7 +208,7 @@ public final class Camera2CameraControlTest {
                 .isEqualTo(rect);
 
         Camera2ImplConfig singleConfig = new Camera2ImplConfig(
-                mCamera2CameraControl.getSessionOptions());
+                mCamera2CameraControlImpl.getSessionOptions());
         assertThat(singleConfig.getCaptureRequestOption(
                 CaptureRequest.SCALER_CROP_REGION, null))
                 .isEqualTo(rect);
@@ -217,7 +217,7 @@ public final class Camera2CameraControlTest {
     @Test
     public void defaultAFAWBMode_ShouldBeCAFWhenNotFocusLocked() {
         Camera2ImplConfig singleConfig = new Camera2ImplConfig(
-                mCamera2CameraControl.getSessionOptions());
+                mCamera2CameraControlImpl.getSessionOptions());
         assertThat(
                 singleConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_OFF))
@@ -229,7 +229,7 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void setFlashModeAuto_aeModeSetAndRequestUpdated() throws InterruptedException {
-        mCamera2CameraControl.setFlashMode(ImageCapture.FLASH_MODE_AUTO);
+        mCamera2CameraControlImpl.setFlashMode(ImageCapture.FLASH_MODE_AUTO);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -240,12 +240,13 @@ public final class Camera2CameraControlTest {
                 sessionConfig.getImplementationOptions());
 
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON_AUTO_FLASH);
-        assertThat(mCamera2CameraControl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_AUTO);
+        assertThat(mCamera2CameraControlImpl.getFlashMode()).isEqualTo(
+                ImageCapture.FLASH_MODE_AUTO);
     }
 
     @Test
     public void setFlashModeOff_aeModeSetAndRequestUpdated() throws InterruptedException {
-        mCamera2CameraControl.setFlashMode(ImageCapture.FLASH_MODE_OFF);
+        mCamera2CameraControlImpl.setFlashMode(ImageCapture.FLASH_MODE_OFF);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -257,12 +258,12 @@ public final class Camera2CameraControlTest {
 
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON);
 
-        assertThat(mCamera2CameraControl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_OFF);
+        assertThat(mCamera2CameraControlImpl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_OFF);
     }
 
     @Test
     public void setFlashModeOn_aeModeSetAndRequestUpdated() throws InterruptedException {
-        mCamera2CameraControl.setFlashMode(ImageCapture.FLASH_MODE_ON);
+        mCamera2CameraControlImpl.setFlashMode(ImageCapture.FLASH_MODE_ON);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -274,13 +275,13 @@ public final class Camera2CameraControlTest {
 
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON_ALWAYS_FLASH);
 
-        assertThat(mCamera2CameraControl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_ON);
+        assertThat(mCamera2CameraControlImpl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_ON);
     }
 
     @Test
     public void enableTorch_aeModeSetAndRequestUpdated() throws InterruptedException {
         assumeTrue(mHasFlashUnit);
-        mCamera2CameraControl.enableTorch(true);
+        mCamera2CameraControlImpl.enableTorch(true);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -301,8 +302,8 @@ public final class Camera2CameraControlTest {
     @Test
     public void disableTorchFlashModeAuto_aeModeSetAndRequestUpdated() throws InterruptedException {
         assumeTrue(mHasFlashUnit);
-        mCamera2CameraControl.setFlashMode(ImageCapture.FLASH_MODE_AUTO);
-        mCamera2CameraControl.enableTorch(false);
+        mCamera2CameraControlImpl.setFlashMode(ImageCapture.FLASH_MODE_AUTO);
+        mCamera2CameraControlImpl.enableTorch(false);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -330,7 +331,7 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void triggerAf_captureRequestSent() throws InterruptedException {
-        mCamera2CameraControl.triggerAf();
+        mCamera2CameraControlImpl.triggerAf();
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -348,21 +349,24 @@ public final class Camera2CameraControlTest {
     @Test
     @LargeTest
     public void triggerAf_futureSucceeds() throws Exception {
-        Camera2CameraControl camera2CameraControl = createCamera2CameraControlWithPhysicalCamera();
-        ListenableFuture<CameraCaptureResult> future = camera2CameraControl.triggerAf();
+        Camera2CameraControlImpl camera2CameraControlImpl =
+                createCamera2CameraControlWithPhysicalCamera();
+        ListenableFuture<CameraCaptureResult> future = camera2CameraControlImpl.triggerAf();
         future.get(5, TimeUnit.SECONDS);
     }
 
     @Test
     @LargeTest
     public void triggerAePrecapture_futureSucceeds() throws Exception {
-        Camera2CameraControl camera2CameraControl = createCamera2CameraControlWithPhysicalCamera();
-        ListenableFuture<CameraCaptureResult> future = camera2CameraControl.triggerAePrecapture();
+        Camera2CameraControlImpl camera2CameraControlImpl =
+                createCamera2CameraControlWithPhysicalCamera();
+        ListenableFuture<CameraCaptureResult> future =
+                camera2CameraControlImpl.triggerAePrecapture();
         future.get(5, TimeUnit.SECONDS);
     }
 
 
-    private Camera2CameraControl createCamera2CameraControlWithPhysicalCamera() {
+    private Camera2CameraControlImpl createCamera2CameraControlWithPhysicalCamera() {
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
         // Make ImageAnalysis active.
         imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), (image) -> image.close());
@@ -371,12 +375,12 @@ public final class Camera2CameraControlTest {
                 CameraUtil.getCameraAndAttachUseCase(ApplicationProvider.getApplicationContext(),
                         CameraSelector.DEFAULT_BACK_CAMERA, imageAnalysis);
 
-        return (Camera2CameraControl) cameraUseCaseAdapter.getCameraControlInternal();
+        return (Camera2CameraControlImpl) cameraUseCaseAdapter.getCameraControlInternal();
     }
 
     @Test
     public void triggerAePrecapture_captureRequestSent() throws InterruptedException {
-        mCamera2CameraControl.triggerAePrecapture();
+        mCamera2CameraControlImpl.triggerAePrecapture();
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -393,7 +397,7 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void cancelAfAeTrigger_captureRequestSent() throws InterruptedException {
-        mCamera2CameraControl.cancelAfAeTrigger(true, true);
+        mCamera2CameraControlImpl.cancelAfAeTrigger(true, true);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -417,7 +421,7 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void cancelAfTrigger_captureRequestSent() throws InterruptedException {
-        mCamera2CameraControl.cancelAfAeTrigger(true, false);
+        mCamera2CameraControlImpl.cancelAfAeTrigger(true, false);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -438,7 +442,7 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void cancelAeTrigger_captureRequestSent() throws InterruptedException {
-        mCamera2CameraControl.cancelAfAeTrigger(false, true);
+        mCamera2CameraControlImpl.cancelAfAeTrigger(false, true);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -479,7 +483,7 @@ public final class Camera2CameraControlTest {
                 1.0f);
         FocusMeteringAction action = new FocusMeteringAction.Builder(factory.createPoint(0, 0))
                 .build();
-        mCamera2CameraControl.startFocusAndMetering(action);
+        mCamera2CameraControlImpl.startFocusAndMetering(action);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -502,7 +506,7 @@ public final class Camera2CameraControlTest {
                 CaptureRequest.CONTROL_AWB_REGIONS, null), expectedAwbCount);
 
         Camera2ImplConfig singleConfig = new Camera2ImplConfig(
-                mCamera2CameraControl.getSessionOptions());
+                mCamera2CameraControlImpl.getSessionOptions());
         assertArraySize(singleConfig.getCaptureRequestOption(
                 CaptureRequest.CONTROL_AF_REGIONS, null), expectedAfCount);
         assertArraySize(singleConfig.getCaptureRequestOption(
@@ -519,7 +523,7 @@ public final class Camera2CameraControlTest {
                 1.0f);
         FocusMeteringAction action = new FocusMeteringAction.Builder(factory.createPoint(0, 0))
                 .build();
-        mCamera2CameraControl.startFocusAndMetering(action);
+        mCamera2CameraControlImpl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         verifyAfMode(CaptureRequest.CONTROL_AF_MODE_AUTO);
@@ -546,7 +550,7 @@ public final class Camera2CameraControlTest {
         FocusMeteringAction action = new FocusMeteringAction.Builder(factory.createPoint(0, 0),
                 FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB)
                 .build();
-        mCamera2CameraControl.startFocusAndMetering(action);
+        mCamera2CameraControlImpl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         verifyAfMode(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
@@ -563,11 +567,11 @@ public final class Camera2CameraControlTest {
                 1.0f);
         FocusMeteringAction action = new FocusMeteringAction.Builder(factory.createPoint(0, 0))
                 .build();
-        mCamera2CameraControl.startFocusAndMetering(action);
+        mCamera2CameraControlImpl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
         Mockito.reset(mControlUpdateCallback);
 
-        mCamera2CameraControl.cancelFocusAndMetering();
+        mCamera2CameraControlImpl.cancelFocusAndMetering();
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         verify(mControlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig(
@@ -588,7 +592,7 @@ public final class Camera2CameraControlTest {
 
 
         Camera2ImplConfig singleConfig = new Camera2ImplConfig(
-                mCamera2CameraControl.getSessionOptions());
+                mCamera2CameraControlImpl.getSessionOptions());
         assertThat(
                 singleConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_REGIONS, null)).isNull();
@@ -607,10 +611,10 @@ public final class Camera2CameraControlTest {
                 1.0f);
         FocusMeteringAction action = new FocusMeteringAction.Builder(factory.createPoint(0, 0))
                 .build();
-        mCamera2CameraControl.startFocusAndMetering(action);
+        mCamera2CameraControlImpl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
         Mockito.reset(mControlUpdateCallback);
-        mCamera2CameraControl.cancelFocusAndMetering();
+        mCamera2CameraControlImpl.cancelFocusAndMetering();
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         verifyAfMode(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
@@ -644,10 +648,10 @@ public final class Camera2CameraControlTest {
         FocusMeteringAction action = new FocusMeteringAction.Builder(factory.createPoint(0, 0),
                 FocusMeteringAction.FLAG_AE)
                 .build();
-        mCamera2CameraControl.startFocusAndMetering(action);
+        mCamera2CameraControlImpl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
         Mockito.reset(mControlUpdateCallback);
-        mCamera2CameraControl.cancelFocusAndMetering();
+        mCamera2CameraControlImpl.cancelFocusAndMetering();
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         verify(mControlUpdateCallback, never()).onCameraControlCaptureRequests(any());
@@ -662,18 +666,18 @@ public final class Camera2CameraControlTest {
                 1.0f);
         FocusMeteringAction action = new FocusMeteringAction.Builder(factory.createPoint(0, 0))
                 .build();
-        mCamera2CameraControl.startFocusAndMetering(action);
+        mCamera2CameraControlImpl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         Camera2ImplConfig singleConfig = new Camera2ImplConfig(
-                mCamera2CameraControl.getSessionOptions());
+                mCamera2CameraControlImpl.getSessionOptions());
         assertAfMode(singleConfig, CaptureRequest.CONTROL_AF_MODE_AUTO);
 
-        mCamera2CameraControl.cancelFocusAndMetering();
+        mCamera2CameraControlImpl.cancelFocusAndMetering();
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         Camera2ImplConfig singleConfig2 = new Camera2ImplConfig(
-                mCamera2CameraControl.getSessionOptions());
+                mCamera2CameraControlImpl.getSessionOptions());
         assertAfMode(singleConfig2, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
     }
 
@@ -774,7 +778,7 @@ public final class Camera2CameraControlTest {
     @Test
     public void setZoomRatio_CropRegionIsUpdatedCorrectly() throws InterruptedException {
         assumeTrue(isZoomSupported());
-        mCamera2CameraControl.setZoomRatio(2.0f);
+        mCamera2CameraControlImpl.setZoomRatio(2.0f);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -806,13 +810,13 @@ public final class Camera2CameraControlTest {
     @Test
     public void setLinearZoom_CropRegionIsUpdatedCorrectly() throws InterruptedException {
         assumeTrue(isZoomSupported());
-        mCamera2CameraControl.setLinearZoom(1.0f);
+        mCamera2CameraControlImpl.setLinearZoom(1.0f);
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         Rect cropRegionMaxZoom = getSessionCropRegion(mControlUpdateCallback);
         Rect cropRegionMinZoom = getSensorRect();
 
-        mCamera2CameraControl.setLinearZoom(0.5f);
+        mCamera2CameraControlImpl.setLinearZoom(0.5f);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -825,8 +829,8 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void setZoomRatio_cameraControlInactive_operationCanceled() {
-        mCamera2CameraControl.setActive(false);
-        ListenableFuture<Void> listenableFuture = mCamera2CameraControl.setZoomRatio(2.0f);
+        mCamera2CameraControlImpl.setActive(false);
+        ListenableFuture<Void> listenableFuture = mCamera2CameraControlImpl.setZoomRatio(2.0f);
         try {
             listenableFuture.get(1000, TimeUnit.MILLISECONDS);
         } catch (ExecutionException e) {
@@ -842,8 +846,8 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void setLinearZoom_cameraControlInactive_operationCanceled() {
-        mCamera2CameraControl.setActive(false);
-        ListenableFuture<Void> listenableFuture = mCamera2CameraControl.setLinearZoom(0.0f);
+        mCamera2CameraControlImpl.setActive(false);
+        ListenableFuture<Void> listenableFuture = mCamera2CameraControlImpl.setLinearZoom(0.0f);
         try {
             listenableFuture.get(1000, TimeUnit.MILLISECONDS);
         } catch (ExecutionException e) {
@@ -862,15 +866,16 @@ public final class Camera2CameraControlTest {
     @LargeTest
     public void addSessionCameraCaptureCallback_canAddWithoutUpdateSessionConfig()
             throws Exception {
-        Camera2CameraControl camera2CameraControl = createCamera2CameraControlWithPhysicalCamera();
-        camera2CameraControl.updateSessionConfig();
+        Camera2CameraControlImpl camera2CameraControlImpl =
+                createCamera2CameraControlWithPhysicalCamera();
+        camera2CameraControlImpl.updateSessionConfig();
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         TestCameraCaptureCallback callback1 = new TestCameraCaptureCallback();
         TestCameraCaptureCallback callback2 = new TestCameraCaptureCallback();
-        camera2CameraControl.addSessionCameraCaptureCallback(CameraXExecutors.directExecutor(),
+        camera2CameraControlImpl.addSessionCameraCaptureCallback(CameraXExecutors.directExecutor(),
                 callback1);
-        camera2CameraControl.addSessionCameraCaptureCallback(CameraXExecutors.directExecutor(),
+        camera2CameraControlImpl.addSessionCameraCaptureCallback(CameraXExecutors.directExecutor(),
                 callback2);
 
         callback1.assertCallbackIsCalled(5000);
@@ -880,18 +885,19 @@ public final class Camera2CameraControlTest {
     @Test
     @LargeTest
     public void removeSessionCameraCaptureCallback() throws Exception {
-        Camera2CameraControl camera2CameraControl = createCamera2CameraControlWithPhysicalCamera();
+        Camera2CameraControlImpl camera2CameraControlImpl =
+                createCamera2CameraControlWithPhysicalCamera();
 
-        camera2CameraControl.updateSessionConfig();
+        camera2CameraControlImpl.updateSessionConfig();
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         TestCameraCaptureCallback callback1 = new TestCameraCaptureCallback();
 
-        camera2CameraControl.addSessionCameraCaptureCallback(CameraXExecutors.directExecutor(),
+        camera2CameraControlImpl.addSessionCameraCaptureCallback(CameraXExecutors.directExecutor(),
                 callback1);
         callback1.assertCallbackIsCalled(5000);
 
-        camera2CameraControl.removeSessionCameraCaptureCallback(callback1);
+        camera2CameraControlImpl.removeSessionCameraCaptureCallback(callback1);
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         callback1.assertCallbackIsNotCalled(200);
@@ -901,14 +907,15 @@ public final class Camera2CameraControlTest {
     @LargeTest
     public void sessionCameraCaptureCallback_invokedOnSpecifiedExecutor()
             throws Exception {
-        Camera2CameraControl camera2CameraControl = createCamera2CameraControlWithPhysicalCamera();
-        camera2CameraControl.updateSessionConfig();
+        Camera2CameraControlImpl camera2CameraControlImpl =
+                createCamera2CameraControlWithPhysicalCamera();
+        camera2CameraControlImpl.updateSessionConfig();
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         TestCameraCaptureCallback callback = new TestCameraCaptureCallback();
         TestExecutor executor = new TestExecutor();
 
-        camera2CameraControl.addSessionCameraCaptureCallback(executor, callback);
+        camera2CameraControlImpl.addSessionCameraCaptureCallback(executor, callback);
 
         callback.assertCallbackIsCalled(5000);
         executor.assertExecutorIsCalled(5000);
@@ -916,6 +923,7 @@ public final class Camera2CameraControlTest {
 
     private static class TestCameraCaptureCallback extends CameraCaptureCallback {
         private CountDownLatch mLatchForOnCaptureCompleted;
+
         @Override
         public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
             synchronized (this) {
@@ -945,10 +953,11 @@ public final class Camera2CameraControlTest {
             assertThat(latch.await(timeoutInMs, TimeUnit.MILLISECONDS))
                     .isFalse();
         }
-    };
+    }
 
     private static class TestExecutor implements Executor {
         private CountDownLatch mLatch = new CountDownLatch(1);
+
         @Override
         public void execute(@NonNull Runnable command) {
             command.run();
