@@ -20,13 +20,16 @@ import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.DesktopPath
 import androidx.ui.graphics.Path
+import androidx.ui.graphics.toAndroidX
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.ParagraphIntrinsics
 import androidx.ui.text.TextRange
 import androidx.ui.text.style.ResolvedTextDirection
+import org.jetbrains.skija.paragraph.LineMetrics
 import org.jetbrains.skija.paragraph.RectHeightMode
 import org.jetbrains.skija.paragraph.RectWidthMode
+import kotlin.math.floor
 
 internal class DesktopParagraph(
     intrinsics: ParagraphIntrinsics,
@@ -56,10 +59,10 @@ internal class DesktopParagraph(
         get() = paragraphIntrinsics.maxIntrinsicWidth
 
     override val firstBaseline: Float
-        get() = para.getLineMetrics().first().baseline.toFloat()
+        get() = para.getLineMetrics().firstOrNull()?.run { baseline.toFloat() } ?: 0f
 
     override val lastBaseline: Float
-        get() = para.getLineMetrics().last().baseline.toFloat()
+        get() = para.getLineMetrics().lastOrNull()?.run { baseline.toFloat() } ?: 0f
 
     override val didExceedMaxLines: Boolean
         // TODO: support text ellipsize.
@@ -68,10 +71,11 @@ internal class DesktopParagraph(
     override val lineCount: Int
         get() = para.lineNumber.toInt()
 
-    override val placeholderRects: List<Rect?> get() {
-        println("Paragraph.placeholderRects")
-        return listOf()
-    }
+    override val placeholderRects: List<Rect?>
+        get() {
+            println("Paragraph.placeholderRects")
+            return listOf()
+        }
 
     override fun getPathForRange(start: Int, end: Int): Path {
         val boxes = para.getRectsForRange(
@@ -88,8 +92,16 @@ internal class DesktopParagraph(
     }
 
     override fun getCursorRect(offset: Int): Rect {
-        println("Paragraph.getCursorRect $offset")
-        return Rect(0.0f, 0.0f, 0.0f, 0.0f)
+        val cursorWidth = 4.0f
+        val horizontal = getHorizontalPosition(offset, true)
+        val line = getLineForOffset(offset)
+
+        return Rect(
+            horizontal - 0.5f * cursorWidth,
+            getLineTop(line),
+            horizontal + 0.5f * cursorWidth,
+            getLineBottom(line)
+        )
     }
 
     override fun getLineLeft(lineIndex: Int): Float {
@@ -102,35 +114,33 @@ internal class DesktopParagraph(
         return 0.0f
     }
 
-    override fun getLineTop(lineIndex: Int): Float {
-        println("Paragraph.getLineTop $lineIndex")
-        return 0.0f
+    override fun getLineTop(lineIndex: Int) =
+        para.lineMetrics.getOrNull(lineIndex)?.let { line ->
+            floor((line.baseline - line.ascent).toFloat())
+        } ?: 0f
+
+    override fun getLineBottom(lineIndex: Int) =
+        para.lineMetrics.getOrNull(lineIndex)?.let { line ->
+            floor((line.baseline + line.descent).toFloat())
+        } ?: 0f
+
+    private fun lineMetricsForOffset(offset: Int): LineMetrics? {
+        val metrics = para.lineMetrics
+        for (line in metrics) {
+            if (offset <= line.endIndex) {
+                return line
+            }
+        }
+        return null
     }
 
-    override fun getLineBottom(lineIndex: Int): Float {
-        println("Paragraph.getLineBottom $lineIndex")
-        return 0.0f
-    }
+    override fun getLineHeight(lineIndex: Int) = para.lineMetrics[lineIndex].height.toFloat()
 
-    override fun getLineHeight(lineIndex: Int): Float {
-        println("Paragraph.getLineHeight $lineIndex")
-        return 0.0f
-    }
+    override fun getLineWidth(lineIndex: Int) = para.lineMetrics[lineIndex].width.toFloat()
 
-    override fun getLineWidth(lineIndex: Int): Float {
-        println("Paragraph.getLineWidth $lineIndex")
-        return 0.0f
-    }
+    override fun getLineStart(lineIndex: Int) = para.lineMetrics[lineIndex].startIndex.toInt()
 
-    override fun getLineStart(lineIndex: Int): Int {
-        println("Paragraph.getLineStart $lineIndex")
-        return 0
-    }
-
-    override fun getLineEnd(lineIndex: Int): Int {
-        println("Paragraph.getLineEnd $lineIndex")
-        return 0
-    }
+    override fun getLineEnd(lineIndex: Int) = para.lineMetrics[lineIndex].endIndex.toInt()
 
     override fun getLineEllipsisOffset(lineIndex: Int): Int {
         println("Paragraph.getLineEllipsisOffset $lineIndex")
@@ -142,14 +152,27 @@ internal class DesktopParagraph(
         return 0
     }
 
-    override fun getLineForOffset(offset: Int): Int {
-        println("Paragraph.getLineForOffset $offset")
-        return 0
-    }
+    override fun getLineForOffset(offset: Int) =
+        lineMetricsForOffset(offset)?.run { lineNumber.toInt() }
+            ?: 0
 
     override fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float {
-        println("getHorizontalPosition $offset, $usePrimaryDirection")
-        return 0.0f
+        val metrics = lineMetricsForOffset(offset)
+
+        return when {
+            metrics == null -> 0f
+            metrics.startIndex.toInt() == offset || metrics.startIndex == metrics.endIndex -> 0f
+            metrics.endIndex.toInt() == offset -> {
+                para.getRectsForRange(offset - 1, offset, RectHeightMode.MAX, RectWidthMode.MAX)
+                    .first()
+                    .rect.right
+            }
+            else -> {
+                para.getRectsForRange(
+                    offset, offset + 1, RectHeightMode.MAX, RectWidthMode.MAX
+                ).first().rect.left
+            }
+        }
     }
 
     override fun getParagraphDirection(offset: Int): ResolvedTextDirection =
@@ -162,13 +185,14 @@ internal class DesktopParagraph(
         return para.getGlyphPositionAtCoordinate(position.x, position.y).position
     }
 
-    override fun getBoundingBox(offset: Int): Rect {
-        println("getBoundingBox $offset")
-        return Rect(0.0f, 0.0f, 0.0f, 0.0f)
-    }
+    override fun getBoundingBox(offset: Int) =
+        para.getRectsForRange(
+            offset, offset + 1, RectHeightMode.MAX, RectWidthMode
+                .MAX
+        ).first().rect.toAndroidX()
 
     override fun getWordBoundary(offset: Int): TextRange {
-        println("getWordBoundary $offset")
+        println("Paragraph.getWordBoundary $offset")
         return TextRange(0, 0)
     }
 

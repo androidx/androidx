@@ -46,6 +46,8 @@ import androidx.ui.unit.sp
 import androidx.ui.text.font.fontFamily
 import androidx.ui.desktop.font
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Row
 import androidx.ui.unit.IntSize
 
 private const val title = "Desktop Compose Elements"
@@ -70,6 +72,7 @@ fun main() {
             },
             bodyContent = {
                 val amount = state { 0 }
+                val animation = state { true }
                 val text = state { "Hello" }
                 Column(Modifier.fillMaxSize(), Arrangement.SpaceEvenly) {
                     Text(
@@ -126,7 +129,21 @@ fun main() {
                     }) {
                         Text("Base")
                     }
-                    CircularProgressIndicator()
+
+                    Row(modifier = Modifier.padding(vertical = 10.dp),
+                        verticalGravity = Alignment.CenterVertically) {
+                        Button(
+                            onClick = {
+                            animation.value = !animation.value
+                        }) {
+                            Text("Toggle")
+                        }
+
+                        if (animation.value) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
                     Slider(value = amount.value.toFloat() / 100f,
                         onValueChange = { amount.value = (it * 100).toInt() })
                     FilledTextField(

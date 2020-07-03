@@ -17,66 +17,35 @@ package androidx.ui.desktop
 
 import android.content.Context
 import android.view.MotionEvent
-import androidx.animation.ManualAnimationClock
-import androidx.animation.rootAnimationClockFactory
 import androidx.compose.Composable
 import androidx.ui.desktop.view.LayoutScope
 import javax.swing.SwingUtilities
 import org.jetbrains.skija.Canvas
 
-@OptIn(androidx.animation.InternalAnimationApi::class)
 fun Window.setContent(content: @Composable () -> Unit) {
     SwingUtilities.invokeLater {
-        val fps = 60
-        val clocks = mutableListOf<ManualAnimationClock>()
-        rootAnimationClockFactory = {
-            ManualAnimationClock(0L).also {
-                clocks.add(it)
-            }
-        }
-
-        val mainLayout = LayoutScope()
+        val mainLayout = LayoutScope(glCanvas)
         mainLayout.setContent(content)
-
         this.renderer = Renderer(
             mainLayout.context,
-            mainLayout.platformInputService,
-            clocks,
-            fps)
-
-        this.setFps(fps)
+            mainLayout.platformInputService)
     }
 }
 
-@OptIn(androidx.animation.InternalAnimationApi::class)
 fun Dialog.setContent(content: @Composable () -> Unit) {
     SwingUtilities.invokeLater {
-        val fps = 60
-        val clocks = mutableListOf<ManualAnimationClock>()
-        rootAnimationClockFactory = {
-            ManualAnimationClock(0L).also {
-                clocks.add(it)
-            }
-        }
-
-        val mainLayout = LayoutScope()
+        val mainLayout = LayoutScope(glCanvas)
         mainLayout.setContent(content)
 
         this.renderer = Renderer(
             mainLayout.context,
-            mainLayout.platformInputService,
-            clocks,
-            fps)
-
-        this.setFps(fps)
+            mainLayout.platformInputService)
     }
 }
 
 private class Renderer(
     val context: Context,
-    val platformInputService: DesktopPlatformInput,
-    val clocks: List<ManualAnimationClock>,
-    val fps: Int
+    val platformInputService: DesktopPlatformInput
 ) : SkiaRenderer {
 
     private val canvases = mutableMapOf<LayoutScope, Canvas?>()
@@ -107,13 +76,9 @@ private class Renderer(
 
     override fun onReshape(canvas: Canvas, width: Int, height: Int) {
         clearCanvases()
-        draw(canvas, width, height)
     }
 
     override fun onRender(canvas: Canvas, width: Int, height: Int) {
-        clocks.forEach {
-            it.clockTimeMillis += 1000 / fps
-        }
         draw(canvas, width, height)
     }
 
