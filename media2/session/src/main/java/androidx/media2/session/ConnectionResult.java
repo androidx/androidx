@@ -93,7 +93,6 @@ class ConnectionResult extends CustomVersionedParcelable {
     VideoSize mVideoSize;
     @ParcelField(19)
     List<TrackInfo> mTracks;
-    // TODO: Reduce parceling / un-parceling cost by using track id. (b/131873726)
     @ParcelField(20)
     TrackInfo mSelectedVideoTrack;
     @ParcelField(21)
