@@ -48,23 +48,29 @@ class SemanticsNode internal constructor(
     /**
      * The unique identifier for this node.
      *
-     * The root node has an id of zero. Other nodes are given a unique id when
+     * The first root node has an id of 1. Other nodes are given a unique id when
      * they are created.
      */
     val id: Int,
+    /**
+     * mergingEnabled specifies whether mergeAllDescendants config has any effect.
+     *
+     * If true, then mergeAllDescendants nodes will merge up all properties from child
+     * semantics nodes and remove those children from "children", with the exception
+     * of nodes that themselves have mergeAllDescendants.  If false, then mergeAllDescendants
+     * has no effect.
+     *
+     * mergingEnabled is typically true or false consistently on every node of a SemanticsNode tree.
+     */
+    val mergingEnabled: Boolean,
     val unmergedConfig: SemanticsConfiguration,
-    // TODO(b/144404665): Testing currently mandates this be public - should it be?
     var componentNode: LayoutNode
 ) {
-    private var dirty: Boolean = false
-
     companion object {
         // TODO(b/145955412) maybe randomize? don't want this to be a contract
         // TODO: Might need to be atomic for multi-threaded composition
-        private var lastIdentifier: Int = 2
+        private var lastIdentifier: Int = 0
 
-        // TODO(b/145955062): This should be private, but needs to be accessed across modules
-        //                    (from framework)
         fun generateNewId(): Int {
             lastIdentifier += 1
             return lastIdentifier
@@ -85,8 +91,11 @@ class SemanticsNode internal constructor(
      * Each semantic node has a unique identifier that is assigned when the node
      * is created.
      */
-    internal constructor(unmergedConfig: SemanticsConfiguration, layoutNode: LayoutNode) :
-            this(generateNewId(), unmergedConfig, layoutNode)
+    internal constructor(
+        mergingEnabled: Boolean,
+        unmergedConfig: SemanticsConfiguration,
+        layoutNode: LayoutNode
+    ) : this(generateNewId(), mergingEnabled, unmergedConfig, layoutNode)
 
     // GEOMETRY
 
@@ -113,16 +122,6 @@ class SemanticsNode internal constructor(
         }
 
     /**
-     * The merged configuration of this node
-     */
-    // TODO(aelias): This is too expensive for a val (full subtree recreation every call);
-    //               optimize this when the merging algorithm is improved.
-    val config: SemanticsConfiguration
-        get() {
-            return buildMergedConfig()
-        }
-
-    /**
      * Returns the position of an [alignment line][AlignmentLine], or [AlignmentLine.Unspecified]
      * if the line is not provided.
      */
@@ -130,80 +129,72 @@ class SemanticsNode internal constructor(
         return componentNode.coordinates[line]
     }
 
+    // CHILDREN
+
+    /**
+     * The list of semantics properties of this node.
+     *
+     * This includes all properties attached as modifiers to the current layout node.
+     * In addition, if mergeAllDescendants and mergingEnabled are both true, then it
+     * also includes the semantics properties of descendant nodes.
+     */
+    // TODO(aelias): This is too expensive for a val (full subtree recreation every call);
+    //               optimize this when the merging algorithm is improved.
+    val config: SemanticsConfiguration
+        get() {
+            if (isMergingSemanticsOfDescendants) {
+                return buildMergedConfig(SemanticsConfiguration())
+            } else {
+                return unmergedConfig
+            }
+        }
+
     private fun buildMergedConfig(
-        parentNode: SemanticsNode? = null,
-        mergedConfigFromParent: SemanticsConfiguration? = null,
-        mergeAllChildren: Boolean = false
+        mergedConfig: SemanticsConfiguration
     ): SemanticsConfiguration {
-        // The forced merging might not start at the top-level node,
-        // so we need to check at each level
-        @Suppress("NAME_SHADOWING")
-        val mergeAllChildren = mergeAllChildren || mergeAllDescendantsIntoThisNode
+        mergedConfig.absorb(unmergedConfig, ignoreAlreadySet = true)
 
-        val mergedConfig: SemanticsConfiguration
-        if (mergedConfigFromParent == null || parentNode == null) {
-            // Start by copying our configuration so that we can add
-            // our children's configuration to it
-            mergedConfig = unmergedConfig.copy()
-        } else {
-            // We're being merged into our parent - add our node's data
-            mergedConfig = mergedConfigFromParent
-            // If we are forcibly merging, we want to ignore conflicts
-            mergedConfig.absorb(unmergedConfig, ignoreAlreadySet = mergeAllChildren)
-        }
-
-        if (!mergeAllChildren) {
-            return mergedConfig
-        }
-
-        // If we're merging children, then collect semantic information here.
-        // Order is significant here because we will attempt to merge duplicate keys.
-        // This affects, for instance, the label text.
-        for (child in unmergedChildren()) {
-            // Recursively walk down the tree and collect child data
-            child.buildMergedConfig(
-                parentNode = this,
-                mergedConfigFromParent = mergedConfig,
-                mergeAllChildren = mergeAllChildren
-            )
+        unmergedChildren().fastForEach { child ->
+            if (child.isMergingSemanticsOfDescendants == false) {
+                child.buildMergedConfig(mergedConfig)
+            }
         }
 
         return mergedConfig
     }
 
-    /** Whether this node and all of its descendants should be treated as one logical entity. */
-    private val mergeAllDescendantsIntoThisNode: Boolean
-        get() = unmergedConfig.isMergingSemanticsOfDescendants
-
-    // CHILDREN
+    private val isMergingSemanticsOfDescendants: Boolean
+        get() = mergingEnabled && unmergedConfig.isMergingSemanticsOfDescendants
 
     private fun unmergedChildren(): List<SemanticsNode> {
         val unmergedChildren: MutableList<SemanticsNode> = mutableListOf()
 
         val semanticsChildren = componentNode.findOneLayerOfSemanticsWrappers()
         semanticsChildren.fastForEach { semanticsChild ->
-            unmergedChildren.add(semanticsChild.semanticsNode())
+            unmergedChildren.add(SemanticsNode(semanticsChild, mergingEnabled))
         }
 
         return unmergedChildren
     }
 
-    /** Contains the children in inverse hit test order (i.e. paint order). */
+    /** Contains the children in inverse hit test order (i.e. paint order).
+     *
+     * Note that if mergingEnabled and mergeAllDescendants are both true, then there
+     * are no children (except those that are themselves mergeAllDescendants).
+     */
     // TODO(aelias): This is too expensive for a val (full subtree recreation every call);
     //               optimize this when the merging algorithm is improved.
     val children: List<SemanticsNode>
         get() {
-            if (mergeAllDescendantsIntoThisNode) {
-                // All of our descendants will be merged, so we have no children after merging
-                return emptyList()
+            if (isMergingSemanticsOfDescendants) {
+                // In most common merging scenarios like Buttons, this will return nothing.
+                // In cases like a clickable Row itself containing a Button, this will
+                // return the Button as a child.
+                return findOneLayerOfMergingSemanticsNodes()
             }
 
             return unmergedChildren()
         }
-
-    /** Whether this node has a non-zero number of children. */
-    val hasChildren
-        get() = children.isNotEmpty()
 
     /**
      * Visits the immediate children of this node.
@@ -220,8 +211,7 @@ class SemanticsNode internal constructor(
     }
 
     /**
-     * Visit all the descendants of this node.
-     *
+     * Visit all the descendants of this node.  *
      * This function calls visitor for each descendant in a pre-order traversal
      * until visitor returns false. Returns true if all the visitor calls
      * returned true, otherwise returns false.
@@ -241,18 +231,58 @@ class SemanticsNode internal constructor(
         get() = parent == null
 
     /** The parent of this node in the tree. */
-    // TODO(b/145947383): this needs to be the *merged* parent
     val parent: SemanticsNode?
         get() {
-            var node = componentNode.findClosestParentNode { it.outerSemantics != null }
+            var node: LayoutNode? = null
+            if (mergingEnabled) {
+                node = componentNode.findClosestParentNode {
+                    it.outerSemantics
+                        ?.collapsedSemanticsConfiguration()
+                        ?.isMergingSemanticsOfDescendants == true
+                }
+            }
 
-            return node?.outerSemantics?.semanticsNode()
+            if (node == null) {
+                node = componentNode.findClosestParentNode { it.outerSemantics != null }
+            }
+
+            val outerSemantics = node?.outerSemantics
+            if (outerSemantics == null)
+                return null
+
+            return SemanticsNode(outerSemantics, mergingEnabled)
         }
 
     internal fun <T : Function<Boolean>> canPerformAction(
         action: SemanticsPropertyKey<AccessibilityAction<T>>
     ) =
         this.config.contains(action)
+
+    private fun findOneLayerOfMergingSemanticsNodes(
+        list: MutableList<SemanticsNode> = mutableListOf<SemanticsNode>()
+    ): List<SemanticsNode> {
+        unmergedChildren().fastForEach { child ->
+            if (child.isMergingSemanticsOfDescendants == true) {
+                list.add(child)
+            } else {
+                child.findOneLayerOfMergingSemanticsNodes(list)
+            }
+        }
+        return list
+    }
+}
+
+@OptIn(ExperimentalLayoutNodeApi::class)
+internal fun SemanticsNode(
+    outerSemantics: SemanticsWrapper,
+    mergingEnabled: Boolean
+): SemanticsNode {
+    with (outerSemantics) {
+        return SemanticsNode(modifier.id,
+            mergingEnabled,
+            collapsedSemanticsConfiguration(),
+            layoutNode)
+    }
 }
 
 /**
@@ -305,25 +335,16 @@ internal fun SemanticsNode.findChildById(id: Int): SemanticsNode? {
 }
 
 @OptIn(ExperimentalLayoutNodeApi::class)
-private fun LayoutNode.findOneLayerOfSemanticsWrappers(): List<SemanticsWrapper> {
-    val childSemanticsLayoutNodes = mutableListOf<SemanticsWrapper>()
+private fun LayoutNode.findOneLayerOfSemanticsWrappers(
+    list: MutableList<SemanticsWrapper> = mutableListOf<SemanticsWrapper>()
+): List<SemanticsWrapper> {
     children.fastForEach { child ->
-        findOneLayerOfSemanticsWrappersRecursive(childSemanticsLayoutNodes, child)
-    }
-    return childSemanticsLayoutNodes
-}
-
-@OptIn(ExperimentalLayoutNodeApi::class)
-private fun LayoutNode.findOneLayerOfSemanticsWrappersRecursive(
-    list: MutableList<SemanticsWrapper>,
-    node: LayoutNode
-) {
-    if (node.outerSemantics != null) {
-        list.add(node.outerSemantics!!)
-        // Stop, we're done
-    } else {
-        node.children.fastForEach { child ->
-            findOneLayerOfSemanticsWrappersRecursive(list, child)
+        val outerSemantics = child.outerSemantics
+        if (outerSemantics != null) {
+            list.add(outerSemantics)
+        } else {
+            child.findOneLayerOfSemanticsWrappers(list)
         }
     }
+    return list
 }

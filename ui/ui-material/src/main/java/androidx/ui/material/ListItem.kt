@@ -22,7 +22,6 @@ import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Image
@@ -179,7 +178,6 @@ fun ListItem(
             color = MaterialTheme.colors.onSurface
         )
         Box(Modifier
-            .semantics(mergeAllDescendants = true)
             .clickable(onClick = onClick, indication = indication), children = item)
     } else {
         item()
