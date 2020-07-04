@@ -134,7 +134,7 @@ class BottomNavigationTest {
         }
 
         val itemBounds = findByTag("item").getBoundsInRoot()
-        val iconBounds = findByTag("icon").getBoundsInRoot()
+        val iconBounds = findByTag("icon", useUnmergedTree = true).getBoundsInRoot()
         val textBounds = findByText("ItemText").getBoundsInRoot()
 
         // Distance from the bottom to the text baseline and from the text baseline to the
@@ -150,7 +150,7 @@ class BottomNavigationTest {
         // Text baseline should be 12.dp from the bottom of the item
         absoluteTextBaseline.assertIsEqualTo(itemBottom - textBaseline)
 
-        findByTag("icon")
+        findByTag("icon", useUnmergedTree = true)
             // The icon should be centered in the item
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             // The bottom of the icon is 12.dp above the text baseline
@@ -182,12 +182,12 @@ class BottomNavigationTest {
 
         // The text should not be placed, since the item is not selected and alwaysShowLabels
         // is false
-        findByText("ItemText").assertIsNotDisplayed()
+        findByText("ItemText", useUnmergedTree = true).assertIsNotDisplayed()
 
         val itemBounds = findByTag("item").getBoundsInRoot()
-        val iconBounds = findByTag("icon").getBoundsInRoot()
+        val iconBounds = findByTag("icon", useUnmergedTree = true).getBoundsInRoot()
 
-        findByTag("icon")
+        findByTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
     }
@@ -213,10 +213,10 @@ class BottomNavigationTest {
         }
 
         val itemBounds = findByTag("item").getBoundsInRoot()
-        val iconBounds = findByTag("icon").getBoundsInRoot()
+        val iconBounds = findByTag("icon", useUnmergedTree = true).getBoundsInRoot()
 
         // The icon should be centered in the item, as there is no text placeable provided
-        findByTag("icon")
+        findByTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
     }

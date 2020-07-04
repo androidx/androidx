@@ -21,8 +21,8 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Border
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.clickable
@@ -96,27 +96,25 @@ fun Button(
         color = if (enabled) backgroundColor else disabledBackgroundColor,
         contentColor = if (enabled) contentColor else disabledContentColor,
         border = border,
-        elevation = if (enabled) elevation else disabledElevation,
-        modifier = modifier
-            // Since we're adding layouts in between the clickable layer and the content, we need to
-            // merge all descendants, or we'll get multiple nodes
-            .semantics(mergeAllDescendants = true)
+        elevation = if (enabled) elevation else disabledElevation
     ) {
-        ProvideTextStyle(
-            value = MaterialTheme.typography.button
-        ) {
-            Row(
-                Modifier
-                    .defaultMinSizeConstraints(
-                        minWidth = ButtonConstants.DefaultMinWidth,
-                        minHeight = ButtonConstants.DefaultMinHeight
-                    )
-                    .clickable(onClick = onClick, enabled = enabled)
-                    .padding(padding),
-                horizontalArrangement = Arrangement.Center,
-                verticalGravity = Alignment.CenterVertically,
-                children = content
-            )
+        // TODO(aelias): Remove this Box after b/157687898 is fixed
+        Box(Modifier.clickable(onClick = onClick, enabled = enabled)) {
+            ProvideTextStyle(
+                value = MaterialTheme.typography.button
+            ) {
+                Row(
+                    modifier
+                        .defaultMinSizeConstraints(
+                            minWidth = ButtonConstants.DefaultMinWidth,
+                            minHeight = ButtonConstants.DefaultMinHeight
+                        )
+                        .padding(padding),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalGravity = Alignment.CenterVertically,
+                    children = content
+                )
+            }
         }
     }
 }

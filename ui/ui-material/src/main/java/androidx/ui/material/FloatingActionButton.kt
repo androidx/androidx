@@ -20,7 +20,6 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
@@ -67,10 +66,7 @@ fun FloatingActionButton(
     icon: @Composable () -> Unit
 ) {
     Surface(
-        modifier = modifier
-            // Since we're adding layouts in between the clickable layer and the content, we need to
-            // merge all descendants, or we'll get multiple nodes
-            .semantics(mergeAllDescendants = true),
+        modifier = modifier.clickable(onClick = onClick),
         shape = shape,
         color = backgroundColor,
         contentColor = contentColor,
@@ -79,8 +75,7 @@ fun FloatingActionButton(
         ProvideTextStyle(MaterialTheme.typography.button) {
             Box(
                 modifier = Modifier
-                    .defaultMinSizeConstraints(minWidth = FabSize, minHeight = FabSize)
-                    .clickable(onClick = onClick),
+                    .defaultMinSizeConstraints(minWidth = FabSize, minHeight = FabSize),
                 gravity = ContentGravity.Center,
                 children = icon
             )

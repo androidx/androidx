@@ -36,7 +36,12 @@ class SemanticsOwner(val rootNode: LayoutNode) {
      */
     val rootSemanticsNode: SemanticsNode
         get() {
-            return rootNode.outerSemantics!!.semanticsNode()
+            return SemanticsNode(rootNode.outerSemantics!!, mergingEnabled = true)
+        }
+
+    val unmergedRootSemanticsNode: SemanticsNode
+        get() {
+            return SemanticsNode(rootNode.outerSemantics!!, mergingEnabled = false)
         }
 
     private fun <T : Function<Boolean>> getSemanticsActionHandlerForId(
@@ -64,15 +69,17 @@ class SemanticsOwner(val rootNode: LayoutNode) {
  * Finds all [SemanticsNode]s in the tree owned by this [SemanticsOwner]. Return the results in a
  * list.
  */
-fun SemanticsOwner.getAllSemanticsNodes(): List<SemanticsNode> {
-    return getAllSemanticsNodesToMap().values.toList()
+fun SemanticsOwner.getAllSemanticsNodes(mergingEnabled: Boolean): List<SemanticsNode> {
+    return getAllSemanticsNodesToMap(mergingEnabled).values.toList()
 }
 
 /**
  * Finds all [SemanticsNode]s in the tree owned by this [SemanticsOwner]. Return the results in a
  * map.
  */
-internal fun SemanticsOwner.getAllSemanticsNodesToMap(): Map<Int, SemanticsNode> {
+internal fun SemanticsOwner.getAllSemanticsNodesToMap(
+    useUnmergedTree: Boolean = false
+): Map<Int, SemanticsNode> {
     val nodes = mutableMapOf<Int, SemanticsNode>()
 
     fun findAllSemanticNodesRecursive(currentNode: SemanticsNode) {
@@ -82,6 +89,7 @@ internal fun SemanticsOwner.getAllSemanticsNodesToMap(): Map<Int, SemanticsNode>
         }
     }
 
-    findAllSemanticNodesRecursive(rootSemanticsNode)
+    val root = if (useUnmergedTree) unmergedRootSemanticsNode else rootSemanticsNode
+    findAllSemanticNodesRecursive(root)
     return nodes
 }

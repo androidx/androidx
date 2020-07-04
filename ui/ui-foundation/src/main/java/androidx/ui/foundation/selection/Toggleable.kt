@@ -100,6 +100,7 @@ fun Modifier.triStateToggleable(
 ) = composed {
     // TODO(pavlis): Handle multiple states for Semantics
     val semantics = Modifier.semantics(
+        mergeAllDescendants = true,
         properties = {
             this.accessibilityValue = when (state) {
                 // TODO(ryanmentley): These should be set by Checkbox, Switch, etc.

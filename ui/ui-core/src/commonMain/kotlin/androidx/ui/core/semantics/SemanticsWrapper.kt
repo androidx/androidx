@@ -25,12 +25,6 @@ internal class SemanticsWrapper(
     wrapped: LayoutNodeWrapper,
     val semanticsModifier: SemanticsModifier
 ) : DelegatingLayoutNodeWrapper<SemanticsModifier>(wrapped, semanticsModifier) {
-    fun semanticsNode(): SemanticsNode {
-        return SemanticsNode(modifier.id,
-            collapsedSemanticsConfiguration(),
-            layoutNode)
-    }
-
     fun collapsedSemanticsConfiguration(): SemanticsConfiguration {
         var config = SemanticsConfiguration()
         config.absorb(modifier.semanticsConfiguration, ignoreAlreadySet = true)

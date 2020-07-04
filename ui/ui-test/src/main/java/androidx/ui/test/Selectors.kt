@@ -33,6 +33,7 @@ internal val SemanticsNode.siblings: List<SemanticsNode>
  */
 fun SemanticsNodeInteraction.parent(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
+        useUnmergedTree,
         selector.addSelectionFromSingleNode("parent") { listOfNotNull(it.parent) }
     )
 }
@@ -42,6 +43,7 @@ fun SemanticsNodeInteraction.parent(): SemanticsNodeInteraction {
  */
 fun SemanticsNodeInteraction.children(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
+        useUnmergedTree,
         selector.addSelectionFromSingleNode("children") { it.children }
     )
 }
@@ -57,6 +59,7 @@ fun SemanticsNodeInteraction.children(): SemanticsNodeInteractionCollection {
  */
 fun SemanticsNodeInteraction.child(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
+        useUnmergedTree,
         selector.addSelectionFromSingleNode("child") { it.children }
     )
 }
@@ -82,6 +85,7 @@ fun SemanticsNodeInteraction.childAt(index: Int): SemanticsNodeInteraction = chi
  */
 fun SemanticsNodeInteraction.siblings(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
+        useUnmergedTree,
         selector.addSelectionFromSingleNode("siblings") { it.siblings }
     )
 }
@@ -97,6 +101,7 @@ fun SemanticsNodeInteraction.siblings(): SemanticsNodeInteractionCollection {
  */
 fun SemanticsNodeInteraction.sibling(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
+        useUnmergedTree,
         selector.addSelectionFromSingleNode("sibling") { it.siblings }
     )
 }
@@ -114,6 +119,7 @@ fun SemanticsNodeInteraction.sibling(): SemanticsNodeInteraction {
  */
 fun SemanticsNodeInteraction.ancestors(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
+        useUnmergedTree,
         selector.addSelectionFromSingleNode("ancestors") { it.ancestors.toList() }
     )
 }
@@ -137,7 +143,7 @@ fun SemanticsNodeInteractionCollection.first(): SemanticsNodeInteraction {
  * no element is found.
  */
 fun SemanticsNodeInteractionCollection.last(): SemanticsNodeInteraction {
-    return SemanticsNodeInteraction(selector.addLastNodeSelector())
+    return SemanticsNodeInteraction(useUnmergedTree, selector.addLastNodeSelector())
 }
 
 /**
@@ -148,7 +154,9 @@ fun SemanticsNodeInteractionCollection.last(): SemanticsNodeInteraction {
 fun SemanticsNodeInteractionCollection.filter(
     matcher: SemanticsMatcher
 ): SemanticsNodeInteractionCollection {
-    return SemanticsNodeInteractionCollection(selector.addSelectorViaMatcher("filter", matcher))
+    return SemanticsNodeInteractionCollection(
+        useUnmergedTree,
+        selector.addSelectorViaMatcher("filter", matcher))
 }
 
 /**
@@ -163,5 +171,7 @@ fun SemanticsNodeInteractionCollection.filter(
 fun SemanticsNodeInteractionCollection.filterToOne(
     matcher: SemanticsMatcher
 ): SemanticsNodeInteraction {
-    return SemanticsNodeInteraction(selector.addSelectorViaMatcher("filterToOne", matcher))
+    return SemanticsNodeInteraction(
+        useUnmergedTree,
+        selector.addSelectorViaMatcher("filterToOne", matcher))
 }
