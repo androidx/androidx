@@ -28,7 +28,8 @@ import androidx.room.ext.extendsBoundOrSelf
 import androidx.room.ext.findTypeElement
 import androidx.room.ext.getAllFieldsIncludingPrivateSupers
 import androidx.room.ext.getAllMethodsIncludingSupers
-import androidx.room.ext.getLocalAndInheritedMethods
+import androidx.room.ext.getConstructors
+import androidx.room.ext.getAllNonPrivateInstanceMethods
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
 import androidx.room.ext.isAssignableFromWithoutVariance
@@ -74,7 +75,6 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
-import javax.lang.model.util.ElementFilter
 
 /**
  * Processes any class as if it is a Pojo.
@@ -228,17 +228,17 @@ class PojoProcessor private constructor(
                     }
                 }
 
-        val methods = element.getLocalAndInheritedMethods(context.processingEnv)
-                .filter {
-                    !it.hasAnyOf(PRIVATE, ABSTRACT, STATIC) &&
-                            !it.hasAnnotation(Ignore::class)
-                }.map {
-                    PojoMethodProcessor(
-                            context = context,
-                            element = it,
-                            owner = declaredType
-                    ).process()
-                }
+        val methods = element.getAllNonPrivateInstanceMethods(context.processingEnv)
+            .asSequence()
+            .filter {
+                !it.hasAnyOf(ABSTRACT) && !it.hasAnnotation(Ignore::class)
+            }.map {
+                PojoMethodProcessor(
+                    context = context,
+                    element = it,
+                    owner = declaredType
+                ).process()
+            }.toList()
 
         val getterCandidates = methods.filter {
             it.element.parameters.size == 0 && it.resolvedType.returnType.isNotVoid()
@@ -904,8 +904,7 @@ class PojoProcessor private constructor(
                 }
         }
 
-        override fun findConstructors(element: TypeElement) = ElementFilter.constructorsIn(
-                element.enclosedElements).filterNot {
+        override fun findConstructors(element: TypeElement) = element.getConstructors().filterNot {
             it.hasAnnotation(Ignore::class) || it.hasAnyOf(PRIVATE)
         }
 

@@ -22,6 +22,7 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.asDeclaredType
 import androidx.room.ext.asExecutableElement
 import androidx.room.ext.asTypeElement
+import androidx.room.ext.getAllMethods
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
 import androidx.room.ext.isType
@@ -42,7 +43,6 @@ import com.squareup.javapoet.TypeName
 import isAssignableFrom
 import java.util.Locale
 import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
@@ -78,8 +78,6 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         )
         context.checker.check(extendsRoomDb, element, ProcessorErrors.DB_MUST_EXTEND_ROOM_DB)
 
-        val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
-
         val views = resolveDatabaseViews(viewsMap.values.toList())
         val dbVerifier = if (element.hasAnnotation(SkipQueryVerification::class)) {
             null
@@ -94,8 +92,8 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         validateUniqueTableAndViewNames(element, entities, views)
 
         val declaredType = element.asDeclaredType()
-        val daoMethods = allMembers.filter {
-            it.hasAnyOf(Modifier.ABSTRACT) && it.kind == ElementKind.METHOD
+        val daoMethods = element.getAllMethods(context.processingEnv).filter {
+            it.hasAnyOf(Modifier.ABSTRACT)
         }.filterNot {
             // remove methods that belong to room
             val containing = it.enclosingElement

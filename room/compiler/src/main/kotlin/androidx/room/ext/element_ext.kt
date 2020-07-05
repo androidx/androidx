@@ -44,6 +44,7 @@ import javax.lang.model.util.ElementFilter
 import javax.lang.model.util.SimpleAnnotationValueVisitor6
 import javax.lang.model.util.SimpleTypeVisitor7
 import javax.lang.model.util.Types
+import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
 fun Element.hasAnyOf(vararg modifiers: Modifier): Boolean {
@@ -69,6 +70,10 @@ fun Element.isNonNull() =
 
 fun Element.isEntityElement() = this.hasAnnotation(androidx.room.Entity::class)
 
+fun TypeElement.getConstructors(): List<ExecutableElement> {
+    return ElementFilter.constructorsIn(enclosedElements)
+}
+
 /**
  * gets all members including super privates. does not handle duplicate field names!!!
  */
@@ -89,7 +94,7 @@ fun TypeElement.getAllFieldsIncludingPrivateSupers(processingEnvironment: Proces
 }
 
 fun TypeElement.getAllMethodsIncludingSupers(): Set<ExecutableElement> {
-    val myMethods = ElementFilter.methodsIn(this.enclosedElements).toSet()
+    val myMethods = getDeclaredMethods().toSet()
     val interfaceMethods = interfaces.flatMap {
         it.asTypeElement().getAllMethodsIncludingSupers()
     }
@@ -387,10 +392,10 @@ fun ExecutableElement.findKotlinDefaultImpl(typeUtils: Types): ExecutableElement
     }
 
     val parent = this.enclosingElement as TypeElement
-    val innerClass = parent.enclosedElements.find {
-        it.kind == ElementKind.CLASS && it.simpleName.contentEquals(DEFAULT_IMPLS_CLASS_NAME)
-    } ?: return null
-    return ElementFilter.methodsIn(innerClass.enclosedElements).find {
+    val innerClass: TypeElement = parent.enclosedElements.find {
+        it.isType() && it.simpleName.contentEquals(DEFAULT_IMPLS_CLASS_NAME)
+    } as? TypeElement ?: return null
+    return innerClass.getDeclaredMethods().find {
         it.simpleName == this.simpleName && paramsMatch(this.parameters, it.parameters)
     }
 }
@@ -415,11 +420,42 @@ fun Element.asVariableElement() = MoreElements.asVariable(this)
 
 fun Element.asExecutableElement() = MoreElements.asExecutable(this)
 
-fun Element.isType() = MoreElements.isType(this)
+fun Element.isType(): Boolean {
+    contract {
+        returns(true) implies (this@isType is TypeElement)
+    }
+    return MoreElements.isType(this)
+}
 
 fun Element.asDeclaredType() = asType().asDeclaredType()
 
-fun TypeElement.getLocalAndInheritedMethods(
+/**
+ * methods declared in this type
+ *  includes all instance/static methods in this
+ */
+fun TypeElement.getDeclaredMethods() = ElementFilter.methodsIn(
+    enclosedElements
+)
+
+/**
+ * Methods declared in this type and its parents
+ *  includes all instance/static methods in this
+ *  includes all instance/static methods in parent CLASS if they are accessible from this (e.g. not
+ *  private).
+ *  does not include static methods in parent interfaces
+ */
+fun TypeElement.getAllMethods(
+    processingEnv: ProcessingEnvironment
+) = ElementFilter.methodsIn(
+    processingEnv.elementUtils.getAllMembers(this)
+)
+
+/**
+ * Instance methods declared in this and supers
+ *  include non private instance methods
+ *  also includes non-private instance methods from supers
+ */
+fun TypeElement.getAllNonPrivateInstanceMethods(
     processingEnvironment: ProcessingEnvironment
 ) = MoreElements.getLocalAndInheritedMethods(
     this,

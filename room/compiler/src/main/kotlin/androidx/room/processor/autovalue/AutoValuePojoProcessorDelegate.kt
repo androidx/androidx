@@ -19,6 +19,7 @@ package androidx.room.processor.autovalue
 import androidx.room.Ignore
 import androidx.room.ext.asDeclaredType
 import androidx.room.ext.getAllMethodsIncludingSupers
+import androidx.room.ext.getDeclaredMethods
 import androidx.room.ext.getPackage
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
@@ -37,7 +38,6 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
-import javax.lang.model.util.ElementFilter
 
 /**
  * Delegate to process generated AutoValue class as a Pojo.
@@ -81,7 +81,7 @@ class AutoValuePojoProcessorDelegate(
 
     override fun findConstructors(element: TypeElement): List<ExecutableElement> {
         val typeUtils = context.processingEnv.typeUtils
-        return ElementFilter.methodsIn(autoValueElement.enclosedElements).filter {
+        return autoValueElement.getDeclaredMethods().filter {
             it.hasAnyOf(Modifier.STATIC) &&
                     !it.hasAnnotation(Ignore::class) &&
                     !it.hasAnyOf(Modifier.PRIVATE) &&

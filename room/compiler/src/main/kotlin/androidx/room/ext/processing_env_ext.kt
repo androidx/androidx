@@ -15,6 +15,7 @@
  */
 package androidx.room.ext
 
+import com.google.auto.common.GeneratedAnnotations
 import com.squareup.javapoet.TypeName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.TypeElement
@@ -108,3 +109,12 @@ fun ProcessingEnvironment.findTypeMirror(
 fun ProcessingEnvironment.findTypeMirror(
     qName: String
 ): TypeMirror? = findTypeElement(qName)?.asType()
+
+fun ProcessingEnvironment.getGeneratedAnnotation(): TypeElement? {
+    val element = GeneratedAnnotations.generatedAnnotation(elementUtils, sourceVersion)
+    return if (element.isPresent) {
+        element.get()
+    } else {
+        null
+    }
+}

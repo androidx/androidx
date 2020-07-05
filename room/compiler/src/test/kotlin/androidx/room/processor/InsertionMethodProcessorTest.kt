@@ -26,6 +26,7 @@ import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.asDeclaredType
 import androidx.room.ext.asExecutableElement
 import androidx.room.ext.asTypeElement
+import androidx.room.ext.getAllMethods
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.typeName
 import androidx.room.solver.shortcut.result.InsertMethodAdapter
@@ -761,16 +762,16 @@ class InsertionMethodProcessorTest {
                         .forAnnotations(Insert::class, Dao::class)
                         .nextRunHandler { invocation ->
                             val (owner, methods) = invocation.roundEnv
-                                    .getElementsAnnotatedWith(Dao::class.java)
-                                    .map {
-                                        Pair(it,
-                                                invocation.processingEnv.elementUtils
-                                                        .getAllMembers(it.asTypeElement())
-                                                        .filter {
-                                                            it.hasAnnotation(Insert::class.java)
-                                                        }
-                                        )
-                                    }.first { it.second.isNotEmpty() }
+                                .getElementsAnnotatedWith(Dao::class.java)
+                                .map {
+                                    Pair(it,
+                                        it.asTypeElement().getAllMethods(
+                                            invocation.processingEnv
+                                        ).filter {
+                                            it.hasAnnotation(Insert::class.java)
+                                        }
+                                    )
+                                }.first { it.second.isNotEmpty() }
                             val processor = InsertionMethodProcessor(
                                     baseContext = invocation.context,
                                     containing = owner.asDeclaredType(),

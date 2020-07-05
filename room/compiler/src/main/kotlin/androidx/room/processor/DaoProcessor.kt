@@ -25,6 +25,8 @@ import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.ext.asDeclaredType
 import androidx.room.ext.findKotlinDefaultImpl
+import androidx.room.ext.getAllMethods
+import androidx.room.ext.getConstructors
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
 import androidx.room.ext.typeName
@@ -38,7 +40,6 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
-import javax.lang.model.util.ElementFilter
 
 class DaoProcessor(
     baseContext: Context,
@@ -60,8 +61,8 @@ class DaoProcessor(
                 element, ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE)
 
         val declaredType = element.asDeclaredType()
-        val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
-        val methods = ElementFilter.methodsIn(allMembers)
+        val allMethods = element.getAllMethods(context.processingEnv)
+        val methods = allMethods
             .filter {
                 it.hasAnyOf(ABSTRACT) &&
                         it.findKotlinDefaultImpl(context.processingEnv.typeUtils) == null
@@ -128,7 +129,7 @@ class DaoProcessor(
                     executableElement = it).process()
         } ?: emptyList()
 
-        val transactionMethods = ElementFilter.methodsIn(allMembers).filter { member ->
+        val transactionMethods = allMethods.filter { member ->
             member.hasAnnotation(Transaction::class) &&
                     PROCESSED_ANNOTATIONS.none { member.hasAnnotation(it) }
         }.map {
@@ -141,7 +142,7 @@ class DaoProcessor(
         val kotlinDefaultMethodDelegates = if (element.kind == ElementKind.INTERFACE) {
             val allProcessedMethods =
                 methods.values.flatten() + transactionMethods.map { it.element }
-            ElementFilter.methodsIn(allMembers).filterNot {
+            allMethods.filterNot {
                 allProcessedMethods.contains(it)
             }.mapNotNull { method ->
                 method.findKotlinDefaultImpl(context.processingEnv.typeUtils)?.let { delegate ->
@@ -155,7 +156,7 @@ class DaoProcessor(
             emptyList()
         }
 
-        val constructors = ElementFilter.constructorsIn(allMembers)
+        val constructors = element.getConstructors()
         val typeUtils = context.processingEnv.typeUtils
         val goodConstructor = constructors.firstOrNull {
             it.parameters.size == 1 &&

@@ -16,8 +16,10 @@
 
 package androidx.room.kotlin
 
-import androidx.room.ext.requireTypeElement
 import androidx.room.ext.asExecutableElement
+import androidx.room.ext.getConstructors
+import androidx.room.ext.getDeclaredMethods
+import androidx.room.ext.requireTypeElement
 import androidx.room.processor.Context
 import androidx.room.testing.TestInvocation
 import com.google.common.truth.Truth.assertThat
@@ -25,7 +27,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import simpleRun
-import javax.lang.model.util.ElementFilter
 import kotlin.reflect.KClass
 
 @RunWith(JUnit4::class)
@@ -38,7 +39,7 @@ class KotlinMetadataElementTest {
                 invocation,
                 TestData::class
             )
-            assertThat(ElementFilter.methodsIn(testClassElement.enclosedElements)
+            assertThat(testClassElement.getDeclaredMethods()
                 .first { it.simpleName.toString() == "functionWithParams" }
                 .let { metadataElement.getParameterNames(it.asExecutableElement()) }
             ).isEqualTo(
@@ -55,7 +56,7 @@ class KotlinMetadataElementTest {
                 TestData::class
             )
             assertThat(
-                ElementFilter.constructorsIn(testClassElement.enclosedElements).map {
+                testClassElement.getConstructors().map {
                     val desc = it.asExecutableElement().descriptor()
                     desc to (desc == metadataElement.findPrimaryConstructorSignature())
                 }
@@ -73,7 +74,7 @@ class KotlinMetadataElementTest {
                 invocation,
                 TestData::class
             )
-            assertThat(ElementFilter.methodsIn(testClassElement.enclosedElements).map {
+            assertThat(testClassElement.getDeclaredMethods().map {
                 val executableElement = it.asExecutableElement()
                 executableElement.simpleName.toString() to metadataElement.isSuspendFunction(
                     executableElement

@@ -28,6 +28,8 @@ import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.asDeclaredType
 import androidx.room.ext.asExecutableElement
 import androidx.room.ext.asTypeElement
+import androidx.room.ext.getAllMethods
+import androidx.room.ext.getDeclaredMethods
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.requireTypeElement
 import androidx.room.ext.typeName
@@ -47,7 +49,6 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import simpleRun
-import javax.lang.model.util.ElementFilter
 
 class RawQueryMethodProcessorTest {
     @Test
@@ -200,7 +201,7 @@ class RawQueryMethodProcessorTest {
         simpleRun { invocation ->
             val daoElement =
                 invocation.processingEnv.requireTypeElement(RawQuerySuspendUnitDao::class)
-            val daoFunctionElement = ElementFilter.methodsIn(daoElement.enclosedElements).first()
+            val daoFunctionElement = daoElement.getDeclaredMethods().first()
             RawQueryMethodProcessor(
                 baseContext = invocation.context,
                 containing = daoElement.asDeclaredType(),
@@ -315,11 +316,11 @@ class RawQueryMethodProcessorTest {
                                     .getElementsAnnotatedWith(Dao::class.java)
                                     .map {
                                         Pair(it,
-                                                invocation.processingEnv.elementUtils
-                                                        .getAllMembers(it.asTypeElement())
-                                                        .filter {
-                                                            it.hasAnnotation(RawQuery::class)
-                                                        }
+                                                it.asTypeElement().getAllMethods(
+                                                    invocation.processingEnv
+                                                ).filter {
+                                                    it.hasAnnotation(RawQuery::class)
+                                                }
                                         )
                                     }.first { it.second.isNotEmpty() }
                             val parser = RawQueryMethodProcessor(

@@ -20,6 +20,8 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.room.ext.asDeclaredType
 import androidx.room.ext.asMemberOf
+import androidx.room.ext.getAllMethods
+import androidx.room.ext.getConstructors
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
 import androidx.room.ext.toAnnotationBox
@@ -46,7 +48,6 @@ import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
-import javax.lang.model.util.ElementFilter
 
 /**
  * Processes classes that are referenced in TypeConverters annotations.
@@ -87,17 +88,14 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
 
     fun process(): List<CustomTypeConverter> {
         // using element utils instead of MoreElements to include statics.
-        val methods = ElementFilter
-            .methodsIn(context.processingEnv.elementUtils.getAllMembers(element))
+        val methods = element.getAllMethods(context.processingEnv)
         val declaredType = element.asDeclaredType()
         val converterMethods = methods.filter {
             it.hasAnnotation(TypeConverter::class)
         }
         context.checker.check(converterMethods.isNotEmpty(), element, TYPE_CONVERTER_EMPTY_CLASS)
         val allStatic = converterMethods.all { it.modifiers.contains(Modifier.STATIC) }
-        val constructors = ElementFilter.constructorsIn(
-            context.processingEnv.elementUtils.getAllMembers(element)
-        )
+        val constructors = element.getConstructors()
         val kotlinMetadata = KotlinMetadataElement.createFor(context, element)
         val isKotlinObjectDeclaration = kotlinMetadata?.isObject() == true
         context.checker.check(

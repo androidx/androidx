@@ -109,7 +109,6 @@ fun TypeMirror.isTypeOf(klass: KClass<*>) = MoreTypes.isTypeOf(
     this
 )
 
-@OptIn(ExperimentalContracts::class)
 fun TypeMirror.isArray(): Boolean {
     contract {
         returns(true) implies (this@isArray is ArrayType)

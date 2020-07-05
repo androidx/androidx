@@ -18,17 +18,17 @@ package androidx.room.processor
 
 import androidx.room.ext.asMemberOf
 import androidx.room.ext.extendsBound
+import androidx.room.ext.getAllNonPrivateInstanceMethods
 import androidx.room.ext.requireTypeMirror
 import androidx.room.vo.ShortcutQueryParameter
 import asDeclaredType
+import asTypeElement
 import isAssignableFrom
 import isType
-import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
-import javax.lang.model.util.ElementFilter
 
 /**
  * Processes parameters of methods that are annotated with Insert, Update or Delete.
@@ -62,7 +62,6 @@ class ShortcutParameterProcessor(
     private fun extractPojoType(typeMirror: TypeMirror): Pair<TypeMirror?, Boolean> {
 
         val processingEnv = context.processingEnv
-        val elementUtils = context.processingEnv.elementUtils
         val typeUtils = context.processingEnv.typeUtils
 
         fun verifyAndPair(pojoType: TypeMirror, isMultiple: Boolean): Pair<TypeMirror?, Boolean> {
@@ -77,8 +76,7 @@ class ShortcutParameterProcessor(
         }
 
         fun extractPojoTypeFromIterator(iterableType: DeclaredType): TypeMirror {
-            ElementFilter.methodsIn(elementUtils
-                    .getAllMembers(typeUtils.asElement(iterableType) as TypeElement)).forEach {
+            iterableType.asTypeElement().getAllNonPrivateInstanceMethods(processingEnv).forEach {
                 if (it.simpleName.toString() == "iterator") {
                     return it.asMemberOf(typeUtils, iterableType)
                         .returnType

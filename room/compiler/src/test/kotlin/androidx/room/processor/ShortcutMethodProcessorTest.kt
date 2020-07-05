@@ -25,6 +25,7 @@ import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.asDeclaredType
 import androidx.room.ext.asExecutableElement
 import androidx.room.ext.asTypeElement
+import androidx.room.ext.getAllMethods
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.typeName
 import androidx.room.testing.TestInvocation
@@ -473,11 +474,11 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                                     .getElementsAnnotatedWith(Dao::class.java)
                                     .map {
                                         Pair(it,
-                                                invocation.processingEnv.elementUtils
-                                                        .getAllMembers(it.asTypeElement())
-                                                        .filter {
-                                                            it.hasAnnotation(annotation)
-                                                        }
+                                            it.asTypeElement().getAllMethods(
+                                                invocation.processingEnv
+                                            ).filter {
+                                                it.hasAnnotation(annotation)
+                                            }
                                         )
                                     }.first { it.second.isNotEmpty() }
                             val processed = process(
