@@ -434,28 +434,28 @@ Java_androidx_camera_integration_core_OpenGLRenderer_getTexName(
 JNIEXPORT jboolean JNICALL
 Java_androidx_camera_integration_core_OpenGLRenderer_renderTexture(
         JNIEnv *env, jclass clazz, jlong context, jlong timestampNs,
-        jfloatArray jmvpTransformArray, jfloatArray jtexTransformArray) {
+        jfloatArray jmvpTransformArray, jboolean mvpDirty,jfloatArray jtexTransformArray) {
     auto *nativeContext = reinterpret_cast<NativeContext *>(context);
 
     // We use two triangles drawn with GL_TRIANGLE_STRIP to create the surface which will be
     // textured with the camera frame. This could also be done with a quad (GL_QUADS) on a
     // different version of OpenGL or with a scaled single triangle in which we would inscribe
     // the camera texture.
-    //                                  ^
-    //                       (-1,1)     |     (1,1)
-    //                          +-------|-------+
-    //                          | \_    |       |
-    //                          |    \_ |       |
-    //                          |       +-------|--->
+    //
+    //                       (-1,-1)         (1,-1)
+    //                          +---------------+
+    //                          | \_            |
+    //                          |    \_         |
+    //                          |       +       |
     //                          |         \_    |
     //                          |            \_ |
     //                          +---------------+
-    //                       (-1,-1)          (1,-1)
+    //                       (-1,1)           (1,1)
     constexpr GLfloat vertices[] = {
-            -1.0f, -1.0f, // Lower-left
-             1.0f, -1.0f, // Lower-right
-            -1.0f,  1.0f, // Upper-left (notice order here. We're drawing triangles, not a quad.)
-             1.0f,  1.0f  // Upper-right
+            -1.0f,  1.0f, // Lower-left
+             1.0f,  1.0f, // Lower-right
+            -1.0f, -1.0f, // Upper-left (notice order here. We're drawing triangles, not a quad.)
+             1.0f, -1.0f  // Upper-right
     };
     constexpr GLfloat texCoords[] = {
             0.0f, 0.0f, // Lower-left
@@ -482,12 +482,15 @@ Java_androidx_camera_integration_core_OpenGLRenderer_renderTexture(
 
     GLsizei numMatrices = 1;
     GLboolean transpose = GL_FALSE;
-    GLfloat *mvpTransformArray =
-            env->GetFloatArrayElements(jmvpTransformArray, nullptr);
-    CHECK_GL(glUniformMatrix4fv(nativeContext->mvpTransformHandle, numMatrices,
-                                transpose, mvpTransformArray));
-    env->ReleaseFloatArrayElements(jmvpTransformArray, mvpTransformArray,
-                                   JNI_ABORT);
+    // Only re-upload MVP to GPU if it is dirty
+    if (mvpDirty) {
+        GLfloat *mvpTransformArray =
+                env->GetFloatArrayElements(jmvpTransformArray, nullptr);
+        CHECK_GL(glUniformMatrix4fv(nativeContext->mvpTransformHandle, numMatrices,
+                                    transpose, mvpTransformArray));
+        env->ReleaseFloatArrayElements(jmvpTransformArray, mvpTransformArray,
+                                       JNI_ABORT);
+    }
 
     CHECK_GL(glUniform1i(nativeContext->samplerHandle, 0));
 
@@ -501,6 +504,16 @@ Java_androidx_camera_integration_core_OpenGLRenderer_renderTexture(
                                    JNI_ABORT);
 
     CHECK_GL(glBindTexture(GL_TEXTURE_EXTERNAL_OES, nativeContext->textureId));
+
+    // Required to use a left-handed coordinate system in order to match our world-space
+    //
+    //                    ________+x
+    //                  /|
+    //                 / |
+    //              +z/  |
+    //                   | +y
+    //
+    glFrontFace(GL_CW);
 
     // This will typically fail if the EGL surface has been detached abnormally. In that case we
     // will return JNI_FALSE below.
