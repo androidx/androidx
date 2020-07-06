@@ -17,11 +17,12 @@
 package androidx.ui.core.texttoolbar.actionmodecallback
 
 import android.view.ActionMode
+import android.view.ActionMode.Callback
 import android.view.Menu
 import android.view.MenuItem
 
 internal class PrimaryTextActionModeCallback(
-    private val callback: TextActionModeCallback
+    private val callback: ActionMode.Callback
 ) : ActionMode.Callback {
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
         return callback.onActionItemClicked(mode, item)

@@ -22,6 +22,8 @@ import androidx.ui.core.LayoutDirection
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
+import androidx.ui.core.texttoolbar.TextToolbar
+import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Offset
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.TextFieldValue
@@ -66,6 +68,7 @@ class TextFieldSelectionManagerTest {
     private val manager = TextFieldSelectionManager()
 
     private val clipboardManager = mock<ClipboardManager>()
+    private val textToolbar = mock<TextToolbar>()
     private val hapticFeedback = mock<HapticFeedback>()
 
     @Before
@@ -75,6 +78,7 @@ class TextFieldSelectionManagerTest {
         manager.state = state
         manager.value = value
         manager.clipboardManager = clipboardManager
+        manager.textToolbar = textToolbar
         manager.hapticFeedBack = hapticFeedback
 
         state.layoutResult = mock()
@@ -100,6 +104,7 @@ class TextFieldSelectionManagerTest {
         whenever(state.layoutResult!!.getWordBoundary(dragOffset)).thenReturn(dragTextRange)
         whenever(state.layoutResult!!.getBidiRunDirection(any()))
             .thenReturn(ResolvedTextDirection.Ltr)
+        whenever(state.layoutResult!!.getBoundingBox(any())).thenReturn(Rect.zero)
     }
 
     @Test
@@ -275,5 +280,17 @@ class TextFieldSelectionManagerTest {
         assertThat(value.text).isEqualTo("HelloHello World")
         assertThat(value.selection).isEqualTo(TextRange("Hello".length, "Hello".length))
         assertThat(state.selectionIsOn).isFalse()
+    }
+
+    @Test
+    fun showSelectionToolbar_trigger_textToolbar_showPasteMenu() {
+        manager.value = TextFieldValue(
+            text = text + text,
+            selection = TextRange("Hello".length, text.length)
+        )
+
+        manager.showSelectionToolbar()
+
+        verify(textToolbar, times(1)).showPasteMenu(any(), any(), any(), any())
     }
 }

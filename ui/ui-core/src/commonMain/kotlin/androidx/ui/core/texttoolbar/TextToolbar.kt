@@ -37,6 +37,22 @@ interface TextToolbar {
     )
 
     /**
+     * Show the floating toolbar(post-M) or primary toolbar(pre-M) for copying, cutting and pasting
+     * text.
+     * @param rect region of interest. The selected region around which the floating toolbar
+     * should show.
+     * @param onCopyRequested callback to copy text into ClipBoardManager.
+     * @param onPasteRequested callback to get text from ClipBoardManager and paste it.
+     * @param onCutRequested callback to cut text and copy the text into ClipBoardManager.
+     */
+    fun showPasteMenu(
+        rect: Rect,
+        onCopyRequested: () -> Unit,
+        onPasteRequested: () -> Unit,
+        onCutRequested: () -> Unit
+    )
+
+    /**
      * Hide the floating toolbar(post-M) or primary toolbar(pre-M).
      */
     fun hide()
