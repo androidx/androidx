@@ -36,7 +36,7 @@ dependencies {
 
     api "androidx.annotation:annotation:1.1.0"
 
-    api project(":ui:ui-animation-core")
+    api project(":compose:animation:animation-core")
 
     api project(":compose:compose-runtime")
     implementation project(":ui:ui-util")
