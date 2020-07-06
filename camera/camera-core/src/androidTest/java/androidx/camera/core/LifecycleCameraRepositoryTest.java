@@ -138,7 +138,7 @@ public final class LifecycleCameraRepositoryTest {
     }
 
     @Test
-    public void setActiveCamera() {
+    public void prioritizeStartedCamera() {
         // Arrange.
         // Starts first lifecycle and check LifecycleCamera active state is true.
         LifecycleCamera firstLifecycleCamera = mRepository.createLifecycleCamera(
@@ -152,13 +152,77 @@ public final class LifecycleCameraRepositoryTest {
                         secondLifecycle, mCameraUseCaseAdapter);
         secondLifecycle.start();
 
-        // Act. Call setActive()
-        mRepository.setActive(firstLifecycleCamera);
+        // Act. Call prioritize()
+        mRepository.prioritize(firstLifecycleCamera);
 
         // Assert. The camera that was set as active should be active now. All other cameras will
         // be inactive.
         assertThat(firstLifecycleCamera.isActive()).isTrue();
         assertThat(secondLifecycleCamera.isActive()).isFalse();
+    }
+
+    @Test
+    public void prioritizeNonStartedCamera() {
+        // Arrange.
+        // Starts first lifecycle and check LifecycleCamera active state is true.
+        LifecycleCamera firstLifecycleCamera = mRepository.createLifecycleCamera(
+                mLifecycle, mCameraUseCaseAdapter);
+        mLifecycle.start();
+
+        // Starts second lifecycle and check previous LifecycleCamera is stopped.
+        FakeLifecycleOwner secondLifecycle = new FakeLifecycleOwner();
+        LifecycleCamera secondLifecycleCamera =
+                mRepository.createLifecycleCamera(
+                        secondLifecycle, mCameraUseCaseAdapter);
+        secondLifecycle.start();
+
+        mLifecycle.stop();
+
+        // Act. Call prioritize()
+        mRepository.prioritize(firstLifecycleCamera);
+
+        // Assert. The camera that was set as active should be active now. All other cameras will
+        // be inactive.
+        assertThat(firstLifecycleCamera.isActive()).isFalse();
+        assertThat(secondLifecycleCamera.isActive()).isTrue();
+    }
+
+    @Test
+    public void prioritizeNonCurrentCameraMaintainsState() {
+        // Arrange.
+        // Starts first lifecycle
+        LifecycleCamera lifecycleCamera0 = mRepository.createLifecycleCamera(
+                mLifecycle, mCameraUseCaseAdapter);
+        mLifecycle.start();
+
+        // Starts second lifecycle
+        FakeLifecycleOwner lifecycle1 = new FakeLifecycleOwner();
+        LifecycleCamera lifecycleCamera1 =
+                mRepository.createLifecycleCamera(
+                        lifecycle1, mCameraUseCaseAdapter);
+        lifecycle1.start();
+
+        // Starts third lifecycle
+        FakeLifecycleOwner lifecycle2 = new FakeLifecycleOwner();
+        LifecycleCamera lifecycleCamera2 =
+                mRepository.createLifecycleCamera(
+                        lifecycle2, mCameraUseCaseAdapter);
+        lifecycle2.start();
+
+        // Act. Call prioritize() on camera that isn't the current active camera. The order of
+        // active camera priorities from highest priority to least is:
+        // 2, 1, 0
+        // After calling prioritize() it is:
+        // 1, 2, 0
+        mRepository.prioritize(lifecycleCamera1);
+        // Stop the lifecycles for 1 and 2 so then the only camera remaining as active should be 0
+        lifecycle1.stop();
+        lifecycle2.stop();
+
+        // Assert. Make sure that prioritize maintains correct internal state
+        assertThat(lifecycleCamera0.isActive()).isTrue();
+        assertThat(lifecycleCamera1.isActive()).isFalse();
+        assertThat(lifecycleCamera2.isActive()).isFalse();
     }
 
     @Test
