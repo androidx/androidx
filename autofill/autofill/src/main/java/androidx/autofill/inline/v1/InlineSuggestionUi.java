@@ -71,6 +71,14 @@ public final class InlineSuggestionUi {
     /**
      * Returns a builder to build the content for V1 inline suggestion UI.
      *
+     * <p><b>Important Note:</b> The
+     * {@link android.service.autofill.AutofillService AutofillService} is responsible for keeping
+     * track of the {@link PendingIntent} attribution intents it has used and cleaning them up
+     * properly with {@link PendingIntent#cancel()}, or reusing them for the next set of
+     * suggestions. Intents are safe to cleanup on receiving a new
+     * {@link android.service.autofill.AutofillService#onFillRequest} call.
+     * </p>
+     *
      * @param attributionIntent invoked when the UI is long-pressed.
      * @see androidx.autofill.inline.Renderer#getAttributionIntent(Slice)
      */
