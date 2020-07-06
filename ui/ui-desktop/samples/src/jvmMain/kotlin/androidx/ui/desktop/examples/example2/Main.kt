@@ -15,7 +15,6 @@
  */
 package androidx.ui.desktop.examples.example2
 
-import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
@@ -23,33 +22,33 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.inset
 import androidx.ui.graphics.drawscope.rotate
 import androidx.ui.graphics.drawscope.withTransform
-import androidx.ui.layout.preferredSize
-import androidx.ui.unit.dp
-
-import androidx.ui.desktop.examples.mainWith
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.unit.IntSize
+import androidx.ui.desktop.AppWindow
 
 private const val title = "Desktop Compose Canvas"
 
-fun main() = mainWith(title) @Composable {
-    val width = 1024
-    Canvas(modifier = Modifier.preferredSize(width.dp)) {
-        drawRect(Color.Magenta)
-        inset(10.0f) {
-            drawLine(
-                start = Offset.Zero,
-                end = Offset(size.width, size.height),
-                strokeWidth = 5.0f,
-                color = Color.Red
-            )
-        }
-        floatArrayOf(0.3f, 0.7f, 1.3f).forEach {
-            withTransform({
-                translate(10.0f, 12.0f)
-                rotate(45f * it)
-                scale(it, 1f / it)
-            }) {
-                drawRect(Color(0f, 0f, 1f, it / 2f))
-                drawCircle(Color(1f, 0f, 0f, it / 2f))
+fun main() {
+    AppWindow(title, IntSize(1024, 768)).show {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawRect(Color.Magenta)
+            inset(10.0f) {
+                drawLine(
+                    start = Offset.Zero,
+                    end = Offset(size.width, size.height),
+                    strokeWidth = 5.0f,
+                    color = Color.Red
+                )
+            }
+            floatArrayOf(0.3f, 0.7f, 1.3f).forEach {
+                withTransform({
+                    translate(10.0f, 12.0f)
+                    rotate(45f * it)
+                    scale(it, 1f / it)
+                }) {
+                    drawRect(Color(0f, 0f, 1f, it / 2f))
+                    drawCircle(Color(1f, 0f, 0f, it / 2f))
+                }
             }
         }
     }
