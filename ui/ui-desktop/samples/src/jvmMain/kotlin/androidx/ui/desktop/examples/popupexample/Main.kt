@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.ui.desktop.examples.popupexample
 
-package androidx.ui.desktop
-
-import androidx.ui.foundation.Text
+import androidx.ui.desktop.AppWindow
+import androidx.ui.desktop.AppManager
 import androidx.ui.unit.IntSize
-import androidx.ui.unit.IntOffset
 
-import org.junit.Test
+fun main() {
+    AppManager.onWindowsEmptyAction = onCloseAppEvent
 
-class WrapperTest {
-    @Test
-    fun wrapWindow() {
-        val app = AppWindow("Test", IntSize(800, 600), IntOffset(400, 400))
-        app.show {
-            Text("Simple")
-        }
-        app.close()
+    AppWindow("Desktop Compose Popup", IntSize(800, 600)).show {
+        content()
     }
+}
+
+val onCloseAppEvent = {
+    println("App exit.")
+    System.exit(0)
 }

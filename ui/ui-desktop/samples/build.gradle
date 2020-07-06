@@ -69,6 +69,16 @@ task run2(type: JavaExec) {
         fileTree(sdkDir)
 }
 
+task run3(type: JavaExec) {
+    dependsOn(":ui:ui-desktop:jar")
+    main = 'androidx.ui.desktop.examples.popupexample.MainKt'
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+        compilation.output.allOutputs +
+        compilation.runtimeDependencyFiles +
+        fileTree(sdkDir)
+}
+
 task run {
     dependsOn("run1")
 }
