@@ -23,7 +23,8 @@ import androidx.room.ext.asMemberOf
 import androidx.room.ext.getAllMethods
 import androidx.room.ext.getConstructors
 import androidx.room.ext.hasAnnotation
-import androidx.room.ext.hasAnyOf
+import androidx.room.ext.isPublic
+import androidx.room.ext.isStatic
 import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.typeName
 import androidx.room.kotlin.KotlinMetadataElement
@@ -44,7 +45,6 @@ import isVoid
 import java.util.LinkedHashSet
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
@@ -94,7 +94,7 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
             it.hasAnnotation(TypeConverter::class)
         }
         context.checker.check(converterMethods.isNotEmpty(), element, TYPE_CONVERTER_EMPTY_CLASS)
-        val allStatic = converterMethods.all { it.modifiers.contains(Modifier.STATIC) }
+        val allStatic = converterMethods.all { it.isStatic() }
         val constructors = element.getConstructors()
         val kotlinMetadata = KotlinMetadataElement.createFor(context, element)
         val isKotlinObjectDeclaration = kotlinMetadata?.isObject() == true
@@ -124,8 +124,7 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
         val returnType = executableType.returnType
         val invalidReturnType = returnType.isInvalidReturnType()
         context.checker.check(
-            methodElement.hasAnyOf(Modifier.PUBLIC), methodElement,
-            TYPE_CONVERTER_MUST_BE_PUBLIC
+            methodElement.isPublic(), methodElement, TYPE_CONVERTER_MUST_BE_PUBLIC
         )
         if (invalidReturnType) {
             context.logger.e(methodElement, TYPE_CONVERTER_BAD_RETURN_TYPE)

@@ -16,11 +16,10 @@
 
 package androidx.room.vo
 
-import androidx.room.ext.hasAnyOf
+import androidx.room.ext.isStatic
 import androidx.room.ext.typeName
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
 import javax.lang.model.type.TypeMirror
 
 /**
@@ -37,5 +36,5 @@ data class CustomTypeConverter(
     val fromTypeName: TypeName by lazy { from.typeName() }
     val toTypeName: TypeName by lazy { to.typeName() }
     val methodName by lazy { method.simpleName.toString() }
-    val isStatic by lazy { method.hasAnyOf(Modifier.STATIC) }
+    val isStatic by lazy { method.isStatic() }
 }

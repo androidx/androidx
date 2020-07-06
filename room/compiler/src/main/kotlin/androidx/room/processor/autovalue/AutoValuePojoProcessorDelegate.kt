@@ -23,6 +23,9 @@ import androidx.room.ext.getDeclaredMethods
 import androidx.room.ext.getPackage
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
+import androidx.room.ext.isAbstract
+import androidx.room.ext.isPrivate
+import androidx.room.ext.isStatic
 import androidx.room.ext.typeName
 import androidx.room.processor.Context
 import androidx.room.processor.PojoProcessor
@@ -35,7 +38,6 @@ import androidx.room.vo.Pojo
 import androidx.room.vo.Warning
 import com.google.auto.value.AutoValue.CopyAnnotations
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 
@@ -54,7 +56,7 @@ class AutoValuePojoProcessorDelegate(
     override fun onPreProcess(element: TypeElement) {
         val allMethods = autoValueElement.getAllMethodsIncludingSupers()
         val autoValueAbstractGetters = allMethods
-            .filter { it.hasAnyOf(Modifier.ABSTRACT) && it.parameters.size == 0 }
+            .filter { it.isAbstract() && it.parameters.size == 0 }
 
         // Warn about missing @AutoValue.CopyAnnotations in the property getters.
         autoValueAbstractGetters.forEach {
@@ -82,9 +84,9 @@ class AutoValuePojoProcessorDelegate(
     override fun findConstructors(element: TypeElement): List<ExecutableElement> {
         val typeUtils = context.processingEnv.typeUtils
         return autoValueElement.getDeclaredMethods().filter {
-            it.hasAnyOf(Modifier.STATIC) &&
+            it.isStatic() &&
                     !it.hasAnnotation(Ignore::class) &&
-                    !it.hasAnyOf(Modifier.PRIVATE) &&
+                    !it.isPrivate() &&
                     typeUtils.isSameType(it.returnType, autoValueElement.asType())
         }
     }

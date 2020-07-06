@@ -22,14 +22,12 @@ import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.findKotlinDefaultImpl
 import androidx.room.ext.findTypeMirror
-import androidx.room.ext.hasAnyOf
+import androidx.room.ext.isAbstract
+import androidx.room.ext.isJavaDefault
+import androidx.room.ext.isOverrideableIgnoringContainer
 import androidx.room.vo.TransactionMethod
 import isAssignableFrom
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier.ABSTRACT
-import javax.lang.model.element.Modifier.DEFAULT
-import javax.lang.model.element.Modifier.FINAL
-import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.type.DeclaredType
 
 class TransactionMethodProcessor(
@@ -45,8 +43,8 @@ class TransactionMethodProcessor(
         val typeUtils = context.processingEnv.typeUtils
         val kotlinDefaultImpl = executableElement.findKotlinDefaultImpl(typeUtils)
         context.checker.check(
-                !executableElement.hasAnyOf(PRIVATE, FINAL) &&
-                        (!executableElement.hasAnyOf(ABSTRACT) || kotlinDefaultImpl != null),
+                executableElement.isOverrideableIgnoringContainer() &&
+                        (!executableElement.isAbstract() || kotlinDefaultImpl != null),
                 executableElement, ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
 
         val returnType = delegate.extractReturnType()
@@ -64,7 +62,7 @@ class TransactionMethodProcessor(
         }
 
         val callType = when {
-            executableElement.hasAnyOf(DEFAULT) ->
+            executableElement.isJavaDefault() ->
                 TransactionMethod.CallType.DEFAULT_JAVA8
             kotlinDefaultImpl != null ->
                 TransactionMethod.CallType.DEFAULT_KOTLIN

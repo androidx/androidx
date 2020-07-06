@@ -47,9 +47,28 @@ import javax.lang.model.util.Types
 import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
-fun Element.hasAnyOf(vararg modifiers: Modifier): Boolean {
-    return this.modifiers.any { modifiers.contains(it) }
+private fun Element.hasModifier(modifier: Modifier): Boolean {
+    return this.modifiers.contains(modifier)
 }
+
+fun Element.isPublic() = hasModifier(Modifier.PUBLIC)
+
+fun Element.isAbstract() = hasModifier(Modifier.ABSTRACT)
+
+fun Element.isPrivate() = hasModifier(Modifier.PRIVATE)
+
+fun Element.isStatic() = hasModifier(Modifier.STATIC)
+
+fun Element.isTransient() = hasModifier(Modifier.TRANSIENT)
+
+fun Element.isFinal() = hasModifier(Modifier.FINAL)
+
+// we handle kotlin and java defaults differently
+fun ExecutableElement.isJavaDefault() = hasModifier(Modifier.DEFAULT)
+
+// checks if this executable element can be overridden but does not check if the enclosing element
+// can be overridden
+fun ExecutableElement.isOverrideableIgnoringContainer(): Boolean = !isPrivate() && !isFinal()
 
 fun Element.hasAnnotation(klass: KClass<out Annotation>): Boolean {
     return MoreElements.isAnnotationPresent(this, klass.java)
