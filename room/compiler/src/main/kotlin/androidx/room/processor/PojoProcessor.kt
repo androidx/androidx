@@ -39,6 +39,7 @@ import androidx.room.ext.isPrivate
 import androidx.room.ext.isPublic
 import androidx.room.ext.isStatic
 import androidx.room.ext.isTransient
+import androidx.room.ext.kindName
 import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.typeName
 import androidx.room.kotlin.KotlinMetadataElement
@@ -898,7 +899,7 @@ class PojoProcessor private constructor(
                         .first { method.hasAnnotation(it) }
                         .java.simpleName
                     context.logger.e(method,
-                        ProcessorErrors.invalidAnnotationTarget(annotationName, method.kind))
+                        ProcessorErrors.invalidAnnotationTarget(annotationName, method.kindName()))
                 }
         }
 

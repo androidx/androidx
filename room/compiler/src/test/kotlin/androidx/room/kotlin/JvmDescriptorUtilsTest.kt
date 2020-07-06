@@ -16,8 +16,9 @@
 
 package androidx.room.kotlin
 
-import androidx.room.ext.asExecutableElement
-import androidx.room.ext.asVariableElement
+import androidx.room.ext.isConstructor
+import androidx.room.ext.isMethod
+import androidx.room.ext.isField
 import androidx.room.testing.TestProcessor
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
@@ -27,7 +28,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import toJFO
-import javax.lang.model.element.ElementKind
 import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
@@ -341,11 +341,9 @@ class JvmDescriptorUtilsTest {
         .processedWith(TestProcessor.builder()
             .nextRunHandler {
                 it.roundEnv.getElementsAnnotatedWith(it.annotations.first()).map { element ->
-                    when (element.kind) {
-                        ElementKind.FIELD ->
-                            element.asVariableElement().descriptor()
-                        ElementKind.CONSTRUCTOR, ElementKind.METHOD ->
-                            element.asExecutableElement().descriptor()
+                    when {
+                        element.isField() -> element.descriptor()
+                        element.isMethod() || element.isConstructor() -> element.descriptor()
                         else -> error("Unsupported element to describe.")
                     }
                 }.toSet().let(handler)

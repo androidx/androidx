@@ -18,9 +18,11 @@ package androidx.room.vo
 
 import androidx.room.ext.L
 import androidx.room.ext.T
+import androidx.room.ext.isConstructor
+import androidx.room.ext.isMethod
+import androidx.room.ext.kindName
 import androidx.room.ext.typeName
 import com.squareup.javapoet.CodeBlock
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 
 /**
@@ -41,17 +43,17 @@ data class Constructor(val element: ExecutableElement, val params: List<Param>) 
     }
 
     fun writeConstructor(outVar: String, args: String, builder: CodeBlock.Builder) {
-        when (element.kind) {
-            ElementKind.CONSTRUCTOR -> {
+        when {
+            element.isConstructor() -> {
                 builder.addStatement("$L = new $T($L)", outVar,
                         element.enclosingElement.asType().typeName(), args)
             }
-            ElementKind.METHOD -> {
+            element.isMethod() -> {
                 builder.addStatement("$L = $T.$L($L)", outVar,
                         element.enclosingElement.asType().typeName(),
                         element.simpleName.toString(), args)
             }
-            else -> throw IllegalStateException("Invalid constructor kind ${element.kind}")
+            else -> throw IllegalStateException("Invalid constructor kind ${element.kindName()}")
         }
     }
 

@@ -30,7 +30,6 @@ import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CustomTypeConverter
 import androidx.room.vo.Field
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.ElementKind
 
 object ProcessorErrors {
     private fun String.trim(): String {
@@ -637,8 +636,8 @@ object ProcessorErrors {
     val MISSING_COPY_ANNOTATIONS = "Annotated property getter is missing " +
             "@AutoValue.CopyAnnotations."
 
-    fun invalidAnnotationTarget(annotationName: String, elementKind: ElementKind): String {
-        return "@$annotationName is not allowed in this ${elementKind.name.toLowerCase()}."
+    fun invalidAnnotationTarget(annotationName: String, elementKindName: String): String {
+        return "@$annotationName is not allowed in this $elementKindName."
     }
 
     val INDICES_IN_FTS_ENTITY = "Indices not allowed in FTS Entity."

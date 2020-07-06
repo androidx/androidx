@@ -29,12 +29,12 @@ import androidx.room.ext.getAllMethods
 import androidx.room.ext.getConstructors
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.isAbstract
+import androidx.room.ext.isInterface
 import androidx.room.ext.typeName
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
 import androidx.room.vo.KotlinDefaultMethodDelegate
 import isAssignableFrom
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
@@ -55,7 +55,7 @@ class DaoProcessor(
     fun process(): Dao {
         context.checker.hasAnnotation(element, androidx.room.Dao::class,
                 ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO)
-        context.checker.check(element.isAbstract() || element.kind == ElementKind.INTERFACE,
+        context.checker.check(element.isAbstract() || element.isInterface(),
                 element, ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE)
 
         val declaredType = element.asDeclaredType()
@@ -137,7 +137,7 @@ class DaoProcessor(
                     executableElement = it).process()
         }
 
-        val kotlinDefaultMethodDelegates = if (element.kind == ElementKind.INTERFACE) {
+        val kotlinDefaultMethodDelegates = if (element.isInterface()) {
             val allProcessedMethods =
                 methods.values.flatten() + transactionMethods.map { it.element }
             allMethods.filterNot {
