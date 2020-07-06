@@ -102,12 +102,13 @@ import java.lang.ref.WeakReference;
  *         // do something with the route...
  *     }
  *
- *     // Remove the selector on stop to tell the media router that it no longer
+ *     // Remove the callback flag CALLBACK_FLAG_REQUEST_DISCOVERY on stop by calling
+ *     // addCallback() again in order to tell the media router that it no longer
  *     // needs to invest effort trying to discover routes of these kinds for now.
  *     public void onStop() {
  *         super.onStop();
  *
- *         mediaRouter.removeCallback(mCallback);
+ *         mRouter.addCallback(mSelector, mCallback, &#47;* flags= *&#47; 0);
  *     }
  *
  *     public boolean onCreateOptionsMenu(Menu menu) {
