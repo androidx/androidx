@@ -15,6 +15,7 @@
  */
 
 @file:OptIn(ExperimentalComposeApi::class)
+
 package androidx.ui.core
 
 import android.annotation.SuppressLint
@@ -28,7 +29,6 @@ import android.os.Looper
 import android.os.Parcelable
 import android.util.Log
 import android.util.SparseArray
-import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -56,25 +56,23 @@ import androidx.ui.core.AndroidOwner.ViewTreeOwners
 import androidx.ui.core.clipboard.AndroidClipboardManager
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.focus.FOCUS_TAG
+import androidx.ui.core.focus.FocusDetailedState.Active
+import androidx.ui.core.focus.FocusDetailedState.Inactive
 import androidx.ui.core.focus.FocusModifierImpl
 import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedback
+import androidx.ui.core.keyinput.KeyEvent2
+import androidx.ui.core.keyinput.KeyEventAndroid
+import androidx.ui.core.keyinput.KeyInputModifier
 import androidx.ui.core.pointerinput.MotionEventAdapter
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.ProcessResult
-import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.SemanticsModifierCore
+import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.text.AndroidFontResourceLoader
 import androidx.ui.core.texttoolbar.AndroidTextToolbar
 import androidx.ui.core.texttoolbar.TextToolbar
-import androidx.ui.core.focus.FocusDetailedState.Active
-import androidx.ui.core.focus.FocusDetailedState.Inactive
-import androidx.ui.core.keyinput.Key
-import androidx.ui.core.keyinput.KeyEvent
-import androidx.ui.core.keyinput.KeyEventType.KeyDown
-import androidx.ui.core.keyinput.KeyEventType.KeyUp
-import androidx.ui.core.keyinput.KeyInputModifier
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.CanvasHolder
 import androidx.ui.input.TextInputServiceAndroid
@@ -87,6 +85,7 @@ import androidx.ui.util.fastForEach
 import androidx.ui.util.trace
 import java.lang.reflect.Method
 import kotlin.math.max
+import android.view.KeyEvent as AndroidKeyEvent
 
 /***
  * This function creates an instance of [AndroidOwner]
@@ -99,7 +98,8 @@ fun AndroidOwner(
     context: Context,
     lifecycleOwner: LifecycleOwner? = null,
     viewModelStoreOwner: ViewModelStoreOwner? = null
-): AndroidOwner = AndroidComposeView(context,
+): AndroidOwner = AndroidComposeView(
+    context,
     lifecycleOwner,
     viewModelStoreOwner
 ).also {
@@ -181,18 +181,16 @@ internal class AndroidComposeView constructor(
         }
     }
 
-    override fun sendKeyEvent(keyEvent: KeyEvent): Boolean {
+    override fun sendKeyEvent(keyEvent: KeyEvent2): Boolean {
         return keyInputModifier.processKeyInput(keyEvent)
     }
 
     override fun onKeyUp(keyCode: Int, event: AndroidKeyEvent): Boolean {
-        val keyEvent = KeyEvent(Key(event.keyCode), KeyUp)
-        return sendKeyEvent(keyEvent)
+        return sendKeyEvent(KeyEventAndroid(event))
     }
 
     override fun onKeyDown(keyCode: Int, event: AndroidKeyEvent): Boolean {
-        val keyEvent = KeyEvent(Key(event.keyCode), KeyDown)
-        return sendKeyEvent(keyEvent)
+        return sendKeyEvent(KeyEventAndroid(event))
     }
 
     private val snapshotObserver = SnapshotStateObserver { command ->

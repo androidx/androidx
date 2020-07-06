@@ -255,7 +255,7 @@ package androidx.ui.test {
   }
 
   public final class KeyInputHelpersKt {
-    method public static boolean doSendKeyEvent(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.core.keyinput.KeyEvent keyEvent);
+    method public static boolean doSendKeyEvent(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.core.keyinput.KeyEvent2 keyEvent);
   }
 
   public final class OutputKt {

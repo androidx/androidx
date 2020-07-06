@@ -17,15 +17,57 @@
 package androidx.ui.core.keyinput
 
 /**
+ * When a user presses a key on a hardware keyboard, a [KeyEvent][KeyEvent2] is sent to the
+ * [KeyInputModifier] that is currently active.
+ *
+ * @property key the key that was pressed.
+ * @property type the [type][KeyEventType] of key event.
+ */
+interface KeyEvent2 {
+    /**
+     * The key that was pressed.
+     */
+    val key: Key
+
+    /**
+     * the [type][KeyEventType] of key event.
+     */
+    val type: KeyEventType
+}
+
+/**
  * When a user presses a key on a hardware keyboard, a [KeyEvent] is sent to the
  * [KeyInputModifier] that is currently active.
  *
  * @param key the key that was pressed.
  * @param type the [type][KeyEventType] of key event.
  */
+@Deprecated(
+    "use KeyEvent2 instead",
+    ReplaceWith(
+        "KeyEvent2",
+        "androidx.ui.core.keyinput.KeyEvent2"
+    ),
+    level = DeprecationLevel.ERROR
+)
 data class KeyEvent(val key: Key, val type: KeyEventType)
 
 /**
  * The type of Key Event.
  */
-enum class KeyEventType { KeyUp, KeyDown }
+enum class KeyEventType {
+    /**
+     * Unknown key event.
+     */
+    Unknown,
+
+    /**
+     * Type of KeyEvent sent when the user lifts their finger off a key on the keyboard.
+     */
+    KeyUp,
+
+    /**
+     * Type of KeyEvent sent when the user presses down their finger on a key on the keyboard.
+     */
+    KeyDown
+}
