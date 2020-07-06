@@ -136,7 +136,7 @@ kotlin {
 
 def uiComponents = [
         ":ui:ui-android-view",
-        ":ui:ui-animation",
+        ":compose:animation:animation",
         ":ui:ui-animation-core",
         ":ui:ui-core",
         ":compose:foundation:foundation",
