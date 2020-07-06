@@ -51,11 +51,11 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Text"
+    name = "Compose Android Core Text"
     publish = Publish.SNAPSHOT_AND_RELEASE
     generateDocs = false
     mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
+    mavenGroup = LibraryGroups.Compose.CORE
     inceptionYear = "2018"
-    description = "Android Specific implementation for Text."
+    description = "Android specific implementations for Text"
 }

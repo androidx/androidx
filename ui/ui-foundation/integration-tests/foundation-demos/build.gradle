@@ -40,7 +40,7 @@ dependencies {
     implementation project(":compose:animation:animation")
     implementation project(":ui:ui-layout")
     implementation project(":compose:foundation:foundation:samples")
-    implementation project(":ui:ui-text-core")
+    implementation project(":compose:core:core-text")
 }
 
 android {
