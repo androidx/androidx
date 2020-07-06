@@ -58,8 +58,8 @@ import java.util.List;
  *         {@link MediaRouter.Callback#onRouteSelected(MediaRouter, MediaRouter.RouteInfo, int)
  *         onRouteSelected} method should be able to handle the cases.</li>
  *     <li>In order to enable transferring media from remote to local (e.g. from TV to phone),
- *         media apps should {@link MediaRouterParams#setTransferToLocalEnabled(boolean) enable
- *         'transfer to local' feature}. Otherwise, the local devices won't be shown as a
+ *         media apps should {@link MediaRouterParams.Builder#setTransferToLocalEnabled(boolean)
+ *         enable 'transfer to local' feature}. Otherwise, the local devices won't be shown as a
  *         transfer target while playing on a remote device.
  * </ul>
  */
