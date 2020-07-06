@@ -28,17 +28,11 @@ import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.ModifierInfo
 import androidx.ui.core.globalPosition
+import androidx.ui.unit.IntBounds
 import java.lang.reflect.Field
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
-
-data class Bounds(
-    val left: Int,
-    val top: Int,
-    val right: Int,
-    val bottom: Int
-)
 
 /**
  * A group in the slot table. Represents either a call or an emitted node.
@@ -52,7 +46,7 @@ sealed class Group(
     /**
      * The bounding layout box for the group.
      */
-    val box: Bounds,
+    val box: IntBounds,
 
     /**
      * Any data that was stored in the slot table for the group
@@ -88,7 +82,7 @@ data class ParameterInformation(
  */
 class CallGroup(
     key: Any?,
-    box: Bounds,
+    box: IntBounds,
     override val parameters: List<ParameterInformation>,
     data: Collection<Any?>,
     children: Collection<Group>
@@ -104,7 +98,7 @@ class NodeGroup(
      * An emitted node
      */
     val node: Any,
-    box: Bounds,
+    box: IntBounds,
     data: Collection<Any?>,
     override val modifierInfo: List<ModifierInfo>,
     children: Collection<Group>
@@ -127,7 +121,7 @@ private fun convertKey(key: Any?): Any? =
             else key
     }
 
-internal val emptyBox = Bounds(0, 0, 0, 0)
+internal val emptyBox = IntBounds(0, 0, 0, 0)
 
 /**
  * Iterate the slot table and extract a group tree that corresponds to the content of the table.
@@ -179,9 +173,9 @@ private fun SlotReader.getGroup(): Group {
 }
 
 @OptIn(ExperimentalLayoutNodeApi::class)
-private fun boundsOfLayoutNode(node: LayoutNode): Bounds {
+private fun boundsOfLayoutNode(node: LayoutNode): IntBounds {
     if (node.owner == null) {
-        return Bounds(
+        return IntBounds(
             left = 0,
             top = 0,
             right = node.width,
@@ -194,7 +188,7 @@ private fun boundsOfLayoutNode(node: LayoutNode): Bounds {
     val top = position.y.roundToInt()
     val right = left + size.width
     val bottom = top + size.height
-    return Bounds(left = left, top = top, right = right, bottom = bottom)
+    return IntBounds(left = left, top = top, right = right, bottom = bottom)
 }
 
 /**
@@ -203,10 +197,10 @@ private fun boundsOfLayoutNode(node: LayoutNode): Bounds {
  */
 fun SlotTable.asTree(): Group = read { it.getGroup() }
 
-internal fun Bounds.union(other: Bounds): Bounds {
+internal fun IntBounds.union(other: IntBounds): IntBounds {
     if (this == emptyBox) return other else if (other == emptyBox) return this
 
-    return Bounds(
+    return IntBounds(
         left = min(left, other.left),
         top = min(top, other.top),
         bottom = max(bottom, other.bottom),

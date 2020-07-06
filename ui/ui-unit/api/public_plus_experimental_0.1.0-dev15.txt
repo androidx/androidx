@@ -259,6 +259,29 @@ package androidx.ui.unit {
     field public static final long SecondsPerMinute = 60L; // 0x3cL
   }
 
+  @androidx.compose.Immutable public final class IntBounds {
+    ctor public IntBounds(int left, int top, int right, int bottom);
+    method public int component1();
+    method public int component2();
+    method public int component3();
+    method public int component4();
+    method @androidx.compose.Immutable public androidx.ui.unit.IntBounds copy(int left, int top, int right, int bottom);
+    method public int getBottom();
+    method public int getLeft();
+    method public int getRight();
+    method public int getTop();
+  }
+
+  public final class IntBoundsKt {
+    method @androidx.compose.Stable public static inline androidx.ui.unit.IntBounds IntBounds(androidx.ui.unit.IntOffset topLeft, androidx.ui.unit.IntSize size);
+    method @androidx.compose.Stable public static inline androidx.ui.unit.IntOffset center(androidx.ui.unit.IntBounds);
+    method public static inline int getHeight(androidx.ui.unit.IntBounds);
+    method public static inline int getWidth(androidx.ui.unit.IntBounds);
+    method @androidx.compose.Stable public static androidx.ui.unit.IntBounds toBounds(androidx.ui.unit.IntSize);
+    method @androidx.compose.Stable public static androidx.ui.geometry.Rect toRect(androidx.ui.unit.IntBounds);
+    method @androidx.compose.Stable public static androidx.ui.unit.IntSize toSize(androidx.ui.unit.IntBounds);
+  }
+
   @androidx.compose.Immutable public final class IntOffset {
     ctor public IntOffset(internal long value);
     method @androidx.compose.Stable public inline operator int component1();

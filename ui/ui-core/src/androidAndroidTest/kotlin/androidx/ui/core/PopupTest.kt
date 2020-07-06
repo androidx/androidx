@@ -33,9 +33,12 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.layout.rtl
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdleCompose
+import androidx.ui.unit.IntBounds
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
+import androidx.ui.unit.height
+import androidx.ui.unit.width
 import com.google.common.truth.Truth
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.Description
@@ -56,9 +59,9 @@ class PopupTest {
     val composeTestRule = createComposeRule(disableTransitions = true)
     private val testTag = "testedPopup"
 
-    private val parentGlobalPosition = IntOffset(50, 50)
+    private val parentBounds = IntBounds(50, 50, 150, 150)
     private val offset = IntOffset(10, 10)
-    private val parentSize = IntSize(100, 100)
+    private val parentSize = IntSize(parentBounds.width, parentBounds.height)
     private val popupSize = IntSize(40, 20)
 
     private var composeViewAbsolutePosition = IntOffset(0, 0)
@@ -492,8 +495,7 @@ class PopupTest {
 
         val positionTopStart =
             AlignmentOffsetPositionProvider(Alignment.TopStart, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -511,8 +513,7 @@ class PopupTest {
 
         val positionTopStart =
             AlignmentOffsetPositionProvider(Alignment.TopStart, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -530,8 +531,7 @@ class PopupTest {
 
         val positionTopCenter =
             AlignmentOffsetPositionProvider(Alignment.TopCenter, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -549,8 +549,7 @@ class PopupTest {
 
         val positionTopCenter =
             AlignmentOffsetPositionProvider(Alignment.TopCenter, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -568,8 +567,7 @@ class PopupTest {
 
         val positionTopEnd =
             AlignmentOffsetPositionProvider(Alignment.TopEnd, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -587,8 +585,7 @@ class PopupTest {
 
         val positionTopEnd =
             AlignmentOffsetPositionProvider(Alignment.TopEnd, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -606,8 +603,7 @@ class PopupTest {
 
         val positionCenterEnd =
             AlignmentOffsetPositionProvider(Alignment.CenterEnd, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -625,8 +621,7 @@ class PopupTest {
 
         val positionCenterEnd =
             AlignmentOffsetPositionProvider(Alignment.CenterEnd, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -644,8 +639,7 @@ class PopupTest {
 
         val positionBottomEnd =
             AlignmentOffsetPositionProvider(Alignment.BottomEnd, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -663,8 +657,7 @@ class PopupTest {
 
         val positionBottomEnd =
             AlignmentOffsetPositionProvider(Alignment.BottomEnd, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -682,8 +675,7 @@ class PopupTest {
 
         val positionBottomCenter =
             AlignmentOffsetPositionProvider(Alignment.BottomCenter, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -701,8 +693,7 @@ class PopupTest {
 
         val positionBottomCenter =
             AlignmentOffsetPositionProvider(Alignment.BottomCenter, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -720,8 +711,7 @@ class PopupTest {
 
         val positionBottomStart =
             AlignmentOffsetPositionProvider(Alignment.BottomStart, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -739,8 +729,7 @@ class PopupTest {
 
         val positionBottomStart =
             AlignmentOffsetPositionProvider(Alignment.BottomStart, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -758,8 +747,7 @@ class PopupTest {
 
         val positionCenterStart =
             AlignmentOffsetPositionProvider(Alignment.CenterStart, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -777,8 +765,7 @@ class PopupTest {
 
         val positionCenterStart =
             AlignmentOffsetPositionProvider(Alignment.CenterStart, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -796,8 +783,7 @@ class PopupTest {
 
         val positionCenter =
             AlignmentOffsetPositionProvider(Alignment.Center, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -815,8 +801,7 @@ class PopupTest {
 
         val positionCenter =
             AlignmentOffsetPositionProvider(Alignment.Center, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -855,8 +840,7 @@ class PopupTest {
 
         val positionLeft =
             DropdownPositionProvider(DropDownAlignment.Start, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -874,8 +858,7 @@ class PopupTest {
 
         val positionLeft =
             DropdownPositionProvider(DropDownAlignment.Start, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -893,8 +876,7 @@ class PopupTest {
 
         val positionRight =
             DropdownPositionProvider(DropDownAlignment.End, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -912,8 +894,7 @@ class PopupTest {
 
         val positionRight =
             DropdownPositionProvider(DropDownAlignment.End, offset).calculatePosition(
-                parentGlobalPosition,
-                parentSize,
+                parentBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
