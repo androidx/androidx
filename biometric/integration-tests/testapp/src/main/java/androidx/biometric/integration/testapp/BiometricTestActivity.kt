@@ -17,7 +17,10 @@
 package androidx.biometric.integration.testapp
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
@@ -25,6 +28,11 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
+import java.nio.charset.Charset
+import java.security.KeyStore
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator.getInstance
+import javax.crypto.SecretKey
 
 /**
  * Main activity for the AndroidX Biometric test app.
@@ -40,6 +48,7 @@ class BiometricTestActivity : FragmentActivity() {
     private lateinit var allowDeviceCredentialCheckbox: CheckBox
     private lateinit var cancelOnConfigChangeCheckbox: CheckBox
     private lateinit var requireConfirmationCheckbox: CheckBox
+    private lateinit var useCryptoAuthCheckbox: CheckBox
     private lateinit var logView: TextView
 
     /**
@@ -60,6 +69,21 @@ class BiometricTestActivity : FragmentActivity() {
             return authenticators
         }
 
+    /**
+     * A bit field representing the authentication type(s) that can authorize use of the secret key.
+     */
+    private val keyType: Int
+        get() {
+            var type = 0
+            if (allowBiometricStrongCheckbox.isChecked) {
+                type = type or KeyProperties.AUTH_BIOMETRIC_STRONG
+            }
+            if (allowDeviceCredentialCheckbox.isChecked) {
+                type = type or KeyProperties.AUTH_DEVICE_CREDENTIAL
+            }
+            return type
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_biometric_test)
@@ -70,6 +94,7 @@ class BiometricTestActivity : FragmentActivity() {
         allowDeviceCredentialCheckbox = findViewById(R.id.checkbox_allow_device_credential)
         cancelOnConfigChangeCheckbox = findViewById(R.id.checkbox_cancel_config_change)
         requireConfirmationCheckbox = findViewById(R.id.checkbox_require_confirmation)
+        useCryptoAuthCheckbox = findViewById(R.id.checkbox_use_crypto_auth)
 
         // Set the button callbacks.
         findViewById<Button>(R.id.button_can_authenticate).setOnClickListener { canAuthenticate() }
@@ -96,6 +121,14 @@ class BiometricTestActivity : FragmentActivity() {
                 ) {
                     super.onAuthenticationSucceeded(result)
                     log("onAuthenticationSucceeded: crypto = ${result.cryptoObject}")
+
+                    // Encrypt a test payload using the result of crypto-based auth.
+                    if (useCryptoAuthCheckbox.isChecked) {
+                        val encryptedPayload = result.cryptoObject?.cipher?.doFinal(
+                            PAYLOAD.toByteArray(Charset.defaultCharset())
+                        )
+                        log("Encrypted payload: ${encryptedPayload?.contentToString()}")
+                    }
                 }
 
                 override fun onAuthenticationFailed() {
@@ -146,7 +179,60 @@ class BiometricTestActivity : FragmentActivity() {
             infoBuilder.setNegativeButtonText(getString(R.string.biometric_prompt_negative_label))
         }
 
-        biometricPrompt.authenticate(infoBuilder.build())
+        val info: BiometricPrompt.PromptInfo?
+        try {
+            info = infoBuilder.build()
+        } catch (e: IllegalArgumentException) {
+            log("IllegalArgumentException: ${e.message}")
+            return
+        }
+
+        if (useCryptoAuthCheckbox.isChecked) {
+            authenticateWithCrypto(info)
+        } else {
+            biometricPrompt.authenticate(info)
+        }
+    }
+
+    /**
+     * Launches the [BiometricPrompt] to begin crypto-based authentication.
+     */
+    @Suppress("DEPRECATION")
+    private fun authenticateWithCrypto(info: BiometricPrompt.PromptInfo) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            log("Error: Key-gen not supported prior to API 23. Falling back to non-crypto auth.")
+            biometricPrompt.authenticate(info)
+            return
+        }
+
+        val keyPurpose = KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+        val keySpecBuilder = KeyGenParameterSpec.Builder(KEY_NAME, keyPurpose)
+            .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+            .setUserAuthenticationRequired(true)
+
+        // Require authentication for each use of the key.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            keySpecBuilder.setUserAuthenticationParameters(0 /* timeout */, keyType)
+        } else {
+            keySpecBuilder.setUserAuthenticationValidityDurationSeconds(-1)
+        }
+
+        // Generate and store the key in the Android keystore.
+        val keyGenerator = getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_INSTANCE)
+        keyGenerator.init(keySpecBuilder.build())
+        keyGenerator.generateKey()
+
+        // Prepare the crypto object to use for authentication.
+        val cipher = getCipher()
+        cipher.init(Cipher.ENCRYPT_MODE, getSecretKey())
+        val crypto = BiometricPrompt.CryptoObject(cipher)
+
+        try {
+            biometricPrompt.authenticate(info, crypto)
+        } catch (e: IllegalArgumentException) {
+            log("IllegalArgumentException: ${e.message}")
+        }
     }
 
     /**
@@ -165,6 +251,9 @@ class BiometricTestActivity : FragmentActivity() {
 
     companion object {
         private const val KEY_LOG_TEXT = "key_log_text"
+        private const val KEY_NAME = "mySecretKey"
+        private const val KEYSTORE_INSTANCE = "AndroidKeyStore"
+        private const val PAYLOAD = "hello"
 
         /**
          * Converts an authentication status code to a string that represents the status.
@@ -179,6 +268,24 @@ class BiometricTestActivity : FragmentActivity() {
             BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED ->
                 "ERROR_SECURITY_UPDATE_REQUIRED"
             else -> "Unknown error: $this"
+        }
+
+        /**
+         * Returns the cipher that will be used for encryption.
+         */
+        private fun getCipher(): Cipher {
+            return Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/" +
+                    KeyProperties.BLOCK_MODE_CBC + "/" +
+                    KeyProperties.ENCRYPTION_PADDING_PKCS7)
+        }
+
+        /**
+         * Returns the previously generated secret key from keystore.
+         */
+        private fun getSecretKey(): SecretKey {
+            val keyStore = KeyStore.getInstance(KEYSTORE_INSTANCE)
+            keyStore.load(null)
+            return keyStore.getKey(KEY_NAME, null) as SecretKey
         }
     }
 }
