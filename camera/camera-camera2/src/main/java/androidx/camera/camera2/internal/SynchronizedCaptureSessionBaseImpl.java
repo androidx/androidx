@@ -202,32 +202,36 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
 
                     @Override
                     public void onConfigured(@NonNull CameraCaptureSession session) {
-                        createCaptureSessionCompat(session);
-                        SynchronizedCaptureSessionBaseImpl.this.onConfigured(
-                                SynchronizedCaptureSessionBaseImpl.this);
-
-                        // Finish the mOpenCaptureSessionCompleter after callback.
-                        synchronized (mLock) {
-                            Preconditions.checkNotNull(mOpenCaptureSessionCompleter,
-                                    "OpenCaptureSession completer should not null");
-                            mOpenCaptureSessionCompleter.set(null);
-                            mOpenCaptureSessionCompleter = null;
+                        try {
+                            createCaptureSessionCompat(session);
+                            SynchronizedCaptureSessionBaseImpl.this.onConfigured(
+                                    SynchronizedCaptureSessionBaseImpl.this);
+                        } finally {
+                            // Finish the mOpenCaptureSessionCompleter after callback.
+                            synchronized (mLock) {
+                                Preconditions.checkNotNull(mOpenCaptureSessionCompleter,
+                                        "OpenCaptureSession completer should not null");
+                                mOpenCaptureSessionCompleter.set(null);
+                                mOpenCaptureSessionCompleter = null;
+                            }
                         }
                     }
 
                     @Override
                     public void onConfigureFailed(@NonNull CameraCaptureSession session) {
-                        createCaptureSessionCompat(session);
-                        SynchronizedCaptureSessionBaseImpl.this.onConfigureFailed(
-                                SynchronizedCaptureSessionBaseImpl.this);
-
-                        // Finish the mOpenCaptureSessionCompleter after callback.
-                        synchronized (mLock) {
-                            Preconditions.checkNotNull(mOpenCaptureSessionCompleter,
-                                    "OpenCaptureSession completer should not null");
-                            mOpenCaptureSessionCompleter.setException(
-                                    new IllegalStateException("onConfigureFailed"));
-                            mOpenCaptureSessionCompleter = null;
+                        try {
+                            createCaptureSessionCompat(session);
+                            SynchronizedCaptureSessionBaseImpl.this.onConfigureFailed(
+                                    SynchronizedCaptureSessionBaseImpl.this);
+                        } finally {
+                            // Finish the mOpenCaptureSessionCompleter after callback.
+                            synchronized (mLock) {
+                                Preconditions.checkNotNull(mOpenCaptureSessionCompleter,
+                                        "OpenCaptureSession completer should not null");
+                                mOpenCaptureSessionCompleter.setException(
+                                        new IllegalStateException("onConfigureFailed"));
+                                mOpenCaptureSessionCompleter = null;
+                            }
                         }
                     }
 
