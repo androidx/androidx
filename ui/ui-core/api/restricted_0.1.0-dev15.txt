@@ -224,6 +224,10 @@ package androidx.ui.core {
     method public androidx.lifecycle.ViewModelStoreOwner getViewModelStoreOwner();
   }
 
+  public final class AndroidPopupKt {
+    method @org.jetbrains.annotations.TestOnly public static boolean isPopupLayout(android.view.View view, String? testTag = null);
+  }
+
   public final class ClipKt {
     method @androidx.compose.Stable public static androidx.ui.core.Modifier clip(androidx.ui.core.Modifier, androidx.ui.graphics.Shape shape);
     method @androidx.compose.Stable public static androidx.ui.core.Modifier clipToBounds(androidx.ui.core.Modifier);
@@ -868,7 +872,6 @@ package androidx.ui.core {
     method @androidx.compose.Composable public static void DropdownPopup(androidx.ui.core.DropDownAlignment dropDownAlignment = androidx.ui.core.DropDownAlignment.Start, androidx.ui.unit.IntOffset offset = IntOffset(0, 0), boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method @androidx.compose.Composable public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopStart, androidx.ui.unit.IntOffset offset = IntOffset(0, 0), boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method @androidx.compose.Composable public static void Popup(androidx.ui.core.PopupPositionProvider popupPositionProvider, boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method @org.jetbrains.annotations.TestOnly public static boolean isPopupLayout(android.view.View view, String? testTag = null);
   }
 
   @androidx.compose.Immutable public interface PopupPositionProvider {

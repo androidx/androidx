@@ -41,6 +41,7 @@ import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
+import kotlin.jvm.JvmStatic
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
