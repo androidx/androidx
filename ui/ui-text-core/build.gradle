@@ -37,7 +37,7 @@ kotlin {
             api project(":compose:core:core-unit")
             api project(":compose:core:core-graphics")
 
-            implementation project(":compose:compose-runtime")
+            implementation project(":compose:runtime:runtime")
             implementation project(":compose:core:core-util")
             implementation project(":ui:ui-saved-instance-state")
         }

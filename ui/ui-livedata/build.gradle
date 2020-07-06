@@ -33,7 +33,7 @@ dependencies {
 
     implementation(KOTLIN_STDLIB)
 
-    api project(":compose:compose-runtime")
+    api project(":compose:runtime:runtime")
     api "androidx.lifecycle:lifecycle-livedata:2.2.0"
     implementation project(":compose:core:core")
 
