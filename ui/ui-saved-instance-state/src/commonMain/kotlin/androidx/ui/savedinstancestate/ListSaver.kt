@@ -16,8 +16,6 @@
 
 package androidx.ui.savedinstancestate
 
-import androidx.ui.util.fastForEach
-
 /**
  * The [Saver] implementation which allows to represent your [Original] class as a list of
  * [Saveable] values.
@@ -35,7 +33,7 @@ fun <Original : Any, Saveable : Any> listSaver(
 ): Saver<Original, Any> = @Suppress("UNCHECKED_CAST") Saver(
     save = {
         val list = save(it)
-        list.fastForEach { item -> require(canBeSaved(item)) }
+        list.forEach { item -> require(canBeSaved(item)) }
         if (list.isNotEmpty()) list else null
     },
     restore = restore as (Any) -> Original?
