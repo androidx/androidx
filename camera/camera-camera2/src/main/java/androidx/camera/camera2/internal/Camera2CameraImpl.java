@@ -884,6 +884,9 @@ final class Camera2CameraImpl implements CameraInternal {
 
             SessionConfig sessionConfig = validatingBuilder.build();
             mCaptureSession.setSessionConfig(sessionConfig);
+        } else {
+            // Always reset the session config if there is no valid session config.
+            mCaptureSession.setSessionConfig(mCameraControlSessionConfig);
         }
     }
 
