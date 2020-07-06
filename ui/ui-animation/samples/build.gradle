@@ -33,7 +33,7 @@ dependencies {
     implementation project(":annotation:annotation-sampled")
 
     implementation project(":compose:compose-runtime")
-    implementation project(":ui:ui-animation")
+    implementation project(":compose:animation:animation")
     implementation project(":ui:ui-text-core")
     implementation project(":compose:foundation:foundation")
 }
