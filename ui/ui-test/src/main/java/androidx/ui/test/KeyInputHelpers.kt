@@ -17,14 +17,14 @@
 package androidx.ui.test
 
 import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.keyinput.KeyEvent
+import androidx.ui.core.keyinput.KeyEvent2
 
 /**
- * Send the specified [KeyEvent] to the focused component.
+ * Send the specified [KeyEvent][KeyEvent2] to the focused component.
  *
  * @return true if the event was consumed. False otherwise.
  */
-fun SemanticsNodeInteraction.doSendKeyEvent(keyEvent: KeyEvent): Boolean {
+fun SemanticsNodeInteraction.doSendKeyEvent(keyEvent: KeyEvent2): Boolean {
     val semanticsNode = fetchSemanticsNode("Failed to send key Event (${keyEvent.key})")
     @OptIn(ExperimentalLayoutNodeApi::class)
     val owner = semanticsNode.componentNode.owner

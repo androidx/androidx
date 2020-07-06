@@ -27,7 +27,7 @@ import androidx.ui.core.composed
  * While implementing this callback, return true to stop propagation of this event. If you return
  * false, the key event will be sent to this [keyInputFilter]'s parent.
  */
-fun Modifier.keyInputFilter(onKeyEvent: (KeyEvent) -> Boolean): Modifier = composed {
+fun Modifier.keyInputFilter(onKeyEvent: (KeyEvent2) -> Boolean): Modifier = composed {
     KeyInputModifier(onKeyEvent = onKeyEvent, onPreviewKeyEvent = null)
 }
 
@@ -36,22 +36,23 @@ fun Modifier.keyInputFilter(onKeyEvent: (KeyEvent) -> Boolean): Modifier = compo
  * allow it to intercept hardware key events.
  *
  * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
- * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
- * Return true to stop propagation of this event. If you return false, the key event will be sent
- * to this [previewKeyInputFilter]'s child. If none of the children consume the event, it will be
- * sent back up to the root [keyInputFilter] using the onKeyEvent callback.
+ * keyboard. It gives ancestors of a focused component the chance to intercept a
+ * [KeyEvent][KeyEvent2]. Return true to stop propagation of this event. If you return false, the
+ * key event will be sent to this [previewKeyInputFilter]'s child. If none of the children
+ * consume the event, it will be sent back up to the root [keyInputFilter] using the onKeyEvent
+ * callback.
  */
-fun Modifier.previewKeyInputFilter(onPreviewKeyEvent: (KeyEvent) -> Boolean): Modifier = composed {
+fun Modifier.previewKeyInputFilter(onPreviewKeyEvent: (KeyEvent2) -> Boolean): Modifier = composed {
     KeyInputModifier(onKeyEvent = null, onPreviewKeyEvent = onPreviewKeyEvent)
 }
 
 internal class KeyInputModifier(
-    val onKeyEvent: ((KeyEvent) -> Boolean)?,
-    val onPreviewKeyEvent: ((KeyEvent) -> Boolean)?
+    val onKeyEvent: ((KeyEvent2) -> Boolean)?,
+    val onPreviewKeyEvent: ((KeyEvent2) -> Boolean)?
 ) : Modifier.Element {
     var keyInputNode: ModifiedKeyInputNode? = null
 
-    fun processKeyInput(keyEvent: KeyEvent): Boolean {
+    fun processKeyInput(keyEvent: KeyEvent2): Boolean {
         val activeKeyInputNode = keyInputNode?.findPreviousFocusWrapper()
             ?.findActiveFocusNode()
             ?.findLastKeyInputWrapper()

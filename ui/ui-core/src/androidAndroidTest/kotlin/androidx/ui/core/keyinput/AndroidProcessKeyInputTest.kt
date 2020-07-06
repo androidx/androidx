@@ -17,9 +17,8 @@
 package androidx.ui.core.keyinput
 
 import android.view.KeyEvent.ACTION_DOWN
-import android.view.KeyEvent as AndroidKeyEvent
-import android.view.KeyEvent.KEYCODE_A
 import android.view.KeyEvent.ACTION_UP
+import android.view.KeyEvent.KEYCODE_A
 import android.view.View
 import androidx.test.filters.SmallTest
 import androidx.ui.core.ViewAmbient
@@ -36,6 +35,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import android.view.KeyEvent as AndroidKeyEvent
 
 /**
  * This test verifies that an Android key event triggers a Compose key event. More detailed test
@@ -58,7 +58,7 @@ class AndroidProcessKeyInputTest(val keyEventAction: Int) {
         // Arrange.
         lateinit var ownerView: View
         lateinit var focusModifier: FocusModifier
-        lateinit var receivedKeyEvent: KeyEvent
+        lateinit var receivedKeyEvent: KeyEvent2
         composeTestRule.setFocusableContent {
             ownerView = ViewAmbient.current
             focusModifier = FocusModifier()
@@ -85,7 +85,7 @@ class AndroidProcessKeyInputTest(val keyEventAction: Int) {
                 ACTION_DOWN -> KeyDown
                 else -> error("No tests for this key action.")
             }
-            assertThat(receivedKeyEvent).isEqualTo(KeyEvent(A, keyEventType))
+            receivedKeyEvent.assertEqualTo(keyEvent(A, keyEventType))
             assertThat(keyConsumed).isTrue()
         }
     }
