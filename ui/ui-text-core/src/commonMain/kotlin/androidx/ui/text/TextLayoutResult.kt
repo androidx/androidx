@@ -161,7 +161,7 @@ data class TextLayoutResult internal constructor(
      * @param lineIndex the line number
      * @return the end offset of the line.
      */
-    fun getLineEnd(lineIndex: Int): Int = multiParagraph.getLineStart(lineIndex)
+    fun getLineEnd(lineIndex: Int): Int = multiParagraph.getLineEnd(lineIndex)
 
     /**
      * Returns the top y coordinate of the given line.
