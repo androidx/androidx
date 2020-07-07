@@ -43,6 +43,7 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContentDrawScope
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.HorizontalAlignmentLine
@@ -68,6 +69,8 @@ import androidx.ui.core.id
 import androidx.ui.core.layoutId
 import androidx.ui.core.offset
 import androidx.ui.core.setContent
+import androidx.ui.core.zIndex
+import androidx.ui.foundation.drawBackground
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
@@ -2540,6 +2543,68 @@ class AndroidLayoutDrawTest {
         // The new instance's measurable is the same.
         assertNotNull(m)
         assertSame(firstMeasurable, m)
+    }
+
+    // When some content is drawn on the parent's layer through a modifier, when the modifier
+    // changes, it should invalidate the parent layer, not layer of the LayoutNode.
+    @Test
+    fun invalidateParentLayer() {
+        var color by mutableStateOf(Color.Red)
+        activityTestRule.runOnUiThread {
+            activity.setContent {
+                FixedSize(
+                    size = 10,
+                    modifier = Modifier.drawBackground(color = color).drawLatchModifier() +
+                            PaddingModifier(10)
+                                .drawLayer()
+                                .drawBackground(Color.White)
+                )
+            }
+        }
+
+        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
+        drawLatch = CountDownLatch(1)
+        color = Color.Blue
+        validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
+    }
+
+    // When zindex has changed, the parent should be invalidated, even if all drawing is done
+    // within a modifier layer.
+    @Test
+    fun invalidateParentLayerZIndex() {
+        var zIndex by mutableStateOf(0f)
+        activityTestRule.runOnUiThread {
+            activity.setContent {
+                with(DensityAmbient.current) {
+                    FixedSize(
+                        size = 30,
+                        modifier = Modifier.drawBackground(color = Color.Blue).drawLatchModifier()
+                    ) {
+                        FixedSize(
+                            size = 10,
+                            modifier = Modifier
+                                .drawLayer()
+                                .zIndex(zIndex)
+                                .padding(10.toDp())
+                                .drawBackground(Color.White)
+                        )
+                        FixedSize(
+                            size = 10,
+                            modifier = Modifier
+                                .drawLayer()
+                                .zIndex(0f)
+                                .padding(10.toDp())
+                                .drawBackground(Color.Yellow)
+                        )
+                    }
+                }
+            }
+        }
+
+        validateSquareColors(outerColor = Color.Blue, innerColor = Color.Yellow, size = 10)
+        drawLatch = CountDownLatch(1)
+        zIndex = 1f
+        validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
     }
 
     private fun composeSquares(model: SquareModel) {
