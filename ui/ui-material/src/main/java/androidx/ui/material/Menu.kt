@@ -36,11 +36,10 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.Popup
 import androidx.ui.core.PopupPositionProvider
 import androidx.ui.core.TransformOrigin
-import androidx.ui.unit.Position
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
-import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.clickable
 import androidx.ui.layout.ColumnScope
 import androidx.ui.layout.ExperimentalLayout
@@ -54,6 +53,7 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntBounds
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
+import androidx.ui.unit.Position
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
 import androidx.ui.unit.width
@@ -143,7 +143,7 @@ fun DropdownMenu(
                     elevation = MenuElevation
                 ) {
                     @OptIn(ExperimentalLayout::class)
-                    VerticalScroller(
+                    ScrollableColumn(
                         modifier = dropdownModifier
                             .padding(vertical = DropdownMenuVerticalPadding)
                             .preferredWidth(IntrinsicSize.Max),

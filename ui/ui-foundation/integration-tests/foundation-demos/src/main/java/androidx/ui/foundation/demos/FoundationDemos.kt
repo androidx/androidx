@@ -18,15 +18,15 @@ package androidx.ui.foundation.demos
 
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
-import androidx.ui.foundation.samples.ControlledHorizontalScrollerSample
+import androidx.ui.foundation.samples.ControlledScrollableRowSample
 import androidx.ui.foundation.samples.DialogSample
 import androidx.ui.foundation.samples.InteractionStateSample
-import androidx.ui.foundation.samples.VerticalScrollerSample
+import androidx.ui.foundation.samples.ScrollableColumnSample
 
 val FoundationDemos = DemoCategory("Foundation", listOf(
     ComposableDemo("Draggable and Scrollable") { HighLevelGesturesDemo() },
-    ComposableDemo("VerticalScroller") { VerticalScrollerSample() },
-    ComposableDemo("HorizontalScroller") { ControlledHorizontalScrollerSample() },
+    ComposableDemo("Scrollable Column") { ScrollableColumnSample() },
+    ComposableDemo("Controlled Scrollable Row") { ControlledScrollableRowSample() },
     ComposableDemo("Dialog") { DialogSample() },
     ComposableDemo("Draw Modifiers") { DrawModifiersDemo() },
     ComposableDemo("Boxes") { BoxDemo() },

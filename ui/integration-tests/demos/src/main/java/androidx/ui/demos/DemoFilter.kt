@@ -21,12 +21,12 @@ import androidx.compose.key
 import androidx.compose.onCommit
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.demos.common.Demo
 import androidx.ui.core.focus.FocusModifier
+import androidx.ui.demos.common.Demo
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.compositeOver
 import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.fillMaxWidth
@@ -51,7 +51,7 @@ fun DemoFilter(launchableDemos: List<Demo>, filterText: String, onNavigate: (Dem
     val filteredDemos = launchableDemos
         .filter { it.title.contains(filterText, ignoreCase = true) }
         .sortedBy { it.title }
-    VerticalScroller {
+    ScrollableColumn {
         filteredDemos.forEach { demo ->
             FilteredDemoListItem(demo,
                 filterText = filterText,

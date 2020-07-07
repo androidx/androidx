@@ -31,8 +31,8 @@ import androidx.ui.demos.common.Demo
 import androidx.ui.demos.common.DemoCategory
 import androidx.ui.demos.common.allLaunchableDemos
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
@@ -121,7 +121,7 @@ private fun DisplayDemo(demo: Demo, onNavigate: (Demo) -> Unit) {
 
 @Composable
 private fun DisplayDemoCategory(category: DemoCategory, onNavigate: (Demo) -> Unit) {
-    VerticalScroller {
+    ScrollableColumn {
         category.demos.forEach { demo ->
             ListItem(
                 text = {

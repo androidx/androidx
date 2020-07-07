@@ -20,8 +20,8 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.height
@@ -39,7 +39,7 @@ import androidx.ui.unit.dp
 
 @Composable
 fun TabDemo() {
-    VerticalScroller {
+    ScrollableColumn {
         val showingSimple = state { true }
         val buttonText = "Show ${if (showingSimple.value) "custom" else "simple"} tabs"
 

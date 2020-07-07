@@ -18,9 +18,9 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
-import androidx.ui.layout.Column
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.padding
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Snackbar
@@ -31,24 +31,22 @@ import androidx.ui.unit.dp
 
 @Composable
 fun SnackbarDemo() {
-    VerticalScroller {
-        Column(Modifier.padding(12.dp, 0.dp, 12.dp, 0.dp)) {
-            val textSpacing = Modifier.padding(top = 12.dp, bottom = 12.dp)
-            Text("Default Snackbar", modifier = textSpacing)
-            SimpleSnackbar()
-            Text("Snackbar with long text", modifier = textSpacing)
-            Snackbar(
-                text = { Text("This song already exists in the current playlist") },
-                action = {
-                    TextButton(
-                        contentColor = snackbarPrimaryColorFor(MaterialTheme.colors),
-                        onClick = { /* perform undo */ }
-                    ) {
-                        Text("ADD THIS SONG ANYWAY")
-                    }
-                },
-                actionOnNewLine = true
-            )
-        }
+    ScrollableColumn(contentPadding = InnerPadding(12.dp, 0.dp, 12.dp, 0.dp)) {
+        val textSpacing = Modifier.padding(top = 12.dp, bottom = 12.dp)
+        Text("Default Snackbar", modifier = textSpacing)
+        SimpleSnackbar()
+        Text("Snackbar with long text", modifier = textSpacing)
+        Snackbar(
+            text = { Text("This song already exists in the current playlist") },
+            action = {
+                TextButton(
+                    contentColor = snackbarPrimaryColorFor(MaterialTheme.colors),
+                    onClick = { /* perform undo */ }
+                ) {
+                    Text("ADD THIS SONG ANYWAY")
+                }
+            },
+            actionOnNewLine = true
+        )
     }
 }

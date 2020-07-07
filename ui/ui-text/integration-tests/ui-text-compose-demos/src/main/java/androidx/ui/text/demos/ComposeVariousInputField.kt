@@ -25,9 +25,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.id
 import androidx.ui.core.layoutId
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.drawBackground
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
@@ -38,9 +38,9 @@ import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.input.TextFieldValue
 import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
-import androidx.ui.text.AnnotatedString
 import androidx.ui.intl.LocaleList
 import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
@@ -181,7 +181,7 @@ private val emailFilter = object : VisualTransformation {
 
 @Composable
 fun VariousInputFieldDemo() {
-    VerticalScroller {
+    ScrollableColumn {
         TagLine(tag = "Capitalization")
         VariousEditLine(
             keyboardType = KeyboardType.Ascii,

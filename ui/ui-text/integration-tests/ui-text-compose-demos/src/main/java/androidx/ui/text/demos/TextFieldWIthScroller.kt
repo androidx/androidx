@@ -19,18 +19,20 @@ package androidx.ui.text.demos
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Modifier
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.padding
 import androidx.ui.unit.dp
 
 @Composable
 fun TextFieldWithScrollerDemo() {
-    VerticalScroller {
-        val state = state { TextFieldValue(
-            text = List(100) { "Line: $it" }.joinToString("\n")
-        ) }
+    ScrollableColumn {
+        val state = state {
+            TextFieldValue(
+                text = List(100) { "Line: $it" }.joinToString("\n")
+            )
+        }
         TextField(
             value = state.value,
             onValueChange = { state.value = it },

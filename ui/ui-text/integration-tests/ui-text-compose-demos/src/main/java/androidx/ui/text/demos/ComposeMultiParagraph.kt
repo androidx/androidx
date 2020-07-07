@@ -17,8 +17,8 @@
 package androidx.ui.text.demos
 
 import androidx.compose.Composable
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
@@ -33,7 +33,7 @@ val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas f
 
 @Composable
 fun MultiParagraphDemo() {
-    VerticalScroller {
+    ScrollableColumn {
         TagLine(tag = "multiple paragraphs basic")
         TextDemoParagraph()
         TagLine(tag = "multiple paragraphs TextAlign")

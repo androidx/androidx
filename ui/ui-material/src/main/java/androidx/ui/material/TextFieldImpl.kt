@@ -251,7 +251,7 @@ internal fun TextFieldImpl(
 }
 
 /**
- * Similar to [androidx.ui.foundation.VerticalScroller] but does not lose the minWidth constraints.
+ * Similar to [androidx.ui.foundation.ScrollableColumn] but does not lose the minWidth constraints.
  */
 @VisibleForTesting
 @Composable
