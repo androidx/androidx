@@ -209,16 +209,17 @@ public class MediaRouteActionProvider extends ActionProvider {
      * @see MediaRouteButton#enableDynamicGroup()
      * @see androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController
      *
-     * @deprecated Use {@link androidx.mediarouter.media.MediaRouterParams#setDialogType(int)}
-     * with {@link androidx.mediarouter.media.MediaRouterParams#DIALOG_TYPE_DYNAMIC_GROUP} instead.
+     * @deprecated Use {@link
+     * androidx.mediarouter.media.MediaRouterParams.Builder#setDialogType(int)} with
+     * {@link androidx.mediarouter.media.MediaRouterParams#DIALOG_TYPE_DYNAMIC_GROUP} instead.
      */
     @Deprecated
     public void enableDynamicGroup() {
         MediaRouterParams oldParams = mRouter.getRouterParams();
-        MediaRouterParams newParams = oldParams == null ? new MediaRouterParams() :
-                new MediaRouterParams(oldParams);
-        newParams.setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP);
-        mRouter.setRouterParams(newParams);
+        MediaRouterParams.Builder newParamsBuilder = oldParams == null
+                ? new MediaRouterParams.Builder() : new MediaRouterParams.Builder(oldParams);
+        newParamsBuilder.setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP);
+        mRouter.setRouterParams(newParamsBuilder.build());
     }
 
     /**

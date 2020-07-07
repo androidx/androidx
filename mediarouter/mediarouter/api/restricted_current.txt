@@ -445,16 +445,20 @@ package androidx.mediarouter.media {
   }
 
   public class MediaRouterParams {
-    ctor public MediaRouterParams();
-    ctor public MediaRouterParams(androidx.mediarouter.media.MediaRouterParams);
     method public int getDialogType();
     method public boolean isOutputSwitcherEnabled();
     method public boolean isTransferToLocalEnabled();
-    method public void setDialogType(int);
-    method public void setOutputSwitcherEnabled(boolean);
-    method public void setTransferToLocalEnabled(boolean);
     field public static final int DIALOG_TYPE_DEFAULT = 1; // 0x1
     field public static final int DIALOG_TYPE_DYNAMIC_GROUP = 2; // 0x2
+  }
+
+  public static final class MediaRouterParams.Builder {
+    ctor public MediaRouterParams.Builder();
+    ctor public MediaRouterParams.Builder(androidx.mediarouter.media.MediaRouterParams);
+    method public androidx.mediarouter.media.MediaRouterParams build();
+    method public androidx.mediarouter.media.MediaRouterParams.Builder setDialogType(int);
+    method public androidx.mediarouter.media.MediaRouterParams.Builder setOutputSwitcherEnabled(boolean);
+    method public androidx.mediarouter.media.MediaRouterParams.Builder setTransferToLocalEnabled(boolean);
   }
 
   public final class MediaSessionStatus {

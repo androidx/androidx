@@ -62,117 +62,50 @@ public class MediaRouterParams {
     public static final String EXTRAS_KEY_TEST_PRIVATE_UI =
             "androidx.mediarouter.media.MediaRouterParams.TEST_PRIVATE_UI";
 
-    private int mDialogType = DIALOG_TYPE_DEFAULT;
-    private boolean mOutputSwitcherEnabled = false;
-    private boolean mTransferToLocalEnabled = false;
-    private Bundle mExtras = Bundle.EMPTY;
+    @DialogType
+    final int mDialogType;
+    final boolean mOutputSwitcherEnabled;
+    final boolean mTransferToLocalEnabled;
+    final Bundle mExtras;
 
-    /**
-     * A default constructor for MediaRouterParams.
-     */
-    public MediaRouterParams() {
+    MediaRouterParams(@NonNull Builder builder) {
+        mDialogType = builder.mDialogType;
+        mOutputSwitcherEnabled = builder.mOutputSwitcherEnabled;
+        mTransferToLocalEnabled = builder.mTransferToLocalEnabled;
+
+        Bundle extras = builder.mExtras;
+        mExtras = extras == null ? Bundle.EMPTY : new Bundle(extras);
     }
 
     /**
-     * A copy constructor for MediaRouterParams.
-     */
-    public MediaRouterParams(@NonNull MediaRouterParams params) {
-        if (params == null) {
-            throw new NullPointerException("params should not be null!");
-        }
-
-        mDialogType = params.mDialogType;
-        mOutputSwitcherEnabled = params.mOutputSwitcherEnabled;
-        mTransferToLocalEnabled = params.mTransferToLocalEnabled;
-        mExtras = params.mExtras == null ? Bundle.EMPTY : new Bundle(params.mExtras);
-    }
-
-    /**
-     * Gets the media route controller dialog type. Default value is {@link #DIALOG_TYPE_DEFAULT}
-     * if not set.
+     * Gets the media route controller dialog type.
+     *
+     * @see Builder#setDialogType(int)
      */
     public @DialogType int getDialogType() {
         return mDialogType;
     }
 
     /**
-     * Sets the media route controller dialog type.
-     * <p>
-     * Note that from Android R, output switcher will be used rather than the dialog type set by
-     * this method if both {@link #setOutputSwitcherEnabled(boolean) output switcher} and
-     * {@link MediaTransferReceiver media transfer feature} are enabled.
-     *
-     * @param dialogType the dialog type
-     * @see #setOutputSwitcherEnabled(boolean)
-     * @see #DIALOG_TYPE_DEFAULT
-     * @see #DIALOG_TYPE_DYNAMIC_GROUP
-     */
-    public void setDialogType(@DialogType int dialogType) {
-        mDialogType = dialogType;
-    }
-
-    /**
-     * Sets whether output switcher dialogs are enabled. This method will be no-op for Android
-     * versions earlier than Android R.
-     * <p>
-     * If set to {@code true}, and when {@link MediaTransferReceiver media transfer is enabled},
-     * {@link androidx.mediarouter.app.MediaRouteButton MediaRouteButton} will show output
-     * switcher when clicked, no matter what type of dialog is set by {@link #setDialogType(int)}.
-     * <p>
-     * If set to {@code false}, {@link androidx.mediarouter.app.MediaRouteButton MediaRouteButton}
-     * will show the dialog type which is set by {@link #setDialogType(int)}.
-     *
-     * @see #isOutputSwitcherEnabled()
-     */
-    public void setOutputSwitcherEnabled(boolean enabled) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            mOutputSwitcherEnabled = enabled;
-        }
-    }
-
-    /**
-     * Gets whether the output switcher dialog is enabled. Default value is {@code false} if not
-     * set.
+     * Gets whether the output switcher dialog is enabled.
      * <p>
      * Note that it always returns {@code false} for Android versions earlier than Android R.
      *
-     * @see #setOutputSwitcherEnabled(boolean)
+     * @see Builder#setOutputSwitcherEnabled(boolean)
      */
     public boolean isOutputSwitcherEnabled() {
         return mOutputSwitcherEnabled;
     }
 
     /**
-     * Enables media can be transferred from remote (e.g. TV) to local (e.g. phone, Bluetooth).
-     * Apps that enabling this feature should handle the case in their {@link
-     * MediaRouter.Callback#onRouteSelected(MediaRouter, MediaRouter.RouteInfo, int) callback}
-     * properly.
-     * <p>
-     * Note: This method will be no-op for Android versions earlier than Android R. It has
-     * effect only when {@link MediaTransferReceiver media transfer is enabled}.
-     */
-    public void setTransferToLocalEnabled(boolean enabled) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            mTransferToLocalEnabled = enabled;
-        }
-    }
-
-    /**
-     * Returns whether transferring media from remote to local is enabled. Default value is
-     * {@code false}.
+     * Returns whether transferring media from remote to local is enabled.
      * <p>
      * Note that it always returns {@code false} for Android versions earlier than Android R.
+     *
+     * @see Builder#setTransferToLocalEnabled(boolean)
      */
     public boolean isTransferToLocalEnabled() {
         return mTransferToLocalEnabled;
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void setExtras(@Nullable Bundle extras) {
-        mExtras = (extras == null) ? Bundle.EMPTY : new Bundle(extras);
     }
 
     /**
@@ -182,5 +115,115 @@ public class MediaRouterParams {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public Bundle getExtras() {
         return mExtras;
+    }
+
+    /**
+     * Builder class for {@link MediaRouterParams}.
+     */
+    public static final class Builder {
+        @DialogType
+        int mDialogType = DIALOG_TYPE_DEFAULT;
+        boolean mOutputSwitcherEnabled;
+        boolean mTransferToLocalEnabled;
+        Bundle mExtras;
+
+        /**
+         * Constructor for builder to create {@link MediaRouterParams}.
+         */
+        public Builder() {}
+
+        /**
+         * Constructor for builder to create {@link MediaRouterParams} with existing
+         * {@link MediaRouterParams} instance.
+         *
+         * @param params the existing instance to copy data from.
+         */
+        public Builder(@NonNull MediaRouterParams params) {
+            if (params == null) {
+                throw new NullPointerException("params should not be null!");
+            }
+
+            mDialogType = params.mDialogType;
+            mOutputSwitcherEnabled = params.mOutputSwitcherEnabled;
+            mTransferToLocalEnabled = params.mTransferToLocalEnabled;
+            mExtras = params.mExtras == null ? null : new Bundle(params.mExtras);
+        }
+
+
+        /**
+         * Sets the media route controller dialog type. Default value is
+         * {@link #DIALOG_TYPE_DEFAULT}.
+         * <p>
+         * Note that from Android R, output switcher will be used rather than the dialog type set by
+         * this method if both {@link #setOutputSwitcherEnabled(boolean)} output switcher} and
+         * {@link MediaTransferReceiver media transfer feature} are enabled.
+         *
+         * @param dialogType the dialog type
+         * @see #setOutputSwitcherEnabled(boolean)
+         * @see #DIALOG_TYPE_DEFAULT
+         * @see #DIALOG_TYPE_DYNAMIC_GROUP
+         */
+        @NonNull
+        public Builder setDialogType(@DialogType int dialogType) {
+            mDialogType = dialogType;
+            return this;
+        }
+
+        /**
+         * Sets whether output switcher dialogs are enabled. This method will be no-op for Android
+         * versions earlier than Android R. Default value is {@code false}.
+         * <p>
+         * If set to {@code true}, and when {@link MediaTransferReceiver media transfer is enabled},
+         * {@link androidx.mediarouter.app.MediaRouteButton MediaRouteButton} will show output
+         * switcher when clicked, no matter what type of dialog is set by
+         * {@link #setDialogType(int)}.
+         * <p>
+         * If set to {@code false}, {@link androidx.mediarouter.app.MediaRouteButton
+         * MediaRouteButton} will show the dialog type which is set by {@link #setDialogType(int)}.
+         */
+        @NonNull
+        public Builder setOutputSwitcherEnabled(boolean enabled) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                mOutputSwitcherEnabled = enabled;
+            }
+            return this;
+        }
+
+        /**
+         * Enables media can be transferred from remote (e.g. TV) to local (e.g. phone, Bluetooth).
+         * Apps that enabling this feature should handle the case in their {@link
+         * MediaRouter.Callback#onRouteSelected(MediaRouter, MediaRouter.RouteInfo, int) callback}
+         * properly. Default value is {@code false}.
+         * <p>
+         * Note: This method will be no-op for Android versions earlier than Android R. It has
+         * effect only when {@link MediaTransferReceiver media transfer is enabled}.
+         */
+        @NonNull
+        public Builder setTransferToLocalEnabled(boolean enabled) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                mTransferToLocalEnabled = enabled;
+            }
+            return this;
+        }
+
+        /**
+         * Set extras. Default value is {@link Bundle#EMPTY} if not set.
+         *
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @NonNull
+        public Builder setExtras(@Nullable Bundle extras) {
+            mExtras = (extras == null) ? null : new Bundle(extras);
+            return this;
+        }
+
+        /**
+         * Builds the {@link MediaRouterParams} instance.
+         */
+        @NonNull
+        public MediaRouterParams build() {
+            return new MediaRouterParams(this);
+        }
     }
 }

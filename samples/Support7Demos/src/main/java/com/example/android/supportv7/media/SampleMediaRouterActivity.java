@@ -219,10 +219,11 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         // Get the media router service.
         mMediaRouter = MediaRouter.getInstance(this);
 
-        MediaRouterParams params = new MediaRouterParams();
-        params.setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP);
-        params.setOutputSwitcherEnabled(true); // Output switcher will be shown from Android R+.
-        params.setTransferToLocalEnabled(true); // Phone speaker will be shown when casting.
+        MediaRouterParams params = new MediaRouterParams.Builder()
+                .setDialogType(MediaRouterParams.DIALOG_TYPE_DEFAULT)
+                .setOutputSwitcherEnabled(true) // Output switcher will be shown from Android R+.
+                .setTransferToLocalEnabled(true) // Phone speaker will be shown when casting.
+                .build();
         mMediaRouter.setRouterParams(params);
 
         // Create a route selector for the type of routes that we care about.

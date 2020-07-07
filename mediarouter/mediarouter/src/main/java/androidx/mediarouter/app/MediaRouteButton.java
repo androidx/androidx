@@ -282,16 +282,17 @@ public class MediaRouteButton extends View {
      *
      * @see androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController
      *
-     * @deprecated Use {@link androidx.mediarouter.media.MediaRouterParams#setDialogType(int)}
-     * with {@link androidx.mediarouter.media.MediaRouterParams#DIALOG_TYPE_DYNAMIC_GROUP} instead.
+     * @deprecated Use {@link
+     * androidx.mediarouter.media.MediaRouterParams.Builder#setDialogType(int)} with
+     * {@link androidx.mediarouter.media.MediaRouterParams#DIALOG_TYPE_DYNAMIC_GROUP} instead.
      */
     @Deprecated
     public void enableDynamicGroup() {
         MediaRouterParams oldParams = mRouter.getRouterParams();
-        MediaRouterParams newParams = oldParams == null ? new MediaRouterParams() :
-                new MediaRouterParams(oldParams);
-        newParams.setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP);
-        mRouter.setRouterParams(newParams);
+        MediaRouterParams.Builder newParamsBuilder = oldParams == null
+                ? new MediaRouterParams.Builder() : new MediaRouterParams.Builder(oldParams);
+        newParamsBuilder.setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP);
+        mRouter.setRouterParams(newParamsBuilder.build());
     }
 
     /**
@@ -314,8 +315,8 @@ public class MediaRouteButton extends View {
      * @throws IllegalStateException if the activity is not a subclass of
      * {@link FragmentActivity}.
      *
-     * @see MediaRouterParams#setDialogType(int)
-     * @see MediaRouterParams#setOutputSwitcherEnabled(boolean)
+     * @see MediaRouterParams.Builder#setDialogType(int)
+     * @see MediaRouterParams.Builder#setOutputSwitcherEnabled(boolean)
      */
     public boolean showDialog() {
         if (!mAttachedToWindow) {
