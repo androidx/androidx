@@ -346,7 +346,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     public WindowInsets onApplyWindowInsets(@NonNull final WindowInsets in) {
         pullChildren();
 
-        final WindowInsetsCompat insets = WindowInsetsCompat.toWindowInsetsCompat(in);
+        final WindowInsetsCompat insets = WindowInsetsCompat.toWindowInsetsCompat(in, this);
 
         final Rect systemInsets = new Rect(insets.getSystemWindowInsetLeft(),
                 insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(),

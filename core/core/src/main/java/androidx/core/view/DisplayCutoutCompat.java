@@ -27,8 +27,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.graphics.Insets;
 import androidx.core.os.BuildCompat;
+import androidx.core.util.ObjectsCompat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -156,11 +158,12 @@ public final class DisplayCutoutCompat {
      *
      * @return a list of bounding {@code Rect}s, one for each display cutout area.
      */
+    @NonNull
     public List<Rect> getBoundingRects() {
         if (SDK_INT >= 28) {
             return ((DisplayCutout) mDisplayCutout).getBoundingRects();
         } else {
-            return null;
+            return Collections.emptyList();
         }
     }
 
@@ -192,8 +195,7 @@ public final class DisplayCutoutCompat {
             return false;
         }
         DisplayCutoutCompat other = (DisplayCutoutCompat) o;
-        return mDisplayCutout == null ? other.mDisplayCutout == null
-                : mDisplayCutout.equals(other.mDisplayCutout);
+        return ObjectsCompat.equals(mDisplayCutout, other.mDisplayCutout);
     }
 
     @Override

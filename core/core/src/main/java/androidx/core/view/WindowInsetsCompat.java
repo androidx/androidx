@@ -18,13 +18,18 @@ package androidx.core.view;
 
 import static android.os.Build.VERSION.SDK_INT;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.core.graphics.Insets.toCompatInsets;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowInsets;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethod;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,7 +38,10 @@ import androidx.annotation.RestrictTo;
 import androidx.core.graphics.Insets;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
+import androidx.core.view.WindowInsetsCompat.Type.InsetsType;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Objects;
@@ -49,20 +57,37 @@ public class WindowInsetsCompat {
     private static final String TAG = "WindowInsetsCompat";
 
     /**
-     * @hide we'll make this public in a future release
+     * A {@link WindowInsetsCompat} instance for which {@link #isConsumed()} returns {@code true}.
+     * <p>
+     * This can be used during insets dispatch in the view hierarchy by returning this value from
+     * {@code View.onApplyWindowInsets(WindowInsets)} or
+     * {@link OnApplyWindowInsetsListener#onApplyWindowInsets(View, WindowInsetsCompat)} to stop
+     * dispatch the insets to its children to avoid traversing the entire view hierarchy.
+     * <p>
+     * The application should return this instance once it has taken care of all insets on a certain
+     * level in the view hierarchy, and doesn't need to dispatch to its children anymore for better
+     * performance.
+     *
+     * @see #isConsumed()
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static final WindowInsetsCompat CONSUMED = new WindowInsetsCompat.Builder()
-            .build()
-            .consumeDisplayCutout()
-            .consumeStableInsets()
-            .consumeSystemWindowInsets();
+    @NonNull
+    public static final WindowInsetsCompat CONSUMED;
+
+    static {
+        if (SDK_INT >= 30) {
+            CONSUMED = Impl30.CONSUMED;
+        } else {
+            CONSUMED = Impl.CONSUMED;
+        }
+    }
 
     private final Impl mImpl;
 
     @RequiresApi(20)
     private WindowInsetsCompat(@NonNull WindowInsets insets) {
-        if (SDK_INT >= 29) {
+        if (SDK_INT >= 30) {
+            mImpl = new Impl30(this, insets);
+        } else if (SDK_INT >= 29) {
             mImpl = new Impl29(this, insets);
         } else if (SDK_INT >= 28) {
             mImpl = new Impl28(this, insets);
@@ -84,7 +109,9 @@ public class WindowInsetsCompat {
         if (src != null) {
             // We'll copy over from the 'src' instance's impl
             final Impl srcImpl = src.mImpl;
-            if (SDK_INT >= 29 && srcImpl instanceof Impl29) {
+            if (SDK_INT >= 30 && srcImpl instanceof Impl30) {
+                mImpl = new Impl30(this, (Impl30) srcImpl);
+            } else if (SDK_INT >= 29 && srcImpl instanceof Impl29) {
                 mImpl = new Impl29(this, (Impl29) srcImpl);
             } else if (SDK_INT >= 28 && srcImpl instanceof Impl28) {
                 mImpl = new Impl28(this, (Impl28) srcImpl);
@@ -95,6 +122,7 @@ public class WindowInsetsCompat {
             } else {
                 mImpl = new Impl(this);
             }
+            srcImpl.copyWindowDataInto(this);
         } else {
             // Ideally src would be @NonNull, oh well.
             mImpl = new Impl(this);
@@ -103,6 +131,12 @@ public class WindowInsetsCompat {
 
     /**
      * Wrap an instance of {@link WindowInsets} into a {@link WindowInsetsCompat}.
+     * <p>
+     * This version of the function does not allow the resulting {@link WindowInsetsCompat} to be
+     * aware of the root window insets and root view, meaning that the returned values for many of
+     * the different inset {@link Type}s will be incorrect.
+     * <p>
+     * Prefer using {@link #toWindowInsetsCompat(WindowInsets, View)} instead.
      *
      * @param insets source insets to wrap
      * @return the wrapped instance
@@ -110,7 +144,38 @@ public class WindowInsetsCompat {
     @NonNull
     @RequiresApi(20)
     public static WindowInsetsCompat toWindowInsetsCompat(@NonNull WindowInsets insets) {
-        return new WindowInsetsCompat(Preconditions.checkNotNull(insets));
+        return toWindowInsetsCompat(insets, null);
+    }
+
+    /**
+     * Wrap an instance of {@link WindowInsets} into a {@link WindowInsetsCompat}.
+     * <p>
+     * This version of the function allows the resulting {@link WindowInsetsCompat} to be
+     * aware of the root window insets and root view through the {@code view} parameter. This is
+     * required for many of the different inset {@link Type}s to return correct values when used
+     * on devices running Android 10 and before.
+     *
+     * @param insets source insets to wrap
+     * @param view view to use as an entry point for obtaining root window information. This view
+     *            needs be attached to the window, otherwise an {@link IllegalArgumentException}
+     *            will be thrown.
+     * @return the wrapped instance
+     */
+    @NonNull
+    @RequiresApi(20)
+    public static WindowInsetsCompat toWindowInsetsCompat(@NonNull WindowInsets insets,
+            @Nullable View view) {
+        WindowInsetsCompat wic = new WindowInsetsCompat(Preconditions.checkNotNull(insets));
+        if (view != null) {
+            if (!view.isAttachedToWindow()) {
+                throw new IllegalArgumentException("View is not attached to the window");
+            }
+            // Pass the root window insets, which is useful if the Activity is adjustResize
+            wic.setRootWindowInsets(ViewCompat.getRootWindowInsets(view));
+            // Pass in the root view which allows the WIC to make of a copy of it's visible bounds
+            wic.copyRootViewBounds(view.getRootView());
+        }
+        return wic;
     }
 
     /**
@@ -122,9 +187,11 @@ public class WindowInsetsCompat {
      * <p>When running on platforms with API 19 and below, this method always returns {@code 0}.
      *
      * @return The left system window inset
+     * @deprecated Use {@link #getInsets(int)} with {@link Type#systemBars()} instead.
      */
+    @Deprecated
     public int getSystemWindowInsetLeft() {
-        return getSystemWindowInsets().left;
+        return mImpl.getSystemWindowInsets().left;
     }
 
     /**
@@ -136,9 +203,11 @@ public class WindowInsetsCompat {
      * <p>When running on platforms with API 19 and below, this method always returns {@code 0}.
      *
      * @return The top system window inset
+     * @deprecated Use {@link #getInsets(int)} with {@link Type#systemBars()} instead.
      */
+    @Deprecated
     public int getSystemWindowInsetTop() {
-        return getSystemWindowInsets().top;
+        return mImpl.getSystemWindowInsets().top;
     }
 
     /**
@@ -150,9 +219,11 @@ public class WindowInsetsCompat {
      * <p>When running on platforms with API 19 and below, this method always returns {@code 0}.
      *
      * @return The right system window inset
+     * @deprecated Use {@link #getInsets(int)} with {@link Type#systemBars()} instead.
      */
+    @Deprecated
     public int getSystemWindowInsetRight() {
-        return getSystemWindowInsets().right;
+        return mImpl.getSystemWindowInsets().right;
     }
 
     /**
@@ -164,9 +235,11 @@ public class WindowInsetsCompat {
      * <p>When running on platforms with API 19 and below, this method always returns {@code 0}.
      *
      * @return The bottom system window inset
+     * @deprecated Use {@link #getInsets(int)} with {@link Type#systemBars()} instead.
      */
+    @Deprecated
     public int getSystemWindowInsetBottom() {
-        return getSystemWindowInsets().bottom;
+        return mImpl.getSystemWindowInsets().bottom;
     }
 
     /**
@@ -178,9 +251,12 @@ public class WindowInsetsCompat {
      * <p>When running on platforms with API 19 and below, this method always returns {@code false}.
      *
      * @return true if any of the system window inset values are nonzero
+     * @deprecated Use {@link #getInsets(int)} with {@link Type#systemBars()}
+     * instead.
      */
+    @Deprecated
     public boolean hasSystemWindowInsets() {
-        return !getSystemWindowInsets().equals(Insets.NONE);
+        return !mImpl.getSystemWindowInsets().equals(Insets.NONE);
     }
 
     /**
@@ -191,12 +267,9 @@ public class WindowInsetsCompat {
      * @return true if any inset values are nonzero
      */
     public boolean hasInsets() {
-        return hasSystemWindowInsets()
-                || hasStableInsets()
-                || getDisplayCutout() != null
-                || !getSystemGestureInsets().equals(Insets.NONE)
-                || !getMandatorySystemGestureInsets().equals(Insets.NONE)
-                || !getTappableElementInsets().equals(Insets.NONE);
+        return !getInsets(Type.all()).equals(Insets.NONE)
+                || !getInsetsIgnoringVisibility(Type.all()).equals(Insets.NONE)
+                || getDisplayCutout() != null;
     }
 
     /**
@@ -238,7 +311,12 @@ public class WindowInsetsCompat {
      * <p>When running on platforms with API 19 and below, this method always returns {@code null}.
      *
      * @return A modified copy of this WindowInsets
+     * @deprecated Consuming of different parts individually of a {@link WindowInsetsCompat}
+     * instance is deprecated, since {@link WindowInsetsCompat} contains many different insets. Use
+     * {@link #CONSUMED} instead to stop dispatching insets.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
     @NonNull
     public WindowInsetsCompat consumeSystemWindowInsets() {
         return mImpl.consumeSystemWindowInsets();
@@ -250,15 +328,15 @@ public class WindowInsetsCompat {
      *
      * <p>When running on platforms with API 19 and below, this method always returns {@code null}.
      *
-     * @param left New left inset in pixels
-     * @param top New top inset in pixels
-     * @param right New right inset in pixels
+     * @param left   New left inset in pixels
+     * @param top    New top inset in pixels
+     * @param right  New right inset in pixels
      * @param bottom New bottom inset in pixels
      * @return A modified copy of this WindowInsets
-     *
      * @deprecated use {@link WindowInsetsCompat.Builder} with
      * {@link WindowInsetsCompat.Builder#setSystemWindowInsets(Insets)} instead.
      */
+    @SuppressWarnings("deprecation") // Builder.setSystemWindowInsets
     @Deprecated
     @NonNull
     public WindowInsetsCompat replaceSystemWindowInsets(int left, int top, int right, int bottom) {
@@ -276,7 +354,6 @@ public class WindowInsetsCompat {
      * @param systemWindowInsets New system window insets. Each field is the inset in pixels
      *                           for that edge
      * @return A modified copy of this WindowInsets
-     *
      * @deprecated use {@link WindowInsetsCompat.Builder} with
      * {@link WindowInsetsCompat.Builder#setSystemWindowInsets(Insets)} instead.
      */
@@ -299,10 +376,12 @@ public class WindowInsetsCompat {
      *
      * <p>When running on platforms with API 20 and below, this method always returns {@code 0}.
      *
-     * @return The top stable inset
+     * @deprecated Use {@link #getInsetsIgnoringVisibility(int)} with {@link Type#systemBars()}
+     * instead.
      */
+    @Deprecated
     public int getStableInsetTop() {
-        return getStableInsets().top;
+        return mImpl.getStableInsets().top;
     }
 
     /**
@@ -317,9 +396,12 @@ public class WindowInsetsCompat {
      * <p>When running on platforms with API 20 and below, this method always returns {@code 0}.
      *
      * @return The left stable inset
+     * @deprecated Use {@link #getInsetsIgnoringVisibility(int)} with {@link Type#systemBars()}
+     * instead.
      */
+    @Deprecated
     public int getStableInsetLeft() {
-        return getStableInsets().left;
+        return mImpl.getStableInsets().left;
     }
 
     /**
@@ -334,9 +416,12 @@ public class WindowInsetsCompat {
      * <p>When running on platforms with API 20 and below, this method always returns {@code 0}.
      *
      * @return The right stable inset
+     * @deprecated Use {@link #getInsetsIgnoringVisibility(int)} with {@link Type#systemBars()}
+     * instead.
      */
+    @Deprecated
     public int getStableInsetRight() {
-        return getStableInsets().right;
+        return mImpl.getStableInsets().right;
     }
 
     /**
@@ -351,9 +436,12 @@ public class WindowInsetsCompat {
      * <p>When running on platforms with API 20 and below, this method always returns {@code 0}.
      *
      * @return The bottom stable inset
+     * @deprecated Use {@link #getInsetsIgnoringVisibility(int)} with {@link Type#systemBars()}
+     * instead.
      */
+    @Deprecated
     public int getStableInsetBottom() {
-        return getStableInsets().bottom;
+        return mImpl.getStableInsets().bottom;
     }
 
     /**
@@ -368,9 +456,12 @@ public class WindowInsetsCompat {
      * <p>When running on platforms with API 20 and below, this method always returns {@code false}.
      *
      * @return true if any of the stable inset values are nonzero
+     * @deprecated Use {@link #getInsetsIgnoringVisibility(int)} with {@link Type#systemBars()}
+     * instead.
      */
+    @Deprecated
     public boolean hasStableInsets() {
-        return !getStableInsets().equals(Insets.NONE);
+        return !mImpl.getStableInsets().equals(Insets.NONE);
     }
 
     /**
@@ -379,7 +470,11 @@ public class WindowInsetsCompat {
      * <p>When running on platforms with API 20 and below, this method always returns {@code null}.
      *
      * @return A modified copy of this WindowInsetsCompat
+     * @deprecated Consuming of different parts individually of a {@link WindowInsetsCompat}
+     * instance is deprecated, since {@link WindowInsetsCompat} contains many different insets. Use
+     * {@link #CONSUMED} instead to stop dispatching insets.
      */
+    @Deprecated
     @NonNull
     public WindowInsetsCompat consumeStableInsets() {
         return mImpl.consumeStableInsets();
@@ -404,7 +499,11 @@ public class WindowInsetsCompat {
      * <p>When running on platforms with API 27 and below, this method is a no-op.
      *
      * @return A modified copy of this WindowInsets
+     * @deprecated Consuming of different parts individually of a {@link WindowInsetsCompat}
+     * instance is deprecated, since {@link WindowInsetsCompat} contains many different insets. Use
+     * {@link #CONSUMED} instead to stop dispatching insets.
      */
+    @Deprecated
     @NonNull
     public WindowInsetsCompat consumeDisplayCutout() {
         return mImpl.consumeDisplayCutout();
@@ -422,7 +521,9 @@ public class WindowInsetsCompat {
      * @see #getSystemWindowInsetTop()
      * @see #getSystemWindowInsetRight()
      * @see #getSystemWindowInsetBottom()
+     * @deprecated Use {@link #getInsets(int)} with {@link Type#systemBars()} instead.
      */
+    @Deprecated
     @NonNull
     public Insets getSystemWindowInsets() {
         return mImpl.getSystemWindowInsets();
@@ -442,7 +543,10 @@ public class WindowInsetsCompat {
      * @see #getStableInsetTop()
      * @see #getStableInsetRight()
      * @see #getStableInsetBottom()
+     * @deprecated Use {@link #getInsetsIgnoringVisibility(int)} with {@link Type#systemBars()}
+     * instead.
      */
+    @Deprecated
     @NonNull
     public Insets getStableInsets() {
         return mImpl.getStableInsets();
@@ -456,7 +560,10 @@ public class WindowInsetsCompat {
      * occupying it, or it being reserved for touch-only gestures.
      *
      * @see WindowInsets#getMandatorySystemGestureInsets
+     * @deprecated Use {@link #getInsets(int)} with {@link Type#mandatorySystemGestures()}
+     * instead.
      */
+    @Deprecated
     @NonNull
     public Insets getMandatorySystemGestureInsets() {
         return mImpl.getMandatorySystemGestureInsets();
@@ -472,7 +579,10 @@ public class WindowInsetsCompat {
      * largely transparent and lets through simple taps (but not necessarily more complex gestures).
      *
      * @see WindowInsets#getTappableElementInsets
+     * @deprecated Use {@link #getInsets(int)} with {@link Type#tappableElement()}
+     * instead.
      */
+    @Deprecated
     @NonNull
     public Insets getTappableElementInsets() {
         return mImpl.getTappableElementInsets();
@@ -490,7 +600,10 @@ public class WindowInsetsCompat {
      * {@link #getMandatorySystemGestureInsets() mandatory system gesture insets}.
      *
      * @see WindowInsets#getSystemGestureInsets
+     * @deprecated Use {@link #getInsets(int)} with {@link Type#systemGestures()}
+     * instead.
      */
+    @Deprecated
     @NonNull
     public Insets getSystemGestureInsets() {
         return mImpl.getSystemGestureInsets();
@@ -541,6 +654,68 @@ public class WindowInsetsCompat {
         return mImpl.inset(left, top, right, bottom);
     }
 
+    /**
+     * Returns the insets of a specific set of windows causing insets, denoted by the
+     * {@code typeMask} bit mask of {@link Type}s.
+     *
+     * When running on devices with API Level 29 and before, the returned insets are an
+     * approximation based on the information available. This is especially true for the {@link
+     * Type#ime IME} type, which currently only works when running on devices with SDK level 23
+     * and above.
+     *
+     * @param typeMask Bit mask of {@link Type}s to query the insets for.
+     * @return The insets.
+     */
+    @NonNull
+    public Insets getInsets(@InsetsType int typeMask) {
+        return mImpl.getInsets(typeMask);
+    }
+
+    /**
+     * Returns the insets a specific set of windows can cause, denoted by the
+     * {@code typeMask} bit mask of {@link Type}s, regardless of whether that type is
+     * currently visible or not.
+     *
+     * <p>The insets represents the area of a a window that that <b>may</b> be partially
+     * or fully obscured by the system window identified by {@code typeMask}. This value does not
+     * change based on the visibility state of those elements. For example, if the status bar is
+     * normally shown, but temporarily hidden, the inset returned here will still provide the inset
+     * associated with the status bar being shown.</p>
+     *
+     * When running on devices with API Level 29 and before, the returned insets are an
+     * approximation based on the information available. This is especially true for the {@link
+     * Type#ime IME} type, which currently only works when running on devices with SDK level 23
+     * and above.
+     *
+     * @param typeMask Bit mask of {@link Type}s to query the insets for.
+     * @return The insets.
+     * @throws IllegalArgumentException If the caller tries to query {@link Type#ime()}. Insets are
+     *                                  not available if the IME isn't visible as the height of the
+     *                                  IME is dynamic depending on the {@link EditorInfo} of the
+     *                                  currently focused view, as well as the UI state of the IME.
+     */
+    @NonNull
+    public Insets getInsetsIgnoringVisibility(@InsetsType int typeMask) {
+        return mImpl.getInsetsIgnoringVisibility(typeMask);
+    }
+
+    /**
+     * Returns whether a set of windows that may cause insets is currently visible on screen,
+     * regardless of whether it actually overlaps with this window.
+     *
+     * When running on devices with API Level 29 and before, the returned value is an
+     * approximation based on the information available. This is especially true for the {@link
+     * Type#ime IME} type, which currently only works when running on devices with SDK level 23
+     * and above.
+     *
+     * @param typeMask Bit mask of {@link Type}s to query visibility status.
+     * @return {@code true} if and only if all windows included in {@code typeMask} are currently
+     * visible on screen.
+     */
+    public boolean isVisible(@InsetsType int typeMask) {
+        return mImpl.isVisible(typeMask);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -570,6 +745,13 @@ public class WindowInsetsCompat {
     }
 
     private static class Impl {
+        @NonNull
+        static final WindowInsetsCompat CONSUMED = new WindowInsetsCompat.Builder()
+                .build()
+                .consumeDisplayCutout()
+                .consumeStableInsets()
+                .consumeSystemWindowInsets();
+
         final WindowInsetsCompat mHost;
 
         Impl(@NonNull WindowInsetsCompat host) {
@@ -637,6 +819,23 @@ public class WindowInsetsCompat {
             return CONSUMED;
         }
 
+        @NonNull
+        Insets getInsets(@InsetsType int typeMask) {
+            return Insets.NONE;
+        }
+
+        @NonNull
+        Insets getInsetsIgnoringVisibility(@InsetsType int typeMask) {
+            if ((typeMask & Type.IME) != 0) {
+                throw new IllegalArgumentException("Unable to query the maximum insets for IME");
+            }
+            return Insets.NONE;
+        }
+
+        boolean isVisible(@InsetsType int typeMask) {
+            return true;
+        }
+
         @Override
         public boolean equals(Object o) {
             // On API < 28 we can not rely on WindowInsets.equals(), so we handle it manually
@@ -656,6 +855,15 @@ public class WindowInsetsCompat {
             return ObjectsCompat.hash(isRound(), isConsumed(), getSystemWindowInsets(),
                     getStableInsets(), getDisplayCutout());
         }
+
+        void setRootWindowInsets(@Nullable WindowInsetsCompat rootWindowInsets) {
+        }
+
+        void setRootViewData(@NonNull Rect visibleFrame, int height) {
+        }
+
+        void copyWindowDataInto(@NonNull WindowInsetsCompat other) {
+        }
     }
 
     @RequiresApi(20)
@@ -665,6 +873,10 @@ public class WindowInsetsCompat {
 
         // Used to cache the wrapped value
         private Insets mSystemWindowInsets = null;
+
+        private WindowInsetsCompat mRootWindowInsets;
+        private Rect mRootViewVisibleFrame;
+        private int mRootViewHeight;
 
         Impl20(@NonNull WindowInsetsCompat host, @NonNull WindowInsets insets) {
             super(host);
@@ -678,6 +890,150 @@ public class WindowInsetsCompat {
         @Override
         boolean isRound() {
             return mPlatformInsets.isRound();
+        }
+
+        @NonNull
+        @Override
+        public Insets getInsets(int typeMask) {
+            return getInsets(typeMask, false);
+        }
+
+        @NonNull
+        @Override
+        public Insets getInsetsIgnoringVisibility(int typeMask) {
+            return getInsets(typeMask, true);
+        }
+
+        @Override
+        @SuppressLint("WrongConstant")
+        boolean isVisible(final int typeMask) {
+            for (int i = Type.FIRST; i <= Type.LAST; i = i << 1) {
+                if ((typeMask & i) == 0) {
+                    continue;
+                }
+                if (!isTypeVisible(i)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @SuppressLint("WrongConstant")
+        @NonNull
+        private Insets getInsets(final int typeMask, final boolean ignoreVisibility) {
+            Insets result = Insets.NONE;
+            for (int i = Type.FIRST; i <= Type.LAST; i = i << 1) {
+                if ((typeMask & i) == 0) {
+                    continue;
+                }
+                result = Insets.max(result, getInsetsForType(i, ignoreVisibility));
+            }
+            return result;
+        }
+
+        @NonNull
+        protected Insets getInsetsForType(@InsetsType int type, boolean ignoreVisibility) {
+            switch (type) {
+                case Type.STATUS_BARS: {
+                    if (ignoreVisibility) {
+                        final Insets rootStable = getRootStableInsets();
+                        return Insets.of(0,
+                                Math.max(rootStable.top, getSystemWindowInsets().top), 0, 0);
+                    } else {
+                        return Insets.of(0, getSystemWindowInsets().top, 0, 0);
+                    }
+                }
+                case Type.NAVIGATION_BARS: {
+                    if (ignoreVisibility) {
+                        final Insets rootStable = getRootStableInsets();
+                        final Insets stable = getStableInsets();
+                        return Insets.of(
+                                Math.max(rootStable.left, stable.left),
+                                0, /* zero top inset (== status bar) */
+                                Math.max(rootStable.right, stable.right),
+                                Math.max(rootStable.bottom, stable.bottom)
+                        );
+                    } else {
+                        final Insets systemWindow = getSystemWindowInsets();
+                        final Insets rootStable = mRootWindowInsets != null
+                                ? mRootWindowInsets.getStableInsets()
+                                : null;
+
+                        int bottom = systemWindow.bottom;
+                        if (rootStable != null) {
+                            // If we have root stable insets, and its bottom is less than the
+                            // system window bottom, it's likely that the IME is visible. In this
+                            // case, we want to only return the stable bottom.
+                            bottom = Math.min(bottom, rootStable.bottom);
+                        }
+                        return Insets.of(
+                                systemWindow.left,
+                                0, /* zero top inset (== status bar) */
+                                systemWindow.right,
+                                bottom
+                        );
+                    }
+                }
+                case Type.IME: {
+                    final Insets systemWindow = getSystemWindowInsets();
+                    final Insets rootStable = getRootStableInsets();
+
+                    if (systemWindow.bottom > rootStable.bottom) {
+                        // This handles the adjustResize case on < API 30, since
+                        // systemWindow.bottom is probably going to be the IME
+                        return Insets.of(0, 0, 0, systemWindow.bottom);
+                    } else if (mRootViewVisibleFrame != null && !mRootViewVisibleFrame.isEmpty()) {
+                        // This handles the adjustPan case on < API 30. We look at the root view's
+                        // visible rect and check it's bottom against the root stable insets
+                        int coveredRootView = mRootViewHeight - mRootViewVisibleFrame.bottom;
+                        if (coveredRootView > rootStable.bottom) {
+                            return Insets.of(0, 0, 0, coveredRootView);
+                        }
+                    }
+                    return Insets.NONE;
+                }
+                case Type.SYSTEM_GESTURES: {
+                    // Visibility does not affect this type of inset
+                    return getSystemGestureInsets();
+                }
+                case Type.MANDATORY_SYSTEM_GESTURES: {
+                    // Visibility does not affect this type of inset
+                    return getMandatorySystemGestureInsets();
+                }
+                case Type.TAPPABLE_ELEMENT: {
+                    // Visibility does not affect this type of inset
+                    return getTappableElementInsets();
+                }
+                case Type.DISPLAY_CUTOUT: {
+                    // Visibility does not affect this type of inset
+                    final DisplayCutoutCompat cutout = mRootWindowInsets != null
+                            ? mRootWindowInsets.getDisplayCutout()
+                            : getDisplayCutout();
+                    if (cutout != null) {
+                        return Insets.of(cutout.getSafeInsetLeft(), cutout.getSafeInsetTop(),
+                                cutout.getSafeInsetRight(), cutout.getSafeInsetBottom());
+                    } else {
+                        return Insets.NONE;
+                    }
+                }
+                default:
+                    return Insets.NONE;
+            }
+        }
+
+        protected boolean isTypeVisible(@InsetsType final int type) {
+            switch (type) {
+                case Type.STATUS_BARS:
+                case Type.NAVIGATION_BARS:
+                case Type.IME:
+                case Type.DISPLAY_CUTOUT:
+                    return !getInsetsForType(type, false).equals(Insets.NONE);
+                case Type.CAPTION_BAR:
+                    // Caption bar is always false on API < 30
+                    return false;
+                default:
+                    return true;
+            }
         }
 
         @Override
@@ -695,11 +1051,38 @@ public class WindowInsetsCompat {
 
         @NonNull
         @Override
+        @SuppressWarnings("deprecation")
         WindowInsetsCompat inset(int left, int top, int right, int bottom) {
             Builder b = new Builder(toWindowInsetsCompat(mPlatformInsets));
             b.setSystemWindowInsets(insetInsets(getSystemWindowInsets(), left, top, right, bottom));
             b.setStableInsets(insetInsets(getStableInsets(), left, top, right, bottom));
             return b.build();
+        }
+
+        @Override
+        void copyWindowDataInto(@NonNull WindowInsetsCompat other) {
+            other.setRootWindowInsets(mRootWindowInsets);
+            other.setRootViewData(mRootViewVisibleFrame, mRootViewHeight);
+        }
+
+        @Override
+        void setRootWindowInsets(@Nullable WindowInsetsCompat rootWindowInsets) {
+            mRootWindowInsets = rootWindowInsets;
+        }
+
+        @Override
+        void setRootViewData(@NonNull Rect visibleFrame, int height) {
+            mRootViewVisibleFrame = visibleFrame;
+            mRootViewHeight = height;
+        }
+
+        @SuppressWarnings("deprecation")
+        private Insets getRootStableInsets() {
+            if (mRootWindowInsets != null) {
+                return mRootWindowInsets.getStableInsets();
+            } else {
+                return Insets.NONE;
+            }
         }
     }
 
@@ -833,7 +1216,7 @@ public class WindowInsetsCompat {
         }
     }
 
-    static Insets insetInsets(Insets insets, int left, int top, int right, int bottom) {
+    static Insets insetInsets(@NonNull Insets insets, int left, int top, int right, int bottom) {
         int newLeft = Math.max(0, insets.left - left);
         int newTop = Math.max(0, insets.top - top);
         int newRight = Math.max(0, insets.right - right);
@@ -842,6 +1225,41 @@ public class WindowInsetsCompat {
             return insets;
         }
         return Insets.of(newLeft, newTop, newRight, newBottom);
+    }
+
+    @RequiresApi(30)
+    private static class Impl30 extends Impl29 {
+        @NonNull
+        static final WindowInsetsCompat CONSUMED = toWindowInsetsCompat(WindowInsets.CONSUMED);
+
+        Impl30(@NonNull WindowInsetsCompat host, @NonNull WindowInsets insets) {
+            super(host, insets);
+        }
+
+        Impl30(@NonNull WindowInsetsCompat host, @NonNull Impl30 other) {
+            super(host, other);
+        }
+
+        @NonNull
+        @Override
+        public Insets getInsets(int typeMask) {
+            return toCompatInsets(
+                    mPlatformInsets.getInsets(TypeImpl30.toPlatformType(typeMask))
+            );
+        }
+
+        @NonNull
+        @Override
+        public Insets getInsetsIgnoringVisibility(int typeMask) {
+            return toCompatInsets(
+                    mPlatformInsets.getInsetsIgnoringVisibility(TypeImpl30.toPlatformType(typeMask))
+            );
+        }
+
+        @Override
+        public boolean isVisible(int typeMask) {
+            return mPlatformInsets.isVisible(TypeImpl30.toPlatformType(typeMask));
+        }
     }
 
     /**
@@ -854,7 +1272,9 @@ public class WindowInsetsCompat {
          * Creates a builder where all insets are initially consumed.
          */
         public Builder() {
-            if (SDK_INT >= 29) {
+            if (SDK_INT >= 30) {
+                mImpl = new BuilderImpl30();
+            } else if (SDK_INT >= 29) {
                 mImpl = new BuilderImpl29();
             } else if (SDK_INT >= 20) {
                 mImpl = new BuilderImpl20();
@@ -869,7 +1289,9 @@ public class WindowInsetsCompat {
          * @param insets the instance to initialize from.
          */
         public Builder(@NonNull WindowInsetsCompat insets) {
-            if (SDK_INT >= 29) {
+            if (SDK_INT >= 30) {
+                mImpl = new BuilderImpl30(insets);
+            } else if (SDK_INT >= 29) {
                 mImpl = new BuilderImpl29(insets);
             } else if (SDK_INT >= 20) {
                 mImpl = new BuilderImpl20(insets);
@@ -885,9 +1307,11 @@ public class WindowInsetsCompat {
          * partially or fully obscured by the status bar, navigation bar, IME or other system
          * windows.</p>
          *
-         * @see #getSystemWindowInsets()
          * @return itself
+         * @see #getSystemWindowInsets()
+         * @deprecated Use {@link #setInsets(int, Insets)} with {@link Type#systemBars()}.
          */
+        @Deprecated
         @NonNull
         public Builder setSystemWindowInsets(@NonNull Insets insets) {
             mImpl.setSystemWindowInsets(insets);
@@ -903,9 +1327,11 @@ public class WindowInsetsCompat {
          *
          * <p>The insets passed will only take effect when running on API 29 and above.
          *
-         * @see #getSystemGestureInsets()
          * @return itself
+         * @see #getSystemGestureInsets()
+         * @deprecated Use {@link #setInsets(int, Insets)} with {@link Type#systemGestures()}.
          */
+        @Deprecated
         @NonNull
         public Builder setSystemGestureInsets(@NonNull Insets insets) {
             mImpl.setSystemGestureInsets(insets);
@@ -925,9 +1351,12 @@ public class WindowInsetsCompat {
          *
          * <p>The insets passed will only take effect when running on API 29 and above.
          *
-         * @see #getMandatorySystemGestureInsets()
          * @return itself
+         * @see #getMandatorySystemGestureInsets()
+         * @deprecated Use {@link #setInsets(int, Insets)} with
+         * {@link Type#mandatorySystemGestures()}.
          */
+        @Deprecated
         @NonNull
         public Builder setMandatorySystemGestureInsets(@NonNull Insets insets) {
             mImpl.setMandatorySystemGestureInsets(insets);
@@ -942,12 +1371,72 @@ public class WindowInsetsCompat {
          *
          * <p>The insets passed will only take effect when running on API 29 and above.
          *
-         * @see #getTappableElementInsets()
          * @return itself
+         * @see #getTappableElementInsets()
+         * @deprecated Use {@link #setInsets(int, Insets)} with {@link Type#tappableElement()}.
          */
+        @Deprecated
         @NonNull
         public Builder setTappableElementInsets(@NonNull Insets insets) {
             mImpl.setTappableElementInsets(insets);
+            return this;
+        }
+
+        /**
+         * Sets the insets of a specific window type in pixels.
+         *
+         * <p>The insets represents the area of a a window that is partially or fully obscured by
+         * the system windows identified by {@code typeMask}.
+         * </p>
+         *
+         * @param typeMask The bitmask of {@link Type} to set the insets for.
+         * @param insets   The insets to set.
+         * @return itself
+         * @see #getInsets(int)
+         */
+        @NonNull
+        public Builder setInsets(@InsetsType int typeMask, @NonNull Insets insets) {
+            mImpl.setInsets(typeMask, insets);
+            return this;
+        }
+
+        /**
+         * Sets the insets a specific window type in pixels, while ignoring its visibility state.
+         *
+         * <p>The insets represents the area of a a window that that <b>may</b> be partially
+         * or fully obscured by the system window identified by {@code typeMask}. This value does
+         * not change based on the visibility state of those elements. For example, if the status
+         * bar is normally shown, but temporarily hidden, the inset returned here will still
+         * provide the inset associated with the status bar being shown.</p>
+         *
+         * @param typeMask The bitmask of {@link Type} to set the insets for.
+         * @param insets   The insets to set.
+         * @return itself
+         * @throws IllegalArgumentException If {@code typeMask} contains {@link Type#ime()}. Maximum
+         *                                  insets are not available for this type as the height of
+         *                                  the IME is dynamic depending on the {@link EditorInfo}
+         *                                  of the currently focused view, as well as the UI
+         *                                  state of the IME.
+         * @see #getInsetsIgnoringVisibility(int)
+         */
+        @NonNull
+        public Builder setInsetsIgnoringVisibility(@InsetsType int typeMask,
+                @NonNull Insets insets) {
+            mImpl.setInsetsIgnoringVisibility(typeMask, insets);
+            return this;
+        }
+
+        /**
+         * Sets whether windows that can cause insets are currently visible on screen.
+         *
+         * @param typeMask The bitmask of {@link Type} to set the visibility for.
+         * @param visible  Whether to mark the windows as visible or not.
+         * @return itself
+         * @see #isVisible(int)
+         */
+        @NonNull
+        public Builder setVisible(@InsetsType int typeMask, boolean visible) {
+            mImpl.setVisible(typeMask, visible);
             return this;
         }
 
@@ -962,9 +1451,12 @@ public class WindowInsetsCompat {
          *
          * <p>The insets passed will only take effect when running on API 29 and above.
          *
-         * @see #getStableInsets()
          * @return itself
+         * @see #getStableInsets()
+         * @deprecated Use {@link #setInsetsIgnoringVisibility(int, Insets)} with
+         * {@link Type#systemBars()}.
          */
+        @Deprecated
         @NonNull
         public Builder setStableInsets(@NonNull Insets insets) {
             mImpl.setStableInsets(insets);
@@ -976,9 +1468,9 @@ public class WindowInsetsCompat {
          *
          * <p>The cutout passed will only take effect when running on API 29 and above.
          *
-         * @see #getDisplayCutout()
          * @param displayCutout the display cutout or null if there is none
          * @return itself
+         * @see #getDisplayCutout()
          */
         @NonNull
         public Builder setDisplayCutout(@Nullable DisplayCutoutCompat displayCutout) {
@@ -1000,6 +1492,8 @@ public class WindowInsetsCompat {
     private static class BuilderImpl {
         private final WindowInsetsCompat mInsets;
 
+        private Insets[] mInsetsTypeMask;
+
         BuilderImpl() {
             this(new WindowInsetsCompat((WindowInsetsCompat) null));
         }
@@ -1020,8 +1514,61 @@ public class WindowInsetsCompat {
 
         void setDisplayCutout(@Nullable DisplayCutoutCompat displayCutout) {}
 
+        @SuppressWarnings("WrongConstant")
+        void setInsets(int typeMask, @NonNull Insets insets) {
+            if (mInsetsTypeMask == null) {
+                mInsetsTypeMask = new Insets[Type.SIZE];
+            }
+            for (int i = Type.FIRST; i <= Type.LAST; i = i << 1) {
+                if ((typeMask & i) == 0) {
+                    continue;
+                }
+                mInsetsTypeMask[Type.indexOf(i)] = insets;
+            }
+        }
+
+        void setInsetsIgnoringVisibility(int typeMask, @NonNull Insets insets) {
+            if (typeMask == Type.IME) {
+                // Not strictly necessary but means we will throw an exception on all platforms,
+                // rather than just R, which is clearer for all users
+                throw new IllegalArgumentException("Ignoring visibility inset not available"
+                        + " for IME");
+            }
+        }
+
+        void setVisible(int typeMask, boolean visible) {}
+
+        /**
+         * This method tries to apply any insets set via {@link #setInsets(int, Insets)} to
+         * the insets builder. This function will be a no-op on API 30 since
+         * {@link BuilderImpl30#setInsets(int, Insets)} does not update the array.
+         */
+        protected final void applyInsetTypes() {
+            if (mInsetsTypeMask != null) {
+                Insets statusBars = mInsetsTypeMask[Type.indexOf(Type.STATUS_BARS)];
+                Insets navigationBars = mInsetsTypeMask[Type.indexOf(Type.NAVIGATION_BARS)];
+                if (statusBars != null && navigationBars != null) {
+                    setSystemWindowInsets(Insets.max(statusBars, navigationBars));
+                } else if (statusBars != null) {
+                    setSystemWindowInsets(statusBars);
+                } else if (navigationBars != null) {
+                    setSystemWindowInsets(navigationBars);
+                }
+
+                Insets i = mInsetsTypeMask[Type.indexOf(Type.SYSTEM_GESTURES)];
+                if (i != null) setSystemGestureInsets(i);
+
+                i = mInsetsTypeMask[Type.indexOf(Type.MANDATORY_SYSTEM_GESTURES)];
+                if (i != null) setMandatorySystemGestureInsets(i);
+
+                i = mInsetsTypeMask[Type.indexOf(Type.TAPPABLE_ELEMENT)];
+                if (i != null) setTappableElementInsets(i);
+            }
+        }
+
         @NonNull
         WindowInsetsCompat build() {
+            applyInsetTypes();
             return mInsets;
         }
     }
@@ -1055,6 +1602,7 @@ public class WindowInsetsCompat {
         @Override
         @NonNull
         WindowInsetsCompat build() {
+            applyInsetTypes();
             return WindowInsetsCompat.toWindowInsetsCompat(mInsets);
         }
 
@@ -1156,7 +1704,262 @@ public class WindowInsetsCompat {
         @Override
         @NonNull
         WindowInsetsCompat build() {
+            applyInsetTypes();
             return WindowInsetsCompat.toWindowInsetsCompat(mPlatBuilder.build());
         }
+    }
+
+    @RequiresApi(30)
+    private static class BuilderImpl30 extends BuilderImpl29 {
+        BuilderImpl30() {
+            super();
+        }
+
+        BuilderImpl30(@NonNull WindowInsetsCompat insets) {
+            super(insets);
+        }
+
+        @Override
+        void setInsets(int typeMask, @NonNull Insets insets) {
+            mPlatBuilder.setInsets(
+                    TypeImpl30.toPlatformType(typeMask),
+                    insets.toPlatformInsets()
+            );
+        }
+
+        @Override
+        void setInsetsIgnoringVisibility(int typeMask, @NonNull Insets insets) {
+            mPlatBuilder.setInsetsIgnoringVisibility(
+                    TypeImpl30.toPlatformType(typeMask),
+                    insets.toPlatformInsets()
+            );
+        }
+
+        @Override
+        void setVisible(int typeMask, boolean visible) {
+            mPlatBuilder.setVisible(TypeImpl30.toPlatformType(typeMask), visible);
+        }
+    }
+
+    /**
+     * Class that defines different types of sources causing window insets.
+     */
+    public static final class Type {
+        static final int FIRST = 1 << 0;
+        static final int STATUS_BARS = FIRST;
+        static final int NAVIGATION_BARS = 1 << 1;
+        static final int CAPTION_BAR = 1 << 2;
+
+        static final int IME = 1 << 3;
+
+        static final int SYSTEM_GESTURES = 1 << 4;
+        static final int MANDATORY_SYSTEM_GESTURES = 1 << 5;
+        static final int TAPPABLE_ELEMENT = 1 << 6;
+
+        static final int DISPLAY_CUTOUT = 1 << 7;
+
+        static final int LAST = 1 << 8;
+        static final int SIZE = 9;
+        static final int WINDOW_DECOR = LAST;
+
+        private Type() {}
+
+        /**
+         * @return An insets type representing any system bars for displaying status.
+         */
+        @InsetsType
+        public static int statusBars() {
+            return STATUS_BARS;
+        }
+
+        /**
+         * @return An insets type representing any system bars for navigation.
+         */
+        @InsetsType
+        public static int navigationBars() {
+            return NAVIGATION_BARS;
+        }
+
+        /**
+         * @return An insets type representing the window of a caption bar.
+         */
+        @InsetsType
+        public static int captionBar() {
+            return CAPTION_BAR;
+        }
+
+        /**
+         * @return An insets type representing the window of an {@link InputMethod}.
+         */
+        @InsetsType
+        public static int ime() {
+            return IME;
+        }
+
+        /**
+         * Returns an insets type representing the system gesture insets.
+         *
+         * <p>The system gesture insets represent the area of a window where system gestures have
+         * priority and may consume some or all touch input, e.g. due to the a system bar
+         * occupying it, or it being reserved for touch-only gestures.
+         *
+         * <p>Simple taps are guaranteed to reach the window even within the system gesture insets,
+         * as long as they are outside the {@link #getSystemWindowInsets() system window insets}.
+         *
+         * <p>When {@link View#SYSTEM_UI_FLAG_LAYOUT_STABLE} is requested, an inset will be returned
+         * even when the system gestures are inactive due to
+         * {@link View#SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN} or
+         * {@link View#SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION}.
+         *
+         * @see #getSystemGestureInsets()
+         */
+        @InsetsType
+        public static int systemGestures() {
+            return SYSTEM_GESTURES;
+        }
+
+        /**
+         * @see #getMandatorySystemGestureInsets
+         */
+        @InsetsType
+        public static int mandatorySystemGestures() {
+            return MANDATORY_SYSTEM_GESTURES;
+        }
+
+        /**
+         * @see #getTappableElementInsets
+         */
+        @InsetsType
+        public static int tappableElement() {
+            return TAPPABLE_ELEMENT;
+        }
+
+        /**
+         * Returns an insets type representing the area that used by {@link DisplayCutoutCompat}.
+         *
+         * <p>This is equivalent to the safe insets on {@link #getDisplayCutout()}.</p>
+         *
+         * @see DisplayCutoutCompat#getSafeInsetLeft()
+         * @see DisplayCutoutCompat#getSafeInsetTop()
+         * @see DisplayCutoutCompat#getSafeInsetRight()
+         * @see DisplayCutoutCompat#getSafeInsetBottom()
+         */
+        @InsetsType
+        public static int displayCutout() {
+            return DISPLAY_CUTOUT;
+        }
+
+        /**
+         * @return All system bars. Includes {@link #statusBars()}, {@link #captionBar()} as well as
+         * {@link #navigationBars()}, but not {@link #ime()}.
+         */
+        @InsetsType
+        public static int systemBars() {
+            return STATUS_BARS | NAVIGATION_BARS | CAPTION_BAR;
+        }
+
+        /**
+         * @return All inset types combined.
+         * @hide
+         */
+        @InsetsType
+        @RestrictTo(LIBRARY_GROUP)
+        @SuppressLint("WrongConstant")
+        static int all() {
+            return 0xFFFFFFFF;
+        }
+
+        static int indexOf(@InsetsType int type) {
+            switch (type) {
+                case STATUS_BARS:
+                    return 0;
+                case NAVIGATION_BARS:
+                    return 1;
+                case CAPTION_BAR:
+                    return 2;
+                case IME:
+                    return 3;
+                case SYSTEM_GESTURES:
+                    return 4;
+                case MANDATORY_SYSTEM_GESTURES:
+                    return 5;
+                case TAPPABLE_ELEMENT:
+                    return 6;
+                case DISPLAY_CUTOUT:
+                    return 7;
+                case WINDOW_DECOR:
+                    return 8;
+                default:
+                    throw new IllegalArgumentException("type needs to be >= FIRST and <= LAST,"
+                            + " type=" + type);
+            }
+        }
+
+        /** @hide */
+        @RestrictTo(LIBRARY_GROUP)
+        @Retention(RetentionPolicy.SOURCE)
+        @IntDef(flag = true, value = {STATUS_BARS, NAVIGATION_BARS, CAPTION_BAR, IME, WINDOW_DECOR,
+                SYSTEM_GESTURES, MANDATORY_SYSTEM_GESTURES, TAPPABLE_ELEMENT, DISPLAY_CUTOUT})
+        public @interface InsetsType {
+        }
+    }
+
+    @RequiresApi(30)
+    private static final class TypeImpl30 {
+        private TypeImpl30() {}
+
+        /**
+         * Maps from our internal type mask constants to the platform's. Ideally we will keep the
+         * constant values in sync, but this allows the platform to return different constants in
+         * the future without breaking the logic in this class.
+         */
+        static int toPlatformType(@InsetsType final int typeMask) {
+            int result = 0;
+            for (int i = Type.FIRST; i <= Type.LAST; i = i << 1) {
+                if ((typeMask & i) != 0) {
+                    switch (i) {
+                        case Type.STATUS_BARS:
+                            result |= WindowInsets.Type.statusBars();
+                            break;
+                        case Type.NAVIGATION_BARS:
+                            result |= WindowInsets.Type.navigationBars();
+                            break;
+                        case Type.CAPTION_BAR:
+                            result |= WindowInsets.Type.captionBar();
+                            break;
+                        case Type.IME:
+                            result |= WindowInsets.Type.ime();
+                            break;
+                        case Type.SYSTEM_GESTURES:
+                            result |= WindowInsets.Type.systemGestures();
+                            break;
+                        case Type.MANDATORY_SYSTEM_GESTURES:
+                            result |= WindowInsets.Type.mandatorySystemGestures();
+                            break;
+                        case Type.TAPPABLE_ELEMENT:
+                            result |= WindowInsets.Type.tappableElement();
+                            break;
+                        case Type.DISPLAY_CUTOUT:
+                            result |= WindowInsets.Type.displayCutout();
+                            break;
+                    }
+                }
+            }
+            return result;
+        }
+    }
+
+    void setRootWindowInsets(@Nullable WindowInsetsCompat rootWindowInsets) {
+        mImpl.setRootWindowInsets(rootWindowInsets);
+    }
+
+    void setRootViewData(@NonNull Rect visibleFrame, int height) {
+        mImpl.setRootViewData(visibleFrame, height);
+    }
+
+    void copyRootViewBounds(@NonNull View view) {
+        Rect visibleBounds = new Rect();
+        view.getWindowVisibleDisplayFrame(visibleBounds);
+        setRootViewData(visibleBounds, view.getHeight());
     }
 }
