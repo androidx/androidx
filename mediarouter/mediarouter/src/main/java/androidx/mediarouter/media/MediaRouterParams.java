@@ -64,6 +64,7 @@ public class MediaRouterParams {
 
     private int mDialogType = DIALOG_TYPE_DEFAULT;
     private boolean mOutputSwitcherEnabled = false;
+    private boolean mTransferToLocalEnabled = false;
     private Bundle mExtras = Bundle.EMPTY;
 
     /**
@@ -82,6 +83,7 @@ public class MediaRouterParams {
 
         mDialogType = params.mDialogType;
         mOutputSwitcherEnabled = params.mOutputSwitcherEnabled;
+        mTransferToLocalEnabled = params.mTransferToLocalEnabled;
         mExtras = params.mExtras == null ? Bundle.EMPTY : new Bundle(params.mExtras);
     }
 
@@ -138,6 +140,31 @@ public class MediaRouterParams {
      */
     public boolean isOutputSwitcherEnabled() {
         return mOutputSwitcherEnabled;
+    }
+
+    /**
+     * Enables media can be transferred from remote (e.g. TV) to local (e.g. phone, Bluetooth).
+     * Apps that enabling this feature should handle the case in their {@link
+     * MediaRouter.Callback#onRouteSelected(MediaRouter, MediaRouter.RouteInfo, int) callback}
+     * properly.
+     * <p>
+     * Note: This method will be no-op for Android versions earlier than Android R. It has
+     * effect only when {@link MediaTransferReceiver media transfer is enabled}.
+     */
+    public void setTransferToLocalEnabled(boolean enabled) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            mTransferToLocalEnabled = enabled;
+        }
+    }
+
+    /**
+     * Returns whether transferring media from remote to local is enabled. Default value is
+     * {@code false}.
+     * <p>
+     * Note that it always returns {@code false} for Android versions earlier than Android R.
+     */
+    public boolean isTransferToLocalEnabled() {
+        return mTransferToLocalEnabled;
     }
 
     /**
