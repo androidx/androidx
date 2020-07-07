@@ -389,16 +389,6 @@ class LayoutNode : Measurable {
     internal var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     /**
-     * Implementation oddity around composition; used to capture a reference to this
-     * [LayoutNode] when composed. This is a reverse property that mutates its right-hand side.
-     */
-    var ref: Ref<LayoutNode>?
-        get() = null
-        set(value) {
-            value?.value = this
-        }
-
-    /**
      * The measured width of this layout and all of its [modifier]s. Shortcut for `size.width`.
      */
     val width: Int get() = outerMeasurablePlaceable.width
@@ -1110,7 +1100,7 @@ internal object LayoutEmitHelper {
     val setModifier: LayoutNode.(Modifier) -> Unit = { this.modifier = it }
     val setMeasureBlocks: LayoutNode.(LayoutNode.MeasureBlocks) -> Unit =
         { this.measureBlocks = it }
-    val setRef: LayoutNode.(Ref<LayoutNode>) -> Unit = { this.ref = it }
+    val setRef: LayoutNode.(Ref<LayoutNode>) -> Unit = { it.value = this }
 }
 
 /**
