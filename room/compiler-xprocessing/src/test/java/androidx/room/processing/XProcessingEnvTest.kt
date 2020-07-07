@@ -111,6 +111,8 @@ class XProcessingEnvTest {
             assertThat(element.name).isEqualTo("Baz")
             assertThat(element.asDeclaredType().typeName)
                 .isEqualTo(ClassName.get("foo.bar", "Baz"))
+            assertThat(element.getConstructors()).hasSize(1)
+            assertThat(element.getDeclaredMethods()).hasSize(2)
             assertThat(element.kindName()).isEqualTo("class")
             assertThat(element.isInterface()).isFalse()
             assertThat(element.superType?.typeName).isEqualTo(TypeName.OBJECT)

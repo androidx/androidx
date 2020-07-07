@@ -22,7 +22,7 @@ import androidx.room.processing.XVariableElement
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.VariableElement
 
-internal class JavacVariableElement(
+internal open class JavacVariableElement(
     env: JavacProcessingEnv,
     val containing: JavacTypeElement,
     override val element: VariableElement

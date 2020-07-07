@@ -19,9 +19,13 @@ package androidx.room.processing
 import androidx.room.processing.testcode.OtherAnnotation
 import androidx.room.processing.util.Source
 import androidx.room.processing.util.getField
+import androidx.room.processing.util.getMethod
+import androidx.room.processing.util.getParameter
 import androidx.room.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeVariableName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -42,6 +46,14 @@ class XElementTest {
                     public int publicField;
                     transient int transientField;
                     static int staticField;
+
+                    private void privateMethod() {}
+                    void packagePrivateMethod() {}
+                    public void publicMethod() {}
+                    protected void protectedMethod() {}
+                    final void finalMethod() {}
+                    abstract void abstractMethod();
+                    static void staticMethod() {}
                 }
             """.trimIndent()
                 )
@@ -72,6 +84,98 @@ class XElementTest {
             element.getField("publicField").assertModifiers("public")
             element.getField("transientField").assertModifiers("transient")
             element.getField("staticField").assertModifiers("static")
+
+            element.getMethod("privateMethod").assertModifiers("private")
+            element.getMethod("packagePrivateMethod").assertModifiers()
+            element.getMethod("publicMethod").assertModifiers("public")
+            element.getMethod("protectedMethod").assertModifiers("protected")
+            element.getMethod("finalMethod").assertModifiers("final")
+            element.getMethod("abstractMethod").assertModifiers("abstract")
+            element.getMethod("staticMethod").assertModifiers("static")
+
+            assertThat(
+                element.getMethod("privateMethod").isOverrideableIgnoringContainer()
+            ).isFalse()
+            assertThat(
+                element.getMethod("packagePrivateMethod").isOverrideableIgnoringContainer()
+            ).isTrue()
+            assertThat(element.getMethod("publicMethod").isOverrideableIgnoringContainer()).isTrue()
+            assertThat(
+                element.getMethod("protectedMethod").isOverrideableIgnoringContainer()
+            ).isTrue()
+            assertThat(element.getMethod("finalMethod").isOverrideableIgnoringContainer()).isFalse()
+            assertThat(
+                element.getMethod("abstractMethod").isOverrideableIgnoringContainer()
+            ).isTrue()
+            assertThat(
+                element.getMethod("staticMethod").isOverrideableIgnoringContainer()
+            ).isFalse()
+        }
+    }
+
+    @Test
+    fun typeParams() {
+        val genericBase = Source.java(
+            "foo.bar.Base", """
+                package foo.bar;
+                public class Base<T> {
+                    protected T returnT() {
+                        throw new RuntimeException("Stub");
+                    }
+                    public int receiveT(T param1) {
+                        return 3;
+                    }
+                    public <R> int receiveR(R param1) {
+                        return 3;
+                    }
+                    public <R> R returnR() {
+                        throw new RuntimeException("Stub");
+                    }
+                }
+            """.trimIndent()
+        )
+        val boundedChild = Source.java(
+            "foo.bar.Child", """
+                package foo.bar;
+                public class Child extends Base<String> {
+                }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            listOf(genericBase, boundedChild)
+        ) {
+            fun validateElement(element: XTypeElement, tTypeName: TypeName, rTypeName: TypeName) {
+                element.getMethod("returnT").let { method ->
+                    assertThat(method.parameters).isEmpty()
+                    assertThat(method.returnType.typeName).isEqualTo(tTypeName)
+                }
+                element.getMethod("receiveT").let { method ->
+                    method.getParameter("param1").let { param ->
+                        assertThat(param.type.typeName).isEqualTo(tTypeName)
+                    }
+                    assertThat(method.returnType.typeName).isEqualTo(TypeName.INT)
+                }
+                element.getMethod("receiveR").let { method ->
+                    method.getParameter("param1").let { param ->
+                        assertThat(param.type.typeName).isEqualTo(rTypeName)
+                    }
+                    assertThat(method.returnType.typeName).isEqualTo(TypeName.INT)
+                }
+                element.getMethod("returnR").let { method ->
+                    assertThat(method.parameters).isEmpty()
+                    assertThat(method.returnType.typeName).isEqualTo(rTypeName)
+                }
+            }
+            validateElement(
+                element = it.processingEnv.requireTypeElement("foo.bar.Base"),
+                tTypeName = TypeVariableName.get("T"),
+                rTypeName = TypeVariableName.get("R")
+            )
+            validateElement(
+                element = it.processingEnv.requireTypeElement("foo.bar.Child"),
+                tTypeName = ClassName.get(String::class.java),
+                rTypeName = TypeVariableName.get("R")
+            )
         }
     }
 
@@ -89,6 +193,9 @@ class XElementTest {
             class Baz {
                 @OtherAnnotation(value="xx")
                 String testField;
+
+                @org.junit.Test
+                void testMethod() {}
             }
         """.trimIndent()
         )
@@ -98,6 +205,15 @@ class XElementTest {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             assertThat(element.hasAnnotation(RunWith::class)).isTrue()
             assertThat(element.hasAnnotation(Test::class)).isFalse()
+            element.getMethod("testMethod").let { method ->
+                assertThat(method.hasAnnotation(Test::class)).isTrue()
+                assertThat(method.hasAnnotation(Override::class)).isFalse()
+                assertThat(
+                    method.hasAnnotationInPackage(
+                        "org.junit"
+                    )
+                ).isTrue()
+            }
             element.getField("testField").let { field ->
                 assertThat(field.hasAnnotation(OtherAnnotation::class)).isTrue()
                 assertThat(field.hasAnnotation(Test::class)).isFalse()
@@ -146,6 +262,7 @@ class XElementTest {
             class Baz {
                 int field;
 
+                void method() {}
                 static interface Inner {}
             }
         """.trimIndent()
@@ -165,6 +282,13 @@ class XElementTest {
                 assertThat(field.isType()).isFalse()
                 assertThat(field.isAbstract()).isFalse()
                 assertThat(field.isField()).isTrue()
+                assertThat(field.isMethod()).isFalse()
+            }
+            element.getMethod("method").let { method ->
+                assertThat(method.isType()).isFalse()
+                assertThat(method.isAbstract()).isFalse()
+                assertThat(method.isField()).isFalse()
+                assertThat(method.isMethod()).isTrue()
             }
         }
     }

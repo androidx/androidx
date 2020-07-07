@@ -67,6 +67,8 @@ interface XElement {
 
     fun asVariableElement() = this as XVariableElement
 
+    fun asExecutableElement() = this as XExecutableElement
+
     fun asDeclaredType(): XDeclaredType {
         return asTypeElement().type
     }
@@ -85,4 +87,11 @@ fun XElement.isField(): Boolean {
         returns(true) implies (this@isField is XVariableElement)
     }
     return this is XVariableElement
+}
+
+fun XElement.isMethod(): Boolean {
+    contract {
+        returns(true) implies (this@isMethod is XExecutableElement)
+    }
+    return this is XExecutableElement
 }

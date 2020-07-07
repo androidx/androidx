@@ -17,7 +17,9 @@
 package androidx.room.processing
 
 import androidx.room.processing.util.Source
+import androidx.room.processing.util.getDeclaredMethod
 import androidx.room.processing.util.getField
+import androidx.room.processing.util.getMethod
 import androidx.room.processing.util.runProcessorTest
 import androidx.room.processing.util.runProcessorTestForFailedCompilation
 import com.google.common.truth.Truth.assertThat
@@ -66,6 +68,15 @@ class XTypeTest {
                 )
                 assertThat(firstType.typeName).isEqualTo(expected)
             }
+
+            type.asTypeElement().getMethod("wildcardParam").let { method ->
+                val wildcardParam = method.parameters.first()
+                val extendsBoundOrSelf = wildcardParam.type.extendsBoundOrSelf()
+                assertThat(extendsBoundOrSelf.erasure())
+                    .isEqualTo(
+                        it.processingEnv.requireType("java.util.Set").erasure()
+                    )
+            }
         }
     }
 
@@ -77,6 +88,9 @@ class XTypeTest {
                 package foo.bar;
                 public class Baz {
                     NotExistingType badField;
+                    NotExistingType badMethod() {
+                        throw new RuntimeException("Stub");
+                    }
                 }
             """.trimIndent()
         )
@@ -87,6 +101,12 @@ class XTypeTest {
             element.getField("badField").let { field ->
                 assertThat(field.type.isError()).isTrue()
                 assertThat(field.type.typeName).isEqualTo(
+                    ClassName.get("", "NotExistingType")
+                )
+            }
+            element.getDeclaredMethod("badMethod").let { method ->
+                assertThat(method.returnType.isError()).isTrue()
+                assertThat(method.returnType.typeName).isEqualTo(
                     ClassName.get("", "NotExistingType")
                 )
             }

@@ -16,17 +16,25 @@
 
 package androidx.room.processing.javac
 
+import androidx.room.processing.XExecutableElement
 import androidx.room.processing.XTypeElement
 import androidx.room.processing.XVariableElement
+import androidx.room.processing.javac.kotlin.KotlinMetadataElement
+import com.google.auto.common.MoreElements
 import com.squareup.javapoet.ClassName
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind
+import javax.lang.model.util.ElementFilter
 
 internal class JavacTypeElement(
     env: JavacProcessingEnv,
     override val element: TypeElement
 ) : JavacElement(env, element), XTypeElement {
+
+    private val kotlinMetadata by lazy {
+        KotlinMetadataElement.createFor(element)
+    }
 
     override val qualifiedName by lazy {
         element.qualifiedName.toString()
@@ -52,6 +60,59 @@ internal class JavacTypeElement(
 
     override fun getAllFieldsIncludingPrivateSupers(): List<XVariableElement> {
         return _allFieldsIncludingPrivateSupers
+    }
+
+    override fun isKotlinObject() = kotlinMetadata?.isObject() == true
+
+    override fun findPrimaryConstructor(): XExecutableElement? {
+        val primarySignature = kotlinMetadata?.findPrimaryConstructorSignature() ?: return null
+        return getConstructors().firstOrNull {
+            primarySignature == it.descriptor
+        }
+    }
+
+    override fun getDeclaredMethods(): List<JavacExecutableElement> {
+        return ElementFilter.methodsIn(element.enclosedElements).map {
+            JavacExecutableElement(
+                env = env,
+                containing = this,
+                element = it
+            )
+        }
+    }
+
+    override fun getAllMethods(): List<JavacExecutableElement> {
+        return ElementFilter.methodsIn(env.elementUtils.getAllMembers(element)).map {
+            JavacExecutableElement(
+                env = env,
+                containing = this,
+                element = it
+            )
+        }
+    }
+
+    override fun getAllNonPrivateInstanceMethods(): List<JavacExecutableElement> {
+        return MoreElements.getLocalAndInheritedMethods(
+            element,
+            env.typeUtils,
+            env.elementUtils
+        ).map {
+            JavacExecutableElement(
+                env = env,
+                containing = this,
+                element = it
+            )
+        }
+    }
+
+    override fun getConstructors(): List<JavacExecutableElement> {
+        return ElementFilter.constructorsIn(element.enclosedElements).map {
+            JavacExecutableElement(
+                env = env,
+                containing = this,
+                element = it
+            )
+        }
     }
 
     override val type: JavacDeclaredType by lazy {

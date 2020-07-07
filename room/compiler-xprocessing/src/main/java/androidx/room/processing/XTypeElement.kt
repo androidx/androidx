@@ -29,9 +29,38 @@ interface XTypeElement : XElement {
 
     fun isInterface(): Boolean
 
+    fun isKotlinObject(): Boolean
+
     /**
      * All fields, including private supers.
      * Room only ever reads fields this way.
      */
     fun getAllFieldsIncludingPrivateSupers(): List<XVariableElement>
+
+    // only in kotlin
+    fun findPrimaryConstructor(): XExecutableElement?
+
+    /**
+     * methods declared in this type
+     *  includes all instance/static methods in this
+     */
+    fun getDeclaredMethods(): List<XExecutableElement>
+
+    /**
+     * Methods declared in this type and its parents
+     *  includes all instance/static methods in this
+     *  includes all instance/static methods in parent CLASS if they are accessible from this (e.g. not
+     *  private).
+     *  does not include static methods in parent interfaces
+     */
+    fun getAllMethods(): List<XExecutableElement>
+
+    /**
+     * Instance methods declared in this and supers
+     *  include non private instance methods
+     *  also includes non-private instance methods from supers
+     */
+    fun getAllNonPrivateInstanceMethods(): List<XExecutableElement>
+
+    fun getConstructors(): List<XExecutableElement>
 }

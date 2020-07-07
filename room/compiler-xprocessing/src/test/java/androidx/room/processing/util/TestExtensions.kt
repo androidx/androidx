@@ -16,8 +16,21 @@
 
 package androidx.room.processing.util
 
+import androidx.room.processing.XExecutableElement
 import androidx.room.processing.XTypeElement
 
 fun XTypeElement.getField(name: String) = getAllFieldsIncludingPrivateSupers().first {
     it.name == name
 }
+
+fun XTypeElement.getDeclaredMethod(name: String) = getDeclaredMethods().firstOrNull {
+    it.name == name
+} ?: throw AssertionError("cannot find method with name $name")
+
+fun XTypeElement.getMethod(name: String) = getAllMethods().firstOrNull {
+    it.name == name
+} ?: throw AssertionError("cannot find method with name $name")
+
+fun XExecutableElement.getParameter(name: String) = parameters.firstOrNull {
+    it.name == name
+} ?: throw AssertionError("cannot find parameter with name $name")
