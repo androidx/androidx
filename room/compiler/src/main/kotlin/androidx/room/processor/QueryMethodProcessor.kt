@@ -33,9 +33,9 @@ import androidx.room.vo.QueryParameter
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
 import androidx.room.vo.WriteQueryMethod
+import isNotError
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
 class QueryMethodProcessor(
@@ -117,7 +117,7 @@ private class InternalQueryProcessor(
             )
             validateQuery(query)
             context.checker.check(
-                returnType.kind != TypeKind.ERROR,
+                returnType.isNotError(),
                 executableElement, ProcessorErrors.CANNOT_RESOLVE_RETURN_TYPE,
                 executableElement
             )

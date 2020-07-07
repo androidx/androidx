@@ -17,7 +17,10 @@
 package androidx.room.processor.autovalue
 
 import androidx.room.Ignore
+import androidx.room.ext.asDeclaredType
 import androidx.room.ext.getAllMethodsIncludingSupers
+import androidx.room.ext.getDeclaredMethods
+import androidx.room.ext.getPackage
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
 import androidx.room.ext.typeName
@@ -30,14 +33,11 @@ import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Field
 import androidx.room.vo.Pojo
 import androidx.room.vo.Warning
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.auto.value.AutoValue.CopyAnnotations
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
-import javax.lang.model.util.ElementFilter
 
 /**
  * Delegate to process generated AutoValue class as a Pojo.
@@ -48,7 +48,7 @@ class AutoValuePojoProcessorDelegate(
 ) : PojoProcessor.Delegate {
 
     private val autoValueDeclaredType: DeclaredType by lazy {
-        MoreTypes.asDeclared(autoValueElement.asType())
+        autoValueElement.asDeclaredType()
     }
 
     override fun onPreProcess(element: TypeElement) {
@@ -81,7 +81,7 @@ class AutoValuePojoProcessorDelegate(
 
     override fun findConstructors(element: TypeElement): List<ExecutableElement> {
         val typeUtils = context.processingEnv.typeUtils
-        return ElementFilter.methodsIn(autoValueElement.enclosedElements).filter {
+        return autoValueElement.getDeclaredMethods().filter {
             it.hasAnyOf(Modifier.STATIC) &&
                     !it.hasAnnotation(Ignore::class) &&
                     !it.hasAnyOf(Modifier.PRIVATE) &&
@@ -118,7 +118,7 @@ class AutoValuePojoProcessorDelegate(
                 type = type.enclosingElement as TypeElement
                 name = "${type.simpleName}_$name"
             }
-            val pkg = MoreElements.getPackage(type).qualifiedName.toString()
+            val pkg = type.getPackage()
             return "$pkg${if (pkg.isEmpty()) "" else "."}AutoValue_$name"
         }
     }

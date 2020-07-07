@@ -21,6 +21,7 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
+import androidx.room.ext.asDeclaredType
 import androidx.room.ext.findTypeElement
 import androidx.room.ext.requireTypeElement
 import androidx.room.ext.requireTypeMirror
@@ -40,7 +41,6 @@ import androidx.room.solver.query.result.SingleColumnRowAdapter
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.writer.QueryWriter
 import androidx.room.writer.RelationCollectorMethodWriter
-import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.ParameterizedTypeName
@@ -257,7 +257,7 @@ data class RelationCollector(
                     QueryParameter(
                             name = RelationCollectorMethodWriter.PARAM_MAP_VARIABLE,
                             sqlName = RelationCollectorMethodWriter.PARAM_MAP_VARIABLE,
-                            type = MoreTypes.asDeclared(longSparseArrayElement.asType()),
+                            type = longSparseArrayElement.asDeclaredType(),
                             queryParamAdapter = LONG_SPARSE_ARRAY_KEY_QUERY_PARAM_ADAPTER
                     )
                 } else {

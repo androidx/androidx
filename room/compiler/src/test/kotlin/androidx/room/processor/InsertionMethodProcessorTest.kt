@@ -23,13 +23,16 @@ import androidx.room.OnConflictStrategy
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
+import androidx.room.ext.asDeclaredType
+import androidx.room.ext.asExecutableElement
+import androidx.room.ext.asTypeElement
+import androidx.room.ext.getAllMethods
+import androidx.room.ext.hasAnnotation
 import androidx.room.ext.typeName
 import androidx.room.solver.shortcut.result.InsertMethodAdapter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.InsertionMethod
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertAbout
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -759,21 +762,20 @@ class InsertionMethodProcessorTest {
                         .forAnnotations(Insert::class, Dao::class)
                         .nextRunHandler { invocation ->
                             val (owner, methods) = invocation.roundEnv
-                                    .getElementsAnnotatedWith(Dao::class.java)
-                                    .map {
-                                        Pair(it,
-                                                invocation.processingEnv.elementUtils
-                                                        .getAllMembers(MoreElements.asType(it))
-                                                        .filter {
-                                                            MoreElements.isAnnotationPresent(it,
-                                                                    Insert::class.java)
-                                                        }
-                                        )
-                                    }.first { it.second.isNotEmpty() }
+                                .getElementsAnnotatedWith(Dao::class.java)
+                                .map {
+                                    Pair(it,
+                                        it.asTypeElement().getAllMethods(
+                                            invocation.processingEnv
+                                        ).filter {
+                                            it.hasAnnotation(Insert::class.java)
+                                        }
+                                    )
+                                }.first { it.second.isNotEmpty() }
                             val processor = InsertionMethodProcessor(
                                     baseContext = invocation.context,
-                                    containing = MoreTypes.asDeclared(owner.asType()),
-                                    executableElement = MoreElements.asExecutable(methods.first()))
+                                    containing = owner.asDeclaredType(),
+                                    executableElement = methods.first().asExecutableElement())
                             val processed = processor.process()
                             handler(processed, invocation)
                             true

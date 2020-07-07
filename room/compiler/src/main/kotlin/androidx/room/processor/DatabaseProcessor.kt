@@ -19,8 +19,13 @@ package androidx.room.processor
 import androidx.room.SkipQueryVerification
 import androidx.room.ext.AnnotationBox
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.asDeclaredType
+import androidx.room.ext.asExecutableElement
+import androidx.room.ext.asTypeElement
+import androidx.room.ext.getAllMethods
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
+import androidx.room.ext.isType
 import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.toAnnotationBox
 import androidx.room.verifier.DatabaseVerificationErrors
@@ -34,13 +39,10 @@ import androidx.room.vo.FtsEntity
 import androidx.room.vo.columnNames
 import androidx.room.vo.findFieldByColumnName
 import asTypeElement
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
 import isAssignableFrom
 import java.util.Locale
 import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
@@ -72,11 +74,9 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         val typeUtils = context.processingEnv.typeUtils
         val extendsRoomDb = roomDatabaseType.isAssignableFrom(
             typeUtils,
-            MoreElements.asType(element).asType()
+            element.asTypeElement().asType()
         )
         context.checker.check(extendsRoomDb, element, ProcessorErrors.DB_MUST_EXTEND_ROOM_DB)
-
-        val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
 
         val views = resolveDatabaseViews(viewsMap.values.toList())
         val dbVerifier = if (element.hasAnnotation(SkipQueryVerification::class)) {
@@ -91,16 +91,16 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         }
         validateUniqueTableAndViewNames(element, entities, views)
 
-        val declaredType = MoreTypes.asDeclared(element.asType())
-        val daoMethods = allMembers.filter {
-            it.hasAnyOf(Modifier.ABSTRACT) && it.kind == ElementKind.METHOD
+        val declaredType = element.asDeclaredType()
+        val daoMethods = element.getAllMethods(context.processingEnv).filter {
+            it.hasAnyOf(Modifier.ABSTRACT)
         }.filterNot {
             // remove methods that belong to room
             val containing = it.enclosingElement
-            MoreElements.isType(containing) &&
+            containing.isType() &&
                     TypeName.get(containing.asType()) == RoomTypeNames.ROOM_DB
         }.map {
-            val executable = MoreElements.asExecutable(it)
+            val executable = it.asExecutableElement()
             // TODO when we add support for non Dao return types (e.g. database), this code needs
             // to change
             val daoType = executable.returnType.asTypeElement()
@@ -117,7 +117,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         val database = Database(
                 version = dbAnnotation.value.version,
                 element = element,
-                type = MoreElements.asType(element).asType(),
+                type = element.asTypeElement().asType(),
                 entities = entities,
                 views = views,
                 daoMethods = daoMethods,

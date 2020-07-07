@@ -38,7 +38,7 @@ import androidx.room.vo.FtsOptions
 import androidx.room.vo.LanguageId
 import androidx.room.vo.PrimaryKey
 import androidx.room.vo.columnNames
-import com.google.auto.common.MoreTypes
+import asTypeElement
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
@@ -162,7 +162,7 @@ class FtsTableEntityProcessor internal constructor(
         if (context.processingEnv.typeUtils.isSameType(entityType, defaultType)) {
             return null
         }
-        val contentEntityElement = MoreTypes.asElement(entityType) as TypeElement
+        val contentEntityElement = entityType.asTypeElement()
         if (!contentEntityElement.hasAnnotation(androidx.room.Entity::class)) {
             context.logger.e(contentEntityElement,
                     ProcessorErrors.externalContentNotAnEntity(contentEntityElement.toString()))

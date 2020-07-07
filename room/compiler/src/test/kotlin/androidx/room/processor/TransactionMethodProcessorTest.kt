@@ -16,13 +16,17 @@
 
 package androidx.room.processor
 
+import COMMON
 import androidx.room.Dao
 import androidx.room.Transaction
+import androidx.room.ext.asDeclaredType
+import androidx.room.ext.asExecutableElement
+import androidx.room.ext.asTypeElement
+import androidx.room.ext.getAllMethods
+import androidx.room.ext.hasAnnotation
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.TransactionMethod
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -226,8 +230,7 @@ class TransactionMethodProcessorTest {
     ): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
-                        TransactionMethodProcessorTest.DAO_PREFIX + input.joinToString("\n") +
-                                TransactionMethodProcessorTest.DAO_SUFFIX
+                        DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
                 ), COMMON.LIVE_DATA, COMMON.RX2_FLOWABLE, COMMON.PUBLISHER, COMMON.RX2_COMPLETABLE,
                     COMMON.RX2_SINGLE, COMMON.RX3_FLOWABLE, COMMON.RX3_COMPLETABLE,
                     COMMON.RX3_SINGLE, COMMON.LISTENABLE_FUTURE))
@@ -238,18 +241,17 @@ class TransactionMethodProcessorTest {
                                     .getElementsAnnotatedWith(Dao::class.java)
                                     .map {
                                         Pair(it,
-                                                invocation.processingEnv.elementUtils
-                                                        .getAllMembers(MoreElements.asType(it))
-                                                        .filter {
-                                                            MoreElements.isAnnotationPresent(it,
-                                                                    Transaction::class.java)
-                                                        }
+                                            it.asTypeElement().getAllMethods(
+                                                invocation.processingEnv
+                                            ).filter {
+                                                it.hasAnnotation(Transaction::class)
+                                            }
                                         )
                                     }.first { it.second.isNotEmpty() }
                             val processor = TransactionMethodProcessor(
                                     baseContext = invocation.context,
-                                    containing = MoreTypes.asDeclared(owner.asType()),
-                                    executableElement = MoreElements.asExecutable(methods.first()))
+                                    containing = owner.asDeclaredType(),
+                                    executableElement = methods.first().asExecutableElement())
                             val processed = processor.process()
                             handler(processed, invocation)
                             true
