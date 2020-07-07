@@ -88,7 +88,8 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
             return
         }
         val library = getStringLiteralValue(value)
-        if (library.substringAfter("androidx.fragment:fragment:") < FRAGMENT_VERSION) {
+        if (library.isNotEmpty() &&
+            library.substringAfter("androidx.fragment:fragment:") < FRAGMENT_VERSION) {
             context.report(ISSUE, expression, location!!,
                 "Upgrade Fragment version to at least $FRAGMENT_VERSION.")
         }

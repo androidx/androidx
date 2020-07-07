@@ -40,6 +40,8 @@ dependencies {
     androidTestImplementation project(':internal-testutils-runtime'), {
         exclude group: 'androidx.activity', module: 'activity'
     }
+
+    lintPublish(project(':activity:activity-lint'))
 }
 
 androidx {
