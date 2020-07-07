@@ -32,11 +32,13 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(KOTLIN_STDLIB)
     compileOnly(project(":inspection:inspection"))
+    compileOnly(project(':lifecycle:lifecycle-runtime'))
     compileOnly(project(':work:work-runtime'))
     compileOnly(project(':room:room-runtime'))
 
     androidTestImplementation(project(":inspection:inspection-testing"))
     androidTestImplementation(project(':work:work-runtime'))
+    androidTestImplementation(project(':work:work-runtime-ktx'))
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(TRUTH)

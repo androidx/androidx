@@ -71,7 +71,6 @@ public interface WorkSpecDao {
     WorkSpec[] getWorkSpecs(List<String> ids);
 
     /**
-     * Retrieves {@link WorkSpec}s labelled with a given name.
      *
      * @param name The work graph name
      * @return The {@link WorkSpec}s labelled with the given name
@@ -85,6 +84,13 @@ public interface WorkSpecDao {
      */
     @Query("SELECT id FROM workspec")
     List<String> getAllWorkSpecIds();
+
+    /**
+     * @return A {@link LiveData} list of all WorkSpec ids in the database.
+     */
+    @Transaction
+    @Query("SELECT id FROM workspec")
+    LiveData<List<String>> getAllWorkSpecIdsLiveData();
 
     /**
      * Updates the state of at least one {@link WorkSpec} by ID.
