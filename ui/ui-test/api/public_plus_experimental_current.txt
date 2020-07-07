@@ -259,8 +259,10 @@ package androidx.ui.test {
   }
 
   public final class OutputKt {
-    method public static String dumpToString(androidx.ui.test.SemanticsNodeInteraction);
-    method public static String dumpToString(androidx.ui.test.SemanticsNodeInteractionCollection);
+    method public static void printToLog(androidx.ui.test.SemanticsNodeInteraction, String tag, @IntRange(from=0) int maxDepth = 2147483647);
+    method public static void printToLog(androidx.ui.test.SemanticsNodeInteractionCollection, String tag, @IntRange(from=0) int maxDepth = 0);
+    method public static String printToString(androidx.ui.test.SemanticsNodeInteraction, @IntRange(from=0) int maxDepth = 2147483647);
+    method public static String printToString(androidx.ui.test.SemanticsNodeInteractionCollection, @IntRange(from=0) int maxDepth = 0);
   }
 
   public final class PartialGestureScope extends androidx.ui.test.BaseGestureScope {
@@ -299,10 +301,8 @@ package androidx.ui.test {
 
   public static final class SemanticsMatcher.Companion {
     method public <T> androidx.ui.test.SemanticsMatcher expectValue(androidx.ui.semantics.SemanticsPropertyKey<T> key, T? expectedValue);
-    method public androidx.ui.test.SemanticsMatcher getAny();
     method public <T> androidx.ui.test.SemanticsMatcher keyIsDefined(androidx.ui.semantics.SemanticsPropertyKey<T> key);
     method public <T> androidx.ui.test.SemanticsMatcher keyNotDefined(androidx.ui.semantics.SemanticsPropertyKey<T> key);
-    property public final androidx.ui.test.SemanticsMatcher any;
   }
 
   public final class SemanticsNodeInteraction {
