@@ -21,7 +21,7 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -106,70 +106,77 @@ public class MediaRouterTest {
 
     @Test
     @SmallTest
-    public void getRouterParams_afterSetRouterParams_returnsSetParams() {
-        MediaRouterParams expectedParams = new MediaRouterParams();
-        expectedParams.setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP);
-
+    public void mediaRouterParamsBuilder() {
+        final int dialogType = MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP;
         final boolean isOutputSwitcherEnabled = true;
-        expectedParams.setOutputSwitcherEnabled(isOutputSwitcherEnabled);
-
         final boolean transferToLocalEnabled = true;
-        expectedParams.setTransferToLocalEnabled(transferToLocalEnabled);
+        final Bundle extras = new Bundle();
+        extras.putString(TEST_KEY, TEST_VALUE);
 
-        Bundle paramExtras = new Bundle();
-        paramExtras.putString(TEST_KEY, TEST_VALUE);
-        expectedParams.setExtras(paramExtras);
-        paramExtras.remove(TEST_KEY);
-        mRouter.setRouterParams(expectedParams);
+        MediaRouterParams params = new MediaRouterParams.Builder()
+                .setDialogType(dialogType)
+                .setOutputSwitcherEnabled(isOutputSwitcherEnabled)
+                .setTransferToLocalEnabled(transferToLocalEnabled)
+                .setExtras(extras)
+                .build();
 
-        MediaRouterParams actualParams = mRouter.getRouterParams();
-        assertNotNull(actualParams);
-        assertEquals(expectedParams.getDialogType(), actualParams.getDialogType());
+        assertEquals(dialogType, params.getDialogType());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            assertEquals(isOutputSwitcherEnabled, expectedParams.isOutputSwitcherEnabled());
-            assertEquals(isOutputSwitcherEnabled, actualParams.isOutputSwitcherEnabled());
-
-            assertEquals(transferToLocalEnabled, expectedParams.isTransferToLocalEnabled());
-            assertEquals(transferToLocalEnabled, actualParams.isTransferToLocalEnabled());
+            assertEquals(isOutputSwitcherEnabled, params.isOutputSwitcherEnabled());
+            assertEquals(transferToLocalEnabled, params.isTransferToLocalEnabled());
         } else {
             // Earlier than Android R, output switcher cannot be enabled.
-            assertFalse(expectedParams.isOutputSwitcherEnabled());
-            assertFalse(actualParams.isOutputSwitcherEnabled());
-
             // Same for transfer to local.
-            assertFalse(expectedParams.isTransferToLocalEnabled());
-            assertFalse(actualParams.isTransferToLocalEnabled());
+            assertFalse(params.isOutputSwitcherEnabled());
+            assertFalse(params.isTransferToLocalEnabled());
         }
 
-        Bundle actualExtras = actualParams.getExtras();
-        assertNotNull(actualExtras);
-        assertEquals(TEST_VALUE, actualExtras.getString(TEST_KEY));
+        extras.remove(TEST_KEY);
+        assertEquals(TEST_VALUE, params.getExtras().getString(TEST_KEY));
+
+        // Tests copy constructor of builder
+        MediaRouterParams copiedParams = new MediaRouterParams.Builder(params).build();
+        assertEquals(params.getDialogType(), copiedParams.getDialogType());
+        assertEquals(params.isOutputSwitcherEnabled(), copiedParams.isOutputSwitcherEnabled());
+        assertEquals(params.isTransferToLocalEnabled(), copiedParams.isTransferToLocalEnabled());
+        assertBundleEquals(params.getExtras(), copiedParams.getExtras());
     }
 
     @Test
     @SmallTest
-    public void copyConstructorOfMediaRouterParams() {
-        MediaRouterParams originalParams = new MediaRouterParams();
-        originalParams.setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP);
-        originalParams.setOutputSwitcherEnabled(true);
-        originalParams.setTransferToLocalEnabled(true);
-
-        Bundle paramExtras = new Bundle();
+    public void getRouterParams_afterSetRouterParams_returnsSetParams() {
+        final int dialogType = MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP;
+        final boolean isOutputSwitcherEnabled = true;
+        final boolean transferToLocalEnabled = true;
+        final Bundle paramExtras = new Bundle();
         paramExtras.putString(TEST_KEY, TEST_VALUE);
-        originalParams.setExtras(paramExtras);
 
-        // Test the copy constructor
-        MediaRouterParams copiedParams = new MediaRouterParams(originalParams);
-        assertEquals(originalParams.getDialogType(), copiedParams.getDialogType());
-        assertEquals(originalParams.isOutputSwitcherEnabled(),
-                copiedParams.isOutputSwitcherEnabled());
-        assertEquals(originalParams.isTransferToLocalEnabled(),
-                copiedParams.isTransferToLocalEnabled());
+        MediaRouterParams expectedParams = new MediaRouterParams.Builder()
+                .setDialogType(dialogType)
+                .setOutputSwitcherEnabled(isOutputSwitcherEnabled)
+                .setTransferToLocalEnabled(transferToLocalEnabled)
+                .setExtras(paramExtras)
+                .build();
 
-        Bundle copiedParamsExtras = copiedParams.getExtras();
-        assertNotNull(copiedParamsExtras);
-        assertEquals(TEST_VALUE, copiedParamsExtras.getString(TEST_KEY));
+        paramExtras.remove(TEST_KEY);
+        mRouter.setRouterParams(expectedParams);
+
+        MediaRouterParams actualParams = mRouter.getRouterParams();
+        assertEquals(expectedParams, actualParams);
+    }
+
+    /**
+     * Asserts that two Bundles are equal.
+     */
+    public static void assertBundleEquals(Bundle expected, Bundle observed) {
+        if (expected == null || observed == null) {
+            assertSame(expected, observed);
+        }
+        assertEquals(expected.size(), observed.size());
+        for (String key : expected.keySet()) {
+            assertEquals(expected.get(key), observed.get(key));
+        }
     }
 
     private class MediaSessionCallback extends MediaSessionCompat.Callback {
