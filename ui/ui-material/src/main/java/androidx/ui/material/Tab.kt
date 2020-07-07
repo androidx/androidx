@@ -156,58 +156,54 @@ fun <T> TabRow(
     tab: @Composable (Int, T) -> Unit
 ) {
     Surface(modifier = modifier, color = backgroundColor, contentColor = contentColor) {
-        WithConstraints {
-            val width = constraints.maxWidth
-            // TODO: force scrollable for tabs that will be too small if they take up equal space?
-            if (scrollable) {
-                val tabs = @Composable {
-                    items.fastForEachIndexed { index, item ->
+        // TODO: force scrollable for tabs that will be too small if they take up equal space?
+        if (scrollable) {
+            val tabs = @Composable {
+                items.fastForEachIndexed { index, item ->
+                    tab(index, item)
+                }
+            }
+            ScrollableTabRow(selectedIndex, tabs, indicatorContainer, divider)
+        } else {
+            // TODO: b/150138067 remove modifier here and use the global LayoutWeight
+            // modifier when it exists
+            val tabs = @Composable { modifier: Modifier ->
+                items.fastForEachIndexed { index, item ->
+                    Box(modifier, gravity = ContentGravity.Center) {
                         tab(index, item)
                     }
                 }
-                ScrollableTabRow(width, selectedIndex, tabs, indicatorContainer, divider)
-            } else {
-                // TODO: b/150138067 remove modifier here and use the global LayoutWeight
-                // modifier when it exists
-                val tabs = @Composable { modifier: Modifier ->
-                    items.fastForEachIndexed { index, item ->
-                        Box(modifier, gravity = ContentGravity.Center) {
-                            tab(index, item)
-                        }
-                    }
-                }
-                FixedTabRow(width, items.size, tabs, indicatorContainer, divider)
             }
+            FixedTabRow(items.size, tabs, indicatorContainer, divider)
         }
     }
 }
 
 @Composable
 private fun FixedTabRow(
-    width: Int,
     tabCount: Int,
     tabs: @Composable (Modifier) -> Unit,
     indicatorContainer: @Composable (tabPositions: List<TabPosition>) -> Unit,
     divider: @Composable () -> Unit
 ) {
-    val tabWidth = width / tabCount
-    val density = DensityAmbient.current
-
-    val tabPositions = remember(tabCount, tabWidth) {
-        with(density) {
-            (0 until tabCount).map { index ->
-                val left = (tabWidth * index)
-                TabPosition(left.toDp(), tabWidth.toDp())
-            }
-        }
-    }
-
     Stack(Modifier.fillMaxWidth()) {
         Row {
             tabs(Modifier.weight(1f))
         }
         Box(Modifier.gravity(Alignment.BottomCenter).fillMaxWidth(), children = divider)
-        Box(Modifier.matchParentSize()) {
+        WithConstraints(Modifier.matchParentSize()) {
+            val width = constraints.maxWidth
+            val tabWidth = width / tabCount
+            val density = DensityAmbient.current
+
+            val tabPositions = remember(tabCount, tabWidth) {
+                with(density) {
+                    (0 until tabCount).map { index ->
+                        val left = (tabWidth * index)
+                        TabPosition(left.toDp(), tabWidth.toDp())
+                    }
+                }
+            }
             indicatorContainer(tabPositions)
         }
     }
@@ -215,23 +211,22 @@ private fun FixedTabRow(
 
 @Composable
 private fun ScrollableTabRow(
-    width: Int,
     selectedIndex: Int,
     tabs: @Composable () -> Unit,
     indicatorContainer: @Composable (tabPositions: List<TabPosition>) -> Unit,
     divider: @Composable () -> Unit
 ) {
-    val edgeOffset = with(DensityAmbient.current) { ScrollableTabRowEdgeOffset.toIntPx() }
+    val scrollerPosition = ScrollerPosition()
+    val scrollableTabData = remember(scrollerPosition) {
+        ScrollableTabData(
+            scrollerPosition = scrollerPosition,
+            selectedTab = selectedIndex
+        )
+    }
 
     // TODO: unfortunate 1f lag as we need to first calculate tab positions before drawing the
     // indicator container
     var tabPositions by state { listOf<TabPosition>() }
-
-    val scrollableTabData = ScrollableTabData(selectedIndex, tabPositions, width, edgeOffset)
-
-    scrollableTabData.tabPositions = tabPositions
-    scrollableTabData.selectedTab = selectedIndex
-    scrollableTabData.visibleWidth = width
 
     val indicator = @Composable {
         // Delay indicator composition until we know tab positions
@@ -241,7 +236,7 @@ private fun ScrollableTabRow(
     }
 
     HorizontalScroller(
-        scrollerPosition = scrollableTabData.scrollerPosition,
+        scrollerPosition = scrollerPosition,
         modifier = Modifier.fillMaxWidth()
     ) {
         val indicatorTag = "indicator"
@@ -255,6 +250,7 @@ private fun ScrollableTabRow(
         ) { measurables, constraints ->
             val tabPlaceables = mutableListOf<Pair<Placeable, Int>>()
             val minTabWidth = ScrollableTabRowMinimumTabWidth.toIntPx()
+            val edgeOffset = ScrollableTabRowEdgeOffset.toIntPx()
 
             var layoutHeight = 0
 
@@ -305,28 +301,15 @@ private fun ScrollableTabRow(
                 measurables.fastFirstOrNull { it.id == indicatorTag }
                     ?.measure(Constraints.fixed(layoutWidth, layoutHeight))
                     ?.place(0, 0)
+
+                scrollableTabData.onLaidOut(
+                    density = this@Layout,
+                    edgeOffset = edgeOffset,
+                    tabPositions = tabPositions,
+                    selectedTab = selectedIndex
+                )
             }
         }
-    }
-}
-
-@Composable
-private fun ScrollableTabData(
-    initialSelectedTab: Int,
-    tabPositions: List<TabPosition>,
-    visibleWidth: Int,
-    edgeOffset: Int
-): ScrollableTabData = ScrollerPosition().let { scrollerPosition ->
-    val density = DensityAmbient.current
-    remember(scrollerPosition) {
-        ScrollableTabData(
-            scrollerPosition = scrollerPosition,
-            initialSelectedTab = initialSelectedTab,
-            tabPositions = tabPositions,
-            visibleWidth = visibleWidth,
-            edgeOffset = edgeOffset,
-            density = density
-        )
     }
 }
 
@@ -334,28 +317,24 @@ private fun ScrollableTabData(
  * Class holding onto state needed for [ScrollableTabRow]
  */
 private class ScrollableTabData(
-    val scrollerPosition: ScrollerPosition,
-    initialSelectedTab: Int,
-    var tabPositions: List<TabPosition>,
-    var visibleWidth: Int,
-    val edgeOffset: Int,
-    val density: Density
+    private val scrollerPosition: ScrollerPosition,
+    private var selectedTab: Int
 ) {
-    var selectedTab: Int = initialSelectedTab
-        set(value) {
-            if (field != value) {
-                tabPositions.getOrNull(value)?.let { scrollToTab(it) }
-                field = value
+    fun onLaidOut(
+        density: Density,
+        edgeOffset: Int,
+        tabPositions: List<TabPosition>,
+        selectedTab: Int
+    ) {
+        if (this.selectedTab != selectedTab) {
+            this.selectedTab = selectedTab
+            tabPositions.getOrNull(selectedTab)?.let {
+                // Scrolls to the tab with [tabPosition], trying to place it in the center of the
+                // screen or as close to the center as possible.
+                val calculatedOffset = it.calculateTabOffset(density, edgeOffset, tabPositions)
+                scrollerPosition.smoothScrollTo(calculatedOffset)
             }
         }
-
-    /**
-     * Scrolls to the tab with [tabPosition], trying to place it in the center of the screen or as
-     * close to the center as possible.
-     */
-    private fun scrollToTab(tabPosition: TabPosition) {
-        val calculatedOffset = tabPosition.calculateTabOffset()
-        scrollerPosition.smoothScrollTo(calculatedOffset)
     }
 
     /**
@@ -363,12 +342,17 @@ private class ScrollableTabData(
      * If the tab is at the start / end, and there is not enough space to fully centre the tab, this
      * will just clamp to the min / max position given the max width.
      */
-    private fun TabPosition.calculateTabOffset(): Float = with(density) {
+    private fun TabPosition.calculateTabOffset(
+        density: Density,
+        edgeOffset: Int,
+        tabPositions: List<TabPosition>
+    ): Float = with(density) {
+        val totalTabRowWidth = tabPositions.last().right.toIntPx() + edgeOffset
+        val visibleWidth = totalTabRowWidth - scrollerPosition.maxPosition.toInt()
         val tabOffset = left.toIntPx()
         val scrollerCenter = visibleWidth / 2
         val tabWidth = width.toIntPx()
         val centeredTabOffset = tabOffset - (scrollerCenter - tabWidth / 2)
-        val totalTabRowWidth = tabPositions.last().right.toIntPx() + edgeOffset
         // How much space we have to scroll. If the visible width is <= to the total width, then
         // we have no space to scroll as everything is always visible.
         val availableSpace = (totalTabRowWidth - visibleWidth).coerceAtLeast(0)
