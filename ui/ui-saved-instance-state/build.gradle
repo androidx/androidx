@@ -39,6 +39,7 @@ kotlin {
             implementation(KOTLIN_STDLIB_COMMON)
 
             api project(":compose:compose-runtime")
+            implementation project(":compose:core:core-util")
 
         }
 

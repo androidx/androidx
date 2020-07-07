@@ -36,7 +36,7 @@ kotlin {
     android()
     sourceSets {
         commonMain.dependencies {
-            implementation project(":ui:ui-util")
+            implementation project(":compose:core:core-util")
             implementation (KOTLIN_STDLIB_COMMON)
         }
         androidMain.dependencies {

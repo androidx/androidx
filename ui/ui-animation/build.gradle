@@ -39,10 +39,10 @@ dependencies {
     api project(":compose:animation:animation-core")
 
     api project(":compose:compose-runtime")
-    implementation project(":ui:ui-util")
+    implementation project(":compose:core:core-util")
     api project(":ui:ui-core")
     api project(":ui:ui-layout")
-    api project(":ui:ui-geometry")
+    api project(":compose:core:core-geometry")
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)

@@ -33,9 +33,9 @@ dependencies {
     implementation project(":annotation:annotation-sampled")
 
     implementation project(":compose:compose-runtime")
-    api project(":ui:ui-unit")
-    implementation project(":ui:ui-util")
-    implementation project(":ui:ui-graphics")
+    api project(":compose:core:core-unit")
+    implementation project(":compose:core:core-util")
+    implementation project(":compose:core:core-graphics")
     implementation project(":compose:foundation:foundation")
 }
 
