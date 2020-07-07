@@ -19,8 +19,14 @@ package androidx.ui.tooling.preview.animation
 import android.util.Log
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationClockObserver
+import androidx.animation.InternalAnimationApi
 import androidx.animation.ManualAnimationClock
+import androidx.animation.SeekableAnimation
+import androidx.animation.TransitionAnimation
+import androidx.animation.createSeekableAnimation
 import androidx.annotation.VisibleForTesting
+import androidx.ui.animation.tooling.ComposeAnimation
+import androidx.ui.animation.tooling.ComposeAnimationType
 
 /**
  * [AnimationClockObservable] used to control animations in the context of Compose Previews. This
@@ -33,6 +39,7 @@ import androidx.annotation.VisibleForTesting
  *
  * @suppress
  */
+@OptIn(InternalAnimationApi::class)
 internal open class PreviewAnimationClock(private val initialTimeMs: Long = 0L) :
     AnimationClockObservable {
 
@@ -40,46 +47,156 @@ internal open class PreviewAnimationClock(private val initialTimeMs: Long = 0L) 
 
     private val DEBUG = false
 
+    /**
+     * Maps subscribed [AnimationClockObserver]s to [ComposeAnimation]s. We parse the observers
+     * into [ComposeAnimation]s to make them better to handle, but we still need to hold the
+     * original objects in order to clean everything up on [unsubscribe].
+     */
+    @VisibleForTesting
+    internal val observersToAnimations = hashMapOf<AnimationClockObserver, ComposeAnimation>()
+
+    /**
+     * Maps [ComposeAnimation]s representing [TransitionAnimation]s to their corresponding
+     * [SeekableAnimation], which we use to obtain the animated properties from. Since updating
+     * the clock will happen way more often than changing the transition states, we cache one
+     * [SeekableAnimation] per animation and call `getAnimValuesAt` on it when the clock changes
+     * instead of creating a new [SeekableAnimation] each time. Instead, we create it when `from`
+     * or `to` states change.
+     */
+    @VisibleForTesting
+    internal val seekableAnimations = hashMapOf<ComposeAnimation, SeekableAnimation<*>>()
+
+    /**
+     * [AnimationClockObserver]s should be added to this set while their corresponding animations
+     * are having their `from` and `to` states updated. The animation framework unsubscribes and
+     * re-subscribes the animation in the process, and we need to keep track of that to ignore
+     * unsubscriptions that are caused by the states update process.
+     */
+    private val pendingObservers = hashSetOf<AnimationClockObserver>()
+
+    private val pendingObserversLock = Any()
+
     @VisibleForTesting
     internal val clock = ManualAnimationClock(initialTimeMs)
 
     override fun subscribe(observer: AnimationClockObserver) {
+        // Ignore subscriptions of observers already subscribed.
+        if (observersToAnimations.containsKey(observer)) return
+
         if (DEBUG) {
             Log.d(TAG, "AnimationClockObserver $observer subscribed")
         }
         clock.subscribe(observer)
-        // TODO(b/158752769): parse observer into an object with relevant animation data
-        notifySubscribe(observer)
+        when (observer) {
+            is TransitionAnimation<*>.TransitionAnimationClockObserver -> observer.parse()
+            // TODO(b/160126628): support other animation types, e.g. AnimatedValue
+            else -> null
+        }?.let {
+            observersToAnimations[observer] = it
+            notifySubscribe(it)
+        }
     }
 
     override fun unsubscribe(observer: AnimationClockObserver) {
+        synchronized (pendingObserversLock) {
+            // unsubscribe is expected to be called once per state update. If There is another
+            // call, the animation actually is trying to unsubscribe and we need to process it.
+            if (pendingObservers.remove(observer)) {
+                return
+            }
+        }
+
         if (DEBUG) {
             Log.d(TAG, "AnimationClockObserver $observer unsubscribed")
         }
         clock.unsubscribe(observer)
-        // TODO(b/158752769): parse observer into an object with relevant animation data
-        notifyUnsubscribe(observer)
+        observersToAnimations.remove(observer)?.let {
+            notifyUnsubscribe(it)
+            seekableAnimations.remove(it)
+        }
     }
 
     @VisibleForTesting
-    protected open fun notifySubscribe(observer: AnimationClockObserver) {
+    protected open fun notifySubscribe(animation: ComposeAnimation) {
         // This method is expected to be no-op. It is intercepted in Android Studio using bytecode
         // manipulation, in order for the tools to be aware that the animation was subscribed.
     }
 
     @VisibleForTesting
-    protected open fun notifyUnsubscribe(observer: AnimationClockObserver) {
+    protected open fun notifyUnsubscribe(animation: ComposeAnimation) {
         // This method is expected to be no-op. It is intercepted in Android Studio using bytecode
         // manipulation, in order for the tools to be aware that the animation was unsubscribed.
     }
 
     /**
+     * Updates the [SeekableAnimation] corresponding to the given [ComposeAnimation], creating it
+     * with the given `from` and `to` states/
+     */
+    fun updateSeekableAnimation(composeAnimation: ComposeAnimation, fromState: Any, toState: Any) {
+        if (composeAnimation.getType() != ComposeAnimationType.TRANSITION_ANIMATION) return
+        @Suppress("UNCHECKED_CAST")
+        val animation = composeAnimation.getAnimation() as TransitionAnimation<Any>
+        seekableAnimations[composeAnimation] = animation.createSeekableAnimation(fromState, toState)
+    }
+
+    /**
+     * Updates all the [TransitionAnimation]s `from` and `to` states. Since we're calling the
+     * `snapToState` and `toState` APIs, which respectively unsubscribes and subscribes
+     * animations, we also reset the [clock] to make sure all the animations are re-subscribed at
+     * the initial time. As we would be unsubscribing and re-subscribing the same animations, we
+     * add their corresponding observers to [pendingObservers] while updating the animation states.
+     */
+    fun updateAnimationStates() {
+        observersToAnimations.forEach { (observer, composeAnimation) ->
+            seekableAnimations[composeAnimation]?.let { seekableAnimation ->
+                synchronized(pendingObserversLock) {
+                    pendingObservers.add(observer)
+                }
+                @Suppress("UNCHECKED_CAST")
+                val animation = composeAnimation.getAnimation() as TransitionAnimation<Any>
+                animation.snapToState(seekableAnimation.fromState!!)
+                animation.toState(seekableAnimation.toState!!)
+            }
+        }
+        synchronized (pendingObserversLock) {
+            pendingObservers.clear()
+        }
+        // Reset the clock time so all the animations have it as the start time.
+        clock.clockTimeMillis = initialTimeMs
+    }
+
+    /**
+     * Returns the duration of the longest animation being tracked.
+     */
+    fun getMaxDuration(): Long {
+        // TODO(b/160126628): support other animation types, e.g. AnimatedValue
+        val maxTransitionAnimation = seekableAnimations.maxBy { it.value.duration }?.value?.duration
+        return maxTransitionAnimation ?: -1
+    }
+
+    /**
+     *  Returns a list of the given [TransitionAnimation]'s animated properties. The properties
+     *  are wrapped into a [Pair] of property label and the corresponding value at the current time.
+     */
+    fun getAnimatedProperties(animation: ComposeAnimation): List<Pair<String, Any>> {
+        if (animation.getType() != ComposeAnimationType.TRANSITION_ANIMATION) return emptyList()
+        seekableAnimations[animation]?.let { seekableAnimation ->
+            val time = clock.clockTimeMillis - initialTimeMs
+            return seekableAnimation.getAnimValuesAt(time).entries.map { it.key.label to it.value }
+        }
+        return emptyList()
+    }
+
+    /**
      * Sets [clock] time to the given [animationTimeMs], relative to [initialTimeMs]. Expected to
      * be called via reflection from Android Studio.
-     *
-     * @suppress
      */
     fun setClockTime(animationTimeMs: Long) {
         clock.clockTimeMillis = initialTimeMs + animationTimeMs
+    }
+
+    fun dispose() {
+        observersToAnimations.clear()
+        seekableAnimations.clear()
     }
 }

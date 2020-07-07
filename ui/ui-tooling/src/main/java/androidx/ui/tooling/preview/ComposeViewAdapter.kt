@@ -338,6 +338,9 @@ internal class ComposeViewAdapter : FrameLayout {
     internal fun dispose() {
         composition?.dispose()
         composition = null
+        if (::clock.isInitialized) {
+            clock.dispose()
+        }
     }
 
     private fun init(attrs: AttributeSet) {
