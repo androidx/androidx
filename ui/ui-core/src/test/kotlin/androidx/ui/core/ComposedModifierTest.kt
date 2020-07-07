@@ -250,5 +250,5 @@ class EmptyApplier : Applier<Unit> {
     override fun move(from: Int, to: Int, count: Int) {
         error("Unexpected")
     }
-    override fun reset() {}
+    override fun clear() {}
 }

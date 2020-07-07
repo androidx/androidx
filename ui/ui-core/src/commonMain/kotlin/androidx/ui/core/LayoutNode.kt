@@ -139,6 +139,21 @@ class LayoutNode : Measurable {
     }
 
     /**
+     * Removes all children.
+     */
+    fun removeAll() {
+        val attached = owner != null
+        for (i in _children.size - 1 downTo 0) {
+            val child = _children[i]
+            if (attached) {
+                child.detach()
+            }
+            child.parent = null
+        }
+        _children.clear()
+    }
+
+    /**
      * Moves [count] elements starting at index [from] to index [to]. The [to] index is related to
      * the position before the change, so, for example, to move an element at position 1 to after
      * the element at position 2, [from] should be `1` and [to] should be `3`. If the elements
