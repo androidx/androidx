@@ -748,6 +748,7 @@ public class CameraXActivity extends AppCompatActivity {
         }
         Log.d(TAG, "Using camera lens facing: " + mCurrentCameraSelector);
 
+        mCameraProvider.unbindAll();
         CameraXActivity.this.createUseCases();
         refreshTorchButton();
 
@@ -855,7 +856,8 @@ public class CameraXActivity extends AppCompatActivity {
                     useCaseGroup);
             return mCamera;
         } catch (IllegalArgumentException e) {
-            Log.e(TAG, "bindToLifecycle() failed.", e);
+            Log.e(TAG, "bindToLifecycle() failed for " + useCase
+                    + ". This is usually caused by binding too many use cases.");
             Toast.makeText(getApplicationContext(), "Bind too many use cases.", Toast.LENGTH_SHORT)
                     .show();
             Button button = this.findViewById(buttonViewId);
