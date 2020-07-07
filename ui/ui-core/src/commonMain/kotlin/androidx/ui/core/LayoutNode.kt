@@ -15,10 +15,13 @@
  */
 package androidx.ui.core
 
+import androidx.compose.collection.ExperimentalCollectionApi
+import androidx.compose.collection.mutableVectorOf
 import androidx.ui.core.LayoutNode.LayoutState.Measuring
 import androidx.ui.core.LayoutNode.LayoutState.NeedsRelayout
 import androidx.ui.core.LayoutNode.LayoutState.NeedsRemeasure
 import androidx.ui.core.LayoutNode.LayoutState.Ready
+import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.focus.FocusModifierImpl
 import androidx.ui.core.focus.ModifiedFocusNode
 import androidx.ui.core.keyinput.KeyInputModifier
@@ -28,7 +31,6 @@ import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.semantics.SemanticsModifier
 import androidx.ui.core.semantics.SemanticsWrapper
 import androidx.ui.core.semantics.outerSemantics
-import androidx.ui.core.focus.FocusModifier
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
@@ -36,7 +38,6 @@ import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.unit.Density
 import androidx.ui.util.deleteAt
-import androidx.ui.util.fastForEach
 import androidx.ui.util.nativeClass
 import kotlin.math.roundToInt
 import kotlin.math.sign
@@ -54,14 +55,14 @@ internal val sharedDrawScope = LayoutNodeDrawScope()
  * An element in the layout hierarchy, built with compose UI.
  */
 @ExperimentalLayoutNodeApi
-@OptIn(ExperimentalLayoutNodeApi::class)
+@OptIn(ExperimentalLayoutNodeApi::class, ExperimentalCollectionApi::class)
 class LayoutNode : Measurable {
-    private val _children = mutableListOf<LayoutNode>()
+    private val _children = mutableVectorOf<LayoutNode>()
 
     /**
      * The children of this LayoutNode, controlled by [insertAt], [move], and [removeAt].
      */
-    val children: List<LayoutNode> get() = _children
+    val children: List<LayoutNode> = _children.asMutableList()
 
     /**
      * The parent node in the LayoutNode hierarchy. This is `null` when the `LayoutNode`
@@ -93,8 +94,7 @@ class LayoutNode : Measurable {
     /**
      * A cache of modifiers to be used when setting and reusing previous modifiers.
      */
-    private var wrapperCache = emptyArray<DelegatingLayoutNodeWrapper<*>?>()
-    private var wrapperCacheCount = 0
+    private var wrapperCache = mutableVectorOf<DelegatingLayoutNodeWrapper<*>>()
 
     /**
      * Inserts a child [LayoutNode] at a particular index. If this LayoutNode [owner] is not `null`
@@ -195,7 +195,7 @@ class LayoutNode : Measurable {
         this.owner = owner
         this.depth = (parent?.depth ?: -1) + 1
         owner.onAttach(this)
-        _children.fastForEach { child ->
+        _children.forEach { child ->
             child.attach(owner)
         }
 
@@ -228,12 +228,13 @@ class LayoutNode : Measurable {
         owner.onDetach(this)
         this.owner = null
         depth = 0
-        _children.fastForEach { child ->
+        _children.forEach { child ->
             child.detach()
         }
     }
 
-    private val _zIndexSortedChildren = mutableListOf<LayoutNode>()
+    private val _zIndexSortedChildren = mutableVectorOf<LayoutNode>()
+    private val _zIndexSortedChildrenList = _zIndexSortedChildren.asMutableList()
 
     /**
      * Returns the children list sorted by their [LayoutNode.zIndex].
@@ -245,7 +246,7 @@ class LayoutNode : Measurable {
             _zIndexSortedChildren.clear()
             _zIndexSortedChildren.addAll(_children)
             _zIndexSortedChildren.sortWith(ZIndexComparator)
-            return _zIndexSortedChildren
+            return _zIndexSortedChildrenList
         }
 
     override fun toString(): String {
@@ -265,7 +266,7 @@ class LayoutNode : Measurable {
         tree.append(toString())
         tree.append('\n')
 
-        children.fastForEach { child ->
+        _children.forEach { child ->
             tree.append(child.debugTreeToString(depth + 1))
         }
 
@@ -575,9 +576,7 @@ class LayoutNode : Measurable {
 
             if (isAttached()) {
                 // call detach() on all removed LayoutNodeWrappers
-                for (i in 0 until wrapperCacheCount) {
-                    wrapperCache[i]?.detach()
-                }
+                wrapperCache.forEach { it.detach() }
 
                 // attach() all new LayoutNodeWrappers
                 forEachDelegate {
@@ -586,10 +585,7 @@ class LayoutNode : Measurable {
                     }
                 }
             }
-            for (i in 0 until wrapperCacheCount) {
-                wrapperCache[i] = null
-            }
-            wrapperCacheCount = 0
+            wrapperCache.clear()
 
             // call onModifierChanged() on all LayoutNodeWrappers
             forEachDelegate { it.onModifierChanged() }
@@ -629,12 +625,12 @@ class LayoutNode : Measurable {
     /**
      * List of all OnPositioned callbacks in the modifier chain.
      */
-    private val onPositionedCallbacks = mutableListOf<OnPositionedModifier>()
+    private val onPositionedCallbacks = mutableVectorOf<OnPositionedModifier>()
 
     /**
      * List of all OnChildPositioned callbacks in the modifier chain.
      */
-    private val onChildPositionedCallbacks = mutableListOf<OnChildPositionedModifier>()
+    private val onChildPositionedCallbacks = mutableVectorOf<OnChildPositionedModifier>()
 
     fun place(x: Int, y: Int) {
         with(InnerPlacementScope) {
@@ -719,7 +715,7 @@ class LayoutNode : Measurable {
             layoutState = LayoutState.LayingOut
             val owner = requireOwner()
             owner.observeLayoutModelReads(this) {
-                children.fastForEach { child ->
+                _children.forEach { child ->
                     child.isPlaced = false
                     if (alignmentLinesRequired && child.layoutState == Ready &&
                         !child.alignmentLinesCalculatedDuringLastLayout) {
@@ -731,7 +727,7 @@ class LayoutNode : Measurable {
                     child.alignmentLinesQueriedSinceLastLayout = false
                 }
                 innerLayoutNodeWrapper.measureResult.placeChildren(layoutDirection)
-                children.fastForEach { child ->
+                _children.forEach { child ->
                     child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
                 }
             }
@@ -742,8 +738,8 @@ class LayoutNode : Measurable {
                 previousAlignmentLines.clear()
                 previousAlignmentLines.putAll(alignmentLines)
                 alignmentLines.clear()
-                children.fastForEach { child ->
-                    if (!child.isPlaced) return@fastForEach
+                _children.forEach { child ->
+                    if (!child.isPlaced) return@forEach
                     child.alignmentLines.keys.forEach { childLine ->
                         val linePositionInContainer = child.getAlignmentLine(childLine)!!
                         // If the line was already provided by a previous child, merge the values.
@@ -789,7 +785,7 @@ class LayoutNode : Measurable {
      * and pre-remeasure everything required for this layoutChildren().
      */
     private fun onBeforeLayoutChildren() {
-        children.fastForEach {
+        _children.forEach {
             if (it.layoutState == NeedsRemeasure &&
                 it.measuredByParent == UsageByParent.InMeasureBlock
             ) {
@@ -893,12 +889,12 @@ class LayoutNode : Measurable {
         // There are two types of callbacks:
         // a) when the Layout is positioned - `onPositioned`
         // b) when the child of the Layout is positioned - `onChildPositioned`
-        onPositionedCallbacks.fastForEach { it.onPositioned(coordinates) }
-        parent?.onChildPositionedCallbacks?.fastForEach {
+        onPositionedCallbacks.forEach { it.onPositioned(coordinates) }
+        parent?.onChildPositionedCallbacks?.forEach {
             it.onChildPositioned(coordinates)
         }
         // iterate through the subtree
-        children.fastForEach { it.dispatchOnPositionedCallbacks() }
+        _children.forEach { it.dispatchOnPositionedCallbacks() }
     }
 
     /**
@@ -907,7 +903,7 @@ class LayoutNode : Measurable {
      * information.
      */
     fun getModifierInfo(): List<ModifierInfo> {
-        val infoList = mutableListOf<ModifierInfo>()
+        val infoList = mutableVectorOf<ModifierInfo>()
         forEachDelegate { wrapper ->
             val info = if (wrapper is LayerWrapper) {
                 ModifierInfo(wrapper.modifier, wrapper, wrapper.layer)
@@ -917,7 +913,7 @@ class LayoutNode : Measurable {
             }
             infoList += info
         }
-        return infoList
+        return infoList.asMutableList()
     }
 
     /**
@@ -931,16 +927,18 @@ class LayoutNode : Measurable {
         modifier: Modifier.Element,
         wrapper: LayoutNodeWrapper
     ): DelegatingLayoutNodeWrapper<*>? {
-        if (wrapperCacheCount == 0) {
+        if (wrapperCache.isEmpty()) {
             return null
         }
-        val index = lastMatchingModifierIndex(modifier)
+        val index = wrapperCache.indexOfLast {
+            it.modifier === modifier || it.modifier.nativeClass() == modifier.nativeClass()
+        }
 
         if (index < 0) {
             return null
         }
 
-        val endWrapper = removeFromWrapperCache(index)
+        val endWrapper = wrapperCache[index]
         var startWrapper = endWrapper
         var chainedIndex = index
         startWrapper.setModifierTo(modifier)
@@ -950,38 +948,18 @@ class LayoutNode : Measurable {
 
         while (startWrapper.isChained) {
             chainedIndex--
-            startWrapper = removeFromWrapperCache(chainedIndex)
+            startWrapper = wrapperCache[chainedIndex]
             startWrapper.setModifierTo(modifier)
             if (innerLayerWrapper == null && startWrapper is LayerWrapper) {
                 innerLayerWrapper = startWrapper
             }
         }
 
+        wrapperCache.removeRange(chainedIndex, index + 1)
+
         endWrapper.wrapped = wrapper
         wrapper.wrappedBy = endWrapper
         return startWrapper
-    }
-
-    private fun lastMatchingModifierIndex(modifier: Modifier): Int {
-        var index = wrapperCacheCount - 1
-        while (index >= 0) {
-            val wrapper = wrapperCache[index]
-            if (wrapper != null && (wrapper.modifier === modifier ||
-                        wrapper.modifier.nativeClass() == modifier.nativeClass())) {
-                    return index
-            }
-            index--
-        }
-        return -1
-    }
-
-    private fun removeFromWrapperCache(index: Int): DelegatingLayoutNodeWrapper<*> {
-        val wrapper = wrapperCache[index]!!
-        wrapperCache[index] = null
-        if (index == wrapperCacheCount - 1) {
-            wrapperCacheCount--
-        }
-        return wrapper
     }
 
     /**
@@ -989,19 +967,8 @@ class LayoutNode : Measurable {
      * Array.
      */
     private fun copyWrappersToCache() {
-        // first count them:
-        var count = 0
-        forEachDelegate { count++ }
-        if (count == 0) {
-            return
-        }
-        if (wrapperCache.size < count) {
-            wrapperCache = arrayOfNulls(count)
-        }
-        wrapperCacheCount = count
-        var i = 0
         forEachDelegate {
-            wrapperCache[i++] = it as DelegatingLayoutNodeWrapper<*>
+            wrapperCache += it as DelegatingLayoutNodeWrapper<*>
         }
     }
 
