@@ -231,10 +231,9 @@ private inline fun <T : Any, R : Any> PagingData<T>.transform(
 /**
  * Returns a [PagingData] containing the result of applying the given [transform] to each
  * element, as it is loaded.
- *
- * @see PagingData.mapSync
  */
 @CheckResult
+@JvmSynthetic
 fun <T : Any, R : Any> PagingData<T>.map(
     transform: suspend (T) -> R
 ): PagingData<R> = transform { it.map(transform) }
@@ -242,20 +241,18 @@ fun <T : Any, R : Any> PagingData<T>.map(
 /**
  * Returns a [PagingData] of all elements returned from applying the given [transform]
  * to each element, as it is loaded.
- *
- * @see PagingData.flatMapSync
  */
 @CheckResult
+@JvmSynthetic
 fun <T : Any, R : Any> PagingData<T>.flatMap(
     transform: suspend (T) -> Iterable<R>
 ): PagingData<R> = transform { it.flatMap(transform) }
 
 /**
  * Returns a [PagingData] containing only elements matching the given [predicate]
- *
- * @see PagingData.filterSync
  */
 @CheckResult
+@JvmSynthetic
 fun <T : Any> PagingData<T>.filter(
     predicate: suspend (T) -> Boolean
 ): PagingData<T> = transform { it.filter(predicate) }
@@ -268,14 +265,11 @@ fun <T : Any> PagingData<T>.filter(
  * Note that this transform is applied asynchronously, as pages are loaded. Potential
  * separators between pages are only computed once both pages are loaded.
  *
- * **Java callers should instead use the static function [PagingData.insertSeparators]**
- *
  * @sample androidx.paging.samples.insertSeparatorsSample
  * @sample androidx.paging.samples.insertSeparatorsUiModelSample
- *
- * @see PagingData.insertSeparators
  */
 @CheckResult
+@JvmSynthetic
 fun <T : R, R : Any> PagingData<T>.insertSeparators(
     generator: suspend (T?, T?) -> R?
 ): PagingData<R> {
