@@ -840,6 +840,7 @@ public final class MediaRouter {
      */
     @Nullable
     public MediaRouterParams getRouterParams() {
+        checkCallingThread();
         return sGlobal.getRouterParams();
     }
 
@@ -850,6 +851,7 @@ public final class MediaRouter {
      * @param params The parameter to set
      */
     public void setRouterParams(@Nullable MediaRouterParams params) {
+        checkCallingThread();
         sGlobal.setRouterParams(params);
     }
 

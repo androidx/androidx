@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -145,6 +146,7 @@ public class MediaRouterTest {
 
     @Test
     @SmallTest
+    @UiThreadTest
     public void getRouterParams_afterSetRouterParams_returnsSetParams() {
         final int dialogType = MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP;
         final boolean isOutputSwitcherEnabled = true;
