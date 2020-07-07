@@ -57,6 +57,7 @@ class CameraFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d(TAG, "onViewCreated")
+        (requireActivity() as BaseActivity).previewView = preview_textureview
 
         cameraProviderFuture.addListener(Runnable {
             cameraProvider = cameraProviderFuture.get()
@@ -67,18 +68,23 @@ class CameraFragment : Fragment() {
     private fun bindPreview() {
         Log.d(TAG, "bindPreview")
 
-        var preview = Preview.Builder()
+        val preview = Preview.Builder()
             .setTargetName("Preview")
             .build()
 
-        var cameraSelector = CameraSelector.Builder()
-            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-            .build()
-
-        cameraProvider.bindToLifecycle(this, cameraSelector, preview)
+        cameraProvider.bindToLifecycle(this, getCameraSelector(), preview)
 
         preview_textureview.preferredImplementationMode =
             PreviewView.ImplementationMode.TEXTURE_VIEW
         preview.setSurfaceProvider(preview_textureview.createSurfaceProvider())
+    }
+
+    private fun getCameraSelector(): CameraSelector {
+        val lensFacing = (requireActivity() as BaseActivity).intent.getIntExtra(
+            BaseActivity.INTENT_LENS_FACING, CameraSelector
+                .LENS_FACING_BACK)
+        return CameraSelector.Builder()
+            .requireLensFacing(lensFacing)
+            .build()
     }
 }
