@@ -47,6 +47,9 @@ public class JsJavaInteractionActivity extends AppCompatActivity {
                                 R.string.web_message_listener_malicious_website_activity_title),
                         new Intent(
                                 activityContext, WebMessageListenerMaliciousWebsiteActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.document_start_javascript_activity_title),
+                        new Intent(activityContext, DocumentStartJavaScriptActivity.class)),
         };
         listView.setItems(menuItems);
     }
