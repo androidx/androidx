@@ -73,6 +73,8 @@
     <string name="js_java_interaction_activity_title">JavaScript - Java communication</string>
     <string name="web_message_listener_activity_title">WebMessageListener Demo</string>
     <string name="web_message_listener_malicious_website_activity_title">Malicious Website Demo</string>
+    <string name="document_start_javascript_activity_title">DocumentStartJavaScript Demo</string>
+    <string name="native_view_title">Native View</string>
     <string name="force_dark_strategy_activity_title">Force Dark Strategy Demo</string>
     <string name="force_dark_strategy_switch_title">Force Dark</string>
     <string-array name="force_dark_strategy_selection">
