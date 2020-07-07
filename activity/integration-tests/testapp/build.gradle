@@ -28,9 +28,6 @@ android {
 
         applicationId "androidx.activity.integration.testapp"
     }
-    lintOptions {
-        disable 'InvalidFragmentVersionForActivityResult'
-    }
 }
 
 dependencies {
