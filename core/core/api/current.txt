@@ -1130,8 +1130,12 @@ package androidx.core.graphics {
   }
 
   public final class Insets {
+    method public static androidx.core.graphics.Insets add(androidx.core.graphics.Insets, androidx.core.graphics.Insets);
+    method public static androidx.core.graphics.Insets max(androidx.core.graphics.Insets, androidx.core.graphics.Insets);
+    method public static androidx.core.graphics.Insets min(androidx.core.graphics.Insets, androidx.core.graphics.Insets);
     method public static androidx.core.graphics.Insets of(int, int, int, int);
     method public static androidx.core.graphics.Insets of(android.graphics.Rect);
+    method public static androidx.core.graphics.Insets subtract(androidx.core.graphics.Insets, androidx.core.graphics.Insets);
     method @RequiresApi(api=29) public static androidx.core.graphics.Insets toCompatInsets(android.graphics.Insets);
     method @RequiresApi(api=29) public android.graphics.Insets toPlatformInsets();
     field public static final androidx.core.graphics.Insets NONE;
@@ -1790,7 +1794,7 @@ package androidx.core.view {
   public final class DisplayCutoutCompat {
     ctor public DisplayCutoutCompat(android.graphics.Rect!, java.util.List<android.graphics.Rect!>!);
     ctor public DisplayCutoutCompat(androidx.core.graphics.Insets, android.graphics.Rect?, android.graphics.Rect?, android.graphics.Rect?, android.graphics.Rect?, androidx.core.graphics.Insets);
-    method public java.util.List<android.graphics.Rect!>! getBoundingRects();
+    method public java.util.List<android.graphics.Rect!> getBoundingRects();
     method public int getSafeInsetBottom();
     method public int getSafeInsetLeft();
     method public int getSafeInsetRight();
@@ -2439,6 +2443,7 @@ package androidx.core.view {
 
   public final class WindowCompat {
     method public static <T extends android.view.View> T requireViewById(android.view.Window, @IdRes int);
+    method public static void setDecorFitsSystemWindows(android.view.Window, boolean);
     field public static final int FEATURE_ACTION_BAR = 8; // 0x8
     field public static final int FEATURE_ACTION_BAR_OVERLAY = 9; // 0x9
     field public static final int FEATURE_ACTION_MODE_OVERLAY = 10; // 0xa
@@ -2446,34 +2451,39 @@ package androidx.core.view {
 
   public class WindowInsetsCompat {
     ctor public WindowInsetsCompat(androidx.core.view.WindowInsetsCompat?);
-    method public androidx.core.view.WindowInsetsCompat consumeDisplayCutout();
-    method public androidx.core.view.WindowInsetsCompat consumeStableInsets();
-    method public androidx.core.view.WindowInsetsCompat consumeSystemWindowInsets();
+    method @Deprecated public androidx.core.view.WindowInsetsCompat consumeDisplayCutout();
+    method @Deprecated public androidx.core.view.WindowInsetsCompat consumeStableInsets();
+    method @Deprecated public androidx.core.view.WindowInsetsCompat consumeSystemWindowInsets();
     method public androidx.core.view.DisplayCutoutCompat? getDisplayCutout();
-    method public androidx.core.graphics.Insets getMandatorySystemGestureInsets();
-    method public int getStableInsetBottom();
-    method public int getStableInsetLeft();
-    method public int getStableInsetRight();
-    method public int getStableInsetTop();
-    method public androidx.core.graphics.Insets getStableInsets();
-    method public androidx.core.graphics.Insets getSystemGestureInsets();
-    method public int getSystemWindowInsetBottom();
-    method public int getSystemWindowInsetLeft();
-    method public int getSystemWindowInsetRight();
-    method public int getSystemWindowInsetTop();
-    method public androidx.core.graphics.Insets getSystemWindowInsets();
-    method public androidx.core.graphics.Insets getTappableElementInsets();
+    method public androidx.core.graphics.Insets getInsets(int);
+    method public androidx.core.graphics.Insets getInsetsIgnoringVisibility(int);
+    method @Deprecated public androidx.core.graphics.Insets getMandatorySystemGestureInsets();
+    method @Deprecated public int getStableInsetBottom();
+    method @Deprecated public int getStableInsetLeft();
+    method @Deprecated public int getStableInsetRight();
+    method @Deprecated public int getStableInsetTop();
+    method @Deprecated public androidx.core.graphics.Insets getStableInsets();
+    method @Deprecated public androidx.core.graphics.Insets getSystemGestureInsets();
+    method @Deprecated public int getSystemWindowInsetBottom();
+    method @Deprecated public int getSystemWindowInsetLeft();
+    method @Deprecated public int getSystemWindowInsetRight();
+    method @Deprecated public int getSystemWindowInsetTop();
+    method @Deprecated public androidx.core.graphics.Insets getSystemWindowInsets();
+    method @Deprecated public androidx.core.graphics.Insets getTappableElementInsets();
     method public boolean hasInsets();
-    method public boolean hasStableInsets();
-    method public boolean hasSystemWindowInsets();
+    method @Deprecated public boolean hasStableInsets();
+    method @Deprecated public boolean hasSystemWindowInsets();
     method public androidx.core.view.WindowInsetsCompat inset(androidx.core.graphics.Insets);
     method public androidx.core.view.WindowInsetsCompat inset(@IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int);
     method public boolean isConsumed();
     method public boolean isRound();
+    method public boolean isVisible(int);
     method @Deprecated public androidx.core.view.WindowInsetsCompat replaceSystemWindowInsets(int, int, int, int);
     method @Deprecated public androidx.core.view.WindowInsetsCompat replaceSystemWindowInsets(android.graphics.Rect);
     method @RequiresApi(20) public android.view.WindowInsets? toWindowInsets();
     method @RequiresApi(20) public static androidx.core.view.WindowInsetsCompat toWindowInsetsCompat(android.view.WindowInsets);
+    method @RequiresApi(20) public static androidx.core.view.WindowInsetsCompat toWindowInsetsCompat(android.view.WindowInsets, android.view.View?);
+    field public static final androidx.core.view.WindowInsetsCompat CONSUMED;
   }
 
   public static final class WindowInsetsCompat.Builder {
@@ -2481,11 +2491,26 @@ package androidx.core.view {
     ctor public WindowInsetsCompat.Builder(androidx.core.view.WindowInsetsCompat);
     method public androidx.core.view.WindowInsetsCompat build();
     method public androidx.core.view.WindowInsetsCompat.Builder setDisplayCutout(androidx.core.view.DisplayCutoutCompat?);
-    method public androidx.core.view.WindowInsetsCompat.Builder setMandatorySystemGestureInsets(androidx.core.graphics.Insets);
-    method public androidx.core.view.WindowInsetsCompat.Builder setStableInsets(androidx.core.graphics.Insets);
-    method public androidx.core.view.WindowInsetsCompat.Builder setSystemGestureInsets(androidx.core.graphics.Insets);
-    method public androidx.core.view.WindowInsetsCompat.Builder setSystemWindowInsets(androidx.core.graphics.Insets);
-    method public androidx.core.view.WindowInsetsCompat.Builder setTappableElementInsets(androidx.core.graphics.Insets);
+    method public androidx.core.view.WindowInsetsCompat.Builder setInsets(int, androidx.core.graphics.Insets);
+    method public androidx.core.view.WindowInsetsCompat.Builder setInsetsIgnoringVisibility(int, androidx.core.graphics.Insets);
+    method @Deprecated public androidx.core.view.WindowInsetsCompat.Builder setMandatorySystemGestureInsets(androidx.core.graphics.Insets);
+    method @Deprecated public androidx.core.view.WindowInsetsCompat.Builder setStableInsets(androidx.core.graphics.Insets);
+    method @Deprecated public androidx.core.view.WindowInsetsCompat.Builder setSystemGestureInsets(androidx.core.graphics.Insets);
+    method @Deprecated public androidx.core.view.WindowInsetsCompat.Builder setSystemWindowInsets(androidx.core.graphics.Insets);
+    method @Deprecated public androidx.core.view.WindowInsetsCompat.Builder setTappableElementInsets(androidx.core.graphics.Insets);
+    method public androidx.core.view.WindowInsetsCompat.Builder setVisible(int, boolean);
+  }
+
+  public static final class WindowInsetsCompat.Type {
+    method public static int captionBar();
+    method public static int displayCutout();
+    method public static int ime();
+    method public static int mandatorySystemGestures();
+    method public static int navigationBars();
+    method public static int statusBars();
+    method public static int systemBars();
+    method public static int systemGestures();
+    method public static int tappableElement();
   }
 
 }

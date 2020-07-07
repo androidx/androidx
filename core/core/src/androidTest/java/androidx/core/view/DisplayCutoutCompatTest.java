@@ -18,9 +18,11 @@ package androidx.core.view;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 import android.graphics.Rect;
 
@@ -80,9 +82,9 @@ public class DisplayCutoutCompatTest {
     @Test
     public void testBoundingRects() {
         if (SDK_INT >= 28) {
-            assertEquals(Arrays.asList(new Rect(50, 0, 60, 10)), mCutoutTop.getBoundingRects());
+            assertThat(mCutoutTop.getBoundingRects(), hasItem(new Rect(50, 0, 60, 10)));
         } else {
-            assertNull(mCutoutTop.getBoundingRects());
+            assertThat(mCutoutTop.getBoundingRects(), empty());
         }
     }
 
@@ -98,11 +100,11 @@ public class DisplayCutoutCompatTest {
     @Test
     public void testEquals() {
         assertEquals(mCutoutTopBottomClone, mCutoutTopBottom);
-
         if (SDK_INT >= 28) {
             assertNotEquals(mCutoutTopBottom, mCutoutLeftRight);
         }
     }
+
     @Test
     public void testHashCode() {
         assertEquals(mCutoutTopBottomClone.hashCode(), mCutoutTopBottom.hashCode());

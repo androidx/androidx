@@ -2497,7 +2497,7 @@ public class ViewCompat {
      * window insets to this view. This will only take effect on devices with API 21 or above.
      */
     public static void setOnApplyWindowInsetsListener(@NonNull View v,
-            @Nullable final OnApplyWindowInsetsListener listener) {
+            final @Nullable OnApplyWindowInsetsListener listener) {
         if (Build.VERSION.SDK_INT >= 21) {
             if (listener == null) {
                 v.setOnApplyWindowInsetsListener(null);
@@ -2508,7 +2508,7 @@ public class ViewCompat {
                 @Override
                 public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
                     WindowInsetsCompat compatInsets = WindowInsetsCompat
-                            .toWindowInsetsCompat(insets);
+                            .toWindowInsetsCompat(insets, view);
                     compatInsets = listener.onApplyWindowInsets(view, compatInsets);
                     return compatInsets.toWindowInsets();
                 }
@@ -2537,7 +2537,7 @@ public class ViewCompat {
                 WindowInsets result = view.onApplyWindowInsets(unwrapped);
                 if (!result.equals(unwrapped)) {
                     // If the value changed, return a newly wrapped instance
-                    return WindowInsetsCompat.toWindowInsetsCompat(result);
+                    return WindowInsetsCompat.toWindowInsetsCompat(result, view);
                 }
             }
         }
@@ -2565,7 +2565,7 @@ public class ViewCompat {
                 final WindowInsets result = view.dispatchApplyWindowInsets(unwrapped);
                 if (!result.equals(unwrapped)) {
                     // If the value changed, return a newly wrapped instance
-                    return WindowInsetsCompat.toWindowInsetsCompat(result);
+                    return WindowInsetsCompat.toWindowInsetsCompat(result, view);
                 }
             }
         }
@@ -2617,7 +2617,7 @@ public class ViewCompat {
     @Nullable
     public static WindowInsetsCompat getRootWindowInsets(@NonNull View view) {
         if (Build.VERSION.SDK_INT >= 23) {
-            return WindowInsetsCompat.toWindowInsetsCompat(Api23Impl.getRootWindowInsets(view));
+            return Api23Impl.getRootWindowInsets(view);
         } else {
             return null;
         }
@@ -4512,7 +4512,7 @@ public class ViewCompat {
             WindowInsets platformInsets = insets.toWindowInsets();
             if (platformInsets != null) {
                 return WindowInsetsCompat.toWindowInsetsCompat(
-                        v.computeSystemWindowInsets(platformInsets, outLocalInsets));
+                        v.computeSystemWindowInsets(platformInsets, outLocalInsets), v);
             } else {
                 outLocalInsets.setEmpty();
                 return insets;
@@ -4526,8 +4526,17 @@ public class ViewCompat {
             // privatex
         }
 
-        public static WindowInsets getRootWindowInsets(View v) {
-            return v.getRootWindowInsets();
+        @Nullable
+        public static WindowInsetsCompat getRootWindowInsets(@NonNull View v) {
+            final WindowInsets wi = v.getRootWindowInsets();
+            if (wi == null) return null;
+
+            final WindowInsetsCompat insets = WindowInsetsCompat.toWindowInsetsCompat(wi);
+            // This looks strange, but the WindowInsetsCompat instance still needs to know about
+            // what the root window insets, and the root view visible bounds are
+            insets.setRootWindowInsets(insets);
+            insets.copyRootViewBounds(v.getRootView());
+            return insets;
         }
     }
 

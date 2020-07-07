@@ -78,7 +78,57 @@ public final class Insets {
     }
 
     /**
-     * Two Insets instances are equal iff they belong to the same class and their fields are
+     * Add two Insets.
+     *
+     * @param a The first Insets to add.
+     * @param b The second Insets to add.
+     * @return a + b, i. e. all insets on every side are added together.
+     */
+    @NonNull
+    public static Insets add(@NonNull Insets a, @NonNull Insets b) {
+        return Insets.of(a.left + b.left, a.top + b.top, a.right + b.right, a.bottom + b.bottom);
+    }
+
+    /**
+     * Subtract two Insets.
+     *
+     * @param a The minuend.
+     * @param b The subtrahend.
+     * @return a - b, i. e. all insets on every side are subtracted from each other.
+     */
+    @NonNull
+    public static Insets subtract(@NonNull Insets a, @NonNull Insets b) {
+        return Insets.of(a.left - b.left, a.top - b.top, a.right - b.right, a.bottom - b.bottom);
+    }
+
+    /**
+     * Retrieves the maximum of two Insets.
+     *
+     * @param a The first Insets.
+     * @param b The second Insets.
+     * @return max(a, b), i. e. the larger of every inset on every side is taken for the result.
+     */
+    @NonNull
+    public static Insets max(@NonNull Insets a, @NonNull Insets b) {
+        return Insets.of(Math.max(a.left, b.left), Math.max(a.top, b.top),
+                Math.max(a.right, b.right), Math.max(a.bottom, b.bottom));
+    }
+
+    /**
+     * Retrieves the minimum of two Insets.
+     *
+     * @param a The first Insets.
+     * @param b The second Insets.
+     * @return min(a, b), i. e. the smaller of every inset on every side is taken for the result.
+     */
+    @NonNull
+    public static Insets min(@NonNull Insets a, @NonNull Insets b) {
+        return Insets.of(Math.min(a.left, b.left), Math.min(a.top, b.top),
+                Math.min(a.right, b.right), Math.min(a.bottom, b.bottom));
+    }
+
+    /**
+     * Two Insets instances are equal if they belong to the same class and their fields are
      * pairwise equal.
      *
      * @param o the object to compare this instance with.
@@ -115,8 +165,8 @@ public final class Insets {
     }
 
     /**
-     * @deprecated Use {@link #toCompatInsets(android.graphics.Insets)} instead.
      * @hide
+     * @deprecated Use {@link #toCompatInsets(android.graphics.Insets)} instead.
      */
     @RequiresApi(api = 29)
     @NonNull

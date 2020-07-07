@@ -16,11 +16,8 @@
 
 package androidx.appcompat.app;
 
-import static androidx.appcompat.testutils.TestUtilsActions.setSystemUiVisibility;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
-import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -50,6 +47,7 @@ import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -131,20 +129,35 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     @Test
     @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 20)
     @RequiresApi(16)
-    @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
-    public void testFitSystemWindowsReachesContent() {
-        final FitWindowsContentLayout content =
-                mActivityTestRule.getActivity().findViewById(R.id.test_content);
-        assertNotNull(content);
-
-        if (!canShowSystemUi(mActivityTestRule.getActivity())) {
+    public void testFitSystemWindowsReachesContent() throws Throwable {
+        final A activity = mActivityTestRule.getActivity();
+        if (!canShowSystemUi(activity)) {
             // Device cannot show system UI so setSystemUiVisibility will do nothing.
             return;
         }
 
-        // Call setSystemUiVisibility with flags which will cause window insets to be dispatched
-        final int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-        onView(withId(R.id.test_content)).perform(setSystemUiVisibility(flags));
+        final FitWindowsContentLayout content = activity.findViewById(R.id.test_content);
+        assertNotNull(content);
+
+        // Tell the window that we will handle insets
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WindowCompat.setDecorFitsSystemWindows(activity.getWindow(), false);
+            }
+        });
+
+        // Wait for the next layout
+        final CountDownLatch latch = new CountDownLatch(1);
+        content.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                    int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                v.removeOnLayoutChangeListener(this);
+                latch.countDown();
+            }
+        });
+        latch.await(5, TimeUnit.SECONDS);
 
         assertTrue(content.getFitsSystemWindowsCalled());
     }
@@ -191,7 +204,6 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     @Test
     @SdkSuppress(minSdkVersion = 28)
     @RequiresApi(28)
-    @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
     public void testOnApplyWindowInsetsReachesContent_withDisplayCutout() throws Throwable {
         final A activity = mActivityTestRule.getActivity();
         if (!canShowSystemUi(activity)) {
@@ -214,14 +226,12 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
             }
         });
 
-        // Call setSystemUiVisibility with flags which will cause insets to be dispatched,
-        // and tell the WindowManager that we want to handle DisplayCutouts
+        // Tell the window that we will handle insets, and tell the WindowManager that we want to
+        // handle DisplayCutouts
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                content.setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+                WindowCompat.setDecorFitsSystemWindows(activity.getWindow(), false);
 
                 WindowManager.LayoutParams wlp = activity.getWindow().getAttributes();
                 wlp.layoutInDisplayCutoutMode =
@@ -357,7 +367,6 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     }
 
     @RequiresApi(16)
-    @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
     private WindowInsetsCompat waitForWindowInsets(@NonNull final View view) throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicReference<WindowInsetsCompat> received = new AtomicReference<>();
@@ -371,13 +380,12 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
             }
         });
 
-        // Call setSystemUiVisibility with flags which will cause insets to be dispatched
+        // Tell the Window that we want to fit any system windows
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                view.setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+                WindowCompat.setDecorFitsSystemWindows(
+                        mActivityTestRule.getActivity().getWindow(), false);
             }
         });
 
