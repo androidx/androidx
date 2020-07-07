@@ -28,7 +28,7 @@ import androidx.room.ext.findKotlinDefaultImpl
 import androidx.room.ext.getAllMethods
 import androidx.room.ext.getConstructors
 import androidx.room.ext.hasAnnotation
-import androidx.room.ext.hasAnyOf
+import androidx.room.ext.isAbstract
 import androidx.room.ext.typeName
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
@@ -37,7 +37,6 @@ import com.squareup.javapoet.TypeName
 import isAssignableFrom
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 
@@ -57,14 +56,14 @@ class DaoProcessor(
     fun process(): Dao {
         context.checker.hasAnnotation(element, androidx.room.Dao::class,
                 ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO)
-        context.checker.check(element.hasAnyOf(ABSTRACT) || element.kind == ElementKind.INTERFACE,
+        context.checker.check(element.isAbstract() || element.kind == ElementKind.INTERFACE,
                 element, ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE)
 
         val declaredType = element.asDeclaredType()
         val allMethods = element.getAllMethods(context.processingEnv)
         val methods = allMethods
             .filter {
-                it.hasAnyOf(ABSTRACT) &&
+                it.isAbstract() &&
                         it.findKotlinDefaultImpl(context.processingEnv.typeUtils) == null
             }.groupBy { method ->
                 context.checker.check(

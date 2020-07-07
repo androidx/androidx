@@ -28,12 +28,17 @@ import androidx.room.ext.extendsBoundOrSelf
 import androidx.room.ext.findTypeElement
 import androidx.room.ext.getAllFieldsIncludingPrivateSupers
 import androidx.room.ext.getAllMethodsIncludingSupers
-import androidx.room.ext.getConstructors
 import androidx.room.ext.getAllNonPrivateInstanceMethods
+import androidx.room.ext.getConstructors
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
+import androidx.room.ext.isAbstract
 import androidx.room.ext.isAssignableFromWithoutVariance
 import androidx.room.ext.isCollection
+import androidx.room.ext.isPrivate
+import androidx.room.ext.isPublic
+import androidx.room.ext.isStatic
+import androidx.room.ext.isTransient
 import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.typeName
 import androidx.room.kotlin.KotlinMetadataElement
@@ -64,12 +69,6 @@ import isNotVoid
 import isTypeOf
 import isVoid
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier.ABSTRACT
-import javax.lang.model.element.Modifier.PRIVATE
-import javax.lang.model.element.Modifier.PROTECTED
-import javax.lang.model.element.Modifier.PUBLIC
-import javax.lang.model.element.Modifier.STATIC
-import javax.lang.model.element.Modifier.TRANSIENT
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
@@ -144,11 +143,9 @@ class PojoProcessor private constructor(
         val allFields = element.getAllFieldsIncludingPrivateSupers(context.processingEnv)
                 .filter {
                     !it.hasAnnotation(Ignore::class) &&
-                            !it.hasAnyOf(STATIC) &&
-                            (!it.hasAnyOf(TRANSIENT) ||
-                            it.hasAnnotation(ColumnInfo::class) ||
-                            it.hasAnnotation(Embedded::class) ||
-                            it.hasAnnotation(Relation::class))
+                            !it.isStatic() &&
+                            (!it.isTransient() ||
+                            it.hasAnyOf(ColumnInfo::class, Embedded::class, Relation::class))
                 }
                 .groupBy { field ->
                     context.checker.check(
@@ -231,7 +228,7 @@ class PojoProcessor private constructor(
         val methods = element.getAllNonPrivateInstanceMethods(context.processingEnv)
             .asSequence()
             .filter {
-                !it.hasAnyOf(ABSTRACT) && !it.hasAnnotation(Ignore::class)
+                !it.isAbstract() && !it.hasAnnotation(Ignore::class)
             }.map {
                 PojoMethodProcessor(
                     context = context,
@@ -826,7 +823,7 @@ class PojoProcessor private constructor(
         assignFromMethod: (PojoMethod) -> Unit,
         reportAmbiguity: (List<String>) -> Unit
     ): Boolean {
-        if (field.element.hasAnyOf(PUBLIC)) {
+        if (field.element.isPublic()) {
             assignFromField()
             return true
         }
@@ -840,17 +837,18 @@ class PojoProcessor private constructor(
                             nameVariations.contains(it.name))
                 }
                 .groupBy {
-                    if (it.element.hasAnyOf(PUBLIC)) PUBLIC else PROTECTED
+                    it.element.isPublic()
                 }
         if (matching.isEmpty()) {
             // we always assign to avoid NPEs in the rest of the compilation.
             assignFromField()
             // if field is not private, assume it works (if we are on the same package).
             // if not, compiler will tell, we didn't have any better alternative anyways.
-            return !field.element.hasAnyOf(PRIVATE)
+            return !field.element.isPrivate()
         }
-        val match = verifyAndChooseOneFrom(matching[PUBLIC], reportAmbiguity)
-                ?: verifyAndChooseOneFrom(matching[PROTECTED], reportAmbiguity)
+        // first try public ones, then try non-public
+        val match = verifyAndChooseOneFrom(matching[true], reportAmbiguity)
+                ?: verifyAndChooseOneFrom(matching[false], reportAmbiguity)
         if (match == null) {
             assignFromField()
             return false
@@ -905,7 +903,7 @@ class PojoProcessor private constructor(
         }
 
         override fun findConstructors(element: TypeElement) = element.getConstructors().filterNot {
-            it.hasAnnotation(Ignore::class) || it.hasAnyOf(PRIVATE)
+            it.hasAnnotation(Ignore::class) || it.isPrivate()
         }
 
         override fun createPojo(

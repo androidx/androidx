@@ -24,7 +24,7 @@ import androidx.room.ext.asExecutableElement
 import androidx.room.ext.asTypeElement
 import androidx.room.ext.getAllMethods
 import androidx.room.ext.hasAnnotation
-import androidx.room.ext.hasAnyOf
+import androidx.room.ext.isAbstract
 import androidx.room.ext.isType
 import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.toAnnotationBox
@@ -43,7 +43,6 @@ import com.squareup.javapoet.TypeName
 import isAssignableFrom
 import java.util.Locale
 import javax.lang.model.element.Element
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 
@@ -93,7 +92,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
 
         val declaredType = element.asDeclaredType()
         val daoMethods = element.getAllMethods(context.processingEnv).filter {
-            it.hasAnyOf(Modifier.ABSTRACT)
+            it.isAbstract()
         }.filterNot {
             // remove methods that belong to room
             val containing = it.enclosingElement
