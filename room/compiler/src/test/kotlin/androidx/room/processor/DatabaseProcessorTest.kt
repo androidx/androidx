@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.RoomProcessor
+import androidx.room.ext.asTypeElement
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
@@ -29,7 +30,6 @@ import androidx.room.vo.Database
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
-import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -908,7 +908,7 @@ class DatabaseProcessorTest {
                         .first()
                     val processor = DatabaseProcessor(
                         invocation.context,
-                        MoreElements.asType(database)
+                        database.asTypeElement()
                     )
 
                     val list = views.map { (viewName, names) ->
@@ -972,7 +972,7 @@ class DatabaseProcessorTest {
                                             androidx.room.Database::class.java)
                                     .first()
                             val parser = DatabaseProcessor(invocation.context,
-                                    MoreElements.asType(entity))
+                                    entity.asTypeElement())
                             val parsedDb = parser.process()
                             handler(parsedDb, invocation)
                             true

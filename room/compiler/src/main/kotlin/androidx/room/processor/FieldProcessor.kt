@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import androidx.room.ColumnInfo
+import androidx.room.ext.asMemberOf
 import androidx.room.ext.toAnnotationBox
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
@@ -24,20 +25,23 @@ import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Field
 import com.squareup.javapoet.TypeName
 import java.util.Locale
-import javax.lang.model.element.Element
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
 
 class FieldProcessor(
     baseContext: Context,
     val containing: DeclaredType,
-    val element: Element,
+    val element: VariableElement,
     val bindingScope: BindingScope,
     val fieldParent: EmbeddedField?, // pass only if this is processed as a child of Embedded field
     val onBindingError: (field: Field, errorMsg: String) -> Unit
 ) {
     val context = baseContext.fork(element)
     fun process(): Field {
-        val member = context.processingEnv.typeUtils.asMemberOf(containing, element)
+        val member = element.asMemberOf(
+            context.processingEnv.typeUtils,
+            containing
+        )
         val type = TypeName.get(member)
         val columnInfo = element.toAnnotationBox(ColumnInfo::class)?.value
         val name = element.simpleName.toString()

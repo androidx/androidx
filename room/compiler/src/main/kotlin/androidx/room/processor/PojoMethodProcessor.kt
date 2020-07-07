@@ -16,8 +16,9 @@
 
 package androidx.room.processor
 
+import androidx.room.ext.asMemberOf
 import androidx.room.vo.PojoMethod
-import com.google.auto.common.MoreTypes
+import asExecutableType
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 
@@ -30,11 +31,14 @@ class PojoMethodProcessor(
     private val owner: DeclaredType
 ) {
     fun process(): PojoMethod {
-        val asMember = context.processingEnv.typeUtils.asMemberOf(owner, element)
+        val asMember = element.asMemberOf(
+            context.processingEnv.typeUtils,
+            owner
+        )
         val name = element.simpleName.toString()
         return PojoMethod(
                 element = element,
-                resolvedType = MoreTypes.asExecutable(asMember),
+                resolvedType = asMember.asExecutableType(),
                 name = name
         )
     }

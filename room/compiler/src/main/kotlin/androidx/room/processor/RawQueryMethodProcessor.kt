@@ -19,6 +19,7 @@ package androidx.room.processor
 import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.room.ext.SupportDbTypeNames
+import androidx.room.ext.asMemberOf
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.isEntityElement
 import androidx.room.ext.requireTypeMirror
@@ -28,7 +29,6 @@ import androidx.room.parser.SqlParser
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
 import androidx.room.vo.RawQueryMethod
 import asTypeElement
-import com.google.auto.common.MoreTypes
 import isAssignableFrom
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.VariableElement
@@ -108,10 +108,7 @@ class RawQueryMethodProcessor(
     ): RawQueryMethod.RuntimeQueryParameter? {
         val types = context.processingEnv.typeUtils
         if (extractParams.size == 1 && !executableElement.isVarArgs) {
-            val param = MoreTypes.asMemberOf(
-                    types,
-                    containing,
-                    extractParams[0])
+            val param = extractParams.first().asMemberOf(types, containing)
             val processingEnv = context.processingEnv
             val supportQueryType = processingEnv.requireTypeMirror(SupportDbTypeNames.QUERY)
             val isSupportSql = supportQueryType.isAssignableFrom(types, param)

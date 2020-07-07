@@ -18,7 +18,7 @@ package androidx.room.solver.types
 
 import androidx.room.ext.L
 import androidx.room.solver.CodeGenScope
-import com.google.auto.common.MoreTypes
+import asPrimitive
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.TypeMirror
 
@@ -38,7 +38,7 @@ open class BoxedPrimitiveColumnTypeAdapter(
             return primitiveAdapters.map {
                 BoxedPrimitiveColumnTypeAdapter(
                         processingEnvironment.typeUtils
-                                .boxedClass(MoreTypes.asPrimitiveType(it.out)).asType(),
+                                .boxedClass(it.out.asPrimitive()).asType(),
                         it
                 )
             }

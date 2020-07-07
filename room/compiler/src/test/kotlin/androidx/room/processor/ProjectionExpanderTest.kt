@@ -16,10 +16,10 @@
 
 package androidx.room.processor
 
+import androidx.room.ext.asTypeElement
 import androidx.room.parser.SqlParser
 import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.testing.TestInvocation
-import com.google.auto.common.MoreElements
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import createVerifierFromEntitiesAndViews
@@ -512,7 +512,7 @@ class ProjectionExpanderTest {
                 .map { element ->
                     TableEntityProcessor(
                         invocation.context,
-                        MoreElements.asType(element)
+                        element.asTypeElement()
                     ).process()
                 }
             val entityElement = invocation.roundEnv
@@ -520,7 +520,7 @@ class ProjectionExpanderTest {
                 .first { it.toString() == "foo.bar.User" }
             val entity = PojoProcessor.createFor(
                 invocation.context,
-                MoreElements.asType(entityElement),
+                entityElement.asTypeElement(),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                 parent = null
             ).process()
@@ -610,7 +610,7 @@ class ProjectionExpanderTest {
                 .map { element ->
                     TableEntityProcessor(
                         invocation.context,
-                        MoreElements.asType(element)
+                        element.asTypeElement()
                     ).process()
                 }
             val pojoElement = invocation.roundEnv
@@ -618,7 +618,7 @@ class ProjectionExpanderTest {
                 .first { it.toString() == name }
             val pojo = PojoProcessor.createFor(
                 invocation.context,
-                MoreElements.asType(pojoElement),
+                pojoElement.asTypeElement(),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                 parent = null
             ).process()

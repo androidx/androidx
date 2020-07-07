@@ -38,10 +38,10 @@ import androidx.room.vo.Warning
 import androidx.room.vo.columnNames
 import androidx.room.vo.findFieldByColumnName
 import asTypeElement
-import com.google.auto.common.MoreTypes
+import isNone
+import isNotNone
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
 class TableEntityProcessor internal constructor(
@@ -208,7 +208,7 @@ class TableEntityProcessor internal constructor(
                 return@map null
             }
             val parentElement = try {
-                MoreTypes.asElement(it.parent) as TypeElement
+                it.parent.asTypeElement()
             } catch (noClass: IllegalArgumentException) {
                 context.logger.e(element, ProcessorErrors.FOREIGN_KEY_CANNOT_FIND_PARENT)
                 return@map null
@@ -348,7 +348,7 @@ class TableEntityProcessor internal constructor(
         } ?: emptyList()
         // checks supers.
         val mySuper = typeElement.superclass
-        val superPKeys = if (mySuper != null && mySuper.kind != TypeKind.NONE) {
+        val superPKeys = if (mySuper != null && mySuper.isNotNone()) {
             // my super cannot see my fields so remove them.
             val remainingFields = availableFields.filterNot {
                 it.element.enclosingElement == typeElement
@@ -399,7 +399,7 @@ class TableEntityProcessor internal constructor(
         } else if (myPKeys.isEmpty()) {
             // i have not declared anything, delegate to super
             val mySuper = typeElement.superclass
-            if (mySuper != null && mySuper.kind != TypeKind.NONE) {
+            if (mySuper != null && mySuper.isNotNone()) {
                 return choosePrimaryKey(candidates, mySuper.asTypeElement())
             }
             PrimaryKey.MISSING
@@ -462,7 +462,7 @@ class TableEntityProcessor internal constructor(
         tableName: String,
         inherit: Boolean
     ): List<IndexInput> {
-        if (typeMirror == null || typeMirror.kind == TypeKind.NONE) {
+        if (typeMirror == null || typeMirror.isNone()) {
             return emptyList()
         }
         val parentElement = typeMirror.asTypeElement()

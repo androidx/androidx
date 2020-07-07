@@ -18,10 +18,10 @@ package androidx.room.processor
 
 import androidx.annotation.NonNull
 import androidx.room.Embedded
+import androidx.room.ext.asTypeElement
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Entity
-import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -89,7 +89,7 @@ abstract class BaseEntityParserTest {
                                             androidx.room.Entity::class.java)
                                     .first { it.toString() == "foo.bar.MyEntity" }
                             val parser = TableEntityProcessor(invocation.context,
-                                    MoreElements.asType(entity))
+                                    entity.asTypeElement())
                             val parsedQuery = parser.process()
                             handler(parsedQuery, invocation)
                             true

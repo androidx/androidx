@@ -26,6 +26,7 @@ import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RoomRxJava3TypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
+import androidx.room.ext.asTypeElement
 import androidx.room.processor.DatabaseViewProcessor
 import androidx.room.processor.TableEntityProcessor
 import androidx.room.solver.CodeGenScope
@@ -33,7 +34,6 @@ import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.writer.ClassWriter
-import com.google.auto.common.MoreElements
 import com.google.common.io.Files
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
@@ -225,13 +225,13 @@ fun createVerifierFromEntitiesAndViews(invocation: TestInvocation): DatabaseVeri
 
 fun TestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {
     return roundEnv.getElementsAnnotatedWith(DatabaseView::class.java).map {
-        DatabaseViewProcessor(context, MoreElements.asType(it)).process()
+        DatabaseViewProcessor(context, it.asTypeElement()).process()
     }
 }
 
 fun TestInvocation.getEntities(): List<androidx.room.vo.Entity> {
     val entities = roundEnv.getElementsAnnotatedWith(Entity::class.java).map {
-        TableEntityProcessor(context, MoreElements.asType(it)).process()
+        TableEntityProcessor(context, it.asTypeElement()).process()
     }
     return entities
 }
