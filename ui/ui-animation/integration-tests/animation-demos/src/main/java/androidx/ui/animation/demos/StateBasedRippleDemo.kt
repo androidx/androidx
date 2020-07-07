@@ -27,7 +27,7 @@ import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
@@ -59,12 +59,9 @@ private fun RippleRect() {
     val onRelease: () -> Unit = {
         toState.value = ButtonStatus.Released
     }
-    Transition(definition = rippleTransDef, toState = toState.value) { state ->
-        RippleRectFromState(
-            Modifier.pressIndicatorGestureFilter(onStart = onPress, onStop = onRelease), state =
-            state
-        )
-    }
+    val state = transition(definition = rippleTransDef, toState = toState.value)
+    RippleRectFromState(
+        Modifier.pressIndicatorGestureFilter(onStart = onPress, onStop = onRelease), state = state)
 }
 
 @Composable

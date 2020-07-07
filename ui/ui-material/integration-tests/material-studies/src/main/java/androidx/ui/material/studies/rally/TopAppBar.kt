@@ -22,7 +22,7 @@ import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.selection.selectable
@@ -120,9 +120,8 @@ private fun TabTransition(
             }
         }
     }
-    Transition(transitionDefinition, selected) { state ->
-        children(state[TabTintColorKey])
-    }
+    val state = transition(transitionDefinition, selected)
+    children(state[TabTintColorKey])
 }
 
 private val TabTintColorKey = ColorPropKey()

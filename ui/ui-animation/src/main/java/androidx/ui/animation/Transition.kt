@@ -33,19 +33,19 @@ import androidx.compose.setValue
 import androidx.ui.core.AnimationClockAmbient
 
 /**
- * [Transition] composable creates a state-based transition using the animation configuration
+ * [transition] composable creates a state-based transition using the animation configuration
  * defined in [TransitionDefinition]. This can be especially useful when animating multiple
  * values from a predefined set of values to another. For animating a single value, consider using
  * [animatedValue], [animatedFloat], [animatedColor] or the more light-weight [animate] APIs.
  *
- * [Transition] starts a new animation or changes the on-going animation when the [toState]
+ * [transition] starts a new animation or changes the on-going animation when the [toState]
  * parameter is changed to a different value. It dutifully ensures that the animation will head
  * towards new [toState] regardless of what state (or in-between state) it’s currently in: If the
  * transition is not currently animating, having a new [toState] value will start a new animation,
  * otherwise the in-flight animation will correct course and animate towards the new [toState]
  * based on the interruption handling logic.
  *
- * [Transition] takes a transition definition, a target state and child composables.
+ * [transition] takes a transition definition, a target state and child composables.
  * These child composables will be receiving a [TransitionState] object as an argument, which
  * captures all the current values of the animation. Child composables should read the animation
  * values from the [TransitionState] object, and apply the value wherever necessary.
@@ -63,20 +63,20 @@ import androidx.ui.core.AnimationClockAmbient
  *                  will be set to the first [toState] seen in the transition.
  * @param onStateChangeFinished An optional listener to get notified when state change animation
  *                              has completed
- * @param children The children composables that will be animated
+ *
+ * @return a [TransitionState] instance, from which the animation values can be read
  *
  * @see [TransitionDefinition]
  */
 // TODO: The list of params is getting a bit long. Consider grouping them.
 @Composable
-fun <T> Transition(
+fun <T> transition(
     definition: TransitionDefinition<T>,
     toState: T,
     clock: AnimationClockObservable = AnimationClockAmbient.current,
     initState: T = toState,
-    onStateChangeFinished: ((T) -> Unit)? = null,
-    children: @Composable (state: TransitionState) -> Unit
-) {
+    onStateChangeFinished: ((T) -> Unit)? = null
+): TransitionState {
     if (transitionsEnabled) {
         val disposableClock = clock.asDisposableClock()
         val model = remember(definition, disposableClock) {
@@ -90,15 +90,14 @@ fun <T> Transition(
         onPreCommit(model, toState) {
             model.anim.toState(toState)
         }
-        children(model)
+        return model
     } else {
-        val state = remember(definition, toState) { definition.getStateFor(toState) }
-        children(state)
+        return remember(definition, toState) { definition.getStateFor(toState) }
     }
 }
 
 /**
- * Stores the enabled state for [Transition] animations. Useful for tests to disable
+ * Stores the enabled state for [transition] animations. Useful for tests to disable
  * animations and have reliable screenshot tests.
  */
 var transitionsEnabled = true

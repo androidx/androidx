@@ -32,7 +32,7 @@ import androidx.compose.stateFor
 import androidx.compose.structuralEqualityPolicy
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
@@ -397,14 +397,13 @@ private object TextFieldTransitionScope {
                 indicatorInactiveColor
             )
         }
-        Transition(definition = definition, toState = inputState) { state ->
-            children(
-                state[LabelProgressProp],
-                state[LabelColorProp],
-                state[IndicatorWidthProp],
-                state[IndicatorColorProp]
-            )
-        }
+        val state = transition(definition = definition, toState = inputState)
+        children(
+            state[LabelProgressProp],
+            state[LabelColorProp],
+            state[IndicatorWidthProp],
+            state[IndicatorColorProp]
+        )
     }
 
     private fun generateLabelTransitionDefinition(

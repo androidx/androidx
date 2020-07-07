@@ -35,7 +35,7 @@ import kotlin.math.sign
  * [AnimationClockObservable] as needed.
  *
  * @see [AnimatedValue]
- * @see [androidx.ui.animation.Transition]
+ * @see [androidx.ui.animation.transition]
  * @suppress
  */
 @VisibleForTesting(otherwise = 3 /*package private*/)
@@ -169,7 +169,7 @@ internal fun <T, V : AnimationVector> TargetBasedAnimation(
  * @param converter the [TwoWayConverter] that is used to convert animation type [T] from/to [V]
  *
  * @see [TransitionAnimation]
- * @see [androidx.ui.animation.Transition]
+ * @see [androidx.ui.animation.transition]
  * @see [AnimatedValue]
  * @suppress
  */

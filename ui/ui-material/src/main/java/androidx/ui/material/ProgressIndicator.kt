@@ -27,7 +27,7 @@ import androidx.animation.transitionDefinition
 import androidx.animation.tween
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
@@ -85,39 +85,38 @@ fun LinearProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary
 ) {
-    Transition(
+    val state = transition(
         definition = LinearIndeterminateTransition,
         initState = 0,
         toState = 1
-    ) { state ->
-        val firstLineHead = state[FirstLineHeadProp]
-        val firstLineTail = state[FirstLineTailProp]
-        val secondLineHead = state[SecondLineHeadProp]
-        val secondLineTail = state[SecondLineTailProp]
-        val backgroundColor = color.copy(alpha = BackgroundOpacity)
-        Canvas(modifier
-            // TODO(b/154875304) create IndeterminateProgressIndicator in foundation and move the
-            //  semantics there
-            .semantics { accessibilityValue = Strings.InProgress }
-            .preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)) {
-            val strokeWidth = ProgressIndicatorConstants.DefaultStrokeWidth.toPx()
-            drawLinearIndicatorBackground(backgroundColor, strokeWidth)
-            if (firstLineHead - firstLineTail > 0) {
-                drawLinearIndicator(
-                    firstLineHead,
-                    firstLineTail,
-                    color,
-                    strokeWidth
-                )
-            }
-            if ((secondLineHead - secondLineTail) > 0) {
-                drawLinearIndicator(
-                    secondLineHead,
-                    secondLineTail,
-                    color,
-                    strokeWidth
-                )
-            }
+    )
+    val firstLineHead = state[FirstLineHeadProp]
+    val firstLineTail = state[FirstLineTailProp]
+    val secondLineHead = state[SecondLineHeadProp]
+    val secondLineTail = state[SecondLineTailProp]
+    val backgroundColor = color.copy(alpha = BackgroundOpacity)
+    Canvas(modifier
+        // TODO(b/154875304) create IndeterminateProgressIndicator in foundation and move the
+        //  semantics there
+        .semantics { accessibilityValue = Strings.InProgress }
+        .preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)) {
+        val strokeWidth = ProgressIndicatorConstants.DefaultStrokeWidth.toPx()
+        drawLinearIndicatorBackground(backgroundColor, strokeWidth)
+        if (firstLineHead - firstLineTail > 0) {
+            drawLinearIndicator(
+                firstLineHead,
+                firstLineTail,
+                color,
+                strokeWidth
+            )
+        }
+        if ((secondLineHead - secondLineTail) > 0) {
+            drawLinearIndicator(
+                secondLineHead,
+                secondLineTail,
+                color,
+                strokeWidth
+            )
         }
     }
 }
@@ -194,35 +193,34 @@ fun CircularProgressIndicator(
     val stroke = with(DensityAmbient.current) {
         Stroke(width = strokeWidth.toPx(), cap = StrokeCap.square)
     }
-    Transition(
+    val state = transition(
         definition = CircularIndeterminateTransition,
         initState = 0,
         toState = 1
-    ) { state ->
-        val currentRotation = state[IterationProp]
-        val baseRotation = state[BaseRotationProp]
+    )
+    val currentRotation = state[IterationProp]
+    val baseRotation = state[BaseRotationProp]
 
-        val currentRotationAngleOffset = (currentRotation * RotationAngleOffset) % 360f
+    val currentRotationAngleOffset = (currentRotation * RotationAngleOffset) % 360f
 
-        var startAngle = state[TailRotationProp]
-        val endAngle = state[HeadRotationProp]
-        // How long a line to draw using the start angle as a reference point
-        val sweep = abs(endAngle - startAngle)
+    var startAngle = state[TailRotationProp]
+    val endAngle = state[HeadRotationProp]
+    // How long a line to draw using the start angle as a reference point
+    val sweep = abs(endAngle - startAngle)
 
-        // Offset by the constant offset and the per rotation offset
-        startAngle += StartAngleOffset + currentRotationAngleOffset
-        startAngle += baseRotation
+    // Offset by the constant offset and the per rotation offset
+    startAngle += StartAngleOffset + currentRotationAngleOffset
+    startAngle += baseRotation
 
-        Canvas(
-            modifier
-                // TODO(b/154875304) create IndeterminateProgressIndicator in foundation and move the
-                //  semantics there
-                .semantics { accessibilityValue = Strings.InProgress }
-                .padding(CircularIndicatorPadding)
-                .preferredSize(CircularIndicatorDiameter)
-        ) {
-            drawIndeterminateCircularIndicator(startAngle, strokeWidth, sweep, color, stroke)
-        }
+    Canvas(
+        modifier
+            // TODO(b/154875304) create IndeterminateProgressIndicator in foundation and move the
+            //  semantics there
+            .semantics { accessibilityValue = Strings.InProgress }
+            .padding(CircularIndicatorPadding)
+            .preferredSize(CircularIndicatorDiameter)
+    ) {
+        drawIndeterminateCircularIndicator(startAngle, strokeWidth, sweep, color, stroke)
     }
 }
 

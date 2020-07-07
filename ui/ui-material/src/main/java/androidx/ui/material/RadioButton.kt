@@ -23,7 +23,7 @@ import androidx.compose.Stable
 import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
@@ -333,22 +333,21 @@ fun RadioButton(
     val definition = remember(selectedColor, unselectedColor) {
         generateTransitionDefinition(selectedColor, unselectedColor)
     }
-    Transition(definition = definition, toState = selected) { state ->
-        Canvas(
-            modifier
-                .selectable(
-                    selected = selected,
-                    onClick = onClick,
-                    enabled = enabled,
-                    indication = RippleIndication(bounded = false, radius = RadioButtonRippleRadius)
-                )
-                .wrapContentSize(Alignment.Center)
-                .padding(RadioButtonPadding)
-                .size(RadioButtonSize)
-        ) {
-            val color = if (enabled) state[ColorProp] else disabledColor
-            drawRadio(color, state[DotRadiusProp])
-        }
+    val state = transition(definition = definition, toState = selected)
+    Canvas(
+        modifier
+            .selectable(
+                selected = selected,
+                onClick = onClick,
+                enabled = enabled,
+                indication = RippleIndication(bounded = false, radius = RadioButtonRippleRadius)
+            )
+            .wrapContentSize(Alignment.Center)
+            .padding(RadioButtonPadding)
+            .size(RadioButtonSize)
+    ) {
+        val color = if (enabled) state[ColorProp] else disabledColor
+        drawRadio(color, state[DotRadiusProp])
     }
 }
 

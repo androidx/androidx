@@ -27,7 +27,7 @@ import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
@@ -329,16 +329,15 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
     // Fill up the entire TabRow with this container, and place children at the left so we can use
     // Padding to set the 'offset'
     Box(Modifier.fillMaxSize(), gravity = ContentGravity.BottomStart) {
-        Transition(transitionDefinition, selectedIndex) { state ->
-            val offset = state[indicatorStart]
-            val width = state[indicatorEnd] - state[indicatorStart]
-            Box(
-                Modifier.offset(x = offset, y = 0.dp).preferredWidth(width),
-                gravity = ContentGravity.Center
-            ) {
-                // Pass the current color to the indicator
-                FancyIndicator(state[indicatorColor])
-            }
+        val state = transition(transitionDefinition, selectedIndex)
+        val offset = state[indicatorStart]
+        val width = state[indicatorEnd] - state[indicatorStart]
+        Box(
+            Modifier.offset(x = offset, y = 0.dp).preferredWidth(width),
+            gravity = ContentGravity.Center
+        ) {
+            // Pass the current color to the indicator
+            FancyIndicator(state[indicatorColor])
         }
     }
 }

@@ -22,7 +22,7 @@ import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Canvas
@@ -66,9 +66,8 @@ fun GestureBasedAnimationDemo() {
             onStop = { toState.value = ComponentState.Released },
             onCancel = { toState.value = ComponentState.Released })
 
-    Transition(definition = definition, toState = toState.value) { state ->
-        ScaledColorRect(pressIndicator, scale = state[scale], color = state[color])
-    }
+    val state = transition(definition = definition, toState = toState.value)
+    ScaledColorRect(pressIndicator, scale = state[scale], color = state[color])
 }
 
 @Composable

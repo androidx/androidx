@@ -27,7 +27,7 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.animation.DpPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
@@ -204,7 +204,7 @@ private val MagnifierLabelHeight = 50.dp
 private val SelectionCircleDiameter = 30.dp
 
 /**
- * [Transition] that animates between [visible] states of the magnifier by animating the width of
+ * [transition] that animates between [visible] states of the magnifier by animating the width of
  * the label, diameter of the selection circle, and opacity of the overall magnifier
  */
 @Composable
@@ -241,9 +241,8 @@ private fun MagnifierTransition(
             }
         }
     }
-    Transition(transitionDefinition, visible) { state ->
-        children(state[LabelWidthPropKey], state[MagnifierDiameterPropKey], state[OpacityPropKey])
-    }
+    val state = transition(transitionDefinition, visible)
+    children(state[LabelWidthPropKey], state[MagnifierDiameterPropKey], state[OpacityPropKey])
 }
 
 private val LabelWidthPropKey = DpPropKey()

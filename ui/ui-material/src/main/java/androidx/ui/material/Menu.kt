@@ -27,7 +27,7 @@ import androidx.compose.getValue
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawLayerModifier
@@ -118,38 +118,37 @@ fun DropdownMenu(
                 onDismissRequest = onDismissRequest,
                 popupPositionProvider = popupPositionProvider
             ) {
-                Transition(
+                val state = transition(
                     definition = DropdownMenuOpenCloseTransition,
                     initState = !expanded,
                     toState = expanded,
                     onStateChangeFinished = {
                         visibleMenu = it
                     }
-                ) { state ->
-                    val drawLayer = remember {
-                        MenuDrawLayerModifier(
-                            { state[Scale] },
-                            { state[Alpha] },
-                            { transformOrigin }
-                        )
-                    }
-                    Card(
-                        modifier = drawLayer
-                            // MenuVerticalMargin corresponds to the one Material row margin
-                            // required between the menu and the display edges. The
-                            // MenuElevationInset is needed for drawing the elevation,
-                            // otherwise it is clipped. TODO(popam): remove it after b/156890315
-                            .padding(MenuElevationInset, MenuVerticalMargin),
-                        elevation = MenuElevation
-                    ) {
-                        @OptIn(ExperimentalLayout::class)
-                        VerticalScroller(
-                            modifier = dropdownModifier
-                                .padding(vertical = DropdownMenuVerticalPadding)
-                                .preferredWidth(IntrinsicSize.Max),
-                            children = dropdownContent
-                        )
-                    }
+                )
+                val drawLayer = remember {
+                    MenuDrawLayerModifier(
+                        { state[Scale] },
+                        { state[Alpha] },
+                        { transformOrigin }
+                    )
+                }
+                Card(
+                    modifier = drawLayer
+                        // MenuVerticalMargin corresponds to the one Material row margin
+                        // required between the menu and the display edges. The
+                        // MenuElevationInset is needed for drawing the elevation,
+                        // otherwise it is clipped. TODO(popam): remove it after b/156890315
+                        .padding(MenuElevationInset, MenuVerticalMargin),
+                    elevation = MenuElevation
+                ) {
+                    @OptIn(ExperimentalLayout::class)
+                    VerticalScroller(
+                        modifier = dropdownModifier
+                            .padding(vertical = DropdownMenuVerticalPadding)
+                            .preferredWidth(IntrinsicSize.Max),
+                        children = dropdownContent
+                    )
                 }
             }
         }
