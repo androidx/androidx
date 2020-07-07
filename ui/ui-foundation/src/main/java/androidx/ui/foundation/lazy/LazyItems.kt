@@ -123,5 +123,5 @@ private object LayoutEmitHelper {
     val setModifier: LayoutNode.(Modifier) -> Unit = { this.modifier = it }
     val setMeasureBlocks: LayoutNode.(LayoutNode.MeasureBlocks) -> Unit =
         { this.measureBlocks = it }
-    val setRef: LayoutNode.(Ref<LayoutNode>) -> Unit = { this.ref = it }
+    val setRef: LayoutNode.(Ref<LayoutNode>) -> Unit = { it.value = this }
 }
