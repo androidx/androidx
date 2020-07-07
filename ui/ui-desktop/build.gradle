@@ -88,7 +88,7 @@ dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 }
 
-def composeClassDir = project.rootDir.absolutePath + "/ui-desktop/compose-libs/"
+def composeClassDir = "${project.rootProject.buildDir}/ui-desktop/compose-libs/"
 
 kotlin {
     jvm()
