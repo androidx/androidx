@@ -51,7 +51,7 @@ public class LifecycleRegistryTest {
         mLifecycleOwner = mock(LifecycleOwner.class);
         mLifecycle = mock(Lifecycle.class);
         when(mLifecycleOwner.getLifecycle()).thenReturn(mLifecycle);
-        mRegistry = new LifecycleRegistry(mLifecycleOwner);
+        mRegistry = LifecycleRegistry.createUnsafe(mLifecycleOwner);
     }
 
     @Test

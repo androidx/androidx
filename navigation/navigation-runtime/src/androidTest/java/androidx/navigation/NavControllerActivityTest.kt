@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import androidx.navigation.test.R
+import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.TestNavigator
@@ -49,6 +50,7 @@ class NavControllerActivityTest {
         TargetActivity.instances = spy(ArrayList())
     }
 
+    @UiThreadTest
     @Test
     fun testNavigateUpPop() {
         navController.setGraph(R.navigation.nav_simple)
@@ -66,6 +68,7 @@ class NavControllerActivityTest {
             .isEqualTo(1)
     }
 
+    @UiThreadTest
     @Test
     fun testNavigateUp() {
         val activity = activityRule.activity
@@ -86,6 +89,7 @@ class NavControllerActivityTest {
             .isTrue()
     }
 
+    @UiThreadTest
     @Test
     fun testActivityDeepLinkHandledOnce() {
         val activity = activityRule.activity
