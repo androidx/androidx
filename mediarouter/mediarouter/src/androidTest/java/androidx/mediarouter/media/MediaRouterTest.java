@@ -113,6 +113,9 @@ public class MediaRouterTest {
         final boolean isOutputSwitcherEnabled = true;
         expectedParams.setOutputSwitcherEnabled(isOutputSwitcherEnabled);
 
+        final boolean transferToLocalEnabled = true;
+        expectedParams.setTransferToLocalEnabled(transferToLocalEnabled);
+
         Bundle paramExtras = new Bundle();
         paramExtras.putString(TEST_KEY, TEST_VALUE);
         expectedParams.setExtras(paramExtras);
@@ -126,10 +129,17 @@ public class MediaRouterTest {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             assertEquals(isOutputSwitcherEnabled, expectedParams.isOutputSwitcherEnabled());
             assertEquals(isOutputSwitcherEnabled, actualParams.isOutputSwitcherEnabled());
+
+            assertEquals(transferToLocalEnabled, expectedParams.isTransferToLocalEnabled());
+            assertEquals(transferToLocalEnabled, actualParams.isTransferToLocalEnabled());
         } else {
             // Earlier than Android R, output switcher cannot be enabled.
             assertFalse(expectedParams.isOutputSwitcherEnabled());
             assertFalse(actualParams.isOutputSwitcherEnabled());
+
+            // Same for transfer to local.
+            assertFalse(expectedParams.isTransferToLocalEnabled());
+            assertFalse(actualParams.isTransferToLocalEnabled());
         }
 
         Bundle actualExtras = actualParams.getExtras();
@@ -143,6 +153,7 @@ public class MediaRouterTest {
         MediaRouterParams originalParams = new MediaRouterParams();
         originalParams.setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP);
         originalParams.setOutputSwitcherEnabled(true);
+        originalParams.setTransferToLocalEnabled(true);
 
         Bundle paramExtras = new Bundle();
         paramExtras.putString(TEST_KEY, TEST_VALUE);
@@ -153,6 +164,8 @@ public class MediaRouterTest {
         assertEquals(originalParams.getDialogType(), copiedParams.getDialogType());
         assertEquals(originalParams.isOutputSwitcherEnabled(),
                 copiedParams.isOutputSwitcherEnabled());
+        assertEquals(originalParams.isTransferToLocalEnabled(),
+                copiedParams.isTransferToLocalEnabled());
 
         Bundle copiedParamsExtras = copiedParams.getExtras();
         assertNotNull(copiedParamsExtras);

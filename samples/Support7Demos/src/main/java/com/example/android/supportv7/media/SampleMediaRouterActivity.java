@@ -222,12 +222,11 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         MediaRouterParams params = new MediaRouterParams();
         params.setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP);
         params.setOutputSwitcherEnabled(true); // Output switcher will be shown from Android R+.
+        params.setTransferToLocalEnabled(true); // Phone speaker will be shown when casting.
         mMediaRouter.setRouterParams(params);
 
         // Create a route selector for the type of routes that we care about.
         mSelector = new MediaRouteSelector.Builder()
-                .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
-                .addControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO)
                 .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
                 .addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE)
                 .build();

@@ -2376,7 +2376,19 @@ public final class MediaRouter {
         }
 
         void setRouterParams(@Nullable MediaRouterParams params) {
+            MediaRouterParams oldParams = mRouterParams;
             mRouterParams = params;
+
+            if (isMediaTransferEnabled()) {
+                boolean oldTransferToLocalEnabled = oldParams == null ? false :
+                        oldParams.isTransferToLocalEnabled();
+                boolean newTransferToLocalEnabled = params == null ? false :
+                        params.isTransferToLocalEnabled();
+
+                if (oldTransferToLocalEnabled != newTransferToLocalEnabled) {
+                    updateDiscoveryRequest();
+                }
+            }
         }
 
         @Nullable
@@ -2541,6 +2553,12 @@ public final class MediaRouter {
 
             mCallbackCount = callbackCount;
             MediaRouteSelector selector = discover ? builder.build() : MediaRouteSelector.EMPTY;
+
+            if (mRouterParams != null && mRouterParams.isTransferToLocalEnabled()) {
+                selector = new MediaRouteSelector.Builder(selector)
+                        .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
+                        .build();
+            }
 
             // Create a new discovery request.
             if (mDiscoveryRequest != null

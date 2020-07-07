@@ -57,10 +57,13 @@ import java.util.List;
  *         app. The callback's
  *         {@link MediaRouter.Callback#onRouteSelected(MediaRouter, MediaRouter.RouteInfo, int)
  *         onRouteSelected} method should be able to handle the cases.</li>
+ *     <li>In order to enable transferring media from remote to local (e.g. from TV to phone),
+ *         media apps should {@link MediaRouterParams#setTransferToLocalEnabled(boolean) enable
+ *         'transfer to local' feature}. Otherwise, the local devices won't be shown as a
+ *         transfer target while playing on a remote device.
  * </ul>
  */
 // TODO: Mention that devs should implement onPrepareTransfer() - after the API is ready.
-// TODO: For the C2P case, refer PARAM_CAST_TO_PHONE when the API is ready.
 public final class MediaTransferReceiver extends BroadcastReceiver  {
     @Override
     public void onReceive(@NonNull Context context, @NonNull Intent intent) {
