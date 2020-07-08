@@ -26,6 +26,7 @@ import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import isAssignableFrom
 import java.lang.reflect.Proxy
+import java.util.Locale
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
@@ -446,6 +447,34 @@ fun Element.isType(): Boolean {
     return MoreElements.isType(this)
 }
 
+fun Element.isMethod(): Boolean {
+    contract {
+        returns(true) implies (this@isMethod is ExecutableElement)
+    }
+    return kind == ElementKind.METHOD
+}
+
+fun Element.isConstructor(): Boolean {
+    contract {
+        returns(true) implies (this@isConstructor is ExecutableElement)
+    }
+    return kind == ElementKind.CONSTRUCTOR
+}
+
+fun Element.isField(): Boolean {
+    contract {
+        returns(true) implies (this@isField is VariableElement)
+    }
+    return kind == ElementKind.FIELD
+}
+
+fun Element.isInterface(): Boolean {
+    contract {
+        returns(true) implies (this@isInterface is TypeElement)
+    }
+    return kind == ElementKind.INTERFACE
+}
+
 fun Element.asDeclaredType() = asType().asDeclaredType()
 
 /**
@@ -490,3 +519,8 @@ fun ExecutableElement.asMemberOf(
     types: Types,
     container: DeclaredType?
 ) = types.asMemberOf(container, this).asExecutableType()
+
+/**
+ * Returns the string representation of the element kind.
+ */
+fun Element.kindName() = kind.name.toLowerCase(Locale.US)

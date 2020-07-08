@@ -24,7 +24,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import simpleRun
 import toJFO
-import javax.lang.model.element.ElementKind
 import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
@@ -70,7 +69,7 @@ class PojoProcessorTargetMethodTest {
         singleRun(source)
                 .failsToCompile()
                 .withErrorContaining(
-                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", ElementKind.METHOD))
+                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", "method"))
     }
 
     @Test
@@ -88,7 +87,7 @@ class PojoProcessorTargetMethodTest {
         singleRun(source)
                 .failsToCompile()
                 .withErrorContaining(
-                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", ElementKind.METHOD))
+                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", "method"))
     }
 
     @Test
@@ -106,7 +105,7 @@ class PojoProcessorTargetMethodTest {
         singleRun(source)
                 .failsToCompile()
                 .withErrorContaining(
-                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", ElementKind.METHOD))
+                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", "method"))
     }
 
     @Test
@@ -128,7 +127,7 @@ class PojoProcessorTargetMethodTest {
                 long getId() { return this.id; }
                 """
         ).failsToCompile().withErrorContaining(
-                ProcessorErrors.invalidAnnotationTarget("ColumnInfo", ElementKind.METHOD))
+                ProcessorErrors.invalidAnnotationTarget("ColumnInfo", "method"))
     }
 
     @Test
@@ -175,7 +174,7 @@ class PojoProcessorTargetMethodTest {
                 """,
                 parent.toJFO("foo.bar.ParentPojo")
         ).failsToCompile().withErrorContaining(
-                ProcessorErrors.invalidAnnotationTarget("ColumnInfo", ElementKind.METHOD))
+                ProcessorErrors.invalidAnnotationTarget("ColumnInfo", "method"))
     }
 
     @Test

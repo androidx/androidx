@@ -26,6 +26,7 @@ import androidx.room.ext.hasAnyOf
 import androidx.room.ext.isAbstract
 import androidx.room.ext.isPrivate
 import androidx.room.ext.isStatic
+import androidx.room.ext.kindName
 import androidx.room.ext.typeName
 import androidx.room.processor.Context
 import androidx.room.processor.PojoProcessor
@@ -77,7 +78,7 @@ class AutoValuePojoProcessorDelegate(
                 val annotationName = TARGET_METHOD_ANNOTATIONS.first { method.hasAnnotation(it) }
                     .java.simpleName
                 context.logger.e(method,
-                    ProcessorErrors.invalidAnnotationTarget(annotationName, method.kind))
+                    ProcessorErrors.invalidAnnotationTarget(annotationName, method.kindName()))
             }
     }
 
