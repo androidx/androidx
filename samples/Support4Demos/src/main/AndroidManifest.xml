@@ -437,6 +437,17 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".view.WindowInsetsControllerPlayground"
+            android:label="@string/insets_controller_playground"
+            android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <!-- (OPTIONAL) use this meta data to indicate which icon should be used in media
             notifications (for example, when the music changes and the user is
             looking at another app) -->

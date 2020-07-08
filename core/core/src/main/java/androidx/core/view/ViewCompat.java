@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -45,7 +46,9 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
@@ -2644,6 +2647,27 @@ public class ViewCompat {
     }
 
     /**
+     * Retrieves a {@link WindowInsetsControllerCompat} of the window this view is attached to.
+     *
+     * @return A {@link WindowInsetsControllerCompat} or {@code null} if the view is neither
+     * attached to a window nor a view tree with a decor.
+     * @see WindowCompat#getInsetsController(Window, View)
+     */
+    @Nullable
+    public static WindowInsetsControllerCompat getWindowInsetsController(@NonNull View view) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            return Api30Impl.getWindowInsetsController(view);
+        } else {
+            Context context = view.getContext();
+            if (context instanceof Activity) {
+                Window window = ((Activity) context).getWindow();
+                return window != null ? WindowCompat.getInsetsController(window, view) : null;
+            }
+            return null;
+        }
+    }
+
+    /**
      * Controls whether the entire hierarchy under this view will save its
      * state when a state saving traversal occurs from its parent.
      *
@@ -4593,6 +4617,21 @@ public class ViewCompat {
                 @NonNull TypedArray t, int defStyleAttr, int defStyleRes) {
             view.saveAttributeDataForStyleable(
                     context, styleable, attrs, t, defStyleAttr, defStyleRes);
+        }
+    }
+
+    @RequiresApi(30)
+    private static class Api30Impl {
+        private Api30Impl() {
+            // privatex
+        }
+
+        @Nullable
+        public static WindowInsetsControllerCompat getWindowInsetsController(@NonNull View view) {
+            WindowInsetsController windowInsetsController = view.getWindowInsetsController();
+            return windowInsetsController != null
+                    ? WindowInsetsControllerCompat.toWindowInsetsControllerCompat(
+                    windowInsetsController) : null;
         }
     }
 }
