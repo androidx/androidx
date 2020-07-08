@@ -40,7 +40,7 @@ dependencies {
     api project(":compose:animation:animation")
     implementation project(':ui:ui-layout')
     api project(":ui:ui-saved-instance-state")
-    implementation project(':ui:ui-text-core')
+    implementation project(':compose:core:core-text')
     implementation project(':ui:ui-text')
     implementation project(':compose:core:core-util')
 
