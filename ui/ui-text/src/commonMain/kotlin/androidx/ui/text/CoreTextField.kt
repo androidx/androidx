@@ -55,7 +55,7 @@ import androidx.ui.input.VisualTransformation
 import androidx.ui.semantics.onClick
 import androidx.ui.text.selection.SelectionHandle
 import androidx.ui.text.selection.TextFieldSelectionManager
-import androidx.ui.text.style.ResolvedTextDirection
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 @Suppress("DEPRECATION")
@@ -361,9 +361,21 @@ fun CoreTextField(
                     ) {}
                 }
             }
-            if (!value.selection.collapsed && state.layoutResult != null) {
-                SelectionHandle(isStartHandle = true, manager = manager)
-                SelectionHandle(isStartHandle = false, manager = manager)
+            if (!value.selection.collapsed) {
+                manager.state?.layoutResult?.let {
+                    val startDirection = it.getBidiRunDirection(value.selection.start)
+                    val endDirection = it.getBidiRunDirection(max(value.selection.end - 1, 0))
+                    val directions = Pair(startDirection, endDirection)
+                    SelectionHandle(
+                        isStartHandle = true,
+                        directions = directions,
+                        manager = manager)
+                    SelectionHandle(
+                        isStartHandle = false,
+                        directions = directions,
+                        manager = manager
+                    )
+                }
             }
         }
     }
@@ -395,10 +407,6 @@ internal class TextFieldState(
      * screen changes selection instead of moving the cursor.
      */
     var selectionIsOn: Boolean = false
-    /** The [ResolvedTextDirection] for the start of the selection. */
-    var selectionStartDirection: ResolvedTextDirection = ResolvedTextDirection.Ltr
-    /** The [ResolvedTextDirection] for the end of the selection. */
-    var selectionEndDirection: ResolvedTextDirection = ResolvedTextDirection.Ltr
     /**
      * A flag to check if the selection start or end handle is being dragged.
      * If this value is true, then onPress will not select any text.

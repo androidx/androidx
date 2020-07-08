@@ -37,7 +37,7 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.InternalTextApi
 import androidx.ui.text.TextFieldState
 import androidx.ui.text.TextRange
-import kotlin.math.max
+import androidx.ui.text.style.ResolvedTextDirection
 
 /**
  * A bridge class between user interaction to the text field selection.
@@ -202,7 +202,6 @@ internal class TextFieldSelectionManager() {
             selection = TextRange(newCursorOffset, newCursorOffset)
         )
         onValueChange(newValue)
-        updateTextDirections(TextRange(newCursorOffset, newCursorOffset))
         setSelectionStatus(false)
     }
 
@@ -228,7 +227,6 @@ internal class TextFieldSelectionManager() {
             selection = TextRange(newCursorOffset, newCursorOffset)
         )
         onValueChange(newValue)
-        updateTextDirections(TextRange(newCursorOffset, newCursorOffset))
         setSelectionStatus(false)
     }
 
@@ -255,7 +253,6 @@ internal class TextFieldSelectionManager() {
             selection = TextRange(newCursorOffset, newCursorOffset)
         )
         onValueChange(newValue)
-        updateTextDirections(TextRange(newCursorOffset, newCursorOffset))
         setSelectionStatus(false)
     }
 
@@ -302,14 +299,6 @@ internal class TextFieldSelectionManager() {
             selection = range
         )
         onValueChange(newValue)
-        updateTextDirections(range)
-    }
-
-    private fun updateTextDirections(range: TextRange) {
-        state?.let {
-            it.selectionStartDirection = it.layoutResult!!.getBidiRunDirection(range.start)
-            it.selectionEndDirection = it.layoutResult!!.getBidiRunDirection(max(range.end - 1, 0))
-        }
     }
 
     private fun setSelectionStatus(on: Boolean) {
@@ -321,25 +310,23 @@ internal class TextFieldSelectionManager() {
 
 @Composable
 @OptIn(InternalTextApi::class)
-internal fun SelectionHandle(isStartHandle: Boolean, manager: TextFieldSelectionManager) {
+internal fun SelectionHandle(
+    isStartHandle: Boolean,
+    directions: Pair<ResolvedTextDirection, ResolvedTextDirection>,
+    manager: TextFieldSelectionManager
+) {
     SelectionHandleLayout(
         startHandlePosition = manager.getHandlePosition(true),
         endHandlePosition = manager.getHandlePosition(false),
         isStartHandle = isStartHandle,
-        directions = Pair(
-            manager.state!!.selectionStartDirection,
-            manager.state!!.selectionEndDirection
-        ),
+        directions = directions,
         handlesCrossed = manager.value.selection.reversed
     ) {
         SelectionHandle(
             modifier =
             Modifier.dragGestureFilter(manager.handleDragObserver(isStartHandle)),
             isStartHandle = isStartHandle,
-            directions = Pair(
-                manager.state!!.selectionStartDirection,
-                manager.state!!.selectionEndDirection
-            ),
+            directions = directions,
             handlesCrossed = manager.value.selection.reversed
         )
     }
