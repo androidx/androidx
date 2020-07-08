@@ -26,6 +26,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicBoolean
 
 @MediumTest
@@ -53,5 +54,59 @@ class WaitingForOnCommitCallbackTest {
         waitForIdle()
 
         assertThat(atomicBoolean.get()).isFalse()
+    }
+
+    @Test
+    fun cascadingOnCommits() {
+        // Collect unique values (markers) at each step during the process and
+        // at the end verify that they were collected in the right order
+        val values = mutableListOf<Int>()
+
+        // Use a latch to make sure all collection events have occurred, to avoid
+        // concurrent modification exceptions when checking the collected values,
+        // in case some values still need to be collected due to a bug.
+        var latch = CountDownLatch(0)
+
+        var switch1 by mutableStateOf(true)
+        var switch2 by mutableStateOf(true)
+        var switch3 by mutableStateOf(true)
+        var switch4 by mutableStateOf(true)
+        composeTestRule.setContent {
+            onCommit(switch1) {
+                values.add(2)
+                switch2 = switch1
+            }
+            onCommit(switch2) {
+                values.add(3)
+                switch3 = switch2
+            }
+            onCommit(switch3) {
+                values.add(4)
+                switch4 = switch3
+            }
+            onCommit(switch4) {
+                values.add(5)
+                latch.countDown()
+            }
+        }
+
+        runOnIdleCompose {
+            latch = CountDownLatch(1)
+            values.clear()
+
+            // Kick off the cascade
+            values.add(1)
+            switch1 = false
+        }
+
+        waitForIdle()
+        // Mark the end
+        values.add(6)
+
+        // Make sure all writes into the list are complete
+        latch.await()
+
+        // And check if all was in the right order
+        assertThat(values).containsExactly(1, 2, 3, 4, 5, 6).inOrder()
     }
 }
