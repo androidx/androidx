@@ -115,9 +115,13 @@ class LayoutGetHorizontalTest {
             dir = LTR)
 
         val offset = 5 // before L6
+        // If insert LX to first line, it will be |L1 L2 L3 L4 L5 LX|
         assertThat(layout.getUpstreamPrimaryHorizontalPosition(offset)).isEqualTo(50)
+        // If insert RX to first line, it will be |L1 L2 L3 L4 L5 RX|
         assertThat(layout.getUpstreamSecondaryHorizontalPosition(offset)).isEqualTo(50)
+        // If insert LX to second line, it will be |LX L6 L7 L8 L9 LA|
         assertThat(layout.getDownstreamPrimaryHorizontalPosition(offset)).isEqualTo(0)
+        // If insert RX to second line, it will be |RX L6 L7 L8 L9 LA|
         assertThat(layout.getDownstreamSecondaryHorizontalPosition(offset)).isEqualTo(0)
     }
 
@@ -207,10 +211,14 @@ class LayoutGetHorizontalTest {
             dir = RTL)
 
         val offset = 5 // before L6 == after L5
+        // If insert RX to the first line, it will be |RX L1 L2 L3 L4 L5|
         assertThat(layout.getUpstreamPrimaryHorizontalPosition(offset)).isEqualTo(0)
-        assertThat(layout.getUpstreamSecondaryHorizontalPosition(offset)).isEqualTo(0)
+        // If insert LX to the first line, it will be |L1 L2 L3 L4 L5 LX|
+        assertThat(layout.getUpstreamSecondaryHorizontalPosition(offset)).isEqualTo(50)
+        // If insert RX to the second line, it will be |L6 L7 L8 L9 LA RX|
         assertThat(layout.getDownstreamPrimaryHorizontalPosition(offset)).isEqualTo(50)
-        assertThat(layout.getDownstreamSecondaryHorizontalPosition(offset)).isEqualTo(50)
+        // If insert LX to the second line, it will be |LX L6 L7 L8 L9 LA|
+        assertThat(layout.getDownstreamSecondaryHorizontalPosition(offset)).isEqualTo(0)
     }
 
     @Test
@@ -299,9 +307,13 @@ class LayoutGetHorizontalTest {
             dir = RTL)
 
         val offset = 5 // before R6 == after R5
+        // If insert RX to the first line, it will be |RX R5 R4 R3 R2 R1|
         assertThat(layout.getUpstreamPrimaryHorizontalPosition(offset)).isEqualTo(0)
+        // If insert LX to the first line, it will be |LX R5 R4 R3 R2 R1|
         assertThat(layout.getUpstreamSecondaryHorizontalPosition(offset)).isEqualTo(0)
+        // If insert RX to the second line, it will be |RA R9 R8 R7 R6 RX|
         assertThat(layout.getDownstreamPrimaryHorizontalPosition(offset)).isEqualTo(50)
+        // If insert LX to the second line, it will be |RA R9 R8 R7 R6 LX|
         assertThat(layout.getDownstreamSecondaryHorizontalPosition(offset)).isEqualTo(50)
     }
 
@@ -391,10 +403,14 @@ class LayoutGetHorizontalTest {
             dir = LTR)
 
         val offset = 5 // befroe R6 == after R5
+        // If insert LX to the first line, it will be |R5 R4 R3 R2 R1 LX|
         assertThat(layout.getUpstreamPrimaryHorizontalPosition(offset)).isEqualTo(50)
-        assertThat(layout.getUpstreamSecondaryHorizontalPosition(offset)).isEqualTo(50)
+        // If insert RX to the first line, it will be |RX R5 R4 R3 R2 R1|
+        assertThat(layout.getUpstreamSecondaryHorizontalPosition(offset)).isEqualTo(0)
+        // If insert LX to the second line, it will be |LX RA R9 R8 R7 R6|
         assertThat(layout.getDownstreamPrimaryHorizontalPosition(offset)).isEqualTo(0)
-        assertThat(layout.getDownstreamSecondaryHorizontalPosition(offset)).isEqualTo(0)
+        // If insert RX to the second line, it will be |RA R9 R8 R7 R6 RX|
+        assertThat(layout.getDownstreamSecondaryHorizontalPosition(offset)).isEqualTo(50)
     }
 
     @Test

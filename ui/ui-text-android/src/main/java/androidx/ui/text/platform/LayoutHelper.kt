@@ -231,19 +231,10 @@ class LayoutHelper(val layout: Layout) {
         val paraNo = getParagraphForOffset(offset)
         val isParaRtl = isRTLParagraph(paraNo)
 
-        val bidi = analyzeBidi(paraNo)
-        if (bidi == null) { // easy case. All directions are the same
-            return if (lineStart == offset) {
-                if (isParaRtl) layout.getLineRight(lineNo) else layout.getLineLeft(lineNo)
-            } else {
-                if (isParaRtl) layout.getLineLeft(lineNo) else layout.getLineRight(lineNo)
-            }
-        }
-
-        val lineBidi = bidi.createLineBidi(lineStart, lineEnd)
-        if (lineBidi.runCount == 1) { // still easy case. All the same direction in a line
-            // True if start offset locate left edge, otherwise false.
-            val isStartLeft = if (usePrimaryDirection || isParaRtl == lineBidi.isRightToLeft) {
+        val lineBidi = analyzeBidi(paraNo)?.createLineBidi(lineStart, lineEnd)
+        if (lineBidi == null || lineBidi.runCount == 1) { // easy case. All directions are the same
+            val runDirection = layout.isRtlCharAt(lineStart)
+            val isStartLeft = if (usePrimaryDirection || isParaRtl == runDirection) {
                 !isParaRtl
             } else {
                 isParaRtl
