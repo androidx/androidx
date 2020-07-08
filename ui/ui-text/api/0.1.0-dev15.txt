@@ -53,6 +53,9 @@ package androidx.ui.text.selection {
   public final class TextFieldSelectionDelegateKt {
   }
 
+  public final class TextFieldSelectionManagerKt {
+  }
+
   public final class TextSelectionDelegateKt {
   }
 
