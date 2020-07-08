@@ -16,7 +16,6 @@
 
 package androidx.ui.layout
 
-import androidx.annotation.FloatRange
 import androidx.compose.Stable
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntrinsicMeasurable
@@ -28,6 +27,7 @@ import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.satisfiedBy
 import androidx.ui.unit.IntSize
+import androidx.ui.util.annotation.FloatRange
 import kotlin.math.roundToInt
 
 /**
@@ -43,7 +43,7 @@ import kotlin.math.roundToInt
  */
 @Stable
 fun Modifier.aspectRatio(
-    @FloatRange(from = 0.0, fromInclusive = false)
+    @FloatRange(from = 0.0, to = 3.4e38 /* POSITIVE_INFINITY */, fromInclusive = false)
     ratio: Float
 ) = this + AspectRatioModifier(ratio)
 

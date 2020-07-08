@@ -118,7 +118,7 @@ package androidx.ui.layout {
     method @androidx.compose.Stable public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, androidx.ui.core.VerticalAlignmentLine alignmentLine);
     method @androidx.compose.Stable public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.Measured,java.lang.Integer> alignmentLineBlock);
     method @androidx.compose.Stable public androidx.ui.core.Modifier gravity(androidx.ui.core.Modifier, androidx.ui.core.Alignment.Horizontal align);
-    method @androidx.compose.Stable public androidx.ui.core.Modifier weight(androidx.ui.core.Modifier, @FloatRange(from=0.0, fromInclusive=false) float weight, boolean fill = true);
+    method @androidx.compose.Stable public androidx.ui.core.Modifier weight(androidx.ui.core.Modifier, @FloatRange(from=0.0, to=3.4E38, fromInclusive=false) float weight, boolean fill = true);
     field public static final androidx.ui.layout.ColumnScope INSTANCE;
   }
 
@@ -573,7 +573,7 @@ package androidx.ui.layout {
   }
 
   public final class LayoutAspectRatioKt {
-    method @androidx.compose.Stable public static androidx.ui.core.Modifier aspectRatio(androidx.ui.core.Modifier, @FloatRange(from=0.0, fromInclusive=false) float ratio);
+    method @androidx.compose.Stable public static androidx.ui.core.Modifier aspectRatio(androidx.ui.core.Modifier, @FloatRange(from=0.0, to=3.4E38, fromInclusive=false) float ratio);
   }
 
   public final class LayoutDirectionsKt {
@@ -645,7 +645,7 @@ package androidx.ui.layout {
     method @androidx.compose.Stable public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, androidx.ui.core.HorizontalAlignmentLine alignmentLine);
     method @androidx.compose.Stable public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.Measured,java.lang.Integer> alignmentLineBlock);
     method @androidx.compose.Stable public androidx.ui.core.Modifier gravity(androidx.ui.core.Modifier, androidx.ui.core.Alignment.Vertical align);
-    method @androidx.compose.Stable public androidx.ui.core.Modifier weight(androidx.ui.core.Modifier, @FloatRange(from=0.0, fromInclusive=false) float weight, boolean fill = true);
+    method @androidx.compose.Stable public androidx.ui.core.Modifier weight(androidx.ui.core.Modifier, @FloatRange(from=0.0, to=3.4E38, fromInclusive=false) float weight, boolean fill = true);
     field public static final androidx.ui.layout.RowScope INSTANCE;
   }
 
