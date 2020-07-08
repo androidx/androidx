@@ -19,7 +19,6 @@
 package androidx.room.ext
 
 import asDeclaredType
-import asExecutableType
 import asTypeElement
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
@@ -519,7 +518,7 @@ fun VariableElement.asMemberOf(
 fun ExecutableElement.asMemberOf(
     types: Types,
     container: DeclaredType?
-) = types.asMemberOf(container, this).asExecutableType()
+) = MoreTypes.asExecutable(types.asMemberOf(container, this))
 
 /**
  * Returns the string representation of the element kind.

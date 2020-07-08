@@ -43,7 +43,6 @@ import androidx.room.solver.transaction.result.TransactionMethodAdapter
 import androidx.room.vo.QueryParameter
 import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.vo.TransactionMethod
-import asExecutableType
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
@@ -140,7 +139,7 @@ class DefaultMethodProcessorDelegate(
             context.processingEnv.typeUtils,
             containing
         )
-        return asMember.asExecutableType().returnType
+        return asMember.returnType
     }
 
     override fun extractParams() = executableElement.parameters
@@ -192,7 +191,7 @@ class SuspendMethodProcessorDelegate(
             context.processingEnv.typeUtils,
             containing
         )
-        return asMember.asExecutableType().getSuspendFunctionReturnType()
+        return asMember.getSuspendFunctionReturnType()
     }
 
     override fun extractParams() =

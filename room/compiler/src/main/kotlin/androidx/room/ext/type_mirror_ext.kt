@@ -109,8 +109,6 @@ fun TypeMirror.asDeclaredType() = MoreTypes.asDeclared(this)
 
 fun TypeMirror.isType() = MoreTypes.isType(this)
 
-fun TypeMirror.asExecutableType() = MoreTypes.asExecutable(this)
-
 fun TypeMirror.isTypeOf(klass: KClass<*>) = MoreTypes.isTypeOf(
     klass.java,
     this
