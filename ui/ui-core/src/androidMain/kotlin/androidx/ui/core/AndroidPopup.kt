@@ -38,6 +38,7 @@ import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.ui.core.semantics.semantics
 import androidx.ui.geometry.Offset
 import androidx.ui.semantics.popup
+import androidx.ui.unit.IntBounds
 import androidx.ui.unit.round
 import org.jetbrains.annotations.TestOnly
 
@@ -88,8 +89,7 @@ internal actual fun ActualPopup(
         val layoutPosition = coordinates.localToGlobal(Offset.Zero).round()
         val layoutSize = coordinates.size
 
-        popupLayout.popupPositionProperties.parentPosition = layoutPosition
-        popupLayout.popupPositionProperties.parentSize = layoutSize
+        popupLayout.popupPositionProperties.parentBounds = IntBounds(layoutPosition, layoutSize)
 
         // Update the popup's position
         popupLayout.updatePosition()
@@ -190,8 +190,7 @@ private class PopupLayout(
      */
     fun updatePosition() {
         val popupGlobalPosition = popupPositionProvider.calculatePosition(
-            popupPositionProperties.parentPosition,
-            popupPositionProperties.parentSize,
+            popupPositionProperties.parentBounds,
             popupPositionProperties.parentLayoutDirection,
             popupPositionProperties.childrenSize
         )
