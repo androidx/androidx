@@ -30,7 +30,7 @@ import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityAmbient
@@ -411,7 +411,7 @@ object TabRow {
     }
 
     /**
-     * [Transition] that animates the indicator offset between a given list of [TabPosition]s.
+     * [transition] that animates the indicator offset between a given list of [TabPosition]s.
      */
     @Composable
     internal fun IndicatorTransition(
@@ -446,9 +446,8 @@ object TabRow {
             }
         }
 
-        Transition(transitionDefinition, selectedIndex) { state ->
-            indicator(state[IndicatorOffset])
-        }
+        val state = transition(transitionDefinition, selectedIndex)
+        indicator(state[IndicatorOffset])
     }
 }
 
@@ -524,7 +523,7 @@ fun Tab(
 private val TabTintColor = ColorPropKey()
 
 /**
- * [Transition] defining how the tint color for a tab animates, when a new tab is selected. This
+ * [transition] defining how the tint color for a tab animates, when a new tab is selected. This
  * component uses [ContentColorAmbient] to provide an interpolated value between [activeColor]
  * and [inactiveColor] depending on the animation status.
  */
@@ -561,9 +560,8 @@ private fun TabTransition(
             }
         }
     }
-    Transition(transitionDefinition, selected) { state ->
-        Providers(ContentColorAmbient provides state[TabTintColor], children = content)
-    }
+    val state = transition(transitionDefinition, selected)
+    Providers(ContentColorAmbient provides state[TabTintColor], children = content)
 }
 
 /**

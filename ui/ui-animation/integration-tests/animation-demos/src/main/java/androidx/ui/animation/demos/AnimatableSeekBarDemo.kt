@@ -25,7 +25,7 @@ import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.remember
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Modifier
@@ -61,33 +61,32 @@ fun AnimatableSeekBarDemo() {
                 MovingTargetExample(clock)
             }
 
-            Transition(
+            val state = transition(
                 definition = transDef,
                 initState = "start",
                 toState = "end"
-            ) { state ->
-                Canvas(Modifier.preferredSize(600.dp, 400.dp)) {
-                    val rectSize = size * 0.2f
-                    drawRect(Color(1.0f, 0f, 0f, state[alphaKey]), size = rectSize)
+            )
+            Canvas(Modifier.preferredSize(600.dp, 400.dp)) {
+                val rectSize = size * 0.2f
+                drawRect(Color(1.0f, 0f, 0f, state[alphaKey]), size = rectSize)
 
-                    drawRect(
-                        Color(0f, 0f, 1f, state[alphaKey]),
-                        topLeft = Offset(state[offset1] * size.width, 0.0f),
-                        size = rectSize
-                    )
+                drawRect(
+                    Color(0f, 0f, 1f, state[alphaKey]),
+                    topLeft = Offset(state[offset1] * size.width, 0.0f),
+                    size = rectSize
+                )
 
-                    drawRect(
-                        Color(0f, 1f, 1f, state[alphaKey]),
-                        topLeft = Offset(state[offset2] * size.width, 0.0f),
-                        size = rectSize
-                    )
+                drawRect(
+                    Color(0f, 1f, 1f, state[alphaKey]),
+                    topLeft = Offset(state[offset2] * size.width, 0.0f),
+                    size = rectSize
+                )
 
-                    drawRect(
-                        Color(0f, 1f, 0f, state[alphaKey]),
-                        topLeft = Offset(state[offset3] * size.width, 0.0f),
-                        size = rectSize
-                    )
-                }
+                drawRect(
+                    Color(0f, 1f, 0f, state[alphaKey]),
+                    topLeft = Offset(state[offset3] * size.width, 0.0f),
+                    size = rectSize
+                )
             }
         }
     }

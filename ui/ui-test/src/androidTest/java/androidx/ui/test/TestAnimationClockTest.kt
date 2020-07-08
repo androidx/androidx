@@ -30,7 +30,7 @@ import androidx.compose.mutableStateOf
 import androidx.compose.snapshots.Snapshot
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.MediumTest
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
@@ -186,17 +186,16 @@ class TestAnimationClockTest {
         hasRecomposed = true
         Box(modifier = Modifier.drawBackground(Color.Yellow).fillMaxSize()) {
             hasRecomposed = true
-            Transition(
+            val state = transition(
                 definition = animationDefinition,
                 toState = animationState.value,
                 onStateChangeFinished = { animationRunning = false }
-            ) { state ->
-                hasRecomposed = true
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    val xValue = state[x]
-                    recordedAnimatedValues.add(xValue)
-                    drawRect(Color.Cyan, Offset(xValue, 0.0f), size)
-                }
+            )
+            hasRecomposed = true
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val xValue = state[x]
+                recordedAnimatedValues.add(xValue)
+                drawRect(Color.Cyan, Offset(xValue, 0.0f), size)
             }
         }
     }

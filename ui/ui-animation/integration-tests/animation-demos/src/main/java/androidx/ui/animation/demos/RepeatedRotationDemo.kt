@@ -23,7 +23,7 @@ import androidx.animation.transitionDefinition
 import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.tapGestureFilter
@@ -59,14 +59,13 @@ fun RepeatedRotationDemo() {
             text = "Reset",
             style = textStyle
         )
-        Transition(
+        val transitionState = transition(
             definition = definition,
             toState = state.value
-        ) { state ->
-            Canvas(Modifier.preferredSize(100.dp)) {
-                rotate(state[rotation], 0.0f, 0.0f) {
-                    drawRect(Color(0xFF00FF00))
-                }
+        )
+        Canvas(Modifier.preferredSize(100.dp)) {
+            rotate(transitionState[rotation], 0.0f, 0.0f) {
+                drawRect(Color(0xFF00FF00))
             }
         }
     }

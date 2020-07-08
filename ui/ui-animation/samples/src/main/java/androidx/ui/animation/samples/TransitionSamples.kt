@@ -21,7 +21,7 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
@@ -57,26 +57,24 @@ fun TransitionSample() {
     fun TransitionBasedColoredRect() {
         // This puts the transition in State.First. Any subsequent state change will trigger a
         // transition animation, as defined in the transition definition.
-        Transition(definition = definition, toState = State.First) { state ->
-            Box(
-                Modifier
-                    .preferredSize(state[widthKey], state[heightKey])
-                    .drawBackground(state[colorKey])
-            )
-        }
+        val state = transition(definition = definition, toState = State.First)
+        Box(
+            Modifier
+                .preferredSize(state[widthKey], state[heightKey])
+                .drawBackground(state[colorKey])
+        )
     }
 
     @Composable
     fun ColorRectWithInitState() {
         // This starts the transition going from State.First to State.Second when this composable
         // gets composed for the first time.
-        Transition(definition = definition, initState = State.First, toState = State.Second) {
-                state ->
-            Box(
-                Modifier
-                    .preferredSize(state[widthKey], state[heightKey])
-                    .drawBackground(state[colorKey])
-            )
-        }
+        val state = transition(
+            definition = definition, initState = State.First, toState = State.Second)
+        Box(
+            Modifier
+                .preferredSize(state[widthKey], state[heightKey])
+                .drawBackground(state[colorKey])
+        )
     }
 }

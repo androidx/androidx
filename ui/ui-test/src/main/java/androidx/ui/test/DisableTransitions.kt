@@ -16,14 +16,14 @@
 
 package androidx.ui.test
 
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.animation.transitionsEnabled
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * This rule will disable all [Transition] animations for the test.
+ * This rule will disable all [transition] animations for the test.
  */
 class DisableTransitions : TestRule {
 
