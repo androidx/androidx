@@ -16,7 +16,6 @@
 
 package androidx.ui.layout
 
-import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.Stable
@@ -26,6 +25,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.layout.ColumnScope.alignWithSiblings
 import androidx.ui.layout.RowScope.alignWithSiblings
+import androidx.ui.util.annotation.FloatRange
+
 /**
  * A layout composable that places its children in a vertical sequence. For a layout composable
  * that places its children in a horizontal sequence, see [Row].
@@ -124,7 +125,8 @@ object ColumnScope {
      */
     @Stable
     fun Modifier.weight(
-        @FloatRange(from = 0.0, fromInclusive = false) weight: Float,
+        @FloatRange(from = 0.0, to = 3.4e38 /* POSITIVE_INFINITY */, fromInclusive = false)
+        weight: Float,
         fill: Boolean = true
     ): Modifier {
         require(weight > 0.0) { "invalid weight $weight; must be greater than zero" }
