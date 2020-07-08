@@ -17,6 +17,7 @@
 package androidx.room.solver
 
 import androidx.room.ext.requireTypeMirror
+import androidx.room.ext.typeName
 import androidx.room.processor.Context
 import androidx.room.testing.TestInvocation
 import com.squareup.javapoet.ClassName
@@ -127,8 +128,8 @@ class BasicColumnTypeAdaptersTest(
         val spec = TypeSpec.classBuilder("OutClass")
                 .addField(FieldSpec.builder(SQLITE_STMT, "st").build())
                 .addField(FieldSpec.builder(CURSOR, "crs").build())
-                .addField(FieldSpec.builder(TypeName.get(typeMirror), "out").build())
-                .addField(FieldSpec.builder(TypeName.get(typeMirror), "inp").build())
+                .addField(FieldSpec.builder(typeMirror.typeName(), "out").build())
+                .addField(FieldSpec.builder(typeMirror.typeName(), "inp").build())
                 .addMethod(
                         MethodSpec.methodBuilder("foo")
                                 .addCode(scope.builder().build())

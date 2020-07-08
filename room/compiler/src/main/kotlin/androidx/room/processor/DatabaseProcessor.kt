@@ -28,6 +28,7 @@ import androidx.room.ext.isAbstract
 import androidx.room.ext.isType
 import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.toAnnotationBox
+import androidx.room.ext.typeName
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
@@ -97,7 +98,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
             // remove methods that belong to room
             val containing = it.enclosingElement
             containing.isType() &&
-                    TypeName.get(containing.asType()) == RoomTypeNames.ROOM_DB
+                    containing.asType().typeName() == RoomTypeNames.ROOM_DB
         }.map {
             val executable = it.asExecutableElement()
             // TODO when we add support for non Dao return types (e.g. database), this code needs

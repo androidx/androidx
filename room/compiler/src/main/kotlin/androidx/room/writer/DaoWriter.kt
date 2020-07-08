@@ -22,6 +22,7 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.asDeclaredType
+import androidx.room.ext.isInterface
 import androidx.room.processor.OnConflictProcessor
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.KotlinDefaultMethodDelegateBinder
@@ -46,7 +47,6 @@ import com.squareup.javapoet.TypeSpec
 import stripNonJava
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
@@ -110,7 +110,7 @@ class DaoWriter(
             addOriginatingElement(dbElement)
             addModifiers(PUBLIC)
             addModifiers(FINAL)
-            if (dao.element.kind == ElementKind.INTERFACE) {
+            if (dao.element.isInterface()) {
                 addSuperinterface(dao.typeName)
             } else {
                 superclass(dao.typeName)
