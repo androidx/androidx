@@ -16,6 +16,7 @@
 
 package androidx.activity.lint
 
+import com.android.builder.model.AndroidLibrary
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -49,8 +50,7 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
                 EnumSet.of(Scope.JAVA_FILE, Scope.GRADLE_FILE),
                 Scope.JAVA_FILE_SCOPE,
                 Scope.GRADLE_SCOPE
-            ),
-            androidSpecific = true
+            )
         ).addMoreInfo(
             "https://developer.android.com/training/permissions/requesting#make-the-request"
         )
@@ -58,6 +58,8 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
 
     var location: Location? = null
     lateinit var expression: UCallExpression
+
+    private var checkedImplementationDependencies = false
 
     override fun getApplicableUastTypes(): List<Class<out UElement>>? {
         return listOf(UCallExpression::class.java)
@@ -87,7 +89,51 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
         if (location == null) {
             return
         }
-        val library = getStringLiteralValue(value)
+        if (property == "api") {
+            // always check api dependencies
+            reportIssue(value, context)
+        } else if (!checkedImplementationDependencies) {
+            val explicitLibraries =
+                context.project.currentVariant.mainArtifact.dependencies.libraries
+
+            // collect all of the library dependencies
+            val allLibraries = HashSet<AndroidLibrary>()
+            addIndirectAndroidLibraries(explicitLibraries, allLibraries)
+            // check all of the dependencies
+            allLibraries.forEach {
+                val resolvedCoords = it.resolvedCoordinates
+                val groupId = resolvedCoords.groupId
+                val artifactId = resolvedCoords.artifactId
+                val version = resolvedCoords.version
+                reportIssue("$groupId:$artifactId:$version", context, false)
+            }
+            checkedImplementationDependencies = true
+        }
+    }
+
+    private fun addIndirectAndroidLibraries(
+        libraries: Collection<AndroidLibrary>,
+        result: MutableSet<AndroidLibrary>
+    ) {
+        for (library in libraries) {
+            if (!result.contains(library)) {
+                result.add(library)
+                addIndirectAndroidLibraries(library.libraryDependencies, result)
+            }
+        }
+    }
+
+    private fun reportIssue(
+        value: String,
+        context: GradleContext,
+        removeQuotes: Boolean = true
+    ) {
+        val library = if (removeQuotes) {
+            getStringLiteralValue(value)
+        } else {
+            value
+        }
+
         if (library.isNotEmpty() &&
             library.substringAfter("androidx.fragment:fragment:") < FRAGMENT_VERSION) {
             context.report(ISSUE, expression, location!!,
