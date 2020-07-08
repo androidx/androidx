@@ -144,6 +144,21 @@ public class AuthenticatorUtilsTest {
     }
 
     @Test
+    public void testIsSomeBiometricAllowed() {
+        assertThat(AuthenticatorUtils.isSomeBiometricAllowed(0)).isFalse();
+        assertThat(AuthenticatorUtils.isSomeBiometricAllowed(Authenticators.BIOMETRIC_STRONG))
+                .isTrue();
+        assertThat(AuthenticatorUtils.isSomeBiometricAllowed(Authenticators.BIOMETRIC_WEAK))
+                .isTrue();
+        assertThat(AuthenticatorUtils.isSomeBiometricAllowed(Authenticators.DEVICE_CREDENTIAL))
+                .isFalse();
+        assertThat(AuthenticatorUtils.isSomeBiometricAllowed(
+                Authenticators.BIOMETRIC_STRONG | Authenticators.DEVICE_CREDENTIAL)).isTrue();
+        assertThat(AuthenticatorUtils.isSomeBiometricAllowed(
+                Authenticators.BIOMETRIC_WEAK | Authenticators.DEVICE_CREDENTIAL)).isTrue();
+    }
+
+    @Test
     public void testIsWeakBiometricAllowed() {
         assertThat(AuthenticatorUtils.isWeakBiometricAllowed(0)).isFalse();
         assertThat(AuthenticatorUtils.isWeakBiometricAllowed(Authenticators.BIOMETRIC_STRONG))

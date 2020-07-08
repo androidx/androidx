@@ -26,6 +26,12 @@ import androidx.biometric.BiometricManager.Authenticators;
  * Utilities related to {@link BiometricManager.Authenticators} constants.
  */
 class AuthenticatorUtils {
+    /**
+     * A bitmask for the portion of an {@link BiometricManager.AuthenticatorTypes} value related to
+     * biometric sensor class.
+     */
+    private static final int BIOMETRIC_CLASS_MASK = 0x7FFF;
+
     // Prevent instantiation.
     private AuthenticatorUtils() {}
 
@@ -125,6 +131,16 @@ class AuthenticatorUtils {
     static boolean isDeviceCredentialAllowed(
             @BiometricManager.AuthenticatorTypes int authenticators) {
         return (authenticators & Authenticators.DEVICE_CREDENTIAL) != 0;
+    }
+
+    /**
+     * Checks if any biometric class is included in the given set of allowed authenticator types.
+     *
+     * @param authenticators A bit field representing a set of allowed authenticator types.
+     * @return Whether the allowed authenticator types include one or more biometric classes.
+     */
+    static boolean isSomeBiometricAllowed(@BiometricManager.AuthenticatorTypes int authenticators) {
+        return (authenticators & BIOMETRIC_CLASS_MASK) != 0;
     }
 
     /**

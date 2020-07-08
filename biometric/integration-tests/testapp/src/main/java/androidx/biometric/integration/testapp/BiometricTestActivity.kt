@@ -120,7 +120,7 @@ class BiometricTestActivity : FragmentActivity() {
                     result: BiometricPrompt.AuthenticationResult
                 ) {
                     super.onAuthenticationSucceeded(result)
-                    log("onAuthenticationSucceeded: crypto = ${result.cryptoObject}")
+                    log("onAuthenticationSucceeded: ${result.toDataString()}")
 
                     // Encrypt a test payload using the result of crypto-based auth.
                     if (useCryptoAuthCheckbox.isChecked) {
@@ -256,6 +256,14 @@ class BiometricTestActivity : FragmentActivity() {
         private const val PAYLOAD = "hello"
 
         /**
+         * Converts an authentication result object to a string that represents its contents.
+         */
+        private fun BiometricPrompt.AuthenticationResult.toDataString(): String {
+            val typeString = authenticationType.toAuthenticationTypeString()
+            return "crypto = $cryptoObject, type = $typeString"
+        }
+
+        /**
          * Converts an authentication status code to a string that represents the status.
          */
         private fun Int.toAuthenticationStatusString(): String = when (this) {
@@ -267,7 +275,18 @@ class BiometricTestActivity : FragmentActivity() {
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> "ERROR_NO_HARDWARE"
             BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED ->
                 "ERROR_SECURITY_UPDATE_REQUIRED"
-            else -> "Unknown error: $this"
+            else -> "Unrecognized error: $this"
+        }
+
+        /**
+         * Converts an authentication result type to a string that represents the method of
+         * authentication.
+         */
+        private fun Int.toAuthenticationTypeString(): String = when (this) {
+            BiometricPrompt.AUTHENTICATION_RESULT_TYPE_UNKNOWN -> "UNKNOWN"
+            BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC -> "BIOMETRIC"
+            BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL -> "DEVICE_CREDENTIAL"
+            else -> "Unrecognized type: $this"
         }
 
         /**

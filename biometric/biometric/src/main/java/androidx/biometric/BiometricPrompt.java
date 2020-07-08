@@ -78,6 +78,40 @@ public class BiometricPrompt implements BiometricConstants {
     @interface AuthenticationError {}
 
     /**
+     * Authentication type reported by {@link AuthenticationResult} when the user authenticated via
+     * an unknown method.
+     *
+     * <p>This value may be returned on older Android versions due to partial incompatibility
+     * with a newer API. It does NOT necessarily imply that the user authenticated with a method
+     * other than those represented by {@link #AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL} and
+     * {@link #AUTHENTICATION_RESULT_TYPE_BIOMETRIC}.
+     */
+    public static final int AUTHENTICATION_RESULT_TYPE_UNKNOWN = -1;
+
+    /**
+     * Authentication type reported by {@link AuthenticationResult} when the user authenticated by
+     * entering their device PIN, pattern, or password.
+     */
+    public static final int AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL = 1;
+
+    /**
+     * Authentication type reported by {@link AuthenticationResult} when the user authenticated by
+     * presenting some form of biometric (e.g. fingerprint or face).
+     */
+    public static final int AUTHENTICATION_RESULT_TYPE_BIOMETRIC = 2;
+
+    /**
+     * The authentication type that was used, as reported by {@link AuthenticationResult}.
+     */
+    @IntDef({
+            AUTHENTICATION_RESULT_TYPE_UNKNOWN,
+            AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL,
+            AUTHENTICATION_RESULT_TYPE_BIOMETRIC
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @interface AuthenticationResultType {}
+
+    /**
      * Tag used to identify the {@link BiometricFragment} attached to the client activity/fragment.
      */
     private static final String BIOMETRIC_FRAGMENT_TAG = "androidx.biometric.BiometricFragment";
@@ -161,9 +195,12 @@ public class BiometricPrompt implements BiometricConstants {
      */
     public static class AuthenticationResult {
         private final CryptoObject mCryptoObject;
+        @AuthenticationResultType private final int mAuthenticationType;
 
-        AuthenticationResult(CryptoObject crypto) {
+        AuthenticationResult(
+                CryptoObject crypto, @AuthenticationResultType int authenticationType) {
             mCryptoObject = crypto;
+            mAuthenticationType = authenticationType;
         }
 
         /**
@@ -174,6 +211,21 @@ public class BiometricPrompt implements BiometricConstants {
         @Nullable
         public CryptoObject getCryptoObject() {
             return mCryptoObject;
+        }
+
+        /**
+         * Gets the type of authentication (e.g. device credential or biometric) that was
+         * requested from and successfully provided by the user.
+         *
+         * @return An integer representing the type of authentication that was used.
+         *
+         * @see #AUTHENTICATION_RESULT_TYPE_UNKNOWN
+         * @see #AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL
+         * @see #AUTHENTICATION_RESULT_TYPE_BIOMETRIC
+         */
+        @AuthenticationResultType
+        public int getAuthenticationType() {
+            return mAuthenticationType;
         }
     }
 

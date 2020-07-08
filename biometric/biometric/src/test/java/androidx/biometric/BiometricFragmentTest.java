@@ -84,7 +84,9 @@ public class BiometricFragmentTest {
         mViewModel.setClientCallback(mAuthenticationCallback);
         mViewModel.setAwaitingResult(true);
 
-        mFragment.onAuthenticationSucceeded(new BiometricPrompt.AuthenticationResult(null));
+        mFragment.onAuthenticationSucceeded(
+                new BiometricPrompt.AuthenticationResult(
+                        null /* crypto */, BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC));
 
         verify(mAuthenticationCallback).onAuthenticationSucceeded(mResultCaptor.capture());
         assertThat(mResultCaptor.getValue().getCryptoObject()).isNull();

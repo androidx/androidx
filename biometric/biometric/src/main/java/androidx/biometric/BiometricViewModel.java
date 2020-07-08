@@ -302,6 +302,14 @@ public class BiometricViewModel extends ViewModel {
                         @Override
                         void onSuccess(@NonNull BiometricPrompt.AuthenticationResult result) {
                             if (isAwaitingResult()) {
+                                // Try to infer the authentication type if unknown.
+                                if (result.getAuthenticationType()
+                                        == BiometricPrompt.AUTHENTICATION_RESULT_TYPE_UNKNOWN) {
+                                    result = new BiometricPrompt.AuthenticationResult(
+                                            result.getCryptoObject(),
+                                            getInferredAuthenticationResultType());
+                                }
+
                                 setAuthenticationResult(result);
                             }
                         }
@@ -543,5 +551,22 @@ public class BiometricViewModel extends ViewModel {
         } else {
             liveData.postValue(value);
         }
+    }
+
+    /**
+     * Attempts to infer the type of authenticator that was used to authenticate the user.
+     *
+     * @return The inferred authentication type, or
+     * {@link BiometricPrompt#AUTHENTICATION_RESULT_TYPE_UNKNOWN} if unknown.
+     */
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @BiometricPrompt.AuthenticationResultType
+    int getInferredAuthenticationResultType() {
+        @BiometricManager.AuthenticatorTypes final int authenticators = getAllowedAuthenticators();
+        if (AuthenticatorUtils.isSomeBiometricAllowed(authenticators)
+                && !AuthenticatorUtils.isDeviceCredentialAllowed(authenticators)) {
+            return BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC;
+        }
+        return BiometricPrompt.AUTHENTICATION_RESULT_TYPE_UNKNOWN;
     }
 }

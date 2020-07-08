@@ -28,6 +28,9 @@ package androidx.biometric {
     method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo, androidx.biometric.BiometricPrompt.CryptoObject);
     method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo);
     method public void cancelAuthentication();
+    field public static final int AUTHENTICATION_RESULT_TYPE_BIOMETRIC = 2; // 0x2
+    field public static final int AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL = 1; // 0x1
+    field public static final int AUTHENTICATION_RESULT_TYPE_UNKNOWN = -1; // 0xffffffff
     field public static final int ERROR_CANCELED = 5; // 0x5
     field public static final int ERROR_HW_NOT_PRESENT = 12; // 0xc
     field public static final int ERROR_HW_UNAVAILABLE = 1; // 0x1
@@ -51,6 +54,7 @@ package androidx.biometric {
   }
 
   public static class BiometricPrompt.AuthenticationResult {
+    method public int getAuthenticationType();
     method public androidx.biometric.BiometricPrompt.CryptoObject? getCryptoObject();
   }
 

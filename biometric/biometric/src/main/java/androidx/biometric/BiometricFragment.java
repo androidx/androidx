@@ -654,9 +654,11 @@ public class BiometricFragment extends Fragment {
      */
     private void handleConfirmCredentialResult(int resultCode) {
         if (resultCode == Activity.RESULT_OK) {
-            // Device credential auth succeeded. This is incompatible with crypto.
+            // Device credential auth succeeded. This is incompatible with crypto for API <30.
             sendSuccessAndDismiss(
-                    new BiometricPrompt.AuthenticationResult(null /* crypto */));
+                    new BiometricPrompt.AuthenticationResult(
+                            null /* crypto */,
+                            BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL));
         } else {
             // Device credential auth failed. Assume this is due to the user canceling.
             sendErrorAndDismiss(
