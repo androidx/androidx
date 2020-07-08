@@ -131,11 +131,13 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onRouteSelected(@NonNull MediaRouter router, @NonNull RouteInfo route,
+        public void onRouteSelected(@NonNull MediaRouter router,
+                @NonNull RouteInfo requestedRoute, @NonNull RouteInfo selectedRoute,
                 int reason) {
-            Log.d(TAG, "onRouteSelected: route=" + route + ", reason=" + reason);
+            Log.d(TAG, "onRouteSelected: requestedRoute=" + requestedRoute
+                    + ", route=" + selectedRoute + ", reason=" + reason);
 
-            mPlayer = Player.create(SampleMediaRouterActivity.this, route, mMediaSession);
+            mPlayer = Player.create(SampleMediaRouterActivity.this, selectedRoute, mMediaSession);
             if (isPresentationApiSupported()) {
                 mPlayer.updatePresentation();
             }

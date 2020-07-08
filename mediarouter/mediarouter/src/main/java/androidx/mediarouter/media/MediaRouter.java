@@ -2044,6 +2044,26 @@ public final class MediaRouter {
             onRouteSelected(router, route);
         }
 
+        //TODO: Revise the comment when we have a feature that enables dynamic grouping on pre-R
+        // devices.
+        /**
+         * Called when the supplied media route becomes selected as the active route, which
+         * may be different from the route requested by {@link #selectRoute(RouteInfo)}.
+         * That can happen when {@link MediaTransferReceiver media transfer feature} is enabled.
+         * The default implementation calls {@link #onRouteSelected(MediaRouter, RouteInfo, int)}
+         * with the actually selected route.
+         *
+         * @param router The media router reporting the event.
+         * @param requestedRoute The route that was requested to be selected.
+         * @param selectedRoute The route that has been selected.
+         * @param reason The reason for unselecting the previous route.
+         */
+        public void onRouteSelected(@NonNull MediaRouter router,
+                @NonNull RouteInfo requestedRoute, @NonNull RouteInfo selectedRoute,
+                @UnselectReason int reason) {
+            onRouteSelected(router, selectedRoute, reason);
+        }
+
         /**
          * Called when the supplied media route becomes unselected as the active route.
          * For detailed reason, override {@link #onRouteUnselected(MediaRouter, RouteInfo, int)}
@@ -2263,6 +2283,9 @@ public final class MediaRouter {
         private RouteInfo mBluetoothRoute;
         RouteInfo mSelectedRoute;
         RouteController mSelectedRouteController;
+        // Represents a route that are requested to be selected asynchronously.
+        RouteInfo mRequestedRoute;
+        RouteController mRequestedRouteController;
         // A map from unique route ID to RouteController for the member routes in the currently
         // selected route group.
         final Map<String, RouteController> mRouteControllerMap = new HashMap<>();
@@ -2928,37 +2951,7 @@ public final class MediaRouter {
             } else if (selectedRouteDescriptorChanged) {
                 // In case the selected route is a route group, select/unselect route controllers
                 // for the added/removed route members.
-                if (mSelectedRoute.isGroup()) {
-                    List<RouteInfo> routes = mSelectedRoute.getMemberRoutes();
-                    // Build a set of descriptor IDs for the new route group.
-                    Set<String> idSet = new HashSet<>();
-                    for (RouteInfo route : routes) {
-                        idSet.add(route.mUniqueId);
-                    }
-                    // Unselect route controllers for the removed routes.
-                    Iterator<Map.Entry<String, RouteController>> iter =
-                            mRouteControllerMap.entrySet().iterator();
-                    while (iter.hasNext()) {
-                        Map.Entry<String, RouteController> entry = iter.next();
-                        if (!idSet.contains(entry.getKey())) {
-                            RouteController controller = entry.getValue();
-                            controller.onUnselect(UNSELECT_REASON_UNKNOWN);
-                            controller.onRelease();
-                            iter.remove();
-                        }
-                    }
-                    // Select route controllers for the added routes.
-                    for (RouteInfo route : routes) {
-                        if (!mRouteControllerMap.containsKey(route.mUniqueId)) {
-                            RouteController controller = route.getProviderInstance()
-                                    .onCreateRouteController(
-                                            route.mDescriptorId, mSelectedRoute.mDescriptorId);
-                            controller.onSelect();
-                            mRouteControllerMap.put(route.mUniqueId, controller);
-                        }
-                    }
-                }
-                // Update the playback info because the properties of the route have changed.
+                maybeUpdateMemberRouteControllers();
                 updatePlaybackInfoFromSelectedRoute();
             }
         }
@@ -3019,37 +3012,40 @@ public final class MediaRouter {
                 return;
             }
 
-            TransferNotifier transferNotifier = new TransferNotifier(this, unselectReason);
-            // Save this to handle control intent on the previous route.
-            mLastTransferNotifier = transferNotifier;
-
-            if (unselectReason != UNSELECT_REASON_ROUTE_CHANGED
-                    || mOnPrepareTransferListener == null) {
-                transferNotifier.notifyPrepareFinished();
-            } else {
-                mOnPrepareTransferListener.onPrepareTransfer(mSelectedRoute,
-                        route, transferNotifier);
+            // Cancel the previous asynchronous select if exists.
+            if (mRequestedRoute != null) {
+                mRequestedRoute = null;
+                if (mRequestedRouteController != null) {
+                    mRequestedRouteController.onUnselect(UNSELECT_REASON_ROUTE_CHANGED);
+                    mRequestedRouteController.onRelease();
+                    mRequestedRouteController = null;
+                }
             }
-            clearSelectedRoute(unselectReason);
 
-            //TODO: defer onRouteSelected for dynamic grouping (it will be selected)
-            RouteController newController;
-            if (route.getProvider().supportsDynamicGroup()) {
+            //TODO: determine how to enable dynamic grouping on pre-R devices.
+            if (isMediaTransferEnabled() && route.getProvider().supportsDynamicGroup()) {
                 MediaRouteProvider.DynamicGroupRouteController dynamicGroupRouteController =
                         route.getProviderInstance().onCreateDynamicGroupRouteController(
                                 route.mDescriptorId);
+                // Select route asynchronously.
                 if (dynamicGroupRouteController != null) {
                     dynamicGroupRouteController.setOnDynamicRoutesChangedListener(
                             ContextCompat.getMainExecutor(mApplicationContext),
                             mDynamicRoutesListener);
+                    mRequestedRoute = route;
+                    mRequestedRouteController = dynamicGroupRouteController;
+                    mRequestedRouteController.onSelect();
+                    return;
+                } else {
+                    Log.w(TAG, "setSelectedRouteInternal: Failed to create dynamic group route "
+                            + "controller. route=" + route);
                 }
-                newController = dynamicGroupRouteController;
-            } else {
-                newController = route.getProviderInstance().onCreateRouteController(
-                        route.mDescriptorId);
             }
 
-            mSelectedRouteController = newController;
+            notifyTransferAndUnselectSelectedRoute(route, unselectReason);
+
+            mSelectedRouteController = route.getProviderInstance().onCreateRouteController(
+                    route.mDescriptorId);
             mSelectedRoute = route;
             if (mSelectedRouteController != null) {
                 mSelectedRouteController.onSelect();
@@ -3061,35 +3057,81 @@ public final class MediaRouter {
             mCallbackHandler.post(CallbackHandler.MSG_ROUTE_SELECTED, mSelectedRoute,
                     unselectReason);
 
-            if (mSelectedRoute.isGroup()) {
-                List<RouteInfo> routes = mSelectedRoute.getMemberRoutes();
-                mRouteControllerMap.clear();
-                for (RouteInfo memberRoute : routes) {
-                    RouteController memberRouteController =
-                            memberRoute.getProviderInstance().onCreateRouteController(
-                                    memberRoute.mDescriptorId, mSelectedRoute.mDescriptorId);
-                    memberRouteController.onSelect();
-                    mRouteControllerMap.put(memberRoute.mUniqueId, memberRouteController);
-                }
-            }
+            mRouteControllerMap.clear();
+            maybeUpdateMemberRouteControllers();
             updatePlaybackInfoFromSelectedRoute();
         }
 
-        void replaceSelectedRouteForSelectedRouteController(RouteInfo route, int reason) {
-            if (mSelectedRoute == route) {
+        void notifyDynamicGroupSelected(RouteInfo requestedRoute, RouteInfo selectedRoute,
+                Collection<DynamicGroupRouteController.DynamicRouteDescriptor> routes) {
+            if (mSelectedRoute == selectedRoute) {
                 return;
             }
 
-            //TODO: Remove this when the initial member is not selected.
-            mCallbackHandler.post(CallbackHandler.MSG_ROUTE_UNSELECTED, mSelectedRoute,
-                    reason);
-            mSelectedRoute = route;
-            mCallbackHandler.post(CallbackHandler.MSG_ROUTE_SELECTED, mSelectedRoute, reason);
+            notifyTransferAndUnselectSelectedRoute(selectedRoute, UNSELECT_REASON_ROUTE_CHANGED);
 
+            mSelectedRoute = selectedRoute;
+            mSelectedRouteController = mRequestedRouteController;
+            mRequestedRoute = null;
+            mRequestedRouteController = null;
+
+            mCallbackHandler.post(CallbackHandler.MSG_ROUTE_ANOTHER_SELECTED,
+                    new Pair<>(requestedRoute, selectedRoute), UNSELECT_REASON_ROUTE_CHANGED);
+
+            mRouteControllerMap.clear();
+            mSelectedRoute.updateDynamicDescriptors(routes);
+            maybeUpdateMemberRouteControllers();
             updatePlaybackInfoFromSelectedRoute();
         }
 
-        void clearSelectedRoute(@UnselectReason int unselectReason) {
+        void maybeUpdateMemberRouteControllers() {
+            if (!mSelectedRoute.isGroup()) {
+                return;
+            }
+            List<RouteInfo> routes = mSelectedRoute.getMemberRoutes();
+            // Build a set of descriptor IDs for the new route group.
+            Set<String> idSet = new HashSet<>();
+            for (RouteInfo route : routes) {
+                idSet.add(route.mUniqueId);
+            }
+            // Unselect route controllers for the removed routes.
+            Iterator<Map.Entry<String, RouteController>> iter =
+                    mRouteControllerMap.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry<String, RouteController> entry = iter.next();
+                if (!idSet.contains(entry.getKey())) {
+                    RouteController controller = entry.getValue();
+                    controller.onUnselect(UNSELECT_REASON_UNKNOWN);
+                    controller.onRelease();
+                    iter.remove();
+                }
+            }
+            // Select route controllers for the added routes.
+            for (RouteInfo route : routes) {
+                if (!mRouteControllerMap.containsKey(route.mUniqueId)) {
+                    RouteController controller = route.getProviderInstance()
+                            .onCreateRouteController(
+                                    route.mDescriptorId, mSelectedRoute.mDescriptorId);
+                    controller.onSelect();
+                    mRouteControllerMap.put(route.mUniqueId, controller);
+                }
+            }
+        }
+
+        void notifyTransferAndUnselectSelectedRoute(RouteInfo newRoute,
+                @UnselectReason int unselectReason) {
+            TransferNotifier transferNotifier = new TransferNotifier(this, unselectReason);
+            // Save this to handle control intent on the previous newRoute.
+            mLastTransferNotifier = transferNotifier;
+
+            if (unselectReason != UNSELECT_REASON_ROUTE_CHANGED
+                    || mOnPrepareTransferListener == null) {
+                transferNotifier.notifyPrepareFinished();
+            } else {
+                mOnPrepareTransferListener.onPrepareTransfer(mSelectedRoute,
+                        newRoute, transferNotifier);
+            }
+
             mCallbackHandler.post(CallbackHandler.MSG_ROUTE_UNSELECTED, mSelectedRoute,
                     unselectReason);
 
@@ -3106,23 +3148,20 @@ public final class MediaRouter {
                             @Nullable MediaRouteDescriptor groupRouteDescriptor,
                             @NonNull Collection<DynamicGroupRouteController.DynamicRouteDescriptor>
                                     routes) {
-                        if (controller == mSelectedRouteController) {
+                        if (controller == mRequestedRouteController
+                                && groupRouteDescriptor != null) {
+                            ProviderInfo provider = mRequestedRoute.getProvider();
+                            String groupId = groupRouteDescriptor.getId();
+
+                            String uniqueId = assignRouteUniqueId(provider, groupId);
+                            RouteInfo route = new RouteInfo(provider, groupId, uniqueId);
+                            route.maybeUpdateDescriptor(groupRouteDescriptor);
+
+                            notifyDynamicGroupSelected(mRequestedRoute, route, routes);
+                        } else if (controller == mSelectedRouteController) {
                             if (groupRouteDescriptor != null) {
-                                if (!TextUtils.equals(mSelectedRoute.getDescriptorId(),
-                                        groupRouteDescriptor.getId())) {
-                                    ProviderInfo provider = mSelectedRoute.getProvider();
-                                    String groupId = groupRouteDescriptor.getId();
-
-                                    String uniqueId = assignRouteUniqueId(provider, groupId);
-                                    RouteInfo route = new RouteInfo(provider, groupId, uniqueId);
-                                    route.maybeUpdateDescriptor(groupRouteDescriptor);
-
-                                    replaceSelectedRouteForSelectedRouteController(route,
-                                            UNSELECT_REASON_ROUTE_CHANGED);
-                                } else {
-                                    updateRouteDescriptorAndNotify(mSelectedRoute,
-                                            groupRouteDescriptor);
-                                }
+                                updateRouteDescriptorAndNotify(mSelectedRoute,
+                                        groupRouteDescriptor);
                             }
                             mSelectedRoute.updateDynamicDescriptors(routes);
                         }
@@ -3442,6 +3481,7 @@ public final class MediaRouter {
             public static final int MSG_ROUTE_PRESENTATION_DISPLAY_CHANGED = MSG_TYPE_ROUTE | 5;
             public static final int MSG_ROUTE_SELECTED = MSG_TYPE_ROUTE | 6;
             public static final int MSG_ROUTE_UNSELECTED = MSG_TYPE_ROUTE | 7;
+            public static final int MSG_ROUTE_ANOTHER_SELECTED = MSG_TYPE_ROUTE | 8;
 
             public static final int MSG_PROVIDER_ADDED = MSG_TYPE_PROVIDER | 1;
             public static final int MSG_PROVIDER_REMOVED = MSG_TYPE_PROVIDER | 2;
@@ -3513,12 +3553,14 @@ public final class MediaRouter {
                 }
             }
 
+            @SuppressWarnings("unchecked") // Using Pair<RouteInfo, RouteInfo>
             private void invokeCallback(CallbackRecord record, int what, Object obj, int arg) {
                 final MediaRouter router = record.mRouter;
                 final MediaRouter.Callback callback = record.mCallback;
                 switch (what & MSG_TYPE_MASK) {
                     case MSG_TYPE_ROUTE: {
-                        final RouteInfo route = (RouteInfo)obj;
+                        final RouteInfo route = (what == MSG_ROUTE_ANOTHER_SELECTED)
+                                ? ((Pair<RouteInfo, RouteInfo>) obj).second : (RouteInfo) obj;
                         if (!record.filterRouteEvent(route)) {
                             break;
                         }
@@ -3539,10 +3581,14 @@ public final class MediaRouter {
                                 callback.onRoutePresentationDisplayChanged(router, route);
                                 break;
                             case MSG_ROUTE_SELECTED:
-                                callback.onRouteSelected(router, route, arg);
+                                callback.onRouteSelected(router, route, route, arg);
                                 break;
                             case MSG_ROUTE_UNSELECTED:
                                 callback.onRouteUnselected(router, route, arg);
+                                break;
+                            case MSG_ROUTE_ANOTHER_SELECTED:
+                                callback.onRouteSelected(router,
+                                        ((Pair<RouteInfo, RouteInfo>) obj).first, route, arg);
                                 break;
                         }
                         break;
