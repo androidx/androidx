@@ -16,15 +16,19 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.PageEvent.Drop
+import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -41,6 +45,7 @@ import org.junit.runners.JUnit4
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
@@ -220,6 +225,189 @@ class PagingDataDifferTest {
 
         advanceUntilIdle()
         assertThat(listUpdates).isEqualTo(listOf(true, false))
+
+        job.cancel()
+    }
+
+    @Test
+    fun get_loadHintResentWhenUnfulfilled() = testScope.runBlockingTest {
+        val differ = SimpleDiffer()
+
+        val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
+        pageEventCh.offer(
+            Refresh(
+                pages = listOf(TransformablePage(0, listOf(0, 1))),
+                placeholdersBefore = 4,
+                placeholdersAfter = 4,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+        pageEventCh.offer(
+            Prepend(
+                pages = listOf(TransformablePage(-1, listOf(-1, -2))),
+                placeholdersBefore = 2,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+        pageEventCh.offer(
+            Append(
+                pages = listOf(TransformablePage(1, listOf(2, 3))),
+                placeholdersAfter = 2,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+
+        val receiver = UiReceiverFake()
+        val job = launch {
+            differ.collectFrom(
+                // Filter the original list of 10 items to 5, removing even numbers.
+                PagingData(pageEventCh.consumeAsFlow(), receiver).filter { it % 2 != 0 },
+                dummyPresenterCallback
+            )
+        }
+
+        assertNull(differ[0])
+
+        // Insert a new page, PagingDataDiffer should try to resend hint since index 0 still points
+        // to a placeholder:
+        // [null, null, [], [-1], [1], [3], null, null]
+        pageEventCh.offer(
+            Prepend(
+                pages = listOf(TransformablePage(-2, listOf())),
+                placeholdersBefore = 2,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+
+        // Now index 0 has been loaded:
+        // [[-3], [], [-1], [1], [3], null, null]
+        pageEventCh.offer(
+            Prepend(
+                pages = listOf(TransformablePage(-3, listOf(-3, -4))),
+                placeholdersBefore = 0,
+                combinedLoadStates = localLoadStatesOf(
+                    refreshLocal = NotLoading.Incomplete,
+                    prependLocal = NotLoading.Complete,
+                    appendLocal = NotLoading.Incomplete
+                )
+            )
+        )
+
+        // This index points to a valid placeholder that ends up removed by filter().
+        assertNull(differ[5])
+
+        // Should only resend the hint for index 5, since index 0 has already been loaded:
+        // [[-3], [], [-1], [1], [3], [], null, null]
+        pageEventCh.offer(
+            Append(
+                pages = listOf(TransformablePage(2, listOf())),
+                placeholdersAfter = 2,
+                combinedLoadStates = localLoadStatesOf(
+                    refreshLocal = NotLoading.Incomplete,
+                    prependLocal = NotLoading.Complete,
+                    appendLocal = NotLoading.Incomplete
+                )
+            )
+        )
+
+        // Index 5 hasn't loaded, but we are at the end of the list:
+        // [[-3], [], [-1], [1], [3], [], [5]]
+        pageEventCh.offer(
+            Append(
+                pages = listOf(TransformablePage(3, listOf(4, 5))),
+                placeholdersAfter = 0,
+                combinedLoadStates = localLoadStatesOf(
+                    NotLoading.Incomplete,
+                    NotLoading.Complete,
+                    NotLoading.Complete
+                )
+
+            )
+        )
+
+        assertThat(receiver.hints).isEqualTo(
+            listOf(
+                ViewportHint(-1, -2, false),
+                ViewportHint(-2, -2, false),
+                ViewportHint(1, 3, false),
+                ViewportHint(2, 1, false)
+            )
+        )
+
+        job.cancel()
+    }
+
+    @Test
+    fun get_loadHintResentUnlessPageDropped() = testScope.runBlockingTest {
+        val differ = SimpleDiffer()
+
+        val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
+        pageEventCh.offer(
+            Refresh(
+                pages = listOf(TransformablePage(0, listOf(0, 1))),
+                placeholdersBefore = 4,
+                placeholdersAfter = 4,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+        pageEventCh.offer(
+            Prepend(
+                pages = listOf(TransformablePage(-1, listOf(-1, -2))),
+                placeholdersBefore = 2,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+        pageEventCh.offer(
+            Append(
+                pages = listOf(TransformablePage(1, listOf(2, 3))),
+                placeholdersAfter = 2,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+
+        val receiver = UiReceiverFake()
+        val job = launch {
+            differ.collectFrom(
+                // Filter the original list of 10 items to 5, removing even numbers.
+                PagingData(pageEventCh.consumeAsFlow(), receiver).filter { it % 2 != 0 },
+                dummyPresenterCallback
+            )
+        }
+
+        assertNull(differ[0])
+
+        // Insert a new page, PagingDataDiffer should try to resend hint since index 0 still points
+        // to a placeholder:
+        // [null, null, [], [-1], [1], [3], null, null]
+        pageEventCh.offer(
+            Prepend(
+                pages = listOf(TransformablePage(-2, listOf())),
+                placeholdersBefore = 2,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+
+        // Drop the previous page, which reset resendable index state in the PREPEND direction.
+        // [null, null, [-1], [1], [3], null, null]
+        pageEventCh.offer(Drop(loadType = PREPEND, count = 1, placeholdersRemaining = 2))
+
+        // Re-insert the previous page, which should not trigger resending the index due to
+        // previous page drop:
+        // [[-3], [], [-1], [1], [3], null, null]
+        pageEventCh.offer(
+            Prepend(
+                pages = listOf(TransformablePage(-2, listOf())),
+                placeholdersBefore = 2,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+
+        assertThat(receiver.hints).isEqualTo(
+            listOf(
+                ViewportHint(-1, -2, false),
+                ViewportHint(-2, -2, false)
+            )
+        )
 
         job.cancel()
     }

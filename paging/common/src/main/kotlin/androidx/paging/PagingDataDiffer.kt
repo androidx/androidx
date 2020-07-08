@@ -17,6 +17,8 @@
 package androidx.paging
 
 import androidx.annotation.RestrictTo
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +43,23 @@ abstract class PagingDataDiffer<T : Any>(
 
     private val collectFromRunner = SingleRunner()
 
+    /**
+     * Track whether [lastAccessedIndex] points to a loaded item in the list or a placeholder
+     * after applying transformations to loaded pages. `true` if [lastAccessedIndex] points to a
+     * placeholder, `false` if [lastAccessedIndex] points to a loaded item after transformations.
+     *
+     * [lastAccessedIndexUnfulfilled] is used to track whether resending [lastAccessedIndex] as a
+     * hint is necessary, since in cases of aggressive filtering, an index may be unfulfilled
+     * after being sent to [PageFetcher], which is only capable of handling prefetchDistance
+     * before transformations.
+     */
+    @Volatile
+    private var lastAccessedIndexUnfulfilled: Boolean = false
+
+    /**
+     * Track last index access so it can be forwarded to new generations after DiffUtil runs and
+     * it is transformed to an index in the new list.
+     */
     @Volatile
     private var lastAccessedIndex: Int = 0
 
@@ -65,8 +84,10 @@ abstract class PagingDataDiffer<T : Any>(
         receiver = pagingData.receiver
 
         pagingData.flow.collect { event ->
-            withContext(mainDispatcher) {
+            withContext<Unit>(mainDispatcher) {
                 if (event is PageEvent.Insert && event.loadType == REFRESH) {
+                    lastAccessedIndexUnfulfilled = false
+
                     val newPresenter = PagePresenter(event)
                     val transformedLastAccessedIndex = performDiff(
                         previousList = presenter,
@@ -90,7 +111,7 @@ abstract class PagingDataDiffer<T : Any>(
                     // list.
                     transformedLastAccessedIndex?.let { newIndex ->
                         lastAccessedIndex = newIndex
-                        receiver?.addHint(presenter.loadAround(newIndex))
+                        receiver?.addHint(presenter.indexToHint(newIndex))
                     }
                 } else {
                     if (postEvents()) {
@@ -99,14 +120,49 @@ abstract class PagingDataDiffer<T : Any>(
 
                     // Send event to presenter to be shown to the UI.
                     presenter.processEvent(event, callback)
+
+                    // Reset lastAccessedIndexUnfulfilled if a page is dropped, to avoid infinite
+                    // loops when maxSize is insufficiently large.
+                    if (event is PageEvent.Drop) {
+                        lastAccessedIndexUnfulfilled = false
+                    }
+
+                    // If index points to a placeholder after transformations, resend it unless
+                    // there are no more items to load.
+                    if (event is PageEvent.Insert) {
+                        val prependDone = event.combinedLoadStates.prepend.endOfPaginationReached
+                        val appendDone = event.combinedLoadStates.append.endOfPaginationReached
+                        val canContinueLoading = !(event.loadType == PREPEND && prependDone) &&
+                                !(event.loadType == APPEND && appendDone)
+
+                        if (!canContinueLoading) {
+                            // Reset lastAccessedIndexUnfulfilled since endOfPaginationReached
+                            // means there are no more pages to load that could fulfill this index.
+                            lastAccessedIndexUnfulfilled = false
+                        } else if (lastAccessedIndexUnfulfilled) {
+                            // `null` if lastAccessedHint does not point to a placeholder.
+                            val lastAccessedIndexAsHint = presenter.placeholderIndexToHintOrNull(
+                                lastAccessedIndex
+                            )
+
+                            // lastIndex fulfilled, so reset lastAccessedIndexUnfulfilled.
+                            if (lastAccessedIndexAsHint != null) {
+                                receiver?.addHint(lastAccessedIndexAsHint)
+                            } else {
+                                lastAccessedIndexUnfulfilled = false
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
     operator fun get(index: Int): T? {
+        lastAccessedIndexUnfulfilled = true
         lastAccessedIndex = index
-        receiver?.addHint(presenter.loadAround(index))
+
+        receiver?.addHint(presenter.indexToHint(index))
         return presenter.get(index)
     }
 
