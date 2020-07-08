@@ -890,4 +890,30 @@ class LayoutGetHorizontalTest {
         // If insert LX to second line, it will be |L1 L2 L3 R7 R6 LX|
         assertThat(layout.getDownstreamSecondaryHorizontalPosition(offset)).isEqualTo(50)
     }
+
+    @Test
+    fun getHorizontal_BiDi_Whitspace() {
+        // The line break happens like as follows
+        //
+        // input (Logical): R1 R2 SP R3 R4 R6 SP R7 R8 SP R9 RA
+        //
+        // |R4 R3 SP R2 R1| (SP)
+        // |L1 L2 SP L3 L4| (SP)
+        // |L5 L6         |
+        val layout = getLayout(
+            "\u05D0\u05D1 \u05D2\u05D3 \u0061\u0062 \u0063\u0064 \u0065\u0066",
+            10,
+            50,
+            LTR)
+
+        val offset = 6 // before L1 == after SP
+        // If insert LX to first line, it will be |R4 R3 SP R2 R1 SP LX|
+        assertThat(layout.getUpstreamPrimaryHorizontalPosition(offset)).isEqualTo(50)
+        // If insert RX to first line, it will be |RX SP R4 R3 SP R2 R1|
+        assertThat(layout.getUpstreamSecondaryHorizontalPosition(offset)).isEqualTo(0)
+        // If insert LX to second line, it will be |LX L2 SP L3 L4| (SP)
+        assertThat(layout.getDownstreamPrimaryHorizontalPosition(offset)).isEqualTo(0)
+        // If insert RX to second line, it will be |RX L1 L2 SP L3 L4| (SP)
+        assertThat(layout.getDownstreamSecondaryHorizontalPosition(offset)).isEqualTo(0)
+    }
 }
