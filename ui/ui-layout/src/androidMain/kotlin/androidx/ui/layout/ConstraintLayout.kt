@@ -855,8 +855,9 @@ private fun createId() = object : Any() {}
  * Represents a dimension that can be assigned to the width or height of a [ConstraintLayout]
  * [child][ConstrainedLayoutReference].
  */
-// TODO(popam, b/157781841): It is unfortunate that this interface is top level in ui-layout.
-//  This will be ok if we move constraint layout to its own module or at least subpackage.
+// TODO(popam, b/157781841): It is unfortunate that this interface is top level in
+// `foundation-layout`. This will be ok if we move constraint layout to its own module or at
+// least subpackage.
 interface Dimension {
     /**
      * A [Dimension] that can be assigned both min and max bounds.

@@ -145,7 +145,7 @@ def uiComponents = [
         ":compose:foundation:foundation",
         ":compose:core:core-geometry",
         ":compose:core:core-graphics",
-        ":ui:ui-layout",
+        ":compose:foundation:foundation-layout",
         ":ui:ui-livedata",
         ":ui:ui-saved-instance-state",
         ":ui:ui-text",

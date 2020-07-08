@@ -175,7 +175,7 @@ fun getAdjustedCoordinates(position: Offset): Offset {
  * measurement [minimum width][Constraints.minWidth] or [minimum height][Constraints.minHeight]
  * constraints.
  *
- * The same as "wrapContentSize" in ui-layout, which we cannot use in this module.
+ * The same as "wrapContentSize" in foundation-layout, which we cannot use in this module.
  */
 private object AllowZeroSize : LayoutModifier {
     override fun MeasureScope.measure(
