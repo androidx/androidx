@@ -73,4 +73,14 @@ class SimpleTest {
             assertThat(result).isEqualTo(ListenableWorker.Result.success())
         }
     }
+
+    @Test
+    fun testNestedWorkerInject() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val worker = TestListenableWorkerBuilder<TopClass.NestedWorker>(context).apply {
+            setWorkerFactory(hiltWorkerFactory)
+        }.build()
+        val result = worker.doWork()
+        assertThat(result).isEqualTo(ListenableWorker.Result.success())
+    }
 }

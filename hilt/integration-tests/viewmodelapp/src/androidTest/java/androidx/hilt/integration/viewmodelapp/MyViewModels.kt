@@ -27,3 +27,8 @@ class MyViewModel() : ViewModel()
 
 @Suppress("UNUSED_PARAMETER")
 class MyInjectedViewModel @ViewModelInject constructor(foo: Foo) : ViewModel()
+
+object TopClass {
+    @Suppress("UNUSED_PARAMETER")
+    class MyNestedInjectedViewModel @ViewModelInject constructor(foo: Foo) : ViewModel()
+}

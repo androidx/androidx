@@ -47,6 +47,16 @@ class SimpleCoroutineWorker @WorkerInject constructor(
     }
 }
 
+object TopClass {
+    class NestedWorker @WorkerInject constructor(
+        @Assisted context: Context,
+        @Assisted params: WorkerParameters,
+        private val logger: MyLogger
+    ) : Worker(context, params) {
+        override fun doWork() = Result.success()
+    }
+}
+
 class MyLogger @Inject constructor() {
     fun log(s: String) {
         Log.i("MyLogger", s)
