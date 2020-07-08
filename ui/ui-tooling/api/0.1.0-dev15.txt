@@ -59,7 +59,6 @@ package androidx.ui.tooling {
 package androidx.ui.tooling.inspector {
 
   public final class InspectorNode {
-    ctor public InspectorNode(long id, String name, String fileName, int lineNumber, String functionName, int left, int top, int width, int height, java.util.List<androidx.ui.tooling.inspector.InspectorNode> children);
     method public java.util.List<androidx.ui.tooling.inspector.InspectorNode> getChildren();
     method public String getFileName();
     method public String getFunctionName();
@@ -68,6 +67,7 @@ package androidx.ui.tooling.inspector {
     method public int getLeft();
     method public int getLineNumber();
     method public String getName();
+    method public java.util.List<androidx.ui.tooling.inspector.NodeParameter> getParameters();
     method public int getTop();
     method public int getWidth();
   }
@@ -78,6 +78,30 @@ package androidx.ui.tooling.inspector {
   }
 
   public final class LayoutInspectorTreeKt {
+  }
+
+  public final class NodeParameter {
+    method public java.util.List<androidx.ui.tooling.inspector.NodeParameter> getElements();
+    method public String getName();
+    method public androidx.ui.tooling.inspector.ParameterType getType();
+    method public Object? getValue();
+    property public final java.util.List<androidx.ui.tooling.inspector.NodeParameter> elements;
+  }
+
+  public enum ParameterType {
+    method public static androidx.ui.tooling.inspector.ParameterType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.tooling.inspector.ParameterType[] values();
+    enum_constant public static final androidx.ui.tooling.inspector.ParameterType Boolean;
+    enum_constant public static final androidx.ui.tooling.inspector.ParameterType Color;
+    enum_constant public static final androidx.ui.tooling.inspector.ParameterType DimensionDp;
+    enum_constant public static final androidx.ui.tooling.inspector.ParameterType DimensionEm;
+    enum_constant public static final androidx.ui.tooling.inspector.ParameterType DimensionSp;
+    enum_constant public static final androidx.ui.tooling.inspector.ParameterType Double;
+    enum_constant public static final androidx.ui.tooling.inspector.ParameterType Float;
+    enum_constant public static final androidx.ui.tooling.inspector.ParameterType Int32;
+    enum_constant public static final androidx.ui.tooling.inspector.ParameterType Int64;
+    enum_constant public static final androidx.ui.tooling.inspector.ParameterType Resource;
+    enum_constant public static final androidx.ui.tooling.inspector.ParameterType String;
   }
 
 }

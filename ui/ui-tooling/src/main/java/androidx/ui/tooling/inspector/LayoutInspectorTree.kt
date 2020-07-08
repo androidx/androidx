@@ -20,9 +20,11 @@ import android.view.View
 import androidx.compose.SlotTable
 import androidx.ui.core.OwnedLayer
 import androidx.ui.tooling.Group
+import androidx.ui.tooling.ParameterInformation
 import androidx.ui.tooling.R
 import androidx.ui.tooling.asTree
 import androidx.ui.tooling.position
+import androidx.ui.unit.Density
 import java.util.ArrayDeque
 
 /**
@@ -39,7 +41,7 @@ import java.util.ArrayDeque
  */
 private const val POSITION_REGEX = "([\\w\\\\.$]*?)(-\\w*)?\\s?\\(?([\\w.]+):(\\d+)\\)?"
 private const val POSITION_FUNCTION_NAME = 1
-//  private static final int POSITION_GROUP_INLINE_DIFF = 2; // Not used...
+private const val POSITION_INLINE_DIFF = 2
 private const val POSITION_FILENAME = 3
 private const val POSITION_LINE_NUMBER = 4
 private const val INVOKE_FUNCTION = ".invoke"
@@ -61,18 +63,30 @@ private val unwantedFunctions = mapOf(
  * Generator of a tree for the Layout Inspector.
  */
 class LayoutInspectorTree {
+    // TODO: Give a warning when the kotlin metadata library is not available
+    private val inlineClassConverter = InlineClassConverter()
+    private val parameterFactory = ParameterFactory()
     private val cache = ArrayDeque<MutableInspectorNode>()
+    private var generatedId = -1L
 
     /**
-     * Converts the [SlotTable] set held by [view] into a tree of nodes.
+     * Converts the [SlotTable] set held by [view] into a list of root nodes.
      */
     fun convert(view: View): List<InspectorNode> {
+        parameterFactory.density = Density(view.context)
         @Suppress("UNCHECKED_CAST")
         val tables = view.getTag(R.id.inspection_slot_table_set) as? Set<SlotTable>
             ?: return emptyList()
+        clear()
         val result = convert(tables)
-        cache.clear()
+        clear()
         return result
+    }
+
+    private fun clear() {
+        cache.clear()
+        inlineClassConverter.clear()
+        generatedId = -1L
     }
 
     private fun convert(tables: Set<SlotTable>): List<InspectorNode> {
@@ -101,6 +115,7 @@ class LayoutInspectorTree {
                 }
                 if (node.name.isNotEmpty()) {
                     // Assume this represents the Composable node that group is calling.
+                    addParameters(group.parameters, node)
                     parseCallLocation(group, node)
                     if (unwantedGroup(node)) {
                         markUnwanted(node)
@@ -154,6 +169,7 @@ class LayoutInspectorTree {
             if (it.name.isEmpty()) {
                 result.addAll(it.children)
             } else {
+                it.id = if (it.id != 0L) it.id else --generatedId
                 result.add(it.build())
             }
             release(it)
@@ -184,24 +200,44 @@ class LayoutInspectorTree {
         return node
     }
 
+    private fun markUnwanted(node: MutableInspectorNode): MutableInspectorNode {
+        node.resetExceptIdAndChildren()
+        return node
+    }
+
     private fun parseCallLocation(group: Group, node: MutableInspectorNode): Boolean {
         val position = group.position ?: return false
         val matcher = positionRegEx.matchEntire(position) ?: return false
         val functionName = matcher.groups[POSITION_FUNCTION_NAME]?.value ?: return false
+        val inlineDiff = matcher.groups[POSITION_INLINE_DIFF]?.value ?: ""
         val fileName = matcher.groups[POSITION_FILENAME]?.value ?: return false
         val lineNumber = matcher.groups[POSITION_LINE_NUMBER]?.value?.toIntOrNull() ?: return false
         node.functionName = functionName
+        node.qualifiedFunctionName = "$functionName$inlineDiff"
         node.fileName = fileName
         node.lineNumber = lineNumber
+        node.hasInlineParameters = inlineDiff.isNotEmpty()
         return true
     }
 
     private fun getRenderNode(group: Group): Long =
         group.modifierInfo.mapNotNull { (it.extra as? OwnedLayer)?.layerId }.singleOrNull() ?: 0
 
-    private fun markUnwanted(node: MutableInspectorNode): MutableInspectorNode {
-        node.resetExceptIdAndChildren()
-        return node
+    private fun addParameters(parameters: List<ParameterInformation>, node: MutableInspectorNode) =
+        parameters.forEach { addParameter(it, node) }
+
+    private fun addParameter(parameter: ParameterInformation, node: MutableInspectorNode) {
+        val castedValue = castValue(parameter, node) ?: return
+        parameterFactory.create(node, parameter.name, castedValue)?.let { node.parameters.add(it) }
+    }
+
+    private fun castValue(parameter: ParameterInformation, node: MutableInspectorNode): Any? {
+        val value = parameter.value ?: return null
+        if (!node.hasInlineParameters) {
+            return value
+        }
+        val functionName = node.qualifiedFunctionName
+        return inlineClassConverter.castParameterValue(functionName, parameter.name, value)
     }
 
     private fun isLambda(node: MutableInspectorNode) =

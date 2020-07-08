@@ -23,6 +23,7 @@ import androidx.compose.resetSourceInfo
 import androidx.test.filters.SmallTest
 import androidx.ui.core.OwnedLayer
 import androidx.ui.foundation.Text
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.material.Button
 import androidx.ui.material.Surface
@@ -70,10 +71,11 @@ class LayoutInspectorTreeTest : ToolingTest() {
     @Test
     fun buildTree() {
         val slotTableRecord = SlotTableRecord.create()
+
         show {
             Inspectable(slotTableRecord) {
                 Column {
-                    Text(text = "Hello World")
+                    Text(text = "Hello World", color = Color.Green)
                     Surface {
                         Button(onClick = {}) { Text(text = "OK") }
                     }
@@ -101,14 +103,15 @@ class LayoutInspectorTreeTest : ToolingTest() {
             top: Dp,
             width: Dp,
             height: Dp,
-            children: List<String> = emptyList()
+            children: List<String> = emptyList(),
+            block: ParameterValidationReceiver.() -> Unit = {}
         ) {
             assertThat(nodeIterator.hasNext()).isTrue()
             val node = nodeIterator.next()
             if (isRenderNode) {
                 assertThat(node.id).isGreaterThan(0L)
             } else {
-                assertThat(node.id).isEqualTo(0L)
+                assertThat(node.id).isLessThan(0L)
             }
             assertThat(node.name).isEqualTo(name)
             assertThat(node.fileName).isEqualTo(fileName)
@@ -123,15 +126,33 @@ class LayoutInspectorTreeTest : ToolingTest() {
                 assertThat(node.width.toDp().value).isWithin(2.0f).of(width.value)
                 assertThat(node.height.toDp().value).isWithin(2.0f).of(height.value)
             }
-            assertThat(node.children.map { it.name })
-                .containsExactlyElementsIn(children)
-                .inOrder()
+            assertThat(node.children.map { it.name }).containsExactlyElementsIn(children).inOrder()
+
+            val receiver = ParameterValidationReceiver(node.parameters.listIterator())
+            receiver.block()
+            assertThat(receiver.parameterIterator.hasNext()).isFalse()
         }
 
         validate(
+            name = "Box",
+            fileName = "Box.kt",
+            function = "androidx.ui.foundation.BoxKt.Box",
+            left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
+            children = listOf("Column")
+        ) {
+            parameter(name = "backgroundColor", type = ParameterType.Color, value = 0x0)
+            parameter(name = "gravity", type = ParameterType.String, value = "TopStart")
+            parameter(name = "padding", type = ParameterType.DimensionDp, value = 0.0f)
+            parameter(name = "paddingBottom", type = ParameterType.DimensionDp, value = Float.NaN)
+            parameter(name = "paddingEnd", type = ParameterType.DimensionDp, value = Float.NaN)
+            parameter(name = "paddingStart", type = ParameterType.DimensionDp, value = Float.NaN)
+            parameter(name = "paddingTop", type = ParameterType.DimensionDp, value = Float.NaN)
+            parameter(name = "shape", type = ParameterType.String, value = "Shape")
+        }
+        validate(
             name = "Column",
-            fileName = "Column.kt",
-            function = "androidx.ui.layout.ColumnKt.Column",
+            fileName = "Box.kt",
+            function = "androidx.ui.foundation.BoxKt.Box",
             left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
             children = listOf("RowColumnImpl")
         )
@@ -141,7 +162,10 @@ class LayoutInspectorTreeTest : ToolingTest() {
             function = "androidx.ui.layout.ColumnKt.Column",
             left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
             children = listOf("Column")
-        )
+        ) {
+            parameter(name = "crossAxisSize", type = ParameterType.String, value = "Wrap")
+            parameter(name = "orientation", type = ParameterType.String, value = "Vertical")
+        }
         validate(
             name = "Column",
             fileName = "LayoutInspectorTreeTest.kt",
@@ -149,14 +173,20 @@ class LayoutInspectorTreeTest : ToolingTest() {
             "androidx.ui.tooling.inspector.LayoutInspectorTreeTest\$buildTree[###].invoke",
             left = 0.0.dp, top = 0.0.dp, width = 70.5.dp, height = 54.9.dp,
             children = listOf("RowColumnImpl")
-        )
+        ) {
+            parameter(name = "horizontalGravity", type = ParameterType.String, value = "Start")
+            parameter(name = "verticalArrangement", type = ParameterType.String, value = "Top")
+        }
         validate(
             name = "RowColumnImpl",
             fileName = "Column.kt",
             function = "androidx.ui.layout.ColumnKt.Column",
             left = 0.0.dp, top = 0.0.dp, width = 70.5.dp, height = 54.9.dp,
             children = listOf("Text", "Surface")
-        )
+        ) {
+            parameter(name = "crossAxisSize", type = ParameterType.String, value = "Wrap")
+            parameter(name = "orientation", type = ParameterType.String, value = "Vertical")
+        }
         validate(
             name = "Text",
             fileName = "LayoutInspectorTreeTest.kt",
@@ -164,13 +194,41 @@ class LayoutInspectorTreeTest : ToolingTest() {
             "androidx.ui.tooling.inspector.LayoutInspectorTreeTest\$buildTree[###].invoke",
             left = 0.0.dp, top = 0.0.dp, width = 70.5.dp, height = 18.9.dp,
             children = listOf("CoreText")
-        )
+        ) {
+            parameter(name = "color", type = ParameterType.Color, value = 0xff00ff00.toInt())
+            parameter(name = "fontSize", type = ParameterType.String, value = "Inherit")
+            parameter(name = "letterSpacing", type = ParameterType.String, value = "Inherit")
+            parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
+            parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
+            parameter(name = "overflow", type = ParameterType.String, value = "Clip")
+            parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
+            parameter(name = "style", type = ParameterType.String, value = "TextStyle") {
+                parameter(name = "color", type = ParameterType.String, value = "Unset")
+                parameter(name = "fontSize", type = ParameterType.String, value = "Inherit")
+                parameter(name = "letterSpacing", type = ParameterType.String, value = "Inherit")
+                parameter(name = "background", type = ParameterType.String, value = "Unset")
+                parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
+            }
+            parameter(name = "text", type = ParameterType.String, value = "Hello World")
+        }
         validate(
             name = "CoreText",
             fileName = "CoreText.kt",
             function = "androidx.ui.text.CoreTextKt.CoreText",
             left = 0.0.dp, top = 0.0.dp, width = 70.5.dp, height = 18.9.dp
-        )
+        ) {
+            parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
+            parameter(name = "overflow", type = ParameterType.String, value = "Clip")
+            parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
+            parameter(name = "style", type = ParameterType.String, value = "TextStyle") {
+                parameter(name = "color", type = ParameterType.Color, value = 0xff00ff00.toInt())
+                parameter(name = "fontSize", type = ParameterType.String, value = "Inherit")
+                parameter(name = "letterSpacing", type = ParameterType.String, value = "Inherit")
+                parameter(name = "background", type = ParameterType.String, value = "Unset")
+                parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
+            }
+            parameter(name = "text", type = ParameterType.String, value = "Hello World")
+        }
         validate(
             name = "Surface",
             fileName = "LayoutInspectorTreeTest.kt",
@@ -178,7 +236,12 @@ class LayoutInspectorTreeTest : ToolingTest() {
             "androidx.ui.tooling.inspector.LayoutInspectorTreeTest\$buildTree[###].invoke",
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
             children = listOf("SurfaceLayout")
-        )
+        ) {
+            parameter(name = "color", type = ParameterType.Color, value = 0xffffffff.toInt())
+            parameter(name = "contentColor", type = ParameterType.Color, value = 0xff000000.toInt())
+            parameter(name = "elevation", type = ParameterType.DimensionDp, value = 0.0f)
+            parameter(name = "shape", type = ParameterType.String, value = "Shape")
+        }
         validate(
             name = "SurfaceLayout",
             fileName = "Surface.kt",
@@ -194,42 +257,124 @@ class LayoutInspectorTreeTest : ToolingTest() {
             "androidx.ui.tooling.inspector.LayoutInspectorTreeTest\$buildTree[###].invoke",
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
             children = listOf("Surface")
-        )
+        ) {
+            parameter(name = "backgroundColor", type = ParameterType.Color,
+                value = 0xff6200ee.toInt())
+            parameter(name = "contentColor", type = ParameterType.Color, value = 0xffffffff.toInt())
+            parameter(name = "disabledBackgroundColor", type = ParameterType.Color,
+                value = 0xffe0e0e0.toInt())
+            parameter(name = "disabledContentColor", type = ParameterType.Color, value = 0x61000000)
+            parameter(name = "disabledElevation", type = ParameterType.DimensionDp, value = 0.0f)
+            parameter(name = "elevation", type = ParameterType.DimensionDp, value = 2.0f)
+            parameter(name = "enabled", type = ParameterType.Boolean, value = true)
+            parameter(name = "padding", type = ParameterType.String, value = "InnerPadding") {
+                parameter(name = "start", type = ParameterType.DimensionDp, value = 16.0f)
+                parameter(name = "end", type = ParameterType.DimensionDp, value = 16.0f)
+                parameter(name = "top", type = ParameterType.DimensionDp, value = 8.0f)
+                parameter(name = "bottom", type = ParameterType.DimensionDp, value = 8.0f)
+            }
+            parameter(name = "shape", type = ParameterType.String, value = "RoundedCornerShape") {
+                parameter(name = "topLeft", type = ParameterType.DimensionDp, value = 4.0f)
+                parameter(name = "topRight", type = ParameterType.DimensionDp, value = 4.0f)
+                parameter(name = "bottomLeft", type = ParameterType.DimensionDp, value = 4.0f)
+                parameter(name = "bottomRight", type = ParameterType.DimensionDp, value = 4.0f)
+            }
+        }
         validate(
             name = "Surface",
             fileName = "Button.kt",
             function = "androidx.ui.material.ButtonKt.Button",
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
             children = listOf("SurfaceLayout")
-        )
+        ) {
+            parameter(name = "color", type = ParameterType.Color, value = 0xff6200ee.toInt())
+            parameter(name = "contentColor", type = ParameterType.Color, value = 0xffffffff.toInt())
+            parameter(name = "elevation", type = ParameterType.DimensionDp, value = 2.0f)
+            parameter(name = "shape", type = ParameterType.String, value = "RoundedCornerShape") {
+                parameter(name = "topLeft", type = ParameterType.DimensionDp, value = 4.0f)
+                parameter(name = "topRight", type = ParameterType.DimensionDp, value = 4.0f)
+                parameter(name = "bottomLeft", type = ParameterType.DimensionDp, value = 4.0f)
+                parameter(name = "bottomRight", type = ParameterType.DimensionDp, value = 4.0f)
+            }
+        }
         validate(
             name = "SurfaceLayout",
             fileName = "Surface.kt",
             function = "androidx.ui.material.SurfaceKt.Surface",
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
-            children = listOf("ProvideTextStyle")
+            children = listOf("Box")
         )
+        validate(
+            name = "Box",
+            fileName = "Button.kt",
+            function = "androidx.ui.material.ButtonKt\$Button[###].invoke",
+            left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
+            children = listOf("Column")
+        ) {
+            parameter(name = "backgroundColor", type = ParameterType.Color, value = 0x0)
+            parameter(name = "gravity", type = ParameterType.String, value = "TopStart")
+            parameter(name = "padding", type = ParameterType.DimensionDp, value = 0.0f)
+            parameter(name = "paddingBottom", type = ParameterType.DimensionDp, value = Float.NaN)
+            parameter(name = "paddingEnd", type = ParameterType.DimensionDp, value = Float.NaN)
+            parameter(name = "paddingStart", type = ParameterType.DimensionDp, value = Float.NaN)
+            parameter(name = "paddingTop", type = ParameterType.DimensionDp, value = Float.NaN)
+            parameter(name = "shape", type = ParameterType.String, value = "Shape")
+        }
+        validate(
+            name = "Column",
+            fileName = "Box.kt",
+            function = "androidx.ui.foundation.BoxKt.Box",
+            left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
+            children = listOf("RowColumnImpl")
+        )
+        validate(
+            name = "RowColumnImpl",
+            fileName = "Column.kt",
+            function = "androidx.ui.layout.ColumnKt.Column",
+            left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
+            children = listOf("ProvideTextStyle")
+        ) {
+            parameter(name = "crossAxisSize", type = ParameterType.String, value = "Wrap")
+            parameter(name = "orientation", type = ParameterType.String, value = "Vertical")
+        }
         validate(
             name = "ProvideTextStyle",
             fileName = "Button.kt",
             function = "androidx.ui.material.ButtonKt\$Button[###].invoke",
             left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
             children = listOf("Row")
-        )
+        ) {
+            parameter(name = "value", type = ParameterType.String, value = "TextStyle") {
+                parameter(name = "color", type = ParameterType.String, value = "Unset")
+                parameter(name = "fontSize", type = ParameterType.DimensionSp, value = 14.0f)
+                parameter(name = "fontWeight", type = ParameterType.String, value = "Medium")
+                parameter(name = "fontFamily", type = ParameterType.String, value = "Default")
+                parameter(name = "letterSpacing", type = ParameterType.DimensionSp, value = 1.25f)
+                parameter(name = "background", type = ParameterType.String, value = "Unset")
+                parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
+            }
+        }
         validate(
             name = "Row",
             fileName = "Button.kt",
             function = "androidx.ui.material.ButtonKt\$Button[###].invoke",
             left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
             children = listOf("RowColumnImpl")
-        )
+        ) {
+            parameter(name = "horizontalArrangement", type = ParameterType.String, value = "Center")
+            parameter(name = "verticalGravity", type = ParameterType.String,
+                value = "CenterVertically")
+        }
         validate(
             name = "RowColumnImpl",
             fileName = "Row.kt",
             function = "androidx.ui.layout.RowKt.Row",
             left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
             children = listOf("Text")
-        )
+        ) {
+            parameter(name = "crossAxisSize", type = ParameterType.String, value = "Wrap")
+            parameter(name = "orientation", type = ParameterType.String, value = "Horizontal")
+        }
         validate(
             name = "Text",
             fileName = "LayoutInspectorTreeTest.kt",
@@ -237,13 +382,45 @@ class LayoutInspectorTreeTest : ToolingTest() {
             "androidx.ui.tooling.inspector.LayoutInspectorTreeTest\$buildTree[###].invoke",
             left = 21.8.dp, top = 27.6.dp, width = 20.4.dp, height = 18.9.dp,
             children = listOf("CoreText")
-        )
+        ) {
+            parameter(name = "color", type = ParameterType.String, value = "Unset")
+            parameter(name = "fontSize", type = ParameterType.String, value = "Inherit")
+            parameter(name = "letterSpacing", type = ParameterType.String, value = "Inherit")
+            parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
+            parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
+            parameter(name = "overflow", type = ParameterType.String, value = "Clip")
+            parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
+            parameter(name = "style", type = ParameterType.String, value = "TextStyle") {
+                parameter(name = "color", type = ParameterType.String, value = "Unset")
+                parameter(name = "fontSize", type = ParameterType.DimensionSp, value = 14.0f)
+                parameter(name = "fontWeight", type = ParameterType.String, value = "Medium")
+                parameter(name = "fontFamily", type = ParameterType.String, value = "Default")
+                parameter(name = "letterSpacing", type = ParameterType.DimensionSp, value = 1.25f)
+                parameter(name = "background", type = ParameterType.String, value = "Unset")
+                parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
+            }
+            parameter(name = "text", type = ParameterType.String, value = "OK")
+        }
         validate(
             name = "CoreText",
             fileName = "CoreText.kt",
             function = "androidx.ui.text.CoreTextKt.CoreText",
             left = 21.8.dp, top = 27.6.dp, width = 20.4.dp, height = 18.9.dp
-        )
+        ) {
+            parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
+            parameter(name = "overflow", type = ParameterType.String, value = "Clip")
+            parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
+            parameter(name = "style", type = ParameterType.String, value = "TextStyle") {
+                parameter(name = "color", type = ParameterType.Color, value = 0xffffffff.toInt())
+                parameter(name = "fontSize", type = ParameterType.DimensionSp, value = 14.0f)
+                parameter(name = "fontWeight", type = ParameterType.String, value = "Medium")
+                parameter(name = "fontFamily", type = ParameterType.String, value = "Default")
+                parameter(name = "letterSpacing", type = ParameterType.DimensionSp, value = 1.25f)
+                parameter(name = "background", type = ParameterType.String, value = "Unset")
+                parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
+            }
+            parameter(name = "text", type = ParameterType.String, value = "OK")
+        }
         assertThat(nodeIterator.hasNext()).isFalse()
     }
 
@@ -279,18 +456,21 @@ class LayoutInspectorTreeTest : ToolingTest() {
             val top = round(node.top.toDp())
             val width = if (node.width == view.width) "viewWidth" else round(node.width.toDp())
             val height = if (node.height == view.height) "viewHeight" else round(node.height.toDp())
-            val function = node.functionName.replace(lambdaExpr, LAMBDA_REPLACEMENT)
+            val function = node.functionName
+                .replace(lambdaExpr, LAMBDA_REPLACEMENT)
+                .replace(escapeExpr, ESCAPE_REPLACEMENT)
+            val functionLF = if (function.length > 75) "\n${" ".repeat(23)}" else ""
 
             print(
                 """
                   validate(
                       name = "${node.name}",
                       fileName = "${node.fileName}",
-                      function = "${function.replace(escapeExpr, ESCAPE_REPLACEMENT)}",
+                      function = $functionLF"$function",
                       left = $left, top = $top, width = $width, height = $height""".trimIndent()
             )
         }
-        if (node.id != 0L) {
+        if (node.id > 0L) {
             println(",")
             print("    isRenderNode = true")
         }
@@ -300,9 +480,41 @@ class LayoutInspectorTreeTest : ToolingTest() {
             print("    children = listOf($children)")
         }
         println()
-        println(")")
+        print(")")
+        if (node.parameters.isNotEmpty()) {
+            generateParameters(node.parameters, 0)
+        }
+        println()
         node.children.forEach { generateValidate(it) }
     }
+
+    private fun generateParameters(parameters: List<NodeParameter>, indent: Int) {
+        val indentation = " ".repeat(indent * 2)
+        println(" {")
+        for (param in parameters) {
+            val name = param.name
+            val type = param.type
+            val value = toDisplayValue(type, param.value)
+            print("$indentation  parameter(name = \"$name\", type = $type, value = $value)")
+            if (param.elements.isNotEmpty()) {
+                generateParameters(param.elements, indent + 1)
+            }
+            println()
+        }
+        print("$indentation}")
+    }
+
+    private fun toDisplayValue(type: ParameterType, value: Any?): String =
+        when (type) {
+            ParameterType.Boolean -> value.toString()
+            ParameterType.Color ->
+                "0x${Integer.toHexString(value as Int)}${if (value < 0) ".toInt()" else ""}"
+            ParameterType.DimensionSp,
+            ParameterType.DimensionDp -> "${value}f"
+            ParameterType.Int32 -> value.toString()
+            ParameterType.String -> "\"$value\""
+            else -> value?.toString() ?: "null"
+        }
 
     private fun dumpSlotTableSet(slotTableRecord: SlotTableRecord) {
         @Suppress("ConstantConditionIf")
@@ -320,9 +532,14 @@ class LayoutInspectorTreeTest : ToolingTest() {
         val id = group.modifierInfo.mapNotNull { (it.extra as? OwnedLayer)?.layerId }
             .singleOrNull() ?: 0
         println(
-            "\"${"  ".repeat(indent * 2)}\", $id, $position, ${box.left}, ${box.right}, " +
-                    "${box.right - box.left}, ${box.bottom - box.top}"
+            "\"${"  ".repeat(indent)}\", ${group.javaClass.simpleName}, " +
+                    "params: ${group.parameters.size}, children: ${group.children.size}, " +
+                    "$id, $position, " +
+                    "${box.left}, ${box.right}, ${box.right - box.left}, ${box.bottom - box.top}"
         )
+        for (parameter in group.parameters) {
+            println("\"${"  ".repeat(indent + 4)}\"- ${parameter.name}")
+        }
         group.children.forEach { dumpGroup(it, indent + 1) }
     }
 

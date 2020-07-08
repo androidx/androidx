@@ -19,7 +19,7 @@ package androidx.ui.tooling.inspector
 /**
  * Node representing a Composable for the Layout Inspector.
  */
-class InspectorNode(
+class InspectorNode internal constructor(
     /**
      * The associated render node id or 0.
      */
@@ -66,6 +66,11 @@ class InspectorNode(
     val height: Int,
 
     /**
+     * The parameters of this Composable.
+     */
+    val parameters: List<NodeParameter>,
+
+    /**
      * The children nodes of this Composable.
      */
     val children: List<InspectorNode>
@@ -80,10 +85,13 @@ internal class MutableInspectorNode {
     var fileName = ""
     var lineNumber = 0
     var functionName = ""
+    var qualifiedFunctionName = ""
+    var hasInlineParameters = false
     var left = 0
     var top = 0
     var width = 0
     var height = 0
+    val parameters = mutableListOf<NodeParameter>()
     val children = mutableListOf<InspectorNode>()
 
     fun reset() {
@@ -95,17 +103,20 @@ internal class MutableInspectorNode {
     fun resetExceptIdAndChildren() {
         name = ""
         fileName = ""
+        qualifiedFunctionName = ""
+        hasInlineParameters = false
         lineNumber = 0
         functionName = ""
         left = 0
         top = 0
         width = 0
         height = 0
+        parameters.clear()
     }
 
     fun build(): InspectorNode =
         InspectorNode(
             id, name, fileName, lineNumber, functionName, left, top, width, height,
-            children.toList()
+            parameters.toList(), children.toList()
         )
 }
