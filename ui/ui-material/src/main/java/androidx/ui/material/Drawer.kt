@@ -35,13 +35,14 @@ import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.offsetPx
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
+import androidx.ui.material.internal.fixedThresholds
 import androidx.ui.material.internal.stateDraggable
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import androidx.ui.util.lerp
 
 /**
- * Possible states of the drawer
+ * Possible states of the [ModalDrawerLayout]
  */
 enum class DrawerState {
     /**
@@ -51,8 +52,25 @@ enum class DrawerState {
     /**
      * Constant to indicate the state of the drawer when it's opened
      */
+    Opened
+}
+
+/**
+ * Possible states of the [BottomDrawerLayout]
+ */
+enum class BottomDrawerState {
+    /**
+     * Constant to indicate the state of the bottom drawer when it's closed
+     */
+    Closed,
+    /**
+     * Constant to indicate the state of the bottom drawer when it's opened
+     */
     Opened,
-    // Expanded
+    /**
+     * Constant to indicate the state of the bottom drawer when it's fully expanded
+     */
+    Expanded
 }
 
 /**
@@ -117,9 +135,11 @@ fun ModalDrawerLayout(
             Stack {
                 bodyContent()
             }
-            Scrim(drawerState, onStateChange, fraction = {
-                calculateFraction(minValue, maxValue, drawerPosition.value)
-            })
+            Scrim(
+                opened = drawerState == DrawerState.Opened,
+                onClose = { onStateChange(DrawerState.Closed) },
+                fraction = { calculateFraction(minValue, maxValue, drawerPosition.value) }
+            )
             DrawerContent(
                 drawerPosition, dpConstraints, drawerShape, drawerElevation, drawerContent
             )
@@ -155,8 +175,8 @@ fun ModalDrawerLayout(
  */
 @Composable
 fun BottomDrawerLayout(
-    drawerState: DrawerState,
-    onStateChange: (DrawerState) -> Unit,
+    drawerState: BottomDrawerState,
+    onStateChange: (BottomDrawerState) -> Unit,
     gesturesEnabled: Boolean = true,
     drawerShape: Shape = MaterialTheme.shapes.large,
     drawerElevation: Dp = DrawerConstants.DefaultElevation,
@@ -183,20 +203,25 @@ fun BottomDrawerLayout(
         )
         val anchors =
             if (isLandscape) {
-                listOf(maxValue to DrawerState.Closed, minValue to DrawerState.Opened)
+                listOf(
+                    maxValue to BottomDrawerState.Closed,
+                    minValue to BottomDrawerState.Opened
+                )
             } else {
                 listOf(
-                    maxValue to DrawerState.Closed,
-                    openedValue to DrawerState.Opened,
-                    minValue to DrawerState.Opened
+                    maxValue to BottomDrawerState.Closed,
+                    openedValue to BottomDrawerState.Opened,
+                    minValue to BottomDrawerState.Expanded
                 )
             }
         val drawerPosition = state { maxValue }
+        val offset = with(DensityAmbient.current) { BottomDrawerThreshold.toPx() }
         Stack(
             Modifier.stateDraggable(
                 state = drawerState,
                 onStateChange = onStateChange,
                 anchorsToState = anchors,
+                thresholds = fixedThresholds(offset),
                 animationSpec = AnimationSpec,
                 dragDirection = DragDirection.Vertical,
                 minValue = minValue,
@@ -208,10 +233,14 @@ fun BottomDrawerLayout(
             Stack {
                 bodyContent()
             }
-            Scrim(drawerState, onStateChange, fraction = {
-                // as we scroll "from height to 0" , need to reverse fraction
-                1 - calculateFraction(openedValue, maxValue, drawerPosition.value)
-            })
+            Scrim(
+                opened = drawerState == BottomDrawerState.Opened,
+                onClose = { onStateChange(BottomDrawerState.Closed) },
+                fraction = {
+                    // as we scroll "from height to 0" , need to reverse fraction
+                    1 - calculateFraction(openedValue, maxValue, drawerPosition.value)
+                }
+            )
             BottomDrawerContent(
                 drawerPosition, dpConstraints, drawerShape, drawerElevation, drawerContent
             )
@@ -275,13 +304,13 @@ private fun calculateFraction(a: Float, b: Float, pos: Float) =
 
 @Composable
 private fun Scrim(
-    state: DrawerState,
-    onStateChange: (DrawerState) -> Unit,
+    opened: Boolean,
+    onClose: () -> Unit,
     fraction: () -> Float
 ) {
     val color = MaterialTheme.colors.onSurface
-    val dismissDrawer = if (state == DrawerState.Opened) {
-        Modifier.tapGestureFilter { _ -> onStateChange(DrawerState.Closed) }
+    val dismissDrawer = if (opened) {
+        Modifier.tapGestureFilter { onClose() }
     } else {
         Modifier
     }
@@ -303,3 +332,4 @@ private const val DrawerStiffness = 1000f
 private val AnimationSpec = SpringSpec<Float>(stiffness = DrawerStiffness)
 
 internal const val BottomDrawerOpenFraction = 0.5f
+internal val BottomDrawerThreshold = 56.dp
