@@ -821,7 +821,7 @@ package androidx.ui.core {
   }
 
   @androidx.compose.Immutable public interface PopupPositionProvider {
-    method public androidx.ui.unit.IntOffset calculatePosition(androidx.ui.unit.IntOffset parentLayoutPosition, androidx.ui.unit.IntSize parentLayoutSize, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntSize popupSize);
+    method public androidx.ui.unit.IntOffset calculatePosition(androidx.ui.unit.IntBounds parentLayoutBounds, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntSize popupSize);
   }
 
   public final class Ref<T> {

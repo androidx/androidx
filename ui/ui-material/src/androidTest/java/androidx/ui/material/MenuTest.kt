@@ -43,13 +43,11 @@ import androidx.ui.test.isPopup
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.waitForIdle
 import androidx.ui.unit.Density
+import androidx.ui.unit.IntBounds
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.Position
-import androidx.ui.unit.PxBounds
 import androidx.ui.unit.dp
-import androidx.ui.unit.toOffset
-import androidx.ui.unit.toSize
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -150,8 +148,7 @@ class MenuTest {
             density,
             displayMetrics
         ).calculatePosition(
-            anchorPosition,
-            anchorSize,
+            IntBounds(anchorPosition, anchorSize),
             LayoutDirection.Ltr,
             popupSize
         )
@@ -168,8 +165,7 @@ class MenuTest {
             density,
             displayMetrics
         ).calculatePosition(
-            anchorPosition,
-            anchorSize,
+            IntBounds(anchorPosition, anchorSize),
             LayoutDirection.Rtl,
             popupSize
         )
@@ -204,8 +200,7 @@ class MenuTest {
             density,
             displayMetrics
         ).calculatePosition(
-            anchorPosition,
-            anchorSize,
+            IntBounds(anchorPosition, anchorSize),
             LayoutDirection.Ltr,
             popupSize
         )
@@ -222,8 +217,7 @@ class MenuTest {
             density,
             displayMetrics
         ).calculatePosition(
-            anchorPositionRtl,
-            anchorSize,
+            IntBounds(anchorPositionRtl, anchorSize),
             LayoutDirection.Rtl,
             popupSize
         )
@@ -252,8 +246,8 @@ class MenuTest {
         val offsetY = 40
         val popupSize = IntSize(50, 80)
 
-        var obtainedParentBounds = PxBounds(0f, 0f, 0f, 0f)
-        var obtainedMenuBounds = PxBounds(0f, 0f, 0f, 0f)
+        var obtainedParentBounds = IntBounds(0, 0, 0, 0)
+        var obtainedMenuBounds = IntBounds(0, 0, 0, 0)
         DropdownMenuPositionProvider(
             Position(offsetX.dp, offsetY.dp),
             density,
@@ -262,21 +256,18 @@ class MenuTest {
             obtainedParentBounds = parentBounds
             obtainedMenuBounds = menuBounds
         }.calculatePosition(
-            anchorPosition,
-            anchorSize,
+            IntBounds(anchorPosition, anchorSize),
             LayoutDirection.Ltr,
             popupSize
         )
 
-        assertThat(obtainedParentBounds).isEqualTo(
-            PxBounds(anchorPosition.toOffset(), anchorSize.toSize())
-        )
+        assertThat(obtainedParentBounds).isEqualTo(IntBounds(anchorPosition, anchorSize))
         assertThat(obtainedMenuBounds).isEqualTo(
-            PxBounds(
-                anchorPosition.x.toFloat() + anchorSize.width - inset + offsetX,
-                anchorPosition.y.toFloat() + anchorSize.height - inset + offsetY,
-                anchorPosition.x.toFloat() + anchorSize.width - inset + offsetX + popupSize.width,
-                anchorPosition.y.toFloat() + anchorSize.height - inset + offsetY + popupSize.height
+            IntBounds(
+                anchorPosition.x + anchorSize.width - inset + offsetX,
+                anchorPosition.y + anchorSize.height - inset + offsetY,
+                anchorPosition.x + anchorSize.width - inset + offsetX + popupSize.width,
+                anchorPosition.y + anchorSize.height - inset + offsetY + popupSize.height
             )
         )
     }

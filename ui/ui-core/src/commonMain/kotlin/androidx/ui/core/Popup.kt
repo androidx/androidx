@@ -21,8 +21,11 @@ import androidx.compose.Immutable
 import androidx.compose.Providers
 import androidx.compose.ambientOf
 import androidx.compose.remember
+import androidx.ui.unit.IntBounds
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
+import androidx.ui.unit.height
+import androidx.ui.unit.width
 
 /**
  * Opens a popup with the given content.
@@ -107,8 +110,7 @@ internal fun PopupTestTag(tag: String, children: @Composable () -> Unit) {
 }
 
 internal class PopupPositionProperties {
-    var parentPosition = IntOffset.Origin
-    var parentSize = IntSize.Zero
+    var parentBounds = IntBounds(0, 0, 0, 0)
     var childrenSize = IntSize.Zero
     var parentLayoutDirection: LayoutDirection = LayoutDirection.Ltr
 }
@@ -137,14 +139,12 @@ interface PopupPositionProvider {
     /**
      * Calculates the position of a [Popup] on screen.
      *
-     * @param parentLayoutPosition The position of the parent wrapper layout on screen.
-     * @param parentLayoutSize The size of the parent wrapper layout.
+     * @param parentLayoutBounds The bounds of the parent wrapper layout on screen.
      * @param layoutDirection The layout direction of the parent wrapper layout.
      * @param popupSize The size of the popup to be positioned.
      */
     fun calculatePosition(
-        parentLayoutPosition: IntOffset,
-        parentLayoutSize: IntSize,
+        parentLayoutBounds: IntBounds,
         layoutDirection: LayoutDirection,
         popupSize: IntSize
     ): IntOffset
@@ -164,8 +164,7 @@ internal class AlignmentOffsetPositionProvider(
     val offset: IntOffset
 ) : PopupPositionProvider {
     override fun calculatePosition(
-        parentLayoutPosition: IntOffset,
-        parentLayoutSize: IntSize,
+        parentLayoutBounds: IntBounds,
         layoutDirection: LayoutDirection,
         popupSize: IntSize
     ): IntOffset {
@@ -174,7 +173,7 @@ internal class AlignmentOffsetPositionProvider(
 
         // Get the aligned point inside the parent
         val parentAlignmentPoint = alignment.align(
-            IntSize(parentLayoutSize.width, parentLayoutSize.height),
+            IntSize(parentLayoutBounds.width, parentLayoutBounds.height),
             layoutDirection
         )
         // Get the aligned point inside the child
@@ -184,7 +183,7 @@ internal class AlignmentOffsetPositionProvider(
         )
 
         // Add the global position of the parent
-        popupGlobalPosition += IntOffset(parentLayoutPosition.x, parentLayoutPosition.y)
+        popupGlobalPosition += IntOffset(parentLayoutBounds.left, parentLayoutBounds.top)
 
         // Add the distance between the parent's top left corner and the alignment point
         popupGlobalPosition += parentAlignmentPoint
@@ -208,39 +207,38 @@ internal class DropdownPositionProvider(
     val offset: IntOffset
 ) : PopupPositionProvider {
     override fun calculatePosition(
-        parentLayoutPosition: IntOffset,
-        parentLayoutSize: IntSize,
+        parentLayoutBounds: IntBounds,
         layoutDirection: LayoutDirection,
         popupSize: IntSize
     ): IntOffset {
         var popupGlobalPosition = IntOffset(0, 0)
 
         // Add the global position of the parent
-        popupGlobalPosition += IntOffset(parentLayoutPosition.x, parentLayoutPosition.y)
+        popupGlobalPosition += IntOffset(parentLayoutBounds.left, parentLayoutBounds.top)
 
         /*
-        * In LTR context aligns popup's left edge with the parent's left edge for Start alignment and
-        * parent's right edge for End alignment.
-        * In RTL context aligns popup's right edge with the parent's right edge for Start alignment and
-        * parent's left edge for End alignment.
+        * In LTR context aligns popup's left edge with the parent's left edge for Start alignment
+        * and parent's right edge for End alignment.
+        * In RTL context aligns popup's right edge with the parent's right edge for Start alignment
+        * and parent's left edge for End alignment.
         */
         val alignmentPositionX =
             if (dropDownAlignment == DropDownAlignment.Start) {
                 if (layoutDirection == LayoutDirection.Ltr) {
                     0
                 } else {
-                    parentLayoutSize.width - popupSize.width
+                    parentLayoutBounds.width - popupSize.width
                 }
             } else {
                 if (layoutDirection == LayoutDirection.Ltr) {
-                    parentLayoutSize.width
+                    parentLayoutBounds.width
                 } else {
                     -popupSize.width
                 }
             }
 
         // The popup's position relative to the parent's top left corner
-        val dropdownAlignmentPosition = IntOffset(alignmentPositionX, parentLayoutSize.height)
+        val dropdownAlignmentPosition = IntOffset(alignmentPositionX, parentLayoutBounds.height)
 
         popupGlobalPosition += dropdownAlignmentPosition
 

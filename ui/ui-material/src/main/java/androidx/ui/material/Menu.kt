@@ -51,13 +51,11 @@ import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidth
 import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.unit.Density
+import androidx.ui.unit.IntBounds
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
-import androidx.ui.unit.PxBounds
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
-import androidx.ui.unit.toOffset
-import androidx.ui.unit.toSize
 import androidx.ui.unit.width
 import kotlin.math.max
 import kotlin.math.min
@@ -264,20 +262,20 @@ private class MenuDrawLayerModifier(
 }
 
 private fun calculateTransformOrigin(
-    parentBounds: PxBounds,
-    menuBounds: PxBounds,
+    parentBounds: IntBounds,
+    menuBounds: IntBounds,
     density: Density
 ): TransformOrigin {
-    val inset = with(density) { MenuElevationInset.toPx() }
-    val realMenuBounds = PxBounds(
+    val inset = with(density) { MenuElevationInset.toIntPx() }
+    val realMenuBounds = IntBounds(
         menuBounds.left + inset,
         menuBounds.top + inset,
         menuBounds.right - inset,
         menuBounds.bottom - inset
     )
     val pivotX = when {
-        realMenuBounds.left >= parentBounds.right -> 0f
-        realMenuBounds.right <= parentBounds.left -> 1f
+        realMenuBounds.left >= parentBounds.right -> 0
+        realMenuBounds.right <= parentBounds.left -> 1
         else -> {
             val intersectionCenter =
                 (max(parentBounds.left, realMenuBounds.left) +
@@ -286,8 +284,8 @@ private fun calculateTransformOrigin(
         }
     }
     val pivotY = when {
-        realMenuBounds.top >= parentBounds.bottom -> 0f
-        realMenuBounds.bottom <= parentBounds.top -> 1f
+        realMenuBounds.top >= parentBounds.bottom -> 0
+        realMenuBounds.bottom <= parentBounds.top -> 1
         else -> {
             val intersectionCenter =
                 (max(parentBounds.top, realMenuBounds.top) +
@@ -295,7 +293,7 @@ private fun calculateTransformOrigin(
             (intersectionCenter + inset - menuBounds.top) / menuBounds.height
         }
     }
-    return TransformOrigin(pivotX, pivotY)
+    return TransformOrigin(pivotX.toFloat(), pivotY.toFloat())
 }
 
 // Menu positioning.
@@ -309,11 +307,10 @@ internal data class DropdownMenuPositionProvider(
     val contentOffset: Position,
     val density: Density,
     val displayMetrics: DisplayMetrics,
-    val onPositionCalculated: (PxBounds, PxBounds) -> Unit = { _, _ -> }
+    val onPositionCalculated: (IntBounds, IntBounds) -> Unit = { _, _ -> }
 ) : PopupPositionProvider {
     override fun calculatePosition(
-        parentLayoutPosition: IntOffset,
-        parentLayoutSize: IntSize,
+        parentLayoutBounds: IntBounds,
         layoutDirection: LayoutDirection,
         popupSize: IntSize
     ): IntOffset {
@@ -325,12 +322,10 @@ internal data class DropdownMenuPositionProvider(
         val realPopupHeight = popupSize.height - inset * 2
         val contentOffsetX = with(density) { contentOffset.x.toIntPx() }
         val contentOffsetY = with(density) { contentOffset.y.toIntPx() }
-        val parentRight = parentLayoutPosition.x + parentLayoutSize.width
-        val parentBottom = parentLayoutPosition.y + parentLayoutSize.height
 
         // Compute horizontal position.
-        val toRight = parentRight + contentOffsetX
-        val toLeft = parentLayoutPosition.x - contentOffsetX - realPopupWidth
+        val toRight = parentLayoutBounds.right + contentOffsetX
+        val toLeft = parentLayoutBounds.left - contentOffsetX - realPopupWidth
         val toDisplayRight = displayMetrics.widthPixels - realPopupWidth
         val toDisplayLeft = 0
         val x = if (layoutDirection == LayoutDirection.Ltr) {
@@ -342,24 +337,18 @@ internal data class DropdownMenuPositionProvider(
         } ?: toLeft
 
         // Compute vertical position.
-        val toBottom = parentBottom + contentOffsetY
-        val toTop = parentLayoutPosition.y - contentOffsetY - realPopupHeight
-        val toCenter = parentLayoutPosition.y - realPopupHeight / 2
+        val toBottom = parentLayoutBounds.bottom + contentOffsetY
+        val toTop = parentLayoutBounds.top - contentOffsetY - realPopupHeight
+        val toCenter = parentLayoutBounds.top - realPopupHeight / 2
         val toDisplayBottom = displayMetrics.heightPixels - realPopupHeight - verticalMargin
         val y = sequenceOf(toBottom, toTop, toCenter, toDisplayBottom).firstOrNull {
             it >= verticalMargin &&
                     it + realPopupHeight <= displayMetrics.heightPixels - verticalMargin
         } ?: toTop
 
-        // TODO(popam, b/159596546): we should probably have androidx.ui.unit.IntBounds instead
         onPositionCalculated(
-            PxBounds(parentLayoutPosition.toOffset(), parentLayoutSize.toSize()),
-            PxBounds(
-                x.toFloat() - inset,
-                y.toFloat() - inset,
-                x.toFloat() + inset + realPopupWidth,
-                y.toFloat() + inset + realPopupHeight
-            )
+            parentLayoutBounds,
+            IntBounds(x - inset, y - inset, x + inset + realPopupWidth, y + inset + realPopupHeight)
         )
         return IntOffset(x - inset, y - inset)
     }

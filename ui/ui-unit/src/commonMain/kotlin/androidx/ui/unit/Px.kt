@@ -259,7 +259,7 @@ inline val PxBounds.height: Float get() = bottom - top
  */
 @Stable
 inline fun PxBounds.center(): Offset {
-    return Offset(left + width / 2f, top + height / 2f)
+    return Offset((left + right) / 2f, (top + bottom) / 2f)
 }
 
 /**

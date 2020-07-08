@@ -42,12 +42,12 @@ import androidx.ui.core.setContent
 import androidx.ui.core.toAndroidRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
-import androidx.ui.tooling.Bounds
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.SlotTableRecord
 import androidx.ui.tooling.asTree
 import androidx.ui.tooling.preview.animation.PreviewAnimationClock
+import androidx.ui.unit.IntBounds
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.toRect
 import kotlin.reflect.KClass
@@ -64,7 +64,7 @@ data class ViewInfo(
     val fileName: String,
     val lineNumber: Int,
     val methodName: String,
-    val bounds: Bounds,
+    val bounds: IntBounds,
     val children: List<ViewInfo>
 ) {
     fun hasBounds(): Boolean = bounds.bottom != 0 && bounds.right != 0
