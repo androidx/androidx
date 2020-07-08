@@ -42,6 +42,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 import static androidx.build.dependencies.DependenciesKt.*
+import static androidx.build.dependencies.DependenciesKt.TRUTH
 
 plugins {
     id("AndroidXPlugin")
@@ -122,14 +123,16 @@ kotlin {
             // manually copy it later, as run task will have .aar in the classpath.
             implementation "androidx.core:core:1.0.0"
             implementation "androidx.lifecycle:lifecycle-runtime:2.3.0-alpha01"
-        }
 
-        jvmTest.dependencies {
+            // TODO: move to jvmTest
             implementation(JUNIT)
         }
 
         jvmTest {
             resources.srcDirs += "src/jvmTest/res"
+            dependencies {
+                implementation(TRUTH)
+            }
         }
     }
 }
@@ -326,6 +329,10 @@ extractJars.configure {
     }
 }
 
+tasks.findByName("jvmTest").configure {
+    systemProperties['GOLDEN_PATH'] = project.rootDir.absolutePath + "/../../../golden"
+}
+
 tasks.withType(KotlinCompile).configureEach {
     dependsOn("extractJars")
     kotlinOptions {
@@ -335,16 +342,6 @@ tasks.withType(KotlinCompile).configureEach {
 project.tasks.register("jar", Jar).configure {
     baseName = "ui-desktop"
     from { kotlin.jvm().compilations["main"].output.allOutputs }
-}
-
-project.tasks.register("test", JavaExec).configure {
-    dependsOn(":ui:ui-desktop:jar")
-    main = 'androidx.ui.desktop.RunnerKt'
-    def compilation = kotlin.jvm().compilations["test"]
-    classpath =
-        compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles +
-        fileTree(composeClassDir)
 }
 
 clean.doFirst {
