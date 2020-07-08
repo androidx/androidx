@@ -39,7 +39,7 @@ kotlin {
             implementation(KOTLIN_STDLIB_COMMON)
             implementation(KOTLIN_COROUTINES_CORE)
             api project(":ui:ui-core")
-            api project(":ui:ui-text-core")
+            api project(":compose:core:core-text")
             api project(":compose:core:core-util")
         }
 

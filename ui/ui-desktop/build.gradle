@@ -149,8 +149,8 @@ def uiComponents = [
         ":ui:ui-livedata",
         ":ui:ui-saved-instance-state",
         ":ui:ui-text",
-        ":ui:ui-text-android",
-        ":ui:ui-text-core",
+        ":compose:core:core-text-android",
+        ":compose:core:core-text",
         ":compose:core:core-unit",
         ":compose:core:core-util",
         ":compose:material:material"

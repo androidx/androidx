@@ -40,7 +40,7 @@ dependencies {
     api project(":ui:ui-core")
     api project(":compose:foundation:foundation")
     api project(":compose:material:material-icons-core")
-    api project(":ui:ui-text-core")
+    api project(":compose:core:core-text")
     api project(":ui:ui-text")
     api project(":compose:animation:animation-core")
 

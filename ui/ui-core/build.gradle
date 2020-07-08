@@ -42,7 +42,7 @@ kotlin {
             api project(":compose:core:core-unit")
             api project(":compose:core:core-geometry")
             api project(":compose:core:core-graphics")
-            api project(":ui:ui-text-core")
+            api project(":compose:core:core-text")
             // TODO: b/160602714 create a lower level module to avoid this dependency on the
             // animation group
             api project(":compose:animation:animation-core")

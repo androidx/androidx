@@ -19,8 +19,8 @@ dependencies {
     implementation project(":ui:ui-core")
     implementation project(":compose:foundation:foundation")
     implementation project(":ui:ui-layout")
-    implementation project(":ui:ui-text-core")
-    implementation project(":ui:ui-text-core:samples")
+    implementation project(":compose:core:core-text")
+    implementation project(":compose:core:core-text:samples")
 }
 
 android {
