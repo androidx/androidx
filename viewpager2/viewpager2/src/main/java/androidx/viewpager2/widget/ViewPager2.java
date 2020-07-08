@@ -35,6 +35,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -46,6 +47,7 @@ import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand;
@@ -119,6 +121,11 @@ public final class ViewPager2 extends ViewGroup {
 
     /** Feature flag while stabilizing enhanced a11y */
     static boolean sFeatureEnhancedA11yEnabled = true;
+
+    /** Used during custom insets dispatching */
+    // TODO(b/153341849): Replace EMPTY_INSETS with WindowInsetsCompat.CONSUMED when
+    //  androidx.core:core is updated to 1.3.0-beta02 or higher
+    private static final WindowInsetsCompat EMPTY_INSETS = new WindowInsetsCompat.Builder().build();
 
     // reused in layout(...)
     private final Rect mTmpContainerRect = new Rect();
@@ -954,6 +961,47 @@ public final class ViewPager2 extends ViewGroup {
             return mAccessibilityProvider.onPerformAccessibilityAction(action, arguments);
         }
         return super.performAccessibilityAction(action, arguments);
+    }
+
+    @NonNull
+    @Override
+    @RequiresApi(21)
+    public WindowInsets onApplyWindowInsets(@NonNull WindowInsets insets) {
+        // First let the ViewPager2 itself try and consume them...
+        final WindowInsets applied = super.onApplyWindowInsets(insets);
+        if (applied.isConsumed()) {
+            // If the ViewPager2 consumed all insets, return now
+            return applied;
+        }
+
+        // Now we'll manually dispatch the insets to our children. Since ViewPager2
+        // children are always full-height, we do not want to use the standard
+        // ViewGroup dispatchApplyWindowInsets since if child 0 consumes them, the
+        // rest of the children will not receive any insets. To workaround this we
+        // manually dispatch the applied insets, not allowing children to consume
+        // them from each other, making a copy for every invocation
+
+        for (int i = 0, count = mRecyclerView.getChildCount(); i < count; i++) {
+            mRecyclerView.getChildAt(i).dispatchApplyWindowInsets(new WindowInsets(applied));
+        }
+
+        // Now return a new WindowInsets where we consume all insets to prevent the
+        // platform from dispatching the insets to ViewPager2's children *again*
+        // TODO(b/153341849): Replace with
+        //  Objects.requireNonNull(WindowInsetsCompat.CONSUMED.toWindowInsets())
+        //  when androidx.core:core is updated to 1.3.0-beta02 or higher
+        return consumeAllInsets(insets);
+    }
+
+    @RequiresApi(api = 21)
+    @SuppressWarnings("deprecation")
+    private WindowInsets consumeAllInsets(WindowInsets insets) {
+        if (EMPTY_INSETS.toWindowInsets() != null) {
+            return EMPTY_INSETS.toWindowInsets();
+        }
+        // No EMPTY_INSETS can only happen on API < 29,
+        // so we only have to consume system insets
+        return insets.consumeSystemWindowInsets().consumeStableInsets();
     }
 
     /**
