@@ -28,7 +28,7 @@ import androidx.compose.State
 import androidx.compose.mutableStateOf
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.LargeTest
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
@@ -180,16 +180,15 @@ class ComposeIdlingResourceTest {
         hasRecomposed = true
         Box(modifier = Modifier.drawBackground(Color.Yellow).fillMaxSize()) {
             hasRecomposed = true
-            Transition(
+            val state = transition(
                 definition = animationDefinition,
                 toState = animationState.value,
                 onStateChangeFinished = { animationRunning = false }
-            ) { state ->
-                hasRecomposed = true
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    recordedAnimatedValues.add(state[x])
-                    drawRect(Color.Cyan, Offset(state[x], 0f), rectSize)
-                }
+            )
+            hasRecomposed = true
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                recordedAnimatedValues.add(state[x])
+                drawRect(Color.Cyan, Offset(state[x], 0f), rectSize)
             }
         }
     }

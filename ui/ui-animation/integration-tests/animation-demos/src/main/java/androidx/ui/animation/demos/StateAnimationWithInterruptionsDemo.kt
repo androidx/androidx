@@ -28,7 +28,7 @@ import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
@@ -88,9 +88,8 @@ private fun ColorRect() {
             }
         }
     }, (200..800).random().toLong())
-    Transition(definition = definition, toState = toState) { state ->
-        ColorRectState(state = state)
-    }
+    val state = transition(definition = definition, toState = toState)
+    ColorRectState(state = state)
 }
 
 @Composable

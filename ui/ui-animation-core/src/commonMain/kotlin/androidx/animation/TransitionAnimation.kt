@@ -19,9 +19,9 @@ package androidx.animation
 import androidx.animation.InterruptionHandling.UNINTERRUPTIBLE
 
 /**
- * [TransitionAnimation] is the underlying animation used in [androidx.ui.animation.Transition] for
+ * [TransitionAnimation] is the underlying animation used in [androidx.ui.animation.transition] for
  * animating from one set of property values (i.e. one [TransitionState]) to another. In compose,
- * it is recommended to create such an animation using [androidx.ui.animation.Transition],
+ * it is recommended to create such an animation using [androidx.ui.animation.transition],
  * instead of instantiating [TransitionAnimation] directly.
  *
  * [TransitionAnimation] reads the property values out of the start and end state,  as well as the
@@ -36,7 +36,7 @@ import androidx.animation.InterruptionHandling.UNINTERRUPTIBLE
  * Once a [TransitionDefinition] is instantiated, a [TransitionAnimation] can be created via
  * [TransitionDefinition.createAnimation].
  *
- * @see [androidx.ui.animation.Transition]
+ * @see [androidx.ui.animation.transition]
  */
 @OptIn(InternalAnimationApi::class)
 class TransitionAnimation<T>(

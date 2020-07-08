@@ -27,7 +27,7 @@ import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
@@ -160,42 +160,41 @@ private fun CheckboxImpl(
     val disabledEmphasis = EmphasisAmbient.current.disabled
     val indeterminateDisabledColor = disabledEmphasis.applyEmphasis(activeColor)
     val disabledEmphasisedColor = disabledEmphasis.applyEmphasis(disabledColor)
-    Transition(definition = definition, toState = value) { state ->
-        val checkCache = remember { CheckDrawingCache() }
-        Canvas(modifier.wrapContentSize(Alignment.Center).size(CheckboxSize)) {
-            val boxColor =
-                if (enabled) {
-                    activeColor.copy(alpha = state[BoxOpacityFraction])
-                } else if (value == ToggleableState.Indeterminate) {
-                    indeterminateDisabledColor
-                } else if (value == ToggleableState.Off) {
-                    Color.Transparent
-                } else {
-                    disabledEmphasisedColor
-                }
-            val borderColor =
-                if (enabled) {
-                    state[BoxBorderColor]
-                } else if (value == ToggleableState.Indeterminate) {
-                    indeterminateDisabledColor
-                } else {
-                    disabledEmphasisedColor
-                }
-            val strokeWidthPx = StrokeWidth.toPx()
-            drawBox(
-                boxColor = boxColor,
-                borderColor = borderColor,
-                radius = RadiusSize.toPx(),
-                strokeWidth = strokeWidthPx
-            )
-            drawCheck(
-                checkColor = checkColor.copy(alpha = state[CheckOpacityFraction]),
-                checkFraction = state[CheckDrawFraction],
-                crossCenterGravitation = state[CheckCenterGravitationShiftFraction],
-                strokeWidthPx = strokeWidthPx,
-                drawingCache = checkCache
-            )
-        }
+    val state = transition(definition = definition, toState = value)
+    val checkCache = remember { CheckDrawingCache() }
+    Canvas(modifier.wrapContentSize(Alignment.Center).size(CheckboxSize)) {
+        val boxColor =
+            if (enabled) {
+                activeColor.copy(alpha = state[BoxOpacityFraction])
+            } else if (value == ToggleableState.Indeterminate) {
+                indeterminateDisabledColor
+            } else if (value == ToggleableState.Off) {
+                Color.Transparent
+            } else {
+                disabledEmphasisedColor
+            }
+        val borderColor =
+            if (enabled) {
+                state[BoxBorderColor]
+            } else if (value == ToggleableState.Indeterminate) {
+                indeterminateDisabledColor
+            } else {
+                disabledEmphasisedColor
+            }
+        val strokeWidthPx = StrokeWidth.toPx()
+        drawBox(
+            boxColor = boxColor,
+            borderColor = borderColor,
+            radius = RadiusSize.toPx(),
+            strokeWidth = strokeWidthPx
+        )
+        drawCheck(
+            checkColor = checkColor.copy(alpha = state[CheckOpacityFraction]),
+            checkFraction = state[CheckDrawFraction],
+            crossCenterGravitation = state[CheckCenterGravitationShiftFraction],
+            strokeWidthPx = strokeWidthPx,
+            drawingCache = checkCache
+        )
     }
 }
 

@@ -22,7 +22,7 @@ import androidx.animation.LinearOutSlowInEasing
 import androidx.animation.transitionDefinition
 import androidx.animation.tween
 import androidx.compose.Composable
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
@@ -68,29 +68,28 @@ fun AnimatedCircle(
     colors: List<Color>
 ) {
     val stroke = Stroke(5.dp.value * DensityAmbient.current.density)
-    Transition(definition = CircularTransition, initState = 0, toState = 1) { state ->
-        Canvas(modifier) {
-            val innerRadius = (size.minDimension - stroke.width) / 2
-            val halfSize = size / 2.0f
-            val topLeft = Offset(
-                halfSize.width - innerRadius,
-                halfSize.height - innerRadius
+    val state = transition(definition = CircularTransition, initState = 0, toState = 1)
+    Canvas(modifier) {
+        val innerRadius = (size.minDimension - stroke.width) / 2
+        val halfSize = size / 2.0f
+        val topLeft = Offset(
+            halfSize.width - innerRadius,
+            halfSize.height - innerRadius
+        )
+        val size = Size(innerRadius * 2, innerRadius * 2)
+        var startAngle = state[Shift] - 90f
+        proportions.forEachIndexed { index, proportion ->
+            val sweep = proportion * state[AngleOffset]
+            drawArc(
+                color = colors[index],
+                startAngle = startAngle + DividerLengthInDegrees / 2,
+                sweepAngle = sweep - DividerLengthInDegrees,
+                topLeft = topLeft,
+                size = size,
+                useCenter = false,
+                style = stroke
             )
-            val size = Size(innerRadius * 2, innerRadius * 2)
-            var startAngle = state[Shift] - 90f
-            proportions.forEachIndexed { index, proportion ->
-                val sweep = proportion * state[AngleOffset]
-                drawArc(
-                    color = colors[index],
-                    startAngle = startAngle + DividerLengthInDegrees / 2,
-                    sweepAngle = sweep - DividerLengthInDegrees,
-                    topLeft = topLeft,
-                    size = size,
-                    useCenter = false,
-                    style = stroke
-                )
-                startAngle += sweep
-            }
+            startAngle += sweep
         }
     }
 }
