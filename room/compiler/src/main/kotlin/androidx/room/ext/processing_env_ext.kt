@@ -87,7 +87,7 @@ fun ProcessingEnvironment.requireTypeMirror(
  */
 fun ProcessingEnvironment.requireTypeMirror(
     qName: String
-): TypeMirror = requireTypeElement(qName).asType()
+): TypeMirror = requireTypeElement(qName).type
 
 /**
  * Query a type mirror by KClass and return null if it does not exist
@@ -108,7 +108,7 @@ fun ProcessingEnvironment.findTypeMirror(
  */
 fun ProcessingEnvironment.findTypeMirror(
     qName: String
-): TypeMirror? = findTypeElement(qName)?.asType()
+): TypeMirror? = findTypeElement(qName)?.type
 
 fun ProcessingEnvironment.getGeneratedAnnotation(): TypeElement? {
     val element = GeneratedAnnotations.generatedAnnotation(elementUtils, sourceVersion)

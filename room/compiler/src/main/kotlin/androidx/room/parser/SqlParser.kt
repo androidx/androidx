@@ -18,6 +18,7 @@ package androidx.room.parser
 
 import androidx.room.ColumnInfo
 import androidx.room.ext.requireTypeMirror
+import androidx.room.ext.type
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
 import javax.annotation.processing.ProcessingEnvironment
@@ -211,7 +212,7 @@ enum class SQLTypeAffinity {
             List<TypeMirror> {
         return primitives.flatMap {
             val primitiveType = env.typeUtils.getPrimitiveType(it)
-            listOf(primitiveType, env.typeUtils.boxedClass(primitiveType).asType())
+            listOf(primitiveType, env.typeUtils.boxedClass(primitiveType).type)
         }
     }
 
