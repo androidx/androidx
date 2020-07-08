@@ -22,7 +22,6 @@ import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Recomposer
-import androidx.compose.snapshots.Snapshot
 import androidx.ui.core.Constraints
 import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutDirection
@@ -267,12 +266,6 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
             measuredThisPass.clear()
             if (forceRecompose) {
                 rootNode.ignoreModelReads { recomposeAllChildren() }
-                // if there were models created and read inside this subcomposition
-                // and we are going to modify these models within the same frame,
-                // the composables which read this model will not be recomposed.
-                // to make this possible we should switch apply global changes.
-                @OptIn(ExperimentalComposeApi::class)
-                Snapshot.notifyObjectsInitialized()
             }
 
             this@LazyItemsState.layoutDirection = layoutDirection
