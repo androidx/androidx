@@ -346,7 +346,7 @@ public class BiometricViewModel extends ViewModel {
         if (mAuthenticationResult == null) {
             mAuthenticationResult = new MutableLiveData<>();
         }
-        mAuthenticationResult.setValue(authenticationResult);
+        updateValue(mAuthenticationResult, authenticationResult);
     }
 
     @NonNull
@@ -361,7 +361,7 @@ public class BiometricViewModel extends ViewModel {
         if (mAuthenticationError == null) {
             mAuthenticationError = new MutableLiveData<>();
         }
-        mAuthenticationError.setValue(authenticationError);
+        updateValue(mAuthenticationError, authenticationError);
     }
 
     @NonNull
@@ -377,7 +377,7 @@ public class BiometricViewModel extends ViewModel {
         if (mAuthenticationHelpMessage == null) {
             mAuthenticationHelpMessage = new MutableLiveData<>();
         }
-        mAuthenticationHelpMessage.setValue(authenticationHelpMessage);
+        updateValue(mAuthenticationHelpMessage, authenticationHelpMessage);
     }
 
     @NonNull
@@ -392,7 +392,7 @@ public class BiometricViewModel extends ViewModel {
         if (mIsAuthenticationFailurePending == null) {
             mIsAuthenticationFailurePending = new MutableLiveData<>();
         }
-        mIsAuthenticationFailurePending.setValue(authenticationFailurePending);
+        updateValue(mIsAuthenticationFailurePending, authenticationFailurePending);
     }
 
     @NonNull
@@ -407,7 +407,7 @@ public class BiometricViewModel extends ViewModel {
         if (mIsNegativeButtonPressPending == null) {
             mIsNegativeButtonPressPending = new MutableLiveData<>();
         }
-        mIsNegativeButtonPressPending.setValue(negativeButtonPressPending);
+        updateValue(mIsNegativeButtonPressPending, negativeButtonPressPending);
     }
 
     boolean isFingerprintDialogDismissedInstantly() {
@@ -431,7 +431,7 @@ public class BiometricViewModel extends ViewModel {
         if (mIsFingerprintDialogCancelPending == null) {
             mIsFingerprintDialogCancelPending = new MutableLiveData<>();
         }
-        mIsFingerprintDialogCancelPending.setValue(fingerprintDialogCancelPending);
+        updateValue(mIsFingerprintDialogCancelPending, fingerprintDialogCancelPending);
     }
 
     @FingerprintDialogFragment.State
@@ -457,7 +457,7 @@ public class BiometricViewModel extends ViewModel {
         if (mFingerprintDialogState == null) {
             mFingerprintDialogState = new MutableLiveData<>();
         }
-        mFingerprintDialogState.setValue(fingerprintDialogState);
+        updateValue(mFingerprintDialogState, fingerprintDialogState);
     }
 
     @NonNull
@@ -473,6 +473,20 @@ public class BiometricViewModel extends ViewModel {
         if (mFingerprintDialogHelpMessage == null) {
             mFingerprintDialogHelpMessage = new MutableLiveData<>();
         }
-        mFingerprintDialogHelpMessage.setValue(fingerprintDialogHelpMessage);
+        updateValue(mFingerprintDialogHelpMessage, fingerprintDialogHelpMessage);
+    }
+
+    /**
+     * Ensures the value of a given mutable live data object is updated on the main thread.
+     *
+     * @param liveData The mutable live data object whose value should be updated.
+     * @param value    The new value to be set for the mutable live data object.
+     */
+    private static <T> void updateValue(MutableLiveData<T> liveData, T value) {
+        if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
+            liveData.setValue(value);
+        } else {
+            liveData.postValue(value);
+        }
     }
 }
