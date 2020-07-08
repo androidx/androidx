@@ -23,7 +23,8 @@ import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -40,4 +41,11 @@ androidx {
     inceptionYear = "2019"
     description = "Experimental AndroidX Inspection Project"
     url = AndroidXExtension.ARCHITECTURE_URL
+}
+
+android {
+    defaultConfig {
+        // studio pipeline works only starting with Android O
+        minSdkVersion 26
+    }
 }

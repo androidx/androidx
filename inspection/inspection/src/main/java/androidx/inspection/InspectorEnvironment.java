@@ -101,4 +101,13 @@ public interface InspectorEnvironment {
      */
     <T> void registerExitHook(@NonNull Class<?> originClass, @NonNull String originMethod,
             @NonNull ExitHook<T> exitHook);
+
+    /**
+     * Executors provided by App Inspection Platforms. Clients should use it instead of
+     * creating their own.
+     */
+    @NonNull
+    default InspectorExecutors executors() {
+        throw new UnsupportedOperationException();
+    }
 }

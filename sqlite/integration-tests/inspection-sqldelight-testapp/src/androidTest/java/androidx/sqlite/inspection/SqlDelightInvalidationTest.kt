@@ -20,7 +20,9 @@ import android.database.sqlite.SQLiteDatabase
 import androidx.inspection.Connection
 import androidx.inspection.InspectorEnvironment
 import androidx.inspection.InspectorFactory
+import androidx.inspection.testing.DefaultTestInspectorEnvironment
 import androidx.inspection.testing.InspectorTester
+import androidx.inspection.testing.TestInspectorExecutors
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command
 import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryCommand
@@ -38,6 +40,7 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
@@ -75,7 +78,9 @@ class SqlDelightInvalidationTest {
             dao.insertOrReplace("one")
             val sqliteDb = openedDb.getSqliteDb()
             val query = dao.selectAll()
-            val tester = sqliteInspectorTester(TestInspectorEnvironment(sqliteDb, listOf(query)))
+            val job = this.coroutineContext[Job]!!
+            val tester = sqliteInspectorTester(TestInspectorEnvironment(sqliteDb, listOf(query),
+                job))
             val updates = query.asFlow().mapToList().take(2).produceIn(this)
 
             val firstExpected = TestEntity.Impl(1, "one")
@@ -149,8 +154,9 @@ suspend fun sqliteInspectorTester(environment: InspectorEnvironment) = Inspector
 @Suppress("UNCHECKED_CAST")
 class TestInspectorEnvironment(
     private val sqliteDb: SQLiteDatabase,
-    private val queries: List<Query<*>>
-) : InspectorEnvironment {
+    private val queries: List<Query<*>>,
+    job: Job
+) : DefaultTestInspectorEnvironment(TestInspectorExecutors(job)) {
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,

@@ -16,7 +16,11 @@
 
 package androidx.inspection.testing
 
+import androidx.inspection.Connection
+import androidx.inspection.InspectorEnvironment
+import androidx.inspection.InspectorFactory
 import androidx.inspection.testing.echo.ECHO_INSPECTION_ID
+import androidx.inspection.testing.echo.EchoInspector
 import androidx.inspection.testing.echo.TickleManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -32,6 +36,8 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class EchoInspectionTest {
+
+    private val SHUTDOWN_TIMEOUT_MS = 1000L
 
     @Test
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -76,6 +82,33 @@ class EchoInspectionTest {
         val followUp = "follow-up".toByteArray()
         assertThat(String(inspectorTester.sendCommand(followUp))).isEqualTo("echoed: follow-up")
         inspectorTester.dispose()
+    }
+
+    @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun testInspectorTesterDisposeStopsHandlerThread() {
+        lateinit var escapedEnvironment: InspectorEnvironment
+        runBlocking {
+            val inspectorTester = InspectorTester(ECHO_INSPECTION_ID, factoryOverride = object :
+                InspectorFactory<EchoInspector>(ECHO_INSPECTION_ID) {
+                override fun createInspector(
+                    connection: Connection,
+                    environment: InspectorEnvironment
+                ): EchoInspector {
+                    escapedEnvironment = environment
+                    return EchoInspector(connection)
+                }
+            })
+            inspectorTester.dispose()
+        }
+        try {
+            // give one full second for handler thread to exit, even though it should be almost
+            // immediately because there is no tasks left to execute.
+            // If it doesn't exit by then, handler is not properly disposed.
+            escapedEnvironment.executors().handler().looper.thread.join(SHUTDOWN_TIMEOUT_MS)
+        } catch (e: InterruptedException) {
+            throw AssertionError("Handler thread must exit")
+        }
     }
 
     internal fun fakeCallCodeInApp() = TickleManager.tickle()
