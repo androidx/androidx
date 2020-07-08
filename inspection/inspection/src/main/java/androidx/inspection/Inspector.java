@@ -23,6 +23,8 @@ import java.util.concurrent.Executor;
 /**
  * Implementation of this class are responsible to handle command from frontend and
  * send back events.
+ * <p>
+ * Inspector's methods are called on single threaded {@link InspectorExecutors#primary()} executor.
  */
 public abstract class Inspector {
 

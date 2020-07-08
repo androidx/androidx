@@ -17,20 +17,25 @@
 package androidx.work.inspection
 
 import androidx.inspection.InspectorEnvironment
+import androidx.inspection.testing.DefaultTestInspectorEnvironment
 import androidx.inspection.testing.InspectorTester
+import androidx.inspection.testing.TestInspectorExecutors
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.runBlocking
 import org.junit.rules.ExternalResource
 
 private const val WORK_MANAGER_INSPECTOR_ID = "androidx.work.inspection"
 
-class WorkManagerInspectorTestEnvironment() : ExternalResource() {
+class WorkManagerInspectorTestEnvironment : ExternalResource() {
     private lateinit var inspectorTester: InspectorTester
     private lateinit var environment: FakeInspectorEnvironment
+    private val job = Job()
 
     override fun before() {
-        environment = FakeInspectorEnvironment()
+        environment = FakeInspectorEnvironment(job)
         inspectorTester = runBlocking {
             InspectorTester(
                 inspectorId = WORK_MANAGER_INSPECTOR_ID,
@@ -40,6 +45,9 @@ class WorkManagerInspectorTestEnvironment() : ExternalResource() {
     }
 
     override fun after() {
+        runBlocking {
+            job.cancelAndJoin()
+        }
         inspectorTester.dispose()
     }
 
@@ -52,7 +60,9 @@ class WorkManagerInspectorTestEnvironment() : ExternalResource() {
 /**
  * Empty Fake inspector environment.
  */
-private class FakeInspectorEnvironment : InspectorEnvironment {
+private class FakeInspectorEnvironment(
+    job: Job
+) : DefaultTestInspectorEnvironment(TestInspectorExecutors(job)) {
     override fun <T : Any?> findInstances(clazz: Class<T>): MutableList<T> {
         TODO("not implemented")
     }
