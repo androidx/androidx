@@ -25,6 +25,8 @@ import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import isAssignableFrom
+import isDeclared
+import isNotNone
 import java.lang.reflect.Proxy
 import java.util.Locale
 import javax.annotation.processing.ProcessingEnvironment
@@ -38,7 +40,6 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.ExecutableType
-import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.type.WildcardType
 import javax.lang.model.util.ElementFilter
@@ -105,7 +106,7 @@ fun TypeElement.getAllFieldsIncludingPrivateSupers(processingEnvironment: Proces
             .filter { it is VariableElement }
             .map { it as VariableElement }
             .toSet()
-    if (superclass.kind != TypeKind.NONE) {
+    if (superclass.isNotNone()) {
         return myMembers + superclass.asTypeElement()
                 .getAllFieldsIncludingPrivateSupers(processingEnvironment)
     } else {
@@ -118,7 +119,7 @@ fun TypeElement.getAllMethodsIncludingSupers(): Set<ExecutableElement> {
     val interfaceMethods = interfaces.flatMap {
         it.asTypeElement().getAllMethodsIncludingSupers()
     }
-    return if (superclass.kind != TypeKind.NONE) {
+    return if (superclass.isNotNone()) {
         myMethods + interfaceMethods + superclass.asTypeElement().getAllMethodsIncludingSupers()
     } else {
         myMethods + interfaceMethods
@@ -340,7 +341,7 @@ private fun Types.isAssignableWithoutVariance(from: TypeMirror, to: TypeMirror):
     if (assignable) {
         return true
     }
-    if (from.kind != TypeKind.DECLARED || to.kind != TypeKind.DECLARED) {
+    if (!from.isDeclared() || !to.isDeclared()) {
         return false
     }
     val declaredFrom = MoreTypes.asDeclared(from)

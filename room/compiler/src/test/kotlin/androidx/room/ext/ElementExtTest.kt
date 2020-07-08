@@ -16,6 +16,7 @@
 
 package androidx.room.ext
 
+import box
 import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
@@ -201,6 +202,32 @@ class ElementExtTest {
             assertThat(field.type.typeName()).isEqualTo(TypeName.INT)
             assertThat(method.returnType.typeName()).isEqualTo(TypeName.INT)
             assertThat(element.type.typeName()).isEqualTo(ClassName.get("foo.bar", "Baz"))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun primitiveTypes() {
+        // check that we can also find primitive types from the common API
+        val primitiveTypeNames = listOf(
+            TypeName.BOOLEAN,
+            TypeName.BYTE,
+            TypeName.SHORT,
+            TypeName.INT,
+            TypeName.LONG,
+            TypeName.CHAR,
+            TypeName.FLOAT,
+            TypeName.DOUBLE
+        )
+        simpleRun { invocation ->
+            val processingEnv = invocation.processingEnv
+            primitiveTypeNames.forEach { primitiveTypeName ->
+                val typeMirror = processingEnv.requireTypeMirror(primitiveTypeName)
+                assertThat(typeMirror.kind.isPrimitive).isTrue()
+                assertThat(typeMirror.typeName()).isEqualTo(primitiveTypeName)
+                assertThat(
+                    typeMirror.box(invocation.typeUtils).typeName()
+                ).isEqualTo(primitiveTypeName.box())
+            }
         }.compilesWithoutError()
     }
 
