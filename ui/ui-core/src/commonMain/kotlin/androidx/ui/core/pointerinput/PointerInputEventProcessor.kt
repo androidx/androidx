@@ -132,7 +132,7 @@ private class PointerInputChangeEventProducer {
                 previousPointerInputData.remove(it.id)
             }
         }
-        return InternalPointerEvent(changes)
+        return InternalPointerEvent(changes, pointerInputEvent)
     }
 
     /**

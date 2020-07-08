@@ -750,8 +750,6 @@ package androidx.ui.core {
 
   public final class PointerEvent {
     ctor public PointerEvent(java.util.List<androidx.ui.core.PointerInputChange> changes);
-    method public java.util.List<androidx.ui.core.PointerInputChange> component1();
-    method public androidx.ui.core.PointerEvent copy(java.util.List<androidx.ui.core.PointerInputChange> changes);
     method public java.util.List<androidx.ui.core.PointerInputChange> getChanges();
   }
 
@@ -1858,12 +1856,7 @@ package androidx.ui.core.pointerinput {
   public final class HitPathTrackerKt {
   }
 
-  public final class PointerInputEventData {
-    method public long component1();
-    method public androidx.ui.core.PointerInputData component2();
-    method public androidx.ui.core.pointerinput.PointerInputEventData copy-tII9_pY(long id, androidx.ui.core.PointerInputData pointerInputData);
-    method public long getId();
-    method public androidx.ui.core.PointerInputData getPointerInputData();
+  public final class MotionEventAdapterKt {
   }
 
   public final class PointerInputEventProcessorKt {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package androidx.ui.core.pointerinput
 
+import androidx.ui.core.InternalPointerEvent
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
@@ -32,7 +33,7 @@ import androidx.ui.unit.Uptime
  * the processing of incoming [PointerInputChange]s.
  */
 open class StubPointerInputHandler(
-    var modifyBlock: PointerInputHandler? = null
+    private var modifyBlock: PointerInputHandler? = null
 ) : PointerInputHandler {
     override fun invoke(
         p1: List<PointerInputChange>,
@@ -61,9 +62,19 @@ internal fun PointerInputEvent(
 ): PointerInputEvent {
     return PointerInputEvent(
         uptime,
-        listOf(PointerInputEventData(id, uptime, position, down))
+        listOf(PointerInputEventData(id, uptime, position, down)),
+        MotionEventDouble
     )
 }
+
+internal fun PointerInputEvent(
+    uptime: Uptime,
+    pointers: List<PointerInputEventData>
+) = PointerInputEvent(
+        uptime,
+        pointers,
+        MotionEventDouble
+    )
 
 internal fun catchThrowable(lambda: () -> Unit): Throwable? {
     var exception: Throwable? = null
@@ -76,3 +87,13 @@ internal fun catchThrowable(lambda: () -> Unit): Throwable? {
 
     return exception
 }
+
+internal fun internalPointerEventOf(vararg changes: PointerInputChange) =
+    InternalPointerEvent(changes.toList().associateBy { it.id }.toMutableMap(), MotionEventDouble)
+
+/**
+ * To be used to construct types that require a MotionEvent but where no details of the MotionEvent
+ * are actually needed.
+ */
+private val MotionEventDouble = android.view.MotionEvent.obtain(0L, 0L,
+    android.view.MotionEvent.ACTION_DOWN, 0f, 0f, 0)

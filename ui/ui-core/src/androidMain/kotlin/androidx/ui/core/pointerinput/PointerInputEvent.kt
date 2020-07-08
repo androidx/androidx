@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.ui.androidview.demos
+package androidx.ui.core.pointerinput
 
-import androidx.ui.demos.common.ActivityDemo
-import androidx.ui.demos.common.DemoCategory
+import android.view.MotionEvent
+import androidx.ui.unit.Uptime
 
-val AndroidViewDemos = DemoCategory("AndroidView", listOf(
-    ComposeInAndroidDemos,
-    AndroidInComposeDemos,
-    ComplexTouchInterop,
-    ActivityDemo("WebComponent", WebComponentActivity::class)
-))
+internal actual class PointerInputEvent(
+    actual val uptime: Uptime,
+    actual val pointers: List<PointerInputEventData>,
+    val motionEvent: MotionEvent
+)
