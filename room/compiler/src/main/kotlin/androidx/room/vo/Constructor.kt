@@ -18,6 +18,7 @@ package androidx.room.vo
 
 import androidx.room.ext.L
 import androidx.room.ext.T
+import androidx.room.ext.asDeclaredType
 import androidx.room.ext.isConstructor
 import androidx.room.ext.isMethod
 import androidx.room.ext.kindName
@@ -46,11 +47,11 @@ data class Constructor(val element: ExecutableElement, val params: List<Param>) 
         when {
             element.isConstructor() -> {
                 builder.addStatement("$L = new $T($L)", outVar,
-                        element.enclosingElement.asType().typeName(), args)
+                        element.enclosingElement.asDeclaredType().typeName(), args)
             }
             element.isMethod() -> {
                 builder.addStatement("$L = $T.$L($L)", outVar,
-                        element.enclosingElement.asType().typeName(),
+                        element.enclosingElement.asDeclaredType().typeName(),
                         element.simpleName.toString(), args)
             }
             else -> throw IllegalStateException("Invalid constructor kind ${element.kindName()}")

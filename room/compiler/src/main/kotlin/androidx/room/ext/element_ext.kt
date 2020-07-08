@@ -404,7 +404,7 @@ fun ExecutableElement.findKotlinDefaultImpl(typeUtils: Types): ExecutableElement
         }
         ourParams.forEachIndexed { i, variableElement ->
             // Plus 1 to their index because their first param is a self object.
-            if (!typeUtils.isSameType(theirParams[i + 1].asType(), variableElement.asType())) {
+            if (!typeUtils.isSameType(theirParams[i + 1].type, variableElement.type)) {
                 return false
             }
         }
@@ -524,3 +524,15 @@ fun ExecutableElement.asMemberOf(
  * Returns the string representation of the element kind.
  */
 fun Element.kindName() = kind.name.toLowerCase(Locale.US)
+
+// instead of using asType on Element, we should use a specific Element subclass's  .type
+// it is not enforce-able until migrating to the abstraction but still a step in the right direction
+// of safety
+val VariableElement.type: TypeMirror
+    get() = asType()
+
+val TypeElement.type: DeclaredType
+    get() = MoreTypes.asDeclared(asType())
+
+val ExecutableElement.executableType: ExecutableType
+    get() = MoreTypes.asExecutable(asType())

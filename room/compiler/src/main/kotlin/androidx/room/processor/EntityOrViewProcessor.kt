@@ -19,6 +19,7 @@ package androidx.room.processor
 import androidx.room.DatabaseView
 import androidx.room.Entity
 import androidx.room.ext.hasAnnotation
+import androidx.room.ext.type
 import androidx.room.ext.typeName
 import androidx.room.vo.EntityOrView
 import androidx.room.vo.Fields
@@ -54,7 +55,7 @@ private class NonEntityOrViewProcessor(
             override val tableName: String
                 get() = typeName.toString()
             override val typeName: TypeName
-                get() = element.asType().typeName()
+                get() = element.type.typeName()
         }
     }
 }

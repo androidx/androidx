@@ -16,6 +16,8 @@
 
 package androidx.room.kotlin
 
+import androidx.room.ext.executableType
+import androidx.room.ext.type
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.NestingKind
@@ -42,14 +44,14 @@ import javax.lang.model.util.AbstractTypeVisitor8
  *
  * For reference, see the [JVM specification, section 4.3.2](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3.2)
  */
-fun VariableElement.descriptor() = "$simpleName:${asType().descriptor()}"
+fun VariableElement.descriptor() = "$simpleName:${type.descriptor()}"
 
 /**
  * Returns the method descriptor of this [ExecutableElement].
  *
  * For reference, see the [JVM specification, section 4.3.3](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3.3)
  */
-fun ExecutableElement.descriptor() = "$simpleName${asType().descriptor()}"
+fun ExecutableElement.descriptor() = "$simpleName${executableType.descriptor()}"
 
 /**
  * Returns the name of this [TypeElement] in its "internal form".

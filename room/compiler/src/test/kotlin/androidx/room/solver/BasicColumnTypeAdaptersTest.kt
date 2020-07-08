@@ -17,6 +17,7 @@
 package androidx.room.solver
 
 import androidx.room.ext.requireTypeMirror
+import androidx.room.ext.type
 import androidx.room.ext.typeName
 import androidx.room.processor.Context
 import androidx.room.testing.TestInvocation
@@ -186,7 +187,7 @@ class BasicColumnTypeAdaptersTest(
             return if (typeKind.isPrimitive) {
                 processingEnv.typeUtils
                         .boxedClass(getTypeMirror(processingEnv) as PrimitiveType)
-                        .asType()
+                        .type
             } else {
                 getTypeMirror(processingEnv)
             }

@@ -27,6 +27,7 @@ import androidx.room.ext.isAbstract
 import androidx.room.ext.isPrivate
 import androidx.room.ext.isStatic
 import androidx.room.ext.kindName
+import androidx.room.ext.type
 import androidx.room.ext.typeName
 import androidx.room.processor.Context
 import androidx.room.processor.PojoProcessor
@@ -88,7 +89,7 @@ class AutoValuePojoProcessorDelegate(
             it.isStatic() &&
                     !it.hasAnnotation(Ignore::class) &&
                     !it.isPrivate() &&
-                    typeUtils.isSameType(it.returnType, autoValueElement.asType())
+                    typeUtils.isSameType(it.returnType, autoValueElement.type)
         }
     }
 

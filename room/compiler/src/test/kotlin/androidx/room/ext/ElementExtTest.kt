@@ -18,6 +18,8 @@ package androidx.room.ext
 
 import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.JavaFileObjects
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -167,6 +169,38 @@ class ElementExtTest {
 
             assertThat(child.getConstructors()).isEmpty()
             assertThat(parent.getConstructors()).isEmpty()
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun types() {
+        val testCode = JavaFileObjects.forSourceLines(
+            "foo.bar.Baz", """
+            package foo.bar;
+
+            public class Baz {
+                public int field;
+                public int method() {
+                    return 3;
+                }
+            }
+        """.trimIndent()
+        )
+        simpleRun(
+            jfos = *arrayOf(testCode)
+        ) {
+            val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
+            val field = element.getAllFieldsIncludingPrivateSupers(it.processingEnv)
+                .first {
+                    it.simpleName.toString() == "field"
+                }
+            val method = element.getDeclaredMethods()
+                .first {
+                    it.simpleName.toString() == "method"
+                }
+            assertThat(field.type.typeName()).isEqualTo(TypeName.INT)
+            assertThat(method.returnType.typeName()).isEqualTo(TypeName.INT)
+            assertThat(element.type.typeName()).isEqualTo(ClassName.get("foo.bar", "Baz"))
         }.compilesWithoutError()
     }
 
