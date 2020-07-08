@@ -37,7 +37,7 @@ dependencies {
     }
     compileOnly KOTLIN_STDLIB
 
-    compileOnly LINT_CORE
+    compileOnly "com.android.tools.lint:lint:$lintMinVersion"
 
     testImplementation KOTLIN_STDLIB
     testImplementation LINT_CORE
