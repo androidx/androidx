@@ -16,10 +16,17 @@
 
 package androidx.ui.text.selection
 
+import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.core.clipboard.ClipboardManager
+import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.LongPressDragObserver
+import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
+import androidx.ui.core.selection.SelectionHandle
+import androidx.ui.core.selection.SelectionHandleLayout
+import androidx.ui.core.selection.getAdjustedCoordinates
 import androidx.ui.geometry.Offset
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.TextFieldValue
@@ -27,6 +34,7 @@ import androidx.ui.input.getSelectedText
 import androidx.ui.input.getTextAfterSelection
 import androidx.ui.input.getTextBeforeSelection
 import androidx.ui.text.AnnotatedString
+import androidx.ui.text.InternalTextApi
 import androidx.ui.text.TextFieldState
 import androidx.ui.text.TextRange
 import kotlin.math.max
@@ -34,7 +42,8 @@ import kotlin.math.max
 /**
  * A bridge class between user interaction to the text field selection.
  */
-internal class TextFieldSelectionManager {
+@OptIn(InternalTextApi::class)
+internal class TextFieldSelectionManager() {
 
     /**
      * The current [OffsetMap] for text field.
@@ -83,6 +92,9 @@ internal class TextFieldSelectionManager {
      */
     internal val longPressDragObserver = object : LongPressDragObserver {
         override fun onLongPress(pxPosition: Offset) {
+            state?.let {
+                if (it.draggingHandle) return
+            }
             // selection never started
             if (value.text == "") return
             setSelectionStatus(true)
@@ -120,6 +132,54 @@ internal class TextFieldSelectionManager {
                 )
             }
             return dragDistance
+        }
+    }
+
+    /**
+     * [DragObserver] for dragging the selection handles to change the selection in TextField.
+     */
+    internal fun handleDragObserver(isStartHandle: Boolean): DragObserver {
+        return object : DragObserver {
+            override fun onStart(downPosition: Offset) {
+                // The position of the character where the drag gesture should begin. This is in
+                // the composable coordinates.
+                dragBeginPosition = getAdjustedCoordinates(getHandlePosition(isStartHandle))
+                // Zero out the total distance that being dragged.
+                dragTotalDistance = Offset.Zero
+                state?.draggingHandle = true
+            }
+
+            override fun onDrag(dragDistance: Offset): Offset {
+                dragTotalDistance += dragDistance
+
+                state?.layoutResult?.let { layoutResult ->
+                    val startOffset =
+                        if (isStartHandle)
+                            layoutResult.getOffsetForPosition(dragBeginPosition + dragTotalDistance)
+                        else
+                            value.selection.start
+
+                    val endOffset =
+                        if (isStartHandle)
+                            value.selection.end
+                        else
+                            layoutResult.getOffsetForPosition(dragBeginPosition + dragTotalDistance)
+
+                    updateSelection(
+                        value = value,
+                        startOffset = startOffset,
+                        endOffset = endOffset,
+                        isStartHandle = isStartHandle,
+                        wordBasedSelection = false
+                    )
+                }
+                return dragDistance
+            }
+
+            override fun onStop(velocity: Offset) {
+                super.onStop(velocity)
+                state?.draggingHandle = false
+            }
         }
     }
 
@@ -199,6 +259,23 @@ internal class TextFieldSelectionManager {
         setSelectionStatus(false)
     }
 
+    internal fun getHandlePosition(isStartHandle: Boolean): Offset {
+        return if (isStartHandle)
+            getSelectionHandleCoordinates(
+                textLayoutResult = state?.layoutResult!!,
+                offset = value.selection.start,
+                isStart = true,
+                areHandlesCrossed = value.selection.reversed
+            )
+        else
+            getSelectionHandleCoordinates(
+                textLayoutResult = state?.layoutResult!!,
+                offset = value.selection.end,
+                isStart = false,
+                areHandlesCrossed = value.selection.reversed
+            )
+    }
+
     private fun updateSelection(
         value: TextFieldValue,
         startOffset: Int,
@@ -239,5 +316,31 @@ internal class TextFieldSelectionManager {
         state?.let {
             it.selectionIsOn = on
         }
+    }
+}
+
+@Composable
+@OptIn(InternalTextApi::class)
+internal fun SelectionHandle(isStartHandle: Boolean, manager: TextFieldSelectionManager) {
+    SelectionHandleLayout(
+        startHandlePosition = manager.getHandlePosition(true),
+        endHandlePosition = manager.getHandlePosition(false),
+        isStartHandle = isStartHandle,
+        directions = Pair(
+            manager.state!!.selectionStartDirection,
+            manager.state!!.selectionEndDirection
+        ),
+        handlesCrossed = manager.value.selection.reversed
+    ) {
+        SelectionHandle(
+            modifier =
+            Modifier.dragGestureFilter(manager.handleDragObserver(isStartHandle)),
+            isStartHandle = isStartHandle,
+            directions = Pair(
+                manager.state!!.selectionStartDirection,
+                manager.state!!.selectionEndDirection
+            ),
+            handlesCrossed = manager.value.selection.reversed
+        )
     }
 }

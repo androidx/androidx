@@ -59,8 +59,8 @@ class TextFieldSelectionManagerTest {
     private val dragBeginPosition = Offset.Zero
     private val dragDistance = Offset(300f, 15f)
     private val beginOffset = 0
-    private val dragOffset = text.indexOf('W')
-    private val longPressTextRange = TextRange(0, "Hello".length)
+    private val dragOffset = text.indexOf('r')
+    private val fakeTextRange = TextRange(0, "Hello".length)
     private val dragTextRange = TextRange("Hello".length + 1, text.length)
 
     private val manager = TextFieldSelectionManager()
@@ -96,7 +96,7 @@ class TextFieldSelectionManagerTest {
             beginOffset
         )
         whenever(state.layoutResult!!.getOffsetForPosition(dragDistance)).thenReturn(dragOffset)
-        whenever(state.layoutResult!!.getWordBoundary(beginOffset)).thenReturn(longPressTextRange)
+        whenever(state.layoutResult!!.getWordBoundary(beginOffset)).thenReturn(fakeTextRange)
         whenever(state.layoutResult!!.getWordBoundary(dragOffset)).thenReturn(dragTextRange)
         whenever(state.layoutResult!!.getBidiRunDirection(any()))
             .thenReturn(ResolvedTextDirection.Ltr)
@@ -115,7 +115,7 @@ class TextFieldSelectionManagerTest {
         manager.longPressDragObserver.onLongPress(dragBeginPosition)
 
         assertThat(state.selectionIsOn).isTrue()
-        assertThat(value.selection).isEqualTo(longPressTextRange)
+        assertThat(value.selection).isEqualTo(fakeTextRange)
         verify(
             hapticFeedback,
             times(1)
@@ -131,6 +131,72 @@ class TextFieldSelectionManagerTest {
         verify(
             hapticFeedback,
             times(2)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
+
+    @Test
+    fun TextFieldSelectionManager_handleDragObserver_onStart_startHandle() {
+        manager.handleDragObserver(isStartHandle = true).onStart(Offset.Zero)
+
+        assertThat(state.draggingHandle).isTrue()
+        verify(spyLambda, times(0)).invoke(any())
+        verify(
+            hapticFeedback,
+            times(0)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
+
+    @Test
+    fun TextFieldSelectionManager_handleDragObserver_onStart_endHandle() {
+        manager.handleDragObserver(isStartHandle = false).onStart(Offset.Zero)
+
+        assertThat(state.draggingHandle).isTrue()
+        verify(spyLambda, times(0)).invoke(any())
+        verify(
+            hapticFeedback,
+            times(0)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
+
+    @Test
+    fun TextFieldSelectionManager_handleDragObserver_onDrag_startHandle() {
+        manager.value = TextFieldValue(text = text, selection = TextRange(0, "Hello".length))
+
+        val result = manager.handleDragObserver(isStartHandle = true).onDrag(dragDistance)
+
+        assertThat(result).isEqualTo(dragDistance)
+        assertThat(value.selection).isEqualTo(TextRange(dragOffset, "Hello".length))
+        verify(
+            hapticFeedback,
+            times(1)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
+
+    @Test
+    fun TextFieldSelectionManager_handleDragObserver_onDrag_endHandle() {
+        manager.value = TextFieldValue(text = text, selection = TextRange(0, "Hello".length))
+
+        val result = manager.handleDragObserver(isStartHandle = false).onDrag(dragDistance)
+
+        assertThat(result).isEqualTo(dragDistance)
+        assertThat(value.selection).isEqualTo(TextRange(0, dragOffset))
+        verify(
+            hapticFeedback,
+            times(1)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
+
+    @Test
+    fun TextFieldSelectionManager_handleDragObserver_onStop() {
+        manager.handleDragObserver(false).onStart(Offset.Zero)
+        manager.handleDragObserver(false).onDrag(Offset.Zero)
+
+        manager.handleDragObserver(false).onStop(Offset.Zero)
+
+        assertThat(state.draggingHandle).isFalse()
+        verify(
+            hapticFeedback,
+            times(0)
         ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
@@ -200,7 +266,8 @@ class TextFieldSelectionManagerTest {
     fun cut_selection_not_null() {
         manager.value = TextFieldValue(
             text = text + text,
-            selection = TextRange("Hello".length, text.length))
+            selection = TextRange("Hello".length, text.length)
+        )
 
         manager.cut()
 

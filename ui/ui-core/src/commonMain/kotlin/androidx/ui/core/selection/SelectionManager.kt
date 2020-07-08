@@ -34,12 +34,14 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.length
 import androidx.ui.text.subSequence
 import androidx.ui.geometry.Offset
+import androidx.ui.text.InternalTextApi
 import kotlin.math.max
 import kotlin.math.min
 
 /**
  * A bridge class between user interaction to the text composables for text selection.
  */
+@OptIn(InternalTextApi::class)
 internal class SelectionManager(private val selectionRegistrar: SelectionRegistrarImpl) {
     /**
      * The current selection.
@@ -393,17 +395,6 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             if (newSelection != selection) onSelectionChange(newSelection)
             return dragDistance
         }
-    }
-
-    /**
-     * Adjust coordinates for given text offset.
-     *
-     * Currently [android.text.Layout.getLineBottom] returns y coordinates of the next
-     * line's top offset, which is not included in current line's hit area. To be able to
-     * hit current line, move up this y coordinates by 1 pixel.
-     */
-    private fun getAdjustedCoordinates(position: Offset): Offset {
-        return Offset(position.x, position.y - 1f)
     }
 
     fun handleDragObserver(isStartHandle: Boolean): DragObserver {
