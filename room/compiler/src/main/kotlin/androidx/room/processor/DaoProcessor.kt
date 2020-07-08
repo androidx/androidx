@@ -30,6 +30,7 @@ import androidx.room.ext.getConstructors
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.isAbstract
 import androidx.room.ext.isInterface
+import androidx.room.ext.type
 import androidx.room.ext.typeName
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
@@ -158,10 +159,10 @@ class DaoProcessor(
         val typeUtils = context.processingEnv.typeUtils
         val goodConstructor = constructors.firstOrNull {
             it.parameters.size == 1 &&
-                    it.parameters[0].asType().isAssignableFrom(typeUtils, dbType)
+                    it.parameters[0].type.isAssignableFrom(typeUtils, dbType)
         }
         val constructorParamType = if (goodConstructor != null) {
-            goodConstructor.parameters[0].asType().typeName()
+            goodConstructor.parameters[0].type.typeName()
         } else {
             validateEmptyConstructor(constructors)
             null

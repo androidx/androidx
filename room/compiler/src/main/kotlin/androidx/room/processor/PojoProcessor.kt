@@ -41,6 +41,7 @@ import androidx.room.ext.isStatic
 import androidx.room.ext.isTransient
 import androidx.room.ext.kindName
 import androidx.room.ext.toAnnotationBox
+import androidx.room.ext.type
 import androidx.room.ext.typeName
 import androidx.room.kotlin.KotlinMetadataElement
 import androidx.room.kotlin.descriptor
@@ -304,7 +305,7 @@ class PojoProcessor private constructor(
             val parameterNames = getParamNames(constructor)
             val params = constructor.parameters.mapIndexed param@{ index, param ->
                 val paramName = parameterNames[index]
-                val paramType = param.asType()
+                val paramType = param.type
 
                 val matches = fun(field: Field?): Boolean {
                     return if (field == null) {
@@ -730,7 +731,7 @@ class PojoProcessor private constructor(
                 element = field.element,
                 msg = ProcessorErrors.mismatchedGetter(
                     fieldName = field.name,
-                    ownerType = element.asType().typeName(),
+                    ownerType = element.type.typeName(),
                     getterType = field.getter.type.typeName(),
                     fieldType = field.typeName
                 ))
@@ -798,7 +799,7 @@ class PojoProcessor private constructor(
                 element = field.element,
                 msg = ProcessorErrors.mismatchedSetter(
                     fieldName = field.name,
-                    ownerType = element.asType().typeName(),
+                    ownerType = element.type.typeName(),
                     setterType = field.setter.type.typeName(),
                     fieldType = field.typeName
                 ))

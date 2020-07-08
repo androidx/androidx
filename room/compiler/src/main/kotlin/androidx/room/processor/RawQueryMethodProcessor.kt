@@ -24,6 +24,7 @@ import androidx.room.ext.hasAnnotation
 import androidx.room.ext.isEntityElement
 import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.toAnnotationBox
+import androidx.room.ext.type
 import androidx.room.ext.typeName
 import androidx.room.parser.SqlParser
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
@@ -96,7 +97,7 @@ class RawQueryMethodProcessor(
                         // if it is empty, report error as it does not make sense
                         if (tableNames.isEmpty()) {
                             context.logger.e(executableElement,
-                                    ProcessorErrors.rawQueryBadEntity(it.asType().typeName()))
+                                    ProcessorErrors.rawQueryBadEntity(it.type.typeName()))
                         }
                         tableNames
                     }

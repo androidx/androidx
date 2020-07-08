@@ -25,6 +25,7 @@ import androidx.room.ext.asMemberOf
 import androidx.room.ext.findTypeElement
 import androidx.room.ext.getSuspendFunctionReturnType
 import androidx.room.ext.requireTypeMirror
+import androidx.room.ext.type
 import androidx.room.kotlin.KotlinMetadataElement
 import androidx.room.parser.ParsedQuery
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
@@ -182,7 +183,7 @@ class SuspendMethodProcessorDelegate(
                 .requireTypeMirror(KotlinTypeNames.CONTINUATION.toString())
         )
         executableElement.parameters.last {
-            typesUtil.isSameType(typesUtil.erasure(it.asType()), continuationType)
+            typesUtil.isSameType(typesUtil.erasure(it.type), continuationType)
         }
     }
 
