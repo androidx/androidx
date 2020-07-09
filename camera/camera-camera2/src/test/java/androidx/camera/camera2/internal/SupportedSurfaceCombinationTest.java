@@ -24,7 +24,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
@@ -56,18 +55,17 @@ import androidx.camera.core.impl.SurfaceConfig.ConfigSize;
 import androidx.camera.core.impl.SurfaceConfig.ConfigType;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.Configs;
 import androidx.camera.testing.StreamConfigurationMapUtil;
 import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -111,7 +109,6 @@ public final class SupportedSurfaceCombinationTest {
     private final Size mMod16Size = new Size(960, 544);
     private final CamcorderProfileHelper mMockCamcorderProfileHelper =
             Mockito.mock(CamcorderProfileHelper.class);
-    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
     /**
      * Except for ImageFormat.JPEG, ImageFormat.YUV, and ImageFormat.RAW_SENSOR, other image formats
@@ -168,9 +165,6 @@ public final class SupportedSurfaceCombinationTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(() -> CameraX.unbindAll());
-        }
         CameraX.shutdown().get();
     }
 
@@ -478,7 +472,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkTargetAspectRatioForPreviewInLegacyDevice()
-            throws CameraUnavailableException {
+            throws CameraUnavailableException, CameraUseCaseAdapter.CameraException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -492,8 +486,10 @@ public final class SupportedSurfaceCombinationTest {
                         SurfaceTextureProvider.SurfaceTextureCallback.class)));
 
         // Ensure we are bound to a camera to ensure aspect ratio correction is applied.
-        FakeLifecycleOwner fakeLifecycle = new FakeLifecycleOwner();
-        CameraX.bindToLifecycle(fakeLifecycle, CameraSelector.DEFAULT_BACK_CAMERA, preview);
+        CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA);
+
+        cameraUseCaseAdapter.addUseCases(Collections.singletonList(preview));
 
         PreviewConfig config = (PreviewConfig) preview.getUseCaseConfig();
         // The targetAspectRatioCustom value will only be set in Legacy + API 21 combination. For
@@ -532,7 +528,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkDefaultAspectRatioAndResolutionForMixedUseCase()
-            throws CameraUnavailableException {
+            throws CameraUnavailableException, CameraUseCaseAdapter.CameraException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -547,9 +543,11 @@ public final class SupportedSurfaceCombinationTest {
         // Preview/ImageCapture/ImageAnalysis' default config settings that will be applied after
         // bound to lifecycle. Calling bindToLifecycle here to make sure sizes matching to
         // default aspect ratio will be selected.
-        FakeLifecycleOwner fakeLifecycle = new FakeLifecycleOwner();
-        CameraX.bindToLifecycle(fakeLifecycle, CameraSelector.DEFAULT_BACK_CAMERA, preview,
-                imageCapture, imageAnalysis);
+        CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA);
+
+        cameraUseCaseAdapter.addUseCases(Arrays.asList(preview,
+                imageCapture, imageAnalysis));
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(preview);

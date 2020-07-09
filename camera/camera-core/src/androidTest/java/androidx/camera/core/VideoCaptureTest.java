@@ -24,15 +24,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.Manifest;
-import android.app.Instrumentation;
 import android.content.Context;
 
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeAppConfig;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -48,6 +47,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -76,12 +77,8 @@ public class VideoCaptureTest {
     private final VideoCapture.OnVideoSavedCallback mMockVideoSavedCallback =
             mock(VideoCapture.OnVideoSavedCallback.class);
     private VideoCaptureConfig mDefaultConfig;
-    private FakeLifecycleOwner mLifecycleOwner;
-    private CameraSelector mCameraSelector;
-
-    private final Instrumentation
-            mInstrumentation =
-            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation();
+    private CameraUseCaseAdapter mCameraUseCaseAdapter;
+    private CameraX mCameraX;
 
     @Before
     public void setup() throws ExecutionException, InterruptedException {
@@ -93,10 +90,12 @@ public class VideoCaptureTest {
 
         Context context = ApplicationProvider.getApplicationContext();
         CameraX.initialize(context, cameraXConfig).get();
+        mCameraX = CameraX.getOrCreateInstance(context).get();
 
-        mLifecycleOwner = new FakeLifecycleOwner();
-        mCameraSelector = new CameraSelector.Builder().requireLensFacing(
-                CameraSelector.LENS_FACING_BACK).build();
+        mCameraUseCaseAdapter =
+                new CameraUseCaseAdapter(mMockCameraInternal,
+                        new LinkedHashSet<>(Collections.singleton(mMockCameraInternal)),
+                        mCameraX.getCameraDeviceSurfaceManager());
     }
 
     @After
@@ -107,11 +106,15 @@ public class VideoCaptureTest {
     @Test
     public void useCaseBecomesActive_whenStartingVideoRecording() {
         VideoCapture useCase = VideoCapture.Builder.fromConfig(mDefaultConfig).build();
-        mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCase);
-            mLifecycleOwner.startAndResume();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            try {
+                mCameraUseCaseAdapter.addUseCases(Collections.singleton(useCase));
+                mCameraUseCaseAdapter.attachUseCases();
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                throw new IllegalArgumentException(e);
+            }
         });
-        useCase.onAttach(mMockCameraInternal);
+
 
         useCase.startRecording(
                 new File(
@@ -127,11 +130,14 @@ public class VideoCaptureTest {
     @Test
     public void useCaseBecomesInactive_whenStoppingVideoRecording() {
         VideoCapture useCase = new VideoCapture(mDefaultConfig);
-        mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCase);
-            mLifecycleOwner.startAndResume();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            try {
+                mCameraUseCaseAdapter.addUseCases(Collections.singleton(useCase));
+                mCameraUseCaseAdapter.attachUseCases();
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                throw new IllegalArgumentException(e);
+            }
         });
-        useCase.onAttach(mMockCameraInternal);
 
         useCase.startRecording(
                 new File(

@@ -68,9 +68,9 @@ import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -151,9 +151,6 @@ public final class Camera2CameraControlTest {
 
     @After
     public void tearDown() throws Exception {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        }
         CameraX.shutdown().get();
         if (mHandlerThread != null) {
             mHandlerThread.quitSafely();
@@ -345,17 +342,15 @@ public final class Camera2CameraControlTest {
 
 
     private Camera2CameraControl createCamera2CameraControlWithPhysicalCamera() {
-        FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
-        lifecycleOwner.startAndResume();
-        CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
-
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
         // Make ImageAnalysis active.
         imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), (image) -> image.close());
-        mInstrumentation.runOnMainSync(() ->
-                mCamera =
-                        CameraX.bindToLifecycle(lifecycleOwner, cameraSelector, imageAnalysis));
-        return (Camera2CameraControl) mCamera.getCameraControl();
+
+        CameraUseCaseAdapter cameraUseCaseAdapter =
+                CameraUtil.getCameraAndAttachUseCase(ApplicationProvider.getApplicationContext(),
+                        CameraSelector.DEFAULT_BACK_CAMERA, imageAnalysis);
+
+        return (Camera2CameraControl) cameraUseCaseAdapter.getCameraControlInternal();
     }
 
     @Test

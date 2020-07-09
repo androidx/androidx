@@ -16,29 +16,16 @@
 
 package androidx.camera.camera2;
 
-import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
-
-import static com.google.common.truth.Truth.assertThat;
-
-import android.app.Instrumentation;
 import android.content.Context;
-import android.graphics.SurfaceTexture;
-import android.util.Size;
 
-import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.GLUtil;
-import androidx.camera.testing.SurfaceTextureProvider;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -51,8 +38,8 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Semaphore;
 
 /**
  * Contains tests for {@link androidx.camera.core.CameraX} which varies use case combinations to
@@ -62,28 +49,21 @@ import java.util.concurrent.Semaphore;
 @RunWith(AndroidJUnit4.class)
 public final class UseCaseCombinationTest {
     private static final CameraSelector DEFAULT_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA;
-    private final MutableLiveData<Long> mAnalysisResult = new MutableLiveData<>();
+
     @Rule
     public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
-    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-    private Semaphore mSemaphore;
-    private FakeLifecycleOwner mLifecycle;
+
+    private Context mContext;
 
     @Before
     public void setUp() {
-        final Context context = ApplicationProvider.getApplicationContext();
+        mContext = ApplicationProvider.getApplicationContext();
         final CameraXConfig config = Camera2Config.defaultConfig();
-        CameraX.initialize(context, config);
-
-        mLifecycle = new FakeLifecycleOwner();
-        mSemaphore = new Semaphore(0);
+        CameraX.initialize(mContext, config);
     }
 
     @After
     public void tearDown() throws InterruptedException, ExecutionException {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        }
         CameraX.shutdown().get();
     }
 
@@ -91,70 +71,71 @@ public final class UseCaseCombinationTest {
      * Test Combination: Preview + ImageCapture
      */
     @Test
-    public void previewCombinesImageCapture() throws InterruptedException {
+    public void previewCombinesImageCapture()  {
         final Preview preview = initPreview();
         final ImageCapture imageCapture = initImageCapture();
 
-        mInstrumentation.runOnMainSync(() -> {
-            preview.setSurfaceProvider(getSurfaceProvider(true));
-            CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, preview, imageCapture);
-            mLifecycle.startAndResume();
+        CameraUseCaseAdapter camera = CameraUtil.getCameraUseCaseAdapter(mContext,
+                DEFAULT_SELECTOR);
+        camera.detachUseCases();
+
+        // TODO(b/160249108) move off of main thread once UseCases can be attached on any
+        //  thread
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            // This should not throw CameraUseCaseAdapter.CameraException
+            try {
+                camera.addUseCases(Arrays.asList(preview, imageCapture));
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                throw new IllegalArgumentException(e);
+            }
         });
-
-        // Wait for the frame available update.
-        mSemaphore.acquire(10);
-
-        assertThat(mLifecycle.getObserverCount()).isEqualTo(2);
-        assertThat(CameraX.isBound(preview)).isTrue();
-        assertThat(CameraX.isBound(imageCapture)).isTrue();
     }
 
     /**
      * Test Combination: Preview + ImageAnalysis
      */
     @Test
-    public void previewCombinesImageAnalysis() throws InterruptedException {
+    public void previewCombinesImageAnalysis()  {
         final Preview preview = initPreview();
         final ImageAnalysis imageAnalysis = initImageAnalysis();
 
-        mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, preview, imageAnalysis);
-            preview.setSurfaceProvider(getSurfaceProvider(false));
-            imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), initImageAnalyzer());
-            mAnalysisResult.observe(mLifecycle, createCountIncrementingObserver());
-            mLifecycle.startAndResume();
+        CameraUseCaseAdapter camera = CameraUtil.getCameraUseCaseAdapter(mContext,
+                DEFAULT_SELECTOR);
+        camera.detachUseCases();
+
+        // TODO(b/160249108) move off of main thread once UseCases can be attached on any
+        //  thread
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            // This should not throw CameraUseCaseAdapter.CameraException
+            try {
+                camera.addUseCases(Arrays.asList(preview, imageAnalysis));
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                throw new IllegalArgumentException(e);
+            }
         });
-
-        // Wait for 10 frames to be analyzed.
-        mSemaphore.acquire(10);
-
-        assertThat(CameraX.isBound(preview)).isTrue();
-        assertThat(CameraX.isBound(imageAnalysis)).isTrue();
     }
 
     /** Test Combination: Preview + ImageAnalysis + ImageCapture */
     @Test
-    public void previewCombinesImageAnalysisAndImageCapture() throws InterruptedException {
+    public void previewCombinesImageAnalysisAndImageCapture() {
         final Preview preview = initPreview();
         final ImageAnalysis imageAnalysis = initImageAnalysis();
         final ImageCapture imageCapture = initImageCapture();
 
-        mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, preview, imageAnalysis,
-                    imageCapture);
-            preview.setSurfaceProvider(getSurfaceProvider(false));
-            imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), initImageAnalyzer());
-            mAnalysisResult.observe(mLifecycle, createCountIncrementingObserver());
-            mLifecycle.startAndResume();
+        CameraUseCaseAdapter camera = CameraUtil.getCameraUseCaseAdapter(mContext,
+                DEFAULT_SELECTOR);
+        camera.detachUseCases();
+
+        // TODO(b/160249108) move off of main thread once UseCases can be attached on any
+        //  thread
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            // This should not throw CameraUseCaseAdapter.CameraException
+            try {
+                camera.addUseCases(Arrays.asList(preview, imageAnalysis, imageCapture));
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                throw new IllegalArgumentException(e);
+            }
         });
-
-        // Wait for 10 frames to be analyzed.
-        mSemaphore.acquire(10);
-
-        assertThat(mLifecycle.getObserverCount()).isEqualTo(3);
-        assertThat(CameraX.isBound(preview)).isTrue();
-        assertThat(CameraX.isBound(imageAnalysis)).isTrue();
-        assertThat(CameraX.isBound(imageCapture)).isTrue();
     }
 
     private Preview initPreview() {
@@ -167,55 +148,7 @@ public final class UseCaseCombinationTest {
                 .build();
     }
 
-    private ImageAnalysis.Analyzer initImageAnalyzer() {
-        return (image) -> {
-            mAnalysisResult.postValue(image.getImageInfo().getTimestamp());
-            image.close();
-        };
-    }
-
     private ImageCapture initImageCapture() {
         return new ImageCapture.Builder().build();
-    }
-
-    private Observer<Long> createCountIncrementingObserver() {
-        return value -> mSemaphore.release();
-    }
-
-    @NonNull
-    private Preview.SurfaceProvider getSurfaceProvider(final boolean addFrameListener) {
-        return createSurfaceTextureProvider(
-                new SurfaceTextureProvider.SurfaceTextureCallback() {
-                    final Object mIsSurfaceTextureReleasedLock = new Object();
-                    boolean mIsSurfaceTextureReleased = false;
-
-                    @Override
-                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
-                            @NonNull Size resolution) {
-                        if (addFrameListener) {
-                            surfaceTexture.attachToGLContext(GLUtil.getTexIdFromGLContext());
-                            surfaceTexture.setOnFrameAvailableListener(st -> {
-                                synchronized (mIsSurfaceTextureReleasedLock) {
-                                    if (!mIsSurfaceTextureReleased) {
-                                        surfaceTexture.updateTexImage();
-                                    }
-                                }
-                                mSemaphore.release();
-                            });
-                        }
-                    }
-
-                    @Override
-                    public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
-                        if (addFrameListener) {
-                            synchronized (mIsSurfaceTextureReleasedLock) {
-                                mIsSurfaceTextureReleased = true;
-                                surfaceTexture.release();
-                            }
-                        } else {
-                            surfaceTexture.release();
-                        }
-                    }
-                });
     }
 }

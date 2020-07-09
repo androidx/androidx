@@ -24,7 +24,6 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 
-import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -35,6 +34,7 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
@@ -81,7 +81,7 @@ public class CameraControlDeviceTest {
             Manifest.permission.CAMERA);
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mLifecycleOwner;
-    private Camera mCamera;
+    private CameraUseCaseAdapter mCamera;
     private MeteringPoint mMeteringPoint1;
     private ImageAnalysis.Analyzer mAnalyzer = (image) -> {
         image.close();
@@ -101,13 +101,10 @@ public class CameraControlDeviceTest {
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1, 1);
         mMeteringPoint1 = factory.createPoint(0, 0);
 
-        mInstrumentation.runOnMainSync(() -> {
-            ImageAnalysis useCase = new ImageAnalysis.Builder().build();
-            mCamera = CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector,
-                    useCase);
-            mLifecycleOwner.startAndResume();
-            useCase.setAnalyzer(CameraXExecutors.ioExecutor(), mAnalyzer);
-        });
+        ImageAnalysis useCase = new ImageAnalysis.Builder().build();
+        mCamera = CameraUtil.getCameraAndAttachUseCase(context, mCameraSelector,
+                useCase);
+        useCase.setAnalyzer(CameraXExecutors.ioExecutor(), mAnalyzer);
     }
 
     private static CameraCharacteristics getCameraCharacteristicWithLensFacing(
@@ -137,10 +134,6 @@ public class CameraControlDeviceTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        }
-
         CameraX.shutdown().get();
     }
 
@@ -153,7 +146,7 @@ public class CameraControlDeviceTest {
                 new FocusMeteringAction.Builder(mMeteringPoint1,
                         FocusMeteringAction.FLAG_AE).build();
         ListenableFuture<FocusMeteringResult> future =
-                mCamera.getCameraControl().startFocusAndMetering(action);
+                mCamera.getCameraControlInternal().startFocusAndMetering(action);
 
         assertFutureCompletes(future);
     }
@@ -166,7 +159,7 @@ public class CameraControlDeviceTest {
                 new FocusMeteringAction.Builder(mMeteringPoint1,
                         FocusMeteringAction.FLAG_AWB).build();
         ListenableFuture<FocusMeteringResult> future =
-                mCamera.getCameraControl().startFocusAndMetering(action);
+                mCamera.getCameraControlInternal().startFocusAndMetering(action);
 
         assertFutureCompletes(future);
     }
@@ -179,7 +172,7 @@ public class CameraControlDeviceTest {
                 new FocusMeteringAction.Builder(mMeteringPoint1,
                         FocusMeteringAction.FLAG_AE | FocusMeteringAction.FLAG_AWB).build();
         ListenableFuture<FocusMeteringResult> future =
-                mCamera.getCameraControl().startFocusAndMetering(action);
+                mCamera.getCameraControlInternal().startFocusAndMetering(action);
 
         assertFutureCompletes(future);
     }
@@ -206,7 +199,7 @@ public class CameraControlDeviceTest {
                         .build();
 
         ListenableFuture<FocusMeteringResult> future =
-                mCamera.getCameraControl().startFocusAndMetering(action);
+                mCamera.getCameraControlInternal().startFocusAndMetering(action);
 
         assertFutureCompletes(future);
     }
@@ -215,8 +208,8 @@ public class CameraControlDeviceTest {
     public void cancelFocusMetering_futureCompletes() {
         FocusMeteringAction action =
                 new FocusMeteringAction.Builder(mMeteringPoint1).build();
-        mCamera.getCameraControl().startFocusAndMetering(action);
-        ListenableFuture<Void> result = mCamera.getCameraControl().cancelFocusAndMetering();
+        mCamera.getCameraControlInternal().startFocusAndMetering(action);
+        ListenableFuture<Void> result = mCamera.getCameraControlInternal().cancelFocusAndMetering();
 
         assertFutureCompletes(result);
     }

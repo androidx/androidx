@@ -78,10 +78,8 @@ public class PreviewViewBitmapTest {
 
     @After
     public void tearDown() throws Throwable {
-        if (CameraX.isInitialized()) {
-            runOnMainThread(CameraX::unbindAll);
-        }
-        CameraX.shutdown().get();
+        runOnMainThread(() -> mCameraProvider.unbindAll());
+        mCameraProvider.shutdown().get();
     }
 
     @Test

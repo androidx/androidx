@@ -30,7 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -39,24 +38,18 @@ import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.CameraThreadConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
 import androidx.core.util.Preconditions;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -66,79 +59,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Main interface for accessing CameraX library.
  *
- * <p>This is a singleton class responsible for managing the set of camera instances and
- * attached use cases (such as {@link Preview}, {@link ImageAnalysis}, or {@link ImageCapture}.
- * Use cases are bound to a {@link LifecycleOwner} by calling
- * {@code #bindToLifecycle(LifecycleOwner, CameraSelector, UseCase...)}  Once bound, the
- * lifecycle of the {@link LifecycleOwner} determines when the camera is started and stopped, and
- * when camera data is available to the use case.
- *
- * <p>It is often sufficient to just bind the use cases once when the activity is created, and
- * let the lifecycle handle the rest, so application code generally does not need to call
- * {@code #unbind(UseCase...)} nor call {@code #bindToLifecycle} more than once.
- *
- * <p>A lifecycle transition from {@link Lifecycle.State#CREATED} to {@link Lifecycle.State#STARTED}
- * state (via {@link Lifecycle.Event#ON_START}) initializes the camera asynchronously on a
- * CameraX managed thread. After initialization, the camera is opened and a camera capture
- * session is created.   If a {@link Preview} or {@link ImageAnalysis} is bound, those use cases
- * will begin to receive camera data after initialization completes. {@link ImageCapture} can
- * receive data via specific calls (such as {@link ImageCapture#takePicture}) after initialization
- * completes. Calling #bindToLifecycle with no Use Cases does nothing.
- *
- * <p>Binding to a {@link LifecycleOwner} when the state is {@link Lifecycle.State#STARTED} or
- * greater will also initialize and start data capture as though an
- * {@link Lifecycle.Event#ON_START} transition had occurred.  If the camera was already running
- * this may cause a new initialization to occur, temporarily stopping data from the camera before
- * restarting it.
- *
- * <p>After a lifecycle transition from {@link Lifecycle.State#STARTED} to
- * {@link Lifecycle.State#CREATED} state (via {@link Lifecycle.Event#ON_STOP}), use cases will no
- * longer receive camera data.  The camera capture session is destroyed and the camera device is
- * closed.  Use cases can remain bound and will become active again on the next
- * {@link Lifecycle.Event#ON_START} transition.
- *
- * <p>When the lifecycle transitions from {@link Lifecycle.State#CREATED} to the
- * {@link Lifecycle.State#DESTROYED} state (via {@link Lifecycle.Event#ON_DESTROY}) any
- * bound use cases are unbound and use case resources are freed.  Calls to #bindToLifecycle
- * when the lifecycle is in the {@link Lifecycle.State#DESTROYED} state will fail.
- * A call to #bindToLifecycle will need to be made with another lifecycle to rebind the
- * UseCase that has been unbound.
- *
- * <p>If the camera is not already closed, unbinding all use cases will cause the camera to close
- * asynchronously.
- *
- * <pre>{@code
- * public void setup() {
- *   // Initialize UseCase
- *   useCase = ...;
- *
- *   // Select a camera
- *   cameraSelector = ...;
- *
- *   // UseCase binding event
- *   CameraX.bindToLifecycle(lifecycleOwner, cameraSelector, useCase);
- *
- *   // Make calls on useCase
- * }
- *
- * public void operateOnUseCase() {
- *   if (CameraX.isBound(useCase)) {
- *     // Make calls on useCase
- *   }
- * }
- *
- * public void prematureTearDown() {
- *   // Not required since the lifecycle automatically stops the use case.  Can be used to
- *   // disassociate use cases from the lifecycle to move a use case to a different lifecycle.
- *   CameraX.unbindAll();
- * }
- * }</pre>
- *
- * <p>All operations on a use case, including binding and unbinding, should be done on the main
- * thread.  This is because lifecycle events are triggered on main thread and so accessing the use
- * case on the main thread guarantees that lifecycle state changes will not occur during execution
- * of a method call or binding/unbinding.
- *
+ * <p>This is a singleton class responsible for managing the set of camera instances.
  * @hide
  */
 @MainThread
@@ -167,8 +88,7 @@ public final class CameraX {
     private final Object mInitializeLock = new Object();
 
     private final CameraXConfig mCameraXConfig;
-    private final LifecycleCameraRepository
-            mLifecycleCameraRepository = new LifecycleCameraRepository();
+
     private final Executor mCameraExecutor;
     private final Handler mSchedulerHandler;
     @Nullable
@@ -197,227 +117,6 @@ public final class CameraX {
         } else {
             mSchedulerThread = null;
             mSchedulerHandler = schedulerHandler;
-        }
-    }
-
-    /**
-     * Binds the collection of {@link UseCase} to a {@link LifecycleOwner}.
-     *
-     * @hide
-     * @see #bindToLifecycle(LifecycleOwner, CameraSelector, ViewPort, UseCase...)
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @SuppressWarnings({"lambdaLast", "unused"})
-    @NonNull
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
-    public static Camera bindToLifecycle(
-            @NonNull LifecycleOwner lifecycleOwner,
-            @NonNull CameraSelector cameraSelector,
-            @NonNull UseCase... useCases) {
-        return bindToLifecycle(lifecycleOwner, cameraSelector, null, useCases);
-    }
-
-    /**
-     * Binds {@link ViewPort} and a collection of {@link UseCase} to a {@link LifecycleOwner}.
-     *
-     * <p>The state of the lifecycle will determine when the cameras are open, started, stopped
-     * and closed.  When started, the use cases receive camera data.
-     *
-     * <p>Binding to a lifecycleOwner in state currently in {@link Lifecycle.State#STARTED} or
-     * greater will also initialize and start data capture. If the camera was already running
-     * this may cause a new initialization to occur temporarily stopping data from the camera
-     * before restarting it.
-     *
-     * <p>Multiple use cases can be bound via adding them all to a single bindToLifecycle call, or
-     * by using multiple bindToLifecycle calls.  Using a single call that includes all the use
-     * cases helps to set up a camera session correctly for all uses cases, such as by allowing
-     * determination of resolutions depending on all the use cases bound being bound.
-     * If the use cases are bound separately, it will find the supported resolution with the
-     * priority depending on the binding sequence. If the use cases are bound with a single call,
-     * it will find the supported resolution with the priority in sequence of {@link ImageCapture},
-     * {@link Preview} and then {@link ImageAnalysis}. The resolutions that can be supported depends
-     * on the camera device hardware level that there are some default guaranteed resolutions
-     * listed in {@link android.hardware.camera2.CameraDevice#createCaptureSession(List,
-     * android.hardware.camera2.CameraCaptureSession.StateCallback, Handler)}.
-     *
-     * <p>Currently up to 3 use cases may be bound to a {@link Lifecycle} at any time. Exceeding
-     * capability of target camera device will throw an IllegalArgumentException.
-     *
-     * <p>A UseCase should only be bound to a single lifecycle and camera selector a time.
-     * Attempting to bind a use case to a lifecycle when it is already bound to another lifecycle
-     * is an error, and the use case binding will not change. Attempting to bind the same use case
-     * to multiple camera selectors is also an error and will not change the binding.
-     *
-     * <p>If different use cases are bound to different camera selectors that resolve to distinct
-     * cameras, but the same lifecycle, only one of the cameras will operate at a time. The
-     * non-operating camera will not become active until it is the only camera with use cases bound.
-     *
-     * <p>The {@link Camera} returned is determined by the given camera selector, plus other
-     * internal requirements, possibly from use case configurations. The camera returned from
-     * bindToLifecycle may differ from the camera determined solely by a camera selector. If the
-     * camera selector can't resolve a camera under the requirements, an IllegalArgumentException
-     * will be thrown.
-     *
-     * <p>Only {@link UseCase} bound to latest active {@link Lifecycle} can keep alive.
-     * {@link UseCase} bound to other {@link Lifecycle} will be stopped.
-     *
-     * @param lifecycleOwner The lifecycleOwner which controls the lifecycle transitions of the use
-     *                       cases.
-     * @param cameraSelector The camera selector which determines the camera to use for set of
-     *                       use cases.
-     * @param viewPort       The viewPort which represents the visible camera sensor rect.
-     * @param useCases       The use cases to bind to a lifecycle.
-     * @return The {@link Camera} instance which is determined by the camera selector and
-     * internal requirements.
-     * @throws IllegalStateException    If the use case has already been bound to another lifecycle
-     *                                  or method is not called on main thread.
-     * @throws IllegalArgumentException If the provided camera selector is unable to resolve a
-     *                                  camera to be used for the given use cases.
-     * @hide
-     */
-    @SuppressWarnings({"lambdaLast", "unused"})
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @ExperimentalUseCaseGroup
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
-    @NonNull
-    public static Camera bindToLifecycle(
-            @NonNull LifecycleOwner lifecycleOwner,
-            @NonNull CameraSelector cameraSelector,
-            @Nullable ViewPort viewPort,
-            @NonNull UseCase... useCases) {
-        Threads.checkMainThread();
-        CameraX cameraX = checkInitialized();
-        // TODO(b/153096869): override UseCase's target rotation.
-        // TODO(b/154939118) The filter appending should be removed after extensions are moved to
-        //  the CheckedCameraInternal
-        CameraSelector.Builder selectorBuilder =
-                CameraSelector.Builder.fromSelector(cameraSelector);
-        // Append the camera filter required internally if there's any.
-        for (UseCase useCase : useCases) {
-            CameraSelector selector = useCase.getUseCaseConfig().getCameraSelector(null);
-            if (selector != null) {
-                for (CameraFilter filter : selector.getCameraFilterSet()) {
-                    selectorBuilder.addCameraFilter(filter);
-                }
-            }
-        }
-
-        CameraSelector modifiedSelector = selectorBuilder.build();
-
-        LinkedHashSet<CameraInternal> cameraInternals =
-                modifiedSelector.filter(cameraX.mCameraRepository.getCameras());
-        CameraUseCaseAdapter.CameraId cameraId =
-                CameraUseCaseAdapter.generateCameraId(cameraInternals);
-
-        LifecycleCamera lifecycleCameraToBind =
-                cameraX.mLifecycleCameraRepository.getLifecycleCamera(lifecycleOwner, cameraId);
-
-        Collection<LifecycleCamera> lifecycleCameras =
-                cameraX.mLifecycleCameraRepository.getLifecycleCameras();
-        for (UseCase useCase : useCases) {
-            for (LifecycleCamera lifecycleCamera : lifecycleCameras) {
-                if (lifecycleCamera.isBound(useCase)
-                        && lifecycleCamera != lifecycleCameraToBind) {
-                    throw new IllegalStateException(
-                            String.format(
-                                    "Use case %s already bound to a different lifecycle.",
-                                    useCase));
-                }
-            }
-        }
-
-        // Try to get the camera before binding to the use case, and throw IllegalArgumentException
-        // if the camera not found.
-        if (lifecycleCameraToBind == null) {
-            lifecycleCameraToBind =
-                    cameraX.mLifecycleCameraRepository.createLifecycleCamera(lifecycleOwner,
-                            new CameraUseCaseAdapter(cameraInternals.iterator().next(),
-                                    cameraInternals,
-                                    cameraX.getCameraDeviceSurfaceManager()));
-        }
-
-
-        if (useCases.length == 0) {
-            return lifecycleCameraToBind;
-        }
-
-        try {
-            lifecycleCameraToBind.getCameraUseCaseAdapter().setViewPort(viewPort);
-            lifecycleCameraToBind.bind(Arrays.asList(useCases));
-        } catch (CameraUseCaseAdapter.CameraException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
-
-        cameraX.mLifecycleCameraRepository.prioritize(lifecycleCameraToBind);
-
-        return lifecycleCameraToBind;
-    }
-
-    /**
-     * Returns true if the {@link UseCase} is bound to a lifecycle. Otherwise returns false.
-     *
-     * <p>After binding a use case with {@link #bindToLifecycle}, use cases remain bound until the
-     * lifecycle reaches a {@link Lifecycle.State#DESTROYED} state or if is unbound by calls to
-     * {@link #unbind(UseCase...)} or {@link #unbindAll()}.
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public static boolean isBound(@NonNull UseCase useCase) {
-        CameraX cameraX = checkInitialized();
-
-        for (LifecycleCamera lifecycleCamera :
-                cameraX.mLifecycleCameraRepository.getLifecycleCameras()) {
-            if (lifecycleCamera.isBound(useCase)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Unbinds all specified use cases from the lifecycle.
-     *
-     * <p>This will initiate a close of every open camera which has zero {@link UseCase}
-     * associated with it at the end of this call.
-     *
-     * <p>If a use case in the argument list is not bound, then it is simply ignored.
-     *
-     * <p>After unbinding a UseCase, the UseCase can be and bound to another {@link Lifecycle}
-     * however listeners and settings should be reset by the application.
-     *
-     * @param useCases The collection of use cases to remove.
-     * @throws IllegalStateException If not called on main thread.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public static void unbind(@NonNull UseCase... useCases) {
-        Threads.checkMainThread();
-        CameraX cameraX = checkInitialized();
-
-        for (LifecycleCamera lifecycleCamera :
-                cameraX.mLifecycleCameraRepository.getLifecycleCameras()) {
-            lifecycleCamera.unbind(Arrays.asList(useCases));
-        }
-    }
-
-    /**
-     * Unbinds all use cases from the lifecycle and removes them from CameraX.
-     *
-     * <p>This will initiate a close of every currently open camera.
-     *
-     * @throws IllegalStateException If not called on main thread.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public static void unbindAll() {
-        Threads.checkMainThread();
-        CameraX cameraX = checkInitialized();
-
-        for (LifecycleCamera lifecycleCamera :
-                cameraX.mLifecycleCameraRepository.getLifecycleCameras()) {
-            lifecycleCamera.unbindAll();
         }
     }
 
@@ -695,31 +394,6 @@ public final class CameraX {
     }
 
     /**
-     * Returns currently active {@link UseCase}
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public static Collection<UseCase> getActiveUseCases() {
-        CameraX cameraX = checkInitialized();
-
-        Collection<UseCase> activeUseCases = null;
-
-        Collection<LifecycleCamera> lifecycleCameras =
-                cameraX.mLifecycleCameraRepository.getLifecycleCameras();
-
-        for (LifecycleCamera lifecycleCamera : lifecycleCameras) {
-            if (lifecycleCamera.isActive()) {
-                activeUseCases = lifecycleCamera.getUseCases();
-                break;
-            }
-        }
-
-        return activeUseCases;
-    }
-
-    /**
      * Returns the {@link CameraFactory} instance.
      *
      * @throws IllegalStateException if the {@link CameraFactory} has not been set, due to being
@@ -728,14 +402,12 @@ public final class CameraX {
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public static CameraFactory getCameraFactory() {
-        CameraX cameraX = checkInitialized();
-
-        if (cameraX.mCameraFactory == null) {
+    public CameraFactory getCameraFactory() {
+        if (mCameraFactory == null) {
             throw new IllegalStateException("CameraX not initialized yet.");
         }
 
-        return cameraX.mCameraFactory;
+        return mCameraFactory;
     }
 
     /**
@@ -875,13 +547,27 @@ public final class CameraX {
      *
      * @throws IllegalStateException if the {@link CameraDeviceSurfaceManager} has not been set, due
      *                               to being uninitialized.
+     *
+     * @hide
      */
-    private CameraDeviceSurfaceManager getCameraDeviceSurfaceManager() {
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public CameraDeviceSurfaceManager getCameraDeviceSurfaceManager() {
         if (mSurfaceManager == null) {
             throw new IllegalStateException("CameraX not initialized yet.");
         }
 
         return mSurfaceManager;
+    }
+
+    /**
+     * Returns the {@link CameraRepository} instance.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public CameraRepository getCameraRepository() {
+        return mCameraRepository;
     }
 
     private UseCaseConfigFactory getDefaultConfigFactory() {
@@ -1015,10 +701,6 @@ public final class CameraX {
         synchronized (mInitializeLock) {
             return mInitState == InternalInitState.INITIALIZED;
         }
-    }
-
-    private CameraRepository getCameraRepository() {
-        return mCameraRepository;
     }
 
     /** Internal initialization state. */

@@ -205,6 +205,11 @@ public final class CameraUseCaseAdapter {
             if (mAttached) {
                 mCameraInternal.attachUseCases(newUseCases);
             }
+
+            // Once all use cases are attached, they need to notify the CameraInternal of its state
+            for (UseCase useCase : newUseCases) {
+                useCase.notifyState();
+            }
         }
     }
 
