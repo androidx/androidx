@@ -41,6 +41,8 @@ import javax.inject.Provider;
  */
 public final class HiltViewModelFactory extends AbstractSavedStateViewModelFactory {
 
+    private static final String KEY_PREFIX = "androidx.hilt.lifecycle.HiltViewModelFactory";
+
     private final SavedStateViewModelFactory mDelegateFactory;
     private final Map<String,
             Provider<ViewModelAssistedFactory<? extends ViewModel>>> mViewModelFactories;
@@ -61,12 +63,15 @@ public final class HiltViewModelFactory extends AbstractSavedStateViewModelFacto
     @SuppressWarnings("unchecked")
     protected <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass,
             @NonNull SavedStateHandle handle) {
-        // TODO(danysantiago): What to do with 'key' ???
         Provider<ViewModelAssistedFactory<? extends ViewModel>> factoryProvider =
                 mViewModelFactories.get(modelClass.getCanonicalName());
         if (factoryProvider == null) {
+            // Delegate to factory that will attempt to reflectively construct the ViewModel.
+            // A prefixed key is used to avoid collisions since the
+            // AbstractSavedStateViewModelFactory already registered a key for us before invoking
+            // this create() method. This is a workaround until b/160796112 is resolved.
             // TODO(danysantiago): Warn about missing @ViewModelInject if this fails.
-            return mDelegateFactory.create(key, modelClass);
+            return mDelegateFactory.create(KEY_PREFIX + ":" + key, modelClass);
         }
         return (T) factoryProvider.get().create(handle);
     }
