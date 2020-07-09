@@ -137,7 +137,7 @@ public abstract class SwipeRefreshLayoutInScrollingParentBaseTest {
         if (indicator.getVisibility() == View.GONE) {
             return false;
         }
-        // If scaled to less then 1/100th pixel, consider it not visible
+        // If scaled to less than 1/100th pixel, consider it not visible
         return !(Math.abs(indicator.getScaleX() * indicator.getWidth()) < 0.01
                 || Math.abs(indicator.getScaleY() * indicator.getHeight()) < 0.01);
     }
