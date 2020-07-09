@@ -402,7 +402,7 @@ private object ThreeLine {
  * top of the layout and the first text, as well as the last baseline and first baseline
  * for subsequent pairs of texts.
  */
-// TODO(popam): consider making this a layout composable in ui-layout.
+// TODO(popam): consider making this a layout composable in `foundation-layout`.
 @Composable
 private fun BaselinesOffsetColumn(
     offsets: List<Dp>,
