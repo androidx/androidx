@@ -16,6 +16,8 @@
 
 package androidx.room.vo
 
+import androidx.room.ext.asTypeElement
+import androidx.room.ext.isType
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.TypeElement
@@ -55,8 +57,8 @@ data class Dao(
         }
         val path = arrayListOf<String>()
         var enclosing = element.enclosingElement
-        while (enclosing is TypeElement) {
-            path.add(ClassName.get(enclosing as TypeElement).simpleName())
+        while (enclosing.isType()) {
+            path.add(ClassName.get(enclosing.asTypeElement()).simpleName())
             enclosing = enclosing.enclosingElement
         }
         path.reversed().joinToString("_") + "${typeName.simpleName()}${suffix}_Impl"
