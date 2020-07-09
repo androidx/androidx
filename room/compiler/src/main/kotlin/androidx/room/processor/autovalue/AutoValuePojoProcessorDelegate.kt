@@ -18,6 +18,7 @@ package androidx.room.processor.autovalue
 
 import androidx.room.Ignore
 import androidx.room.ext.asDeclaredType
+import androidx.room.ext.asTypeElement
 import androidx.room.ext.getAllMethodsIncludingSupers
 import androidx.room.ext.getDeclaredMethods
 import androidx.room.ext.getPackage
@@ -26,6 +27,7 @@ import androidx.room.ext.hasAnyOf
 import androidx.room.ext.isAbstract
 import androidx.room.ext.isPrivate
 import androidx.room.ext.isStatic
+import androidx.room.ext.isType
 import androidx.room.ext.kindName
 import androidx.room.ext.type
 import androidx.room.ext.typeName
@@ -118,8 +120,8 @@ class AutoValuePojoProcessorDelegate(
         fun getGeneratedClassName(element: TypeElement): String {
             var type = element
             var name = type.simpleName.toString()
-            while (type.enclosingElement is TypeElement) {
-                type = type.enclosingElement as TypeElement
+            while (type.enclosingElement.isType()) {
+                type = type.enclosingElement.asTypeElement()
                 name = "${type.simpleName}_$name"
             }
             val pkg = type.getPackage()
