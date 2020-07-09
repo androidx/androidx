@@ -41,7 +41,7 @@ dependencies {
     implementation project(':compose:foundation:foundation-layout')
     api project(":ui:ui-saved-instance-state")
     implementation project(':compose:core:core-text')
-    implementation project(':ui:ui-text')
+    implementation project(':compose:foundation:foundation-text')
     implementation project(':compose:core:core-util')
 
     testImplementation(ANDROIDX_TEST_RULES)

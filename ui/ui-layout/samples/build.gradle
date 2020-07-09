@@ -36,7 +36,7 @@ dependencies {
     implementation project(":compose:foundation:foundation-layout")
     implementation project(":compose:foundation:foundation")
     implementation project(":compose:core:core-text")
-    implementation project(":ui:ui-text")
+    implementation project(":compose:foundation:foundation-text")
 }
 
 android {
