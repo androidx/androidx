@@ -55,6 +55,7 @@ package androidx.browser.customtabs {
 
   public final class CustomTabColorSchemeParams {
     field @ColorInt public final Integer? navigationBarColor;
+    field @ColorInt public final Integer? navigationBarDividerColor;
     field @ColorInt public final Integer? secondaryToolbarColor;
     field @ColorInt public final Integer? toolbarColor;
   }
@@ -63,6 +64,7 @@ package androidx.browser.customtabs {
     ctor public CustomTabColorSchemeParams.Builder();
     method public androidx.browser.customtabs.CustomTabColorSchemeParams build();
     method public androidx.browser.customtabs.CustomTabColorSchemeParams.Builder setNavigationBarColor(@ColorInt int);
+    method public androidx.browser.customtabs.CustomTabColorSchemeParams.Builder setNavigationBarDividerColor(@ColorInt int);
     method public androidx.browser.customtabs.CustomTabColorSchemeParams.Builder setSecondaryToolbarColor(@ColorInt int);
     method public androidx.browser.customtabs.CustomTabColorSchemeParams.Builder setToolbarColor(@ColorInt int);
   }
@@ -114,6 +116,7 @@ package androidx.browser.customtabs {
     field public static final String EXTRA_EXIT_ANIMATION_BUNDLE = "android.support.customtabs.extra.EXIT_ANIMATION_BUNDLE";
     field public static final String EXTRA_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
     field public static final String EXTRA_NAVIGATION_BAR_COLOR = "androidx.browser.customtabs.extra.NAVIGATION_BAR_COLOR";
+    field public static final String EXTRA_NAVIGATION_BAR_DIVIDER_COLOR = "androidx.browser.customtabs.extra.NAVIGATION_BAR_DIVIDER_COLOR";
     field public static final String EXTRA_REMOTEVIEWS = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS";
     field public static final String EXTRA_REMOTEVIEWS_CLICKED_ID = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS_CLICKED_ID";
     field public static final String EXTRA_REMOTEVIEWS_PENDINGINTENT = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS_PENDINGINTENT";
@@ -153,6 +156,7 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setExitAnimations(android.content.Context, @AnimRes int, @AnimRes int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setInstantAppsEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarColor(@ColorInt int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarDividerColor(@ColorInt int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarColor(@ColorInt int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarViews(android.widget.RemoteViews, int[]?, android.app.PendingIntent?);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSession(androidx.browser.customtabs.CustomTabsSession);
@@ -307,6 +311,7 @@ package androidx.browser.trusted {
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setColorSchemeParams(int, androidx.browser.customtabs.CustomTabColorSchemeParams);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setDisplayMode(androidx.browser.trusted.TrustedWebActivityDisplayMode);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setNavigationBarColor(@ColorInt int);
+    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setNavigationBarDividerColor(@ColorInt int);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setShareParams(androidx.browser.trusted.sharing.ShareTarget, androidx.browser.trusted.sharing.ShareData);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setSplashScreenParams(android.os.Bundle);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setToolbarColor(@ColorInt int);

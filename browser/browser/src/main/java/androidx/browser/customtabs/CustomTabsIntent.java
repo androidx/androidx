@@ -296,6 +296,13 @@ public final class CustomTabsIntent {
             "androidx.browser.customtabs.extra.NAVIGATION_BAR_COLOR";
 
     /**
+     * Extra that contains the color of the navigation bar divider.
+     * See {@link Builder#setNavigationBarDividerColor}.
+     */
+    public static final String EXTRA_NAVIGATION_BAR_DIVIDER_COLOR =
+            "androidx.browser.customtabs.extra.NAVIGATION_BAR_DIVIDER_COLOR";
+
+    /**
      * Key that specifies the unique ID for an action button. To make a button to show on the
      * toolbar, use {@link #TOOLBAR_ACTION_BUTTON_ID} as its ID.
      */
@@ -613,6 +620,19 @@ public final class CustomTabsIntent {
         @NonNull
         public Builder setNavigationBarColor(@ColorInt int color) {
             mDefaultColorSchemeBuilder.setNavigationBarColor(color);
+            return this;
+        }
+
+        /**
+         * Sets the navigation bar divider color. Has no effect on API versions below P.
+         *
+         * Can be overridden for particular color schemes, see {@link #setColorSchemeParams}.
+         *
+         * @param color The color for the navigation bar divider.
+         */
+        @NonNull
+        public Builder setNavigationBarDividerColor(@ColorInt int color) {
+            mDefaultColorSchemeBuilder.setNavigationBarDividerColor(color);
             return this;
         }
 

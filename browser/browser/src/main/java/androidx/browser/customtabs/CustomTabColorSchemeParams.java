@@ -17,6 +17,7 @@
 package androidx.browser.customtabs;
 
 import static androidx.browser.customtabs.CustomTabsIntent.EXTRA_NAVIGATION_BAR_COLOR;
+import static androidx.browser.customtabs.CustomTabsIntent.EXTRA_NAVIGATION_BAR_DIVIDER_COLOR;
 import static androidx.browser.customtabs.CustomTabsIntent.EXTRA_SECONDARY_TOOLBAR_COLOR;
 import static androidx.browser.customtabs.CustomTabsIntent.EXTRA_TOOLBAR_COLOR;
 
@@ -47,14 +48,21 @@ public final class CustomTabColorSchemeParams {
      */
     @Nullable @ColorInt public final Integer navigationBarColor;
 
+    /**
+     * Navigation bar color. See {@link CustomTabsIntent.Builder#setNavigationBarDividerColor(int)}.
+     */
+    @Nullable @ColorInt public final Integer navigationBarDividerColor;
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     CustomTabColorSchemeParams(
             @Nullable @ColorInt Integer toolbarColor,
             @Nullable @ColorInt Integer secondaryToolbarColor,
-            @Nullable @ColorInt Integer navigationBarColor) {
+            @Nullable @ColorInt Integer navigationBarColor,
+            @Nullable @ColorInt Integer navigationBarDividerColor) {
         this.toolbarColor = toolbarColor;
         this.secondaryToolbarColor = secondaryToolbarColor;
         this.navigationBarColor = navigationBarColor;
+        this.navigationBarDividerColor = navigationBarDividerColor;
     }
 
     /**
@@ -74,6 +82,9 @@ public final class CustomTabColorSchemeParams {
         if (navigationBarColor != null) {
             bundle.putInt(EXTRA_NAVIGATION_BAR_COLOR, navigationBarColor);
         }
+        if (navigationBarDividerColor != null) {
+            bundle.putInt(EXTRA_NAVIGATION_BAR_DIVIDER_COLOR, navigationBarDividerColor);
+        }
         return bundle;
     }
 
@@ -91,7 +102,8 @@ public final class CustomTabColorSchemeParams {
         return new CustomTabColorSchemeParams(
                 (Integer) bundle.get(EXTRA_TOOLBAR_COLOR),
                 (Integer) bundle.get(EXTRA_SECONDARY_TOOLBAR_COLOR),
-                (Integer) bundle.get(EXTRA_NAVIGATION_BAR_COLOR));
+                (Integer) bundle.get(EXTRA_NAVIGATION_BAR_COLOR),
+                (Integer) bundle.get(EXTRA_NAVIGATION_BAR_DIVIDER_COLOR));
     }
 
     /**
@@ -103,7 +115,9 @@ public final class CustomTabColorSchemeParams {
                 toolbarColor == null ? defaults.toolbarColor : toolbarColor,
                 secondaryToolbarColor == null ? defaults.secondaryToolbarColor
                         : secondaryToolbarColor,
-                navigationBarColor == null ? defaults.navigationBarColor : navigationBarColor);
+                navigationBarColor == null ? defaults.navigationBarColor : navigationBarColor,
+                navigationBarDividerColor == null ? defaults.navigationBarDividerColor
+                        : navigationBarDividerColor);
     }
 
     /**
@@ -115,6 +129,7 @@ public final class CustomTabColorSchemeParams {
         @Nullable @ColorInt private Integer mToolbarColor;
         @Nullable @ColorInt private Integer mSecondaryToolbarColor;
         @Nullable @ColorInt private Integer mNavigationBarColor;
+        @Nullable @ColorInt private Integer mNavigationBarDividerColor;
 
         /**
          * @see CustomTabsIntent.Builder#setToolbarColor(int)
@@ -144,13 +159,22 @@ public final class CustomTabColorSchemeParams {
         }
 
         /**
+         * @see CustomTabsIntent.Builder#setNavigationBarDividerColor(int)
+         */
+        @NonNull
+        public Builder setNavigationBarDividerColor(@ColorInt int color) {
+            mNavigationBarDividerColor = color;
+            return this;
+        }
+
+        /**
          * Combines all the options that have been into a {@link CustomTabColorSchemeParams}
          * object.
          */
         @NonNull
         public CustomTabColorSchemeParams build() {
             return new CustomTabColorSchemeParams(mToolbarColor, mSecondaryToolbarColor,
-                    mNavigationBarColor);
+                    mNavigationBarColor, mNavigationBarDividerColor);
         }
     }
 }

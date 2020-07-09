@@ -51,6 +51,8 @@ ActionValue: androidx.browser.customtabs.TrustedWebUtils#EXTRA_LAUNCH_AS_TRUSTED
 
 AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#navigationBarColor:
     Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#navigationBarDividerColor:
+    Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#secondaryToolbarColor:
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#toolbarColor:

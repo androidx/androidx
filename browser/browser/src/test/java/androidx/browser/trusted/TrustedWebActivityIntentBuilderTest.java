@@ -63,6 +63,7 @@ public class TrustedWebActivityIntentBuilderTest {
         Uri url = Uri.parse("https://test.com/page");
         int toolbarColor = 0xffaabbcc;
         int navigationBarColor = 0xffccaabb;
+        int navigationBarDividerColor = 0xffdddddd;
         List<String> additionalTrustedOrigins =
                 Arrays.asList("https://m.test.com", "https://test.org");
 
@@ -84,6 +85,7 @@ public class TrustedWebActivityIntentBuilderTest {
         Intent intent = new TrustedWebActivityIntentBuilder(url)
                         .setToolbarColor(toolbarColor)
                         .setNavigationBarColor(navigationBarColor)
+                        .setNavigationBarDividerColor(navigationBarDividerColor)
                         .setColorScheme(COLOR_SCHEME_DARK)
                         .setColorSchemeParams(COLOR_SCHEME_DARK, colorSchemeParams)
                         .setAdditionalTrustedOrigins(additionalTrustedOrigins)
@@ -99,10 +101,12 @@ public class TrustedWebActivityIntentBuilderTest {
         assertEquals(toolbarColor, intent.getIntExtra(CustomTabsIntent.EXTRA_TOOLBAR_COLOR, 0));
         assertEquals(navigationBarColor, intent.getIntExtra(
                 CustomTabsIntent.EXTRA_NAVIGATION_BAR_COLOR, 0));
+        assertEquals(navigationBarDividerColor, intent.getIntExtra(
+                CustomTabsIntent.EXTRA_NAVIGATION_BAR_DIVIDER_COLOR, 0));
         assertEquals(additionalTrustedOrigins, intent.getStringArrayListExtra(
                 TrustedWebActivityIntentBuilder.EXTRA_ADDITIONAL_TRUSTED_ORIGINS));
-        assertEquals(COLOR_SCHEME_DARK, intent.getIntExtra(CustomTabsIntent.EXTRA_COLOR_SCHEME,
-                -1));
+        assertEquals(COLOR_SCHEME_DARK, intent.getIntExtra(
+                CustomTabsIntent.EXTRA_COLOR_SCHEME, -1));
         assertEquals(colorSchemeParams.toolbarColor,
                 CustomTabsIntent.getColorSchemeParams(intent, COLOR_SCHEME_DARK).toolbarColor);
 
