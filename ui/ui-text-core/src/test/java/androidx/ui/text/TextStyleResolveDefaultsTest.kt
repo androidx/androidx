@@ -65,7 +65,7 @@ class TextStyleResolveDefaultsTest {
             assertThat(it.textDecoration).isEqualTo(TextDecoration.None)
             assertThat(it.shadow).isEqualTo(Shadow.None)
             assertThat(it.textAlign).isEqualTo(TextAlign.Start)
-            assertThat(it.textDirection).isEqualTo(TextDirection.ContentOrLtr)
+            assertThat(it.textDirection).isEqualTo(TextDirection.Ltr)
             assertThat(it.lineHeight).isEqualTo(DefaultLineHeight)
             assertThat(it.textIndent).isEqualTo(TextIndent.None)
         }
@@ -334,19 +334,19 @@ class TextStyleResolveDefaultsTest {
     }
 
     @Test
-    fun test_default_direction_algorithm_with_provided_layoutDirecction() {
+    fun test_default_direction_algorithm_with_provided_layoutDirection() {
         assertThat(
             resolveDefaults(
                 TextStyle(),
                 direction = LayoutDirection.Ltr
             ).textDirection
-        ).isEqualTo(TextDirection.ContentOrLtr)
+        ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
             resolveDefaults(
                 TextStyle(),
                 direction = LayoutDirection.Rtl
             ).textDirection
-        ).isEqualTo(TextDirection.ContentOrRtl)
+        ).isEqualTo(TextDirection.Rtl)
     }
 }
