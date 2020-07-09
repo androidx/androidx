@@ -53,6 +53,7 @@ enum class FocusDetailedState { Active, ActiveParent, Captured, Disabled, Inacti
  *
  * TODO(b/160822876): Rename this enum to FocusState after the existing FocusState is removed.
  */
+@ExperimentalFocus
 enum class FocusState2 {
     /**
      * The focusable component is currently active (i.e. it receives key events).
@@ -101,6 +102,7 @@ fun FocusDetailedState.focusState() = when (this) {
  *
  * @return true if the component is focused, false otherwise.
  */
+@ExperimentalFocus
 val FocusState2.isFocused
     get() = when (this) {
         FocusState2.Captured,

@@ -55,6 +55,7 @@ import androidx.ui.autofill.unregisterCallback
 import androidx.ui.core.AndroidOwner.ViewTreeOwners
 import androidx.ui.core.clipboard.AndroidClipboardManager
 import androidx.ui.core.clipboard.ClipboardManager
+import androidx.ui.core.focus.ExperimentalFocus
 import androidx.ui.core.focus.FOCUS_TAG
 import androidx.ui.core.focus.FocusDetailedState.Active
 import androidx.ui.core.focus.FocusDetailedState.Inactive
@@ -106,7 +107,10 @@ fun AndroidOwner(
     AndroidOwner.onAndroidOwnerCreatedCallback?.invoke(it)
 }
 
-@OptIn(ExperimentalLayoutNodeApi::class)
+@OptIn(
+    ExperimentalFocus::class,
+    ExperimentalLayoutNodeApi::class
+)
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 internal class AndroidComposeView constructor(
     context: Context,
