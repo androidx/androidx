@@ -358,6 +358,99 @@ class ParagraphIntegrationTest {
     }
 
     @Test
+    fun getLineForVerticalPosition_ltr() {
+        with(defaultDensity) {
+            val text = "abcdefgh"
+            val fontSize = 20f
+            // Make the layout 4 lines
+            val layoutWidth = text.length * fontSize / 4
+            val lineHeight = 30f
+
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(
+                    fontSize = fontSize.sp,
+                    lineHeight = lineHeight.sp
+                ),
+                constraints = ParagraphConstraints(width = layoutWidth)
+            )
+
+            assertThat(paragraph.lineCount).isEqualTo(4)
+            // test positions are 1, lineHeight+1, 2lineHeight+1, 3lineHeight + 1 which map to line
+            // 0, 1, 2, 3
+            for (i in 0 until paragraph.lineCount) {
+                val position = i * lineHeight.sp.toPx() + 1
+                val line = paragraph.getLineForVerticalPosition(position)
+                assertWithMessage(
+                    "Line at line index $i, position $position does not match"
+                ).that(line).isEqualTo(i)
+            }
+        }
+    }
+
+    @Test
+    fun getLineForVerticalPosition_rtl() {
+        with(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2\u05D3\u05D4\u05D5\u05D6\u05D7"
+            val fontSize = 20f
+            // Make the layout 4 lines
+            val layoutWidth = text.length * fontSize / 4
+            val lineHeight = 30f
+
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(
+                    fontSize = fontSize.sp,
+                    lineHeight = lineHeight.sp
+                ),
+                constraints = ParagraphConstraints(width = layoutWidth)
+            )
+
+            assertThat(paragraph.lineCount).isEqualTo(4)
+            // test positions are 1, lineHeight+1, 2lineHeight+1, 3lineHeight + 1 which map to line
+            // 0, 1, 2, 3
+            for (i in 0 until paragraph.lineCount) {
+                val position = i * lineHeight.sp.toPx() + 1
+                val line = paragraph.getLineForVerticalPosition(position)
+                assertWithMessage(
+                    "Line at line index $i, position $position does not match"
+                ).that(line).isEqualTo(i)
+            }
+        }
+    }
+
+    @Test
+    fun getLineForVerticalPosition_ltr_height_outOfBounds() {
+        with(defaultDensity) {
+            val text = "abcdefgh"
+            val fontSize = 20f
+            // Make the layout 4 lines
+            val layoutWidth = text.length * fontSize / 4
+            val lineHeight = 30f
+
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(
+                    fontSize = fontSize.sp,
+                    lineHeight = lineHeight.sp
+                ),
+                constraints = ParagraphConstraints(width = layoutWidth)
+            )
+
+            assertThat(paragraph.lineCount).isEqualTo(4)
+            // greater than height
+            var position = lineHeight.sp.toPx() * paragraph.lineCount * 2
+            var line = paragraph.getLineForVerticalPosition(position)
+            assertThat(line).isEqualTo(paragraph.lineCount - 1)
+
+            // negative
+            position = -1 * lineHeight.sp.toPx()
+            line = paragraph.getLineForVerticalPosition(position)
+            assertThat(line).isZero()
+        }
+    }
+
+    @Test
     fun getBoundingBox_ltr_singleLine() {
         with(defaultDensity) {
             val text = "abc"

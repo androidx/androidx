@@ -16,10 +16,13 @@
 
 package androidx.ui.core
 
+import android.graphics.Rect
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.style.ResolvedTextDirection
+import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.semantics.SemanticsProperties
 import java.text.BreakIterator
 import java.util.Locale
-
-import androidx.ui.semantics.SemanticsProperties
 
 /**
  * This class contains the implementation of text segment iterators
@@ -255,7 +258,7 @@ internal class AccessibilityIterators {
         }
     }
 
-    class ParagraphTextSegmentIterator : AbstractTextSegmentIterator() {
+    class ParagraphTextSegmentIterator private constructor() : AbstractTextSegmentIterator() {
         companion object {
             private var instance: ParagraphTextSegmentIterator? = null
 
@@ -329,175 +332,203 @@ internal class AccessibilityIterators {
         }
     }
 
-    // TODO: This is tightly coupled with Text.kt. Need to discuss with the text team on how to
-    //  expose the necessary properties.
-    /*
-    static class LineTextSegmentIterator extends AbstractTextSegmentIterator {
-        private static LineTextSegmentIterator sLineInstance;
+    class LineTextSegmentIterator private constructor() : AbstractTextSegmentIterator() {
+        companion object {
+            private var lineInstance: LineTextSegmentIterator? = null
+            private val DirectionStart = ResolvedTextDirection.Rtl
+            private val DirectionEnd = ResolvedTextDirection.Ltr
 
-        protected static final int DIRECTION_START = -1;
-        protected static final int DIRECTION_END = 1;
-
-        protected Layout mLayout;
-
-        public static LineTextSegmentIterator getInstance() {
-            if (sLineInstance == null) {
-                sLineInstance = new LineTextSegmentIterator();
+            fun getInstance(): LineTextSegmentIterator {
+                if (lineInstance == null) {
+                    lineInstance = LineTextSegmentIterator()
+                }
+                return lineInstance as LineTextSegmentIterator
             }
-            return sLineInstance;
         }
 
-        public void initialize(Spannable text, Layout layout) {
-            mText = text.toString();
-            mLayout = layout;
+        private lateinit var layoutResult: TextLayoutResult
+
+        fun initialize(text: String, layoutResult: TextLayoutResult) {
+            this.text = text
+            this.layoutResult = layoutResult
         }
 
-        @Override
-        public int[] following(int offset) {
-            final int textLegth = mText.length();
-            if (textLegth <= 0) {
-                return null;
+        override fun following(current: Int): IntArray? {
+            val textLength = text.length
+            if (textLength <= 0) {
+                return null
             }
-            if (offset >= mText.length()) {
-                return null;
+            if (current >= text.length) {
+                return null
             }
-            int nextLine;
-            if (offset < 0) {
-                nextLine = mLayout.getLineForOffset(0);
+            val nextLine = if (current < 0) {
+                layoutResult.getLineForOffset(0)
             } else {
-                final int currentLine = mLayout.getLineForOffset(offset);
-                if (getLineEdgeIndex(currentLine, DIRECTION_START) == offset) {
-                    nextLine = currentLine;
+                val currentLine = layoutResult.getLineForOffset(current)
+                if (getLineEdgeIndex(currentLine, DirectionStart) == current) {
+                    currentLine
                 } else {
-                    nextLine = currentLine + 1;
+                    currentLine + 1
                 }
             }
-            if (nextLine >= mLayout.getLineCount()) {
-                return null;
+            if (nextLine >= layoutResult.lineCount) {
+                return null
             }
-            final int start = getLineEdgeIndex(nextLine, DIRECTION_START);
-            final int end = getLineEdgeIndex(nextLine, DIRECTION_END) + 1;
-            return getRange(start, end);
+            val start = getLineEdgeIndex(nextLine, DirectionStart)
+            val end = getLineEdgeIndex(nextLine, DirectionEnd) + 1
+            return getRange(start, end)
         }
 
-        @Override
-        public int[] preceding(int offset) {
-            final int textLegth = mText.length();
-            if (textLegth <= 0) {
-                return null;
+        override fun preceding(current: Int): IntArray? {
+            val textLength = text.length
+            if (textLength <= 0) {
+                return null
             }
-            if (offset <= 0) {
-                return null;
+            if (current <= 0) {
+                return null
             }
-            int previousLine;
-            if (offset > mText.length()) {
-                previousLine = mLayout.getLineForOffset(mText.length());
+            val previousLine = if (current > text.length) {
+                layoutResult.getLineForOffset(text.length)
             } else {
-                final int currentLine = mLayout.getLineForOffset(offset);
-                if (getLineEdgeIndex(currentLine, DIRECTION_END) + 1 == offset) {
-                    previousLine = currentLine;
+                val currentLine = layoutResult.getLineForOffset(current)
+                if (getLineEdgeIndex(currentLine, DirectionEnd) + 1 == current) {
+                    currentLine
                 } else {
-                    previousLine = currentLine - 1;
+                    currentLine - 1
                 }
             }
             if (previousLine < 0) {
-                return null;
+                return null
             }
-            final int start = getLineEdgeIndex(previousLine, DIRECTION_START);
-            final int end = getLineEdgeIndex(previousLine, DIRECTION_END) + 1;
-            return getRange(start, end);
+            val start = getLineEdgeIndex(previousLine, DirectionStart)
+            val end = getLineEdgeIndex(previousLine, DirectionEnd) + 1
+            return getRange(start, end)
         }
 
-        protected int getLineEdgeIndex(int lineNumber, int direction) {
-            final int paragraphDirection = mLayout.getParagraphDirection(lineNumber);
-            if (direction * paragraphDirection < 0) {
-                return mLayout.getLineStart(lineNumber);
+        private fun getLineEdgeIndex(lineNumber: Int, direction: ResolvedTextDirection): Int {
+            val paragraphDirection = layoutResult.getParagraphDirection(lineNumber)
+            return if (direction != paragraphDirection) {
+                layoutResult.getLineStart(lineNumber)
             } else {
-                return mLayout.getLineEnd(lineNumber) - 1;
+                layoutResult.getLineEnd(lineNumber) - 1
             }
         }
     }
 
-    static class PageTextSegmentIterator extends LineTextSegmentIterator {
-        private static PageTextSegmentIterator sPageInstance;
-
-        private TextView mView;
-
-        private final Rect mTempRect = new Rect();
-
-        public static PageTextSegmentIterator getInstance() {
-            if (sPageInstance == null) {
-                sPageInstance = new PageTextSegmentIterator();
+    // TODO(b/27505408): A11y movement by granularity page not working in edittext.
+    class PageTextSegmentIterator private constructor() : AbstractTextSegmentIterator() {
+        companion object {
+            private var pageInstance: PageTextSegmentIterator? = null
+            private val DirectionStart = ResolvedTextDirection.Rtl
+            private val DirectionEnd = ResolvedTextDirection.Ltr
+            fun getInstance(): PageTextSegmentIterator {
+                if (pageInstance == null) {
+                    pageInstance = PageTextSegmentIterator()
+                }
+                return pageInstance as PageTextSegmentIterator
             }
-            return sPageInstance;
         }
 
-        public void initialize(TextView view) {
-            super.initialize((Spannable) view.getIterableTextForAccessibility(), view.getLayout());
-            mView = view;
+        private lateinit var layoutResult: TextLayoutResult
+        private lateinit var node: SemanticsNode
+
+        private var tempRect = Rect()
+
+        fun initialize(text: String, layoutResult: TextLayoutResult, node: SemanticsNode) {
+            this.text = text
+            this.layoutResult = layoutResult
+            this.node = node
         }
 
-        @Override
-        public int[] following(int offset) {
-            final int textLength = mText.length();
+        override fun following(current: Int): IntArray? {
+            val textLength = text.length
             if (textLength <= 0) {
-                return null;
+                return null
             }
-            if (offset >= mText.length()) {
-                return null;
+            if (current >= text.length) {
+                return null
             }
-            if (!mView.getGlobalVisibleRect(mTempRect)) {
-                return null;
+            try {
+                tempRect = Rect(
+                    node.globalBounds.left.toInt(),
+                    node.globalBounds.top.toInt(),
+                    node.globalBounds.right.toInt(),
+                    node.globalBounds.bottom.toInt()
+                )
+                // TODO(b/153198816): check whether we still get this exception when R is in.
+            } catch (e: IllegalStateException) {
+                return null
             }
 
-            final int start = Math.max(0, offset);
+            val start = 0.coerceAtLeast(current)
 
-            final int currentLine = mLayout.getLineForOffset(start);
-            final int currentLineTop = mLayout.getLineTop(currentLine);
-            final int pageHeight = mTempRect.height() - mView.getTotalPaddingTop()
-            - mView.getTotalPaddingBottom();
-            final int nextPageStartY = currentLineTop + pageHeight;
-            final int lastLineTop = mLayout.getLineTop(mLayout.getLineCount() - 1);
-            final int currentPageEndLine = (nextPageStartY < lastLineTop)
-            ? mLayout.getLineForVertical(nextPageStartY) - 1 : mLayout.getLineCount() - 1;
+            val currentLine = layoutResult.getLineForOffset(start)
+            val currentLineTop = layoutResult.getLineTop(currentLine)
+            // TODO: Please help me translate the below where mView is the TextView
+            //  final int pageHeight = mTempRect.height() - mView.getTotalPaddingTop()
+            //                    - mView.getTotalPaddingBottom();
+            val pageHeight = tempRect.height()
+            val nextPageStartY = currentLineTop + pageHeight
+            val lastLineTop = layoutResult.getLineTop(layoutResult.lineCount - 1)
+            val currentPageEndLine = if (nextPageStartY < lastLineTop)
+                layoutResult.getLineForVerticalPosition(nextPageStartY) - 1
+            else layoutResult.lineCount - 1
 
-            final int end = getLineEdgeIndex(currentPageEndLine, DIRECTION_END) + 1;
+            val end = getLineEdgeIndex(currentPageEndLine, DirectionEnd) + 1
 
-            return getRange(start, end);
+            return getRange(start, end)
         }
 
-        @Override
-        public int[] preceding(int offset) {
-            final int textLength = mText.length();
+        override fun preceding(current: Int): IntArray? {
+            val textLength = text.length
             if (textLength <= 0) {
-                return null;
+                return null
             }
-            if (offset <= 0) {
-                return null;
+            if (current <= 0) {
+                return null
             }
-            if (!mView.getGlobalVisibleRect(mTempRect)) {
-                return null;
+            try {
+                tempRect = Rect(
+                    node.globalBounds.left.toInt(),
+                    node.globalBounds.top.toInt(),
+                    node.globalBounds.right.toInt(),
+                    node.globalBounds.bottom.toInt()
+                )
+                // TODO(b/153198816): check whether we still get this exception when R is in.
+            } catch (e: IllegalStateException) {
+                return null
             }
 
-            final int end = Math.min(mText.length(), offset);
+            val end = text.length.coerceAtMost(current)
 
-            final int currentLine = mLayout.getLineForOffset(end);
-            final int currentLineTop = mLayout.getLineTop(currentLine);
-            final int pageHeight = mTempRect.height() - mView.getTotalPaddingTop()
-            - mView.getTotalPaddingBottom();
-            final int previousPageEndY = currentLineTop - pageHeight;
-            int currentPageStartLine = (previousPageEndY > 0) ?
-            mLayout.getLineForVertical(previousPageEndY) : 0;
+            val currentLine = layoutResult.getLineForOffset(end)
+            val currentLineTop = layoutResult.getLineTop(currentLine)
+            // TODO: It won't work for text with padding yet.
+            //  Please help me translate the below where mView is the TextView
+            //  final int pageHeight = mTempRect.height() - mView.getTotalPaddingTop()
+            //                    - mView.getTotalPaddingBottom();
+            val pageHeight = tempRect.height()
+            val previousPageEndY = currentLineTop - pageHeight
+            var currentPageStartLine = if (previousPageEndY > 0)
+                layoutResult.getLineForVerticalPosition(previousPageEndY) else 0
             // If we're at the end of text, we're at the end of the current line rather than the
             // start of the next line, so we should move up one fewer lines than we would otherwise.
-            if (end == mText.length() && (currentPageStartLine < currentLine)) {
-                currentPageStartLine += 1;
+            if (end == text.length && (currentPageStartLine < currentLine)) {
+                currentPageStartLine += 1
             }
 
-            final int start = getLineEdgeIndex(currentPageStartLine, DIRECTION_START);
+            val start = getLineEdgeIndex(currentPageStartLine, DirectionStart)
 
-            return getRange(start, end);
+            return getRange(start, end)
+        }
+
+        private fun getLineEdgeIndex(lineNumber: Int, direction: ResolvedTextDirection): Int {
+            val paragraphDirection = layoutResult.getParagraphDirection(lineNumber)
+            return if (direction != paragraphDirection) {
+                layoutResult.getLineStart(lineNumber)
+            } else {
+                layoutResult.getLineEnd(lineNumber) - 1
+            }
         }
     }
-    */
 }

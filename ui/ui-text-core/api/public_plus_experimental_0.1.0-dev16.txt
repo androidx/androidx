@@ -89,6 +89,7 @@ package androidx.compose.ui.text {
     method public int getLineEllipsisOffset(int lineIndex);
     method public int getLineEnd(int lineIndex);
     method public int getLineForOffset(int offset);
+    method public int getLineForVerticalPosition(float vertical);
     method public float getLineHeight(int lineIndex);
     method public float getLineLeft(int lineIndex);
     method public float getLineRight(int lineIndex);
@@ -147,6 +148,7 @@ package androidx.compose.ui.text {
     method public int getLineEllipsisOffset(int lineIndex);
     method public int getLineEnd(int lineIndex);
     method public int getLineForOffset(int offset);
+    method public int getLineForVerticalPosition(float vertical);
     method public float getLineHeight(int lineIndex);
     method public float getLineLeft(int lineIndex);
     method public float getLineRight(int lineIndex);
@@ -338,6 +340,7 @@ package androidx.compose.ui.text {
     method public int getLineCount();
     method public int getLineEnd(int lineIndex);
     method public int getLineForOffset(int offset);
+    method public int getLineForVerticalPosition(float vertical);
     method public float getLineLeft(int lineIndex);
     method public float getLineRight(int lineIndex);
     method public int getLineStart(int lineIndex);

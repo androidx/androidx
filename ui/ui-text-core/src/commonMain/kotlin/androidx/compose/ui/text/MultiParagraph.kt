@@ -264,6 +264,28 @@ class MultiParagraph(
         return path
     }
 
+    /**
+     * Returns line number closest to the given graphical vertical position.
+     * If you ask for a vertical position before 0, you get 0; if you ask for a vertical position
+     * beyond the last line, you get the last line.
+     */
+    fun getLineForVerticalPosition(vertical: Float): Int {
+        val paragraphIndex = when {
+            vertical <= 0f -> 0
+            vertical >= height -> paragraphInfoList.lastIndex
+            else -> findParagraphByY(paragraphInfoList, vertical)
+        }
+        return with(paragraphInfoList[paragraphIndex]) {
+            if (length == 0) {
+                max(0, startIndex - 1)
+            } else {
+                paragraph.getLineForVerticalPosition(
+                    vertical.toLocalYPosition()
+                ).toGlobalLineIndex()
+            }
+        }
+    }
+
     /** Returns the character offset closest to the given graphical position. */
     fun getOffsetForPosition(position: Offset): Int {
         val paragraphIndex = when {
@@ -685,11 +707,19 @@ internal data class ParagraphInfo(
     }
 
     /**
-     * Convert a local y position relative to [paragraph] to the globla y postiion relative to the
+     * Convert a local y position relative to [paragraph] to the global y position relative to the
      * parent [MultiParagraph].
      */
     fun Float.toGlobalYPosition(): Float {
         return this + top
+    }
+
+    /**
+     * Convert a global y position relative to the parent [MultiParagraph] to a local y position
+     * relative to [paragraph].
+     */
+    fun Float.toLocalYPosition(): Float {
+        return this - top
     }
 
     /**

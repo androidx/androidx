@@ -189,6 +189,13 @@ interface Paragraph {
      */
     fun getBidiRunDirection(offset: Int): ResolvedTextDirection
 
+    /**
+     * Returns line number closest to the given graphical vertical position.
+     * If you ask for a vertical position before 0, you get 0; if you ask for a vertical position
+     * beyond the last line, you get the last line.
+     */
+    fun getLineForVerticalPosition(vertical: Float): Int
+
     /** Returns the character offset closest to the given graphical position. */
     fun getOffsetForPosition(position: Offset): Int
 
