@@ -261,7 +261,7 @@ public final class ActivityResultContracts {
         public Boolean parseResult(int resultCode, @Nullable Intent intent) {
             if (intent == null || resultCode != Activity.RESULT_OK) return false;
             int[] grantResults = intent.getIntArrayExtra(EXTRA_PERMISSION_GRANT_RESULTS);
-            if (grantResults == null) return false;
+            if (grantResults == null || grantResults.length == 0) return false;
             return grantResults[0] == PackageManager.PERMISSION_GRANTED;
         }
 
