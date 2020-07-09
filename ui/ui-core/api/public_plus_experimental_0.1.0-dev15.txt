@@ -913,6 +913,9 @@ package androidx.ui.core.clipboard {
 
 package androidx.ui.core.focus {
 
+  @kotlin.RequiresOptIn(message="The Focus API is experimental and is likely to change in the future.") public @interface ExperimentalFocus {
+  }
+
   public enum FocusDetailedState {
     method public static androidx.ui.core.focus.FocusDetailedState valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.ui.core.focus.FocusDetailedState[] values();
