@@ -28,6 +28,7 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.work.WorkManager
+import androidx.work.impl.WorkManagerImpl
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command.OneOfCase.TRACK_WORK_MANAGER
 import androidx.work.inspection.WorkManagerInspectorProtocol.ErrorResponse
@@ -36,6 +37,7 @@ import androidx.work.inspection.WorkManagerInspectorProtocol.Response
 import androidx.work.inspection.WorkManagerInspectorProtocol.TrackWorkManagerResponse
 import androidx.work.inspection.WorkManagerInspectorProtocol.WorkAddedEvent
 import androidx.work.inspection.WorkManagerInspectorProtocol.WorkRemovedEvent
+import java.util.UUID
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -48,12 +50,12 @@ class WorkManagerInspector(
 ) : Inspector(connection), LifecycleOwner {
 
     private val lifecycleRegistry = LifecycleRegistry(this)
-    private val workManager: WorkManager
+    private val workManager: WorkManagerImpl
     private val executor = Executors.newSingleThreadExecutor()
 
     init {
         workManager = environment.findInstances(Application::class.java).first()
-            .let { application -> WorkManager.getInstance(application) }
+            .let { application -> WorkManager.getInstance(application) as WorkManagerImpl }
         Handler(Looper.getMainLooper()).post {
             lifecycleRegistry.currentState = Lifecycle.State.STARTED
         }
@@ -104,9 +106,21 @@ class WorkManagerInspector(
     }
 
     private fun createWorkInfoProto(id: String): WorkManagerInspectorProtocol.WorkInfo {
-        return WorkManagerInspectorProtocol.WorkInfo.newBuilder()
-            .setId(id)
-            .build()
+        val workInfoBuilder = WorkManagerInspectorProtocol.WorkInfo.newBuilder()
+        val workSpec = workManager.workDatabase.workSpecDao().getWorkSpec(id)
+
+        workInfoBuilder.id = id
+        workInfoBuilder.state = workSpec.state.toProto()
+        workInfoBuilder.workerClassName = workSpec.workerClassName
+        workInfoBuilder.data = workSpec.output.toProto()
+        workInfoBuilder.runAttemptCount = workSpec.runAttemptCount
+        workInfoBuilder.isPeriodic = workSpec.isPeriodic
+        workInfoBuilder.constraints = workSpec.constraints.toProto()
+        workManager.getWorkInfoById(UUID.fromString(id)).let {
+            workInfoBuilder.addAllTags(it.get().tags)
+        }
+
+        return workInfoBuilder.build()
     }
 
     private fun updateWorkIdList(oldWorkIds: List<String>, newWorkIds: List<String>) {

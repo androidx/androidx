@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.work.inspection
+package androidx.work.inspection.worker
 
 import android.content.Context
 import androidx.work.Worker
