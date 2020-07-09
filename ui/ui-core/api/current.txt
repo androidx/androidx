@@ -950,8 +950,19 @@ package androidx.ui.core.focus {
     enum_constant public static final androidx.ui.core.focus.FocusState NotFocused;
   }
 
+  public enum FocusState2 {
+    method public static androidx.ui.core.focus.FocusState2 valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.focus.FocusState2[] values();
+    enum_constant public static final androidx.ui.core.focus.FocusState2 Active;
+    enum_constant public static final androidx.ui.core.focus.FocusState2 ActiveParent;
+    enum_constant public static final androidx.ui.core.focus.FocusState2 Captured;
+    enum_constant public static final androidx.ui.core.focus.FocusState2 Disabled;
+    enum_constant public static final androidx.ui.core.focus.FocusState2 Inactive;
+  }
+
   public final class FocusStateKt {
     method public static androidx.ui.core.focus.FocusState focusState(androidx.ui.core.focus.FocusDetailedState);
+    method public static boolean isFocused(androidx.ui.core.focus.FocusState2);
   }
 
 }
