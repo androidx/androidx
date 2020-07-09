@@ -119,13 +119,13 @@ class TextDelegateTest {
             resolveTextDirectionAlgorithm(
                 LayoutDirection.Ltr,
                 null)
-        ).isEqualTo(TextDirection.ContentOrLtr)
+        ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
             resolveTextDirectionAlgorithm(
                 LayoutDirection.Rtl,
                 null)
-        ).isEqualTo(TextDirection.ContentOrRtl)
+        ).isEqualTo(TextDirection.Rtl)
     }
 
     @Test
