@@ -185,11 +185,7 @@ internal class AndroidComposeView constructor(
         return keyInputModifier.processKeyInput(keyEvent)
     }
 
-    override fun onKeyUp(keyCode: Int, event: AndroidKeyEvent): Boolean {
-        return sendKeyEvent(KeyEventAndroid(event))
-    }
-
-    override fun onKeyDown(keyCode: Int, event: AndroidKeyEvent): Boolean {
+    override fun dispatchKeyEvent(event: AndroidKeyEvent): Boolean {
         return sendKeyEvent(KeyEventAndroid(event))
     }
 
