@@ -36,7 +36,7 @@ import androidx.ui.core.Ref
 import androidx.ui.core.demos.R
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Column
@@ -67,8 +67,8 @@ fun ViewInteropDemo() {
 
         // Include an Android ViewGroup and add Compose to it.
         emitView(::LinearLayout, { it.orientation = LinearLayout.VERTICAL }) {
-            Box(Modifier.size(50.dp).drawBackground(Color.Blue))
-            Box(Modifier.size(50.dp).drawBackground(Color.Gray))
+            Box(Modifier.size(50.dp).background(Color.Blue))
+            Box(Modifier.size(50.dp).background(Color.Gray))
         }
 
         // Inflate AndroidView from XML.

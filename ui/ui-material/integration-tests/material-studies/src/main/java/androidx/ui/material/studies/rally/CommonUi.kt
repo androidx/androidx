@@ -21,7 +21,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
@@ -112,7 +112,7 @@ private fun BaseRow(
  */
 @Composable
 private fun AccountIndicator(color: Color, modifier: Modifier = Modifier) {
-    Box(modifier.preferredSize(4.dp, 36.dp).drawBackground(color))
+    Box(modifier.preferredSize(4.dp, 36.dp).background(color = color))
 }
 
 @Composable

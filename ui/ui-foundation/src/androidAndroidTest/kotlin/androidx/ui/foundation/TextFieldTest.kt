@@ -421,7 +421,7 @@ class TextFieldTest {
                 value = androidx.ui.input.TextFieldValue(),
                 onValueChange = {},
                 textColor = Color.White,
-                modifier = Modifier.preferredSize(10.dp, 20.dp).drawBackground(Color.White),
+                modifier = Modifier.preferredSize(10.dp, 20.dp).background(color = Color.White),
                 cursorColor = Color.Blue
             )
         }

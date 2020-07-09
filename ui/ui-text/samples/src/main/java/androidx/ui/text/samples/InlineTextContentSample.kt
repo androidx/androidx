@@ -21,9 +21,8 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.RectangleShape
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.text.InlineTextContent
 import androidx.ui.text.Placeholder
@@ -57,7 +56,7 @@ fun InlineTextContentSample() {
                 // This [Box] will fill maximum size, which is specified by the [Placeholder]
                 // above. Notice the width and height in [Placeholder] are specified in TextUnit,
                 // and are converted into pixel by text layout.
-                Box(modifier = Modifier.fillMaxSize().drawBackground(Color.Red, RectangleShape))
+                Box(modifier = Modifier.fillMaxSize().background(color = Color.Red))
             }
         )
     )

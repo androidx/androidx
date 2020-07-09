@@ -25,7 +25,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.desktop.AppWindow
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.asImageAsset
@@ -78,7 +77,7 @@ fun main() {
                         text = "Привет! 你好! Desktop Compose ${amount.value}",
                         color = Color.Black,
                         modifier = Modifier
-                            .drawBackground(Color.Blue)
+                            .background(Color.Blue)
                             .preferredHeight(56.dp)
                             .wrapContentSize(Alignment.Center)
                     )

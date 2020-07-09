@@ -29,9 +29,9 @@ import androidx.ui.core.positionInRoot
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.background
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.currentTextStyle
-import androidx.ui.foundation.drawBackground
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
@@ -582,7 +582,7 @@ class OutlinedTextFieldTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testOutlinedTextField_visualTransformationPropagated() {
         testRule.setMaterialContent {
-            Box(Modifier.drawBackground(Color.White)) {
+            Box(Modifier.background(color = Color.White)) {
                 OutlinedTextField(
                     modifier = Modifier.testTag(TextfieldTag),
                     value = "qwerty",

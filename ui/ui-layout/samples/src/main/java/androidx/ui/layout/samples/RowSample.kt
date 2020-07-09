@@ -23,7 +23,7 @@ import androidx.ui.text.FirstBaseline
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxHeight
@@ -91,7 +91,7 @@ fun SimpleRelativeToSiblingsInRow() {
         )
         Text(
             text = "Text.",
-            modifier = Modifier.alignWithSiblings(FirstBaseline).drawBackground(Color.Cyan)
+            modifier = Modifier.alignWithSiblings(FirstBaseline).background(color = Color.Cyan)
         )
     }
 }

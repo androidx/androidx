@@ -27,8 +27,8 @@ import androidx.ui.foundation.ScrollState
 import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.ScrollableRow
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.rememberScrollState
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Column
@@ -83,7 +83,7 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                             val blue = Random.nextInt(256)
                             Color(red = red, green = green, blue = blue)
                         }
-                        Box(Modifier.preferredSize(350f.toDp()).drawBackground(color))
+                        Box(Modifier.preferredSize(350f.toDp()).background(color = color))
                         Text(
                             text = "Some title",
                             color = Color.Black,
@@ -99,7 +99,7 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                                 Modifier
                                     .gravity(Alignment.CenterVertically)
                                     .preferredSize(40f.toDp())
-                                    .drawBackground(playStoreColor)
+                                    .background(color = playStoreColor)
                             )
                         }
                     }

@@ -34,8 +34,8 @@ import androidx.ui.demos.common.DemoCategory
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.ScrollableRow
+import androidx.ui.foundation.background
 import androidx.ui.foundation.clickable
-import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.toArgb
@@ -108,7 +108,7 @@ open class ComposeNothingInAndroidTap : ComponentActivity() {
             container.setBackgroundColor(currentColor.toArgb())
         }
         composition = container.setContent(Recomposer.current()) {
-            Box(Modifier.drawBackground(Color.LightGray, RectangleShape).fillMaxSize())
+            Box(Modifier.background(color = Color.LightGray).fillMaxSize())
         }
     }
 
@@ -160,7 +160,7 @@ open class ComposeTapInAndroidTap : ComponentActivity() {
 
             Column {
                 Box(
-                    tap + Modifier.drawBackground(currentColor.value, RectangleShape).fillMaxSize()
+                    tap + Modifier.background(color = currentColor.value).fillMaxSize()
                 )
             }
         }
@@ -200,7 +200,7 @@ open class ComposeTapInAndroidScroll : ComponentActivity() {
 
             Box(
                 Modifier
-                    .drawBackground(Color.Gray, RectangleShape)
+                    .background(color = Color.Gray)
                     .fillMaxWidth()
                     .preferredHeight(456.dp)
                     .wrapContentSize()
@@ -208,7 +208,7 @@ open class ComposeTapInAndroidScroll : ComponentActivity() {
                         currentColor.value =
                             if (currentColor.value == Color.Blue) Color.Yellow else Color.Blue
                     }
-                    .drawBackground(currentColor.value, RectangleShape)
+                    .background(currentColor.value, RectangleShape)
                     .preferredSize(192.dp)
             )
         }
@@ -246,14 +246,14 @@ open class ComposeScrollInAndroidScrollSameOrientation : ComponentActivity() {
             ScrollableColumn(
                 modifier = Modifier
                     .padding(48.dp)
-                    .drawBackground(Color.Gray, RectangleShape)
+                    .background(color = Color.Gray)
                     .fillMaxWidth()
                     .preferredHeight(456.dp)
             ) {
                 Box(
                     Modifier
                         .padding(48.dp)
-                        .drawBackground(Color.LightGray, RectangleShape)
+                        .background(color = Color.LightGray)
                         .fillMaxWidth()
                         .preferredHeight(456.dp)
                 )
@@ -291,14 +291,14 @@ open class ComposeScrollInAndroidScrollDifferentOrientation : ComponentActivity(
             ScrollableRow(
                 modifier = Modifier
                     .padding(48.dp)
-                    .drawBackground(Color.Gray, RectangleShape)
+                    .background(color = Color.Gray)
                     .fillMaxWidth()
                     .preferredHeight(456.dp)
             ) {
                 Box(
                     Modifier
                         .padding(48.dp)
-                        .drawBackground(Color.LightGray, RectangleShape)
+                        .background(color = Color.LightGray)
                         .preferredWidth(360.dp)
                         .fillMaxHeight()
                 )

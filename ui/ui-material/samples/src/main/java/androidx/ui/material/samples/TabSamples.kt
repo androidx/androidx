@@ -35,7 +35,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.foundation.drawBorder
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
@@ -260,7 +260,7 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
             Box(
                 Modifier.preferredSize(10.dp)
                     .gravity(Alignment.CenterHorizontally)
-                    .drawBackground(color = if (selected) Color.Red else Color.White),
+                    .background(color = if (selected) Color.Red else Color.White),
                 children = emptyContent()
             )
             Text(

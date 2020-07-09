@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.foundation.drawBorder
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
@@ -42,7 +42,7 @@ class SimpleRadioButton2TestCase : BaseSimpleRadioButtonTestCase() {
         Box(
             Modifier.preferredSize(48.dp)
                 .drawBorder(Border(1.dp, Color.Cyan), CircleShape)
-                .drawBackground(
+                .background(
                     color = Color.Cyan,
                     shape = (PaddingShape(padding, CircleShape))
                 )

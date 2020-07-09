@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.foundation.isSystemInDarkTheme
 import androidx.ui.graphics.Color
 import androidx.ui.layout.aspectRatio
@@ -72,7 +72,7 @@ fun MaterialThemeSample() {
 @Composable
 fun ThemeColorSample() {
     val colors = MaterialTheme.colors
-    Box(Modifier.aspectRatio(1f).fillMaxSize().drawBackground(colors.primary))
+    Box(Modifier.aspectRatio(1f).fillMaxSize().background(color = colors.primary))
 }
 
 @Sampled

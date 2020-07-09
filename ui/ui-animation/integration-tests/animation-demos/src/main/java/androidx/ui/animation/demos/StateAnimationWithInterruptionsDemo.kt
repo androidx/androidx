@@ -32,7 +32,7 @@ import androidx.ui.animation.transition
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
@@ -96,7 +96,7 @@ private fun ColorRect() {
 private fun ColorRectState(state: TransitionState) {
     val color = state[background]
     val scaleY = state[y]
-    Canvas(Modifier.fillMaxSize().drawBackground(color = color)) {
+    Canvas(Modifier.fillMaxSize().background(color = color)) {
         drawRect(
             Color(alpha = 255, red = 255, green = 255, blue = 255),
             topLeft = Offset(100f, 0f),

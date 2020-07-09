@@ -31,7 +31,7 @@ import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.DpConstraints
@@ -118,7 +118,7 @@ class ScaffoldTest {
                         }
                         .fillMaxWidth()
                         .preferredHeight(50.dp)
-                        .drawBackground(Color.Red)
+                        .background(color = Color.Red)
                     )
                 }
             ) {
@@ -126,7 +126,7 @@ class ScaffoldTest {
                     .onPositioned { contentPosition = it.localToGlobal(Offset.Zero) }
                     .fillMaxWidth()
                     .preferredHeight(50.dp)
-                    .drawBackground(Color.Blue)
+                    .background(Color.Blue)
                 )
             }
         }
@@ -150,7 +150,7 @@ class ScaffoldTest {
                         }
                         .fillMaxWidth()
                         .preferredHeight(50.dp)
-                        .drawBackground(Color.Red)
+                        .background(color = Color.Red)
                     )
                 }
             ) {
@@ -161,7 +161,7 @@ class ScaffoldTest {
                     }
                     .fillMaxWidth()
                     .preferredHeight(50.dp)
-                    .drawBackground(Color.Blue)
+                    .background(color = Color.Blue)
                 )
             }
         }
@@ -186,7 +186,7 @@ class ScaffoldTest {
                             }
                             .fillMaxWidth()
                             .preferredHeight(50.dp)
-                            .drawBackground(Color.Blue)
+                            .background(color = Color.Blue)
                         )
                     }
                 ) {
@@ -194,7 +194,7 @@ class ScaffoldTest {
                         Modifier
                             .fillMaxWidth()
                             .preferredHeight(50.dp)
-                            .drawBackground(Color.Blue)
+                            .background(color = Color.Blue)
                     )
                 }
             }
@@ -239,7 +239,7 @@ class ScaffoldTest {
                             }
                             .fillMaxWidth()
                             .preferredHeight(50.dp)
-                            .drawBackground(Color.Blue)
+                            .background(color = Color.Blue)
                         )
                     }
                 ) {
@@ -247,7 +247,7 @@ class ScaffoldTest {
                         Modifier
                             .fillMaxWidth()
                             .preferredHeight(50.dp)
-                            .drawBackground(Color.Blue)
+                            .background(color = Color.Blue)
                     )
                 }
             }
@@ -290,7 +290,7 @@ class ScaffoldTest {
                         }
                         .fillMaxWidth()
                         .preferredHeight(100.dp)
-                        .drawBackground(Color.Red)
+                        .background(color = Color.Red)
                     )
                 }
             ) {
@@ -329,7 +329,7 @@ class ScaffoldTest {
                         }
                         .fillMaxWidth()
                         .preferredHeight(100.dp)
-                        .drawBackground(Color.Red)
+                        .background(color = Color.Red)
                     )
                 }
             ) {
@@ -355,13 +355,13 @@ class ScaffoldTest {
                         Box(
                             Modifier.size(10.dp)
                                 .drawShadow(4.dp)
-                                .drawBackground(Color.White)
+                                .background(color = Color.White)
                         )
                     }
                 ) {
                     Box(
                         Modifier.size(10.dp)
-                            .drawBackground(Color.White)
+                            .background(color = Color.White)
                     )
                 }
             }
@@ -429,7 +429,7 @@ class ScaffoldTest {
                         }
                         .fillMaxWidth()
                         .preferredHeight(100.dp)
-                        .drawBackground(Color.Red)
+                        .background(color = Color.Red)
                     )
                 }
             } else {
@@ -466,7 +466,7 @@ class ScaffoldTest {
                         }
                         .fillMaxWidth()
                         .preferredHeight(100.dp)
-                        .drawBackground(Color.Red)
+                        .background(color = Color.Red)
                     )
                 }
             } else {
@@ -505,7 +505,7 @@ class ScaffoldTest {
                         }
                         .fillMaxWidth()
                         .preferredHeight(100.dp)
-                        .drawBackground(Color.Red)
+                        .background(color = Color.Red)
                     )
                 }
             ) {
@@ -537,7 +537,7 @@ class ScaffoldTest {
                         }
                         .fillMaxWidth()
                         .preferredHeight(100.dp)
-                        .drawBackground(Color.Red)
+                        .background(color = Color.Red)
                     )
                 }
             ) {

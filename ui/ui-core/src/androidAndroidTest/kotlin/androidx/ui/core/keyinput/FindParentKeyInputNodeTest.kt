@@ -19,7 +19,7 @@ package androidx.ui.core.keyinput
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
@@ -75,7 +75,10 @@ class FindParentKeyInputNodeTest {
             modifier1 = KeyInputModifier(null, null)
             modifier2 = KeyInputModifier(null, null)
             modifier3 = KeyInputModifier(null, null)
-            Box(modifier = modifier1 + modifier2 + Modifier.drawBackground(Color.Red) + modifier3)
+            Box(
+                modifier = modifier1 + modifier2 + Modifier
+                    .background(color = Color.Red) + modifier3
+            )
         }
 
         // Act.

@@ -21,7 +21,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.desktop.test.DesktopScreenshotTestRule
 import androidx.ui.desktop.test.TestSkiaWindow
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
@@ -82,7 +81,7 @@ class ParagraphTest {
                             text = "Привет! 你好! Desktop Compose",
                             color = Color.Black,
                             modifier = Modifier
-                                .drawBackground(Color.Blue)
+                                .background(Color.Blue)
                                 .preferredHeight(56.dp)
                                 .wrapContentSize(Alignment.Center)
                         )

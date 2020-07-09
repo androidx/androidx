@@ -23,7 +23,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.Stack
@@ -122,7 +122,7 @@ class TextFieldTest {
                 Stack(
                     Modifier
                         .preferredSize(parentSize.toDp())
-                        .drawBackground(Color.White)
+                        .background(color = Color.White)
                         .testTag(TextfieldTag)
                 ) {
                     TextFieldScroller(

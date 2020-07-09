@@ -5,6 +5,13 @@ package androidx.ui.foundation {
     method @androidx.compose.Composable public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
+  public final class BackgroundKt {
+    method public static androidx.ui.core.Modifier background(androidx.ui.core.Modifier, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f);
+    method public static androidx.ui.core.Modifier background-IZZjS-Q(androidx.ui.core.Modifier, long color, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape);
+    method @Deprecated public static androidx.ui.core.Modifier drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DrawScope.DefaultBlendMode);
+    method @Deprecated public static androidx.ui.core.Modifier drawBackground-a_xWPtA(androidx.ui.core.Modifier, long color, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DrawScope.DefaultBlendMode);
+  }
+
   @androidx.compose.Immutable public final class Border {
     method public float component1();
     method public androidx.ui.graphics.Brush component2();
@@ -49,11 +56,6 @@ package androidx.ui.foundation {
 
   public final class DeterminateProgressIndicatorKt {
     method @androidx.compose.Stable public static androidx.ui.core.Modifier determinateProgressIndicator(androidx.ui.core.Modifier, @FloatRange(from=0.0, to=1.0) float progress);
-  }
-
-  public final class DrawBackgroundKt {
-    method public static androidx.ui.core.Modifier drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DrawScope.DefaultBlendMode);
-    method public static androidx.ui.core.Modifier drawBackground-a_xWPtA(androidx.ui.core.Modifier, long color, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DrawScope.DefaultBlendMode);
   }
 
   public final class DrawBorder implements androidx.ui.core.DrawModifier {

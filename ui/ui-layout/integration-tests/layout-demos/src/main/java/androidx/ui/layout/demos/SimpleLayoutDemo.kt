@@ -21,7 +21,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
@@ -42,35 +42,35 @@ fun SimpleLayoutDemo() {
     Column {
         Text(text = "Row", fontSize = 48.sp)
 
-        Stack(Modifier.preferredWidth(ExampleSize).drawBackground(color = lightGrey)) {
+        Stack(Modifier.preferredWidth(ExampleSize).background(color = lightGrey)) {
             Row(Modifier.fillMaxWidth()) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
         Spacer(Modifier.preferredHeight(24.dp))
-        Stack(Modifier.preferredWidth(ExampleSize).drawBackground(color = lightGrey)) {
+        Stack(Modifier.preferredWidth(ExampleSize).background(color = lightGrey)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
         Spacer(Modifier.preferredHeight(24.dp))
-        Stack(Modifier.preferredWidth(ExampleSize).drawBackground(color = lightGrey)) {
+        Stack(Modifier.preferredWidth(ExampleSize).background(color = lightGrey)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
         Spacer(Modifier.preferredHeight(24.dp))
-        Stack(Modifier.preferredWidth(ExampleSize).drawBackground(color = lightGrey)) {
+        Stack(Modifier.preferredWidth(ExampleSize).background(color = lightGrey)) {
             Row(Modifier.fillMaxWidth()) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
         Spacer(Modifier.preferredHeight(24.dp))
-        Stack(Modifier.preferredWidth(ExampleSize).drawBackground(color = lightGrey)) {
+        Stack(Modifier.preferredWidth(ExampleSize).background(color = lightGrey)) {
             Row(Modifier.fillMaxWidth()) {
                 PurpleSquare(Modifier.gravity(Alignment.Bottom))
                 CyanSquare(Modifier.gravity(Alignment.Bottom))
@@ -79,35 +79,35 @@ fun SimpleLayoutDemo() {
         Spacer(Modifier.preferredHeight(24.dp))
         Text(text = "Column", fontSize = 48.sp)
         Row(Modifier.fillMaxWidth()) {
-            Stack(Modifier.preferredHeight(ExampleSize).drawBackground(color = lightGrey)) {
+            Stack(Modifier.preferredHeight(ExampleSize).background(color = lightGrey)) {
                 Column(Modifier.fillMaxHeight()) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
             Spacer(Modifier.preferredWidth(24.dp))
-            Stack(Modifier.preferredHeight(ExampleSize).drawBackground(color = lightGrey)) {
+            Stack(Modifier.preferredHeight(ExampleSize).background(color = lightGrey)) {
                 Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
             Spacer(Modifier.preferredWidth(24.dp))
-            Stack(Modifier.preferredHeight(ExampleSize).drawBackground(color = lightGrey)) {
+            Stack(Modifier.preferredHeight(ExampleSize).background(color = lightGrey)) {
                 Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Bottom) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
             Spacer(Modifier.preferredWidth(24.dp))
-            Stack(Modifier.preferredHeight(ExampleSize).drawBackground(color = lightGrey)) {
+            Stack(Modifier.preferredHeight(ExampleSize).background(color = lightGrey)) {
                 Column(Modifier.fillMaxHeight()) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
             Spacer(Modifier.preferredWidth(24.dp))
-            Stack(Modifier.preferredHeight(ExampleSize).drawBackground(color = lightGrey)) {
+            Stack(Modifier.preferredHeight(ExampleSize).background(color = lightGrey)) {
                 Column(Modifier.fillMaxHeight()) {
                     PurpleSquare(Modifier.gravity(Alignment.End))
                     CyanSquare(Modifier.gravity(Alignment.End))

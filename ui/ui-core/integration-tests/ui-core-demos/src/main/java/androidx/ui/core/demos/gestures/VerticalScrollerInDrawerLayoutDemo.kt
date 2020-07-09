@@ -35,7 +35,7 @@ import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.foundation.drawBorder
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
@@ -116,7 +116,7 @@ private fun DrawerLayout(drawerWidth: Dp, children: @Composable ColumnScope.() -
                 .fillMaxHeight()
                 .width(drawerWidth)
                 .offsetPx(x = currentOffset)
-                .drawBackground(DefaultBackgroundColor)
+                .background(color = DefaultBackgroundColor)
         ) {
             Text(
                 "This is empty drawer content",
@@ -266,14 +266,14 @@ private fun Pressable(
             .longPressGestureFilter(onLongPress)
 
     val pressOverlay =
-        if (showPressed.value) Modifier.drawBackground(pressedColor) else Modifier
+        if (showPressed.value) Modifier.background(color = pressedColor) else Modifier
 
     Box(
         Modifier
             .fillMaxWidth()
             .preferredHeight(height)
             .drawBorder(1.dp, Color.Black)
-            .drawBackground(color.value)
+            .background(color = color.value)
             .plus(pressOverlay) + gestureDetectors
     )
 }

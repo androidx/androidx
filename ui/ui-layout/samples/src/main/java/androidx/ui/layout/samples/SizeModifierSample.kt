@@ -22,7 +22,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Stack
 import androidx.ui.layout.aspectRatio
@@ -115,7 +115,7 @@ fun SimplePreferredHeightModifier() {
 @Composable
 fun SimpleFillWidthModifier() {
     Box(Modifier.fillMaxWidth(), backgroundColor = Color.Red, gravity = ContentGravity.Center) {
-        Box(Modifier.preferredSize(100.dp).drawBackground(Color.Magenta))
+        Box(Modifier.preferredSize(100.dp).background(color = Color.Magenta))
     }
 }
 
@@ -123,7 +123,7 @@ fun SimpleFillWidthModifier() {
 @Composable
 fun SimpleFillHeightModifier() {
     Box(Modifier.fillMaxHeight(), backgroundColor = Color.Red, gravity = ContentGravity.Center) {
-        Box(Modifier.preferredSize(100.dp).drawBackground(Color.Magenta))
+        Box(Modifier.preferredSize(100.dp).background(color = Color.Magenta))
     }
 }
 
@@ -131,7 +131,7 @@ fun SimpleFillHeightModifier() {
 @Composable
 fun SimpleFillModifier() {
     Box(Modifier.fillMaxSize(), backgroundColor = Color.Red, gravity = ContentGravity.Center) {
-        Box(Modifier.preferredSize(100.dp).drawBackground(Color.Magenta))
+        Box(Modifier.preferredSize(100.dp).background(color = Color.Magenta))
     }
 }
 

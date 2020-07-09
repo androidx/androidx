@@ -23,7 +23,7 @@ import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
@@ -69,28 +69,28 @@ private val size = Modifier.preferredSize(10.dp, 10.dp)
 @Composable
 private fun testRow() {
     Row {
-        Stack(boxSize.drawBackground(Color.Red)) {}
-        Stack(boxSize.drawBackground(Color.Green)) {}
+        Stack(boxSize.background(color = Color.Red)) {}
+        Stack(boxSize.background(color = Color.Green)) {}
         Row {
-            Stack(boxSize.drawBackground(Color.Magenta)) {}
-            Stack(boxSize.drawBackground(Color.Yellow)) {}
-            Stack(boxSize.drawBackground(Color.Cyan)) {}
+            Stack(boxSize.background(color = Color.Magenta)) {}
+            Stack(boxSize.background(color = Color.Yellow)) {}
+            Stack(boxSize.background(color = Color.Cyan)) {}
         }
-        Stack(boxSize.drawBackground(Color.Blue)) {}
+        Stack(boxSize.background(color = Color.Blue)) {}
     }
 }
 
 @Composable
 private fun testRow_modifier() {
     Row {
-        Stack(boxSize.drawBackground(Color.Red)) {}
-        Stack(boxSize.drawBackground(Color.Green)) {}
+        Stack(boxSize.background(color = Color.Red)) {}
+        Stack(boxSize.background(color = Color.Green)) {}
         Row(Modifier.ltr) {
-            Stack(boxSize.drawBackground(Color.Magenta)) {}
-            Stack(boxSize.drawBackground(Color.Yellow)) {}
-            Stack(boxSize.drawBackground(Color.Cyan)) {}
+            Stack(boxSize.background(color = Color.Magenta)) {}
+            Stack(boxSize.background(color = Color.Yellow)) {}
+            Stack(boxSize.background(color = Color.Cyan)) {}
         }
-        Stack(boxSize.drawBackground(Color.Blue)) {}
+        Stack(boxSize.background(color = Color.Blue)) {}
     }
 }
 
@@ -98,9 +98,9 @@ private fun testRow_modifier() {
 private fun testText() {
     Column {
         Row {
-            Stack(size.drawBackground(Color.Red)) {}
-            Stack(size.drawBackground(Color.Green)) {}
-            Stack(size.drawBackground(Color.Blue)) {}
+            Stack(size.background(color = Color.Red)) {}
+            Stack(size.background(color = Color.Green)) {}
+            Stack(size.background(color = Color.Blue)) {}
         }
         Text("Text.")
         Text("Width filled text.", Modifier.fillMaxWidth())
@@ -114,11 +114,11 @@ private fun testText() {
 @Composable
 private fun testSiblings() {
     Column {
-        Stack(boxSize.drawBackground(Color.Red).alignWithSiblings { p -> p.width }
+        Stack(boxSize.background(color = Color.Red).alignWithSiblings { p -> p.width }
         ) {}
-        Stack(boxSize.drawBackground(Color.Green).alignWithSiblings { p -> p.width / 2 }
+        Stack(boxSize.background(color = Color.Green).alignWithSiblings { p -> p.width / 2 }
         ) {}
-        Stack(boxSize.drawBackground(Color.Blue).alignWithSiblings { p -> p.width / 4 }
+        Stack(boxSize.background(color = Color.Blue).alignWithSiblings { p -> p.width / 4 }
         ) {}
     }
 }
@@ -126,9 +126,9 @@ private fun testSiblings() {
 @Composable
 private fun CustomLayout(rtlSupport: Boolean) {
     Layout(children = @Composable {
-        Stack(boxSize.drawBackground(Color.Red)) {}
-        Stack(boxSize.drawBackground(Color.Green)) {}
-        Stack(boxSize.drawBackground(Color.Blue)) {}
+        Stack(boxSize.background(color = Color.Red)) {}
+        Stack(boxSize.background(color = Color.Green)) {}
+        Stack(boxSize.background(color = Color.Blue)) {}
     }) { measurables, constraints ->
         val p = measurables.map { e ->
             e.measure(constraints.copy(minWidth = 0, minHeight = 0))
@@ -156,7 +156,7 @@ private fun LayoutWithConstraints(modifier: Modifier = Modifier, text: String) {
         val w = maxWidth / 3
         val h = maxHeight / 2
         val color = if (layoutDirection == LayoutDirection.Ltr) Color.Red else Color.Magenta
-        Stack(Modifier.preferredSize(w, h).drawBackground(color)) {
+        Stack(Modifier.preferredSize(w, h).background(color = color)) {
             Text(text, Modifier.gravity(Alignment.Center))
         }
     }

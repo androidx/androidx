@@ -19,7 +19,7 @@ package androidx.ui.core.focus
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color.Companion.Red
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
@@ -71,7 +71,7 @@ class FindFocusableChildrenTest {
         composeTestRule.setContent {
             focusModifier1 = FocusModifier()
             focusModifier2 = FocusModifier()
-            Box(modifier = focusModifier1 + Modifier.drawBackground(Red) + focusModifier2)
+            Box(modifier = focusModifier1 + Modifier.background(color = Red) + focusModifier2)
         }
 
         // Act.
