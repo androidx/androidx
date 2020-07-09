@@ -18,6 +18,7 @@ package androidx.contentaccess.integration.testapp;
 
 import androidx.annotation.Nullable;
 import androidx.contentaccess.ContentColumn;
+import androidx.contentaccess.IgnoreConstructor;
 
 /**
  * Java Pojo to test that we properly transition between considering constructor fields and
@@ -29,8 +30,13 @@ public class EventIdStartTime {
 
     @ContentColumn(columnName = "dtstart")
     @Nullable
-    public long startTime;
+    public Long startTime;
 
     @Nullable
     public String randomNonColumnField;
+
+    @IgnoreConstructor
+    public EventIdStartTime(int randomParameter) {}
+
+    public EventIdStartTime() {}
 }

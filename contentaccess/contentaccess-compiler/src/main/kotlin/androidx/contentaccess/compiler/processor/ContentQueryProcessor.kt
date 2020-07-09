@@ -21,16 +21,21 @@ import androidx.contentaccess.compiler.utils.ErrorReporter
 import androidx.contentaccess.compiler.vo.ContentEntityVO
 import androidx.contentaccess.compiler.vo.ContentQueryVO
 import androidx.contentaccess.compiler.vo.PojoVO
-import androidx.contentaccess.ext.hasMoreThanOnePublicConstructor
+import androidx.contentaccess.ext.getSuspendFunctionReturnType
+import androidx.contentaccess.ext.hasMoreThanOneNonPrivateNonIgnoredConstructor
+import androidx.contentaccess.ext.isFilledThroughConstructor
+import androidx.contentaccess.ext.isNotInstantiable
+import androidx.contentaccess.ext.isSuspendFunction
 import androidx.contentaccess.ext.toAnnotationBox
 import asTypeElement
 import boxIfPrimitive
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import extractIntendedReturnType
+import isPrimitive
 import isString
 import isSupportedColumnType
 import isSupportedGenericType
 import isVoidObject
-import java.util.Locale
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.TypeMirror
@@ -42,10 +47,15 @@ class ContentQueryProcessor(
     private val processingEnv: ProcessingEnvironment,
     private val errorReporter: ErrorReporter
 ) {
+    @KotlinPoetMetadataPreview
     fun process(): ContentQueryVO? {
-        val returnType = method.returnType
+        val isSuspendFunction = method.isSuspendFunction(processingEnv)
+        val returnType = if (isSuspendFunction) {
+            method.getSuspendFunctionReturnType()
+        } else {
+            method.returnType
+        }
         val types = processingEnv.typeUtils
-
         val potentialContentEntity = method.toAnnotationBox(ContentQuery::class)!!
             .getAsTypeMirror("contentEntity")!!
         val resolvedContentEntity = if (!potentialContentEntity.isVoidObject()) {
@@ -55,37 +65,29 @@ class ContentQueryProcessor(
             contentEntity
         }
         if (resolvedContentEntity == null) {
-            errorReporter.reportError("Method ${method.simpleName} has no associated entity, " +
-                    "please ensure that either the content access object containing the method " +
-                    "specifies an entity inside the @ContentAccessObject annotation or that the " +
-                    "method specifies a content entity through the contentEntity parameter of " +
-                    "@ContentQuery.", method)
+            errorReporter.reportError(missingEntityOnMethod(method.simpleName.toString()), method)
             return null
         }
-        val toBeUsedUri = determineToBeUsedUri(resolvedContentEntity)
+        val toBeUsedUri = determineToBeUsedUri(resolvedContentEntity, contentQueryAnnotation.uri,
+            errorReporter, method)
         if (toBeUsedUri.isEmpty()) {
-            errorReporter.reportError("Failed to determine URI for query, the" +
-                    " URI is neither specified in the associated ContentEntity, nor in the " +
-                    "@ContentQuery parameters.", method)
+            errorReporter.reportError(missingUriOnMethod(), method)
         }
         val orderBy = if (contentQueryAnnotation.orderBy.isNotEmpty()) {
-            // Just in case there are no spaces before or after commas
-            val splitOrderBy = contentQueryAnnotation.orderBy.replace(",", ", ")
-                .split(" ").toMutableList()
-            for (i in 0..splitOrderBy.size - 1) {
-                val commaLessName = splitOrderBy[i].replace(",", "")
-                if (resolvedContentEntity.columns.containsKey(commaLessName)) {
-                    splitOrderBy[i] = splitOrderBy[i].replace(commaLessName, resolvedContentEntity
-                        .columns.get(commaLessName)!!.columnName)
-                } else {
-                    if (!ORDER_BY_KEYWORDS.contains(commaLessName.toLowerCase(Locale.ROOT)) &&
-                        commaLessName != "") {
-                        errorReporter.reportError("Field $commaLessName specified in orderBy is " +
-                                "not a recognizable field in the associated ContentEntity.", method)
+            for (orderByMember in contentQueryAnnotation.orderBy) {
+                val trimmedOrderByMember = orderByMember.trim()
+                if (!resolvedContentEntity.columns.containsKey(trimmedOrderByMember)) {
+                    // Maybe it was "column desc" or "column asc", check.
+                    val splitOrderBy = trimmedOrderByMember.split(" ")
+                    if (splitOrderBy.size == 2 && resolvedContentEntity.columns.containsKey
+                            (splitOrderBy.get(0)) && ORDER_BY_KEYWORDS.contains(splitOrderBy
+                            .get(1))) {
+                        continue
                     }
+                    errorReporter.reportError(badlyFormulatedOrderBy(orderByMember), method)
                 }
             }
-            splitOrderBy.joinToString(" ")
+            contentQueryAnnotation.orderBy.joinToString(" ")
         } else {
             ""
         }
@@ -97,16 +99,14 @@ class ContentQueryProcessor(
             null
         } else {
             SelectionProcessor(method, contentQueryAnnotation.selection,
-                paramsNamesAndTypes, errorReporter).process()
+                paramsNamesAndTypes, errorReporter, resolvedContentEntity).process()
         }
-
         if (contentQueryAnnotation.projection.size == 1 &&
             returnType.extractIntendedReturnType().isSupportedColumnType()) {
             val queriedColumn = contentQueryAnnotation.projection[0]
             if (!resolvedContentEntity.columns.containsKey(queriedColumn)) {
-                errorReporter.reportError("Column $queriedColumn being queried is not " +
-                        "defined within the specified entity ${resolvedContentEntity.type}.",
-                    method)
+                errorReporter.reportError(queriedColumnInProjectionNotInEntity(queriedColumn,
+                    resolvedContentEntity.type.toString()), method)
                 return null
             }
             val queriedColumnType = resolvedContentEntity.columns.get(queriedColumn)!!.type
@@ -116,8 +116,11 @@ class ContentQueryProcessor(
                     !processingEnv.typeUtils
                         .isSameType(returnType.extractIntendedReturnType(),
                             queriedColumnType.boxIfPrimitive(processingEnv))))) {
-                errorReporter.reportError("Return type $returnType does not match type" +
-                        " $queriedColumnType of column $queriedColumn being queried.", method)
+                errorReporter.reportError(
+                    queriedColumnInProjectionTypeDoesntMatchReturnType(returnType.toString(),
+                        queriedColumnType.toString(), queriedColumn),
+                    method
+                )
             }
             if (errorReporter.errorReported) {
                 return null
@@ -129,13 +132,22 @@ class ContentQueryProcessor(
                 uri = toBeUsedUri,
                 returnType = returnType,
                 method = method,
-                orderBy = orderBy)
+                orderBy = orderBy,
+                isSuspend = isSuspendFunction)
         } else {
             // Either empty projection or more than one field, either way infer the return columns
             // from the return type POJO/entity.
             if (types.isSameType(returnType, resolvedContentEntity.type)) {
-                return ContentQueryVO(method.simpleName.toString(), resolvedContentEntity.columns
-                    .map { it.value }, selectionVO, toBeUsedUri, returnType, method, orderBy)
+                // TODO(obenabde): no need for projection with entity.
+                return ContentQueryVO(
+                    name = method.simpleName.toString(),
+                    toQueryFor = resolvedContentEntity.columns.map { it.value },
+                    selection = selectionVO,
+                    orderBy = orderBy,
+                    uri = toBeUsedUri,
+                    returnType = returnType,
+                    method = method,
+                    isSuspend = isSuspendFunction)
             }
 
             val intendedReturnType = if (returnType.isSupportedGenericType()) {
@@ -144,28 +156,41 @@ class ContentQueryProcessor(
                 returnType
             }
 
-            if (intendedReturnType.asTypeElement().hasMoreThanOnePublicConstructor(processingEnv)) {
-                errorReporter.reportError("Pojo $intendedReturnType has more than one non private" +
-                        " constructor. Pojos should have only one non private constructor.",
+            if (intendedReturnType.asTypeElement()
+                    .hasMoreThanOneNonPrivateNonIgnoredConstructor()) {
+                errorReporter.reportError(
+                    pojoHasMoreThanOneQualifyingConstructor(intendedReturnType.toString()),
                     intendedReturnType.asTypeElement())
                 return null
+            } else if (intendedReturnType.asTypeElement().isNotInstantiable()) {
+                errorReporter.reportError(pojoIsNotInstantiable(intendedReturnType.asTypeElement()
+                    .qualifiedName.toString()), intendedReturnType.asTypeElement())
+                return null
             }
-            val pojo = PojoProcessor(intendedReturnType, processingEnv).process()
+            val pojo = PojoProcessor(intendedReturnType).process()
             // Apply the projection (if existing) to the POJO
             val pojoWithProjection = validateAndApplyProjectionToPojo(contentQueryAnnotation
                 .projection, pojo, returnType, resolvedContentEntity)
             if (errorReporter.errorReported) {
                 return null
             }
-            return ContentQueryVO(method.simpleName.toString(),
-                toQueryFor = pojoWithProjection!!.pojoFields.map {
+            pojoWithProjection!!.pojoFields.forEach {
+                if (it.isNullable && it.type.isPrimitive()) {
+                    errorReporter.reportError(pojoWithNullablePrimitive(it.name,
+                        pojo.type.toString()), method)
+                }
+            }
+            return ContentQueryVO(
+                name = method.simpleName.toString(),
+                toQueryFor = pojoWithProjection.pojoFields.map {
                     resolvedContentEntity.columns[it.columnName]!!
                 },
                 selection = selectionVO,
                 uri = toBeUsedUri,
                 returnType = returnType,
                 method = method,
-                orderBy = orderBy
+                orderBy = orderBy,
+                isSuspend = isSuspendFunction
             )
         }
     }
@@ -181,21 +206,20 @@ class ContentQueryProcessor(
                     .type.boxIfPrimitive(processingEnv),
                     field.type.boxIfPrimitive(processingEnv)
                 )) {
-                errorReporter.reportError("Field ${field.name} of type ${field.type} " +
-                        "corresponding to content" +
-                        " provider column ${field.columnName} doesn't match a field with same " +
-                        "type and content column in content entity ${resolvedContentEntity.type}",
+                errorReporter.reportError(pojoFieldNotInEntity(field.name, field.type.toString(),
+                    field.columnName, pojo.type.toString(), resolvedContentEntity.type.toString()),
                     method)
             } else {
                 if (resolvedContentEntity.columns.get(field.columnName)!!.isNullable &&
                     !field.isNullable) {
                     // TODO(obenabde): clarify how to mark as nullable, i.e "?" for Kotlin and
                     // @androidx.annotations.Nullable for Java.
-                    errorReporter.reportError("Field ${field.name} of type ${field.type} " +
-                            "corresponding to content provider column ${field.columnName} is not " +
-                            "nullable, however that column is declared as nullable in the " +
-                            "associated entity ${resolvedContentEntity.type}. Please mark the " +
-                            "field as nullable.", method)
+                    errorReporter.reportError(nullableEntityColumnNotNullableInPojo(
+                        field.name,
+                        field.type.toString(),
+                        field.columnName,
+                        resolvedContentEntity.type.toString()
+                    ), method)
                 }
             }
         }
@@ -217,17 +241,17 @@ class ContentQueryProcessor(
         for (column in projection) {
             if (!extractedColumnNames.containsKey(column)) {
                 errorFound = true
-                errorReporter.reportError("Column $column in projection array isn't included in " +
-                        "the return type ${returnType.extractIntendedReturnType()}", method)
+                errorReporter.reportError(columnInProjectionNotIncludedInReturnPojo(column,
+                    pojo.type.toString()), method)
             }
         }
         for (pojoField in pojo.pojoFields) {
-            if (!projection.contains(pojoField.columnName) && !pojoField.isNullable) {
+            if (!projection.contains(pojoField.columnName) && !pojoField.isNullable &&
+                pojo.type.asTypeElement().isFilledThroughConstructor()) {
                 errorFound = true
-                errorReporter.reportError("Field ${pojoField.name} in return object ${returnType
-                    .extractIntendedReturnType()} is not included in the supplied projection and" +
-                        " is not nullable. Fields that are not included in a query projection " +
-                        "should all be nullable.", method)
+                errorReporter.reportError(
+                    constructorFieldNotIncludedInProjectionNotNullable(pojoField.name, returnType
+                        .extractIntendedReturnType().toString()), method)
             }
         }
         if (errorFound) {
@@ -235,39 +259,42 @@ class ContentQueryProcessor(
         }
         val pojoFieldsWithProjection = pojo.pojoFields.filter { projection.contains(it.columnName) }
         validatePojoCorrectnessAgainstEntity(
-            PojoVO(pojoFieldsWithProjection),
+            PojoVO(pojoFieldsWithProjection, pojo.type),
             resolvedContentEntity
         )
-        return PojoVO(pojoFieldsWithProjection)
+        return PojoVO(pojoFieldsWithProjection, pojo.type)
+    }
+}
+
+fun determineToBeUsedUri(
+    resolvedContentEntity: ContentEntityVO,
+    uriInAnnotation: String,
+    errorReporter: ErrorReporter,
+    method: ExecutableElement
+):
+        String {
+    if (uriInAnnotation.isEmpty()) {
+        return resolvedContentEntity.defaultUri
     }
 
-    private fun determineToBeUsedUri(resolvedContentEntity: ContentEntityVO): String {
-        if (contentQueryAnnotation.uri.isEmpty()) {
-            return resolvedContentEntity.defaultUri
-        }
-
-        if (!contentQueryAnnotation.uri.startsWith(":")) {
-            return contentQueryAnnotation.uri
-        }
-
-        val specifiedParamName = contentQueryAnnotation.uri.substring(1)
-        if (specifiedParamName.isEmpty()) {
-            errorReporter.reportError(": is an invalid uri, please follow it up with the " +
-                    "parameter name", method)
-            return contentQueryAnnotation.uri
-        } else if (!method.parameters.map { it.simpleName.toString() }.contains
-                (specifiedParamName)) {
-            errorReporter.reportError("Parameter $specifiedParamName mentioned as the uri does " +
-                    "not exist! Please add it to the method parameters", method)
-            return contentQueryAnnotation.uri
-        } else if (!method.parameters.filter {
-                it.simpleName.toString().equals(specifiedParamName) }[0].asType().isString()) {
-            errorReporter.reportError("Parameter $specifiedParamName mentioned as the uri should " +
-                    "be of type String", method)
-            return contentQueryAnnotation.uri
-        }
-        return contentQueryAnnotation.uri
+    if (!uriInAnnotation.startsWith(":")) {
+        return uriInAnnotation
     }
+
+    val specifiedParamName = uriInAnnotation.substring(1)
+    if (specifiedParamName.isEmpty()) {
+        errorReporter.reportError(columnOnlyAsUri(), method)
+        return uriInAnnotation
+    } else if (!method.parameters.map { it.simpleName.toString() }.contains
+            (specifiedParamName)) {
+        errorReporter.reportError(missingUriParameter(specifiedParamName), method)
+        return uriInAnnotation
+    } else if (!method.parameters.filter {
+            it.simpleName.toString().equals(specifiedParamName) }[0].asType().isString()) {
+        errorReporter.reportError(uriParameterIsNotString(specifiedParamName), method)
+        return uriInAnnotation
+    }
+    return uriInAnnotation
 }
 
 internal val ORDER_BY_KEYWORDS = listOf("asc", "desc")

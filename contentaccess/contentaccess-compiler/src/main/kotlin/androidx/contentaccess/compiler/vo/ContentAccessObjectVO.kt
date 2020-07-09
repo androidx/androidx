@@ -25,5 +25,6 @@ data class ContentAccessObjectVO (
     val interfaceName: String,
     val packageName: String,
     val interfaceType: TypeMirror,
-    val queries: List<ContentQueryVO>
+    val queries: List<ContentQueryVO>,
+    val updates: List<ContentUpdateVO>
 )

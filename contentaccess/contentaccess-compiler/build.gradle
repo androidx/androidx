@@ -34,20 +34,28 @@ plugins {
 dependencies {
     implementation(project(":contentaccess:contentaccess-annotations"))
 
+    // TODO(obenabde): ensure all of those are used.
     implementation(KOTLIN_STDLIB)
     compileOnly(AUTO_SERVICE_ANNOTATIONS)
     kapt(AUTO_SERVICE_PROCESSOR)
     compileOnly(GRADLE_INCAP_HELPER)
     kapt(GRADLE_INCAP_HELPER_PROCESSOR)
     implementation(AUTO_COMMON)
+    implementation(JSQLPARSER)
     implementation(KOTLINPOET)
     implementation(KOTLINPOET_METADATA)
     implementation(KOTLINPOET_METADATA_SPECS)
     implementation(KOTLINPOET_CLASSINSPECTOR_ELEMENTS)
 
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
+    testImplementation(ASSERTJ)
     testImplementation(GOOGLE_COMPILE_TESTING)
+    testImplementation(JUNIT)
+    testImplementation(KOTLIN_COMPILE_TESTING)
+    testImplementation(KOTLIN_COROUTINES_ANDROID)
+    testImplementation fileTree(
+            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
+            include : "android.jar"
+    )
 }
 
 androidx {

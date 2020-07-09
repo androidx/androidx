@@ -18,6 +18,7 @@ package androidx.contentaccess.compiler.processor
 
 import androidx.contentaccess.ContentAccessObject
 import androidx.contentaccess.ContentQuery
+import androidx.contentaccess.ContentUpdate
 import androidx.contentaccess.compiler.utils.ErrorReporter
 import androidx.contentaccess.compiler.vo.ContentAccessObjectVO
 import androidx.contentaccess.compiler.writer.ContentAccessObjectWriter
@@ -70,6 +71,18 @@ class ContentAccessObjectProcessor(
                     errorReporter = errorReporter
                 ).process()
             }
+
+        val updateMethods = element.getAllMethodsIncludingSupers()
+            .filter { it.hasAnnotation(ContentUpdate::class) }
+            .map {
+                ContentUpdateProcessor(
+                    contentEntity = entity,
+                    method = it,
+                    contentUpdateAnnotation = it.getAnnotation(ContentUpdate::class.java),
+                    processingEnv = processingEnv,
+                    errorReporter = errorReporter
+                ).process()
+            }
         // Return if there was an error.
         if (errorReporter.errorReported) {
             return
@@ -80,7 +93,8 @@ class ContentAccessObjectProcessor(
                 interfaceName = element.qualifiedName.toString(),
                 packageName = processingEnv.elementUtils.getPackageOf(element).toString(),
                 interfaceType = element.asType(),
-                queries = queryMethods.mapNotNull { it }
+                queries = queryMethods.mapNotNull { it },
+                updates = updateMethods.mapNotNull { it }
             ),
             processingEnv
         ).generateFile()

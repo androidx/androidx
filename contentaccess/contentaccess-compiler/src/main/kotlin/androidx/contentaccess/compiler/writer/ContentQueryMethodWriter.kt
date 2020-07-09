@@ -17,14 +17,16 @@
 package androidx.contentaccess.compiler.writer
 
 import androidx.contentaccess.compiler.processor.PojoProcessor
+import androidx.contentaccess.compiler.processor.warn
 import androidx.contentaccess.compiler.vo.ContentColumnVO
 import androidx.contentaccess.compiler.vo.ContentQueryVO
-import androidx.contentaccess.ext.hasNonEmptyNonPrivateConstructor
+import androidx.contentaccess.ext.hasNonEmptyNonPrivateNonIgnoredConstructor
 import asTypeElement
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import extractIntendedReturnType
 import getCursorMethod
@@ -37,14 +39,26 @@ import toKotlinClassName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.TypeMirror
 
-class ContentQueryMethodWriter(val processingEnv: ProcessingEnvironment) {
+class ContentQueryMethodWriter(
+    val processingEnv: ProcessingEnvironment,
+    val contentQuery: ContentQueryVO
+) {
+    val returnOrSet = if (contentQuery.isSuspend) "" else "return "
 
     @KotlinPoetMetadataPreview
-    fun createContentQueryMethod(contentQuery: ContentQueryVO): FunSpec? {
+    fun createContentQueryMethod(): FunSpec? {
         val uriTypePlaceHolder = ClassName("android.net", "Uri")
         val methodBuilder = funSpecOverriding(contentQuery.method, processingEnv)
         methodBuilder.annotations.add(AnnotationSpec.builder(Suppress::class).addMember
-            ("%S", "USELESS_CAST").build())
+            ("%S", "USELESS_CAST").addMember("%S", "UNCHECKED_CAST").addMember("%S",
+            "PLATFORM_CLASS_MAPPED_TO_KOTLIN").build())
+        if (contentQuery.isSuspend) {
+            val withContext = MemberName("kotlinx.coroutines", "withContext")
+            methodBuilder.beginControlFlow(
+                "return %M(_coroutineDispatcher)",
+                withContext
+            )
+        }
         if (contentQuery.uri.startsWith(":")) {
             methodBuilder.addStatement("val _uri = %T.parse(%L)", uriTypePlaceHolder.copy(),
                 contentQuery.uri.removePrefix(":"))
@@ -75,16 +89,17 @@ class ContentQueryMethodWriter(val processingEnv: ProcessingEnvironment) {
         } else {
             methodBuilder.addStatement("val _selection = \"\"")
         }
-        callResolverAndFormulateReturn(methodBuilder, contentQuery, contentQuery.returnType,
+        callResolverAndFormulateReturn(methodBuilder, contentQuery.returnType,
             noSelectionArgs)
 
+        if (contentQuery.isSuspend) {
+            methodBuilder.endControlFlow()
+        }
         return methodBuilder.build()
     }
 
     fun callResolverAndFormulateReturn(
         methodBuilder: FunSpec.Builder,
-        contentQuery:
-            ContentQueryVO,
         returnType: TypeMirror,
         noSelectionArgs: Boolean
     ) {
@@ -97,80 +112,109 @@ class ContentQueryMethodWriter(val processingEnv: ProcessingEnvironment) {
         methodBuilder.endControlFlow()
         if (returnType.isSupportedGenericType()) {
             val realReturnType = returnType.extractIntendedReturnType()
+            val returnTypeInKotlin = methodBuilder.build().returnType.toString()
             if (returnType.isOptional()) {
-                populateAndReturnOptionalFromCursor(methodBuilder, realReturnType, contentQuery)
+                populateAndReturnOptionalFromCursor(methodBuilder, realReturnType,
+                    checkIfTypeArgumentIsNullable(returnTypeInKotlin))
             } else if (returnType.isList()) {
-                populateAndReturnListFromCursor(methodBuilder, realReturnType, contentQuery)
+                populateAndReturnListFromCursor(methodBuilder, realReturnType,
+                    checkIfTypeArgumentIsNullable(returnTypeInKotlin))
             } else if (returnType.isSet()) {
-                populateAndReturnSetFromCursor(methodBuilder, realReturnType, contentQuery)
+                populateAndReturnSetFromCursor(methodBuilder, realReturnType,
+                    checkIfTypeArgumentIsNullable(returnTypeInKotlin))
             }
         } else {
-            returnNonPojoTypeFromCursor(methodBuilder, returnType, contentQuery)
+            returnNonPojoTypeFromCursor(methodBuilder, returnType)
         }
     }
 
     fun populateAndReturnListFromCursor(
         methodBuilder: FunSpec.Builder,
-        realReturnType:
-            TypeMirror,
-        contentQuery: ContentQueryVO
+        realReturnType: TypeMirror,
+        typeArgumentIsNullable: Boolean
     ) {
         methodBuilder.addStatement("val _returnList = %T()",
             ClassName("kotlin.collections", "ArrayList").parameterizedBy(realReturnType
-                .toKotlinClassName()))
+                .toKotlinClassName().copy(typeArgumentIsNullable)))
         methodBuilder.beginControlFlow("while (_cursor.moveToNext())")
         createReturnTypeFromCursor(realReturnType, methodBuilder, contentQuery.toQueryFor)
-        methodBuilder.addStatement("_returnList.add($RETURN_OBJECT_NAME)")
+        // Check !realReturnType.isSupportedColumnType() because POJOs cannot be null, their
+        // fields can be, but that's a different check. We only check nullability when the return
+        // type is a supported cursor type (long, int, String etc...) Same goes for other
+        // collections.
+        if (typeArgumentIsNullable || !realReturnType.isSupportedColumnType()) {
+            methodBuilder.addStatement("_returnList.add($RETURN_OBJECT_NAME as %T)",
+                realReturnType
+                    .toKotlinClassName())
+        } else {
+            methodBuilder.beginControlFlow("if ($RETURN_OBJECT_NAME != null)")
+            methodBuilder.addStatement("_returnList.add($RETURN_OBJECT_NAME as %T)",
+                realReturnType
+                    .toKotlinClassName())
+            methodBuilder.endControlFlow()
+        }
         methodBuilder.endControlFlow()
-        methodBuilder.addStatement("return _returnList.toList() as ${methodBuilder.build()
+        methodBuilder.addStatement("$returnOrSet _returnList.toList() as ${methodBuilder.build()
             .returnType}")
     }
 
     fun populateAndReturnSetFromCursor(
         methodBuilder: FunSpec.Builder,
-        realReturnType:
-            TypeMirror,
-        contentQuery: ContentQueryVO
+        realReturnType: TypeMirror,
+        typeArgumentIsNullable: Boolean
     ) {
         methodBuilder.addStatement("val _returnSet = %T()",
-            ClassName("kotlin.collections", "HashSet").parameterizedBy(ClassName.bestGuess
-                (realReturnType
-                .toString())).copy())
+            ClassName("kotlin.collections", "HashSet").parameterizedBy(realReturnType
+                .toKotlinClassName().copy(typeArgumentIsNullable)).copy())
         methodBuilder.beginControlFlow("while (_cursor.moveToNext())")
         createReturnTypeFromCursor(realReturnType, methodBuilder, contentQuery.toQueryFor)
-        methodBuilder.addStatement("_returnSet.add($RETURN_OBJECT_NAME)")
+        if (typeArgumentIsNullable || !realReturnType.isSupportedColumnType()) {
+            methodBuilder.addStatement("_returnSet.add($RETURN_OBJECT_NAME as %T)",
+                realReturnType.toKotlinClassName())
+        } else {
+            methodBuilder.beginControlFlow("if ($RETURN_OBJECT_NAME != null)")
+            methodBuilder.addStatement("_returnSet.add($RETURN_OBJECT_NAME as %T)",
+                realReturnType.toKotlinClassName())
+            methodBuilder.endControlFlow()
+        }
+
         methodBuilder.endControlFlow()
-        methodBuilder.addStatement("return _returnSet.toSet() as ${methodBuilder.build()
+        methodBuilder.addStatement("$returnOrSet _returnSet.toSet() as ${methodBuilder.build()
             .returnType}")
     }
 
     fun populateAndReturnOptionalFromCursor(
         methodBuilder: FunSpec.Builder,
-        realReturnType:
-            TypeMirror,
-        contentQuery: ContentQueryVO
+        realReturnType: TypeMirror,
+        typeArgumentIsNullable: Boolean
     ) {
+        if (typeArgumentIsNullable) {
+            processingEnv.warn("Type argument $realReturnType of java.util.Optional is marked as " +
+                    "nullable, an Optional cannot contain a null reference, instead it will be " +
+                    "empty.", contentQuery.method)
+        }
         methodBuilder.beginControlFlow("if (_cursor.moveToNext())")
         createReturnTypeFromCursor(realReturnType, methodBuilder, contentQuery.toQueryFor)
-        methodBuilder.addStatement("return %T.of($RETURN_OBJECT_NAME)", ClassName("java" +
-                ".util", "Optional").copy())
+        methodBuilder.addStatement("$returnOrSet %T.ofNullable($RETURN_OBJECT_NAME as %T) as %L",
+            ClassName("java.util", "Optional").copy(), realReturnType.toKotlinClassName(),
+            methodBuilder.build().returnType.toString())
         methodBuilder.nextControlFlow("else")
-            .addStatement("return Optional.empty()")
+            .addStatement("$returnOrSet Optional.empty<%T>() as %L",
+                realReturnType.toKotlinClassName(),
+                methodBuilder.build().returnType.toString())
             .endControlFlow()
     }
 
     fun returnNonPojoTypeFromCursor(
         methodBuilder: FunSpec.Builder,
-        returnType:
-            TypeMirror,
-        contentQuery: ContentQueryVO
+        returnType: TypeMirror
     ) {
-        methodBuilder.beginControlFlow("if (_cursor!!.moveToNext())")
+        methodBuilder.beginControlFlow("if (_cursor.moveToNext())")
         createReturnTypeFromCursor(returnType, methodBuilder, contentQuery.toQueryFor)
-        methodBuilder.addStatement("return $RETURN_OBJECT_NAME as ${methodBuilder.build()
+        methodBuilder.addStatement("$returnOrSet $RETURN_OBJECT_NAME as ${methodBuilder.build()
             .returnType}")
         methodBuilder.nextControlFlow("else")
-            .addStatement("return null")
+            .addStatement("$returnOrSet null")
             .endControlFlow()
     }
 
@@ -181,14 +225,16 @@ class ContentQueryMethodWriter(val processingEnv: ProcessingEnvironment) {
     ) {
         if (realReturnType.isSupportedColumnType()) {
             // This isn't a pojo but a single column, get that type directly.
-            methodBuilder.addStatement("val %L : %T = %L", RETURN_OBJECT_NAME,
-                realReturnType.toKotlinClassName(), "_cursor" +
-                        ".${realReturnType.getCursorMethod()}(0)")
+            methodBuilder.beginControlFlow("val %L = if (_cursor.isNull(0))", RETURN_OBJECT_NAME)
+            methodBuilder.addStatement("null")
+            methodBuilder.nextControlFlow("else")
+            methodBuilder.addStatement("_cursor.${realReturnType.getCursorMethod()}(0)")
+            methodBuilder.endControlFlow()
             return
         }
-        val pojo = PojoProcessor(realReturnType, processingEnv).process()
+        val pojo = PojoProcessor(realReturnType).process()
         val pojoColumnsToFieldNames = pojo.pojoFields.map { it.columnName to it.name }.toMap()
-        if (realReturnType.asTypeElement().hasNonEmptyNonPrivateConstructor(processingEnv)) {
+        if (realReturnType.asTypeElement().hasNonEmptyNonPrivateNonIgnoredConstructor()) {
             val constructorParams = ArrayList<String>()
 
             val columnNamesBeingSelected = columns.map { it.columnName }
@@ -246,6 +292,11 @@ class ContentQueryMethodWriter(val processingEnv: ProcessingEnvironment) {
                 }
             }
         }
+    }
+
+    fun checkIfTypeArgumentIsNullable(returnTypeInKotlin: String): Boolean {
+        // TODO(obenabde): Hummmm beatiful code... is there a better way to do this.
+        return returnTypeInKotlin.substringAfterLast("<").substringBeforeLast(">").endsWith("?")
     }
 }
 
