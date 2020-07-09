@@ -986,7 +986,11 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         // Now return a new WindowInsets where we consume all insets to prevent the
-        // platform from dispatching the insets to ViewPager2's children *again*
+        // platform from dispatching the insets to ViewPager2's children, because the platform's
+        // dispatch is broken (it will leak insets consumed by one child to other children).
+        // There is a trade off here: by consuming all insets, we fix insets dispatching for our
+        // children, but we break it for siblings. By not consuming all insets, it would work for
+        // siblings but we break it for children.
         // TODO(b/153341849): Replace with
         //  Objects.requireNonNull(WindowInsetsCompat.CONSUMED.toWindowInsets())
         //  when androidx.core:core is updated to 1.3.0-beta02 or higher
