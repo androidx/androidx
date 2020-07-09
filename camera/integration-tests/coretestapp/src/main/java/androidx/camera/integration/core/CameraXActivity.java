@@ -24,8 +24,6 @@ import android.Manifest;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.SurfaceTexture;
 import android.hardware.display.DisplayManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -38,13 +36,14 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Rational;
 import android.view.Display;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -62,6 +61,7 @@ import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
@@ -82,9 +82,11 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -120,31 +122,61 @@ public class CameraXActivity extends AppCompatActivity {
     private final AtomicLong mImageAnalysisFrameCount = new AtomicLong(0);
     private final AtomicLong mPreviewFrameCount = new AtomicLong(0);
     private final MutableLiveData<String> mImageAnalysisResult = new MutableLiveData<>();
+    private static final String BACKWARD = "BACKWARD";
     private VideoFileSaver mVideoFileSaver;
     /** The camera to use */
     CameraSelector mCurrentCameraSelector = BACK_SELECTOR;
-    @CameraSelector.LensFacing
-    int mCurrentCameraLensFacing = CameraSelector.LENS_FACING_BACK;
     ProcessCameraProvider mCameraProvider;
     private CameraXViewModel.CameraProviderResult mCameraProviderResult;
 
     // TODO: Move the analysis processing, capture processing to separate threads, so
     // there is smaller impact on the preview.
-    private String mCurrentCameraDirection = "BACKWARD";
     private View mViewFinder;
-    private Preview mPreview;
-    private ImageAnalysis mImageAnalysis;
-    private ImageCapture mImageCapture;
+    private List<UseCase> mUseCases;
     private ExecutorService mImageCaptureExecutorService;
-    private VideoCapture mVideoCapture;
     private Camera mCamera;
-    @ImageCapture.CaptureMode
-    private int mCaptureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY;
+
+    private ToggleButton mVideoToggle;
+    private ToggleButton mPhotoToggle;
+    private ToggleButton mAnalysisToggle;
+    private ToggleButton mPreviewToggle;
+
+    private Button mRecord;
+    private Button mTakePicture;
+    private ImageButton mCameraDirectionButton;
+    private ImageButton mFlashButton;
+    private TextView mTextView;
+    private ImageButton mTorchButton;
+    private ToggleButton mCaptureQualityToggle;
 
     private OpenGLRenderer mPreviewRenderer;
     private DisplayManager.DisplayListener mDisplayListener;
 
     SessionImagesUriSet mSessionImagesUriSet = new SessionImagesUriSet();
+
+    // Analyzer to be used with ImageAnalysis.
+    private ImageAnalysis.Analyzer mAnalyzer = new ImageAnalysis.Analyzer() {
+        @Override
+        public void analyze(@NonNull ImageProxy image) {
+            // Since we set the callback handler to a main thread handler, we can call
+            // setValue() here. If we weren't on the main thread, we would have to call
+            // postValue() instead.
+            mImageAnalysisResult.setValue(
+                    Long.toString(image.getImageInfo().getTimestamp()));
+            try {
+                if (!mAnalysisIdlingResource.isIdleNow()) {
+                    mAnalysisIdlingResource.decrement();
+                }
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "Unexpected counter decrement");
+            }
+            image.close();
+        }
+    };
+
+    // Listener that handles all ToggleButton events.
+    private CompoundButton.OnCheckedChangeListener mOnCheckedChangeListener =
+            (compoundButton, isChecked) -> tryBindUseCases();
 
     // Espresso testing variables
     private final CountingIdlingResource mViewIdlingResource = new CountingIdlingResource("view");
@@ -226,166 +258,56 @@ public class CameraXActivity extends AppCompatActivity {
         mSessionImagesUriSet.deleteAllUris();
     }
 
-    /**
-     * Creates a view finder use case.
-     *
-     * <p>This use case observes a {@link SurfaceTexture}. The texture is connected to a {@link
-     * TextureView} to display a camera preview.
-     */
-    private void createPreview() {
-        Button button = this.findViewById(R.id.PreviewToggle);
-        button.setBackgroundColor(Color.LTGRAY);
-        enablePreview();
 
-        button.setOnClickListener(
-                view -> {
-                    Button buttonView = (Button) view;
-                    if (mPreview != null) {
-                        // Remove the use case
-                        buttonView.setBackgroundColor(Color.RED);
-                        mCameraProvider.unbind(mPreview);
-                        mPreview = null;
-                    } else {
-                        // Add the use case
-                        buttonView.setBackgroundColor(Color.LTGRAY);
-                        enablePreview();
-                    }
-                });
-
-        Log.i(TAG, "Got UseCase: " + mPreview);
+    @ImageCapture.CaptureMode
+    int getCaptureMode() {
+        return mCaptureQualityToggle.isChecked() ? ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY :
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY;
     }
 
-    void enablePreview() {
-        mPreview = new Preview.Builder()
-                .setTargetName("Preview")
-                .build();
-        Log.d(TAG, "enablePreview");
-
-        resetViewIdlingResource();
-
-        mPreviewRenderer.attachInputPreview(mPreview);
-
-        if (bindToLifecycleSafely(mPreview, R.id.PreviewToggle) == null) {
-            mPreview = null;
-        }
+    private boolean isFlashAvailable() {
+        CameraInfo cameraInfo = getCameraInfo();
+        return mPhotoToggle.isChecked() && cameraInfo != null && cameraInfo.hasFlashUnit();
     }
 
-    /**
-     * Creates an image analysis use case.
-     *
-     * <p>This use case observes a stream of analysis results computed from the frames.
-     */
-    private void createImageAnalysis() {
-        Button button = this.findViewById(R.id.AnalysisToggle);
-        button.setBackgroundColor(Color.LTGRAY);
-        enableImageAnalysis();
-
-        button.setOnClickListener(
-                view -> {
-                    Button buttonView = (Button) view;
-                    if (mImageAnalysis != null) {
-                        // Remove the use case
-                        buttonView.setBackgroundColor(Color.RED);
-                        mCameraProvider.unbind(mImageAnalysis);
-                        mImageAnalysis = null;
-                    } else {
-                        // Add the use case
-                        buttonView.setBackgroundColor(Color.LTGRAY);
-                        CameraXActivity.this.enableImageAnalysis();
-                    }
-                });
-
-        Log.i(TAG, "Got UseCase: " + mImageAnalysis);
+    private void setUpFlashButton() {
+        mFlashButton.setOnClickListener(v -> {
+            @ImageCapture.FlashMode int flashMode = getImageCapture().getFlashMode();
+            if (flashMode == FLASH_MODE_ON) {
+                getImageCapture().setFlashMode(FLASH_MODE_OFF);
+            } else if (flashMode == FLASH_MODE_OFF) {
+                getImageCapture().setFlashMode(FLASH_MODE_AUTO);
+            } else if (flashMode == FLASH_MODE_AUTO) {
+                getImageCapture().setFlashMode(FLASH_MODE_ON);
+            }
+            updateButtonsUi();
+        });
     }
 
-    void enableImageAnalysis() {
-        mImageAnalysis = new ImageAnalysis.Builder()
-                .setTargetName("ImageAnalysis")
-                .build();
-        TextView textView = this.findViewById(R.id.textView);
-
-        // Make the analysis idling resource non-idle, until a frame received.
-        mAnalysisIdlingResource.increment();
-
-        if (bindToLifecycleSafely(mImageAnalysis, R.id.AnalysisToggle) == null) {
-            mImageAnalysis = null;
-            return;
-        }
-
-        mImageAnalysis.setAnalyzer(
-                ContextCompat.getMainExecutor(this),
-                (image) -> {
-                    // Since we set the callback handler to a main thread handler, we can call
-                    // setValue() here. If we weren't on the main thread, we would have to call
-                    // postValue() instead.
-                    mImageAnalysisResult.setValue(
-                            Long.toString(image.getImageInfo().getTimestamp()));
-                    try {
-                        if (!mAnalysisIdlingResource.isIdleNow()) {
-                            mAnalysisIdlingResource.decrement();
-                        }
-                    } catch (IllegalStateException e) {
-                        Log.e(TAG, "Unexpected counter decrement");
-                    }
-                    image.close();
-                }
-        );
-        mImageAnalysisResult.observe(
-                this,
-                text -> {
-                    if (mImageAnalysisFrameCount.getAndIncrement() % 30 == 0) {
-                        textView.setText(
-                                "ImgCount: " + mImageAnalysisFrameCount.get() + " @ts: "
-                                        + text);
-                    }
-                });
+    private void setUpRecordButton() {
+        mRecord.setOnClickListener((view) -> {
+            String text = mRecord.getText().toString();
+            if (text.equals("Record") && !mVideoFileSaver.isSaving()) {
+                getVideoCapture().startRecording(
+                        mVideoFileSaver.getNewVideoFile(),
+                        ContextCompat.getMainExecutor(CameraXActivity.this),
+                        mVideoFileSaver);
+                mVideoFileSaver.setSaving();
+                mRecord.setText("Stop");
+            } else if (text.equals("Stop") && mVideoFileSaver.isSaving()) {
+                mRecord.setText("Record");
+                getVideoCapture().stopRecording();
+            } else if (text.equals("Record") && mVideoFileSaver.isSaving()) {
+                mRecord.setText("Stop");
+                mVideoFileSaver.setSaving();
+            } else if (text.equals("Stop") && !mVideoFileSaver.isSaving()) {
+                mRecord.setText("Record");
+            }
+        });
     }
 
-    /**
-     * Creates an image capture use case.
-     *
-     * <p>This use case takes a picture and saves it to a file, whenever the user clicks a button.
-     */
-    private void createImageCapture() {
-
-        Button button = this.findViewById(R.id.PhotoToggle);
-        button.setBackgroundColor(Color.LTGRAY);
-        enableImageCapture();
-
-        button.setOnClickListener(
-                view -> {
-                    Button buttonView = (Button) view;
-                    if (mImageCapture != null) {
-                        // Remove the use case
-                        buttonView.setBackgroundColor(Color.RED);
-                        CameraXActivity.this.disableImageCapture();
-                    } else {
-                        // Add the use case
-                        buttonView.setBackgroundColor(Color.LTGRAY);
-                        CameraXActivity.this.enableImageCapture();
-                    }
-                });
-
-        Log.i(TAG, "Got UseCase: " + mImageCapture);
-    }
-
-    void enableImageCapture() {
-        mImageCaptureExecutorService = Executors.newSingleThreadExecutor();
-        mImageCapture = new ImageCapture.Builder()
-                .setCaptureMode(mCaptureMode)
-                .setTargetName("ImageCapture")
-                .build();
-
-        Camera camera = bindToLifecycleSafely(mImageCapture, R.id.PhotoToggle);
-        if (camera == null) {
-            Button button = this.findViewById(R.id.Picture);
-            button.setOnClickListener(null);
-            mImageCapture = null;
-            return;
-        }
-
-        Button button = this.findViewById(R.id.Picture);
-        button.setOnClickListener(
+    private void setUpTakePictureButton() {
+        mTakePicture.setOnClickListener(
                 new View.OnClickListener() {
                     long mStartCaptureTime = 0;
 
@@ -402,7 +324,7 @@ public class CameraXActivity extends AppCompatActivity {
                                         getContentResolver(),
                                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                                         contentValues).build();
-                        mImageCapture.takePicture(outputFileOptions,
+                        getImageCapture().takePicture(outputFileOptions,
                                 mImageCaptureExecutorService,
                                 new ImageCapture.OnImageSavedCallback() {
                                     @Override
@@ -443,208 +365,116 @@ public class CameraXActivity extends AppCompatActivity {
                                 });
                     }
                 });
+    }
 
-        refreshFlashButton();
-
-
-        Button btnCaptureQuality = this.findViewById(R.id.capture_quality);
-        btnCaptureQuality.setVisibility(View.VISIBLE);
-        btnCaptureQuality.setText(
-                mCaptureMode == ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY ? "MAX" : "MIN");
-        btnCaptureQuality.setOnClickListener(view -> {
-            mCaptureMode = (mCaptureMode == ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
-                    ? ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
-                    : ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY);
-            rebindUseCases();
+    private void setUpCameraDirectionButton() {
+        mCameraDirectionButton.setOnClickListener(v -> {
+            if (mCurrentCameraSelector == BACK_SELECTOR) {
+                mCurrentCameraSelector = FRONT_SELECTOR;
+            } else if (mCurrentCameraSelector == FRONT_SELECTOR) {
+                mCurrentCameraSelector = BACK_SELECTOR;
+            }
+            Log.d(TAG, "Change camera direction: " + mCurrentCameraSelector);
+            tryBindUseCases();
         });
     }
 
-    void disableImageCapture() {
-        mCameraProvider.unbind(mImageCapture);
-        // Shutdown capture executor, callbacks rejected on executor will be caught by camerax-core.
-        mImageCaptureExecutorService.shutdown();
-
-        mImageCapture = null;
-        Button button = this.findViewById(R.id.Picture);
-        button.setOnClickListener(null);
-
-        Button btnCaptureQuality = this.findViewById(R.id.capture_quality);
-        btnCaptureQuality.setVisibility(View.GONE);
-
-        refreshFlashButton();
-    }
-
-    private void refreshFlashButton() {
-        ImageButton flashToggle = findViewById(R.id.flash_toggle);
-        if (mImageCapture != null) {
-            CameraInfo cameraInfo = getCameraInfo();
-            if (cameraInfo != null && cameraInfo.hasFlashUnit()) {
-                flashToggle.setVisibility(View.VISIBLE);
-                flashToggle.setOnClickListener(v -> {
-                    @ImageCapture.FlashMode int flashMode = mImageCapture.getFlashMode();
-                    if (flashMode == FLASH_MODE_ON) {
-                        mImageCapture.setFlashMode(FLASH_MODE_OFF);
-                    } else if (flashMode == FLASH_MODE_OFF) {
-                        mImageCapture.setFlashMode(FLASH_MODE_AUTO);
-                    } else if (flashMode == FLASH_MODE_AUTO) {
-                        mImageCapture.setFlashMode(FLASH_MODE_ON);
-                    }
-                    refreshFlashButtonIcon();
-                });
-                refreshFlashButtonIcon();
-            } else {
-                flashToggle.setVisibility(View.INVISIBLE);
-                flashToggle.setOnClickListener(null);
-            }
-        } else {
-            flashToggle.setVisibility(View.GONE);
-            flashToggle.setOnClickListener(null);
-        }
-    }
-
-    private void refreshFlashButtonIcon() {
-        ImageButton flashToggle = findViewById(R.id.flash_toggle);
-        @ImageCapture.FlashMode int flashMode = mImageCapture.getFlashMode();
-        switch (flashMode) {
-            case FLASH_MODE_ON:
-                flashToggle.setImageResource(R.drawable.ic_flash_on);
-                break;
-            case FLASH_MODE_OFF:
-                flashToggle.setImageResource(R.drawable.ic_flash_off);
-                break;
-            case FLASH_MODE_AUTO:
-                flashToggle.setImageResource(R.drawable.ic_flash_auto);
-                break;
-        }
-    }
-
-    @SuppressWarnings("UnstableApiUsage")
-    private void refreshTorchButton() {
-        ImageButton torchToggle = findViewById(R.id.torch_toggle);
-        CameraInfo cameraInfo = getCameraInfo();
-        if (cameraInfo != null && cameraInfo.hasFlashUnit()) {
-            torchToggle.setVisibility(View.VISIBLE);
-            torchToggle.setOnClickListener(v -> {
-                Integer torchState = cameraInfo.getTorchState().getValue();
-                boolean toggledState = !Objects.equals(torchState, TorchState.ON);
-                CameraControl cameraControl = getCameraControl();
-                if (cameraControl != null) {
-                    Log.d(TAG, "Set camera torch: " + toggledState);
-                    ListenableFuture<Void> future = cameraControl.enableTorch(toggledState);
-                    Futures.addCallback(future, new FutureCallback<Void>() {
-                        @Override
-                        public void onSuccess(@Nullable Void result) {
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull Throwable t) {
-                            // Throw the unexpected error.
-                            throw new RuntimeException(t);
-                        }
-                    }, CameraXExecutors.directExecutor());
+    private void setUpTorchButton() {
+        mTorchButton.setOnClickListener(v -> {
+            Objects.requireNonNull(getCameraInfo());
+            Objects.requireNonNull(getCameraControl());
+            Integer torchState = getCameraInfo().getTorchState().getValue();
+            boolean toggledState = !Objects.equals(torchState, TorchState.ON);
+            Log.d(TAG, "Set camera torch: " + toggledState);
+            ListenableFuture<Void> future = getCameraControl().enableTorch(toggledState);
+            Futures.addCallback(future, new FutureCallback<Void>() {
+                @Override
+                public void onSuccess(@Nullable Void result) {
                 }
-            });
-        } else {
-            Log.d(TAG, "No flash unit");
-            torchToggle.setVisibility(View.INVISIBLE);
-            torchToggle.setOnClickListener(null);
-        }
-    }
 
-    /**
-     * Creates a video capture use case.
-     *
-     * <p>This use case records a video segment and saves it to a file, in response to user button
-     * clicks.
-     */
-    private void createVideoCapture() {
-        Button button = this.findViewById(R.id.VideoToggle);
-        button.setBackgroundColor(Color.LTGRAY);
-        enableVideoCapture();
-
-        mVideoFileSaver = new VideoFileSaver();
-        mVideoFileSaver.setRootDirectory(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM));
-
-        button.setOnClickListener(
-                view -> {
-                    Button buttonView = (Button) view;
-                    if (mVideoCapture != null) {
-                        // Remove the use case
-                        buttonView.setBackgroundColor(Color.RED);
-                        CameraXActivity.this.disableVideoCapture();
-                    } else {
-                        // Add the use case
-                        buttonView.setBackgroundColor(Color.LTGRAY);
-                        CameraXActivity.this.enableVideoCapture();
-                    }
-                });
-
-        Log.i(TAG, "Got UseCase: " + mVideoCapture);
-    }
-
-    void enableVideoCapture() {
-        mVideoCapture = new VideoCapture.Builder()
-                .setTargetName("VideoCapture")
-                .build();
-
-        if (bindToLifecycleSafely(mVideoCapture, R.id.VideoToggle) == null) {
-            Button button = this.findViewById(R.id.Video);
-            button.setOnClickListener(null);
-            mVideoCapture = null;
-            return;
-        }
-
-        Button button = this.findViewById(R.id.Video);
-        button.setOnClickListener((view) -> {
-            Button buttonView = (Button) view;
-            String text = button.getText().toString();
-            if (text.equals("Record") && !mVideoFileSaver.isSaving()) {
-                mVideoCapture.startRecording(
-                        mVideoFileSaver.getNewVideoFile(),
-                        ContextCompat.getMainExecutor(CameraXActivity.this),
-                        mVideoFileSaver);
-                mVideoFileSaver.setSaving();
-                buttonView.setText("Stop");
-            } else if (text.equals("Stop") && mVideoFileSaver.isSaving()) {
-                buttonView.setText("Record");
-                mVideoCapture.stopRecording();
-            } else if (text.equals("Record") && mVideoFileSaver.isSaving()) {
-                buttonView.setText("Stop");
-                mVideoFileSaver.setSaving();
-            } else if (text.equals("Stop") && !mVideoFileSaver.isSaving()) {
-                buttonView.setText("Record");
-            }
+                @Override
+                public void onFailure(@NonNull Throwable t) {
+                    throw new RuntimeException(t);
+                }
+            }, CameraXExecutors.directExecutor());
         });
     }
 
-    void disableVideoCapture() {
-        Button button = this.findViewById(R.id.Video);
-        button.setOnClickListener(null);
-        mCameraProvider.unbind(mVideoCapture);
-
-        mVideoCapture = null;
+    private void updateButtonsUi() {
+        mRecord.setEnabled(mVideoToggle.isChecked());
+        mTakePicture.setEnabled(mPhotoToggle.isChecked());
+        mCaptureQualityToggle.setEnabled(mPhotoToggle.isChecked());
+        mCameraDirectionButton.setEnabled(getCameraInfo() != null);
+        mTorchButton.setEnabled(isFlashAvailable());
+        // Flash button
+        mFlashButton.setEnabled(mPhotoToggle.isChecked() && isFlashAvailable());
+        if (mPhotoToggle.isChecked()) {
+            switch (getImageCapture().getFlashMode()) {
+                case FLASH_MODE_ON:
+                    mFlashButton.setImageResource(R.drawable.ic_flash_on);
+                    break;
+                case FLASH_MODE_OFF:
+                    mFlashButton.setImageResource(R.drawable.ic_flash_off);
+                    break;
+                case FLASH_MODE_AUTO:
+                    mFlashButton.setImageResource(R.drawable.ic_flash_auto);
+                    break;
+            }
+        }
     }
 
-    /** Creates all the use cases. */
-    private void createUseCases() {
-        createImageCapture();
-        createPreview();
-        createImageAnalysis();
-        createVideoCapture();
+    private void setUpButtonEvents() {
+        mVideoToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
+        mPhotoToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
+        mAnalysisToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
+        mPreviewToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
+
+        setUpRecordButton();
+        setUpFlashButton();
+        setUpTakePictureButton();
+        setUpCameraDirectionButton();
+        setUpTorchButton();
+        mCaptureQualityToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_xmain);
+        mImageCaptureExecutorService = Executors.newSingleThreadExecutor();
         OpenGLRenderer previewRenderer = mPreviewRenderer = new OpenGLRenderer();
         ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
         mViewFinder = OpenGLActivity.chooseViewFinder(getIntent().getExtras(), viewFinderStub,
                 previewRenderer);
         mViewFinder.addOnLayoutChangeListener(
                 (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom)
-                        -> trySetupCamera());
+                        -> tryBindUseCases());
+
+        mVideoToggle = findViewById(R.id.VideoToggle);
+        mPhotoToggle = findViewById(R.id.PhotoToggle);
+        mAnalysisToggle = findViewById(R.id.AnalysisToggle);
+        mPreviewToggle = findViewById(R.id.PreviewToggle);
+
+        mTakePicture = findViewById(R.id.Picture);
+        mRecord = findViewById(R.id.Video);
+        mFlashButton = findViewById(R.id.flash_toggle);
+        mCameraDirectionButton = findViewById(R.id.direction_toggle);
+        mTorchButton = findViewById(R.id.torch_toggle);
+        mCaptureQualityToggle = findViewById(R.id.capture_quality);
+
+        mTextView = findViewById(R.id.textView);
+
+        setUpButtonEvents();
+
+        mImageAnalysisResult.observe(
+                this,
+                text -> {
+                    if (mImageAnalysisFrameCount.getAndIncrement() % 30 == 0) {
+                        mTextView.setText(
+                                "ImgCount: " + mImageAnalysisFrameCount.get() + " @ts: "
+                                        + text);
+                    }
+                });
 
         mDisplayListener = new DisplayManager.DisplayListener() {
             @Override
@@ -695,7 +525,11 @@ public class CameraXActivity extends AppCompatActivity {
         if (bundle != null) {
             String newCameraDirection = bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION);
             if (newCameraDirection != null) {
-                mCurrentCameraDirection = newCameraDirection;
+                if (newCameraDirection.equals(BACKWARD)) {
+                    mCurrentCameraSelector = BACK_SELECTOR;
+                } else {
+                    mCurrentCameraSelector = FRONT_SELECTOR;
+                }
             }
         }
 
@@ -706,7 +540,7 @@ public class CameraXActivity extends AppCompatActivity {
             mInitializationIdlingResource.decrement();
             if (cameraProviderResult.hasProvider()) {
                 mCameraProvider = cameraProviderResult.getProvider();
-                trySetupCamera();
+                tryBindUseCases();
             } else {
                 Log.e(TAG, "Failed to retrieve ProcessCameraProvider",
                         cameraProviderResult.getError());
@@ -725,70 +559,99 @@ public class CameraXActivity extends AppCompatActivity {
                 Objects.requireNonNull((DisplayManager) getSystemService(Context.DISPLAY_SERVICE));
         dpyMgr.unregisterDisplayListener(mDisplayListener);
         mPreviewRenderer.shutdown();
+        mImageCaptureExecutorService.shutdown();
     }
 
-    void trySetupCamera() {
+    void tryBindUseCases() {
+        tryBindUseCases(false);
+    }
+
+    /**
+     * Try building and binding current use cases.
+     *
+     * @param calledBySelf flag indicates if this is a recursive call.
+     */
+    void tryBindUseCases(boolean calledBySelf) {
         boolean isViewFinderReady = mViewFinder.getWidth() != 0 && mViewFinder.getHeight() != 0;
         boolean isCameraReady = mCameraProvider != null;
-        if (!allPermissionsGranted() || !isCameraReady || !isViewFinderReady) {
+        if (isPermissionMissing() || !isCameraReady || !isViewFinderReady) {
             // No-op if permission if something is not ready. It will try again upon the
             // next thing being ready.
             return;
         }
-
-        Log.d(TAG, "Camera direction: " + mCurrentCameraDirection);
-        if (mCurrentCameraDirection.equalsIgnoreCase("BACKWARD")) {
-            mCurrentCameraSelector = BACK_SELECTOR;
-            mCurrentCameraLensFacing = CameraSelector.LENS_FACING_BACK;
-        } else if (mCurrentCameraDirection.equalsIgnoreCase("FORWARD")) {
-            mCurrentCameraSelector = FRONT_SELECTOR;
-            mCurrentCameraLensFacing = CameraSelector.LENS_FACING_FRONT;
-        } else {
-            throw new RuntimeException("Invalid camera direction: " + mCurrentCameraDirection);
-        }
-        Log.d(TAG, "Using camera lens facing: " + mCurrentCameraSelector);
-
         mCameraProvider.unbindAll();
-        CameraXActivity.this.createUseCases();
-        refreshTorchButton();
+        try {
+            List<UseCase> useCases = buildUseCases();
+            mCamera = bindToLifecycleSafely(useCases);
+            // Set the use cases after a successful binding.
+            mUseCases = useCases;
+        } catch (IllegalArgumentException ex) {
+            Log.e(TAG, "bindToLifecycle() failed. Usually caused by binding too many use cases.");
+            Toast.makeText(this, "Bind too many use cases.", Toast.LENGTH_SHORT).show();
 
-        ImageButton directionToggle = findViewById(R.id.direction_toggle);
-        directionToggle.setVisibility(View.VISIBLE);
-        directionToggle.setOnClickListener(v -> {
-            if (mCurrentCameraLensFacing == CameraSelector.LENS_FACING_BACK) {
-                mCurrentCameraSelector = FRONT_SELECTOR;
-                mCurrentCameraLensFacing = CameraSelector.LENS_FACING_FRONT;
-            } else if (mCurrentCameraLensFacing == CameraSelector.LENS_FACING_FRONT) {
-                mCurrentCameraSelector = BACK_SELECTOR;
-                mCurrentCameraLensFacing = CameraSelector.LENS_FACING_BACK;
+            // Restore toggle buttons to the previous state if the bind failed.
+            mPreviewToggle.setChecked(getPreview() != null);
+            mPhotoToggle.setChecked(getImageCapture() != null);
+            mAnalysisToggle.setChecked(getImageAnalysis() != null);
+            mVideoToggle.setChecked(getVideoCapture() != null);
+
+            if (!calledBySelf) {
+                // Only call self if not already calling self to avoid an infinite loop.
+                tryBindUseCases(true);
             }
-
-            Log.d(TAG, "Change camera direction: " + mCurrentCameraSelector);
-            rebindUseCases();
-            refreshTorchButton();
-
-        });
+        }
+        updateButtonsUi();
     }
 
-    private void rebindUseCases() {
-        // Rebind all use cases.
-        mCameraProvider.unbindAll();
-        if (mImageCapture != null) {
-            enableImageCapture();
+    /**
+     * Builds all use cases based on current settings and return as an array.
+     */
+    private List<UseCase> buildUseCases() {
+        List<UseCase> useCases = new ArrayList<>();
+        if (mPreviewToggle.isChecked()) {
+            Preview preview = new Preview.Builder()
+                    .setTargetName("Preview")
+                    .build();
+            resetViewIdlingResource();
+            mPreviewRenderer.attachInputPreview(preview);
+            useCases.add(preview);
         }
-        if (mPreview != null) {
-            enablePreview();
+
+        if (mPhotoToggle.isChecked()) {
+            ImageCapture imageCapture = new ImageCapture.Builder()
+                    .setCaptureMode(getCaptureMode())
+                    .setTargetName("ImageCapture")
+                    .build();
+            useCases.add(imageCapture);
         }
-        if (mImageAnalysis != null) {
-            enableImageAnalysis();
+
+        if (mAnalysisToggle.isChecked()) {
+            ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+                    .setTargetName("ImageAnalysis")
+                    .build();
+            useCases.add(imageAnalysis);
+            // Make the analysis idling resource non-idle, until a frame received.
+            mAnalysisIdlingResource.increment();
+            imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), mAnalyzer);
         }
-        if (mVideoCapture != null) {
-            enableVideoCapture();
+
+        if (mVideoToggle.isChecked()) {
+            mVideoFileSaver = new VideoFileSaver();
+            mVideoFileSaver.setRootDirectory(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM));
+            VideoCapture videoCapture = new VideoCapture.Builder()
+                    .setTargetName("VideoCapture")
+                    .build();
+            useCases.add(videoCapture);
         }
+        return useCases;
     }
 
+    /**
+     * Request permission if missing.
+     */
     private void setupPermissions() {
-        if (!allPermissionsGranted()) {
+        if (isPermissionMissing()) {
             ActivityResultLauncher<String[]> permissionLauncher =
                     registerForActivityResult(
                             new ActivityResultContracts.RequestMultiplePermissions(),
@@ -803,25 +666,25 @@ public class CameraXActivity extends AppCompatActivity {
                                         return;
                                     }
                                 }
-                                trySetupCamera();
+                                tryBindUseCases();
                             });
 
             permissionLauncher.launch(REQUIRED_PERMISSIONS);
         } else {
             // Permissions already granted. Start camera.
-            trySetupCamera();
+            tryBindUseCases();
         }
     }
 
-    /** Returns true if all the necessary permissions have been granted already. */
-    private boolean allPermissionsGranted() {
+    /** Returns true if any of the required permissions is missing. */
+    private boolean isPermissionMissing() {
         for (String permission : REQUIRED_PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(this, permission)
                     != PackageManager.PERMISSION_GRANTED) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     private void createDefaultPictureFolderIfNotExist() {
@@ -834,36 +697,34 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Workaround method for an AndroidX issue where {@link UseExperimental} doesn't support 2 or
+     * more annotations.
+     */
     @UseExperimental(markerClass = ExperimentalUseCaseGroupLifecycle.class)
-    @Nullable
-    private Camera bindToLifecycleSafely(UseCase useCase, int buttonViewId) {
-        return bindToLifecycleSafelyWithExperimental(useCase, buttonViewId);
+    private Camera bindToLifecycleSafely(List<UseCase> useCases) {
+        Log.e(TAG, "Binding use cases " + useCases);
+        return bindToLifecycleSafelyWithExperimental(useCases);
     }
 
+    /**
+     * Binds use cases to the current lifecycle.
+     */
     @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     @ExperimentalUseCaseGroupLifecycle
-    @Nullable
-    private Camera bindToLifecycleSafelyWithExperimental(UseCase useCase, int buttonViewId) {
-        try {
-            // TODO(b/1323379): bind all use cases in one group.
-            ViewPort viewPort = new ViewPort.Builder(new Rational(mViewFinder.getWidth(),
-                    mViewFinder.getHeight()),
-                    mViewFinder.getDisplay().getRotation())
-                    .setScaleType(ViewPort.FILL_CENTER).build();
-            UseCaseGroup useCaseGroup = new UseCaseGroup.Builder().addUseCase(useCase).setViewPort(
-                    viewPort).build();
-            mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector,
-                    useCaseGroup);
-            return mCamera;
-        } catch (IllegalArgumentException e) {
-            Log.e(TAG, "bindToLifecycle() failed for " + useCase
-                    + ". This is usually caused by binding too many use cases.");
-            Toast.makeText(getApplicationContext(), "Bind too many use cases.", Toast.LENGTH_SHORT)
-                    .show();
-            Button button = this.findViewById(buttonViewId);
-            button.setBackgroundColor(Color.RED);
+    private Camera bindToLifecycleSafelyWithExperimental(List<UseCase> useCases) {
+        ViewPort viewPort = new ViewPort.Builder(new Rational(mViewFinder.getWidth(),
+                mViewFinder.getHeight()),
+                mViewFinder.getDisplay().getRotation())
+                .setScaleType(ViewPort.FILL_CENTER).build();
+        UseCaseGroup.Builder useCaseGroupBuilder = new UseCaseGroup.Builder().setViewPort(
+                viewPort);
+        for (UseCase useCase : useCases) {
+            useCaseGroupBuilder.addUseCase(useCase);
         }
-        return null;
+        mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector,
+                useCaseGroupBuilder.build());
+        return mCamera;
     }
 
     private class SessionImagesUriSet {
@@ -889,19 +750,34 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     Preview getPreview() {
-        return mPreview;
+        return findUseCase(Preview.class);
     }
 
     ImageAnalysis getImageAnalysis() {
-        return mImageAnalysis;
+        return findUseCase(ImageAnalysis.class);
     }
 
     ImageCapture getImageCapture() {
-        return mImageCapture;
+        return findUseCase(ImageCapture.class);
     }
 
     VideoCapture getVideoCapture() {
-        return mVideoCapture;
+        return findUseCase(VideoCapture.class);
+    }
+
+    /**
+     * Finds the use case by the given class.
+     */
+    @Nullable
+    private <T extends UseCase> T findUseCase(Class<T> useCaseSubclass) {
+        if (mUseCases != null) {
+            for (UseCase useCase : mUseCases) {
+                if (useCaseSubclass.isInstance(useCase)) {
+                    return useCaseSubclass.cast(useCase);
+                }
+            }
+        }
+        return null;
     }
 
     @VisibleForTesting

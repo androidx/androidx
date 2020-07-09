@@ -17,4 +17,14 @@
 
 <resources>
     <string name="fps_counter_template">%1$s fps</string>
+    <string name="toggle_preview_on">preview\non</string>
+    <string name="toggle_preview_off">preview\noff</string>
+    <string name="toggle_photo_on">photo\non</string>
+    <string name="toggle_photo_off">photo\noff</string>
+    <string name="toggle_analysis_on">analysis\non</string>
+    <string name="toggle_analysis_off">analysis\noff</string>
+    <string name="toggle_video_on">video\non</string>
+    <string name="toggle_video_off">video\noff</string>
+    <string name="toggle_capture_quality_on">MAX</string>
+    <string name="toggle_capture_quality_off">MIN</string>
 </resources>
