@@ -32,12 +32,12 @@ dependencies {
     // this ugly hack exists because of b/63873667
     if (rootProject.hasProperty("android.injected.invoked.from.ide")) {
         compileOnly LINT_API_LATEST
+        compileOnly LINT_CORE
     } else {
         compileOnly LINT_API_MIN
+        compileOnly "com.android.tools.lint:lint:$lintMinVersion"
     }
     compileOnly KOTLIN_STDLIB
-
-    compileOnly "com.android.tools.lint:lint:$lintMinVersion"
 
     testImplementation KOTLIN_STDLIB
     testImplementation LINT_CORE
