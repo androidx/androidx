@@ -186,6 +186,13 @@ public final class CameraX {
                 + "To use a different configuration, shutdown() must be called.");
 
         sConfigProvider = configProvider;
+
+        // Set the minimum logging level inside CameraX before it's initialization begins
+        final Integer minLogLevel = configProvider.getCameraXConfig().retrieveOption(
+                CameraXConfig.OPTION_MIN_LOGGING_LEVEL, null);
+        if (minLogLevel != null) {
+            Logger.setMinLogLevel(minLogLevel);
+        }
     }
 
     @GuardedBy("INSTANCE_LOCK")
@@ -238,6 +245,7 @@ public final class CameraX {
     public static ListenableFuture<Void> shutdown() {
         synchronized (INSTANCE_LOCK) {
             sConfigProvider = null;
+            Logger.resetMinLogLevel();
             return shutdownLocked();
         }
     }
