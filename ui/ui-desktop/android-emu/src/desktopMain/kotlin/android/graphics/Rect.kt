@@ -16,8 +16,6 @@
 
 package android.graphics
 
-import org.jetbrains.skija.Rect as SkRect
-
 class Rect(
     @kotlin.jvm.JvmField
     var left: Int,
@@ -37,6 +35,3 @@ class Rect(
         this.bottom = bottom
     }
 }
-
-internal fun Rect.toSkia() =
-    SkRect.makeLTRB(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat())
