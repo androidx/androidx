@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import COMMON
+import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.RELATION_IN_ENTITY
@@ -38,8 +39,6 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.lang.AssertionError
-import javax.lang.model.type.TypeKind.INT
 
 @RunWith(JUnit4::class)
 class TableEntityProcessorTest : BaseEntityParserTest() {
@@ -54,7 +53,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.type.toString(), `is`("foo.bar.MyEntity"))
             assertThat(entity.fields.size, `is`(1))
             val field = entity.fields.first()
-            val intType = invocation.processingEnv.typeUtils.getPrimitiveType(INT)
+            val intType = invocation.processingEnv.requireTypeMirror(TypeName.INT)
             assertThat(field, `is`(Field(
                     element = field.element,
                     name = "id",
@@ -156,7 +155,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             val cursorValueReader = idField.cursorValueReader
                 ?: throw AssertionError("must have a cursor value reader")
             assertThat(cursorValueReader.typeMirror().typeName(),
-                `is`(invocation.typeUtils.getPrimitiveType(INT).typeName()))
+                `is`(invocation.processingEnv.requireTypeMirror(TypeName.INT).typeName()))
         }.compilesWithoutError()
             .withWarningContaining(
                 ProcessorErrors.mismatchedSetter(
@@ -180,7 +179,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             val statementBinder = idField.statementBinder
                 ?: throw AssertionError("must have a statement binder")
             assertThat(statementBinder.typeMirror().typeName(),
-                `is`(invocation.typeUtils.getPrimitiveType(INT).typeName()))
+                `is`(invocation.processingEnv.requireTypeMirror(TypeName.INT).typeName()))
         }.compilesWithoutError()
     }
 

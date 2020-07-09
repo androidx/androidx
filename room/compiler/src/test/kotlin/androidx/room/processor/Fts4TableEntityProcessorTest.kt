@@ -19,6 +19,7 @@ package androidx.room.processor
 import androidx.room.Fts4
 import androidx.room.FtsOptions
 import androidx.room.ext.asTypeElement
+import androidx.room.ext.requireTypeMirror
 import androidx.room.parser.FtsVersion
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CallType
@@ -27,6 +28,7 @@ import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
 import androidx.room.vo.Fields
 import com.google.testing.compile.JavaFileObjects
+import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -34,7 +36,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import simpleRun
-import javax.lang.model.type.TypeKind
 
 @RunWith(JUnit4::class)
 class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
@@ -54,7 +55,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
             assertThat(entity.type.toString(), CoreMatchers.`is`("foo.bar.MyEntity"))
             assertThat(entity.fields.size, CoreMatchers.`is`(1))
             val field = entity.fields.first()
-            val intType = invocation.processingEnv.typeUtils.getPrimitiveType(TypeKind.INT)
+            val intType = invocation.processingEnv.requireTypeMirror(TypeName.INT)
             assertThat(field, CoreMatchers.`is`(Field(
                     element = field.element,
                     name = "rowId",

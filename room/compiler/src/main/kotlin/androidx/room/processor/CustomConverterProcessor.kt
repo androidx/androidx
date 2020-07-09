@@ -36,7 +36,6 @@ import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_RECEIVE_1_PAR
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
 import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.vo.CustomTypeConverter
-import asExecutableType
 import asTypeElement
 import isError
 import isNone
@@ -120,8 +119,7 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
     ): CustomTypeConverter? {
         val typeUtils = context.processingEnv.typeUtils
         val asMember = methodElement.asMemberOf(typeUtils, container)
-        val executableType = asMember.asExecutableType()
-        val returnType = executableType.returnType
+        val returnType = asMember.returnType
         val invalidReturnType = returnType.isInvalidReturnType()
         context.checker.check(
             methodElement.isPublic(), methodElement, TYPE_CONVERTER_MUST_BE_PUBLIC

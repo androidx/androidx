@@ -27,6 +27,7 @@ import androidx.room.ext.asDeclaredType
 import androidx.room.ext.asExecutableElement
 import androidx.room.ext.asTypeElement
 import androidx.room.ext.getAllMethods
+import androidx.room.ext.getArrayType
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.typeName
@@ -71,7 +72,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.Mockito
 import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeKind.INT
 import javax.lang.model.type.TypeMirror
 import javax.tools.JavaFileObject
 
@@ -132,7 +132,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             assertThat(param.name, `is`("x"))
             assertThat(param.sqlName, `is`("x"))
             assertThat(param.type,
-                    `is`(invocation.processingEnv.typeUtils.getPrimitiveType(INT) as TypeMirror))
+                    `is`(invocation.processingEnv.requireTypeMirror(TypeName.INT)))
         }.compilesWithoutError()
     }
 
@@ -149,9 +149,9 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             val param = parsedQuery.parameters.first()
             assertThat(param.name, `is`("ids"))
             assertThat(param.sqlName, `is`("ids"))
-            val types = invocation.processingEnv.typeUtils
+            val env = invocation.processingEnv
             assertThat(param.type,
-                    `is`(types.getArrayType(types.getPrimitiveType(INT)) as TypeMirror))
+                    `is`(env.getArrayType(TypeName.INT) as TypeMirror))
         }.compilesWithoutError()
     }
 

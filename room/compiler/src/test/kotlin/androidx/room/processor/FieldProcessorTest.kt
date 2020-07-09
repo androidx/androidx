@@ -21,6 +21,7 @@ import androidx.room.ext.asDeclaredType
 import androidx.room.ext.asTypeElement
 import androidx.room.ext.asVariableElement
 import androidx.room.ext.getAllFieldsIncludingPrivateSupers
+import androidx.room.ext.getArrayType
 import androidx.room.ext.requireTypeMirror
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
@@ -28,10 +29,12 @@ import androidx.room.solver.types.ColumnTypeAdapter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Field
+import box
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
+import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.nullValue
@@ -42,8 +45,6 @@ import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import simpleRun
 import javax.lang.model.element.Element
-import javax.lang.model.type.TypeKind
-import javax.lang.model.type.TypeMirror
 
 @Suppress("HasPlatformType")
 @RunWith(JUnit4::class)
@@ -58,64 +59,54 @@ class FieldProcessorTest {
                 """
         const val ENTITY_SUFFIX = "}"
         val ALL_PRIMITIVES = arrayListOf(
-                TypeKind.INT,
-                TypeKind.BYTE,
-                TypeKind.SHORT,
-                TypeKind.LONG,
-                TypeKind.CHAR,
-                TypeKind.FLOAT,
-                TypeKind.DOUBLE)
+            TypeName.INT,
+            TypeName.BYTE,
+            TypeName.SHORT,
+            TypeName.LONG,
+            TypeName.CHAR,
+            TypeName.FLOAT,
+            TypeName.DOUBLE
+        )
         val ARRAY_CONVERTER = JavaFileObjects.forSourceLines("foo.bar.MyConverter",
                 """
                 package foo.bar;
                 import androidx.room.*;
                 public class MyConverter {
                 ${ALL_PRIMITIVES.joinToString("\n") {
-                    val arrayDef = "${it.name.toLowerCase()}[]"
+                    val arrayDef = "$it[]"
                     "@TypeConverter public static String" +
                             " arrayIntoString($arrayDef input) { return null;}" +
                             "@TypeConverter public static $arrayDef" +
-                            " stringIntoArray${it.name}(String input) { return null;}"
+                            " stringIntoArray$it(String input) { return null;}"
                 }}
                 ${ALL_PRIMITIVES.joinToString("\n") {
                     val arrayDef = "${it.box()}[]"
                     "@TypeConverter public static String" +
                             " arrayIntoString($arrayDef input) { return null;}" +
                             "@TypeConverter public static $arrayDef" +
-                            " stringIntoArray${it.name}Boxed(String input) { return null;}"
+                            " stringIntoArray${it}Boxed(String input) { return null;}"
                 }}
                 }
                 """)
 
-        private fun TypeKind.box(): String {
-            return "java.lang." + when (this) {
-                TypeKind.INT -> "Integer"
-                TypeKind.CHAR -> "Character"
-                else -> this.name.toLowerCase().capitalize()
-            }
-        }
-
-        // these 2 box methods are ugly but makes tests nicer and they are private
-        private fun TypeKind.typeMirror(invocation: TestInvocation): TypeMirror {
-            return invocation.processingEnv.typeUtils.getPrimitiveType(this)
-        }
-
-        private fun TypeKind.affinity(): SQLTypeAffinity {
+        private fun TypeName.affinity(): SQLTypeAffinity {
             return when (this) {
-                TypeKind.FLOAT, TypeKind.DOUBLE -> SQLTypeAffinity.REAL
+                TypeName.FLOAT, TypeName.DOUBLE -> SQLTypeAffinity.REAL
                 else -> SQLTypeAffinity.INTEGER
             }
         }
 
-        private fun TypeKind.box(invocation: TestInvocation): TypeMirror {
-            return invocation.processingEnv.requireTypeMirror(box())
-        }
+        private fun TypeName.box(invocation: TestInvocation) =
+            typeMirror(invocation).box(invocation.typeUtils)
+
+        private fun TypeName.typeMirror(invocation: TestInvocation) =
+            invocation.processingEnv.requireTypeMirror(this)
     }
 
     @Test
     fun primitives() {
         ALL_PRIMITIVES.forEach { primitive ->
-            singleEntity("${primitive.name.toLowerCase()} x;") { field, invocation ->
+            singleEntity("$primitive x;") { field, invocation ->
                 assertThat(field, `is`(
                         Field(name = "x",
                                 type = primitive.typeMirror(invocation),
@@ -148,7 +139,7 @@ class FieldProcessorTest {
             """) { field, invocation ->
             assertThat(field, `is`(
                     Field(name = "x",
-                            type = TypeKind.INT.typeMirror(invocation),
+                            type = TypeName.INT.typeMirror(invocation),
                             element = field.element,
                             columnName = "foo",
                             affinity = SQLTypeAffinity.INTEGER)))
@@ -163,7 +154,7 @@ class FieldProcessorTest {
             """) { field, invocation ->
             assertThat(field, `is`(
                     Field(name = "x",
-                            type = TypeKind.INT.typeMirror(invocation),
+                            type = TypeName.INT.typeMirror(invocation),
                             element = field.element,
                             columnName = "foo",
                             affinity = SQLTypeAffinity.INTEGER,
@@ -185,8 +176,7 @@ class FieldProcessorTest {
         singleEntity("@TypeConverters(foo.bar.MyConverter.class)" +
                 "@ColumnInfo(typeAffinity = ColumnInfo.TEXT) byte[] arr;") { field, invocation ->
             assertThat(field, `is`(Field(name = "arr",
-                    type = invocation.processingEnv.typeUtils.getArrayType(
-                            TypeKind.BYTE.typeMirror(invocation)),
+                    type = invocation.processingEnv.getArrayType(TypeName.BYTE),
                     element = field.element,
                     affinity = SQLTypeAffinity.TEXT)))
             assertThat((field.cursorValueReader as? ColumnTypeAdapter)?.typeAffinity,
@@ -201,10 +191,9 @@ class FieldProcessorTest {
                     "${primitive.toString().toLowerCase()}[] arr;") { field, invocation ->
                 assertThat(field, `is`(
                         Field(name = "arr",
-                                type = invocation.processingEnv.typeUtils.getArrayType(
-                                        primitive.typeMirror(invocation)),
+                                type = invocation.processingEnv.getArrayType(primitive),
                                 element = field.element,
-                                affinity = if (primitive == TypeKind.BYTE) {
+                                affinity = if (primitive == TypeName.BYTE) {
                                     SQLTypeAffinity.BLOB
                                 } else {
                                     SQLTypeAffinity.TEXT
@@ -220,8 +209,8 @@ class FieldProcessorTest {
                     "${primitive.box()}[] arr;") { field, invocation ->
                 assertThat(field, `is`(
                         Field(name = "arr",
-                                type = invocation.processingEnv.typeUtils.getArrayType(
-                                        primitive.box(invocation)),
+                                type = invocation.processingEnv.getArrayType(
+                                        primitive.box()),
                                 element = field.element,
                                 affinity = SQLTypeAffinity.TEXT)))
             }.compilesWithoutError()
@@ -239,7 +228,7 @@ class FieldProcessorTest {
                 }
                 """) { field, invocation ->
             assertThat(field, `is`(Field(name = "item",
-                    type = TypeKind.INT.box(invocation),
+                    type = TypeName.INT.box(invocation),
                     element = field.element,
                     affinity = SQLTypeAffinity.INTEGER)))
         }.compilesWithoutError()
@@ -259,12 +248,12 @@ class FieldProcessorTest {
     @Test
     fun nameVariations() {
         simpleRun {
-            assertThat(Field(mock(Element::class.java), "x", TypeKind.INT.typeMirror(it),
+            assertThat(Field(mock(Element::class.java), "x", TypeName.INT.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("x")))
-            assertThat(Field(mock(Element::class.java), "x", TypeKind.BOOLEAN.typeMirror(it),
+            assertThat(Field(mock(Element::class.java), "x", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("x")))
             assertThat(Field(mock(Element::class.java), "xAll",
-                    TypeKind.BOOLEAN.typeMirror(it), SQLTypeAffinity.INTEGER)
+                TypeName.BOOLEAN.typeMirror(it), SQLTypeAffinity.INTEGER)
                     .nameWithVariations, `is`(arrayListOf("xAll")))
         }
     }
@@ -273,13 +262,13 @@ class FieldProcessorTest {
     fun nameVariations_is() {
         val elm = mock(Element::class.java)
         simpleRun {
-            assertThat(Field(elm, "isX", TypeKind.BOOLEAN.typeMirror(it),
+            assertThat(Field(elm, "isX", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("isX", "x")))
-            assertThat(Field(elm, "isX", TypeKind.INT.typeMirror(it),
+            assertThat(Field(elm, "isX", TypeName.INT.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("isX")))
-            assertThat(Field(elm, "is", TypeKind.BOOLEAN.typeMirror(it),
+            assertThat(Field(elm, "is", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("is")))
-            assertThat(Field(elm, "isAllItems", TypeKind.BOOLEAN.typeMirror(it),
+            assertThat(Field(elm, "isAllItems", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations,
                     `is`(arrayListOf("isAllItems", "allItems")))
         }
@@ -289,13 +278,13 @@ class FieldProcessorTest {
     fun nameVariations_has() {
         val elm = mock(Element::class.java)
         simpleRun {
-            assertThat(Field(elm, "hasX", TypeKind.BOOLEAN.typeMirror(it),
+            assertThat(Field(elm, "hasX", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("hasX", "x")))
-            assertThat(Field(elm, "hasX", TypeKind.INT.typeMirror(it),
+            assertThat(Field(elm, "hasX", TypeName.INT.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("hasX")))
-            assertThat(Field(elm, "has", TypeKind.BOOLEAN.typeMirror(it),
+            assertThat(Field(elm, "has", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("has")))
-            assertThat(Field(elm, "hasAllItems", TypeKind.BOOLEAN.typeMirror(it),
+            assertThat(Field(elm, "hasAllItems", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations,
                     `is`(arrayListOf("hasAllItems", "allItems")))
         }
@@ -305,18 +294,18 @@ class FieldProcessorTest {
     fun nameVariations_m() {
         val elm = mock(Element::class.java)
         simpleRun {
-            assertThat(Field(elm, "mall", TypeKind.BOOLEAN.typeMirror(it),
+            assertThat(Field(elm, "mall", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("mall")))
-            assertThat(Field(elm, "mallVars", TypeKind.BOOLEAN.typeMirror(it),
+            assertThat(Field(elm, "mallVars", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("mallVars")))
-            assertThat(Field(elm, "mAll", TypeKind.BOOLEAN.typeMirror(it),
+            assertThat(Field(elm, "mAll", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("mAll", "all")))
-            assertThat(Field(elm, "m", TypeKind.INT.typeMirror(it),
+            assertThat(Field(elm, "m", TypeName.INT.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("m")))
-            assertThat(Field(elm, "mallItems", TypeKind.BOOLEAN.typeMirror(it),
+            assertThat(Field(elm, "mallItems", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations,
                     `is`(arrayListOf("mallItems")))
-            assertThat(Field(elm, "mAllItems", TypeKind.BOOLEAN.typeMirror(it),
+            assertThat(Field(elm, "mAllItems", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations,
                     `is`(arrayListOf("mAllItems", "allItems")))
         }
@@ -326,11 +315,11 @@ class FieldProcessorTest {
     fun nameVariations_underscore() {
         val elm = mock(Element::class.java)
         simpleRun {
-            assertThat(Field(elm, "_all", TypeKind.BOOLEAN.typeMirror(it),
+            assertThat(Field(elm, "_all", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("_all", "all")))
-            assertThat(Field(elm, "_", TypeKind.INT.typeMirror(it),
+            assertThat(Field(elm, "_", TypeName.INT.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("_")))
-            assertThat(Field(elm, "_allItems", TypeKind.BOOLEAN.typeMirror(it),
+            assertThat(Field(elm, "_allItems", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations,
                     `is`(arrayListOf("_allItems", "allItems")))
         }
