@@ -58,7 +58,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
- * Provides routes and RouteController by using MediaRouter2.
+ * Provides non-system routes (and related RouteControllers) by using MediaRouter2.
  * This provider is added only when media transfer feature is enabled.
  */
 @RequiresApi(Build.VERSION_CODES.R)
@@ -249,10 +249,11 @@ class MediaRoute2Provider extends MediaRouteProvider {
         // Create group route descriptor
         MediaRouteDescriptor groupDescriptor = new MediaRouteDescriptor.Builder(
                 routingController.getId(), groupRouteName)
+                .setConnectionState(MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTED)
+                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolume(routingController.getVolume())
                 .setVolumeMax(routingController.getVolumeMax())
                 .setVolumeHandling(routingController.getVolumeHandling())
-                .setConnectionState(MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTED)
                 .addControlFilters(initialRouteDescriptor.getControlFilters())
                 .addGroupMemberIds(selectedRouteIds)
                 .build();
