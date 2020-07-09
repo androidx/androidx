@@ -20,24 +20,14 @@ import androidx.compose.Composable
 import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.ui.core.Modifier
-import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PointerInputChange
-import androidx.ui.core.anyPositionChangeConsumed
-import androidx.ui.core.changedToDown
-import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.composed
-import androidx.ui.core.gesture.anyPointersInBounds
 import androidx.ui.core.gesture.doubleTapGestureFilter
 import androidx.ui.core.gesture.longPressGestureFilter
+import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.semantics.semantics
 import androidx.ui.semantics.enabled
 import androidx.ui.semantics.onClick
-import androidx.ui.geometry.Offset
-import androidx.ui.unit.IntSize
-import androidx.ui.util.fastAny
 
 /**
  * Configure component to receive clicks via input or accessibility "click" event.
@@ -80,7 +70,7 @@ fun Modifier.clickable(
     )
     val interactionUpdate =
         if (enabled) {
-            Modifier.noConsumptionIndicatorGestureFilter(
+            Modifier.pressIndicatorGestureFilter(
                 onStart = { interactionState.addInteraction(Interaction.Pressed, it) },
                 onStop = { interactionState.removeInteraction(Interaction.Pressed) },
                 onCancel = { interactionState.removeInteraction(Interaction.Pressed) }
@@ -111,82 +101,4 @@ fun Modifier.clickable(
         .plus(tap)
         .plus(longTap)
         .plus(doubleTap)
-}
-
-/**
- * TODO: b/154589321 remove this
- * Temporary copy of pressIndicatorGestureFilter that does *not* consume down events.
- * This is needed so that Ripple can still see the events after clickable does, so that the
- * Ripple will still show.
- */
-@Composable
-private fun Modifier.noConsumptionIndicatorGestureFilter(
-    onStart: (Offset) -> Unit,
-    onStop: () -> Unit,
-    onCancel: () -> Unit
-): Modifier = this + remember { NoConsumptionIndicatorGestureFilter(onStart, onStop, onCancel) }
-
-/**
- * Temporary, see [noConsumptionIndicatorGestureFilter]
- */
-private class NoConsumptionIndicatorGestureFilter(
-    val onStart: (Offset) -> Unit,
-    val onStop: () -> Unit,
-    // Rename to avoid clashing with onCancel() function
-    val onCancelCallback: () -> Unit
-) : PointerInputFilter(), PointerInputModifier {
-    override val pointerInputFilter = this
-
-    private var state = State.Idle
-
-    override fun onPointerInput(
-        changes: List<PointerInputChange>,
-        pass: PointerEventPass,
-        bounds: IntSize
-    ): List<PointerInputChange> {
-        if (pass == PointerEventPass.PostUp) {
-            if (state == State.Idle && changes.all { it.changedToDown() }) {
-                // If we have not yet started and all of the changes changed to down, we are
-                // starting.
-                state = State.Started
-                onStart(changes.first().current.position!!)
-            } else if (state == State.Started) {
-                if (changes.all { it.changedToUpIgnoreConsumed() }) {
-                    // If we have started and all of the changes changed to up, we are stopping.
-                    state = State.Idle
-                    onStop()
-                } else if (!changes.anyPointersInBounds(bounds)) {
-                    // If all of the down pointers are currently out of bounds, we should cancel
-                    // as this indicates that the user does not which to trigger a press based
-                    // event.
-                    state = State.Idle
-                    onCancelCallback()
-                }
-            }
-        }
-
-        if (
-            pass == PointerEventPass.PostDown &&
-            state == State.Started &&
-            changes.fastAny { it.anyPositionChangeConsumed() }
-        ) {
-            // On the final pass, if we have started and any of the changes had consumed
-            // position changes, we cancel.
-            state = State.Idle
-            onCancelCallback()
-        }
-
-        return changes
-    }
-
-    override fun onCancel() {
-        if (state == State.Started) {
-            state = State.Idle
-            onCancelCallback()
-        }
-    }
-
-    private enum class State {
-        Idle, Started
-    }
 }

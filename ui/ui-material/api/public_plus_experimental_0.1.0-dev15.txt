@@ -365,10 +365,6 @@ package androidx.ui.material.ripple {
     method @androidx.compose.Composable public static androidx.ui.material.ripple.RippleIndication RippleIndication-XC6LiZk(boolean bounded = true, androidx.ui.unit.Dp? radius = null, long color = Color.Unset);
   }
 
-  public final class RippleKt {
-    method @Deprecated public static androidx.ui.core.Modifier ripple-Eb40wiw(androidx.ui.core.Modifier, boolean bounded = true, androidx.ui.unit.Dp? radius = null, long color = Color.Unset, boolean enabled = true, androidx.animation.AnimationClockObservable? clock = null);
-  }
-
   public interface RippleOpacity {
     method public float opacityForInteraction(androidx.ui.foundation.Interaction interaction);
   }
