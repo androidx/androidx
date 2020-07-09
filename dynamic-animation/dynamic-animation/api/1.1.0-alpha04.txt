@@ -1,14 +1,24 @@
 // Signature format: 3.0
 package androidx.dynamicanimation.animation {
 
+  public final class AnimationHandler {
+    ctor public AnimationHandler(androidx.dynamicanimation.animation.AnimationHandler.FrameCallbackScheduler);
+  }
+
+  public static interface AnimationHandler.FrameCallbackScheduler {
+    method public void postFrameCallback(Runnable);
+  }
+
   public abstract class DynamicAnimation<T extends androidx.dynamicanimation.animation.DynamicAnimation<T>> {
     method public T! addEndListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationEndListener!);
     method public T! addUpdateListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationUpdateListener!);
     method @MainThread public void cancel();
+    method public androidx.dynamicanimation.animation.AnimationHandler getAnimationHandler();
     method public float getMinimumVisibleChange();
     method public boolean isRunning();
     method public void removeEndListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationEndListener!);
     method public void removeUpdateListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationUpdateListener!);
+    method public void setAnimationHandler(androidx.dynamicanimation.animation.AnimationHandler);
     method public T! setMaxValue(float);
     method public T! setMinValue(float);
     method public T! setMinimumVisibleChange(@FloatRange(from=0.0, fromInclusive=false) float);
