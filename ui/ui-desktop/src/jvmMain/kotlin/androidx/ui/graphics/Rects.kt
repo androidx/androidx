@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.ui.graphics
 
-package android.graphics
+import androidx.ui.geometry.Rect
 
-import org.jetbrains.skija.Image
-
-class Bitmap(bytes: ByteArray) {
-    val skiaImage = Image.makeFromEncoded(bytes)
-
-    val width = skiaImage.width
-    val height = skiaImage.height
+internal fun Rect.toSkija(): org.jetbrains.skija.Rect {
+    return org.jetbrains.skija.Rect.makeLTRB(
+        left,
+        top,
+        right,
+        bottom
+    )
 }

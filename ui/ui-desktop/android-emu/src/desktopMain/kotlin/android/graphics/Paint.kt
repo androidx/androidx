@@ -62,7 +62,7 @@ open class Paint {
         const val FILTER_BITMAP_FLAG = 2
     }
 
-    internal val skijaPaint = org.jetbrains.skija.Paint()
+    val skijaPaint = org.jetbrains.skija.Paint()
 
     constructor()
 

@@ -16,15 +16,114 @@
 
 package androidx.ui.graphics
 
+import androidx.compose.InternalComposeApi
+
 actual typealias NativePaint = android.graphics.Paint
-internal actual fun makeNativePaint() =
+
+@Suppress("DEPRECATION_ERROR")
+@OptIn(InternalComposeApi::class)
+actual fun Paint(): Paint = GraphicsFactory.paint()
+
+class AndroidPaint : Paint {
+
+    private var internalPaint = makeNativePaint()
+    private var _blendMode = BlendMode.srcOver
+    private var internalShader: Shader? = null
+    private var internalColorFilter: ColorFilter? = null
+
+    override fun asFrameworkPaint(): NativePaint = internalPaint
+
+    override var alpha: Float
+        get() = internalPaint.getNativeAlpha()
+        set(value) {
+            internalPaint.setNativeAlpha(value)
+        }
+
+    override var isAntiAlias: Boolean
+        get() = internalPaint.getNativeAntiAlias()
+        set(value) {
+            internalPaint.setNativeAntiAlias(value)
+        }
+
+    override var color: Color
+        get() = internalPaint.getNativeColor()
+        set(color) {
+            internalPaint.setNativeColor(color)
+        }
+
+    override var blendMode: BlendMode
+        get() = _blendMode
+        set(value) {
+            _blendMode = value
+            internalPaint.setNativeBlendMode(value)
+        }
+
+    override var style: PaintingStyle
+        get() = internalPaint.getNativeStyle()
+        set(value) {
+            internalPaint.setNativeStyle(value)
+        }
+
+    override var strokeWidth: Float
+        get() = internalPaint.getNativeStrokeWidth()
+        set(value) {
+            internalPaint.setNativeStrokeWidth(value)
+        }
+
+    override var strokeCap: StrokeCap
+        get() = internalPaint.getNativeStrokeCap()
+        set(value) {
+            internalPaint.setNativeStrokeCap(value)
+        }
+
+    override var strokeJoin: StrokeJoin
+        get() = internalPaint.getNativeStrokeJoin()
+        set(value) {
+            internalPaint.setNativeStrokeJoin(value)
+        }
+
+    override var strokeMiterLimit: Float
+        get() = internalPaint.getNativeStrokeMiterLimit()
+        set(value) {
+            internalPaint.setNativeStrokeMiterLimit(value)
+        }
+
+    // TODO(ianh): verify that the image drawing methods actually respect this
+    override var filterQuality: FilterQuality
+        get() = internalPaint.getNativeFilterQuality()
+        set(value) {
+            internalPaint.setNativeFilterQuality(value)
+        }
+
+    override var shader: Shader?
+        get() = internalShader
+        set(value) {
+            internalShader = value
+            internalPaint.setNativeShader(internalShader)
+        }
+
+    override var colorFilter: ColorFilter?
+        get() = internalColorFilter
+        set(value) {
+            internalColorFilter = value
+            internalPaint.setNativeColorFilter(value)
+        }
+
+    override var nativePathEffect: NativePathEffect? = null
+        set(value) {
+            internalPaint.setNativePathEffect(value)
+            field = value
+        }
+}
+
+internal fun makeNativePaint() =
     android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
 
-internal actual fun NativePaint.setNativeBlendMode(value: BlendMode) {
+internal fun NativePaint.setNativeBlendMode(value: BlendMode) {
     this.xfermode = android.graphics.PorterDuffXfermode(value.toPorterDuffMode())
 }
 
-internal actual fun NativePaint.setNativeColorFilter(value: ColorFilter?) {
+internal fun NativePaint.setNativeColorFilter(value: ColorFilter?) {
     if (value != null) {
         this.colorFilter = android.graphics.PorterDuffColorFilter(
                 value.color.toArgb(),
@@ -35,25 +134,25 @@ internal actual fun NativePaint.setNativeColorFilter(value: ColorFilter?) {
     }
 }
 
-internal actual fun NativePaint.getNativeAlpha() = this.alpha / 255f
+internal fun NativePaint.getNativeAlpha() = this.alpha / 255f
 
-internal actual fun NativePaint.setNativeAlpha(value: Float) {
+internal fun NativePaint.setNativeAlpha(value: Float) {
     this.alpha = kotlin.math.round(value * 255.0f).toInt()
 }
 
-internal actual fun NativePaint.getNativeAntiAlias(): Boolean = this.isAntiAlias
+internal fun NativePaint.getNativeAntiAlias(): Boolean = this.isAntiAlias
 
-internal actual fun NativePaint.setNativeAntiAlias(value: Boolean) {
+internal fun NativePaint.setNativeAntiAlias(value: Boolean) {
     this.isAntiAlias = value
 }
 
-internal actual fun NativePaint.getNativeColor(): Color = Color(this.color)
+internal fun NativePaint.getNativeColor(): Color = Color(this.color)
 
-internal actual fun NativePaint.setNativeColor(value: Color) {
+internal fun NativePaint.setNativeColor(value: Color) {
     this.color = value.toArgb()
 }
 
-internal actual fun NativePaint.setNativeStyle(value: PaintingStyle) {
+internal fun NativePaint.setNativeStyle(value: PaintingStyle) {
     // TODO(njawad): Platform also supports Paint.Style.FILL_AND_STROKE)
     this.style = when (value) {
         PaintingStyle.stroke -> android.graphics.Paint.Style.STROKE
@@ -61,26 +160,26 @@ internal actual fun NativePaint.setNativeStyle(value: PaintingStyle) {
     }
 }
 
-internal actual fun NativePaint.getNativeStyle() = when (this.style) {
+internal fun NativePaint.getNativeStyle() = when (this.style) {
     android.graphics.Paint.Style.STROKE -> PaintingStyle.stroke
     else -> PaintingStyle.fill
 }
 
-internal actual fun NativePaint.getNativeStrokeWidth(): Float =
+internal fun NativePaint.getNativeStrokeWidth(): Float =
     this.strokeWidth
 
-internal actual fun NativePaint.setNativeStrokeWidth(value: Float) {
+internal fun NativePaint.setNativeStrokeWidth(value: Float) {
     this.strokeWidth = value
 }
 
-internal actual fun NativePaint.getNativeStrokeCap(): StrokeCap = when (this.strokeCap) {
+internal fun NativePaint.getNativeStrokeCap(): StrokeCap = when (this.strokeCap) {
     android.graphics.Paint.Cap.BUTT -> StrokeCap.butt
     android.graphics.Paint.Cap.ROUND -> StrokeCap.round
     android.graphics.Paint.Cap.SQUARE -> StrokeCap.square
     else -> StrokeCap.butt
 }
 
-internal actual fun NativePaint.setNativeStrokeCap(value: StrokeCap) {
+internal fun NativePaint.setNativeStrokeCap(value: StrokeCap) {
     this.strokeCap = when (value) {
         StrokeCap.square -> android.graphics.Paint.Cap.SQUARE
         StrokeCap.round -> android.graphics.Paint.Cap.ROUND
@@ -88,7 +187,7 @@ internal actual fun NativePaint.setNativeStrokeCap(value: StrokeCap) {
     }
 }
 
-internal actual fun NativePaint.getNativeStrokeJoin(): StrokeJoin =
+internal fun NativePaint.getNativeStrokeJoin(): StrokeJoin =
     when (this.strokeJoin) {
         android.graphics.Paint.Join.MITER -> StrokeJoin.miter
         android.graphics.Paint.Join.BEVEL -> StrokeJoin.bevel
@@ -96,7 +195,7 @@ internal actual fun NativePaint.getNativeStrokeJoin(): StrokeJoin =
         else -> StrokeJoin.miter
     }
 
-internal actual fun NativePaint.setNativeStrokeJoin(value: StrokeJoin) {
+internal fun NativePaint.setNativeStrokeJoin(value: StrokeJoin) {
     this.strokeJoin = when (value) {
         StrokeJoin.miter -> android.graphics.Paint.Join.MITER
         StrokeJoin.bevel -> android.graphics.Paint.Join.BEVEL
@@ -104,14 +203,14 @@ internal actual fun NativePaint.setNativeStrokeJoin(value: StrokeJoin) {
     }
 }
 
-internal actual fun NativePaint.getNativeStrokeMiterLimit(): Float =
+internal fun NativePaint.getNativeStrokeMiterLimit(): Float =
     this.strokeMiter
 
-internal actual fun NativePaint.setNativeStrokeMiterLimit(value: Float) {
+internal fun NativePaint.setNativeStrokeMiterLimit(value: Float) {
     this.strokeMiter = value
 }
 
-internal actual fun NativePaint.getNativeFilterQuality(): FilterQuality =
+internal fun NativePaint.getNativeFilterQuality(): FilterQuality =
     if (!this.isFilterBitmap) {
         FilterQuality.none
     } else {
@@ -123,14 +222,14 @@ internal actual fun NativePaint.getNativeFilterQuality(): FilterQuality =
         FilterQuality.low
     }
 
-internal actual fun NativePaint.setNativeFilterQuality(value: FilterQuality) {
+internal fun NativePaint.setNativeFilterQuality(value: FilterQuality) {
     this.isFilterBitmap = value != FilterQuality.none
 }
 
-internal actual fun NativePaint.setNativeShader(value: Shader?) {
+internal fun NativePaint.setNativeShader(value: Shader?) {
     this.shader = value
 }
 
-internal actual fun NativePaint.setNativePathEffect(value: NativePathEffect?) {
+internal fun NativePaint.setNativePathEffect(value: NativePathEffect?) {
     this.pathEffect = value
 }
