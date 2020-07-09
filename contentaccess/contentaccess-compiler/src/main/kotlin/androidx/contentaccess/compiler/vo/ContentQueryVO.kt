@@ -23,9 +23,9 @@ data class ContentQueryVO(
     val name: String,
     val toQueryFor: List<ContentColumnVO>,
     val selection: SelectionVO?,
-    // TODO(obenabde): support runtime specified uris
+    val orderBy: String,
     val uri: String,
     val returnType: TypeMirror,
     val method: ExecutableElement,
-    val orderBy: String
+    val isSuspend: Boolean
 )

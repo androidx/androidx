@@ -25,22 +25,37 @@ import androidx.contentaccess.ContentAccess
 import androidx.contentaccess.ContentQuery
 import androidx.contentaccess.ContentColumn
 import androidx.contentaccess.ContentAccessObject
+import androidx.contentaccess.ContentUpdate
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.util.Optional
+import java.util.concurrent.Executor
 import android.provider.CalendarContract.Events.DTSTART as DTSTART1
 
 class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val defaultAccessor = ContentAccess.getAccessor(CalendarAccessor::class, contentResolver)
 
-        val accessor = ContentAccess.getAccessor(CalendarAccessor::class, contentResolver)
-
+        val accessorWithExecutor = ContentAccess.getAccessor(
+            CalendarAccessor::class,
+            contentResolver,
+            object : Executor {
+                override fun execute(p0: Runnable?) {
+                    p0?.run()
+                }
+            }
+        )
+        // Check suspend function working properly.
+        GlobalScope.launch {
+            val eventsBefore = accessorWithExecutor.getAllEventsTitlesAndDescriptions()
+            eventsbeforeid.text = eventsBefore.joinToString("\n")
+        }
         // May 18th 2020: 1589777445000L
-        val eventsBefore = accessor.getAllEventsTitlesAndDescriptions()
-        val eventsAfter = accessor.getAllEventsAfter(1589777445000L, CalendarContract.Events
+        val eventsAfter = defaultAccessor.getAllEventsAfter(1589777445000L, CalendarContract.Events
             .CONTENT_URI.toString())
-
-        eventsbeforeid.text = eventsBefore.joinToString("\n")
         eventsafterid.text = eventsAfter.joinToString("\n")
     }
 
@@ -54,8 +69,14 @@ class MainActivity : Activity() {
     @ContentAccessObject(Event::class)
     interface CalendarAccessor {
 
+        @ContentQuery
+        suspend fun getAll(): List<Event>
+
+        @ContentQuery
+        suspend fun getOneEvent(): Event?
+
         @ContentQuery(projection = arrayOf(_ID, DTSTART1))
-        fun getAllEventsTitlesAndDescriptions(): List<TitleDescription>
+        suspend fun getAllEventsTitlesAndDescriptions(): List<TitleDescription>
 
         @ContentQuery(selection = "$DTSTART1 > :t", projection = arrayOf(_ID), uri = ":uri")
         fun getAllEventsAfter(t: Long, uri: String): List<Long>
@@ -65,5 +86,20 @@ class MainActivity : Activity() {
 
         @ContentQuery(projection = arrayOf(_ID, DTSTART1))
         fun getAllEventIdsAndStartTimes(): List<EventIdStartTime>
+
+        @ContentQuery(projection = arrayOf("description"))
+        fun getSingleDescription(): String?
+
+        @ContentQuery(projection = arrayOf("description"))
+        fun getSetOfDescriptions(): Set<String?>
+
+        @ContentQuery(projection = arrayOf("description"))
+        fun getOptionalSingleDescription(): Optional<String>
+
+        @ContentUpdate(where = "dtstart = :startTime")
+        fun updateDescription(@ContentColumn("description") desc: String, startTime: Long): Int
+
+        @ContentUpdate
+        fun updateDescription(@ContentColumn("dtend") newEndTime: Long?): Int
     }
 }

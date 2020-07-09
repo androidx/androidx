@@ -152,6 +152,9 @@ fun TypeMirror.isBlob() = isPrimitiveBlob() || isBoxedBlob()
 fun TypeMirror.isSupportedColumnType() = isBlob() || isInt() || isString() || isFloat() ||
         isDouble() || isShort() || isLong()
 
+fun TypeMirror.isPrimitive(): Boolean = isPrimitiveLong() || isPrimitiveShort() ||
+        isPrimitiveBlob() || isPrimitiveDouble() || isPrimitiveFloat() || isPrimitiveInt()
+
 fun TypeMirror.getCursorMethod(): String {
     if (isShort()) {
         return "getShort"
@@ -181,5 +184,3 @@ fun TypeMirror.getOrderedConstructorParams(): List<VariableElement> {
     }
     return constructors.first().parameters
 }
-
-internal val FLOWABLE_TYPE = "io.reactivex.Flowable"

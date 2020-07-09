@@ -24,9 +24,12 @@ import androidx.contentaccess.compiler.vo.ContentColumnVO
 import androidx.contentaccess.compiler.vo.ContentEntityVO
 import androidx.contentaccess.ext.getAllConstructorParamsOrPublicFields
 import androidx.contentaccess.ext.hasAnnotation
-import androidx.contentaccess.ext.hasMoreThanOnePublicConstructor
+import androidx.contentaccess.ext.hasMoreThanOneNonPrivateNonIgnoredConstructor
+import androidx.contentaccess.ext.isNotInstantiable
 import asTypeElement
 import com.google.auto.common.MoreTypes
+import isPrimitive
+import isSupportedColumnType
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
@@ -39,65 +42,88 @@ class ContentEntityProcessor(
 
     fun processEntity(): ContentEntityVO? {
         val entity = contentEntity.asTypeElement()
-        if (entity.hasMoreThanOnePublicConstructor(processingEnv)) {
-            errorReporter.reportError("Entity $contentEntity has more than one non private " +
-                    "constructor. Entities should have only one non private constructor.", entity)
+        if (entity.hasMoreThanOneNonPrivateNonIgnoredConstructor()) {
+            errorReporter.reportError(entityWithMultipleConstructors(contentEntity.toString()),
+                entity)
+            return null
+        } else if (entity.isNotInstantiable()) {
+            errorReporter.reportError(nonInstantiableEntity(contentEntity.toString()), entity)
             return null
         }
-        val columns = entity.getAllConstructorParamsOrPublicFields(processingEnv)
-        if (errorReporter.errorReported) {
-            return null
+        val columns = entity.getAllConstructorParamsOrPublicFields()
+        columns.forEach {
+            if (fieldIsNullable(it) && it.asType().isPrimitive()) {
+                errorReporter.reportError(entityWithNullablePrimitiveType(it.simpleName.toString(),
+                    contentEntity.toString()), it)
+            }
         }
         val contentColumns = HashMap<String, ContentColumnVO>()
         val contentPrimaryKey = ArrayList<ContentColumnVO>()
         columns.forEach { column ->
-            // TODO(obenabde): handle all the checks that need to happen here (e.g supported
-            //  column types)
             if (column.hasAnnotation(ContentColumn::class) &&
                 column.hasAnnotation(ContentPrimaryKey::class)) {
-                errorReporter.reportError("Field ${column.simpleName} in '${entity
-                    .qualifiedName}' is annotated with both @ContentPrimaryKey and " +
-                        "@ContentColumn, these annotations are mutually exclusive and  a field " +
-                        "can only be annotated by one of the two.", entity)
+                errorReporter.reportError(entityFieldWithBothAnnotations(column.simpleName
+                    .toString(), entity.qualifiedName.toString()), entity)
             } else if (column.hasAnnotation(ContentColumn::class)) {
-                val vo = ContentColumnVO(
-                    column.simpleName.toString(), column.asType(),
-                    column.getAnnotation(ContentColumn::class.java).columnName,
-                    fieldIsNullable(column)
-                )
-                contentColumns.put(vo.columnName, vo)
+                if (validateColumnType(column, errorReporter)) {
+                    val vo = ContentColumnVO(
+                        column.simpleName.toString(), column.asType(),
+                        column.getAnnotation(ContentColumn::class.java).columnName,
+                        fieldIsNullable(column)
+                    )
+                    contentColumns.put(vo.columnName, vo)
+                }
             } else if (column.hasAnnotation(ContentPrimaryKey::class)) {
-                val vo = ContentColumnVO(column.simpleName.toString(), column.asType(), column
-                    .getAnnotation(ContentPrimaryKey::class.java).columnName,
-                    fieldIsNullable(column)
-                )
-                contentColumns.put(vo.columnName, vo)
-                contentPrimaryKey.add(vo)
+                if (validateColumnType(column, errorReporter)) {
+                    val vo = ContentColumnVO(column.simpleName.toString(), column.asType(), column
+                        .getAnnotation(ContentPrimaryKey::class.java).columnName,
+                        fieldIsNullable(column)
+                    )
+                    contentColumns.put(vo.columnName, vo)
+                    contentPrimaryKey.add(vo)
+                }
             } else {
-                errorReporter.reportError("Field ${column.simpleName} in ${entity.qualifiedName} " +
-                        "is neither annotated with @ContentPrimaryKey nor with @ContentColumn, " +
-                        "all fields in a content entity must be be annotated by one of the two",
-                    entity)
+                errorReporter.reportError(
+                    missingAnnotationOnEntityFieldErrorMessage(
+                        column.simpleName.toString(),
+                        entity.qualifiedName.toString()
+                    ),
+                    entity
+                )
             }
         }
         if (contentPrimaryKey.isEmpty()) {
             if (columns.isEmpty()) {
-                errorReporter.reportError("Content entity ${entity.qualifiedName} has no fields, " +
-                        "a content entity must have at least one field and exactly one primary " +
-                        "key.", entity)
+                errorReporter.reportError(missingFieldsInContentEntityErrorMessage(entity
+                    .qualifiedName.toString()), entity)
             } else {
-                errorReporter.reportError("Content entity ${entity.qualifiedName} doesn't have a" +
-                        " primary key, a content entity must have one field annotated with " +
-                        "@ContentPrimaryKey.", entity)
+                errorReporter.reportError(missingEntityPrimaryKeyErrorMessage(entity
+                    .qualifiedName.toString()), entity)
             }
         }
         if (contentPrimaryKey.size > 1) {
-            errorReporter.reportError("Content entity ${entity.qualifiedName} has two or more " +
-                    "primary keys, a content entity must have exactly one field annotated with " +
-                    "@ContentPrimaryKey.", entity)
+            errorReporter.reportError(
+                entityWithMultiplePrimaryKeys(entity.qualifiedName.toString()),
+                entity
+            )
+        }
+        if (errorReporter.errorReported) {
+            return null
         }
         return ContentEntityVO(entity.getAnnotation(ContentEntity::class.java).uri, MoreTypes
             .asDeclared(entity.asType()), contentColumns, contentPrimaryKey.first())
+    }
+
+    fun validateColumnType(column: VariableElement, errorReporter: ErrorReporter): Boolean {
+        if (!column.asType().isSupportedColumnType()) {
+            errorReporter.reportError(
+                unsupportedColumnType(column.simpleName.toString(),
+                    contentEntity.toString(),
+                    column.asType().toString()
+                ), column)
+            return false
+        }
+        return true
     }
 }
 

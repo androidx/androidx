@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.contentaccess.compiler.vo
+package androidx.contentaccess
 
-import javax.lang.model.type.TypeMirror
-
-data class PojoVO(
-    val pojoFields: List<PojoFieldVO>,
-    val type: TypeMirror
-)
+/**
+ * Annotates a constructor so that it's not considered when analyzing an entity or a pojo.
+ */
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.FUNCTION)
+annotation class IgnoreConstructor
