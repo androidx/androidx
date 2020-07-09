@@ -67,7 +67,7 @@ class FilterToOneSelectorTest {
                 "(((TestTag = 'Parent').children).filterToOne((TestTag = 'Child1') || " +
                 "(TestTag = 'Child2')))\n" +
                 "Nodes found:\n" +
-                "1) Id:"
+                "1) "
         ) {
             findByTag("Parent")
                 .children()
