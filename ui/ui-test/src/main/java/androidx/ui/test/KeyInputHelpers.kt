@@ -17,6 +17,7 @@
 package androidx.ui.test
 
 import androidx.ui.core.ExperimentalLayoutNodeApi
+import androidx.ui.core.keyinput.ExperimentalKeyInput
 import androidx.ui.core.keyinput.KeyEvent2
 
 /**
@@ -24,6 +25,7 @@ import androidx.ui.core.keyinput.KeyEvent2
  *
  * @return true if the event was consumed. False otherwise.
  */
+@OptIn(ExperimentalKeyInput::class)
 fun SemanticsNodeInteraction.doSendKeyEvent(keyEvent: KeyEvent2): Boolean {
     val semanticsNode = fetchSemanticsNode("Failed to send key Event (${keyEvent.key})")
     @OptIn(ExperimentalLayoutNodeApi::class)

@@ -21,6 +21,7 @@ package androidx.ui.core.keyinput
  *
  * @param keyCode an integer code representing the key pressed.
  */
+@ExperimentalKeyInput
 expect inline class Key(val keyCode: Int) {
     companion object {
         /** Unknown key. */
@@ -1398,7 +1399,7 @@ expect inline class Key(val keyCode: Int) {
         val ThumbsDown: Key
 
         /**
-         * Used to switch current [android.accounts.Account] that is
+         * Used to switch current [account][android.accounts.Account] that is
          * consuming content. May be consumed by system to set account globally.
          */
         val ProfileSwitch: Key

@@ -682,7 +682,7 @@ package androidx.ui.core {
     method public void onSemanticsChange();
     method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public boolean requestFocus();
-    method public boolean sendKeyEvent(androidx.ui.core.keyinput.KeyEvent2 keyEvent);
+    method @androidx.ui.core.keyinput.ExperimentalKeyInput public boolean sendKeyEvent(androidx.ui.core.keyinput.KeyEvent2 keyEvent);
     method public void setOnSavedStateRegistryAvailable(kotlin.jvm.functions.Function1<? super androidx.ui.savedinstancestate.UiSavedStateRegistry,kotlin.Unit> callback);
     method @androidx.ui.core.InternalCoreApi public void setShowLayoutBounds(boolean p);
     property public abstract androidx.ui.autofill.Autofill? autofill;
@@ -1186,6 +1186,9 @@ package androidx.ui.core.input {
 }
 
 package androidx.ui.core.keyinput {
+
+  @kotlin.RequiresOptIn(message="The Key Input API is experimental and is likely to change in the future.") public @interface ExperimentalKeyInput {
+  }
 
   public final inline class Key {
     ctor public Key();
@@ -1787,14 +1790,14 @@ package androidx.ui.core.keyinput {
     method @Deprecated public androidx.ui.core.keyinput.KeyEventType getType();
   }
 
-  public interface KeyEvent2 {
+  @androidx.ui.core.keyinput.ExperimentalKeyInput public interface KeyEvent2 {
     method public int getKey();
     method public androidx.ui.core.keyinput.KeyEventType getType();
     property public abstract int key;
     property public abstract androidx.ui.core.keyinput.KeyEventType type;
   }
 
-  public enum KeyEventType {
+  @androidx.ui.core.keyinput.ExperimentalKeyInput public enum KeyEventType {
     method public static androidx.ui.core.keyinput.KeyEventType valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.ui.core.keyinput.KeyEventType[] values();
     enum_constant public static final androidx.ui.core.keyinput.KeyEventType KeyDown;
@@ -1803,8 +1806,8 @@ package androidx.ui.core.keyinput {
   }
 
   public final class KeyInputModifierKt {
-    method public static androidx.ui.core.Modifier keyInputFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.keyinput.KeyEvent2,java.lang.Boolean> onKeyEvent);
-    method public static androidx.ui.core.Modifier previewKeyInputFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.keyinput.KeyEvent2,java.lang.Boolean> onPreviewKeyEvent);
+    method @androidx.ui.core.keyinput.ExperimentalKeyInput public static androidx.ui.core.Modifier keyInputFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.keyinput.KeyEvent2,java.lang.Boolean> onKeyEvent);
+    method @androidx.ui.core.keyinput.ExperimentalKeyInput public static androidx.ui.core.Modifier previewKeyInputFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.keyinput.KeyEvent2,java.lang.Boolean> onPreviewKeyEvent);
   }
 
 }

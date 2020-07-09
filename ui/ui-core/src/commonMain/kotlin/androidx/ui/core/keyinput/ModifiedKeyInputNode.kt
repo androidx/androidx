@@ -19,6 +19,7 @@ package androidx.ui.core.keyinput
 import androidx.ui.core.DelegatingLayoutNodeWrapper
 import androidx.ui.core.LayoutNodeWrapper
 
+@OptIn(ExperimentalKeyInput::class)
 internal class ModifiedKeyInputNode(wrapped: LayoutNodeWrapper, modifier: KeyInputModifier) :
     DelegatingLayoutNodeWrapper<KeyInputModifier>(wrapped, modifier) {
 

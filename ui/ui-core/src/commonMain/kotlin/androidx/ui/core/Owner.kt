@@ -19,6 +19,7 @@ import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.hapticfeedback.HapticFeedback
+import androidx.ui.core.keyinput.ExperimentalKeyInput
 import androidx.ui.core.keyinput.KeyEvent2
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.texttoolbar.TextToolbar
@@ -146,6 +147,7 @@ interface Owner {
      *
      * @return true if the event was consumed. False otherwise.
      */
+    @ExperimentalKeyInput
     fun sendKeyEvent(keyEvent: KeyEvent2): Boolean
 
     /**
