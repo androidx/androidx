@@ -38,7 +38,7 @@ dependencies {
     api project(":compose:compose-runtime")
     api project(":ui:ui-core")
     api project(":compose:animation:animation")
-    implementation project(':ui:ui-layout')
+    implementation project(':compose:foundation:foundation-layout')
     api project(":ui:ui-saved-instance-state")
     implementation project(':compose:core:core-text')
     implementation project(':ui:ui-text')

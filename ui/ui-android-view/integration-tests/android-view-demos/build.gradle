@@ -34,7 +34,7 @@ dependencies {
     implementation project(":ui:integration-tests:demos:common")
     implementation project(":ui:ui-android-view")
     implementation project(":ui:ui-core")
-    implementation project(":ui:ui-layout")
+    implementation project(":compose:foundation:foundation-layout")
     implementation project(":compose:material:material")
 }
 

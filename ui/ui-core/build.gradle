@@ -92,7 +92,7 @@ kotlin {
             }
             implementation project(":compose:test:test-core")
             implementation project(":ui:ui-test-font")
-            implementation project(":ui:ui-layout")
+            implementation project(":compose:foundation:foundation-layout")
             implementation project(":compose:foundation:foundation")
         }
     }
