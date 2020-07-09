@@ -141,7 +141,7 @@ def uiComponents = [
         ":ui:ui-android-view",
         ":compose:animation:animation",
         ":compose:animation:animation-core",
-        ":ui:ui-core",
+        ":compose:core:core",
         ":compose:foundation:foundation",
         ":compose:core:core-geometry",
         ":compose:core:core-graphics",

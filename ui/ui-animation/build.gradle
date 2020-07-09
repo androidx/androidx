@@ -40,7 +40,7 @@ dependencies {
 
     api project(":compose:compose-runtime")
     implementation project(":compose:core:core-util")
-    api project(":ui:ui-core")
+    api project(":compose:core:core")
     api project(":compose:foundation:foundation-layout")
     api project(":compose:core:core-geometry")
 
