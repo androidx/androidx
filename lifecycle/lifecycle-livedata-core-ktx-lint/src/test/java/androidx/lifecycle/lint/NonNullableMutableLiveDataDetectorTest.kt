@@ -71,6 +71,26 @@ class NonNullableMutableLiveDataDetectorTest : LintDetectorTest() {
     }
 
     @Test
+    fun mutableListAssignmentPass() {
+        check(
+            kotlin("""
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                fun foo() {
+                    val lists = MutableLiveData<List<Int>>()
+                    val map = HashMap<Int, Int>()
+
+                    map[1] = 1
+
+                    lists.value = map.values.toMutableList()
+                }
+            """).indented()
+        ).expectClean()
+    }
+
+    @Test
     fun helperMethodFails() {
         check(
             kotlin("""
