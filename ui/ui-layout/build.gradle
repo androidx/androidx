@@ -45,7 +45,7 @@ kotlin {
             implementation(KOTLIN_STDLIB_COMMON)
 
             api project(":compose:core:core")
-            implementation project(":ui:ui-text")
+            implementation project(":compose:foundation:foundation-text")
             implementation project(":compose:compose-runtime")
             implementation project(":compose:core:core-util")
         }

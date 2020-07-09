@@ -19,7 +19,7 @@ dependencies {
     implementation project(":compose:foundation:foundation-layout:integration-tests:foundation-layout-demos")
     implementation project(":compose:material:material:integration-tests:material-demos")
     implementation project(":compose:material:material:integration-tests:material-studies")
-    implementation project(":ui:ui-text:integration-tests:ui-text-compose-demos")
+    implementation project(":compose:foundation:foundation-text:integration-tests:foundation-text-demos")
 
     implementation(KOTLIN_REFLECT)
     implementation(KOTLIN_STDLIB)
@@ -28,7 +28,7 @@ dependencies {
     implementation project(":ui:ui-android-view")
     implementation project(":compose:core:core")
     implementation project(":compose:foundation:foundation-layout")
-    implementation project(":ui:ui-text")
+    implementation project(":compose:foundation:foundation-text")
     implementation project(":compose:foundation:foundation")
     implementation project(":compose:material:material")
     implementation project(":ui:integration-tests:demos:common")
@@ -45,7 +45,7 @@ dependencies {
     androidTestImplementation project(":compose:foundation:foundation-layout:integration-tests:foundation-layout-demos")
     androidTestImplementation project(":compose:material:material:integration-tests:material-demos")
     androidTestImplementation project(":compose:material:material:integration-tests:material-studies")
-    androidTestImplementation project(":ui:ui-text:integration-tests:ui-text-compose-demos")
+    androidTestImplementation project(":compose:foundation:foundation-text:integration-tests:foundation-text-demos")
 
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
