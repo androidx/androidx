@@ -194,7 +194,7 @@ internal fun UElement.isNullable(): Boolean {
         val psiMethod = resolve() ?: return false
         return psiMethod.hasAnnotation(NULLABLE_ANNOTATION)
     } else if (this is UReferenceExpression) {
-        return (resolveToUElement() as UAnnotated).findAnnotation(NULLABLE_ANNOTATION) != null
+        return (resolveToUElement() as? UAnnotated)?.findAnnotation(NULLABLE_ANNOTATION) != null
     }
     return false
 }
