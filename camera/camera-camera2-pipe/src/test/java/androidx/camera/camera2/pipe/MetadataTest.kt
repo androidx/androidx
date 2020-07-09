@@ -22,9 +22,10 @@ import android.hardware.camera2.CaptureResult
 import android.os.Build
 import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
-import androidx.camera.camera2.pipe.testing.FakeResultMetadata
+import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -100,11 +101,11 @@ class RequestMetadataTest {
 @SmallTest
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class ResultMetadataTest {
+class FrameMetadataTest {
 
     @Test
     fun canRetrieveCaptureRequestOrCameraMetadataViaInterface() {
-        val metadata = FakeResultMetadata(
+        val metadata = FakeFrameMetadata(
             resultMetadata = mapOf(CaptureResult.JPEG_QUALITY to 95),
             extraResultMetadata = mapOf(FakeMetadata.TEST_KEY to 42)
         )
@@ -114,5 +115,90 @@ class ResultMetadataTest {
 
         assertThat(metadata[CaptureResult.JPEG_QUALITY]).isNotNull()
         assertThat(metadata[CaptureResult.COLOR_CORRECTION_MODE]).isNull()
+    }
+}
+
+@SmallTest
+@RunWith(CameraPipeRobolectricTestRunner::class)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+class MetadataTransformTest {
+    private val metadata = FakeCameraMetadata(
+        mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
+        mapOf(FakeMetadata.TEST_KEY to 42)
+    )
+
+    private val requestMetadata = FakeRequestMetadata(
+        requestParameters = mapOf(CaptureRequest.JPEG_QUALITY to 95),
+        request = Request(
+            streams = listOf(),
+            requestParameters = mapOf(CaptureRequest.JPEG_QUALITY to 20),
+            extraRequestParameters = mapOf(FakeMetadata.TEST_KEY to 42)
+        )
+    )
+
+    private val fakeFrameInfo = FakeFrameInfo(
+        requestMetadata = requestMetadata
+    )
+
+    @Test
+    fun defaultMetadataTransformIsNoOp() {
+        val transform = MetadataTransform()
+        val overrides = transform.transformFn.computeOverridesFor(
+            fakeFrameInfo,
+            CameraId("Fake"),
+            listOf()
+        )
+
+        assertThat(overrides).isEmpty()
+    }
+
+    @Test
+    fun canCreateAndInvokeMetadataTransform() {
+        val transform = MetadataTransform(
+            transformFn = object : MetadataTransform.TransformFn {
+                override fun computeOverridesFor(
+                    result: FrameInfo,
+                    camera: CameraId,
+                    related: List<FrameInfo?>
+                ): Map<*, Any?> {
+                    return mapOf(FakeMetadata.TEST_KEY to result.frameNumber.value)
+                }
+            }
+        )
+        val overrides = transform.transformFn.computeOverridesFor(
+            FakeFrameInfo(
+                metadata = FakeFrameMetadata(
+                    frameNumber = FrameNumber(128)
+                )
+            ),
+            CameraId("Fake"),
+            listOf()
+        )
+
+        assertThat(overrides).hasSize(1)
+        assertThat(overrides[FakeMetadata.TEST_KEY]).isEqualTo(128)
+    }
+
+    @Test
+    fun canUseCameraMetadataForTransforms() {
+        val transform = MetadataTransform(
+            transformFn = object : MetadataTransform.TransformFn {
+                override fun computeOverridesFor(
+                    result: FrameInfo,
+                    camera: CameraId,
+                    related: List<FrameInfo?>
+                ): Map<*, Any?> {
+                    return mapOf(FakeMetadata.TEST_KEY to metadata[FakeMetadata.TEST_KEY])
+                }
+            }
+        )
+        val overrides = transform.transformFn.computeOverridesFor(
+            fakeFrameInfo,
+            CameraId("Fake"),
+            listOf()
+        )
+
+        assertThat(overrides).hasSize(1)
+        assertThat(overrides[FakeMetadata.TEST_KEY]).isEqualTo(42)
     }
 }

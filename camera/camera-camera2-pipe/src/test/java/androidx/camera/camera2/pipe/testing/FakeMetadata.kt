@@ -21,16 +21,19 @@ package androidx.camera.camera2.pipe.testing
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.FrameInfo
+import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
-import androidx.camera.camera2.pipe.ResultMetadata
+import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.SequenceNumber
 import androidx.camera.camera2.pipe.StreamId
 
@@ -110,19 +113,45 @@ class FakeRequestMetadata(
 /**
  * Utility class for interacting with objects require specific [CaptureResult] metadata
  */
-class FakeResultMetadata(
+class FakeFrameMetadata(
     private val resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
     extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
-    override val requestMetadata: RequestMetadata = FakeRequestMetadata(),
-    override val camera: CameraId = CameraId("Fake")
-) : FakeMetadata(extraResultMetadata), ResultMetadata {
+    override val camera: CameraId = CameraId("Fake"),
+    override val frameNumber: FrameNumber = FrameNumber(21),
+    override val extraMetadata: Map<*, Any?> = emptyMap<Any, Any>()
+) : FakeMetadata(extraResultMetadata), FrameMetadata {
 
-    override fun <T> get(key: CaptureResult.Key<T>): T? = resultMetadata[key] as T?
+    override fun <T> get(key: CaptureResult.Key<T>): T? =
+        extraMetadata[key] as T? ?: resultMetadata[key] as T?
+
     override fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T = get(key) ?: default
 
     override fun unwrap(): CaptureResult? {
         throw UnsupportedOperationException(
             "FakeCameraMetadata does not wrap a real CaptureResult"
+        )
+    }
+}
+
+/**
+ * Utility class for interacting with objects require specific [TotalCaptureResult] metadata
+ */
+class FakeFrameInfo(
+    override val metadata: FrameMetadata = FakeFrameMetadata(),
+    override val requestMetadata: RequestMetadata = FakeRequestMetadata(),
+    private val physicalMetadata: Map<CameraId, FrameMetadata> = emptyMap()
+) : FrameInfo {
+    override fun get(camera: CameraId): FrameMetadata? = physicalMetadata[camera]
+
+    override val camera: CameraId
+        get() = metadata.camera
+
+    override val frameNumber: FrameNumber
+        get() = metadata.frameNumber
+
+    override fun unwrap(): TotalCaptureResult? {
+        throw UnsupportedOperationException(
+            "FakeFrameInfo does not wrap a real TotalCaptureResult object"
         )
     }
 }

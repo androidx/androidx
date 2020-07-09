@@ -19,10 +19,9 @@ package androidx.camera.camera2.pipe
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.view.Surface
-import androidx.camera.camera2.pipe.impl.Debug
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * A map-like interface used to describe or interact with metadata from CameraPipe and Camera2.
@@ -42,16 +41,17 @@ interface Metadata {
     class Key<T> private constructor(private val name: String) {
         companion object {
             @JvmStatic
-            internal val keys: ConcurrentHashMap<String, Key<*>> = ConcurrentHashMap()
+            internal val keys: MutableSet<String> = HashSet()
 
             /**
              * This will create a new Key instance, and will check to see that the key has not been
              * previously created somewhere else.
              */
             internal fun <T> create(name: String): Key<T> {
-                val key = Key<T>(name)
-                Debug.checkNull(keys.putIfAbsent(name, key)) { "$name is already defined!" }
-                return key
+                synchronized(keys) {
+                    check(keys.add(name)) { "$name is already defined!" }
+                }
+                return Key(name)
             }
         }
 
@@ -117,14 +117,82 @@ interface RequestMetadata : Metadata, UnsafeWrapper<CaptureRequest> {
 }
 
 /**
- * ResultMetadata is a wrapper around [CaptureResult].
+ * [FrameInfo] is a wrapper around [TotalCaptureResult].
  */
-interface ResultMetadata : Metadata, UnsafeWrapper<CaptureResult> {
+interface FrameInfo : UnsafeWrapper<TotalCaptureResult> {
+    val metadata: FrameMetadata
+
+    /**
+     * If this [FrameInfo] was produced from a logical camera there will be metadata associated with
+     * the physical streams that were sent to the camera.
+     */
+    operator fun get(camera: CameraId): FrameMetadata?
+
+    val camera: CameraId
+    val frameNumber: FrameNumber
+    val requestMetadata: RequestMetadata
+}
+
+/**
+ * [FrameMetadata] is a wrapper around [CaptureResult].
+ */
+interface FrameMetadata : Metadata, UnsafeWrapper<CaptureResult> {
     operator fun <T> get(key: CaptureResult.Key<T>): T?
     fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T
 
     val camera: CameraId
-    val requestMetadata: RequestMetadata
+    val frameNumber: FrameNumber
+
+    /**
+     * Extra metadata will override values defined by the wrapped CaptureResult object. This is
+     * exposed separately to allow other systems to know what is altered relative to Camera2.
+     */
+    val extraMetadata: Map<*, Any?>
+}
+
+/**
+ * This defines a metadata transform that will be applied to the data produced by
+ * [Request.Listener.onTotalCaptureResult]. The returned map will override the values returned by
+ * TotalCaptureResult. Setting the offset and window size will cause the
+ * [Request.Listener.onComplete] method to be delayed so that the transform can be run on future
+ * metadata.
+ */
+data class MetadataTransform(
+    /**
+     * This defines the number of historical [TotalCaptureResult] objects this transform is
+     * allowed to look at. Setting this value to > 0 increases the number of [TotalCaptureResult]
+     * the [CameraGraph] will hold on to.
+     */
+    val past: Int = 0,
+
+    /**
+     * This defines the number of future [TotalCaptureResult] objects this transform is allowed to
+     * look at. Setting this value to > 0 will cause [Request.Listener.onComplete] to be delayed
+     * by the number of frames specified here.
+     */
+    val future: Int = 0,
+
+    /**
+     * This transform function will be invoked at high speed, and may be invoked multiple times if
+     * correcting physical camera results.
+     *
+     * the returned values should be limited to values that will override the default values that
+     * are set on the TotalCaptureResult for this frame.
+     */
+    val transformFn: TransformFn = object : TransformFn {}
+) {
+    init {
+        check(past >= 0)
+        check(future >= 0)
+    }
+
+    interface TransformFn {
+        fun computeOverridesFor(
+            result: FrameInfo,
+            camera: CameraId,
+            related: List<FrameInfo?>
+        ): Map<*, Any?> = emptyMap<Any, Any?>()
+    }
 }
 
 /**

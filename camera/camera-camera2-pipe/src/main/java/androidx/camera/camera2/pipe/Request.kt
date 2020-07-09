@@ -18,8 +18,6 @@ package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.CaptureResult
-import android.hardware.camera2.TotalCaptureResult
 import android.view.Surface
 
 /**
@@ -71,17 +69,18 @@ data class Request(
          * @param frameNumber the android frame number for this exposure
          * @param captureResult the current android capture result for this exposure
          */
-        fun onProgressed(
+        fun onPartialCaptureResult(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            captureResult: CaptureResult
+            captureResult: FrameMetadata
         ) {
         }
 
         /**
          * This event indicates that all of the metadata associated with this frame has been
-         * produced. If [onProgressed] was invoked, the values returned in totalCaptureResult be the
-         * same as the values in the prior captureResult(s) for the same frame.
+         * produced. If [onPartialCaptureResult] was invoked, the values returned in
+         * the totalCaptureResult map be a superset of the values produced from the
+         * [onPartialCaptureResult] calls.
          *
          * @see android.hardware.camera2.CameraCaptureSession.CaptureCallback.onCaptureStarted
          *
@@ -89,16 +88,34 @@ data class Request(
          * @param frameNumber the android frame number for this exposure
          * @param totalCaptureResult the final android capture result for this exposure
          */
-        fun onCompleted(
+        fun onTotalCaptureResult(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            totalCaptureResult: TotalCaptureResult
+            totalCaptureResult: FrameInfo
+        ) {
+        }
+
+        /**
+         * This is an artificial event that will be invoked after onTotalCaptureResult. This may
+         * be invoked several frames after onTotalCaptureResult due to incorrect HAL implementations
+         * that return metadata that get shifted several frames in the future. See b/154568653
+         * for real examples of this. The actual amount of shifting and required transformations
+         * may vary per device.
+         *
+         * @param requestMetadata the data about the camera2 request that was sent to the camera.
+         * @param frameNumber the android frame number for this exposure
+         * @param result the package of metadata associated with this result.
+         */
+        fun onComplete(
+            requestMetadata: RequestMetadata,
+            frameNumber: FrameNumber,
+            result: FrameInfo
         ) {
         }
 
         /**
          * onFailed occurs when a CaptureRequest failed in some way and the frame will not receive
-         * the [onCompleted] callback.
+         * the [onTotalCaptureResult] callback.
          *
          * Surfaces may not received images if "wasImagesCaptured" is set to false.
          *
