@@ -64,7 +64,7 @@ public final class HiltViewModelFactory extends AbstractSavedStateViewModelFacto
     protected <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass,
             @NonNull SavedStateHandle handle) {
         Provider<ViewModelAssistedFactory<? extends ViewModel>> factoryProvider =
-                mViewModelFactories.get(modelClass.getCanonicalName());
+                mViewModelFactories.get(modelClass.getName());
         if (factoryProvider == null) {
             // Delegate to factory that will attempt to reflectively construct the ViewModel.
             // A prefixed key is used to avoid collisions since the

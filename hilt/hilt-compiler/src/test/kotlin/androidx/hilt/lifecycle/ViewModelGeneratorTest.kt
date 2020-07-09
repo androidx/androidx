@@ -448,7 +448,7 @@ class ViewModelGeneratorTest {
         public interface Outer_InnerViewModel_HiltModule {
             @Binds
             @IntoMap
-            @StringKey("androidx.hilt.lifecycle.test.Outer.InnerViewModel")
+            @StringKey("androidx.hilt.lifecycle.test.Outer${'$'}InnerViewModel")
             ViewModelAssistedFactory<? extends ViewModel> bind(
                     Outer_InnerViewModel_AssistedFactory factory)
         }
