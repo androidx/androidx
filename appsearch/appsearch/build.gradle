@@ -39,6 +39,18 @@ android {
                 'proguard-android-optimize.txt'),
                 'proguard-rules.pro'
     }
+    sourceSets {
+        main.java.srcDirs += '../../../../external/icing/java/src/'
+        androidTest {
+            java.srcDirs += '../../../../external/icing/java/tests/instrumentation'
+        }
+    }
+    lintOptions {
+        // TODO(b/160643524): Don't do this. This temporarily disables lint
+        // checks that require getters and setters to have the same return
+        // and input values, respectively
+        disable 'KotlinPropertyAccess'
+    }
 }
 
 dependencies {
@@ -52,6 +64,7 @@ dependencies {
     implementation('androidx.collection:collection:1.1.0')
     implementation('androidx.concurrent:concurrent-futures:1.0.0')
     implementation('androidx.core:core:1.2.0')
+    implementation project(':icing:nativeLib')
 
     androidTestAnnotationProcessor project(':appsearch:appsearch-annotation')
     androidTestImplementation(ANDROIDX_TEST_CORE)

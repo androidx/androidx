@@ -28,14 +28,30 @@ import com.google.android.icing.proto.SchemaProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.proto.TermMatchType;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class AppSearchImplTest {
-    private final AppSearchImpl mAppSearchImpl =
-            AppSearchImpl.getInstance(ApplicationProvider.getApplicationContext());
+    private AppSearchImpl mAppSearchImpl;
+
+    @Before
+    public void setUp() throws Exception {
+        mAppSearchImpl = AppSearchImpl.getInstance(ApplicationProvider.getApplicationContext());
+        mAppSearchImpl.initialize();
+    }
+
+    /**
+     * Ensure that we can rewrite an incoming schema type by adding the database as a prefix. While
+     * also keeping any other existing schema types that may already be part of Icing's persisted
+     * schema.
+     */
     @Test
-    public void testRewriteSchemaTypes() {
-        SchemaProto inSchema = SchemaProto.newBuilder()
+    public void testRewriteSchema() {
+        SchemaProto.Builder existingSchemaBuilder = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType("Foo").build());
+
+        SchemaProto newSchema = SchemaProto.newBuilder()
                 .addTypes(SchemaTypeConfigProto.newBuilder()
                         .setSchemaType("TestType")
                         .addProperties(PropertyConfigProto.newBuilder()
@@ -60,6 +76,8 @@ public class AppSearchImplTest {
 
         SchemaProto expectedSchema = SchemaProto.newBuilder()
                 .addTypes(SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType("Foo").build())
+                .addTypes(SchemaTypeConfigProto.newBuilder()
                         .setSchemaType("com.android.server.appsearch.impl@42:TestType")
                         .addProperties(PropertyConfigProto.newBuilder()
                                 .setPropertyName("subject")
@@ -81,10 +99,10 @@ public class AppSearchImplTest {
                         ).build()
                 ).build();
 
-        SchemaProto.Builder actualSchema = inSchema.toBuilder();
-        mAppSearchImpl.rewriteSchemaTypes("com.android.server.appsearch.impl@42:", actualSchema);
+        mAppSearchImpl.rewriteSchema(existingSchemaBuilder, "com.android.server.appsearch.impl@42:",
+                newSchema);
 
-        assertThat(actualSchema.build()).isEqualTo(expectedSchema);
+        assertThat(existingSchemaBuilder.build()).isEqualTo(expectedSchema);
     }
 
     @Test

@@ -22,6 +22,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.impl.AppSearchImpl;
 import androidx.collection.ArraySet;
@@ -32,7 +33,6 @@ import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.SchemaProto;
 import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SearchSpecProto;
-import com.google.android.icing.proto.StatusProto;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.IOException;
@@ -50,6 +50,7 @@ import java.util.concurrent.Executors;
  *
  * <p>Apps can index structured text documents with AppSearch, which can then be retrieved through
  * the query API.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -64,17 +65,49 @@ public class AppSearchManager {
     private static final ExecutorService QUERY_EXECUTOR = Executors.newCachedThreadPool();
     private static final ExecutorService MUTATE_EXECUTOR = Executors.newFixedThreadPool(1);
 
-    private final AppSearchImpl mAppSearchImpl;
     private final String mInstanceName;
+    private final Context mContext;
+    private final AppSearchImpl mAppSearchImpl;
+
+    /** Gets the an instance of {@link AppSearchManager} */
+    @NonNull
+    public static ListenableFuture<AppSearchResult<AppSearchManager>> getInstance(
+            @NonNull String instanceName, @NonNull Context context) {
+        AppSearchManager appSearchManager = new AppSearchManager(instanceName, context);
+        return appSearchManager.initialize();
+    }
 
     /**
      * Gets a instance of {@link AppSearchManager} with the name of it.
      * <p>Documents, schemas and types are fully isolated between different instances.
-     * @param instanceName The name of this instance.
+     *
+     * @param instanceName  The name of this instance.
+     * @param context The context to initialize the instance in.
      */
-    public AppSearchManager(@NonNull String instanceName, @NonNull Context context) {
+    private AppSearchManager(@NonNull String instanceName, @NonNull Context context) {
         mInstanceName = instanceName;
-        mAppSearchImpl = AppSearchImpl.getInstance(context);
+        mContext = context;
+        mAppSearchImpl = AppSearchImpl.getInstance(mContext);
+    }
+
+    private ListenableFuture<AppSearchResult<AppSearchManager>> initialize() {
+        if (mAppSearchImpl.isInitialized()) {
+            // Already initialized, nothing to do.
+            ResolvableFuture<AppSearchResult<AppSearchManager>> resolvableFuture =
+                    ResolvableFuture.create();
+            resolvableFuture.set(AppSearchResult.newSuccessfulResult(this));
+            return resolvableFuture;
+        }
+
+        return execute(MUTATE_EXECUTOR, () -> {
+            try {
+                mAppSearchImpl.initialize();
+                return AppSearchResult.newSuccessfulResult(this);
+            } catch (Throwable t) {
+                return throwableToFailedResult(t);
+            }
+
+        });
     }
 
     /**
@@ -117,7 +150,7 @@ public class AppSearchManager {
              * Adds one or more types to the schema.
              *
              * @param dataClasses non-inner classes annotated with
-             *     {@link androidx.appsearch.annotation.AppSearchDocument}.
+             *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
              */
             @NonNull
             public Builder addDataClass(@NonNull Class<?>... dataClasses)
@@ -130,7 +163,7 @@ public class AppSearchManager {
              * Adds one or more types to the schema.
              *
              * @param dataClasses non-inner classes annotated with
-             *     {@link androidx.appsearch.annotation.AppSearchDocument}.
+             *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
              */
             @NonNull
             public Builder addDataClass(@NonNull Collection<Class<?>> dataClasses)
@@ -274,7 +307,7 @@ public class AppSearchManager {
              * Adds one or more documents to the request.
              *
              * @param dataClasses non-inner classes annotated with
-             *     {@link androidx.appsearch.annotation.AppSearchDocument}.
+             *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
              */
             @NonNull
             public Builder addDataClass(@NonNull Object... dataClasses) throws AppSearchException {
@@ -286,7 +319,7 @@ public class AppSearchManager {
              * Adds one or more documents to the request.
              *
              * @param dataClasses non-inner classes annotated with
-             *     {@link androidx.appsearch.annotation.AppSearchDocument}.
+             *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
              */
             @NonNull
             public Builder addDataClass(@NonNull Collection<Object> dataClasses)
@@ -327,9 +360,9 @@ public class AppSearchManager {
      *
      * @param request {@link PutDocumentsRequest} containing documents to be indexed
      * @return The pending result of performing this operation. The keys of the returned
-     *     {@link AppSearchBatchResult} are the URIs of the input documents. The values are
-     *     {@code null} if they were successfully indexed, or a failed {@link AppSearchResult}
-     *     otherwise.
+     * {@link AppSearchBatchResult} are the URIs of the input documents. The values are
+     * {@code null} if they were successfully indexed, or a failed {@link AppSearchResult}
+     * otherwise.
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> putDocuments(
@@ -417,10 +450,10 @@ public class AppSearchManager {
      *
      * @param request {@link GetDocumentsRequest} containing URIs to be retrieved.
      * @return The pending result of performing this operation. The keys of the returned
-     *     {@link AppSearchBatchResult} are the input URIs. The values are the returned
-     *     {@link GenericDocument}s on success, or a failed {@link AppSearchResult} otherwise.
-     *     URIs that are not found will return a failed {@link AppSearchResult} with a result code
-     *     of {@link AppSearchResult#RESULT_NOT_FOUND}.
+     * {@link AppSearchBatchResult} are the input URIs. The values are the returned
+     * {@link GenericDocument}s on success, or a failed {@link AppSearchResult} otherwise.
+     * URIs that are not found will return a failed {@link AppSearchResult} with a result code
+     * of {@link AppSearchResult#RESULT_NOT_FOUND}.
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getDocuments(
@@ -435,19 +468,14 @@ public class AppSearchManager {
                 try {
                     DocumentProto documentProto =
                             mAppSearchImpl.getDocument(mInstanceName, request.mNamespace, uri);
-                    if (documentProto == null) {
+                    try {
+                        GenericDocument document = new GenericDocument(documentProto);
+                        resultBuilder.setSuccess(uri, document);
+                    } catch (Throwable t) {
+                        // These documents went through validation, so how could this fail?
+                        // We must have done something wrong.
                         resultBuilder.setFailure(
-                                uri, AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null);
-                    } else {
-                        try {
-                            GenericDocument document = new GenericDocument(documentProto);
-                            resultBuilder.setSuccess(uri, document);
-                        } catch (Throwable t) {
-                            // These documents went through validation, so how could this fail?
-                            // We must have done something wrong.
-                            resultBuilder.setFailure(
-                                    uri, AppSearchResult.RESULT_INTERNAL_ERROR, t.getMessage());
-                        }
+                                uri, AppSearchResult.RESULT_INTERNAL_ERROR, t.getMessage());
                     }
                 } catch (Throwable t) {
                     resultBuilder.setResult(uri, throwableToFailedResult(t));
@@ -493,7 +521,7 @@ public class AppSearchManager {
      * </ul>
      *
      * @param queryExpression Query String to search.
-     * @param searchSpec Spec for setting filters, raw query etc.
+     * @param searchSpec      Spec for setting filters, raw query etc.
      * @return The pending result of performing this operation.
      */
     @NonNull
@@ -511,16 +539,9 @@ public class AppSearchManager {
                 SearchResultProto searchResultProto = mAppSearchImpl.query(mInstanceName,
                         searchSpecProto, searchSpec.getResultSpecProto(),
                         searchSpec.getScoringSpecProto());
-                // TODO(sidchhabra): Translate SearchResultProto errors into error codes. This might
-                //     better be done in AppSearchImpl by throwing an AppSearchException.
-                if (searchResultProto.getStatus().getCode() != StatusProto.Code.OK) {
-                    return AppSearchResult.newFailedResult(
-                            AppSearchResult.RESULT_INTERNAL_ERROR,
-                            searchResultProto.getStatus().getMessage());
-                } else {
-                    return AppSearchResult.newSuccessfulResult(
-                            new SearchResults(searchResultProto));
-                }
+
+                return AppSearchResult.newSuccessfulResult(
+                        new SearchResults(searchResultProto));
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
             }
@@ -591,10 +612,10 @@ public class AppSearchManager {
      *
      * @param request {@link GetDocumentsRequest} containing URIs to be removed.
      * @return The pending result of performing this operation. The keys of the returned
-     *     {@link AppSearchBatchResult} are the input URIs. The values are {@code null} on success,
-     *     or a failed {@link AppSearchResult} otherwise. URIs that are not found will return a
-     *     failed {@link AppSearchResult} with a result code of
-     *     {@link AppSearchResult#RESULT_NOT_FOUND}.
+     * {@link AppSearchBatchResult} are the input URIs. The values are {@code null} on success,
+     * or a failed {@link AppSearchResult} otherwise. URIs that are not found will return a
+     * failed {@link AppSearchResult} with a result code of
+     * {@link AppSearchResult#RESULT_NOT_FOUND}.
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeDocuments(
@@ -605,12 +626,8 @@ public class AppSearchManager {
                     new AppSearchBatchResult.Builder<>();
             for (String uri : request.mUris) {
                 try {
-                    if (!mAppSearchImpl.remove(mInstanceName, request.mNamespace, uri)) {
-                        resultBuilder.setFailure(
-                                uri, AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null);
-                    } else {
-                        resultBuilder.setSuccess(uri, /*result= */null);
-                    }
+                    mAppSearchImpl.remove(mInstanceName, request.mNamespace, uri);
+                    resultBuilder.setSuccess(uri, /*result= */null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(uri, throwableToFailedResult(t));
                 }
@@ -624,10 +641,10 @@ public class AppSearchManager {
      *
      * @param schemaTypes Schema types whose documents to delete.
      * @return The pending result of performing this operation. The keys of the returned
-     *     {@link AppSearchBatchResult} are the input schema types. The values are {@code null} on
-     *     success, or a failed {@link AppSearchResult} otherwise. Types that are not found will
-     *     return a failed {@link AppSearchResult} with a result code of
-     *     {@link AppSearchResult#RESULT_NOT_FOUND}.
+     * {@link AppSearchBatchResult} are the input schema types. The values are {@code null} on
+     * success, or a failed {@link AppSearchResult} otherwise. Types that are not found will
+     * return a failed {@link AppSearchResult} with a result code of
+     * {@link AppSearchResult#RESULT_NOT_FOUND}.
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
@@ -641,10 +658,10 @@ public class AppSearchManager {
      *
      * @param schemaTypes Schema types whose documents to delete.
      * @return The pending result of performing this operation. The keys of the returned
-     *     {@link AppSearchBatchResult} are the input schema types. The values are {@code null} on
-     *     success, or a failed {@link AppSearchResult} otherwise. Types that are not found will
-     *     return a failed {@link AppSearchResult} with a result code of
-     *     {@link AppSearchResult#RESULT_NOT_FOUND}.
+     * {@link AppSearchBatchResult} are the input schema types. The values are {@code null} on
+     * success, or a failed {@link AppSearchResult} otherwise. Types that are not found will
+     * return a failed {@link AppSearchResult} with a result code of
+     * {@link AppSearchResult#RESULT_NOT_FOUND}.
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
@@ -656,14 +673,8 @@ public class AppSearchManager {
             for (int i = 0; i < schemaTypes.size(); i++) {
                 String schemaType = schemaTypes.get(i);
                 try {
-                    if (!mAppSearchImpl.removeByType(mInstanceName, schemaType)) {
-                        resultBuilder.setFailure(
-                                schemaType,
-                                AppSearchResult.RESULT_NOT_FOUND,
-                                /*errorMessage=*/ null);
-                    } else {
-                        resultBuilder.setSuccess(schemaType, /*result=*/ null);
-                    }
+                    mAppSearchImpl.removeByType(mInstanceName, schemaType);
+                    resultBuilder.setSuccess(schemaType, /*result=*/ null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(schemaType, throwableToFailedResult(t));
                 }
@@ -677,10 +688,10 @@ public class AppSearchManager {
      *
      * @param namespaces Namespaces whose documents to delete.
      * @return The pending result of performing this operation. The keys of the returned
-     *     {@link AppSearchBatchResult} are the input namespaces. The values are {@code null} on
-     *     success, or a failed {@link AppSearchResult} otherwise. Namespaces that are not found
-     *     will return a failed {@link AppSearchResult} with a result code of
-     *     {@link AppSearchResult#RESULT_NOT_FOUND}.
+     * {@link AppSearchBatchResult} are the input namespaces. The values are {@code null} on
+     * success, or a failed {@link AppSearchResult} otherwise. Namespaces that are not found
+     * will return a failed {@link AppSearchResult} with a result code of
+     * {@link AppSearchResult#RESULT_NOT_FOUND}.
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
@@ -694,10 +705,10 @@ public class AppSearchManager {
      *
      * @param namespaces Namespaces whose documents to delete.
      * @return The pending result of performing this operation. The keys of the returned
-     *     {@link AppSearchBatchResult} are the input namespaces. The values are {@code null} on
-     *     success, or a failed {@link AppSearchResult} otherwise. Namespaces that are not found
-     *     will return a failed {@link AppSearchResult} with a result code of
-     *     {@link AppSearchResult#RESULT_NOT_FOUND}.
+     * {@link AppSearchBatchResult} are the input namespaces. The values are {@code null} on
+     * success, or a failed {@link AppSearchResult} otherwise. Namespaces that are not found
+     * will return a failed {@link AppSearchResult} with a result code of
+     * {@link AppSearchResult#RESULT_NOT_FOUND}.
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
@@ -709,14 +720,8 @@ public class AppSearchManager {
             for (int i = 0; i < namespaces.size(); i++) {
                 String namespace = namespaces.get(i);
                 try {
-                    if (!mAppSearchImpl.removeByNamespace(mInstanceName, namespace)) {
-                        resultBuilder.setFailure(
-                                namespace,
-                                AppSearchResult.RESULT_NOT_FOUND,
-                                /*errorMessage=*/ null);
-                    } else {
-                        resultBuilder.setSuccess(namespace, /*result=*/ null);
-                    }
+                    mAppSearchImpl.removeByNamespace(mInstanceName, namespace);
+                    resultBuilder.setSuccess(namespace, /*result=*/ null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(namespace, throwableToFailedResult(t));
                 }
@@ -735,6 +740,18 @@ public class AppSearchManager {
         return execute(MUTATE_EXECUTOR, () -> {
             try {
                 mAppSearchImpl.removeAll(mInstanceName);
+                return AppSearchResult.newSuccessfulResult(null);
+            } catch (Throwable t) {
+                return throwableToFailedResult(t);
+            }
+        });
+    }
+
+    @VisibleForTesting
+    ListenableFuture<AppSearchResult<Void>> resetAllInstances() {
+        return execute(MUTATE_EXECUTOR, () -> {
+            try {
+                mAppSearchImpl.reset();
                 return AppSearchResult.newSuccessfulResult(null);
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
