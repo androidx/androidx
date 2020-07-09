@@ -53,11 +53,11 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.SurfaceTextureProvider;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -72,6 +72,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.ArgumentCaptor;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 
@@ -94,7 +95,6 @@ public class ExtensionTest {
     private EffectMode mEffectMode;
     @CameraSelector.LensFacing
     private int mLensFacing;
-    private FakeLifecycleOwner mLifecycleOwner;
 
     public ExtensionTest(EffectMode effectMode, @CameraSelector.LensFacing int lensFacing) {
         mEffectMode = effectMode;
@@ -113,16 +113,10 @@ public class ExtensionTest {
         assumeTrue(ExtensionsTestUtil.initExtensions());
         assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
         assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing));
-
-        mLifecycleOwner = new FakeLifecycleOwner();
-        mLifecycleOwner.startAndResume();
     }
 
     @After
     public void cleanUp() throws InterruptedException, ExecutionException {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        }
         CameraX.shutdown().get();
     }
 
@@ -138,6 +132,8 @@ public class ExtensionTest {
 
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
+        CameraUseCaseAdapter cameraUseCaseAdapter =
+                CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
         mInstrumentation.runOnMainSync(
                 () -> {
                     // To set the update listener and Preview will change to active state.
@@ -157,7 +153,12 @@ public class ExtensionTest {
                                 }
                             }));
 
-                    CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, preview, imageCapture);
+                    try {
+                        cameraUseCaseAdapter.addUseCases(Arrays.asList(preview, imageCapture));
+                    } catch (CameraUseCaseAdapter.CameraException e) {
+                        throw new IllegalArgumentException("Unable to bind preview and image "
+                                + "capture");
+                    }
 
                     imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(),
                             mockOnImageCapturedCallback);

@@ -17,8 +17,6 @@
 package androidx.camera.extensions;
 
 import android.hardware.camera2.CameraCharacteristics;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.util.Pair;
 import android.util.Size;
@@ -268,20 +266,6 @@ public abstract class PreviewExtender {
         @Override
         public CaptureConfig onPresetSession() {
             synchronized (mLock) {
-                if (mActive) {
-                    Handler handler = new Handler(Looper.getMainLooper());
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                checkImageCaptureEnabled(mEffectMode, CameraX.getActiveUseCases());
-                            } catch (IllegalStateException e) {
-                                Log.e(TAG, "CameraX has been shutdown. Don't need to check for "
-                                        + "active use cases.");
-                            }
-                        }
-                    });
-                }
                 CaptureStageImpl captureStageImpl = mImpl.onPresetSession();
                 if (captureStageImpl != null) {
                     return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();

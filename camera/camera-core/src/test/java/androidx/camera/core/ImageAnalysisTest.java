@@ -28,14 +28,14 @@ import android.view.Surface;
 
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeImageReaderProxy;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.google.common.collect.Iterables;
 
@@ -50,6 +50,7 @@ import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowLooper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -106,7 +107,6 @@ public class ImageAnalysisTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(CameraX::unbindAll);
         mImageProxiesReceived.clear();
         CameraX.shutdown().get();
         if (mBackgroundThread != null) {
@@ -119,7 +119,7 @@ public class ImageAnalysisTest {
 
     @Test
     public void bindViewPortWithFillStyle_returnsSameViewPortRectAndCropRect()
-            throws InterruptedException {
+            throws InterruptedException, CameraUseCaseAdapter.CameraException {
         // Arrange.
         setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST,
                 new ViewPort.Builder(new Rational(1, 1), Surface.ROTATION_0)
@@ -143,7 +143,8 @@ public class ImageAnalysisTest {
     }
 
     @Test
-    public void resultSize_isEqualToSurfaceSize() throws InterruptedException {
+    public void resultSize_isEqualToSurfaceSize() throws InterruptedException,
+            CameraUseCaseAdapter.CameraException {
         // Arrange.
         setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
 
@@ -160,7 +161,8 @@ public class ImageAnalysisTest {
     }
 
     @Test
-    public void nonBlockingAnalyzerClosed_imageNotAnalyzed() throws InterruptedException {
+    public void nonBlockingAnalyzerClosed_imageNotAnalyzed() throws InterruptedException,
+            CameraUseCaseAdapter.CameraException {
         // Arrange.
         setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
 
@@ -188,7 +190,8 @@ public class ImageAnalysisTest {
     }
 
     @Test
-    public void blockingAnalyzerClosed_imageNotAnalyzed() throws InterruptedException {
+    public void blockingAnalyzerClosed_imageNotAnalyzed() throws InterruptedException,
+            CameraUseCaseAdapter.CameraException {
         // Arrange.
         setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER);
 
@@ -208,7 +211,8 @@ public class ImageAnalysisTest {
     }
 
     @Test
-    public void keepOnlyLatestStrategy_doesNotBlock() throws InterruptedException {
+    public void keepOnlyLatestStrategy_doesNotBlock() throws InterruptedException,
+            CameraUseCaseAdapter.CameraException {
         // Arrange.
         setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
 
@@ -242,7 +246,8 @@ public class ImageAnalysisTest {
     }
 
     @Test
-    public void blockProducerStrategy_doesNotDropFrames() throws InterruptedException {
+    public void blockProducerStrategy_doesNotDropFrames() throws InterruptedException,
+            CameraUseCaseAdapter.CameraException {
         // Arrange.
         setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER);
 
@@ -266,12 +271,14 @@ public class ImageAnalysisTest {
     }
 
     private void setUpImageAnalysisWithStrategy(
-            @ImageAnalysis.BackpressureStrategy int backpressureStrategy) {
+            @ImageAnalysis.BackpressureStrategy int backpressureStrategy) throws
+            CameraUseCaseAdapter.CameraException {
         setUpImageAnalysisWithStrategy(backpressureStrategy, null);
     }
 
     private void setUpImageAnalysisWithStrategy(
-            @ImageAnalysis.BackpressureStrategy int backpressureStrategy, ViewPort viewPort) {
+            @ImageAnalysis.BackpressureStrategy int backpressureStrategy, ViewPort viewPort) throws
+            CameraUseCaseAdapter.CameraException {
         mImageAnalysis = new ImageAnalysis.Builder()
                 .setBackgroundExecutor(mBackgroundExecutor)
                 .setTargetRotation(Surface.ROTATION_0)
@@ -292,15 +299,11 @@ public class ImageAnalysisTest {
                 }
         );
 
-        FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            CameraX.bindToLifecycle(
-                    lifecycleOwner,
-                    CameraSelector.DEFAULT_BACK_CAMERA,
-                    viewPort,
-                    mImageAnalysis);
-            lifecycleOwner.startAndResume();
-        });
+        CameraUseCaseAdapter cameraUseCaseAdapter =
+                CameraUtil.getCameraUseCaseAdapter(ApplicationProvider.getApplicationContext(),
+                        CameraSelector.DEFAULT_BACK_CAMERA);
+        cameraUseCaseAdapter.setViewPort(viewPort);
+        cameraUseCaseAdapter.addUseCases(Collections.singleton(mImageAnalysis));
     }
 
     private List<Long> getImageTimestampsReceived() {

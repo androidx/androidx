@@ -18,11 +18,18 @@ package androidx.camera.core.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
+import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeUseCase;
+import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -106,5 +113,65 @@ public class CameraUseCaseAdapterTest {
                 mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager);
         assertThat(cameraUseCaseAdapter.isEquivalent(otherCameraUseCaseAdapter)).isTrue();
+    }
+
+    @Test
+    @MediumTest
+    public void useCase_onAttach() throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
+                mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager);
+
+        FakeUseCase fakeUseCase = spy(new FakeUseCase());
+        cameraUseCaseAdapter.addUseCases(Collections.singleton(fakeUseCase));
+
+        verify(fakeUseCase).onAttach(mFakeCamera);
+    }
+
+    @Test
+    @MediumTest
+    public void useCase_onDetach() throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
+                mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager);
+
+        FakeUseCase fakeUseCase = spy(new FakeUseCase());
+        cameraUseCaseAdapter.addUseCases(Collections.singleton(fakeUseCase));
+
+        cameraUseCaseAdapter.removeUseCases(Collections.singleton(fakeUseCase));
+
+        verify(fakeUseCase).onDetach(mFakeCamera);
+    }
+
+    @Test
+    public void eventCallbackOnBind() throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
+                mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager);
+
+        UseCase.EventCallback callback = mock(UseCase.EventCallback.class);
+        FakeUseCase fakeUseCase =
+                new FakeUseCaseConfig.Builder().setUseCaseEventCallback(callback).build();
+
+        cameraUseCaseAdapter.addUseCases(Collections.singleton(fakeUseCase));
+
+        verify(callback).onBind(mFakeCamera.getCameraInfoInternal().getCameraId());
+    }
+
+    @Test
+    public void eventCallbackOnUnbind() throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
+                mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager);
+
+        UseCase.EventCallback callback = mock(UseCase.EventCallback.class);
+        FakeUseCase fakeUseCase =
+                new FakeUseCaseConfig.Builder().setUseCaseEventCallback(callback).build();
+
+        cameraUseCaseAdapter.addUseCases(Collections.singleton(fakeUseCase));
+
+        cameraUseCaseAdapter.removeUseCases(Collections.singleton(fakeUseCase));
+
+        verify(callback).onUnbind();
     }
 }

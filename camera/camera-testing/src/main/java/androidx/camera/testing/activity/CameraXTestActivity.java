@@ -33,10 +33,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.Preview;
+import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.R;
 import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.test.espresso.idling.CountingIdlingResource;
+
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.concurrent.ExecutionException;
 
 /** An activity which starts CameraX preview for testing. */
 public class CameraXTestActivity extends AppCompatActivity {
@@ -49,6 +55,8 @@ public class CameraXTestActivity extends AppCompatActivity {
     public String mCameraId = null;
     @CameraSelector.LensFacing
     public int mLensFacing = CameraSelector.LENS_FACING_BACK;
+
+    CameraUseCaseAdapter mCameraUseCaseAdapter = null;
 
     @VisibleForTesting
     public final CountingIdlingResource mPreviewReady = new CountingIdlingResource("PreviewReady");
@@ -67,13 +75,23 @@ public class CameraXTestActivity extends AppCompatActivity {
         Log.i(TAG, "Got UseCase: " + mPreview);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mPreview != null && mCameraUseCaseAdapter != null) {
+            mCameraUseCaseAdapter.removeUseCases(Collections.singleton(mPreview));
+            mPreview = null;
+            mCameraUseCaseAdapter = null;
+        }
+    }
+
     void enablePreview() {
         for (int i = 0; i < FRAMES_UNTIL_VIEW_IS_READY; i++) {
             mPreviewReady.increment();
         }
 
-        if (CameraX.isBound(mPreview)) {
-            Log.d(TAG, "Preview already bound");
+        if (mCameraUseCaseAdapter != null) {
+            Log.d(TAG, "Preview already enabled");
             return;
         }
 
@@ -109,9 +127,19 @@ public class CameraXTestActivity extends AppCompatActivity {
 
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
+
         try {
-            CameraX.bindToLifecycle(this, cameraSelector, mPreview);
-        } catch (IllegalArgumentException e) {
+            CameraX cameraX = CameraX.getOrCreateInstance(CameraX.getContext()).get();
+            LinkedHashSet<CameraInternal> cameras =
+                    cameraSelector.filter(cameraX.getCameraRepository().getCameras());
+            mCameraUseCaseAdapter = new CameraUseCaseAdapter(cameras.iterator().next(), cameras,
+                    cameraX.getCameraDeviceSurfaceManager());
+            mCameraUseCaseAdapter.addUseCases(Collections.singleton(mPreview));
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return;
+        } catch (CameraUseCaseAdapter.CameraException e) {
+            mCameraUseCaseAdapter = null;
             mPreview = null;
             return;
         }

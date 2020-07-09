@@ -33,17 +33,17 @@ import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.Futures
+import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageProxy
 import androidx.camera.testing.fakes.FakeImageReaderProxy
-import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
-import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -63,6 +63,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowLooper
 import java.util.ArrayDeque
+import java.util.Collections
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicReference
@@ -83,6 +84,7 @@ class ImageCaptureTest {
     private lateinit var executor: Executor
     private var fakeImageReaderProxy: FakeImageReaderProxy? = null
     private var capturedImage: ImageProxy? = null
+    private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
     private val onImageCapturedCallback = object : ImageCapture.OnImageCapturedCallback() {
         override fun onCaptureSuccess(image: ImageProxy) {
             capturedImage = image
@@ -118,7 +120,6 @@ class ImageCaptureTest {
     @After
     @Throws(ExecutionException::class, InterruptedException::class)
     fun tearDown() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync { CameraX.unbindAll() }
         CameraX.shutdown().get()
         fakeImageReaderProxy = null
         callbackThread.quitSafely()
@@ -150,7 +151,7 @@ class ImageCaptureTest {
     }
 
     @Test
-    fun capturedImageValidAfterUnbind() {
+    fun capturedImageValidAfterRemoved() {
         // Arrange
         val imageCapture = bindImageCapture(
             ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
@@ -161,7 +162,8 @@ class ImageCaptureTest {
         // Send fake image.
         fakeImageReaderProxy?.triggerImageAvailable("tag", 0)
         flushHandler(callbackHandler)
-        CameraX.unbind(imageCapture)
+        cameraUseCaseAdapter.removeUseCases(
+            Collections.singleton(imageCapture) as Collection<UseCase>)
 
         // Assert.
         // The captured image should still be valid even if the ImageCapture has been unbound. It
@@ -347,19 +349,11 @@ class ImageCaptureTest {
             .setImageReaderProxyProvider(getImageReaderProxyProvider())
             .build()
 
-        // Act.
-        // Bind UseCase amd take picture.
-        val lifecycleOwner = FakeLifecycleOwner()
-        InstrumentationRegistry.getInstrumentation()
-            .runOnMainSync {
-                CameraX.bindToLifecycle(
-                    lifecycleOwner,
-                    CameraSelector.DEFAULT_BACK_CAMERA,
-                    viewPort,
-                    imageCapture
-                )
-                lifecycleOwner.startAndResume()
-            }
+        cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(ApplicationProvider
+            .getApplicationContext<Context>(), CameraSelector.DEFAULT_BACK_CAMERA)
+
+        cameraUseCaseAdapter.setViewPort(viewPort)
+        cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(imageCapture))
         return imageCapture
     }
 

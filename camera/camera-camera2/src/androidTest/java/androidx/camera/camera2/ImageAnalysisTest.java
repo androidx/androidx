@@ -40,9 +40,8 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.ImageAnalysisConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
-import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -75,7 +74,7 @@ public final class ImageAnalysisTest {
     private Handler mHandler;
     private Semaphore mAnalysisResultsSemaphore;
     private CameraSelector mCameraSelector;
-    private FakeLifecycleOwner mLifecycleOwner;
+    private Context mContext;
 
     @Rule
     public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
@@ -95,25 +94,20 @@ public final class ImageAnalysisTest {
                     mAnalysisResultsSemaphore.release();
                     image.close();
                 };
-        Context context = ApplicationProvider.getApplicationContext();
+        mContext = ApplicationProvider.getApplicationContext();
         CameraXConfig config = Camera2Config.defaultConfig();
 
-        CameraX.initialize(context, config);
+        CameraX.initialize(mContext, config);
 
         mHandlerThread = new HandlerThread("AnalysisThread");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
         mCameraSelector = new CameraSelector.Builder().requireLensFacing(
                 CameraSelector.LENS_FACING_BACK).build();
-        mLifecycleOwner = new FakeLifecycleOwner();
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        }
-
         CameraX.shutdown().get();
 
         if (mHandlerThread != null) {
@@ -137,13 +131,9 @@ public final class ImageAnalysisTest {
         ImageAnalysis useCase = new ImageAnalysis.Builder().setTargetResolution(
                 GUARANTEED_RESOLUTION).setTargetRotation(
                 isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
-        mInstrumentation.runOnMainSync(() -> {
-            CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(
-                    CameraSelector.LENS_FACING_FRONT).build();
-            CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, useCase);
-            mLifecycleOwner.startAndResume();
-            useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
-        });
+        CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_FRONT_CAMERA,
+                useCase);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
         assertThat(mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
 
         synchronized (mAnalysisResultLock) {
@@ -153,12 +143,6 @@ public final class ImageAnalysisTest {
             assertThat(GUARANTEED_RESOLUTION).isEqualTo(
                     mAnalysisResults.iterator().next().mResolution);
         }
-
-        // Reset the environment to run test for the other lens facing camera device.
-        mInstrumentation.runOnMainSync(() -> {
-            CameraX.unbindAll();
-            mLifecycleOwner.pauseAndStop();
-        });
     }
 
     @Test
@@ -177,13 +161,10 @@ public final class ImageAnalysisTest {
         ImageAnalysis useCase = new ImageAnalysis.Builder().setTargetResolution(
                 GUARANTEED_RESOLUTION).setTargetRotation(
                 isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
-        mInstrumentation.runOnMainSync(() -> {
-            CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(
-                    CameraSelector.LENS_FACING_BACK).build();
-            CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, useCase);
-            mLifecycleOwner.startAndResume();
-            useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
-        });
+
+        CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA, useCase);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
+
         assertThat(mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
 
         synchronized (mAnalysisResultLock) {
@@ -193,12 +174,6 @@ public final class ImageAnalysisTest {
             assertThat(GUARANTEED_RESOLUTION).isEqualTo(
                     mAnalysisResults.iterator().next().mResolution);
         }
-
-        // Reset the environment to run test for the other lens facing camera device.
-        mInstrumentation.runOnMainSync(() -> {
-            CameraX.unbindAll();
-            mLifecycleOwner.pauseAndStop();
-        });
     }
 
     @Test
@@ -217,11 +192,8 @@ public final class ImageAnalysisTest {
             throws InterruptedException {
         ImageAnalysis useCase = new ImageAnalysis.Builder().setBackpressureStrategy(
                 backpressureStrategy).build();
-        mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCase);
-            mLifecycleOwner.startAndResume();
-            useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
-        });
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
 
         mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS);
 
@@ -231,11 +203,13 @@ public final class ImageAnalysisTest {
     }
 
     @Test
-    @UiThreadTest
     public void analyzerDoesNotAnalyzeImages_whenCameraIsNotOpen() throws InterruptedException {
         ImageAnalysis useCase = new ImageAnalysis.Builder().build();
         // Bind but do not start lifecycle
-        CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCase);
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+                mCameraSelector, useCase);
+        camera.detachUseCases();
+
         useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
         // Keep the lifecycle in an inactive state.
         // Wait a little while for frames to be analyzed.

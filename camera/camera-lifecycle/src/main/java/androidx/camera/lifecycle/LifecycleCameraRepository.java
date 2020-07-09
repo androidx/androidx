@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.lifecycle;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -34,7 +34,9 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A repository of {@link LifecycleCamera} instances.
@@ -123,6 +125,18 @@ final class LifecycleCameraRepository {
     Collection<LifecycleCamera> getLifecycleCameras() {
         synchronized (mLock) {
             return Collections.unmodifiableCollection(mCameraMap.values());
+        }
+    }
+
+    /**
+     * Clears out all of the cameras from the repository.
+     */
+    void clear() {
+        synchronized (mLock) {
+            Set<Key> keysToClear = new HashSet<>(mCameraMap.keySet());
+            for (Key key : keysToClear) {
+                unregisterCamera(key);
+            }
         }
     }
 

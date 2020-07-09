@@ -43,11 +43,11 @@ import androidx.camera.core.DisplayOrientedMeteringPointFactory;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.fakes.FakeActivity;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -62,6 +62,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -94,7 +95,6 @@ public class TextureViewMeteringPointFactoryTest {
 
     private static final int WAIT_FRAMECOUNT = 3;
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-    private FakeLifecycleOwner mLifecycle;
     private CountDownLatch mLatchForFrameReady;
     private Display mDisplay;
     private TextureView mTextureView;
@@ -113,7 +113,6 @@ public class TextureViewMeteringPointFactoryTest {
         mDisplay = windowManager.getDefaultDisplay();
         CameraXConfig config = Camera2Config.defaultConfig();
         CameraX.initialize(context, config);
-        mLifecycle = new FakeLifecycleOwner();
         mLatchForFrameReady = new CountDownLatch(1);
         mTextureView = new TextureView(context);
         setContentView(mTextureView);
@@ -121,9 +120,6 @@ public class TextureViewMeteringPointFactoryTest {
 
     @After
     public void tearDown() throws InterruptedException, ExecutionException {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        }
         CameraX.shutdown().get();
     }
 
@@ -255,10 +251,15 @@ public class TextureViewMeteringPointFactoryTest {
             CameraSelector cameraSelector =
                     new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 
+            CameraUseCaseAdapter cameraUseCaseAdapter =
+                    CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
             // SurfaceTexture#getTransformMatrix is initialized properly when camera starts
             // to output.
-            CameraX.bindToLifecycle(mLifecycle, cameraSelector, preview);
-            mLifecycle.startAndResume();
+            try {
+                cameraUseCaseAdapter.addUseCases(Collections.singleton(preview));
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                throw new IllegalArgumentException("Unable to bind preview");
+            }
         });
 
         mLatchForFrameReady.await(3, TimeUnit.SECONDS);

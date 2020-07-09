@@ -275,7 +275,7 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected final void notifyState() {
+    public final void notifyState() {
         switch (mState) {
             case INACTIVE:
                 for (StateChangeCallback stateChangeCallback : mStateChangeCallbacks) {
