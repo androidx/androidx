@@ -27,7 +27,6 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import androidx.annotation.IntRange
 import androidx.collection.SparseArrayCompat
-import androidx.core.util.Preconditions
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
@@ -631,7 +630,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      * @param size length of the result, should be greater than 0
      */
     private fun <T : CharSequence> trimToSize(text: T?, @IntRange(from = 1) size: Int): T? {
-        Preconditions.checkArgument(size > 0)
+        require(size > 0)
         var len = size
         if (text.isNullOrEmpty() || text.length <= size) return text
         if (Character.isHighSurrogate(text[size - 1]) && Character.isLowSurrogate(text[size])) {

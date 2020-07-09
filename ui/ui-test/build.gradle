@@ -40,7 +40,7 @@ dependencies {
     implementation(ESPRESSO_CORE)
     implementation(JUNIT)
 
-    api project(":ui:ui-core")
+    api project(":compose:core:core")
 
     implementation project(":compose:compose-runtime")
     implementation project(":compose:animation:animation")
@@ -53,7 +53,7 @@ dependencies {
     testImplementation(TRUTH)
 
     androidTestImplementation(TRUTH)
-    androidTestImplementation project(":ui:ui-core")
+    androidTestImplementation project(":compose:core:core")
     androidTestImplementation project(':compose:material:material')
 }
 

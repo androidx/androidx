@@ -334,12 +334,13 @@ internal fun XmlPullParser.parseClipPath(
     attrs: AttributeSet,
     builder: VectorAssetBuilder
 ) {
-    val a = TypedArrayUtils.obtainAttributes(
-        res,
-        theme,
+    val a = theme?.obtainStyledAttributes(
         attrs,
-        AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH
-    )
+        AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH,
+        0,
+        0
+    ) ?: res.obtainAttributes(attrs, AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH)
+
     val name: String = a.getString(
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_NAME
     ) ?: ""
