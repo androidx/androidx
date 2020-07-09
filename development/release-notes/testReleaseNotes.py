@@ -1089,5 +1089,55 @@ class TestMarkdown(unittest.TestCase):
 			"platform/frameworks/support/+log/untilSHA/projectDir)"
 		)
 
+	def test_markdownCorrectlyGeneratesChannelSummary(self):
+		releaseNotes = LibraryReleaseNotes(
+			groupId = "androidx.recyclerview",
+			artifactIds = ["recyclerview"],
+			version = "1.2.0-alpha04",
+			releaseDate = "01-01-1970",
+			fromSHA = "fromSHA",
+			untilSHA = "untilSHA",
+			projectDir = "projectDir",
+			requiresSameVersion = False,
+			commitList = [],
+			forceIncludeAllCommits = False
+		)
+		self.assertEqual(str(releaseNotes.channelSummary),
+			"* [RecyclerView Version 1.2.0-alpha04]" + \
+			"(/jetpack/androidx/releases/recyclerview#recyclerview-1.2.0-alpha04)\n")
+
+		releaseNotes = LibraryReleaseNotes(
+			groupId = "groupId",
+			artifactIds = ["artifact-Id1", "artifact-Id2", "artifact-Id3",
+						   "artifact-Id4", "artifact-Id5"],
+			version = "version",
+			releaseDate = "01-01-1970",
+			fromSHA = "fromSHA",
+			untilSHA = "untilSHA",
+			projectDir = "projectDir",
+			requiresSameVersion = False,
+			commitList = [],
+			forceIncludeAllCommits = False
+		)
+		self.assertEqual(str(releaseNotes.channelSummary),
+			"* [Groupid Version version]" + \
+			"(/jetpack/androidx/releases/groupid#version)\n")
+
+		releaseNotes = LibraryReleaseNotes(
+			groupId = "groupId",
+			artifactIds = ["artifactId1", "artifactId2", "artifactId3"],
+			version = "version",
+			releaseDate = "01-01-1970",
+			fromSHA = "fromSHA",
+			untilSHA = "untilSHA",
+			projectDir = "projectDir",
+			requiresSameVersion = False,
+			commitList = [],
+			forceIncludeAllCommits = False
+		)
+		self.assertEqual(str(releaseNotes.channelSummary),
+			"* [Artifactid1 Artifactid2 Artifactid3 Version version]" + \
+			"(/jetpack/androidx/releases/groupid#version)\n")
+
 if __name__ == '__main__':
 	unittest.main()
