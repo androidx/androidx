@@ -58,6 +58,7 @@ class MediaRouter2Utils {
     static final String KEY_EXTRAS = "androidx.mediarouter.media.KEY_EXTRAS";
     static final String KEY_CONTROL_FILTERS = "androidx.mediarouter.media.KEY_CONTROL_FILTERS";
     static final String KEY_DEVICE_TYPE = "androidx.mediarouter.media.KEY_DEVICE_TYPE";
+    static final String KEY_PLAYBACK_TYPE = "androidx.mediarouter.media.KEY_PLAYBACK_TYPE";
     static final String KEY_ORIGINAL_ROUTE_ID = "androidx.mediarouter.media.KEY_ORIGINAL_ROUTE_ID";
 
     // Used in RoutingController#getControlHints()
@@ -103,6 +104,7 @@ class MediaRouter2Utils {
         extras.putParcelableArrayList(KEY_CONTROL_FILTERS,
                 new ArrayList<>(descriptor.getControlFilters()));
         extras.putInt(KEY_DEVICE_TYPE, descriptor.getDeviceType());
+        extras.putInt(KEY_PLAYBACK_TYPE, descriptor.getPlaybackType());
         extras.putString(KEY_ORIGINAL_ROUTE_ID, descriptor.getId());
         builder.setExtras(extras);
 
@@ -151,6 +153,8 @@ class MediaRouter2Utils {
 
         builder.setExtras(extras.getBundle(KEY_EXTRAS));
         builder.setDeviceType(extras.getInt(KEY_DEVICE_TYPE, DEVICE_TYPE_UNKNOWN));
+        builder.setPlaybackType(extras.getInt(KEY_PLAYBACK_TYPE,
+                MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE));
 
         List<IntentFilter> controlFilters = extras.getParcelableArrayList(KEY_CONTROL_FILTERS);
         if (controlFilters != null) {
