@@ -47,7 +47,7 @@ dependencies {
     implementation project(":compose:foundation:foundation")
     implementation project(":compose:foundation:foundation-layout")
     implementation project(":compose:core:core-util")
-    implementation project(":ui:ui-text")
+    implementation project(":compose:foundation:foundation-text")
     implementation project(":ui:ui-saved-instance-state")
 
     testImplementation(TRUTH)
