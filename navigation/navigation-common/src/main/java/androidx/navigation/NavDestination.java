@@ -498,10 +498,27 @@ public class NavDestination {
      */
     @NonNull
     int[] buildDeepLinkIds() {
+        return buildDeepLinkIds(null);
+    }
+
+    /**
+     * Build an array containing the hierarchy from the root down to this destination.
+     *
+     * @param previousDestination the previous destination we are starting at
+     * @return An array containing all of the ids from the previous destination (or the root of
+     * the graph if null) to this destination
+     */
+    @NonNull
+    int[] buildDeepLinkIds(@Nullable NavDestination previousDestination) {
         ArrayDeque<NavDestination> hierarchy = new ArrayDeque<>();
         NavDestination current = this;
         do {
             NavGraph parent = current.getParent();
+            if (previousDestination != null && previousDestination.getParent() != null
+                    && previousDestination.getParent().findNode(current.getId()) == current) {
+                hierarchy.addFirst(current);
+                break;
+            }
             if (parent == null || parent.getStartDestination() != current.getId()) {
                 hierarchy.addFirst(current);
             }

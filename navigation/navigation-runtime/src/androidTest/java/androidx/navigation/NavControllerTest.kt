@@ -1209,6 +1209,53 @@ class NavControllerTest {
     }
 
     @Test
+    fun testHandleDeepLinkMultipleDestinations() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_multiple_navigation)
+        val onDestinationChangedListener =
+            mock(NavController.OnDestinationChangedListener::class.java)
+        navController.addOnDestinationChangedListener(onDestinationChangedListener)
+        val startDestination = navController.findDestination(R.id.simple_child_start_test)
+        verify(onDestinationChangedListener).onDestinationChanged(
+            eq(navController),
+            eq(startDestination),
+            any())
+        val childDestination = navController.findDestination(R.id.simple_child_second_test)
+
+        val taskStackBuilder = navController.createDeepLink()
+            .setDestination(R.id.simple_child_second_test)
+            .addDestination(R.id.deep_link_child_second_test)
+            .createTaskStackBuilder()
+
+        val intent = taskStackBuilder.editIntentAt(0)
+        assertNotNull(intent)
+        assertWithMessage("NavController should handle deep links to its own graph")
+            .that(navController.handleDeepLink(intent))
+            .isTrue()
+
+        // Verify that we navigated down to the deep link
+        // First to the destination added via setDestination()
+        verify(onDestinationChangedListener, times(2)).onDestinationChanged(
+            eq(navController),
+            eq(startDestination),
+            any())
+        verify(onDestinationChangedListener).onDestinationChanged(
+            eq(navController),
+            eq(childDestination),
+            any())
+        // Then to the second destination added via addDestination()
+        verify(onDestinationChangedListener).onDestinationChanged(
+            eq(navController),
+            eq(navController.findDestination(R.id.deep_link_child_start_test)),
+            any())
+        verify(onDestinationChangedListener).onDestinationChanged(
+            eq(navController),
+            eq(navController.findDestination(R.id.deep_link_child_second_test)),
+            any())
+        verifyNoMoreInteractions(onDestinationChangedListener)
+    }
+
+    @Test
     fun testHandleDeepLinkInvalid() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
