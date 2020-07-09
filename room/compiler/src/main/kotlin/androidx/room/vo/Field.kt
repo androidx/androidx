@@ -25,11 +25,12 @@ import androidx.room.solver.types.CursorValueReader
 import androidx.room.solver.types.StatementValueBinder
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
 
 // used in cache matching, must stay as a data class or implement equals
 data class Field(
-    val element: Element,
+    val element: VariableElement,
     val name: String,
     val type: TypeMirror,
     var affinity: SQLTypeAffinity?,

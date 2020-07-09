@@ -53,7 +53,7 @@ import org.mockito.Mockito.mock
 import simpleRun
 import toJFO
 import java.io.File
-import javax.lang.model.element.Element
+import javax.lang.model.element.VariableElement
 import javax.tools.JavaFileObject
 
 /**
@@ -872,7 +872,7 @@ class PojoProcessorTest {
             assertThat(pojo5, sameInstance(pojo4))
 
             val type = invocation.context.COMMON_TYPES.STRING
-            val mockElement = mock(Element::class.java)
+            val mockElement = mock(VariableElement::class.java)
             doReturn(type).`when`(mockElement).asType()
             val fakeField = Field(
                     element = mockElement,

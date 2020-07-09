@@ -51,6 +51,7 @@ import java.sql.Connection
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
@@ -323,7 +324,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         affinity: SQLTypeAffinity,
         defaultValue: String? = null
     ): Field {
-        val element = mock(Element::class.java)
+        val element = mock(VariableElement::class.java)
         doReturn(type).`when`(element).asType()
         val f = Field(
             element = element,
