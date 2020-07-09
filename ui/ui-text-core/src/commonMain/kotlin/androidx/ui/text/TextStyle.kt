@@ -71,7 +71,8 @@ private val DefaultColor = Color.Black
  * @param shadow The shadow effect applied on the text.
  * @param textAlign The alignment of the text within the lines of the paragraph.
  * @param textDirection The algorithm to be used to resolve the final text and paragraph
- * direction: Left To Right or Right To Left.
+ * direction: Left To Right or Right To Left. If no value is provided the system will use the
+ * [LayoutDirection] as the primary signal.
  * @param textIndent The indentation of the paragraph.
  * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
  *
@@ -291,7 +292,7 @@ internal fun resolveTextDirectionAlgorithm(
 ): TextDirection {
     return textDirection
         ?: when (layoutDirection) {
-            LayoutDirection.Ltr -> TextDirection.ContentOrLtr
-            LayoutDirection.Rtl -> TextDirection.ContentOrRtl
+            LayoutDirection.Ltr -> TextDirection.Ltr
+            LayoutDirection.Rtl -> TextDirection.Rtl
         }
 }
