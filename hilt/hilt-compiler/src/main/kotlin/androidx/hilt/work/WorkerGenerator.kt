@@ -105,7 +105,7 @@ internal class WorkerGenerator(
                     .addAnnotation(ClassNames.INTO_MAP)
                     .addAnnotation(
                         AnnotationSpec.builder(ClassNames.STRING_KEY)
-                            .addMember("value", S, injectedWorker.className.canonicalName())
+                            .addMember("value", S, injectedWorker.className.reflectionName())
                             .build())
                     .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
                     .returns(
