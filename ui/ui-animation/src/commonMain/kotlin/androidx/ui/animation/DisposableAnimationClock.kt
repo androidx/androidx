@@ -18,12 +18,9 @@ package androidx.ui.animation
 
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationClockObserver
-import androidx.compose.AtomicReference
 import androidx.compose.Composable
 import androidx.compose.onCommit
 import androidx.compose.remember
-import kotlinx.collections.immutable.PersistentSet
-import kotlinx.collections.immutable.persistentSetOf
 
 /**
  * Return a new [AnimationClockObservable] wrapping this one that will auto-unsubscribe all
@@ -54,29 +51,22 @@ class DisposableAnimationClock(
 ) : AnimationClockObservable {
 
     // TODO switch to atomicfu if this class survives a move to suspending animation API
-    private val allSubscriptions = AtomicReference<PersistentSet<AnimationClockObserver>?>(
-        persistentSetOf()
-    )
+    private val allSubscriptions = mutableSetOf<AnimationClockObserver>()
+    private var disposed = false
 
     override fun subscribe(observer: AnimationClockObserver) {
-        while (true) {
-            val old = allSubscriptions.get()
-            val new = old?.add(observer) ?: return // null means already disposed
-            if (allSubscriptions.compareAndSet(old, new)) {
+        synchronized(allSubscriptions) {
+            if (!disposed) {
+                allSubscriptions += observer
                 clock.subscribe(observer)
-                return
             }
         }
     }
 
     override fun unsubscribe(observer: AnimationClockObserver) {
-        while (true) {
-            val old = allSubscriptions.get() ?: return // null means already disposed
-            val new = old.remove(observer)
-            if (old == new) return
-            if (allSubscriptions.compareAndSet(old, new)) {
+        synchronized(allSubscriptions) {
+            if (allSubscriptions.remove(observer)) {
                 clock.unsubscribe(observer)
-                return
             }
         }
     }
@@ -87,11 +77,15 @@ class DisposableAnimationClock(
      * After a call to [dispose], [isDisposed] will return `true`.
      */
     fun dispose() {
-        allSubscriptions.getAndSet(null)?.forEach { clock.unsubscribe(it) }
+        synchronized(allSubscriptions) {
+            allSubscriptions.forEach { clock.unsubscribe(it) }
+            allSubscriptions.clear()
+            disposed = true
+        }
     }
 
     /**
      * `true` if [dispose] has been called and no new subscriptions are permitted.
      */
-    val isDisposed: Boolean get() = allSubscriptions.get() == null
+    val isDisposed: Boolean get() = synchronized(allSubscriptions) { disposed == true }
 }

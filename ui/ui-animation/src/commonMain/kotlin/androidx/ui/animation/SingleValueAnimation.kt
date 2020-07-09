@@ -411,7 +411,6 @@ fun animate(
 fun <T : AnimationVector> animate(
     target: T,
     animSpec: AnimationSpec<T> = remember {
-        android.util.Log.w("LTD", "visibility threshold: $visibilityThreshold")
         SpringSpec(visibilityThreshold = visibilityThreshold)
     },
     visibilityThreshold: T? = null,
