@@ -16,9 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.unit.PxBounds
 
 /**
  * Builds error message for case where expected amount of nodes does not match reality.
@@ -75,7 +73,7 @@ internal fun buildErrorMessageForCountMismatch(
         } else {
             sb.appendln("Nodes found:")
         }
-        sb.appendln(foundNodes.toStringInfo())
+        sb.appendln(foundNodes.printToString())
     }
 
     return sb.toString()
@@ -120,7 +118,7 @@ internal fun buildErrorMessageForAssertAnyFail(
     sb.appendln("Failed to assertAny(${assertionMatcher.description})")
 
     sb.appendln("None of the following nodes match:")
-    sb.appendln(nodes.toStringInfo())
+    sb.appendln(nodes.printToString())
 
     sb.append("Selector used: '")
     sb.append(selector.description)
@@ -141,7 +139,7 @@ internal fun buildErrorMessageForAssertAllFail(
     sb.append("Found '${nodesNotMatching.size}' ")
     sb.append(if (nodesNotMatching.size == 1) "node" else "nodes")
     sb.appendln(" not matching:")
-    sb.appendln(nodesNotMatching.toStringInfo())
+    sb.appendln(nodesNotMatching.printToString())
 
     sb.append("Selector used: '")
     sb.append(selector.description)
@@ -176,7 +174,7 @@ internal fun buildGeneralErrorMessage(
     sb.appendln(errorMessage)
 
     sb.appendln("Semantics of the node:")
-    sb.appendln(node.toStringInfo())
+    sb.appendln(node.printToString())
 
     sb.append("Selector used: (")
     sb.append(selector.description)
@@ -200,66 +198,11 @@ internal fun buildIndexErrorMessage(
         sb.appendln("There are no existing nodes for that selector.")
     } else if (nodes.size == 1) {
         sb.appendln("There is 1 node only:")
-        sb.appendln(nodes.toStringInfo())
+        sb.appendln(nodes.printToString())
     } else {
         sb.appendln("There are '${nodes.size}' nodes only:")
-        sb.appendln(nodes.toStringInfo())
+        sb.appendln(nodes.printToString())
     }
 
     return sb.toString()
-}
-
-internal fun Collection<SemanticsNode>.toStringInfo(): String {
-    var sb = StringBuilder()
-    var i = 1
-    forEach {
-        if (size > 1) {
-            sb.append(i)
-            sb.append(") ")
-        }
-        sb.append(it.toStringInfo())
-        if (i < size) {
-            sb.appendln()
-        }
-        ++i
-    }
-    return sb.toString()
-}
-
-internal fun SemanticsNode.toStringInfo(): String {
-    var sb = StringBuilder()
-    sb.append("Id: $id, Position: ")
-    sb.appendln(pxBoundsToShortString(globalBounds))
-    sb.appendConfigInfo(config)
-    return sb.toString()
-}
-
-private fun pxBoundsToShortString(bounds: PxBounds): String {
-    return "LTRB(${bounds.left}.px, ${bounds.top}.px, ${bounds.right}.px, ${bounds.bottom}.px)"
-}
-
-private fun StringBuilder.appendConfigInfo(config: SemanticsConfiguration) {
-    val prefix = "- "
-    val separator = "\n"
-    val startLength = length
-
-    for ((key, value) in config) {
-        append(prefix)
-        append(key.name)
-        append(" = '")
-        append(value)
-        append("'")
-        append(separator)
-    }
-
-    if (config.isMergingSemanticsOfDescendants) {
-        append(prefix)
-        append("MergeDescendants = 'true'")
-        append(separator)
-    }
-
-    // Remove last separator
-    if (length > startLength) {
-        setLength(length - separator.length)
-    }
 }

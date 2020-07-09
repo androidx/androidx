@@ -67,7 +67,7 @@ class AssertAnyTest {
         expectErrorMessageStartsWith("" +
                 "Failed to assertAny(TestTag = 'Child3')\n" +
                 "None of the following nodes match:\n" +
-                "1) Id:") {
+                "1) ") {
             findByTag("Parent")
                 .children()
                 .assertAny(hasTestTag("Child3"))

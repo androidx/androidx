@@ -155,7 +155,7 @@ class SemanticsNodeInteraction internal constructor(
             ))
         }
 
-        lastSeenSemantics = result.selectedNodes.first().toStringInfo()
+        lastSeenSemantics = result.selectedNodes.first().printToString()
         return result.selectedNodes.first()
     }
 }

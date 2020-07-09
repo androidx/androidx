@@ -52,12 +52,11 @@ class ErrorMessagesTest {
         expectErrorMessage("" +
                 "Failed to assert the following: (OnClick is defined)\n" +
                 "Semantics of the node:\n" +
-                "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- TestTag = 'MyButton'\n" +
-                "- Enabled = 'false'\n" +
-                "- Text = 'AnnotatedString(text=Toggle, spanStyles=[], paragraphStyles=[], " +
-                "annotations=[])'\n" +
-                "- MergeDescendants = 'true'\n" +
+                "Node #X at (X, X, X, X)px, Tag: 'MyButton'\n" +
+                "Enabled = 'false'\n" +
+                "Text = 'Toggle'\n" +
+                "MergeDescendants = 'true'\n" +
+                "Has 1 sibling\n" +
                 "Selector used: (TestTag = 'MyButton')"
         ) {
             findByTag("MyButton")
@@ -124,8 +123,7 @@ class ErrorMessagesTest {
                 "Reason: Expected exactly '1' node but found '2' nodes that satisfy: " +
                 "(Text = 'Toggle' (ignoreCase: false))\n" +
                 "Nodes found:\n" +
-                "1) Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- TestTag = 'MyButton'"
+                "1) Node #X at (X, X, X, X)px, Tag: 'MyButton'"
         ) {
             findByText("Toggle")
                 .doClick()
@@ -174,8 +172,7 @@ class ErrorMessagesTest {
                 "Reason: Did not expect any node but found '1' node that satisfies: " +
                 "(TestTag = 'MyButton')\n" +
                 "Node found:\n" +
-                "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- TestTag = 'MyButton'\n"
+                "Node #X at (X, X, X, X)px, Tag: 'MyButton'"
         ) {
             findByTag("MyButton")
                 .assertDoesNotExist()
@@ -193,7 +190,7 @@ class ErrorMessagesTest {
                 "Reason: Expected '3' nodes but found '2' nodes that satisfy: " +
                 "(Text = 'Toggle' (ignoreCase: false))\n" +
                 "Nodes found:\n" +
-                "1) Id: X, Position: LTRB(X.px, X.px, X.px, X.px)"
+                "1) Node #X at (X, X, X, X)px"
         ) {
             findAllByText("Toggle")
                 .assertCountEquals(3)
@@ -231,9 +228,9 @@ class ErrorMessagesTest {
         expectErrorMessage("" +
                 "Failed to perform a gesture.\n" +
                 "The node is no longer in the tree, last known semantics:\n" +
-                "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- Text = 'AnnotatedString(text=Hello, spanStyles=[], paragraphStyles=[], " +
-                "annotations=[])'\n" +
+                "Node #X at (X, X, X, X)px\n" +
+                "Text = 'Hello'\n" +
+                "Has 1 sibling\n" +
                 "Original selector: Text = 'Hello' (ignoreCase: false)"
         ) {
             node.doClick()
@@ -256,9 +253,9 @@ class ErrorMessagesTest {
         expectErrorMessage("" +
                 "Failed: assertExists.\n" +
                 "The node is no longer in the tree, last known semantics:\n" +
-                "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- Text = 'AnnotatedString(text=Hello, spanStyles=[], paragraphStyles=[], " +
-                "annotations=[])'\n" +
+                "Node #X at (X, X, X, X)px\n" +
+                "Text = 'Hello'\n" +
+                "Has 1 sibling\n" +
                 "Original selector: Text = 'Hello' (ignoreCase: false)"
         ) {
             node.assertExists()
@@ -281,9 +278,9 @@ class ErrorMessagesTest {
         expectErrorMessage("" +
                 "Failed to assert the following: (OnClick is defined)\n" +
                 "The node is no longer in the tree, last known semantics:\n" +
-                "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- Text = 'AnnotatedString(text=Hello, spanStyles=[], paragraphStyles=[], " +
-                "annotations=[])'\n" +
+                "Node #X at (X, X, X, X)px\n" +
+                "Text = 'Hello'\n" +
+                "Has 1 sibling\n" +
                 "Original selector: Text = 'Hello' (ignoreCase: false)"
         ) {
             node.assertHasClickAction()

@@ -64,7 +64,7 @@ class AssertAllTest {
         expectErrorMessageStartsWith("" +
                 "Failed to assertAll(TestTag = 'Child1')\n" +
                 "Found '1' node not matching:\n" +
-                "Id: X"
+                "Node #X"
         ) {
             findByTag("Parent")
                 .children()
@@ -85,7 +85,7 @@ class AssertAllTest {
         expectErrorMessageStartsWith("" +
                 "Failed to assertAll(TestTag = 'Child1')\n" +
                 "Found '2' nodes not matching:\n" +
-                "1) Id:"
+                "1) "
         ) {
             findByTag("Parent")
                 .children()
