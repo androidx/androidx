@@ -20,6 +20,7 @@ import androidx.ui.geometry.Size
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Shape
 import androidx.ui.unit.Density
+import androidx.ui.util.nativeClass
 import kotlin.math.min
 
 /**
@@ -94,7 +95,7 @@ abstract class CornerBasedShape(
     // class code generation is not compatible with it, so we provide our hashCode() and equals()
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (this.nativeClass() != other?.nativeClass()) return false
 
         other as CornerBasedShape
 

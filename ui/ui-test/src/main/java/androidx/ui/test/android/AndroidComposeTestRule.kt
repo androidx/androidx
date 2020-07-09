@@ -25,6 +25,7 @@ import androidx.compose.Recomposer
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.setContent
+import androidx.ui.foundation.InternalFoundationApi
 import androidx.ui.foundation.blinkingCursorEnabled
 import androidx.ui.input.textInputServiceFactory
 import androidx.ui.test.AnimationClockTestRule
@@ -165,6 +166,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             }
         }
 
+        @OptIn(InternalFoundationApi::class)
         private fun beforeEvaluate() {
             transitionsEnabled = !disableTransitions
             blinkingCursorEnabled = !disableBlinkingCursor
@@ -177,6 +179,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             }
         }
 
+        @OptIn(InternalFoundationApi::class)
         private fun afterEvaluate() {
             transitionsEnabled = true
             blinkingCursorEnabled = true

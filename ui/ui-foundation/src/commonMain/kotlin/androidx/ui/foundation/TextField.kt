@@ -20,7 +20,6 @@ import androidx.animation.AnimatedValue
 import androidx.animation.AnimationConstants.Infinite
 import androidx.animation.keyframes
 import androidx.animation.repeatable
-import androidx.annotation.RestrictTo
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.Stable
@@ -57,13 +56,11 @@ import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.constrain
 import androidx.ui.unit.dp
-import org.jetbrains.annotations.TestOnly
 
 // TODO(b/151940543): Remove this variable when we have a solution for idling animations
 /** @suppress */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalFoundationApi
 var blinkingCursorEnabled: Boolean = true
-    @TestOnly
     set
 
 /**
@@ -265,6 +262,7 @@ fun TextField(
     onCommit(cursorColor, cursorState.focused, fullModel.value) {
         if (cursorNeeded) {
             // TODO(b/151940543): Disable blinking in tests until we handle idling animations
+            @OptIn(InternalFoundationApi::class)
             if (blinkingCursorEnabled) {
                 animColor.animateTo(Color.Transparent, anim = repeatable(
                     iterations = Infinite,

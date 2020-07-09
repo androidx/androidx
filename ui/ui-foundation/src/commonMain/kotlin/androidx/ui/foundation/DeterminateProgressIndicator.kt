@@ -16,13 +16,14 @@
 
 package androidx.ui.foundation
 
-import androidx.annotation.FloatRange
 import androidx.compose.Stable
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.semantics.accessibilityValueRange
+import androidx.ui.util.annotation.FloatRange
+import androidx.ui.util.format
 import kotlin.math.roundToInt
 
 /**

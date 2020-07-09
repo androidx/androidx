@@ -87,7 +87,7 @@ class ScrollableState(
 
     private val isAnimationRunningState = mutableStateOf(false)
 
-    private val clocksProxy = object : AnimationClockObservable {
+    private val clocksProxy: AnimationClockObservable = object : AnimationClockObservable {
         override fun subscribe(observer: AnimationClockObserver) {
             isAnimationRunningState.value = true
             animationClock.subscribe(observer)

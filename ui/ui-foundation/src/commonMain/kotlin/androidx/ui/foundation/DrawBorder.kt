@@ -42,6 +42,7 @@ import androidx.ui.graphics.drawscope.Fill
 import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
+import androidx.ui.util.nativeClass
 
 /**
  * Returns a [Modifier] that adds border with appearance specified with a [border] and a [shape]
@@ -214,7 +215,7 @@ class DrawBorder internal constructor(
     // cannot make DrawBorder data class because of the cache, though need hashcode/equals
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (this.nativeClass() != other?.nativeClass()) return false
 
         other as DrawBorder
 
