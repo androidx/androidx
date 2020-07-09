@@ -17,12 +17,13 @@
 package androidx.ui.integration.test.core.text
 
 import androidx.compose.Composable
+import androidx.compose.mutableStateOf
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
-import androidx.ui.integration.test.RandomTextGenerator
+import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.ComposeTestCase
@@ -33,28 +34,27 @@ import androidx.ui.unit.TextUnit
  * The benchmark test case for [Text], where the input is a plain string.
  */
 class TextBasicTestCase(
+    private val text: String,
     private val width: Dp,
-    private val fontSize: TextUnit,
-    textLength: Int,
-    randomTextGenerator: RandomTextGenerator
-) : ComposeTestCase {
+    private val fontSize: TextUnit
+) : ComposeTestCase, ToggleableTestCase {
 
-    /**
-     * Text render has a word cache in the underlying system. To get a proper metric of its
-     * performance, the cache needs to be disabled, which unfortunately is not doable right now.
-     * Here is a workaround which generates a new string when setupContentInternal is called.
-     * Notice that this function is called whenever a new ViewTree(and of course the text composable)
-     * is recreated. This helps to make sure that the text composable created later won't benefit
-     * from the previous result.
-     */
-    private val text = randomTextGenerator.nextParagraph(textLength)
+    private val color = mutableStateOf(Color.Black)
 
     @Composable
     override fun emitContent() {
         Box(
             modifier = Modifier.wrapContentSize(Alignment.Center).preferredWidth(width)
         ) {
-            Text(text = text, color = Color.Black, fontSize = fontSize)
+            Text(text = text, color = color.value, fontSize = fontSize)
+        }
+    }
+
+    override fun toggleState() {
+        if (color.value == Color.Black) {
+            color.value = Color.Red
+        } else {
+            color.value = Color.Black
         }
     }
 }
