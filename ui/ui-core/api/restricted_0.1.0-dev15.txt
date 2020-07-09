@@ -1002,7 +1002,7 @@ package androidx.ui.core.focus {
     enum_constant public static final androidx.ui.core.focus.FocusState NotFocused;
   }
 
-  public enum FocusState2 {
+  @androidx.ui.core.focus.ExperimentalFocus public enum FocusState2 {
     method public static androidx.ui.core.focus.FocusState2 valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.ui.core.focus.FocusState2[] values();
     enum_constant public static final androidx.ui.core.focus.FocusState2 Active;
