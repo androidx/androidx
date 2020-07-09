@@ -70,9 +70,9 @@ includeProject(":compose:animation:animation-core:samples", "ui-animation-core/s
 includeProject(":compose:animation:animation:integration-tests:animation-demos", "ui-animation/integration-tests/animation-demos")
 includeProject(":compose:animation:animation:samples", "ui-animation/samples")
 includeProject(":ui:ui-animation-tooling-internal", "ui-animation-tooling-internal")
-includeProject(":ui:ui-core", "ui-core")
-includeProject(":ui:ui-core:integration-tests:ui-core-demos", "ui-core/integration-tests/ui-core-demos")
-includeProject(":ui:ui-core:samples", "ui-core/samples")
+includeProject(":compose:core:core", "ui-core")
+includeProject(":compose:core:core:integration-tests:core-demos", "ui-core/integration-tests/ui-core-demos")
+includeProject(":compose:core:core:samples", "ui-core/samples")
 if (!startParameter.projectProperties.containsKey('compose.desktop.disable')) {
     includeProject(":ui:ui-desktop", "ui-desktop")
     includeProject(":ui:ui-desktop:android-emu", "ui-desktop/android-emu")

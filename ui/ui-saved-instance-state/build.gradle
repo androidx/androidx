@@ -58,7 +58,7 @@ kotlin {
 
         androidAndroidTest.dependencies {
             implementation project(':compose:test:test-core')
-            implementation project(':ui:ui-core')
+            implementation project(':compose:core:core')
             implementation(ANDROIDX_TEST_UIAUTOMATOR)
             implementation(ANDROIDX_TEST_CORE)
             implementation(ANDROIDX_TEST_RULES)

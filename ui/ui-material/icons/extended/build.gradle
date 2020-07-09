@@ -38,7 +38,7 @@ dependencies {
 
     androidTestImplementation project(":compose:foundation:foundation")
     androidTestImplementation project(":compose:foundation:foundation-layout")
-    androidTestImplementation project(":ui:ui-core")
+    androidTestImplementation project(":compose:core:core")
     androidTestImplementation project(":compose:test:test-core")
 
     androidTestImplementation(ANDROIDX_TEST_RULES)
