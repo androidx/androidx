@@ -796,10 +796,15 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         }
 
         // Test SCROLL_STATE_DRAGGING (real drag)
-        test_getScrollState(test, SCROLL_STATE_DRAGGING, 2, true) {
-            // Perform manual swipe in separate thread, because the SwipeMethod.MANUAL blocks while
-            // injecting events, and we need to check getScrollState() during the swipe.
-            newSingleThreadExecutor().execute { test.swipeForward(SwipeMethod.MANUAL) }
+        val pageSwiper = PageSwiperManual(test.viewPager)
+        try {
+            test_getScrollState(test, SCROLL_STATE_DRAGGING, 2, true) {
+                // Perform manual swipe in separate thread, because PageSwiperManual blocks while
+                // injecting events, and we need to check getScrollState() during the swipe
+                newSingleThreadExecutor().execute { pageSwiper.swipeNext() }
+            }
+        } finally {
+            pageSwiper.cancel()
         }
 
         // Test SCROLL_STATE_DRAGGING (fake drag)
