@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.android.icing.proto.DocumentProto;
+import com.google.android.icing.proto.GetOptimizeInfoResultProto;
 import com.google.android.icing.proto.IndexingConfig;
 import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.PropertyProto;
@@ -28,6 +29,7 @@ import com.google.android.icing.proto.SchemaProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.proto.TermMatchType;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,6 +40,11 @@ public class AppSearchImplTest {
     public void setUp() throws Exception {
         mAppSearchImpl = AppSearchImpl.getInstance(ApplicationProvider.getApplicationContext());
         mAppSearchImpl.initialize();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        mAppSearchImpl.reset();
     }
 
     /**
@@ -136,5 +143,53 @@ public class AppSearchImplTest {
         assertThat(actualDocument.build()).isEqualTo(expectedDocumentProto);
         mAppSearchImpl.rewriteDocumentTypes("databaseName/", actualDocument, /*add=*/false);
         assertThat(actualDocument.build()).isEqualTo(documentProto);
+    }
+
+    @Test
+    public void testOptimize() throws Exception {
+        // Insert schema
+        SchemaProto schema = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType("type").build())
+                .build();
+        mAppSearchImpl.setSchema("database", schema, false);
+
+        // Insert enough documents.
+        for (int i = 0; i < AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT
+                + AppSearchImpl.CHECK_OPTIMIZE_INTERVAL; i++) {
+            DocumentProto insideDocument = DocumentProto.newBuilder()
+                    .setUri("inside-uri" + i)
+                    .setSchema("type")
+                    .setNamespace("namespace")
+                    .build();
+            mAppSearchImpl.putDocument("database", insideDocument);
+        }
+
+        // Check optimize() will release 0 docs since there is no deletion.
+        GetOptimizeInfoResultProto optimizeInfo = mAppSearchImpl.getOptimizeInfoResult();
+        assertThat(optimizeInfo.getOptimizableDocs()).isEqualTo(0);
+
+        // delete 999 documents , we will reach the threshold to trigger optimize() in next
+        // deletion.
+        for (int i = 0; i < AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT - 1; i++) {
+            mAppSearchImpl.remove("database", "namespace", "inside-uri" + i);
+        }
+
+        // optimize() still not be triggered since we are in the interval to call getOptimizeInfo()
+        optimizeInfo = mAppSearchImpl.getOptimizeInfoResult();
+        assertThat(optimizeInfo.getOptimizableDocs())
+                .isEqualTo(AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT - 1);
+
+        // Keep delete docs, will reach the interval this time and trigger optimize().
+        for (int i = AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT;
+                i < AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT
+                        + AppSearchImpl.CHECK_OPTIMIZE_INTERVAL; i++) {
+            mAppSearchImpl.remove("database", "namespace", "inside-uri" + i);
+        }
+
+        // Verify optimize() is triggered
+        optimizeInfo = mAppSearchImpl.getOptimizeInfoResult();
+        assertThat(optimizeInfo.getOptimizableDocs())
+                .isLessThan(AppSearchImpl.CHECK_OPTIMIZE_INTERVAL);
     }
 }
