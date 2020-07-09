@@ -17,8 +17,11 @@ package androidx.room.ext
 
 import com.google.auto.common.GeneratedAnnotations
 import com.squareup.javapoet.TypeName
+import java.util.Locale
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.ArrayType
+import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
 
@@ -87,7 +90,9 @@ fun ProcessingEnvironment.requireTypeMirror(
  */
 fun ProcessingEnvironment.requireTypeMirror(
     qName: String
-): TypeMirror = requireTypeElement(qName).type
+): TypeMirror = checkNotNull(findTypeMirror(qName)) {
+    "couldn't find required type mirror $qName"
+}
 
 /**
  * Query a type mirror by KClass and return null if it does not exist
@@ -103,12 +108,25 @@ fun ProcessingEnvironment.findTypeMirror(
     typeName: TypeName
 ): TypeMirror? = findTypeMirror(typeName.toString())
 
+private val PRIMITIVE_TYPE_MAPPING = TypeKind.values().filter {
+    it.isPrimitive
+}.associateBy {
+    it.name.toLowerCase(Locale.US)
+}
+
 /**
  * Query a type mirror by qualified name and return null if it does not exist
  */
 fun ProcessingEnvironment.findTypeMirror(
     qName: String
-): TypeMirror? = findTypeElement(qName)?.type
+): TypeMirror? {
+    // first check primitives. Even though it is less likely, it is fast to check and can avoid a
+    // call to the processor
+    PRIMITIVE_TYPE_MAPPING[qName]?.let {
+        return typeUtils.getPrimitiveType(it)
+    }
+    return findTypeElement(qName)?.type
+}
 
 fun ProcessingEnvironment.getGeneratedAnnotation(): TypeElement? {
     val element = GeneratedAnnotations.generatedAnnotation(elementUtils, sourceVersion)
@@ -117,4 +135,8 @@ fun ProcessingEnvironment.getGeneratedAnnotation(): TypeElement? {
     } else {
         null
     }
+}
+
+fun ProcessingEnvironment.getArrayType(typeName: TypeName): ArrayType {
+    return typeUtils.getArrayType(requireTypeMirror(typeName))
 }

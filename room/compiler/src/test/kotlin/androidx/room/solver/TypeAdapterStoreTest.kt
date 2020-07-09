@@ -66,7 +66,6 @@ import org.junit.runners.JUnit4
 import simpleRun
 import testCodeGenScope
 import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.type.TypeKind
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
@@ -79,7 +78,7 @@ class TypeAdapterStoreTest {
     fun testDirect() {
         singleRun { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
-            val primitiveType = invocation.processingEnv.typeUtils.getPrimitiveType(TypeKind.INT)
+            val primitiveType = invocation.processingEnv.requireTypeMirror(TypeName.INT)
             val adapter = store.findColumnTypeAdapter(primitiveType, null)
             assertThat(adapter, notNullValue())
         }.compilesWithoutError()
@@ -107,8 +106,7 @@ class TypeAdapterStoreTest {
     fun testVia1TypeAdapter() {
         singleRun { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
-            val booleanType = invocation.processingEnv.typeUtils
-                    .getPrimitiveType(TypeKind.BOOLEAN)
+            val booleanType = invocation.processingEnv.requireTypeMirror(TypeName.BOOLEAN)
             val adapter = store.findColumnTypeAdapter(booleanType, null)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
@@ -580,7 +578,7 @@ class TypeAdapterStoreTest {
 
     fun pointTypeConverters(env: ProcessingEnvironment): List<TypeConverter> {
         val tPoint = env.requireTypeMirror("foo.bar.Point")
-        val tBoolean = env.typeUtils.getPrimitiveType(TypeKind.BOOLEAN)
+        val tBoolean = env.requireTypeMirror(TypeName.BOOLEAN)
         return listOf(
                 object : TypeConverter(tPoint, tBoolean) {
                     override fun convert(

@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import androidx.room.ext.type
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
+import javax.lang.model.type.PrimitiveType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeKind.ARRAY
 import javax.lang.model.type.TypeKind.BOOLEAN
@@ -43,6 +45,11 @@ fun TypeMirror.defaultValue(): String {
     }
 }
 
+fun TypeMirror.box(typeUtils: Types) = if (this.kind.isPrimitive) {
+    typeUtils.boxedClass(this as PrimitiveType).type
+} else {
+    this
+}
 fun TypeMirror.asTypeElement(): TypeElement = MoreTypes.asTypeElement(this)
 
 fun TypeMirror.asElement(): Element = MoreTypes.asElement(this)
@@ -101,8 +108,6 @@ fun TypeMirror.isAssignableFrom(typeUtils: Types, other: TypeMirror): Boolean {
 fun TypeMirror.asDeclaredType() = MoreTypes.asDeclared(this)
 
 fun TypeMirror.isType() = MoreTypes.isType(this)
-
-fun TypeMirror.asExecutableType() = MoreTypes.asExecutable(this)
 
 fun TypeMirror.isTypeOf(klass: KClass<*>) = MoreTypes.isTypeOf(
     klass.java,

@@ -17,12 +17,13 @@
 package androidx.room.parser
 
 import androidx.room.ColumnInfo
+import androidx.room.ext.getArrayType
 import androidx.room.ext.requireTypeMirror
-import androidx.room.ext.type
+import box
+import com.squareup.javapoet.TypeName
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
 import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
 @Suppress("FunctionName")
@@ -191,28 +192,25 @@ enum class SQLTypeAffinity {
     BLOB;
 
     fun getTypeMirrors(env: ProcessingEnvironment): List<TypeMirror>? {
-        val typeUtils = env.typeUtils
         return when (this) {
             TEXT -> listOf(env.requireTypeMirror("java.lang.String"))
             INTEGER -> withBoxedTypes(
-                env, TypeKind.INT, TypeKind.BYTE, TypeKind.CHAR,
-                TypeKind.LONG, TypeKind.SHORT
+                env, TypeName.INT, TypeName.BYTE, TypeName.CHAR,
+                TypeName.LONG, TypeName.SHORT
             )
-            REAL -> withBoxedTypes(env, TypeKind.DOUBLE, TypeKind.FLOAT)
+            REAL -> withBoxedTypes(env, TypeName.DOUBLE, TypeName.FLOAT)
             BLOB -> listOf(
-                typeUtils.getArrayType(
-                    typeUtils.getPrimitiveType(TypeKind.BYTE)
-                )
+                env.getArrayType(TypeName.BYTE)
             )
             else -> emptyList()
         }
     }
 
-    private fun withBoxedTypes(env: ProcessingEnvironment, vararg primitives: TypeKind):
+    private fun withBoxedTypes(env: ProcessingEnvironment, vararg primitives: TypeName):
             List<TypeMirror> {
         return primitives.flatMap {
-            val primitiveType = env.typeUtils.getPrimitiveType(it)
-            listOf(primitiveType, env.typeUtils.boxedClass(primitiveType).type)
+            val primitiveType = env.requireTypeMirror(it)
+            listOf(primitiveType, primitiveType.box(env.typeUtils))
         }
     }
 
