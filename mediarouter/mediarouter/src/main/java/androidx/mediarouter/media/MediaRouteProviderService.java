@@ -37,6 +37,7 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_U
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_UPDATE_MEMBER_ROUTES;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_UPDATE_ROUTE_VOLUME;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_VERSION_1;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_VERSION_4;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GROUPABLE_SECION_TITLE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GROUP_ROUTE_DESCRIPTOR;
@@ -256,6 +257,10 @@ public abstract class MediaRouteProviderService extends Service {
         MediaRouteProviderDescriptor.Builder builder =
                 new MediaRouteProviderDescriptor.Builder(descriptor);
         builder.setRoutes(null);
+        // Disable dynamic grouping for old clients
+        if (clientVersion < CLIENT_VERSION_4) {
+            builder.setSupportsDynamicGroupRoute(false);
+        }
         for (MediaRouteDescriptor route : descriptor.getRoutes()) {
             if (clientVersion >= route.getMinClientVersion()
                     && clientVersion <= route.getMaxClientVersion()) {
