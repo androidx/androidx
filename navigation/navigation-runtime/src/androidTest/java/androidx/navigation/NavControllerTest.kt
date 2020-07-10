@@ -27,7 +27,6 @@ import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.test.R
-import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.intent.Intents
@@ -78,7 +77,6 @@ class NavControllerTest {
         private const val TEST_OVERRIDDEN_VALUE_ARG_VALUE = "override"
     }
 
-    @UiThreadTest
     @Test
     fun testGetCurrentBackStackEntry() {
         val navController = createNavController()
@@ -86,14 +84,12 @@ class NavControllerTest {
         assertEquals(R.id.start_test, navController.currentBackStackEntry?.destination?.id ?: 0)
     }
 
-    @UiThreadTest
     @Test
     fun testGetCurrentBackStackEntryEmptyBackStack() {
         val navController = createNavController()
         assertThat(navController.currentBackStackEntry).isNull()
     }
 
-    @UiThreadTest
     @Test
     fun testGetPreviousBackStackEntry() {
         val navController = createNavController()
@@ -102,7 +98,6 @@ class NavControllerTest {
         assertEquals(R.id.start_test, navController.previousBackStackEntry?.destination?.id ?: 0)
     }
 
-    @UiThreadTest
     @Test
     fun testGetPreviousBackStackEntryEmptyBackStack() {
         val navController = createNavController()
@@ -110,7 +105,6 @@ class NavControllerTest {
         assertThat(navController.previousBackStackEntry).isNull()
     }
 
-    @UiThreadTest
     @Test
     fun testStartDestination() {
         val navController = createNavController()
@@ -118,7 +112,6 @@ class NavControllerTest {
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
     }
 
-    @UiThreadTest
     @Test
     fun testSetGraphTwice() {
         val navController = createNavController()
@@ -137,7 +130,6 @@ class NavControllerTest {
             .isEqualTo(1)
     }
 
-    @UiThreadTest
     @Test
     fun testStartDestinationWithArgs() {
         val navController = createNavController()
@@ -153,7 +145,6 @@ class NavControllerTest {
         assertEquals(TEST_ARG_VALUE, foundArgs?.getString(TEST_ARG))
     }
 
-    @UiThreadTest
     @Test(expected = IllegalArgumentException::class)
     fun testStartDestinationWithWrongArgs() {
         val navController = createNavController()
@@ -163,7 +154,6 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_start_destination, args)
     }
 
-    @UiThreadTest
     @Test
     fun testStartDestinationWithArgsProgrammatic() {
         val navController = createNavController()
@@ -185,21 +175,18 @@ class NavControllerTest {
         assertEquals(TEST_ARG_VALUE, foundArgs?.getString(TEST_ARG))
     }
 
-    @UiThreadTest
     @Test(expected = IllegalStateException::class)
     fun testMissingStartDestination() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_missing_start_destination)
     }
 
-    @UiThreadTest
     @Test(expected = IllegalArgumentException::class)
     fun testInvalidStartDestination() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_invalid_start_destination)
     }
 
-    @UiThreadTest
     @Test
     fun testNestedStartDestination() {
         val navController = createNavController()
@@ -207,7 +194,6 @@ class NavControllerTest {
         assertEquals(R.id.nested_test, navController.currentDestination?.id ?: 0)
     }
 
-    @UiThreadTest
     @Test
     fun testSetGraph() {
         val navController = createNavController()
@@ -217,7 +203,6 @@ class NavControllerTest {
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
     }
 
-    @UiThreadTest
     @Test
     fun testGetGraphIllegalStateException() {
         val navController = createNavController()
@@ -228,7 +213,6 @@ class NavControllerTest {
         }
     }
 
-    @UiThreadTest
     @Test
     fun testNavigate() {
         val navController = createNavController()
@@ -242,7 +226,6 @@ class NavControllerTest {
         assertEquals(2, navigator.backStack.size)
     }
 
-    @UiThreadTest
     @Test
     fun testInvalidNavigateViaDeepLink() {
         val navController = createNavController()
@@ -262,7 +245,6 @@ class NavControllerTest {
         }
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateViaDeepLink() {
         val navController = createNavController()
@@ -275,7 +257,6 @@ class NavControllerTest {
         assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateViaDeepLinkAction() {
         val navController = createNavController()
@@ -288,7 +269,6 @@ class NavControllerTest {
         assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateViaDeepLinkActionDifferentURI() {
         val navController = createNavController()
@@ -301,7 +281,6 @@ class NavControllerTest {
         assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateViaDeepLinkMimeTypeDifferentUri() {
         val navController = createNavController()
@@ -314,7 +293,6 @@ class NavControllerTest {
         assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateViaDeepLinkMimeType() {
         val navController = createNavController()
@@ -327,7 +305,6 @@ class NavControllerTest {
         assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateViaDeepLinkMimeTypeWildCard() {
         val navController = createNavController()
@@ -340,7 +317,6 @@ class NavControllerTest {
         assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateViaDeepLinkMimeTypeWildCardSubtype() {
         val navController = createNavController()
@@ -353,7 +329,6 @@ class NavControllerTest {
         assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateViaDeepLinkMimeTypeWildCardType() {
         val navController = createNavController()
@@ -366,7 +341,6 @@ class NavControllerTest {
         assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigationViaDeepLinkPopUpTo() {
         val navController = createNavController()
@@ -381,7 +355,6 @@ class NavControllerTest {
         assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateToDifferentGraphViaDeepLink() {
         val navController = createNavController()
@@ -407,7 +380,6 @@ class NavControllerTest {
         assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateToDifferentGraphViaDeepLink3x() {
         val navController = createNavController()
@@ -443,7 +415,6 @@ class NavControllerTest {
         assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateToDifferentGraphViaDeepLinkToGrandchild3x() {
         val navController = createNavController()
@@ -544,7 +515,6 @@ class NavControllerTest {
         Intents.release()
     }
 
-    @UiThreadTest
     @Test
     fun testSaveRestoreStateXml() {
         val context = ApplicationProvider.getApplicationContext() as Context
@@ -570,7 +540,6 @@ class NavControllerTest {
         assertEquals(1, navigator.saveStateCount)
     }
 
-    @UiThreadTest
     @Test
     fun testSaveRestoreStateDestinationChanged() {
         val context = ApplicationProvider.getApplicationContext() as Context
@@ -602,7 +571,6 @@ class NavControllerTest {
         assertThat(destinationChangedCount).isEqualTo(1)
     }
 
-    @UiThreadTest
     @Test
     fun testSaveRestoreStateProgrammatic() {
         val context = ApplicationProvider.getApplicationContext() as Context
@@ -628,7 +596,6 @@ class NavControllerTest {
         assertEquals(2, navigator.backStack.size)
     }
 
-    @UiThreadTest
     @Test
     fun testSaveRestoreStateBundleParceled() {
         val context = ApplicationProvider.getApplicationContext() as Context
@@ -657,7 +624,6 @@ class NavControllerTest {
         assertThat(navigator.customParcel?.name).isEqualTo(TEST_ARG_VALUE)
     }
 
-    @UiThreadTest
     @Test
     fun testSaveRestoreAfterNavigateToDifferentNavGraph() {
         val context = ApplicationProvider.getApplicationContext() as Context
@@ -698,7 +664,6 @@ class NavControllerTest {
         assertThat(navigator.saveStateCount).isEqualTo(1)
     }
 
-    @UiThreadTest
     @Test
     fun testBackstackArgsBundleParceled() {
         val context = ApplicationProvider.getApplicationContext() as Context
@@ -731,7 +696,6 @@ class NavControllerTest {
         }
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateArgs() {
         val navController = createNavController()
@@ -750,7 +714,6 @@ class NavControllerTest {
         }
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateWithNoDefaultValue() {
         val returnedArgs = navigateWithArgs(null)
@@ -759,7 +722,6 @@ class NavControllerTest {
         assertFalse(returnedArgs.containsKey("test_no_default_value"))
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateWithDefaultArgs() {
         val returnedArgs = navigateWithArgs(null)
@@ -768,7 +730,6 @@ class NavControllerTest {
         assertEquals("default", returnedArgs.getString("test_default_value"))
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateWithArgs() {
         val args = Bundle()
@@ -779,7 +740,6 @@ class NavControllerTest {
         assertEquals(TEST_ARG_VALUE, returnedArgs.getString(TEST_ARG))
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateWithOverriddenDefaultArgs() {
         val args = Bundle()
@@ -804,7 +764,6 @@ class NavControllerTest {
         return returnedArgs!!
     }
 
-    @UiThreadTest
     @Test
     fun testPopRoot() {
         val navController = createNavController()
@@ -821,7 +780,6 @@ class NavControllerTest {
         assertEquals(0, navigator.backStack.size)
     }
 
-    @UiThreadTest
     @Test
     fun testPopOnEmptyStack() {
         val navController = createNavController()
@@ -844,7 +802,6 @@ class NavControllerTest {
             .isFalse()
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateThenPop() {
         val navController = createNavController()
@@ -865,7 +822,6 @@ class NavControllerTest {
         assertEquals(1, navigator.backStack.size)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateThenPopToUnknownDestination() {
         val navController = createNavController()
@@ -886,7 +842,6 @@ class NavControllerTest {
         assertEquals(2, navigator.backStack.size)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateThenNavigateWithPop() {
         val navController = createNavController()
@@ -902,7 +857,6 @@ class NavControllerTest {
         assertEquals(1, navigator.backStack.size)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateThenNavigateWithPopRoot() {
         val navController = createNavController()
@@ -918,7 +872,6 @@ class NavControllerTest {
         assertEquals(1, navigator.backStack.size)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateThenNavigateUp() {
         val navController = createNavController()
@@ -939,7 +892,6 @@ class NavControllerTest {
         assertEquals(1, navigator.backStack.size)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateViaAction() {
         val navController = createNavController()
@@ -953,7 +905,6 @@ class NavControllerTest {
         assertEquals(2, navigator.backStack.size)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateOptionSingleTop() {
         val navController = createNavController()
@@ -968,7 +919,6 @@ class NavControllerTest {
         assertEquals(2, navigator.backStack.size)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateOptionSingleTopNewArgs() {
         val navController = createNavController()
@@ -1001,7 +951,6 @@ class NavControllerTest {
         assertThat(destinationListenerExecuted).isTrue()
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateOptionSingleTopReplaceNullArgs() {
         val navController = createNavController()
@@ -1036,7 +985,6 @@ class NavControllerTest {
         assertThat(destinationListenerExecuted).isTrue()
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateOptionSingleTopNewArgsIgnore() {
         val navController = createNavController()
@@ -1069,7 +1017,6 @@ class NavControllerTest {
         assertThat(destinationListenerExecuted).isTrue()
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateOptionPopUpToInAction() {
         val navController = createNavController()
@@ -1084,7 +1031,6 @@ class NavControllerTest {
         assertEquals(1, navigator.backStack.size)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateWithPopUpOptionsOnly() {
         val navController = createNavController()
@@ -1104,7 +1050,6 @@ class NavControllerTest {
         assertEquals(1, navigator.backStack.size)
     }
 
-    @UiThreadTest
     @Test
     fun testNoDestinationNoPopUpTo() {
         val navController = createNavController()
@@ -1118,7 +1063,6 @@ class NavControllerTest {
         }
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateOptionPopSelf() {
         val navController = createNavController()
@@ -1133,7 +1077,6 @@ class NavControllerTest {
         assertEquals(1, navigator.backStack.size)
     }
 
-    @UiThreadTest
     @Test
     fun testNavigateViaActionWithArgs() {
         val navController = createNavController()
@@ -1163,7 +1106,6 @@ class NavControllerTest {
             returnedArgs.getString(TEST_ACTION_OVERRIDDEN_VALUE_ARG))
     }
 
-    @UiThreadTest
     @Test
     fun testDeepLinkFromNavGraph() {
         val navController = createNavController()
@@ -1176,7 +1118,6 @@ class NavControllerTest {
         assertEquals(1, taskStackBuilder.intentCount)
     }
 
-    @UiThreadTest
     @Test
     fun testDeepLinkIntent() {
         val navController = createNavController()
@@ -1198,7 +1139,6 @@ class NavControllerTest {
         intent!!.writeToParcel(p, 0)
     }
 
-    @UiThreadTest
     @Test
     fun testHandleDeepLinkValid() {
         val navController = createNavController()
@@ -1233,7 +1173,6 @@ class NavControllerTest {
         verifyNoMoreInteractions(onDestinationChangedListener)
     }
 
-    @UiThreadTest
     @Test
     fun testHandleDeepLinkNestedStartDestination() {
         val navController = createNavController()
@@ -1269,7 +1208,6 @@ class NavControllerTest {
         verifyNoMoreInteractions(onDestinationChangedListener)
     }
 
-    @UiThreadTest
     @Test
     fun testHandleDeepLinkInvalid() {
         val navController = createNavController()
@@ -1296,7 +1234,6 @@ class NavControllerTest {
         verifyNoMoreInteractions(onDestinationChangedListener)
     }
 
-    @UiThreadTest
     @Test
     fun testHandleDeepLinkToRootInvalid() {
         val navController = createNavController()

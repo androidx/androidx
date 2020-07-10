@@ -133,10 +133,8 @@ class FragmentResultTest {
             val resultBundle = Bundle()
             val expectedResult = "resultGood"
             resultBundle.putString("bundleKey", expectedResult)
-            withActivity {
-                fm.clearFragmentResultListener("requestKey")
-            }
 
+            fm.clearFragmentResultListener("requestKey")
             fm.setFragmentResult("requestKey", resultBundle)
 
             assertWithMessage("The result is incorrect")
@@ -163,10 +161,11 @@ class FragmentResultTest {
                 fm.beginTransaction()
                     .add(R.id.fragmentContainer, fragment1)
                     .commitNow()
-                // lets set another listener with the same key as the original
-                fm.setFragmentResultListener("requestKey", fragment1,
-                    FragmentResultListener { _, _ -> })
             }
+
+            // lets set another listener with the same key as the original
+            fm.setFragmentResultListener("requestKey", fragment1,
+                FragmentResultListener { _, _ -> })
 
             // do a replace to force the lifecycle back below STARTED
             fm.beginTransaction()
@@ -201,19 +200,17 @@ class FragmentResultTest {
 
             val fragment1 = StrictFragment()
 
-            withActivity {
-                // set a listener
-                fm.setFragmentResultListener("requestKey", fragment1,
-                    FragmentResultListener { _, _ ->
-                        firstListenerFired = true
-                    })
+            // set a listener
+            fm.setFragmentResultListener("requestKey", fragment1,
+                FragmentResultListener { _, _ ->
+                    firstListenerFired = true
+                })
 
-                // lets set another listener before the first is fired
-                fm.setFragmentResultListener("requestKey", fragment1,
-                    FragmentResultListener { _, _ ->
-                        secondListenerFired = true
-                    })
-            }
+            // lets set another listener before the first is fired
+            fm.setFragmentResultListener("requestKey", fragment1,
+                FragmentResultListener { _, _ ->
+                    secondListenerFired = true
+                })
 
             // set a result while no listener is available so it is stored in the fragment manager
             fm.setFragmentResult("requestKey", Bundle())
@@ -286,10 +283,8 @@ class FragmentResultTest {
 
             fm.setFragmentResult("requestKey", resultBundle)
 
-            withActivity {
-                fm.setFragmentResultListener("requestKey", fragment1, FragmentResultListener
-                { _, bundle -> actualResult = bundle.getString("bundleKey") })
-            }
+            fm.setFragmentResultListener("requestKey", fragment1, FragmentResultListener
+            { _, bundle -> actualResult = bundle.getString("bundleKey") })
 
             assertWithMessage("The result is incorrect")
                 .that(actualResult)
