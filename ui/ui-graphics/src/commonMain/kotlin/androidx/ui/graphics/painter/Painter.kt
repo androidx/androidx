@@ -197,7 +197,7 @@ abstract class Painter {
             right = this.size.width - size.width,
             bottom = this.size.height - size.height) {
 
-            if (alpha > 0.0f) {
+            if (alpha > 0.0f && size.width > 0 && size.height > 0) {
                 if (useLayer) {
                     val layerRect =
                         Rect.fromLTWH(0.0f, 0.0f, size.width, size.height)
