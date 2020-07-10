@@ -76,9 +76,9 @@ androidx {
     name = "Compose Saved Instance State support"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
+    mavenGroup = LibraryGroups.Compose.RUNTIME
     inceptionYear = "2020"
-    description = "Compose components that allows to save and restore the ui local state"
+    description = "Compose components that allow saving and restoring the ui local state"
 }
 
 tasks.withType(KotlinCompile).configureEach {
