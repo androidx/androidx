@@ -101,7 +101,7 @@ public class AppSearchManager {
 
         return execute(MUTATE_EXECUTOR, () -> {
             try {
-                mAppSearchImpl.initialize();
+                mAppSearchImpl.initialize(mContext);
                 return AppSearchResult.newSuccessfulResult(this);
             } catch (Throwable t) {
                 return throwableToFailedResult(t);

@@ -37,7 +37,7 @@ public class AppSearchImplTest {
     @Before
     public void setUp() throws Exception {
         mAppSearchImpl = AppSearchImpl.getInstance(ApplicationProvider.getApplicationContext());
-        mAppSearchImpl.initialize();
+        mAppSearchImpl.initialize(ApplicationProvider.getApplicationContext());
     }
 
     /**
