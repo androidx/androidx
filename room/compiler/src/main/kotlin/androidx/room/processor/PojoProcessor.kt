@@ -27,7 +27,7 @@ import androidx.room.ext.asMemberOf
 import androidx.room.ext.extendsBoundOrSelf
 import androidx.room.ext.findTypeElement
 import androidx.room.ext.getAllFieldsIncludingPrivateSupers
-import androidx.room.ext.getAllMethodsIncludingSupers
+import androidx.room.ext.getAllMethods
 import androidx.room.ext.getAllNonPrivateInstanceMethods
 import androidx.room.ext.getConstructors
 import androidx.room.ext.hasAnnotation
@@ -894,7 +894,7 @@ class PojoProcessor private constructor(
         override fun onPreProcess(element: TypeElement) {
             // Check that certain Room annotations with @Target(METHOD) are not used in the POJO
             // since it is not annotated with AutoValue.
-            element.getAllMethodsIncludingSupers()
+            element.getAllMethods(context.processingEnv)
                 .filter { it.hasAnyOf(*TARGET_METHOD_ANNOTATIONS) }
                 .forEach { method ->
                     val annotationName = TARGET_METHOD_ANNOTATIONS

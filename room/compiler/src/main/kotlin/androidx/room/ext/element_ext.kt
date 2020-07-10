@@ -114,18 +114,6 @@ fun TypeElement.getAllFieldsIncludingPrivateSupers(processingEnvironment: Proces
     }
 }
 
-fun TypeElement.getAllMethodsIncludingSupers(): Set<ExecutableElement> {
-    val myMethods = getDeclaredMethods().toSet()
-    val interfaceMethods = interfaces.flatMap {
-        it.asTypeElement().getAllMethodsIncludingSupers()
-    }
-    return if (superclass.isNotNone()) {
-        myMethods + interfaceMethods + superclass.asTypeElement().getAllMethodsIncludingSupers()
-    } else {
-        myMethods + interfaceMethods
-    }
-}
-
 interface ClassGetter {
     fun getAsTypeMirror(methodName: String): TypeMirror?
     fun getAsTypeMirrorList(methodName: String): List<TypeMirror>

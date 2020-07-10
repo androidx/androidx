@@ -19,7 +19,7 @@ package androidx.room.processor.autovalue
 import androidx.room.Ignore
 import androidx.room.ext.asDeclaredType
 import androidx.room.ext.asTypeElement
-import androidx.room.ext.getAllMethodsIncludingSupers
+import androidx.room.ext.getAllMethods
 import androidx.room.ext.getDeclaredMethods
 import androidx.room.ext.getPackage
 import androidx.room.ext.hasAnnotation
@@ -59,7 +59,7 @@ class AutoValuePojoProcessorDelegate(
     }
 
     override fun onPreProcess(element: TypeElement) {
-        val allMethods = autoValueElement.getAllMethodsIncludingSupers()
+        val allMethods = autoValueElement.getAllMethods(context.processingEnv)
         val autoValueAbstractGetters = allMethods
             .filter { it.isAbstract() && it.parameters.size == 0 }
 
