@@ -666,7 +666,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     public void getSessionCompatToken_returnsCompatibleWithMediaControllerCompat()
             throws Exception {
         String expectedControllerCompatPackageName =
-                (21 <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT <= 24)
+                (21 <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT < 24)
                         ? MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER
                         : mContext.getPackageName();
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
