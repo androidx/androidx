@@ -23,6 +23,7 @@ import androidx.room.solver.RxType
 import androidx.room.solver.query.result.QueryResultAdapter
 import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.query.result.RxQueryResultBinder
+import erasure
 import isAssignableFrom
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
@@ -58,7 +59,7 @@ class RxQueryResultBinderProvider private constructor(
             return false
         }
         val typeUtils = context.processingEnv.typeUtils
-        val erasure = typeUtils.erasure(declared)
+        val erasure = declared.erasure(typeUtils)
         return erasure.isAssignableFrom(typeUtils, typeMirror!!)
     }
 

@@ -68,6 +68,7 @@ import asTypeElement
 import com.google.auto.value.AutoValue
 import isError
 import isNotVoid
+import isSameType
 import isTypeOf
 import isVoid
 import javax.lang.model.element.ExecutableElement
@@ -723,7 +724,7 @@ class PojoProcessor private constructor(
         context.checker.check(
             success || bindingScope == FieldProcessor.BindingScope.READ_FROM_CURSOR,
             field.element, CANNOT_FIND_GETTER_FOR_FIELD)
-        if (success && !context.processingEnv.typeUtils.isSameType(field.getter.type, field.type)) {
+        if (success && !field.getter.type.isSameType(context.processingEnv.typeUtils, field.type)) {
             // getter's parameter type is not exactly the same as the field type.
             // put a warning and update the value statement binder.
             context.logger.w(
@@ -791,7 +792,7 @@ class PojoProcessor private constructor(
         context.checker.check(
             success || bindingScope == FieldProcessor.BindingScope.BIND_TO_STMT,
             field.element, CANNOT_FIND_SETTER_FOR_FIELD)
-        if (success && !context.processingEnv.typeUtils.isSameType(field.setter.type, field.type)) {
+        if (success && !field.setter.type.isSameType(context.processingEnv.typeUtils, field.type)) {
             // setter's parameter type is not exactly the same as the field type.
             // put a warning and update the value reader adapter.
             context.logger.w(

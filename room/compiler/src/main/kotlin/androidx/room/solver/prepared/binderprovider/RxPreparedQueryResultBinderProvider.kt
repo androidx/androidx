@@ -26,6 +26,7 @@ import androidx.room.processor.Context
 import androidx.room.solver.RxType
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
+import erasure
 import isAssignableFrom
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
@@ -43,7 +44,7 @@ open class RxPreparedQueryResultBinderProvider internal constructor(
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
     private fun matchesRxType(declared: DeclaredType): Boolean {
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
+        val erasure = declared.erasure(context.processingEnv.typeUtils)
         return erasure.typeName() == rxType.className
     }
 
@@ -88,7 +89,7 @@ private class RxCompletablePreparedQueryResultBinderProvider(
             return false
         }
         val typeUtils = context.processingEnv.typeUtils
-        val erasure = typeUtils.erasure(declared)
+        val erasure = declared.erasure(typeUtils)
         return erasure.isAssignableFrom(typeUtils, completableType!!)
     }
 

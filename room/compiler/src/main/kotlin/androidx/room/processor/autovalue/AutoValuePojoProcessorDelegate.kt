@@ -41,6 +41,7 @@ import androidx.room.vo.Field
 import androidx.room.vo.Pojo
 import androidx.room.vo.Warning
 import com.google.auto.value.AutoValue.CopyAnnotations
+import isSameType
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
@@ -91,7 +92,7 @@ class AutoValuePojoProcessorDelegate(
             it.isStatic() &&
                     !it.hasAnnotation(Ignore::class) &&
                     !it.isPrivate() &&
-                    typeUtils.isSameType(it.returnType, autoValueElement.type)
+                    it.returnType.isSameType(typeUtils, autoValueElement.type)
         }
     }
 

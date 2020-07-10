@@ -124,3 +124,7 @@ fun TypeMirror.isArray(): Boolean {
 fun TypeMirror.asArray() = MoreTypes.asArray(this)
 
 fun TypeMirror.asPrimitive() = MoreTypes.asPrimitiveType(this)
+
+fun TypeMirror.isSameType(utils: Types, other: TypeMirror) = utils.isSameType(this, other)
+
+fun TypeMirror.erasure(utils: Types) = utils.erasure(this)

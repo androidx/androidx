@@ -25,6 +25,7 @@ import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.query.result.CoroutineFlowResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
+import erasure
 import javax.lang.model.type.DeclaredType
 
 @Suppress("FunctionName")
@@ -63,7 +64,7 @@ private class CoroutineFlowResultBinderProviderImpl(
         if (declared.typeArguments.size != 1) {
             return false
         }
-        val typeName = context.processingEnv.typeUtils.erasure(declared).typeName()
+        val typeName = declared.erasure(context.processingEnv.typeUtils).typeName()
         if (typeName in CHANNEL_TYPE_NAMES) {
             context.logger.e(ProcessorErrors.invalidChannelType(typeName.toString()))
             return false

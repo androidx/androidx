@@ -27,6 +27,7 @@ import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.Companion.createDeleteOrUpdateBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
+import erasure
 import javax.lang.model.type.DeclaredType
 
 /**
@@ -42,7 +43,7 @@ class GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(
 
     override fun matches(declared: DeclaredType): Boolean =
         declared.typeArguments.size == 1 &&
-                context.processingEnv.typeUtils.erasure(declared).typeName() ==
+                declared.erasure(context.processingEnv.typeUtils).typeName() ==
                 GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 
     override fun provide(declared: DeclaredType): DeleteOrUpdateMethodBinder {

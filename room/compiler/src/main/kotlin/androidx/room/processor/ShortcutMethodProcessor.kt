@@ -24,6 +24,7 @@ import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.vo.findFieldByColumnName
 import asTypeElement
+import isSameType
 import isTypeOf
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
@@ -92,13 +93,13 @@ class ShortcutMethodProcessor(
         params: List<ShortcutQueryParameter>,
         onValidatePartialEntity: (Entity, Pojo) -> Unit
     ) = params.associateBy({ it.name }, { param ->
-        if (context.processingEnv.typeUtils.isSameType(targetEntity.type, param.pojoType)) {
+        if (targetEntity.type.isSameType(context.processingEnv.typeUtils, param.pojoType!!)) {
             ShortcutEntity(entity = targetEntity, partialEntity = null)
         } else {
             // Target entity and pojo param are not the same, process and validate partial entity.
             val pojo = PojoProcessor.createFor(
                 context = context,
-                element = param.pojoType!!.asTypeElement(),
+                element = param.pojoType.asTypeElement(),
                 bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
                 parent = null
             ).process().also { pojo ->
