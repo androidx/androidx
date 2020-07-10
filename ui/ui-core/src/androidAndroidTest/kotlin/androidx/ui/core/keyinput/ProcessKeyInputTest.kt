@@ -35,6 +35,7 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
+@OptIn(ExperimentalKeyInput::class)
 class ProcessKeyInputTest {
     @get:Rule
     val composeTestRule = createComposeRule()

@@ -23,6 +23,7 @@ package androidx.ui.core.keyinput
  * @property key the key that was pressed.
  * @property type the [type][KeyEventType] of key event.
  */
+@ExperimentalKeyInput
 interface KeyEvent2 {
     /**
      * The key that was pressed.
@@ -50,11 +51,13 @@ interface KeyEvent2 {
     ),
     level = DeprecationLevel.ERROR
 )
+@OptIn(ExperimentalKeyInput::class)
 data class KeyEvent(val key: Key, val type: KeyEventType)
 
 /**
  * The type of Key Event.
  */
+@ExperimentalKeyInput
 enum class KeyEventType {
     /**
      * Unknown key event.

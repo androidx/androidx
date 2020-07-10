@@ -28,6 +28,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
 import androidx.ui.core.drawLayer
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
+import androidx.ui.core.keyinput.ExperimentalKeyInput
 import androidx.ui.core.keyinput.keyInputFilter
 import androidx.ui.core.layoutId
 import androidx.ui.core.onPositioned
@@ -70,6 +71,7 @@ class LayoutNodeModifierBenchmark(
     lateinit var layoutNode: LayoutNode
 
     @Before
+    @OptIn(ExperimentalKeyInput::class)
     fun setup() {
         modifiers = listOf(
             Modifier.padding(10.dp),
