@@ -410,6 +410,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
+    @Ignore("May be flaky if emulator runs slowly")
     public void playbackRate() throws Exception {
         final int toleranceMs = 1000;
         if (!loadResource(R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz)) {
