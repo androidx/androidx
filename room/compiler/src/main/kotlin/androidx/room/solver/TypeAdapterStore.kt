@@ -96,11 +96,13 @@ import asDeclaredType
 import asTypeElement
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.collect.ImmutableList
+import erasure
 import isArray
 import isAssignableFrom
 import isDeclared
 import isError
 import isNotByte
+import isSameType
 import isType
 import isTypeOf
 import java.util.LinkedList
@@ -278,8 +280,8 @@ class TypeAdapterStore private constructor(
             else -> {
                 val types = context.processingEnv.typeUtils
                 typeConverters.firstOrNull {
-                    types.isSameType(it.from, converter.to) && types
-                            .isSameType(it.to, converter.from)
+                    it.from.isSameType(types, converter.to) &&
+                            it.to.isSameType(types, converter.from)
                 }
             }
         }
@@ -388,16 +390,14 @@ class TypeAdapterStore private constructor(
             if (typeMirror.typeArguments.isEmpty()) {
                 val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
                 return SingleEntityQueryResultAdapter(rowAdapter)
-            } else if (
-                    context.processingEnv.typeUtils.erasure(typeMirror).typeName() ==
+            } else if (typeMirror.erasure(context.processingEnv.typeUtils).typeName() ==
                     GuavaBaseTypeNames.OPTIONAL) {
                 // Handle Guava Optional by unpacking its generic type argument and adapting that.
                 // The Optional adapter will reappend the Optional type.
                 val typeArg = typeMirror.typeArguments.first()
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null
                 return GuavaOptionalQueryResultAdapter(SingleEntityQueryResultAdapter(rowAdapter))
-            } else if (
-                    context.processingEnv.typeUtils.erasure(typeMirror).typeName() ==
+            } else if (typeMirror.erasure(context.processingEnv.typeUtils).typeName() ==
                     CommonTypeNames.OPTIONAL) {
                 // Handle java.util.Optional similarly.
                 val typeArg = typeMirror.typeArguments.first()
@@ -511,7 +511,7 @@ class TypeAdapterStore private constructor(
     fun findQueryParameterAdapter(typeMirror: TypeMirror): QueryParameterAdapter? {
         val typeUtils = context.processingEnv.typeUtils
         if (typeMirror.isType() &&
-            typeUtils.erasure(context.COMMON_TYPES.COLLECTION).isAssignableFrom(
+            context.COMMON_TYPES.COLLECTION.erasure(typeUtils).isAssignableFrom(
                 typeUtils,
                 typeMirror
             )) {
@@ -552,7 +552,7 @@ class TypeAdapterStore private constructor(
         }
         val types = context.processingEnv.typeUtils
         inputs.forEach { input ->
-            if (outputs.any { output -> types.isSameType(input, output) }) {
+            if (outputs.any { output -> input.isSameType(types, output) }) {
                 return NoOpConverter(input)
             }
         }
@@ -595,7 +595,7 @@ class TypeAdapterStore private constructor(
 
     private fun getAllColumnAdapters(input: TypeMirror): List<ColumnTypeAdapter> {
         return columnTypeAdapters.filter {
-            context.processingEnv.typeUtils.isSameType(input, it.out)
+            input.isSameType(context.processingEnv.typeUtils, it.out)
         }
     }
 
@@ -611,10 +611,10 @@ class TypeAdapterStore private constructor(
         // for excludes, use exact match
         return typeConverters.filter { converter ->
             converter.from.isAssignableFrom(types, input) &&
-                    !excludes.any { types.isSameType(it, converter.to) }
+                    !excludes.any { it.isSameType(types, converter.to) }
         }.sortedByDescending {
             // if it is the same, prioritize
-            if (types.isSameType(it.from, input)) {
+            if (it.from.isSameType(types, input)) {
                 2
             } else {
                 1

@@ -39,6 +39,7 @@ import androidx.room.vo.LanguageId
 import androidx.room.vo.PrimaryKey
 import androidx.room.vo.columnNames
 import asTypeElement
+import isSameType
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
@@ -159,7 +160,7 @@ class FtsTableEntityProcessor internal constructor(
         }
 
         val defaultType = context.processingEnv.requireTypeMirror(Object::class)
-        if (context.processingEnv.typeUtils.isSameType(entityType, defaultType)) {
+        if (entityType.isSameType(context.processingEnv.typeUtils, defaultType)) {
             return null
         }
         val contentEntityElement = entityType.asTypeElement()

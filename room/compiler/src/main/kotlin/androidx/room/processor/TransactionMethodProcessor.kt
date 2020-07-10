@@ -26,6 +26,7 @@ import androidx.room.ext.isAbstract
 import androidx.room.ext.isJavaDefault
 import androidx.room.ext.isOverrideableIgnoringContainer
 import androidx.room.vo.TransactionMethod
+import erasure
 import isAssignableFrom
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
@@ -48,7 +49,7 @@ class TransactionMethodProcessor(
                 executableElement, ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
 
         val returnType = delegate.extractReturnType()
-        val erasureReturnType = typeUtils.erasure(returnType)
+        val erasureReturnType = returnType.erasure(typeUtils)
 
         DEFERRED_TYPES.firstOrNull { className ->
             context.processingEnv.findTypeMirror(className)?.let {

@@ -23,6 +23,7 @@ import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.RxType
 import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.query.result.RxCallableQueryResultBinder
+import erasure
 import javax.lang.model.type.DeclaredType
 
 class RxCallableQueryResultBinderProvider private constructor(
@@ -39,7 +40,7 @@ class RxCallableQueryResultBinderProvider private constructor(
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
     private fun matchesRxType(declared: DeclaredType): Boolean {
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
+        val erasure = declared.erasure(context.processingEnv.typeUtils)
         return erasure.typeName() == rxType.className
     }
 

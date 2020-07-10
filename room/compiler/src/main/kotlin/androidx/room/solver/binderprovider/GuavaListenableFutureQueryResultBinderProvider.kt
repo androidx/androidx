@@ -25,6 +25,7 @@ import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.query.result.GuavaListenableFutureQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
+import erasure
 import javax.lang.model.type.DeclaredType
 
 @Suppress("FunctionName")
@@ -60,6 +61,6 @@ class GuavaListenableFutureQueryResultBinderProviderImpl(
      */
     override fun matches(declared: DeclaredType): Boolean =
         declared.typeArguments.size == 1 &&
-                context.processingEnv.typeUtils.erasure(declared).typeName() ==
+                declared.erasure(context.processingEnv.typeUtils).typeName() ==
                         GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 }

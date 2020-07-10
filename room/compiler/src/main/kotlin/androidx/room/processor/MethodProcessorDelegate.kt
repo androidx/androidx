@@ -43,6 +43,8 @@ import androidx.room.solver.transaction.result.TransactionMethodAdapter
 import androidx.room.vo.QueryParameter
 import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.vo.TransactionMethod
+import erasure
+import isSameType
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
@@ -177,12 +179,10 @@ class SuspendMethodProcessorDelegate(
 
     private val continuationParam: VariableElement by lazy {
         val typesUtil = context.processingEnv.typeUtils
-        val continuationType = typesUtil.erasure(
-            context.processingEnv
-                .requireTypeMirror(KotlinTypeNames.CONTINUATION.toString())
-        )
+        val continuationType = context.processingEnv
+            .requireTypeMirror(KotlinTypeNames.CONTINUATION.toString()).erasure(typesUtil)
         executableElement.parameters.last {
-            typesUtil.isSameType(typesUtil.erasure(it.type), continuationType)
+            it.type.erasure(typesUtil).isSameType(typesUtil, continuationType)
         }
     }
 
