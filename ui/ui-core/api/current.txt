@@ -1989,9 +1989,11 @@ package androidx.ui.core.texttoolbar {
   public interface TextToolbar {
     method public androidx.ui.core.texttoolbar.TextToolbarStatus getStatus();
     method public void hide();
-    method public void showCopyMenu(androidx.ui.geometry.Rect rect, kotlin.jvm.functions.Function0<kotlin.Unit> onDeselectRequested, kotlin.jvm.functions.Function0<kotlin.Unit> onCopyRequested);
-    method public void showPasteMenu(androidx.ui.geometry.Rect rect, kotlin.jvm.functions.Function0<kotlin.Unit> onCopyRequested, kotlin.jvm.functions.Function0<kotlin.Unit> onPasteRequested, kotlin.jvm.functions.Function0<kotlin.Unit> onCutRequested);
+    method public void showMenu(androidx.ui.geometry.Rect rect, kotlin.jvm.functions.Function0<kotlin.Unit>? onCopyRequested = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onPasteRequested = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCutRequested = null);
     property public abstract androidx.ui.core.texttoolbar.TextToolbarStatus status;
+  }
+
+  public final class TextToolbarKt {
   }
 
   public enum TextToolbarStatus {

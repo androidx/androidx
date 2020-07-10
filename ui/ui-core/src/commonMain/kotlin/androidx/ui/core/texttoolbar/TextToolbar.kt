@@ -18,24 +18,11 @@ package androidx.ui.core.texttoolbar
 
 import androidx.ui.geometry.Rect
 
+internal typealias ActionCallback = () -> Unit
 /**
  * Interface for text-related toolbar.
  */
 interface TextToolbar {
-    /**
-     * Show the floating toolbar(post-M) or primary toolbar(pre-M) for copying text.
-     *
-     * @param rect region of interest. The selected region around which the floating toolbar
-     * should show.
-     * @param onDeselectRequested callback to deselect after the floating toolbar is clicked.
-     * @param onCopyRequested callback to copy text into ClipBoardManager.
-     */
-    fun showCopyMenu(
-        rect: Rect,
-        onDeselectRequested: () -> Unit,
-        onCopyRequested: () -> Unit
-    )
-
     /**
      * Show the floating toolbar(post-M) or primary toolbar(pre-M) for copying, cutting and pasting
      * text.
@@ -45,11 +32,11 @@ interface TextToolbar {
      * @param onPasteRequested callback to get text from ClipBoardManager and paste it.
      * @param onCutRequested callback to cut text and copy the text into ClipBoardManager.
      */
-    fun showPasteMenu(
+    fun showMenu(
         rect: Rect,
-        onCopyRequested: () -> Unit,
-        onPasteRequested: () -> Unit,
-        onCutRequested: () -> Unit
+        onCopyRequested: ActionCallback? = null,
+        onPasteRequested: ActionCallback? = null,
+        onCutRequested: ActionCallback? = null
     )
 
     /**

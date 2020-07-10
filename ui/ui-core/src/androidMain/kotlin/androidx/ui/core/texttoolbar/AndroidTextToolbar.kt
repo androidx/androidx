@@ -22,7 +22,6 @@ import android.view.View
 import androidx.ui.core.texttoolbar.actionmodecallback.FloatingTextActionModeCallback
 import androidx.ui.core.texttoolbar.actionmodecallback.PrimaryTextActionModeCallback
 import androidx.ui.core.texttoolbar.actionmodecallback.TextActionModeCallback
-import androidx.ui.core.texttoolbar.actionmodecallback.TextFieldActionModeCallback
 import androidx.ui.geometry.Rect
 
 /**
@@ -32,50 +31,17 @@ internal class AndroidTextToolbar(private val view: View) : TextToolbar {
     private var actionMode: ActionMode? = null
     private var textToolbarStatus = TextToolbarStatus.Hidden
 
-    override fun showCopyMenu(
+    override fun showMenu(
         rect: Rect,
-        onDeselectRequested: () -> Unit,
-        onCopyRequested: () -> Unit
+        onCopyRequested: ActionCallback?,
+        onPasteRequested: ActionCallback?,
+        onCutRequested: ActionCallback?
     ) {
         textToolbarStatus = TextToolbarStatus.Shown
         if (Build.VERSION.SDK_INT >= 23) {
             val actionModeCallback =
                 FloatingTextActionModeCallback(
                     TextActionModeCallback(
-                        view = view,
-                        onCopyRequested = onCopyRequested,
-                        onDeselectRequested = onDeselectRequested
-                    )
-                )
-            actionModeCallback.setRect(rect)
-            actionMode = view.startActionMode(
-                actionModeCallback,
-                ActionMode.TYPE_FLOATING
-            )
-        } else {
-            val actionModeCallback =
-                PrimaryTextActionModeCallback(
-                    TextActionModeCallback(
-                        view = view,
-                        onCopyRequested = onCopyRequested,
-                        onDeselectRequested = onDeselectRequested
-                    )
-                )
-            actionMode = view.startActionMode(actionModeCallback)
-        }
-    }
-
-    override fun showPasteMenu(
-        rect: Rect,
-        onCopyRequested: () -> Unit,
-        onPasteRequested: () -> Unit,
-        onCutRequested: () -> Unit
-    ) {
-        textToolbarStatus = TextToolbarStatus.Shown
-        if (Build.VERSION.SDK_INT >= 23) {
-            val actionModeCallback =
-                FloatingTextActionModeCallback(
-                    TextFieldActionModeCallback(
                         view = view,
                         onCopyRequested = onCopyRequested,
                         onCutRequested = onCutRequested,
@@ -90,7 +56,7 @@ internal class AndroidTextToolbar(private val view: View) : TextToolbar {
         } else {
             val actionModeCallback =
                 PrimaryTextActionModeCallback(
-                    TextFieldActionModeCallback(
+                    TextActionModeCallback(
                         view = view,
                         onCopyRequested = onCopyRequested,
                         onPasteRequested = onPasteRequested,
