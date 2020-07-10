@@ -500,6 +500,9 @@ class LayoutNode : Measurable {
             if (value == field) return
             field = value
 
+            val invalidateParentLayer = shouldInvalidateParentLayer()
+            val startZIndex = outerZIndexModifier
+
             copyWrappersToCache()
 
             // Rebuild layoutNodeWrapper
@@ -606,7 +609,10 @@ class LayoutNode : Measurable {
                 // a new one.
                 requestRemeasure()
             }
-            owner?.onInvalidate(this)
+            if (invalidateParentLayer || startZIndex != outerZIndexModifier ||
+                shouldInvalidateParentLayer()) {
+                parent?.onInvalidate()
+            }
         }
 
     /**
@@ -1041,6 +1047,20 @@ class LayoutNode : Measurable {
             block(delegate)
             delegate = delegate.wrapped!!
         }
+    }
+
+    private fun shouldInvalidateParentLayer(): Boolean {
+        if (innerLayerWrapper == null) {
+            return true
+        }
+        forEachDelegate {
+            if (it is ModifiedDrawNode) {
+                return true
+            } else if (it is LayerWrapper) {
+                return false
+            }
+        }
+        error("innerLayerWrapper should have been reached.")
     }
 
     internal companion object {
