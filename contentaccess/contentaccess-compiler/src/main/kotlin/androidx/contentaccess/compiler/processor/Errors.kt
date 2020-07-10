@@ -79,9 +79,9 @@ fun missingEntityOnMethod(methodName: String): String {
 }
 
 fun missingUriOnMethod(): String {
-    return "Failed to determine URI for query, the" +
-            " URI is neither specified in the associated ContentEntity, nor in the " +
-            "@ContentQuery parameters."
+    return "Failed to determine URI for query, the " +
+            "URI is neither specified in the associated ContentEntity, nor in the annotation " +
+            "parameters."
 }
 
 fun badlyFormulatedOrderBy(orderByMember: String): String {
