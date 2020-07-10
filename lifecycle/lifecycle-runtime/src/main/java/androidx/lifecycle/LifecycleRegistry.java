@@ -19,9 +19,13 @@ package androidx.lifecycle;
 import static androidx.lifecycle.Lifecycle.State.DESTROYED;
 import static androidx.lifecycle.Lifecycle.State.INITIALIZED;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.internal.FastSafeIterableMap;
 
 import java.lang.ref.WeakReference;
@@ -73,6 +77,7 @@ public class LifecycleRegistry extends Lifecycle {
     // this onStart method. our invariant with mObserverMap doesn't help, because parent observer
     // is no longer in the map.
     private ArrayList<State> mParentStates = new ArrayList<>();
+    private final boolean mEnforceMainThread;
 
     /**
      * Creates a new LifecycleRegistry for the given provider.
@@ -83,8 +88,13 @@ public class LifecycleRegistry extends Lifecycle {
      * @param provider The owner LifecycleOwner
      */
     public LifecycleRegistry(@NonNull LifecycleOwner provider) {
+        this(provider, true);
+    }
+
+    private LifecycleRegistry(@NonNull LifecycleOwner provider, boolean enforceMainThread) {
         mLifecycleOwner = new WeakReference<>(provider);
         mState = INITIALIZED;
+        mEnforceMainThread = enforceMainThread;
     }
 
     /**
@@ -96,6 +106,7 @@ public class LifecycleRegistry extends Lifecycle {
     @Deprecated
     @MainThread
     public void markState(@NonNull State state) {
+        enforceMainThreadIfNeeded("markState");
         setCurrentState(state);
     }
 
@@ -106,6 +117,7 @@ public class LifecycleRegistry extends Lifecycle {
      */
     @MainThread
     public void setCurrentState(@NonNull State state) {
+        enforceMainThreadIfNeeded("setCurrentState");
         moveToState(state);
     }
 
@@ -118,6 +130,7 @@ public class LifecycleRegistry extends Lifecycle {
      * @param event The event that was received
      */
     public void handleLifecycleEvent(@NonNull Lifecycle.Event event) {
+        enforceMainThreadIfNeeded("handleLifecycleEvent");
         moveToState(event.getTargetState());
     }
 
@@ -156,6 +169,7 @@ public class LifecycleRegistry extends Lifecycle {
 
     @Override
     public void addObserver(@NonNull LifecycleObserver observer) {
+        enforceMainThreadIfNeeded("addObserver");
         State initialState = mState == DESTROYED ? DESTROYED : INITIALIZED;
         ObserverWithState statefulObserver = new ObserverWithState(observer, initialState);
         ObserverWithState previous = mObserverMap.putIfAbsent(observer, statefulObserver);
@@ -202,6 +216,7 @@ public class LifecycleRegistry extends Lifecycle {
 
     @Override
     public void removeObserver(@NonNull LifecycleObserver observer) {
+        enforceMainThreadIfNeeded("removeObserver");
         // we consciously decided not to send destruction events here in opposition to addObserver.
         // Our reasons for that:
         // 1. These events haven't yet happened at all. In contrast to events in addObservers, that
@@ -224,6 +239,7 @@ public class LifecycleRegistry extends Lifecycle {
      */
     @SuppressWarnings("WeakerAccess")
     public int getObserverCount() {
+        enforceMainThreadIfNeeded("getObserverCount");
         return mObserverMap.size();
     }
 
@@ -292,6 +308,31 @@ public class LifecycleRegistry extends Lifecycle {
             }
         }
         mNewEventOccurred = false;
+    }
+
+    @SuppressLint("RestrictedApi")
+    private void enforceMainThreadIfNeeded(String methodName) {
+        if (mEnforceMainThread) {
+            if (!ArchTaskExecutor.getInstance().isMainThread()) {
+                throw new IllegalStateException("Method " + methodName + " must be called on the "
+                        + "main thread");
+            }
+        }
+    }
+
+    /**
+     * Creates a new LifecycleRegistry for the given provider, that doesn't check
+     * that its methods are called on the threads other than main.
+     * <p>
+     * LifecycleRegistry is not synchronized: if multiple threads access this {@code
+     * LifecycleRegistry}, it must be synchronized externally.
+     * <p>
+     * Another possible use-case for this method is JVM testing, when main thread is not present.
+     */
+    @VisibleForTesting
+    @NonNull
+    public static LifecycleRegistry createUnsafe(@NonNull LifecycleOwner owner) {
+        return new LifecycleRegistry(owner, false);
     }
 
     static State min(@NonNull State state1, @Nullable State state2) {
