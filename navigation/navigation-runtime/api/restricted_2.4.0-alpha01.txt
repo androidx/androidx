@@ -93,6 +93,7 @@ package androidx.navigation {
 
   public final class NavDeepLinkBuilder {
     ctor public NavDeepLinkBuilder(android.content.Context);
+    method public androidx.navigation.NavDeepLinkBuilder addDestination(@IdRes int);
     method public android.app.PendingIntent createPendingIntent();
     method public androidx.core.app.TaskStackBuilder createTaskStackBuilder();
     method public androidx.navigation.NavDeepLinkBuilder setArguments(android.os.Bundle?);

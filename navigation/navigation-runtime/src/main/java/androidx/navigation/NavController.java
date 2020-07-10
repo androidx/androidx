@@ -740,11 +740,13 @@ public class NavController {
             }
             if (i != deepLink.length - 1) {
                 // We're not at the final NavDestination yet, so keep going through the chain
-                graph = (NavGraph) node;
-                // Automatically go down the navigation graph when
-                // the start destination is also a NavGraph
-                while (graph.findNode(graph.getStartDestination()) instanceof NavGraph) {
-                    graph = (NavGraph) graph.findNode(graph.getStartDestination());
+                if (node instanceof NavGraph) {
+                    graph = (NavGraph) node;
+                    // Automatically go down the navigation graph when
+                    // the start destination is also a NavGraph
+                    while (graph.findNode(graph.getStartDestination()) instanceof NavGraph) {
+                        graph = (NavGraph) graph.findNode(graph.getStartDestination());
+                    }
                 }
             } else {
                 // Navigate to the last NavDestination, clearing any existing destinations
@@ -778,11 +780,13 @@ public class NavController {
             }
             if (i != deepLink.length - 1) {
                 // We're not at the final NavDestination yet, so keep going through the chain
-                graph = (NavGraph) node;
-                // Automatically go down the navigation graph when
-                // the start destination is also a NavGraph
-                while (graph.findNode(graph.getStartDestination()) instanceof NavGraph) {
-                    graph = (NavGraph) graph.findNode(graph.getStartDestination());
+                if (node instanceof NavGraph) {
+                    graph = (NavGraph) node;
+                    // Automatically go down the navigation graph when
+                    // the start destination is also a NavGraph
+                    while (graph.findNode(graph.getStartDestination()) instanceof NavGraph) {
+                        graph = (NavGraph) graph.findNode(graph.getStartDestination());
+                    }
                 }
             }
         }
