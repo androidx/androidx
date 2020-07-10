@@ -36,7 +36,7 @@ kotlin {
             api project(":compose:core:core-geometry")
 
             implementation project(":compose:core:core-util")
-            implementation project(":compose:compose-runtime")
+            implementation project(":compose:runtime:runtime")
         }
         jvmMain.dependencies {
             implementation(KOTLIN_STDLIB)

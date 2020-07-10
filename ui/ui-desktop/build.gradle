@@ -97,7 +97,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(KOTLIN_STDLIB_COMMON)
-            api project(":compose:compose-runtime")
+            api project(":compose:runtime:runtime")
         }
 
         jvmMain {
@@ -261,13 +261,13 @@ project.tasks.register("extractJars").configure {
                 .getArtifacts().getArtifactFiles().each { component ->
                     result.add(component)
                 }
-        def runtimeProject = project(":compose:compose-runtime")
+        def runtimeProject = project(":compose:runtime:runtime")
         def runtimeJar = findInDeps(runtimeProject.tasks.named("assemble").get(), {
             absolutePath ->
-            Pattern.matches(".*/compose-runtime-desktop.*.jar", absolutePath)
+            Pattern.matches(".*/runtime-desktop.*.jar", absolutePath)
         })
         if (runtimeJar == null)
-            throw new Error("cannot find compose-runtime.jar")
+            throw new Error("cannot find runtime.jar")
         result.add(file(runtimeJar))
 
         return result
