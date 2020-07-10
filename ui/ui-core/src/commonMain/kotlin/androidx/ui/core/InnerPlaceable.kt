@@ -18,6 +18,7 @@ package androidx.ui.core
 
 import androidx.ui.core.LayoutNode.LayoutState.Ready
 import androidx.ui.core.focus.ModifiedFocusNode
+import androidx.ui.core.focus.ModifiedFocusNode2
 import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.geometry.Offset
@@ -62,9 +63,15 @@ internal class InnerPlaceable(
 
     override fun findPreviousFocusWrapper() = wrappedBy?.findPreviousFocusWrapper()
 
+    override fun findPreviousFocusWrapper2() = wrappedBy?.findPreviousFocusWrapper2()
+
     override fun findNextFocusWrapper() = null
 
+    override fun findNextFocusWrapper2() = null
+
     override fun findLastFocusWrapper(): ModifiedFocusNode? = findPreviousFocusWrapper()
+
+    override fun findLastFocusWrapper2(): ModifiedFocusNode2? = findPreviousFocusWrapper2()
 
     override fun findPreviousKeyInputWrapper() = wrappedBy?.findPreviousKeyInputWrapper()
 

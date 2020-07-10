@@ -31,3 +31,13 @@ internal fun LayoutNode.focusableChildren(): List<ModifiedFocusNode> {
         ?: children.fastForEach { layout -> focusableChildren.addAll(layout.focusableChildren()) }
     return focusableChildren
 }
+
+@OptIn(ExperimentalLayoutNodeApi::class)
+internal fun LayoutNode.focusableChildren2(): List<ModifiedFocusNode2> {
+    val focusableChildren = mutableListOf<ModifiedFocusNode2>()
+    // TODO(b/152529395): Write a test for LayoutNode.focusableChildren(). We were calling the wrong
+    //  function on [LayoutNodeWrapper] but no test caught this.
+    this.outerLayoutNodeWrapper.findNextFocusWrapper2()?.let { focusableChildren.add(it) }
+        ?: children.fastForEach { layout -> focusableChildren.addAll(layout.focusableChildren2()) }
+    return focusableChildren
+}

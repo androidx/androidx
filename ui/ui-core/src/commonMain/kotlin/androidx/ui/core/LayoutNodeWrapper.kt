@@ -19,6 +19,7 @@
 package androidx.ui.core
 
 import androidx.ui.core.focus.ModifiedFocusNode
+import androidx.ui.core.focus.ModifiedFocusNode2
 import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.geometry.Offset
@@ -297,23 +298,49 @@ internal abstract class LayoutNodeWrapper(
     /**
      * Returns the first [ModifiedFocusNode] in the wrapper list that wraps this
      * [LayoutNodeWrapper].
+     *
+     * TODO(b/160921940): Remove this function after removing ModifiedFocusNode.
      */
     abstract fun findPreviousFocusWrapper(): ModifiedFocusNode?
 
     /**
+     * Returns the first [focus node][ModifiedFocusNode2] in the wrapper list that wraps this
+     * [LayoutNodeWrapper].
+     */
+    abstract fun findPreviousFocusWrapper2(): ModifiedFocusNode2?
+
+    /**
      * Returns the next [ModifiedFocusNode] in the wrapper list that is wrapped by this
      * [LayoutNodeWrapper].
+     *
+     * TODO(b/160921940): Remove this function after removing ModifiedFocusNode.
      */
     abstract fun findNextFocusWrapper(): ModifiedFocusNode?
 
     /**
+     * Returns the next [focus node][ModifiedFocusNode2] in the wrapper list that is wrapped by
+     * this [LayoutNodeWrapper].
+     */
+    abstract fun findNextFocusWrapper2(): ModifiedFocusNode2?
+
+    /**
      * Returns the last [ModifiedFocusNode] found following this [LayoutNodeWrapper]. It searches
-     * the wrapper list associated with this [LayoutNodeWrapper]
+     * the wrapper list associated with this [LayoutNodeWrapper].
+     *
+     * TODO(b/160921940): Remove this function after removing ModifiedFocusNode.
      */
     abstract fun findLastFocusWrapper(): ModifiedFocusNode?
 
     /**
+     * Returns the last [focus node][ModifiedFocusNode2] found following this [LayoutNodeWrapper].
+     * It searches the wrapper list associated with this [LayoutNodeWrapper].
+     */
+    abstract fun findLastFocusWrapper2(): ModifiedFocusNode2?
+
+    /**
      * Find the first ancestor that is a [ModifiedFocusNode].
+     *
+     * TODO(b/160921940): Remove this function after removing ModifiedFocusNode.
      */
     internal fun findParentFocusNode(): ModifiedFocusNode? {
         // TODO(b/152066829): We shouldn't need to search through the parentLayoutNode, as the
@@ -327,6 +354,29 @@ internal abstract class LayoutNodeWrapper(
         var parentLayoutNode = layoutNode.parent
         while (parentLayoutNode != null) {
             focusParent = parentLayoutNode.outerLayoutNodeWrapper.findLastFocusWrapper()
+            if (focusParent != null) {
+                return focusParent
+            }
+            parentLayoutNode = parentLayoutNode.parent
+        }
+        return null
+    }
+
+    /**
+     * Find the first ancestor that is a [ModifiedFocusNode2].
+     */
+    internal fun findParentFocusNode2(): ModifiedFocusNode2? {
+        // TODO(b/152066829): We shouldn't need to search through the parentLayoutNode, as the
+        // wrappedBy property should automatically point to the last layoutWrapper of the parent.
+        // Find out why this doesn't work.
+        var focusParent = wrappedBy?.findPreviousFocusWrapper2()
+        if (focusParent != null) {
+            return focusParent
+        }
+
+        var parentLayoutNode = layoutNode.parent
+        while (parentLayoutNode != null) {
+            focusParent = parentLayoutNode.outerLayoutNodeWrapper.findLastFocusWrapper2()
             if (focusParent != null) {
                 return focusParent
             }
