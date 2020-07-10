@@ -644,3 +644,18 @@ class SeparatorsTest {
         }
     }
 }
+
+@Suppress("TestFunctionName")
+internal fun <T : Any> TransformablePage(data: List<T>) = TransformablePage(
+    data = data,
+    originalPageOffset = 0
+)
+
+internal fun <T : Any> List<List<T>>.toTransformablePages(
+    indexOfInitialPage: Int = 0
+) = mapIndexed { index, list ->
+    TransformablePage(
+        data = list,
+        originalPageOffset = index - indexOfInitialPage
+    )
+}.toMutableList()

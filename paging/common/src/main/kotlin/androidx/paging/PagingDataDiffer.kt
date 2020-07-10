@@ -151,7 +151,7 @@ abstract class PagingDataDiffer<T : Any>(
                     // list.
                     transformedLastAccessedIndex?.let { newIndex ->
                         lastAccessedIndex = newIndex
-                        receiver?.addHint(presenter.indexToHint(newIndex))
+                        receiver?.accessHint(newPresenter.presenterIndexToHint(newIndex))
                     }
                 } else {
                     if (postEvents()) {
@@ -180,15 +180,17 @@ abstract class PagingDataDiffer<T : Any>(
                             // means there are no more pages to load that could fulfill this index.
                             lastAccessedIndexUnfulfilled = false
                         } else if (lastAccessedIndexUnfulfilled) {
-                            // `null` if lastAccessedHint does not point to a placeholder.
-                            val lastAccessedIndexAsHint = presenter.placeholderIndexToHintOrNull(
-                                lastAccessedIndex
-                            )
+                            val shouldResendHint =
+                                lastAccessedIndex < presenter.placeholdersBefore ||
+                                        lastAccessedIndex > presenter.placeholdersBefore +
+                                        presenter.storageCount
 
-                            // lastIndex fulfilled, so reset lastAccessedIndexUnfulfilled.
-                            if (lastAccessedIndexAsHint != null) {
-                                receiver?.addHint(lastAccessedIndexAsHint)
+                            if (shouldResendHint) {
+                                receiver?.accessHint(
+                                    presenter.presenterIndexToHint(lastAccessedIndex)
+                                )
                             } else {
+                                // lastIndex fulfilled, so reset lastAccessedIndexUnfulfilled.
                                 lastAccessedIndexUnfulfilled = false
                             }
                         }
@@ -209,7 +211,7 @@ abstract class PagingDataDiffer<T : Any>(
         lastAccessedIndexUnfulfilled = true
         lastAccessedIndex = index
 
-        receiver?.addHint(presenter.indexToHint(index))
+        receiver?.accessHint(presenter.presenterIndexToHint(index))
         return presenter.get(index)
     }
 

@@ -502,55 +502,7 @@ class PagePresenterTest {
         }
     }
 
-    @Test
-    fun loadAroundOutOfBounds() {
-        val presenter = PagePresenter(
-            pages = mutableListOf(listOf('a')),
-            leadingNullCount = 1,
-            trailingNullCount = 1,
-            indexOfInitialPage = 0
-        )
-        assertFailsWith<IndexOutOfBoundsException> {
-            presenter.indexToHint(-1)
-        }
-        assertFailsWith<IndexOutOfBoundsException> {
-            presenter.indexToHint(4)
-        }
-    }
-
-    @Test
-    fun loadAroundSimple() {
-        val pagePresenter = PagePresenter(
-            pages = listOf(listOf('a')),
-            leadingNullCount = 1,
-            trailingNullCount = 1,
-            indexOfInitialPage = 0
-        )
-        assertEquals(ViewportHint(0, -1), pagePresenter.indexToHint(0))
-        assertEquals(ViewportHint(0, 0), pagePresenter.indexToHint(1))
-        assertEquals(ViewportHint(0, 1), pagePresenter.indexToHint(2))
-    }
-
-    @Test
-    fun loadAround() {
-        val pagePresenter = PagePresenter(
-            pages = listOf(
-                listOf('a'),
-                listOf('b', 'c'),
-                listOf('d')
-            ),
-            leadingNullCount = 1,
-            trailingNullCount = 2,
-            indexOfInitialPage = 1
-        )
-        assertEquals(ViewportHint(-1, -1), pagePresenter.indexToHint(0))
-        assertEquals(ViewportHint(-1, 0), pagePresenter.indexToHint(1))
-        assertEquals(ViewportHint(0, 0), pagePresenter.indexToHint(2))
-        assertEquals(ViewportHint(0, 1), pagePresenter.indexToHint(3))
-        assertEquals(ViewportHint(1, 0), pagePresenter.indexToHint(4))
-        assertEquals(ViewportHint(1, 1), pagePresenter.indexToHint(5))
-        assertEquals(ViewportHint(1, 2), pagePresenter.indexToHint(6))
-    }
+    // TODO storageCount test
 
     @Test
     fun snapshot_uncounted() {

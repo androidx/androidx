@@ -108,7 +108,7 @@ class PagingData<T : Any> internal constructor(
 
     companion object {
         internal val NOOP_RECEIVER = object : UiReceiver {
-            override fun addHint(hint: ViewportHint) {}
+            override fun accessHint(viewportHint: ViewportHint) {}
 
             override fun retry() {}
 
@@ -318,7 +318,7 @@ fun <T : R, R : Any> PagingData<T>.insertSeparators(
 }
 
 internal interface UiReceiver {
-    fun addHint(hint: ViewportHint)
+    fun accessHint(viewportHint: ViewportHint)
     fun retry()
     fun refresh()
 }
