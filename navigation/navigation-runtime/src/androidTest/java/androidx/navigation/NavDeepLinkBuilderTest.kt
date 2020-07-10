@@ -151,4 +151,24 @@ class NavDeepLinkBuilderTest {
             .that(firstPendingIntent)
             .isNotEqualTo(secondPendingIntent)
     }
+
+    @Test
+    fun pendingIntentNotEqualsWithDifferentDestinationArgs() {
+        val deepLinkBuilder = NavDeepLinkBuilder(targetContext)
+
+        deepLinkBuilder.setGraph(R.navigation.nav_simple)
+        val args = Bundle().apply {
+            putString("test", "test")
+        }
+        deepLinkBuilder.setDestination(R.id.second_test, args)
+        val firstPendingIntent = deepLinkBuilder.createPendingIntent()
+
+        // Change the args but not the destination
+        args.putString("test", "test2")
+        val secondPendingIntent = deepLinkBuilder.createPendingIntent()
+        assertWithMessage(
+            "PendingIntents with different destination arguments should be different")
+            .that(firstPendingIntent)
+            .isNotEqualTo(secondPendingIntent)
+    }
 }

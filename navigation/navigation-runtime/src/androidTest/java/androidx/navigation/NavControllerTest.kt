@@ -58,6 +58,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.ArgumentMatchers.argThat
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
@@ -1314,6 +1315,77 @@ class NavControllerTest {
             eq(navController),
             eq(navController.findDestination(R.id.deep_link_child_second_test)),
             any())
+        verifyNoMoreInteractions(onDestinationChangedListener)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testHandleDeepLinkMultipleDestinationsWithArgs() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_multiple_navigation)
+        val onDestinationChangedListener =
+            mock(NavController.OnDestinationChangedListener::class.java)
+        navController.addOnDestinationChangedListener(onDestinationChangedListener)
+        val startDestination = navController.findDestination(R.id.simple_child_start_test)
+        verify(onDestinationChangedListener).onDestinationChanged(
+            eq(navController),
+            eq(startDestination),
+            any())
+        val childDestination = navController.findDestination(R.id.simple_child_second_test)
+
+        val globalBundle = Bundle().apply {
+            putString("global", "global")
+        }
+        val firstBundle = Bundle().apply {
+            putString("test", "first")
+        }
+        val secondBundle = Bundle().apply {
+            putString("global", "overridden")
+            putString("test", "second")
+        }
+        val taskStackBuilder = navController.createDeepLink()
+            .setDestination(R.id.simple_child_second_test, firstBundle)
+            .addDestination(R.id.deep_link_child_second_test, secondBundle)
+            .setArguments(globalBundle)
+            .createTaskStackBuilder()
+
+        val intent = taskStackBuilder.editIntentAt(0)
+        assertNotNull(intent)
+        assertWithMessage("NavController should handle deep links to its own graph")
+            .that(navController.handleDeepLink(intent))
+            .isTrue()
+
+        // Verify that we navigated down to the deep link
+        // First to the destination added via setDestination()
+        verify(onDestinationChangedListener).onDestinationChanged(
+            eq(navController),
+            eq(startDestination),
+            argThat { args ->
+                args?.getString("global").equals("global") &&
+                        args?.getString("test").equals("first")
+            })
+        verify(onDestinationChangedListener).onDestinationChanged(
+            eq(navController),
+            eq(childDestination),
+            argThat { args ->
+                args?.getString("global").equals("global") &&
+                        args?.getString("test").equals("first")
+            })
+        // Then to the second destination added via addDestination()
+        verify(onDestinationChangedListener).onDestinationChanged(
+            eq(navController),
+            eq(navController.findDestination(R.id.deep_link_child_start_test)),
+            argThat { args ->
+                args?.getString("global").equals("overridden") &&
+                        args?.getString("test").equals("second")
+            })
+        verify(onDestinationChangedListener).onDestinationChanged(
+            eq(navController),
+            eq(navController.findDestination(R.id.deep_link_child_second_test)),
+            argThat { args ->
+                args?.getString("global").equals("overridden") &&
+                        args?.getString("test").equals("second")
+            })
         verifyNoMoreInteractions(onDestinationChangedListener)
     }
 
