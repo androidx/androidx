@@ -34,6 +34,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.espresso.matcher.ViewMatchers.hasFocus
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
@@ -88,6 +89,7 @@ class WindowInsetsCompatActivityTest(
      */
     @SdkSuppress(minSdkVersion = 23)
     @Test
+    @FlakyTest(detail = "IME tests are inherently flaky, but still useful for local testing.")
     fun ime_viewInsets() {
         // Insets are only dispatched to views with adjustResize
         assumeSoftInputMode(SOFT_INPUT_ADJUST_RESIZE)
@@ -132,6 +134,7 @@ class WindowInsetsCompatActivityTest(
      */
     @SdkSuppress(minSdkVersion = 23)
     @Test
+    @FlakyTest(detail = "IME tests are inherently flaky, but still useful for local testing.")
     fun ime_rootInsets() {
         // Test do not currently work on Cuttlefish
         assumeNotCuttlefish()
