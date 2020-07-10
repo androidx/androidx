@@ -22,6 +22,7 @@ import android.view.View
 import androidx.ui.core.texttoolbar.actionmodecallback.FloatingTextActionModeCallback
 import androidx.ui.core.texttoolbar.actionmodecallback.PrimaryTextActionModeCallback
 import androidx.ui.core.texttoolbar.actionmodecallback.TextActionModeCallback
+import androidx.ui.core.texttoolbar.actionmodecallback.TextFieldActionModeCallback
 import androidx.ui.geometry.Rect
 
 /**
@@ -58,6 +59,42 @@ internal class AndroidTextToolbar(private val view: View) : TextToolbar {
                         view = view,
                         onCopyRequested = onCopyRequested,
                         onDeselectRequested = onDeselectRequested
+                    )
+                )
+            actionMode = view.startActionMode(actionModeCallback)
+        }
+    }
+
+    override fun showPasteMenu(
+        rect: Rect,
+        onCopyRequested: () -> Unit,
+        onPasteRequested: () -> Unit,
+        onCutRequested: () -> Unit
+    ) {
+        textToolbarStatus = TextToolbarStatus.Shown
+        if (Build.VERSION.SDK_INT >= 23) {
+            val actionModeCallback =
+                FloatingTextActionModeCallback(
+                    TextFieldActionModeCallback(
+                        view = view,
+                        onCopyRequested = onCopyRequested,
+                        onCutRequested = onCutRequested,
+                        onPasteRequested = onPasteRequested
+                    )
+                )
+            actionModeCallback.setRect(rect)
+            actionMode = view.startActionMode(
+                actionModeCallback,
+                ActionMode.TYPE_FLOATING
+            )
+        } else {
+            val actionModeCallback =
+                PrimaryTextActionModeCallback(
+                    TextFieldActionModeCallback(
+                        view = view,
+                        onCopyRequested = onCopyRequested,
+                        onPasteRequested = onPasteRequested,
+                        onCutRequested = onCutRequested
                     )
                 )
             actionMode = view.startActionMode(actionModeCallback)

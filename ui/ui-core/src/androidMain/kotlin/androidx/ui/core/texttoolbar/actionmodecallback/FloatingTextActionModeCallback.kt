@@ -20,13 +20,14 @@ import android.annotation.TargetApi
 import android.graphics.Rect
 import android.os.Build
 import android.view.ActionMode
+import android.view.ActionMode.Callback
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 
 @TargetApi(Build.VERSION_CODES.M)
 internal class FloatingTextActionModeCallback(
-    private val callback: TextActionModeCallback
+    private val callback: ActionMode.Callback
 ) : ActionMode.Callback2() {
     private var rect: androidx.ui.geometry.Rect = androidx.ui.geometry.Rect.zero
 

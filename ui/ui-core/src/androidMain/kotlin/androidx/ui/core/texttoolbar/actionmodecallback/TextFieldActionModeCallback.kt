@@ -21,21 +21,22 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 
-internal const val MENU_ITEM_COPY = 0
-internal const val MENU_ITEM_PASTE = 1
-internal const val MENU_ITEM_CUT = 2
-
-internal class TextActionModeCallback(
+internal class TextFieldActionModeCallback(
     private val view: View,
-    private val onDeselectRequested: () -> Unit,
-    private val onCopyRequested: () -> Unit
+    private val onCopyRequested: () -> Unit,
+    private val onPasteRequested: () -> Unit,
+    private val onCutRequested: () -> Unit
 ) : ActionMode.Callback {
     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
         requireNotNull(menu)
         requireNotNull(mode)
 
         menu.add(0, MENU_ITEM_COPY, 0, android.R.string.copy)
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+        menu.add(0, MENU_ITEM_PASTE, 1, android.R.string.paste)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+        menu.add(0, MENU_ITEM_CUT, 2, android.R.string.cut)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
         return true
     }
 
@@ -44,13 +45,14 @@ internal class TextActionModeCallback(
     }
 
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
-        if (item!!.itemId == MENU_ITEM_COPY) {
-            onCopyRequested()
-            onDeselectRequested()
-            mode?.finish()
-            return true
+        when (item!!.itemId) {
+            MENU_ITEM_COPY -> onCopyRequested()
+            MENU_ITEM_PASTE -> onPasteRequested()
+            MENU_ITEM_CUT -> onCutRequested()
+            else -> return false
         }
-        return false
+        mode?.finish()
+        return true
     }
 
     override fun onDestroyActionMode(mode: ActionMode?) {}
