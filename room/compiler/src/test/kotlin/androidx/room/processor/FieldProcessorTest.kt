@@ -44,7 +44,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import simpleRun
-import javax.lang.model.element.Element
+import javax.lang.model.element.VariableElement
 
 @Suppress("HasPlatformType")
 @RunWith(JUnit4::class)
@@ -248,11 +248,12 @@ class FieldProcessorTest {
     @Test
     fun nameVariations() {
         simpleRun {
-            assertThat(Field(mock(Element::class.java), "x", TypeName.INT.typeMirror(it),
+            val variableElement = mock(VariableElement::class.java)
+            assertThat(Field(variableElement, "x", TypeName.INT.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("x")))
-            assertThat(Field(mock(Element::class.java), "x", TypeName.BOOLEAN.typeMirror(it),
+            assertThat(Field(variableElement, "x", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("x")))
-            assertThat(Field(mock(Element::class.java), "xAll",
+            assertThat(Field(variableElement, "xAll",
                 TypeName.BOOLEAN.typeMirror(it), SQLTypeAffinity.INTEGER)
                     .nameWithVariations, `is`(arrayListOf("xAll")))
         }
@@ -260,7 +261,7 @@ class FieldProcessorTest {
 
     @Test
     fun nameVariations_is() {
-        val elm = mock(Element::class.java)
+        val elm = mock(VariableElement::class.java)
         simpleRun {
             assertThat(Field(elm, "isX", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("isX", "x")))
@@ -276,7 +277,7 @@ class FieldProcessorTest {
 
     @Test
     fun nameVariations_has() {
-        val elm = mock(Element::class.java)
+        val elm = mock(VariableElement::class.java)
         simpleRun {
             assertThat(Field(elm, "hasX", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("hasX", "x")))
@@ -292,7 +293,7 @@ class FieldProcessorTest {
 
     @Test
     fun nameVariations_m() {
-        val elm = mock(Element::class.java)
+        val elm = mock(VariableElement::class.java)
         simpleRun {
             assertThat(Field(elm, "mall", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("mall")))
@@ -313,7 +314,7 @@ class FieldProcessorTest {
 
     @Test
     fun nameVariations_underscore() {
-        val elm = mock(Element::class.java)
+        val elm = mock(VariableElement::class.java)
         simpleRun {
             assertThat(Field(elm, "_all", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("_all", "all")))
