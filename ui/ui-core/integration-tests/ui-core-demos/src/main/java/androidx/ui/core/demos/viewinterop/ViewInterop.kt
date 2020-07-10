@@ -24,27 +24,33 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.state
 import androidx.ui.core.ContextAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.demos.R
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Column
+import androidx.ui.layout.size
 import androidx.ui.material.Button
+import androidx.ui.unit.dp
 import androidx.ui.viewinterop.AndroidView
 import androidx.ui.viewinterop.emitView
 
 @Composable
-fun ViewInComposeDemo() {
+fun ViewInteropDemo() {
     Column {
-        // This is a collection of multiple ways of including Android Views in Compose
-        // UI hierarchies. Note that these APIs are subject to change.
+        // This is a collection of multiple ways to include Android Views in Compose UI hierarchies
+        // and Compose in Android ViewGroups. Note that these APIs are subject to change.
 
         // Include Android View.
         emitView(::TextView) {
@@ -58,6 +64,12 @@ fun ViewInComposeDemo() {
         }
         Text("This is a second text")
         ref.value!!.layoutParams = ViewGroup.LayoutParams(100, WRAP_CONTENT)
+
+        // Include an Android ViewGroup and add Compose to it.
+        emitView(::LinearLayout, { it.orientation = LinearLayout.VERTICAL }) {
+            Box(Modifier.size(50.dp).drawBackground(Color.Blue))
+            Box(Modifier.size(50.dp).drawBackground(Color.Gray))
+        }
 
         // Inflate AndroidView from XML.
         AndroidView(R.layout.test_layout)

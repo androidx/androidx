@@ -38,7 +38,7 @@ import androidx.ui.core.demos.gestures.ScrollGestureFilterDemo
 import androidx.ui.core.demos.gestures.TapGestureFilterDemo
 import androidx.ui.core.demos.gestures.VerticalScrollerInDrawerDemo
 import androidx.ui.core.demos.keyinput.KeyInputDemo
-import androidx.ui.core.demos.viewinterop.ViewInComposeDemo
+import androidx.ui.core.demos.viewinterop.ViewInteropDemo
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
 
@@ -89,6 +89,6 @@ val CoreDemos = DemoCategory("Framework", listOf(
     ComposableDemo("Popup") { PopupDemo() },
     GraphicsDemos,
     GestureDemos,
-    ComposableDemo("View in compose") { ViewInComposeDemo() },
+    ComposableDemo("Views interoperability") { ViewInteropDemo() },
     ComposableDemo("ViewModel") { ViewModelDemo() }
 ))

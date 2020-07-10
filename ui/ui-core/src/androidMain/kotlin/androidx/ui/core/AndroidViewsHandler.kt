@@ -58,7 +58,10 @@ internal class AndroidViewsHandler(context: Context) : ViewGroup(context) {
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        // Layout will be handled by component nodes.
+        // Layout was already handled by component nodes, but replace here because
+        // the View system has forced relayout on children. This method will only be called
+        // when forceLayout is called on the Views hierarchy.
+        layoutNode.keys.forEach { it.layout(it.left, it.top, it.right, it.bottom) }
     }
 
     // Touch events forwarding will be handled by component nodes.
