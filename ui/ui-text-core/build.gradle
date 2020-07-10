@@ -39,7 +39,7 @@ kotlin {
 
             implementation project(":compose:runtime:runtime")
             implementation project(":compose:core:core-util")
-            implementation project(":ui:ui-saved-instance-state")
+            implementation project(":compose:runtime:runtime-saved-instance-state")
         }
 
         jvmMain.dependencies {
