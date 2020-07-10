@@ -31,6 +31,7 @@ import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import isPrimitive
 import javax.lang.model.element.Modifier.PUBLIC
 
 class EntityInsertionAdapterWriter private constructor(
@@ -46,7 +47,7 @@ class EntityInsertionAdapterWriter private constructor(
             val primitiveAutoGenerateField = if (entity.primaryKey.autoGenerateId) {
                 entity.primaryKey.fields.firstOrNull()?.let { field ->
                     field.statementBinder?.typeMirror()?.let { binderType ->
-                        if (binderType.kind.isPrimitive) {
+                        if (binderType.isPrimitive()) {
                             field
                         } else {
                             null

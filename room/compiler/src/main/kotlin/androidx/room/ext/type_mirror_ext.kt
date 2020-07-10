@@ -56,6 +56,8 @@ fun TypeMirror.asElement(): Element = MoreTypes.asElement(this)
 
 fun TypeMirror.isPrimitiveInt() = kind == TypeKind.INT
 
+fun TypeMirror.isPrimitive() = kind.isPrimitive
+
 fun TypeMirror.isBoxedInt() =
     MoreTypes.isType(this) && MoreTypes.isTypeOf(java.lang.Integer::class.java, this)
 
