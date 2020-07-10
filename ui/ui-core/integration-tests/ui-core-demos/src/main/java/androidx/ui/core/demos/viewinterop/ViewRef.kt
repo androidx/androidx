@@ -26,7 +26,7 @@ import androidx.ui.core.Ref
  * controlled access to the underlying view instances that are constructed as a result
  * of a compose() pass in Compose.
  *
- * See [ViewInComposeDemo] for an example.
+ * See [ViewInteropDemo] for an example.
  */
 fun <T : View> T.setRef(ref: Ref<T>) {
     storedRef?.value = null
