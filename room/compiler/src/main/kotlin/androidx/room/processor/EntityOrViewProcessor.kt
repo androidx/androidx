@@ -24,7 +24,6 @@ import androidx.room.ext.typeName
 import androidx.room.vo.EntityOrView
 import androidx.room.vo.Fields
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 
 interface EntityOrViewProcessor {
@@ -38,7 +37,7 @@ interface EntityOrViewProcessor {
 private class NonEntityOrViewProcessor(
     val context: Context,
     val element: TypeElement,
-    private val referenceStack: LinkedHashSet<Name>
+    private val referenceStack: LinkedHashSet<String>
 ) : EntityOrViewProcessor {
 
     override fun process(): EntityOrView {
@@ -64,7 +63,7 @@ private class NonEntityOrViewProcessor(
 fun EntityOrViewProcessor(
     context: Context,
     element: TypeElement,
-    referenceStack: LinkedHashSet<Name> = LinkedHashSet()
+    referenceStack: LinkedHashSet<String> = LinkedHashSet()
 ): EntityOrViewProcessor {
     return when {
         element.hasAnnotation(Entity::class) ->

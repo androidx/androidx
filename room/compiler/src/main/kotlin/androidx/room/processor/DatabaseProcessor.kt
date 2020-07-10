@@ -26,6 +26,7 @@ import androidx.room.ext.getAllMethods
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.isAbstract
 import androidx.room.ext.isType
+import androidx.room.ext.name
 import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.type
@@ -107,7 +108,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
             val daoType = executable.returnType.asTypeElement()
             val dao = DaoProcessor(context, daoType, declaredType, dbVerifier)
                 .process()
-            DaoMethod(executable, executable.simpleName.toString(), dao)
+            DaoMethod(executable, executable.name, dao)
         }
 
         validateUniqueDaoClasses(element, daoMethods, entities)

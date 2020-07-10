@@ -18,6 +18,7 @@ package androidx.room.solver
 
 import androidx.room.ext.getAllFieldsIncludingPrivateSupers
 import androidx.room.ext.isAssignableFromWithoutVariance
+import androidx.room.ext.name
 import androidx.room.ext.requireTypeElement
 import androidx.room.ext.type
 import androidx.room.testing.TestInvocation
@@ -106,7 +107,7 @@ class TypeAssignmentTest {
         name: String
     ): VariableElement {
         return getAllFieldsIncludingPrivateSupers(env).first {
-            it.simpleName.toString() == name
+            it.name == name
         }
     }
 

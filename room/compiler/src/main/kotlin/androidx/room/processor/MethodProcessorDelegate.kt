@@ -24,6 +24,7 @@ import androidx.room.ext.T
 import androidx.room.ext.asMemberOf
 import androidx.room.ext.findTypeElement
 import androidx.room.ext.getSuspendFunctionReturnType
+import androidx.room.ext.name
 import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.type
 import androidx.room.kotlin.KotlinMetadataElement
@@ -164,7 +165,7 @@ class DefaultMethodProcessorDelegate(
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         InstantTransactionMethodBinder(
-            TransactionMethodAdapter(executableElement.simpleName.toString(), callType))
+            TransactionMethodAdapter(executableElement.name, callType))
 }
 
 /**
@@ -201,7 +202,7 @@ class SuspendMethodProcessorDelegate(
         CoroutineResultBinder(
             typeArg = returnType,
             adapter = context.typeAdapterStore.findQueryResultAdapter(returnType, query),
-            continuationParamName = continuationParam.simpleName.toString()
+            continuationParamName = continuationParam.name
         )
 
     override fun findPreparedResultBinder(
@@ -217,7 +218,7 @@ class SuspendMethodProcessorDelegate(
             dbField,
             "true", // inTransaction
             callableImpl,
-            continuationParam.simpleName.toString()
+            continuationParam.name
         )
     }
 
@@ -234,7 +235,7 @@ class SuspendMethodProcessorDelegate(
             dbField,
             "true", // inTransaction
             callableImpl,
-            continuationParam.simpleName.toString()
+            continuationParam.name
         )
     }
 
@@ -249,13 +250,13 @@ class SuspendMethodProcessorDelegate(
                 dbField,
                 "true", // inTransaction
                 callableImpl,
-                continuationParam.simpleName.toString()
+                continuationParam.name
             )
         }
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         CoroutineTransactionMethodBinder(
-            adapter = TransactionMethodAdapter(executableElement.simpleName.toString(), callType),
-            continuationParamName = continuationParam.simpleName.toString()
+            adapter = TransactionMethodAdapter(executableElement.name, callType),
+            continuationParamName = continuationParam.name
         )
 }

@@ -25,6 +25,7 @@ import androidx.room.ext.findTypeMirror
 import androidx.room.ext.isAbstract
 import androidx.room.ext.isJavaDefault
 import androidx.room.ext.isOverrideableIgnoringContainer
+import androidx.room.ext.name
 import androidx.room.vo.TransactionMethod
 import erasure
 import isAssignableFrom
@@ -74,7 +75,7 @@ class TransactionMethodProcessor(
         return TransactionMethod(
                 element = executableElement,
                 returnType = returnType,
-                parameterNames = delegate.extractParams().map { it.simpleName.toString() },
+                parameterNames = delegate.extractParams().map { it.name },
                 callType = callType,
                 methodBinder = delegate.findTransactionMethodBinder(callType))
     }

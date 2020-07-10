@@ -17,6 +17,7 @@
 package androidx.room.vo
 
 import androidx.room.ext.isStatic
+import androidx.room.ext.name
 import androidx.room.ext.typeName
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ExecutableElement
@@ -35,6 +36,6 @@ data class CustomTypeConverter(
     val typeName: TypeName by lazy { enclosingClass.typeName() }
     val fromTypeName: TypeName by lazy { from.typeName() }
     val toTypeName: TypeName by lazy { to.typeName() }
-    val methodName by lazy { method.simpleName.toString() }
+    val methodName by lazy { method.name }
     val isStatic by lazy { method.isStatic() }
 }

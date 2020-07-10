@@ -24,6 +24,7 @@ import androidx.room.ext.asExecutableElement
 import androidx.room.ext.asTypeElement
 import androidx.room.ext.getAllMethods
 import androidx.room.ext.hasAnnotation
+import androidx.room.ext.name
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.TransactionMethod
@@ -222,7 +223,7 @@ class TransactionMethodProcessorTest {
     }
 
     private val TransactionMethod.name: String
-        get() = element.simpleName.toString()
+        get() = element.name
 
     private fun singleTransactionMethod(
         vararg input: String,

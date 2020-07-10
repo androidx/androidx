@@ -22,6 +22,7 @@ import androidx.room.FtsOptions.MatchInfo
 import androidx.room.FtsOptions.Order
 import androidx.room.ext.AnnotationBox
 import androidx.room.ext.hasAnnotation
+import androidx.room.ext.name
 import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.toAnnotationBox
 import androidx.room.parser.FtsVersion
@@ -40,14 +41,13 @@ import androidx.room.vo.PrimaryKey
 import androidx.room.vo.columnNames
 import asTypeElement
 import isSameType
-import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 
 class FtsTableEntityProcessor internal constructor(
     baseContext: Context,
     val element: TypeElement,
-    private val referenceStack: LinkedHashSet<Name> = LinkedHashSet()
+    private val referenceStack: LinkedHashSet<String> = LinkedHashSet()
 ) : EntityProcessor {
 
     val context = baseContext.fork(element)
@@ -70,7 +70,7 @@ class FtsTableEntityProcessor internal constructor(
             context.checker.check(extractForeignKeys(entityAnnotation).isEmpty(),
                     element, ProcessorErrors.FOREIGN_KEYS_IN_FTS_ENTITY)
         } else {
-            tableName = element.simpleName.toString()
+            tableName = element.name
         }
 
         val pojo = PojoProcessor.createFor(
