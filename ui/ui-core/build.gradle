@@ -48,7 +48,7 @@ kotlin {
             api project(":compose:animation:animation-core")
             api project(":ui:ui-saved-instance-state")
             implementation project(":compose:core:core-util")
-            implementation project(":compose:compose-runtime")
+            implementation project(":compose:runtime:runtime")
         }
 
         androidMain.dependencies {

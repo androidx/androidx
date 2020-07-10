@@ -35,7 +35,7 @@ kotlin {
         commonMain.dependencies {
             implementation(KOTLIN_STDLIB_COMMON)
 
-            implementation project(":compose:compose-runtime")
+            implementation project(":compose:runtime:runtime")
         }
         jvmMain.dependencies {
             implementation(KOTLIN_STDLIB)

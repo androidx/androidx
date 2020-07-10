@@ -35,7 +35,7 @@ dependencies {
 
     api "androidx.annotation:annotation:1.1.0"
 
-    api project(":compose:compose-runtime")
+    api project(":compose:runtime:runtime")
     implementation project(":compose:core:core-util")
     api project(":compose:core:core")
     api project(":compose:foundation:foundation")

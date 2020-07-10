@@ -46,7 +46,7 @@ kotlin {
 
             api project(":compose:core:core")
             implementation project(":compose:foundation:foundation-text")
-            implementation project(":compose:compose-runtime")
+            implementation project(":compose:runtime:runtime")
             implementation project(":compose:core:core-util")
         }
 

@@ -33,7 +33,7 @@ dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 
     implementation project(":benchmark:benchmark-junit4")
-    implementation project(":compose:compose-runtime")
+    implementation project(":compose:runtime:runtime")
     implementation project(":ui:integration-tests")
     implementation project(":compose:test:test-core")
     implementation project(":compose:foundation:foundation-layout")
@@ -46,7 +46,7 @@ dependencies {
     androidTestImplementation project(":compose:foundation:foundation-layout")
     androidTestImplementation project(":compose:material:material")
     androidTestImplementation project(":compose:test:test-core")
-    androidTestImplementation project(":compose:compose-runtime")
+    androidTestImplementation project(":compose:runtime:runtime")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(KOTLIN_TEST_COMMON)
     androidTestImplementation(ANDROIDX_TEST_RULES)
