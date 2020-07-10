@@ -17,6 +17,7 @@
 package androidx.contentaccess.compiler
 
 import androidx.contentaccess.compiler.processor.columnInSelectionMissingFromEntity
+import androidx.contentaccess.compiler.processor.findWordsStartingWithColumn
 import androidx.contentaccess.compiler.processor.selectionParameterNotInMethodParameters
 import androidx.contentaccess.compiler.processor.strayColumnInSelectionErrorMessage
 import com.tschuchort.compiletesting.SourceFile
@@ -110,5 +111,27 @@ class SelectionProcessorTest {
         assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
         assertThat(result.messages).contains(
             columnInSelectionMissingFromEntity("unknown_column", entityName))
+    }
+
+    @Test
+    fun findsWordsStartingWithColumnInSelectionProperly() {
+        val selection1 = "a = :a and b = :b"
+        val wordsStartingWithColumnFromSelection1 = listOf(":a", ":b")
+        assertThat(findWordsStartingWithColumn(selection1))
+            .containsExactlyElementsOf(wordsStartingWithColumnFromSelection1)
+
+        val selection2 = "a=:a and b=:b"
+        val wordsStartingWithColumnFromSelection2 = listOf(":a", ":b")
+        assertThat(findWordsStartingWithColumn(selection2))
+            .containsExactlyElementsOf(wordsStartingWithColumnFromSelection2)
+
+        val selection3 = "uri!=:uriParam"
+        assertThat(findWordsStartingWithColumn(selection3)).containsOnly(":uriParam")
+
+        val selection4 = "col = 1 and col2 = 2"
+        assertThat(findWordsStartingWithColumn(selection4)).isEmpty()
+
+        val selection5 = "a = :"
+        assertThat(findWordsStartingWithColumn(selection5)).containsOnly(":")
     }
 }
