@@ -156,9 +156,8 @@ public class WindowInsetsCompat {
      * on devices running Android 10 and before.
      *
      * @param insets source insets to wrap
-     * @param view view to use as an entry point for obtaining root window information. This view
-     *            needs be attached to the window, otherwise an {@link IllegalArgumentException}
-     *            will be thrown.
+     * @param view view to use as an entry point for obtaining root window information. This
+     *             view needs be attached to the window, otherwise it will be ignored.
      * @return the wrapped instance
      */
     @NonNull
@@ -166,10 +165,7 @@ public class WindowInsetsCompat {
     public static WindowInsetsCompat toWindowInsetsCompat(@NonNull WindowInsets insets,
             @Nullable View view) {
         WindowInsetsCompat wic = new WindowInsetsCompat(Preconditions.checkNotNull(insets));
-        if (view != null) {
-            if (!view.isAttachedToWindow()) {
-                throw new IllegalArgumentException("View is not attached to the window");
-            }
+        if (view != null && view.isAttachedToWindow()) {
             // Pass the root window insets, which is useful if the Activity is adjustResize
             wic.setRootWindowInsets(ViewCompat.getRootWindowInsets(view));
             // Pass in the root view which allows the WIC to make of a copy of it's visible bounds
