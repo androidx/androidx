@@ -271,8 +271,7 @@ fun determineToBeUsedUri(
     uriInAnnotation: String,
     errorReporter: ErrorReporter,
     method: ExecutableElement
-):
-        String {
+): String {
     if (uriInAnnotation.isEmpty()) {
         return resolvedContentEntity.defaultUri
     }
