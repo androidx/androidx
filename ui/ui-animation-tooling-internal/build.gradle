@@ -34,6 +34,6 @@ androidx {
     description = "Compose Animation APIs for tooling support. Internal use only."
     publish = Publish.SNAPSHOT_ONLY
     mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
+    mavenGroup = LibraryGroups.Compose.TOOLING
     generateDocs = false
 }

@@ -59,7 +59,6 @@ class DrawShadowTest {
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
 
-    // TODO move RectangleShape to ui-framework b/137222372
     private val rectShape = object : Shape {
         override fun createOutline(size: Size, density: Density): Outline =
             Outline.Rectangle(size.toRect())
