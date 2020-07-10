@@ -38,7 +38,7 @@ class AssertsTest {
     @Test
     fun assertIsNotHidden_forVisibleElement_isOk() {
         composeTestRule.setContent {
-            BoundaryNode { testTag = "test"; hidden = false }
+            BoundaryNode { testTag = "test" }
         }
 
         onNodeWithTag("test")
@@ -48,7 +48,7 @@ class AssertsTest {
     @Test(expected = AssertionError::class)
     fun assertIsNotHidden_forHiddenElement_throwsError() {
         composeTestRule.setContent {
-            BoundaryNode { testTag = "test"; hidden = true }
+            BoundaryNode { testTag = "test"; hidden() }
         }
 
         onNodeWithTag("test")
@@ -58,7 +58,7 @@ class AssertsTest {
     @Test
     fun assertIsHidden_forHiddenElement_isOk() {
         composeTestRule.setContent {
-            BoundaryNode { testTag = "test"; hidden = true }
+            BoundaryNode { testTag = "test"; hidden() }
         }
 
         onNodeWithTag("test")
@@ -68,7 +68,7 @@ class AssertsTest {
     @Test(expected = AssertionError::class)
     fun assertIsHidden_forNotHiddenElement_throwsError() {
         composeTestRule.setContent {
-            BoundaryNode { testTag = "test"; hidden = false }
+            BoundaryNode { testTag = "test" }
         }
 
         onNodeWithTag("test")
@@ -194,7 +194,6 @@ class AssertsTest {
         onNodeWithTag("test")
             .assertIsUnselected()
     }
-
     @Test(expected = AssertionError::class)
     fun assertItemInExclusiveGroup_forItemNotInGroup_throwsError() {
         composeTestRule.setContent {
@@ -208,7 +207,7 @@ class AssertsTest {
     @Test(expected = AssertionError::class)
     fun assertItemInExclusiveGroup_forItemWithoutProperty_throwsError() {
         composeTestRule.setContent {
-            BoundaryNode { testTag = "test"; }
+            BoundaryNode { testTag = "test" }
         }
 
         onNodeWithTag("test")
@@ -226,7 +225,7 @@ class AssertsTest {
     }
 
     @Composable
-    fun BoundaryNode(props: (SemanticsPropertyReceiver.() -> Unit)? = null) {
+    fun BoundaryNode(props: (SemanticsPropertyReceiver.() -> Unit)) {
         Column(Modifier.semantics(properties = props)) {}
     }
 }

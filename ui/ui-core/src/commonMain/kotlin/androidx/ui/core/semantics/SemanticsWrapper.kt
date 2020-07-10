@@ -27,11 +27,11 @@ internal class SemanticsWrapper(
 ) : DelegatingLayoutNodeWrapper<SemanticsModifier>(wrapped, semanticsModifier) {
     fun collapsedSemanticsConfiguration(): SemanticsConfiguration {
         var config = SemanticsConfiguration()
-        config.absorb(modifier.semanticsConfiguration, ignoreAlreadySet = true)
+        config.absorb(modifier.semanticsConfiguration)
 
         val innerConfig = wrapped.nearestSemantics?.collapsedSemanticsConfiguration()
         if (innerConfig != null) {
-            config.absorb(innerConfig, ignoreAlreadySet = true)
+            config.absorb(innerConfig)
         }
         return config
     }
@@ -46,6 +46,6 @@ internal class SemanticsWrapper(
     }
 
     override fun toString(): String {
-        return "${super.toString()} localConfig: ${modifier.semanticsConfiguration}"
+        return "${super.toString()} id: ${modifier.id} config: ${modifier.semanticsConfiguration}"
     }
 }

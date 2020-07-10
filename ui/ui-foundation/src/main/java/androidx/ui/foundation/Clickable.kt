@@ -26,7 +26,7 @@ import androidx.ui.core.gesture.longPressGestureFilter
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.core.semantics.semantics
-import androidx.ui.semantics.enabled
+import androidx.ui.semantics.disabled
 import androidx.ui.semantics.onClick
 
 /**
@@ -58,16 +58,14 @@ fun Modifier.clickable(
     onDoubleClick: (() -> Unit)? = null,
     onClick: () -> Unit
 ) = composed {
-    val semanticModifier = Modifier.semantics(
-        mergeAllDescendants = true,
-        properties = {
-            this.enabled = enabled
-            if (enabled) {
-                // b/156468846:  add long click semantics and double click if needed
-                onClick(action = { onClick(); return@onClick true }, label = onClickLabel)
-            }
+    val semanticModifier = Modifier.semantics(mergeAllDescendants = true) {
+        if (enabled) {
+            // b/156468846:  add long click semantics and double click if needed
+            onClick(action = { onClick(); return@onClick true }, label = onClickLabel)
+        } else {
+            disabled()
         }
-    )
+    }
     val interactionUpdate =
         if (enabled) {
             Modifier.pressIndicatorGestureFilter(

@@ -25,7 +25,7 @@ import androidx.ui.foundation.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize
-import androidx.ui.semantics.ScrollTo
+import androidx.ui.semantics.scrollBy
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Assert
@@ -43,9 +43,9 @@ class ScrollToTest {
 
         composeTestRule.setContent {
             Box(Modifier.semantics {
-                ScrollTo(action = { _, _ ->
+                scrollBy(action = { _, _ ->
                     wasScrollToCalled = true
-                    return@ScrollTo true
+                    return@scrollBy true
                 })
             }) {
                 Box(Modifier.testTag(tag))
@@ -85,10 +85,10 @@ class ScrollToTest {
             val green = Color(alpha = 0xFF, red = 0, green = 0xFF, blue = 0)
 
             Box(Modifier.semantics {
-                ScrollTo(action = { x, y ->
-                    currentScrollPositionY = y
-                    currentScrollPositionX = x
-                    return@ScrollTo true
+                scrollBy(action = { x, y ->
+                    currentScrollPositionY += y
+                    currentScrollPositionX += x
+                    return@scrollBy true
                 })
             }) {
                 Column {

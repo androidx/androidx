@@ -96,23 +96,14 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
      *
      * The [other] configuration must not contain any properties that cannot be
      * merged into this configuration.
-     *
-     * @param ignoreAlreadySet if true, ignore properties that are already set instead of merging
      */
-    internal fun absorb(other: SemanticsConfiguration, ignoreAlreadySet: Boolean = false) {
+    internal fun absorb(other: SemanticsConfiguration) {
         if (other.isMergingSemanticsOfDescendants) {
             isMergingSemanticsOfDescendants = true
         }
-
         for (entry in other.props) {
             val key = entry.key
-            if (props.containsKey(key)) {
-                if (!ignoreAlreadySet) {
-                    @Suppress("UNCHECKED_CAST")
-                    key as SemanticsPropertyKey<Any?>
-                    props[key] = key.merge(props[key], entry.value)
-                }
-            } else {
+            if (!props.containsKey(key)) {
                 props[key] = entry.value
             }
         }
@@ -142,7 +133,6 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
         return result
     }
 
-    private val CommaSeparator = ", "
     override fun toString(): String {
         val propsString = StringBuilder()
         var nextSeparator = ""
@@ -150,7 +140,7 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
         if (isMergingSemanticsOfDescendants) {
             propsString.append(nextSeparator)
             propsString.append("mergeDescendants=true")
-            nextSeparator = CommaSeparator
+            nextSeparator = ", "
         }
 
         for ((key, value) in props) {
@@ -158,7 +148,7 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
             propsString.append(key.name)
             propsString.append(" : ")
             propsString.append(value)
-            nextSeparator = CommaSeparator
+            nextSeparator = ", "
         }
         return "${simpleIdentityToString(this@SemanticsConfiguration, null)}{ $propsString }"
     }

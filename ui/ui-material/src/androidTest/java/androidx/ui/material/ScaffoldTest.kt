@@ -347,7 +347,7 @@ class ScaffoldTest {
             Stack(
                 Modifier
                     .size(10.dp, 20.dp)
-                    .semantics(mergeAllDescendants = true)
+                    .semantics(mergeAllDescendants = true) {}
                     .testTag("Scaffold")
             ) {
                 Scaffold(

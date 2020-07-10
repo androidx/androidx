@@ -36,7 +36,7 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findRoot
+import androidx.ui.test.onRoot
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.waitForIdle
 import androidx.ui.unit.dp
@@ -236,7 +236,7 @@ class VectorTest {
     }
 
     private fun takeScreenShot(width: Int, height: Int = width): Bitmap {
-        val bitmap = findRoot().captureToBitmap()
+        val bitmap = onRoot().captureToBitmap()
         Assert.assertEquals(width, bitmap.width)
         Assert.assertEquals(height, bitmap.height)
         return bitmap

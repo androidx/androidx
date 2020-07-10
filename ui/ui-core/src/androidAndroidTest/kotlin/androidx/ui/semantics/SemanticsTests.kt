@@ -70,9 +70,9 @@ class SemanticsTests {
         val label1 = "foo"
         val label2 = "bar"
         composeTestRule.setContent {
-            SimpleTestLayout(Modifier.semantics(mergeAllDescendants = true).testTag(tag1)) {
+            SimpleTestLayout(Modifier.semantics(mergeAllDescendants = true) {}.testTag(tag1)) {
                 SimpleTestLayout(Modifier.semantics { accessibilityLabel = label1 }) { }
-                SimpleTestLayout(Modifier.semantics(mergeAllDescendants = true).testTag(tag2)) {
+                SimpleTestLayout(Modifier.semantics(mergeAllDescendants = true) {}.testTag(tag2)) {
                     SimpleTestLayout(Modifier.semantics { accessibilityLabel = label2 }) { }
                 }
             }
@@ -87,7 +87,7 @@ class SemanticsTests {
         val label = "foo"
         val showSubtree = mutableStateOf(true)
         composeTestRule.setContent {
-            SimpleTestLayout(Modifier.semantics(mergeAllDescendants = true).testTag(TestTag)) {
+            SimpleTestLayout(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TestTag)) {
                 if (showSubtree.value) {
                     SimpleTestLayout(Modifier.semantics { accessibilityLabel = label }) { }
                 }
@@ -109,7 +109,7 @@ class SemanticsTests {
         val value = "bar"
         val showNewNode = mutableStateOf(false)
         composeTestRule.setContent {
-            SimpleTestLayout(Modifier.semantics(mergeAllDescendants = true).testTag(TestTag)) {
+            SimpleTestLayout(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TestTag)) {
                 SimpleTestLayout(Modifier.semantics { accessibilityLabel = label }) { }
                 if (showNewNode.value) {
                     SimpleTestLayout(Modifier.semantics { accessibilityValue = value }) { }
@@ -218,7 +218,7 @@ class SemanticsTests {
         val isAfter = mutableStateOf(false)
 
         composeTestRule.setContent {
-            SimpleTestLayout(Modifier.testTag(TestTag).semantics(mergeAllDescendants = true)) {
+            SimpleTestLayout(Modifier.testTag(TestTag).semantics(mergeAllDescendants = true) {}) {
                 SimpleTestLayout(Modifier.semantics {
                     accessibilityLabel = if (isAfter.value) afterLabel else beforeLabel }
                 ) {}
@@ -237,7 +237,7 @@ class SemanticsTests {
         val label = "label"
         composeTestRule.setContent {
             SimpleTestLayout(Modifier.testTag(TestTag)) {
-                SimpleTestLayout(Modifier.semantics(mergeAllDescendants = true)) {
+                SimpleTestLayout(Modifier.semantics(mergeAllDescendants = true) {}) {
                     SimpleTestLayout(Modifier.semantics { accessibilityLabel = label }) { }
                 }
             }

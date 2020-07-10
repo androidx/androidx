@@ -471,12 +471,11 @@ private fun textInputEventObserver(
         onBlur(false)
     }
 
-    val semantics = Modifier.semantics(
-        properties = {
-            this.imeAction = imeAction
-            this.supportsInputMethods = true
-            onClick(action = { doFocusIn(); return@onClick true })
-        })
+    val semantics = Modifier.semantics {
+        this.imeAction = imeAction
+        this.supportsInputMethods()
+        onClick(action = { doFocusIn(); return@onClick true })
+    }
     val drag = Modifier.dragPositionGestureFilter(
         onPress = {
             state.selectionIsOn = false

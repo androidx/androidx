@@ -56,7 +56,7 @@ class TextFieldScreenshotTest {
     @Test
     fun outlinedTextField_withInput() {
         composeTestRule.setMaterialContent {
-            Box(Modifier.semantics(mergeAllDescendants = true).testTag(TextFieldTag)) {
+            Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
                 OutlinedTextField(
                     value = "Text",
                     onValueChange = {},
@@ -71,7 +71,7 @@ class TextFieldScreenshotTest {
     @Test
     fun outlinedTextField_notFocused() {
         composeTestRule.setMaterialContent {
-            Box(Modifier.semantics(mergeAllDescendants = true).testTag(TextFieldTag)) {
+            Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
                 OutlinedTextField(
                     value = "",
                     onValueChange = {},
@@ -86,7 +86,7 @@ class TextFieldScreenshotTest {
     @Test
     fun outlinedTextField_focused() {
         composeTestRule.setMaterialContent {
-            Box(Modifier.semantics(mergeAllDescendants = true).testTag(TextFieldTag)) {
+            Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
                 OutlinedTextField(
                     value = "",
                     onValueChange = {},
@@ -104,7 +104,7 @@ class TextFieldScreenshotTest {
     @Test
     fun outlinedTextField_focused_rtl() {
         composeTestRule.setMaterialContent {
-            Box(Modifier.semantics(mergeAllDescendants = true).testTag(TextFieldTag).rtl) {
+            Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag).rtl) {
                 OutlinedTextField(
                     value = "",
                     onValueChange = {},
@@ -122,7 +122,7 @@ class TextFieldScreenshotTest {
     @Test
     fun filledTextField_withInput() {
         composeTestRule.setMaterialContent {
-            Box(Modifier.semantics(mergeAllDescendants = true).testTag(TextFieldTag)) {
+            Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
                 FilledTextField(
                     value = "Text",
                     onValueChange = {},
@@ -137,7 +137,7 @@ class TextFieldScreenshotTest {
     @Test
     fun filledTextField_notFocused() {
         composeTestRule.setMaterialContent {
-            Box(Modifier.semantics(mergeAllDescendants = true).testTag(TextFieldTag)) {
+            Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
                 FilledTextField(
                     value = "",
                     onValueChange = {},
@@ -152,7 +152,7 @@ class TextFieldScreenshotTest {
     @Test
     fun filledTextField_focused() {
         composeTestRule.setMaterialContent {
-            Box(Modifier.semantics(mergeAllDescendants = true).testTag(TextFieldTag)) {
+            Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
                 FilledTextField(
                     value = "",
                     onValueChange = {},
@@ -170,7 +170,7 @@ class TextFieldScreenshotTest {
     @Test
     fun filledTextField_focused_rtl() {
         composeTestRule.setMaterialContent {
-            Box(Modifier.semantics(mergeAllDescendants = true).testTag(TextFieldTag).rtl) {
+            Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag).rtl) {
                 FilledTextField(
                     value = "",
                     onValueChange = {},

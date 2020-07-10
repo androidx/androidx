@@ -68,7 +68,7 @@ class CallSemanticsActionTest {
     }
 
     @Composable
-    fun BoundaryNode(props: (SemanticsPropertyReceiver.() -> Unit)? = null) {
+    fun BoundaryNode(props: (SemanticsPropertyReceiver.() -> Unit)) {
         Column(Modifier.semantics(properties = props)) {}
     }
 }

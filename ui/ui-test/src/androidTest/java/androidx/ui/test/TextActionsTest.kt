@@ -207,7 +207,7 @@ class TextActionsTest {
 
         expectErrorMessageStartsWith("" +
                 "Failed to perform IME action.\n" +
-                "Failed to assert the following: (SupportsInputMethods = 'true')\n" +
+                "Failed to assert the following: (SupportsInputMethods is defined)\n" +
                 "Semantics of the node:"
         ) {
             onNodeWithTag("node")

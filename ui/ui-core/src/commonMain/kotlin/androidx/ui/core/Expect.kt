@@ -16,6 +16,14 @@
 
 package androidx.ui.core
 
+// TODO(aelias): Mark the typealiases internal when https://youtrack.jetbrains.com/issue/KT-36695 is fixed.
+// Currently, they behave as internal because the actual is internal, even though the expect is public.
+
+expect class AtomicInt(value_: Int) {
+    fun addAndGet(delta: Int): Int
+    fun compareAndSet(expected: Int, new: Int): Boolean
+}
+
 // TODO(b/160140398): rewrite depending code using androidx.ui.geometry.Rect and androidx.ui.vectormath64.Matrix3.
 expect class NativeRectF() {
     var left: Float

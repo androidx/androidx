@@ -30,18 +30,18 @@ import androidx.ui.util.fastAny
 /**
  * Returns whether the node is enabled.
  *
- * @see SemanticsProperties.Enabled
+ * @see SemanticsProperties.Disabled
  */
 fun isEnabled(): SemanticsMatcher =
-    SemanticsMatcher.expectValue(SemanticsProperties.Enabled, true)
+    !SemanticsMatcher.keyIsDefined(SemanticsProperties.Disabled)
 
 /**
  * Returns whether the node is not enabled.
  *
- * @see SemanticsProperties.Enabled
+ * @see SemanticsProperties.Disabled
  */
 fun isNotEnabled(): SemanticsMatcher =
-    SemanticsMatcher.expectValue(SemanticsProperties.Enabled, false)
+    SemanticsMatcher.keyIsDefined(SemanticsProperties.Disabled)
 
 /**
  * Return whether the node is checkable.
@@ -110,18 +110,18 @@ fun hasNoClickAction(): SemanticsMatcher =
 /**
  * Return whether the node has a semantics scrollable action defined.
  *
- * @see SemanticsActions.ScrollTo
+ * @see SemanticsActions.ScrollBy
  */
 fun hasScrollAction(): SemanticsMatcher =
-    SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollTo)
+    SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollBy)
 
 /**
  * Return whether the node has no semantics scrollable action defined.
  *
- * @see SemanticsActions.ScrollTo
+ * @see SemanticsActions.ScrollBy
  */
 fun hasNoScrollAction(): SemanticsMatcher =
-    SemanticsMatcher.keyNotDefined(SemanticsActions.ScrollTo)
+    SemanticsMatcher.keyNotDefined(SemanticsActions.ScrollBy)
 
 /**
  * Returns whether the node's label matches exactly to the given text.
@@ -205,7 +205,6 @@ fun hasRangeInfo(rangeInfo: AccessibilityRangeInfo): SemanticsMatcher = Semantic
 fun hasTestTag(testTag: String): SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.TestTag, testTag)
 
-// TODO(ryanmentley/pavlis): Do we want these convenience functions?
 /**
  * Verifies that the node is in a mutually exclusive group - that is,
  * that [FoundationSemanticsProperties.InMutuallyExclusiveGroup] is set to true
@@ -222,7 +221,7 @@ fun isInMutuallyExclusiveGroup(): SemanticsMatcher =
  * @see SemanticsProperties.Hidden
  */
 fun isHidden(): SemanticsMatcher =
-    SemanticsMatcher.expectValue(SemanticsProperties.Hidden, true)
+    SemanticsMatcher.keyIsDefined(SemanticsProperties.Hidden)
 
 /**
  * Returns whether the node is not hidden.
@@ -232,7 +231,7 @@ fun isHidden(): SemanticsMatcher =
  * @see SemanticsProperties.Hidden
  */
 fun isNotHidden(): SemanticsMatcher =
-    SemanticsMatcher.expectValue(SemanticsProperties.Hidden, false)
+    !SemanticsMatcher.keyIsDefined(SemanticsProperties.Hidden)
 
 /**
  * Returns whether the node is a dialog.
@@ -272,7 +271,7 @@ fun hasImeAction(actionType: ImeAction) =
  * gestures input but only to IME. This can be used to for instance filter out all text fields.
  */
 fun hasInputMethodsSupport() =
-    SemanticsMatcher.expectValue(TextSemanticsProperties.SupportsInputMethods, true)
+    SemanticsMatcher.keyIsDefined(TextSemanticsProperties.SupportsInputMethods)
 
 /**
  * Return whether the node is the root semantics node.
