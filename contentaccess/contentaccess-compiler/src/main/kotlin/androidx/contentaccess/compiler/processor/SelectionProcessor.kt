@@ -78,21 +78,21 @@ class SelectionProcessor(
         }
         return SelectionVO(modifiedSelection, selectionsArgs)
     }
+}
 
-    fun findWordsStartingWithColumn(expression: String): List<String> {
-        val wordsStartingWithColumn = mutableListOf<String>()
-        var currIndex = 0
-        while (currIndex < expression.length) {
-            if (expression[currIndex] == ':') {
-                val startingIndex = currIndex
-                while (currIndex + 1 < expression.length && expression[currIndex + 1]
-                        .isLetterOrDigit()) {
-                    currIndex++
-                }
-                wordsStartingWithColumn.add(expression.substring(startingIndex, currIndex + 1))
+fun findWordsStartingWithColumn(expression: String): List<String> {
+    val wordsStartingWithColumn = mutableListOf<String>()
+    var currIndex = 0
+    while (currIndex < expression.length) {
+        if (expression[currIndex] == ':') {
+            val startingIndex = currIndex
+            while (currIndex + 1 < expression.length && expression[currIndex + 1]
+                    .isLetterOrDigit()) {
+                currIndex++
             }
-            currIndex++
+            wordsStartingWithColumn.add(expression.substring(startingIndex, currIndex + 1))
         }
-        return wordsStartingWithColumn
+        currIndex++
     }
+    return wordsStartingWithColumn
 }

@@ -20,5 +20,5 @@ package androidx.contentaccess
  * Annotates a constructor so that it's not considered when analyzing an entity or a pojo.
  */
 @Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.CONSTRUCTOR)
 annotation class IgnoreConstructor

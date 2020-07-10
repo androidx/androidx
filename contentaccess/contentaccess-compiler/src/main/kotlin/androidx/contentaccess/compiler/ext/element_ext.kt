@@ -61,10 +61,7 @@ fun TypeElement.getNonPrivateNonIgnoreConstructors(): List<ExecutableElement> {
 fun TypeElement.hasMoreThanOneNonPrivateNonIgnoredConstructor() =
     this.getNonPrivateNonIgnoreConstructors().size > 1
 
-fun TypeElement.isFilledThroughConstructor():
-        Boolean {
-    return this.getNonPrivateNonIgnoreConstructors().size == 1
-}
+fun TypeElement.isFilledThroughConstructor() = this.getNonPrivateNonIgnoreConstructors().size == 1
 
 fun TypeElement.isNotInstantiable():
         Boolean {
@@ -80,17 +77,18 @@ fun TypeElement.isNotInstantiable():
 fun TypeElement.getAllConstructorParamsOrPublicFields():
         List<VariableElement> {
     val constructors = this.getNonPrivateNonIgnoreConstructors()
-    if (constructors.isNotEmpty()) {
-        if (constructors.size > 1) {
-            error("${this.qualifiedName} has more than non private non ignored constructor")
-        }
+
+    if (constructors.size == 1) {
         val parameters = MoreElements.asExecutable(constructors.first()).parameters
         if (parameters.isNotEmpty()) {
             return parameters.map { it as VariableElement }
         }
-    } else {
+    } else if (constructors.isEmpty()) {
         error("${this.qualifiedName} has no non private and non ignored constructors!")
+    } else {
+        error("${this.qualifiedName} has more than non private non ignored constructor")
     }
+
     // TODO(obenabde): explore ways to warn users if they're unknowingly doing something wrong
     //  e.g if there is a possibility they think we are filling fields instead of constructors
     //  or both etc...
@@ -120,10 +118,8 @@ fun TypeMirror.extendsBound(): TypeMirror? {
 }
 
 @KotlinPoetMetadataPreview
-fun ExecutableElement.isSuspendFunction(processingEnv: ProcessingEnvironment):
-        Boolean {
-    return getKotlinFunspec(processingEnv).modifiers.contains(KModifier.SUSPEND)
-}
+fun ExecutableElement.isSuspendFunction(processingEnv: ProcessingEnvironment) =
+    getKotlinFunspec(processingEnv).modifiers.contains(KModifier.SUSPEND)
 
 @KotlinPoetMetadataPreview
 fun ExecutableElement.getSuspendFunctionReturnType():
