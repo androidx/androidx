@@ -20,7 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
@@ -29,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.LinearLayout;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -1776,34 +1776,13 @@ public class LinearLayoutCompat extends ViewGroup {
     /**
      * Per-child layout information associated with ViewLinearLayout.
      */
-    public static class LayoutParams extends ViewGroup.MarginLayoutParams {
-        /**
-         * Indicates how much of the extra space in the LinearLayout will be
-         * allocated to the view associated with these LayoutParams. Specify
-         * 0 if the view should not be stretched. Otherwise the extra pixels
-         * will be pro-rated among all views whose weight is greater than 0.
-         */
-        public float weight;
-
-        /**
-         * Gravity for the view associated with these LayoutParams.
-         *
-         * @see android.view.Gravity
-         */
-        public int gravity = -1;
+    public static class LayoutParams extends LinearLayout.LayoutParams {
 
         /**
          * {@inheritDoc}
          */
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
-            TypedArray a =
-                    c.obtainStyledAttributes(attrs, R.styleable.LinearLayoutCompat_Layout);
-
-            weight = a.getFloat(R.styleable.LinearLayoutCompat_Layout_android_layout_weight, 0);
-            gravity = a.getInt(R.styleable.LinearLayoutCompat_Layout_android_layout_gravity, -1);
-
-            a.recycle();
         }
 
         /**
@@ -1811,7 +1790,6 @@ public class LinearLayoutCompat extends ViewGroup {
          */
         public LayoutParams(int width, int height) {
             super(width, height);
-            weight = 0;
         }
 
         /**
@@ -1825,8 +1803,7 @@ public class LinearLayoutCompat extends ViewGroup {
          * @param weight the weight
          */
         public LayoutParams(int width, int height, float weight) {
-            super(width, height);
-            this.weight = weight;
+            super(width, height, weight);
         }
 
         /**
@@ -1841,19 +1818,6 @@ public class LinearLayoutCompat extends ViewGroup {
          */
         public LayoutParams(ViewGroup.MarginLayoutParams source) {
             super(source);
-        }
-
-        /**
-         * Copy constructor. Clones the width, height, margin values, weight,
-         * and gravity of the source.
-         *
-         * @param source The layout params to copy from.
-         */
-        public LayoutParams(LayoutParams source) {
-            super(source);
-
-            this.weight = source.weight;
-            this.gravity = source.gravity;
         }
     }
 }

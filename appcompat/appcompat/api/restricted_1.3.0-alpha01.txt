@@ -1694,15 +1694,12 @@ package androidx.appcompat.widget {
   @IntDef(flag=true, value={androidx.appcompat.widget.LinearLayoutCompat.SHOW_DIVIDER_NONE, androidx.appcompat.widget.LinearLayoutCompat.SHOW_DIVIDER_BEGINNING, androidx.appcompat.widget.LinearLayoutCompat.SHOW_DIVIDER_MIDDLE, androidx.appcompat.widget.LinearLayoutCompat.SHOW_DIVIDER_END}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface LinearLayoutCompat.DividerMode {
   }
 
-  public static class LinearLayoutCompat.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
+  public static class LinearLayoutCompat.LayoutParams extends android.widget.LinearLayout.LayoutParams {
     ctor public LinearLayoutCompat.LayoutParams(android.content.Context!, android.util.AttributeSet!);
     ctor public LinearLayoutCompat.LayoutParams(int, int);
     ctor public LinearLayoutCompat.LayoutParams(int, int, float);
     ctor public LinearLayoutCompat.LayoutParams(android.view.ViewGroup.LayoutParams!);
     ctor public LinearLayoutCompat.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
-    ctor public LinearLayoutCompat.LayoutParams(androidx.appcompat.widget.LinearLayoutCompat.LayoutParams!);
-    field public int gravity;
-    field public float weight;
   }
 
   @IntDef({androidx.appcompat.widget.LinearLayoutCompat.HORIZONTAL, androidx.appcompat.widget.LinearLayoutCompat.VERTICAL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface LinearLayoutCompat.OrientationMode {
