@@ -93,7 +93,6 @@ public final class AppSearchImpl {
     // TODO(b/158350212) Remove SharedPreferences once getAllNamespace() is ready in Icing lib.
     // SharedPreferences is discouraged to be used in go/sharedpreferences.
     private final SharedPreferences mSharedPreferences;
-    private final Context mContext;
     private IcingSearchEngine mIcingSearchEngine;
     private volatile boolean mInitialized = false;
 
@@ -111,8 +110,7 @@ public final class AppSearchImpl {
     }
 
     private AppSearchImpl(@NonNull Context context) {
-        mContext = context;
-        mSharedPreferences = mContext.getSharedPreferences(SHARED_PREFERENCES_NAME,
+        mSharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME,
                 Context.MODE_PRIVATE);
     }
 
@@ -122,7 +120,7 @@ public final class AppSearchImpl {
      * @throws IOException        on error opening directory.
      * @throws AppSearchException on IcingSearchEngine error.
      */
-    public void initialize() throws IOException, AppSearchException {
+    public void initialize(@NonNull Context context) throws IOException, AppSearchException {
         if (isInitialized()) {
             return;
         }
@@ -135,7 +133,7 @@ public final class AppSearchImpl {
             }
 
             IcingSearchEngineOptions options = IcingSearchEngineOptions.newBuilder().setBaseDir(
-                    mContext.getFilesDir().getCanonicalPath() + ICING_DIR).build();
+                    context.getFilesDir().getCanonicalPath() + ICING_DIR).build();
             mIcingSearchEngine = new IcingSearchEngine(options);
 
             InitializeResultProto initializeResultProto = mIcingSearchEngine.initialize();
