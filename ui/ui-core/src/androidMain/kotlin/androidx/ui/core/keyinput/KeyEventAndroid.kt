@@ -23,6 +23,7 @@ import androidx.ui.core.keyinput.KeyEventType.KeyUp
 import androidx.ui.core.keyinput.KeyEventType.Unknown
 import android.view.KeyEvent as AndroidKeyEvent
 
+@OptIn(ExperimentalKeyInput::class)
 internal inline class KeyEventAndroid(val keyEvent: AndroidKeyEvent) : KeyEvent2 {
 
     override val key: Key

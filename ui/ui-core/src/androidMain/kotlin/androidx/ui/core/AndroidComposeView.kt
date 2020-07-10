@@ -62,6 +62,7 @@ import androidx.ui.core.focus.FocusDetailedState.Inactive
 import androidx.ui.core.focus.FocusModifierImpl
 import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedback
+import androidx.ui.core.keyinput.ExperimentalKeyInput
 import androidx.ui.core.keyinput.KeyEvent2
 import androidx.ui.core.keyinput.KeyEventAndroid
 import androidx.ui.core.keyinput.KeyInputModifier
@@ -107,6 +108,7 @@ fun AndroidOwner(
 
 @OptIn(
     ExperimentalFocus::class,
+    ExperimentalKeyInput::class,
     ExperimentalLayoutNodeApi::class
 )
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)

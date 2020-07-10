@@ -27,6 +27,7 @@ import androidx.ui.core.composed
  * While implementing this callback, return true to stop propagation of this event. If you return
  * false, the key event will be sent to this [keyInputFilter]'s parent.
  */
+@ExperimentalKeyInput
 fun Modifier.keyInputFilter(onKeyEvent: (KeyEvent2) -> Boolean): Modifier = composed {
     KeyInputModifier(onKeyEvent = onKeyEvent, onPreviewKeyEvent = null)
 }
@@ -42,10 +43,12 @@ fun Modifier.keyInputFilter(onKeyEvent: (KeyEvent2) -> Boolean): Modifier = comp
  * consume the event, it will be sent back up to the root [keyInputFilter] using the onKeyEvent
  * callback.
  */
+@ExperimentalKeyInput
 fun Modifier.previewKeyInputFilter(onPreviewKeyEvent: (KeyEvent2) -> Boolean): Modifier = composed {
     KeyInputModifier(onKeyEvent = null, onPreviewKeyEvent = onPreviewKeyEvent)
 }
 
+@OptIn(ExperimentalKeyInput::class)
 internal class KeyInputModifier(
     val onKeyEvent: ((KeyEvent2) -> Boolean)?,
     val onPreviewKeyEvent: ((KeyEvent2) -> Boolean)?
