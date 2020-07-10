@@ -16,7 +16,6 @@
 
 package androidx.lifecycle.testing
 
-import android.annotation.SuppressLint
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -40,9 +39,7 @@ class TestLifecycleOwner @JvmOverloads constructor(
     initialState: Lifecycle.State = Lifecycle.State.STARTED,
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
 ) : LifecycleOwner {
-    // it is in test artifact
-    @SuppressLint("VisibleForTests")
-    private val lifecycleRegistry = LifecycleRegistry.createUnsafe(this).apply {
+    private val lifecycleRegistry = LifecycleRegistry(this).apply {
         currentState = initialState
     }
     override fun getLifecycle() = lifecycleRegistry
