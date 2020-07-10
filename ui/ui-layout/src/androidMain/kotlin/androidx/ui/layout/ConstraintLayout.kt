@@ -1983,7 +1983,7 @@ private typealias SolverDimension = androidx.constraintlayout.core.state.Dimensi
 private typealias SolverState = androidx.constraintlayout.core.state.State
 private typealias SolverDirection = androidx.constraintlayout.core.state.State.Direction
 private typealias SolverChain = androidx.constraintlayout.core.state.State.Chain
-private val DEBUG = true
+private val DEBUG = false
 private fun ConstraintWidget.toDebugString() =
     "$debugName " +
             "width $width minWidth $minWidth maxWidth $maxWidth " +
