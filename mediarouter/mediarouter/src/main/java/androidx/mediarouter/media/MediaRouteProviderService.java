@@ -863,7 +863,6 @@ public abstract class MediaRouteProviderService extends Service {
         }
 
         boolean updateCompositeDiscoveryRequest() {
-            MediaRouteDiscoveryRequest composite = null;
             MediaRouteSelector.Builder selectorBuilder = null;
             boolean activeScan = false;
 
@@ -879,20 +878,16 @@ public abstract class MediaRouteProviderService extends Service {
                 if (request != null
                         && (!request.getSelector().isEmpty() || request.isActiveScan())) {
                     activeScan |= request.isActiveScan();
-                    if (composite == null) {
-                        composite = request;
+                    if (selectorBuilder == null) {
+                        selectorBuilder = new MediaRouteSelector.Builder(request.getSelector());
                     } else {
-                        if (selectorBuilder == null) {
-                            selectorBuilder = new MediaRouteSelector.Builder(
-                                    composite.getSelector());
-                        }
                         selectorBuilder.addSelector(request.getSelector());
                     }
                 }
             }
-            if (selectorBuilder != null) {
-                composite = new MediaRouteDiscoveryRequest(selectorBuilder.build(), activeScan);
-            }
+
+            MediaRouteDiscoveryRequest composite = (selectorBuilder == null) ? null
+                    : new MediaRouteDiscoveryRequest(selectorBuilder.build(), activeScan);
             if (!ObjectsCompat.equals(mCompositeDiscoveryRequest, composite)) {
                 mCompositeDiscoveryRequest = composite;
                 mService.getMediaRouteProvider().setDiscoveryRequest(composite);
