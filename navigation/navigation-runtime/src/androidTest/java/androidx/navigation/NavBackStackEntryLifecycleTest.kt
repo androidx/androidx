@@ -24,7 +24,6 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.test.FloatingTestNavigator
 import androidx.navigation.test.R
 import androidx.navigation.test.dialog
-import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -43,7 +42,6 @@ class NavBackStackEntryLifecycleTest {
     /**
      * Test that navigating between siblings correctly stops the previous sibling.
      */
-    @UiThreadTest
     @Test
     fun testLifecycle() {
         val navController = createNavController()
@@ -105,7 +103,6 @@ class NavBackStackEntryLifecycleTest {
      * Test that navigating from a sibling to a FloatingWindow sibling leaves the previous
      * destination started.
      */
-    @UiThreadTest
     @Test
     fun testLifecycleWithDialog() {
         val navController = createNavController()
@@ -167,7 +164,6 @@ class NavBackStackEntryLifecycleTest {
      * Test that navigating from within a nested navigation graph to one of the graph's
      * siblings correctly stops both the previous destination and its graph.
      */
-    @UiThreadTest
     @Test
     fun testLifecycleNested() {
         val navController = createNavController()
@@ -232,7 +228,6 @@ class NavBackStackEntryLifecycleTest {
      * FloatingWindow siblings correctly moves both the previous destination and its graph to
      * started.
      */
-    @UiThreadTest
     @Test
     fun testLifecycleNestedWithDialog() {
         val navController = createNavController()
@@ -297,7 +292,6 @@ class NavBackStackEntryLifecycleTest {
      * Test that navigating from within a nested navigation graph to one of the graph's
      * siblings correctly stops both the previous destination and its graph.
      */
-    @UiThreadTest
     @Test
     fun testLifecycleNestedOrdering() {
         val navController = createNavController()
@@ -375,7 +369,6 @@ class NavBackStackEntryLifecycleTest {
      * FloatingWindow siblings correctly moves both the previous destination and its graph to
      * started.
      */
-    @UiThreadTest
     @Test
     fun testLifecycleNestedOrderingWithDialog() {
         val navController = createNavController()
@@ -444,7 +437,6 @@ class NavBackStackEntryLifecycleTest {
      * Test that navigating to a new instance of a graph leaves the previous instance in its
      * current state.
      */
-    @UiThreadTest
     @Test
     fun testLifecycleNestedRepeated() {
         val navController = createNavController()
@@ -517,7 +509,6 @@ class NavBackStackEntryLifecycleTest {
      * Test that navigating to a new instance of a graph via a deep link to a FloatingWindow
      * destination leaves the previous instance in its current state.
      */
-    @UiThreadTest
     @Test
     fun testLifecycleNestedRepeatedWithDialog() {
         val navController = createNavController()

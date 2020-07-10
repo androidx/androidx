@@ -23,7 +23,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.navigation.test.R
-import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -39,7 +38,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NavBackStackEntryTest {
 
-    @UiThreadTest
     @Test
     fun testGetViewModelStoreOwner() {
         val navController = createNavController()
@@ -58,7 +56,6 @@ class NavBackStackEntryTest {
         assertThat(store).isNotNull()
     }
 
-    @UiThreadTest
     @Test
     fun testGetViewModelStoreOwnerAndroidViewModel() {
         val navController = createNavController()
@@ -78,7 +75,6 @@ class NavBackStackEntryTest {
         assertThat(viewModel).isNotNull()
     }
 
-    @UiThreadTest
     @Test
     fun testGetViewModelStoreOwnerSavedStateViewModel() {
         val hostStore = ViewModelStore()
@@ -112,7 +108,6 @@ class NavBackStackEntryTest {
         assertThat(restoredState).isEqualTo("test")
     }
 
-    @UiThreadTest
     @Test
     fun testSaveRestoreGetViewModelStoreOwner() {
         val hostStore = ViewModelStore()
@@ -140,7 +135,6 @@ class NavBackStackEntryTest {
             .isSameInstanceAs(store)
     }
 
-    @UiThreadTest
     @Test
     fun testGetViewModelStoreOwnerNoGraph() {
         val navController = createNavController()
@@ -161,7 +155,6 @@ class NavBackStackEntryTest {
         }
     }
 
-    @UiThreadTest
     @Test
     fun testGetViewModelStoreOwnerSameGraph() {
         val navController = createNavController()
@@ -184,7 +177,6 @@ class NavBackStackEntryTest {
         assertThat(sameGraphOwner.viewModelStore).isSameInstanceAs(viewStore)
     }
 
-    @UiThreadTest
     @Test
     fun testGetSavedStateHandleRestored() {
         val hostStore = ViewModelStore()
@@ -214,7 +206,6 @@ class NavBackStackEntryTest {
             .that(restoredResult).isEqualTo(result)
     }
 
-    @UiThreadTest
     @Test
     fun testGetSavedStateHandle() {
         val entry = NavBackStackEntry(ApplicationProvider.getApplicationContext(),
@@ -223,7 +214,6 @@ class NavBackStackEntryTest {
         assertThat(entry.savedStateHandle).isNotNull()
     }
 
-    @UiThreadTest
     @Test
     fun testGetSavedStateHandleNoViewModelSet() {
         val entry = NavBackStackEntry(ApplicationProvider.getApplicationContext(),
