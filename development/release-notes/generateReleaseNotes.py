@@ -110,15 +110,15 @@ def getCommonPathPrefix(pathA, pathB):
 			lastCommonIndex = i
 	return "/".join(pathAList[:lastCommonIndex + 1])
 
-def writeArtifactIdReleaseNotesToFile(groupId, artifactId, version, releaseNotesString, outputDir):
+def writeArtifactIdReleaseNotesToFile(groupId, artifactId, version, releaseNotesString, channelSummary, outputDir):
 	releaseNotesFileName = "%s_%s_%s_release_notes.txt" % (groupId, artifactId, version)
 	groupIdDir = "%s/%s" % (outputDir, groupId)
-	writeReleaseNotesToNewFile(groupIdDir, releaseNotesFileName, releaseNotesString)
+	writeReleaseNotesToNewFile(groupIdDir, releaseNotesFileName, channelSummary + "\n" + releaseNotesString)
 
-def writeGroupIdReleaseNotesToFile(groupId, releaseNotesString, outputDir):
+def writeGroupIdReleaseNotesToFile(groupId, releaseNotesString, channelSummary, outputDir):
 	releaseNotesFileName = "%s_release_notes.txt" % (groupId)
 	groupIdDir = "%s/%s" % (outputDir, groupId)
-	writeReleaseNotesToNewFile(groupIdDir, releaseNotesFileName, releaseNotesString)
+	writeReleaseNotesToNewFile(groupIdDir, releaseNotesFileName, channelSummary + "\n" + releaseNotesString)
 
 def writeReleaseNotesToNewFile(groupIdDir, releaseNotesFileName, releaseNotesString):
 	if not os.path.exists(groupIdDir):
@@ -139,8 +139,14 @@ def generateAllReleaseNotes(releaseDate, include_all_commits, outputDir):
 	releaseJsonObject = getJetpadRelease(releaseDate, include_all_commits)
 	print("Creating release notes...")
 	allReleaseNotes = ""
+	allReleaseNotesSummary = ""
 	for groupId in releaseJsonObject["modules"]:
-		allReleaseNotes += "\n\n" + generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir)
+		groupReleaseNotes, groupReleaseNotesSummary = generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir)
+		allReleaseNotes += "\n\n" + groupReleaseNotes
+		allReleaseNotesSummary += groupReleaseNotesSummary
+	formattedReleaseDate = str(MarkdownDate(releaseJsonObject["releaseDate"])) + "\n"
+	allReleaseNotesSummary = formattedReleaseDate + allReleaseNotesSummary
+	allReleaseNotes = allReleaseNotesSummary + "\n" + allReleaseNotes
 	writeReleaseNotesToNewFile(outputDir, "all_androidx_release_notes.txt", allReleaseNotes)
 
 def generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir):
@@ -156,6 +162,7 @@ def generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir
 	versionToArtifactRNMap = getVersionToReleaseNotesMap(releaseJsonObject, groupId)
 
 	groupReleaseNotesStringList = []
+	groupReleaseNotesSummaryList = []
 	# For each version, collect and write the release notes for all artifactIds of that version
 	for (version, versionRNList) in versionToArtifactRNMap.items():
 		versionArtifactIds = []
@@ -193,14 +200,17 @@ def generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir
 		)
 
 		groupReleaseNotesStringList.append(str(releaseNotes))
+		groupReleaseNotesSummaryList.append(str(releaseNotes.channelSummary))
 
 	completeGroupIdReleaseNotes = "\n\n".join((groupReleaseNotesStringList))
+	completeGroupReleaseNotesSummary = "".join(groupReleaseNotesSummaryList)
 	writeGroupIdReleaseNotesToFile(
 		groupId,
 		completeGroupIdReleaseNotes,
+		completeGroupReleaseNotesSummary,
 		outputDir
 	)
-	return completeGroupIdReleaseNotes
+	return completeGroupIdReleaseNotes, completeGroupReleaseNotesSummary
 
 
 def generateArtifactIdReleaseNotes(gitClient, artifact, releaseDate, includeAllCommits, outputDir):
@@ -248,6 +258,7 @@ def generateArtifactIdReleaseNotes(gitClient, artifact, releaseDate, includeAllC
 		artifact["artifactId"],
 		artifact["version"],
 		str(artifactIdReleaseNotes),
+		str(artifactIdReleaseNotes.channelSummary),
 		outputDir
 	)
 	return artifactIdReleaseNotes
