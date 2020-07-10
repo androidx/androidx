@@ -28,6 +28,7 @@ import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
 import androidx.room.vo.ShortcutQueryParameter
+import erasure
 import javax.lang.model.type.DeclaredType
 
 /**
@@ -43,7 +44,7 @@ class GuavaListenableFutureInsertMethodBinderProvider(
 
     override fun matches(declared: DeclaredType): Boolean =
         declared.typeArguments.size == 1 &&
-                context.processingEnv.typeUtils.erasure(declared).typeName() ==
+                declared.erasure(context.processingEnv.typeUtils).typeName() ==
                 GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 
     override fun provide(

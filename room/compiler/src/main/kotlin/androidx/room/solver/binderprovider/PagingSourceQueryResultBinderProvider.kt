@@ -28,6 +28,7 @@ import androidx.room.solver.query.result.PagingSourceQueryResultBinder
 import androidx.room.solver.query.result.PositionalDataSourceQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 import com.squareup.javapoet.TypeName
+import erasure
 import isAssignableFrom
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
@@ -62,7 +63,7 @@ class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultB
         }
 
         val typeUtils = context.processingEnv.typeUtils
-        val erasure = typeUtils.erasure(declared)
+        val erasure = declared.erasure(typeUtils)
         if (!pagingSourceTypeMirror!!.isAssignableFrom(typeUtils, erasure)) {
             return false
         }

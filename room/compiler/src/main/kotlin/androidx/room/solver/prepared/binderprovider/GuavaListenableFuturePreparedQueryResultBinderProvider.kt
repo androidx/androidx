@@ -28,6 +28,7 @@ import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
+import erasure
 import javax.lang.model.type.DeclaredType
 
 class GuavaListenableFuturePreparedQueryResultBinderProvider(val context: Context) :
@@ -39,7 +40,7 @@ class GuavaListenableFuturePreparedQueryResultBinderProvider(val context: Contex
 
     override fun matches(declared: DeclaredType): Boolean =
         declared.typeArguments.size == 1 &&
-                context.processingEnv.typeUtils.erasure(declared).typeName() ==
+                declared.erasure(context.processingEnv.typeUtils).typeName() ==
                 GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 
     override fun provide(declared: DeclaredType, query: ParsedQuery): PreparedQueryResultBinder {

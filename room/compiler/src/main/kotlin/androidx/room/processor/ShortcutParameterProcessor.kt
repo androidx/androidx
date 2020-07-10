@@ -23,6 +23,7 @@ import androidx.room.ext.requireTypeMirror
 import androidx.room.vo.ShortcutQueryParameter
 import asDeclaredType
 import asTypeElement
+import erasure
 import isAssignableFrom
 import isType
 import javax.lang.model.element.VariableElement
@@ -88,8 +89,8 @@ class ShortcutParameterProcessor(
             throw IllegalArgumentException("iterator() not found in Iterable $iterableType")
         }
 
-        val iterableType = typeUtils.erasure(processingEnv
-                .requireTypeMirror("java.lang.Iterable"))
+        val iterableType = processingEnv
+                .requireTypeMirror("java.lang.Iterable").erasure(typeUtils)
         if (iterableType.isAssignableFrom(typeUtils, typeMirror)) {
             val declared = typeMirror.asDeclaredType()
             val pojo = extractPojoTypeFromIterator(declared)

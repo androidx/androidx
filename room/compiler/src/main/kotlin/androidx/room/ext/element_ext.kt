@@ -26,6 +26,7 @@ import com.google.auto.common.MoreTypes
 import isAssignableFrom
 import isDeclared
 import isNotNone
+import isSameType
 import java.lang.reflect.Proxy
 import java.util.Locale
 import javax.annotation.processing.ProcessingEnvironment
@@ -404,7 +405,7 @@ fun ExecutableElement.findKotlinDefaultImpl(typeUtils: Types): ExecutableElement
         }
         ourParams.forEachIndexed { i, variableElement ->
             // Plus 1 to their index because their first param is a self object.
-            if (!typeUtils.isSameType(theirParams[i + 1].type, variableElement.type)) {
+            if (!theirParams[i + 1].type.isSameType(typeUtils, variableElement.type)) {
                 return false
             }
         }
