@@ -48,6 +48,7 @@ import java.io.File
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.Locale
 import javax.lang.model.element.Element
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.tools.JavaFileObject
@@ -240,8 +241,8 @@ fun TestInvocation.getEntities(): List<androidx.room.vo.Entity> {
  * Create mocks of [Element] and [TypeMirror] so that they can be used for instantiating a fake
  * [androidx.room.vo.Field].
  */
-fun mockElementAndType(): Pair<Element, TypeMirror> {
-    val element = mock(Element::class.java)
+fun mockElementAndType(): Pair<VariableElement, TypeMirror> {
+    val element = mock(VariableElement::class.java)
     val type = mock(TypeMirror::class.java)
     doReturn(TypeKind.DECLARED).`when`(type).kind
     doReturn(type).`when`(element).asType()
