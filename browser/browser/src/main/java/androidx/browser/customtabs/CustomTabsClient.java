@@ -161,7 +161,7 @@ public class CustomTabsClient {
             if (pm.resolveService(serviceIntent, 0) != null) return packageName;
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT >= 30) {
             Log.w(TAG, "Unable to find any Custom Tabs packages, you may need to add a "
                     + "<queries> element to your manifest. See the docs for "
                     + "CustomTabsClient#getPackageName.");
