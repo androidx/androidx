@@ -27,7 +27,10 @@ import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.core.selection.SelectionHandle
 import androidx.ui.core.selection.SelectionHandleLayout
 import androidx.ui.core.selection.getAdjustedCoordinates
+import androidx.ui.core.texttoolbar.TextToolbar
+import androidx.ui.core.texttoolbar.TextToolbarStatus
 import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Rect
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.TextFieldValue
 import androidx.ui.input.getSelectedText
@@ -38,6 +41,9 @@ import androidx.ui.text.InternalTextApi
 import androidx.ui.text.TextFieldState
 import androidx.ui.text.TextRange
 import androidx.ui.text.style.ResolvedTextDirection
+import androidx.ui.unit.dp
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * A bridge class between user interaction to the text field selection.
@@ -69,6 +75,11 @@ internal class TextFieldSelectionManager() {
      * [ClipboardManager] to perform clipboard features.
      */
     internal var clipboardManager: ClipboardManager? = null
+
+    /**
+     * [TextToolbar] to show floating toolbar(post-M) or primary toolbar(pre-M).
+     */
+    var textToolbar: TextToolbar? = null
 
     /**
      * [HapticFeedback] handle to perform haptic feedback.
@@ -271,6 +282,64 @@ internal class TextFieldSelectionManager() {
                 isStart = false,
                 areHandlesCrossed = value.selection.reversed
             )
+    }
+
+    /**
+     * This function get the selected region as a Rectangle region, and pass it to [TextToolbar]
+     * to make the FloatingToolbar show up in the proper place. In addition, this function passes
+     * the copy, paste and cut method as callbacks when "copy", "cut" or "paste" is clicked.
+     */
+    internal fun showSelectionToolbar() {
+        if (!value.selection.collapsed) {
+            textToolbar?.showPasteMenu(
+                rect = getContentRect(),
+                onCopyRequested = {
+                    copy()
+                    hideSelectionToolbar()
+                },
+                onPasteRequested = {
+                    paste()
+                    hideSelectionToolbar()
+                },
+                onCutRequested = {
+                    cut()
+                    hideSelectionToolbar()
+                }
+            )
+        }
+    }
+
+    private fun hideSelectionToolbar() {
+        if (textToolbar?.status == TextToolbarStatus.Shown) {
+            if (value.selection.collapsed) {
+                textToolbar?.hide()
+            }
+        }
+    }
+
+    /**
+     * Calculate selected region as [Rect]. The top is the top of the first selected
+     * line, and the bottom is the bottom of the last selected line. The left is the leftmost
+     * handle's horizontal coordinates, and the right is the rightmost handle's coordinates.
+     */
+    private fun getContentRect(): Rect {
+        state?.layoutResult?.let {
+            val startOffset = getHandlePosition(true)
+            val endOffset = getHandlePosition(false)
+            val startTop =
+                it.getBoundingBox(value.selection.start.coerceIn(0, value.text.length - 1)).top
+            val endTop =
+                it.getBoundingBox(value.selection.end.coerceIn(0, value.text.length - 1)).top
+
+            val left = min(startOffset.x, endOffset.x)
+            val right = max(startOffset.x, endOffset.x)
+            val top = min(startTop, endTop)
+            val bottom = max(startOffset.y, endOffset.y) + (25.dp.value * 4.0).toFloat()
+
+            return Rect(left, top, right, bottom)
+        }
+
+        return Rect.zero
     }
 
     private fun updateSelection(

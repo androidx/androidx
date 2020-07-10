@@ -1999,6 +1999,7 @@ package androidx.ui.core.texttoolbar {
     method public androidx.ui.core.texttoolbar.TextToolbarStatus getStatus();
     method public void hide();
     method public void showCopyMenu(androidx.ui.geometry.Rect rect, kotlin.jvm.functions.Function0<kotlin.Unit> onDeselectRequested, kotlin.jvm.functions.Function0<kotlin.Unit> onCopyRequested);
+    method public void showPasteMenu(androidx.ui.geometry.Rect rect, kotlin.jvm.functions.Function0<kotlin.Unit> onCopyRequested, kotlin.jvm.functions.Function0<kotlin.Unit> onPasteRequested, kotlin.jvm.functions.Function0<kotlin.Unit> onCutRequested);
     property public abstract androidx.ui.core.texttoolbar.TextToolbarStatus status;
   }
 

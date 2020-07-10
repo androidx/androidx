@@ -32,6 +32,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.TextInputServiceAmbient
+import androidx.ui.core.TextToolbarAmbient
 import androidx.ui.core.drawBehind
 import androidx.ui.core.onPositioned
 import androidx.ui.core.focus.FocusModifier
@@ -225,6 +226,7 @@ fun CoreTextField(
         manager.state = state
         manager.value = value
         manager.clipboardManager = ClipboardManagerAmbient.current
+        manager.textToolbar = TextToolbarAmbient.current
         manager.hapticFeedBack = HapticFeedBackAmbient.current
 
         val observer = textInputEventObserver(
@@ -330,6 +332,7 @@ fun CoreTextField(
                 }
             }
         }
+
         SelectionLayout(
             modifier
                 .plus(observer)
@@ -369,12 +372,14 @@ fun CoreTextField(
                     SelectionHandle(
                         isStartHandle = true,
                         directions = directions,
-                        manager = manager)
+                        manager = manager
+                    )
                     SelectionHandle(
                         isStartHandle = false,
                         directions = directions,
                         manager = manager
                     )
+                    manager.showSelectionToolbar()
                 }
             }
         }
