@@ -3292,6 +3292,7 @@ package androidx.core.view.accessibility {
   public class AccessibilityNodeProviderCompat {
     ctor public AccessibilityNodeProviderCompat();
     ctor public AccessibilityNodeProviderCompat(Object!);
+    method public void addExtraDataToAccessibilityNodeInfo(int, androidx.core.view.accessibility.AccessibilityNodeInfoCompat, String, android.os.Bundle?);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? createAccessibilityNodeInfo(int);
     method public java.util.List<androidx.core.view.accessibility.AccessibilityNodeInfoCompat!>? findAccessibilityNodeInfosByText(String!, int);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? findFocus(int);
