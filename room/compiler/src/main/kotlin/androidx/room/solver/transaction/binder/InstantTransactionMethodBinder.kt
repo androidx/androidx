@@ -17,12 +17,11 @@
 package androidx.room.solver.transaction.binder
 
 import androidx.room.ext.N
+import androidx.room.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
-import isNotVoid
-import javax.lang.model.type.TypeMirror
 
 /**
  * Binder that knows how to write instant (blocking) transaction wrapper methods.
@@ -31,7 +30,7 @@ class InstantTransactionMethodBinder(
     adapter: TransactionMethodAdapter
 ) : TransactionMethodBinder(adapter) {
     override fun executeAndReturn(
-        returnType: TypeMirror,
+        returnType: XType,
         parameterNames: List<String>,
         daoName: ClassName,
         daoImplName: ClassName,

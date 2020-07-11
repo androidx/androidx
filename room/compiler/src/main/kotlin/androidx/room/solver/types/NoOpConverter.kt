@@ -17,8 +17,8 @@
 package androidx.room.solver.types
 
 import androidx.room.ext.L
+import androidx.room.processing.XType
 import androidx.room.solver.CodeGenScope
-import javax.lang.model.type.TypeMirror
 
 /**
  * Yes, we need this when user input is the same as the desired output.
@@ -28,7 +28,7 @@ import javax.lang.model.type.TypeMirror
  * the query. Not having this would require us to special case handle String, String[], List<String>
  * etc.
  */
-class NoOpConverter(type: TypeMirror) : TypeConverter(
+class NoOpConverter(type: XType) : TypeConverter(
         type, type) {
     override fun convert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder()

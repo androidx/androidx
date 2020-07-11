@@ -20,6 +20,7 @@ import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
+import androidx.room.processing.XType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.CodeGenScope
@@ -33,7 +34,6 @@ import androidx.room.vo.findFieldByColumnName
 import androidx.room.writer.FieldReadWriteWriter
 import com.squareup.javapoet.TypeName
 import stripNonJava
-import javax.lang.model.type.TypeMirror
 
 /**
  * Creates the entity from the given info.
@@ -44,7 +44,7 @@ class PojoRowAdapter(
     context: Context,
     private val info: QueryResultInfo?,
     val pojo: Pojo,
-    out: TypeMirror
+    out: XType
 ) : RowAdapter(out) {
     val mapping: Mapping
     val relationCollectors: List<RelationCollector>

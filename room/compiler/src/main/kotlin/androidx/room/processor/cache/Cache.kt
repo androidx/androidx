@@ -18,14 +18,14 @@
 
 package androidx.room.processor.cache
 
+import androidx.room.processing.XElement
+import androidx.room.processing.XType
 import androidx.room.processor.FieldProcessor
 import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Entity
 import androidx.room.vo.Pojo
 import androidx.room.vo.Warning
 import java.util.LinkedHashSet
-import javax.lang.model.element.Element
-import javax.lang.model.type.TypeMirror
 
 /**
  * A cache key can be used to avoid re-processing elements.
@@ -35,7 +35,7 @@ import javax.lang.model.type.TypeMirror
  */
 class Cache(
     val parent: Cache?,
-    val converters: LinkedHashSet<TypeMirror>,
+    val converters: LinkedHashSet<XType>,
     val suppressedWarnings: Set<Warning>
 ) {
     val entities: Bucket<EntityKey, Entity> = Bucket(parent?.entities)
@@ -54,13 +54,13 @@ class Cache(
     /**
      * Key for Entity cache
      */
-    data class EntityKey(val element: Element)
+    data class EntityKey(val element: XElement)
 
     /**
      * Key for Pojo cache
      */
     data class PojoKey(
-        val element: Element,
+        val element: XElement,
         val scope: FieldProcessor.BindingScope,
         val parent: EmbeddedField?
     )
@@ -71,7 +71,7 @@ class Cache(
      * Converters are kept in a linked set since the order is important for the TypeAdapterStore.
      */
     private data class FullKey<T>(
-        val converters: LinkedHashSet<TypeMirror>,
+        val converters: LinkedHashSet<XType>,
         val suppressedWarnings: Set<Warning>,
         val key: T
     )

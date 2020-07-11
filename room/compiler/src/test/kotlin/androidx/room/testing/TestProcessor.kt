@@ -16,24 +16,21 @@
 
 package androidx.room.testing
 
+import androidx.room.processing.JavacTestProcessor
+import androidx.room.processing.XRoundEnv
+import androidx.room.processing.XTypeElement
 import androidx.room.processor.Context
-import javax.annotation.processing.AbstractProcessor
-import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
-import javax.lang.model.element.TypeElement
 import kotlin.reflect.KClass
 
 class TestProcessor(
     val handlers: List<(TestInvocation) -> Boolean>,
     val annotations: MutableSet<String>
-) : AbstractProcessor() {
+) : JavacTestProcessor() {
     var count = 0
-    override fun process(
-        annotations: MutableSet<out TypeElement>,
-        roundEnv: RoundEnvironment
-    ): Boolean {
+    override fun doProcess(annotations: Set<XTypeElement>, roundEnv: XRoundEnv): Boolean {
         return handlers.getOrNull(count++)?.invoke(
-                    TestInvocation(processingEnv, annotations, roundEnv)) ?: true
+            TestInvocation(xProcessingEnv, annotations, roundEnv)) ?: true
     }
 
     override fun getSupportedSourceVersion(): SourceVersion {

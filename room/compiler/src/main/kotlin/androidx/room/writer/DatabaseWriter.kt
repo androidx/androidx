@@ -24,8 +24,9 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
-import androidx.room.ext.asExecutableElement
 import androidx.room.ext.typeName
+import androidx.room.processing.MethodSpecHelper
+import androidx.room.processing.addOriginatingElement
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
@@ -37,7 +38,6 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import stripNonJava
 import java.util.Locale
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PROTECTED
@@ -122,7 +122,7 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             addModifiers(PROTECTED)
             returns(RoomTypeNames.INVALIDATION_TRACKER)
             val shadowTablesVar = "_shadowTablesMap"
-            val shadowTablesTypeName = ParameterizedTypeName.get(HashMap::class.typeName(),
+            val shadowTablesTypeName = ParameterizedTypeName.get(HashMap::class.typeName,
                     CommonTypeNames.STRING, CommonTypeNames.STRING)
             val tableNames = database.entities.joinToString(",") {
                 "\"${it.tableName}\""
@@ -138,9 +138,9 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
                 addStatement("$L.put($S, $S)", shadowTablesVar, tableName, shadowTableName)
             }
             val viewTablesVar = scope.getTmpVar("_viewTables")
-            val tablesType = ParameterizedTypeName.get(HashSet::class.typeName(),
+            val tablesType = ParameterizedTypeName.get(HashSet::class.typeName,
                     CommonTypeNames.STRING)
-            val viewTablesType = ParameterizedTypeName.get(HashMap::class.typeName(),
+            val viewTablesType = ParameterizedTypeName.get(HashMap::class.typeName,
                     CommonTypeNames.STRING,
                     ParameterizedTypeName.get(CommonTypeNames.SET,
                             CommonTypeNames.STRING))
@@ -176,7 +176,10 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
     }
 
     private fun createDaoGetter(field: FieldSpec, method: DaoMethod): MethodSpec {
-        return MethodSpec.overriding(method.element.asExecutableElement()).apply {
+        return MethodSpecHelper.overridingWithFinalParams(
+            elm = method.element,
+            owner = database.element.type
+        ).apply {
             beginControlFlow("if ($N != null)", field).apply {
                 addStatement("return $N", field)
             }
@@ -197,7 +200,7 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
     private fun createCreateOpenHelper(): MethodSpec {
         val scope = CodeGenScope(this)
         return MethodSpec.methodBuilder("createOpenHelper").apply {
-            addModifiers(Modifier.PROTECTED)
+            addModifiers(PROTECTED)
             addAnnotation(Override::class.java)
             returns(SupportDbTypeNames.SQLITE_OPEN_HELPER)
 

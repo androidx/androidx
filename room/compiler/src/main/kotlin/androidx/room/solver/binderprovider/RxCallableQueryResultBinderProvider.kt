@@ -16,32 +16,30 @@
 
 package androidx.room.solver.binderprovider
 
-import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
+import androidx.room.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.RxType
 import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.query.result.RxCallableQueryResultBinder
-import erasure
-import javax.lang.model.type.DeclaredType
 
 class RxCallableQueryResultBinderProvider private constructor(
     val context: Context,
     private val rxType: RxType
 ) : QueryResultBinderProvider {
-    override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
         val typeArg = declared.typeArguments.first()
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query)
         return RxCallableQueryResultBinder(rxType, typeArg, adapter)
     }
 
-    override fun matches(declared: DeclaredType): Boolean =
+    override fun matches(declared: XDeclaredType): Boolean =
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
-    private fun matchesRxType(declared: DeclaredType): Boolean {
-        val erasure = declared.erasure(context.processingEnv.typeUtils)
-        return erasure.typeName() == rxType.className
+    private fun matchesRxType(declared: XDeclaredType): Boolean {
+        val erasure = declared.erasure()
+        return erasure.typeName == rxType.className
     }
 
     companion object {

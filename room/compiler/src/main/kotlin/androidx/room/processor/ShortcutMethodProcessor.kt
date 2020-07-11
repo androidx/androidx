@@ -15,21 +15,17 @@
  */
 package androidx.room.processor
 
-import androidx.room.ext.AnnotationBox
 import androidx.room.ext.isEntityElement
-import androidx.room.ext.toAnnotationBox
+import androidx.room.processing.XAnnotationBox
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XMethodElement
+import androidx.room.processing.XType
+import androidx.room.processing.XTypeElement
 import androidx.room.vo.Entity
 import androidx.room.vo.Pojo
 import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.vo.findFieldByColumnName
-import asTypeElement
-import isSameType
-import isTypeOf
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
 
 /**
@@ -37,13 +33,13 @@ import kotlin.reflect.KClass
  */
 class ShortcutMethodProcessor(
     baseContext: Context,
-    val containing: DeclaredType,
-    val executableElement: ExecutableElement
+    val containing: XDeclaredType,
+    val executableElement: XMethodElement
 ) {
     val context = baseContext.fork(executableElement)
     private val delegate = MethodProcessorDelegate.createFor(context, containing, executableElement)
 
-    fun <T : Annotation> extractAnnotation(klass: KClass<T>, errorMsg: String): AnnotationBox<T>? {
+    fun <T : Annotation> extractAnnotation(klass: KClass<T>, errorMsg: String): XAnnotationBox<T>? {
         val annotation = executableElement.toAnnotationBox(klass)
         context.checker.check(annotation != null, executableElement, errorMsg)
         return annotation
@@ -52,7 +48,7 @@ class ShortcutMethodProcessor(
     fun extractReturnType() = delegate.extractReturnType()
 
     fun extractParams(
-        targetEntityType: TypeMirror?,
+        targetEntityType: XType?,
         missingParamError: String,
         onValidatePartialEntity: (Entity, Pojo) -> Unit
     ): Pair<Map<String, ShortcutEntity>, List<ShortcutQueryParameter>> {
@@ -93,7 +89,7 @@ class ShortcutMethodProcessor(
         params: List<ShortcutQueryParameter>,
         onValidatePartialEntity: (Entity, Pojo) -> Unit
     ) = params.associateBy({ it.name }, { param ->
-        if (targetEntity.type.isSameType(context.processingEnv.typeUtils, param.pojoType!!)) {
+        if (targetEntity.type.isSameType(param.pojoType!!)) {
             ShortcutEntity(entity = targetEntity, partialEntity = null)
         } else {
             // Target entity and pojo param are not the same, process and validate partial entity.
@@ -130,7 +126,7 @@ class ShortcutMethodProcessor(
             it.name to ShortcutEntity(entity = entity!!, partialEntity = null)
         }.toMap()
 
-    private inline fun processEntity(element: TypeElement, onInvalid: () -> Unit) =
+    private inline fun processEntity(element: XTypeElement, onInvalid: () -> Unit) =
         if (element.isEntityElement()) {
             EntityProcessor(
                 context = context,
@@ -141,10 +137,10 @@ class ShortcutMethodProcessor(
         }
 
     fun findInsertMethodBinder(
-        returnType: TypeMirror,
+        returnType: XType,
         params: List<ShortcutQueryParameter>
     ) = delegate.findInsertMethodBinder(returnType, params)
 
-    fun findDeleteOrUpdateMethodBinder(returnType: TypeMirror) =
+    fun findDeleteOrUpdateMethodBinder(returnType: XType) =
         delegate.findDeleteOrUpdateMethodBinder(returnType)
 }

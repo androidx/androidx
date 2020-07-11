@@ -21,7 +21,6 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
@@ -35,7 +34,7 @@ class PositionalDataSourceQueryResultBinder(
     val listAdapter: ListQueryResultAdapter?,
     val tableNames: Set<String>
 ) : QueryResultBinder(listAdapter) {
-    val itemTypeName: TypeName = listAdapter?.rowAdapter?.out?.typeName() ?: TypeName.OBJECT
+    val itemTypeName: TypeName = listAdapter?.rowAdapter?.out?.typeName ?: TypeName.OBJECT
     val typeName: ParameterizedTypeName = ParameterizedTypeName.get(
             RoomTypeNames.LIMIT_OFFSET_DATA_SOURCE, itemTypeName)
     override fun convertAndReturn(

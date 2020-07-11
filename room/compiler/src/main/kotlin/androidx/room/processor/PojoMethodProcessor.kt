@@ -16,25 +16,20 @@
 
 package androidx.room.processor
 
-import androidx.room.ext.asMemberOf
-import androidx.room.ext.name
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XMethodElement
 import androidx.room.vo.PojoMethod
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.type.DeclaredType
 
 /**
  * processes an executable element as member of the owning class
  */
 class PojoMethodProcessor(
     private val context: Context,
-    private val element: ExecutableElement,
-    private val owner: DeclaredType
+    private val element: XMethodElement,
+    private val owner: XDeclaredType
 ) {
     fun process(): PojoMethod {
-        val asMember = element.asMemberOf(
-            context.processingEnv.typeUtils,
-            owner
-        )
+        val asMember = element.asMemberOf(owner)
         return PojoMethod(
                 element = element,
                 resolvedType = asMember,

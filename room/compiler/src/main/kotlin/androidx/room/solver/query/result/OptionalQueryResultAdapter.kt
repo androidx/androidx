@@ -19,7 +19,6 @@ package androidx.room.solver.query.result
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.T
-import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.ParameterizedTypeName
 
@@ -42,7 +41,7 @@ class OptionalQueryResultAdapter(private val resultAdapter: SingleEntityQueryRes
             resultAdapter.convert(valueVarName, cursorVarName, scope)
             addStatement(
                     "final $T $L = $T.ofNullable($L)",
-                    ParameterizedTypeName.get(CommonTypeNames.OPTIONAL, type?.typeName()),
+                    ParameterizedTypeName.get(CommonTypeNames.OPTIONAL, type?.typeName),
                     outVarName,
                     CommonTypeNames.OPTIONAL,
                     valueVarName)

@@ -19,27 +19,18 @@ package androidx.room.processor
 import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.room.ext.SupportDbTypeNames
-import androidx.room.ext.asMemberOf
-import androidx.room.ext.hasAnnotation
 import androidx.room.ext.isEntityElement
-import androidx.room.ext.name
-import androidx.room.ext.requireTypeMirror
-import androidx.room.ext.toAnnotationBox
-import androidx.room.ext.type
-import androidx.room.ext.typeName
 import androidx.room.parser.SqlParser
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XMethodElement
+import androidx.room.processing.XVariableElement
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
 import androidx.room.vo.RawQueryMethod
-import asTypeElement
-import isAssignableFrom
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.VariableElement
-import javax.lang.model.type.DeclaredType
 
 class RawQueryMethodProcessor(
     baseContext: Context,
-    val containing: DeclaredType,
-    val executableElement: ExecutableElement
+    val containing: XDeclaredType,
+    val executableElement: XMethodElement
 ) {
     val context = baseContext.fork(executableElement)
 
@@ -50,7 +41,7 @@ class RawQueryMethodProcessor(
         context.checker.check(executableElement.hasAnnotation(RawQuery::class), executableElement,
                 ProcessorErrors.MISSING_RAWQUERY_ANNOTATION)
 
-        val returnTypeName = returnType.typeName()
+        val returnTypeName = returnType.typeName
         context.checker.notUnbound(returnTypeName, executableElement,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
         val observedTableNames = processObservedTables()
@@ -76,7 +67,7 @@ class RawQueryMethodProcessor(
 
     private fun processObservedTables(): Set<String> {
         val annotation = executableElement.toAnnotationBox(RawQuery::class)
-        return annotation?.getAsTypeMirrorList("observedEntities")
+        return annotation?.getAsTypeList("observedEntities")
                 ?.map {
                     it.asTypeElement()
                 }
@@ -98,7 +89,7 @@ class RawQueryMethodProcessor(
                         // if it is empty, report error as it does not make sense
                         if (tableNames.isEmpty()) {
                             context.logger.e(executableElement,
-                                    ProcessorErrors.rawQueryBadEntity(it.type.typeName()))
+                                    ProcessorErrors.rawQueryBadEntity(it.type.typeName))
                         }
                         tableNames
                     }
@@ -106,21 +97,20 @@ class RawQueryMethodProcessor(
     }
 
     private fun findRuntimeQueryParameter(
-        extractParams: List<VariableElement>
+        extractParams: List<XVariableElement>
     ): RawQueryMethod.RuntimeQueryParameter? {
-        val types = context.processingEnv.typeUtils
-        if (extractParams.size == 1 && !executableElement.isVarArgs) {
-            val param = extractParams.first().asMemberOf(types, containing)
+        if (extractParams.size == 1 && !executableElement.isVarArgs()) {
+            val param = extractParams.first().asMemberOf(containing)
             val processingEnv = context.processingEnv
-            val supportQueryType = processingEnv.requireTypeMirror(SupportDbTypeNames.QUERY)
-            val isSupportSql = supportQueryType.isAssignableFrom(types, param)
+            val supportQueryType = processingEnv.requireType(SupportDbTypeNames.QUERY)
+            val isSupportSql = supportQueryType.isAssignableFrom(param)
             if (isSupportSql) {
                 return RawQueryMethod.RuntimeQueryParameter(
                         paramName = extractParams[0].name,
-                        type = supportQueryType.typeName())
+                        type = supportQueryType.typeName)
             }
-            val stringType = processingEnv.requireTypeMirror("java.lang.String")
-            val isString = stringType.isAssignableFrom(types, param)
+            val stringType = processingEnv.requireType("java.lang.String")
+            val isString = stringType.isAssignableFrom(param)
             if (isString) {
                 // special error since this was initially allowed but removed in 1.1 beta1
                 context.logger.e(executableElement, RAW_QUERY_STRING_PARAMETER_REMOVED)

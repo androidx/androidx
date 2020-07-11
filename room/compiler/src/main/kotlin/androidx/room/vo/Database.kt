@@ -19,18 +19,18 @@ package androidx.room.vo
 import androidx.room.RoomMasterTable
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle
+import androidx.room.processing.XType
+import androidx.room.processing.XTypeElement
 import com.squareup.javapoet.ClassName
 import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.TypeMirror
 
 /**
  * Holds information about a class annotated with Database.
  */
 data class Database(
-    val element: TypeElement,
-    val type: TypeMirror,
+    val element: XTypeElement,
+    val type: XType,
     val entities: List<Entity>,
     val views: List<DatabaseView>,
     val daoMethods: List<DaoMethod>,
@@ -38,7 +38,7 @@ data class Database(
     val exportSchema: Boolean,
     val enableForeignKeys: Boolean
 ) {
-    val typeName: ClassName by lazy { ClassName.get(element) }
+    val typeName: ClassName by lazy { element.className }
 
     private val implClassName by lazy {
         "${typeName.simpleNames().joinToString("_")}_Impl"

@@ -17,19 +17,18 @@
 package androidx.room.solver.binderprovider
 
 import androidx.room.ext.AndroidTypeNames
-import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
+import androidx.room.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.query.result.CursorQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
-import javax.lang.model.type.DeclaredType
 
 class CursorQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
-    override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
         return CursorQueryResultBinder()
     }
 
-    override fun matches(declared: DeclaredType): Boolean =
-        declared.typeArguments.size == 0 && declared.typeName() == AndroidTypeNames.CURSOR
+    override fun matches(declared: XDeclaredType): Boolean =
+        declared.typeArguments.isEmpty() && declared.typeName == AndroidTypeNames.CURSOR
 }

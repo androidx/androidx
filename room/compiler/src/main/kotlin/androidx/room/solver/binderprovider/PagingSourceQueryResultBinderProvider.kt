@@ -17,9 +17,9 @@
 package androidx.room.solver.binderprovider
 
 import androidx.room.ext.PagingTypeNames
-import androidx.room.ext.findTypeMirror
-import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
@@ -28,17 +28,13 @@ import androidx.room.solver.query.result.PagingSourceQueryResultBinder
 import androidx.room.solver.query.result.PositionalDataSourceQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 import com.squareup.javapoet.TypeName
-import erasure
-import isAssignableFrom
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
-    private val pagingSourceTypeMirror: TypeMirror? by lazy {
-        context.processingEnv.findTypeMirror(PagingTypeNames.PAGING_SOURCE)
+    private val pagingSourceTypeMirror: XType? by lazy {
+        context.processingEnv.findType(PagingTypeNames.PAGING_SOURCE)
     }
 
-    override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
         if (query.tables.isEmpty()) {
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
         }
@@ -53,7 +49,7 @@ class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultB
         )
     }
 
-    override fun matches(declared: DeclaredType): Boolean {
+    override fun matches(declared: XDeclaredType): Boolean {
         if (pagingSourceTypeMirror == null) {
             return false
         }
@@ -62,13 +58,12 @@ class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultB
             return false
         }
 
-        val typeUtils = context.processingEnv.typeUtils
-        val erasure = declared.erasure(typeUtils)
-        if (!pagingSourceTypeMirror!!.isAssignableFrom(typeUtils, erasure)) {
+        val erasure = declared.erasure()
+        if (!pagingSourceTypeMirror!!.isAssignableFrom(erasure)) {
             return false
         }
 
-        if (declared.typeArguments.first().typeName() != TypeName.INT.box()) {
+        if (declared.typeArguments.first().typeName != TypeName.INT.box()) {
             context.logger.e(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_TYPE)
         }
 

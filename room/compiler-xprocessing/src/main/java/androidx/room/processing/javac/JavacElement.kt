@@ -120,7 +120,7 @@ internal abstract class JavacElement(
         return element.kind.name.toLowerCase(Locale.US)
     }
 
-    override fun hasAnnotationInPackage(pkg: String): Boolean {
+    override fun hasAnnotationWithPackage(pkg: String): Boolean {
         return element.annotationMirrors.any {
             MoreElements.getPackage(it.annotationType.asElement()).toString() == pkg
         }

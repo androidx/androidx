@@ -2,8 +2,6 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.asDeclaredType
-import androidx.room.ext.requireTypeElement
 import androidx.room.vo.Dao
 import androidx.room.writer.DaoWriter
 import com.google.testing.compile.JavaFileObjects

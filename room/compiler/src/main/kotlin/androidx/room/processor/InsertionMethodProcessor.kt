@@ -21,17 +21,15 @@ package androidx.room.processor
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.IGNORE
 import androidx.room.OnConflictStrategy.REPLACE
-import androidx.room.ext.name
-import androidx.room.ext.typeName
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XMethodElement
 import androidx.room.vo.InsertionMethod
 import androidx.room.vo.findFieldByColumnName
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.type.DeclaredType
 
 class InsertionMethodProcessor(
     baseContext: Context,
-    val containing: DeclaredType,
-    val executableElement: ExecutableElement
+    val containing: XDeclaredType,
+    val executableElement: XMethodElement
 ) {
     val context = baseContext.fork(executableElement)
     fun process(): InsertionMethod {
@@ -44,12 +42,12 @@ class InsertionMethodProcessor(
                 executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
 
         val returnType = delegate.extractReturnType()
-        val returnTypeName = returnType.typeName()
+        val returnTypeName = returnType.typeName
         context.checker.notUnbound(returnTypeName, executableElement,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_INSERTION_METHODS)
 
         val (entities, params) = delegate.extractParams(
-            targetEntityType = annotation?.getAsTypeMirror("entity"),
+            targetEntityType = annotation?.getAsType("entity"),
             missingParamError = ProcessorErrors.INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT,
             onValidatePartialEntity = { entity, pojo ->
                 val missingPrimaryKeys = entity.primaryKey.fields.any {

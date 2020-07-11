@@ -20,11 +20,6 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.ext.RoomTypeNames.ROOM_SQL_QUERY
 import androidx.room.ext.RoomTypeNames.STRING_UTIL
-import androidx.room.ext.asDeclaredType
-import androidx.room.ext.asExecutableElement
-import androidx.room.ext.asTypeElement
-import androidx.room.ext.getAllMethods
-import androidx.room.ext.hasAnnotation
 import androidx.room.processor.QueryMethodProcessor
 import androidx.room.testing.TestProcessor
 import androidx.room.writer.QueryWriter
@@ -306,9 +301,7 @@ class QueryWriterTest {
                                     .getElementsAnnotatedWith(Dao::class.java)
                                     .map {
                                         Pair(it,
-                                            it.asTypeElement().getAllMethods(
-                                                invocation.processingEnv
-                                            ).filter {
+                                            it.asTypeElement().getAllMethods().filter {
                                                 it.hasAnnotation(Query::class)
                                             }
                                         )
@@ -316,7 +309,7 @@ class QueryWriterTest {
                             val parser = QueryMethodProcessor(
                                     baseContext = invocation.context,
                                     containing = owner.asDeclaredType(),
-                                    executableElement = methods.first().asExecutableElement())
+                                    executableElement = methods.first())
                             val method = parser.process()
                             handler(QueryWriter(method))
                             true

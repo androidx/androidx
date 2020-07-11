@@ -16,15 +16,14 @@
 package androidx.room.processor
 
 import androidx.room.Delete
-import androidx.room.ext.name
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XMethodElement
 import androidx.room.vo.DeletionMethod
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.type.DeclaredType
 
 class DeletionMethodProcessor(
     baseContext: Context,
-    val containing: DeclaredType,
-    val executableElement: ExecutableElement
+    val containing: XDeclaredType,
+    val executableElement: XMethodElement
 ) {
     val context = baseContext.fork(executableElement)
 
@@ -44,7 +43,7 @@ class DeletionMethodProcessor(
         )
 
         val (entities, params) = delegate.extractParams(
-            targetEntityType = annotation?.getAsTypeMirror("entity"),
+            targetEntityType = annotation?.getAsType("entity"),
             missingParamError = ProcessorErrors.DELETION_MISSING_PARAMS,
             onValidatePartialEntity = { _, _ -> }
         )

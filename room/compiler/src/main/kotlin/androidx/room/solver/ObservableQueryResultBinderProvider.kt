@@ -17,26 +17,26 @@
 package androidx.room.solver
 
 import androidx.room.parser.ParsedQuery
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.query.result.QueryResultAdapter
 import androidx.room.solver.query.result.QueryResultBinder
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 /**
  * Binder provider class that has common functionality for observables.
  */
 abstract class ObservableQueryResultBinderProvider(val context: Context) :
     QueryResultBinderProvider {
-    protected abstract fun extractTypeArg(declared: DeclaredType): TypeMirror
+    protected abstract fun extractTypeArg(declared: XDeclaredType): XType
     protected abstract fun create(
-        typeArg: TypeMirror,
+        typeArg: XType,
         resultAdapter: QueryResultAdapter?,
         tableNames: Set<String>
     ): QueryResultBinder
 
-    final override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
+    final override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
         val typeArg = extractTypeArg(declared)
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query)
         val tableNames = ((adapter?.accessedTableNames() ?: emptyList()) +

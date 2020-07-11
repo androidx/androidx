@@ -16,11 +16,10 @@
 
 package androidx.room.solver
 
-import androidx.room.ext.requireTypeMirror
-import androidx.room.ext.typeName
+import androidx.room.processing.XProcessingEnv
+import androidx.room.processing.XType
 import androidx.room.processor.Context
 import androidx.room.testing.TestInvocation
-import box
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
@@ -34,8 +33,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import simpleRun
 import testCodeGenScope
-import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.type.TypeMirror
 
 @RunWith(Parameterized::class)
 class BasicColumnTypeAdaptersTest(
@@ -146,8 +143,8 @@ class BasicColumnTypeAdaptersTest(
         val spec = TypeSpec.classBuilder("OutClass")
             .addField(FieldSpec.builder(SQLITE_STMT, "st").build())
             .addField(FieldSpec.builder(CURSOR, "crs").build())
-            .addField(FieldSpec.builder(typeMirror.typeName(), "out").build())
-            .addField(FieldSpec.builder(typeMirror.typeName(), "inp").build())
+            .addField(FieldSpec.builder(typeMirror.typeName, "out").build())
+            .addField(FieldSpec.builder(typeMirror.typeName, "inp").build())
             .addMethod(
                 MethodSpec.methodBuilder("foo")
                     .addCode(scope.builder().build())
@@ -195,14 +192,12 @@ class BasicColumnTypeAdaptersTest(
     }
 
     data class Input(val typeName: TypeName) {
-        fun getTypeMirror(processingEnv: ProcessingEnvironment): TypeMirror {
-            return processingEnv.requireTypeMirror(typeName)
+        fun getTypeMirror(processingEnv: XProcessingEnv): XType {
+            return processingEnv.requireType(typeName)
         }
 
-        fun getBoxedTypeMirror(processingEnv: ProcessingEnvironment): TypeMirror {
-            return getTypeMirror(processingEnv).box(
-                processingEnv.typeUtils
-            )
+        fun getBoxedTypeMirror(processingEnv: XProcessingEnv): XType {
+            return getTypeMirror(processingEnv).boxed()
         }
     }
 }

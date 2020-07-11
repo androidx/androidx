@@ -49,7 +49,7 @@ compileKotlin {
 }
 androidx {
     name = "AndroidX Room XProcessor"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
     toolingProject = true
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2020"

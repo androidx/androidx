@@ -29,7 +29,7 @@ enum class ForeignKeyAction(val annotationValue: Int, val sqlName: String) {
     CASCADE(ForeignKey.CASCADE, "CASCADE");
     companion object {
         private val mapping by lazy {
-            ForeignKeyAction.values().associateBy { it.annotationValue }
+            values().associateBy { it.annotationValue }
         }
         fun fromAnnotationValue(value: Int?) = mapping[value]
     }

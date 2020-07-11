@@ -18,16 +18,11 @@ package androidx.room.processor
 
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import androidx.room.ext.asDeclaredType
-import androidx.room.ext.asMemberOf
-import androidx.room.ext.getAllMethods
-import androidx.room.ext.getConstructors
-import androidx.room.ext.hasAnnotation
-import androidx.room.ext.isPublic
-import androidx.room.ext.isStatic
-import androidx.room.ext.toAnnotationBox
-import androidx.room.ext.typeName
-import androidx.room.kotlin.KotlinMetadataElement
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XElement
+import androidx.room.processing.XMethodElement
+import androidx.room.processing.XType
+import androidx.room.processing.XTypeElement
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_BAD_RETURN_TYPE
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_EMPTY_CLASS
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
@@ -36,30 +31,20 @@ import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_RECEIVE_1_PAR
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
 import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.vo.CustomTypeConverter
-import asTypeElement
-import isError
-import isNone
-import isType
-import isVoid
 import java.util.LinkedHashSet
-import javax.lang.model.element.Element
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 /**
  * Processes classes that are referenced in TypeConverters annotations.
  */
-class CustomConverterProcessor(val context: Context, val element: TypeElement) {
+class CustomConverterProcessor(val context: Context, val element: XTypeElement) {
     companion object {
-        private fun TypeMirror.isInvalidReturnType() =
+        private fun XType.isInvalidReturnType() =
             isError() || isVoid() || isNone()
 
-        fun findConverters(context: Context, element: Element): ProcessResult {
+        fun findConverters(context: Context, element: XElement): ProcessResult {
             val annotation = element.toAnnotationBox(TypeConverters::class)
             return annotation?.let {
-                val classes = it.getAsTypeMirrorList("value")
+                val classes = it.getAsTypeList("value")
                     .filter { it.isType() }
                     .mapTo(LinkedHashSet()) { it }
                 val converters = classes.flatMap {
@@ -72,7 +57,7 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
 
         private fun reportDuplicates(context: Context, converters: List<CustomTypeConverter>) {
             converters
-                .groupBy { it.from.typeName() to it.to.typeName() }
+                .groupBy { it.from.typeName to it.to.typeName }
                 .filterValues { it.size > 1 }
                 .values.forEach {
                     it.forEach { converter ->
@@ -87,7 +72,7 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
 
     fun process(): List<CustomTypeConverter> {
         // using element utils instead of MoreElements to include statics.
-        val methods = element.getAllMethods(context.processingEnv)
+        val methods = element.getAllMethods()
         val declaredType = element.asDeclaredType()
         val converterMethods = methods.filter {
             it.hasAnnotation(TypeConverter::class)
@@ -95,8 +80,7 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
         context.checker.check(converterMethods.isNotEmpty(), element, TYPE_CONVERTER_EMPTY_CLASS)
         val allStatic = converterMethods.all { it.isStatic() }
         val constructors = element.getConstructors()
-        val kotlinMetadata = KotlinMetadataElement.createFor(context, element)
-        val isKotlinObjectDeclaration = kotlinMetadata?.isObject() == true
+        val isKotlinObjectDeclaration = element.isKotlinObject()
         context.checker.check(
             isKotlinObjectDeclaration || allStatic || constructors.isEmpty() ||
                     constructors.any {
@@ -113,12 +97,11 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
     }
 
     private fun processMethod(
-        container: DeclaredType,
-        methodElement: ExecutableElement,
+        container: XDeclaredType,
+        methodElement: XMethodElement,
         isContainerKotlinObject: Boolean
     ): CustomTypeConverter? {
-        val typeUtils = context.processingEnv.typeUtils
-        val asMember = methodElement.asMemberOf(typeUtils, container)
+        val asMember = methodElement.asMemberOf(container)
         val returnType = asMember.returnType
         val invalidReturnType = returnType.isInvalidReturnType()
         context.checker.check(
@@ -128,7 +111,7 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
             context.logger.e(methodElement, TYPE_CONVERTER_BAD_RETURN_TYPE)
             return null
         }
-        val returnTypeName = returnType.typeName()
+        val returnTypeName = returnType.typeName
         context.checker.notUnbound(
             returnTypeName, methodElement,
             TYPE_CONVERTER_UNBOUND_GENERIC
@@ -139,9 +122,9 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
             return null
         }
         val param = params.map {
-            it.asMemberOf(typeUtils, container)
+            it.asMemberOf(container)
         }.first()
-        context.checker.notUnbound(param.typeName(), params[0], TYPE_CONVERTER_UNBOUND_GENERIC)
+        context.checker.notUnbound(param.typeName, params[0], TYPE_CONVERTER_UNBOUND_GENERIC)
         return CustomTypeConverter(
             enclosingClass = container,
             isEnclosingClassKotlinObject = isContainerKotlinObject,
@@ -155,13 +138,13 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
      * Order of classes is important hence they are a LinkedHashSet not a set.
      */
     open class ProcessResult(
-        val classes: LinkedHashSet<TypeMirror>,
+        val classes: LinkedHashSet<XType>,
         val converters: List<CustomTypeConverterWrapper>
     ) {
         object EMPTY : ProcessResult(LinkedHashSet(), emptyList())
 
         operator fun plus(other: ProcessResult): ProcessResult {
-            val newClasses = LinkedHashSet<TypeMirror>()
+            val newClasses = LinkedHashSet<XType>()
             newClasses.addAll(classes)
             newClasses.addAll(other.classes)
             return ProcessResult(newClasses, converters + other.converters)

@@ -20,9 +20,8 @@ import androidx.room.ext.DEFAULT_IMPLS_CLASS_NAME
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
+import androidx.room.processing.XType
 import com.squareup.javapoet.ClassName
-import isVoid
-import javax.lang.model.type.TypeMirror
 
 /**
  * Method binder that delegates to concrete DAO function in a Kotlin interface.
@@ -32,7 +31,7 @@ object KotlinDefaultMethodDelegateBinder {
         daoName: ClassName,
         daoImplName: ClassName,
         methodName: String,
-        returnType: TypeMirror,
+        returnType: XType,
         parameterNames: List<String>,
         scope: CodeGenScope
     ) {

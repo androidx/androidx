@@ -16,10 +16,10 @@
 
 package androidx.room.processor
 
-import androidx.room.ext.name
-import androidx.room.ext.toAnnotationBox
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
+import androidx.room.processing.XType
+import androidx.room.processing.XTypeElement
 import androidx.room.processor.EntityProcessor.Companion.createIndexName
 import androidx.room.processor.EntityProcessor.Companion.extractForeignKeys
 import androidx.room.processor.EntityProcessor.Companion.extractIndices
@@ -38,15 +38,10 @@ import androidx.room.vo.PrimaryKey
 import androidx.room.vo.Warning
 import androidx.room.vo.columnNames
 import androidx.room.vo.findFieldByColumnName
-import asTypeElement
-import isNone
-import isNotNone
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.TypeMirror
 
 class TableEntityProcessor internal constructor(
     baseContext: Context,
-    val element: TypeElement,
+    val element: XTypeElement,
     private val referenceStack: LinkedHashSet<String> = LinkedHashSet()
 ) : EntityProcessor {
     val context = baseContext.fork(element)
@@ -96,7 +91,8 @@ class TableEntityProcessor internal constructor(
                         it.indexed = false
                         context.logger.w(Warning.INDEX_FROM_EMBEDDED_FIELD_IS_DROPPED, it.element,
                                 ProcessorErrors.droppedEmbeddedFieldIndex(
-                                        it.getPath(), element.qualifiedName.toString()))
+                                        it.getPath(), element.qualifiedName
+                                ))
                         null
                     } else if (it.element.enclosingElement != element && !inheritSuperIndices) {
                         it.indexed = false
@@ -114,7 +110,7 @@ class TableEntityProcessor internal constructor(
                         )
                     }
                 }
-        val superIndices = loadSuperIndices(element.superclass, tableName, inheritSuperIndices)
+        val superIndices = loadSuperIndices(element.superType, tableName, inheritSuperIndices)
         val indexInputs = entityIndices + fieldIndices + superIndices
         val indices = validateAndCreateIndices(indexInputs, pojo)
 
@@ -311,7 +307,7 @@ class TableEntityProcessor internal constructor(
                             Warning.PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED,
                             grandParentField,
                             ProcessorErrors.embeddedPrimaryKeyIsDropped(
-                                    element.qualifiedName.toString(), field.name))
+                                element.qualifiedName, field.name))
                     null
                 } else {
                     PrimaryKey(declaredIn = field.element.enclosingElement,
@@ -326,7 +322,7 @@ class TableEntityProcessor internal constructor(
      * Check classes for @Entity(primaryKeys = ?).
      */
     private fun collectPrimaryKeysFromEntityAnnotations(
-        typeElement: TypeElement,
+        typeElement: XTypeElement,
         availableFields: List<Field>
     ): List<PrimaryKey> {
         val myPkeys = typeElement.toAnnotationBox(androidx.room.Entity::class)?.let {
@@ -347,7 +343,7 @@ class TableEntityProcessor internal constructor(
             }
         } ?: emptyList()
         // checks supers.
-        val mySuper = typeElement.superclass
+        val mySuper = typeElement.superType
         val superPKeys = if (mySuper != null && mySuper.isNotNone()) {
             // my super cannot see my fields so remove them.
             val remainingFields = availableFields.filterNot {
@@ -379,7 +375,7 @@ class TableEntityProcessor internal constructor(
     // pkey, if so, use it.
     private fun choosePrimaryKey(
         candidates: List<PrimaryKey>,
-        typeElement: TypeElement
+        typeElement: XTypeElement
     ): PrimaryKey {
         // If 1 of these primary keys is declared in this class, then it is the winner. Just print
         //    a note for the others.
@@ -398,7 +394,7 @@ class TableEntityProcessor internal constructor(
             myPKeys.first()
         } else if (myPKeys.isEmpty()) {
             // i have not declared anything, delegate to super
-            val mySuper = typeElement.superclass
+            val mySuper = typeElement.superType
             if (mySuper != null && mySuper.isNotNone()) {
                 return choosePrimaryKey(candidates, mySuper.asTypeElement())
             }
@@ -449,7 +445,8 @@ class TableEntityProcessor internal constructor(
                             embedded.field.element, ProcessorErrors.droppedEmbeddedIndex(
                             entityName = embedded.pojo.typeName.toString(),
                             fieldPath = embedded.field.getPath(),
-                            grandParent = element.qualifiedName.toString()))
+                            grandParent = element.qualifiedName
+                        ))
                 }
             }
         }
@@ -458,7 +455,7 @@ class TableEntityProcessor internal constructor(
 
     // check if parent is an Entity, if so, report its annotation indices
     private fun loadSuperIndices(
-        typeMirror: TypeMirror?,
+        typeMirror: XType?,
         tableName: String,
         inherit: Boolean
     ): List<IndexInput> {
@@ -483,11 +480,12 @@ class TableEntityProcessor internal constructor(
                 context.logger.w(Warning.INDEX_FROM_PARENT_IS_DROPPED,
                         parentElement,
                         ProcessorErrors.droppedSuperClassIndex(
-                                childEntity = element.qualifiedName.toString(),
-                                superEntity = parentElement.qualifiedName.toString()))
+                                childEntity = element.qualifiedName,
+                                superEntity = parentElement.qualifiedName
+                        ))
                 emptyList()
             }
         } ?: emptyList()
-        return myIndices + loadSuperIndices(parentElement.superclass, tableName, inherit)
+        return myIndices + loadSuperIndices(parentElement.superType, tableName, inherit)
     }
 }

@@ -16,13 +16,13 @@
 
 package androidx.room.vo
 
-import javax.lang.model.element.ExecutableElement
+import androidx.room.processing.XMethodElement
 
 /**
  * Represents a DAO method that delegates to a concrete implementation, such as a concrete function
  * in a Kotlin interface.
  */
 data class KotlinDefaultMethodDelegate(
-    val element: ExecutableElement,
-    val delegateElement: ExecutableElement
+    val element: XMethodElement,
+    val delegateElement: XMethodElement
 )

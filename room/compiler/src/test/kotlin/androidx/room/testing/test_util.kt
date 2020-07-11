@@ -26,7 +26,9 @@ import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RoomRxJava3TypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
-import androidx.room.ext.asTypeElement
+import androidx.room.processing.XElement
+import androidx.room.processing.XType
+import androidx.room.processing.XVariableElement
 import androidx.room.processor.DatabaseViewProcessor
 import androidx.room.processor.TableEntityProcessor
 import androidx.room.solver.CodeGenScope
@@ -41,16 +43,11 @@ import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ClassName
-import org.mockito.Mockito
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import java.io.File
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.Locale
-import javax.lang.model.element.Element
-import javax.lang.model.element.VariableElement
-import javax.lang.model.type.TypeKind
-import javax.lang.model.type.TypeMirror
 import javax.tools.JavaFileObject
 import javax.tools.StandardLocation
 import javax.tools.ToolProvider.getSystemJavaCompiler
@@ -188,7 +185,7 @@ object COMMON {
     }
 }
 fun testCodeGenScope(): CodeGenScope {
-    return CodeGenScope(Mockito.mock(ClassWriter::class.java))
+    return CodeGenScope(mock(ClassWriter::class.java))
 }
 
 fun simpleRun(
@@ -220,7 +217,7 @@ fun loadJavaCode(fileName: String, qName: String): JavaFileObject {
 }
 
 fun createVerifierFromEntitiesAndViews(invocation: TestInvocation): DatabaseVerifier {
-    return DatabaseVerifier.create(invocation.context, Mockito.mock(Element::class.java),
+    return DatabaseVerifier.create(invocation.context, mock(XElement::class.java),
             invocation.getEntities(), invocation.getViews())!!
 }
 
@@ -238,14 +235,13 @@ fun TestInvocation.getEntities(): List<androidx.room.vo.Entity> {
 }
 
 /**
- * Create mocks of [Element] and [TypeMirror] so that they can be used for instantiating a fake
+ * Create mocks of [XElement] and [XType] so that they can be used for instantiating a fake
  * [androidx.room.vo.Field].
  */
-fun mockElementAndType(): Pair<VariableElement, TypeMirror> {
-    val element = mock(VariableElement::class.java)
-    val type = mock(TypeMirror::class.java)
-    doReturn(TypeKind.DECLARED).`when`(type).kind
-    doReturn(type).`when`(element).asType()
+fun mockElementAndType(): Pair<XVariableElement, XType> {
+    val element = mock(XVariableElement::class.java)
+    val type = mock(XType::class.java)
+    doReturn(type).`when`(element).type
     return element to type
 }
 

@@ -16,8 +16,6 @@
 
 package androidx.room.processor.autovalue
 
-import androidx.room.ext.isMethod
-import androidx.room.ext.requireTypeElement
 import androidx.room.processor.FieldProcessor
 import androidx.room.processor.PojoProcessor
 import androidx.room.processor.ProcessorErrors
@@ -28,6 +26,7 @@ import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
 import compileLibrarySources
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -84,7 +83,7 @@ class AutoValuePojoProcessorDelegateTest {
         ) { pojo ->
             assertThat(pojo.type.toString(), `is`("foo.bar.MyPojo"))
             assertThat(pojo.fields.size, `is`(1))
-            assertThat(pojo.constructor?.element?.isMethod(), `is`(true))
+            assertThat(pojo.constructor?.element, `is`(notNullValue()))
         }.compilesWithoutError().withWarningCount(0)
     }
 

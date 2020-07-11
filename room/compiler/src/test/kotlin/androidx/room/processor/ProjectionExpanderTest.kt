@@ -16,7 +16,6 @@
 
 package androidx.room.processor
 
-import androidx.room.ext.asTypeElement
 import androidx.room.parser.SqlParser
 import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.testing.TestInvocation

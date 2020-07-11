@@ -16,7 +16,7 @@
 
 package androidx.room.ext
 
-import box
+import androidx.room.processing.XExecutableElement
 import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
@@ -25,7 +25,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import simpleRun
-import javax.lang.model.element.ExecutableElement
 
 @RunWith(JUnit4::class)
 class ElementExtTest {
@@ -65,7 +64,7 @@ class ElementExtTest {
             val parent = it.processingEnv.requireTypeElement("foo.bar.Parent")
             val child = it.processingEnv.requireTypeElement("foo.bar.Child")
             val objectMethods = it.processingEnv.requireTypeElement("java.lang.Object")
-                .getAllMethods(it.processingEnv).map {
+                .getAllMethods().map {
                     it.name
                 } - "registerNatives"
             val parentMethods = listOf(
@@ -77,9 +76,9 @@ class ElementExtTest {
                 "childStaticPublic", "overridden"
             )
             assertThat(parent.getDeclaredMethods()).containsExactlyElementsIn(parentMethods)
-            assertThat(parent.getAllMethods(it.processingEnv))
+            assertThat(parent.getAllMethods())
                 .containsExactlyElementsIn(parentMethods + objectMethods)
-            assertThat(parent.getAllNonPrivateInstanceMethods(it.processingEnv))
+            assertThat(parent.getAllNonPrivateInstanceMethods())
                 .containsExactlyElementsIn(
                     parentMethods + objectMethods -
                             listOf("parentPrivate", "parentStaticPrivate", "parentStaticPublic")
@@ -88,12 +87,12 @@ class ElementExtTest {
             assertThat(child.getDeclaredMethods()).containsExactlyElementsIn(
                 childMethods
             )
-            assertThat(child.getAllMethods(it.processingEnv)).containsExactlyElementsIn(
+            assertThat(child.getAllMethods()).containsExactlyElementsIn(
                 childMethods + parentMethods + objectMethods -
                         listOf("parentPrivate", "parentStaticPrivate", "overridden") +
                         "overridden" // add 1 overridden back
             )
-            assertThat(child.getAllNonPrivateInstanceMethods(it.processingEnv))
+            assertThat(child.getAllNonPrivateInstanceMethods())
                 .containsExactlyElementsIn(
                     childMethods + parentMethods + objectMethods -
                             listOf(
@@ -140,7 +139,7 @@ class ElementExtTest {
             val parent = it.processingEnv.requireTypeElement("foo.bar.Parent")
             val child = it.processingEnv.requireTypeElement("foo.bar.Child")
             val objectMethods = it.processingEnv.requireTypeElement("java.lang.Object")
-                .getAllMethods(it.processingEnv).map {
+                .getAllMethods().map {
                     it.name
                 } - listOf("registerNatives", "clone", "finalize")
             val parentMethods = listOf(
@@ -151,19 +150,19 @@ class ElementExtTest {
             )
             assertThat(parent.getDeclaredMethods())
                 .containsExactlyElementsIn(parentMethods)
-            assertThat(parent.getAllMethods(it.processingEnv))
+            assertThat(parent.getAllMethods())
                 .containsExactlyElementsIn(parentMethods + objectMethods)
-            assertThat(parent.getAllNonPrivateInstanceMethods(it.processingEnv))
+            assertThat(parent.getAllNonPrivateInstanceMethods())
                 .containsExactly("parentPublic", "overridden")
 
             assertThat(child.getDeclaredMethods())
                 .containsExactlyElementsIn(childMethods)
-            assertThat(child.getAllMethods(it.processingEnv)).containsExactlyElementsIn(
+            assertThat(child.getAllMethods()).containsExactlyElementsIn(
                 childMethods + parentMethods + objectMethods -
                         listOf("parentStaticPrivate", "parentStaticPublic", "overridden") +
                         "overridden" // add 1 overridden back
             )
-            assertThat(child.getAllNonPrivateInstanceMethods(it.processingEnv))
+            assertThat(child.getAllNonPrivateInstanceMethods())
                 .containsExactly(
                     "childPublic", "parentPublic", "overridden"
                 )
@@ -191,7 +190,7 @@ class ElementExtTest {
             jfos = *arrayOf(testCode)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
-            val field = element.getAllFieldsIncludingPrivateSupers(it.processingEnv)
+            val field = element.getAllFieldsIncludingPrivateSupers()
                 .first {
                     it.name == "field"
                 }
@@ -199,9 +198,9 @@ class ElementExtTest {
                 .first {
                     it.name == "method"
                 }
-            assertThat(field.type.typeName()).isEqualTo(TypeName.INT)
-            assertThat(method.returnType.typeName()).isEqualTo(TypeName.INT)
-            assertThat(element.type.typeName()).isEqualTo(ClassName.get("foo.bar", "Baz"))
+            assertThat(field.type.typeName).isEqualTo(TypeName.INT)
+            assertThat(method.returnType.typeName).isEqualTo(TypeName.INT)
+            assertThat(element.type.typeName).isEqualTo(ClassName.get("foo.bar", "Baz"))
         }.compilesWithoutError()
     }
 
@@ -221,17 +220,17 @@ class ElementExtTest {
         simpleRun { invocation ->
             val processingEnv = invocation.processingEnv
             primitiveTypeNames.forEach { primitiveTypeName ->
-                val typeMirror = processingEnv.requireTypeMirror(primitiveTypeName)
-                assertThat(typeMirror.kind.isPrimitive).isTrue()
-                assertThat(typeMirror.typeName()).isEqualTo(primitiveTypeName)
+                val typeMirror = processingEnv.requireType(primitiveTypeName)
+                assertThat(typeMirror.isPrimitive()).isTrue()
+                assertThat(typeMirror.typeName).isEqualTo(primitiveTypeName)
                 assertThat(
-                    typeMirror.box(invocation.typeUtils).typeName()
+                    typeMirror.boxed().typeName
                 ).isEqualTo(primitiveTypeName.box())
             }
         }.compilesWithoutError()
     }
 
-    private fun assertThat(executables: Iterable<ExecutableElement>) = assertThat(
+    private fun assertThat(executables: Iterable<XExecutableElement>) = assertThat(
         executables.map { it.name }
     )
 }

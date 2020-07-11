@@ -16,30 +16,27 @@
 
 package androidx.room.solver.binderprovider
 
-import androidx.room.ext.findTypeMirror
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XType
 import androidx.room.processor.Context
 import androidx.room.solver.ObservableQueryResultBinderProvider
 import androidx.room.solver.RxType
 import androidx.room.solver.query.result.QueryResultAdapter
 import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.query.result.RxQueryResultBinder
-import erasure
-import isAssignableFrom
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 class RxQueryResultBinderProvider private constructor(
     context: Context,
     private val rxType: RxType
 ) : ObservableQueryResultBinderProvider(context) {
-    private val typeMirror: TypeMirror? by lazy {
-        context.processingEnv.findTypeMirror(rxType.className)
+    private val typeMirror: XType? by lazy {
+        context.processingEnv.findType(rxType.className)
     }
 
-    override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
+    override fun extractTypeArg(declared: XDeclaredType): XType = declared.typeArguments.first()
 
     override fun create(
-        typeArg: TypeMirror,
+        typeArg: XType,
         resultAdapter: QueryResultAdapter?,
         tableNames: Set<String>
     ): QueryResultBinder {
@@ -51,16 +48,15 @@ class RxQueryResultBinderProvider private constructor(
         )
     }
 
-    override fun matches(declared: DeclaredType): Boolean =
+    override fun matches(declared: XDeclaredType): Boolean =
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
-    private fun matchesRxType(declared: DeclaredType): Boolean {
+    private fun matchesRxType(declared: XDeclaredType): Boolean {
         if (typeMirror == null) {
             return false
         }
-        val typeUtils = context.processingEnv.typeUtils
-        val erasure = declared.erasure(typeUtils)
-        return erasure.isAssignableFrom(typeUtils, typeMirror!!)
+        val erasure = declared.erasure()
+        return erasure.isAssignableFrom(typeMirror!!)
     }
 
     companion object {

@@ -18,10 +18,11 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.RoomProcessor
-import androidx.room.ext.asTypeElement
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XTypeElement
 import androidx.room.solver.query.result.EntityRowAdapter
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.testing.TestInvocation
@@ -49,8 +50,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import java.io.File
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
 import javax.tools.JavaFileObject
 import javax.tools.StandardLocation
 
@@ -913,14 +912,14 @@ class DatabaseProcessorTest {
 
                     val list = views.map { (viewName, names) ->
                         DatabaseView(
-                            element = mock(TypeElement::class.java),
+                            element = mock(XTypeElement::class.java),
                             viewName = viewName,
                             query = ParsedQuery(
                                 "", QueryType.SELECT, emptyList(),
                                 names.map { Table(it, it) }.toSet(),
                                 emptyList(), false
                             ),
-                            type = mock(DeclaredType::class.java),
+                            type = mock(XDeclaredType::class.java),
                             fields = emptyList(),
                             embeddedFields = emptyList(),
                             constructor = null

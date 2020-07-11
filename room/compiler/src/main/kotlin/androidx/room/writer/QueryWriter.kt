@@ -103,7 +103,7 @@ class QueryWriter constructor(
                     }
                 }
 
-                addStatement("final $T $L = $L.toString()", String::class.typeName(),
+                addStatement("final $T $L = $L.toString()", String::class.typeName,
                         outSqlQueryName, stringBuilderVar)
                 if (outArgsName != null) {
                     val argCount = scope.getTmpVar("_argCount")
@@ -114,7 +114,7 @@ class QueryWriter constructor(
                             argCount)
                 }
             } else {
-                addStatement("final $T $L = $S", String::class.typeName(),
+                addStatement("final $T $L = $S", String::class.typeName,
                         outSqlQueryName, query.queryWithReplacedBindParams)
                 if (outArgsName != null) {
                     addStatement("final $T $L = $T.acquire($L, $L)",

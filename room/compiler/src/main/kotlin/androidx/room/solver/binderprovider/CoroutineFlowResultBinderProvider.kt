@@ -18,15 +18,13 @@ package androidx.room.solver.binderprovider
 
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.RoomCoroutinesTypeNames
-import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
+import androidx.room.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.query.result.CoroutineFlowResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
-import erasure
-import javax.lang.model.type.DeclaredType
 
 @Suppress("FunctionName")
 fun CoroutineFlowResultBinderProvider(context: Context): QueryResultBinderProvider =
@@ -49,7 +47,7 @@ private class CoroutineFlowResultBinderProviderImpl(
         )
     }
 
-    override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
         val typeArg = declared.typeArguments.first()
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query)
         val tableNames = ((adapter?.accessedTableNames() ?: emptyList()) +
@@ -60,11 +58,11 @@ private class CoroutineFlowResultBinderProviderImpl(
         return CoroutineFlowResultBinder(typeArg, tableNames, adapter)
     }
 
-    override fun matches(declared: DeclaredType): Boolean {
+    override fun matches(declared: XDeclaredType): Boolean {
         if (declared.typeArguments.size != 1) {
             return false
         }
-        val typeName = declared.erasure(context.processingEnv.typeUtils).typeName()
+        val typeName = declared.erasure().typeName
         if (typeName in CHANNEL_TYPE_NAMES) {
             context.logger.e(ProcessorErrors.invalidChannelType(typeName.toString()))
             return false
