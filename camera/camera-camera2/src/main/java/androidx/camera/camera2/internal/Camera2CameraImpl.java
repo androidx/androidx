@@ -631,14 +631,33 @@ final class Camera2CameraImpl implements CameraInternal {
     @Override
     public void attachUseCases(@NonNull Collection<UseCase> useCases) {
         if (!useCases.isEmpty()) {
-            mCameraControlInternal.setActive(true);
-            mExecutor.execute(() -> tryAttachUseCases(useCases));
+            /*
+             * Increase the camera control use count so that camera control can accept requests
+             * immediately before posting to the executor. The use count should be increased
+             * again during the posted tryAttachUseCases task. After the posted task, decrease the
+             * use count to recover the additional increment here.
+             */
+            mCameraControlInternal.incrementUseCount();
+            try {
+                mExecutor.execute(() -> {
+                    try {
+                        tryAttachUseCases(useCases);
+                    } finally {
+                        mCameraControlInternal.decrementUseCount();
+                    }
+                });
+            } catch (RejectedExecutionException e) {
+                debugLog("Unable to attach use cases.", e);
+                mCameraControlInternal.decrementUseCount();
+            }
         }
     }
 
     // Attempts to make use attach if they are not already attached.
     @ExecutedBy("mExecutor")
     private void tryAttachUseCases(@NonNull Collection<UseCase> toAdd) {
+        final boolean attachUseCaseFromEmpty =
+                mUseCaseAttachState.getAttachedSessionConfigs().isEmpty();
         // Figure out which use cases are not already attached and add them.
         List<UseCase> useCasesToAttach = new ArrayList<>();
         for (UseCase useCase : toAdd) {
@@ -662,6 +681,12 @@ final class Camera2CameraImpl implements CameraInternal {
         }
 
         debugLog("Use cases [" + TextUtils.join(", ", useCasesToAttach) + "] now ATTACHED");
+
+        if (attachUseCaseFromEmpty) {
+            // Notify camera control when first use case is attached
+            mCameraControlInternal.setActive(true);
+            mCameraControlInternal.incrementUseCount();
+        }
 
         notifyStateAttachedToUseCases(useCasesToAttach);
 
@@ -756,8 +781,12 @@ final class Camera2CameraImpl implements CameraInternal {
 
         boolean allUseCasesDetached = mUseCaseAttachState.getAttachedSessionConfigs().isEmpty();
         if (allUseCasesDetached) {
-            mCameraControlInternal.setActive(false);
+            mCameraControlInternal.decrementUseCount();
             resetCaptureSession(/*abortInFlightCaptures=*/false);
+            // Call CameraControl#setActive(false) after CaptureSession is closed can prevent
+            // calling updateCaptureSessionConfig() from CameraControl, which may cause
+            // unnecessary repeating request update.
+            mCameraControlInternal.setActive(false);
             // If all detached, manual nullify session config to avoid
             // memory leak. See: https://issuetracker.google.com/issues/141188637
             mCaptureSession = new CaptureSession();

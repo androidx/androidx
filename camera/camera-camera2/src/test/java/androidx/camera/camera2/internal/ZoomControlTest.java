@@ -90,7 +90,8 @@ public class ZoomControlTest {
         mCamera2CameraControl = spy(new Camera2CameraControl(cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class)));
-        mZoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics);
+        mZoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
+                CameraXExecutors.mainThreadExecutor());
         mZoomControl.setActive(true);
 
         ArgumentCaptor<Camera2CameraControl.CaptureResultListener> argumentCaptor =
@@ -385,7 +386,7 @@ public class ZoomControlTest {
     @Test
     public void setZoomRatio_whenInActive_operationCanceled() {
         mZoomControl.setActive(false);
-        ListenableFuture<Void> listenableFuture = mZoomControl.setZoomRatio(0.5f);
+        ListenableFuture<Void> listenableFuture = mZoomControl.setZoomRatio(1.0f);
 
         try {
             listenableFuture.get(1000, TimeUnit.MILLISECONDS);
@@ -475,7 +476,8 @@ public class ZoomControlTest {
         mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class));
-        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics);
+        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
+                CameraXExecutors.mainThreadExecutor());
         zoomControl.setActive(true);
 
         zoomControl.setZoomRatio(3.0f);
@@ -496,7 +498,8 @@ public class ZoomControlTest {
         mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class));
-        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics);
+        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
+                CameraXExecutors.mainThreadExecutor());
         zoomControl.setActive(true);
 
         zoomControl.setZoomRatio(0.2f);
@@ -518,7 +521,8 @@ public class ZoomControlTest {
         mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class));
-        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics);
+        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
+                CameraXExecutors.mainThreadExecutor());
         zoomControl.setActive(true);
 
         zoomControl.setLinearZoom(0.4f);
@@ -540,7 +544,8 @@ public class ZoomControlTest {
         mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class));
-        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics);
+        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
+                CameraXExecutors.mainThreadExecutor());
         zoomControl.setActive(true);
 
         zoomControl.setLinearZoom(0.3f);
@@ -563,7 +568,8 @@ public class ZoomControlTest {
         mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class));
-        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics);
+        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
+                CameraXExecutors.mainThreadExecutor());
         zoomControl.setActive(true);
 
         zoomControl.setLinearZoom(0.3f);
