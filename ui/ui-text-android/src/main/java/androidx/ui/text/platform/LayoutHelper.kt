@@ -231,19 +231,12 @@ class LayoutHelper(val layout: Layout) {
         val paraNo = getParagraphForOffset(offset)
         val isParaRtl = isRTLParagraph(paraNo)
 
-        val bidi = analyzeBidi(paraNo)
-        if (bidi == null) { // easy case. All directions are the same
-            return if (lineStart == offset) {
-                if (isParaRtl) layout.getLineRight(lineNo) else layout.getLineLeft(lineNo)
-            } else {
-                if (isParaRtl) layout.getLineLeft(lineNo) else layout.getLineRight(lineNo)
-            }
-        }
-
-        val lineBidi = bidi.createLineBidi(lineStart, lineEnd)
-        if (lineBidi.runCount == 1) { // still easy case. All the same direction in a line
-            // True if start offset locate left edge, otherwise false.
-            val isStartLeft = if (usePrimaryDirection || isParaRtl == lineBidi.isRightToLeft) {
+        // Use line visible end for creating bidi object since invisible whitespaces should not be
+        // considered for location retrieval.
+        val lineBidi = analyzeBidi(paraNo)?.createLineBidi(lineStart, lineEndToVisibleEnd(lineEnd))
+        if (lineBidi == null || lineBidi.runCount == 1) { // easy case. All directions are the same
+            val runDirection = layout.isRtlCharAt(lineStart)
+            val isStartLeft = if (usePrimaryDirection || isParaRtl == runDirection) {
                 !isParaRtl
             } else {
                 isParaRtl
@@ -336,4 +329,22 @@ class LayoutHelper(val layout: Layout) {
     }
 
     private data class BidiRun(val start: Int, val end: Int, val isRtl: Boolean)
+
+    // Convert line end offset to the offset that is the last visible character.
+    private fun lineEndToVisibleEnd(lineEnd: Int): Int {
+        var visibleEnd = lineEnd
+        while (visibleEnd > 0) {
+            if (isLineEndSpace(layout.text.get(visibleEnd - 1 /* visibleEnd is exclusive */))) {
+                visibleEnd--
+            } else {
+                break
+            }
+        }
+        return visibleEnd
+    }
+
+    // Same set of spaces that Android framework treats as line-end spacing. In most case, it is
+    // whitespace or line feed character, hence checking linearly should be enough.
+    private fun isLineEndSpace(c: Char) = c == ' ' || c == '\n' || c == '\u1680' ||
+            (c in '\u2000'..'\u200A' && c != '\u2007') || c == '\u205F' || c == '\u3000'
 }
