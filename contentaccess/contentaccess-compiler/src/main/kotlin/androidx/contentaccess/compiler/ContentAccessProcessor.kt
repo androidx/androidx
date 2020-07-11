@@ -26,10 +26,13 @@ import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
 import javax.annotation.processing.Processor
 import com.google.auto.service.AutoService
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
 import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 
 @AutoService(Processor::class)
-// TODO(obenabde): Make this Gradle incremental
+@IncrementalAnnotationProcessor(ISOLATING)
+// TODO(obenabde): write incrementality tests.
 class ContentAccessProcessor : BasicAnnotationProcessor() {
 
     override fun initSteps(): MutableIterable<ProcessingStep>? {
