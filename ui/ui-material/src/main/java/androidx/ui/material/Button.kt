@@ -21,11 +21,14 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.compose.remember
 import androidx.ui.foundation.Border
-import androidx.ui.foundation.Box
+import androidx.ui.foundation.IndicationAmbient
+import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.clickable
+import androidx.ui.foundation.indication
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
@@ -91,30 +94,38 @@ fun Button(
     padding: InnerPadding = ButtonConstants.DefaultInnerPadding,
     content: @Composable RowScope.() -> Unit
 ) {
+    // TODO(aelias): Avoid manually putting the clickable above the clip and
+    // the ripple below the clip once http://b/157687898 is fixed and we have
+    // more flexibility to move the clickable modifier (see candidate approach
+    // aosp/1361921)
+    val interactionState = remember { InteractionState() }
     Surface(
         shape = shape,
         color = if (enabled) backgroundColor else disabledBackgroundColor,
         contentColor = if (enabled) contentColor else disabledContentColor,
         border = border,
-        elevation = if (enabled) elevation else disabledElevation
+        elevation = if (enabled) elevation else disabledElevation,
+        modifier = modifier.clickable(
+            onClick = onClick,
+            enabled = enabled,
+            interactionState = interactionState,
+            indication = null)
     ) {
-        // TODO(aelias): Remove this Box after b/157687898 is fixed
-        Box(Modifier.clickable(onClick = onClick, enabled = enabled)) {
-            ProvideTextStyle(
-                value = MaterialTheme.typography.button
-            ) {
-                Row(
-                    modifier
-                        .defaultMinSizeConstraints(
-                            minWidth = ButtonConstants.DefaultMinWidth,
-                            minHeight = ButtonConstants.DefaultMinHeight
-                        )
-                        .padding(padding),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalGravity = Alignment.CenterVertically,
-                    children = content
-                )
-            }
+        ProvideTextStyle(
+            value = MaterialTheme.typography.button
+        ) {
+            Row(
+                Modifier
+                    .defaultMinSizeConstraints(
+                        minWidth = ButtonConstants.DefaultMinWidth,
+                        minHeight = ButtonConstants.DefaultMinHeight
+                    )
+                    .indication(interactionState, IndicationAmbient.current())
+                    .padding(padding),
+                horizontalArrangement = Arrangement.Center,
+                verticalGravity = Alignment.CenterVertically,
+                children = content
+            )
         }
     }
 }

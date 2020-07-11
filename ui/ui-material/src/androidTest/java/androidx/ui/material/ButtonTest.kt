@@ -606,6 +606,30 @@ class ButtonTest {
     }
 
     @Test
+    fun weightModifierOnButton() {
+        var item1Bounds = PxBounds(0f, 0f, 0f, 0f)
+        var buttonBounds = PxBounds(0f, 0f, 0f, 0f)
+        composeTestRule.setMaterialContent {
+            Column {
+                Spacer(Modifier.size(10.dp).weight(1f).onPositioned {
+                    item1Bounds = it.boundsInRoot
+                })
+
+                Button(onClick = {}, modifier = Modifier.weight(1f).onPositioned {
+                    buttonBounds = it.boundsInRoot
+                }) {
+                    Text("Button")
+                }
+
+                Spacer(Modifier.size(10.dp).weight(1f))
+            }
+        }
+
+        assertThat(item1Bounds.top).isNotEqualTo(0f)
+        assertThat(buttonBounds.left).isEqualTo(0f)
+    }
+
+    @Test
     fun buttonContentIsRow() {
         var buttonBounds = PxBounds(0f, 0f, 0f, 0f)
         var item1Bounds = PxBounds(0f, 0f, 0f, 0f)

@@ -30,7 +30,10 @@ import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.graphics.Color
+import androidx.ui.layout.Column
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
+import androidx.ui.layout.size
 import androidx.ui.layout.preferredSize
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
@@ -45,6 +48,7 @@ import androidx.ui.test.performClick
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
 import androidx.ui.test.runOnIdle
+import androidx.ui.unit.PxBounds
 import androidx.ui.unit.center
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
@@ -136,6 +140,30 @@ class FloatingActionButtonTest {
         onNodeWithTag("FAB")
             .assertWidthIsEqualTo(48.dp)
             .assertHeightIsEqualTo(48.dp)
+    }
+
+    @Test
+    fun fab_weightModifier() {
+        var item1Bounds = PxBounds(0f, 0f, 0f, 0f)
+        var buttonBounds = PxBounds(0f, 0f, 0f, 0f)
+        composeTestRule.setMaterialContent {
+            Column {
+                Spacer(Modifier.size(10.dp).weight(1f).onPositioned {
+                    item1Bounds = it.boundsInRoot
+                })
+
+                FloatingActionButton(onClick = {}, modifier = Modifier.weight(1f).onPositioned {
+                    buttonBounds = it.boundsInRoot
+                }) {
+                    Text("Button")
+                }
+
+                Spacer(Modifier.size(10.dp).weight(1f))
+            }
+        }
+
+        assertThat(item1Bounds.top).isNotEqualTo(0f)
+        assertThat(buttonBounds.left).isEqualTo(0f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
