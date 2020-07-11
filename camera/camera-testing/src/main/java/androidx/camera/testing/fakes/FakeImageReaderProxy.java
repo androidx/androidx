@@ -17,6 +17,7 @@
 package androidx.camera.testing.fakes;
 
 import android.graphics.ImageFormat;
+import android.graphics.SurfaceTexture;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -44,6 +45,7 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     private int mHeight = 100;
     private int mImageFormat = ImageFormat.JPEG;
     private final int mMaxImages;
+
     private Surface mSurface;
 
     @Nullable
@@ -159,6 +161,11 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     @NonNull
     @Override
     public Surface getSurface() {
+        // Create a Surface using a SurfaceTexture since getSurface() requires a non-null value.
+        // However, this Surface shouldn't really be used since it isn't hooked up to anything
+        if (mSurface == null) {
+            mSurface = new Surface(new SurfaceTexture(0));
+        }
         return mSurface;
     }
 
