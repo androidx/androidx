@@ -601,8 +601,9 @@ public class PopupMenuTest {
         onView(withClassName(Matchers.is(DROP_DOWN_CLASS_NAME))).check(doesNotExist());
     }
 
+    // Broken on API 30 b/151920359
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = 29)
     public void testHoverSelectsMenuItem() throws Throwable {
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
 
