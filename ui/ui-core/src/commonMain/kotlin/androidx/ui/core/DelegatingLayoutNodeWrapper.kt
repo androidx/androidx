@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import androidx.ui.core.focus.ModifiedFocusNode
+import androidx.ui.core.focus.ModifiedFocusNode2
 import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.geometry.Offset
@@ -116,7 +117,11 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
 
     override fun findPreviousFocusWrapper() = wrappedBy?.findPreviousFocusWrapper()
 
+    override fun findPreviousFocusWrapper2() = wrappedBy?.findPreviousFocusWrapper2()
+
     override fun findNextFocusWrapper() = wrapped.findNextFocusWrapper()
+
+    override fun findNextFocusWrapper2() = wrapped.findNextFocusWrapper2()
 
     override fun findLastFocusWrapper(): ModifiedFocusNode? {
         var lastFocusWrapper: ModifiedFocusNode? = null
@@ -126,6 +131,18 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
         while (next != null) {
             lastFocusWrapper = next
             next = next.wrapped.findNextFocusWrapper()
+        }
+        return lastFocusWrapper
+    }
+
+    override fun findLastFocusWrapper2(): ModifiedFocusNode2? {
+        var lastFocusWrapper: ModifiedFocusNode2? = null
+
+        // Find last focus wrapper for the current layout node.
+        var next: ModifiedFocusNode2? = findNextFocusWrapper2()
+        while (next != null) {
+            lastFocusWrapper = next
+            next = next.wrapped.findNextFocusWrapper2()
         }
         return lastFocusWrapper
     }
