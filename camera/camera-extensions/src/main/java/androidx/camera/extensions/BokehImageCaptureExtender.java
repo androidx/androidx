@@ -36,7 +36,8 @@ public class BokehImageCaptureExtender extends ImageCaptureExtender {
      * @param builder Builder that will be used to create the configurations for the
      * {@link androidx.camera.core.ImageCapture}.
      */
-    public static BokehImageCaptureExtender create(ImageCapture.Builder builder) {
+    @NonNull
+    public static BokehImageCaptureExtender create(@NonNull ImageCapture.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorBokehImageCaptureExtender(builder);

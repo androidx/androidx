@@ -36,7 +36,8 @@ public class BokehPreviewExtender extends PreviewExtender {
      * @param builder Builder that will be used to create the configurations for the
      *                {@link androidx.camera.core.Preview}.
      */
-    public static BokehPreviewExtender create(Preview.Builder builder) {
+    @NonNull
+    public static BokehPreviewExtender create(@NonNull Preview.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorBokehPreviewExtender(builder);

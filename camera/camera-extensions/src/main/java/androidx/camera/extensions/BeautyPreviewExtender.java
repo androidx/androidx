@@ -36,7 +36,8 @@ public class BeautyPreviewExtender extends PreviewExtender {
      * @param builder Builder that will be used to create the configurations for the
      *                {@link androidx.camera.core.Preview}.
      */
-    public static BeautyPreviewExtender create(Preview.Builder builder) {
+    @NonNull
+    public static BeautyPreviewExtender create(@NonNull Preview.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorBeautyPreviewExtender(builder);

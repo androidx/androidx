@@ -35,7 +35,8 @@ public class HdrImageCaptureExtender extends ImageCaptureExtender {
      * @param builder Builder that will be used to create the configurations for the
      * {@link androidx.camera.core.ImageCapture}.
      */
-    public static HdrImageCaptureExtender create(ImageCapture.Builder builder) {
+    @NonNull
+    public static HdrImageCaptureExtender create(@NonNull ImageCapture.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorHdrImageCaptureExtender(builder);

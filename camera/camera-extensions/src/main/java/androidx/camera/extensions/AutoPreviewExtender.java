@@ -36,7 +36,8 @@ public class AutoPreviewExtender extends PreviewExtender {
      * @param builder Builder that will be used to create the configurations for the
      *                {@link androidx.camera.core.Preview}.
      */
-    public static AutoPreviewExtender create(Preview.Builder builder) {
+    @NonNull
+    public static AutoPreviewExtender create(@NonNull Preview.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorAutoPreviewExtender(builder);
