@@ -16,6 +16,7 @@
 
 package androidx.room.processor
 
+import androidx.room.ext.name
 import androidx.room.ext.toAnnotationBox
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
@@ -40,14 +41,13 @@ import androidx.room.vo.findFieldByColumnName
 import asTypeElement
 import isNone
 import isNotNone
-import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 
 class TableEntityProcessor internal constructor(
     baseContext: Context,
     val element: TypeElement,
-    private val referenceStack: LinkedHashSet<Name> = LinkedHashSet()
+    private val referenceStack: LinkedHashSet<String> = LinkedHashSet()
 ) : EntityProcessor {
     val context = baseContext.fork(element)
 
@@ -71,7 +71,7 @@ class TableEntityProcessor internal constructor(
             inheritSuperIndices = annotationBox.value.inheritSuperIndices
             foreignKeyInputs = extractForeignKeys(annotationBox)
         } else {
-            tableName = element.simpleName.toString()
+            tableName = element.name
             foreignKeyInputs = emptyList()
             entityIndices = emptyList()
             inheritSuperIndices = false

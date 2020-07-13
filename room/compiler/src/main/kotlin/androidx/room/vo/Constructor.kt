@@ -22,6 +22,7 @@ import androidx.room.ext.asDeclaredType
 import androidx.room.ext.isConstructor
 import androidx.room.ext.isMethod
 import androidx.room.ext.kindName
+import androidx.room.ext.name
 import androidx.room.ext.typeName
 import com.squareup.javapoet.CodeBlock
 import javax.lang.model.element.ExecutableElement
@@ -52,7 +53,7 @@ data class Constructor(val element: ExecutableElement, val params: List<Param>) 
             element.isMethod() -> {
                 builder.addStatement("$L = $T.$L($L)", outVar,
                         element.enclosingElement.asDeclaredType().typeName(),
-                        element.simpleName.toString(), args)
+                        element.name, args)
             }
             else -> throw IllegalStateException("Invalid constructor kind ${element.kindName()}")
         }

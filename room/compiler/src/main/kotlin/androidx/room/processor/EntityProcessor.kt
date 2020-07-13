@@ -22,9 +22,9 @@ import androidx.room.Fts3
 import androidx.room.Fts4
 import androidx.room.ext.AnnotationBox
 import androidx.room.ext.hasAnyOf
+import androidx.room.ext.name
 import androidx.room.vo.ForeignKeyAction
 import androidx.room.vo.Index
-import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 
@@ -34,7 +34,7 @@ interface EntityProcessor : EntityOrViewProcessor {
     companion object {
         fun extractTableName(element: TypeElement, annotation: Entity): String {
             return if (annotation.tableName == "") {
-                element.simpleName.toString()
+                element.name
             } else {
                 annotation.tableName
             }
@@ -98,7 +98,7 @@ data class ForeignKeyInput(
 fun EntityProcessor(
     context: Context,
     element: TypeElement,
-    referenceStack: LinkedHashSet<Name> = LinkedHashSet()
+    referenceStack: LinkedHashSet<String> = LinkedHashSet()
 ): EntityProcessor {
     return if (element.hasAnyOf(Fts3::class, Fts4::class)) {
         FtsTableEntityProcessor(context, element, referenceStack)

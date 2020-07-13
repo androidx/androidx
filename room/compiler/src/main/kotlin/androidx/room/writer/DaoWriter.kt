@@ -23,6 +23,7 @@ import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.asDeclaredType
 import androidx.room.ext.isInterface
+import androidx.room.ext.name
 import androidx.room.processor.OnConflictProcessor
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.KotlinDefaultMethodDelegateBinder
@@ -439,9 +440,9 @@ class DaoWriter(
             KotlinDefaultMethodDelegateBinder.executeAndReturn(
                 daoName = dao.typeName,
                 daoImplName = dao.implTypeName,
-                methodName = method.delegateElement.simpleName.toString(),
+                methodName = method.delegateElement.name,
                 returnType = method.element.returnType,
-                parameterNames = method.element.parameters.map { it.simpleName.toString() },
+                parameterNames = method.element.parameters.map { it.name },
                 scope = scope)
             addCode(scope.builder().build())
         }.build()

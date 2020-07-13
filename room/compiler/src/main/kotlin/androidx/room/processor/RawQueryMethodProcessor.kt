@@ -22,6 +22,7 @@ import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.asMemberOf
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.isEntityElement
+import androidx.room.ext.name
 import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.type
@@ -60,7 +61,7 @@ class RawQueryMethodProcessor(
         val inTransaction = executableElement.hasAnnotation(Transaction::class)
         val rawQueryMethod = RawQueryMethod(
                 element = executableElement,
-                name = executableElement.simpleName.toString(),
+                name = executableElement.name,
                 observedTableNames = observedTableNames,
                 returnType = returnType,
                 runtimeQueryParam = runtimeQueryParam,
@@ -115,7 +116,7 @@ class RawQueryMethodProcessor(
             val isSupportSql = supportQueryType.isAssignableFrom(types, param)
             if (isSupportSql) {
                 return RawQueryMethod.RuntimeQueryParameter(
-                        paramName = extractParams[0].simpleName.toString(),
+                        paramName = extractParams[0].name,
                         type = supportQueryType.typeName())
             }
             val stringType = processingEnv.requireTypeMirror("java.lang.String")

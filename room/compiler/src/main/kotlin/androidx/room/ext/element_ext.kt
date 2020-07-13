@@ -405,7 +405,7 @@ fun ExecutableElement.findKotlinDefaultImpl(typeUtils: Types): ExecutableElement
         it.isType() && it.simpleName.contentEquals(DEFAULT_IMPLS_CLASS_NAME)
     } as? TypeElement ?: return null
     return innerClass.getDeclaredMethods().find {
-        it.simpleName == this.simpleName && paramsMatch(this.parameters, it.parameters)
+        it.name == this.name && paramsMatch(this.parameters, it.parameters)
     }
 }
 
@@ -525,3 +525,6 @@ val TypeElement.type: DeclaredType
 
 val ExecutableElement.executableType: ExecutableType
     get() = MoreTypes.asExecutable(asType())
+
+val Element.name: String
+    get() = simpleName.toString()

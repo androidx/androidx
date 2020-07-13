@@ -19,6 +19,7 @@ package androidx.room.processor
 import androidx.room.OnConflictStrategy.IGNORE
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Update
+import androidx.room.ext.name
 import androidx.room.vo.UpdateMethod
 import androidx.room.vo.findFieldByColumnName
 import javax.lang.model.element.ExecutableElement
@@ -66,7 +67,7 @@ class UpdateMethodProcessor(
 
         return UpdateMethod(
                 element = delegate.executableElement,
-                name = delegate.executableElement.simpleName.toString(),
+                name = delegate.executableElement.name,
                 entities = entities,
                 onConflictStrategy = onConflict,
                 methodBinder = methodBinder,

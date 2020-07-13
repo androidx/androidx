@@ -19,6 +19,7 @@ package androidx.room.processor
 import androidx.room.ext.asMemberOf
 import androidx.room.ext.extendsBound
 import androidx.room.ext.getAllNonPrivateInstanceMethods
+import androidx.room.ext.name
 import androidx.room.ext.requireTypeMirror
 import androidx.room.vo.ShortcutQueryParameter
 import asDeclaredType
@@ -45,7 +46,7 @@ class ShortcutParameterProcessor(
             context.processingEnv.typeUtils,
             containing
         )
-        val name = element.simpleName.toString()
+        val name = element.name
         context.checker.check(!name.startsWith("_"), element,
                 ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE)
 
@@ -78,7 +79,7 @@ class ShortcutParameterProcessor(
 
         fun extractPojoTypeFromIterator(iterableType: DeclaredType): TypeMirror {
             iterableType.asTypeElement().getAllNonPrivateInstanceMethods(processingEnv).forEach {
-                if (it.simpleName.toString() == "iterator") {
+                if (it.name == "iterator") {
                     return it.asMemberOf(typeUtils, iterableType)
                         .returnType
                         .asDeclaredType()
