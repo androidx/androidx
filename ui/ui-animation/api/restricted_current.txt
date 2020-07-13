@@ -115,7 +115,6 @@ package androidx.ui.animation {
     return <init>(IntSize(1, 1))
 }), kotlin.jvm.functions.Function1<? super androidx.ui.unit.IntSize,kotlin.Unit>? endListener = null);
     method @androidx.compose.Composable public static <T extends androidx.animation.AnimationVector> T animate(T target, androidx.animation.AnimationSpec<T> animSpec = remember({ 
-    android.util.Log.w("LTD", "visibility threshold: " + visibilityThreshold)
     return <init>(visibilityThreshold)
 }), T? visibilityThreshold = null, kotlin.jvm.functions.Function1<? super T,kotlin.Unit>? endListener = null);
     method @androidx.compose.Composable public static <T, V extends androidx.animation.AnimationVector> T! animate(T? target, androidx.animation.TwoWayConverter<T,V> converter, androidx.animation.AnimationSpec<T> animSpec = remember({ 
