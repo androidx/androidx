@@ -84,6 +84,7 @@ final class SupportedSurfaceCombination {
     private final CamcorderProfileHelper mCamcorderProfileHelper;
     private final CameraCharacteristics mCharacteristics;
     private final int mHardwareLevel;
+    private final Map<Integer, List<Size>> mExcludedSizeListCache = new HashMap<>();
     private boolean mIsRawSupported = false;
     private boolean mIsBurstCaptureSupported = false;
     private SurfaceSizeDefinition mSurfaceSizeDefinition;
@@ -687,6 +688,12 @@ final class SupportedSurfaceCombination {
                     "Can not get supported output size for the format: " + imageFormat);
         }
 
+        // Remove sizes that may cause problem.
+        List<Size> excludedSizes = fetchExcludedSizes(imageFormat);
+        List<Size> resultSizesList = new ArrayList<>(Arrays.asList(outputSizes));
+        resultSizesList.removeAll(excludedSizes);
+        outputSizes = resultSizesList.toArray(new Size[0]);
+
         // Sort the output sizes. The Comparator result must be reversed to have a descending order
         // result.
         Arrays.sort(outputSizes, new CompareSizesByArea(true));
@@ -1138,6 +1145,18 @@ final class SupportedSurfaceCombination {
         }
 
         return recordSize;
+    }
+
+    @NonNull
+    private List<Size> fetchExcludedSizes(int imageFormat) {
+        List<Size> excludedSizes = mExcludedSizeListCache.get(imageFormat);
+
+        if (excludedSizes == null) {
+            excludedSizes = SupportedSizeConstraints.getExcludedSizes(mCameraId, imageFormat);
+            mExcludedSizeListCache.put(imageFormat, excludedSizes);
+        }
+
+        return excludedSizes;
     }
 
     /** Comparator based on area of the given {@link Size} objects. */
