@@ -36,7 +36,8 @@ public class AutoImageCaptureExtender extends ImageCaptureExtender {
      * @param builder Builder that will be used to create the configurations for the
      * {@link androidx.camera.core.ImageCapture}.
      */
-    public static AutoImageCaptureExtender create(ImageCapture.Builder builder) {
+    @NonNull
+    public static AutoImageCaptureExtender create(@NonNull ImageCapture.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorAutoImageCaptureExtender(builder);
