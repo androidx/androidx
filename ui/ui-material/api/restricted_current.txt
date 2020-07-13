@@ -19,6 +19,14 @@ package androidx.ui.material {
     method @androidx.compose.Composable public static void TopAppBar-oP-1cd0(androidx.ui.core.Modifier modifier = Modifier, long backgroundColor = MaterialTheme.colors.primarySurface, long contentColor = contentColorFor(backgroundColor), float elevation = androidx.ui.material.AppBarKt.TopAppBarElevation, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> content);
   }
 
+  public enum BottomDrawerState {
+    method public static androidx.ui.material.BottomDrawerState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.material.BottomDrawerState[] values();
+    enum_constant public static final androidx.ui.material.BottomDrawerState Closed;
+    enum_constant public static final androidx.ui.material.BottomDrawerState Expanded;
+    enum_constant public static final androidx.ui.material.BottomDrawerState Opened;
+  }
+
   public final class BottomNavigationKt {
     method @androidx.compose.Composable public static void BottomNavigation-oP-1cd0(androidx.ui.core.Modifier modifier = Modifier, long backgroundColor = MaterialTheme.colors.primarySurface, long contentColor = contentColorFor(backgroundColor), float elevation = androidx.ui.material.BottomNavigationKt.BottomNavigationElevation, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> content);
     method @androidx.compose.Composable public static void BottomNavigationItem-dOPBtLY(kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit> text = emptyContent(), boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, androidx.ui.core.Modifier modifier = Modifier, boolean alwaysShowLabels = true, long activeColor = contentColor(), long inactiveColor = EmphasisAmbient.current.medium.applyEmphasis(activeColor));
@@ -105,7 +113,7 @@ package androidx.ui.material {
   }
 
   public final class DrawerKt {
-    method @androidx.compose.Composable public static void BottomDrawerLayout-s-rmCOo(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, boolean gesturesEnabled = true, androidx.ui.graphics.Shape drawerShape = large, float drawerElevation = DrawerConstants.DefaultElevation, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
+    method @androidx.compose.Composable public static void BottomDrawerLayout-8vp1Knk(androidx.ui.material.BottomDrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.BottomDrawerState,kotlin.Unit> onStateChange, boolean gesturesEnabled = true, androidx.ui.graphics.Shape drawerShape = large, float drawerElevation = DrawerConstants.DefaultElevation, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
     method @androidx.compose.Composable public static void ModalDrawerLayout-s-rmCOo(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, boolean gesturesEnabled = true, androidx.ui.graphics.Shape drawerShape = large, float drawerElevation = DrawerConstants.DefaultElevation, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
   }
 
