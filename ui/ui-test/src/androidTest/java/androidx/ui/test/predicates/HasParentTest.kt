@@ -20,9 +20,9 @@ import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.find
-import androidx.ui.test.findAll
-import androidx.ui.test.hasParentThat
+import androidx.ui.test.onNode
+import androidx.ui.test.onAllNodes
+import androidx.ui.test.hasParent
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.util.BoundaryNode
 import org.junit.Rule
@@ -47,7 +47,7 @@ class HasParentTest {
             }
         }
 
-        find(hasParentThat(hasTestTag("Parent")))
+        onNode(hasParent(hasTestTag("Parent")))
             .assert(hasTestTag("Child"))
     }
 
@@ -61,7 +61,7 @@ class HasParentTest {
             }
         }
 
-        findAll(hasParentThat(hasTestTag("Parent")))
+        onAllNodes(hasParent(hasTestTag("Parent")))
             .assertCountEquals(2)
     }
 
@@ -79,7 +79,7 @@ class HasParentTest {
             }
         }
 
-        findAll(hasParentThat(hasTestTag("Parent")))
+        onAllNodes(hasParent(hasTestTag("Parent")))
             .assertCountEquals(4)
     }
 
@@ -93,7 +93,7 @@ class HasParentTest {
             }
         }
 
-        find(hasParentThat(hasTestTag("Parent"))
+        onNode(hasParent(hasTestTag("Parent"))
                 and hasTestTag("Child"))
             .assertDoesNotExist()
     }
@@ -108,7 +108,7 @@ class HasParentTest {
             }
         }
 
-        find(hasParentThat(hasParentThat(hasTestTag("Parent"))))
+        onNode(hasParent(hasParent(hasTestTag("Parent"))))
             .assert(hasTestTag("Child"))
     }
 }

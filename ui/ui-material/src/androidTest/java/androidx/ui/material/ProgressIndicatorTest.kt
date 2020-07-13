@@ -27,7 +27,7 @@ import androidx.ui.test.assertRangeInfoEquals
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.dp
 import org.junit.Ignore
@@ -56,7 +56,7 @@ class ProgressIndicatorTest {
                 LinearProgressIndicator(modifier = Modifier.testTag(tag), progress = progress.value)
             }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertValueEquals("0 percent")
             .assertRangeInfoEquals(AccessibilityRangeInfo(0f, 0f..1f))
@@ -65,7 +65,7 @@ class ProgressIndicatorTest {
             progress.value = 0.5f
         }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertValueEquals("50 percent")
             .assertRangeInfoEquals(AccessibilityRangeInfo(0.5f, 0f..1f))
@@ -91,7 +91,7 @@ class ProgressIndicatorTest {
                 LinearProgressIndicator(modifier = Modifier.testTag(tag))
             }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertValueEquals(Strings.InProgress)
     }
 
@@ -119,7 +119,7 @@ class ProgressIndicatorTest {
                 )
             }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertValueEquals("0 percent")
             .assertRangeInfoEquals(AccessibilityRangeInfo(0f, 0f..1f))
@@ -128,7 +128,7 @@ class ProgressIndicatorTest {
             progress.value = 0.5f
         }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertValueEquals("50 percent")
             .assertRangeInfoEquals(AccessibilityRangeInfo(0.5f, 0f..1f))
@@ -153,7 +153,7 @@ class ProgressIndicatorTest {
                 CircularProgressIndicator(modifier = Modifier.testTag(tag))
             }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertValueEquals(Strings.InProgress)
     }
 

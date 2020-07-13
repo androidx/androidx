@@ -50,12 +50,12 @@ import androidx.ui.material.setMaterialContent
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.doGesture
-import androidx.ui.test.doSendImeAction
-import androidx.ui.test.findByTag
+import androidx.ui.test.performClick
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendClick
+import androidx.ui.test.click
+import androidx.ui.test.performImeAction
 import androidx.ui.test.waitForIdle
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.unit.IntSize
@@ -112,14 +112,14 @@ class OutlinedTextFieldTest {
             }
         }
 
-        findByTag(textField1Tag).doClick()
+        onNodeWithTag(textField1Tag).performClick()
 
         runOnIdleCompose {
             assertThat(textField1Focused).isTrue()
             assertThat(textField2Focused).isFalse()
         }
 
-        findByTag(textField2Tag).doClick()
+        onNodeWithTag(textField2Tag).performClick()
 
         runOnIdleCompose {
             assertThat(textField1Focused).isFalse()
@@ -143,8 +143,8 @@ class OutlinedTextFieldTest {
         }
 
         // Click on (2, 2) which is a background area and outside input area
-        findByTag(TextfieldTag).doGesture {
-            sendClick(Offset(2f, 2f))
+        onNodeWithTag(TextfieldTag).performGesture {
+            click(Offset(2f, 2f))
         }
 
         testRule.runOnIdleComposeWithDensity {
@@ -388,7 +388,7 @@ class OutlinedTextFieldTest {
         }
 
         // click to focus
-        findByTag(TextfieldTag).doClick()
+        onNodeWithTag(TextfieldTag).performClick()
     }
 
     @Test
@@ -593,7 +593,7 @@ class OutlinedTextFieldTest {
             }
         }
 
-        findByTag(TextfieldTag)
+        onNodeWithTag(TextfieldTag)
             .captureToBitmap()
             .assertShape(
                 density = testRule.density,
@@ -622,8 +622,8 @@ class OutlinedTextFieldTest {
         }
         assertThat(controller).isNull()
 
-        findByTag(TextfieldTag)
-            .doClick()
+        onNodeWithTag(TextfieldTag)
+            .performClick()
 
         runOnIdleCompose {
             assertThat(controller).isNotNull()
@@ -648,8 +648,8 @@ class OutlinedTextFieldTest {
         }
         assertThat(controller).isNull()
 
-        findByTag(TextfieldTag)
-            .doSendImeAction()
+        onNodeWithTag(TextfieldTag)
+            .performImeAction()
 
         runOnIdleCompose {
             assertThat(controller).isNotNull()
@@ -657,7 +657,7 @@ class OutlinedTextFieldTest {
     }
 
     private fun clickAndAdvanceClock(tag: String, time: Long) {
-        findByTag(tag).doClick()
+        onNodeWithTag(tag).performClick()
         waitForIdle()
         testRule.clockTestRule.pauseClock()
         testRule.clockTestRule.advanceClock(time)

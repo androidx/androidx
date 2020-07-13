@@ -58,7 +58,7 @@ import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findRoot
+import androidx.ui.test.onRoot
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -447,7 +447,7 @@ class PainterModifierTest {
             )
         }
 
-        findRoot()
+        onRoot()
             .assertWidthIsEqualTo(composableWidth.dp)
             .assertHeightIsEqualTo(composableHeight.dp)
     }
@@ -567,7 +567,7 @@ class PainterModifierTest {
     }
 
     private fun obtainScreenshotBitmap(width: Int, height: Int = width): Bitmap {
-        val bitmap = findRoot().captureToBitmap()
+        val bitmap = onRoot().captureToBitmap()
         Assert.assertEquals(width, bitmap.width)
         Assert.assertEquals(height, bitmap.height)
         return bitmap

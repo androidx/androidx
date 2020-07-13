@@ -33,8 +33,8 @@ import androidx.ui.material.OutlinedTextField
 import androidx.ui.material.setMaterialContent
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.performClick
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -95,8 +95,8 @@ class TextFieldScreenshotTest {
             }
         }
 
-        findByTag(TextFieldTag)
-            .doClick()
+        onNodeWithTag(TextFieldTag)
+            .performClick()
 
         assertAgainstGolden("outlined_textField_focused")
     }
@@ -113,8 +113,8 @@ class TextFieldScreenshotTest {
             }
         }
 
-        findByTag(TextFieldTag)
-            .doClick()
+        onNodeWithTag(TextFieldTag)
+            .performClick()
 
         assertAgainstGolden("outlined_textField_focused_rtl")
     }
@@ -161,8 +161,8 @@ class TextFieldScreenshotTest {
             }
         }
 
-        findByTag(TextFieldTag)
-            .doClick()
+        onNodeWithTag(TextFieldTag)
+            .performClick()
 
         assertAgainstGolden("filled_textField_focused")
     }
@@ -179,14 +179,14 @@ class TextFieldScreenshotTest {
             }
         }
 
-        findByTag(TextFieldTag)
-            .doClick()
+        onNodeWithTag(TextFieldTag)
+            .performClick()
 
         assertAgainstGolden("filled_textField_focused_rtl")
     }
 
     private fun assertAgainstGolden(goldenIdentifier: String) {
-        findByTag(TextFieldTag)
+        onNodeWithTag(TextFieldTag)
             .captureToBitmap()
             .assertAgainstGolden(screenshotRule, goldenIdentifier)
     }

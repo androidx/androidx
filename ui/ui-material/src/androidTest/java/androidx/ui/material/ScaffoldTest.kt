@@ -46,12 +46,12 @@ import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
-import androidx.ui.test.sendSwipeLeft
-import androidx.ui.test.sendSwipeRight
+import androidx.ui.test.swipeLeft
+import androidx.ui.test.swipeRight
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.toSize
@@ -200,12 +200,12 @@ class ScaffoldTest {
             }
         }
         assertThat(drawerChildPosition.x).isLessThan(0f)
-        findByTag(scaffoldTag).doGesture {
-            sendSwipeRight()
+        onNodeWithTag(scaffoldTag).performGesture {
+            swipeRight()
         }
         assertThat(drawerChildPosition.x).isLessThan(0f)
-        findByTag(scaffoldTag).doGesture {
-            sendSwipeLeft()
+        onNodeWithTag(scaffoldTag).performGesture {
+            swipeLeft()
         }
         assertThat(drawerChildPosition.x).isLessThan(0f)
 
@@ -213,12 +213,12 @@ class ScaffoldTest {
             scaffoldState.isDrawerGesturesEnabled = true
         }
 
-        findByTag(scaffoldTag).doGesture {
-            sendSwipeRight()
+        onNodeWithTag(scaffoldTag).performGesture {
+            swipeRight()
         }
         assertThat(drawerChildPosition.x).isEqualTo(0f)
-        findByTag(scaffoldTag).doGesture {
-            sendSwipeLeft()
+        onNodeWithTag(scaffoldTag).performGesture {
+            swipeLeft()
         }
         assertThat(drawerChildPosition.x).isLessThan(0f)
     }
@@ -367,7 +367,7 @@ class ScaffoldTest {
             }
         }
 
-        findByTag("Scaffold")
+        onNodeWithTag("Scaffold")
             .captureToBitmap().apply {
                 // asserts the appbar(top half part) has the shadow
                 val yPos = height / 2 + 2

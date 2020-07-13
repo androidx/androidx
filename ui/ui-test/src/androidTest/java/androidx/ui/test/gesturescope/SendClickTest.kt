@@ -28,10 +28,10 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.test.ActivityWithActionBar
 import androidx.ui.test.android.AndroidComposeTestRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendClick
+import androidx.ui.test.click
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.RecordingFilter
 import com.google.common.truth.Truth.assertThat
@@ -126,11 +126,11 @@ class SendClickTest(private val config: TestConfig) {
     }
 
     private fun click(tag: String) {
-        findByTag(tag).doGesture {
+        onNodeWithTag(tag).performGesture {
             if (config.position != null) {
-                sendClick(config.position)
+                click(config.position)
             } else {
-                sendClick()
+                click()
             }
         }
     }

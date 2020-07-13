@@ -30,7 +30,7 @@ import androidx.ui.layout.size
 import androidx.ui.test.ComposeTestRule
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
@@ -99,7 +99,7 @@ class DrawerScreenshotTest {
     }
 
     private fun assertScreenshotAgainstGolden(goldenName: String) {
-        findByTag("container")
+        onNodeWithTag("container")
             .captureToBitmap()
             .assertAgainstGolden(screenshotRule, goldenName)
     }

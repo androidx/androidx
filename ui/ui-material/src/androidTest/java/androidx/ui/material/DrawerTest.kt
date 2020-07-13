@@ -38,17 +38,17 @@ import androidx.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.globalBounds
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
-import androidx.ui.test.sendClick
-import androidx.ui.test.sendSwipe
-import androidx.ui.test.sendSwipeDown
-import androidx.ui.test.sendSwipeLeft
-import androidx.ui.test.sendSwipeRight
-import androidx.ui.test.sendSwipeUp
+import androidx.ui.test.click
+import androidx.ui.test.swipe
+import androidx.ui.test.swipeDown
+import androidx.ui.test.swipeLeft
+import androidx.ui.test.swipeRight
+import androidx.ui.test.swipeUp
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
 import androidx.ui.unit.width
@@ -77,7 +77,7 @@ class DrawerTest {
             }, bodyContent = emptyContent())
         }
 
-        findByTag("content")
+        onNodeWithTag("content")
             .assertLeftPositionInRootIsEqualTo(0.dp)
     }
 
@@ -106,7 +106,7 @@ class DrawerTest {
             }, bodyContent = emptyContent())
         }
 
-        findByTag("content")
+        onNodeWithTag("content")
             .assertWidthIsEqualTo(rootWidth() - 56.dp)
     }
 
@@ -121,7 +121,7 @@ class DrawerTest {
         val width = rootWidth()
         val height = rootHeight()
         val expectedHeight = if (width > height) 0.dp else (height / 2)
-        findByTag("content")
+        onNodeWithTag("content")
             .assertTopPositionInRootIsEqualTo(expectedHeight)
     }
 
@@ -213,7 +213,7 @@ class DrawerTest {
         }
 
         // Click in the middle of the drawer (which is the middle of the body)
-        findByTag("Drawer").doGesture { sendClick() }
+        onNodeWithTag("Drawer").performGesture { click() }
 
         runOnIdleCompose {
             assertThat(drawerClicks).isEqualTo(0)
@@ -224,10 +224,10 @@ class DrawerTest {
         sleep(100) // TODO(147586311): remove this sleep when opening the drawer triggers a wait
 
         // Click on the left-center pixel of the drawer
-        findByTag("Drawer").doGesture {
+        onNodeWithTag("Drawer").performGesture {
             val left = 1.0f
             val centerY = (globalBounds.height / 2)
-            sendClick(Offset(left, centerY))
+            click(Offset(left, centerY))
         }
 
         runOnIdleCompose {
@@ -309,7 +309,7 @@ class DrawerTest {
         }
 
         // Click in the middle of the drawer (which is the middle of the body)
-        findByTag("Drawer").doGesture { sendClick() }
+        onNodeWithTag("Drawer").performGesture { click() }
 
         runOnIdleCompose {
             assertThat(drawerClicks).isEqualTo(0)
@@ -322,11 +322,11 @@ class DrawerTest {
         sleep(100) // TODO(147586311): remove this sleep when opening the drawer triggers a wait
 
         // Click on the bottom-center pixel of the drawer
-        findByTag("Drawer").doGesture {
+        onNodeWithTag("Drawer").performGesture {
             val bounds = globalBounds
             val centerX = bounds.width / 2
             val bottom = bounds.height - 1.0f
-            sendClick(Offset(centerX, bottom))
+            click(Offset(centerX, bottom))
         }
 
         assertThat(drawerClicks).isEqualTo(1)
@@ -349,15 +349,15 @@ class DrawerTest {
             }
         }
 
-        findByTag("Drawer")
-            .doGesture { sendSwipeRight() }
+        onNodeWithTag("Drawer")
+            .performGesture { swipeRight() }
 
         runOnIdleCompose {
             assertThat(drawerState.value).isEqualTo(DrawerState.Opened)
         }
 
-        findByTag("Drawer")
-            .doGesture { sendSwipeLeft() }
+        onNodeWithTag("Drawer")
+            .performGesture { swipeLeft() }
 
         runOnIdleCompose {
             assertThat(drawerState.value).isEqualTo(DrawerState.Closed)
@@ -380,15 +380,15 @@ class DrawerTest {
             }
         }
 
-        findByTag("Drawer")
-            .doGesture { sendSwipeLeft() }
+        onNodeWithTag("Drawer")
+            .performGesture { swipeLeft() }
 
         runOnIdleCompose {
             assertThat(drawerState.value).isEqualTo(DrawerState.Opened)
         }
 
-        findByTag("Drawer")
-            .doGesture { sendSwipeRight() }
+        onNodeWithTag("Drawer")
+            .performGesture { swipeRight() }
 
         runOnIdleCompose {
             assertThat(drawerState.value).isEqualTo(DrawerState.Closed)
@@ -411,15 +411,15 @@ class DrawerTest {
             }
         }
 
-        findByTag("Drawer")
-            .doGesture { sendSwipeUp() }
+        onNodeWithTag("Drawer")
+            .performGesture { swipeUp() }
 
         runOnIdleCompose {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Expanded)
         }
 
-        findByTag("Drawer")
-            .doGesture { sendSwipeDown() }
+        onNodeWithTag("Drawer")
+            .performGesture { swipeDown() }
 
         runOnIdleCompose {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Closed)
@@ -443,68 +443,68 @@ class DrawerTest {
         }
         val threshold = with (composeTestRule.density) { BottomDrawerThreshold.toPx() }
 
-        findByTag("Drawer")
-            .doGesture { sendSwipeUpBy(threshold / 2) }
+        onNodeWithTag("Drawer")
+            .performGesture { swipeUpBy(threshold / 2) }
 
         runOnIdleCompose {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Closed)
         }
 
-        findByTag("Drawer")
-            .doGesture { sendSwipeUpBy(threshold) }
+        onNodeWithTag("Drawer")
+            .performGesture { swipeUpBy(threshold) }
 
         runOnIdleCompose {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Opened)
         }
 
-        findByTag("Drawer")
-            .doGesture { sendSwipeUpBy(threshold / 2) }
+        onNodeWithTag("Drawer")
+            .performGesture { swipeUpBy(threshold / 2) }
 
         runOnIdleCompose {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Opened)
         }
 
-        findByTag("Drawer")
-            .doGesture { sendSwipeUpBy(threshold) }
+        onNodeWithTag("Drawer")
+            .performGesture { swipeUpBy(threshold) }
 
         runOnIdleCompose {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Expanded)
         }
 
-        findByTag("Drawer")
-            .doGesture { sendSwipeDownBy(threshold / 2) }
+        onNodeWithTag("Drawer")
+            .performGesture { swipeDownBy(threshold / 2) }
 
         runOnIdleCompose {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Expanded)
         }
 
-        findByTag("Drawer")
-            .doGesture { sendSwipeDownBy(threshold) }
+        onNodeWithTag("Drawer")
+            .performGesture { swipeDownBy(threshold) }
 
         runOnIdleCompose {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Opened)
         }
 
-        findByTag("Drawer")
-            .doGesture { sendSwipeDownBy(threshold / 2) }
+        onNodeWithTag("Drawer")
+            .performGesture { swipeDownBy(threshold / 2) }
 
         runOnIdleCompose {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Opened)
         }
 
-        findByTag("Drawer")
-            .doGesture { sendSwipeDownBy(threshold) }
+        onNodeWithTag("Drawer")
+            .performGesture { swipeDownBy(threshold) }
 
         runOnIdleCompose {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Closed)
         }
     }
 
-    private fun GestureScope.sendSwipeUpBy(offset: Float) {
-        sendSwipe(center, center.copy(y = center.y - offset))
+    private fun GestureScope.swipeUpBy(offset: Float) {
+        swipe(center, center.copy(y = center.y - offset))
     }
 
-    private fun GestureScope.sendSwipeDownBy(offset: Float) {
-        sendSwipe(center, center.copy(y = center.y + offset))
+    private fun GestureScope.swipeDownBy(offset: Float) {
+        swipe(center, center.copy(y = center.y + offset))
     }
 }

@@ -113,7 +113,7 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
             }
         }
 
-        findByTag("item0")
+        onNodeWithTag("item0")
             .assertIsDisplayed()
     }
 
@@ -125,7 +125,7 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
             }
         }
 
-        findByTag("item4")
+        onNodeWithTag("item4")
             .assertIsNotDisplayed()
     }
 
@@ -140,14 +140,14 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
             }
         }
 
-        findByTag("item0")
+        onNodeWithTag("item0")
             .assertIsDisplayed()
 
         runOnIdleCompose {
             place = false
         }
 
-        findByTag("item0")
+        onNodeWithTag("item0")
             .assertIsNotDisplayed()
     }
 
@@ -164,14 +164,14 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
             }
         }
 
-        findByTag("item0")
+        onNodeWithTag("item0")
             .assertIsDisplayed()
 
         runOnIdleCompose {
             place = false
         }
 
-        findByTag("item0")
+        onNodeWithTag("item0")
             .assertIsNotDisplayed()
     }
 
@@ -183,7 +183,7 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
             }
         }
 
-        findByTag("item9")
+        onNodeWithTag("item9")
             .assertIsNotDisplayed()
     }
 
@@ -208,14 +208,14 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
         }
 
         onComposeView().check(matches(isDisplayed()))
-        findByTag("item0").assertIsDisplayed()
+        onNodeWithTag("item0").assertIsDisplayed()
 
         runOnIdleCompose {
             androidComposeView.visibility = View.GONE
         }
 
         onComposeView().check(matches(not(isDisplayed())))
-        findByTag("item0").assertIsNotDisplayed()
+        onNodeWithTag("item0").assertIsNotDisplayed()
     }
 
     @Test
@@ -240,13 +240,13 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
         }
 
         onComposeView().check(matches(isDisplayed()))
-        findByTag("item0").assertIsDisplayed()
+        onNodeWithTag("item0").assertIsDisplayed()
 
         runOnIdleCompose {
             composeContainer.visibility = View.GONE
         }
 
         onComposeView().check(matches(not(isDisplayed())))
-        findByTag("item0").assertIsNotDisplayed()
+        onNodeWithTag("item0").assertIsNotDisplayed()
     }
 }

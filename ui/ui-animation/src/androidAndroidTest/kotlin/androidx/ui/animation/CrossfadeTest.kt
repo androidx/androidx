@@ -25,7 +25,7 @@ import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.foundation.Text
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByText
+import androidx.ui.test.onNodeWithText
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.waitForIdle
 import org.junit.Assert.assertTrue
@@ -53,7 +53,7 @@ class CrossfadeTest {
         }
         composeTestRule.clockTestRule.advanceClock(DefaultDurationMillis.toLong())
 
-        findByText(First).assertExists()
+        onNodeWithText(First).assertExists()
     }
 
     @Test
@@ -84,8 +84,8 @@ class CrossfadeTest {
             assertTrue(disposed)
         }
 
-        findByText(First).assertDoesNotExist()
-        findByText(Second).assertExists()
+        onNodeWithText(First).assertDoesNotExist()
+        onNodeWithText(Second).assertExists()
     }
 
     @Test
@@ -133,8 +133,8 @@ class CrossfadeTest {
         }
         composeTestRule.clockTestRule.advanceClock(DefaultDurationMillis.toLong())
 
-        findByText(First).assertExists()
-        findByText(Second).assertDoesNotExist()
+        onNodeWithText(First).assertExists()
+        onNodeWithText(Second).assertDoesNotExist()
 
         runOnIdleCompose {
             current = "other"
@@ -144,8 +144,8 @@ class CrossfadeTest {
 
         composeTestRule.clockTestRule.advanceClock(DefaultDurationMillis.toLong())
 
-        findByText(First).assertDoesNotExist()
-        findByText(Second).assertExists()
+        onNodeWithText(First).assertDoesNotExist()
+        onNodeWithText(Second).assertExists()
     }
 
     companion object {

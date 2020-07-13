@@ -29,8 +29,8 @@ import androidx.ui.test.centerRight
 import androidx.ui.test.centerX
 import androidx.ui.test.centerY
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.height
 import androidx.ui.test.left
 import androidx.ui.test.right
@@ -55,7 +55,7 @@ class PositionsTest {
     fun testCornersEdgesAndCenter() {
         composeTestRule.setContent { ClickableTestBox(width = 3f, height = 100f) }
 
-        findByTag(defaultTag).doGesture {
+        onNodeWithTag(defaultTag).performGesture {
             assertThat(width).isEqualTo(3)
             assertThat(height).isEqualTo(100)
 
@@ -83,7 +83,7 @@ class PositionsTest {
     fun testRelativeOffset() {
         composeTestRule.setContent { ClickableTestBox() }
 
-        findByTag(defaultTag).doGesture {
+        onNodeWithTag(defaultTag).performGesture {
             assertThat(percentOffset(.1f, .1f)).isEqualTo(Offset(10f, 10f))
             assertThat(percentOffset(-.2f, 0f)).isEqualTo(Offset(-20f, 0f))
             assertThat(percentOffset(.25f, -.5f)).isEqualTo(Offset(25f, -50f))

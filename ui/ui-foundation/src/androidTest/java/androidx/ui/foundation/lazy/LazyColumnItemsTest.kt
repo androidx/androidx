@@ -39,14 +39,14 @@ import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertIsNotDisplayed
 import androidx.ui.test.center
-import androidx.ui.test.children
+import androidx.ui.test.onChildren
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
-import androidx.ui.test.findByText
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onNodeWithText
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendSwipeUp
-import androidx.ui.test.sendSwipeWithVelocity
+import androidx.ui.test.swipeUp
+import androidx.ui.test.swipeWithVelocity
 import androidx.ui.test.waitForIdle
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
@@ -104,8 +104,8 @@ class LazyColumnItemsTest {
         assertWithMessage("Additional composition occurred for no apparent reason")
             .that(composed).isFalse()
 
-        findByTag(LazyColumnItemsTag)
-            .doGesture { sendSwipeUp() }
+        onNodeWithTag(LazyColumnItemsTag)
+            .performGesture { swipeUp() }
 
         waitForIdle()
 
@@ -223,13 +223,13 @@ class LazyColumnItemsTest {
 
         while (numItems >= 0) {
             // Confirm the number of children to ensure there are no extra items
-            findByTag(tag)
-                .children()
+            onNodeWithTag(tag)
+                .onChildren()
                 .assertCountEquals(numItems)
 
             // Confirm the children's content
             for (i in 1..3) {
-                findByText("$i").apply {
+                onNodeWithText("$i").apply {
                     if (i <= numItems) {
                         assertExists()
                     } else {
@@ -265,13 +265,13 @@ class LazyColumnItemsTest {
 
             // Confirm the number of children to ensure there are no extra items
             val numItems = data.size
-            findByTag(tag)
-                .children()
+            onNodeWithTag(tag)
+                .onChildren()
                 .assertCountEquals(numItems)
 
             // Confirm the children's content
             for (item in data) {
-                findByText("$item").assertExists()
+                onNodeWithText("$item").assertExists()
             }
         }
     }
@@ -299,10 +299,10 @@ class LazyColumnItemsTest {
             }
         }
 
-        findByTag(LazyColumnItemsTag)
+        onNodeWithTag(LazyColumnItemsTag)
             .scrollBy(y = 21.dp, density = composeTestRule.density)
 
-        findByTag(thirdTag)
+        onNodeWithTag(thirdTag)
             .assertExists()
             .assertIsNotDisplayed()
 
@@ -312,23 +312,23 @@ class LazyColumnItemsTest {
 
         waitForIdle()
 
-        findByTag(LazyColumnItemsTag)
+        onNodeWithTag(LazyColumnItemsTag)
             .scrollBy(y = 10.dp, density = composeTestRule.density)
 
-        findByTag(thirdTag)
+        onNodeWithTag(thirdTag)
             .assertIsDisplayed()
     }
 }
 
 internal fun SemanticsNodeInteraction.scrollBy(x: Dp = 0.dp, y: Dp = 0.dp, density: Density) =
-    doGesture {
+    performGesture {
         with(density) {
             val touchSlop = TouchSlop.toIntPx()
             val xPx = x.toIntPx()
             val yPx = y.toIntPx()
             val offsetX = if (xPx > 0) xPx + touchSlop else if (xPx < 0) xPx - touchSlop else 0
             val offsetY = if (yPx > 0) yPx + touchSlop else if (yPx < 0) xPx - touchSlop else 0
-            sendSwipeWithVelocity(
+            swipeWithVelocity(
                 start = center,
                 end = Offset(center.x - offsetX, center.y - offsetY),
                 endVelocity = 0f

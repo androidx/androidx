@@ -39,7 +39,7 @@ import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntSize
@@ -258,7 +258,7 @@ class BoxTest {
                 )
             }
         }
-        val bitmap = findByTag(contentTag).captureToBitmap()
+        val bitmap = onNodeWithTag(contentTag).captureToBitmap()
         bitmap.assertShape(composeTestRule.density, RectangleShape, Color.Red, Color.Red)
     }
 
@@ -278,7 +278,7 @@ class BoxTest {
             }
         }
         with(composeTestRule.density) {
-            val bitmap = findByTag(contentTag).captureToBitmap()
+            val bitmap = onNodeWithTag(contentTag).captureToBitmap()
             bitmap.assertShape(
                 density = composeTestRule.density,
                 shape = RectangleShape,
@@ -306,7 +306,7 @@ class BoxTest {
             }
         }
         with(composeTestRule.density) {
-            val bitmap = findByTag(contentTag).captureToBitmap()
+            val bitmap = onNodeWithTag(contentTag).captureToBitmap()
             bitmap.assertShape(
                 density = composeTestRule.density,
                 shape = CircleShape,
@@ -333,7 +333,7 @@ class BoxTest {
             }
         }
         with(composeTestRule.density) {
-            val bitmap = findByTag(contentTag).captureToBitmap()
+            val bitmap = onNodeWithTag(contentTag).captureToBitmap()
             bitmap.assertShape(
                 density = composeTestRule.density,
                 shape = RectangleShape,
@@ -366,7 +366,7 @@ class BoxTest {
             }
         }
         with(composeTestRule.density) {
-            val bitmap = findByTag(contentTag).captureToBitmap()
+            val bitmap = onNodeWithTag(contentTag).captureToBitmap()
             bitmap.assertShape(
                 density = composeTestRule.density,
                 shape = CircleShape,

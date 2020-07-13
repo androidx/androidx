@@ -142,21 +142,21 @@ class MultipleComposeRootsTest {
         Espresso.onView(withText("Compose 1")).check(matches(isDisplayed()))
         Espresso.onView(withText("Compose 2")).check(matches(isDisplayed()))
 
-        findByTag("checkbox1")
-            .doClick()
+        onNodeWithTag("checkbox1")
+            .performClick()
             .assertIsOn()
 
-        findByTag("checkbox2")
+        onNodeWithTag("checkbox2")
             .assertIsOff()
 
         Espresso.onView(withText("Compose 1 - On")).check(matches(isDisplayed()))
         Espresso.onView(withText("Compose 2 - Off")).check(matches(isDisplayed()))
 
-        findByTag("checkbox2")
-            .doClick()
+        onNodeWithTag("checkbox2")
+            .performClick()
             .assertIsOn()
 
-        findByTag("checkbox1")
+        onNodeWithTag("checkbox1")
             .assertIsOff()
 
         Espresso.onView(withText("Compose 1 - Off")).check(matches(isDisplayed()))

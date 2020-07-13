@@ -23,7 +23,7 @@ import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.partialgesturescope.Common.partialGesture
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendDown
+import androidx.ui.test.down
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.MultiPointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
@@ -36,7 +36,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 
 /**
- * Tests if [sendDown] works
+ * Tests if [down] works
  */
 @MediumTest
 class SendDownTest {
@@ -64,7 +64,7 @@ class SendDownTest {
     @Test
     fun onePointer() {
         // When we put a pointer down
-        partialGesture { sendDown(position1) }
+        partialGesture { down(position1) }
 
         runOnIdleCompose {
             recorder.run {
@@ -80,9 +80,9 @@ class SendDownTest {
     @Test
     fun twoPointers() {
         // When we put two pointers down
-        partialGesture { sendDown(1, position1) }
+        partialGesture { down(1, position1) }
         sleep(20) // (with some time in between)
-        partialGesture { sendDown(2, position2) }
+        partialGesture { down(2, position2) }
 
         runOnIdleCompose {
             recorder.run {
@@ -109,10 +109,10 @@ class SendDownTest {
     @Test
     fun duplicatePointers() {
         // When we inject two down events with the same pointer id
-        partialGesture { sendDown(1, position1) }
+        partialGesture { down(1, position1) }
         // Then the second throws an exception
         expectError<IllegalArgumentException> {
-            partialGesture { sendDown(1, position1) }
+            partialGesture { down(1, position1) }
         }
     }
 }

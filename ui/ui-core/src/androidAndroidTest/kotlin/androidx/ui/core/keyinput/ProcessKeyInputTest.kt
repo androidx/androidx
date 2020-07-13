@@ -24,8 +24,8 @@ import androidx.ui.core.keyinput.Key.Companion.A
 import androidx.ui.core.keyinput.KeyEventType.KeyUp
 import androidx.ui.foundation.Box
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doSendKeyEvent
-import androidx.ui.test.findRoot
+import androidx.ui.test.onRoot
+import androidx.ui.test.performKeyPress
 import androidx.ui.test.runOnIdleCompose
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -48,7 +48,7 @@ class ProcessKeyInputTest {
         }
 
         // Act.
-        findRoot().doSendKeyEvent(keyEvent(A, KeyUp))
+        onRoot().performKeyPress(keyEvent(A, KeyUp))
     }
 
     @Test(expected = IllegalStateException::class)
@@ -59,7 +59,7 @@ class ProcessKeyInputTest {
         }
 
         // Act.
-        findRoot().doSendKeyEvent(keyEvent(A, KeyUp))
+        onRoot().performKeyPress(keyEvent(A, KeyUp))
     }
 
     @Test(expected = IllegalStateException::class)
@@ -71,7 +71,7 @@ class ProcessKeyInputTest {
         }
 
         // Act.
-        findRoot().doSendKeyEvent(keyEvent(A, KeyUp))
+        onRoot().performKeyPress(keyEvent(A, KeyUp))
     }
 
     @Test
@@ -87,7 +87,7 @@ class ProcessKeyInputTest {
         }
 
         // Act.
-        val keyConsumed = findRoot().doSendKeyEvent(keyEvent(A, KeyUp))
+        val keyConsumed = onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
         runOnIdleCompose {
@@ -114,7 +114,7 @@ class ProcessKeyInputTest {
         }
 
         // Act.
-        val keyConsumed = findRoot().doSendKeyEvent(keyEvent(A, KeyUp))
+        val keyConsumed = onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
         runOnIdleCompose {
@@ -142,7 +142,7 @@ class ProcessKeyInputTest {
         }
 
         // Act.
-        val keyConsumed = findRoot().doSendKeyEvent(keyEvent(A, KeyUp))
+        val keyConsumed = onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
         runOnIdleCompose {
@@ -176,7 +176,7 @@ class ProcessKeyInputTest {
         }
 
         // Act.
-        findRoot().doSendKeyEvent(keyEvent(A, KeyUp))
+        onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
         runOnIdleCompose {
@@ -211,7 +211,7 @@ class ProcessKeyInputTest {
         }
 
         // Act.
-        findRoot().doSendKeyEvent(keyEvent(A, KeyUp))
+        onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
         runOnIdleCompose {
@@ -260,7 +260,7 @@ class ProcessKeyInputTest {
         }
 
         // Act.
-        findRoot().doSendKeyEvent(keyEvent(A, KeyUp))
+        onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
         runOnIdleCompose {
@@ -311,7 +311,7 @@ class ProcessKeyInputTest {
         }
 
         // Act.
-        findRoot().doSendKeyEvent(keyEvent(A, KeyUp))
+        onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
         runOnIdleCompose {
@@ -376,7 +376,7 @@ class ProcessKeyInputTest {
         }
 
         // Act.
-        findRoot().doSendKeyEvent(keyEvent(A, KeyUp))
+        onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
         runOnIdleCompose {

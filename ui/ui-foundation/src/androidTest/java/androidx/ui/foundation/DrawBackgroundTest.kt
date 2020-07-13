@@ -32,7 +32,7 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.unit.Density
 import org.junit.Rule
 import org.junit.Test
@@ -61,7 +61,7 @@ class DrawBackgroundTest {
                 }
             }
         }
-        val bitmap = findByTag(contentTag).captureToBitmap()
+        val bitmap = onNodeWithTag(contentTag).captureToBitmap()
         bitmap.assertShape(
             density = composeTestRule.density,
             backgroundColor = Color.Magenta,
@@ -87,7 +87,7 @@ class DrawBackgroundTest {
                 }
             }
         }
-        val bitmap = findByTag(contentTag).captureToBitmap()
+        val bitmap = onNodeWithTag(contentTag).captureToBitmap()
         bitmap.assertShape(
             density = composeTestRule.density,
             backgroundColor = Color.Magenta,
@@ -109,7 +109,7 @@ class DrawBackgroundTest {
                 )
             }
         }
-        val bitmap = findByTag(contentTag).captureToBitmap()
+        val bitmap = onNodeWithTag(contentTag).captureToBitmap()
         bitmap.assertShape(
             density = composeTestRule.density,
             backgroundColor = Color.Magenta,
@@ -133,7 +133,7 @@ class DrawBackgroundTest {
                 )
             }
         }
-        val bitmap = findByTag(contentTag).captureToBitmap()
+        val bitmap = onNodeWithTag(contentTag).captureToBitmap()
         bitmap.assertShape(
             density = composeTestRule.density,
             backgroundColor = Color.Magenta,

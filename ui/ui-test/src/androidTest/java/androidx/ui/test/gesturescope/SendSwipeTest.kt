@@ -26,14 +26,14 @@ import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.bottomRight
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendSwipe
-import androidx.ui.test.sendSwipeDown
-import androidx.ui.test.sendSwipeLeft
-import androidx.ui.test.sendSwipeRight
-import androidx.ui.test.sendSwipeUp
+import androidx.ui.test.swipe
+import androidx.ui.test.swipeDown
+import androidx.ui.test.swipeLeft
+import androidx.ui.test.swipeRight
+import androidx.ui.test.swipeUp
 import androidx.ui.test.topLeft
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.SinglePointerInputRecorder
@@ -72,7 +72,7 @@ class SendSwipeTest {
     @Test
     fun swipeUp() {
         composeTestRule.setContent { Ui(Alignment.TopStart) }
-        findByTag(tag).doGesture { sendSwipeUp() }
+        onNodeWithTag(tag).performGesture { swipeUp() }
         runOnIdleCompose {
             recorder.run {
                 assertTimestampsAreIncreasing()
@@ -85,7 +85,7 @@ class SendSwipeTest {
     @Test
     fun swipeDown() {
         composeTestRule.setContent { Ui(Alignment.TopEnd) }
-        findByTag(tag).doGesture { sendSwipeDown() }
+        onNodeWithTag(tag).performGesture { swipeDown() }
         runOnIdleCompose {
             recorder.run {
                 assertTimestampsAreIncreasing()
@@ -98,7 +98,7 @@ class SendSwipeTest {
     @Test
     fun swipeLeft() {
         composeTestRule.setContent { Ui(Alignment.BottomEnd) }
-        findByTag(tag).doGesture { sendSwipeLeft() }
+        onNodeWithTag(tag).performGesture { swipeLeft() }
         runOnIdleCompose {
             recorder.run {
                 assertTimestampsAreIncreasing()
@@ -111,7 +111,7 @@ class SendSwipeTest {
     @Test
     fun swipeRight() {
         composeTestRule.setContent { Ui(Alignment.BottomStart) }
-        findByTag(tag).doGesture { sendSwipeRight() }
+        onNodeWithTag(tag).performGesture { swipeRight() }
         runOnIdleCompose {
             recorder.run {
                 assertTimestampsAreIncreasing()
@@ -124,7 +124,7 @@ class SendSwipeTest {
     @Test
     fun swipeShort() {
         composeTestRule.setContent { Ui(Alignment.Center) }
-        findByTag(tag).doGesture { sendSwipe(topLeft, bottomRight, 1.milliseconds) }
+        onNodeWithTag(tag).performGesture { swipe(topLeft, bottomRight, 1.milliseconds) }
         runOnIdleCompose {
             recorder.run {
                 assertTimestampsAreIncreasing()

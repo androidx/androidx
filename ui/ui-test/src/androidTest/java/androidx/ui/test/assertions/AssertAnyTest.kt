@@ -18,9 +18,9 @@ package androidx.ui.test.assertions
 
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assertAny
-import androidx.ui.test.children
+import androidx.ui.test.onChildren
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
@@ -46,12 +46,12 @@ class AssertAnyTest {
             }
         }
 
-        findByTag("Parent")
-            .children()
+        onNodeWithTag("Parent")
+            .onChildren()
             .assertAny(hasTestTag("Child1"))
 
-        findByTag("Parent")
-            .children()
+        onNodeWithTag("Parent")
+            .onChildren()
             .assertAny(hasTestTag("Child1") or hasTestTag("Child2"))
     }
 
@@ -68,8 +68,8 @@ class AssertAnyTest {
                 "Failed to assertAny(TestTag = 'Child3')\n" +
                 "None of the following nodes match:\n" +
                 "1) ") {
-            findByTag("Parent")
-                .children()
+            onNodeWithTag("Parent")
+                .onChildren()
                 .assertAny(hasTestTag("Child3"))
         }
     }
@@ -84,8 +84,8 @@ class AssertAnyTest {
                 "Failed to assertAny(TestTag = 'Child')\n" +
                 "Assert needs to receive at least 1 node but 0 nodes were found for selector: " +
                 "'(TestTag = 'Parent').children'") {
-            findByTag("Parent")
-                .children()
+            onNodeWithTag("Parent")
+                .onChildren()
                 .assertAny(hasTestTag("Child"))
         }
     }

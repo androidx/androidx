@@ -24,7 +24,7 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.test.ComposeTestRule
 import androidx.ui.test.SemanticsNodeInteraction
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.unit.dp
 
 /**
@@ -46,5 +46,5 @@ fun ComposeTestRule.setContentForSizeAssertions(
         }
     }
 
-    return findByTag("containerForSizeAssertion")
+    return onNodeWithTag("containerForSizeAssertion")
 }

@@ -27,7 +27,7 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
@@ -70,7 +70,7 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayColor: Color?) {
     fun correctElevationOverlayInDarkTheme() {
         setupSurfaceForTesting(elevation!!, darkColorPalette())
 
-        findByTag(Tag)
+        onNodeWithTag(Tag)
             .captureToBitmap()
             .assertPixels(SurfaceSize) {
                 expectedOverlayColor
@@ -84,7 +84,7 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayColor: Color?) {
         // No overlay should be applied in light theme
         val expectedSurfaceColor = Color.White
 
-        findByTag(Tag)
+        onNodeWithTag(Tag)
             .captureToBitmap()
             .assertPixels(SurfaceSize) {
                 expectedSurfaceColor

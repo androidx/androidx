@@ -31,7 +31,7 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
@@ -68,7 +68,7 @@ class CardTest {
             }
         }
 
-        findByTag("card")
+        onNodeWithTag("card")
             .captureToBitmap()
             .assertShape(
                 density = composeTestRule.density,

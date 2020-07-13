@@ -26,7 +26,7 @@ import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.test.assertRangeInfoEquals
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.dp
 import org.junit.Rule
@@ -55,7 +55,7 @@ class DeterminateProgressTest {
                     .drawBackground(Color.Cyan))
             }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertValueEquals("0 percent")
             .assertRangeInfoEquals(AccessibilityRangeInfo(0f, 0f..1f))
 
@@ -63,7 +63,7 @@ class DeterminateProgressTest {
             progress.value = 0.005f
         }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertValueEquals("1 percent")
             .assertRangeInfoEquals(AccessibilityRangeInfo(0.005f, 0f..1f))
 
@@ -71,7 +71,7 @@ class DeterminateProgressTest {
             progress.value = 0.5f
         }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertValueEquals("50 percent")
             .assertRangeInfoEquals(AccessibilityRangeInfo(0.5f, 0f..1f))
     }

@@ -25,7 +25,7 @@ import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.preferredWidth
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
@@ -53,16 +53,16 @@ class LazyRowItemsTest {
             }
         }
 
-        findByTag("1")
+        onNodeWithTag("1")
             .assertIsDisplayed()
 
-        findByTag("2")
+        onNodeWithTag("2")
             .assertIsDisplayed()
 
-        findByTag("3")
+        onNodeWithTag("3")
             .assertDoesNotExist()
 
-        findByTag("4")
+        onNodeWithTag("4")
             .assertDoesNotExist()
     }
 
@@ -78,19 +78,19 @@ class LazyRowItemsTest {
             }
         }
 
-        findByTag(LazyRowItemsTag)
+        onNodeWithTag(LazyRowItemsTag)
             .scrollBy(x = 50.dp, density = composeTestRule.density)
 
-        findByTag("1")
+        onNodeWithTag("1")
             .assertIsDisplayed()
 
-        findByTag("2")
+        onNodeWithTag("2")
             .assertIsDisplayed()
 
-        findByTag("3")
+        onNodeWithTag("3")
             .assertIsDisplayed()
 
-        findByTag("4")
+        onNodeWithTag("4")
             .assertDoesNotExist()
     }
 
@@ -106,16 +106,16 @@ class LazyRowItemsTest {
             }
         }
 
-        findByTag(LazyRowItemsTag)
+        onNodeWithTag(LazyRowItemsTag)
             .scrollBy(x = 102.dp, density = composeTestRule.density)
 
-        findByTag("1")
+        onNodeWithTag("1")
             .assertDoesNotExist()
 
-        findByTag("2")
+        onNodeWithTag("2")
             .assertIsDisplayed()
 
-        findByTag("3")
+        onNodeWithTag("3")
             .assertIsDisplayed()
     }
 
@@ -131,19 +131,19 @@ class LazyRowItemsTest {
             }
         }
 
-        findByTag(LazyRowItemsTag)
+        onNodeWithTag(LazyRowItemsTag)
             .scrollBy(x = 150.dp, density = composeTestRule.density)
 
-        findByTag("1")
+        onNodeWithTag("1")
             .assertDoesNotExist()
 
-        findByTag("2")
+        onNodeWithTag("2")
             .assertIsDisplayed()
 
-        findByTag("3")
+        onNodeWithTag("3")
             .assertIsDisplayed()
 
-        findByTag("4")
+        onNodeWithTag("4")
             .assertIsDisplayed()
     }
 }

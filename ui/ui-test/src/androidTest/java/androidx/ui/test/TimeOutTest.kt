@@ -117,13 +117,13 @@ class TimeOutTest {
             }
         }
 
-        findByText("Hello 0").assertExists()
+        onNodeWithText("Hello 0").assertExists()
 
         count.value++ // Start infinite re-compositions
 
         IdlingPolicies.setMasterPolicyTimeout(300, TimeUnit.MILLISECONDS)
         expectError<ComposeNotIdleException>(expectedMessage = expectedErrorDueToRecompositions) {
-            findByText("Hello").assertExists()
+            onNodeWithText("Hello").assertExists()
         }
     }
 
@@ -167,7 +167,7 @@ class TimeOutTest {
         }
 
         // No timeout should happen this time
-        findByText("Hello").assertExists()
+        onNodeWithText("Hello").assertExists()
     }
 
     private object InfiniteResource : IdlingResource {

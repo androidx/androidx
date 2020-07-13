@@ -28,8 +28,8 @@ import androidx.ui.test.assertIsSelected
 import androidx.ui.test.assertIsUnselected
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.findByTag
+import androidx.ui.test.performClick
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
@@ -75,9 +75,9 @@ class RadioButtonTest {
             }
         }
 
-        findByTag(itemOne).assertHasSelectedSemantics()
-        findByTag(itemTwo).assertHasUnSelectedSemantics()
-        findByTag(itemThree).assertHasUnSelectedSemantics()
+        onNodeWithTag(itemOne).assertHasSelectedSemantics()
+        onNodeWithTag(itemTwo).assertHasUnSelectedSemantics()
+        onNodeWithTag(itemThree).assertHasUnSelectedSemantics()
     }
 
     @Test
@@ -96,15 +96,15 @@ class RadioButtonTest {
             }
         }
 
-        findByTag(itemOne)
+        onNodeWithTag(itemOne)
             .assertHasSelectedSemantics()
-            .doClick()
+            .performClick()
             .assertHasSelectedSemantics()
 
-        findByTag(itemTwo)
+        onNodeWithTag(itemTwo)
             .assertHasUnSelectedSemantics()
 
-        findByTag(itemThree)
+        onNodeWithTag(itemThree)
             .assertHasUnSelectedSemantics()
     }
 
@@ -122,15 +122,15 @@ class RadioButtonTest {
                 }
             }
         }
-        findByTag(itemTwo)
+        onNodeWithTag(itemTwo)
             .assertHasUnSelectedSemantics()
-            .doClick()
+            .performClick()
             .assertHasSelectedSemantics()
 
-        findByTag(itemOne)
+        onNodeWithTag(itemOne)
             .assertHasUnSelectedSemantics()
 
-        findByTag(itemThree)
+        onNodeWithTag(itemThree)
             .assertHasUnSelectedSemantics()
     }
 
@@ -150,23 +150,23 @@ class RadioButtonTest {
             }
         }
 
-        findByTag(itemTwo)
+        onNodeWithTag(itemTwo)
             .assertHasUnSelectedSemantics()
-            .doClick()
+            .performClick()
             .assertHasSelectedSemantics()
 
-        findByTag(itemOne)
+        onNodeWithTag(itemOne)
             .assertHasUnSelectedSemantics()
 
-        findByTag(itemThree)
+        onNodeWithTag(itemThree)
             .assertHasUnSelectedSemantics()
-            .doClick()
+            .performClick()
             .assertHasSelectedSemantics()
 
-        findByTag(itemOne)
+        onNodeWithTag(itemOne)
             .assertHasUnSelectedSemantics()
 
-        findByTag(itemTwo)
+        onNodeWithTag(itemTwo)
             .assertHasUnSelectedSemantics()
     }
 

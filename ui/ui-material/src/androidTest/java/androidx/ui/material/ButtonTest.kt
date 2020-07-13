@@ -64,10 +64,10 @@ import androidx.ui.test.assertShape
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.find
-import androidx.ui.test.findByTag
-import androidx.ui.test.findByText
+import androidx.ui.test.performClick
+import androidx.ui.test.onNode
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onNodeWithText
 import androidx.ui.test.hasClickAction
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.Dp
@@ -101,7 +101,7 @@ class ButtonTest {
             }
         }
 
-        findByTag("myButton")
+        onNodeWithTag("myButton")
             .assertIsEnabled()
     }
 
@@ -115,7 +115,7 @@ class ButtonTest {
             }
         }
 
-        findByTag("myButton")
+        onNodeWithTag("myButton")
             .assertIsNotEnabled()
     }
 
@@ -135,8 +135,8 @@ class ButtonTest {
 
         // TODO(b/129400818): this actually finds the text, not the button as
         // merge semantics aren't implemented yet
-        findByText(text)
-            .doClick()
+        onNodeWithText(text)
+            .performClick()
 
         runOnIdleCompose {
             assertThat(counter).isEqualTo(1)
@@ -157,11 +157,11 @@ class ButtonTest {
                 }
             }
         }
-        findByTag(tag)
+        onNodeWithTag(tag)
             // Confirm the button starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
-            .doClick()
+            .performClick()
             // Then confirm it's disabled with no click action after clicking it
             .assertHasNoClickAction()
             .assertIsNotEnabled()
@@ -190,16 +190,16 @@ class ButtonTest {
             }
         }
 
-        findByTag(button1Tag)
-            .doClick()
+        onNodeWithTag(button1Tag)
+            .performClick()
 
         runOnIdleCompose {
             assertThat(button1Counter).isEqualTo(1)
             assertThat(button2Counter).isEqualTo(0)
         }
 
-        findByTag(button2Tag)
-            .doClick()
+        onNodeWithTag(button2Tag)
+            .performClick()
 
         runOnIdleCompose {
             assertThat(button1Counter).isEqualTo(1)
@@ -220,7 +220,7 @@ class ButtonTest {
             }
         }
 
-        find(hasClickAction())
+        onNode(hasClickAction())
             .assertHeightIsEqualTo(36.dp)
     }
 
@@ -235,7 +235,7 @@ class ButtonTest {
             }
         }
 
-        find(hasClickAction())
+        onNode(hasClickAction())
             .assertHeightIsAtLeast(37.dp)
     }
 
@@ -303,7 +303,7 @@ class ButtonTest {
             }
         }
 
-        findByTag("myButton")
+        onNodeWithTag("myButton")
             .captureToBitmap()
             .assertShape(
                 density = composeTestRule.density,
@@ -377,7 +377,7 @@ class ButtonTest {
             }
         }
 
-        findByTag("myButton")
+        onNodeWithTag("myButton")
             .captureToBitmap()
             .assertShape(
                 density = composeTestRule.density,
@@ -410,7 +410,7 @@ class ButtonTest {
             }
         }
 
-        findByTag("myButton")
+        onNodeWithTag("myButton")
             .captureToBitmap()
             .assertShape(
                 density = composeTestRule.density,
@@ -440,7 +440,7 @@ class ButtonTest {
             }
         }
 
-        findByTag("myButton")
+        onNodeWithTag("myButton")
             .captureToBitmap()
             .assertShape(
                 density = composeTestRule.density,
@@ -467,7 +467,7 @@ class ButtonTest {
             }
         }
 
-        findByTag("myButton")
+        onNodeWithTag("myButton")
             .captureToBitmap()
             .assertShape(
                 density = composeTestRule.density,
@@ -581,7 +581,7 @@ class ButtonTest {
             }
         }
 
-        findByTag("stack")
+        onNodeWithTag("stack")
             .captureToBitmap()
             .assertShape(
                 density = composeTestRule.density,
@@ -600,7 +600,7 @@ class ButtonTest {
             }
         }
 
-        findByTag("button")
+        onNodeWithTag("button")
             .assertWidthIsEqualTo(20.dp)
             .assertHeightIsEqualTo(15.dp)
     }

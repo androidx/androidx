@@ -22,7 +22,7 @@ import androidx.ui.core.testTag
 import androidx.ui.graphics.Color
 import androidx.ui.test.assertTextEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
@@ -232,6 +232,6 @@ class TextTest {
             }
         }
 
-        findByTag("text").assertTextEquals(TestText)
+        onNodeWithTag("text").assertTextEquals(TestText)
     }
 }

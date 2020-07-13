@@ -46,9 +46,9 @@ import androidx.ui.test.assert
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.find
-import androidx.ui.test.findByTag
+import androidx.ui.test.performClick
+import androidx.ui.test.onNode
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasImeAction
 import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.runOnIdleCompose
@@ -96,7 +96,7 @@ class TextFieldTest {
             }
         }
 
-        find(hasInputMethodsSupport()).doClick()
+        onNode(hasInputMethodsSupport()).performClick()
 
         runOnIdleCompose {
             assertThat(focusModifier.focusState).isEqualTo(FocusState.Focused)
@@ -131,7 +131,7 @@ class TextFieldTest {
             }
         }
 
-        find(hasInputMethodsSupport()).doClick()
+        onNode(hasInputMethodsSupport()).performClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
         runOnIdleCompose {
@@ -203,7 +203,7 @@ class TextFieldTest {
             }
         }
 
-        find(hasInputMethodsSupport()).doClick()
+        onNode(hasInputMethodsSupport()).performClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
         runOnIdleCompose {
@@ -271,7 +271,7 @@ class TextFieldTest {
             }
         }
 
-        find(hasInputMethodsSupport()).doClick()
+        onNode(hasInputMethodsSupport()).performClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
         runOnIdleCompose {
@@ -420,7 +420,7 @@ class TextFieldTest {
             )
         }
 
-        find(hasInputMethodsSupport())
+        onNode(hasInputMethodsSupport())
             .captureToBitmap()
             .assertShape(
                 density = composeTestRule.density,
@@ -441,7 +441,7 @@ class TextFieldTest {
             )
         }
 
-        findByTag("textField")
+        onNodeWithTag("textField")
             .assert(hasInputMethodsSupport())
             .assert(hasImeAction(ImeAction.Unspecified))
     }
@@ -456,7 +456,7 @@ class TextFieldTest {
             )
         }
 
-        find(hasInputMethodsSupport())
+        onNode(hasInputMethodsSupport())
             .assert(hasImeAction(ImeAction.Search))
     }
 }

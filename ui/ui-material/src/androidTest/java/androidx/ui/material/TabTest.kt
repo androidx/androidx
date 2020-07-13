@@ -40,9 +40,9 @@ import androidx.ui.test.assertIsSelected
 import androidx.ui.test.assertIsUnselected
 import androidx.ui.test.assertPositionInRootIsEqualTo
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.findAll
-import androidx.ui.test.findByTag
+import androidx.ui.test.performClick
+import androidx.ui.test.onAllNodes
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.getBoundsInRoot
 import androidx.ui.test.isInMutuallyExclusiveGroup
 import androidx.ui.unit.dp
@@ -133,20 +133,20 @@ class TabTest {
             }
         }
 
-        val tabRowBounds = findByTag("tabRow").getBoundsInRoot()
+        val tabRowBounds = onNodeWithTag("tabRow").getBoundsInRoot()
 
-        findByTag("indicator")
+        onNodeWithTag("indicator")
             .assertPositionInRootIsEqualTo(
                 expectedLeft = 0.dp,
                 expectedTop = tabRowBounds.height - indicatorHeight
             )
 
         // Click the second tab
-        findAll(isInMutuallyExclusiveGroup())[1].doClick()
+        onAllNodes(isInMutuallyExclusiveGroup())[1].performClick()
 
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
-        findByTag("indicator")
+        onNodeWithTag("indicator")
             .assertPositionInRootIsEqualTo(
                 expectedLeft = (tabRowBounds.width / 2),
                 expectedTop = tabRowBounds.height - indicatorHeight
@@ -180,9 +180,9 @@ class TabTest {
         val indicatorHeight = 2.dp
         val expectedBaselineDistance = expectedBaseline + indicatorHeight
 
-        val tabRowBounds = findByTag("tabRow").getBoundsInRoot()
-        val textBounds = findByTag("text").getBoundsInRoot()
-        val textBaselinePos = findByTag("text").getLastBaselinePosition()
+        val tabRowBounds = onNodeWithTag("tabRow").getBoundsInRoot()
+        val textBounds = onNodeWithTag("text").getBoundsInRoot()
+        val textBaselinePos = onNodeWithTag("text").getLastBaselinePosition()
 
         val baselinePositionY = textBounds.top + textBaselinePos
         val expectedPositionY = tabRowBounds.height - expectedBaselineDistance
@@ -217,9 +217,9 @@ class TabTest {
         val indicatorHeight = 2.dp
         val expectedBaselineDistance = expectedBaseline + indicatorHeight
 
-        val tabRowBounds = findByTag("tabRow").getBoundsInRoot()
-        val textBounds = findByTag("text").getBoundsInRoot()
-        val textBaselinePos = findByTag("text").getLastBaselinePosition()
+        val tabRowBounds = onNodeWithTag("tabRow").getBoundsInRoot()
+        val textBounds = onNodeWithTag("text").getBoundsInRoot()
+        val textBaselinePos = onNodeWithTag("text").getLastBaselinePosition()
 
         val baselinePositionY = textBounds.top + textBaselinePos
         val expectedPositionY = tabRowBounds.height - expectedBaselineDistance
@@ -252,9 +252,9 @@ class TabTest {
         val expectedBaseline = 10.dp
         val indicatorHeight = 2.dp
 
-        val tabRowBounds = findByTag("tabRow").getBoundsInRoot()
-        val textBounds = findByTag("text").getBoundsInRoot()
-        val textBaselinePos = findByTag("text").getLastBaselinePosition()
+        val tabRowBounds = onNodeWithTag("tabRow").getBoundsInRoot()
+        val textBounds = onNodeWithTag("text").getBoundsInRoot()
+        val textBaselinePos = onNodeWithTag("text").getLastBaselinePosition()
 
         val expectedBaselineDistance = expectedBaseline + indicatorHeight
 
@@ -301,10 +301,10 @@ class TabTest {
             }
         }
 
-        val tabRowBounds = findByTag("tabRow").getBoundsInRoot()
+        val tabRowBounds = onNodeWithTag("tabRow").getBoundsInRoot()
 
         // Indicator should be placed in the bottom left of the first tab
-        findByTag("indicator")
+        onNodeWithTag("indicator")
             .assertPositionInRootIsEqualTo(
                 // Tabs in a scrollable tab row are offset 52.dp from each end
                 expectedLeft = scrollableTabRowOffset,
@@ -312,11 +312,11 @@ class TabTest {
             )
 
         // Click the second tab
-        findAll(isInMutuallyExclusiveGroup())[1].doClick()
+        onAllNodes(isInMutuallyExclusiveGroup())[1].performClick()
 
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
-        findByTag("indicator")
+        onNodeWithTag("indicator")
             .assertPositionInRootIsEqualTo(
                 expectedLeft = scrollableTabRowOffset + minimumTabWidth,
                 expectedTop = tabRowBounds.height - indicatorHeight
@@ -331,7 +331,7 @@ class TabTest {
             }
 
         // Only the first tab should be selected
-        findAll(isInMutuallyExclusiveGroup())
+        onAllNodes(isInMutuallyExclusiveGroup())
             .assertCountEquals(3)
             .apply {
                 get(0).assertIsSelected()
@@ -348,7 +348,7 @@ class TabTest {
             }
 
         // Only the first tab should be selected
-        findAll(isInMutuallyExclusiveGroup())
+        onAllNodes(isInMutuallyExclusiveGroup())
             .assertCountEquals(3)
             .apply {
                 get(0).assertIsSelected()
@@ -357,10 +357,10 @@ class TabTest {
             }
 
         // Click the last tab
-        findAll(isInMutuallyExclusiveGroup())[2].doClick()
+        onAllNodes(isInMutuallyExclusiveGroup())[2].performClick()
 
         // Now only the last tab should be selected
-        findAll(isInMutuallyExclusiveGroup())
+        onAllNodes(isInMutuallyExclusiveGroup())
             .assertCountEquals(3)
             .apply {
                 get(0).assertIsUnselected()
@@ -377,7 +377,7 @@ class TabTest {
             }
 
         // Only the first tab should be selected
-        findAll(isInMutuallyExclusiveGroup())
+        onAllNodes(isInMutuallyExclusiveGroup())
             .assertCountEquals(10)
             .apply {
                 get(0).assertIsSelected()
@@ -395,7 +395,7 @@ class TabTest {
             }
 
         // Only the first tab should be selected
-        findAll(isInMutuallyExclusiveGroup())
+        onAllNodes(isInMutuallyExclusiveGroup())
             .assertCountEquals(10)
             .apply {
                 get(0).assertIsSelected()
@@ -405,10 +405,10 @@ class TabTest {
             }
 
         // Click the second tab
-        findAll(isInMutuallyExclusiveGroup())[1].doClick()
+        onAllNodes(isInMutuallyExclusiveGroup())[1].performClick()
 
         // Now only the second tab should be selected
-        findAll(isInMutuallyExclusiveGroup())
+        onAllNodes(isInMutuallyExclusiveGroup())
             .assertCountEquals(10)
             .apply {
                 get(0).assertIsUnselected()

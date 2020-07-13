@@ -30,8 +30,8 @@ import androidx.ui.test.assertPixels
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.find
+import androidx.ui.test.performClick
+import androidx.ui.test.onNode
 import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.waitForIdle
 import androidx.ui.text.TextStyle
@@ -71,14 +71,14 @@ class TextFieldCursorTest {
                 }
             )
         }
-        find(hasInputMethodsSupport()).doClick()
+        onNode(hasInputMethodsSupport()).performClick()
         assert(latch.await(1, TimeUnit.SECONDS))
 
         waitForIdle()
 
         composeTestRule.clockTestRule.advanceClock(100)
         with(composeTestRule.density) {
-            find(hasInputMethodsSupport())
+            onNode(hasInputMethodsSupport())
                 .captureToBitmap()
                 .assertCursor(2.dp, this)
         }
@@ -108,7 +108,7 @@ class TextFieldCursorTest {
             }
         }
 
-        find(hasInputMethodsSupport()).doClick()
+        onNode(hasInputMethodsSupport()).performClick()
         assert(latch.await(1, TimeUnit.SECONDS))
 
         waitForIdle()
@@ -116,14 +116,14 @@ class TextFieldCursorTest {
         // cursor visible first 500 ms
         composeTestRule.clockTestRule.advanceClock(100)
         with(composeTestRule.density) {
-            find(hasInputMethodsSupport())
+            onNode(hasInputMethodsSupport())
                 .captureToBitmap()
                 .assertCursor(2.dp, this)
         }
 
         // cursor invisible during next 500 ms
         composeTestRule.clockTestRule.advanceClock(700)
-        find(hasInputMethodsSupport())
+        onNode(hasInputMethodsSupport())
             .captureToBitmap()
             .assertShape(
                 density = composeTestRule.density,

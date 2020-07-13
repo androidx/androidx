@@ -35,8 +35,8 @@ class MultipleActivitiesFindTest {
     @Test
     fun test() {
         composeTestRule.activityRule.scenario.onActivity { it.startNewActivity() }
-        findByTag("activity1").assertDoesNotExist()
-        findByTag("activity2").assertExists()
+        onNodeWithTag("activity1").assertDoesNotExist()
+        onNodeWithTag("activity2").assertExists()
     }
 
     class Activity1 : TaggedActivity("activity1")

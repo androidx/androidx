@@ -29,16 +29,16 @@ import androidx.ui.test.assertIsEnabled
 import androidx.ui.test.assertIsNotEnabled
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.doGesture
-import androidx.ui.test.doPartialGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performClick
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendClick
-import androidx.ui.test.sendDoubleClick
-import androidx.ui.test.sendDown
-import androidx.ui.test.sendLongClick
-import androidx.ui.test.sendUp
+import androidx.ui.test.click
+import androidx.ui.test.doubleClick
+import androidx.ui.test.down
+import androidx.ui.test.longClick
+import androidx.ui.test.performPartialGesture
+import androidx.ui.test.up
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -62,7 +62,7 @@ class ClickableTest {
             }
         }
 
-        findByTag("myClickable")
+        onNodeWithTag("myClickable")
             .assertIsEnabled()
             .assertHasClickAction()
     }
@@ -78,7 +78,7 @@ class ClickableTest {
             }
         }
 
-        findByTag("myClickable")
+        onNodeWithTag("myClickable")
             .assertIsNotEnabled()
             .assertHasNoClickAction()
     }
@@ -97,15 +97,15 @@ class ClickableTest {
             }
         }
 
-        findByTag("myClickable")
-            .doClick()
+        onNodeWithTag("myClickable")
+            .performClick()
 
         runOnIdleCompose {
             assertThat(counter).isEqualTo(1)
         }
 
-        findByTag("myClickable")
-            .doClick()
+        onNodeWithTag("myClickable")
+            .performClick()
 
         runOnIdleCompose {
             assertThat(counter).isEqualTo(2)
@@ -126,18 +126,18 @@ class ClickableTest {
             }
         }
 
-        findByTag("myClickable")
-            .doGesture {
-                sendLongClick()
+        onNodeWithTag("myClickable")
+            .performGesture {
+                longClick()
             }
 
         runOnIdleCompose {
             assertThat(counter).isEqualTo(1)
         }
 
-        findByTag("myClickable")
-            .doGesture {
-                sendLongClick()
+        onNodeWithTag("myClickable")
+            .performGesture {
+                longClick()
             }
 
         runOnIdleCompose {
@@ -166,9 +166,9 @@ class ClickableTest {
             }
         }
 
-        findByTag("myClickable")
-            .doGesture {
-                sendClick()
+        onNodeWithTag("myClickable")
+            .performGesture {
+                click()
             }
 
         runOnIdleCompose {
@@ -176,9 +176,9 @@ class ClickableTest {
             assertThat(longClickCounter).isEqualTo(0)
         }
 
-        findByTag("myClickable")
-            .doGesture {
-                sendLongClick()
+        onNodeWithTag("myClickable")
+            .performGesture {
+                longClick()
             }
 
         runOnIdleCompose {
@@ -208,8 +208,8 @@ class ClickableTest {
             }
         }
 
-        findByTag("myClickable")
-            .doClick()
+        onNodeWithTag("myClickable")
+            .performClick()
 
         val res = clickLatch.await(1000, TimeUnit.MILLISECONDS)
         runOnIdleCompose {
@@ -217,9 +217,9 @@ class ClickableTest {
             assertThat(res).isTrue()
         }
 
-        findByTag("myClickable")
-            .doGesture {
-                sendDoubleClick()
+        onNodeWithTag("myClickable")
+            .performGesture {
+                doubleClick()
             }
 
         runOnIdleCompose {
@@ -252,8 +252,8 @@ class ClickableTest {
             }
         }
 
-        findByTag("myClickable")
-            .doClick()
+        onNodeWithTag("myClickable")
+            .performClick()
 
         val res = clickLatch.await(1000, TimeUnit.MILLISECONDS)
         runOnIdleCompose {
@@ -262,9 +262,9 @@ class ClickableTest {
             assertThat(res).isTrue()
         }
 
-        findByTag("myClickable")
-            .doGesture {
-                sendDoubleClick()
+        onNodeWithTag("myClickable")
+            .performGesture {
+                doubleClick()
             }
 
         runOnIdleCompose {
@@ -273,9 +273,9 @@ class ClickableTest {
             assertThat(clickLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         }
 
-        findByTag("myClickable")
-            .doGesture {
-                sendLongClick()
+        onNodeWithTag("myClickable")
+            .performGesture {
+                longClick()
             }
 
         runOnIdleCompose {
@@ -299,18 +299,18 @@ class ClickableTest {
             }
         }
 
-        findByTag("myClickable")
-            .doGesture {
-                sendDoubleClick()
+        onNodeWithTag("myClickable")
+            .performGesture {
+                doubleClick()
             }
 
         runOnIdleCompose {
             assertThat(counter).isEqualTo(1)
         }
 
-        findByTag("myClickable")
-            .doGesture {
-                sendDoubleClick()
+        onNodeWithTag("myClickable")
+            .performGesture {
+                doubleClick()
             }
 
         runOnIdleCompose {
@@ -337,15 +337,15 @@ class ClickableTest {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
 
-        findByTag("myClickable")
-            .doPartialGesture { sendDown(center) }
+        onNodeWithTag("myClickable")
+            .performPartialGesture { down(center) }
 
         runOnIdleCompose {
             assertThat(interactionState.value).contains(Interaction.Pressed)
         }
 
-        findByTag("myClickable")
-            .doPartialGesture { sendUp() }
+        onNodeWithTag("myClickable")
+            .performPartialGesture { up() }
 
         runOnIdleCompose {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
@@ -374,8 +374,8 @@ class ClickableTest {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
 
-        findByTag("myClickable")
-            .doPartialGesture { sendDown(center) }
+        onNodeWithTag("myClickable")
+            .performPartialGesture { down(center) }
 
         runOnIdleCompose {
             assertThat(interactionState.value).contains(Interaction.Pressed)
@@ -417,8 +417,8 @@ class ClickableTest {
             }
         }
 
-        findByTag("myClickable")
-            .doClick()
+        onNodeWithTag("myClickable")
+            .performClick()
 
         runOnIdleCompose {
             assertThat(doubleClickCounter).isEqualTo(0)
@@ -426,9 +426,9 @@ class ClickableTest {
             assertThat(clickLatch.count).isEqualTo(1)
         }
 
-        findByTag("myClickable")
-            .doGesture {
-                sendDoubleClick()
+        onNodeWithTag("myClickable")
+            .performGesture {
+                doubleClick()
             }
 
         runOnIdleCompose {
@@ -437,9 +437,9 @@ class ClickableTest {
             assertThat(clickLatch.count).isEqualTo(1)
         }
 
-        findByTag("myClickable")
-            .doGesture {
-                sendLongClick()
+        onNodeWithTag("myClickable")
+            .performGesture {
+                longClick()
             }
 
         runOnIdleCompose {
@@ -449,8 +449,8 @@ class ClickableTest {
             enabled.value = true
         }
 
-        findByTag("myClickable")
-            .doClick()
+        onNodeWithTag("myClickable")
+            .performClick()
 
         val res = clickLatch.await(1000, TimeUnit.MILLISECONDS)
         runOnIdleCompose {
@@ -459,9 +459,9 @@ class ClickableTest {
             assertThat(res).isTrue()
         }
 
-        findByTag("myClickable")
-            .doGesture {
-                sendDoubleClick()
+        onNodeWithTag("myClickable")
+            .performGesture {
+                doubleClick()
             }
 
         runOnIdleCompose {
@@ -470,9 +470,9 @@ class ClickableTest {
             assertThat(clickLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         }
 
-        findByTag("myClickable")
-            .doGesture {
-                sendLongClick()
+        onNodeWithTag("myClickable")
+            .performGesture {
+                longClick()
             }
 
         runOnIdleCompose {

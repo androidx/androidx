@@ -40,8 +40,8 @@ import androidx.ui.layout.wrapContentSize
 import androidx.ui.res.loadVectorResource
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
-import androidx.ui.test.findRoot
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onRoot
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
@@ -112,7 +112,7 @@ class ImageTest {
         val bgColorArgb = bgColor.toArgb()
         val pathArgb = pathColor.toArgb()
 
-        findByTag(contentTag).captureToBitmap().apply {
+        onNodeWithTag(contentTag).captureToBitmap().apply {
             val imageStartX = width / 2 - imageWidth / 2
             val imageStartY = height / 2 - imageHeight / 2
             Assert.assertEquals(bgColorArgb, getPixel(imageStartX + 2, imageStartY))
@@ -152,7 +152,7 @@ class ImageTest {
         val bgColorArgb = bgColor.toArgb()
         val pathArgb = pathColor.toArgb()
 
-        findRoot().captureToBitmap().apply {
+        onRoot().captureToBitmap().apply {
             val imageStartX = width / 2 - subsectionWidth / 2
             val imageStartY = height / 2 - subsectionHeight / 2
             Assert.assertEquals(bgColorArgb, getPixel(imageStartX + 2, imageStartY))
@@ -222,7 +222,7 @@ class ImageTest {
 
         val bgColorArgb = bgColor.toArgb()
         val pathArgb = pathColor.toArgb()
-        findByTag(contentTag).captureToBitmap().apply {
+        onNodeWithTag(contentTag).captureToBitmap().apply {
             val imageStartX = width / 2 - imageComposableWidth / 2
             val imageStartY = height / 2 - imageComposableHeight / 2
             Assert.assertEquals(bgColorArgb, getPixel(imageStartX + 5, imageStartY))
@@ -266,7 +266,7 @@ class ImageTest {
 
         val bgColorArgb = bgColor.toArgb()
         val pathArgb = pathColor.toArgb()
-        findByTag(contentTag).captureToBitmap().apply {
+        onNodeWithTag(contentTag).captureToBitmap().apply {
             val composableEndX = width / 2 + imageComposableWidth / 2
             val composableEndY = height / 2 + imageComposableHeight / 2
             val imageStartX = composableEndX - imageWidth
@@ -318,7 +318,7 @@ class ImageTest {
 
         val imageColor = Color.Red.toArgb()
         val containerBgColor = Color.White.toArgb()
-        findRoot().captureToBitmap().apply {
+        onRoot().captureToBitmap().apply {
             val imageStartX = width / 2 - boxWidth / 2
             val imageStartY = height / 2 - boxHeight / 2
             Assert.assertEquals(containerBgColor, getPixel(imageStartX - 1, imageStartY - 1))

@@ -34,10 +34,10 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.size
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.find
-import androidx.ui.test.findByTag
-import androidx.ui.test.hasAnyDescendantThat
+import androidx.ui.test.performClick
+import androidx.ui.test.onNode
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.hasAnyDescendant
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.isPopup
 import androidx.ui.test.runOnIdleCompose
@@ -78,22 +78,22 @@ class MenuTest {
                 }
             }
         }
-        findByTag("MenuContent").assertDoesNotExist()
+        onNodeWithTag("MenuContent").assertDoesNotExist()
 
         runOnIdleCompose { expanded = true }
         waitForIdle()
         composeTestRule.clockTestRule.advanceClock(InTransitionDuration.toLong())
-        findByTag("MenuContent").assertExists()
+        onNodeWithTag("MenuContent").assertExists()
 
         runOnIdleCompose { expanded = false }
         waitForIdle()
         composeTestRule.clockTestRule.advanceClock(OutTransitionDuration.toLong())
-        findByTag("MenuContent").assertDoesNotExist()
+        onNodeWithTag("MenuContent").assertDoesNotExist()
 
         runOnIdleCompose { expanded = true }
         waitForIdle()
         composeTestRule.clockTestRule.advanceClock(InTransitionDuration.toLong())
-        findByTag("MenuContent").assertExists()
+        onNodeWithTag("MenuContent").assertExists()
     }
 
     @Test
@@ -113,11 +113,11 @@ class MenuTest {
             }
         }
 
-        findByTag("MenuContent1").assertExists()
-        findByTag("MenuContent2").assertExists()
-        val node = find(
-            isPopup() and hasAnyDescendantThat(hasTestTag("MenuContent1")) and
-                    hasAnyDescendantThat(hasTestTag("MenuContent2"))
+        onNodeWithTag("MenuContent1").assertExists()
+        onNodeWithTag("MenuContent2").assertExists()
+        val node = onNode(
+            isPopup() and hasAnyDescendant(hasTestTag("MenuContent1")) and
+                    hasAnyDescendant(hasTestTag("MenuContent2"))
         ).assertExists().fetchSemanticsNode()
         with(composeTestRule.density) {
             assertThat(node.size.width).isEqualTo(130 + MenuElevationInset.toIntPx() * 2)
@@ -316,7 +316,7 @@ class MenuTest {
             }
         }
 
-        findByTag("MenuItem").doClick()
+        onNodeWithTag("MenuItem").performClick()
 
         runOnIdleCompose {
             assertThat(clicked).isTrue()

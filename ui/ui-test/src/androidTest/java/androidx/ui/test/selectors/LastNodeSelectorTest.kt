@@ -18,11 +18,11 @@ package androidx.ui.test.selectors
 
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
-import androidx.ui.test.children
+import androidx.ui.test.onChildren
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
-import androidx.ui.test.last
+import androidx.ui.test.onLast
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
 import org.junit.Rule
@@ -46,9 +46,9 @@ class LastNodeSelectorTest {
             }
         }
 
-        findByTag("Parent")
-            .children()
-            .last()
+        onNodeWithTag("Parent")
+            .onChildren()
+            .onLast()
             .assert(hasTestTag("Child2"))
     }
 
@@ -58,9 +58,9 @@ class LastNodeSelectorTest {
             BoundaryNode(testTag = "Parent")
         }
 
-        findByTag("Parent")
-            .children()
-            .last()
+        onNodeWithTag("Parent")
+            .onChildren()
+            .onLast()
             .assertDoesNotExist()
     }
 
@@ -74,9 +74,9 @@ class LastNodeSelectorTest {
                 "Failed: assertExists.\n" +
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(((TestTag = 'Parent').children).last)") {
-            findByTag("Parent")
-                .children()
-                .last()
+            onNodeWithTag("Parent")
+                .onChildren()
+                .onLast()
                 .assertExists()
         }
     }

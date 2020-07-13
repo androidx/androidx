@@ -59,6 +59,6 @@ class CustomActivityTest {
 
     @Test
     fun launchCustomActivity() {
-        findByText("Hello").assertExists()
+        onNodeWithText("Hello").assertExists()
     }
 }

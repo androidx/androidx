@@ -24,8 +24,8 @@ import androidx.test.uiautomator.UiDevice
 import androidx.ui.core.Modifier
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.findByText
+import androidx.ui.test.performClick
+import androidx.ui.test.onNodeWithText
 import androidx.ui.test.runOnIdleCompose
 import org.junit.Assert.assertEquals
 import org.junit.Ignore
@@ -54,7 +54,7 @@ class DialogUiTest {
             }
         }
 
-        findByText(defaultText).assertIsDisplayed()
+        onNodeWithText(defaultText).assertIsDisplayed()
     }
 
     @Test
@@ -80,15 +80,15 @@ class DialogUiTest {
             }
         }
 
-        findByText(textBeforeClick)
+        onNodeWithText(textBeforeClick)
             .assertIsDisplayed()
             // Click inside the dialog
-            .doClick()
+            .performClick()
 
         // Check that the Clickable was pressed and that the Dialog is still visible, but with
         // the new text
-        findByText(textBeforeClick).assertDoesNotExist()
-        findByText(textAfterClick).assertIsDisplayed()
+        onNodeWithText(textBeforeClick).assertDoesNotExist()
+        onNodeWithText(textAfterClick).assertIsDisplayed()
     }
 
     @Test
@@ -103,14 +103,14 @@ class DialogUiTest {
             }
         }
 
-        findByText(defaultText).assertIsDisplayed()
+        onNodeWithText(defaultText).assertIsDisplayed()
 
         // Click outside the dialog to dismiss it
         val outsideX = 0
         val outsideY = composeTestRule.displayMetrics.heightPixels / 2
         UiDevice.getInstance(getInstrumentation()).click(outsideX, outsideY)
 
-        findByText(defaultText).assertDoesNotExist()
+        onNodeWithText(defaultText).assertDoesNotExist()
     }
 
     @Test
@@ -125,7 +125,7 @@ class DialogUiTest {
             }
         }
 
-        findByText(defaultText).assertIsDisplayed()
+        onNodeWithText(defaultText).assertIsDisplayed()
 
         // Click outside the dialog to try to dismiss it
         val outsideX = 0
@@ -133,7 +133,7 @@ class DialogUiTest {
         UiDevice.getInstance(getInstrumentation()).click(outsideX, outsideY)
 
         // The Dialog should still be visible
-        findByText(defaultText).assertIsDisplayed()
+        onNodeWithText(defaultText).assertIsDisplayed()
     }
 
     @Test
@@ -148,12 +148,12 @@ class DialogUiTest {
             }
         }
 
-        findByText(defaultText).assertIsDisplayed()
+        onNodeWithText(defaultText).assertIsDisplayed()
 
         // Click the back button to dismiss the Dialog
         UiDevice.getInstance(getInstrumentation()).pressBack()
 
-        findByText(defaultText).assertDoesNotExist()
+        onNodeWithText(defaultText).assertDoesNotExist()
     }
 
     // TODO(pavlis): Espresso loses focus on the dialog after back press. That makes the
@@ -171,13 +171,13 @@ class DialogUiTest {
             }
         }
 
-        findByText(defaultText).assertIsDisplayed()
+        onNodeWithText(defaultText).assertIsDisplayed()
 
         // Click the back button to try to dismiss the dialog
         UiDevice.getInstance(getInstrumentation()).pressBack()
 
         // The Dialog should still be visible
-        findByText(defaultText).assertIsDisplayed()
+        onNodeWithText(defaultText).assertIsDisplayed()
     }
 
     @Test

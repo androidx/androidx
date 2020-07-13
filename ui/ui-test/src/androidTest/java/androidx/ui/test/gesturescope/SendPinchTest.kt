@@ -23,10 +23,10 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendPinch
+import androidx.ui.test.pinch
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.MultiPointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
@@ -65,8 +65,8 @@ class SendPinchTest {
         val end1 = Offset(92f, 50f)
         val duration = 400.milliseconds
 
-        findByTag(TAG).doGesture {
-            sendPinch(start0, end0, start1, end1, duration)
+        onNodeWithTag(TAG).performGesture {
+            pinch(start0, end0, start1, end1, duration)
         }
 
         runOnIdleCompose {

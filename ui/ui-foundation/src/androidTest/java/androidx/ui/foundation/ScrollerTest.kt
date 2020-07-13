@@ -39,17 +39,17 @@ import androidx.ui.test.assertIsNotDisplayed
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.doScrollTo
-import androidx.ui.test.findByTag
-import androidx.ui.test.findByText
+import androidx.ui.test.performGesture
+import androidx.ui.test.performScrollTo
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onNodeWithText
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
-import androidx.ui.test.sendClick
-import androidx.ui.test.sendSwipeDown
-import androidx.ui.test.sendSwipeLeft
-import androidx.ui.test.sendSwipeRight
-import androidx.ui.test.sendSwipeUp
+import androidx.ui.test.click
+import androidx.ui.test.swipeDown
+import androidx.ui.test.swipeLeft
+import androidx.ui.test.swipeRight
+import androidx.ui.test.swipeUp
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
@@ -272,9 +272,9 @@ class ScrollerTest {
     fun verticalScroller_scrollTo_scrollForward() {
         createScrollableContent(isVertical = true)
 
-        findByText("50")
+        onNodeWithText("50")
             .assertIsNotDisplayed()
-            .doScrollTo()
+            .performScrollTo()
             .assertIsDisplayed()
     }
 
@@ -282,9 +282,9 @@ class ScrollerTest {
     fun horizontalScroller_scrollTo_scrollForward() {
         createScrollableContent(isVertical = false)
 
-        findByText("50")
+        onNodeWithText("50")
             .assertIsNotDisplayed()
-            .doScrollTo()
+            .performScrollTo()
             .assertIsDisplayed()
     }
 
@@ -299,9 +299,9 @@ class ScrollerTest {
             )
         )
 
-        findByText("50")
+        onNodeWithText("50")
             .assertIsNotDisplayed()
-            .doScrollTo()
+            .performScrollTo()
             .assertIsDisplayed()
     }
 
@@ -316,9 +316,9 @@ class ScrollerTest {
             )
         )
 
-        findByText("50")
+        onNodeWithText("50")
             .assertIsNotDisplayed()
-            .doScrollTo()
+            .performScrollTo()
             .assertIsDisplayed()
     }
 
@@ -326,14 +326,14 @@ class ScrollerTest {
     fun verticalScroller_scrollTo_scrollBack() {
         createScrollableContent(isVertical = true)
 
-        findByText("50")
+        onNodeWithText("50")
             .assertIsNotDisplayed()
-            .doScrollTo()
+            .performScrollTo()
             .assertIsDisplayed()
 
-        findByText("20")
+        onNodeWithText("20")
             .assertIsNotDisplayed()
-            .doScrollTo()
+            .performScrollTo()
             .assertIsDisplayed()
     }
 
@@ -341,25 +341,25 @@ class ScrollerTest {
     fun horizontalScroller_scrollTo_scrollBack() {
         createScrollableContent(isVertical = false)
 
-        findByText("50")
+        onNodeWithText("50")
             .assertIsNotDisplayed()
-            .doScrollTo()
+            .performScrollTo()
             .assertIsDisplayed()
 
-        findByText("20")
+        onNodeWithText("20")
             .assertIsNotDisplayed()
-            .doScrollTo()
+            .performScrollTo()
             .assertIsDisplayed()
     }
 
     @Test
     fun verticalScroller_swipeUp_swipeDown() {
-        swipeScrollerAndBack(true, GestureScope::sendSwipeUp, GestureScope::sendSwipeDown)
+        swipeScrollerAndBack(true, GestureScope::swipeUp, GestureScope::swipeDown)
     }
 
     @Test
     fun horizontalScroller_swipeLeft_swipeRight() {
-        swipeScrollerAndBack(false, GestureScope::sendSwipeLeft, GestureScope::sendSwipeRight)
+        swipeScrollerAndBack(false, GestureScope::swipeLeft, GestureScope::swipeRight)
     }
 
     @Test
@@ -499,8 +499,8 @@ class ScrollerTest {
             assertThat(scrollerPosition.isAnimating).isEqualTo(false)
         }
 
-        findByTag(scrollerTag)
-            .doGesture { sendSwipeUp() }
+        onNodeWithTag(scrollerTag)
+            .performGesture { swipeUp() }
 
         runOnIdleCompose {
             clock.clockTimeMillis += 100
@@ -508,8 +508,8 @@ class ScrollerTest {
         }
 
         // TODO (matvei/jelle): this should be down, and not click to be 100% fair
-        findByTag(scrollerTag)
-            .doGesture { sendClick() }
+        onNodeWithTag(scrollerTag)
+            .performGesture { click() }
 
         runOnIdleCompose {
             assertThat(scrollerPosition.isAnimating).isEqualTo(false)
@@ -554,7 +554,7 @@ class ScrollerTest {
         runOnIdleCompose {
             clock.clockTimeMillis += 5000
         }
-        findByTag(scrollerTag).awaitScrollAnimation(scrollerPosition)
+        onNodeWithTag(scrollerTag).awaitScrollAnimation(scrollerPosition)
         runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(assertValue)
         }
@@ -577,14 +577,14 @@ class ScrollerTest {
             assertThat(scrollerPosition.value).isEqualTo(0f)
         }
 
-        findByTag(scrollerTag)
-            .doGesture { firstSwipe() }
+        onNodeWithTag(scrollerTag)
+            .performGesture { firstSwipe() }
 
         runOnIdleCompose {
             clock.clockTimeMillis += 5000
         }
 
-        findByTag(scrollerTag)
+        onNodeWithTag(scrollerTag)
             .awaitScrollAnimation(scrollerPosition)
 
         val scrolledValue = runOnIdleCompose {
@@ -592,14 +592,14 @@ class ScrollerTest {
         }
         assertThat(scrolledValue).isGreaterThan(0f)
 
-        findByTag(scrollerTag)
-            .doGesture { secondSwipe() }
+        onNodeWithTag(scrollerTag)
+            .performGesture { secondSwipe() }
 
         runOnIdleCompose {
             clock.clockTimeMillis += 5000
         }
 
-        findByTag(scrollerTag)
+        onNodeWithTag(scrollerTag)
             .awaitScrollAnimation(scrollerPosition)
 
         runOnIdleCompose {
@@ -676,7 +676,7 @@ class ScrollerTest {
         height: Int = 40,
         rowHeight: Int = 5
     ) {
-        findByTag(scrollerTag)
+        onNodeWithTag(scrollerTag)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(width, height)) { pos ->
                 val colorIndex = (offset + pos.y) / rowHeight
@@ -691,7 +691,7 @@ class ScrollerTest {
         height: Int = 45,
         columnWidth: Int = 5
     ) {
-        findByTag(scrollerTag)
+        onNodeWithTag(scrollerTag)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(width, height)) { pos ->
                 val colorIndex = (offset + pos.x) / columnWidth

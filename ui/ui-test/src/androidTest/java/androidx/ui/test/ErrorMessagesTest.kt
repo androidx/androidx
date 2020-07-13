@@ -59,7 +59,7 @@ class ErrorMessagesTest {
                 "Has 1 sibling\n" +
                 "Selector used: (TestTag = 'MyButton')"
         ) {
-            findByTag("MyButton")
+            onNodeWithTag("MyButton")
                 .assertHasClickAction()
         }
     }
@@ -75,7 +75,7 @@ class ErrorMessagesTest {
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(TestTag = 'MyButton3')"
         ) {
-            findByTag("MyButton3")
+            onNodeWithTag("MyButton3")
                 .assertExists()
         }
     }
@@ -91,8 +91,8 @@ class ErrorMessagesTest {
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(TestTag = 'MyButton3')"
         ) {
-            findByTag("MyButton3")
-                .doClick()
+            onNodeWithTag("MyButton3")
+                .performClick()
         }
     }
 
@@ -107,8 +107,8 @@ class ErrorMessagesTest {
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "((TestTag = 'MyButton3') && (OnClick is defined))"
         ) {
-            find(hasTestTag("MyButton3") and hasClickAction())
-                .doClick()
+            onNode(hasTestTag("MyButton3") and hasClickAction())
+                .performClick()
         }
     }
 
@@ -125,8 +125,8 @@ class ErrorMessagesTest {
                 "Nodes found:\n" +
                 "1) Node #X at (X, X, X, X)px, Tag: 'MyButton'"
         ) {
-            findByText("Toggle")
-                .doClick()
+            onNodeWithText("Toggle")
+                .performClick()
         }
     }
 
@@ -137,11 +137,11 @@ class ErrorMessagesTest {
         }
 
         expectErrorMessageStartsWith("" +
-                "Failed to call OnClick action as it is not defined on the node.\n" +
+                "Failed to perform OnClick action as it is not defined on the node.\n" +
                 "Semantics of the node:"
         ) {
-            findByTag("MyButton")
-                .callSemanticsAction(SemanticsActions.OnClick)
+            onNodeWithTag("MyButton")
+                .performSemanticsAction(SemanticsActions.OnClick)
         }
     }
 
@@ -152,12 +152,12 @@ class ErrorMessagesTest {
         }
 
         expectErrorMessageStartsWith("" +
-                "Failed to call OnClick action.\n" +
+                "Failed to perform OnClick action.\n" +
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(TestTag = 'MyButton3')"
         ) {
-            findByTag("MyButton3")
-                .callSemanticsAction(SemanticsActions.OnClick)
+            onNodeWithTag("MyButton3")
+                .performSemanticsAction(SemanticsActions.OnClick)
         }
     }
 
@@ -174,7 +174,7 @@ class ErrorMessagesTest {
                 "Node found:\n" +
                 "Node #X at (X, X, X, X)px, Tag: 'MyButton'"
         ) {
-            findByTag("MyButton")
+            onNodeWithTag("MyButton")
                 .assertDoesNotExist()
         }
     }
@@ -192,7 +192,7 @@ class ErrorMessagesTest {
                 "Nodes found:\n" +
                 "1) Node #X at (X, X, X, X)px"
         ) {
-            findAllByText("Toggle")
+            onAllNodesWithText("Toggle")
                 .assertCountEquals(3)
         }
     }
@@ -208,7 +208,7 @@ class ErrorMessagesTest {
                 "Reason: Expected '3' nodes but could not find any node that satisfies: " +
                 "(Text = 'Toggle2' (ignoreCase: false))"
         ) {
-            findAllByText("Toggle2")
+            onAllNodesWithText("Toggle2")
                 .assertCountEquals(3)
         }
     }
@@ -219,11 +219,11 @@ class ErrorMessagesTest {
             ComposeTextToHideCase()
         }
 
-        val node = findByText("Hello")
+        val node = onNodeWithText("Hello")
             .assertExists()
 
-        findByTag("MyButton")
-            .doClick()
+        onNodeWithTag("MyButton")
+            .performClick()
 
         expectErrorMessage("" +
                 "Failed to perform a gesture.\n" +
@@ -233,7 +233,7 @@ class ErrorMessagesTest {
                 "Has 1 sibling\n" +
                 "Original selector: Text = 'Hello' (ignoreCase: false)"
         ) {
-            node.doClick()
+            node.performClick()
         }
     }
 
@@ -243,12 +243,12 @@ class ErrorMessagesTest {
             ComposeTextToHideCase()
         }
 
-        val node = findByText("Hello")
+        val node = onNodeWithText("Hello")
             .assertExists()
 
         // Hide text
-        findByTag("MyButton")
-            .doClick()
+        onNodeWithTag("MyButton")
+            .performClick()
 
         expectErrorMessage("" +
                 "Failed: assertExists.\n" +
@@ -268,12 +268,12 @@ class ErrorMessagesTest {
             ComposeTextToHideCase()
         }
 
-        val node = findByText("Hello")
+        val node = onNodeWithText("Hello")
             .assertExists()
 
         // Hide text
-        findByTag("MyButton")
-            .doClick()
+        onNodeWithTag("MyButton")
+            .performClick()
 
         expectErrorMessage("" +
                 "Failed to assert the following: (OnClick is defined)\n" +

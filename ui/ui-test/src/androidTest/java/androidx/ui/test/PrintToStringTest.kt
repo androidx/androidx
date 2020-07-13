@@ -53,7 +53,7 @@ class PrintToStringTest {
             "Failed: assertExists.\n" +
             "Reason: Expected exactly '1' node but could not find any node that satisfies:"
         ) {
-            findByText("Oops").printToString()
+            onNodeWithText("Oops").printToString()
         }
     }
 
@@ -63,7 +63,7 @@ class PrintToStringTest {
             ComposeSimpleCase()
         }
 
-        val result = findByText("Hello")
+        val result = onNodeWithText("Hello")
             .printToString(maxDepth = 0)
 
         assertThat(obfuscateNodesInfo(result)).isEqualTo("" +
@@ -78,8 +78,8 @@ class PrintToStringTest {
             ComposeSimpleCase()
         }
 
-        val result = findRoot()
-            .children()
+        val result = onRoot()
+            .onChildren()
             .printToString()
 
         assertThat(obfuscateNodesInfo(result)).isEqualTo("" +
@@ -104,7 +104,7 @@ class PrintToStringTest {
             }
         }
 
-        val result = findRoot()
+        val result = onRoot()
             .printToString()
 
         assertThat(obfuscateNodesInfo(result)).isEqualTo("" +
@@ -138,8 +138,8 @@ class PrintToStringTest {
             }
         }
 
-        val result = findRoot()
-            .children()
+        val result = onRoot()
+            .onChildren()
             .printToString(maxDepth = 1)
 
         assertThat(obfuscateNodesInfo(result)).isEqualTo("" +

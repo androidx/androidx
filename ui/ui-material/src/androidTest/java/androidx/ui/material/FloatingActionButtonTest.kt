@@ -41,9 +41,9 @@ import androidx.ui.test.assertWidthIsAtLeast
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.findByTag
-import androidx.ui.test.findByText
+import androidx.ui.test.performClick
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onNodeWithText
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.center
 import androidx.ui.unit.dp
@@ -72,7 +72,7 @@ class FloatingActionButtonTest {
             }
         }
 
-        findByTag("myButton")
+        onNodeWithTag("myButton")
             .assertIsEnabled()
     }
 
@@ -88,8 +88,8 @@ class FloatingActionButtonTest {
             }
         }
 
-        findByText(text)
-            .doClick()
+        onNodeWithText(text)
+            .performClick()
 
         runOnIdleCompose {
             assertThat(counter).isEqualTo(1)
@@ -118,7 +118,7 @@ class FloatingActionButtonTest {
             )
         }
 
-        findByTag("FAB")
+        onNodeWithTag("FAB")
             .assertHeightIsEqualTo(48.dp)
             .assertWidthIsAtLeast(48.dp)
     }
@@ -133,7 +133,7 @@ class FloatingActionButtonTest {
             )
         }
 
-        findByTag("FAB")
+        onNodeWithTag("FAB")
             .assertWidthIsEqualTo(48.dp)
             .assertHeightIsEqualTo(48.dp)
     }
@@ -161,7 +161,7 @@ class FloatingActionButtonTest {
             }
         }
 
-        findByTag("myButton")
+        onNodeWithTag("myButton")
             .captureToBitmap()
             .assertShape(
                 density = composeTestRule.density,
@@ -194,7 +194,7 @@ class FloatingActionButtonTest {
             }
         }
 
-        findByTag("myButton")
+        onNodeWithTag("myButton")
             .captureToBitmap()
             .assertShape(
                 density = composeTestRule.density,
