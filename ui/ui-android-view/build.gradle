@@ -61,10 +61,8 @@ android {
 }
 
 androidx {
-    name = "AndroidX UI View components"
+    name = "Compose View Wrappers"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
-    description = "AndroidX UI View wrappers."
+    description = "Compose View Wrappers."
 }

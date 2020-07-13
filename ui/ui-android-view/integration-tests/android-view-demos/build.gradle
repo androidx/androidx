@@ -31,8 +31,8 @@ dependencies {
     implementation(KOTLIN_STDLIB)
 
     implementation project(":compose:runtime:runtime")
-    implementation project(":ui:integration-tests:demos:common")
-    implementation project(":ui:ui-android-view")
+    implementation project(":compose:integration-tests:demos:common")
+    implementation project(":compose:android-view:android-view")
     implementation project(":compose:core:core")
     implementation project(":compose:foundation:foundation-layout")
     implementation project(":compose:material:material")
