@@ -23,6 +23,9 @@ import androidx.compose.ui.text.platform.ActualParagraph
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.style.TextDecoration
 
 internal const val DefaultMaxLines = Int.MAX_VALUE
 
@@ -236,9 +239,14 @@ interface Paragraph {
     fun getWordBoundary(offset: Int): TextRange
 
     /**
-     * Paint the paragraph to canvas
+     * Paint the paragraph to canvas, and also overrides some paint settings.
      */
-    fun paint(canvas: Canvas)
+    fun paint(
+        canvas: Canvas,
+        color: Color = Color.Unset,
+        shadow: Shadow? = null,
+        textDecoration: TextDecoration? = null
+    )
 }
 
 /**

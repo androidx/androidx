@@ -50,7 +50,7 @@ internal fun TextLayoutResult.canReuse(
     // Check if this is created from the same parameter.
     val layoutInput = this.layoutInput
     if (!(layoutInput.text == text &&
-                layoutInput.style == style &&
+                layoutInput.style.canReuseLayout(style) &&
                 layoutInput.maxLines == maxLines &&
                 layoutInput.softWrap == softWrap &&
                 layoutInput.overflow == overflow &&
@@ -68,4 +68,25 @@ internal fun TextLayoutResult.canReuse(
         return true
     }
     return constraints.maxWidth == layoutInput.constraints.maxWidth
+}
+
+/**
+ * Returns true if text layout created with this TextStyle can be reused for the [other] TextStyle.
+ */
+internal fun TextStyle.canReuseLayout(other: TextStyle): Boolean {
+    return fontSize == other.fontSize &&
+            fontWeight == other.fontWeight &&
+            fontStyle == other.fontStyle &&
+            fontSynthesis == other.fontSynthesis &&
+            fontFamily == other.fontFamily &&
+            fontFeatureSettings == other.fontFeatureSettings &&
+            letterSpacing == other.letterSpacing &&
+            baselineShift == other.baselineShift &&
+            textGeometricTransform == other.textGeometricTransform &&
+            localeList == other.localeList &&
+            background == other.background &&
+            textAlign == other.textAlign &&
+            textDirection == other.textDirection &&
+            lineHeight == other.lineHeight &&
+            textIndent == other.textIndent
 }

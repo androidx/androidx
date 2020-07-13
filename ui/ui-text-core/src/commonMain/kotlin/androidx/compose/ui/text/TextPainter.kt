@@ -40,7 +40,12 @@ object TextPainter {
             canvas.clipRect(bounds)
         }
         try {
-            textLayoutResult.multiParagraph.paint(canvas)
+            textLayoutResult.multiParagraph.paint(
+                canvas,
+                textLayoutResult.layoutInput.style.color,
+                textLayoutResult.layoutInput.style.shadow,
+                textLayoutResult.layoutInput.style.textDecoration
+            )
         } finally {
             if (needClipping) {
                 canvas.restore()

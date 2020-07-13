@@ -105,7 +105,7 @@ package androidx.compose.ui.text {
     method public float getWidth();
     method public androidx.compose.ui.text.TextRange getWordBoundary(int offset);
     method public boolean isLineEllipsized(int lineIndex);
-    method public void paint(androidx.compose.ui.graphics.Canvas canvas);
+    method public void paint-TAOIQ28(androidx.compose.ui.graphics.Canvas canvas, long color = Color.Unset, androidx.compose.ui.graphics.Shadow? shadow = null, androidx.compose.ui.text.style.TextDecoration? decoration = null);
     property public final boolean didExceedMaxLines;
     property public final float firstBaseline;
     property public final float height;
@@ -163,7 +163,7 @@ package androidx.compose.ui.text {
     method public float getWidth();
     method public androidx.compose.ui.text.TextRange getWordBoundary(int offset);
     method public boolean isLineEllipsized(int lineIndex);
-    method public void paint(androidx.compose.ui.graphics.Canvas canvas);
+    method public void paint-TAOIQ28(androidx.compose.ui.graphics.Canvas canvas, long color = Color.Unset, androidx.compose.ui.graphics.Shadow? shadow = null, androidx.compose.ui.text.style.TextDecoration? textDecoration = null);
     property public abstract boolean didExceedMaxLines;
     property public abstract float firstBaseline;
     property public abstract float height;
