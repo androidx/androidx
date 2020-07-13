@@ -92,6 +92,8 @@ class MediaRoute2Provider extends MediaRouteProvider {
     @Override
     public void onDiscoveryRequestChanged(@Nullable MediaRouteDiscoveryRequest request) {
         if (MediaRouter.getGlobalCallbackCount() > 0) {
+            request = updateDiscoveryRequest(request, MediaRouter.isTransferToLocalEnabled());
+
             mMediaRouter2.registerRouteCallback(mHandlerExecutor, mRouteCallback,
                     MediaRouter2Utils.toDiscoveryPreference(request));
             mMediaRouter2.registerTransferCallback(mHandlerExecutor, mTransferCallback);
@@ -288,6 +290,35 @@ class MediaRoute2Provider extends MediaRouteProvider {
         }
 
         controller.notifyDynamicRoutesChanged(groupDescriptor, dynamicRouteDescriptors);
+    }
+
+    /**
+     * Returns a new discovery request where {@link MediaControlIntent#CATEGORY_LIVE_AUDIO}
+     * is added to (or removed from) the given request, based on whether the 'transfer to local'
+     * feature is enabled.
+     */
+    private MediaRouteDiscoveryRequest updateDiscoveryRequest(
+            @Nullable MediaRouteDiscoveryRequest request, boolean transferToLocalEnabled) {
+        if (request == null) {
+            return null;
+        }
+
+        List<String> controlCategories = request.getSelector().getControlCategories();
+
+        if (transferToLocalEnabled) {
+            // CATEGORY_LIVE_AUDIO should be added.
+            if (!controlCategories.contains(MediaControlIntent.CATEGORY_LIVE_AUDIO)) {
+                controlCategories.add(MediaControlIntent.CATEGORY_LIVE_AUDIO);
+            }
+        } else {
+            // CATEGORY_LIVE_AUDIO should be removed.
+            controlCategories.remove(MediaControlIntent.CATEGORY_LIVE_AUDIO);
+        }
+
+        MediaRouteSelector selector = new MediaRouteSelector.Builder()
+                .addControlCategories(controlCategories)
+                .build();
+        return new MediaRouteDiscoveryRequest(selector, request.isActiveScan());
     }
 
     abstract static class Callback {
