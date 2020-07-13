@@ -24,9 +24,9 @@ import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsPropertyKey
 
 /**
- * Performs a click action on the given component.
+ * Performs a click action on the element represented by the given semantics node.
  */
-fun SemanticsNodeInteraction.doClick(): SemanticsNodeInteraction {
+fun SemanticsNodeInteraction.performClick(): SemanticsNodeInteraction {
     // TODO(jellefresen): Replace with semantics action when semantics merging is done
     // The problem we currently have is that the click action might be defined on a different
     // semantics node than we're interacting with now, even though it is "semantically" the same.
@@ -35,22 +35,22 @@ fun SemanticsNodeInteraction.doClick(): SemanticsNodeInteraction {
     // Since in general the intended click action can be on a wrapping node or a child node, we
     // can't just forward to the correct node, as we don't know if we should search up or down the
     // tree.
-    return doGesture {
-        sendClick()
+    return performGesture {
+        click()
     }
 }
 
 /**
- * Scrolls to a component using SemanticsActions. It first identifies a parent component with a
+ * Scrolls to a node using SemanticsActions. It first identifies a parent semantics node with a
  * Semantics ScrollTo action, then it retrieves the location of the current element and computes
  * the relative coordinates that will be used by the scroller.
  *
- * Throws [AssertionError] if there is no parent component with ScrollTo SemanticsAction, the
- * current semantics component doesn't have a bounding rectangle set or if a layout node used to
+ * Throws [AssertionError] if there is no parent node with ScrollTo SemanticsAction, the
+ * current semantics node doesn't have a bounding rectangle set or if a layout node used to
  * compute the relative coordinates to be fed to the ScrollTo action can't be found.
  */
-fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
-    // find containing component with scroll action
+fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
+    // find containing node with scroll action
     val errorMessageOnFail = "Failed to perform doScrollTo."
     val node = fetchSemanticsNode(errorMessageOnFail)
     val scrollableSemanticsNode = node.findClosestParentNode {
@@ -82,13 +82,13 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
  *
  * Example usage:
  * ```
- * findByTag("myWidget")
+ * onNodeWithTag("myWidget")
  *    .doGesture {
  *        sendSwipeUp()
  *    }
  * ```
  */
-fun SemanticsNodeInteraction.doGesture(
+fun SemanticsNodeInteraction.performGesture(
     block: GestureScope.() -> Unit
 ): SemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to perform a gesture.")
@@ -107,19 +107,19 @@ fun SemanticsNodeInteraction.doGesture(
  * complete and can be resumed later. It is the responsibility of the caller to make sure partial
  * gestures don't leave the test in an inconsistent state.
  *
- * When [sending the down event][sendDown], a token is returned which needs to be used in all
+ * When [sending the down event][down], a token is returned which needs to be used in all
  * subsequent events of this gesture.
  *
  * Example usage:
  * ```
  * val position = Offset(10f, 10f)
- * findByTag("myWidget")
- *    .doPartialGesture { sendDown(position) }
+ * onNodeWithTag("myWidget")
+ *    .performPartialGesture { sendDown(position) }
  *    .assertHasClickAction()
- *    .doPartialGesture { sendUp(position) }
+ *    .performPartialGesture { sendUp(position) }
  * ```
  */
-fun SemanticsNodeInteraction.doPartialGesture(
+fun SemanticsNodeInteraction.performPartialGesture(
     block: PartialGestureScope.() -> Unit
 ): SemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to perform a partial gesture.")
@@ -148,15 +148,15 @@ fun SemanticsNodeInteraction.doPartialGesture(
  *
  * @throws AssertionError If the semantics action is not defined on this node.
  */
-fun <T : Function<Boolean>> SemanticsNodeInteraction.callSemanticsAction(
+fun <T : Function<Boolean>> SemanticsNodeInteraction.performSemanticsAction(
     key: SemanticsPropertyKey<AccessibilityAction<T>>,
     invocation: (T) -> Unit
 ) {
-    val node = fetchSemanticsNode("Failed to call ${key.name} action.")
+    val node = fetchSemanticsNode("Failed to perform ${key.name} action.")
     if (key !in node.config) {
         throw AssertionError(
             buildGeneralErrorMessage(
-                "Failed to call ${key.name} action as it is not defined on the node.",
+                "Failed to perform ${key.name} action as it is not defined on the node.",
                 selector, node)
         )
     }
@@ -179,8 +179,111 @@ fun <T : Function<Boolean>> SemanticsNodeInteraction.callSemanticsAction(
  *
  * @throws AssertionError If the semantics action is not defined on this node.
  */
-fun SemanticsNodeInteraction.callSemanticsAction(
+fun SemanticsNodeInteraction.performSemanticsAction(
     key: SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>
 ) {
-    callSemanticsAction(key) { it.invoke() }
+    performSemanticsAction(key) { it.invoke() }
 }
+
+// DEPRECATED APIs SECTION
+
+/**
+ * Performs a click action on the given component.
+ */
+@Deprecated("Renamed to performClick",
+    replaceWith = ReplaceWith("performClick()"))
+fun SemanticsNodeInteraction.doClick(): SemanticsNodeInteraction = performClick()
+
+/**
+ * Scrolls to a component using SemanticsActions. It first identifies a parent component with a
+ * Semantics ScrollTo action, then it retrieves the location of the current element and computes
+ * the relative coordinates that will be used by the scroller.
+ *
+ * Throws [AssertionError] if there is no parent component with ScrollTo SemanticsAction, the
+ * current semantics component doesn't have a bounding rectangle set or if a layout node used to
+ * compute the relative coordinates to be fed to the ScrollTo action can't be found.
+ */
+@Deprecated("Renamed to performScrollTo",
+    replaceWith = ReplaceWith("performScrollTo()"))
+fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction = performScrollTo()
+
+/**
+ * Executes the gestures specified in the given block.
+ *
+ * Example usage:
+ * ```
+ * onNodeWithTag("myWidget")
+ *    .doGesture {
+ *        sendSwipeUp()
+ *    }
+ * ```
+ */
+@Deprecated("Renamed to performGesture",
+    replaceWith = ReplaceWith("performGesture(block)"))
+fun SemanticsNodeInteraction.doGesture(
+    block: GestureScope.() -> Unit
+): SemanticsNodeInteraction = performGesture(block)
+
+/**
+ * Executes the (partial) gesture specified in the given block. The gesture doesn't need to be
+ * complete and can be resumed later. It is the responsibility of the caller to make sure partial
+ * gestures don't leave the test in an inconsistent state.
+ *
+ * When [sending the down event][down], a token is returned which needs to be used in all
+ * subsequent events of this gesture.
+ *
+ * Example usage:
+ * ```
+ * val position = Offset(10f, 10f)
+ * onNodeWithTag("myWidget")
+ *    .doPartialGesture { sendDown(position) }
+ *    .assertHasClickAction()
+ *    .doPartialGesture { sendUp(position) }
+ * ```
+ */
+@Deprecated("Renamed to performPartialGesture",
+    replaceWith = ReplaceWith("performPartialGesture(block)"))
+fun SemanticsNodeInteraction.doPartialGesture(
+    block: PartialGestureScope.() -> Unit
+): SemanticsNodeInteraction = performPartialGesture(block)
+
+/**
+ * Provides support to call custom semantics actions on this node.
+ *
+ * This method is supposed to be used for actions with parameters.
+ *
+ * This will properly verify that the actions exists and provide clear error message in case it
+ * does not. It also handle synchronization and performing the action on the UI thread. This call
+ * is blocking until the action is performed
+ *
+ * @param key Key of the action to be performed.
+ * @param invocation Place where you call your action. In the argument is provided the underlying
+ * action from the given Semantics action.
+ *
+ * @throws AssertionError If the semantics action is not defined on this node.
+ */
+@Deprecated("Renamed to performSemanticsAction",
+    replaceWith = ReplaceWith("performSemanticsAction(key, invocation)"))
+fun <T : Function<Boolean>> SemanticsNodeInteraction.callSemanticsAction(
+    key: SemanticsPropertyKey<AccessibilityAction<T>>,
+    invocation: (T) -> Unit
+) = performSemanticsAction(key, invocation)
+
+/**
+ * Provides support to call custom semantics actions on this node.
+ *
+ * This method is for calling actions that have no parameters.
+ *
+ * This will properly verify that the actions exists and provide clear error message in case it
+ * does not. It also handle synchronization and performing the action on the UI thread. This call
+ * is blocking until the action is performed
+ *
+ * @param key Key of the action to be performed.
+ *
+ * @throws AssertionError If the semantics action is not defined on this node.
+ */
+@Deprecated("Renamed to performSemanticsAction",
+    replaceWith = ReplaceWith("performSemanticsAction(key)"))
+fun SemanticsNodeInteraction.callSemanticsAction(
+    key: SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>
+) = performSemanticsAction(key)

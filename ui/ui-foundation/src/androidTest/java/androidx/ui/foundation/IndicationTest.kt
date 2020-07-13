@@ -24,11 +24,11 @@ import androidx.ui.core.testTag
 import androidx.ui.layout.preferredSize
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doPartialGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performPartialGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendDown
-import androidx.ui.test.sendUp
+import androidx.ui.test.down
+import androidx.ui.test.up
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
@@ -81,18 +81,18 @@ class IndicationTest {
             )
         }
         assertThat(countDownLatch.count).isEqualTo(2)
-        findByTag(testTag)
+        onNodeWithTag(testTag)
             .assertExists()
-            .doPartialGesture {
-                sendDown(center)
+            .performPartialGesture {
+                down(center)
             }
         runOnIdleCompose {
             assertThat(countDownLatch.count).isEqualTo(1)
         }
-        findByTag(testTag)
+        onNodeWithTag(testTag)
             .assertExists()
-            .doPartialGesture {
-                sendUp()
+            .performPartialGesture {
+                up()
             }
         assertThat(countDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
     }
@@ -137,41 +137,41 @@ class IndicationTest {
         }
         assertThat(lastPosition).isNull()
         var position1: Offset? = null
-        findByTag(testTag)
+        onNodeWithTag(testTag)
             .assertExists()
-            .doPartialGesture {
+            .performPartialGesture {
                 position1 = Offset(center.x, center.y + 20f)
                 // pointer 1, when we have multitouch
-                sendDown(position1!!)
+                down(position1!!)
             }
         runOnIdleCompose {
             assertThat(lastPosition).isEqualTo(position1!!)
         }
-        findByTag(testTag)
+        onNodeWithTag(testTag)
             .assertExists()
-            .doPartialGesture {
+            .performPartialGesture {
                 val position2 = Offset(center.x + 20f, center.y)
                 // pointer 2, when we have multitouch
-                sendDown(position2)
+                down(position2)
             }
         // should be still position1
         runOnIdleCompose {
             assertThat(lastPosition).isEqualTo(position1!!)
         }
-        findByTag(testTag)
+        onNodeWithTag(testTag)
             .assertExists()
-            .doPartialGesture {
+            .performPartialGesture {
                 // pointer 1, when we have multitouch
-                sendUp()
+                up()
             }
         runOnIdleCompose {
             assertThat(lastPosition).isNull()
         }
-        findByTag(testTag)
+        onNodeWithTag(testTag)
             .assertExists()
-            .doPartialGesture {
+            .performPartialGesture {
                 // pointer 2, when we have multitouch
-                sendUp()
+                up()
             }
     }
 

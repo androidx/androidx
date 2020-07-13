@@ -18,10 +18,10 @@ package androidx.ui.test.selectors
 
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
-import androidx.ui.test.children
+import androidx.ui.test.onChildren
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.filterToOne
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
@@ -46,8 +46,8 @@ class FilterToOneSelectorTest {
             }
         }
 
-        findByTag("Parent")
-            .children()
+        onNodeWithTag("Parent")
+            .onChildren()
             .filterToOne(hasTestTag("Child1"))
             .assert(hasTestTag("Child1"))
     }
@@ -69,8 +69,8 @@ class FilterToOneSelectorTest {
                 "Nodes found:\n" +
                 "1) "
         ) {
-            findByTag("Parent")
-                .children()
+            onNodeWithTag("Parent")
+                .onChildren()
                 .filterToOne(hasTestTag("Child1") or hasTestTag("Child2"))
                 .assertExists()
         }
@@ -85,8 +85,8 @@ class FilterToOneSelectorTest {
             }
         }
 
-        findByTag("Parent")
-            .children()
+        onNodeWithTag("Parent")
+            .onChildren()
             .filterToOne(hasTestTag("Child"))
             .assertDoesNotExist()
     }
@@ -104,8 +104,8 @@ class FilterToOneSelectorTest {
                 "Failed: assertExists.\n" +
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(((TestTag = 'Parent').children).filterToOne(TestTag = 'Child'))") {
-            findByTag("Parent")
-                .children()
+            onNodeWithTag("Parent")
+                .onChildren()
                 .filterToOne(hasTestTag("Child"))
                 .assertExists()
         }

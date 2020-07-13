@@ -41,7 +41,7 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.res.vectorResource
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.captureToBitmap
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.waitForIdle
 import com.google.common.truth.Truth
@@ -114,8 +114,8 @@ class IconComparisonTest(
             assertVectorAssetsAreEqual(xmlVector!!, programmaticVector, iconName)
 
             assertBitmapsAreEqual(
-                findByTag(XmlTestTag).captureToBitmap(),
-                findByTag(ProgrammaticTestTag).captureToBitmap(),
+                onNodeWithTag(XmlTestTag).captureToBitmap(),
+                onNodeWithTag(ProgrammaticTestTag).captureToBitmap(),
                 iconName
             )
 

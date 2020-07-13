@@ -45,7 +45,7 @@ class FindInPopupTest {
                 Box(Modifier.testTag(popupTag))
             }
         }
-        findByTag(contentTag).assertExists()
-        findByTag(popupTag).assertExists()
+        onNodeWithTag(contentTag).assertExists()
+        onNodeWithTag(popupTag).assertExists()
     }
 }

@@ -35,12 +35,12 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
-import androidx.ui.test.sendSwipe
-import androidx.ui.test.sendSwipeWithVelocity
+import androidx.ui.test.swipe
+import androidx.ui.test.swipeWithVelocity
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.milliseconds
@@ -80,8 +80,8 @@ class ScrollableTest {
                 dragDirection = DragDirection.Horizontal
             )
         }
-        findByTag(scrollableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(scrollableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
@@ -93,8 +93,8 @@ class ScrollableTest {
             assertThat(total).isGreaterThan(0)
             total
         }
-        findByTag(scrollableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(scrollableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x, this.center.y + 100f),
                 duration = 100.milliseconds
@@ -105,8 +105,8 @@ class ScrollableTest {
         runOnIdleCompose {
             assertThat(total).isEqualTo(lastTotal)
         }
-        findByTag(scrollableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(scrollableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x - 100f, this.center.y),
                 duration = 100.milliseconds
@@ -136,8 +136,8 @@ class ScrollableTest {
                 dragDirection = DragDirection.Vertical
             )
         }
-        findByTag(scrollableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(scrollableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x, this.center.y + 100f),
                 duration = 100.milliseconds
@@ -149,8 +149,8 @@ class ScrollableTest {
             assertThat(total).isGreaterThan(0)
             total
         }
-        findByTag(scrollableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(scrollableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
@@ -161,8 +161,8 @@ class ScrollableTest {
         runOnIdleCompose {
             assertThat(total).isEqualTo(lastTotal)
         }
-        findByTag(scrollableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(scrollableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x, this.center.y - 100f),
                 duration = 100.milliseconds
@@ -200,8 +200,8 @@ class ScrollableTest {
             assertThat(startTrigger).isEqualTo(0)
             assertThat(stopTrigger).isEqualTo(0)
         }
-        findByTag(scrollableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(scrollableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
@@ -240,8 +240,8 @@ class ScrollableTest {
                 enabled = enabled.value
             )
         }
-        findByTag(scrollableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(scrollableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
@@ -253,8 +253,8 @@ class ScrollableTest {
             enabled.value = false
             total
         }
-        findByTag(scrollableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(scrollableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
@@ -288,8 +288,8 @@ class ScrollableTest {
                 }
             )
         }
-        findByTag(scrollableBoxTag).doGesture {
-            this.sendSwipeWithVelocity(
+        onNodeWithTag(scrollableBoxTag).performGesture {
+            this.swipeWithVelocity(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
                 endVelocity = 112f,
@@ -299,8 +299,8 @@ class ScrollableTest {
         }
         // don't advance clocks, so animation won't trigger yet
         // and interrupt
-        findByTag(scrollableBoxTag).doGesture {
-            this.sendSwipeWithVelocity(
+        onNodeWithTag(scrollableBoxTag).performGesture {
+            this.swipeWithVelocity(
                 start = this.center,
                 end = Offset(this.center.x - 100f, this.center.y),
                 endVelocity = 312f,
@@ -332,8 +332,8 @@ class ScrollableTest {
                 dragDirection = DragDirection.Horizontal
             )
         }
-        findByTag(scrollableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(scrollableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
@@ -344,8 +344,8 @@ class ScrollableTest {
             Truth.assertThat(total).isGreaterThan(0f)
             total
         }
-        findByTag(scrollableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(scrollableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 114f, this.center.y),
                 duration = 100.milliseconds
@@ -384,8 +384,8 @@ class ScrollableTest {
                 Modifier
             }
         }
-        findByTag(scrollableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(scrollableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100, this.center.y),
                 duration = 100.milliseconds
@@ -547,8 +547,8 @@ class ScrollableTest {
                 }
             }
         }
-        findByTag(scrollableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(scrollableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 200f, this.center.y),
                 duration = 300.milliseconds

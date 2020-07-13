@@ -30,9 +30,9 @@ import androidx.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.find
-import androidx.ui.test.findByTag
+import androidx.ui.test.performClick
+import androidx.ui.test.onNode
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.isToggleable
 import androidx.ui.unit.dp
 import org.junit.Rule
@@ -76,7 +76,7 @@ class IconButtonTest {
         }
 
         // Icon should be centered inside the IconButton
-        findByTag("icon", useUnmergedTree = true)
+        onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(24.dp / 2)
             .assertTopPositionInRootIsEqualTo(24.dp / 2)
     }
@@ -97,7 +97,7 @@ class IconButtonTest {
         }
 
         // Icon should be centered inside the IconButton
-        findByTag("icon", useUnmergedTree = true)
+        onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((48.dp - width) / 2)
             .assertTopPositionInRootIsEqualTo((48.dp - height) / 2)
     }
@@ -129,7 +129,7 @@ class IconButtonTest {
         }
 
         // Icon should be centered inside the IconButton
-        findByTag("icon", useUnmergedTree = true)
+        onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(24.dp / 2)
             .assertTopPositionInRootIsEqualTo(24.dp / 2)
     }
@@ -149,7 +149,7 @@ class IconButtonTest {
         }
 
         // Icon should be centered inside the IconButton
-        findByTag("icon", useUnmergedTree = true)
+        onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((48.dp - width) / 2)
             .assertTopPositionInRootIsEqualTo((48.dp - height) / 2)
     }
@@ -159,9 +159,9 @@ class IconButtonTest {
         composeTestRule.setMaterialContent {
             IconToggleButtonSample()
         }
-        find(isToggleable()).apply {
+        onNode(isToggleable()).apply {
             assertIsOff()
-            doClick()
+            performClick()
             assertIsOn()
         }
     }

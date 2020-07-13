@@ -31,7 +31,7 @@ internal val SemanticsNode.siblings: List<SemanticsNode>
  * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
  * none or more than one element is found.
  */
-fun SemanticsNodeInteraction.parent(): SemanticsNodeInteraction {
+fun SemanticsNodeInteraction.onParent(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
         useUnmergedTree,
         selector.addSelectionFromSingleNode("parent") { listOfNotNull(it.parent) }
@@ -41,7 +41,7 @@ fun SemanticsNodeInteraction.parent(): SemanticsNodeInteraction {
 /**
  * Returns children of this node.
  */
-fun SemanticsNodeInteraction.children(): SemanticsNodeInteractionCollection {
+fun SemanticsNodeInteraction.onChildren(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         useUnmergedTree,
         selector.addSelectionFromSingleNode("children") { it.children }
@@ -57,7 +57,7 @@ fun SemanticsNodeInteraction.children(): SemanticsNodeInteractionCollection {
  * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
  * none or more than one element is found.
  */
-fun SemanticsNodeInteraction.child(): SemanticsNodeInteraction {
+fun SemanticsNodeInteraction.onChild(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
         useUnmergedTree,
         selector.addSelectionFromSingleNode("child") { it.children }
@@ -69,7 +69,7 @@ fun SemanticsNodeInteraction.child(): SemanticsNodeInteraction {
  *
  * This is just a shortcut for "children[index]".
  */
-fun SemanticsNodeInteraction.childAt(index: Int): SemanticsNodeInteraction = children()[index]
+fun SemanticsNodeInteraction.onChildAt(index: Int): SemanticsNodeInteraction = onChildren()[index]
 
 /**
  * Returns all siblings of this node.
@@ -83,7 +83,7 @@ fun SemanticsNodeInteraction.childAt(index: Int): SemanticsNodeInteraction = chi
  * Returns B1, B3
  * ```
  */
-fun SemanticsNodeInteraction.siblings(): SemanticsNodeInteractionCollection {
+fun SemanticsNodeInteraction.onSiblings(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         useUnmergedTree,
         selector.addSelectionFromSingleNode("siblings") { it.siblings }
@@ -99,7 +99,7 @@ fun SemanticsNodeInteraction.siblings(): SemanticsNodeInteractionCollection {
  * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
  * none or more than one element is found.
  */
-fun SemanticsNodeInteraction.sibling(): SemanticsNodeInteraction {
+fun SemanticsNodeInteraction.onSibling(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
         useUnmergedTree,
         selector.addSelectionFromSingleNode("sibling") { it.siblings }
@@ -117,7 +117,7 @@ fun SemanticsNodeInteraction.sibling(): SemanticsNodeInteraction {
  * Returns B, A
  * ```
  */
-fun SemanticsNodeInteraction.ancestors(): SemanticsNodeInteractionCollection {
+fun SemanticsNodeInteraction.onAncestors(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         useUnmergedTree,
         selector.addSelectionFromSingleNode("ancestors") { it.ancestors.toList() }
@@ -131,7 +131,7 @@ fun SemanticsNodeInteraction.ancestors(): SemanticsNodeInteractionCollection {
  * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
  * no element is found.
  */
-fun SemanticsNodeInteractionCollection.first(): SemanticsNodeInteraction {
+fun SemanticsNodeInteractionCollection.onFirst(): SemanticsNodeInteraction {
     return get(0)
 }
 
@@ -142,7 +142,7 @@ fun SemanticsNodeInteractionCollection.first(): SemanticsNodeInteraction {
  * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
  * no element is found.
  */
-fun SemanticsNodeInteractionCollection.last(): SemanticsNodeInteraction {
+fun SemanticsNodeInteractionCollection.onLast(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(useUnmergedTree, selector.addLastNodeSelector())
 }
 

@@ -33,12 +33,12 @@ import androidx.ui.test.assertIsOn
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performClick
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendSwipeLeft
-import androidx.ui.test.sendSwipeRight
+import androidx.ui.test.swipeLeft
+import androidx.ui.test.swipeRight
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Rule
@@ -68,11 +68,11 @@ class SwitchTest {
             }
         }
 
-        findByTag("checked")
+        onNodeWithTag("checked")
             .assertIsEnabled()
             .assertIsOn()
             .assertValueEquals(Strings.Checked)
-        findByTag("unchecked")
+        onNodeWithTag("unchecked")
             .assertIsEnabled()
             .assertIsOff()
             .assertValueEquals(Strings.Unchecked)
@@ -92,9 +92,9 @@ class SwitchTest {
                 )
             }
         }
-        findByTag(defaultSwitchTag)
+        onNodeWithTag(defaultSwitchTag)
             .assertIsOff()
-            .doClick()
+            .performClick()
             .assertIsOn()
     }
 
@@ -112,11 +112,11 @@ class SwitchTest {
                 )
             }
         }
-        findByTag(defaultSwitchTag)
+        onNodeWithTag(defaultSwitchTag)
             .assertIsOff()
-            .doClick()
+            .performClick()
             .assertIsOn()
-            .doClick()
+            .performClick()
             .assertIsOff()
     }
 
@@ -131,7 +131,7 @@ class SwitchTest {
                 enabled = false
             )
         }
-        findByTag(defaultSwitchTag)
+        onNodeWithTag(defaultSwitchTag)
             .assertHasNoClickAction()
     }
 
@@ -160,15 +160,15 @@ class SwitchTest {
             }
         }
 
-        findByTag(defaultSwitchTag)
-            .doGesture { sendSwipeRight() }
+        onNodeWithTag(defaultSwitchTag)
+            .performGesture { swipeRight() }
 
         runOnIdleCompose {
             Truth.assertThat(state.value).isEqualTo(true)
         }
 
-        findByTag(defaultSwitchTag)
-            .doGesture { sendSwipeLeft() }
+        onNodeWithTag(defaultSwitchTag)
+            .performGesture { swipeLeft() }
 
         runOnIdleCompose {
             Truth.assertThat(state.value).isEqualTo(false)
@@ -190,15 +190,15 @@ class SwitchTest {
             }
         }
 
-        findByTag(defaultSwitchTag)
-            .doGesture { sendSwipeLeft() }
+        onNodeWithTag(defaultSwitchTag)
+            .performGesture { swipeLeft() }
 
         runOnIdleCompose {
             Truth.assertThat(state.value).isEqualTo(true)
         }
 
-        findByTag(defaultSwitchTag)
-            .doGesture { sendSwipeRight() }
+        onNodeWithTag(defaultSwitchTag)
+            .performGesture { swipeRight() }
 
         runOnIdleCompose {
             Truth.assertThat(state.value).isEqualTo(false)

@@ -45,7 +45,7 @@ class FindersTest {
             BoundaryNode { testTag = "not_myTestTag" }
         }
 
-        findAll(hasTestTag("myTestTag")).assertCountEquals(0)
+        onAllNodes(hasTestTag("myTestTag")).assertCountEquals(0)
     }
 
     @Test
@@ -55,9 +55,9 @@ class FindersTest {
             BoundaryNode { testTag = "myTestTag2" }
         }
 
-        findAll(hasTestTag("myTestTag"))
+        onAllNodes(hasTestTag("myTestTag"))
             .assertCountEquals(1)
-            .first()
+            .onFirst()
             .assert(hasTestTag("myTestTag"))
     }
 
@@ -68,7 +68,7 @@ class FindersTest {
             BoundaryNode { testTag = "myTestTag" }
         }
 
-        findAll(hasTestTag("myTestTag"))
+        onAllNodes(hasTestTag("myTestTag"))
             .assertCountEquals(2)
             .apply {
                 get(0).assert(hasTestTag("myTestTag"))
@@ -82,7 +82,7 @@ class FindersTest {
             BoundaryNode { accessibilityLabel = "Hello World" }
         }
 
-        findByText("Hello World")
+        onNodeWithText("Hello World")
     }
 
     @Test(expected = AssertionError::class)
@@ -92,7 +92,7 @@ class FindersTest {
         }
 
         // Need to assert exists or it won't fail
-        findByText("World").assertExists()
+        onNodeWithText("World").assertExists()
     }
 
     @Test
@@ -101,7 +101,7 @@ class FindersTest {
             BoundaryNode { text = AnnotatedString("Hello World") }
         }
 
-        findBySubstring("World")
+        onNodeWithSubstring("World")
     }
 
     @Test
@@ -110,7 +110,7 @@ class FindersTest {
             BoundaryNode { text = AnnotatedString("Hello World") }
         }
 
-        findBySubstring("world", ignoreCase = true)
+        onNodeWithSubstring("world", ignoreCase = true)
     }
 
     @Test
@@ -121,7 +121,7 @@ class FindersTest {
 
         expectError<AssertionError> {
             // Need to assert exists or it won't fetch nodes
-            findBySubstring("world").assertExists()
+            onNodeWithSubstring("world").assertExists()
         }
     }
 

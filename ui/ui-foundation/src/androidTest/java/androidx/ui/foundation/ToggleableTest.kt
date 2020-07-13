@@ -38,15 +38,15 @@ import androidx.ui.test.assertIsOff
 import androidx.ui.test.assertIsOn
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.doPartialGesture
-import androidx.ui.test.find
-import androidx.ui.test.findByTag
-import androidx.ui.test.findByText
+import androidx.ui.test.performClick
+import androidx.ui.test.performPartialGesture
+import androidx.ui.test.onNode
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onNodeWithText
 import androidx.ui.test.isToggleable
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendDown
-import androidx.ui.test.sendUp
+import androidx.ui.test.down
+import androidx.ui.test.up
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -89,15 +89,15 @@ class ToggleableTest {
             FoundationSemanticsProperties.ToggleableState, ToggleableState.Indeterminate
         )
 
-        findByTag("checkedToggleable")
+        onNodeWithTag("checkedToggleable")
             .assertIsEnabled()
             .assertIsOn()
             .assertHasClickAction()
-        findByTag("unCheckedToggleable")
+        onNodeWithTag("unCheckedToggleable")
             .assertIsEnabled()
             .assertIsOff()
             .assertHasClickAction()
-        findByTag("indeterminateToggleable")
+        onNodeWithTag("indeterminateToggleable")
             .assertIsEnabled()
             .assert(hasIndeterminateState())
             .assertHasClickAction()
@@ -122,11 +122,11 @@ class ToggleableTest {
             }
         }
 
-        findByTag("checkedToggleable")
+        onNodeWithTag("checkedToggleable")
             .assertIsEnabled()
             .assertIsOn()
             .assertHasClickAction()
-        findByTag("unCheckedToggleable")
+        onNodeWithTag("unCheckedToggleable")
             .assertIsEnabled()
             .assertIsOff()
             .assertHasClickAction()
@@ -147,7 +147,7 @@ class ToggleableTest {
             }
         }
 
-        find(isToggleable())
+        onNode(isToggleable())
             .assertIsNotEnabled()
             .assertHasNoClickAction()
     }
@@ -168,8 +168,8 @@ class ToggleableTest {
             }
         }
 
-        find(isToggleable())
-            .doClick()
+        onNode(isToggleable())
+            .performClick()
 
         runOnIdleCompose {
             assertThat(checked).isEqualTo(false)
@@ -196,15 +196,15 @@ class ToggleableTest {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
 
-        findByText("ToggleableText")
-            .doPartialGesture { sendDown(center) }
+        onNodeWithText("ToggleableText")
+            .performPartialGesture { down(center) }
 
         runOnIdleCompose {
             assertThat(interactionState.value).contains(Interaction.Pressed)
         }
 
-        findByText("ToggleableText")
-            .doPartialGesture { sendUp() }
+        onNodeWithText("ToggleableText")
+            .performPartialGesture { up() }
 
         runOnIdleCompose {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
@@ -234,8 +234,8 @@ class ToggleableTest {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
 
-        findByText("ToggleableText")
-            .doPartialGesture { sendDown(center) }
+        onNodeWithText("ToggleableText")
+            .performPartialGesture { down(center) }
 
         runOnIdleCompose {
             assertThat(interactionState.value).contains(Interaction.Pressed)

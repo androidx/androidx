@@ -18,9 +18,9 @@ package androidx.ui.test.selectors
 
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
-import androidx.ui.test.child
+import androidx.ui.test.onChild
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
@@ -44,8 +44,8 @@ class ChildSelectorTest {
             }
         }
 
-        findByTag("Parent")
-            .child()
+        onNodeWithTag("Parent")
+            .onChild()
             .assert(hasTestTag("Child"))
     }
 
@@ -55,8 +55,8 @@ class ChildSelectorTest {
             BoundaryNode(testTag = "Parent")
         }
 
-        findByTag("Parent")
-            .child()
+        onNodeWithTag("Parent")
+            .onChild()
             .assertDoesNotExist()
     }
 
@@ -66,8 +66,8 @@ class ChildSelectorTest {
             BoundaryNode(testTag = "Parent")
         }
 
-        findByTag("Parent")
-            .child()
+        onNodeWithTag("Parent")
+            .onChild()
             .assertExists()
     }
 
@@ -86,8 +86,8 @@ class ChildSelectorTest {
                 "((TestTag = 'Parent').child)\n" +
                 "Nodes found:"
         ) {
-            findByTag("Parent")
-                .child()
+            onNodeWithTag("Parent")
+                .onChild()
                 .assertExists()
         }
     }

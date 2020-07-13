@@ -31,8 +31,8 @@ import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
-import androidx.ui.test.findByText
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onNodeWithText
 import androidx.ui.test.getBoundsInRoot
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Dp
@@ -70,7 +70,7 @@ class AppBarTest {
         composeTestRule.setMaterialContent {
             TopAppBar(title = { Text(title) })
         }
-        findByText(title).assertIsDisplayed()
+        onNodeWithText(title).assertIsDisplayed()
     }
 
     @Test
@@ -91,25 +91,25 @@ class AppBarTest {
             }
         }
 
-        val appBarBounds = findByTag("bar").getBoundsInRoot()
-        val titleBounds = findByTag("title").getBoundsInRoot()
+        val appBarBounds = onNodeWithTag("bar").getBoundsInRoot()
+        val titleBounds = onNodeWithTag("title").getBoundsInRoot()
         val appBarBottomEdgeY = appBarBounds.top + appBarBounds.height
 
-        findByTag("navigationIcon")
+        onNodeWithTag("navigationIcon")
             // Navigation icon should be 4.dp from the start
             .assertLeftPositionInRootIsEqualTo(AppBarStartAndEndPadding)
             // Navigation icon should be 4.dp from the bottom
             .assertTopPositionInRootIsEqualTo(
                 appBarBottomEdgeY - AppBarStartAndEndPadding - FakeIconSize)
 
-        findByTag("title")
+        onNodeWithTag("title")
             // Title should be 72.dp from the start
             // 4.dp padding for the whole app bar + 68.dp inset
             .assertLeftPositionInRootIsEqualTo(4.dp + 68.dp)
             // Title should be vertically centered
             .assertTopPositionInRootIsEqualTo((appBarBounds.height - titleBounds.height) / 2)
 
-        findByTag("action")
+        onNodeWithTag("action")
             // Action should be placed at the end
             .assertLeftPositionInRootIsEqualTo(expectedActionPosition(appBarBounds.width))
             // Action should be 4.dp from the bottom
@@ -132,14 +132,14 @@ class AppBarTest {
             }
         }
 
-        val appBarBounds = findByTag("bar").getBoundsInRoot()
+        val appBarBounds = onNodeWithTag("bar").getBoundsInRoot()
 
-        findByTag("title")
+        onNodeWithTag("title")
             // Title should now be placed 16.dp from the start, as there is no navigation icon
             // 4.dp padding for the whole app bar + 12.dp inset
             .assertLeftPositionInRootIsEqualTo(4.dp + 12.dp)
 
-        findByTag("action")
+        onNodeWithTag("action")
             // Action should still be placed at the end
             .assertLeftPositionInRootIsEqualTo(expectedActionPosition(appBarBounds.width))
     }
@@ -181,10 +181,10 @@ class AppBarTest {
             }
         }
 
-        val appBarBounds = findByTag("bar").getBoundsInRoot()
+        val appBarBounds = onNodeWithTag("bar").getBoundsInRoot()
         val appBarBottomEdgeY = appBarBounds.top + appBarBounds.height
 
-        findByTag("icon")
+        onNodeWithTag("icon")
             // Child icon should be 4.dp from the start
             .assertLeftPositionInRootIsEqualTo(AppBarStartAndEndPadding)
             // Child icon should be 4.dp from the bottom

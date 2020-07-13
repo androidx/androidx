@@ -34,7 +34,7 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.unit.Density
 import org.junit.Rule
 import org.junit.Test
@@ -71,7 +71,7 @@ class BorderTest(val shape: Shape) {
                 ) {}
             }
         }
-        val bitmap = findByTag(testTag).captureToBitmap()
+        val bitmap = onNodeWithTag(testTag).captureToBitmap()
         bitmap.assertShape(
             density = composeTestRule.density,
             backgroundColor = Color.Red,
@@ -98,7 +98,7 @@ class BorderTest(val shape: Shape) {
                 ) {}
             }
         }
-        val bitmap = findByTag(testTag).captureToBitmap()
+        val bitmap = onNodeWithTag(testTag).captureToBitmap()
         bitmap.assertShape(
             density = composeTestRule.density,
             backgroundColor = Color.Red,
@@ -122,7 +122,7 @@ class BorderTest(val shape: Shape) {
                 ) {}
             }
         }
-        val bitmap = findByTag(testTag).captureToBitmap()
+        val bitmap = onNodeWithTag(testTag).captureToBitmap()
         bitmap.assertShape(
             density = composeTestRule.density,
             backgroundColor = Color.White,
@@ -144,7 +144,7 @@ class BorderTest(val shape: Shape) {
                 ) {}
             }
         }
-        val bitmap = findByTag(testTag).captureToBitmap()
+        val bitmap = onNodeWithTag(testTag).captureToBitmap()
         bitmap.assertShape(
             density = composeTestRule.density,
             backgroundColor = Color.White,
@@ -170,7 +170,7 @@ class BorderTest(val shape: Shape) {
                 }
             }
         }
-        val bitmap = findByTag(testTag).captureToBitmap()
+        val bitmap = onNodeWithTag(testTag).captureToBitmap()
         bitmap.assertShape(
             density = composeTestRule.density,
             backgroundColor = Color.White,

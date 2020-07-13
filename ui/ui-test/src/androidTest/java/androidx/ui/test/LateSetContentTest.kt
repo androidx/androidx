@@ -34,7 +34,7 @@ class LateSetContentTest {
 
     @Test
     fun test() {
-        findByTag("Node").assertExists()
+        onNodeWithTag("Node").assertExists()
     }
 
     class Activity : ComponentActivity() {

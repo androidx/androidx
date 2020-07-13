@@ -18,11 +18,11 @@ package androidx.ui.test.selectors
 
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
-import androidx.ui.test.childAt
-import androidx.ui.test.children
+import androidx.ui.test.onChildAt
+import androidx.ui.test.onChildren
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
-import androidx.ui.test.first
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onFirst
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
@@ -47,9 +47,9 @@ class AddIndexSelectorTest {
             }
         }
 
-        findByTag("Parent")
-            .children()
-            .first()
+        onNodeWithTag("Parent")
+            .onChildren()
+            .onFirst()
             .assert(hasTestTag("Child1"))
     }
 
@@ -62,8 +62,8 @@ class AddIndexSelectorTest {
             }
         }
 
-        findByTag("Parent")
-            .childAt(1)
+        onNodeWithTag("Parent")
+            .onChildAt(1)
             .assert(hasTestTag("Child2"))
     }
 
@@ -80,8 +80,8 @@ class AddIndexSelectorTest {
                 "Failed: assertExists.\n" +
                 "Can't retrieve node at index '2' of '(TestTag = 'Parent').children'\n" +
                 "There are '2' nodes only:") {
-            findByTag("Parent")
-                .childAt(2)
+            onNodeWithTag("Parent")
+                .onChildAt(2)
                 .assertExists()
         }
     }
@@ -92,8 +92,8 @@ class AddIndexSelectorTest {
             BoundaryNode(testTag = "Parent")
         }
 
-        findByTag("Parent")
-            .childAt(2)
+        onNodeWithTag("Parent")
+            .onChildAt(2)
             .assertDoesNotExist()
     }
 
@@ -107,8 +107,8 @@ class AddIndexSelectorTest {
                 "Failed: assertExists.\n" +
                 "Can't retrieve node at index '2' of '(TestTag = 'Parent').children'\n" +
                 "There are no existing nodes for that selector.") {
-            findByTag("Parent")
-                .childAt(2)
+            onNodeWithTag("Parent")
+                .onChildAt(2)
                 .assertExists()
         }
     }

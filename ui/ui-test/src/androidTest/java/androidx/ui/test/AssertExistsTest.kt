@@ -61,28 +61,28 @@ class AssertExistsTest {
             }
         }
 
-        findByText("Hello")
+        onNodeWithText("Hello")
             .assertExists()
 
         expectAssertionError(true) {
-            findByText("Hello")
+            onNodeWithText("Hello")
                 .assertDoesNotExist()
         }
 
-        val cachedResult = findByText("Hello")
+        val cachedResult = onNodeWithText("Hello")
 
         // Hide
-        findByTag("MyButton")
-            .doClick()
+        onNodeWithTag("MyButton")
+            .performClick()
 
-        findByText("Hello")
+        onNodeWithText("Hello")
             .assertDoesNotExist()
 
         cachedResult
             .assertDoesNotExist()
 
         expectAssertionError(true) {
-            findByText("Hello")
+            onNodeWithText("Hello")
                 .assertExists()
         }
 
@@ -91,14 +91,14 @@ class AssertExistsTest {
         }
 
         // Show
-        findByTag("MyButton")
-            .doClick()
+        onNodeWithTag("MyButton")
+            .performClick()
 
-        findByText("Hello")
+        onNodeWithText("Hello")
             .assertExists()
 
         expectAssertionError(true) {
-            findByText("Hello")
+            onNodeWithText("Hello")
                 .assertDoesNotExist()
         }
     }

@@ -30,16 +30,16 @@ import androidx.ui.test.assertIsSelected
 import androidx.ui.test.assertIsUnselected
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.doPartialGesture
-import androidx.ui.test.find
-import androidx.ui.test.findAll
-import androidx.ui.test.findByText
-import androidx.ui.test.first
+import androidx.ui.test.performClick
+import androidx.ui.test.performPartialGesture
+import androidx.ui.test.onNode
+import androidx.ui.test.onAllNodes
+import androidx.ui.test.onNodeWithText
+import androidx.ui.test.onFirst
 import androidx.ui.test.isInMutuallyExclusiveGroup
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendDown
-import androidx.ui.test.sendUp
+import androidx.ui.test.down
+import androidx.ui.test.up
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -62,9 +62,9 @@ class SelectableTest {
             )
         }
 
-        findAll(isInMutuallyExclusiveGroup())
+        onAllNodes(isInMutuallyExclusiveGroup())
             .assertCountEquals(1)
-            .first()
+            .onFirst()
             .assertIsInMutuallyExclusiveGroup()
             .assertIsSelected()
     }
@@ -82,11 +82,11 @@ class SelectableTest {
             )
         }
 
-        find(isInMutuallyExclusiveGroup())
+        onNode(isInMutuallyExclusiveGroup())
             .assertIsUnselected()
-            .doClick()
+            .performClick()
             .assertIsSelected()
-            .doClick()
+            .performClick()
             .assertIsUnselected()
     }
 
@@ -102,9 +102,9 @@ class SelectableTest {
             )
         }
 
-        find(isInMutuallyExclusiveGroup())
+        onNode(isInMutuallyExclusiveGroup())
             .assertIsUnselected()
-            .doClick()
+            .performClick()
             .assertIsUnselected()
     }
 
@@ -128,15 +128,15 @@ class SelectableTest {
             Truth.assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
 
-        findByText("SelectableText")
-            .doPartialGesture { sendDown(center) }
+        onNodeWithText("SelectableText")
+            .performPartialGesture { down(center) }
 
         runOnIdleCompose {
             Truth.assertThat(interactionState.value).contains(Interaction.Pressed)
         }
 
-        findByText("SelectableText")
-            .doPartialGesture { sendUp() }
+        onNodeWithText("SelectableText")
+            .performPartialGesture { up() }
 
         runOnIdleCompose {
             Truth.assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
@@ -166,8 +166,8 @@ class SelectableTest {
             Truth.assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
 
-        findByText("SelectableText")
-            .doPartialGesture { sendDown(center) }
+        onNodeWithText("SelectableText")
+            .performPartialGesture { down(center) }
 
         runOnIdleCompose {
             Truth.assertThat(interactionState.value).contains(Interaction.Pressed)

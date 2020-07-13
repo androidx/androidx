@@ -77,7 +77,7 @@ class SynchronizationMethodsTest {
         withAndroidOwnerRegistry {
             runOnIdleCompose {
                 expectError<IllegalStateException> {
-                    findByTag("dummy").assertExists()
+                    onNodeWithTag("dummy").assertExists()
                 }
             }
         }

@@ -37,7 +37,7 @@ import androidx.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.ui.test.assertWidthIsAtLeast
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.util.expectError
 import androidx.ui.unit.dp
 import org.junit.Rule
@@ -102,7 +102,7 @@ class BoundsAssertionsTest {
     fun assertEquals() {
         composeBox()
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertWidthIsEqualTo(80.dp)
             .assertHeightIsEqualTo(100.dp)
     }
@@ -111,7 +111,7 @@ class BoundsAssertionsTest {
     fun assertAtLeast() {
         composeBox()
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertWidthIsAtLeast(80.dp)
             .assertWidthIsAtLeast(79.dp)
             .assertHeightIsAtLeast(100.dp)
@@ -123,12 +123,12 @@ class BoundsAssertionsTest {
         composeBox()
 
         expectError<AssertionError> {
-            findByTag(tag)
+            onNodeWithTag(tag)
                 .assertWidthIsEqualTo(70.dp)
         }
 
         expectError<AssertionError> {
-            findByTag(tag)
+            onNodeWithTag(tag)
                 .assertHeightIsEqualTo(90.dp)
         }
     }
@@ -138,12 +138,12 @@ class BoundsAssertionsTest {
         composeBox()
 
         expectError<AssertionError> {
-            findByTag(tag)
+            onNodeWithTag(tag)
                 .assertWidthIsAtLeast(81.dp)
         }
 
         expectError<AssertionError> {
-            findByTag(tag)
+            onNodeWithTag(tag)
                 .assertHeightIsAtLeast(101.dp)
         }
     }
@@ -152,7 +152,7 @@ class BoundsAssertionsTest {
     fun assertPosition() {
         composeBox()
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertPositionInRootIsEqualTo(expectedLeft = 50.dp, expectedTop = 100.dp)
             .assertLeftPositionInRootIsEqualTo(50.dp)
             .assertTopPositionInRootIsEqualTo(100.dp)
@@ -163,12 +163,12 @@ class BoundsAssertionsTest {
         composeBox()
 
         expectError<AssertionError> {
-            findByTag(tag)
+            onNodeWithTag(tag)
                 .assertPositionInRootIsEqualTo(expectedLeft = 51.dp, expectedTop = 101.dp)
         }
 
         expectError<AssertionError> {
-            findByTag(tag)
+            onNodeWithTag(tag)
                 .assertPositionInRootIsEqualTo(expectedLeft = 49.dp, expectedTop = 99.dp)
         }
     }

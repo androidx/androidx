@@ -25,8 +25,8 @@ import androidx.ui.input.TextFieldValue
 import androidx.ui.input.TextInputService
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.find
+import androidx.ui.test.performClick
+import androidx.ui.test.onNode
 import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.SoftwareKeyboardController
@@ -72,8 +72,8 @@ class SoftwareKeyboardTest {
         }
 
         // Perform click to focus in.
-        find(hasInputMethodsSupport())
-            .doClick()
+        onNode(hasInputMethodsSupport())
+            .performClick()
 
         runOnIdleCompose {
             verify(onTextInputStarted, times(1)).invoke(any())

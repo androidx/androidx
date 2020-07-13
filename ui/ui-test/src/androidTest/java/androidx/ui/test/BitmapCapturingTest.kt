@@ -79,7 +79,7 @@ class BitmapCapturingTest(val config: TestConfig) {
         composeCheckerboard()
 
         var calledCount = 0
-        findByTag(tag11)
+        onNodeWithTag(tag11)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(100, 50)) {
                 calledCount++
@@ -87,17 +87,17 @@ class BitmapCapturingTest(val config: TestConfig) {
             }
         assertThat(calledCount).isEqualTo(100 * 50)
 
-        findByTag(tag12)
+        onNodeWithTag(tag12)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(100, 50)) {
                 color12
             }
-        findByTag(tag21)
+        onNodeWithTag(tag21)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(100, 50)) {
                 color21
             }
-        findByTag(tag22)
+        onNodeWithTag(tag22)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(100, 50)) {
                 color22
@@ -108,7 +108,7 @@ class BitmapCapturingTest(val config: TestConfig) {
     fun captureRootContainer_checkSizeAndColors() {
         composeCheckerboard()
 
-        findByTag(rootTag)
+        onNodeWithTag(rootTag)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(200, 100)) {
                 if (it.y >= 100 || it.x >= 200) {
@@ -122,7 +122,7 @@ class BitmapCapturingTest(val config: TestConfig) {
     fun assertWrongColor_expectException() {
         composeCheckerboard()
 
-        findByTag(tag11)
+        onNodeWithTag(tag11)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(100, 50)) {
                 color22 // Assuming wrong color
@@ -133,7 +133,7 @@ class BitmapCapturingTest(val config: TestConfig) {
     fun assertWrongSize_expectException() {
         composeCheckerboard()
 
-        findByTag(tag11)
+        onNodeWithTag(tag11)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(10, 10)) {
                 color21

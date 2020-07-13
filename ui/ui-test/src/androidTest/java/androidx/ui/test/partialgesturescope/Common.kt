@@ -17,12 +17,12 @@
 package androidx.ui.test.partialgesturescope
 
 import androidx.ui.test.PartialGestureScope
-import androidx.ui.test.doPartialGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performPartialGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.util.ClickableTestBox.defaultTag
 
 object Common {
     fun partialGesture(block: PartialGestureScope.() -> Unit) {
-        findByTag(defaultTag).doPartialGesture(block)
+        onNodeWithTag(defaultTag).performPartialGesture(block)
     }
 }

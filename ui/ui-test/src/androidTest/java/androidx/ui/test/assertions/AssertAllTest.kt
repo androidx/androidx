@@ -19,9 +19,9 @@ package androidx.ui.test.assertions
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assertAll
 import androidx.ui.test.assertCountEquals
-import androidx.ui.test.children
+import androidx.ui.test.onChildren
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
@@ -47,8 +47,8 @@ class AssertAllTest {
             }
         }
 
-        findByTag("Parent")
-            .children()
+        onNodeWithTag("Parent")
+            .onChildren()
             .assertAll(hasTestTag("Child1") or hasTestTag("Child2"))
     }
 
@@ -66,8 +66,8 @@ class AssertAllTest {
                 "Found '1' node not matching:\n" +
                 "Node #X"
         ) {
-            findByTag("Parent")
-                .children()
+            onNodeWithTag("Parent")
+                .onChildren()
                 .assertAll(hasTestTag("Child1"))
         }
     }
@@ -87,8 +87,8 @@ class AssertAllTest {
                 "Found '2' nodes not matching:\n" +
                 "1) "
         ) {
-            findByTag("Parent")
-                .children()
+            onNodeWithTag("Parent")
+                .onChildren()
                 .assertAll(hasTestTag("Child1"))
         }
     }
@@ -99,8 +99,8 @@ class AssertAllTest {
             BoundaryNode(testTag = "Parent")
         }
 
-        findByTag("Parent")
-            .children()
+        onNodeWithTag("Parent")
+            .onChildren()
             .assertCountEquals(0)
             .assertAll(hasTestTag("Child"))
     }

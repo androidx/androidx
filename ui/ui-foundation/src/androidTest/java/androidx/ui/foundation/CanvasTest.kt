@@ -34,7 +34,7 @@ import androidx.ui.test.assertShape
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findRoot
+import androidx.ui.test.onRoot
 import androidx.ui.unit.dp
 import org.junit.Assert
 import org.junit.Rule
@@ -80,7 +80,7 @@ class CanvasTest {
         val paintBoxColor = Color.Red.toArgb()
         val containerBgColor = Color.White.toArgb()
         val strokeOffset = (strokeWidth / 2).toInt() + 3
-        findRoot().captureToBitmap().apply {
+        onRoot().captureToBitmap().apply {
             val imageStartX = width / 2 - boxWidth / 2
             val imageStartY = height / 2 - boxHeight / 2
 

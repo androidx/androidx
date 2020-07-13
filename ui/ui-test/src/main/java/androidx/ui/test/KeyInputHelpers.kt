@@ -26,7 +26,7 @@ import androidx.ui.core.keyinput.KeyEvent2
  * @return true if the event was consumed. False otherwise.
  */
 @OptIn(ExperimentalKeyInput::class)
-fun SemanticsNodeInteraction.doSendKeyEvent(keyEvent: KeyEvent2): Boolean {
+fun SemanticsNodeInteraction.performKeyPress(keyEvent: KeyEvent2): Boolean {
     val semanticsNode = fetchSemanticsNode("Failed to send key Event (${keyEvent.key})")
     @OptIn(ExperimentalLayoutNodeApi::class)
     val owner = semanticsNode.componentNode.owner

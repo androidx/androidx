@@ -30,12 +30,12 @@ import androidx.ui.demos.common.allLaunchableDemos
 import androidx.ui.test.SemanticsNodeInteractionCollection
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.assertTextEquals
-import androidx.ui.test.doClick
-import androidx.ui.test.doScrollTo
-import androidx.ui.test.find
-import androidx.ui.test.findAll
-import androidx.ui.test.findByTag
-import androidx.ui.test.findByText
+import androidx.ui.test.performClick
+import androidx.ui.test.performScrollTo
+import androidx.ui.test.onNode
+import androidx.ui.test.onAllNodes
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onNodeWithText
 import androidx.ui.test.hasClickAction
 import androidx.ui.test.hasText
 import androidx.ui.test.isDialog
@@ -60,7 +60,7 @@ class DemoTest {
     fun testFiltering() {
         assertIsOnRootScreen()
         // Enter filtering mode
-        findByTag(Tags.FilterButton).doClick()
+        onNodeWithTag(Tags.FilterButton).performClick()
         waitForIdle()
 
         composeTestRule.clockTestRule.advanceClock(5000)
@@ -73,7 +73,7 @@ class DemoTest {
             .first()
         // Click on the first demo
         val demoTitle = testDemo.title
-        findByText(demoTitle).doScrollTo().doClick()
+        onNodeWithText(demoTitle).performScrollTo().performClick()
         waitForIdle()
 
         assertAppBarHasTitle(demoTitle)
@@ -156,10 +156,10 @@ class DemoTest {
             path.drop(1).joinToString(" > ")
         }
 
-        find(hasText(title) and hasClickAction())
+        onNode(hasText(title) and hasClickAction())
             .assertExists("Couldn't find \"$title\" in \"$navigationTitle\"")
-            .doScrollTo()
-            .doClick()
+            .performScrollTo()
+            .performClick()
 
         waitForIdle()
         composeTestRule.clockTestRule.advanceClock(5000)
@@ -174,7 +174,7 @@ class DemoTest {
 
         // Don't `findAll` in WebComponentActivity, it doesn't have an AndroidOwner
         if (title != "WebComponent") {
-            while (findAll(isDialog()).isNotEmpty()) {
+            while (onAllNodes(isDialog()).isNotEmpty()) {
                 waitForIdle()
                 Espresso.pressBack()
             }
@@ -199,7 +199,7 @@ private fun assertIsOnRootScreen() = assertAppBarHasTitle(AllDemosCategory.title
  * Asserts that the app bar title matches the given [title].
  */
 private fun assertAppBarHasTitle(title: String) =
-    findByTag(Tags.AppBarTitle).assertTextEquals(title)
+    onNodeWithTag(Tags.AppBarTitle).assertTextEquals(title)
 
 private fun SemanticsNodeInteractionCollection.isNotEmpty(): Boolean {
     return fetchSemanticsNodes().isNotEmpty()

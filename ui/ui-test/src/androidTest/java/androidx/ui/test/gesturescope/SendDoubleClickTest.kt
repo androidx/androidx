@@ -23,9 +23,9 @@ import androidx.ui.geometry.Offset
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
 import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
-import androidx.ui.test.sendDoubleClick
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.doubleClick
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.ClickableTestBox.defaultSize
 import androidx.ui.test.util.ClickableTestBox.defaultTag
@@ -89,15 +89,15 @@ class SendDoubleClickTest(private val config: TestConfig) {
         }
 
         // When we inject a double click
-        findByTag(defaultTag).doGesture {
+        onNodeWithTag(defaultTag).performGesture {
             if (config.position != null && config.delay != null) {
-                sendDoubleClick(config.position, config.delay)
+                doubleClick(config.position, config.delay)
             } else if (config.position != null) {
-                sendDoubleClick(config.position)
+                doubleClick(config.position)
             } else if (config.delay != null) {
-                sendDoubleClick(delay = config.delay)
+                doubleClick(delay = config.delay)
             } else {
-                sendDoubleClick()
+                doubleClick()
             }
         }
 

@@ -31,8 +31,8 @@ import androidx.ui.test.assertIsOff
 import androidx.ui.test.assertIsOn
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.findByTag
+import androidx.ui.test.performClick
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
@@ -57,12 +57,12 @@ class CheckboxUiTest {
             }
         }
 
-        findByTag("checkboxUnchecked")
+        onNodeWithTag("checkboxUnchecked")
             .assertIsEnabled()
             .assertIsOff()
             .assertValueEquals(Strings.Unchecked)
 
-        findByTag("checkboxChecked")
+        onNodeWithTag("checkboxChecked")
             .assertIsEnabled()
             .assertIsOn()
             .assertValueEquals(Strings.Checked)
@@ -75,9 +75,9 @@ class CheckboxUiTest {
             Checkbox(checked, onCheckedChange, modifier = Modifier.testTag(defaultTag))
         }
 
-        findByTag(defaultTag)
+        onNodeWithTag(defaultTag)
             .assertIsOff()
-            .doClick()
+            .performClick()
             .assertIsOn()
     }
 
@@ -88,11 +88,11 @@ class CheckboxUiTest {
             Checkbox(checked, onCheckedChange, modifier = Modifier.testTag(defaultTag))
         }
 
-        findByTag(defaultTag)
+        onNodeWithTag(defaultTag)
             .assertIsOff()
-            .doClick()
+            .performClick()
             .assertIsOn()
-            .doClick()
+            .performClick()
             .assertIsOff()
     }
 
@@ -104,7 +104,7 @@ class CheckboxUiTest {
             Checkbox(checked, {}, enabled = false, modifier = Modifier.testTag(defaultTag))
         }
 
-        findByTag(defaultTag)
+        onNodeWithTag(defaultTag)
             .assertHasNoClickAction()
     }
 

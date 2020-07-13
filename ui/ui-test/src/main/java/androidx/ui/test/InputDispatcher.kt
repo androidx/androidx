@@ -133,7 +133,7 @@ internal abstract class InputDispatcher {
      * Generates the downTime of the next gesture with the given [duration]. The gesture's
      * [duration] is necessary to facilitate chaining of gestures: if another gesture is made
      * after the next one, it will start exactly [duration] after the start of the next gesture.
-     * Always use this method to determine the downTime of the [down event][sendDown] of a gesture.
+     * Always use this method to determine the downTime of the [down event][down] of a gesture.
      *
      * If the duration is unknown when calling this method, use a duration of zero and update
      * with [moveNextDownTime] when the duration is known, or use [moveNextDownTime]
@@ -174,8 +174,8 @@ internal abstract class InputDispatcher {
      * same [InputDispatcher] instance as the one used to end the last gesture.
      *
      * Note: this does not affect the time of the next event for the _current_ partial gesture,
-     * using [sendMove], [sendUp] and [sendCancel], but it will affect the time of the _next_
-     * gesture (including partial gestures started with [sendDown]).
+     * using [move], [up] and [cancel], but it will affect the time of the _next_
+     * gesture (including partial gestures started with [down]).
      *
      * @param duration The duration of the delay. Must be positive
      */
@@ -353,18 +353,18 @@ internal abstract class InputDispatcher {
      * for that pointer. Pointer ids may be reused during the same gesture. This method blocks
      * until the input event has been dispatched.
      *
-     * It is possible to mix partial gestures with full gestures (e.g. send a [click][sendClick]
+     * It is possible to mix partial gestures with full gestures (e.g. send a [click][click]
      * during a partial gesture), as long as you make sure that the default pointer id (id=0) is
      * free to be used by the full gesture.
      *
      * A full gesture starts with a down event at some position (with this method) that indicates
-     * a finger has started touching the screen, followed by zero or more [down][sendDown],
-     * [move][sendMove] and [up][sendUp] events that respectively indicate that another finger
+     * a finger has started touching the screen, followed by zero or more [down][down],
+     * [move][move] and [up][up] events that respectively indicate that another finger
      * started touching the screen, a finger moved around or a finger was lifted up from the
-     * screen. A gesture is finished when [up][sendUp] lifts the last remaining finger from the
-     * screen, or when a single [cancel][sendCancel] event is sent.
+     * screen. A gesture is finished when [up][up] lifts the last remaining finger from the
+     * screen, or when a single [cancel][cancel] event is sent.
      *
-     * Partial gestures don't have to be defined all in the same [doPartialGesture] block, but
+     * Partial gestures don't have to be defined all in the same [performPartialGesture] block, but
      * keep in mind that while the gesture is not complete, all code you execute in between
      * blocks that progress the gesture, will be executed while imaginary fingers are actively
      * touching the screen.
@@ -376,9 +376,9 @@ internal abstract class InputDispatcher {
      * @param position The coordinate of the down event
      *
      * @see movePointer
-     * @see sendMove
-     * @see sendUp
-     * @see sendCancel
+     * @see move
+     * @see up
+     * @see cancel
      */
     fun sendDown(pointerId: Int, position: Offset) {
         var gesture = partialGesture
@@ -406,18 +406,18 @@ internal abstract class InputDispatcher {
      * Updates the position of the pointer with the given [pointerId] to the given [position],
      * but does not send a move event. Use this to move multiple pointers simultaneously. To send
      * the next move event, which will contain the current position of _all_ pointers (not just
-     * the moved ones), call [sendMove] without arguments. If you move one or more pointers and
-     * then call [sendDown] or [sendUp], without calling [sendMove] first, a move event will be
-     * sent right before that down or up event. See [sendDown] for more information on how to make
+     * the moved ones), call [move] without arguments. If you move one or more pointers and
+     * then call [down] or [up], without calling [move] first, a move event will be
+     * sent right before that down or up event. See [down] for more information on how to make
      * complete gestures from partial gestures.
      *
-     * @param pointerId The id of the pointer to move, as supplied in [sendDown]
+     * @param pointerId The id of the pointer to move, as supplied in [down]
      * @param position The position to move the pointer to
      *
-     * @see sendDown
-     * @see sendMove
-     * @see sendUp
-     * @see sendCancel
+     * @see down
+     * @see move
+     * @see up
+     * @see cancel
      */
     fun movePointer(pointerId: Int, position: Offset) {
         val gesture = partialGesture
@@ -438,7 +438,7 @@ internal abstract class InputDispatcher {
      * Sends a move event [delay] milliseconds after the previous injected event of this gesture,
      * without moving any of the pointers. The default [delay] is [10][eventPeriod] milliseconds.
      * Use this to commit all changes in pointer location made with [movePointer]. The sent event
-     * will contain the current position of all pointers. See [sendDown] for more information on
+     * will contain the current position of all pointers. See [down] for more information on
      * how to make complete gestures from partial gestures.
      *
      * @param delay The time in milliseconds between the previously injected event and the move
@@ -461,16 +461,16 @@ internal abstract class InputDispatcher {
      * Sends an up event for the given [pointerId] at the current position of that pointer,
      * [delay] milliseconds after the previous injected event of this gesture. The default
      * [delay] is 0 milliseconds. This method blocks until the input event has been dispatched.
-     * See [sendDown] for more information on how to make complete gestures from partial gestures.
+     * See [down] for more information on how to make complete gestures from partial gestures.
      *
-     * @param pointerId The id of the pointer to lift up, as supplied in [sendDown]
+     * @param pointerId The id of the pointer to lift up, as supplied in [down]
      * @param delay The time in milliseconds between the previously injected event and the move
      * event. 0 milliseconds by default.
      *
-     * @see sendDown
+     * @see down
      * @see movePointer
-     * @see sendMove
-     * @see sendCancel
+     * @see move
+     * @see cancel
      */
     fun sendUp(pointerId: Int, delay: Long = 0) {
         val gesture = partialGesture
@@ -502,16 +502,16 @@ internal abstract class InputDispatcher {
     /**
      * Sends a cancel event [delay] milliseconds after the previous injected event of this
      * gesture. The default [delay] is [10][eventPeriod] milliseconds. This method blocks until
-     * the input event has been dispatched. See [sendDown] for more information on how to make
+     * the input event has been dispatched. See [down] for more information on how to make
      * complete gestures from partial gestures.
      *
      * @param delay The time in milliseconds between the previously injected event and the cancel
      * event. [10][eventPeriod] milliseconds by default.
      *
-     * @see sendDown
+     * @see down
      * @see movePointer
-     * @see sendMove
-     * @see sendUp
+     * @see move
+     * @see up
      */
     fun sendCancel(delay: Long = eventPeriod) {
         val gesture = checkNotNull(partialGesture) {

@@ -21,10 +21,10 @@ import androidx.ui.geometry.Offset
 import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.partialgesturescope.Common.partialGesture
-import androidx.ui.test.sendCancel
-import androidx.ui.test.sendDown
-import androidx.ui.test.sendMove
-import androidx.ui.test.sendUp
+import androidx.ui.test.cancel
+import androidx.ui.test.down
+import androidx.ui.test.move
+import androidx.ui.test.up
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.expectError
 import org.junit.Before
@@ -33,7 +33,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 
 /**
- * Tests the error states of [sendMove] that are not tested in [SendMoveToTest] and [SendMoveByTest]
+ * Tests the error states of [move] that are not tested in [SendMoveToTest] and [SendMoveByTest]
  */
 @MediumTest
 class SendMoveTest() {
@@ -58,25 +58,25 @@ class SendMoveTest() {
     @Test
     fun moveWithoutDown() {
         expectError<IllegalStateException> {
-            partialGesture { sendMove() }
+            partialGesture { move() }
         }
     }
 
     @Test
     fun moveAfterUp() {
-        partialGesture { sendDown(downPosition1) }
-        partialGesture { sendUp() }
+        partialGesture { down(downPosition1) }
+        partialGesture { up() }
         expectError<IllegalStateException> {
-            partialGesture { sendMove() }
+            partialGesture { move() }
         }
     }
 
     @Test
     fun moveAfterCancel() {
-        partialGesture { sendDown(downPosition1) }
-        partialGesture { sendCancel() }
+        partialGesture { down(downPosition1) }
+        partialGesture { cancel() }
         expectError<IllegalStateException> {
-            partialGesture { sendMove() }
+            partialGesture { move() }
         }
     }
 }

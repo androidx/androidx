@@ -33,7 +33,7 @@ import androidx.ui.node.UiApplier
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.assertLabelEquals
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnUiThread
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -147,7 +147,7 @@ class HotReloadTests {
 
         assertTrue(composeLatch.await(1, TimeUnit.SECONDS))
 
-        fun target() = findByTag("text103")
+        fun target() = onNodeWithTag("text103")
 
         // Assert that the composition has the correct value
         target().assertLabelEquals(value)

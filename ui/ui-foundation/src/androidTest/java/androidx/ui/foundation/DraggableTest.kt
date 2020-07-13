@@ -29,15 +29,15 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.doPartialGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performGesture
+import androidx.ui.test.performPartialGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendDown
-import androidx.ui.test.sendMoveBy
-import androidx.ui.test.sendSwipe
-import androidx.ui.test.sendSwipeWithVelocity
-import androidx.ui.test.sendUp
+import androidx.ui.test.down
+import androidx.ui.test.moveBy
+import androidx.ui.test.swipe
+import androidx.ui.test.swipeWithVelocity
+import androidx.ui.test.up
 import androidx.ui.test.size
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
@@ -69,8 +69,8 @@ class DraggableTest {
                 }
             )
         }
-        findByTag(draggableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(draggableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
@@ -80,8 +80,8 @@ class DraggableTest {
             assertThat(total).isGreaterThan(0)
             total
         }
-        findByTag(draggableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(draggableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x, this.center.y + 100f),
                 duration = 100.milliseconds
@@ -90,8 +90,8 @@ class DraggableTest {
         runOnIdleCompose {
             assertThat(total).isEqualTo(lastTotal)
         }
-        findByTag(draggableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(draggableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x - 100f, this.center.y),
                 duration = 100.milliseconds
@@ -114,8 +114,8 @@ class DraggableTest {
                 }
             )
         }
-        findByTag(draggableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(draggableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x, this.center.y + 100f),
                 duration = 100.milliseconds
@@ -125,8 +125,8 @@ class DraggableTest {
             assertThat(total).isGreaterThan(0)
             total
         }
-        findByTag(draggableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(draggableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
@@ -135,8 +135,8 @@ class DraggableTest {
         runOnIdleCompose {
             assertThat(total).isEqualTo(lastTotal)
         }
-        findByTag(draggableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(draggableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x, this.center.y - 100f),
                 duration = 100.milliseconds
@@ -169,8 +169,8 @@ class DraggableTest {
             assertThat(startTrigger).isEqualTo(0)
             assertThat(stopTrigger).isEqualTo(0)
         }
-        findByTag(draggableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(draggableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
@@ -196,8 +196,8 @@ class DraggableTest {
                 enabled = enabled.value
             )
         }
-        findByTag(draggableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(draggableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
@@ -208,8 +208,8 @@ class DraggableTest {
             enabled.value = false
             total
         }
-        findByTag(draggableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(draggableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
@@ -234,8 +234,8 @@ class DraggableTest {
                 }
             )
         }
-        findByTag(draggableBoxTag).doGesture {
-            this.sendSwipeWithVelocity(
+        onNodeWithTag(draggableBoxTag).performGesture {
+            this.swipeWithVelocity(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
                 endVelocity = 112f,
@@ -261,8 +261,8 @@ class DraggableTest {
                 startDragImmediately = true
             )
         }
-        findByTag(draggableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(draggableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
@@ -291,8 +291,8 @@ class DraggableTest {
                 )
             } else Modifier
         }
-        findByTag(draggableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(draggableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
@@ -334,8 +334,8 @@ class DraggableTest {
                 }
             }
         }
-        findByTag(draggableBoxTag).doGesture {
-            this.sendSwipe(
+        onNodeWithTag(draggableBoxTag).performGesture {
+            this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 200f, this.center.y),
                 duration = 300.milliseconds
@@ -364,19 +364,19 @@ class DraggableTest {
             assertThat(interactionState.value).doesNotContain(Interaction.Dragged)
         }
 
-        findByTag(draggableBoxTag)
-            .doPartialGesture {
-                sendDown(Offset(size.width / 4f, size.height / 2f))
-                sendMoveBy(Offset(size.width / 2f, 0f))
+        onNodeWithTag(draggableBoxTag)
+            .performPartialGesture {
+                down(Offset(size.width / 4f, size.height / 2f))
+                moveBy(Offset(size.width / 2f, 0f))
             }
 
         runOnIdleCompose {
             assertThat(interactionState.value).contains(Interaction.Dragged)
         }
 
-        findByTag(draggableBoxTag)
-            .doPartialGesture {
-                sendUp()
+        onNodeWithTag(draggableBoxTag)
+            .performPartialGesture {
+                up()
             }
 
         runOnIdleCompose {
@@ -408,10 +408,10 @@ class DraggableTest {
             assertThat(interactionState.value).doesNotContain(Interaction.Dragged)
         }
 
-        findByTag(draggableBoxTag)
-            .doPartialGesture {
-                sendDown(Offset(size.width / 4f, size.height / 2f))
-                sendMoveBy(Offset(size.width / 2f, 0f))
+        onNodeWithTag(draggableBoxTag)
+            .performPartialGesture {
+                down(Offset(size.width / 4f, size.height / 2f))
+                moveBy(Offset(size.width / 2f, 0f))
             }
 
         runOnIdleCompose {

@@ -17,14 +17,14 @@
 package androidx.ui.test.selectors
 
 import androidx.test.filters.MediumTest
-import androidx.ui.test.ancestors
+import androidx.ui.test.onAncestors
 import androidx.ui.test.assert
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
-import androidx.ui.test.first
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onFirst
 import androidx.ui.test.hasTestTag
-import androidx.ui.test.parent
+import androidx.ui.test.onParent
 import androidx.ui.test.util.BoundaryNode
 import org.junit.Rule
 import org.junit.Test
@@ -50,8 +50,8 @@ class AncestorsSelectorTest {
             }
         }
 
-        findByTag("NodeD")
-            .ancestors()
+        onNodeWithTag("NodeD")
+            .onAncestors()
             .assertCountEquals(4)
             .apply {
                 get(0).assert(hasTestTag("NodeC"))
@@ -72,10 +72,10 @@ class AncestorsSelectorTest {
             }
         }
 
-        findByTag("NodeD")
-            .ancestors()
-            .first()
-            .ancestors()
+        onNodeWithTag("NodeD")
+            .onAncestors()
+            .onFirst()
+            .onAncestors()
             .assertCountEquals(3)
             .apply {
                 get(0).assert(hasTestTag("NodeB"))
@@ -89,9 +89,9 @@ class AncestorsSelectorTest {
             BoundaryNode(testTag = "Node")
         }
 
-        findByTag("Node")
-            .parent()
-            .ancestors()
+        onNodeWithTag("Node")
+            .onParent()
+            .onAncestors()
             .assertCountEquals(0)
     }
 }

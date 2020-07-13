@@ -36,10 +36,10 @@ import androidx.ui.test.assertIsUnselected
 import androidx.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.findAll
-import androidx.ui.test.findByTag
-import androidx.ui.test.findByText
+import androidx.ui.test.performClick
+import androidx.ui.test.onAllNodes
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onNodeWithText
 import androidx.ui.test.getBoundsInRoot
 import androidx.ui.test.isInMutuallyExclusiveGroup
 import androidx.ui.unit.dp
@@ -133,16 +133,16 @@ class BottomNavigationTest {
             }
         }
 
-        val itemBounds = findByTag("item").getBoundsInRoot()
-        val iconBounds = findByTag("icon", useUnmergedTree = true).getBoundsInRoot()
-        val textBounds = findByText("ItemText").getBoundsInRoot()
+        val itemBounds = onNodeWithTag("item").getBoundsInRoot()
+        val iconBounds = onNodeWithTag("icon", useUnmergedTree = true).getBoundsInRoot()
+        val textBounds = onNodeWithText("ItemText").getBoundsInRoot()
 
         // Distance from the bottom to the text baseline and from the text baseline to the
         // bottom of the icon
         val textBaseline = 12.dp
 
         // Relative position of the baseline to the top of text
-        val relativeTextBaseline = findByText("ItemText").getLastBaselinePosition()
+        val relativeTextBaseline = onNodeWithText("ItemText").getLastBaselinePosition()
         // Absolute y position of the text baseline
         val absoluteTextBaseline = textBounds.top + relativeTextBaseline
 
@@ -150,7 +150,7 @@ class BottomNavigationTest {
         // Text baseline should be 12.dp from the bottom of the item
         absoluteTextBaseline.assertIsEqualTo(itemBottom - textBaseline)
 
-        findByTag("icon", useUnmergedTree = true)
+        onNodeWithTag("icon", useUnmergedTree = true)
             // The icon should be centered in the item
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             // The bottom of the icon is 12.dp above the text baseline
@@ -182,12 +182,12 @@ class BottomNavigationTest {
 
         // The text should not be placed, since the item is not selected and alwaysShowLabels
         // is false
-        findByText("ItemText", useUnmergedTree = true).assertIsNotDisplayed()
+        onNodeWithText("ItemText", useUnmergedTree = true).assertIsNotDisplayed()
 
-        val itemBounds = findByTag("item").getBoundsInRoot()
-        val iconBounds = findByTag("icon", useUnmergedTree = true).getBoundsInRoot()
+        val itemBounds = onNodeWithTag("item").getBoundsInRoot()
+        val iconBounds = onNodeWithTag("icon", useUnmergedTree = true).getBoundsInRoot()
 
-        findByTag("icon", useUnmergedTree = true)
+        onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
     }
@@ -212,11 +212,11 @@ class BottomNavigationTest {
             }
         }
 
-        val itemBounds = findByTag("item").getBoundsInRoot()
-        val iconBounds = findByTag("icon", useUnmergedTree = true).getBoundsInRoot()
+        val itemBounds = onNodeWithTag("item").getBoundsInRoot()
+        val iconBounds = onNodeWithTag("icon", useUnmergedTree = true).getBoundsInRoot()
 
         // The icon should be centered in the item, as there is no text placeable provided
-        findByTag("icon", useUnmergedTree = true)
+        onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
     }
@@ -228,7 +228,7 @@ class BottomNavigationTest {
         }
 
         // Find all items and ensure there are 3
-        findAll(isInMutuallyExclusiveGroup())
+        onAllNodes(isInMutuallyExclusiveGroup())
             .assertCountEquals(3)
             // Ensure semantics match for selected state of the items
             .apply {
@@ -238,7 +238,7 @@ class BottomNavigationTest {
             }
             // Click the last item
             .apply {
-                get(2).doClick()
+                get(2).performClick()
             }
             .apply {
                 get(0).assertIsUnselected()
