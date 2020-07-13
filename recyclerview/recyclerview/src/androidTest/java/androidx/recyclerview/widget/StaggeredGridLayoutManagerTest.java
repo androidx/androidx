@@ -1046,6 +1046,36 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
     }
 
     @Test
+    public void testBatchInsertionsBetweenTailFullSpanItems() throws Throwable {
+        // Magic numbers here aren't super specific to repro, but were the example test case that
+        // led to the isolation of this bug.
+        setupByConfig(new Config().spanCount(2).itemCount(22));
+
+        // Last few items are full spans. Create a variable to reference later, even though it's
+        // basically just a few repeated calls.
+        mAdapter.mFullSpanItems.add(18);
+        mAdapter.mFullSpanItems.add(19);
+        mAdapter.mFullSpanItems.add(20);
+        mAdapter.mFullSpanItems.add(21);
+
+        waitFirstLayout();
+
+        // Scroll to the end to populate full span items.
+        smoothScrollToPosition(mAdapter.mItems.size() - 1);
+
+        // Incrementally add a handful of items, mimicking some adapter usages.
+        final int numberOfItemsToAdd = 12;
+        final int fullSpanItemIndexToInsertFrom = 18 + 1;
+        for (int i = 0; i < numberOfItemsToAdd; i++) {
+            final int insertAt = fullSpanItemIndexToInsertFrom + i;
+            mAdapter.addAndNotify(insertAt, 1);
+        }
+
+        requestLayoutOnUIThread(mRecyclerView);
+        mLayoutManager.waitForLayout(3);
+    }
+
+    @Test
     public void temporaryGapHandling() throws Throwable {
         int fullSpanIndex = 100;
         setupByConfig(new Config()
