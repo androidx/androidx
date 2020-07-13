@@ -39,15 +39,15 @@ import androidx.ui.test.center
 import androidx.ui.test.centerX
 import androidx.ui.test.centerY
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doPartialGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performPartialGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.left
 import androidx.ui.test.right
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
-import androidx.ui.test.sendDown
-import androidx.ui.test.sendMoveBy
-import androidx.ui.test.sendUp
+import androidx.ui.test.down
+import androidx.ui.test.moveBy
+import androidx.ui.test.up
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Assert.assertEquals
@@ -83,11 +83,11 @@ class SliderTest {
         runOnIdleCompose {
             state.value = 2f
         }
-        findByTag(tag).assertValueEquals("100 percent")
+        onNodeWithTag(tag).assertValueEquals("100 percent")
         runOnIdleCompose {
             state.value = -123145f
         }
-        findByTag(tag).assertValueEquals("0 percent")
+        onNodeWithTag(tag).assertValueEquals("0 percent")
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -107,14 +107,14 @@ class SliderTest {
                     onValueChange = { state.value = it })
             }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertValueEquals("0 percent")
 
         runOnUiThread {
             state.value = 0.5f
         }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertValueEquals("50 percent")
     }
 
@@ -137,11 +137,11 @@ class SliderTest {
 
         var expected = 0f
 
-        findByTag(tag)
-            .doPartialGesture {
-                sendDown(center)
-                sendMoveBy(Offset(100f, 0f))
-                sendUp()
+        onNodeWithTag(tag)
+            .performPartialGesture {
+                down(center)
+                moveBy(Offset(100f, 0f))
+                up()
                 expected = calculateFraction(left, right, centerX + 100)
             }
         runOnIdleCompose {
@@ -168,10 +168,10 @@ class SliderTest {
 
         var expected = 0f
 
-        findByTag(tag)
-            .doPartialGesture {
-                sendDown(Offset(centerX + 50, centerY))
-                sendUp()
+        onNodeWithTag(tag)
+            .performPartialGesture {
+                down(Offset(centerX + 50, centerY))
+                up()
                 expected = calculateFraction(left, right, centerX + 50)
             }
         runOnIdleCompose {
@@ -198,11 +198,11 @@ class SliderTest {
 
         var expected = 0f
 
-        findByTag(tag)
-            .doPartialGesture {
-                sendDown(center)
-                sendMoveBy(Offset(100f, 0f))
-                sendUp()
+        onNodeWithTag(tag)
+            .performPartialGesture {
+                down(center)
+                moveBy(Offset(100f, 0f))
+                up()
                 // subtract here as we're in rtl and going in the opposite direction
                 expected = calculateFraction(left, right, centerX - 100)
             }
@@ -230,10 +230,10 @@ class SliderTest {
 
         var expected = 0f
 
-        findByTag(tag)
-            .doPartialGesture {
-                sendDown(Offset(centerX + 50, centerY))
-                sendUp()
+        onNodeWithTag(tag)
+            .performPartialGesture {
+                down(Offset(centerX + 50, centerY))
+                up()
                 expected = calculateFraction(left, right, centerX - 50)
             }
         runOnIdleCompose {
@@ -273,7 +273,7 @@ class SliderTest {
             )
         }
 
-        findByTag(sliderTag).captureToBitmap().apply {
+        onNodeWithTag(sliderTag).captureToBitmap().apply {
             assertNotEquals(0, thumbStrokeWidth)
             assertNotEquals(0, thumbPx)
 

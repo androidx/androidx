@@ -28,13 +28,13 @@ import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doPartialGesture
-import androidx.ui.test.find
-import androidx.ui.test.findByText
-import androidx.ui.test.findRoot
+import androidx.ui.test.performPartialGesture
+import androidx.ui.test.onNode
+import androidx.ui.test.onNodeWithText
 import androidx.ui.unit.dp
 import androidx.ui.test.hasClickAction
-import androidx.ui.test.sendDown
+import androidx.ui.test.down
+import androidx.ui.test.onRoot
 import androidx.ui.test.waitForIdle
 import org.junit.Rule
 import org.junit.Test
@@ -60,7 +60,7 @@ class ButtonScreenshotTest {
             }
         }
 
-        find(hasClickAction())
+        onNode(hasClickAction())
             .captureToBitmap()
             .assertAgainstGolden(screenshotRule, "button_default")
     }
@@ -73,7 +73,7 @@ class ButtonScreenshotTest {
             }
         }
 
-        findByText("Button")
+        onNodeWithText("Button")
             .captureToBitmap()
             .assertAgainstGolden(screenshotRule, "button_disabled")
     }
@@ -89,14 +89,14 @@ class ButtonScreenshotTest {
         composeTestRule.clockTestRule.pauseClock()
 
         // Start ripple
-        find(hasClickAction())
-            .doPartialGesture { sendDown(center) }
+        onNode(hasClickAction())
+            .performPartialGesture { down(center) }
 
         // Let ripple propagate
         waitForIdle()
         composeTestRule.clockTestRule.advanceClock(50)
 
-        findRoot()
+        onRoot()
             .captureToBitmap()
             .assertAgainstGolden(screenshotRule, "button_ripple")
     }

@@ -51,7 +51,7 @@ import androidx.ui.material.lightColorPalette
 import androidx.ui.test.ComposeTestRule
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.waitForIdle
 import androidx.ui.unit.dp
@@ -529,7 +529,7 @@ class RippleIndicationTest {
             interactionState.addInteraction(Interaction.Pressed, Offset(10f, 10f))
         }
 
-        with(findByTag(Tag)) {
+        with(onNodeWithTag(Tag)) {
             val centerPixel = captureToBitmap()
                 .run {
                     getPixel(width / 2, height / 2)
@@ -548,7 +548,7 @@ class RippleIndicationTest {
             rippleTheme = createRippleTheme(newColor, newAlpha)
         }
 
-        with(findByTag(Tag)) {
+        with(onNodeWithTag(Tag)) {
             val centerPixel = captureToBitmap()
                 .run {
                     getPixel(width / 2, height / 2)
@@ -594,7 +594,7 @@ class RippleIndicationTest {
         composeTestRule.clockTestRule.advanceClock(50)
 
         // Capture and compare screenshots
-        findByTag(Tag)
+        onNodeWithTag(Tag)
             .captureToBitmap()
             .assertAgainstGolden(screenshotRule, goldenIdentifier)
 
@@ -604,7 +604,7 @@ class RippleIndicationTest {
         waitForIdle()
 
         // Compare expected and actual pixel color
-        val centerPixel = findByTag(Tag)
+        val centerPixel = onNodeWithTag(Tag)
             .captureToBitmap()
             .run {
                 getPixel(width / 2, height / 2)

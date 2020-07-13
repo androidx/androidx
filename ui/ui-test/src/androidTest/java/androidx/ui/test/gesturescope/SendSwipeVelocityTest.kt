@@ -25,10 +25,10 @@ import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendSwipeWithVelocity
+import androidx.ui.test.swipeWithVelocity
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.SinglePointerInputRecorder
 import androidx.ui.test.util.assertOnlyLastEventIsUp
@@ -136,8 +136,8 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
             }
         }
 
-        findByTag(tag).doGesture {
-            sendSwipeWithVelocity(start, end, velocity, duration)
+        onNodeWithTag(tag).performGesture {
+            swipeWithVelocity(start, end, velocity, duration)
         }
 
         runOnIdleCompose {

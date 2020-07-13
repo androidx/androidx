@@ -27,11 +27,11 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
-import androidx.ui.test.sendPinch
+import androidx.ui.test.pinch
 import androidx.ui.test.size
 import androidx.ui.unit.dp
 import androidx.ui.unit.toSize
@@ -64,13 +64,13 @@ class ZoomableTest {
 
         setZoomableContent { Modifier.zoomable(state) }
 
-        findByTag(TEST_TAG).doGesture {
+        onNodeWithTag(TEST_TAG).performGesture {
             val leftStartX = center.x - 10
             val leftEndX = size.toSize().width * EDGE_FUZZ_FACTOR
             val rightStartX = center.x + 10
             val rightEndX = size.toSize().width * (1 - EDGE_FUZZ_FACTOR)
 
-            sendPinch(
+            pinch(
                 Offset(leftStartX, center.y),
                 Offset(leftEndX, center.y),
                 Offset(rightStartX, center.y),
@@ -95,13 +95,13 @@ class ZoomableTest {
 
         setZoomableContent { Modifier.zoomable(state) }
 
-        findByTag(TEST_TAG).doGesture {
+        onNodeWithTag(TEST_TAG).performGesture {
             val leftStartX = size.toSize().width * EDGE_FUZZ_FACTOR
             val leftEndX = center.x - 10
             val rightStartX = size.toSize().width * (1 - EDGE_FUZZ_FACTOR)
             val rightEndX = center.x + 10
 
-            sendPinch(
+            pinch(
                 Offset(leftStartX, center.y),
                 Offset(leftEndX, center.y),
                 Offset(rightStartX, center.y),

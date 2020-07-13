@@ -28,7 +28,7 @@ import androidx.ui.text.TextSemanticsProperties
 import androidx.ui.util.fastAny
 
 /**
- * Returns whether the component is enabled.
+ * Returns whether the node is enabled.
  *
  * @see SemanticsProperties.Enabled
  */
@@ -36,7 +36,7 @@ fun isEnabled(): SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.Enabled, true)
 
 /**
- * Returns whether the component is not enabled.
+ * Returns whether the node is not enabled.
  *
  * @see SemanticsProperties.Enabled
  */
@@ -44,7 +44,7 @@ fun isNotEnabled(): SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.Enabled, false)
 
 /**
- * Return whether the component is checkable.
+ * Return whether the node is checkable.
  *
  * @see FoundationSemanticsProperties.ToggleableState
  */
@@ -52,7 +52,7 @@ fun isToggleable(): SemanticsMatcher =
     SemanticsMatcher.keyIsDefined(FoundationSemanticsProperties.ToggleableState)
 
 /**
- * Returns whether the component is toggled.
+ * Returns whether the node is toggled.
  *
  * @see FoundationSemanticsProperties.ToggleableState
  */
@@ -60,7 +60,7 @@ fun isOn(): SemanticsMatcher = SemanticsMatcher.expectValue(
     FoundationSemanticsProperties.ToggleableState, ToggleableState.On)
 
 /**
- * Returns whether the component is not toggled.
+ * Returns whether the node is not toggled.
  *
  * @see FoundationSemanticsProperties.ToggleableState
  */
@@ -68,7 +68,7 @@ fun isOff(): SemanticsMatcher = SemanticsMatcher.expectValue(
     FoundationSemanticsProperties.ToggleableState, ToggleableState.Off)
 
 /**
- * Return whether the component is selectable.
+ * Return whether the node is selectable.
  *
  * @see FoundationSemanticsProperties.Selected
  */
@@ -76,7 +76,7 @@ fun isSelectable(): SemanticsMatcher =
     SemanticsMatcher.keyIsDefined(FoundationSemanticsProperties.Selected)
 
 /**
- * Returns whether the component is selected.
+ * Returns whether the node is selected.
  *
  * @see FoundationSemanticsProperties.Selected
  */
@@ -84,7 +84,7 @@ fun isSelected(): SemanticsMatcher =
     SemanticsMatcher.expectValue(FoundationSemanticsProperties.Selected, true)
 
 /**
- * Returns whether the component is not selected.
+ * Returns whether the node is not selected.
  *
  * @see FoundationSemanticsProperties.Selected
  */
@@ -92,7 +92,7 @@ fun isUnselected(): SemanticsMatcher =
     SemanticsMatcher.expectValue(FoundationSemanticsProperties.Selected, false)
 
 /**
- * Return whether the component has a semantics click action defined.
+ * Return whether the node has a semantics click action defined.
  *
  * @see SemanticsActions.OnClick
  */
@@ -100,7 +100,7 @@ fun hasClickAction(): SemanticsMatcher =
     SemanticsMatcher.keyIsDefined(SemanticsActions.OnClick)
 
 /**
- * Return whether the component has no semantics click action defined.
+ * Return whether the node has no semantics click action defined.
  *
  * @see SemanticsActions.OnClick
  */
@@ -108,7 +108,7 @@ fun hasNoClickAction(): SemanticsMatcher =
     SemanticsMatcher.keyNotDefined(SemanticsActions.OnClick)
 
 /**
- * Return whether the component has a semantics scrollable action defined.
+ * Return whether the node has a semantics scrollable action defined.
  *
  * @see SemanticsActions.ScrollTo
  */
@@ -116,7 +116,7 @@ fun hasScrollAction(): SemanticsMatcher =
     SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollTo)
 
 /**
- * Return whether the component has no semantics scrollable action defined.
+ * Return whether the node has no semantics scrollable action defined.
  *
  * @see SemanticsActions.ScrollTo
  */
@@ -124,7 +124,7 @@ fun hasNoScrollAction(): SemanticsMatcher =
     SemanticsMatcher.keyNotDefined(SemanticsActions.ScrollTo)
 
 /**
- * Returns whether the component's label matches exactly to the given text.
+ * Returns whether the node's label matches exactly to the given text.
  *
  * @param label Text to match.
  * @param ignoreCase Whether case should be ignored.
@@ -140,7 +140,7 @@ fun hasLabel(label: String, ignoreCase: Boolean = false): SemanticsMatcher {
 }
 
 /**
- * Returns whether the component's text matches exactly to the given text.
+ * Returns whether the node's text matches exactly to the given text.
  *
  * @param text Text to match.
  * @param ignoreCase Whether case should be ignored.
@@ -157,7 +157,7 @@ fun hasText(text: String, ignoreCase: Boolean = false): SemanticsMatcher {
 }
 
 /**
- * Returns whether the component's text contains the given substring.
+ * Returns whether the node's text contains the given substring.
  *
  * @param substring Substring to check.
  * @param ignoreCase Whether case should be ignored.
@@ -176,7 +176,7 @@ fun hasSubstring(substring: String, ignoreCase: Boolean = false):
 }
 
 /**
- * Returns whether the component's value matches exactly to the given accessibility value.
+ * Returns whether the node's value matches exactly to the given accessibility value.
  *
  * @param value Value to match.
  *
@@ -186,7 +186,7 @@ fun hasValue(value: String): SemanticsMatcher = SemanticsMatcher.expectValue(
     SemanticsProperties.AccessibilityValue, value)
 
 /**
- * Returns whether the component's range info matches exactly to the given accessibility range info.
+ * Returns whether the node's range info matches exactly to the given accessibility range info.
  *
  * @param rangeInfo range info to match.
  *
@@ -196,7 +196,7 @@ fun hasRangeInfo(rangeInfo: AccessibilityRangeInfo): SemanticsMatcher = Semantic
     .expectValue(SemanticsProperties.AccessibilityRangeInfo, rangeInfo)
 
 /**
- * Returns whether the component is annotated by the given test tag.
+ * Returns whether the node is annotated by the given test tag.
  *
  * @param testTag Value to match.
  *
@@ -207,7 +207,7 @@ fun hasTestTag(testTag: String): SemanticsMatcher =
 
 // TODO(ryanmentley/pavlis): Do we want these convenience functions?
 /**
- * Verifies that the component is in a mutually exclusive group - that is,
+ * Verifies that the node is in a mutually exclusive group - that is,
  * that [FoundationSemanticsProperties.InMutuallyExclusiveGroup] is set to true
  *
  */
@@ -215,9 +215,9 @@ fun isInMutuallyExclusiveGroup(): SemanticsMatcher =
     SemanticsMatcher.expectValue(FoundationSemanticsProperties.InMutuallyExclusiveGroup, true)
 
 /**
- * Returns whether the component is hidden.
+ * Returns whether the node is hidden.
  *
- * This checks only the property of the component itself. Ignoring parents visibility.
+ * This checks only the property of the node itself. Ignoring parents visibility.
  *
  * @see SemanticsProperties.Hidden
  */
@@ -225,9 +225,9 @@ fun isHidden(): SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.Hidden, true)
 
 /**
- * Returns whether the component is not hidden.
+ * Returns whether the node is not hidden.
  *
- * This checks only the property of the component itself. Ignoring parents visibility.
+ * This checks only the property of the node itself. Ignoring parents visibility.
  *
  * @see SemanticsProperties.Hidden
  */
@@ -235,9 +235,9 @@ fun isNotHidden(): SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.Hidden, false)
 
 /**
- * Returns whether the component is a dialog.
+ * Returns whether the node is a dialog.
  *
- * This only checks if the component itself is a dialog, not if it is _part of_ a dialog. Use
+ * This only checks if the node itself is a dialog, not if it is _part of_ a dialog. Use
  * `hasAnyAncestorThat(isDialog())` for that.
  *
  * @see FoundationSemanticsProperties.IsDialog
@@ -245,9 +245,9 @@ fun isNotHidden(): SemanticsMatcher =
 fun isDialog(): SemanticsMatcher =
     SemanticsMatcher.keyIsDefined(FoundationSemanticsProperties.IsDialog)
 
-/** Returns whether the component is a popup.
+/** Returns whether the node is a popup.
  *
- * This only checks if the component itself is a popup, not if it is _part of_ a popup. Use
+ * This only checks if the node itself is a popup, not if it is _part of_ a popup. Use
  * `hasAnyAncestorThat(isPopup())` for that.
  *
  * @see SemanticsProperties.IsPopup
@@ -256,7 +256,7 @@ fun isPopup(): SemanticsMatcher =
     SemanticsMatcher.keyIsDefined(SemanticsProperties.IsPopup)
 
 /**
- * Returns whether the component defines the given IME action.
+ * Returns whether the node defines the given IME action.
  *
  * @param actionType the action to match.
  */
@@ -264,30 +264,30 @@ fun hasImeAction(actionType: ImeAction) =
     SemanticsMatcher.expectValue(TextSemanticsProperties.ImeAction, actionType)
 
 /**
- * Return whether the component supports input methods.
+ * Return whether the node supports input methods.
  *
- * Supporting input methods means that the component provides a connection to IME (keyboard) and is
- * able to accept input from it. This is however not enforced and relies on the components to
+ * Supporting input methods means that the node provides a connection to IME (keyboard) and is
+ * able to accept input from it. This is however not enforced and relies on the nodes to
  * properly add this to semantics when they provide input. Note that this is not related to
  * gestures input but only to IME. This can be used to for instance filter out all text fields.
  */
 fun hasInputMethodsSupport() =
     SemanticsMatcher.expectValue(TextSemanticsProperties.SupportsInputMethods, true)
 
-/*
- * Return whether the component is the root semantics node.
+/**
+ * Return whether the node is the root semantics node.
  *
- * There is always one root in every component tree, added implicitly by Compose.
+ * There is always one root in every node tree, added implicitly by Compose.
  */
 fun isRoot() =
     SemanticsMatcher("isRoot") { it.isRoot }
 
 /**
- * Returns whether the component's parent satisfies the given matcher.
+ * Returns whether the node's parent satisfies the given matcher.
  *
  * Returns false if no parent exists.
  */
-fun hasParentThat(matcher: SemanticsMatcher): SemanticsMatcher {
+fun hasParent(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the parent's node semantics
     //  in the error message or say that no parent was found.
     return SemanticsMatcher("hasParentThat(${matcher.description})") {
@@ -296,9 +296,9 @@ fun hasParentThat(matcher: SemanticsMatcher): SemanticsMatcher {
 }
 
 /**
- * Returns whether the component has at least one child that satisfies the given matcher.
+ * Returns whether the node has at least one child that satisfies the given matcher.
  */
-fun hasAnyChildThat(matcher: SemanticsMatcher): SemanticsMatcher {
+fun hasAnyChild(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the children nodes semantics
     //  in the error message or say that no children were found.
     return SemanticsMatcher("hasAnyChildThat(${matcher.description})") {
@@ -307,11 +307,11 @@ fun hasAnyChildThat(matcher: SemanticsMatcher): SemanticsMatcher {
 }
 
 /**
- * Returns whether the component has at least one sibling that satisfies the given matcher.
+ * Returns whether the node has at least one sibling that satisfies the given matcher.
  *
  * Sibling is defined as a any other node that shares the same parent.
  */
-fun hasAnySiblingThat(matcher: SemanticsMatcher): SemanticsMatcher {
+fun hasAnySibling(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the sibling nodes semantics
     //  in the error message or say that no siblings were found.
     return SemanticsMatcher("hasAnySiblingThat(${matcher.description})"
@@ -323,7 +323,7 @@ fun hasAnySiblingThat(matcher: SemanticsMatcher): SemanticsMatcher {
 }
 
 /**
- * Returns whether the component has at least one ancestor that satisfies the given matcher.
+ * Returns whether the node has at least one ancestor that satisfies the given matcher.
  *
  * Example: For the following tree
  * |-X
@@ -333,7 +333,7 @@ fun hasAnySiblingThat(matcher: SemanticsMatcher): SemanticsMatcher {
  *     |-C2
  * In case of C1, we would check the matcher against A and B
  */
-fun hasAnyAncestorThat(matcher: SemanticsMatcher): SemanticsMatcher {
+fun hasAnyAncestor(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the ancestor nodes semantics
     //  in the error message or say that no ancestors were found.
     return SemanticsMatcher("hasAnyAncestorThat(${matcher.description})") {
@@ -342,7 +342,7 @@ fun hasAnyAncestorThat(matcher: SemanticsMatcher): SemanticsMatcher {
 }
 
 /**
- * Returns whether the component has at least one descendant that satisfies the given matcher.
+ * Returns whether the node has at least one descendant that satisfies the given matcher.
  *
  * Example: For the following tree
  * |-X
@@ -352,7 +352,7 @@ fun hasAnyAncestorThat(matcher: SemanticsMatcher): SemanticsMatcher {
  *     |-C2
  * In case of A, we would check the matcher against B,C1 and C2
  */
-fun hasAnyDescendantThat(matcher: SemanticsMatcher): SemanticsMatcher {
+fun hasAnyDescendant(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we could consider printing the whole subtree but
     //  it might be too much to show. But we could at least warn if there were no ancestors found.
     fun checkIfSubtreeMatches(matcher: SemanticsMatcher, node: SemanticsNode): Boolean {

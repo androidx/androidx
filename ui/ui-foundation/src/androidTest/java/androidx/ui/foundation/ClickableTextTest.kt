@@ -20,8 +20,8 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.findByTag
+import androidx.ui.test.performClick
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.AnnotatedString
 import com.nhaarman.mockitokotlin2.any
@@ -50,7 +50,7 @@ class ClickableTextTest {
             )
         }
 
-        findByTag("clickableText").doClick()
+        onNodeWithTag("clickableText").performClick()
 
         runOnIdleCompose {
             verify(onClick, times(1)).invoke(any())

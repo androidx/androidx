@@ -45,7 +45,7 @@ import androidx.ui.layout.size
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.Dp
@@ -189,7 +189,7 @@ class ComposedViewTest {
             AndroidView(frameLayout, Modifier.testTag("view").drawBackground(Color.Blue))
         }
 
-        findByTag("view").captureToBitmap().assertPixels(IntSize(size, size)) {
+        onNodeWithTag("view").captureToBitmap().assertPixels(IntSize(size, size)) {
             Color.Blue
         }
     }

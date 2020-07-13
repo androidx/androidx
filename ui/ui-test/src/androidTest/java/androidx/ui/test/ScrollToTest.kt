@@ -56,8 +56,8 @@ class ScrollToTest {
             Assert.assertTrue(!wasScrollToCalled)
         }
 
-        findByTag(tag)
-            .doScrollTo()
+        onNodeWithTag(tag)
+            .performScrollTo()
 
         runOnIdleCompose {
             Assert.assertTrue(wasScrollToCalled)
@@ -104,8 +104,8 @@ class ScrollToTest {
             Truth.assertThat(currentScrollPositionX).isEqualTo(0.0f)
         }
 
-        findByTag(tag)
-            .doScrollTo() // scroll to third element
+        onNodeWithTag(tag)
+            .performScrollTo() // scroll to third element
 
         runOnIdleCompose {
             val expected = elementHeight * 2

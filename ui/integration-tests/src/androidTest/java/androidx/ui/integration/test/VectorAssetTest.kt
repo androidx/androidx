@@ -24,7 +24,7 @@ import androidx.ui.test.captureToBitmap
 import androidx.ui.integration.test.framework.ProgrammaticVectorTestCase
 import androidx.ui.integration.test.framework.XmlVectorTestCase
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -55,8 +55,8 @@ class VectorAssetTest {
             }
         }
 
-        val xmlBitmap = findByTag(xmlTestCase.testTag).captureToBitmap()
-        val programmaticBitmap = findByTag(programmaticTestCase.testTag).captureToBitmap()
+        val xmlBitmap = onNodeWithTag(xmlTestCase.testTag).captureToBitmap()
+        val programmaticBitmap = onNodeWithTag(programmaticTestCase.testTag).captureToBitmap()
 
         assertEquals(xmlBitmap.width, programmaticBitmap.width)
         assertEquals(xmlBitmap.height, programmaticBitmap.height)

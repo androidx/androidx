@@ -20,9 +20,9 @@ import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.find
-import androidx.ui.test.findAll
-import androidx.ui.test.hasAnyDescendantThat
+import androidx.ui.test.onNode
+import androidx.ui.test.onAllNodes
+import androidx.ui.test.hasAnyDescendant
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.util.BoundaryNode
 import org.junit.Rule
@@ -47,7 +47,7 @@ class HasAnyDescendantTest {
             }
         }
 
-        find(hasAnyDescendantThat(hasTestTag("Child")) and hasTestTag("Parent"))
+        onNode(hasAnyDescendant(hasTestTag("Child")) and hasTestTag("Parent"))
             .assert(hasTestTag("Parent"))
     }
 
@@ -62,7 +62,7 @@ class HasAnyDescendantTest {
             }
         }
 
-        find(hasAnyDescendantThat(hasTestTag("Child")) and !hasTestTag("Parent")
+        onNode(hasAnyDescendant(hasTestTag("Child")) and !hasTestTag("Parent")
                 and hasTestTag("Grandparent"))
             .assert(hasTestTag("Grandparent"))
     }
@@ -73,7 +73,7 @@ class HasAnyDescendantTest {
             BoundaryNode(testTag = "Node")
         }
 
-        find(hasAnyDescendantThat(hasTestTag("Node")))
+        onNode(hasAnyDescendant(hasTestTag("Node")))
             .assertExists() // Root node
     }
 
@@ -89,7 +89,7 @@ class HasAnyDescendantTest {
             }
         }
 
-        findAll(hasAnyDescendantThat(hasTestTag("Child")))
+        onAllNodes(hasAnyDescendant(hasTestTag("Child")))
             .assertCountEquals(3) // Parent, Parent2 and root
     }
 }

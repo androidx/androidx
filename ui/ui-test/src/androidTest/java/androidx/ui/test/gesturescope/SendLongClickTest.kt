@@ -25,9 +25,9 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
-import androidx.ui.test.sendLongClick
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.longClick
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.ClickableTestBox.defaultSize
 import androidx.ui.test.util.ClickableTestBox.defaultTag
@@ -44,7 +44,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Tests [sendLongClick] with arguments. Verifies that the click is in the middle
+ * Tests [longClick] with arguments. Verifies that the click is in the middle
  * of the component, that the gesture has a duration of 600 milliseconds and that all input
  * events were on the same location.
  */
@@ -93,15 +93,15 @@ class SendLongClickTest(private val config: TestConfig) {
         }
 
         // When we inject a long click
-        findByTag(defaultTag).doGesture {
+        onNodeWithTag(defaultTag).performGesture {
             if (config.position != null && config.duration != null) {
-                sendLongClick(config.position, config.duration)
+                longClick(config.position, config.duration)
             } else if (config.position != null) {
-                sendLongClick(config.position)
+                longClick(config.position)
             } else if (config.duration != null) {
-                sendLongClick(duration = config.duration)
+                longClick(duration = config.duration)
             } else {
-                sendLongClick()
+                longClick()
             }
         }
 

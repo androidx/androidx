@@ -30,11 +30,11 @@ import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertLabelEquals
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findAllByText
-import androidx.ui.test.findByTag
+import androidx.ui.test.onAllNodesWithText
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.assert
-import androidx.ui.test.findAllByLabel
-import androidx.ui.test.findByLabel
+import androidx.ui.test.onAllNodesWithLabel
+import androidx.ui.test.onNodeWithLabel
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import com.google.common.truth.Truth.assertThat
@@ -78,8 +78,8 @@ class SemanticsTests {
             }
         }
 
-        findByTag(tag1).assertLabelEquals(label1)
-        findByTag(tag2).assertLabelEquals(label2)
+        onNodeWithTag(tag1).assertLabelEquals(label1)
+        onNodeWithTag(tag2).assertLabelEquals(label2)
     }
 
     @Test
@@ -94,13 +94,13 @@ class SemanticsTests {
             }
         }
 
-        findByTag(TestTag).assertLabelEquals(label)
+        onNodeWithTag(TestTag).assertLabelEquals(label)
 
         runOnIdleCompose { showSubtree.value = false }
 
-        findByTag(TestTag).assertDoesNotHaveProperty(SemanticsProperties.AccessibilityLabel)
+        onNodeWithTag(TestTag).assertDoesNotHaveProperty(SemanticsProperties.AccessibilityLabel)
 
-        findAllByText(label).assertCountEquals(0)
+        onAllNodesWithText(label).assertCountEquals(0)
     }
 
     @Test
@@ -117,13 +117,13 @@ class SemanticsTests {
             }
         }
 
-        findByTag(TestTag)
+        onNodeWithTag(TestTag)
             .assertLabelEquals(label)
             .assertDoesNotHaveProperty(SemanticsProperties.AccessibilityValue)
 
         runOnIdleCompose { showNewNode.value = true }
 
-        findByTag(TestTag)
+        onNodeWithTag(TestTag)
             .assertLabelEquals(label)
             .assertValueEquals(value)
     }
@@ -140,13 +140,13 @@ class SemanticsTests {
             }
         }
 
-        findAllByLabel(label).assertCountEquals(1)
+        onAllNodesWithLabel(label).assertCountEquals(1)
 
         runOnIdleCompose {
             showSubtree.value = false
         }
 
-        findAllByLabel(label).assertCountEquals(0)
+        onAllNodesWithLabel(label).assertCountEquals(0)
     }
 
     @Test
@@ -160,11 +160,11 @@ class SemanticsTests {
             ) {}
         }
 
-        findByTag(TestTag).assertLabelEquals(beforeLabel)
+        onNodeWithTag(TestTag).assertLabelEquals(beforeLabel)
 
         runOnIdleCompose { isAfter.value = true }
 
-        findByTag(TestTag).assertLabelEquals(afterLabel)
+        onNodeWithTag(TestTag).assertLabelEquals(afterLabel)
     }
 
     @Test
@@ -181,11 +181,11 @@ class SemanticsTests {
             }
         }
 
-        findByTag(TestTag).assertLabelEquals(beforeLabel)
+        onNodeWithTag(TestTag).assertLabelEquals(beforeLabel)
 
         runOnIdleCompose { isAfter.value = true }
 
-        findByTag(TestTag).assertLabelEquals(afterLabel)
+        onNodeWithTag(TestTag).assertLabelEquals(afterLabel)
     }
 
     @Test
@@ -204,11 +204,11 @@ class SemanticsTests {
             }
         }
 
-        findByTag(TestTag).assertLabelEquals(beforeLabel)
+        onNodeWithTag(TestTag).assertLabelEquals(beforeLabel)
 
         runOnIdleCompose { isAfter.value = true }
 
-        findByTag(TestTag).assertLabelEquals(afterLabel)
+        onNodeWithTag(TestTag).assertLabelEquals(afterLabel)
     }
 
     @Test
@@ -225,11 +225,11 @@ class SemanticsTests {
             }
         }
 
-        findByTag(TestTag).assertLabelEquals(beforeLabel)
+        onNodeWithTag(TestTag).assertLabelEquals(beforeLabel)
 
         runOnIdleCompose { isAfter.value = true }
 
-        findByTag(TestTag).assertLabelEquals(afterLabel)
+        onNodeWithTag(TestTag).assertLabelEquals(afterLabel)
     }
 
     @Test
@@ -243,8 +243,8 @@ class SemanticsTests {
             }
         }
 
-        findByTag(TestTag).assertDoesNotHaveProperty(SemanticsProperties.AccessibilityLabel)
-        findByLabel(label) // assert exists
+        onNodeWithTag(TestTag).assertDoesNotHaveProperty(SemanticsProperties.AccessibilityLabel)
+        onNodeWithLabel(label) // assert exists
     }
 
     @Test
@@ -265,11 +265,11 @@ class SemanticsTests {
             }
         }
 
-        findByTag(TestTag).assertLabelEquals(beforeLabel)
+        onNodeWithTag(TestTag).assertLabelEquals(beforeLabel)
 
         runOnIdleCompose { isAfter.value = true }
 
-        findByTag(TestTag).assertLabelEquals(afterLabel)
+        onNodeWithTag(TestTag).assertLabelEquals(afterLabel)
     }
 
     @Test
@@ -300,13 +300,13 @@ class SemanticsTests {
         }
 
         // This isn't the important part, just makes sure everything is behaving as expected
-        findByTag(TestTag).assertLabelEquals(beforeLabel)
+        onNodeWithTag(TestTag).assertLabelEquals(beforeLabel)
         assertThat(nodeCount).isEqualTo(1)
 
         runOnIdleCompose { isAfter.value = true }
 
         // Make sure everything is still behaving as expected
-        findByTag(TestTag).assertLabelEquals(afterLabel)
+        onNodeWithTag(TestTag).assertLabelEquals(afterLabel)
         // This is the important part: make sure we didn't replace the identity due to unwanted
         // pivotal properties
         assertThat(nodeCount).isEqualTo(1)

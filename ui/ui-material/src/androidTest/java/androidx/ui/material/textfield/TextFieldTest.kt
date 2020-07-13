@@ -35,11 +35,11 @@ import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendSwipeDown
-import androidx.ui.test.sendSwipeUp
+import androidx.ui.test.swipeDown
+import androidx.ui.test.swipeUp
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
@@ -140,7 +140,7 @@ class TextFieldTest {
 
         runOnIdleCompose {}
 
-        findByTag(TextfieldTag)
+        onNodeWithTag(TextfieldTag)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(parentSize, parentSize)) { position ->
                 if (position.x > textFieldSize && position.y > textFieldSize) Color.White else null
@@ -169,16 +169,16 @@ class TextFieldTest {
             assertThat(scrollerPosition.current).isEqualTo(0f)
         }
 
-        findByTag(TextfieldTag)
-            .doGesture { sendSwipeDown() }
+        onNodeWithTag(TextfieldTag)
+            .performGesture { swipeDown() }
 
         val firstSwipePosition = runOnIdleCompose {
             scrollerPosition.current
         }
         assertThat(firstSwipePosition).isGreaterThan(0f)
 
-        findByTag(TextfieldTag)
-            .doGesture { sendSwipeUp() }
+        onNodeWithTag(TextfieldTag)
+            .performGesture { swipeUp() }
         runOnIdleCompose {
             assertThat(scrollerPosition.current).isLessThan(firstSwipePosition)
         }
@@ -206,8 +206,8 @@ class TextFieldTest {
             }
         }
 
-        findByTag(TextfieldTag)
-            .doGesture { sendSwipeDown() }
+        onNodeWithTag(TextfieldTag)
+            .performGesture { swipeDown() }
 
         val swipePosition = runOnIdleCompose {
             scrollerPosition.current

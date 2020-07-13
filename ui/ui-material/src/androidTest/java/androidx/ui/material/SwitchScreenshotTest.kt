@@ -32,12 +32,12 @@ import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.doPartialGesture
-import androidx.ui.test.find
-import androidx.ui.test.findByTag
+import androidx.ui.test.performClick
+import androidx.ui.test.performPartialGesture
+import androidx.ui.test.onNode
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.isToggleable
-import androidx.ui.test.sendDown
+import androidx.ui.test.down
 import androidx.ui.test.waitForIdle
 import org.junit.Rule
 import org.junit.Test
@@ -121,8 +121,8 @@ class SwitchScreenshotTest {
             }
         }
 
-        findByTag(wrapperTestTag).doPartialGesture {
-            sendDown(center)
+        onNodeWithTag(wrapperTestTag).performPartialGesture {
+            down(center)
         }
         assertToggeableAgainstGolden("switch_pressed")
     }
@@ -161,8 +161,8 @@ class SwitchScreenshotTest {
 
         composeTestRule.clockTestRule.pauseClock()
 
-        find(isToggleable())
-            .doClick()
+        onNode(isToggleable())
+            .performClick()
 
         waitForIdle()
 
@@ -185,8 +185,8 @@ class SwitchScreenshotTest {
 
         composeTestRule.clockTestRule.pauseClock()
 
-        find(isToggleable())
-            .doClick()
+        onNode(isToggleable())
+            .performClick()
 
         waitForIdle()
 
@@ -197,7 +197,7 @@ class SwitchScreenshotTest {
 
     private fun assertToggeableAgainstGolden(goldenName: String) {
         // TODO: replace with find(isToggeable()) after b/157687898 is fixed
-        findByTag(wrapperTestTag)
+        onNodeWithTag(wrapperTestTag)
             .captureToBitmap()
             .assertAgainstGolden(screenshotRule, goldenName)
     }

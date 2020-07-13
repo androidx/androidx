@@ -41,7 +41,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; hidden = false }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsNotHidden()
     }
 
@@ -51,7 +51,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; hidden = true }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsNotHidden()
     }
 
@@ -61,7 +61,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; hidden = true }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsHidden()
     }
 
@@ -71,7 +71,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; hidden = false }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsHidden()
     }
 
@@ -81,7 +81,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; toggleableState = ToggleableState.On }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsOn()
     }
 
@@ -91,7 +91,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; toggleableState = ToggleableState.Off }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsOn()
     }
 
@@ -101,7 +101,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test" }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsOn()
     }
 
@@ -111,7 +111,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; toggleableState = ToggleableState.On }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsOff()
     }
 
@@ -121,7 +121,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; toggleableState = ToggleableState.Off }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsOff()
     }
 
@@ -131,7 +131,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsOff()
     }
 
@@ -141,7 +141,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; selected = false }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsSelected()
     }
 
@@ -151,7 +151,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; selected = true }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsSelected()
     }
 
@@ -161,7 +161,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsSelected()
     }
 
@@ -171,7 +171,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; selected = true }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsUnselected()
     }
 
@@ -181,7 +181,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; selected = false }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsUnselected()
     }
 
@@ -191,7 +191,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsUnselected()
     }
 
@@ -201,7 +201,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; inMutuallyExclusiveGroup = false }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsInMutuallyExclusiveGroup()
     }
 
@@ -211,7 +211,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsInMutuallyExclusiveGroup()
     }
 
@@ -221,7 +221,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; inMutuallyExclusiveGroup = true }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsInMutuallyExclusiveGroup()
     }
 

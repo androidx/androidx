@@ -29,8 +29,8 @@ import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsEqualTo
 import androidx.ui.test.assertWidthIsEqualTo
-import androidx.ui.test.findByTag
-import androidx.ui.test.findRoot
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onRoot
 import androidx.ui.test.getAlignmentLinePosition
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.FirstBaseline
@@ -77,7 +77,7 @@ fun SemanticsNodeInteraction.assertWidthFillsRoot(): SemanticsNodeInteraction {
 }
 
 fun rootWidth(): Dp {
-    val nodeInteraction = findRoot()
+    val nodeInteraction = onRoot()
     val node = nodeInteraction.fetchSemanticsNode("Failed to get screen width")
     @OptIn(ExperimentalLayoutNodeApi::class)
     val owner = node.componentNode.owner as AndroidOwner
@@ -88,7 +88,7 @@ fun rootWidth(): Dp {
 }
 
 fun rootHeight(): Dp {
-    val nodeInteraction = findRoot()
+    val nodeInteraction = onRoot()
     val node = nodeInteraction.fetchSemanticsNode("Failed to get screen height")
     @OptIn(ExperimentalLayoutNodeApi::class)
     val owner = node.componentNode.owner as AndroidOwner
@@ -121,5 +121,5 @@ fun ComposeTestRule.setMaterialContentForSizeAssertions(
         }
     }
 
-    return findByTag("containerForSizeAssertion")
+    return onNodeWithTag("containerForSizeAssertion")
 }

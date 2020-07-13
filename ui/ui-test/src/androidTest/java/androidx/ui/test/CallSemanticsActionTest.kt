@@ -48,14 +48,14 @@ class CallSemanticsActionTest {
             }
         }
 
-        findByLabel("Nothing")
+        onNodeWithLabel("Nothing")
             .assertExists()
-            .callSemanticsAction(MyActions.SetString) { it("Hello") }
+            .performSemanticsAction(MyActions.SetString) { it("Hello") }
 
-        findByLabel("Nothing")
+        onNodeWithLabel("Nothing")
             .assertDoesNotExist()
 
-        findByLabel("Hello")
+        onNodeWithLabel("Hello")
             .assertExists()
     }
 

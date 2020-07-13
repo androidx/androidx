@@ -55,12 +55,12 @@ import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.doGesture
-import androidx.ui.test.doSendImeAction
-import androidx.ui.test.findByTag
+import androidx.ui.test.performClick
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendClick
+import androidx.ui.test.click
+import androidx.ui.test.performImeAction
 import androidx.ui.test.waitForIdle
 import androidx.ui.text.FirstBaseline
 import androidx.ui.text.SoftwareKeyboardController
@@ -136,14 +136,14 @@ class FilledTextFieldTest {
             }
         }
 
-        findByTag(textField1Tag).doClick()
+        onNodeWithTag(textField1Tag).performClick()
 
         runOnIdleCompose {
             assertThat(textField1Focused).isTrue()
             assertThat(textField2Focused).isFalse()
         }
 
-        findByTag(textField2Tag).doClick()
+        onNodeWithTag(textField2Tag).performClick()
 
         runOnIdleCompose {
             assertThat(textField1Focused).isFalse()
@@ -167,8 +167,8 @@ class FilledTextFieldTest {
         }
 
         // Click on (2, 2) which is Surface area and outside input area
-        findByTag(TextfieldTag).doGesture {
-            sendClick(Offset(2f, 2f))
+        onNodeWithTag(TextfieldTag).performGesture {
+            click(Offset(2f, 2f))
         }
 
         testRule.runOnIdleComposeWithDensity {
@@ -465,7 +465,7 @@ class FilledTextFieldTest {
         }
 
         // click to focus
-        findByTag(TextfieldTag).doClick()
+        onNodeWithTag(TextfieldTag).performClick()
     }
 
     @Test
@@ -677,7 +677,7 @@ class FilledTextFieldTest {
             )
         }
 
-        findByTag(TextfieldTag)
+        onNodeWithTag(TextfieldTag)
             .captureToBitmap()
             .assertShape(
                 density = testRule.density,
@@ -714,7 +714,7 @@ class FilledTextFieldTest {
 
         val expectedColor = Color.Blue.copy(alpha = 0.12f).compositeOver(Color.White)
 
-        findByTag(TextfieldTag)
+        onNodeWithTag(TextfieldTag)
             .captureToBitmap()
             .assertShape(
                 density = testRule.density,
@@ -725,10 +725,10 @@ class FilledTextFieldTest {
                 shapeOverlapPixelCount = with(testRule.density) { 1.dp.toPx() }
             )
 
-        findByTag(TextfieldTag).doClick()
+        onNodeWithTag(TextfieldTag).performClick()
         assert(latch.await(1, TimeUnit.SECONDS))
 
-        findByTag(TextfieldTag)
+        onNodeWithTag(TextfieldTag)
             .captureToBitmap()
             .assertShape(
                 density = testRule.density,
@@ -757,8 +757,8 @@ class FilledTextFieldTest {
         }
         assertThat(controller).isNull()
 
-        findByTag(TextfieldTag)
-            .doClick()
+        onNodeWithTag(TextfieldTag)
+            .performClick()
 
         runOnIdleCompose {
             assertThat(controller).isNotNull()
@@ -783,8 +783,8 @@ class FilledTextFieldTest {
         }
         assertThat(controller).isNull()
 
-        findByTag(TextfieldTag)
-            .doSendImeAction()
+        onNodeWithTag(TextfieldTag)
+            .performImeAction()
 
         runOnIdleCompose {
             assertThat(controller).isNotNull()
@@ -792,7 +792,7 @@ class FilledTextFieldTest {
     }
 
     private fun clickAndAdvanceClock(tag: String, time: Long) {
-        findByTag(tag).doClick()
+        onNodeWithTag(tag).performClick()
         waitForIdle()
         testRule.clockTestRule.pauseClock()
         testRule.clockTestRule.advanceClock(time)

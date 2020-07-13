@@ -43,9 +43,9 @@ import org.junit.Assert.assertTrue
 import kotlin.math.roundToInt
 
 /**
- * Captures the underlying component's surface into bitmap.
+ * Captures the underlying semantics node's surface into bitmap.
  *
- * This has a limitation that if there is another window covering part of this component, such a
+ * This has a limitation that if there is another window covering part of this node, such a
  * window won't occur in this bitmap.
 */
 @RequiresApi(Build.VERSION_CODES.O)

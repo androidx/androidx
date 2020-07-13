@@ -81,7 +81,7 @@ import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.IntOffset
@@ -142,7 +142,7 @@ class AndroidViewCompatTest {
                 }
             }
         }
-        findByTag("content").assertIsDisplayed()
+        onNodeWithTag("content").assertIsDisplayed()
         val squareView = squareRef.value
         assertNotNull(squareView)
         Espresso
@@ -155,7 +155,7 @@ class AndroidViewCompatTest {
             squareSize.value = 200
             expectedSize = 200
         }
-        findByTag("content").assertIsDisplayed()
+        onNodeWithTag("content").assertIsDisplayed()
         Espresso
             .onView(instanceOf(ColoredSquareView::class.java))
             .check(matches(isDescendantOfA(instanceOf(Owner::class.java))))
@@ -166,7 +166,7 @@ class AndroidViewCompatTest {
             squareView!!.size = 300
             expectedSize = 300
         }
-        findByTag("content").assertIsDisplayed()
+        onNodeWithTag("content").assertIsDisplayed()
         Espresso
             .onView(instanceOf(ColoredSquareView::class.java))
             .check(matches(isDescendantOfA(instanceOf(Owner::class.java))))
@@ -203,7 +203,7 @@ class AndroidViewCompatTest {
                 Color.White
             }
         }
-        findByTag("content")
+        onNodeWithTag("content")
             .assertIsDisplayed()
             .captureToBitmap()
             .assertPixels(expectedColorProvider = expectedPixelColor)
@@ -217,7 +217,7 @@ class AndroidViewCompatTest {
             .onView(instanceOf(ColoredSquareView::class.java))
             .check(matches(isDescendantOfA(instanceOf(Owner::class.java))))
             .check(matches(`is`(squareView)))
-        findByTag("content")
+        onNodeWithTag("content")
             .assertIsDisplayed()
             .captureToBitmap()
             .assertPixels(expectedColorProvider = expectedPixelColor)
@@ -231,7 +231,7 @@ class AndroidViewCompatTest {
             .onView(instanceOf(ColoredSquareView::class.java))
             .check(matches(isDescendantOfA(instanceOf(Owner::class.java))))
             .check(matches(`is`(squareView)))
-        findByTag("content")
+        onNodeWithTag("content")
             .assertIsDisplayed()
             .captureToBitmap()
             .assertPixels(expectedColorProvider = expectedPixelColor)
@@ -425,13 +425,13 @@ class AndroidViewCompatTest {
                 view.setBackgroundColor(android.graphics.Color.BLUE)
             }
         }
-        findByTag("view").captureToBitmap().assertPixels(IntSize(size, size)) { Color.Blue }
+        onNodeWithTag("view").captureToBitmap().assertPixels(IntSize(size, size)) { Color.Blue }
 
         runOnIdleCompose { size += 20 }
-        findByTag("view").captureToBitmap().assertPixels(IntSize(size, size)) { Color.Blue }
+        onNodeWithTag("view").captureToBitmap().assertPixels(IntSize(size, size)) { Color.Blue }
 
         runOnIdleCompose { size += 20 }
-        findByTag("view").captureToBitmap().assertPixels(IntSize(size, size)) { Color.Blue }
+        onNodeWithTag("view").captureToBitmap().assertPixels(IntSize(size, size)) { Color.Blue }
     }
 
     @Test
@@ -551,7 +551,7 @@ class AndroidViewCompatTest {
             }
         }
 
-        findByTag("box").captureToBitmap().assertPixels(
+        onNodeWithTag("box").captureToBitmap().assertPixels(
             IntSize((padding * 2 + size * 2).roundToInt(), (padding * 2 + size).roundToInt())
         ) { offset ->
             if (offset.y < padding || offset.y >= padding + size || offset.x < padding ||
@@ -641,11 +641,13 @@ class AndroidViewCompatTest {
             }
         }
 
-        findByTag("view").captureToBitmap().assertPixels(IntSize(sizePx, sizePx)) { Color.Green }
+        onNodeWithTag("view")
+            .captureToBitmap().assertPixels(IntSize(sizePx, sizePx)) { Color.Green }
 
         runOnIdleCompose { first = false }
 
-        findByTag("view").captureToBitmap().assertPixels(IntSize(sizePx, sizePx)) { Color.Blue }
+        onNodeWithTag("view")
+            .captureToBitmap().assertPixels(IntSize(sizePx, sizePx)) { Color.Blue }
     }
 
     @Test
@@ -677,14 +679,14 @@ class AndroidViewCompatTest {
             }
         }
 
-        findByTag("view").captureToBitmap()
+        onNodeWithTag("view").captureToBitmap()
             .assertPixels(IntSize(sizePx * 2, sizePx)) {
                 if (it.x < sizePx) Color.Green else Color.Blue
             }
 
         runOnIdleCompose { first = false }
 
-        findByTag("view").captureToBitmap()
+        onNodeWithTag("view").captureToBitmap()
             .assertPixels(IntSize(sizePx * 2, sizePx)) {
                 if (it.x < sizePx) Color.Blue else Color.Green
             }

@@ -21,15 +21,15 @@ import androidx.ui.test.android.SynchronizedTreeCollector.getAllSemanticsNodes
 
 /**
  * Represents a semantics node and the path to fetch it from the semantics tree. One can interact
- * with this node by performing actions such as [doClick], assertions such as
- * [assertHasClickAction], or navigate to other nodes such as [children].
+ * with this node by performing actions such as [performClick], assertions such as
+ * [assertHasClickAction], or navigate to other nodes such as [onChildren].
  *
- * This is usually obtained from methods like [findByTag], [find].
+ * This is usually obtained from methods like [onNodeWithTag], [onNode].
  *
  * Example usage:
  * ```
- * findByTag("myCheckbox")
- *    .doClick()
+ * onNodeWithTag("myCheckbox")
+ *    .performClick()
  *    .assertIsOn()
  * ````
  *
@@ -47,7 +47,7 @@ import androidx.ui.test.android.SynchronizedTreeCollector.getAllSemanticsNodes
  * // Assert that MyIcon is at the expected position inside the IconButton.
  * // Without useUnmergedTree, then the test would check the position of the IconButton (0, 0)
  * // instead of the position of the Icon (30, 30).
- * findByTag("icon", useUnmergedTree = true)
+ * onNodeWithTag("icon", useUnmergedTree = true)
  *     .assertLeftPosition(30.dp)
  *     .assertTopPosition(30.dp)
  * ````
@@ -165,11 +165,11 @@ class SemanticsNodeInteraction internal constructor(
  * One can interact with these nodes by performing assertions such as [assertCountEquals], or
  * navigate to other nodes such as [get].
  *
- * This is usually obtained from methods like [findAll] or chains of [find].[children].
+ * This is usually obtained from methods like [onAllNodes] or chains of [onNode].[onChildren].
  *
  * Example usage:
  * ```
- * findAll(isClickable())
+ * onAllNodes(isClickable())
  *    .assertCountEquals(2)
  * ````
  */

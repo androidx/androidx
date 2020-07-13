@@ -24,9 +24,9 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.inputdispatcher.verifyNoGestureInProgress
 import androidx.ui.test.partialgesturescope.Common.partialGesture
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendCancel
-import androidx.ui.test.sendDown
-import androidx.ui.test.sendUp
+import androidx.ui.test.cancel
+import androidx.ui.test.down
+import androidx.ui.test.up
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.MultiPointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
@@ -39,7 +39,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 
 /**
- * Tests if [sendUp] works
+ * Tests if [up] works
  */
 @MediumTest
 class SendUpTest {
@@ -67,9 +67,9 @@ class SendUpTest {
     @Test
     fun onePointer() {
         // When we inject a down event followed by an up event
-        partialGesture { sendDown(downPosition1) }
+        partialGesture { down(downPosition1) }
         sleep(20) // (with some time in between)
-        partialGesture { sendUp() }
+        partialGesture { up() }
 
         runOnIdleCompose {
             recorder.run {
@@ -92,10 +92,10 @@ class SendUpTest {
     @Test
     fun twoPointers() {
         // When we inject two down events followed by two up events
-        partialGesture { sendDown(1, downPosition1) }
-        partialGesture { sendDown(2, downPosition2) }
-        partialGesture { sendUp(1) }
-        partialGesture { sendUp(2) }
+        partialGesture { down(1, downPosition1) }
+        partialGesture { down(2, downPosition2) }
+        partialGesture { up(1) }
+        partialGesture { up(2) }
 
         runOnIdleCompose {
             recorder.run {
@@ -123,33 +123,33 @@ class SendUpTest {
     @Test
     fun upWithoutDown() {
         expectError<IllegalStateException> {
-            partialGesture { sendUp() }
+            partialGesture { up() }
         }
     }
 
     @Test
     fun upWrongPointerId() {
-        partialGesture { sendDown(1, downPosition1) }
+        partialGesture { down(1, downPosition1) }
         expectError<IllegalArgumentException> {
-            partialGesture { sendUp(2) }
+            partialGesture { up(2) }
         }
     }
 
     @Test
     fun upAfterUp() {
-        partialGesture { sendDown(downPosition1) }
-        partialGesture { sendUp() }
+        partialGesture { down(downPosition1) }
+        partialGesture { up() }
         expectError<IllegalStateException> {
-            partialGesture { sendUp() }
+            partialGesture { up() }
         }
     }
 
     @Test
     fun upAfterCancel() {
-        partialGesture { sendDown(downPosition1) }
-        partialGesture { sendCancel() }
+        partialGesture { down(downPosition1) }
+        partialGesture { cancel() }
         expectError<IllegalStateException> {
-            partialGesture { sendUp() }
+            partialGesture { up() }
         }
     }
 }

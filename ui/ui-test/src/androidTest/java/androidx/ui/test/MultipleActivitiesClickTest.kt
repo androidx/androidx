@@ -43,7 +43,7 @@ class MultipleActivitiesClickTest {
         lateinit var activity1: Activity1
         composeTestRule.activityRule.scenario.onActivity { activity1 = it }
         activity1.startNewActivity()
-        findByTag("activity2").doGesture { sendClick() }
+        onNodeWithTag("activity2").performGesture { click() }
         val activity2 = getCurrentActivity() as Activity2
 
         assertThat(activity1.recorder.events).isEmpty()

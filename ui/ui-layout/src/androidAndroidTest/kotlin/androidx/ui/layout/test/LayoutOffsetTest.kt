@@ -34,7 +34,7 @@ import androidx.ui.layout.rtl
 import androidx.ui.layout.size
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.dp
 import org.junit.Assert
@@ -79,7 +79,7 @@ class LayoutOffsetTest : LayoutTest() {
             }
         }
 
-        findByTag("stack").assertExists()
+        onNodeWithTag("stack").assertExists()
         runOnIdleCompose {
             assertEquals(offsetX.toIntPx(), positionX)
             assertEquals(offsetY.toIntPx(), positionY)
@@ -112,7 +112,7 @@ class LayoutOffsetTest : LayoutTest() {
             }
         }
 
-        findByTag("stack").assertExists()
+        onNodeWithTag("stack").assertExists()
         runOnIdleCompose {
             assertEquals(containerWidth.toIntPx() - offsetX.toIntPx() - boxSize, positionX)
             assertEquals(offsetY.toIntPx(), positionY)
@@ -138,7 +138,7 @@ class LayoutOffsetTest : LayoutTest() {
             }
         }
 
-        findByTag("stack").assertExists()
+        onNodeWithTag("stack").assertExists()
         runOnIdleCompose {
             Assert.assertEquals(offsetX, positionX)
             Assert.assertEquals(offsetY, positionY)
@@ -171,7 +171,7 @@ class LayoutOffsetTest : LayoutTest() {
             }
         }
 
-        findByTag("stack").assertExists()
+        onNodeWithTag("stack").assertExists()
         runOnIdleCompose {
             Assert.assertEquals(
                 containerWidth.toIntPx() - offsetX.roundToInt() - boxSize,

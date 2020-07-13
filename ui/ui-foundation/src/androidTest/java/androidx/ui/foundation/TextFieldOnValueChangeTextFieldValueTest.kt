@@ -30,12 +30,12 @@ import androidx.ui.input.SetComposingTextEditOp
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.find
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNode
 import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
-import androidx.ui.test.sendClick
+import androidx.ui.test.click
 import androidx.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -90,8 +90,8 @@ class TextFieldOnValueChangeTextFieldValueTest {
         }
 
         // Perform click to focus in.
-        find(hasInputMethodsSupport())
-            .doGesture { sendClick(Offset(1f, 1f)) }
+        onNode(hasInputMethodsSupport())
+            .performGesture { click(Offset(1f, 1f)) }
 
         runOnIdleCompose {
             // Verify startInput is called and capture the callback.
