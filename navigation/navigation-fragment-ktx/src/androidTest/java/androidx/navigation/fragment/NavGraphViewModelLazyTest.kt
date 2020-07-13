@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.fragment.app.testing.withFragment
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStore
@@ -68,7 +69,9 @@ class NavGraphViewModelLazyTest {
         ) {
             test(R.id.start_destination)
         }
-        navController.setGraph(navGraph, null)
+        scenario.withFragment {
+            navController.setGraph(navGraph, null)
+        }
 
         scenario.onFragment { fragment ->
             assertThat(fragment.viewModel).isNotNull()
@@ -85,8 +88,8 @@ class NavGraphViewModelLazyTest {
                     .findFragmentById(R.id.nav_host_fragment)!!
                 navHostFragment.childFragmentManager.primaryNavigationFragment as TestVMFragment
             }
-            val viewModel = firstFragment.viewModel
-            val savedStateViewModel = firstFragment.savedStateViewModel
+            val viewModel = withActivity { firstFragment.viewModel }
+            val savedStateViewModel = withActivity { firstFragment.savedStateViewModel }
             assertThat(viewModel).isNotNull()
             assertThat(savedStateViewModel).isNotNull()
 
@@ -100,7 +103,9 @@ class NavGraphViewModelLazyTest {
 
             // Navigate to the second destination and ensure it
             // gets the same ViewModels and data
-            navController.navigate(R.id.second_destination)
+            withActivity {
+                navController.navigate(R.id.second_destination)
+            }
             val secondFragment: TestVMFragment = withActivity {
                 val navHostFragment = supportFragmentManager
                     .findFragmentById(R.id.nav_host_fragment)!!

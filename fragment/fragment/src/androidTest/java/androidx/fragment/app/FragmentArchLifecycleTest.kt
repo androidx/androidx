@@ -46,14 +46,16 @@ class FragmentArchLifecycleTest {
             val second = Fragment()
             fm.beginTransaction().add(first, "first").commit()
             executePendingTransactions()
-            first.lifecycle.addObserver(object : LifecycleEventObserver {
-                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-                    if (event == Lifecycle.Event.ON_STOP) {
-                        fm.beginTransaction().add(second, "second").commitNow()
-                        first.lifecycle.removeObserver(this)
+            onActivity {
+                first.lifecycle.addObserver(object : LifecycleEventObserver {
+                    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                        if (event == Lifecycle.Event.ON_STOP) {
+                            fm.beginTransaction().add(second, "second").commitNow()
+                            first.lifecycle.removeObserver(this)
+                        }
                     }
-                }
-            })
+                })
+            }
             onActivity {
                 it.onSaveInstanceState(Bundle())
             }
@@ -73,14 +75,16 @@ class FragmentArchLifecycleTest {
             val second = StrictFragment()
             fm.beginTransaction().add(android.R.id.content, first).commit()
             executePendingTransactions()
-            first.viewLifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
-                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-                    if (event == Lifecycle.Event.ON_STOP) {
-                        fm.beginTransaction().add(second, "second").commitNow()
-                        first.viewLifecycleOwner.lifecycle.removeObserver(this)
+            onActivity {
+                first.viewLifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
+                    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                        if (event == Lifecycle.Event.ON_STOP) {
+                            fm.beginTransaction().add(second, "second").commitNow()
+                            first.viewLifecycleOwner.lifecycle.removeObserver(this)
+                        }
                     }
-                }
-            })
+                })
+            }
             onActivity {
                 it.onSaveInstanceState(Bundle())
             }

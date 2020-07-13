@@ -53,6 +53,7 @@ dependencies {
     // Internal library
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-lifecycle"))
+    implementation(project(":lifecycle:lifecycle-runtime"))
     implementation(project(":camera:camera-view"))
     implementation(GUAVA_ANDROID)
 
@@ -71,6 +72,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime"))
     androidTestImplementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
     androidTestImplementation(TRUTH)
     debugImplementation(ANDROIDX_TEST_CORE)

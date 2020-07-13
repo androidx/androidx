@@ -548,19 +548,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     private void initLifecycle() {
         mLifecycleRegistry = new LifecycleRegistry(this);
         mSavedStateRegistryController = SavedStateRegistryController.create(this);
-        if (Build.VERSION.SDK_INT >= 19) {
-            mLifecycleRegistry.addObserver(new LifecycleEventObserver() {
-                @Override
-                public void onStateChanged(@NonNull LifecycleOwner source,
-                        @NonNull Lifecycle.Event event) {
-                    if (event == Lifecycle.Event.ON_STOP) {
-                        if (mView != null) {
-                            mView.cancelPendingInputEvents();
-                        }
-                    }
-                }
-            });
-        }
     }
 
     /**
@@ -2880,6 +2867,19 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mChildFragmentManager.noteStateNotSaved();
         mState = CREATED;
         mCalled = false;
+        if (Build.VERSION.SDK_INT >= 19) {
+            mLifecycleRegistry.addObserver(new LifecycleEventObserver() {
+                @Override
+                public void onStateChanged(@NonNull LifecycleOwner source,
+                        @NonNull Lifecycle.Event event) {
+                    if (event == Lifecycle.Event.ON_STOP) {
+                        if (mView != null) {
+                            mView.cancelPendingInputEvents();
+                        }
+                    }
+                }
+            });
+        }
         mSavedStateRegistryController.performRestore(savedInstanceState);
         onCreate(savedInstanceState);
         mIsCreated = true;
