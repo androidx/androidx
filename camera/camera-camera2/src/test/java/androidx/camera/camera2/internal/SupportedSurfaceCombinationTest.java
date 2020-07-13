@@ -1819,6 +1819,45 @@ public final class SupportedSurfaceCombinationTest {
         assertThat(resultList).isEqualTo(expectedList);
     }
 
+    @Test
+    public void getSupportedOutputSizes_whenOneMod16SizeClosestToTargetResolution()
+            throws CameraUnavailableException {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
+                new Size(1920, 1080),
+                new Size(1440, 1080),
+                new Size(1280, 960),
+                new Size(1280, 720),
+                new Size(864, 480), // This is a 16:9 mod16 size that is closest to 2016x1080
+                new Size(768, 432),
+                new Size(640, 480),
+                new Size(640, 360),
+                new Size(480, 360),
+                new Size(384, 288)
+        });
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetResolution(
+                new Size(1080, 2016)).build();
+
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        Configs.useCaseConfigListFromUseCaseList(Arrays.asList(useCase)));
+
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                new Size(1920, 1080),
+                new Size(1280, 720),
+                new Size(864, 480),
+                new Size(768, 432),
+                new Size(1440, 1080),
+                new Size(1280, 960),
+                new Size(640, 480)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
     private void setupCamera(int hardwareLevel) {
         setupCamera(hardwareLevel, mSupportedSizes, null);
     }
