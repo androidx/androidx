@@ -17,13 +17,13 @@
 package androidx.datastore.preferences
 
 import androidx.datastore.CorruptionException
-import androidx.testutils.assertThrows
-import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 @kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -57,7 +57,7 @@ class PreferencesSerializerTest {
             preferencesSerializer.readFrom(it)
         }
 
-        assertThat(readPrefs).isEqualTo(prefs)
+        assertEquals(prefs, readPrefs)
     }
 
     @Test
@@ -76,7 +76,7 @@ class PreferencesSerializerTest {
             preferencesSerializer.readFrom(it)
         }
 
-        assertThat(readPrefs).isEqualTo(prefs)
+        assertEquals(prefs, readPrefs)
     }
 
     @Test
@@ -95,7 +95,7 @@ class PreferencesSerializerTest {
             preferencesSerializer.readFrom(it)
         }
 
-        assertThat(readPrefs).isEqualTo(prefs)
+        assertEquals(prefs, readPrefs)
     }
 
     @Test
@@ -114,7 +114,7 @@ class PreferencesSerializerTest {
             preferencesSerializer.readFrom(it)
         }
 
-        assertThat(readPrefs).isEqualTo(prefs)
+        assertEquals(prefs, readPrefs)
     }
 
     @Test
@@ -133,7 +133,7 @@ class PreferencesSerializerTest {
             preferencesSerializer.readFrom(it)
         }
 
-        assertThat(readPrefs).isEqualTo(prefs)
+        assertEquals(prefs, readPrefs)
     }
 
     @Test
@@ -141,7 +141,7 @@ class PreferencesSerializerTest {
         // Not a valid proto - protos cannot start with a 0 byte.
         testFile.writeBytes(byteArrayOf(0, 1, 2, 3, 4))
 
-        assertThrows<CorruptionException> {
+        assertFailsWith<CorruptionException> {
             testFile.inputStream().use {
                 preferencesSerializer.readFrom(it)
             }

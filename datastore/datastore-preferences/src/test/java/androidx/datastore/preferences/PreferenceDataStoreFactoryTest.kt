@@ -18,7 +18,6 @@ package androidx.datastore.preferences
 
 import androidx.datastore.DataMigration
 import androidx.datastore.handlers.ReplaceFileCorruptionHandler
-import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -29,6 +28,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
+import kotlin.test.assertEquals
 
 @ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -58,10 +58,10 @@ class PreferenceDataStoreFactoryTest {
             .setString("key", "value")
             .build()
 
-        assertThat(store.updateData {
+        assertEquals(store.updateData {
             it.toBuilder().setString("key", "value").build()
-        }).isEqualTo(expectedPreferences)
-        assertThat(store.data.first()).isEqualTo(expectedPreferences)
+        }, expectedPreferences)
+        assertEquals(expectedPreferences, store.data.first())
     }
 
     @Test
@@ -79,7 +79,7 @@ class PreferenceDataStoreFactoryTest {
             },
             scope = dataStoreScope
         )
-        assertThat(store.data.first()).isEqualTo(valueToReplace)
+        assertEquals(valueToReplace, store.data.first())
     }
 
     @Test
@@ -118,6 +118,6 @@ class PreferenceDataStoreFactoryTest {
             scope = dataStoreScope
         )
 
-        assertThat(store.data.first()).isEqualTo(expectedPreferences)
+        assertEquals(expectedPreferences, store.data.first())
     }
 }
