@@ -31,10 +31,12 @@ import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.rtl
+import androidx.ui.test.GestureScope
 import androidx.ui.test.assertIsEqualTo
 import androidx.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.ui.test.assertWidthIsEqualTo
+import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
@@ -42,6 +44,7 @@ import androidx.ui.test.globalBounds
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendClick
+import androidx.ui.test.sendSwipe
 import androidx.ui.test.sendSwipeDown
 import androidx.ui.test.sendSwipeLeft
 import androidx.ui.test.sendSwipeRight
@@ -110,7 +113,7 @@ class DrawerTest {
     @Test
     fun bottomDrawer_testOffset_whenOpened() {
         composeTestRule.setMaterialContent {
-            BottomDrawerLayout(DrawerState.Opened, {}, drawerContent = {
+            BottomDrawerLayout(BottomDrawerState.Opened, {}, drawerContent = {
                 Box(Modifier.fillMaxSize().testTag("content"))
             }, bodyContent = emptyContent())
         }
@@ -126,7 +129,7 @@ class DrawerTest {
     fun bottomDrawer_testOffset_whenClosed() {
         var position: Offset? = null
         composeTestRule.setMaterialContent {
-            BottomDrawerLayout(DrawerState.Closed, {}, drawerContent = {
+            BottomDrawerLayout(BottomDrawerState.Closed, {}, drawerContent = {
                 Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
                     position = coords.localToRoot(Offset.Zero)
                 })
@@ -240,7 +243,7 @@ class DrawerTest {
         var openedHeight: Int? = null
         var openedLatch: CountDownLatch? = null
         var closedLatch: CountDownLatch? = CountDownLatch(1)
-        val drawerState = mutableStateOf(DrawerState.Closed)
+        val drawerState = mutableStateOf(BottomDrawerState.Closed)
         composeTestRule.setMaterialContent {
             BottomDrawerLayout(drawerState.value, { drawerState.value = it },
                 drawerContent = {
@@ -269,7 +272,7 @@ class DrawerTest {
         // When the drawer state is set to Opened
         openedLatch = CountDownLatch(1)
         runOnIdleCompose {
-            drawerState.value = DrawerState.Opened
+            drawerState.value = BottomDrawerState.Opened
         }
         // Then the drawer should be opened
         assertThat(openedLatch.await(5, TimeUnit.SECONDS)).isTrue()
@@ -277,7 +280,7 @@ class DrawerTest {
         // When the drawer state is set to Closed
         closedLatch = CountDownLatch(1)
         runOnIdleCompose {
-            drawerState.value = DrawerState.Closed
+            drawerState.value = BottomDrawerState.Closed
         }
         // Then the drawer should be closed
         assertThat(closedLatch.await(5, TimeUnit.SECONDS)).isTrue()
@@ -287,7 +290,7 @@ class DrawerTest {
     fun bottomDrawer_bodyContent_clickable() {
         var drawerClicks = 0
         var bodyClicks = 0
-        val drawerState = mutableStateOf(DrawerState.Closed)
+        val drawerState = mutableStateOf(BottomDrawerState.Closed)
         composeTestRule.setMaterialContent {
             // emulate click on the screen
             BottomDrawerLayout(drawerState.value, { drawerState.value = it },
@@ -314,7 +317,7 @@ class DrawerTest {
         }
 
         runOnUiThread {
-            drawerState.value = DrawerState.Opened
+            drawerState.value = BottomDrawerState.Opened
         }
         sleep(100) // TODO(147586311): remove this sleep when opening the drawer triggers a wait
 
@@ -394,7 +397,7 @@ class DrawerTest {
 
     @Test
     fun bottomDrawer_openBySwipe() {
-        val drawerState = mutableStateOf(DrawerState.Closed)
+        val drawerState = mutableStateOf(BottomDrawerState.Closed)
         composeTestRule.setMaterialContent {
             // emulate click on the screen
             Box(Modifier.testTag("Drawer")) {
@@ -412,14 +415,96 @@ class DrawerTest {
             .doGesture { sendSwipeUp() }
 
         runOnIdleCompose {
-            assertThat(drawerState.value).isEqualTo(DrawerState.Opened)
+            assertThat(drawerState.value).isEqualTo(BottomDrawerState.Expanded)
         }
 
         findByTag("Drawer")
             .doGesture { sendSwipeDown() }
 
         runOnIdleCompose {
-            assertThat(drawerState.value).isEqualTo(DrawerState.Closed)
+            assertThat(drawerState.value).isEqualTo(BottomDrawerState.Closed)
         }
+    }
+
+    @Test
+    fun bottomDrawer_openBySwipe_thresholds() {
+        val drawerState = mutableStateOf(BottomDrawerState.Closed)
+        composeTestRule.setMaterialContent {
+            // emulate click on the screen
+            Box(Modifier.testTag("Drawer")) {
+                BottomDrawerLayout(drawerState.value, { drawerState.value = it },
+                    drawerContent = {
+                        Box(Modifier.fillMaxSize().drawBackground(Color.Magenta))
+                    },
+                    bodyContent = {
+                        Box(Modifier.fillMaxSize().drawBackground(Color.Red))
+                    })
+            }
+        }
+        val threshold = with (composeTestRule.density) { BottomDrawerThreshold.toPx() }
+
+        findByTag("Drawer")
+            .doGesture { sendSwipeUpBy(threshold / 2) }
+
+        runOnIdleCompose {
+            assertThat(drawerState.value).isEqualTo(BottomDrawerState.Closed)
+        }
+
+        findByTag("Drawer")
+            .doGesture { sendSwipeUpBy(threshold) }
+
+        runOnIdleCompose {
+            assertThat(drawerState.value).isEqualTo(BottomDrawerState.Opened)
+        }
+
+        findByTag("Drawer")
+            .doGesture { sendSwipeUpBy(threshold / 2) }
+
+        runOnIdleCompose {
+            assertThat(drawerState.value).isEqualTo(BottomDrawerState.Opened)
+        }
+
+        findByTag("Drawer")
+            .doGesture { sendSwipeUpBy(threshold) }
+
+        runOnIdleCompose {
+            assertThat(drawerState.value).isEqualTo(BottomDrawerState.Expanded)
+        }
+
+        findByTag("Drawer")
+            .doGesture { sendSwipeDownBy(threshold / 2) }
+
+        runOnIdleCompose {
+            assertThat(drawerState.value).isEqualTo(BottomDrawerState.Expanded)
+        }
+
+        findByTag("Drawer")
+            .doGesture { sendSwipeDownBy(threshold) }
+
+        runOnIdleCompose {
+            assertThat(drawerState.value).isEqualTo(BottomDrawerState.Opened)
+        }
+
+        findByTag("Drawer")
+            .doGesture { sendSwipeDownBy(threshold / 2) }
+
+        runOnIdleCompose {
+            assertThat(drawerState.value).isEqualTo(BottomDrawerState.Opened)
+        }
+
+        findByTag("Drawer")
+            .doGesture { sendSwipeDownBy(threshold) }
+
+        runOnIdleCompose {
+            assertThat(drawerState.value).isEqualTo(BottomDrawerState.Closed)
+        }
+    }
+
+    private fun GestureScope.sendSwipeUpBy(offset: Float) {
+        sendSwipe(center, center.copy(y = center.y - offset))
+    }
+
+    private fun GestureScope.sendSwipeDownBy(offset: Float) {
+        sendSwipe(center, center.copy(y = center.y + offset))
     }
 }

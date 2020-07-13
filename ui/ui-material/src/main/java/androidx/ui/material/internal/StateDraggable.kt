@@ -20,7 +20,10 @@ import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationEndReason
 import androidx.animation.AnimationSpec
+import androidx.animation.ExponentialDecay
 import androidx.animation.Spring
+import androidx.animation.TargetAnimation
+import androidx.annotation.FloatRange
 import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.compose.state
@@ -29,11 +32,13 @@ import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.foundation.InteractionState
-import androidx.ui.foundation.animation.AnchorsFlingConfig
+import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.draggable
 import androidx.ui.util.fastFirstOrNull
+import androidx.ui.util.lerp
+import kotlin.math.sign
 
 /**
  * Enable automatic drag and animation between predefined states.
@@ -57,6 +62,9 @@ import androidx.ui.util.fastFirstOrNull
  * @param animationSpec animation which will be used for animations
  * @param dragDirection direction in which drag should be happening.
  * Either [DragDirection.Vertical] or [DragDirection.Horizontal]
+ * @param thresholds the thresholds between anchors that determine which anchor to fling to when
+ * dragging stops, represented as a lambda that takes a pair of anchors and returns a value
+ * between them (note that the order of the anchors matters as it indicates the drag direction)
  * @param enabled whether or not this Draggable is enabled and should consume events
  * @param minValue lower bound for draggable value in this component
  * @param maxValue upper bound for draggable value in this component
@@ -69,6 +77,7 @@ internal fun <T> Modifier.stateDraggable(
     anchorsToState: List<Pair<Float, T>>,
     animationSpec: AnimationSpec<Float>,
     dragDirection: DragDirection,
+    thresholds: (Float, Float) -> Float = fractionalThresholds(0.5f),
     enabled: Boolean = true,
     minValue: Float = Float.MIN_VALUE,
     maxValue: Float = Float.MAX_VALUE,
@@ -79,8 +88,9 @@ internal fun <T> Modifier.stateDraggable(
 
     val anchors = remember(anchorsToState) { anchorsToState.map { it.first } }
     val currentValue = anchorsToState.fastFirstOrNull { it.second == state }!!.first
-    val flingConfig =
-        AnchorsFlingConfig(anchors, animationSpec, onAnimationEnd = { reason, finalValue, _ ->
+    val flingConfig = FlingConfig(
+        decayAnimation = ExponentialDecay(),
+        onAnimationEnd = { reason, finalValue, _ ->
             if (reason != AnimationEndReason.Interrupted) {
                 val newState = anchorsToState.firstOrNull { it.first == finalValue }?.second
                 if (newState != null && newState != state) {
@@ -88,7 +98,41 @@ internal fun <T> Modifier.stateDraggable(
                     forceAnimationCheck.value = !forceAnimationCheck.value
                 }
             }
-        })
+        },
+        adjustTarget = { target ->
+            // Find the two anchors the target lies between.
+            val a = anchors.filter { it <= target }.max()
+            val b = anchors.filter { it >= target }.min()
+            // Compute which anchor to fling to.
+            val adjusted: Float =
+                if (a == null && b == null) {
+                    // There are no anchors, so return the target unchanged.
+                    target
+                } else if (a == null) {
+                    // The target lies below the anchors, so return the first anchor (b).
+                    b!!
+                } else if (b == null) {
+                    // The target lies above the anchors, so return the last anchor (b).
+                    a
+                } else if (a == b) {
+                    // The target is equal to one of the anchors, so return the target unchanged.
+                    target
+                } else {
+                    // The target lies strictly between the two anchors a and b.
+                    // Compute the threshold between a and b based on the drag direction.
+                    val threshold = if (currentValue <= a) {
+                        thresholds(a, b)
+                    } else {
+                        thresholds(b, a)
+                    }
+                    require(threshold >= a && threshold <= b) {
+                        "Invalid threshold $threshold between anchors $a and $b."
+                    }
+                    if (target < threshold) a else b
+                }
+            TargetAnimation(adjusted, animationSpec)
+        }
+    )
     val clock = AnimationClockAmbient.current.asDisposableClock()
     val position = remember(clock) {
         onNewValue(currentValue)
@@ -115,6 +159,19 @@ internal fun <T> Modifier.stateDraggable(
         interactionState = interactionState
     )
 }
+
+/**
+ * Fixed anchors thresholds. Each threshold will be at an [offset] away from the first anchor.
+ */
+internal fun fixedThresholds(offset: Float): (Float, Float) -> Float =
+    { fromAnchor, toAnchor -> fromAnchor + offset * sign(toAnchor - fromAnchor) }
+
+/**
+ * Fractional thresholds. Each threshold will be at a [fraction] of the way between the two anchors.
+ */
+internal fun fractionalThresholds(
+    @FloatRange(from = 0.0, to = 1.0) fraction: Float
+): (Float, Float) -> Float = { fromAnchor, toAnchor -> lerp(fromAnchor, toAnchor, fraction) }
 
 private class NotificationBasedAnimatedFloat(
     initial: Float,

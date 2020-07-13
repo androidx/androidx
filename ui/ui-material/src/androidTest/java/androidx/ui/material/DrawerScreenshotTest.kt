@@ -48,7 +48,7 @@ class DrawerScreenshotTest {
     @get:Rule
     val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
 
-    private fun ComposeTestRule.setBottomDrawer(drawerState: DrawerState) {
+    private fun ComposeTestRule.setBottomDrawer(drawerState: BottomDrawerState) {
         setMaterialContent {
             Box(Modifier.size(10.dp, 100.dp).testTag("container")) {
                 BottomDrawerLayout(
@@ -76,7 +76,7 @@ class DrawerScreenshotTest {
 
     @Test
     fun bottomDrawer_closed() {
-        composeTestRule.setBottomDrawer(DrawerState.Closed)
+        composeTestRule.setBottomDrawer(BottomDrawerState.Closed)
         assertScreenshotAgainstGolden("bottomDrawer_closed")
     }
 
@@ -88,7 +88,7 @@ class DrawerScreenshotTest {
 
     @Test
     fun bottomDrawer_opened() {
-        composeTestRule.setBottomDrawer(DrawerState.Opened)
+        composeTestRule.setBottomDrawer(BottomDrawerState.Opened)
         assertScreenshotAgainstGolden("bottomDrawer_opened")
     }
 
