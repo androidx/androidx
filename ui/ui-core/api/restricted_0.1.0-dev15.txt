@@ -986,6 +986,10 @@ package androidx.ui.core.focus {
     property public abstract androidx.ui.core.focus.FocusDetailedState focusDetailedState;
   }
 
+  public final class FocusModifier2Kt {
+    method @androidx.compose.Composable @androidx.ui.core.focus.ExperimentalFocus public static androidx.ui.core.Modifier focus(androidx.ui.core.Modifier);
+  }
+
   public final class FocusModifierKt {
     method @androidx.compose.Composable public static androidx.ui.core.focus.FocusModifier FocusModifier();
     method public static androidx.ui.core.focus.FocusState getFocusState(androidx.ui.core.focus.FocusModifier);
