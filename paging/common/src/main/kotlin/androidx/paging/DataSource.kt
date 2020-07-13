@@ -184,6 +184,7 @@ internal constructor(internal val type: KeyType) {
          * @see DataSource.map
          * @see DataSource.mapByPage
          */
+        @JvmSynthetic // hidden to preserve Java source compat with arch.core.util.Function variant
         open fun <ToValue : Any> map(function: (Value) -> ToValue): Factory<Key, ToValue> =
             mapByPage(Function { list -> list.map(function) })
 
@@ -224,6 +225,7 @@ internal constructor(internal val type: KeyType) {
          * @see DataSource.map
          * @see DataSource.mapByPage
          */
+        @JvmSynthetic // hidden to preserve Java source compat with arch.core.util.Function variant
         open fun <ToValue : Any> mapByPage(
             function: (List<Value>) -> List<ToValue>
         ): Factory<Key, ToValue> = mapByPage(Function { function(it) })
@@ -270,6 +272,7 @@ internal constructor(internal val type: KeyType) {
      * @see DataSource.Factory.map
      * @see DataSource.Factory.mapByPage
      */
+    @JvmSynthetic // hidden to preserve Java source compat with arch.core.util.Function variant
     open fun <ToValue : Any> mapByPage(
         function: (List<Value>) -> List<ToValue>
     ): DataSource<Key, ToValue> = mapByPage(Function { function(it) })
@@ -307,6 +310,7 @@ internal constructor(internal val type: KeyType) {
      * @see DataSource.Factory.map
      *
      */
+    @JvmSynthetic // hidden to preserve Java source compat with arch.core.util.Function variant
     open fun <ToValue : Any> map(
         function: (Value) -> ToValue
     ): DataSource<Key, ToValue> = map(Function { function(it) })
