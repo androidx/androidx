@@ -15,6 +15,7 @@
  */
 
 import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 import static androidx.build.dependencies.DependenciesKt.*
@@ -22,10 +23,6 @@ import static androidx.build.dependencies.DependenciesKt.*
 plugins {
     id('AndroidXPlugin')
     id('com.android.library')
-}
-
-configurations {
-    jarjarConf
 }
 
 android {
@@ -39,36 +36,31 @@ android {
                 'proguard-android-optimize.txt'),
                 'proguard-rules.pro'
     }
-    sourceSets {
-        main.java.srcDirs += '../../../../external/icing/java/src/'
-        androidTest {
-            java.srcDirs += '../../../../external/icing/java/tests/instrumentation'
-        }
-    }
-    lintOptions {
-        // TODO(b/160643524): Don't do this. This temporarily disables lint
-        // checks that require getters and setters to have the same return
-        // and input values, respectively
-        disable 'KotlinPropertyAccess'
-    }
+}
+
+// Add :icing:java as jarjar dependency
+android.libraryVariants.all { variant ->
+    def variantName = variant.name
+    def suffix = variantName.capitalize()
+    def jarjarConfigName = "jarjar${suffix}"
+    def jarjarConf = configurations.register(jarjarConfigName)
+    // Treat icing-java as a local jar and package it inside the aar.
+    dependencies.add(jarjarConfigName, project.dependencies.project(
+            path: ":icing:java",
+            configuration: jarjarConfigName))
+    dependencies.add("${variantName}Implementation", files(jarjarConf))
 }
 
 dependencies {
-    // Treat icing-java as a local jar and package it inside the aar.
-    jarjarConf project(path: ':icing:java', configuration: 'jarjarConf')
-    implementation files(configurations.jarjarConf)
-    compileOnly project(path: ':icing:java', configuration: 'jarjarConf')
-
     api('androidx.annotation:annotation:1.1.0')
 
+    implementation project(':icing:nativeLib')
     implementation('androidx.collection:collection:1.1.0')
     implementation('androidx.concurrent:concurrent-futures:1.0.0')
     implementation('androidx.core:core:1.2.0')
-    implementation project(':icing:nativeLib')
 
     androidTestAnnotationProcessor project(':appsearch:appsearch-annotation')
     androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
     //TODO(b/149787478) upgrade and link to Dependencies.kt
@@ -90,6 +82,7 @@ androidx {
     name = 'AndroidX AppSearch'
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.APPSEARCH
+    mavenVersion = LibraryVersions.APPSEARCH
     inceptionYear = '2019'
     description = 'AndroidX AppSearch - App Indexing'
 }
