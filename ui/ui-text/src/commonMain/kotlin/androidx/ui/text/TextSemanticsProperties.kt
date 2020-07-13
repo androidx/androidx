@@ -32,14 +32,14 @@ object TextSemanticsProperties {
     val ImeAction = SemanticsPropertyKey<ImeAction>("ImeAction")
 
     /**
-     * Return whether the node supports input methods.
+     * Whether the node supports input methods.
      *
      * Supporting input methods means that the node provides a connection to IME (keyboard) and
      * is able to accept input from it. This is typically a text field for instance.
      *
      *  @see SemanticsPropertyReceiver.supportsInputMethods
      */
-    val SupportsInputMethods = SemanticsPropertyKey<Boolean>("SupportsInputMethods")
+    val SupportsInputMethods = SemanticsPropertyKey<Unit>("SupportsInputMethods")
 }
 
 /**
@@ -50,11 +50,13 @@ object TextSemanticsProperties {
 var SemanticsPropertyReceiver.imeAction by TextSemanticsProperties.ImeAction
 
 /**
- * Return whether the component supports input methods.
+ * Whether the component supports input methods.
  *
  * Supporting input methods means that the component provides a connection to IME (keyboard) and
  * is able to accept input from it. This is typically a text field for instance.
  *
  *  @see TextSemanticsProperties.SupportsInputMethods
  */
-var SemanticsPropertyReceiver.supportsInputMethods by TextSemanticsProperties.SupportsInputMethods
+fun SemanticsPropertyReceiver.supportsInputMethods() {
+    this[TextSemanticsProperties.SupportsInputMethods] = Unit
+}

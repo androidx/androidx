@@ -24,8 +24,6 @@ import androidx.ui.core.boundsInRoot
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.globalBounds
 import androidx.ui.core.globalPosition
-import androidx.ui.semantics.AccessibilityAction
-import androidx.ui.semantics.SemanticsPropertyKey
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.geometry.Offset
@@ -41,17 +39,19 @@ import androidx.ui.util.fastForEach
 internal typealias SemanticsNodeVisitor = (node: SemanticsNode) -> Boolean
 
 /**
- * A node that represents some semantic data.
+ * A list of key/value pairs associated with a layout node or its subtree.
+ *
+ * Each SemanticsNode takes its id and initial key/value list from the
+ * outermost modifier on one layout node.  It also contains the "collapsed" configuration
+ * of any other semantics modifiers on the same layout node, and if "mergeDescendants" is
+ * specified and enabled, also the "merged" configuration of its subtree.
  */
 @OptIn(ExperimentalLayoutNodeApi::class)
 class SemanticsNode internal constructor(
-    /**
-     * The unique identifier for this node.
-     *
-     * The first root node has an id of 1. Other nodes are given a unique id when
-     * they are created.
+    /*
+     * This is expected to be the outermost semantics modifier on a layout node.
      */
-    val id: Int,
+    internal val layoutNodeWrapper: SemanticsWrapper,
     /**
      * mergingEnabled specifies whether mergeAllDescendants config has any effect.
      *
@@ -62,40 +62,12 @@ class SemanticsNode internal constructor(
      *
      * mergingEnabled is typically true or false consistently on every node of a SemanticsNode tree.
      */
-    val mergingEnabled: Boolean,
-    val unmergedConfig: SemanticsConfiguration,
-    var componentNode: LayoutNode
+    val mergingEnabled: Boolean
 ) {
-    companion object {
-        // TODO(b/145955412) maybe randomize? don't want this to be a contract
-        // TODO: Might need to be atomic for multi-threaded composition
-        private var lastIdentifier: Int = 0
-
-        fun generateNewId(): Int {
-            lastIdentifier += 1
-            return lastIdentifier
-        }
-
-        /**
-         * In tests use this function to reset the counter used to generate
-         * [SemanticsNode.id].
-         */
-        internal fun debugResetSemanticsIdCounter() {
-            lastIdentifier = 0
-        }
-    }
-
-    /**
-     * Creates a semantic node.
-     *
-     * Each semantic node has a unique identifier that is assigned when the node
-     * is created.
-     */
-    internal constructor(
-        mergingEnabled: Boolean,
-        unmergedConfig: SemanticsConfiguration,
-        layoutNode: LayoutNode
-    ) : this(generateNewId(), mergingEnabled, unmergedConfig, layoutNode)
+    internal val unmergedConfig = layoutNodeWrapper.collapsedSemanticsConfiguration()
+    val id: Int = layoutNodeWrapper.semanticsModifier.id
+    // TODO(aelias): Make this internal and expose the Owner instead
+    val componentNode: LayoutNode = layoutNodeWrapper.layoutNode
 
     // GEOMETRY
 
@@ -152,7 +124,7 @@ class SemanticsNode internal constructor(
     private fun buildMergedConfig(
         mergedConfig: SemanticsConfiguration
     ): SemanticsConfiguration {
-        mergedConfig.absorb(unmergedConfig, ignoreAlreadySet = true)
+        mergedConfig.absorb(unmergedConfig)
 
         unmergedChildren().fastForEach { child ->
             if (child.isMergingSemanticsOfDescendants == false) {
@@ -253,11 +225,6 @@ class SemanticsNode internal constructor(
             return SemanticsNode(outerSemantics, mergingEnabled)
         }
 
-    internal fun <T : Function<Boolean>> canPerformAction(
-        action: SemanticsPropertyKey<AccessibilityAction<T>>
-    ) =
-        this.config.contains(action)
-
     private fun findOneLayerOfMergingSemanticsNodes(
         list: MutableList<SemanticsNode> = mutableListOf<SemanticsNode>()
     ): List<SemanticsNode> {
@@ -272,26 +239,13 @@ class SemanticsNode internal constructor(
     }
 }
 
-@OptIn(ExperimentalLayoutNodeApi::class)
-internal fun SemanticsNode(
-    outerSemantics: SemanticsWrapper,
-    mergingEnabled: Boolean
-): SemanticsNode {
-    with (outerSemantics) {
-        return SemanticsNode(modifier.id,
-            mergingEnabled,
-            collapsedSemanticsConfiguration(),
-            layoutNode)
-    }
-}
-
 /**
  * Returns the outermost semantics node on a LayoutNode.
  */
 @OptIn(ExperimentalLayoutNodeApi::class)
 internal val LayoutNode.outerSemantics: SemanticsWrapper?
     get() {
-        return (this as? LayoutNode)?.outerLayoutNodeWrapper?.nearestSemantics
+        return outerLayoutNodeWrapper.nearestSemantics
     }
 
 /**

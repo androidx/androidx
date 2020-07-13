@@ -24,7 +24,6 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.layout.wrapContentSize
@@ -63,7 +62,7 @@ class RadioButtonScreenshotTest {
     @Test
     fun radioButtonTest_selected() {
         composeTestRule.setMaterialContent {
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 RadioButton(selected = true, onClick = {})
             }
         }
@@ -73,7 +72,7 @@ class RadioButtonScreenshotTest {
     @Test
     fun radioButtonTest_notSelected() {
         composeTestRule.setMaterialContent {
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 RadioButton(selected = false, onClick = {})
             }
         }
@@ -83,7 +82,7 @@ class RadioButtonScreenshotTest {
     @Test
     fun radioButtonTest_pressed() {
         composeTestRule.setMaterialContent {
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 RadioButton(selected = false, onClick = {})
             }
         }
@@ -96,7 +95,7 @@ class RadioButtonScreenshotTest {
     @Test
     fun radioButtonTest_disabled_selected() {
         composeTestRule.setMaterialContent {
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 RadioButton(selected = true, onClick = {}, enabled = false)
             }
         }
@@ -106,7 +105,7 @@ class RadioButtonScreenshotTest {
     @Test
     fun radioButtonTest_disabled_notSelected() {
         composeTestRule.setMaterialContent {
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 RadioButton(selected = false, onClick = {}, enabled = false)
             }
         }
@@ -117,7 +116,7 @@ class RadioButtonScreenshotTest {
     fun radioButton_notSelected_animateToSelected() {
         composeTestRule.setMaterialContent {
             val isSelected = state { false }
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 RadioButton(
                     selected = isSelected.value,
                     onClick = { isSelected.value = !isSelected.value }
@@ -141,7 +140,7 @@ class RadioButtonScreenshotTest {
     fun radioButton_selected_animateToNotSelected() {
         composeTestRule.setMaterialContent {
             val isSelected = state { true }
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 RadioButton(
                     selected = isSelected.value,
                     onClick = { isSelected.value = !isSelected.value }

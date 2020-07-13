@@ -77,7 +77,7 @@ fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit) {
         dialog.setContent(composition) {
             // TODO(b/159900354): draw a scrim and add margins around the Compose Dialog, and
             //  consume clicks so they can't pass through to the underlying UI
-            Box(Modifier.semantics { this.dialog = true }, children = children)
+            Box(Modifier.semantics { this.dialog() }, children = children)
         }
     }
 }

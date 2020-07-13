@@ -17,7 +17,6 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -93,7 +92,7 @@ fun TopAppBar(
         }
 
         Row(
-            Modifier.fillMaxHeight().weight(1f).semantics(),
+            Modifier.fillMaxHeight().weight(1f),
             verticalGravity = ContentGravity.CenterVertically
         ) {
             ProvideTextStyle(value = MaterialTheme.typography.h6) {

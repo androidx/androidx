@@ -26,20 +26,23 @@ import androidx.ui.semantics.SemanticsPropertyReceiver
  */
 object FoundationSemanticsProperties {
     /**
-     * Whether this element is in a group from which only a single item can be selected at any given
-     * time (such as a radio group)
-     *
-     *  @see SemanticsPropertyReceiver.inMutuallyExclusiveGroup
-     */
-    val InMutuallyExclusiveGroup = SemanticsPropertyKey<Boolean>("InMutuallyExclusiveGroup")
-
-    /**
      * Whether this element is selected (out of a list of possible selections).
      * The presence of this property indicates that the element is selectable.
      *
      * @see SemanticsPropertyReceiver.selected
      */
     val Selected = SemanticsPropertyKey<Boolean>("Selected")
+
+    /**
+     * Whether this element is in a group from which only a single item can be selected at any given
+     * time (such as a radio group)
+     *
+     * The presence of this property indicates that the element is a member of
+     * a selectable group (exclusive or not).
+     *
+     *  @see SemanticsPropertyReceiver.inMutuallyExclusiveGroup
+     */
+    val InMutuallyExclusiveGroup = SemanticsPropertyKey<Boolean>("InMutuallyExclusiveGroup")
 
     /**
      * The state of a toggleable component.
@@ -53,7 +56,7 @@ object FoundationSemanticsProperties {
      * Whether this element is a Dialog. Not to be confused with if this element is _part of_ a
      * Dialog.
      */
-    val IsDialog = SemanticsPropertyKey<Boolean>("IsDialog")
+    val IsDialog = SemanticsPropertyKey<Unit>("IsDialog")
 }
 
 /**
@@ -85,4 +88,6 @@ var SemanticsPropertyReceiver.toggleableState
 /**
  * Whether this element is a Dialog. Not to be confused with if this element is _part of_ a Dialog.
  */
-var SemanticsPropertyReceiver.dialog by FoundationSemanticsProperties.IsDialog
+fun SemanticsPropertyReceiver.dialog() {
+    this[FoundationSemanticsProperties.IsDialog] = Unit
+}

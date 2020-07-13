@@ -18,11 +18,7 @@ package androidx.ui.core.semantics
 
 import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
-import androidx.ui.semantics.AccessibilityAction
-import androidx.ui.semantics.SemanticsPropertyKey
 import androidx.ui.util.fastForEach
-
-// TODO(b/142821673): Clean up and integrate this (probably with AndroidComposeView)
 
 /**
  * Owns [SemanticsNode] objects and notifies listeners of changes to the
@@ -43,26 +39,6 @@ class SemanticsOwner(val rootNode: LayoutNode) {
         get() {
             return SemanticsNode(rootNode.outerSemantics!!, mergingEnabled = false)
         }
-
-    private fun <T : Function<Boolean>> getSemanticsActionHandlerForId(
-        id: Int,
-        action: SemanticsPropertyKey<AccessibilityAction<T>>
-    ): AccessibilityAction<*>? {
-        var result: SemanticsNode? = rootSemanticsNode.findChildById(id)
-        if (result != null && !result.canPerformAction(action)) {
-            result.visitDescendants { node: SemanticsNode ->
-                if (node.canPerformAction(action)) {
-                    result = node
-                    return@visitDescendants false // found node, abort walk
-                }
-                return@visitDescendants true // continue walk
-            }
-        }
-        if (result?.canPerformAction(action) != true) {
-            return null
-        }
-        return result!!.unmergedConfig.getOrNull(action)
-    }
 }
 
 /**

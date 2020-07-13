@@ -78,7 +78,7 @@ class LayoutNodeModifierBenchmark(
             Modifier.drawBehind { },
             Modifier.drawLayer(),
             Modifier.keyInputFilter { _ -> true },
-            Modifier.semantics(),
+            Modifier.semantics { },
             Modifier.pressIndicatorGestureFilter(),
             Modifier.layoutId("Hello"),
             Modifier.padding(10.dp),

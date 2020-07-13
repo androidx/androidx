@@ -70,7 +70,6 @@ import androidx.ui.core.pointerinput.MotionEventAdapter
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.ProcessResult
 import androidx.ui.core.semantics.SemanticsModifierCore
-import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.text.AndroidFontResourceLoader
 import androidx.ui.core.texttoolbar.AndroidTextToolbar
@@ -124,9 +123,9 @@ internal class AndroidComposeView constructor(
         private set
 
     private val semanticsModifier = SemanticsModifierCore(
-        id = SemanticsNode.generateNewId(),
+        id = SemanticsModifierCore.generateSemanticsId(),
         mergeAllDescendants = false,
-        properties = null
+        properties = {}
     )
     private val focusModifier = FocusModifierImpl(Inactive)
     private val keyInputModifier = KeyInputModifier(null, null)

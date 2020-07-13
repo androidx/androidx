@@ -16,8 +16,10 @@
 
 package androidx.ui.core
 
-actual typealias NativeRectF = android.graphics.RectF
-actual typealias NativeMatrix = android.graphics.Matrix
+internal actual typealias AtomicInt = java.util.concurrent.atomic.AtomicInteger
+
+internal actual typealias NativeRectF = android.graphics.RectF
+internal actual typealias NativeMatrix = android.graphics.Matrix
 
 internal actual fun simpleIdentityToString(obj: Any, name: String?): String {
     val className = name ?: if (obj::class.java.isAnonymousClass) {

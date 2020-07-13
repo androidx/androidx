@@ -53,7 +53,7 @@ class SurfaceTest {
         composeTestRule.setMaterialContent {
             Stack(Modifier
                 .preferredSize(10.dp, 10.dp)
-                .semantics(mergeAllDescendants = true)
+                .semantics(mergeAllDescendants = true) {}
                 .testTag("stack")) {
                 Surface(color = Color.Yellow, elevation = 2.dp) {
                     Box(Modifier.fillMaxSize())
@@ -80,7 +80,7 @@ class SurfaceTest {
         composeTestRule.setMaterialContent {
             Stack(Modifier
                 .preferredSize(10.dp, 10.dp)
-                .semantics(mergeAllDescendants = true)
+                .semantics(mergeAllDescendants = true) {}
                 .testTag("stack")) {
                 Surface(color = Color.Yellow) {
                     Box(Modifier.fillMaxSize())
@@ -107,7 +107,7 @@ class SurfaceTest {
         composeTestRule.setMaterialContent {
             Stack(Modifier
                 .preferredSize(10.dp, 10.dp)
-                .semantics(mergeAllDescendants = true)
+                .semantics(mergeAllDescendants = true) {}
                 .testTag("stack")) {
                 Box(Modifier.fillMaxSize().drawBackground(Color.Green).zIndex(3f))
                 Surface(color = Color.Yellow, elevation = 2.dp) {
@@ -132,7 +132,7 @@ class SurfaceTest {
         composeTestRule.setMaterialContent {
             Stack(Modifier
                 .preferredSize(10.dp, 10.dp)
-                .semantics(mergeAllDescendants = true)
+                .semantics(mergeAllDescendants = true) {}
                 .testTag("stack")) {
                 Box(Modifier.fillMaxSize().drawBackground(Color.Green).zIndex(1f))
                 Surface(color = Color.Yellow, elevation = 2.dp) {

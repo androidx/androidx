@@ -44,7 +44,7 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
 import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.rememberSavedInstanceState
-import androidx.ui.semantics.ScrollTo
+import androidx.ui.semantics.scrollBy
 import kotlin.math.roundToInt
 
 /**
@@ -289,13 +289,13 @@ private fun Scroller(
             .semantics {
                 if (isScrollable) {
                     // when b/156389287 is fixed, this should be proper scrollTo with reverse handling
-                    ScrollTo(action = { x, y ->
+                    scrollBy(action = { x, y ->
                         if (isVertical) {
                             scrollerPosition.scrollBy(y)
                         } else {
                             scrollerPosition.scrollBy(x)
                         }
-                        return@ScrollTo true
+                        return@scrollBy true
                     })
                 }
             }
