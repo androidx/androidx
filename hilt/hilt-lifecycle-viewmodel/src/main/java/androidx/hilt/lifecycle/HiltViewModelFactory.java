@@ -20,6 +20,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.lifecycle.AbstractSavedStateViewModelFactory;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.SavedStateViewModelFactory;
@@ -47,6 +48,8 @@ public final class HiltViewModelFactory extends AbstractSavedStateViewModelFacto
     private final Map<String,
             Provider<ViewModelAssistedFactory<? extends ViewModel>>> mViewModelFactories;
 
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     HiltViewModelFactory(
             @NonNull SavedStateRegistryOwner owner,
             @Nullable Bundle defaultArgs,
