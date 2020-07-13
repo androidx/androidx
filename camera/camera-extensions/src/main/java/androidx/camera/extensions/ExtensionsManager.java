@@ -148,7 +148,7 @@ public final class ExtensionsManager {
      * @param lensFacing The lensFacing of the camera device to be checked.
      * @return True if the specific extension function is supported for the camera device.
      */
-    public static boolean isExtensionAvailable(EffectMode effectMode,
+    public static boolean isExtensionAvailable(@NonNull EffectMode effectMode,
             @CameraSelector.LensFacing int lensFacing) {
         boolean isImageCaptureAvailable = checkImageCaptureExtensionCapability(effectMode,
                 lensFacing);
@@ -171,8 +171,8 @@ public final class ExtensionsManager {
      * @param lensFacing The lensFacing of the camera device to be checked.
      * @return True if the specific extension function is supported for the camera device.
      */
-    public static boolean isExtensionAvailable(
-            Class<?> klass, EffectMode effectMode, @CameraSelector.LensFacing int lensFacing) {
+    public static boolean isExtensionAvailable(@NonNull Class<?> klass,
+            @NonNull EffectMode effectMode, @CameraSelector.LensFacing int lensFacing) {
         boolean isAvailable = false;
 
         if (klass == ImageCapture.class) {

@@ -36,7 +36,8 @@ public class HdrPreviewExtender extends PreviewExtender {
      * @param builder Builder that will be used to create the configurations for the
      *                {@link androidx.camera.core.Preview}.
      */
-    public static HdrPreviewExtender create(Preview.Builder builder) {
+    @NonNull
+    public static HdrPreviewExtender create(@NonNull Preview.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorHdrPreviewExtender(builder);
