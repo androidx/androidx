@@ -242,7 +242,7 @@ public final class CameraUseCaseAdapter {
     @NonNull
     public List<UseCase> getUseCases() {
         synchronized (mLock) {
-            return mUseCases;
+            return new ArrayList<>(mUseCases);
         }
     }
 
