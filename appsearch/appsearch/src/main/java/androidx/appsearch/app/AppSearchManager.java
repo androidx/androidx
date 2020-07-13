@@ -790,6 +790,6 @@ public class AppSearchManager {
         } else {
             resultCode = AppSearchResult.RESULT_UNKNOWN_ERROR;
         }
-        return newFailedResult(resultCode, t.getMessage());
+        return newFailedResult(resultCode, t.toString());
     }
 }
