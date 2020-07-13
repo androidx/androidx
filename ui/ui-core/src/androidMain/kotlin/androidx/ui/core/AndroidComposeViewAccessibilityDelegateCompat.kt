@@ -201,9 +201,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             semanticsNode.config.getOrNull(SemanticsProperties.AccessibilityValue)
         info.contentDescription =
             semanticsNode.config.getOrNull(SemanticsProperties.AccessibilityLabel)
-        info.isEnabled = semanticsNode.config.getOrElse(SemanticsProperties.Enabled) { true }
-        info.isVisibleToUser = !(semanticsNode.config.getOrElse(
-            SemanticsProperties.Hidden) { false })
+        info.isEnabled = (semanticsNode.config.getOrNull(SemanticsProperties.Disabled) == null)
+        info.isVisibleToUser = (semanticsNode.config.getOrNull(SemanticsProperties.Hidden) == null)
         info.isClickable = semanticsNode.config.contains(SemanticsActions.OnClick)
         if (info.isClickable) {
             info.addAction(
@@ -458,7 +457,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             AccessibilityNodeInfoCompat.ACTION_CLEAR_ACCESSIBILITY_FOCUS ->
                 return clearAccessibilityFocus(virtualViewId)
             AccessibilityNodeInfoCompat.ACTION_CLICK -> {
-                return if (node.canPerformAction(SemanticsActions.OnClick)) {
+                return if (node.config.contains(SemanticsActions.OnClick)) {
                     node.config[SemanticsActions.OnClick].action()
                 } else {
                     false
@@ -468,7 +467,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 // TODO(b/157692376): remove scroll forward/backward api together with slider
                 //  scroll action.
                 @Suppress("DEPRECATION")
-                return if (node.canPerformAction(SemanticsActions.ScrollForward)) {
+                return if (node.config.contains(SemanticsActions.ScrollForward)) {
                     node.config[SemanticsActions.ScrollForward].action()
                 } else {
                     false
@@ -476,7 +475,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
             AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD -> {
                 @Suppress("DEPRECATION")
-                return if (node.canPerformAction(SemanticsActions.ScrollBackward)) {
+                return if (node.config.contains(SemanticsActions.ScrollBackward)) {
                     node.config[SemanticsActions.ScrollBackward].action()
                 } else {
                     false
@@ -489,7 +488,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 ) {
                     return false
                 }
-                return if (node.canPerformAction(SemanticsActions.SetProgress)) {
+                return if (node.config.contains(SemanticsActions.SetProgress)) {
                     node.config[SemanticsActions.SetProgress].action(
                         arguments.getFloat(
                             AccessibilityNodeInfoCompat.ACTION_ARGUMENT_PROGRESS_VALUE

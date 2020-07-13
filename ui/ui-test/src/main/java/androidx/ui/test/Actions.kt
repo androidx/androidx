@@ -42,12 +42,12 @@ fun SemanticsNodeInteraction.performClick(): SemanticsNodeInteraction {
 
 /**
  * Scrolls to a node using SemanticsActions. It first identifies a parent semantics node with a
- * Semantics ScrollTo action, then it retrieves the location of the current element and computes
+ * Semantics ScrollBy action, then it retrieves the location of the current element and computes
  * the relative coordinates that will be used by the scroller.
  *
- * Throws [AssertionError] if there is no parent node with ScrollTo SemanticsAction, the
+ * Throws [AssertionError] if there is no parent node with ScrollBy SemanticsAction, the
  * current semantics node doesn't have a bounding rectangle set or if a layout node used to
- * compute the relative coordinates to be fed to the ScrollTo action can't be found.
+ * compute the relative coordinates to be fed to the ScrollBy action can't be found.
  */
 fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
     // find containing node with scroll action
@@ -68,7 +68,7 @@ fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
     val position = layoutNode.coordinates.localToGlobal(Offset(0.0f, 0.0f))
 
     runOnUiThread {
-        scrollableSemanticsNode.config[SemanticsActions.ScrollTo].action(
+        scrollableSemanticsNode.config[SemanticsActions.ScrollBy].action(
             (globalPosition.x - position.x),
             (globalPosition.y - position.y)
         )

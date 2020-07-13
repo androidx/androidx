@@ -67,9 +67,9 @@ fun Modifier.selectable(
         interactionState = interactionState,
         indication = indication,
         onClick = onClick
-    ).semantics(properties = {
+    ).semantics {
         this.inMutuallyExclusiveGroup = inMutuallyExclusiveGroup
         this.selected = selected
         this.accessibilityValue = if (selected) Strings.Selected else Strings.NotSelected
-    })
+    }
 }

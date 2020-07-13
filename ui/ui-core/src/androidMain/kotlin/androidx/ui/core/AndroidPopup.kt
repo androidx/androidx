@@ -104,7 +104,7 @@ internal actual fun ActualPopup(
     val parentComposition = compositionReference()
     onCommit {
         composition = popupLayout.setContent(recomposer, parentComposition) {
-            SimpleStack(Modifier.semantics { this.popup = true }.onPositioned {
+            SimpleStack(Modifier.semantics { this.popup() }.onPositioned {
                 // Get the size of the content
                 popupLayout.popupPositionProperties.childrenSize = it.size
 

@@ -17,6 +17,7 @@
 package androidx.ui.core.semantics
 
 import androidx.compose.remember
+import androidx.ui.core.AtomicInt
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.semantics.SemanticsPropertyReceiver
@@ -27,7 +28,9 @@ import androidx.ui.semantics.SemanticsPropertyReceiver
  */
 interface SemanticsModifier : Modifier.Element {
     /**
-     * The unique id of this semantics.  Should be generated from SemanticsNode.generateNewId().
+     * The unique id of this semantics.
+     *
+     * Should be generated from SemanticsModifierCore.generateSemanticsId().
      */
     val id: Int
 
@@ -41,14 +44,18 @@ interface SemanticsModifier : Modifier.Element {
 internal class SemanticsModifierCore(
     override val id: Int,
     mergeAllDescendants: Boolean,
-    properties: (SemanticsPropertyReceiver.() -> Unit)?
+    properties: (SemanticsPropertyReceiver.() -> Unit)
 ) : SemanticsModifier {
     override val semanticsConfiguration: SemanticsConfiguration =
         SemanticsConfiguration().also {
             it.isMergingSemanticsOfDescendants = mergeAllDescendants
 
-            properties?.invoke(it)
+            it.properties()
         }
+    companion object {
+        private var lastIdentifier = AtomicInt(0)
+        fun generateSemanticsId() = lastIdentifier.addAndGet(1)
+    }
 }
 
 /**
@@ -61,8 +68,8 @@ internal class SemanticsModifierCore(
  */
 fun Modifier.semantics(
     mergeAllDescendants: Boolean = false,
-    properties: (SemanticsPropertyReceiver.() -> Unit)? = null
+    properties: (SemanticsPropertyReceiver.() -> Unit)
 ): Modifier = composed {
-    val id = remember { SemanticsNode.generateNewId() }
+    val id = remember { SemanticsModifierCore.generateSemanticsId() }
     SemanticsModifierCore(id, mergeAllDescendants, properties)
 }

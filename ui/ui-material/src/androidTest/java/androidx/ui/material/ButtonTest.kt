@@ -558,7 +558,7 @@ class ButtonTest {
     fun zOrderingBasedOnElevationIsApplied() {
         composeTestRule.setMaterialContent {
             Stack(
-                Modifier.semantics(mergeAllDescendants = true)
+                Modifier.semantics(mergeAllDescendants = true) {}
                     .testTag("stack")
                     .preferredSize(10.dp, 10.dp)
             ) {

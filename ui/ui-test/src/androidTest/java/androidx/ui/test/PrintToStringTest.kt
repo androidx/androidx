@@ -25,7 +25,7 @@ import androidx.ui.foundation.Text
 import androidx.ui.layout.Column
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
-import androidx.ui.semantics.enabled
+import androidx.ui.semantics.disabled
 import androidx.ui.semantics.testTag
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
@@ -94,8 +94,8 @@ class PrintToStringTest {
     @Test
     fun printHierarchy() {
         composeTestRule.setContent {
-            Column(Modifier.semantics { this.enabled = true; this.testTag = "column" }) {
-                Box(Modifier.semantics { this.enabled = true; this.testTag = "box" }) {
+            Column(Modifier.semantics { this.disabled(); this.testTag = "column" }) {
+                Box(Modifier.semantics { this.disabled(); this.testTag = "box" }) {
                     Button(onClick = {}) {
                         Text("Button")
                     }
@@ -110,11 +110,10 @@ class PrintToStringTest {
         assertThat(obfuscateNodesInfo(result)).isEqualTo("" +
                 "Node #X at (X, X, X, X)px\n" +
                 " |-Node #X at (X, X, X, X)px, Tag: 'column'\n" +
-                "   Enabled = 'true'\n" +
+                "   Disabled = 'kotlin.Unit'\n" +
                 "    |-Node #X at (X, X, X, X)px, Tag: 'box'\n" +
-                "    | Enabled = 'true'\n" +
+                "    | Disabled = 'kotlin.Unit'\n" +
                 "    |  |-Node #X at (X, X, X, X)px\n" +
-                "    |    Enabled = 'true'\n" +
                 "    |    OnClick = 'AccessibilityAction(label=null, action=Function0" +
                 "<java.lang.Boolean>)'\n" +
                 "    |    Text = 'Button'\n" +

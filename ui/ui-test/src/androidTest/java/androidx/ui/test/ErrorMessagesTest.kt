@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
@@ -53,7 +52,7 @@ class ErrorMessagesTest {
                 "Failed to assert the following: (OnClick is defined)\n" +
                 "Semantics of the node:\n" +
                 "Node #X at (X, X, X, X)px, Tag: 'MyButton'\n" +
-                "Enabled = 'false'\n" +
+                "Disabled = 'kotlin.Unit'\n" +
                 "Text = 'Toggle'\n" +
                 "MergeDescendants = 'true'\n" +
                 "Has 1 sibling\n" +
@@ -325,11 +324,8 @@ class ErrorMessagesTest {
         onClick: (() -> Unit)? = null,
         children: @Composable () -> Unit
     ) {
-        // Since we're adding layouts in between the clickable layer and the content, we need to
-        // merge all descendants, or we'll get multiple nodes
         Surface {
-            Box(modifier.semantics(mergeAllDescendants = true)
-                        .clickable(onClick = onClick ?: {}, enabled = onClick != null)) {
+            Box(modifier.clickable(onClick = onClick ?: {}, enabled = onClick != null)) {
                 Box(children = children)
             }
         }

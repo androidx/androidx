@@ -17,8 +17,6 @@
 package androidx.ui.semantics
 
 import androidx.ui.text.AnnotatedString
-import androidx.ui.text.annotatedString
-import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 /**
@@ -31,13 +29,7 @@ object SemanticsProperties {
      *
      * @see SemanticsPropertyReceiver.accessibilityLabel
      */
-    val AccessibilityLabel = object : SemanticsPropertyKey<String>("AccessibilityLabel") {
-        override fun merge(existingValue: String, newValue: String): String {
-            // TODO(b/138173613): Needs TextDirection, probably needs to pass both nodes
-            //  to retrieve it
-            return existingValue + "\n" + newValue
-        }
-    }
+    val AccessibilityLabel = SemanticsPropertyKey<String>("AccessibilityLabel")
 
     /**
      * Developer-set state description of the semantics node. For example: on/off. If this not
@@ -58,18 +50,18 @@ object SemanticsProperties {
         SemanticsPropertyKey<AccessibilityRangeInfo>("AccessibilityRangeInfo")
 
     /**
-     * Whether this semantics node is enabled.
+     * Whether this semantics node is disabled.
      *
-     * @see SemanticsPropertyReceiver.enabled
+     * @see SemanticsPropertyReceiver.disabled
      */
-    val Enabled = SemanticsPropertyKey<Boolean>("Enabled")
+    val Disabled = SemanticsPropertyKey<Unit>("Disabled")
 
     /**
      * Whether this semantics node is hidden.
      *
      * @see SemanticsPropertyReceiver.hidden
      */
-    val Hidden = SemanticsPropertyKey<Boolean>("Hidden")
+    val Hidden = SemanticsPropertyKey<Unit>("Hidden")
 
     /**
      * Whether this semantics node represents a Popup. Not to be confused with if this node is
@@ -77,7 +69,7 @@ object SemanticsProperties {
      *
      * @see SemanticsPropertyReceiver.popup
      */
-    val IsPopup = SemanticsPropertyKey<Boolean>("IsPopup")
+    val IsPopup = SemanticsPropertyKey<Unit>("IsPopup")
 
     // TODO(b/138172781): Move to FoundationSemanticsProperties
     /**
@@ -93,23 +85,7 @@ object SemanticsProperties {
      *
      * @see SemanticsPropertyReceiver.text
      */
-    val Text = object : SemanticsPropertyKey<AnnotatedString>("Text") {
-        override fun merge(
-            existingValue: AnnotatedString,
-            newValue: AnnotatedString
-        ): AnnotatedString {
-            // TODO(b/138173613): Needs TextDirection, probably needs to pass both nodes
-            //  to retrieve it
-            return annotatedString {
-                append(existingValue)
-                append("\n")
-                append(newValue)
-            }
-        }
-    }
-
-    // TODO(b/151228491): TextDirection needs to be in core for platform use
-    // val TextDirection = SemanticsPropertyKey<TextDirection>("TextDirection")
+    val Text = SemanticsPropertyKey<AnnotatedString>("Text")
 }
 
 /**
@@ -127,10 +103,10 @@ object SemanticsActions {
     /**
      * Action to scroll to a specified position.
      *
-     * @see SemanticsPropertyReceiver.ScrollTo
+     * @see SemanticsPropertyReceiver.ScrollBy
      */
-    val ScrollTo =
-        SemanticsPropertyKey<AccessibilityAction<(x: Float, y: Float) -> Boolean>>("ScrollTo")
+    val ScrollBy =
+        SemanticsPropertyKey<AccessibilityAction<(x: Float, y: Float) -> Boolean>>("ScrollBy")
 
     /**
      * Action to scroll the content forward.
@@ -169,46 +145,25 @@ object SemanticsActions {
         SemanticsPropertyKey<List<CustomAccessibilityAction>>("CustomActions")
 }
 
-open class SemanticsPropertyKey<T>(
+class SemanticsPropertyKey<T>(
     /**
      * The name of the property.  Should be the same as the constant from which it is accessed.
      */
     val name: String
-) :
-    ReadWriteProperty<SemanticsPropertyReceiver, T> {
-    /**
-     * Subclasses that wish to implement merging should override this to output the merged value
-     *
-     * This implementation always throws IllegalStateException.  It should be overridden for
-     * properties that can be merged.
-     */
-    open fun merge(existingValue: T, newValue: T): T {
-        throw IllegalStateException(
-            "merge function called on unmergeable property $name. " +
-                    "Existing value: $existingValue, new value: $newValue. " +
-                    "You may need to add a semantic boundary."
-        )
-    }
-
+) {
     /**
      * Throws [UnsupportedOperationException].  Should not be called.
      */
-    // noinspection DeprecatedCallableAddReplaceWith
-    // TODO(KT-32770): Re-deprecate this
-    // @Deprecated(
-    //     message = "You cannot retrieve a semantics property directly - " +
-    //             "use one of the SemanticsConfiguration.getOr* methods instead",
-    //     level = DeprecationLevel.ERROR
-    // )
-    // TODO(KT-6519): Remove this getter entirely
-    final override fun getValue(thisRef: SemanticsPropertyReceiver, property: KProperty<*>): T {
+    // TODO(KT-6519): Remove this getter
+    // TODO(KT-32770): Cannot deprecate this either as the getter is considered called by "by"
+    final operator fun getValue(thisRef: SemanticsPropertyReceiver, property: KProperty<*>): T {
         throw UnsupportedOperationException(
             "You cannot retrieve a semantics property directly - " +
                     "use one of the SemanticsConfiguration.getOr* methods instead"
         )
     }
 
-    final override fun setValue(
+    final operator fun setValue(
         thisRef: SemanticsPropertyReceiver,
         property: KProperty<*>,
         value: T
@@ -230,15 +185,7 @@ open class SemanticsPropertyKey<T>(
  * forward action should return false if the widget is not enabled or has reached the end of the
  * list.
  */
-data class AccessibilityAction<T : Function<Boolean>>(val label: CharSequence?, val action: T) {
-    // TODO(b/145951226): Workaround for a bytecode issue, remove this
-    override fun hashCode(): Int {
-        var result = label?.hashCode() ?: 0
-        // (action as Any) is the workaround
-        result = 31 * result + (action as Any).hashCode()
-        return result
-    }
-}
+data class AccessibilityAction<T : Function<Boolean>>(val label: CharSequence?, val action: T)
 
 /**
  * Data class for custom accessibility action.
@@ -247,15 +194,7 @@ data class AccessibilityAction<T : Function<Boolean>>(val label: CharSequence?, 
  * @param action The function to invoke when this action is performed. The function should have no
  * arguments and return a boolean result indicating whether the action is successfully handled.
  */
-data class CustomAccessibilityAction(val label: CharSequence, val action: () -> Boolean) {
-    // TODO(b/145951226): Workaround for a bytecode issue, remove this
-    override fun hashCode(): Int {
-        var result = label.hashCode()
-        // (action as Any) is the workaround
-        result = 31 * result + (action as Any).hashCode()
-        return result
-    }
-}
+data class CustomAccessibilityAction(val label: CharSequence, val action: () -> Boolean)
 
 data class AccessibilityRangeInfo(
     val current: Float,
@@ -292,18 +231,22 @@ var SemanticsPropertyReceiver.accessibilityValue by SemanticsProperties.Accessib
 var SemanticsPropertyReceiver.accessibilityValueRange by SemanticsProperties.AccessibilityRangeInfo
 
 /**
- * Whether this semantics node is enabled.
+ * Whether this semantics node is disabled.
  *
- * @see SemanticsProperties.Enabled
+ * @see SemanticsProperties.Disabled
  */
-var SemanticsPropertyReceiver.enabled by SemanticsProperties.Enabled
+fun SemanticsPropertyReceiver.disabled() {
+    this[SemanticsProperties.Disabled] = Unit
+}
 
 /**
  * Whether this semantics node is hidden.
  *
  * @See SemanticsProperties.Hidden
  */
-var SemanticsPropertyReceiver.hidden by SemanticsProperties.Hidden
+fun SemanticsPropertyReceiver.hidden() {
+    this[SemanticsProperties.Hidden] = Unit
+}
 
 /**
  * Whether this semantics node represents a Popup. Not to be confused with if this node is
@@ -311,7 +254,9 @@ var SemanticsPropertyReceiver.hidden by SemanticsProperties.Hidden
  *
  * @See SemanticsProperties.IsPopup
  */
-var SemanticsPropertyReceiver.popup by SemanticsProperties.IsPopup
+fun SemanticsPropertyReceiver.popup() {
+    this[SemanticsProperties.IsPopup] = Unit
+}
 
 // TODO(b/138172781): Move to FoundationSemanticsProperties.kt
 /**
@@ -328,53 +273,12 @@ var SemanticsPropertyReceiver.testTag by SemanticsProperties.TestTag
  */
 var SemanticsPropertyReceiver.text by SemanticsProperties.Text
 
-// var SemanticsPropertyReceiver.textDirection by SemanticsProperties.TextDirection
-
 /**
  * Custom actions which are defined by app developers.
  *
  * @see SemanticsPropertyReceiver.customActions
  */
 var SemanticsPropertyReceiver.customActions by SemanticsActions.CustomActions
-
-/**
- * Action to be performed when the node is clicked.
- *
- * @see SemanticsActions.OnClick
- */
-var SemanticsPropertyReceiver.onClick by SemanticsActions.OnClick
-
-/**
- * Action to scroll to a specified position.
- *
- * @see SemanticsActions.ScrollTo
- */
-var SemanticsPropertyReceiver.ScrollTo by SemanticsActions.ScrollTo
-
-/**
- * Action to scroll the content forward.
- *
- * @see SemanticsActions.ScrollForward
- */
-@Deprecated("Use scroll up/down/left/right instead")
-@Suppress("DEPRECATION")
-var SemanticsPropertyReceiver.scrollForward by SemanticsActions.ScrollForward
-
-/**
- * Action to scroll the content backward.
- *
- * @see SemanticsActions.ScrollBackward
- */
-@Deprecated("Use scroll up/down/left/right instead")
-@Suppress("DEPRECATION")
-var SemanticsPropertyReceiver.scrollBackward by SemanticsActions.ScrollBackward
-
-/**
- * Action to set slider progress.
- *
- * @see SemanticsActions.SetProgress
- */
-var SemanticsPropertyReceiver.setProgress by SemanticsActions.SetProgress
 
 /**
  * This function adds the [SemanticsActions.OnClick] to the [SemanticsPropertyReceiver].
@@ -387,16 +291,16 @@ fun SemanticsPropertyReceiver.onClick(label: String? = null, action: () -> Boole
 }
 
 /**
- * This function adds the [SemanticsActions.ScrollTo] to the [SemanticsPropertyReceiver].
+ * This function adds the [SemanticsActions.ScrollBy] to the [SemanticsPropertyReceiver].
  *
  * @param label Optional label for this action.
- * @param action Action to be performed when the [SemanticsActions.ScrollTo] is called.
+ * @param action Action to be performed when the [SemanticsActions.ScrollBy] is called.
  */
-fun SemanticsPropertyReceiver.ScrollTo(
+fun SemanticsPropertyReceiver.scrollBy(
     label: String? = null,
     action: (x: Float, y: Float) -> Boolean
 ) {
-    this[SemanticsActions.ScrollTo] = AccessibilityAction(label, action)
+    this[SemanticsActions.ScrollBy] = AccessibilityAction(label, action)
 }
 
 /**
@@ -437,52 +341,3 @@ fun SemanticsPropertyReceiver.setProgress(
 ) {
     this[SemanticsActions.SetProgress] = AccessibilityAction(label, action)
 }
-
-// TODO(b/138173613): Use this for merging labels
-/*
-
-    /**
-    * U+202A LEFT-TO-RIGHT EMBEDDING
-    *
-    * Treat the following text as embedded left-to-right.
-    *
-    * Use [PDF] to end the embedding.
-    */
-    private const val LRE = "\u202A"
-
-    /**
-     * U+202B RIGHT-TO-LEFT EMBEDDING
-     *
-     * Treat the following text as embedded right-to-left.
-     *
-     * Use [PDF] to end the embedding.
-     */
-    private const val RLE = "\u202B"
-
-    /**
-     * U+202C POP DIRECTIONAL FORMATTING
-     *
-     * End the scope of the last [LRE], [RLE], [RLO], or [LRO].
-     */
-    private const val PDF = "\u202C"
-
-private fun concatStrings(
-    thisString: String?,
-    otherString: String?,
-    thisTextDirection: TextDirection?,
-    otherTextDirection: TextDirection?
-): String? {
-    if (otherString.isNullOrEmpty())
-        return thisString
-    var nestedLabel = otherString
-    if (thisTextDirection != otherTextDirection && otherTextDirection != null) {
-        nestedLabel = when (otherTextDirection) {
-            TextDirection.Rtl -> "${RLE}$nestedLabel${PDF}"
-            TextDirection.Ltr -> "${LRE}$nestedLabel${PDF}"
-        }
-    }
-    if (thisString.isNullOrEmpty())
-        return nestedLabel
-    return "$thisString\n$nestedLabel"
-}
-*/

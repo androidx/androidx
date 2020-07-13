@@ -35,7 +35,7 @@ import androidx.ui.foundation.selection.ToggleableState.Off
 import androidx.ui.foundation.selection.ToggleableState.On
 import androidx.ui.foundation.semantics.toggleableState
 import androidx.ui.semantics.accessibilityValue
-import androidx.ui.semantics.enabled
+import androidx.ui.semantics.disabled
 import androidx.ui.semantics.onClick
 
 /**
@@ -99,23 +99,21 @@ fun Modifier.triStateToggleable(
     onClick: () -> Unit
 ) = composed {
     // TODO(pavlis): Handle multiple states for Semantics
-    val semantics = Modifier.semantics(
-        mergeAllDescendants = true,
-        properties = {
-            this.accessibilityValue = when (state) {
-                // TODO(ryanmentley): These should be set by Checkbox, Switch, etc.
-                On -> Strings.Checked
-                Off -> Strings.Unchecked
-                Indeterminate -> Strings.Indeterminate
-            }
-            this.toggleableState = state
-            this.enabled = enabled
-
-            if (enabled) {
-                onClick(action = { onClick(); return@onClick true }, label = "Toggle")
-            }
+    val semantics = Modifier.semantics(mergeAllDescendants = true) {
+        this.accessibilityValue = when (state) {
+            // TODO(ryanmentley): These should be set by Checkbox, Switch, etc.
+            On -> Strings.Checked
+            Off -> Strings.Unchecked
+            Indeterminate -> Strings.Indeterminate
         }
-    )
+        this.toggleableState = state
+
+        if (enabled) {
+            onClick(action = { onClick(); return@onClick true }, label = "Toggle")
+        } else {
+            disabled()
+        }
+    }
     val interactionUpdate =
         if (enabled) {
             Modifier.pressIndicatorGestureFilter(

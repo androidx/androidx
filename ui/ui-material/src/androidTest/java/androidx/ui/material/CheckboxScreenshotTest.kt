@@ -23,7 +23,6 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.selection.ToggleableState
@@ -63,7 +62,7 @@ class CheckboxScreenshotTest {
     @Test
     fun checkBoxTest_checked() {
         composeTestRule.setMaterialContent {
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 Checkbox(checked = true, onCheckedChange = { })
             }
         }
@@ -73,7 +72,7 @@ class CheckboxScreenshotTest {
     @Test
     fun checkBoxTest_unchecked() {
         composeTestRule.setMaterialContent {
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 Checkbox(modifier = wrap, checked = false, onCheckedChange = { })
             }
         }
@@ -83,7 +82,7 @@ class CheckboxScreenshotTest {
     @Test
     fun checkBoxTest_pressed() {
         composeTestRule.setMaterialContent {
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 Checkbox(modifier = wrap, checked = false, onCheckedChange = { })
             }
         }
@@ -96,7 +95,7 @@ class CheckboxScreenshotTest {
     @Test
     fun checkBoxTest_indeterminate() {
         composeTestRule.setMaterialContent {
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 TriStateCheckbox(
                     state = ToggleableState.Indeterminate,
                     modifier = wrap,
@@ -109,7 +108,7 @@ class CheckboxScreenshotTest {
     @Test
     fun checkBoxTest_disabled_checked() {
         composeTestRule.setMaterialContent {
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 Checkbox(modifier = wrap, checked = true, enabled = false, onCheckedChange = { })
             }
         }
@@ -119,7 +118,7 @@ class CheckboxScreenshotTest {
     @Test
     fun checkBoxTest_disabled_unchecked() {
         composeTestRule.setMaterialContent {
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 Checkbox(modifier = wrap, checked = false, enabled = false, onCheckedChange = { })
             }
         }
@@ -129,7 +128,7 @@ class CheckboxScreenshotTest {
     @Test
     fun checkBoxTest_disabled_indeterminate() {
         composeTestRule.setMaterialContent {
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 TriStateCheckbox(
                     state = ToggleableState.Indeterminate,
                     enabled = false,
@@ -144,7 +143,7 @@ class CheckboxScreenshotTest {
     fun checkBoxTest_unchecked_animateToChecked() {
         composeTestRule.setMaterialContent {
             val isChecked = state { false }
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 Checkbox(
                     modifier = wrap,
                     checked = isChecked.value,
@@ -169,7 +168,7 @@ class CheckboxScreenshotTest {
     fun checkBoxTest_checked_animateToUnchecked() {
         composeTestRule.setMaterialContent {
             val isChecked = state { true }
-            Box(wrap.semantics().testTag(wrapperTestTag)) {
+            Box(wrap.testTag(wrapperTestTag)) {
                 Checkbox(
                     modifier = wrap,
                     checked = isChecked.value,
