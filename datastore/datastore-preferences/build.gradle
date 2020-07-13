@@ -34,13 +34,11 @@ dependencies {
 
     testImplementation(JUNIT)
     testImplementation(KOTLIN_COROUTINES_TEST)
-    testImplementation(TRUTH)
-    testImplementation(project(":internal-testutils-truth"))
+    testImplementation(KOTLIN_TEST)
 
     androidTestImplementation(JUNIT)
     androidTestImplementation(KOTLIN_COROUTINES_TEST)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(project(":internal-testutils-truth"))
+    androidTestImplementation(KOTLIN_TEST)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_CORE)
 }
