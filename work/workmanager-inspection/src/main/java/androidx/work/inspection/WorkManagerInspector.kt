@@ -16,14 +16,50 @@
 
 package androidx.work.inspection
 
+import android.app.Application
 import androidx.inspection.Connection
 import androidx.inspection.Inspector
 import androidx.inspection.InspectorEnvironment
+import androidx.work.WorkManager
+import androidx.work.inspection.WorkManagerInspectorProtocol.Command
+import androidx.work.inspection.WorkManagerInspectorProtocol.Command.OneOfCase.TRACK_WORK_MANAGER
+import androidx.work.inspection.WorkManagerInspectorProtocol.ErrorResponse
+import androidx.work.inspection.WorkManagerInspectorProtocol.Response
+import androidx.work.inspection.WorkManagerInspectorProtocol.TrackWorkManagerResponse
 
+/**
+ * Inspector to work with WorkManager
+ */
 class WorkManagerInspector(
     connection: Connection,
-    private val environment: InspectorEnvironment
+    environment: InspectorEnvironment
 ) : Inspector(connection) {
+
+    private val workManager: WorkManager
+
+    init {
+        workManager = environment.findInstances(Application::class.java).first()
+            .let { application -> WorkManager.getInstance(application) }
+    }
+
     override fun onReceiveCommand(data: ByteArray, callback: CommandCallback) {
+        val command = Command.parseFrom(data)
+        when (command.oneOfCase) {
+            TRACK_WORK_MANAGER -> {
+                val response = Response.newBuilder()
+                    .setTrackWorkManager(TrackWorkManagerResponse.getDefaultInstance())
+                    .build()
+                callback.reply(response.toByteArray())
+            }
+            else -> {
+                val errorResponse = ErrorResponse.newBuilder()
+                    .setContent("Unrecognised command type: ONEOF_NOT_SET")
+                    .build()
+                val response = Response.newBuilder()
+                    .setError(errorResponse)
+                    .build()
+                callback.reply(response.toByteArray())
+            }
+        }
     }
 }

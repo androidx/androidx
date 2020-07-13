@@ -16,10 +16,13 @@
 
 package androidx.work.inspection
 
-import androidx.inspection.InspectorEnvironment
+import android.app.Application
 import androidx.inspection.testing.DefaultTestInspectorEnvironment
 import androidx.inspection.testing.InspectorTester
 import androidx.inspection.testing.TestInspectorExecutors
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.work.inspection.WorkManagerInspectorProtocol.Command
+import androidx.work.inspection.WorkManagerInspectorProtocol.Response
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -36,6 +39,11 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
 
     override fun before() {
         environment = FakeInspectorEnvironment(job)
+        val application = InstrumentationRegistry
+            .getInstrumentation()
+            .targetContext
+            .applicationContext as Application
+        registerApplication(application)
         inspectorTester = runBlocking {
             InspectorTester(
                 inspectorId = WORK_MANAGER_INSPECTOR_ID,
@@ -55,31 +63,38 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
     fun assertNoQueuedEvents() {
         assertThat(inspectorTester.channel.isEmpty).isTrue()
     }
+
+    suspend fun sendCommand(command: Command): Response {
+        inspectorTester.sendCommand(command.toByteArray())
+            .let { responseBytes ->
+                assertThat(responseBytes).isNotEmpty()
+                return Response.parseFrom(responseBytes)
+            }
+    }
+
+    private fun registerApplication(application: Application) {
+        environment.registerInstancesToFind(listOf(application))
+    }
 }
 
 /**
- * Empty Fake inspector environment.
+ * Fake inspector environment with the following behaviour:
+ * - [findInstances] returns pre-registered values from [registerInstancesToFind].
  */
 private class FakeInspectorEnvironment(
     job: Job
 ) : DefaultTestInspectorEnvironment(TestInspectorExecutors(job)) {
-    override fun <T : Any?> findInstances(clazz: Class<T>): MutableList<T> {
-        TODO("not implemented")
+    private val instancesToFind = mutableListOf<Any>()
+
+    fun registerInstancesToFind(instances: List<Any>) {
+        instancesToFind.addAll(instances)
     }
 
-    override fun registerEntryHook(
-        originClass: Class<*>,
-        originMethod: String,
-        entryHook: InspectorEnvironment.EntryHook
-    ) {
-        TODO("not implemented")
-    }
-
-    override fun <T : Any?> registerExitHook(
-        originClass: Class<*>,
-        originMethod: String,
-        exitHook: InspectorEnvironment.ExitHook<T>
-    ) {
-        TODO("not implemented")
-    }
+    /**
+     *  Returns instances pre-registered in [registerInstancesToFind].
+     *  By design crashes in case of the wrong setup - indicating an issue with test code.
+     */
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any?> findInstances(clazz: Class<T>): List<T> =
+        instancesToFind.filter { clazz.isInstance(it) }.map { it as T }.toList()
 }
