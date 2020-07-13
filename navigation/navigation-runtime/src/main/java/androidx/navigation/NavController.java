@@ -71,6 +71,8 @@ public class NavController {
     private static final String KEY_BACK_STACK =
             "android-support-nav:controller:backStack";
     static final String KEY_DEEP_LINK_IDS = "android-support-nav:controller:deepLinkIds";
+    static final String KEY_DEEP_LINK_ARGS =
+            "android-support-nav:controller:deepLinkArgs";
     static final String KEY_DEEP_LINK_EXTRAS =
             "android-support-nav:controller:deepLinkExtras";
     static final String KEY_DEEP_LINK_HANDLED =
@@ -664,17 +666,21 @@ public class NavController {
         }
         Bundle extras = intent.getExtras();
         int[] deepLink = extras != null ? extras.getIntArray(KEY_DEEP_LINK_IDS) : null;
-        Bundle bundle = new Bundle();
+        ArrayList<Bundle> deepLinkArgs = extras != null
+                ? extras.getParcelableArrayList(KEY_DEEP_LINK_ARGS)
+                : null;
+        Bundle globalArgs = new Bundle();
         Bundle deepLinkExtras = extras != null ? extras.getBundle(KEY_DEEP_LINK_EXTRAS) : null;
         if (deepLinkExtras != null) {
-            bundle.putAll(deepLinkExtras);
+            globalArgs.putAll(deepLinkExtras);
         }
         if ((deepLink == null || deepLink.length == 0) && intent.getData() != null) {
             NavDestination.DeepLinkMatch matchingDeepLink =
                     mGraph.matchDeepLink(new NavDeepLinkRequest(intent));
             if (matchingDeepLink != null) {
                 deepLink = matchingDeepLink.getDestination().buildDeepLinkIds();
-                bundle.putAll(matchingDeepLink.getMatchingArgs());
+                deepLinkArgs = null;
+                globalArgs.putAll(matchingDeepLink.getMatchingArgs());
             }
         }
         if (deepLink == null || deepLink.length == 0) {
@@ -687,7 +693,19 @@ public class NavController {
                     + " in the navigation graph, ignoring the deep link from " + intent);
             return false;
         }
-        bundle.putParcelable(KEY_DEEP_LINK_INTENT, intent);
+        globalArgs.putParcelable(KEY_DEEP_LINK_INTENT, intent);
+        Bundle[] args = new Bundle[deepLink.length];
+        for (int index = 0; index < args.length; index++) {
+            Bundle arguments = new Bundle();
+            arguments.putAll(globalArgs);
+            if (deepLinkArgs != null) {
+                Bundle deepLinkArguments = deepLinkArgs.get(index);
+                if (deepLinkArguments != null) {
+                    arguments.putAll(deepLinkArguments);
+                }
+            }
+            args[index] = arguments;
+        }
         int flags = intent.getFlags();
         if ((flags & Intent.FLAG_ACTIVITY_NEW_TASK) != 0
                 && (flags & Intent.FLAG_ACTIVITY_CLEAR_TASK) == 0) {
@@ -713,7 +731,8 @@ public class NavController {
             }
             int index = 0;
             while (index < deepLink.length) {
-                int destinationId = deepLink[index++];
+                int destinationId = deepLink[index];
+                Bundle arguments = args[index++];
                 NavDestination node = findDestination(destinationId);
                 if (node == null) {
                     final String dest = NavDestination.getDisplayName(mContext, destinationId);
@@ -722,7 +741,7 @@ public class NavController {
                             + " cannot be found from the current destination "
                             + getCurrentDestination());
                 }
-                navigate(node, bundle,
+                navigate(node, arguments,
                         new NavOptions.Builder().setEnterAnim(0).setExitAnim(0).build(), null);
             }
             return true;
@@ -731,6 +750,7 @@ public class NavController {
         NavGraph graph = mGraph;
         for (int i = 0; i < deepLink.length; i++) {
             int destinationId = deepLink[i];
+            Bundle arguments = args[i];
             NavDestination node = i == 0 ? mGraph : graph.findNode(destinationId);
             if (node == null) {
                 final String dest = NavDestination.getDisplayName(mContext, destinationId);
@@ -750,7 +770,7 @@ public class NavController {
                 }
             } else {
                 // Navigate to the last NavDestination, clearing any existing destinations
-                navigate(node, node.addInDefaultArgs(bundle), new NavOptions.Builder()
+                navigate(node, arguments, new NavOptions.Builder()
                         .setPopUpTo(mGraph.getId(), true)
                         .setEnterAnim(0).setExitAnim(0).build(), null);
             }

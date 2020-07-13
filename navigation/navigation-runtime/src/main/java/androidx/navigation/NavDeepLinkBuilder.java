@@ -52,12 +52,32 @@ import java.util.ArrayList;
  * using an existing {@link NavController} via {@link NavController#createDeepLink()}.
  */
 public final class NavDeepLinkBuilder {
+    private static class DeepLinkDestination {
+        private final int mDestinationId;
+        @Nullable
+        private final Bundle mArguments;
+
+        DeepLinkDestination(int destinationId, @Nullable Bundle arguments) {
+            mDestinationId = destinationId;
+            mArguments = arguments;
+        }
+
+        public int getDestinationId() {
+            return mDestinationId;
+        }
+
+        @Nullable
+        public Bundle getArguments() {
+            return mArguments;
+        }
+    }
+
     private final Context mContext;
     private final Intent mIntent;
 
     private NavGraph mGraph;
-    private ArrayList<Integer> mDestIds = new ArrayList<>();
-    private Bundle mArgs;
+    private ArrayList<DeepLinkDestination> mDestinations = new ArrayList<>();
+    private Bundle mGlobalArgs;
 
     /**
      * Construct a new NavDeepLinkBuilder.
@@ -155,8 +175,23 @@ public final class NavDeepLinkBuilder {
      */
     @NonNull
     public NavDeepLinkBuilder setDestination(@IdRes int destId) {
-        mDestIds.clear();
-        mDestIds.add(destId);
+        return setDestination(destId, null);
+    }
+
+    /**
+     * Sets the destination id to deep link to. Any destinations previous added via
+     * {@link #addDestination(int)} are cleared, effectively resetting this object
+     * back to only this single destination.
+     *
+     * @param destId destination ID to deep link to.
+     * @param args Arguments to pass to this destination and any synthetic back stack created
+     *             due to this destination being added.
+     * @return this object for chaining
+     */
+    @NonNull
+    public NavDeepLinkBuilder setDestination(@IdRes int destId, @Nullable Bundle args) {
+        mDestinations.clear();
+        mDestinations.add(new DeepLinkDestination(destId, args));
         if (mGraph != null) {
             verifyAllDestinations();
         }
@@ -174,7 +209,23 @@ public final class NavDeepLinkBuilder {
      */
     @NonNull
     public NavDeepLinkBuilder addDestination(@IdRes int destId) {
-        mDestIds.add(destId);
+        return addDestination(destId, null);
+    }
+
+    /**
+     * Add a new destination id to deep link to. This builds off any previous calls to this method
+     * or calls to {@link #setDestination(int)}, building the minimal synthetic back stack of
+     * start destinations between the previous deep link destination and the newly added
+     * deep link destination.
+     *
+     * @param destId destination ID to deep link to.
+     * @param args Arguments to pass to this destination and any synthetic back stack created
+     *             due to this destination being added.
+     * @return this object for chaining
+     */
+    @NonNull
+    public NavDeepLinkBuilder addDestination(@IdRes int destId, @Nullable Bundle args) {
+        mDestinations.add(new DeepLinkDestination(destId, args));
         if (mGraph != null) {
             verifyAllDestinations();
         }
@@ -199,7 +250,8 @@ public final class NavDeepLinkBuilder {
     }
 
     private void verifyAllDestinations() {
-        for (Integer destId : mDestIds) {
+        for (DeepLinkDestination destination : mDestinations) {
+            int destId = destination.getDestinationId();
             NavDestination node = findDestination(destId);
             if (node == null) {
                 final String dest = NavDestination.getDisplayName(mContext, destId);
@@ -211,8 +263,11 @@ public final class NavDeepLinkBuilder {
 
     private void fillInIntent() {
         ArrayList<Integer> deepLinkIds = new ArrayList<>();
+        ArrayList<Bundle> deepLinkArgs = new ArrayList<>();
         NavDestination previousDestination = null;
-        for (Integer destId : mDestIds) {
+        for (DeepLinkDestination destination : mDestinations) {
+            int destId = destination.getDestinationId();
+            Bundle arguments = destination.getArguments();
             NavDestination node = findDestination(destId);
             if (node == null) {
                 final String dest = NavDestination.getDisplayName(mContext, destId);
@@ -221,6 +276,7 @@ public final class NavDeepLinkBuilder {
             }
             for (int id : node.buildDeepLinkIds(previousDestination)) {
                 deepLinkIds.add(id);
+                deepLinkArgs.add(arguments);
             }
             previousDestination = node;
         }
@@ -231,6 +287,7 @@ public final class NavDeepLinkBuilder {
             idArray[index++] = id;
         }
         mIntent.putExtra(NavController.KEY_DEEP_LINK_IDS, idArray);
+        mIntent.putParcelableArrayListExtra(NavController.KEY_DEEP_LINK_ARGS, deepLinkArgs);
     }
 
     /**
@@ -240,7 +297,7 @@ public final class NavDeepLinkBuilder {
      */
     @NonNull
     public NavDeepLinkBuilder setArguments(@Nullable Bundle args) {
-        mArgs = args;
+        mGlobalArgs = args;
         mIntent.putExtra(NavController.KEY_DEEP_LINK_EXTRAS, args);
         return this;
     }
@@ -263,7 +320,7 @@ public final class NavDeepLinkBuilder {
         if (mGraph == null) {
             throw new IllegalStateException("You must call setGraph() "
                     + "before constructing the deep link");
-        } else if (mDestIds.isEmpty()) {
+        } else if (mDestinations.isEmpty()) {
             throw new IllegalStateException("You must call setDestination() or addDestination() "
                     + "before constructing the deep link");
         }
@@ -298,14 +355,22 @@ public final class NavDeepLinkBuilder {
     @NonNull
     public PendingIntent createPendingIntent() {
         int requestCode = 0;
-        if (mArgs != null) {
-            for (String key: mArgs.keySet()) {
-                Object value = mArgs.get(key);
+        if (mGlobalArgs != null) {
+            for (String key: mGlobalArgs.keySet()) {
+                Object value = mGlobalArgs.get(key);
                 requestCode = 31 * requestCode + (value != null ? value.hashCode() : 0);
             }
         }
-        for (Integer destId : mDestIds) {
+        for (DeepLinkDestination destination : mDestinations) {
+            int destId = destination.getDestinationId();
             requestCode = 31 * requestCode + destId;
+            Bundle arguments = destination.getArguments();
+            if (arguments != null) {
+                for (String key: arguments.keySet()) {
+                    Object value = arguments.get(key);
+                    requestCode = 31 * requestCode + (value != null ? value.hashCode() : 0);
+                }
+            }
         }
         return createTaskStackBuilder()
                 .getPendingIntent(requestCode, PendingIntent.FLAG_UPDATE_CURRENT);
