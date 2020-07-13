@@ -18,6 +18,10 @@ package androidx.work.inspection
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.work.inspection.WorkManagerInspectorProtocol.Command
+import androidx.work.inspection.WorkManagerInspectorProtocol.TrackWorkManagerCommand
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,5 +36,26 @@ class BasicTest {
     fun createInspector() {
         // no crash means the inspector was successfully injected
         testEnvironment.assertNoQueuedEvents()
+    }
+
+    @Test
+    fun sendUnsetCommand() = runBlocking {
+        testEnvironment.sendCommand(Command.getDefaultInstance())
+            .let { response ->
+                assertThat(response.hasError()).isEqualTo(true)
+                assertThat(response.error.content)
+                    .contains("Unrecognised command type: ONEOF_NOT_SET")
+            }
+    }
+
+    @Test
+    fun sendTrackWorkManagerCommand() = runBlocking {
+        val trackCommand = TrackWorkManagerCommand.getDefaultInstance()
+        testEnvironment.sendCommand(
+            Command.newBuilder().setTrackWorkManager(trackCommand).build()
+        )
+            .let { response ->
+                assertThat(response.hasTrackWorkManager()).isEqualTo(true)
+            }
     }
 }
