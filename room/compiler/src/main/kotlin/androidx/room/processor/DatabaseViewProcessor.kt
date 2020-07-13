@@ -16,18 +16,18 @@
 
 package androidx.room.processor
 
+import androidx.room.ext.name
 import androidx.room.ext.toAnnotationBox
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.SqlParser
 import androidx.room.vo.DatabaseView
-import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 
 class DatabaseViewProcessor(
     baseContext: Context,
     val element: TypeElement,
-    private val referenceStack: LinkedHashSet<Name> = LinkedHashSet()
+    private val referenceStack: LinkedHashSet<String> = LinkedHashSet()
 ) : EntityOrViewProcessor {
 
     val context = baseContext.fork(element)
@@ -40,7 +40,7 @@ class DatabaseViewProcessor(
         val viewName: String = if (annotationBox != null) {
             extractViewName(element, annotationBox.value)
         } else {
-            element.simpleName.toString()
+            element.name
         }
         val query: ParsedQuery = if (annotationBox != null) {
             SqlParser.parse(annotationBox.value.value).also {
@@ -83,7 +83,7 @@ class DatabaseViewProcessor(
             annotation: androidx.room.DatabaseView
         ): String {
             return if (annotation.viewName == "") {
-                element.simpleName.toString()
+                element.name
             } else {
                 annotation.viewName
             }

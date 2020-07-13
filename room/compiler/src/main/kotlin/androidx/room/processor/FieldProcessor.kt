@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import androidx.room.ColumnInfo
 import androidx.room.ext.asMemberOf
+import androidx.room.ext.name
 import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.typeName
 import androidx.room.parser.Collate
@@ -44,7 +45,7 @@ class FieldProcessor(
         )
         val type = member.typeName()
         val columnInfo = element.toAnnotationBox(ColumnInfo::class)?.value
-        val name = element.simpleName.toString()
+        val name = element.name
         val rawCName = if (columnInfo != null && columnInfo.name != ColumnInfo.INHERIT_FIELD_NAME) {
             columnInfo.name
         } else {

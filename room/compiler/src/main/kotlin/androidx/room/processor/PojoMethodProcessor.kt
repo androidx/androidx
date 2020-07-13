@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import androidx.room.ext.asMemberOf
+import androidx.room.ext.name
 import androidx.room.vo.PojoMethod
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
@@ -34,11 +35,10 @@ class PojoMethodProcessor(
             context.processingEnv.typeUtils,
             owner
         )
-        val name = element.simpleName.toString()
         return PojoMethod(
                 element = element,
                 resolvedType = asMember,
-                name = name
+                name = element.name
         )
     }
 }

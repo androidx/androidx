@@ -29,6 +29,7 @@ import androidx.room.ext.isPrivate
 import androidx.room.ext.isStatic
 import androidx.room.ext.isType
 import androidx.room.ext.kindName
+import androidx.room.ext.name
 import androidx.room.ext.type
 import androidx.room.ext.typeName
 import androidx.room.processor.Context
@@ -120,10 +121,10 @@ class AutoValuePojoProcessorDelegate(
          */
         fun getGeneratedClassName(element: TypeElement): String {
             var type = element
-            var name = type.simpleName.toString()
+            var name = type.name
             while (type.enclosingElement.isType()) {
                 type = type.enclosingElement.asTypeElement()
-                name = "${type.simpleName}_$name"
+                name = "${type.name}_$name"
             }
             val pkg = type.getPackage()
             return "$pkg${if (pkg.isEmpty()) "" else "."}AutoValue_$name"

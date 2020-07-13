@@ -66,7 +66,7 @@ class ElementExtTest {
             val child = it.processingEnv.requireTypeElement("foo.bar.Child")
             val objectMethods = it.processingEnv.requireTypeElement("java.lang.Object")
                 .getAllMethods(it.processingEnv).map {
-                    it.simpleName.toString()
+                    it.name
                 } - "registerNatives"
             val parentMethods = listOf(
                 "parentPrivate", "parentPublic", "parentStaticPrivate",
@@ -141,7 +141,7 @@ class ElementExtTest {
             val child = it.processingEnv.requireTypeElement("foo.bar.Child")
             val objectMethods = it.processingEnv.requireTypeElement("java.lang.Object")
                 .getAllMethods(it.processingEnv).map {
-                    it.simpleName.toString()
+                    it.name
                 } - listOf("registerNatives", "clone", "finalize")
             val parentMethods = listOf(
                 "parentPublic", "parentStaticPrivate", "parentStaticPublic", "overridden"
@@ -193,11 +193,11 @@ class ElementExtTest {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             val field = element.getAllFieldsIncludingPrivateSupers(it.processingEnv)
                 .first {
-                    it.simpleName.toString() == "field"
+                    it.name == "field"
                 }
             val method = element.getDeclaredMethods()
                 .first {
-                    it.simpleName.toString() == "method"
+                    it.name == "method"
                 }
             assertThat(field.type.typeName()).isEqualTo(TypeName.INT)
             assertThat(method.returnType.typeName()).isEqualTo(TypeName.INT)
@@ -232,6 +232,6 @@ class ElementExtTest {
     }
 
     private fun assertThat(executables: Iterable<ExecutableElement>) = assertThat(
-        executables.map { it.simpleName.toString() }
+        executables.map { it.name }
     )
 }

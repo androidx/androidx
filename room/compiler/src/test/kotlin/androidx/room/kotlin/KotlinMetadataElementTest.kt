@@ -19,6 +19,7 @@ package androidx.room.kotlin
 import androidx.room.ext.asExecutableElement
 import androidx.room.ext.getConstructors
 import androidx.room.ext.getDeclaredMethods
+import androidx.room.ext.name
 import androidx.room.ext.requireTypeElement
 import androidx.room.processor.Context
 import androidx.room.testing.TestInvocation
@@ -40,7 +41,7 @@ class KotlinMetadataElementTest {
                 TestData::class
             )
             assertThat(testClassElement.getDeclaredMethods()
-                .first { it.simpleName.toString() == "functionWithParams" }
+                .first { it.name == "functionWithParams" }
                 .let { metadataElement.getParameterNames(it.asExecutableElement()) }
             ).isEqualTo(
                 listOf("param1", "yesOrNo", "number")
@@ -76,7 +77,7 @@ class KotlinMetadataElementTest {
             )
             assertThat(testClassElement.getDeclaredMethods().map {
                 val executableElement = it.asExecutableElement()
-                executableElement.simpleName.toString() to metadataElement.isSuspendFunction(
+                executableElement.name to metadataElement.isSuspendFunction(
                     executableElement
                 )
             }).containsExactly(

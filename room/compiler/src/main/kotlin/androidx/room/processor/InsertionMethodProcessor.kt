@@ -21,6 +21,7 @@ package androidx.room.processor
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.IGNORE
 import androidx.room.OnConflictStrategy.REPLACE
+import androidx.room.ext.name
 import androidx.room.ext.typeName
 import androidx.room.vo.InsertionMethod
 import androidx.room.vo.findFieldByColumnName
@@ -88,7 +89,7 @@ class InsertionMethodProcessor(
 
         return InsertionMethod(
                 element = executableElement,
-                name = executableElement.simpleName.toString(),
+                name = executableElement.name,
                 returnType = returnType,
                 entities = entities,
                 parameters = params,

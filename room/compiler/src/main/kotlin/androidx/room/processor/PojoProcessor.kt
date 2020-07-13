@@ -40,6 +40,7 @@ import androidx.room.ext.isPublic
 import androidx.room.ext.isStatic
 import androidx.room.ext.isTransient
 import androidx.room.ext.kindName
+import androidx.room.ext.name
 import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.type
 import androidx.room.ext.typeName
@@ -72,7 +73,6 @@ import isSameType
 import isTypeOf
 import isVoid
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
@@ -86,7 +86,7 @@ class PojoProcessor private constructor(
     val element: TypeElement,
     val bindingScope: FieldProcessor.BindingScope,
     val parent: EmbeddedField?,
-    val referenceStack: LinkedHashSet<Name> = LinkedHashSet(),
+    val referenceStack: LinkedHashSet<String> = LinkedHashSet(),
     private val delegate: Delegate
 ) {
     val context = baseContext.fork(element)
@@ -104,7 +104,7 @@ class PojoProcessor private constructor(
             element: TypeElement,
             bindingScope: FieldProcessor.BindingScope,
             parent: EmbeddedField?,
-            referenceStack: LinkedHashSet<Name> = LinkedHashSet()
+            referenceStack: LinkedHashSet<String> = LinkedHashSet()
         ): PojoProcessor {
             val (pojoElement, delegate) = if (element.hasAnnotation(AutoValue::class)) {
                 val processingEnv = context.processingEnv
@@ -129,11 +129,11 @@ class PojoProcessor private constructor(
 
     fun process(): Pojo {
         return context.cache.pojos.get(Cache.PojoKey(element, bindingScope, parent)) {
-            referenceStack.add(element.qualifiedName)
+            referenceStack.add(element.qualifiedName.toString())
             try {
                 doProcess()
             } finally {
-                referenceStack.remove(element.qualifiedName)
+                referenceStack.remove(element.qualifiedName.toString())
             }
         }
     }
@@ -283,7 +283,7 @@ class PojoProcessor private constructor(
      * better than not supporting these until JB provides a proper API.
      */
     private fun getParamNames(method: ExecutableElement): List<String> {
-        val paramNames = method.parameters.map { it.simpleName.toString() }
+        val paramNames = method.parameters.map { it.name }
         if (paramNames.isEmpty()) {
             return emptyList()
         }
@@ -430,7 +430,7 @@ class PojoProcessor private constructor(
         val inheritedPrefix = parent?.prefix ?: ""
         val embeddedField = Field(
                 variableElement,
-                variableElement.simpleName.toString(),
+                variableElement.name,
                 type = asMemberType,
                 affinity = null,
                 parent = parent)
@@ -590,7 +590,7 @@ class PojoProcessor private constructor(
 
         val field = Field(
                 element = relationElement,
-                name = relationElement.simpleName.toString(),
+                name = relationElement.name,
                 type = relationElement.asMemberOf(
                     context.processingEnv.typeUtils,
                     container
@@ -668,7 +668,7 @@ class PojoProcessor private constructor(
     }
 
     private fun detectReferenceRecursion(typeElement: TypeElement): Boolean {
-        if (referenceStack.contains(typeElement.qualifiedName)) {
+        if (referenceStack.contains(typeElement.qualifiedName.toString())) {
             context.logger.e(
                     typeElement,
                     ProcessorErrors
@@ -680,9 +680,9 @@ class PojoProcessor private constructor(
     }
 
     private fun computeReferenceRecursionString(typeElement: TypeElement): String {
-        val recursiveTailTypeName = typeElement.qualifiedName
+        val recursiveTailTypeName = typeElement.qualifiedName.toString()
 
-        val referenceRecursionList = mutableListOf<Name>()
+        val referenceRecursionList = mutableListOf<String>()
         with(referenceRecursionList) {
             add(recursiveTailTypeName)
             addAll(referenceStack.toList().takeLastWhile { it != recursiveTailTypeName })

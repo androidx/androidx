@@ -20,6 +20,7 @@ import androidx.room.Query
 import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
 import androidx.room.ext.hasAnnotation
+import androidx.room.ext.name
 import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
@@ -193,7 +194,7 @@ private class InternalQueryProcessor(
         return WriteQueryMethod(
             element = executableElement,
             query = query,
-            name = executableElement.simpleName.toString(),
+            name = executableElement.name,
             returnType = returnType,
             parameters = parameters,
             preparedQueryResultBinder = resultBinder
@@ -229,7 +230,7 @@ private class InternalQueryProcessor(
         return ReadQueryMethod(
             element = executableElement,
             query = query,
-            name = executableElement.simpleName.toString(),
+            name = executableElement.name,
             returnType = returnType,
             parameters = parameters,
             inTransaction = inTransaction,
