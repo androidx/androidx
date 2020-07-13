@@ -49,6 +49,8 @@ class ContentQueryProcessor(
 ) {
     @KotlinPoetMetadataPreview
     fun process(): ContentQueryVO? {
+        // TODO(obenabde): for cases where the return type is not a supported generic type (so one
+        //  entity, column pojo etc...) ensure it is nullable.
         val isSuspendFunction = method.isSuspendFunction(processingEnv)
         val returnType = if (isSuspendFunction) {
             method.getSuspendFunctionReturnType()

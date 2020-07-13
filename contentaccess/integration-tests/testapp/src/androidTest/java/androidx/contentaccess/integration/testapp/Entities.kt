@@ -16,31 +16,10 @@
 
 package androidx.contentaccess.integration.testapp
 
+
+import androidx.contentaccess.ContentColumn
 import androidx.contentaccess.ContentEntity
 import androidx.contentaccess.ContentPrimaryKey
-import androidx.contentaccess.ContentColumn
-
-@ContentEntity("content://com.android.calendar/calendars")
-data class Calendar(
-    @ContentPrimaryKey("_id")
-    var iD: Long?,
-    @ContentColumn("calendar_displayName")
-    var displayName: String?,
-    @ContentColumn("account_name")
-    var accountName: String?,
-    @ContentColumn("account_type")
-    var accountType: String?,
-    @ContentColumn("calendar_timezone")
-    var timezone: String?,
-    @ContentColumn("calendar_location")
-    var location: String?,
-    @ContentColumn("isPrimary")
-    var isPrimary: Boolean?,
-    @ContentColumn("calendar_color")
-    var color: String?,
-    @ContentColumn("owner_account")
-    var ownerAccount: String?
-)
 
 @ContentEntity("content://com.android.calendar/events")
 data class Event(
@@ -49,15 +28,13 @@ data class Event(
     @ContentColumn("calendar_id")
     var calendarId: Long?,
     @ContentColumn("title")
-    var titles: String?,
+    var title: String?,
     @ContentColumn("description")
     var description: String?,
     @ContentColumn("dtstart")
     var startTime: Long?,
     @ContentColumn("dtend")
     var endTime: Long?,
-    @ContentColumn("duration")
-    var duration: Long?,
-    @ContentColumn("allDay")
-    var allDay: Int?
+    @ContentColumn("eventTimezone")
+    var duration: String?
 )
