@@ -94,12 +94,14 @@ package androidx.navigation {
   public final class NavDeepLinkBuilder {
     ctor public NavDeepLinkBuilder(android.content.Context);
     method public androidx.navigation.NavDeepLinkBuilder addDestination(@IdRes int);
+    method public androidx.navigation.NavDeepLinkBuilder addDestination(@IdRes int, android.os.Bundle?);
     method public android.app.PendingIntent createPendingIntent();
     method public androidx.core.app.TaskStackBuilder createTaskStackBuilder();
     method public androidx.navigation.NavDeepLinkBuilder setArguments(android.os.Bundle?);
     method public androidx.navigation.NavDeepLinkBuilder setComponentName(Class<? extends android.app.Activity>);
     method public androidx.navigation.NavDeepLinkBuilder setComponentName(android.content.ComponentName);
     method public androidx.navigation.NavDeepLinkBuilder setDestination(@IdRes int);
+    method public androidx.navigation.NavDeepLinkBuilder setDestination(@IdRes int, android.os.Bundle?);
     method public androidx.navigation.NavDeepLinkBuilder setGraph(@NavigationRes int);
     method public androidx.navigation.NavDeepLinkBuilder setGraph(androidx.navigation.NavGraph);
   }
