@@ -781,8 +781,7 @@ public class AppSearchManagerTest {
             Future<AppSearchBatchResult<K, V>> future) throws Exception {
         AppSearchBatchResult<K, V> result = future.get();
         if (!result.isSuccess()) {
-            throw new AssertionFailedError(
-                    "AppSearchBatchResult not successful: " + result.getFailures());
+            throw new AssertionFailedError("AppSearchBatchResult not successful: " + result);
         }
         return result;
     }
@@ -791,8 +790,7 @@ public class AppSearchManagerTest {
             Future<AppSearchResult<ValueType>> future) throws Exception {
         AppSearchResult<ValueType> result = future.get();
         if (!result.isSuccess()) {
-            throw new AssertionFailedError(
-                    "AppSearchBatchResult not successful: " + result);
+            throw new AssertionFailedError("AppSearchResult not successful: " + result);
         }
         return result.getResultValue();
     }
