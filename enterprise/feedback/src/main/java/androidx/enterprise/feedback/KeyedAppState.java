@@ -51,15 +51,39 @@ public abstract class KeyedAppState {
     public static final int SEVERITY_INFO = 1;
     public static final int SEVERITY_ERROR = 2;
 
-    /** The maximum length of the key. */
+    /** @deprecated Use {@link #getMaxKeyLength()} */
     @SuppressLint("MinMaxConstant")
+    @Deprecated
     public static final int MAX_KEY_LENGTH = 100;
-    /** The maximum length of the message field. */
+    /** @deprecated Use {@link #getMaxMessageLength()} */
     @SuppressLint("MinMaxConstant")
+    @Deprecated
     public static final int MAX_MESSAGE_LENGTH = 1000;
-    /** The maximum length of the data field. */
+    /** @deprecated Use {@link #getMaxDataLength()} */
     @SuppressLint("MinMaxConstant")
+    @Deprecated
     public static final int MAX_DATA_LENGTH = 1000;
+
+    /**
+     * Get the maximum length of {@link #getKey()}.
+     */
+    public static final int getMaxKeyLength() {
+        return MAX_KEY_LENGTH;
+    }
+
+    /**
+     * Get the maximum length of {@link #getMessage()}.
+     */
+    public static final int getMaxMessageLength() {
+        return MAX_MESSAGE_LENGTH;
+    }
+
+    /**
+     * Get the maximum length of {@link #getData()}.
+     */
+    public static final int getMaxDataLength() {
+        return MAX_DATA_LENGTH;
+    }
 
     /** Create a {@link KeyedAppStateBuilder}. */
     @NonNull

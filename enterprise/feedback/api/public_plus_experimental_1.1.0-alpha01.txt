@@ -5,11 +5,14 @@ package androidx.enterprise.feedback {
     method public static androidx.enterprise.feedback.KeyedAppState.KeyedAppStateBuilder builder();
     method public abstract String? getData();
     method public abstract String getKey();
+    method public static final int getMaxDataLength();
+    method public static final int getMaxKeyLength();
+    method public static final int getMaxMessageLength();
     method public abstract String? getMessage();
     method public abstract int getSeverity();
-    field public static final int MAX_DATA_LENGTH = 1000; // 0x3e8
-    field public static final int MAX_KEY_LENGTH = 100; // 0x64
-    field public static final int MAX_MESSAGE_LENGTH = 1000; // 0x3e8
+    field @Deprecated public static final int MAX_DATA_LENGTH = 1000; // 0x3e8
+    field @Deprecated public static final int MAX_KEY_LENGTH = 100; // 0x64
+    field @Deprecated public static final int MAX_MESSAGE_LENGTH = 1000; // 0x3e8
     field public static final int SEVERITY_ERROR = 2; // 0x2
     field public static final int SEVERITY_INFO = 1; // 0x1
   }
