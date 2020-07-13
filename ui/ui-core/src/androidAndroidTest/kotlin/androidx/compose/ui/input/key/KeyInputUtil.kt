@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.input.key
 
+import android.view.KeyEvent.ACTION_DOWN
+import android.view.KeyEvent.ACTION_UP
 import com.google.common.truth.Truth
 import android.view.KeyEvent as AndroidKeyEvent
 
@@ -24,13 +26,13 @@ import android.view.KeyEvent as AndroidKeyEvent
  * of [KeyEvent][KeyEvent2] that can be used in tests.
  */
 @OptIn(ExperimentalKeyInput::class)
-fun keyEvent(key: Key, keyEventType: KeyEventType): KeyEvent2 {
+fun keyEvent(key: Key, keyEventType: KeyEventType, androidMetaKeys: Int = 0): KeyEvent2 {
     val action = when (keyEventType) {
-        KeyEventType.KeyDown -> android.view.KeyEvent.ACTION_DOWN
-        KeyEventType.KeyUp -> android.view.KeyEvent.ACTION_UP
+        KeyEventType.KeyDown -> ACTION_DOWN
+        KeyEventType.KeyUp -> ACTION_UP
         KeyEventType.Unknown -> error("Unknown key event type")
     }
-    return KeyEventAndroid(AndroidKeyEvent(action, key.keyCode))
+    return KeyEventAndroid(AndroidKeyEvent(0L, 0L, action, key.keyCode, 0, androidMetaKeys))
 }
 
 /** KeyEvent2 is an inline class that wraps android's KeyEvent class.
