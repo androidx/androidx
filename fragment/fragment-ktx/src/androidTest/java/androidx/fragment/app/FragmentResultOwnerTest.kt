@@ -101,8 +101,10 @@ class FragmentResultOwnerTest {
             val expectedResult = "resultGood"
             val resultBundle = bundleOf("bundleKey" to expectedResult)
 
-            fm.clearFragmentResultListener("requestKey")
-            fm.setFragmentResult("requestKey", resultBundle)
+            withActivity {
+                fm.clearFragmentResultListener("requestKey")
+                fm.setFragmentResult("requestKey", resultBundle)
+            }
 
             assertWithMessage("The listener was cleared but the result was not null")
                 .that(fragment1.actualResult)

@@ -38,20 +38,29 @@ public class DialogTestCase {
     public final ActivityTestRule<WindowDecorAppCompatActivity> mActivityTestRule =
             new ActivityTestRule<>(WindowDecorAppCompatActivity.class);
 
+    private TestDialogFragment mFragment;
+
     @Test
     public void testDialogFragmentShows() {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        TestDialogFragment fragment = new TestDialogFragment();
-        fragment.show(mActivityTestRule.getActivity().getSupportFragmentManager(), null);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        mFragment = new TestDialogFragment();
+                    }
+                }
+        );
+        mFragment.show(mActivityTestRule.getActivity().getSupportFragmentManager(), null);
 
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        assertNotNull("Dialog was null", fragment.getDialog());
-        assertTrue("Dialog was not being shown", fragment.getDialog().isShowing());
+        assertNotNull("Dialog was null", mFragment.getDialog());
+        assertTrue("Dialog was not being shown", mFragment.getDialog().isShowing());
 
         // And make sure we dismiss the dialog
-        fragment.dismissAllowingStateLoss();
+        mFragment.dismissAllowingStateLoss();
     }
 
     public static class TestDialogFragment extends AppCompatDialogFragment {
