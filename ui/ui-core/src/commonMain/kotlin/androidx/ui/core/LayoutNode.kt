@@ -16,6 +16,7 @@
 package androidx.ui.core
 
 import androidx.compose.collection.ExperimentalCollectionApi
+import androidx.compose.collection.MutableVector
 import androidx.compose.collection.mutableVectorOf
 import androidx.ui.core.LayoutNode.LayoutState.Measuring
 import androidx.ui.core.LayoutNode.LayoutState.NeedsRelayout
@@ -68,18 +69,81 @@ internal val sharedDrawScope = LayoutNodeDrawScope()
     ExperimentalLayoutNodeApi::class
 )
 class LayoutNode : Measurable, Remeasurement {
-    private val _children = mutableVectorOf<LayoutNode>()
+
+    constructor() : this(false)
+
+    internal constructor(isVirtual: Boolean) {
+        this.isVirtual = isVirtual
+    }
+
+    // Virtual LayoutNode is the temporary concept allows us to a node which is not a real node,
+    // but just a holder for its children - allows us to combine some children into something we
+    // can subcompose in(LayoutNode) without being required to define it as a real layout - we
+    // don't want to define the layout strategy for such nodes, instead the children of the
+    // virtual nodes will be threated as the direct children of the virtual node parent.
+    // This whole concept will be replaced with a proper subcomposition logic which allows to
+    // subcompose multiple times into the same LayoutNode and define offsets.
+
+    private val isVirtual: Boolean
+
+    private var virtualChildrenCount = 0
+
+    // the list of nodes containing the virtual children as is
+    private val _foldedChildren = mutableVectorOf<LayoutNode>()
+    internal val foldedChildren: List<LayoutNode> get() = _foldedChildren.asMutableList()
+
+    // the list of nodes where the virtual children are unfolded (their children are represented
+    // as our direct children)
+    private val _unfoldedChildren = mutableVectorOf<LayoutNode>()
+
+    private fun recreateUnfoldedChildrenIfDirty() {
+        if (unfoldedVirtualChildrenListDirty) {
+            unfoldedVirtualChildrenListDirty = false
+            _unfoldedChildren.clear()
+            _foldedChildren.forEach {
+                if (it.isVirtual) {
+                    _unfoldedChildren.addAll(it._children)
+                } else {
+                    _unfoldedChildren.add(it)
+                }
+            }
+        }
+    }
+
+    // when the list of our children is modified it will be set to true if we are a virtual node
+    // or it will be set to true on a parent if the parent is a virtual node
+    private var unfoldedVirtualChildrenListDirty = false
+    private fun invalidateUnfoldedVirtualChildren() {
+        if (virtualChildrenCount > 0) {
+            unfoldedVirtualChildrenListDirty = true
+        }
+        if (isVirtual) {
+            parent?.unfoldedVirtualChildrenListDirty = true
+        }
+    }
+
+    private val _children: MutableVector<LayoutNode>
+        get() = if (virtualChildrenCount == 0) {
+            _foldedChildren
+        } else {
+            recreateUnfoldedChildrenIfDirty()
+            _unfoldedChildren
+        }
 
     /**
      * The children of this LayoutNode, controlled by [insertAt], [move], and [removeAt].
      */
-    val children: List<LayoutNode> = _children.asMutableList()
+    val children: List<LayoutNode> get() = _children.asMutableList()
 
     /**
      * The parent node in the LayoutNode hierarchy. This is `null` when the `LayoutNode`
      * is attached (has an [owner]) and is the root of the tree or has not had [add] called for it.
      */
     var parent: LayoutNode? = null
+        get() {
+            val parent = field
+            return if (parent != null && parent.isVirtual) parent.parent else parent
+        }
         private set
 
     /**
@@ -96,8 +160,7 @@ class LayoutNode : Measurable, Remeasurement {
     /**
      * The layout state the node is currently in.
      */
-    var layoutState = Ready
-        internal set
+    internal var layoutState = Ready
 
     internal val wasMeasuredDuringThisIteration: Boolean
         get() = requireOwner().measureIteration == outerMeasurablePlaceable.measureIteration
@@ -124,7 +187,13 @@ class LayoutNode : Measurable, Remeasurement {
         }
 
         instance.parent = this
-        _children.add(index, instance)
+        _foldedChildren.add(index, instance)
+
+        if (instance.isVirtual) {
+            require(!isVirtual) { "Virtual LayoutNode can't be added into a virtual parent" }
+            virtualChildrenCount++
+        }
+        invalidateUnfoldedVirtualChildren()
 
         instance.outerLayoutNodeWrapper.wrappedBy = innerLayoutNodeWrapper
 
@@ -143,7 +212,7 @@ class LayoutNode : Measurable, Remeasurement {
         }
         val attached = owner != null
         for (i in index + count - 1 downTo index) {
-            val child = _children.removeAt(i)
+            val child = _foldedChildren.removeAt(i)
             if (DebugChanges) {
                 println("$child removed from $this at index $i")
             }
@@ -152,6 +221,11 @@ class LayoutNode : Measurable, Remeasurement {
                 child.detach()
             }
             child.parent = null
+
+            if (child.isVirtual) {
+                virtualChildrenCount--
+            }
+            invalidateUnfoldedVirtualChildren()
         }
     }
 
@@ -160,14 +234,17 @@ class LayoutNode : Measurable, Remeasurement {
      */
     fun removeAll() {
         val attached = owner != null
-        for (i in _children.size - 1 downTo 0) {
-            val child = _children[i]
+        for (i in _foldedChildren.size - 1 downTo 0) {
+            val child = _foldedChildren[i]
             if (attached) {
                 child.detach()
             }
             child.parent = null
         }
-        _children.clear()
+        _foldedChildren.clear()
+
+        virtualChildrenCount = 0
+        invalidateUnfoldedVirtualChildren()
     }
 
     /**
@@ -186,15 +263,16 @@ class LayoutNode : Measurable, Remeasurement {
             // if "from" is after "to," the from index moves because we're inserting before it
             val fromIndex = if (from > to) from + i else from
             val toIndex = if (from > to) to + i else to + count - 2
-            val child = _children.removeAt(fromIndex)
+            val child = _foldedChildren.removeAt(fromIndex)
 
             if (DebugChanges) {
                 println("$child moved in $this from index $fromIndex to $toIndex")
             }
 
-            _children.add(toIndex, child)
+            _foldedChildren.add(toIndex, child)
         }
 
+        invalidateUnfoldedVirtualChildren()
         requestRemeasure()
     }
 
@@ -213,7 +291,7 @@ class LayoutNode : Measurable, Remeasurement {
         this.owner = owner
         this.depth = (parent?.depth ?: -1) + 1
         owner.onAttach(this)
-        _children.forEach { child ->
+        _foldedChildren.forEach { child ->
             child.attach(owner)
         }
 
@@ -249,7 +327,7 @@ class LayoutNode : Measurable, Remeasurement {
         owner.onDetach(this)
         this.owner = null
         depth = 0
-        _children.forEach { child ->
+        _foldedChildren.forEach { child ->
             child.detach()
         }
     }
@@ -271,7 +349,7 @@ class LayoutNode : Measurable, Remeasurement {
         }
 
     override fun toString(): String {
-        return "${simpleIdentityToString(this, null)} children: ${_children.size} " +
+        return "${simpleIdentityToString(this, null)} children: ${children.size} " +
                 "measureBlocks: $measureBlocks"
     }
 
@@ -520,6 +598,9 @@ class LayoutNode : Measurable, Remeasurement {
     var modifier: Modifier = Modifier
         set(value) {
             if (value == field) return
+            if (modifier != Modifier) {
+                require(!isVirtual) { "Modifiers are not supported on virtual LayoutNodes" }
+            }
             field = value
 
             val invalidateParentLayer = shouldInvalidateParentLayer()
@@ -1086,7 +1167,7 @@ class LayoutNode : Measurable, Remeasurement {
     /**
      * Describes the current state the [LayoutNode] is in.
      */
-    enum class LayoutState {
+    internal enum class LayoutState {
         /**
          * Request remeasure was called on the node.
          */

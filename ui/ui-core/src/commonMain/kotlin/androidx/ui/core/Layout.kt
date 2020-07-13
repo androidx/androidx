@@ -18,23 +18,17 @@ package androidx.ui.core
 
 import androidx.compose.Applier
 import androidx.compose.Composable
-import androidx.compose.ComposableContract
-import androidx.compose.Composition
-import androidx.compose.CompositionReference
 import androidx.compose.ExperimentalComposeApi
-import androidx.compose.Recomposer
 import androidx.compose.Stable
-import androidx.compose.compositionReference
 import androidx.compose.currentComposer
 import androidx.compose.emit
-import androidx.compose.onDispose
 import androidx.compose.remember
-import androidx.ui.core.LayoutNode.LayoutState
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import androidx.ui.util.fastForEach
+import androidx.ui.util.fastMap
 import kotlin.math.max
 
 /**
@@ -672,43 +666,27 @@ private inline fun Density.MeasuringMaxIntrinsicHeight(
  *
  * @param modifier Modifier to be applied to the introduced layout.
  */
+@OptIn(ExperimentalSubcomposeLayoutApi::class)
 @Composable
-@OptIn(ExperimentalLayoutNodeApi::class)
 fun WithConstraints(
     modifier: Modifier = Modifier,
     children: @Composable WithConstraintsScope.() -> Unit
 ) {
-    val state = remember { WithConstrainsState() }
-    state.children = children
-    // TODO(lmr): refactor these APIs so that recomposer isn't necessary
-    @OptIn(ExperimentalComposeApi::class)
-    state.recomposer = currentComposer.recomposer
-    state.compositionRef = compositionReference()
-    // if this code was executed subcomposition must be triggered as well
-    state.forceRecompose = true
+    SubcomposeLayout<Unit>(modifier) { constraints ->
+        val scope = WithConstraintsScopeImpl(this, constraints, layoutDirection)
+        val placeables = subcompose(Unit) { scope.children() }
+            .fastMap { it.measure(constraints) }
 
-    val materialized = currentComposer.materialize(modifier)
-    @OptIn(ExperimentalComposeApi::class)
-    emit<LayoutNode, Applier<Any>>(
-        ctor = LayoutEmitHelper.constructor,
-        update = {
-            set(materialized, LayoutEmitHelper.setModifier)
-            set(state.measureBlocks, LayoutEmitHelper.setMeasureBlocks)
-            set(state.nodeRef, LayoutEmitHelper.setRef)
+        var maxWidth: Int = constraints.minWidth
+        var maxHeight: Int = constraints.minHeight
+        placeables.fastForEach {
+            maxWidth = max(maxWidth, it.width)
+            maxHeight = max(maxHeight, it.height)
         }
-    )
 
-    // if LayoutNode scheduled the remeasuring no further steps are needed - subcomposition
-    // will happen later on the measuring stage. otherwise we can assume the LayoutNode
-    // already holds the final Constraints and we should subcompose straight away.
-    // if owner is null this means we are not yet attached. once attached the remeasuring
-    // will be scheduled which would cause subcomposition
-    val layoutNode = state.nodeRef.value!!
-    if (layoutNode.layoutState == LayoutState.Ready && layoutNode.owner != null) {
-        state.subcompose()
-    }
-    onDispose {
-        state.composition?.dispose()
+        layout(maxWidth, maxHeight) {
+            placeables.fastForEach { it.place(0, 0) }
+        }
     }
 }
 
@@ -753,83 +731,17 @@ interface WithConstraintsScope {
     val maxHeight: Dp
 }
 
-@OptIn(ExperimentalLayoutNodeApi::class)
-private class WithConstrainsState {
-    lateinit var recomposer: Recomposer
-    var compositionRef: CompositionReference? = null
-    val nodeRef = Ref<LayoutNode>()
-    var children: @Composable WithConstraintsScope.() -> Unit = { }
-    var forceRecompose = false
-    var composition: Composition? = null
-
-    private var scope: WithConstraintsScope = WithConstraintsScopeImpl(
-        Density(1f),
-        Constraints.fixed(0, 0),
-        LayoutDirection.Ltr
-    )
-
-    val measureBlocks = object : LayoutNode.NoIntrinsicsMeasureBlocks(
-        error = "Intrinsic measurements are not supported by WithConstraints"
-    ) {
-        override fun measure(
-            measureScope: MeasureScope,
-            measurables: List<Measurable>,
-            constraints: Constraints,
-            layoutDirection: LayoutDirection
-        ): MeasureScope.MeasureResult {
-            val root = nodeRef.value!!
-            if (scope.constraints != constraints ||
-                scope.layoutDirection != measureScope.layoutDirection ||
-                forceRecompose
-            ) {
-                scope = WithConstraintsScopeImpl(measureScope, constraints, layoutDirection)
-                root.ignoreModelReads { subcompose() }
-            }
-
-            // Measure the obtained children and compute our size.
-            val layoutChildren = root.children
-            var maxWidth: Int = constraints.minWidth
-            var maxHeight: Int = constraints.minHeight
-            layoutChildren.fastForEach {
-                it.measure(constraints, layoutDirection)
-                maxWidth = max(maxWidth, it.width)
-                maxHeight = max(maxHeight, it.height)
-            }
-            maxWidth = maxWidth.coerceAtMost(constraints.maxWidth)
-            maxHeight = maxHeight.coerceAtMost(constraints.maxHeight)
-
-            return measureScope.layout(maxWidth, maxHeight) {
-                layoutChildren.fastForEach { it.place(0, 0) }
-            }
-        }
-    }
-
-    @OptIn(ExperimentalComposeApi::class)
-    fun subcompose() {
-        // TODO(b/150390669): Review use of @ComposableContract(tracked = false)
-        composition =
-            subcomposeInto(
-                nodeRef.value!!,
-                recomposer,
-                compositionRef
-            ) @ComposableContract(tracked = false) {
-                scope.children()
-            }
-        forceRecompose = false
-    }
-
-    private data class WithConstraintsScopeImpl(
-        private val density: Density,
-        override val constraints: Constraints,
-        override val layoutDirection: LayoutDirection
-    ) : WithConstraintsScope {
-        override val minWidth: Dp
-            get() = with(density) { constraints.minWidth.toDp() }
-        override val maxWidth: Dp
-            get() = with(density) { constraints.maxWidth.toDp() }
-        override val minHeight: Dp
-            get() = with(density) { constraints.minHeight.toDp() }
-        override val maxHeight: Dp
-            get() = with(density) { constraints.maxHeight.toDp() }
-    }
+private data class WithConstraintsScopeImpl(
+    private val density: Density,
+    override val constraints: Constraints,
+    override val layoutDirection: LayoutDirection
+) : WithConstraintsScope {
+    override val minWidth: Dp
+        get() = with(density) { constraints.minWidth.toDp() }
+    override val maxWidth: Dp
+        get() = with(density) { constraints.maxWidth.toDp() }
+    override val minHeight: Dp
+        get() = with(density) { constraints.minHeight.toDp() }
+    override val maxHeight: Dp
+        get() = with(density) { constraints.maxHeight.toDp() }
 }

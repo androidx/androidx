@@ -374,6 +374,9 @@ package androidx.ui.core {
   @kotlin.RequiresOptIn(level=RequiresOptIn.Level.ERROR, message="This is an experimental API for Compose UI LayoutNode and is likely to change " + "before becoming stable.") @kotlin.annotation.Target(allowedTargets={AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY}) public @interface ExperimentalLayoutNodeApi {
   }
 
+  @kotlin.RequiresOptIn(message="This is an experimental API for being able to perform subcomposition during the " + "measuring. API is likely to change before becoming stable.") public @interface ExperimentalSubcomposeLayoutApi {
+  }
+
   @androidx.compose.Immutable public final class FixedScale implements androidx.ui.core.ContentScale {
     ctor public FixedScale(float value);
     method public float component1();
@@ -512,7 +515,6 @@ package androidx.ui.core {
     method public androidx.ui.core.LayoutCoordinates getCoordinates();
     method public int getDepth();
     method public int getHeight();
-    method public androidx.ui.core.LayoutNode.LayoutState getLayoutState();
     method public androidx.ui.core.LayoutNode.MeasureBlocks getMeasureBlocks();
     method public androidx.ui.core.MeasureScope getMeasureScope();
     method public androidx.ui.core.Modifier getModifier();
@@ -551,7 +553,6 @@ package androidx.ui.core {
     property public final int depth;
     property public final int height;
     property public final boolean isPlaced;
-    property public final androidx.ui.core.LayoutNode.LayoutState layoutState;
     property public final androidx.ui.core.LayoutNode.MeasureBlocks measureBlocks;
     property public final androidx.ui.core.MeasureScope measureScope;
     property public final androidx.ui.core.Modifier modifier;
@@ -561,16 +562,6 @@ package androidx.ui.core {
     property public final androidx.ui.core.LayoutNode? parent;
     property public Object? parentData;
     property public final int width;
-  }
-
-  public enum LayoutNode.LayoutState {
-    method public static androidx.ui.core.LayoutNode.LayoutState valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.ui.core.LayoutNode.LayoutState[] values();
-    enum_constant public static final androidx.ui.core.LayoutNode.LayoutState LayingOut;
-    enum_constant public static final androidx.ui.core.LayoutNode.LayoutState Measuring;
-    enum_constant public static final androidx.ui.core.LayoutNode.LayoutState NeedsRelayout;
-    enum_constant public static final androidx.ui.core.LayoutNode.LayoutState NeedsRemeasure;
-    enum_constant public static final androidx.ui.core.LayoutNode.LayoutState Ready;
   }
 
   public static interface LayoutNode.MeasureBlocks {
@@ -893,6 +884,15 @@ package androidx.ui.core {
   }
 
   public final class SavedStateDelegateKt {
+  }
+
+  public final class SubcomposeLayoutKt {
+    method @androidx.compose.Composable @androidx.ui.core.ExperimentalSubcomposeLayoutApi public static <T> void SubcomposeLayout(androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function2<? super androidx.ui.core.SubcomposeMeasureScope<T>,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.MeasureResult> measureBlock);
+  }
+
+  @androidx.ui.core.ExperimentalSubcomposeLayoutApi public abstract class SubcomposeMeasureScope<T> extends androidx.ui.core.MeasureScope {
+    ctor public SubcomposeMeasureScope();
+    method public abstract java.util.List<androidx.ui.core.Measurable> subcompose(T? slotId, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   public final class SubcompositionKt {
