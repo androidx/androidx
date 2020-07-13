@@ -25,34 +25,44 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXUiPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("kotlin-multiplatform")
 }
 
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
+}
 
-    implementation(KOTLIN_STDLIB)
-    implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3"
+kotlin {
+    android()
+    sourceSets {
+        commonMain.dependencies {
+            implementation(KOTLIN_STDLIB_COMMON)
+            api project(":compose:animation:animation-core")
+            api project(":compose:runtime:runtime")
+            implementation project(":compose:core:core-util")
+            api project(":compose:core:core")
+            api project(":compose:foundation:foundation-layout")
+            api project(":compose:core:core-geometry")
+        }
 
-    api "androidx.annotation:annotation:1.1.0"
+        androidMain.dependencies {
+            api "androidx.annotation:annotation:1.1.0"
+        }
 
-    api project(":compose:animation:animation-core")
+        androidTest.dependencies {
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(JUNIT)
+        }
 
-    api project(":compose:runtime:runtime")
-    implementation project(":compose:core:core-util")
-    api project(":compose:core:core")
-    api project(":compose:foundation:foundation-layout")
-    api project(":compose:core:core-geometry")
-
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation project(":compose:foundation:foundation")
-    androidTestImplementation project(":compose:test:test-core")
+        androidAndroidTest.dependencies {
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(JUNIT)
+            implementation project(":compose:foundation:foundation")
+            implementation project(":compose:test:test-core")
+        }
+    }
 }
 
 androidx {
