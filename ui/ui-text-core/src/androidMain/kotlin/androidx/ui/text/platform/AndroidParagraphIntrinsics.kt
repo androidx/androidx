@@ -100,9 +100,9 @@ private fun resolveTextDirectionHeuristics(
     }
 }
 
-// TODO(b/159152328): temporary workaround for ui-desktop. remove when full support of MPP will be in-place
+// TODO(b/159152328): temporary workaround for desktop. remove when full support of MPP will be in-place
 @Deprecated(
-    "Temporary workaround. Supposed to be used only in ui-desktop before MPP",
+    "Temporary workaround. Supposed to be used only in desktop before MPP",
     level = DeprecationLevel.ERROR
 )
 @InternalPlatformTextApi

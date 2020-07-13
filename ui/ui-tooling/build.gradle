@@ -39,8 +39,8 @@ dependencies {
     api(project(":compose:core:core"))
     implementation(project(":compose:material:material"))
 
-    // kotlin-reflect and ui-animation-tooling-internal are provided by Studio at runtime
-    compileOnly(project(":ui:ui-animation-tooling-internal"))
+    // kotlin-reflect and tooling-animation-internal are provided by Studio at runtime
+    compileOnly(project(":compose:tooling:tooling-animation-internal"))
     compileOnly(KOTLIN_REFLECT)
     compileOnly(KOTLIN_METADATA_JVM)
 
@@ -54,7 +54,7 @@ dependencies {
     androidTestImplementation(TRUTH)
     androidTestImplementation(KOTLIN_REFLECT)
     androidTestImplementation(KOTLIN_METADATA_JVM)
-    androidTestImplementation(project(":ui:ui-animation-tooling-internal"))
+    androidTestImplementation(project(":compose:tooling:tooling-animation-internal"))
 }
 
 // Workaround for https://youtrack.jetbrains.com/issue/KT-39813

@@ -26,7 +26,7 @@ dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 }
 
-def sdkDir = "${project.rootProject.buildDir}/ui-desktop/compose-libs/"
+def sdkDir = "${project.rootProject.buildDir}/desktop/compose-libs/"
 
 kotlin {
     jvm()
@@ -37,7 +37,7 @@ kotlin {
         }
 
         jvmMain.dependencies {
-            implementation project(":ui:ui-desktop")
+            implementation project(":compose:desktop:desktop")
             implementation fileTree(sdkDir)
         }
     }
@@ -50,7 +50,7 @@ tasks.withType(KotlinCompile).configureEach {
 }
 
 task run1(type: JavaExec) {
-    dependsOn(":ui:ui-desktop:jar")
+    dependsOn(":compose:desktop:desktop:jar")
     main = 'androidx.ui.desktop.examples.example1.MainKt'
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
@@ -60,7 +60,7 @@ task run1(type: JavaExec) {
 }
 
 task run2(type: JavaExec) {
-    dependsOn(":ui:ui-desktop:jar")
+    dependsOn(":compose:desktop:desktop:jar")
     main = 'androidx.ui.desktop.examples.example2.MainKt'
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
@@ -70,7 +70,7 @@ task run2(type: JavaExec) {
 }
 
 task run3(type: JavaExec) {
-    dependsOn(":ui:ui-desktop:jar")
+    dependsOn(":compose:desktop:desktop:jar")
     main = 'androidx.ui.desktop.examples.popupexample.MainKt'
     def compilation = kotlin.jvm().compilations["main"]
     classpath =

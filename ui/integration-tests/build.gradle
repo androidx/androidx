@@ -47,11 +47,10 @@ dependencies {
 }
 
 androidx {
-    name = "UI Integration Tests"
+    name = "Compose Integration Tests"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
-    description = "UI Integration Tests"
+    description = "Compose Integration Tests"
 }
 
 android.defaultConfig.minSdkVersion 21

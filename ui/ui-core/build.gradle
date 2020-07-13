@@ -91,7 +91,7 @@ kotlin {
                 exclude group: 'org.mockito' // to keep control on the mockito version
             }
             implementation project(":compose:test:test-core")
-            implementation project(":ui:ui-test-font")
+            implementation project(":compose:core:core-test-font")
             implementation project(":compose:foundation:foundation-layout")
             implementation project(":compose:foundation:foundation")
         }

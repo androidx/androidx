@@ -89,7 +89,7 @@ dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 }
 
-def composeClassDir = "${project.rootProject.buildDir}/ui-desktop/compose-libs/"
+def composeClassDir = "${project.rootProject.buildDir}/desktop/compose-libs/"
 
 kotlin {
     jvm()
@@ -111,7 +111,7 @@ kotlin {
 
             api "org.jetbrains.skija:skija:0.4.1"
 
-            api project(":ui:ui-desktop:android-emu")
+            api project(":compose:desktop:desktop:android-emu")
 
             api fileTree(composeClassDir)
 
@@ -138,7 +138,7 @@ kotlin {
 }
 
 def uiComponents = [
-        ":ui:ui-android-view",
+        ":compose:android-view:android-view",
         ":compose:animation:animation",
         ":compose:animation:animation-core",
         ":compose:core:core",
@@ -340,7 +340,7 @@ tasks.withType(KotlinCompile).configureEach {
     }
 }
 project.tasks.register("jar", Jar).configure {
-    baseName = "ui-desktop"
+    baseName = "desktop"
     from { kotlin.jvm().compilations["main"].output.allOutputs }
 }
 
@@ -349,5 +349,5 @@ clean.doFirst {
 }
 
 rootProject.tasks.getByName("buildOnServer").configure {
-    dependsOn(":ui:ui-desktop:jar")
+    dependsOn(":compose:desktop:desktop:jar")
 }

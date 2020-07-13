@@ -25,10 +25,10 @@ plugins {
 }
 
 androidx {
-    name = "AndroidX UI Test Font resources"
+    name = "Compose Test Font resources"
     publish = Publish.NONE
     mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
+    mavenGroup = LibraryGroups.Compose.CORE
     inceptionYear = "2020"
     description = "Fonts designed for testing text capabilities"
 }
