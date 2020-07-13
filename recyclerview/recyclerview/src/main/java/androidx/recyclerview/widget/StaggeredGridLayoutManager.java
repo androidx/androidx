@@ -2846,9 +2846,11 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
                 Arrays.fill(mData, position, mData.length, LayoutParams.INVALID_SPAN_ID);
                 return mData.length;
             } else {
-                // just invalidate items in between
-                Arrays.fill(mData, position, endPosition + 1, LayoutParams.INVALID_SPAN_ID);
-                return endPosition + 1;
+                // Just invalidate items in between `position` and the next full span item, or the
+                // end of the tracked spans in mData if it's not been lengthened yet.
+                final int invalidateToIndex = Math.min(endPosition + 1, mData.length);
+                Arrays.fill(mData, position, invalidateToIndex, LayoutParams.INVALID_SPAN_ID);
+                return invalidateToIndex;
             }
         }
 
