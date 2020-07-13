@@ -116,6 +116,16 @@ public class TrustedWebActivityIntentBuilder {
     }
 
     /**
+     * Sets the navigation bar divider color, see
+     * {@link CustomTabsIntent.Builder#setNavigationBarDividerColor}.
+     */
+    @NonNull
+    public TrustedWebActivityIntentBuilder setNavigationBarDividerColor(@ColorInt int color) {
+        mIntentBuilder.setNavigationBarDividerColor(color);
+        return this;
+    }
+
+    /**
      * Sets the color scheme, see {@link CustomTabsIntent.Builder#setColorScheme}.
      * In Trusted Web Activities color scheme may effect such UI elements as info bars and context
      * menus.
