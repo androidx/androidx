@@ -47,3 +47,11 @@ fun Constraints.toProto(): WorkManagerInspectorProtocol.Constraints =
         .setRequiresBatteryNotLow(requiresBatteryNotLow())
         .setRequiresStorageNotLow(requiresStorageNotLow())
         .build()
+
+fun StackTraceElement.toProto(): WorkManagerInspectorProtocol.CallStack.Frame =
+    WorkManagerInspectorProtocol.CallStack.Frame.newBuilder()
+        .setClassName(className)
+        .setFileName(fileName ?: "")
+        .setMethodName(methodName)
+        .setLineNumber(lineNumber)
+        .build()
