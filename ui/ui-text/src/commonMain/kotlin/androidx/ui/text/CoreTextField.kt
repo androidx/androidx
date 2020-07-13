@@ -106,7 +106,7 @@ fun CoreTextField(
         textStyle = textStyle,
         keyboardType = keyboardType,
         imeAction = imeAction,
-        onFocusChange = onFocusChange,
+        onFocusChanged = onFocusChange,
         onImeActionPerformed = onImeActionPerformed,
         visualTransformation = visualTransformation,
         onTextLayout = onTextLayout,
@@ -146,12 +146,12 @@ fun CoreTextField(
  * on the keyboard. For example, search icon may be shown if [ImeAction.Search] is specified.
  * Then, when user tap that key, the [onImeActionPerformed] callback is called with specified
  * ImeAction.
- * @param onFocusChange Called with true value when the input field gains focus and with false
- * value when the input field loses focus. Use [FocusModifier.requestFocus] to obtain text input
- * focus to this TextField.
- * @param onImeActionPerformed Called when the input service requested an IME action. When the
+ *  * @param onImeActionPerformed Called when the input service requested an IME action. When the
  * input service emitted an IME action, this callback is called with the emitted IME action. Note
  * that this IME action may be different from what you specified in [imeAction].
+ * @param onFocusChanged Called with true value when the input field gains focus and with false
+ * value when the input field loses focus. Use [FocusModifier.requestFocus] to obtain text input
+ * focus to this TextField.
  * @param visualTransformation The visual transformation filter for changing the visual
  * representation of the input. By default no visual transformation is applied.
  * @param onTextLayout Callback that is executed when a new text layout is calculated.
@@ -169,8 +169,8 @@ fun CoreTextField(
     textStyle: TextStyle = TextStyle.Default,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
-    onFocusChange: (Boolean) -> Unit = {},
     onImeActionPerformed: (ImeAction) -> Unit = {},
+    onFocusChanged: (Boolean) -> Unit = {},
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {}
@@ -267,7 +267,7 @@ fun CoreTextField(
                         }
                     }
                 }
-                onFocusChange(true)
+                onFocusChanged(true)
             },
             onBlur = { hasNextClient ->
                 state.hasFocus = false
@@ -278,7 +278,7 @@ fun CoreTextField(
                     hasNextClient,
                     onValueChangeWrapper
                 )
-                onFocusChange(false)
+                onFocusChanged(false)
             },
             onRelease = {
                 if (state.selectionIsOn == false) {

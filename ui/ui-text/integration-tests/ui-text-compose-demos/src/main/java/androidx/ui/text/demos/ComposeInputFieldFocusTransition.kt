@@ -61,7 +61,7 @@ private fun TextFieldWithFocusId(focusModifier: FocusModifier, nextFocusModifier
         onValueChange = {
             state.value = it
         },
-        onFocusChange = { focused.value = it },
+        onFocusChanged = { focused.value = it },
         imeAction = ImeAction.Next,
         onImeActionPerformed = {
             if (it == ImeAction.Next)
