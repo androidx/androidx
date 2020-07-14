@@ -1,3 +1,5 @@
 // Baseline format: 1.0
+AutoBoxing: androidx.paging.PagingState#PagingState(java.util.List<androidx.paging.PagingSource.LoadResult.Page<Key,Value>>, Integer, androidx.paging.PagingConfig, int) parameter #1:
+    Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.paging.PagingState#getAnchorPosition():
     Must avoid boxed primitives (`java.lang.Integer`)
