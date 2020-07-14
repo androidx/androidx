@@ -60,7 +60,7 @@ kotlin {
             implementation(ANDROIDX_TEST_RUNNER)
             implementation(JUNIT)
             implementation project(":compose:foundation:foundation")
-            implementation project(":compose:test:test-core")
+            implementation project(":ui:ui-test")
         }
     }
 }

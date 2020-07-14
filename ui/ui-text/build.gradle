@@ -60,7 +60,7 @@ kotlin {
         }
 
         androidAndroidTest.dependencies {
-            implementation project(":compose:test:test-core")
+            implementation project(":ui:ui-test")
             implementation project(":compose:foundation:foundation-layout")
             implementation project(":compose:core:core-test-font")
             implementation "androidx.core:core:1.5.0-alpha01"

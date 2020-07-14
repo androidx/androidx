@@ -53,7 +53,7 @@ dependencies {
     testImplementation(TRUTH)
 
     androidTestImplementation project(":compose:material:material:samples")
-    androidTestImplementation project(":compose:test:test-core")
+    androidTestImplementation project(":ui:ui-test")
     androidTestImplementation project(":test-screenshot")
 
     androidTestImplementation(ANDROIDX_TEST_RULES)

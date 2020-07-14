@@ -43,7 +43,7 @@ dependencies {
     implementation project(":compose:foundation:foundation")
     implementation project(":compose:foundation:foundation-layout")
     implementation project(":compose:material:material")
-    implementation project(":compose:test:test-core")
+    implementation project(":ui:ui-test")
 }
 
 androidx {
