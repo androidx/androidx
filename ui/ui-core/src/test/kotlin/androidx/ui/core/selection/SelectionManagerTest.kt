@@ -32,6 +32,7 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
@@ -354,7 +355,7 @@ class SelectionManagerTest {
     }
 
     @Test
-    fun showSelectionToolbar_trigger_textToolbar_showCopyMenu() {
+    fun showSelectionToolbar_trigger_textToolbar_showMenu() {
         val text = "Text Demo"
         val annotatedString = AnnotatedString(text = text)
         val startOffset = text.indexOf('m')
@@ -375,10 +376,11 @@ class SelectionManagerTest {
 
         selectionManager.showSelectionToolbar()
 
-        verify(textToolbar, times(1)).showCopyMenu(
+        verify(textToolbar, times(1)).showMenu(
             eq(Rect.zero),
             any(),
-            any()
+            isNull(),
+            isNull()
         )
     }
 

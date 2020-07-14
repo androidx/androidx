@@ -290,23 +290,33 @@ internal class TextFieldSelectionManager() {
      * the copy, paste and cut method as callbacks when "copy", "cut" or "paste" is clicked.
      */
     internal fun showSelectionToolbar() {
-        if (!value.selection.collapsed) {
-            textToolbar?.showPasteMenu(
-                rect = getContentRect(),
-                onCopyRequested = {
-                    copy()
-                    hideSelectionToolbar()
-                },
-                onPasteRequested = {
-                    paste()
-                    hideSelectionToolbar()
-                },
-                onCutRequested = {
-                    cut()
-                    hideSelectionToolbar()
-                }
-            )
-        }
+        val copy: (() -> Unit)? = if (!value.selection.collapsed) {
+            {
+                copy()
+                hideSelectionToolbar()
+            }
+        } else null
+
+        val cut: (() -> Unit)? = if (!value.selection.collapsed) {
+            {
+                cut()
+                hideSelectionToolbar()
+            }
+        } else null
+
+        val paste: (() -> Unit)? = if (clipboardManager?.getText() != null) {
+            {
+                paste()
+                hideSelectionToolbar()
+            }
+        } else null
+
+        textToolbar?.showMenu(
+            rect = getContentRect(),
+            onCopyRequested = copy,
+            onPasteRequested = paste,
+            onCutRequested = cut
+        )
     }
 
     private fun hideSelectionToolbar() {

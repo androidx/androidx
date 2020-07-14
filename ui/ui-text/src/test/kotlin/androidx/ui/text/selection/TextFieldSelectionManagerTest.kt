@@ -37,6 +37,7 @@ import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
@@ -283,7 +284,7 @@ class TextFieldSelectionManagerTest {
     }
 
     @Test
-    fun showSelectionToolbar_trigger_textToolbar_showPasteMenu() {
+    fun showSelectionToolbar_trigger_textToolbar_showMenu_Clipboard_empty_not_show_paste() {
         manager.value = TextFieldValue(
             text = text + text,
             selection = TextRange("Hello".length, text.length)
@@ -291,6 +292,19 @@ class TextFieldSelectionManagerTest {
 
         manager.showSelectionToolbar()
 
-        verify(textToolbar, times(1)).showPasteMenu(any(), any(), any(), any())
+        verify(textToolbar, times(1)).showMenu(any(), any(), isNull(), any())
+    }
+
+    @Test
+    fun showSelectionToolbar_trigger_textToolbar_showMenu_selection_collapse_not_show_copy_cut() {
+        whenever(clipboardManager.getText()).thenReturn(AnnotatedString(text))
+        manager.value = TextFieldValue(
+            text = text + text,
+            selection = TextRange(0, 0)
+        )
+
+        manager.showSelectionToolbar()
+
+        verify(textToolbar, times(1)).showMenu(any(), isNull(), any(), isNull())
     }
 }
