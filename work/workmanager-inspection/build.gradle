@@ -51,7 +51,6 @@ androidx {
     inceptionYear = "2020"
     toolingProject = true
     description = "The implementation of WorkManager Inspector."
-    url = ARCHITECTURE_URL
 }
 
 android {
