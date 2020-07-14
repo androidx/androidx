@@ -900,6 +900,16 @@ public final class MediaRouter {
     }
 
     /**
+     * Returns whether transferring media from remote to local is enabled.
+     */
+    static boolean isTransferToLocalEnabled() {
+        if (sGlobal == null) {
+            return false;
+        }
+        return sGlobal.isTransferToLocalEnabled();
+    }
+
+    /**
      * Provides information about a media route.
      * <p>
      * Each media route has a list of {@link MediaControlIntent media control}
@@ -2455,7 +2465,9 @@ public final class MediaRouter {
                         params.isTransferToLocalEnabled();
 
                 if (oldTransferToLocalEnabled != newTransferToLocalEnabled) {
-                    updateDiscoveryRequest();
+                    // Since the discovery request itself is not changed,
+                    // call setDiscoveryRequestInternal to avoid the equality check.
+                    mMr2Provider.setDiscoveryRequestInternal(mDiscoveryRequest);
                 }
             }
         }
@@ -2623,12 +2635,6 @@ public final class MediaRouter {
             mCallbackCount = callbackCount;
             MediaRouteSelector selector = discover ? builder.build() : MediaRouteSelector.EMPTY;
 
-            if (mRouterParams != null && mRouterParams.isTransferToLocalEnabled()) {
-                selector = new MediaRouteSelector.Builder(selector)
-                        .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
-                        .build();
-            }
-
             // Create a new discovery request.
             if (mDiscoveryRequest != null
                     && mDiscoveryRequest.getSelector().equals(selector)
@@ -2668,6 +2674,13 @@ public final class MediaRouter {
 
         boolean isMediaTransferEnabled() {
             return mMediaTransferEnabled;
+        }
+
+        boolean isTransferToLocalEnabled() {
+            if (mRouterParams == null) {
+                return false;
+            }
+            return mRouterParams.isTransferToLocalEnabled();
         }
 
         @Override
