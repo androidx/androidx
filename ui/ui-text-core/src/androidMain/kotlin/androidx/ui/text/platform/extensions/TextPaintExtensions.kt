@@ -101,10 +101,10 @@ internal fun TextPaint.applySpanStyle(
     }
 
     if (style.textDecoration != null && style.textDecoration != TextDecoration.None) {
-        if (style.textDecoration.contains(TextDecoration.Underline)) {
+        if (TextDecoration.Underline in style.textDecoration) {
             isUnderlineText = true
         }
-        if (style.textDecoration.contains(TextDecoration.LineThrough)) {
+        if (TextDecoration.LineThrough in style.textDecoration) {
             isStrikeThruText = true
         }
     }

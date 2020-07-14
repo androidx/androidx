@@ -348,10 +348,10 @@ private fun Spannable.setFontSize(fontSize: TextUnit, density: Density, start: I
 
 private fun Spannable.setTextDecoration(textDecoration: TextDecoration?, start: Int, end: Int) {
     textDecoration?.let {
-        if (it.contains(TextDecoration.Underline)) {
+        if (TextDecoration.Underline in it) {
             setSpan(UnderlineSpan(), start, end)
         }
-        if (it.contains(TextDecoration.LineThrough)) {
+        if (TextDecoration.LineThrough in it) {
             setSpan(StrikethroughSpan(), start, end)
         }
     }
