@@ -20,19 +20,20 @@ import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.ui.core.Alignment
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.selection.selectable
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.ColumnScope.gravity
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredWidth
@@ -40,7 +41,8 @@ import androidx.ui.material.Checkbox
 import androidx.ui.material.EmphasisAmbient
 import androidx.ui.material.FilledTextField
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.RadioGroup
+import androidx.ui.material.OutlinedTextField
+import androidx.ui.material.RadioButton
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.icons.filled.Info
@@ -49,24 +51,24 @@ import androidx.ui.material.samples.FilledTextFieldWithErrorState
 import androidx.ui.material.samples.FilledTextFieldWithIcons
 import androidx.ui.material.samples.FilledTextFieldWithPlaceholder
 import androidx.ui.material.samples.PasswordFilledTextField
+import androidx.ui.material.samples.SimpleOutlinedTextFieldSample
 import androidx.ui.material.samples.TextFieldWithHelperMessage
 import androidx.ui.material.samples.TextFieldWithHideKeyboardOnImeAction
 import androidx.ui.savedinstancestate.savedInstanceState
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 
 @Composable
 fun TextFieldsDemo() {
-    val space = with(DensityAmbient.current) { 5.dp.toIntPx() }
-    Column(
-        modifier = Modifier.fillMaxHeight().padding(10.dp),
-        verticalArrangement = arrangeWithSpacer(space)
+    ScrollableColumn(
+        modifier = Modifier.fillMaxHeight(),
+        contentPadding = InnerPadding(10.dp)
     ) {
         Text("Password text field")
         PasswordFilledTextField()
         Text("Text field with leading and trailing icons")
         FilledTextFieldWithIcons()
+        Text("Outlined text field")
+        SimpleOutlinedTextFieldSample()
         Text("Text field with placeholder")
         FilledTextFieldWithPlaceholder()
         Text("Text field with error state handling")
@@ -81,26 +83,44 @@ fun TextFieldsDemo() {
 }
 
 @Composable
-fun FilledTextFieldDemo() {
-    Column(Modifier.padding(10.dp)) {
+fun MaterialTextFieldDemo() {
+    ScrollableColumn(contentPadding = InnerPadding(10.dp)) {
         var text by savedInstanceState { "" }
         var leadingChecked by savedInstanceState { false }
         var trailingChecked by savedInstanceState { false }
         val characterCounterChecked by savedInstanceState { false }
         var selectedOption by savedInstanceState { Option.None }
+        var selectedTextField by savedInstanceState { TextFieldType.Filled }
 
-        val textField = @Composable {
-            FilledTextField(
-                value = text,
-                onValueChange = { text = it },
-                label = {
-                    val label = "Label" + if (selectedOption == Option.Error) "*" else ""
-                    Text(text = label)
-                },
-                leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
-                trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
-                isErrorValue = selectedOption == Option.Error
-            )
+        val textField: @Composable () -> Unit = @Composable {
+            when (selectedTextField) {
+                TextFieldType.Filled ->
+                    FilledTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        label = {
+                            val label =
+                                "Label" + if (selectedOption == Option.Error) "*" else ""
+                            Text(text = label)
+                        },
+                        leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
+                        trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
+                        isErrorValue = selectedOption == Option.Error
+                    )
+                TextFieldType.Outlined ->
+                    OutlinedTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        label = {
+                            val label =
+                                "Label" + if (selectedOption == Option.Error) "*" else ""
+                            Text(text = label)
+                        },
+                        leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
+                        trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
+                        isErrorValue = selectedOption == Option.Error
+                    )
+            }
         }
 
         Box(Modifier.preferredHeight(150.dp).gravity(Alignment.CenterHorizontally)) {
@@ -112,6 +132,32 @@ fun FilledTextFieldDemo() {
         }
 
         Column {
+            Title("Text field type")
+            Column {
+                TextFieldType.values().map { it.name }.forEach { textType ->
+                    Row(Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = (textType == selectedTextField.name),
+                            onClick = {
+                                selectedTextField = TextFieldType.valueOf(textType)
+                            }
+                        )
+                        .padding(horizontal = 16.dp)
+                    ) {
+                        RadioButton(
+                            selected = (textType == selectedTextField.name),
+                            onClick = { selectedTextField = TextFieldType.valueOf(textType) }
+                        )
+                        Text(
+                            text = textType,
+                            style = MaterialTheme.typography.body1.merge(),
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
+                }
+            }
+
             Title("Options")
             OptionRow(
                 title = "Leading icon",
@@ -124,19 +170,37 @@ fun FilledTextFieldDemo() {
                 onCheckedChange = { trailingChecked = it }
             )
             OptionRow(
-                title = "Character counter",
+                title = "Character counter (TODO)",
                 checked = characterCounterChecked,
+                enabled = false,
                 onCheckedChange = { /* TODO */ }
             )
 
             Spacer(Modifier.preferredHeight(20.dp))
 
             Title("Assistive text")
-            RadioGroup(
-                options = Option.values().map { it.name },
-                selectedOption = selectedOption.name,
-                onSelectedChange = { selectedOption = Option.valueOf(it) }
-            )
+            Column {
+                Option.values().map { it.name }.forEach { text ->
+                    Row(Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = (text == selectedOption.name),
+                            onClick = { selectedOption = Option.valueOf(text) }
+                        )
+                        .padding(horizontal = 16.dp)
+                    ) {
+                        RadioButton(
+                            selected = (text == selectedOption.name),
+                            onClick = { selectedOption = Option.valueOf(text) }
+                        )
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.body1.merge(),
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -182,10 +246,11 @@ private fun Title(title: String) {
 private fun OptionRow(
     title: String,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true
 ) {
     Row(Modifier.padding(start = 10.dp, top = 10.dp)) {
-        Checkbox(checked = checked, onCheckedChange = onCheckedChange)
+        Checkbox(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
         Spacer(Modifier.preferredWidth(20.dp))
         Text(text = title, style = MaterialTheme.typography.body1)
     }
@@ -196,18 +261,4 @@ private fun OptionRow(
  */
 private enum class Option { None, Helper, Error }
 
-private fun arrangeWithSpacer(space: IntPx) = object : Arrangement.Vertical {
-    override fun arrange(
-        totalSize: IntPx,
-        size: List<IntPx>,
-        layoutDirection: LayoutDirection
-    ): List<IntPx> {
-        val positions = mutableListOf<IntPx>()
-        var current = 0.ipx
-        size.forEach {
-            positions.add(current)
-            current += (it + space)
-        }
-        return positions
-    }
-}
+private enum class TextFieldType { Filled, Outlined }

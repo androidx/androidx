@@ -134,7 +134,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     private ActivityResultRegistry mActivityResultRegistry = new ActivityResultRegistry() {
 
         @Override
-        public <I, O> void invoke(
+        public <I, O> void onLaunch(
                 final int requestCode,
                 @NonNull ActivityResultContract<I, O> contract,
                 I input,

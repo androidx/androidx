@@ -18,8 +18,8 @@ package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
+import androidx.core.util.Preconditions;
 
 import java.util.Map;
 
@@ -29,9 +29,7 @@ import java.util.Map;
  *
  * @param <KeyType> The type of the keys for {@link #getSuccesses} and {@link #getFailures}.
  * @param <ValueType> The type of result objects associated with the keys.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class AppSearchBatchResult<KeyType, ValueType> {
     @NonNull private final Map<KeyType, ValueType> mSuccesses;
     @NonNull private final Map<KeyType, AppSearchResult<ValueType>> mFailures;
@@ -71,17 +69,32 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
     }
 
     /**
+     * Asserts that this {@link AppSearchBatchResult} has no failures.
+     * @hide
+     */
+    public void checkSuccess() {
+        if (!isSuccess()) {
+            throw new IllegalStateException("AppSearchBatchResult has failures: " + this);
+        }
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+        return "{\n  successes: " + mSuccesses + "\n  failures: " + mFailures + "\n}";
+    }
+
+    /**
      * Builder for {@link AppSearchBatchResult} objects.
      *
      * @param <KeyType> The type of keys.
      * @param <ValueType> The type of result objects associated with the keys.
+     * @hide
      */
     public static final class Builder<KeyType, ValueType> {
         private final Map<KeyType, ValueType> mSuccesses = new ArrayMap<>();
         private final Map<KeyType, AppSearchResult<ValueType>> mFailures = new ArrayMap<>();
-
-        /** Creates a new {@link Builder} for this {@link AppSearchBatchResult}. */
-        public Builder() {}
+        private boolean mBuilt = false;
 
         /**
          * Associates the {@code key} with the given successful return value.
@@ -89,7 +102,10 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
          * <p>Any previous mapping for a key, whether success or failure, is deleted.
          */
         @NonNull
-        public Builder setSuccess(@NonNull KeyType key, @Nullable ValueType result) {
+        public Builder<KeyType, ValueType> setSuccess(
+                @NonNull KeyType key, @Nullable ValueType result) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(key);
             return setResult(key, AppSearchResult.newSuccessfulResult(result));
         }
 
@@ -99,10 +115,12 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
          * <p>Any previous mapping for a key, whether success or failure, is deleted.
          */
         @NonNull
-        public Builder setFailure(
+        public Builder<KeyType, ValueType> setFailure(
                 @NonNull KeyType key,
                 @AppSearchResult.ResultCode int resultCode,
                 @Nullable String errorMessage) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(key);
             return setResult(key, AppSearchResult.newFailedResult(resultCode, errorMessage));
         }
 
@@ -112,7 +130,11 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
          * <p>Any previous mapping for a key, whether success or failure, is deleted.
          */
         @NonNull
-        public Builder setResult(@NonNull KeyType key, @NonNull AppSearchResult<ValueType> result) {
+        public Builder<KeyType, ValueType> setResult(
+                @NonNull KeyType key, @NonNull AppSearchResult<ValueType> result) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(key);
+            Preconditions.checkNotNull(result);
             if (result.isSuccess()) {
                 mSuccesses.put(key, result.getResultValue());
                 mFailures.remove(key);
@@ -126,6 +148,8 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
         /** Builds an {@link AppSearchBatchResult} from the contents of this {@link Builder}. */
         @NonNull
         public AppSearchBatchResult<KeyType, ValueType> build() {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mBuilt = true;
             return new AppSearchBatchResult<>(mSuccesses, mFailures);
         }
     }

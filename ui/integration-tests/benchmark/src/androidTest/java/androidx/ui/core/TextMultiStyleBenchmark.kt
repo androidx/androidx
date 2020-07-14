@@ -27,6 +27,8 @@ import androidx.ui.benchmark.benchmarkLayoutPerf
 import androidx.ui.integration.test.core.text.TextMultiStyleTestCase
 import androidx.ui.integration.test.TextBenchmarkTestRule
 import androidx.ui.integration.test.cartesian
+import androidx.ui.unit.dp
+import androidx.ui.unit.sp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,12 +44,6 @@ class TextMultiStyleBenchmark(
     private val textLength: Int,
     private val styleCount: Int
 ) {
-    @get:Rule
-    val textBenchmarkRule = TextBenchmarkTestRule()
-
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
-
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "length={0} styleCount={1}")
@@ -57,6 +53,14 @@ class TextMultiStyleBenchmark(
         )
     }
 
+    @get:Rule
+    val textBenchmarkRule = TextBenchmarkTestRule()
+
+    @get:Rule
+    val benchmarkRule = ComposeBenchmarkRule()
+
+    val width = textBenchmarkRule.widthDp.dp
+    val fontSize = textBenchmarkRule.fontSizeSp.sp
     /**
      * Measure the time taken to compose a [Text] composable from scratch with styled text as input.
      * This is the time taken to call the [Text] composable function.
@@ -66,6 +70,8 @@ class TextMultiStyleBenchmark(
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.benchmarkFirstCompose {
                 TextMultiStyleTestCase(
+                    width,
+                    fontSize,
                     textLength,
                     styleCount,
                     textGenerator
@@ -83,6 +89,8 @@ class TextMultiStyleBenchmark(
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.benchmarkFirstMeasure {
                 TextMultiStyleTestCase(
+                    width,
+                    fontSize,
                     textLength,
                     styleCount,
                     textGenerator
@@ -100,6 +108,8 @@ class TextMultiStyleBenchmark(
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.benchmarkFirstLayout {
                 TextMultiStyleTestCase(
+                    width,
+                    fontSize,
                     textLength,
                     styleCount,
                     textGenerator
@@ -117,6 +127,8 @@ class TextMultiStyleBenchmark(
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.benchmarkFirstDraw {
                 TextMultiStyleTestCase(
+                    width,
+                    fontSize,
                     textLength,
                     styleCount,
                     textGenerator
@@ -135,6 +147,8 @@ class TextMultiStyleBenchmark(
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.benchmarkLayoutPerf {
                 TextMultiStyleTestCase(
+                    width,
+                    fontSize,
                     textLength,
                     styleCount,
                     textGenerator
@@ -151,6 +165,8 @@ class TextMultiStyleBenchmark(
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.benchmarkDrawPerf {
                 TextMultiStyleTestCase(
+                    width,
+                    fontSize,
                     textLength,
                     styleCount,
                     textGenerator

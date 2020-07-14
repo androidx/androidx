@@ -23,6 +23,8 @@ package androidx.serialization {
   }
 
   public enum ProtoEncoding {
+    method public static androidx.serialization.ProtoEncoding valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.serialization.ProtoEncoding[] values();
     enum_constant public static final androidx.serialization.ProtoEncoding DEFAULT;
     enum_constant public static final androidx.serialization.ProtoEncoding SIGNED_FIXED;
     enum_constant public static final androidx.serialization.ProtoEncoding SIGNED_VARINT;

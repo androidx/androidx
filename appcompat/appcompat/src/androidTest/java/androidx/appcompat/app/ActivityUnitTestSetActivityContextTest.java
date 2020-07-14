@@ -52,7 +52,12 @@ public class ActivityUnitTestSetActivityContextTest extends
     @Override
     public void tearDown() throws Exception {
         if (mActivity != null) {
-            getInstrumentation().callActivityOnPause(mActivity);
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    getInstrumentation().callActivityOnPause(mActivity);
+                }
+            });
         }
         super.tearDown();
     }
@@ -71,8 +76,13 @@ public class ActivityUnitTestSetActivityContextTest extends
         });
 
         Looper.prepare();
-        mActivity = startActivity(mStartIntent, null, null);
-        getInstrumentation().callActivityOnResume(mActivity);
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mActivity = startActivity(mStartIntent, null, null);
+                getInstrumentation().callActivityOnResume(mActivity);
+            }
+        });
 
         runTestOnUiThread(new Runnable() {
             @Override

@@ -22,13 +22,16 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -46,6 +49,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.mediarouter.R;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
+import androidx.mediarouter.media.MediaRouterParams;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,7 +130,6 @@ public class MediaRouteButton extends View {
     private int mMinWidth;
     private int mMinHeight;
 
-    private boolean mUseDynamicGroup;
     private boolean mAlwaysVisible;
     private boolean mCheatSheetEnabled;
 
@@ -198,7 +201,7 @@ public class MediaRouteButton extends View {
                 } else {
                     mRemoteIndicatorLoader = new RemoteIndicatorLoader(remoteIndicatorStaticResId,
                             getContext());
-                    mRemoteIndicatorLoader.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+                    mRemoteIndicatorLoader.executeOnExecutor(android.os.AsyncTask.SERIAL_EXECUTOR);
                 }
             } else {
                 loadRemoteIndicatorIfNeeded();
@@ -278,9 +281,18 @@ public class MediaRouteButton extends View {
      * supports dynamic group, the users can use that feature with the dialogs.
      *
      * @see androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController
+     *
+     * @deprecated Use {@link
+     * androidx.mediarouter.media.MediaRouterParams.Builder#setDialogType(int)} with
+     * {@link androidx.mediarouter.media.MediaRouterParams#DIALOG_TYPE_DYNAMIC_GROUP} instead.
      */
+    @Deprecated
     public void enableDynamicGroup() {
-        mUseDynamicGroup = true;
+        MediaRouterParams oldParams = mRouter.getRouterParams();
+        MediaRouterParams.Builder newParamsBuilder = oldParams == null
+                ? new MediaRouterParams.Builder() : new MediaRouterParams.Builder(oldParams);
+        newParamsBuilder.setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP);
+        mRouter.setRouterParams(newParamsBuilder.build());
     }
 
     /**
@@ -291,28 +303,51 @@ public class MediaRouteButton extends View {
      * Otherwise, shows the route controller dialog to offer the user
      * a choice to disconnect from the route or perform other control actions
      * such as setting the route's volume.
-     * </p><p>
+     * <p>
+     * Dialog types can be set by setting {@link MediaRouterParams} to the router.
+     * <p>
      * The application can customize the dialogs by calling {@link #setDialogFactory}
      * to provide a customized dialog factory.
-     * </p>
+     * <p>
      *
      * @return True if the dialog was actually shown.
      *
      * @throws IllegalStateException if the activity is not a subclass of
      * {@link FragmentActivity}.
+     *
+     * @see MediaRouterParams.Builder#setDialogType(int)
+     * @see MediaRouterParams.Builder#setOutputSwitcherEnabled(boolean)
      */
     public boolean showDialog() {
         if (!mAttachedToWindow) {
             return false;
         }
 
+        MediaRouterParams params = mRouter.getRouterParams();
+        if (params != null) {
+            if (params.isOutputSwitcherEnabled() && MediaRouter.isMediaTransferEnabled()) {
+                if (showOutputSwitcher()) {
+                    // Output switcher is successfully shown.
+                    return true;
+                }
+            }
+            int dialogType = params.getDialogType();
+            return showDialogForType(dialogType);
+        } else {
+            // Note: These apps didn't call enableDynamicGroup(), since calling the method
+            // automatically sets a MediaRouterParams with dynamic dialog type.
+            return showDialogForType(MediaRouterParams.DIALOG_TYPE_DEFAULT);
+        }
+    }
+
+    private boolean showDialogForType(@MediaRouterParams.DialogType int dialogType) {
         final FragmentManager fm = getFragmentManager();
         if (fm == null) {
             throw new IllegalStateException("The activity must be a subclass of FragmentActivity");
         }
+        MediaRouter.RouteInfo selectedRoute = mRouter.getSelectedRoute();
 
-        MediaRouter.RouteInfo route = mRouter.getSelectedRoute();
-        if (route.isDefaultOrBluetooth() || !route.matchesSelector(mSelector)) {
+        if (selectedRoute.isDefaultOrBluetooth() || !selectedRoute.matchesSelector(mSelector)) {
             if (fm.findFragmentByTag(CHOOSER_FRAGMENT_TAG) != null) {
                 Log.w(TAG, "showDialog(): Route chooser dialog already showing!");
                 return false;
@@ -320,7 +355,10 @@ public class MediaRouteButton extends View {
             MediaRouteChooserDialogFragment f =
                     mDialogFactory.onCreateChooserDialogFragment();
             f.setRouteSelector(mSelector);
-            f.setUseDynamicGroup(mUseDynamicGroup);
+
+            if (dialogType == MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP) {
+                f.setUseDynamicGroup(true);
+            }
 
             FragmentTransaction transaction = fm.beginTransaction();
             transaction.add(f, CHOOSER_FRAGMENT_TAG);
@@ -333,13 +371,47 @@ public class MediaRouteButton extends View {
             MediaRouteControllerDialogFragment f =
                     mDialogFactory.onCreateControllerDialogFragment();
             f.setRouteSelector(mSelector);
-            f.setUseDynamicGroup(mUseDynamicGroup);
+
+            if (dialogType == MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP) {
+                f.setUseDynamicGroup(true);
+            }
 
             FragmentTransaction transaction = fm.beginTransaction();
             transaction.add(f, CONTROLLER_FRAGMENT_TAG);
             transaction.commitAllowingStateLoss();
         }
         return true;
+    }
+
+    /**
+     * Shows output switcher dialog. Returns {@code true} if it is successfully shown.
+     * Returns {@code false} if there was no output switcher.
+     */
+    private boolean showOutputSwitcher() {
+        Context context = getContext();
+
+        Intent intent = new Intent()
+                .setAction(OutputSwitcherConstants.ACTION_MEDIA_OUTPUT)
+                .putExtra(OutputSwitcherConstants.EXTRA_PACKAGE_NAME, context.getPackageName())
+                .putExtra(OutputSwitcherConstants.KEY_MEDIA_SESSION_TOKEN,
+                        mRouter.getMediaSessionToken());
+
+        PackageManager packageManager = context.getPackageManager();
+        List<ResolveInfo> resolveInfos = packageManager.queryIntentActivities(intent, 0);
+        for (ResolveInfo resolveInfo : resolveInfos) {
+            ActivityInfo activityInfo = resolveInfo.activityInfo;
+            if (activityInfo == null || activityInfo.applicationInfo == null) {
+                continue;
+            }
+            ApplicationInfo appInfo = activityInfo.applicationInfo;
+            if (((ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)
+                    & appInfo.flags) != 0) {
+                context.startActivity(intent);
+                return true;
+            }
+        }
+        // There was no output switcher.
+        return false;
     }
 
     private FragmentManager getFragmentManager() {
@@ -565,7 +637,7 @@ public class MediaRouteButton extends View {
             mRemoteIndicatorLoader = new RemoteIndicatorLoader(mRemoteIndicatorResIdToLoad,
                     getContext());
             mRemoteIndicatorResIdToLoad = 0;
-            mRemoteIndicatorLoader.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+            mRemoteIndicatorLoader.executeOnExecutor(android.os.AsyncTask.SERIAL_EXECUTOR);
         }
     }
 
@@ -725,7 +797,7 @@ public class MediaRouteButton extends View {
         }
     }
 
-    private final class RemoteIndicatorLoader extends AsyncTask<Void, Void, Drawable> {
+    private final class RemoteIndicatorLoader extends android.os.AsyncTask<Void, Void, Drawable> {
         private final int mResId;
         private final Context mContext;
 

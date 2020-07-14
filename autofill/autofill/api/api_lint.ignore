@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-SetterReturnsThis: androidx.autofill.inline.UiVersions.StylesBuilder#addStyle(androidx.autofill.inline.UiVersions.Style):
-    Methods must return the builder object (return type androidx.autofill.inline.UiVersions.StylesBuilder instead of void): method androidx.autofill.inline.UiVersions.StylesBuilder.addStyle(androidx.autofill.inline.UiVersions.Style)

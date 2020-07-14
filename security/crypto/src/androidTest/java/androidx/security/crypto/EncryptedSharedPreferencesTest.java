@@ -18,7 +18,7 @@ package androidx.security.crypto;
 
 import static android.content.Context.MODE_PRIVATE;
 
-import static androidx.security.crypto.MasterKeys.KEYSTORE_PATH_URI;
+import static androidx.security.crypto.MasterKey.KEYSTORE_PATH_URI;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -57,7 +57,7 @@ import java.util.Set;
 public class EncryptedSharedPreferencesTest {
 
     private Context mContext;
-    private String mKeyAlias;
+    private MasterKey mMasterKey;
 
     private static final String PREFS_FILE = "test_shared_prefs";
 
@@ -101,15 +101,18 @@ public class EncryptedSharedPreferencesTest {
         keyStore.load(null);
         keyStore.deleteEntry("_androidx_security_master_key_");
 
-        mKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+        mMasterKey = new MasterKey.Builder(mContext)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build();
     }
 
     @Test
     public void testWriteSharedPrefs() throws Exception {
 
         SharedPreferences sharedPreferences = EncryptedSharedPreferences
-                .create(PREFS_FILE,
-                        mKeyAlias, mContext,
+                .create(mContext,
+                        PREFS_FILE,
+                        mMasterKey,
                         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
 
@@ -332,6 +335,17 @@ public class EncryptedSharedPreferencesTest {
         Assert.assertEquals("Data should not exist", null,
                 sharedPreferences.getString(twiceKey, null));
 
+        editor.clear();
+        editor.commit();
+
+        // test clear after put with apply
+        editor.putString("New Data", "New");
+        editor.apply();
+        editor.clear();
+        editor.apply();
+
+        Assert.assertEquals("Get all size should be equal", 0,
+                sharedPreferences.getAll().size());
     }
 
     @Test
@@ -341,8 +355,9 @@ public class EncryptedSharedPreferencesTest {
         String testValue = "TestValue";
 
         SharedPreferences encryptedSharedPreferences = EncryptedSharedPreferences
-                .create(tinkTestPrefs,
-                        mKeyAlias, mContext,
+                .create(mContext,
+                        tinkTestPrefs,
+                        mMasterKey,
                         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
 

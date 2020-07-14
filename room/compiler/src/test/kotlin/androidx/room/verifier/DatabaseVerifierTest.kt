@@ -16,6 +16,8 @@
 
 package androidx.room.verifier
 
+import androidx.room.ext.requireTypeElement
+import androidx.room.ext.requireTypeMirror
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
@@ -33,6 +35,7 @@ import androidx.room.vo.Fields
 import androidx.room.vo.PrimaryKey
 import collect
 import columnNames
+import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.CoreMatchers.hasItem
@@ -48,9 +51,8 @@ import java.sql.Connection
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.PrimitiveType
-import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
 @RunWith(Parameterized::class)
@@ -223,7 +225,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                         "User",
                         field(
                             "id",
-                            primitive(invocation.context, TypeKind.INT),
+                            primitive(invocation.context, TypeName.INT),
                             SQLTypeAffinity.INTEGER
                         ),
                         field(
@@ -256,16 +258,16 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                 entity(
                     invocation,
                     "User",
-                    field("id", primitive(context, TypeKind.INT), SQLTypeAffinity.INTEGER),
+                    field("id", primitive(context, TypeName.INT), SQLTypeAffinity.INTEGER),
                     field("name", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
                     field("lastName", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
-                    field("ratio", primitive(context, TypeKind.FLOAT), SQLTypeAffinity.REAL)
+                    field("ratio", primitive(context, TypeName.FLOAT), SQLTypeAffinity.REAL)
                 )
             ),
             listOf(
                 view(
                     "UserSummary", "SELECT id, name FROM User",
-                    field("id", primitive(context, TypeKind.INT), SQLTypeAffinity.INTEGER),
+                    field("id", primitive(context, TypeName.INT), SQLTypeAffinity.INTEGER),
                     field("name", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT)
                 )
             )
@@ -289,7 +291,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         tableName: String,
         vararg fields: Field
     ): Entity {
-        val element = invocation.typeElement("Dummy")
+        val element = invocation.processingEnv.requireTypeElement("Dummy")
         return Entity(
             element = element,
             tableName = tableName,
@@ -322,7 +324,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         affinity: SQLTypeAffinity,
         defaultValue: String? = null
     ): Field {
-        val element = mock(Element::class.java)
+        val element = mock(VariableElement::class.java)
         doReturn(type).`when`(element).asType()
         val f = Field(
             element = element,
@@ -346,8 +348,8 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         f.setter = FieldSetter(name, type, CallType.FIELD)
     }
 
-    private fun primitive(context: Context, kind: TypeKind): PrimitiveType {
-        return context.processingEnv.typeUtils.getPrimitiveType(kind)
+    private fun primitive(context: Context, typeName: TypeName): TypeMirror {
+        return context.processingEnv.requireTypeMirror(typeName)
     }
 
     private fun getPrimaryKeys(connection: Connection, tableName: String): List<String> {

@@ -20,37 +20,45 @@ import android.util.DisplayMetrics
 import androidx.animation.FloatPropKey
 import androidx.animation.LinearOutSlowInEasing
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.getValue
+import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.Popup
 import androidx.ui.core.PopupPositionProvider
-import androidx.ui.unit.Position
-import androidx.ui.core.drawLayer
+import androidx.ui.core.TransformOrigin
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.clickable
-import androidx.ui.layout.Column
 import androidx.ui.layout.ColumnScope
+import androidx.ui.layout.ExperimentalLayout
 import androidx.ui.layout.IntrinsicSize
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidth
-import androidx.ui.material.ripple.ripple
+import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntBounds
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
+import androidx.ui.unit.Position
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
+import androidx.ui.unit.height
+import androidx.ui.unit.width
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * A Material Design [dropdown menu](https://material.io/components/menus#dropdown-menu).
@@ -95,41 +103,52 @@ fun DropdownMenu(
         toggle()
 
         if (visibleMenu) {
+            var transformOrigin by state { TransformOrigin.Center }
+            val density = DensityAmbient.current
             val popupPositionProvider = DropdownMenuPositionProvider(
                 dropdownOffset,
-                DensityAmbient.current,
+                density,
                 ContextAmbient.current.resources.displayMetrics
-            )
+            ) { parentBounds, menuBounds ->
+                transformOrigin = calculateTransformOrigin(parentBounds, menuBounds, density)
+            }
 
             Popup(
                 isFocusable = true,
                 onDismissRequest = onDismissRequest,
                 popupPositionProvider = popupPositionProvider
             ) {
-                Transition(
+                val state = transition(
                     definition = DropdownMenuOpenCloseTransition,
                     initState = !expanded,
                     toState = expanded,
                     onStateChangeFinished = {
                         visibleMenu = it
                     }
-                ) { state ->
-                    val scale = state[Scale]
-                    val alpha = state[Alpha]
-                    Card(
-                        modifier = Modifier
-                            .drawLayer(scaleX = scale, scaleY = scale, alpha = alpha, clip = true)
-                            // Padding to account for the elevation, otherwise it is clipped.
-                            .padding(MenuElevation),
-                        elevation = MenuElevation
-                    ) {
-                        Column(
-                            dropdownModifier
-                                .padding(vertical = DropdownMenuVerticalPadding)
-                                .preferredWidth(IntrinsicSize.Max),
-                            children = dropdownContent
-                        )
-                    }
+                )
+                val drawLayer = remember {
+                    MenuDrawLayerModifier(
+                        { state[Scale] },
+                        { state[Alpha] },
+                        { transformOrigin }
+                    )
+                }
+                Card(
+                    modifier = drawLayer
+                        // MenuVerticalMargin corresponds to the one Material row margin
+                        // required between the menu and the display edges. The
+                        // MenuElevationInset is needed for drawing the elevation,
+                        // otherwise it is clipped. TODO(popam): remove it after b/156890315
+                        .padding(MenuElevationInset, MenuVerticalMargin),
+                    elevation = MenuElevation
+                ) {
+                    @OptIn(ExperimentalLayout::class)
+                    ScrollableColumn(
+                        modifier = dropdownModifier
+                            .padding(vertical = DropdownMenuVerticalPadding)
+                            .preferredWidth(IntrinsicSize.Max),
+                        children = dropdownContent
+                    )
                 }
             }
         }
@@ -157,8 +176,7 @@ fun DropdownMenuItem(
     // TODO(popam, b/156911853): investigate replacing this Box with ListItem
     Box(
         modifier = modifier
-            .clickable(enabled = enabled, onClick = onClick)
-            .ripple(enabled = enabled)
+            .clickable(enabled = enabled, onClick = onClick, indication = RippleIndication(true))
             .fillMaxWidth()
             // Preferred min and max width used during the intrinsic measurement.
             .preferredSizeIn(
@@ -182,23 +200,25 @@ fun DropdownMenuItem(
 }
 
 // Size constants.
-internal val MenuElevation = 8.dp
-internal val DropdownMenuHorizontalPadding = 16.dp
+private val MenuElevation = 8.dp
+internal val MenuElevationInset = 32.dp
+private val MenuVerticalMargin = 32.dp
+private val DropdownMenuHorizontalPadding = 16.dp
 internal val DropdownMenuVerticalPadding = 8.dp
-internal val DropdownMenuItemDefaultMinWidth = 112.dp
-internal val DropdownMenuItemDefaultMaxWidth = 280.dp
-internal val DropdownMenuItemDefaultMinHeight = 48.dp
+private val DropdownMenuItemDefaultMinWidth = 112.dp
+private val DropdownMenuItemDefaultMaxWidth = 280.dp
+private val DropdownMenuItemDefaultMinHeight = 48.dp
 
 // Menu open/close animation.
 private val Scale = FloatPropKey()
 private val Alpha = FloatPropKey()
-internal val InTransitionDuration = 120
-internal val OutTransitionDuration = 75
+internal const val InTransitionDuration = 120
+internal const val OutTransitionDuration = 75
 
 private val DropdownMenuOpenCloseTransition = transitionDefinition {
     state(false) {
         // Menu is dismissed.
-        this[Scale] = 0f
+        this[Scale] = 0.8f
         this[Alpha] = 0f
     }
     state(true) {
@@ -208,24 +228,71 @@ private val DropdownMenuOpenCloseTransition = transitionDefinition {
     }
     transition(false, true) {
         // Dismissed to expanded.
-        Scale using tween {
-            duration = InTransitionDuration
+        Scale using tween(
+            durationMillis = InTransitionDuration,
             easing = LinearOutSlowInEasing
-        }
-        Alpha using tween {
-            duration = 30
-        }
+        )
+        Alpha using tween(
+            durationMillis = 30
+        )
     }
     transition(true, false) {
         // Expanded to dismissed.
-        Scale using tween {
-            duration = 1
-            delay = OutTransitionDuration - 1
-        }
-        Alpha using tween {
-            duration = OutTransitionDuration
+        Scale using tween(
+            durationMillis = 1,
+            delayMillis = OutTransitionDuration - 1
+        )
+        Alpha using tween(
+            durationMillis = OutTransitionDuration
+        )
+    }
+}
+
+private class MenuDrawLayerModifier(
+    val scaleProvider: () -> Float,
+    val alphaProvider: () -> Float,
+    val transformOriginProvider: () -> TransformOrigin
+) : DrawLayerModifier {
+    override val scaleX: Float get() = scaleProvider()
+    override val scaleY: Float get() = scaleProvider()
+    override val alpha: Float get() = alphaProvider()
+    override val transformOrigin: TransformOrigin get() = transformOriginProvider()
+    override val clip: Boolean = true
+}
+
+private fun calculateTransformOrigin(
+    parentBounds: IntBounds,
+    menuBounds: IntBounds,
+    density: Density
+): TransformOrigin {
+    val inset = with(density) { MenuElevationInset.toIntPx() }
+    val realMenuBounds = IntBounds(
+        menuBounds.left + inset,
+        menuBounds.top + inset,
+        menuBounds.right - inset,
+        menuBounds.bottom - inset
+    )
+    val pivotX = when {
+        realMenuBounds.left >= parentBounds.right -> 0
+        realMenuBounds.right <= parentBounds.left -> 1
+        else -> {
+            val intersectionCenter =
+                (max(parentBounds.left, realMenuBounds.left) +
+                        min(parentBounds.right, realMenuBounds.right)) / 2
+            (intersectionCenter + inset - menuBounds.left) / menuBounds.width
         }
     }
+    val pivotY = when {
+        realMenuBounds.top >= parentBounds.bottom -> 0
+        realMenuBounds.bottom <= parentBounds.top -> 1
+        else -> {
+            val intersectionCenter =
+                (max(parentBounds.top, realMenuBounds.top) +
+                        min(parentBounds.bottom, realMenuBounds.bottom)) / 2
+            (intersectionCenter + inset - menuBounds.top) / menuBounds.height
+        }
+    }
+    return TransformOrigin(pivotX.toFloat(), pivotY.toFloat())
 }
 
 // Menu positioning.
@@ -238,45 +305,50 @@ private val DropdownMenuOpenCloseTransition = transitionDefinition {
 internal data class DropdownMenuPositionProvider(
     val contentOffset: Position,
     val density: Density,
-    val displayMetrics: DisplayMetrics
+    val displayMetrics: DisplayMetrics,
+    val onPositionCalculated: (IntBounds, IntBounds) -> Unit = { _, _ -> }
 ) : PopupPositionProvider {
     override fun calculatePosition(
-        parentLayoutPosition: IntPxPosition,
-        parentLayoutSize: IntPxSize,
+        parentLayoutBounds: IntBounds,
         layoutDirection: LayoutDirection,
-        popupSize: IntPxSize
-    ): IntPxPosition {
+        popupSize: IntSize
+    ): IntOffset {
+        // The min margin above and below the menu, relative to the screen.
+        val verticalMargin = with(density) { MenuVerticalMargin.toIntPx() }
         // The padding inset that accommodates elevation, needs to be taken into account.
-        val inset = with(density) { MenuElevation.toIntPx() }
+        val inset = with(density) { MenuElevationInset.toIntPx() }
         val realPopupWidth = popupSize.width - inset * 2
         val realPopupHeight = popupSize.height - inset * 2
         val contentOffsetX = with(density) { contentOffset.x.toIntPx() }
         val contentOffsetY = with(density) { contentOffset.y.toIntPx() }
-        val parentRight = parentLayoutPosition.x + parentLayoutSize.width
-        val parentBottom = parentLayoutPosition.y + parentLayoutSize.height
 
         // Compute horizontal position.
-        val toRight = parentRight + contentOffsetX
-        val toLeft = parentLayoutPosition.x - contentOffsetX - realPopupWidth
-        val toDisplayRight = displayMetrics.widthPixels.ipx - realPopupWidth
-        val toDisplayLeft = 0.ipx
+        val toRight = parentLayoutBounds.right + contentOffsetX
+        val toLeft = parentLayoutBounds.left - contentOffsetX - realPopupWidth
+        val toDisplayRight = displayMetrics.widthPixels - realPopupWidth
+        val toDisplayLeft = 0
         val x = if (layoutDirection == LayoutDirection.Ltr) {
             sequenceOf(toRight, toLeft, toDisplayRight)
         } else {
             sequenceOf(toLeft, toRight, toDisplayLeft)
         }.firstOrNull {
-            it >= 0.ipx && it + realPopupWidth <= displayMetrics.widthPixels.ipx
+            it >= 0 && it + realPopupWidth <= displayMetrics.widthPixels
         } ?: toLeft
 
         // Compute vertical position.
-        val toBottom = parentBottom + contentOffsetY
-        val toTop = parentLayoutPosition.y - contentOffsetY - realPopupHeight
-        val toCenter = parentLayoutPosition.y - realPopupHeight / 2
-        val toDisplayBottom = displayMetrics.heightPixels.ipx - realPopupHeight
+        val toBottom = parentLayoutBounds.bottom + contentOffsetY
+        val toTop = parentLayoutBounds.top - contentOffsetY - realPopupHeight
+        val toCenter = parentLayoutBounds.top - realPopupHeight / 2
+        val toDisplayBottom = displayMetrics.heightPixels - realPopupHeight - verticalMargin
         val y = sequenceOf(toBottom, toTop, toCenter, toDisplayBottom).firstOrNull {
-            it >= 0.ipx && it + realPopupHeight <= displayMetrics.heightPixels.ipx
+            it >= verticalMargin &&
+                    it + realPopupHeight <= displayMetrics.heightPixels - verticalMargin
         } ?: toTop
 
-        return IntPxPosition(x - inset, y - inset)
+        onPositionCalculated(
+            parentLayoutBounds,
+            IntBounds(x - inset, y - inset, x + inset + realPopupWidth, y + inset + realPopupHeight)
+        )
+        return IntOffset(x - inset, y - inset)
     }
 }

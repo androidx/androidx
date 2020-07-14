@@ -20,12 +20,9 @@ package androidx.media2.test.service.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import android.os.Build;
-
 import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Ignore;
@@ -43,7 +40,6 @@ import java.util.Set;
 /**
  * Tests {@link SessionCommand} and {@link SessionCommandGroup}.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class SessionCommandTest {

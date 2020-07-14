@@ -16,6 +16,7 @@
 
 package androidx.room.kotlin
 
+import kotlinx.metadata.ClassName
 import kotlinx.metadata.Flag
 import kotlinx.metadata.Flags
 import kotlinx.metadata.KmClassVisitor
@@ -126,5 +127,17 @@ private class ConstructorReader(val result: MutableList<KmConstructor>) : KmClas
                 result.add(KmConstructor(descriptor, flags, parameters))
             }
         }
+    }
+}
+
+internal fun KotlinClassMetadata.Class.isObject(): Boolean = ObjectReader().let {
+    this@isObject.accept(it)
+    it.isObject
+}
+
+private class ObjectReader() : KmClassVisitor() {
+    var isObject: Boolean = false
+    override fun visit(flags: Flags, name: ClassName) {
+        isObject = Flag.Class.IS_OBJECT(flags)
     }
 }

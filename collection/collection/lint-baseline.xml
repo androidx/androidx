@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta05" client="gradle" version="3.6.0-beta05">
+<issues format="5" by="lint 4.1.0-alpha08" client="gradle" version="4.1.0-alpha08">
 
     <issue
         id="UnknownNullness"
@@ -8,8 +8,19 @@
         errorLine2="                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/collection/ArrayMap.java"
-            line="71"
+            line="76"
             column="21"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public E valueAt(int index) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/collection/ArraySet.java"
+            line="383"
+            column="12"/>
     </issue>
 
     <issue
@@ -19,18 +30,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/collection/ArraySet.java"
-            line="512"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Iterator&lt;E> iterator() {"
-        errorLine2="           ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/collection/ArraySet.java"
-            line="761"
+            line="506"
             column="12"/>
     </issue>
 
@@ -481,7 +481,7 @@
         errorLine2="                     ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="642"
+            line="638"
             column="22"/>
     </issue>
 
@@ -492,7 +492,7 @@
         errorLine2="                            ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="642"
+            line="638"
             column="29"/>
     </issue>
 
@@ -503,7 +503,7 @@
         errorLine2="                           ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="658"
+            line="654"
             column="28"/>
     </issue>
 
@@ -514,7 +514,7 @@
         errorLine2="                                  ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="658"
+            line="654"
             column="35"/>
     </issue>
 
@@ -525,7 +525,7 @@
         errorLine2="                                              ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="658"
+            line="654"
             column="47"/>
     </issue>
 

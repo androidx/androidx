@@ -20,6 +20,7 @@ import androidx.room.Query
 import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
 import androidx.room.ext.hasAnnotation
+import androidx.room.ext.name
 import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
@@ -33,9 +34,9 @@ import androidx.room.vo.QueryParameter
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
 import androidx.room.vo.WriteQueryMethod
+import isNotError
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
 class QueryMethodProcessor(
@@ -117,7 +118,7 @@ private class InternalQueryProcessor(
             )
             validateQuery(query)
             context.checker.check(
-                returnType.kind != TypeKind.ERROR,
+                returnType.isNotError(),
                 executableElement, ProcessorErrors.CANNOT_RESOLVE_RETURN_TYPE,
                 executableElement
             )
@@ -193,7 +194,7 @@ private class InternalQueryProcessor(
         return WriteQueryMethod(
             element = executableElement,
             query = query,
-            name = executableElement.simpleName.toString(),
+            name = executableElement.name,
             returnType = returnType,
             parameters = parameters,
             preparedQueryResultBinder = resultBinder
@@ -229,7 +230,7 @@ private class InternalQueryProcessor(
         return ReadQueryMethod(
             element = executableElement,
             query = query,
-            name = executableElement.simpleName.toString(),
+            name = executableElement.name,
             returnType = returnType,
             parameters = parameters,
             inTransaction = inTransaction,

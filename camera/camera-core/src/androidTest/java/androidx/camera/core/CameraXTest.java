@@ -18,30 +18,18 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.TestCase.assertSame;
-
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 
 import android.app.Instrumentation;
 import android.content.Context;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.util.Rational;
-import android.util.Size;
 
-import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.internal.ViewPorts;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
@@ -49,8 +37,6 @@ import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
-import androidx.core.util.Preconditions;
-import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -60,13 +46,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -82,10 +62,6 @@ public final class CameraXTest {
             new CameraSelector.Builder().requireLensFacing(CAMERA_LENS_FACING).build();
     private static final String CAMERA_ID = "0";
     private static final String CAMERA_ID_FRONT = "1";
-    // A container rect that is 4:3.
-    private static final RectF CONTAINER_RECT = new RectF(10, 10, 50, 40);
-    // 1:1 narrow aspect ratio
-    private static final Rational FIT_ASPECT_RATIO = new Rational(100, 100);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private Context mContext;
@@ -119,196 +95,9 @@ public final class CameraXTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        }
-
         CameraX.shutdown().get();
     }
 
-    @Test
-    public void viewPortRectWithTwoSurfacesIntersectWide() {
-        assertThat(
-                getViewPortRects(
-                        new Size(800, 800),
-                        new Rational(1, 2),
-                        180,
-                        ViewPort.FILL_CENTER,
-                        new Size(400, 800),
-                        new Size(800, 400)))
-                .isEqualTo(
-                        new Rect[]{
-                                new Rect(100, 200, 300, 600),
-                                new Rect(300, 0, 500, 400)
-                        });
-    }
-
-    @Test
-    public void viewPortRectWithTwoSurfacesIntersectNarrow() {
-        assertThat(
-                getViewPortRects(
-                        new Size(800, 800),
-                        new Rational(2, 1),
-                        180,
-                        ViewPort.FILL_CENTER,
-                        new Size(400, 800),
-                        new Size(800, 400)))
-                .isEqualTo(
-                        new Rect[]{
-                                new Rect(0, 300, 400, 500),
-                                new Rect(200, 100, 600, 300)
-                        });
-    }
-
-    @Test
-    public void viewPortRectLandscapeForPortraitModeAndRotate90Degrees() {
-        assertThat(
-                getViewPortRects(
-                        new Size(800, 600),
-                        new Rational(400, 300),
-                        90,
-                        ViewPort.FILL_CENTER,
-                        new Size(400, 300)))
-                .isEqualTo(new Rect[]{
-                        new Rect(88, 0, 313, 300)
-                });
-    }
-
-    @Test
-    public void viewPortRectFitStart() {
-        assertThat(
-                getViewPortRects(
-                        new Size(800, 600),
-                        new Rational(1, 1),
-                        0,
-                        ViewPort.FIT_END,
-                        new Size(400, 300)))
-                .isEqualTo(new Rect[]{
-                        new Rect(0, -100, 400, 300)
-                });
-    }
-
-    /**
-     * Calls {@link CameraX#calculateViewPortRects(Rect, Rational, int, int, Map)}.
-     */
-    private Rect[] getViewPortRects(Size sensorSize,
-            Rational aspectRatio,
-            @IntRange(from = 0, to = 359) int rotationDegree,
-            @ViewPort.ScaleType int scaleType,
-            Size... sizes) {
-        // Convert the sizes into a UseCase map.
-        List<UseCase> orderedUseCases = new ArrayList<>();
-        Map<UseCase, Size> useCaseSizeMap = new HashMap<UseCase, Size>() {
-            {
-                for (Size size : sizes) {
-                    FakeUseCase fakeUseCase = new FakeUseCaseConfig.Builder().build();
-                    put(fakeUseCase, size);
-                    orderedUseCases.add(fakeUseCase);
-                }
-            }
-        };
-
-        Map<UseCase, Rect> useCaseCropRects = ViewPorts.calculateViewPortRects(
-                new Rect(0, 0, sensorSize.getWidth(), sensorSize.getHeight()),
-                aspectRatio,
-                rotationDegree,
-                scaleType,
-                useCaseSizeMap);
-
-        // Converts the map back to sizes array.
-        List<Rect> orderedCropRects = new ArrayList<>();
-        for (UseCase useCase : orderedUseCases) {
-            orderedCropRects.add(useCaseCropRects.get(useCase));
-        }
-
-        return orderedCropRects.toArray(new Rect[0]);
-    }
-
-    @Test
-    public void viewPortRectFillCenter() {
-        Rect expectedRect = new Rect();
-        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_CENTER).round(
-                expectedRect);
-        assertThat(expectedRect).isEqualTo(new Rect(15, 10, 45, 40));
-    }
-
-    @Test
-    public void getScaledRectFillStart() {
-        Rect expectedRect = new Rect();
-        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_START).round(
-                expectedRect);
-        assertThat(expectedRect).isEqualTo(new Rect(10, 10, 40, 40));
-    }
-
-    @Test
-    public void getScaledRectFillEnd() {
-        Rect expectedRect = new Rect();
-        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_END).round(
-                expectedRect);
-        assertThat(expectedRect).isEqualTo(new Rect(20, 10, 50, 40));
-    }
-
-    @Test
-    public void getScaledRectFitCenter() {
-        Rect expectedRect = new Rect();
-        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_CENTER).round(
-                expectedRect);
-        assertThat(expectedRect).isEqualTo(new Rect(10, 5, 50, 45));
-    }
-
-    @Test
-    public void getScaledRectFitStart() {
-        Rect expectedRect = new Rect();
-        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_START).round(
-                expectedRect);
-        assertThat(expectedRect).isEqualTo(new Rect(10, 10, 50, 50));
-    }
-
-    @Test
-    public void getScaledRectFitEnd() {
-        Rect expectedRect = new Rect();
-        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_END).round(
-                expectedRect);
-        assertThat(expectedRect).isEqualTo(new Rect(10, 0, 50, 40));
-    }
-
-    @Test
-    public void rotateUseCasesWith180Degrees_unchanged() {
-        // Arrange.
-        UseCase useCase1 = mock(UseCase.class);
-        UseCase useCase2 = mock(UseCase.class);
-        Map<UseCase, Size> useCaseSizeMap = new HashMap<UseCase, Size>() {
-            {
-                put(useCase1, new Size(800, 600));
-                put(useCase2, new Size(1600, 900));
-            }
-        };
-
-        // Assert: return the same set of sizes.
-        assertThat(CameraX.getRotatedUseCaseSizes(180, useCaseSizeMap)).isEqualTo(useCaseSizeMap);
-    }
-
-    @Test
-    public void rotateUseCasesWith90Degrees_rotated() {
-        // Arrange.
-        UseCase useCase1 = mock(UseCase.class);
-        UseCase useCase2 = mock(UseCase.class);
-        Map<UseCase, Size> useCaseSizeMap = new HashMap<UseCase, Size>() {
-            {
-                put(useCase1, new Size(800, 600));
-                put(useCase2, new Size(1600, 900));
-            }
-        };
-
-        // Assert: return a set of rotated sizes.
-        assertThat(CameraX.getRotatedUseCaseSizes(90, useCaseSizeMap)).isEqualTo(
-                new HashMap<UseCase, Size>() {
-                    {
-                        put(useCase1, new Size(600, 800));
-                        put(useCase2, new Size(900, 1600));
-                    }
-                });
-    }
 
     @Test
     public void initDeinit_success() throws ExecutionException, InterruptedException {
@@ -346,19 +135,45 @@ public final class CameraXTest {
     }
 
     @Test
-    public void reinit_withPreviousFailedInit() throws ExecutionException, InterruptedException {
+    public void failedInit_doesNotRequireReconfigure() throws InterruptedException {
         // Create an empty config to cause a failed init.
         CameraXConfig cameraXConfig = new CameraXConfig.Builder().build();
         Exception exception = null;
+        CameraX.configureInstance(cameraXConfig);
+        boolean firstInitFailed = false;
         try {
-            CameraX.initialize(mContext, cameraXConfig).get();
+            CameraX.getOrCreateInstance(mContext).get();
         } catch (ExecutionException e) {
-            exception = e;
+            firstInitFailed = true;
         }
-        assertThat(exception).isInstanceOf(ExecutionException.class);
 
-        CameraX.initialize(mContext, mConfigBuilder.build()).get();
-        assertThat(CameraX.isInitialized()).isTrue();
+        // Does not throw IllegalStateException (though initialization will fail)
+        boolean secondInitFailed = false;
+        try {
+            CameraX.getOrCreateInstance(mContext).get();
+        } catch (ExecutionException e) {
+            secondInitFailed = true;
+        }
+        assertThat(firstInitFailed).isTrue();
+        assertThat(secondInitFailed).isTrue();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void cannotConfigureTwice() {
+        CameraX.configureInstance(mConfigBuilder.build());
+        CameraX.configureInstance(mConfigBuilder.build());
+    }
+
+    @Test
+    public void shutdown_clearsPreviousConfiguration()
+            throws ExecutionException, InterruptedException {
+        CameraX.configureInstance(mConfigBuilder.build());
+
+        // Clear the configuration so we can reinit
+        CameraX.shutdown().get();
+
+        // Should not throw
+        CameraX.configureInstance(mConfigBuilder.build());
     }
 
     @Test
@@ -389,7 +204,7 @@ public final class CameraXTest {
     }
 
     @Test
-    public void init_withDifferentCameraXConfig() {
+    public void init_withDifferentCameraXConfig() throws ExecutionException, InterruptedException {
         CameraFactory cameraFactory0 = new FakeCameraFactory();
         CameraFactory.Provider cameraFactoryProvider0 = (ignored0, ignored1) -> cameraFactory0;
         CameraFactory cameraFactory1 = new FakeCameraFactory();
@@ -397,162 +212,17 @@ public final class CameraXTest {
 
         mConfigBuilder.setCameraFactoryProvider(cameraFactoryProvider0);
         CameraX.initialize(mContext, mConfigBuilder.build());
+        CameraX cameraX0 = CameraX.getOrCreateInstance(mContext).get();
 
-        assertThat(CameraX.getCameraFactory()).isEqualTo(cameraFactory0);
+        assertThat(cameraX0.getCameraFactory()).isEqualTo(cameraFactory0);
 
         CameraX.shutdown();
 
         mConfigBuilder.setCameraFactoryProvider(cameraFactoryProvider1);
         CameraX.initialize(mContext, mConfigBuilder.build());
+        CameraX cameraX1 = CameraX.getOrCreateInstance(mContext).get();
 
-        assertThat(CameraX.getCameraFactory()).isEqualTo(cameraFactory1);
-    }
-
-    @Test
-    @UiThreadTest
-    public void bind_createsNewUseCaseMediator() {
-        initCameraX();
-        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, new FakeUseCase());
-        // One observer is the use case mediator. The other observer removes the use case upon the
-        // lifecycle's destruction.
-        assertThat(mLifecycle.getObserverCount()).isEqualTo(2);
-    }
-
-    @Test
-    @UiThreadTest
-    public void bindMultipleUseCases() {
-        initCameraX();
-        FakeUseCase fakeUseCase = new FakeUseCaseConfig.Builder().setTargetName("config0").build();
-        FakeOtherUseCase fakeOtherUseCase = new FakeOtherUseCaseConfig.Builder().setTargetName(
-                "config1").build();
-
-        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase, fakeOtherUseCase);
-
-        assertThat(CameraX.isBound(fakeUseCase)).isTrue();
-        assertThat(CameraX.isBound(fakeOtherUseCase)).isTrue();
-    }
-
-    @Test
-    @UiThreadTest
-    public void isNotBound_afterUnbind() {
-        initCameraX();
-        FakeUseCase fakeUseCase = new FakeUseCase();
-        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase);
-
-        CameraX.unbind(fakeUseCase);
-        assertThat(CameraX.isBound(fakeUseCase)).isFalse();
-    }
-
-    @Test
-    @UiThreadTest
-    public void bind_createsDifferentUseCaseMediators_forDifferentLifecycles() {
-        initCameraX();
-        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR,
-                new FakeUseCaseConfig.Builder().setTargetName("config0").build());
-
-        FakeLifecycleOwner anotherLifecycle = new FakeLifecycleOwner();
-        CameraX.bindToLifecycle(anotherLifecycle, CAMERA_SELECTOR,
-                new FakeUseCaseConfig.Builder().setTargetName("config1").build());
-
-        // One observer is the use case mediator. The other observer removes the use case upon the
-        // lifecycle's destruction.
-        assertThat(mLifecycle.getObserverCount()).isEqualTo(2);
-        assertThat(anotherLifecycle.getObserverCount()).isEqualTo(2);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    @UiThreadTest
-    public void exception_withDestroyedLifecycle() {
-        initCameraX();
-        FakeUseCase useCase = new FakeUseCase();
-
-        mLifecycle.destroy();
-
-        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, useCase);
-    }
-
-    @Test
-    @UiThreadTest
-    public void bind_returnTheSameCameraForSameSelector() {
-        // This test scope does not include the Extension, so we only bind a fake use case with a
-        // simple lensFacing selector.
-        initCameraX();
-        Camera camera1 = CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, new FakeUseCase());
-        Camera camera2 = CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, new FakeUseCase());
-
-        assertSame(camera1, camera2);
-    }
-
-    @Test
-    @UiThreadTest
-    public void noException_bindUseCases_withDifferentLensFacing() {
-        // Initial the front camera for this test.
-        CameraInternal cameraInternalFront =
-                new FakeCamera(mock(CameraControlInternal.class),
-                        new FakeCameraInfoInternal(0, CAMERA_LENS_FACING_FRONT));
-        mFakeCameraFactory.insertCamera(CAMERA_LENS_FACING_FRONT, CAMERA_ID_FRONT,
-                () -> cameraInternalFront);
-        CameraXConfig.Builder appConfigBuilder =
-                new CameraXConfig.Builder()
-                        .setCameraFactoryProvider((ignored0, ignored1) -> mFakeCameraFactory)
-                        .setDeviceSurfaceManagerProvider(ignored ->
-                                new FakeCameraDeviceSurfaceManager())
-                        .setUseCaseConfigFactoryProvider(ignored -> mUseCaseConfigFactory);
-
-        CameraX.initialize(mContext, appConfigBuilder.build());
-
-        CameraSelector frontSelector =
-                new CameraSelector.Builder().requireLensFacing(
-                        CameraSelector.LENS_FACING_FRONT).build();
-        FakeUseCase fakeUseCase = new FakeUseCaseConfig.Builder().build();
-        CameraSelector backSelector =
-                new CameraSelector.Builder().requireLensFacing(
-                        CameraSelector.LENS_FACING_BACK).build();
-        FakeOtherUseCase fakeOtherUseCase = new FakeOtherUseCaseConfig.Builder().build();
-
-        boolean hasException = false;
-        try {
-            CameraX.bindToLifecycle(mLifecycle, frontSelector, fakeUseCase);
-            CameraX.bindToLifecycle(mLifecycle, backSelector, fakeOtherUseCase);
-        } catch (IllegalArgumentException e) {
-            hasException = true;
-        }
-        assertFalse(hasException);
-    }
-
-    @Test
-    @UiThreadTest
-    public void bindUseCases_successReturnCamera() {
-        initCameraX();
-        FakeUseCaseConfig config0 = new FakeUseCaseConfig.Builder().getUseCaseConfig();
-
-        assertThat(CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR,
-                new FakeUseCase(config0))).isInstanceOf(Camera.class);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    @UiThreadTest
-    public void bindUseCases_withNotExistedLensFacingCamera() {
-        initCameraX();
-        FakeUseCaseConfig config0 = new FakeUseCaseConfig.Builder().getUseCaseConfig();
-        FakeUseCase fakeUseCase = new FakeUseCase(config0);
-
-        // The front camera is not defined, we should get the IllegalArgumentException when it
-        // tries to get the camera.
-        CameraX.bindToLifecycle(mLifecycle, CameraSelector.DEFAULT_FRONT_CAMERA, fakeUseCase);
-    }
-
-    @Test
-    @UiThreadTest
-    public void bindUseCases_canUpdateUseCase() {
-        initCameraX();
-        FakeUseCaseConfig config0 = new FakeUseCaseConfig.Builder().getUseCaseConfig();
-        FakeUseCase fakeUseCase = new FakeUseCase(config0);
-
-        Camera camera = CameraX.bindToLifecycle(mLifecycle, CameraSelector.DEFAULT_BACK_CAMERA,
-                fakeUseCase);
-
-        assertThat(fakeUseCase.getCamera()).isEqualTo(camera);
+        assertThat(cameraX1.getCameraFactory()).isEqualTo(cameraFactory1);
     }
 
     @Test
@@ -564,69 +234,9 @@ public final class CameraXTest {
         assertThat(config.getTargetClass(null)).isEqualTo(FakeUseCase.class);
     }
 
-    @Test
-    @UiThreadTest
-    public void attachCameraControl_afterBindToLifecycle() {
-        initCameraX();
-        FakeUseCaseConfig config0 = new FakeUseCaseConfig.Builder().setTargetName(
-                "config0").getUseCaseConfig();
-        AttachCameraFakeCase fakeUseCase = new AttachCameraFakeCase(config0);
 
-        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase);
 
-        assertThat(fakeUseCase.getCameraControl()).isEqualTo(
-                mCameraInternal.getCameraControlInternal());
-    }
 
-    @Test
-    @UiThreadTest
-    public void onCameraControlReadyIsCalled_afterBindToLifecycle() {
-        initCameraX();
-        FakeUseCaseConfig config0 = new FakeUseCaseConfig.Builder().setTargetName(
-                "config0").getUseCaseConfig();
-        AttachCameraFakeCase fakeUseCase = spy(new AttachCameraFakeCase(config0));
-
-        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase);
-
-        Mockito.verify(fakeUseCase).onCameraControlReady();
-    }
-
-    @Test
-    @UiThreadTest
-    public void detachCameraControl_afterUnbind() {
-        initCameraX();
-        FakeUseCaseConfig config0 = new FakeUseCaseConfig.Builder().setTargetName(
-                "config0").getUseCaseConfig();
-        AttachCameraFakeCase fakeUseCase = new AttachCameraFakeCase(config0);
-        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase);
-
-        CameraX.unbind(fakeUseCase);
-
-        // after unbind, Camera's CameraControlInternal should be detached from Usecase
-        assertThat(fakeUseCase.getCameraControl()).isNotEqualTo(
-                mCameraInternal.getCameraControlInternal());
-        // UseCase still gets a non-null default CameraControlInternal that does nothing.
-        assertThat(fakeUseCase.getCameraControl()).isEqualTo(
-                CameraControlInternal.DEFAULT_EMPTY_INSTANCE);
-    }
-
-    @Test
-    @UiThreadTest
-    public void eventCallbackCalled_bindAndUnbind() {
-        initCameraX();
-        UseCase.EventCallback eventCallback = Mockito.mock(UseCase.EventCallback.class);
-
-        FakeUseCaseConfig.Builder fakeConfigBuilder = new FakeUseCaseConfig.Builder();
-        fakeConfigBuilder.setUseCaseEventCallback(eventCallback);
-        AttachCameraFakeCase fakeUseCase = new AttachCameraFakeCase(
-                fakeConfigBuilder.getUseCaseConfig());
-
-        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase);
-        Mockito.verify(eventCallback).onBind(CAMERA_ID);
-
-        CameraX.unbind(fakeUseCase);
-        Mockito.verify(eventCallback).onUnbind();
-    }
 
     @Test
     public void canRetrieveCameraInfo() {
@@ -641,23 +251,6 @@ public final class CameraXTest {
         initCameraX();
         Context context = CameraX.getContext();
         assertThat(context).isNotNull();
-    }
-
-    @Test
-    @UiThreadTest
-    public void canGetActiveUseCases_afterBindToLifecycle() {
-        initCameraX();
-        FakeUseCase fakeUseCase = new FakeUseCaseConfig.Builder().setTargetName("config0").build();
-        FakeOtherUseCase fakeOtherUseCase = new FakeOtherUseCaseConfig.Builder().setTargetName(
-                "config1").build();
-
-        CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase, fakeOtherUseCase);
-        mLifecycle.startAndResume();
-
-        Collection<UseCase> useCases = Preconditions.checkNotNull(CameraX.getActiveUseCases());
-
-        assertThat(useCases.contains(fakeUseCase)).isTrue();
-        assertThat(useCases.contains(fakeOtherUseCase)).isTrue();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -686,22 +279,5 @@ public final class CameraXTest {
 
     private void initCameraX() {
         CameraX.initialize(mContext, mConfigBuilder.build());
-    }
-
-    /** FakeUseCase that will call attachToCamera */
-    public static class AttachCameraFakeCase extends FakeUseCase {
-
-        AttachCameraFakeCase(FakeUseCaseConfig config) {
-            super(config);
-        }
-
-        @Override
-        @NonNull
-        protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
-            SessionConfig.Builder builder = new SessionConfig.Builder();
-
-            updateSessionConfig(builder.build());
-            return suggestedResolution;
-        }
     }
 }

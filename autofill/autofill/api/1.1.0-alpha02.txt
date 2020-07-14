@@ -53,6 +53,11 @@ package androidx.autofill.inline {
     method public static android.view.View? render(android.content.Context, android.app.slice.Slice, android.os.Bundle);
   }
 
+  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class SuggestionHintConstants {
+    field public static final String SUGGESTION_HINT_CLIPBOARD_CONTENT = "clipboardContent";
+    field public static final String SUGGESTION_HINT_SMART_REPLY = "smartReply";
+  }
+
   @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class UiVersions {
     method public static java.util.List<java.lang.String!> getVersions(android.os.Bundle);
     method public static androidx.autofill.inline.UiVersions.StylesBuilder newStylesBuilder();
@@ -84,8 +89,11 @@ package androidx.autofill.inline.common {
     method public androidx.autofill.inline.common.ImageViewStyle.Builder setBackground(android.graphics.drawable.Icon);
     method public androidx.autofill.inline.common.ImageViewStyle.Builder setBackgroundColor(int);
     method public androidx.autofill.inline.common.ImageViewStyle.Builder setLayoutMargin(int, int, int, int);
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setMaxHeight(int);
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setMaxWidth(int);
     method public androidx.autofill.inline.common.ImageViewStyle.Builder setPadding(int, int, int, int);
     method public androidx.autofill.inline.common.ImageViewStyle.Builder setScaleType(android.widget.ImageView.ScaleType);
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setTintList(android.content.res.ColorStateList);
   }
 
   @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class TextViewStyle extends androidx.autofill.inline.common.ViewStyle {
@@ -100,6 +108,7 @@ package androidx.autofill.inline.common {
     method public androidx.autofill.inline.common.TextViewStyle.Builder setPadding(int, int, int, int);
     method public androidx.autofill.inline.common.TextViewStyle.Builder setTextColor(@ColorInt int);
     method public androidx.autofill.inline.common.TextViewStyle.Builder setTextSize(float);
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setTextSize(int, float);
     method public androidx.autofill.inline.common.TextViewStyle.Builder setTypeface(String, int);
   }
 
@@ -138,6 +147,7 @@ package androidx.autofill.inline.v1 {
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content build();
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setContentDescription(CharSequence);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setEndIcon(android.graphics.drawable.Icon);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setHints(java.util.List<java.lang.String!>);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setStartIcon(android.graphics.drawable.Icon);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setSubtitle(CharSequence);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setTitle(CharSequence);
@@ -146,6 +156,8 @@ package androidx.autofill.inline.v1 {
   public static final class InlineSuggestionUi.Style implements androidx.autofill.inline.UiVersions.Style {
     method public androidx.autofill.inline.common.ViewStyle? getChipStyle();
     method public androidx.autofill.inline.common.ImageViewStyle? getEndIconStyle();
+    method public int getLayoutDirection();
+    method public androidx.autofill.inline.common.ImageViewStyle? getSingleIconChipIconStyle();
     method public androidx.autofill.inline.common.ViewStyle? getSingleIconChipStyle();
     method public androidx.autofill.inline.common.ImageViewStyle? getStartIconStyle();
     method public androidx.autofill.inline.common.TextViewStyle? getSubtitleStyle();
@@ -156,6 +168,8 @@ package androidx.autofill.inline.v1 {
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style build();
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setChipStyle(androidx.autofill.inline.common.ViewStyle);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setEndIconStyle(androidx.autofill.inline.common.ImageViewStyle);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setLayoutDirection(int);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setSingleIconChipIconStyle(androidx.autofill.inline.common.ImageViewStyle);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setSingleIconChipStyle(androidx.autofill.inline.common.ViewStyle);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setStartIconStyle(androidx.autofill.inline.common.ImageViewStyle);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setSubtitleStyle(androidx.autofill.inline.common.TextViewStyle);

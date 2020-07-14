@@ -16,13 +16,14 @@
 
 package androidx.paging
 
+import androidx.annotation.IntRange
 import androidx.paging.PagingSource.LoadResult.Page
 
 /**
  * Snapshot state of Paging system including the loaded [pages], the last accessed [anchorPosition],
  * and the [config] used.
  */
-class PagingState<Key : Any, Value : Any> internal constructor(
+class PagingState<Key : Any, Value : Any> constructor(
     /**
      * Loaded pages of data in the list.
      */
@@ -38,7 +39,11 @@ class PagingState<Key : Any, Value : Any> internal constructor(
      * [PagingConfig] that was given when initializing the [PagingData] stream.
      */
     val config: PagingConfig,
-    private val placeholdersBefore: Int
+    /**
+     * Number of placeholders before the first loaded item if placeholders are enabled, otherwise 0.
+     */
+    @IntRange(from = 0)
+    private val leadingPlaceholderCount: Int
 ) {
     /**
      * Coerces [anchorPosition] to closest loaded value in [pages].
@@ -87,12 +92,30 @@ class PagingState<Key : Any, Value : Any> internal constructor(
         }
     }
 
+    /**
+     * @return `true` if all loaded pages are empty or no pages were loaded when this [PagingState]
+     * was created, `false` otherwise.
+     */
+    fun isEmpty() = pages.all { it.data.isEmpty() }
+
+    /**
+     * @return The first loaded item in the list or `null` if all loaded pages are empty or no pages
+     * were loaded when this [PagingState] was created.
+     */
+    fun firstItemOrNull(): Value? = pages.firstOrNull { it.data.isNotEmpty() }?.data?.firstOrNull()
+
+    /**
+     * @return The last loaded item in the list or `null` if all loaded pages are empty or no pages
+     * were loaded when this [PagingState] was created.
+     */
+    fun lastItemOrNull(): Value? = pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
+
     private inline fun <T> anchorPositionToPagedIndices(
         anchorPosition: Int,
         block: (pageIndex: Int, index: Int) -> T
     ): T {
         var pageIndex = 0
-        var index = anchorPosition - placeholdersBefore
+        var index = anchorPosition - leadingPlaceholderCount
         while (pageIndex < pages.lastIndex && index > pages[pageIndex].data.lastIndex) {
             index -= pages[pageIndex].data.size
             pageIndex++

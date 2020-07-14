@@ -119,7 +119,7 @@ data class RRect(
      * recreating the object each time.
      */
     fun contains(point: Offset): Boolean {
-        if (point.dx < left || point.dx >= right || point.dy < top || point.dy >= bottom) {
+        if (point.x < left || point.x >= right || point.y < top || point.y >= bottom) {
             return false; // outside bounding box
         }
 
@@ -131,32 +131,32 @@ data class RRect(
         val radiusY: Float
         // check whether point is in one of the rounded corner areas
         // x, y -> translate to ellipse center
-        if (point.dx < left + scaled.topLeftRadiusX &&
-            point.dy < top + scaled.topLeftRadiusY
+        if (point.x < left + scaled.topLeftRadiusX &&
+            point.y < top + scaled.topLeftRadiusY
         ) {
-            x = point.dx - left - scaled.topLeftRadiusX
-            y = point.dy - top - scaled.topLeftRadiusY
+            x = point.x - left - scaled.topLeftRadiusX
+            y = point.y - top - scaled.topLeftRadiusY
             radiusX = scaled.topLeftRadiusX
             radiusY = scaled.topLeftRadiusY
-        } else if (point.dx > right - scaled.topRightRadiusX &&
-            point.dy < top + scaled.topRightRadiusY
+        } else if (point.x > right - scaled.topRightRadiusX &&
+            point.y < top + scaled.topRightRadiusY
         ) {
-            x = point.dx - right + scaled.topRightRadiusX
-            y = point.dy - top - scaled.topRightRadiusY
+            x = point.x - right + scaled.topRightRadiusX
+            y = point.y - top - scaled.topRightRadiusY
             radiusX = scaled.topRightRadiusX
             radiusY = scaled.topRightRadiusY
-        } else if (point.dx > right - scaled.bottomRightRadiusX &&
-            point.dy > bottom - scaled.bottomRightRadiusY
+        } else if (point.x > right - scaled.bottomRightRadiusX &&
+            point.y > bottom - scaled.bottomRightRadiusY
         ) {
-            x = point.dx - right + scaled.bottomRightRadiusX
-            y = point.dy - bottom + scaled.bottomRightRadiusY
+            x = point.x - right + scaled.bottomRightRadiusX
+            y = point.y - bottom + scaled.bottomRightRadiusY
             radiusX = scaled.bottomRightRadiusX
             radiusY = scaled.bottomRightRadiusY
-        } else if (point.dx < left + scaled.bottomLeftRadiusX &&
-            point.dy > bottom - scaled.bottomLeftRadiusY
+        } else if (point.x < left + scaled.bottomLeftRadiusX &&
+            point.y > bottom - scaled.bottomLeftRadiusY
         ) {
-            x = point.dx - left - scaled.bottomLeftRadiusX
-            y = point.dy - bottom + scaled.bottomLeftRadiusY
+            x = point.x - left - scaled.bottomLeftRadiusX
+            y = point.y - bottom + scaled.bottomLeftRadiusY
             radiusX = scaled.bottomLeftRadiusX
             radiusY = scaled.bottomLeftRadiusY
         } else {
@@ -169,24 +169,6 @@ data class RRect(
         // check if the point is inside the unit circle
         return newX * newX + newY * newY <= 1.0f
     }
-
-    // Kept this with a deprecated annotation to facilitate porting other code that uses
-    // the function's old name/location
-    @Deprecated(
-        "renamed to avoid conceptual naming collision with android inflate",
-        replaceWith = ReplaceWith("grow(delta)", "androidx.ui.geometry.grow"),
-        level = DeprecationLevel.ERROR
-    )
-    fun inflate(delta: Float): RRect = grow(delta)
-
-    // Kept this with a deprecated annotation to facilitate porting other code that uses
-    // the function's old name/location
-    @Deprecated(
-        "renamed to avoid conceptual naming collision with android inflate",
-        replaceWith = ReplaceWith("shrink(delta)", "androidx.ui.geometry.shrink"),
-        level = DeprecationLevel.ERROR
-    )
-    fun deflate(delta: Float): RRect = shrink(delta)
 
     override fun toString(): String {
         val tlRadius = topLeftRadius()
@@ -302,17 +284,17 @@ fun RRect(
  * Construct a rounded rectangle from its left, top, right, and bottom edges,
  * and topLeft, topRight, bottomRight, and bottomLeft radii.
  *
- * The corner radii default to [Radius.zero], i.e. right-angled corners.
+ * The corner radii default to [Radius.Zero], i.e. right-angled corners.
  */
 fun RRect(
     left: Float,
     top: Float,
     right: Float,
     bottom: Float,
-    topLeft: Radius = Radius.zero,
-    topRight: Radius = Radius.zero,
-    bottomRight: Radius = Radius.zero,
-    bottomLeft: Radius = Radius.zero
+    topLeft: Radius = Radius.Zero,
+    topRight: Radius = Radius.Zero,
+    bottomRight: Radius = Radius.Zero,
+    bottomLeft: Radius = Radius.Zero
 ): RRect = RRect(
     left = left,
     top = top,
@@ -332,14 +314,14 @@ fun RRect(
  * Construct a rounded rectangle from its bounding box and and topLeft,
  * topRight, bottomRight, and bottomLeft radii.
  *
- * The corner radii default to [Radius.zero], i.e. right-angled corners
+ * The corner radii default to [Radius.Zero], i.e. right-angled corners
  */
 fun RRect(
     rect: Rect,
-    topLeft: Radius = Radius.zero,
-    topRight: Radius = Radius.zero,
-    bottomRight: Radius = Radius.zero,
-    bottomLeft: Radius = Radius.zero
+    topLeft: Radius = Radius.Zero,
+    topRight: Radius = Radius.Zero,
+    bottomRight: Radius = Radius.Zero,
+    bottomLeft: Radius = Radius.Zero
 ): RRect = RRect(
     left = rect.left,
     top = rect.top,
@@ -356,27 +338,27 @@ fun RRect(
 )
 
 /** The top-left [Radius]. */
-fun RRect.topLeftRadius(): Radius = Radius.elliptical(topLeftRadiusX, topLeftRadiusY)
+fun RRect.topLeftRadius(): Radius = Radius(topLeftRadiusX, topLeftRadiusY)
 
 /**  The top-right [Radius]. */
-fun RRect.topRightRadius(): Radius = Radius.elliptical(topRightRadiusX, topRightRadiusY)
+fun RRect.topRightRadius(): Radius = Radius(topRightRadiusX, topRightRadiusY)
 
 /**  The bottom-right [Radius]. */
-fun RRect.bottomRightRadius(): Radius = Radius.elliptical(bottomRightRadiusX, bottomRightRadiusY)
+fun RRect.bottomRightRadius(): Radius = Radius(bottomRightRadiusX, bottomRightRadiusY)
 
 /** The bottom-left [Radius]. */
-fun RRect.bottomLeftRadius(): Radius = Radius.elliptical(bottomLeftRadiusX, bottomLeftRadiusY)
+fun RRect.bottomLeftRadius(): Radius = Radius(bottomLeftRadiusX, bottomLeftRadiusY)
 
 /** Returns a new [RRect] translated by the given offset. */
 fun RRect.shift(offset: Offset): RRect = RRect(
-    left = left + offset.dx,
-    top = top + offset.dy,
-    right = right + offset.dx,
-    bottom = bottom + offset.dy,
-    topLeft = Radius.elliptical(topLeftRadiusX, topLeftRadiusY),
-    topRight = Radius.elliptical(topRightRadiusX, topRightRadiusY),
-    bottomRight = Radius.elliptical(bottomRightRadiusX, bottomRightRadiusY),
-    bottomLeft = Radius.elliptical(bottomLeftRadiusX, bottomLeftRadiusY)
+    left = left + offset.x,
+    top = top + offset.y,
+    right = right + offset.x,
+    bottom = bottom + offset.y,
+    topLeft = Radius(topLeftRadiusX, topLeftRadiusY),
+    topRight = Radius(topRightRadiusX, topRightRadiusY),
+    bottomRight = Radius(bottomRightRadiusX, bottomRightRadiusY),
+    bottomLeft = Radius(bottomLeftRadiusX, bottomLeftRadiusY)
 )
 
 /**
@@ -388,10 +370,10 @@ fun RRect.grow(delta: Float): RRect = RRect(
     top = top - delta,
     right = right + delta,
     bottom = bottom + delta,
-    topLeft = Radius.elliptical(topLeftRadiusX + delta, topLeftRadiusY + delta),
-    topRight = Radius.elliptical(topRightRadiusX + delta, topRightRadiusY + delta),
-    bottomRight = Radius.elliptical(bottomRightRadiusX + delta, bottomRightRadiusY + delta),
-    bottomLeft = Radius.elliptical(bottomLeftRadiusX + delta, bottomLeftRadiusY + delta)
+    topLeft = Radius(topLeftRadiusX + delta, topLeftRadiusY + delta),
+    topRight = Radius(topRightRadiusX + delta, topRightRadiusY + delta),
+    bottomRight = Radius(bottomRightRadiusX + delta, bottomRightRadiusY + delta),
+    bottomLeft = Radius(bottomLeftRadiusX + delta, bottomLeftRadiusY + delta)
 )
 
 fun RRect.withRadius(radius: Radius): RRect = RRect(

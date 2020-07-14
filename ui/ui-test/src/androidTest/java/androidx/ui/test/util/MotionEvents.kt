@@ -17,7 +17,7 @@
 package androidx.ui.test.util
 
 import android.view.MotionEvent
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 
@@ -26,11 +26,11 @@ internal class MotionEventRecorder {
     private val _events = mutableListOf<MotionEvent>()
     val events get() = _events as List<MotionEvent>
 
-    fun clear() {
+    fun disposeEvents() {
         _events.removeAll { it.recycle(); true }
     }
 
-    fun sendEvent(event: MotionEvent) {
+    fun recordEvent(event: MotionEvent) {
         _events.add(MotionEvent.obtain(event))
     }
 }
@@ -54,24 +54,51 @@ internal fun MotionEventRecorder.assertHasValidEventTimes() {
 }
 
 internal fun MotionEvent.verify(
-    curve: (Long) -> PxPosition,
+    curve: (Long) -> Offset,
     expectedAction: Int,
     expectedRelativeTime: Long
 ) {
-    verify(curve(expectedRelativeTime), expectedAction, expectedRelativeTime)
+    verifyEvent(1, expectedAction, 0, expectedRelativeTime)
+    // x and y can just be taken from the function. We're not testing the function, we're
+    // testing if the MotionEvent sampled the function at the correct point
+    verifyPointer(0, curve(expectedRelativeTime))
 }
 
 internal fun MotionEvent.verify(
-    expectedPosition: PxPosition,
+    expectedPosition: Offset,
     expectedAction: Int,
     expectedRelativeTime: Long
 ) {
-    assertThat(action).isEqualTo(expectedAction)
+    verifyEvent(1, expectedAction, 0, expectedRelativeTime)
+    verifyPointer(0, expectedPosition)
+}
+
+internal fun MotionEvent.verifyEvent(
+    expectedPointerCount: Int,
+    expectedAction: Int,
+    expectedActionIndex: Int,
+    expectedRelativeTime: Long
+) {
+    assertThat(pointerCount).isEqualTo(expectedPointerCount)
+    assertThat(actionMasked).isEqualTo(expectedAction)
+    assertThat(actionIndex).isEqualTo(expectedActionIndex)
     assertThat(relativeTime).isEqualTo(expectedRelativeTime)
-    // x and y can just be taken from the function. We're not testing the function, we're
-    // testing if the MotionEvent sampled the function at the correct point
-    assertThat(x).isEqualTo(expectedPosition.x.value)
-    assertThat(y).isEqualTo(expectedPosition.y.value)
+}
+
+internal fun MotionEvent.verifyPointer(
+    expectedPointerId: Int,
+    expectedPosition: Offset
+) {
+    var index = -1
+    for (i in 0 until pointerCount) {
+        if (getPointerId(i) == expectedPointerId) {
+            index = i
+            break
+        }
+    }
+    assertThat(index).isAtLeast(0)
+    assertThat(getX(index)).isEqualTo(expectedPosition.x)
+    assertThat(getY(index)).isEqualTo(expectedPosition.y)
 }
 
 /**
@@ -84,9 +111,9 @@ fun List<MotionEvent>.between(t0: Long, t1: Long): List<MotionEvent> {
 /**
  * Checks that the coordinates are progressing in a monotonous direction
  */
-fun List<MotionEvent>.isMonotonicBetween(start: PxPosition, end: PxPosition) {
-    map { it.x }.isMonotonicBetween(start.x.value, end.x.value, 1e-6f)
-    map { it.y }.isMonotonicBetween(start.y.value, end.y.value, 1e-6f)
+fun List<MotionEvent>.isMonotonicBetween(start: Offset, end: Offset) {
+    map { it.x }.isMonotonicBetween(start.x, end.x, 1e-6f)
+    map { it.y }.isMonotonicBetween(start.y, end.y, 1e-6f)
 }
 
 /**

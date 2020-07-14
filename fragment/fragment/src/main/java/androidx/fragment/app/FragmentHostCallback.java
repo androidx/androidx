@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -47,7 +48,31 @@ import java.io.PrintWriter;
  * Fragments may be hosted by any object; such as an {@link Activity}. In order to
  * host fragments, implement {@link FragmentHostCallback}, overriding the methods
  * applicable to the host.
+ * <p>
+ * FragmentManager changes its behavior based on what optional interfaces your
+ * FragmentHostCallback implements. This includes the following:
+ * <ul>
+ *     <li><strong>{@link ActivityResultRegistryOwner}</strong>: Removes the need to
+ *     override {@link #onStartIntentSenderFromFragment} or
+ *     {@link #onRequestPermissionsFromFragment}.</li>
+ *     <li><strong>{@link FragmentOnAttachListener}</strong>: Removes the need to
+ *     manually call {@link FragmentManager#addFragmentOnAttachListener} from your
+ *     host in order to receive {@link FragmentOnAttachListener#onAttachFragment} callbacks
+ *     for the {@link FragmentController#getSupportFragmentManager()}.</li>
+ *     <li><strong>{@link androidx.activity.OnBackPressedDispatcherOwner}</strong>: Removes
+ *     the need to manually call
+ *     {@link FragmentManager#popBackStackImmediate()} when handling the system
+ *     back button.</li>
+ *     <li><strong>{@link androidx.lifecycle.ViewModelStoreOwner}</strong>: Removes the need
+ *     for your {@link FragmentController} to call
+ *     {@link FragmentController#retainNestedNonConfig()} or
+ *     {@link FragmentController#restoreAllState(Parcelable, FragmentManagerNonConfig)}.</li>
+ * </ul>
+ *
+ * @param <E> the type of object that's currently hosting the fragments. An instance of this
+ *           class must be returned by {@link #onGetHost()}.
  */
+@SuppressWarnings("deprecation")
 public abstract class FragmentHostCallback<E> extends FragmentContainer {
     @Nullable private final Activity mActivity;
     @NonNull private final Context mContext;
@@ -61,6 +86,7 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
                 windowAnimations);
     }
 
+    @SuppressWarnings("deprecation")
     FragmentHostCallback(@NonNull FragmentActivity activity) {
         this(activity, activity /*context*/, new Handler(), 0 /*windowAnimations*/);
     }
@@ -224,8 +250,5 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
     @NonNull
     Handler getHandler() {
         return mHandler;
-    }
-
-    void onAttachFragment(@NonNull Fragment fragment) {
     }
 }

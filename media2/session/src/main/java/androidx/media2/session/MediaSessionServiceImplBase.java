@@ -38,6 +38,7 @@ import androidx.media2.session.MediaSessionService.MediaNotification;
 import androidx.media2.session.MediaSessionService.MediaSessionServiceImpl;
 import androidx.versionedparcelable.ParcelImpl;
 
+import java.io.Closeable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -216,7 +217,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
     }
 
     private static final class MediaSessionServiceStub extends IMediaSessionService.Stub
-            implements AutoCloseable {
+            implements Closeable {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         final WeakReference<MediaSessionServiceImplBase> mServiceImpl;
         @SuppressWarnings("WeakerAccess") /* synthetic access */

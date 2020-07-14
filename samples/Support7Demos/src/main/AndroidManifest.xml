@@ -104,6 +104,7 @@
                 android:process=":mrp">
             <intent-filter>
                 <action android:name="android.media.MediaRouteProviderService" />
+                <action android:name="android.media.MediaRoute2ProviderService" />
             </intent-filter>
         </service>
 
@@ -112,8 +113,11 @@
             android:process=":dynamic_mrp">
             <intent-filter>
                 <action android:name="android.media.MediaRouteProviderService" />
+                <action android:name="android.media.MediaRoute2ProviderService" />
             </intent-filter>
         </service>
+
+        <receiver android:name="androidx.mediarouter.media.MediaTransferReceiver" />
 
         <!-- GridLayout Support Samples -->
 
@@ -228,7 +232,7 @@
 
         <activity android:name=".app.ActionBarActionMode"
                   android:label="@string/action_bar_action_mode"
-                  android:theme="@style/Theme.Custom">
+                  android:theme="@style/Theme.Custom.WithActionMode">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
@@ -289,6 +293,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".app.AppCompatWidgetsToggleButtons"
+            android:label="@string/appcompat_widgets_toggle_buttons"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".app.MenuItemIconTinting"
                   android:label="@string/menu_item_icon_tinting"
                   android:theme="@style/Theme.Custom.NoActionBar">
@@ -331,7 +344,7 @@
 
         <activity android:name=".app.ToolbarActionMode"
                   android:label="@string/toolbar_action_mode"
-                  android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+                  android:theme="@style/Theme.Custom.NoActionBar.WithActionMode">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
@@ -741,6 +754,7 @@
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

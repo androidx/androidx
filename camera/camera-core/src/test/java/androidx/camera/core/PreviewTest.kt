@@ -24,11 +24,11 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
-import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -40,6 +40,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import java.util.Collections
 import java.util.concurrent.ExecutionException
 
 /**
@@ -72,24 +73,19 @@ class PreviewTest {
     @After
     @Throws(ExecutionException::class, InterruptedException::class)
     fun tearDown() {
-        InstrumentationRegistry.getInstrumentation()
-            .runOnMainSync { CameraX.unbindAll() }
         CameraX.shutdown().get()
     }
 
     @Test
     fun viewPortCropSize() {
         val expectedSurfaceRequest = bindToLifecycleAndGetSurfaceRequest(
-            ViewPort.Builder()
-                .setAspectRatio(Rational(1, 1))
-                .setScaleType(ViewPort.FILL_CENTER)
-                .setRotation(Surface.ROTATION_0).build()
+            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
         )
         // The expected value is based on fitting the 1:1 view port into a rect with the size of
         // FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.
         val expectedPadding = (FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.width -
                 FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height) / 2
-        Truth.assertThat(expectedSurfaceRequest.viewPortRect).isEqualTo(
+        Truth.assertThat(expectedSurfaceRequest.cropRect).isEqualTo(
             Rect(
                 expectedPadding,
                 0,
@@ -120,16 +116,11 @@ class PreviewTest {
         preview.setSurfaceProvider { surfaceRequest = it }
 
         // Act.
-        val lifecycleOwner = FakeLifecycleOwner()
-        InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            CameraX.bindToLifecycle(
-                lifecycleOwner,
-                CameraSelector.DEFAULT_BACK_CAMERA,
-                viewPort,
-                preview
-            )
-            lifecycleOwner.startAndResume()
-        }
+        val cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(ApplicationProvider
+            .getApplicationContext<Context>(), CameraSelector.DEFAULT_BACK_CAMERA)
+
+        cameraUseCaseAdapter.setViewPort(viewPort)
+        cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(preview))
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         return surfaceRequest!!
     }

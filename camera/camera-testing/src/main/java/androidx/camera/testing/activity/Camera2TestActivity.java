@@ -230,6 +230,7 @@ public class Camera2TestActivity extends Activity {
     /**
      * Creates a new {@link CameraCaptureSession} for camera preview.
      */
+    @SuppressWarnings("deprecation") /* createCaptureSession */
     void createCameraPreviewSession() {
         try {
             SurfaceTexture texture = mTextureView.getSurfaceTexture();

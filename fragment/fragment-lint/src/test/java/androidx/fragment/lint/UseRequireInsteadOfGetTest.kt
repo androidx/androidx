@@ -48,10 +48,13 @@ class UseRequireInsteadOfGetTest {
           public void getHost() {
 
           }
-          public void getParentFragment() {
+          public Fragment getParentFragment() {
 
           }
           public void getView() {
+
+          }
+          public void requireView() {
 
           }
         }
@@ -651,6 +654,86 @@ class UseRequireInsteadOfGetTest {
           @@ -39 +39
           -     fragment.view!!
           +     fragment.requireView()
+        """.trimIndent()
+            )
+    }
+
+    @Test
+    fun `kotlin get then require`() {
+        // Note we don't import a preconditions stub here because we use kotlin's built-in
+        useRequireLint()
+            .files(
+                fragmentStub,
+                kotlin(
+                    """
+              package foo
+
+              import androidx.fragment.app.Fragment
+
+              class Test : Fragment() {
+                fun test() {
+                  parentFragment?.requireView()!!
+                }
+              }
+            """
+                ).indented()
+            )
+            .allowCompilationErrors(false)
+            .run()
+            .expect(
+                """
+          src/foo/Test.kt:7: Error: Use parentFragment!!.requireView() instead of parentFragment?.requireView()!! [UseRequireInsteadOfGet]
+              parentFragment?.requireView()!!
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          1 errors, 0 warnings
+        """.trimIndent()
+            )
+            .expectFixDiffs(
+                """
+          Fix for src/foo/Test.kt line 7: Replace with parentFragment!!.requireView():
+          @@ -7 +7
+          -     parentFragment?.requireView()!!
+          +     parentFragment!!.requireView()
+        """.trimIndent()
+            )
+    }
+
+    @Test
+    fun `simple kotlin get non null with require`() {
+        // Note we don't import a preconditions stub here because we use kotlin's built-in
+        useRequireLint()
+            .files(
+                fragmentStub,
+                kotlin(
+                    """
+              package foo
+
+              import androidx.fragment.app.Fragment
+
+              class Test : Fragment() {
+                fun test() {
+                  parentFragment!!.requireView()
+                }
+              }
+            """
+                ).indented()
+            )
+            .allowCompilationErrors(false)
+            .run()
+            .expect(
+                """
+          src/foo/Test.kt:7: Error: Use requireParentFragment() instead of parentFragment!! [UseRequireInsteadOfGet]
+              parentFragment!!.requireView()
+              ~~~~~~~~~~~~~~~~
+          1 errors, 0 warnings
+        """.trimIndent()
+            )
+            .expectFixDiffs(
+                """
+          Fix for src/foo/Test.kt line 7: Replace with requireParentFragment():
+          @@ -7 +7
+          -     parentFragment!!.requireView()
+          +     requireParentFragment().requireView()
         """.trimIndent()
             )
     }

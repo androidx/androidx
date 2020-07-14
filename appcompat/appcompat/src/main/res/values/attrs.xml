@@ -110,6 +110,10 @@
              action bar. This will be inherited by any widget inflated
              into the action bar. -->
         <attr name="actionBarTheme" format="reference" />
+        <!-- Reference to a theme that should be used to inflate the
+             action bar in action mode. This will be inherited by any widget inflated
+             into the action bar. -->
+        <attr name="actionModeTheme" format="reference" />
         <!-- Reference to a theme that should be used to inflate widgets
              and layouts destined for the action bar. Most of the time
              this will be a reference to the current theme, but when
@@ -162,9 +166,11 @@
         <!-- Drawable to use for the Web Search action button in WebView selection action modes -->
         <attr name="actionModeWebSearchDrawable" format="reference"/>
 
+        <!-- Content description to use for the close action mode button -->
+        <attr name="actionModeCloseContentDescription" format="string"/>
+
         <!-- PopupWindow style to use for action modes when showing as a window overlay. -->
         <attr name="actionModePopupWindowStyle" format="reference"/>
-
 
         <!-- =================== -->
         <!-- Text styles -->

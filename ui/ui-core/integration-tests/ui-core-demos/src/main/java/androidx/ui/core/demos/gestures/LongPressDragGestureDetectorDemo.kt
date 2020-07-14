@@ -24,26 +24,28 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.longPressDragGestureFilter
 import androidx.ui.core.gesture.LongPressDragObserver
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
+import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.offset
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 
 /**
- * Simple demo that shows off TouchSlopDragGestureDetector.
+ * Simple [longPressDragGestureFilter] demo.
  */
 @Composable
-fun LongPressDragGestureDetectorDemo() {
+fun LongPressDragGestureFilterDemo() {
 
-    val offset = state { PxPosition.Origin }
+    val offset = state { Offset.Zero }
     val color = state { Grey }
 
     val longPressDragObserver =
         object : LongPressDragObserver {
 
-            override fun onLongPress(pxPosition: PxPosition) {
+            override fun onLongPress(pxPosition: Offset) {
                 color.value = Red
             }
 
@@ -52,12 +54,12 @@ fun LongPressDragGestureDetectorDemo() {
                 color.value = Blue
             }
 
-            override fun onDrag(dragDistance: PxPosition): PxPosition {
+            override fun onDrag(dragDistance: Offset): Offset {
                 offset.value += dragDistance
                 return dragDistance
             }
 
-            override fun onStop(velocity: PxPosition) {
+            override fun onStop(velocity: Offset) {
                 color.value = Grey
             }
         }
@@ -65,12 +67,16 @@ fun LongPressDragGestureDetectorDemo() {
     val (offsetX, offsetY) =
         with(DensityAmbient.current) { offset.value.x.toDp() to offset.value.y.toDp() }
 
-    Box(
-        Modifier.offset(offsetX, offsetY)
-            .fillMaxSize()
-            .wrapContentSize(Alignment.Center)
-            .longPressDragGestureFilter(longPressDragObserver)
-            .preferredSize(96.dp),
-        backgroundColor = color.value
-    )
+    Column {
+        Text("Demonstrates dragging that only begins once a long press has occurred!")
+        Text("Dragging only occurs once you have long pressed on the box.")
+        Box(
+            Modifier.offset(offsetX, offsetY)
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+                .preferredSize(192.dp)
+                .longPressDragGestureFilter(longPressDragObserver),
+            backgroundColor = color.value
+        )
+    }
 }

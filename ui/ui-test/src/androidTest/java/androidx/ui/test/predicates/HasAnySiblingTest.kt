@@ -20,10 +20,10 @@ import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.find
-import androidx.ui.test.findAll
-import androidx.ui.test.hasAnySiblingThat
-import androidx.ui.test.hasParentThat
+import androidx.ui.test.onNode
+import androidx.ui.test.onAllNodes
+import androidx.ui.test.hasAnySibling
+import androidx.ui.test.hasParent
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.util.BoundaryNode
 import org.junit.Rule
@@ -49,7 +49,7 @@ class HasAnySiblingTest {
             }
         }
 
-        find(hasAnySiblingThat(hasTestTag("Sibling")))
+        onNode(hasAnySibling(hasTestTag("Sibling")))
             .assert(hasTestTag("Me"))
     }
 
@@ -64,7 +64,7 @@ class HasAnySiblingTest {
             }
         }
 
-        findAll(hasAnySiblingThat(hasTestTag("Sibling")))
+        onAllNodes(hasAnySibling(hasTestTag("Sibling")))
             .assertCountEquals(2)
     }
 
@@ -78,7 +78,7 @@ class HasAnySiblingTest {
             }
         }
 
-        findAll(hasAnySiblingThat(hasTestTag("Sibling")))
+        onAllNodes(hasAnySibling(hasTestTag("Sibling")))
             .assertCountEquals(2)
     }
 
@@ -96,7 +96,7 @@ class HasAnySiblingTest {
             }
         }
 
-        findAll(hasAnySiblingThat(hasTestTag("Sibling")))
+        onAllNodes(hasAnySibling(hasTestTag("Sibling")))
             .assertCountEquals(2)
     }
 
@@ -108,7 +108,7 @@ class HasAnySiblingTest {
             }
         }
 
-        find(hasAnySiblingThat(hasTestTag("Me")))
+        onNode(hasAnySibling(hasTestTag("Me")))
             .assertDoesNotExist()
     }
 
@@ -121,7 +121,7 @@ class HasAnySiblingTest {
             }
         }
 
-        find(hasAnySiblingThat(hasTestTag("Sibling2")))
+        onNode(hasAnySibling(hasTestTag("Sibling2")))
             .assertDoesNotExist()
     }
 
@@ -137,7 +137,7 @@ class HasAnySiblingTest {
             }
         }
 
-        find(hasAnySiblingThat(hasTestTag("Sibling")) and hasTestTag("Me"))
+        onNode(hasAnySibling(hasTestTag("Sibling")) and hasTestTag("Me"))
             .assertDoesNotExist()
     }
 
@@ -154,7 +154,7 @@ class HasAnySiblingTest {
             }
         }
 
-        find(hasParentThat(hasAnySiblingThat(hasTestTag("ParentSibling"))))
+        onNode(hasParent(hasAnySibling(hasTestTag("ParentSibling"))))
             .assert(hasTestTag("Me"))
     }
 }

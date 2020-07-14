@@ -22,6 +22,8 @@ import androidx.room.FtsOptions.MatchInfo
 import androidx.room.FtsOptions.Order
 import androidx.room.ext.AnnotationBox
 import androidx.room.ext.hasAnnotation
+import androidx.room.ext.name
+import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.toAnnotationBox
 import androidx.room.parser.FtsVersion
 import androidx.room.parser.SQLTypeAffinity
@@ -37,15 +39,15 @@ import androidx.room.vo.FtsOptions
 import androidx.room.vo.LanguageId
 import androidx.room.vo.PrimaryKey
 import androidx.room.vo.columnNames
-import com.google.auto.common.MoreTypes
-import javax.lang.model.element.Name
+import asTypeElement
+import isSameType
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 
 class FtsTableEntityProcessor internal constructor(
     baseContext: Context,
     val element: TypeElement,
-    private val referenceStack: LinkedHashSet<Name> = LinkedHashSet()
+    private val referenceStack: LinkedHashSet<String> = LinkedHashSet()
 ) : EntityProcessor {
 
     val context = baseContext.fork(element)
@@ -68,7 +70,7 @@ class FtsTableEntityProcessor internal constructor(
             context.checker.check(extractForeignKeys(entityAnnotation).isEmpty(),
                     element, ProcessorErrors.FOREIGN_KEYS_IN_FTS_ENTITY)
         } else {
-            tableName = element.simpleName.toString()
+            tableName = element.name
         }
 
         val pojo = PojoProcessor.createFor(
@@ -157,12 +159,11 @@ class FtsTableEntityProcessor internal constructor(
             return null
         }
 
-        val defaultType = context.processingEnv.elementUtils
-                    .getTypeElement(Object::class.java.canonicalName).asType()
-        if (context.processingEnv.typeUtils.isSameType(entityType, defaultType)) {
+        val defaultType = context.processingEnv.requireTypeMirror(Object::class)
+        if (entityType.isSameType(context.processingEnv.typeUtils, defaultType)) {
             return null
         }
-        val contentEntityElement = MoreTypes.asElement(entityType) as TypeElement
+        val contentEntityElement = entityType.asTypeElement()
         if (!contentEntityElement.hasAnnotation(androidx.room.Entity::class)) {
             context.logger.e(contentEntityElement,
                     ProcessorErrors.externalContentNotAnEntity(contentEntityElement.toString()))

@@ -35,7 +35,7 @@ class DeleteSurroundingTextInCodePointsEditOpTest {
 
     @Test
     fun test_delete_after() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(2, 2))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(2))
 
         DeleteSurroundingTextInCodePointsEditOp(0, 1).process(eb)
 
@@ -46,7 +46,7 @@ class DeleteSurroundingTextInCodePointsEditOpTest {
 
     @Test
     fun test_delete_before() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(2, 2))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(2))
 
         DeleteSurroundingTextInCodePointsEditOp(1, 0).process(eb)
 
@@ -57,7 +57,7 @@ class DeleteSurroundingTextInCodePointsEditOpTest {
 
     @Test
     fun test_delete_both() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         DeleteSurroundingTextInCodePointsEditOp(1, 1).process(eb)
 
@@ -68,7 +68,7 @@ class DeleteSurroundingTextInCodePointsEditOpTest {
 
     @Test
     fun test_delete_after_multiple() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(4, 4))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(4))
 
         DeleteSurroundingTextInCodePointsEditOp(0, 2).process(eb)
 
@@ -79,7 +79,7 @@ class DeleteSurroundingTextInCodePointsEditOpTest {
 
     @Test
     fun test_delete_before_multiple() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         DeleteSurroundingTextInCodePointsEditOp(2, 0).process(eb)
 
@@ -90,7 +90,7 @@ class DeleteSurroundingTextInCodePointsEditOpTest {
 
     @Test
     fun test_delete_both_multiple() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         DeleteSurroundingTextInCodePointsEditOp(2, 2).process(eb)
 
@@ -113,7 +113,7 @@ class DeleteSurroundingTextInCodePointsEditOpTest {
 
     @Test
     fun test_delete_before_too_many() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         DeleteSurroundingTextInCodePointsEditOp(1000, 0).process(eb)
 
@@ -124,7 +124,7 @@ class DeleteSurroundingTextInCodePointsEditOpTest {
 
     @Test
     fun test_delete_after_too_many() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         DeleteSurroundingTextInCodePointsEditOp(0, 1000).process(eb)
 
@@ -135,7 +135,7 @@ class DeleteSurroundingTextInCodePointsEditOpTest {
 
     @Test
     fun test_delete_both_too_many() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         DeleteSurroundingTextInCodePointsEditOp(1000, 1000).process(eb)
 
@@ -146,7 +146,7 @@ class DeleteSurroundingTextInCodePointsEditOpTest {
 
     @Test
     fun test_delete_composition_no_intersection_preceding_composition() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.setComposition(0, 2)
 
@@ -160,7 +160,7 @@ class DeleteSurroundingTextInCodePointsEditOpTest {
 
     @Test
     fun test_delete_composition_no_intersection_trailing_composition() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.setComposition(8, 10)
 
@@ -174,7 +174,7 @@ class DeleteSurroundingTextInCodePointsEditOpTest {
 
     @Test
     fun test_delete_composition_intersection_preceding_composition() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.setComposition(0, 6)
 
@@ -188,7 +188,7 @@ class DeleteSurroundingTextInCodePointsEditOpTest {
 
     @Test
     fun test_delete_composition_intersection_trailing_composition() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.setComposition(6, 10)
 
@@ -202,7 +202,7 @@ class DeleteSurroundingTextInCodePointsEditOpTest {
 
     @Test
     fun test_delete_covered_composition() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.setComposition(4, 6)
 
@@ -215,7 +215,7 @@ class DeleteSurroundingTextInCodePointsEditOpTest {
 
     @Test
     fun test_delete_composition_covered() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.setComposition(0, 10)
 

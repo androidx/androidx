@@ -17,23 +17,15 @@ package androidx.ui.desktop
 
 import android.content.Context
 import android.view.MotionEvent
-import android.view.ViewGroup
-import android.view.View
-
-import androidx.animation.rootAnimationClockFactory
 import androidx.animation.ManualAnimationClock
+import androidx.animation.rootAnimationClockFactory
 import androidx.compose.Composable
-import androidx.compose.Providers
-import androidx.compose.Recomposer
-import androidx.ui.core.setContent
-import androidx.ui.core.TextInputServiceAmbient
-import androidx.ui.input.TextInputService
-
+import androidx.ui.desktop.view.LayoutScope
 import javax.swing.SwingUtilities
-
 import org.jetbrains.skija.Canvas
 
-fun SkiaWindow.setContent(content: @Composable () -> Unit) {
+@OptIn(androidx.animation.InternalAnimationApi::class)
+fun Window.setContent(content: @Composable () -> Unit) {
     SwingUtilities.invokeLater {
         val fps = 60
         val clocks = mutableListOf<ManualAnimationClock>()
@@ -43,28 +35,62 @@ fun SkiaWindow.setContent(content: @Composable () -> Unit) {
             }
         }
 
-        val context = object : Context() {}
-        val viewGroup = object : ViewGroup(context) {}
-        val platformInputService = DesktopPlatformInput()
-        viewGroup.setContent(Recomposer.current(), @Composable {
-            Providers(TextInputServiceAmbient provides TextInputService(
-                platformInputService), children = content)
-        })
-        val view = viewGroup.getChildAt(0)
-        view.onAttachedToWindow()
+        val mainLayout = LayoutScope()
+        mainLayout.setContent(content)
 
-        this.renderer = Renderer(view, clocks, fps, platformInputService)
+        this.renderer = Renderer(
+            mainLayout.context,
+            mainLayout.platformInputService,
+            clocks,
+            fps)
+
+        this.setFps(fps)
+    }
+}
+
+@OptIn(androidx.animation.InternalAnimationApi::class)
+fun Dialog.setContent(content: @Composable () -> Unit) {
+    SwingUtilities.invokeLater {
+        val fps = 60
+        val clocks = mutableListOf<ManualAnimationClock>()
+        rootAnimationClockFactory = {
+            ManualAnimationClock(0L).also {
+                clocks.add(it)
+            }
+        }
+
+        val mainLayout = LayoutScope()
+        mainLayout.setContent(content)
+
+        this.renderer = Renderer(
+            mainLayout.context,
+            mainLayout.platformInputService,
+            clocks,
+            fps)
+
         this.setFps(fps)
     }
 }
 
 private class Renderer(
-    val view: View,
+    val context: Context,
+    val platformInputService: DesktopPlatformInput,
     val clocks: List<ManualAnimationClock>,
-    val fps: Int,
-    val platformInputService: DesktopPlatformInput
+    val fps: Int
 ) : SkiaRenderer {
-    var androidCanvas: android.graphics.Canvas? = null
+
+    private val canvases = mutableMapOf<LayoutScope, Canvas?>()
+
+    fun getCanvas(layout: LayoutScope, canvas: Canvas): Canvas? {
+        if (!canvases.containsKey(layout)) {
+            canvases[layout] = canvas
+        }
+        return canvases[layout]
+    }
+
+    fun clearCanvases() {
+        canvases.clear()
+    }
 
     override fun onInit() {
     }
@@ -73,16 +99,14 @@ private class Renderer(
     }
 
     fun draw(canvas: Canvas, width: Int, height: Int) {
-        if (androidCanvas == null) {
-            androidCanvas = android.graphics.Canvas(canvas)
+        for (layout in LayoutScopeGlobal.getLayoutScopes(context)) {
+            // layout.updateLayout(width, height)
+            layout.draw(getCanvas(layout, canvas)!!, width, height)
         }
-        view.onMeasure(width, height)
-        view.onLayout(true, 0, 0, width, height)
-        view.dispatchDraw(androidCanvas!!)
     }
 
     override fun onReshape(canvas: Canvas, width: Int, height: Int) {
-        androidCanvas = null
+        clearCanvases()
         draw(canvas, width, height)
     }
 
@@ -95,22 +119,19 @@ private class Renderer(
 
     override fun onMouseClicked(x: Int, y: Int, modifiers: Int) {}
 
-    override fun onMousePressed(x: Int, y: Int, awtModifiers: Int) {
-        view.dispatchTouchEvent(
-            MotionEvent(x, y, MotionEvent.ACTION_DOWN or modifiers(awtModifiers)))
+    override fun onMousePressed(x: Int, y: Int, modifiers: Int) {
+        getCurrentLayoutScope()?.dispatchTouchEvent(
+            applyLayoutScopeOffset(x, y, MotionEvent.ACTION_DOWN))
     }
 
-    override fun onMouseReleased(x: Int, y: Int, awtModifiers: Int) {
-        view.dispatchTouchEvent(MotionEvent(x, y, MotionEvent.ACTION_UP or modifiers(awtModifiers)))
+    override fun onMouseReleased(x: Int, y: Int, modifiers: Int) {
+        getCurrentLayoutScope()?.dispatchTouchEvent(
+            applyLayoutScopeOffset(x, y, MotionEvent.ACTION_UP))
     }
 
-    override fun onMouseDragged(x: Int, y: Int, awtModifiers: Int) {
-        view.dispatchTouchEvent(MotionEvent(x, y,
-            MotionEvent.ACTION_MOVE or modifiers(awtModifiers)))
-    }
-
-    private fun modifiers(awtModifiers: Int): Int {
-        return 0
+    override fun onMouseDragged(x: Int, y: Int, modifiers: Int) {
+        getCurrentLayoutScope()?.dispatchTouchEvent(
+            applyLayoutScopeOffset(x, y, MotionEvent.ACTION_MOVE))
     }
 
     override fun onKeyPressed(code: Int, char: Char) {
@@ -123,5 +144,22 @@ private class Renderer(
 
     override fun onKeyTyped(char: Char) {
         platformInputService.onKeyTyped(char)
+    }
+
+    private fun getCurrentLayoutScope(): LayoutScope? {
+        return LayoutScopeGlobal.getLayoutScopes(context).lastOrNull()
+    }
+
+    private fun applyLayoutScopeOffset(x: Int, y: Int, state: Int): MotionEvent {
+        val currentLayoutScope = getCurrentLayoutScope()
+
+        if (currentLayoutScope == null) {
+            return MotionEvent(x, y, state)
+        }
+
+        var offsetX = currentLayoutScope.x
+        var offsetY = currentLayoutScope.y
+
+        return MotionEvent(x - offsetX, y - offsetY, state)
     }
 }

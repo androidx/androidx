@@ -13,41 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        jcenter()
-    }
-}
-
 rootProject.name = "playground"
+apply from: "../playground-common/playground-include-settings.gradle"
+setupPlayground(this, "..")
 
-def includeProject(name, filePath) {
-    settings.include(name)
-
-    def file
-    if (filePath instanceof String) {
-        file = new File(rootDir, filePath)
-    } else {
-        file = filePath
-    }
-    if (!file.exists()) {
-        // This option is supported so that development/simplify_build_failure.sh can try
-        // deleting entire projects at once to identify the cause of a build failure
-        if (System.getenv("ALLOW_MISSING_PROJECTS") == null) {
-            throw new Exception("Path " + file + " does not exist; cannot include project " + name)
-        }
-    }
-    project(name).projectDir = file
-}
-
-includeBuild("../androidx-plugin")
-
-includeProject(":benchmark:benchmark-common", "benchmark/common")
-includeProject(":fakeannotations", "../fakeannotations")
-includeProject(":lint-checks", "../lint-checks")
+includeProject(":benchmark:benchmark-common", "../benchmark/common")
 includeProject(":lint-checks:tests", "../lint-checks/tests")
 includeProject(":mppsample:mppsample-library", "../mppsample/mppsample-library")
 includeProject(":mppsample:mppsample-executable", "../mppsample/mppsample-executable")

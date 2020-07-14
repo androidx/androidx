@@ -24,4 +24,11 @@ class ViewTreeObserver {
     interface OnGlobalLayoutListener {
         fun onGlobalLayout()
     }
+
+    interface OnScrollChangedListener {
+        fun onScrollChanged()
+    }
+
+    fun addOnGlobalLayoutListener(listener: OnGlobalLayoutListener) {}
+    fun addOnScrollChangedListener(listener: OnScrollChangedListener) {}
 }

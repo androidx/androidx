@@ -17,15 +17,28 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.ui.core.AndroidOwner
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.layout.DpConstraints
-import androidx.ui.test.BigTestConstraints
-import androidx.ui.test.CollectedSizes
+import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSizeIn
 import androidx.ui.test.ComposeTestRule
-import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.setContentAndGetPixelSize
+import androidx.ui.test.SemanticsNodeInteraction
+import androidx.ui.test.assertHeightIsEqualTo
+import androidx.ui.test.assertIsEqualTo
+import androidx.ui.test.assertWidthIsEqualTo
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onRoot
+import androidx.ui.test.getAlignmentLinePosition
+import androidx.ui.test.runOnIdle
+import androidx.ui.text.FirstBaseline
+import androidx.ui.text.LastBaseline
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
+import androidx.ui.unit.Dp
+import androidx.ui.unit.dp
+import androidx.ui.unit.width
 
 fun ComposeTestRule.setMaterialContent(
     modifier: Modifier = Modifier,
@@ -37,29 +50,76 @@ fun ComposeTestRule.setMaterialContent(
         }
     }
 }
-fun <T> ComposeTestRule.runOnIdleComposeWithDensity(action: Density.() -> T): T {
-    return runOnIdleCompose {
+
+fun <T> ComposeTestRule.runOnIdleWithDensity(action: Density.() -> T): T {
+    return runOnIdle {
         density.action()
     }
 }
-fun ComposeTestRule.setMaterialContentAndCollectSizes(
-    modifier: Modifier = Modifier,
-    parentConstraints: DpConstraints = BigTestConstraints,
-    children: @Composable () -> Unit
-): CollectedSizes {
-    val sizes = setMaterialContentAndGetPixelSize(modifier, parentConstraints, children)
-    return CollectedSizes(sizes, density)
+
+fun SemanticsNodeInteraction.getFirstBaselinePosition() = getAlignmentLinePosition(FirstBaseline)
+
+fun SemanticsNodeInteraction.getLastBaselinePosition() = getAlignmentLinePosition(LastBaseline)
+
+fun SemanticsNodeInteraction.assertIsSquareWithSize(expectedSize: Dp) =
+    assertWidthIsEqualTo(expectedSize).assertHeightIsEqualTo(expectedSize)
+
+fun SemanticsNodeInteraction.assertWidthFillsRoot(): SemanticsNodeInteraction {
+    val node = fetchSemanticsNode("Failed to assertWidthFillsScreen")
+    @OptIn(ExperimentalLayoutNodeApi::class)
+    val owner = node.componentNode.owner as AndroidOwner
+    val rootViewWidth = owner.view.width
+
+    with(owner.density) {
+        node.boundsInRoot.width.toDp().assertIsEqualTo(rootViewWidth.toDp())
+    }
+    return this
 }
 
-fun ComposeTestRule.setMaterialContentAndGetPixelSize(
-    modifier: Modifier = Modifier,
-    parentConstraints: DpConstraints = BigTestConstraints,
-    children: @Composable () -> Unit
-): PxSize = setContentAndGetPixelSize(
-    parentConstraints,
-    { setMaterialContent(composable = it) }
-) {
-    MaterialTheme {
-        Surface(modifier = modifier, content = children)
+fun rootWidth(): Dp {
+    val nodeInteraction = onRoot()
+    val node = nodeInteraction.fetchSemanticsNode("Failed to get screen width")
+    @OptIn(ExperimentalLayoutNodeApi::class)
+    val owner = node.componentNode.owner as AndroidOwner
+
+    return with(owner.density) {
+        owner.view.width.toDp()
     }
+}
+
+fun rootHeight(): Dp {
+    val nodeInteraction = onRoot()
+    val node = nodeInteraction.fetchSemanticsNode("Failed to get screen height")
+    @OptIn(ExperimentalLayoutNodeApi::class)
+    val owner = node.componentNode.owner as AndroidOwner
+
+    return with(owner.density) {
+        owner.view.height.toDp()
+    }
+}
+
+/**
+ * Constant to emulate very big but finite constraints
+ */
+val BigTestConstraints = DpConstraints(maxWidth = 5000.dp, maxHeight = 5000.dp)
+
+fun ComposeTestRule.setMaterialContentForSizeAssertions(
+    parentConstraints: DpConstraints = BigTestConstraints,
+    // TODO : figure out better way to make it flexible
+    children: @Composable () -> Unit
+): SemanticsNodeInteraction {
+    setContent {
+        MaterialTheme {
+            Surface {
+                Stack {
+                    Stack(Modifier.preferredSizeIn(parentConstraints)
+                        .testTag("containerForSizeAssertion")) {
+                        children()
+                    }
+                }
+            }
+        }
+    }
+
+    return onNodeWithTag("containerForSizeAssertion")
 }

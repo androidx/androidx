@@ -17,85 +17,110 @@
 package androidx.ui.test.partialgesturescope
 
 import androidx.test.filters.MediumTest
-import androidx.ui.test.GestureToken
-import androidx.ui.test.android.AndroidInputDispatcher
+import androidx.ui.geometry.Offset
+import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doPartialGesture
-import androidx.ui.test.findByTag
-import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendCancel
-import androidx.ui.test.sendDown
+import androidx.ui.test.inputdispatcher.verifyNoGestureInProgress
+import androidx.ui.test.partialgesturescope.Common.partialGesture
+import androidx.ui.test.runOnIdle
+import androidx.ui.test.cancel
+import androidx.ui.test.down
+import androidx.ui.test.up
 import androidx.ui.test.util.ClickableTestBox
-import androidx.ui.test.util.PointerInputRecorder
+import androidx.ui.test.util.MultiPointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
-import androidx.ui.test.util.inMilliseconds
-import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
+import androidx.ui.test.util.expectError
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
+/**
+ * Tests if [cancel] works
+ */
 @MediumTest
-@RunWith(Parameterized::class)
-class SendCancelTest(private val config: TestConfig) {
-    data class TestConfig(val cancelPosition: PxPosition?) {
-        val downPosition = PxPosition(1.px, 1.px)
-    }
-
+class SendCancelTest {
     companion object {
-        private const val tag = "widget"
-
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun createTestSet(): List<TestConfig> {
-            return mutableListOf<TestConfig>().apply {
-                for (x in listOf(2.px, 99.px)) {
-                    for (y in listOf(3.px, 53.px)) {
-                        add(TestConfig(PxPosition(x, y)))
-                    }
-                }
-                add(TestConfig(null))
-            }
-        }
+        private val downPosition1 = Offset(10f, 10f)
+        private val downPosition2 = Offset(20f, 20f)
     }
 
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val dispatcherRule = AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
     @get:Rule
-    val inputDispatcherRule: TestRule = dispatcherRule
+    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
 
-    private val recorder = PointerInputRecorder()
-    private val expectedCancelPosition = config.cancelPosition ?: config.downPosition
+    private val recorder = MultiPointerInputRecorder()
 
-    @Test
-    fun testSendCancel() {
+    @Before
+    fun setUp() {
         // Given some content
         composeTestRule.setContent {
-            ClickableTestBox(recorder, tag = tag)
+            ClickableTestBox(recorder)
         }
+    }
 
+    @Test
+    fun onePointer() {
         // When we inject a down event followed by a cancel event
-        lateinit var token: GestureToken
-        findByTag(tag).doPartialGesture { token = sendDown(config.downPosition) }
-        findByTag(tag).doPartialGesture { sendCancel(token, config.cancelPosition) }
+        partialGesture { down(downPosition1) }
+        partialGesture { cancel() }
 
-        runOnIdleCompose {
+        runOnIdle {
             recorder.run {
-                // Then we have only recorded 1 down event
+                // Then we have recorded just 1 down event
                 assertTimestampsAreIncreasing()
                 assertThat(events).hasSize(1)
-
-                // But the information in the token matches the cancel event
-                assertThat(token.downTime).isEqualTo(events[0].timestamp.inMilliseconds())
-                assertThat(token.eventTime)
-                    .isEqualTo(events[0].timestamp.inMilliseconds() + dispatcherRule.eventPeriod)
-                assertThat(token.lastPosition).isEqualTo(expectedCancelPosition)
             }
+        }
+
+        // And no gesture is in progress
+        partialGesture { inputDispatcher.verifyNoGestureInProgress() }
+    }
+
+    @Test
+    fun twoPointers() {
+        // When we inject two down events followed by a cancel event
+        partialGesture { down(1, downPosition1) }
+        partialGesture { down(2, downPosition2) }
+        partialGesture { cancel() }
+
+        runOnIdle {
+            recorder.run {
+                // Then we have recorded just 2 down events
+                assertTimestampsAreIncreasing()
+                assertThat(events).hasSize(2)
+            }
+        }
+
+        // And no gesture is in progress
+        partialGesture { inputDispatcher.verifyNoGestureInProgress() }
+    }
+
+    @Test
+    fun cancelWithoutDown() {
+        expectError<IllegalStateException> {
+            partialGesture { cancel() }
+        }
+    }
+
+    @Test
+    fun cancelAfterUp() {
+        partialGesture { down(downPosition1) }
+        partialGesture { up() }
+        expectError<IllegalStateException> {
+            partialGesture { cancel() }
+        }
+    }
+
+    @Test
+    fun cancelAfterCancel() {
+        partialGesture { down(downPosition1) }
+        partialGesture { cancel() }
+        expectError<IllegalStateException> {
+            partialGesture { cancel() }
         }
     }
 }

@@ -23,16 +23,17 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.Popup
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.rawDragGestureFilter
+import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
+import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.text.style.TextAlign
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.round
 
@@ -40,32 +41,35 @@ import androidx.ui.unit.round
 fun PopupDragDemo() {
     // TODO fix this demo in RTL (check when draggable handles RTL)
     val offset = state {
-        PxPosition.Origin
+        Offset.Zero
     }
 
     val observer = remember {
         object : DragObserver {
-            override fun onDrag(dragDistance: PxPosition): PxPosition {
+            override fun onDrag(dragDistance: Offset): Offset {
                 offset.value = offset.value + dragDistance
                 return dragDistance
             }
         }
     }
 
-    Popup(alignment = Alignment.TopStart, offset = offset.value.round()) {
-        Stack {
-            Box(
-                Modifier
-                    .rawDragGestureFilter(observer)
-                    .preferredSize(70.dp),
-                shape = CircleShape,
-                backgroundColor = Color.Green,
-                gravity = ContentGravity.Center
-            ) {
-                Text(
-                    text = "This is a popup!",
-                    textAlign = TextAlign.Center
-                )
+    Column {
+        Text("That is a pop up with a dragGestureFilter on it.  You can drag it around!")
+        Popup(alignment = Alignment.TopStart, offset = offset.value.round()) {
+            Stack {
+                Box(
+                    Modifier
+                        .dragGestureFilter(observer)
+                        .preferredSize(70.dp),
+                    shape = CircleShape,
+                    backgroundColor = Color.Green,
+                    gravity = ContentGravity.Center
+                ) {
+                    Text(
+                        text = "This is a popup!",
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }

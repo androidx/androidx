@@ -48,20 +48,55 @@ function runTest() {
   local CLIENT_MODULE_NAME="$CLIENT_MODULE_NAME_BASE$([ "$CLIENT_VERSION" = "tot" ] || echo "-previous")"
   local SERVICE_MODULE_NAME="$SERVICE_MODULE_NAME_BASE$([ "$SERVICE_VERSION" = "tot" ] || echo "-previous")"
 
+  local TEST_DEVICES="$ANDROID_SERIAL"
+  # TODO(b/156594425): Remove following check when previous module depends on lowering minSdk to 16
+  if [ "$CLIENT_VERSION" = "previous" ] || [ "$SERVICE_VERSION" = "previous" ]; then
+    local DEVICES="${ANDROID_SERIAL/,/ }"
+    if [[ -z "${DEVICES}" ]]; then
+      for DEVICE in $($ADB devices | tail -n +2 | awk '{print $1}'); do
+        DEVICES="$DEVICES $DEVICE"
+      done
+    fi
+
+    TEST_DEVICES=""
+    for DEVICE in $DEVICES; do
+      if [[ -z "$DEVICE" ]]; then
+        continue
+      fi
+      # Do not use $($ADB shell getprop ro.build.version.sdk) directly.
+      # It ends with '\r' on the SDK 16, and cause error in arithmetic comparison.
+      DEVICE_SDK_VERSION=$($ADB -s $DEVICE shell getprop ro.build.version.sdk | sed 's/[^0-9]//')
+      if ! [[ "$DEVICE_SDK_VERSION" -ge "19" ]]; then
+        echo "Skipping test on $DEVICE. Only ToT-ToT is supported on the older device (SDK<19)"
+      else
+        TEST_DEVICES="$TEST_DEVICES$DEVICE,"
+      fi
+    done
+    if [[ -z "$TEST_DEVICES" ]]; then
+      echo "No eligible device for test"
+      exit 1
+    fi
+  fi
+
+  if [[ -n "${TEST_DEVICES}" ]]; then
+    TEST_DEVICES="${TEST_DEVICES%,}"
+    echo "Running on ${TEST_DEVICES}"
+  fi
+
   echo "Building modules"
   ./gradlew $CLIENT_MODULE_NAME:assembleAndroidTest || { echo "Client build failed. Aborting."; exit 1; }
   ./gradlew $SERVICE_MODULE_NAME:assembleAndroidTest || { echo "Service build failed. Aborting."; exit 1; }
 
   if [[ -z "$SERVICE_TEST_TARGET" ]]; then
     echo "Running client tests"
-    ./gradlew $SERVICE_MODULE_NAME:installDebugAndroidTest || { echo "Service install failed. Aborting."; exit 1; }
-    ./gradlew $CLIENT_MODULE_NAME:connectedAndroidTest $CLIENT_TEST_TARGET $CUSTOM_OPTIONS || ERROR_CODE=1
+    ANDROID_SERIAL=$TEST_DEVICES ./gradlew $SERVICE_MODULE_NAME:installDebugAndroidTest || { echo "Service install failed. Aborting."; exit 1; }
+    ANDROID_SERIAL=$TEST_DEVICES ./gradlew $CLIENT_MODULE_NAME:connectedAndroidTest $CLIENT_TEST_TARGET $CUSTOM_OPTIONS || ERROR_CODE=1
   fi
 
   if [[ -z "$CLIENT_TEST_TARGET" ]]; then
     echo "Running service tests"
-    ./gradlew $CLIENT_MODULE_NAME:installDebugAndroidTest || { echo "Client install failed. Aborting."; exit 1; }
-    ./gradlew $SERVICE_MODULE_NAME:connectedAndroidTest $SERVICE_TEST_TARGET $CUSTOM_OPTIONS || ERROR_CODE=1
+    ANDROID_SERIAL=$TEST_DEVICES ./gradlew $CLIENT_MODULE_NAME:installDebugAndroidTest || { echo "Client install failed. Aborting."; exit 1; }
+    ANDROID_SERIAL=$TEST_DEVICES ./gradlew $SERVICE_MODULE_NAME:connectedAndroidTest $SERVICE_TEST_TARGET $CUSTOM_OPTIONS || ERROR_CODE=1
   fi
 
   echo ">>>>>>>>>>>>>>>>>>>>>>>> Test Ended: Client-$CLIENT_VERSION & Service-$SERVICE_VERSION <<<<<<<<<<<<<<<<<<<<<<<<<<"
@@ -75,6 +110,18 @@ then
   echo "Current working directory is $OLD_PWD"
   echo "Please re-run this script in any folder under frameworks/support."
   exit 1;
+fi
+
+if [ "`uname`" == "Darwin" ]; then
+  PLATFORM="darwin"
+else
+  PLATFORM="linux"
+fi
+ADB="../../prebuilts/fullsdk-$PLATFORM/platform-tools/adb"
+if [ ! -f "$ADB" ]; then
+  echo "adb not found at $ADB, finding adb in \$PATH..." 1>&2
+  command -v adb > /dev/null 2>&1 || { echo "adb not found in \$PATH" 1>&2; exit 1; }
+  ADB="adb"
 fi
 
 case ${1} in

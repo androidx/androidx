@@ -35,7 +35,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
@@ -52,8 +51,9 @@ import org.junit.runner.RunWith
 @LargeTest
 class PreferenceViewHolderStateTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(PreferenceTestHelperActivity::class.java)
+    val activityRule = androidx.test.rule.ActivityTestRule(PreferenceTestHelperActivity::class.java)
 
     private lateinit var fragment: PreferenceFragmentCompat
 

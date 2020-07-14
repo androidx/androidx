@@ -21,12 +21,15 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
+import androidx.room.ext.asDeclaredType
+import androidx.room.ext.isInterface
+import androidx.room.ext.name
 import androidx.room.processor.OnConflictProcessor
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.KotlinDefaultMethodDelegateBinder
 import androidx.room.vo.Dao
-import androidx.room.vo.KotlinDefaultMethodDelegate
 import androidx.room.vo.InsertionMethod
+import androidx.room.vo.KotlinDefaultMethodDelegate
 import androidx.room.vo.QueryMethod
 import androidx.room.vo.RawQueryMethod
 import androidx.room.vo.ReadQueryMethod
@@ -34,7 +37,6 @@ import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.ShortcutMethod
 import androidx.room.vo.TransactionMethod
 import androidx.room.vo.WriteQueryMethod
-import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
@@ -46,7 +48,6 @@ import com.squareup.javapoet.TypeSpec
 import stripNonJava
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
@@ -62,7 +63,7 @@ class DaoWriter(
     val processingEnv: ProcessingEnvironment
 ) :
     ClassWriter(dao.typeName) {
-    private val declaredDao = MoreTypes.asDeclared(dao.element.asType())
+    private val declaredDao = dao.element.asDeclaredType()
 
     companion object {
         // TODO nothing prevents this from conflicting, we should fix.
@@ -110,7 +111,7 @@ class DaoWriter(
             addOriginatingElement(dbElement)
             addModifiers(PUBLIC)
             addModifiers(FINAL)
-            if (dao.element.kind == ElementKind.INTERFACE) {
+            if (dao.element.isInterface()) {
                 addSuperinterface(dao.typeName)
             } else {
                 superclass(dao.typeName)
@@ -439,9 +440,9 @@ class DaoWriter(
             KotlinDefaultMethodDelegateBinder.executeAndReturn(
                 daoName = dao.typeName,
                 daoImplName = dao.implTypeName,
-                methodName = method.delegateElement.simpleName.toString(),
+                methodName = method.delegateElement.name,
                 returnType = method.element.returnType,
-                parameterNames = method.element.parameters.map { it.simpleName.toString() },
+                parameterNames = method.element.parameters.map { it.name },
                 scope = scope)
             addCode(scope.builder().build())
         }.build()

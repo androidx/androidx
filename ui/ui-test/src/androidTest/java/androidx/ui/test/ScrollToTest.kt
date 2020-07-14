@@ -18,14 +18,14 @@ package androidx.ui.test
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.semantics.semantics
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize
-import androidx.ui.semantics.ScrollTo
-import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.scrollBy
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Assert
@@ -42,30 +42,24 @@ class ScrollToTest {
         val tag = "myTag"
 
         composeTestRule.setContent {
-            Semantics(container = true, properties = {
-                ScrollTo(action = { _, _ ->
+            Box(Modifier.semantics {
+                scrollBy(action = { _, _ ->
                     wasScrollToCalled = true
-                    return@ScrollTo true
+                    return@scrollBy true
                 })
             }) {
-                Box {
-                    TestTag(tag) {
-                        Semantics(container = true) {
-                            Box()
-                        }
-                    }
-                }
+                Box(Modifier.testTag(tag))
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             Assert.assertTrue(!wasScrollToCalled)
         }
 
-        findByTag(tag)
-            .doScrollTo()
+        onNodeWithTag(tag)
+            .performScrollTo()
 
-        runOnIdleCompose {
+        runOnIdle {
             Assert.assertTrue(wasScrollToCalled)
         }
     }
@@ -77,49 +71,43 @@ class ScrollToTest {
         var elementHeight = 0.0f
         val tag = "myTag"
 
-        val drawRect = @Composable { color: Color ->
-            Semantics(container = true) {
-                Canvas(Modifier.preferredSize(100.dp)) {
-                    drawRect(color)
+        val drawRect = @Composable { modifier: Modifier, color: Color ->
+            Canvas(modifier.preferredSize(100.dp)) {
+                drawRect(color)
 
-                    elementHeight = size.height
-                }
+                elementHeight = size.height
             }
         }
 
         composeTestRule.setContent {
-            // Need to make the "scrolling" container the semantics boundary so that it
-            // doesn't try to include the padding
-            Semantics(container = true, properties = {
-                ScrollTo(action = { x, y ->
-                    currentScrollPositionY = y.value
-                    currentScrollPositionX = x.value
-                    return@ScrollTo true
+            val red = Color(alpha = 0xFF, red = 0xFF, green = 0, blue = 0)
+            val blue = Color(alpha = 0xFF, red = 0, green = 0, blue = 0xFF)
+            val green = Color(alpha = 0xFF, red = 0, green = 0xFF, blue = 0)
+
+            Box(Modifier.semantics {
+                scrollBy(action = { x, y ->
+                    currentScrollPositionY += y
+                    currentScrollPositionX += x
+                    return@scrollBy true
                 })
             }) {
-                val red = Color(alpha = 0xFF, red = 0xFF, green = 0, blue = 0)
-                val blue = Color(alpha = 0xFF, red = 0, green = 0, blue = 0xFF)
-                val green = Color(alpha = 0xFF, red = 0, green = 0xFF, blue = 0)
-
                 Column {
-                    drawRect(red)
-                    drawRect(blue)
-                    TestTag(tag) {
-                        drawRect(green)
-                    }
+                    drawRect(Modifier, red)
+                    drawRect(Modifier, blue)
+                    drawRect(Modifier.testTag(tag), green)
                 }
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(currentScrollPositionY).isEqualTo(0.0f)
             Truth.assertThat(currentScrollPositionX).isEqualTo(0.0f)
         }
 
-        findByTag(tag)
-            .doScrollTo() // scroll to third element
+        onNodeWithTag(tag)
+            .performScrollTo() // scroll to third element
 
-        runOnIdleCompose {
+        runOnIdle {
             val expected = elementHeight * 2
             Truth.assertThat(currentScrollPositionY).isEqualTo(expected)
             Truth.assertThat(currentScrollPositionX).isEqualTo(0.0f)

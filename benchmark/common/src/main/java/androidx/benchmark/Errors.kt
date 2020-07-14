@@ -97,7 +97,7 @@ internal object Errors {
         val appInfo = context.applicationInfo
         var warningPrefix = ""
         var warningString = ""
-        if (!Arguments.profilingMode.requiresDebuggable() &&
+        if (Arguments.profiler?.requiresDebuggable != true &&
             (appInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0)) {
             warningPrefix += "DEBUGGABLE_"
             warningString += """
@@ -196,10 +196,11 @@ internal object Errors {
             """.trimMarginWrapNewlines()
         }
 
-        if (Arguments.profilingMode != ProfilingMode.None) {
+        if (Arguments.profiler != null) {
+            val profilerName = Arguments.profiler.javaClass.simpleName
             warningPrefix += "PROFILED_"
             warningString += """
-                |WARNING: Profiling mode=${Arguments.profilingMode}, results will be affected.
+                |WARNING: Using profiler=$profilerName, results will be affected.
             """.trimMarginWrapNewlines()
         }
 
@@ -213,8 +214,10 @@ internal object Errors {
             .split('_')
             .filter { it.isNotEmpty() }
             .toSet()
-        val nonfatalErrors = setOf("PROFILED")
-        val unsuppressedWarningSet = warningSet - (Arguments.suppressedErrors + nonfatalErrors)
+
+        val alwaysSuppressed = setOf("PROFILED")
+        val suppressedWarnings = Arguments.suppressedErrors + alwaysSuppressed
+        val unsuppressedWarningSet = warningSet - suppressedWarnings
         UNSUPPRESSED_WARNING_MESSAGE = if (unsuppressedWarningSet.isNotEmpty()) {
             """
                 |ERRORS (not suppressed): ${unsuppressedWarningSet.toDisplayString()}

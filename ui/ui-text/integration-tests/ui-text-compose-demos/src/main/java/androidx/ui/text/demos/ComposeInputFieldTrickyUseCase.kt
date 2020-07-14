@@ -17,18 +17,17 @@
 package androidx.ui.text.demos
 
 import androidx.compose.Composable
-import androidx.compose.state
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.input.KeyboardType
-import androidx.ui.foundation.TextFieldValue
+import androidx.ui.input.TextFieldValue
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.sp
 
 @Composable
 fun InputFieldTrickyUseCase() {
-    VerticalScroller {
+    ScrollableColumn {
         TagLine(tag = "don't set if non number is added")
         RejectNonDigits()
 

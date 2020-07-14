@@ -20,6 +20,7 @@ import android.content.Context
 import android.util.Log
 import androidx.hilt.Assisted
 import androidx.hilt.work.WorkerInject
+import androidx.work.CoroutineWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import javax.inject.Inject
@@ -32,6 +33,27 @@ class SimpleWorker @WorkerInject constructor(
     override fun doWork(): Result {
         logger.log("Hi")
         return Result.success()
+    }
+}
+
+class SimpleCoroutineWorker @WorkerInject constructor(
+    @Assisted context: Context,
+    @Assisted params: WorkerParameters,
+    private val logger: MyLogger
+) : CoroutineWorker(context, params) {
+    override suspend fun doWork(): Result {
+        logger.log("Hi from Coroutines World!")
+        return Result.success()
+    }
+}
+
+object TopClass {
+    class NestedWorker @WorkerInject constructor(
+        @Assisted context: Context,
+        @Assisted params: WorkerParameters,
+        private val logger: MyLogger
+    ) : Worker(context, params) {
+        override fun doWork() = Result.success()
     }
 }
 

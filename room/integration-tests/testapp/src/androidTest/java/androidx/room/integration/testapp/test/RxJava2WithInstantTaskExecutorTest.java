@@ -54,7 +54,7 @@ public class RxJava2WithInstantTaskExecutorTest {
     @Test
     public void testFlowableInTransaction() {
         // When subscribing to the emissions of the user
-        TestSubscriber<User> subscriber = mDatabase.getUserDao().flowableUserById(3).test();
+        TestSubscriber<User> subscriber = mDatabase.getUserDao().rx2_flowableUserById(3).test();
         subscriber.assertValueCount(0);
 
         // When inserting a new user in the data source

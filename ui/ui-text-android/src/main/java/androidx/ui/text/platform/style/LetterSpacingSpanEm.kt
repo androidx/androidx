@@ -17,14 +17,14 @@ package androidx.ui.text.platform.style
 
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
-import androidx.annotation.RestrictTo
+import androidx.ui.text.platform.InternalPlatformTextApi
 
 /**
  * Span used to adjust the letter spacing, in the unit of Em.
  *
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalPlatformTextApi
 class LetterSpacingSpanEm(val letterSpacing: Float) : MetricAffectingSpan() {
     override fun updateDrawState(textPaint: TextPaint) {
         textPaint.letterSpacing = letterSpacing

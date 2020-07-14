@@ -22,7 +22,7 @@ function usage() {
   echo '  simplify-build-failure.sh'
   echo
   echo 'SYNOPSIS'
-  echo "  $0 (--task <gradle task> <error message> | --command <shell command> ) [--continue] [--limit-to-path <file path>] [--check-lines-in <subfile path>]"
+  echo "  $0 (--task <gradle task> <error message> | --command <shell command> ) [--continue] [--limit-to-path <file path>] [--check-lines-in <subfile path>] [--num-jobs <count>]"
   echo
   echo DESCRIPTION
   echo '  Searches for a minimal set of files and/or lines required to reproduce a given build failure'
@@ -44,6 +44,8 @@ function usage() {
   echo
   echo '  --check-lines-in <subfile path>'
   echo '    Specifies that individual lines in files in <subfile path> will be considered for removal, too'
+  echo '  --num-jobs <count>'
+  echo '    Specifies the number of jobs to run at once'
   exit 1
 }
 
@@ -65,8 +67,26 @@ testCommand=""
 resume=false
 subfilePath=""
 limitToPath=""
+numJobs="1"
 
 export ALLOW_MISSING_PROJECTS=true # so that if we delete entire projects then the AndroidX build doesn't think we made a spelling mistake
+
+workingDir="$(pwd)"
+cd "$(dirname $0)"
+scriptPath="$(pwd)"
+cd ../..
+supportRoot="$(pwd)"
+checkoutRoot="$(cd $supportRoot/../.. && pwd)"
+tempDir="$checkoutRoot/simplify-tmp"
+
+# If the this script was run from a subdirectory, then we run our test command from the same subdirectory
+commandSubdir="$(echo $workingDir | sed "s|^$supportRoot|.|g")"
+
+if [ ! -e "$workingDir/gradlew" ]; then
+  echo "Error; ./gradlew does not exist. Must cd to a dir containing a ./gradlew first"
+  # so that this script knows which gradlew to use (in frameworks/support or frameworks/support/ui)
+  exit 1
+fi
 
 while [ "$1" != "" ]; do
   arg="$1"
@@ -92,17 +112,17 @@ while [ "$1" != "" ]; do
     grepCommand="grep \"$errorMessage\" log"
     # Sleep in case Gradle fails very quickly
     # We don't want to run too many Gradle commands in a row or else the daemons might get confused
-    testCommand="$gradleCommand; sleep 2; $grepCommand"
+    testCommand="cd $commandSubdir && $gradleCommand; sleep 2; $grepCommand"
     continue
   fi
   if [ "$arg" == "--command" ]; then
-    testCommand="$1"
+    if [ "$1" == "" ]; then
+      usage
+    fi
+    testCommand="cd $commandSubdir && $1"
     shift
     gradleCommand=""
     grepCommand=""
-    if [ "$testCommand" == "" ]; then
-      usage
-    fi
     if echo "$testCommand" | grep -v OUT_DIR 2>/dev/null; then
       echo "Error: must set OUT_DIR in the test command to prevent concurrent Gradle executions from interfering with each other"
       exit 1
@@ -119,6 +139,11 @@ while [ "$1" != "" ]; do
     shift
     continue
   fi
+  if [ "$arg" == "--num-jobs" ]; then
+    numJobs="$1"
+    shift
+    continue
+  fi
   echo "Unrecognized argument '$arg'"
   usage
 done
@@ -127,13 +152,6 @@ if [ "$testCommand" == "" ]; then
   usage
 fi
 
-cd "$(dirname $0)"
-scriptPath="$(pwd)"
-cd ../..
-supportRoot="$(pwd)"
-checkoutRoot="$(cd $supportRoot/../.. && pwd)"
-
-tempDir="$checkoutRoot/simplify-tmp"
 if [ "$resume" == "true" ]; then
   if [ -d "$tempDir" ]; then
     echo "Not deleting temp dir $tempDir"
@@ -185,7 +203,7 @@ else
     sed -i 's/.*Werror.*//' "$referenceFailingDir/buildSrc/build.gradle"
   fi
   echo Running diff-filterer.py once to identify the minimal set of files needed to reproduce the error
-  if ./development/file-utils/diff-filterer.py --assume-no-side-effects --work-path $filtererStep1Work --num-jobs 4 "$referenceFailingDir" "$referencePassingDir" "$testCommand"; then
+  if ./development/file-utils/diff-filterer.py --assume-no-side-effects --work-path $filtererStep1Work --num-jobs "$numJobs" "$referenceFailingDir" "$referencePassingDir" "$testCommand"; then
     echo diff-filterer completed successfully
   else
     failed
@@ -215,7 +233,7 @@ else
   noFunctionBodies_output="$tempDir/noFunctionBodies_output"
 
   # set up command for running diff-filterer against diffs within files
-  filtererOptions="--num-jobs 4"
+  filtererOptions="--num-jobs $numJobs"
   if echo $subfilePath | grep -v buildSrc >/dev/null 2>/dev/null; then
     # If we're not making changes in buildSrc, then we want to keep the gradle caches around for more speed
     # If we are making changes in buildSrc, then Gradle doesn't necessarily do up-to-date checks correctly, and we want to clear the caches between builds
@@ -226,7 +244,7 @@ else
       # If we're making changes in buildSrc, then we want to make sure that a clean build passes because Gradle doesn't always do up-to-date checks correctly when we're making strange changes in buildSrc
       # However, the build runs much more quickly when incremental than when clean
       # So, we first run an incremental build and then if it passes we run a clean build
-      testCommand="$gradleCommand; $grepCommand && rm log out -rf && $gradleCommand --no-daemon; $grepCommand"
+      testCommand="cd $commandSubdir && $gradleCommand; $grepCommand && rm log out -rf && $gradleCommand --no-daemon; $grepCommand"
     fi
   fi
 

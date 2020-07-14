@@ -46,11 +46,7 @@ internal fun <T : Any> PagePresenter(
         },
         placeholdersBefore = leadingNullCount,
         placeholdersAfter = trailingNullCount,
-        loadStates = mapOf(
-            REFRESH to NotLoading.Idle,
-            PREPEND to NotLoading.Idle,
-            APPEND to NotLoading.Idle
-        )
+        combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
     )
 )
 
@@ -315,7 +311,7 @@ class PagePresenterTest {
         data.dropPages(false, pagesToDrop, newNulls, callback)
 
         assertEquals(
-            events + listOf(StateEvent(APPEND, NotLoading.Idle)),
+            events + listOf(StateEvent(APPEND, false, NotLoading.Incomplete)),
             callback.getAllAndClear()
         )
 
@@ -351,7 +347,7 @@ class PagePresenterTest {
         data.dropPages(true, pagesToDrop, newNulls, callback)
 
         assertEvents(
-            events + listOf(StateEvent(PREPEND, NotLoading.Idle)),
+            events + listOf(StateEvent(PREPEND, false, NotLoading.Incomplete)),
             callback.getAllAndClear()
         )
 
@@ -514,10 +510,10 @@ class PagePresenterTest {
             indexOfInitialPage = 0
         )
         assertFailsWith<IndexOutOfBoundsException> {
-            presenter.loadAround(-1)
+            presenter.indexToHint(-1)
         }
         assertFailsWith<IndexOutOfBoundsException> {
-            presenter.loadAround(4)
+            presenter.indexToHint(4)
         }
     }
 
@@ -529,9 +525,9 @@ class PagePresenterTest {
             trailingNullCount = 1,
             indexOfInitialPage = 0
         )
-        assertEquals(ViewportHint(0, -1), pagePresenter.loadAround(0))
-        assertEquals(ViewportHint(0, 0), pagePresenter.loadAround(1))
-        assertEquals(ViewportHint(0, 1), pagePresenter.loadAround(2))
+        assertEquals(ViewportHint(0, -1), pagePresenter.indexToHint(0))
+        assertEquals(ViewportHint(0, 0), pagePresenter.indexToHint(1))
+        assertEquals(ViewportHint(0, 1), pagePresenter.indexToHint(2))
     }
 
     @Test
@@ -546,20 +542,20 @@ class PagePresenterTest {
             trailingNullCount = 2,
             indexOfInitialPage = 1
         )
-        assertEquals(ViewportHint(-1, -1), pagePresenter.loadAround(0))
-        assertEquals(ViewportHint(-1, 0), pagePresenter.loadAround(1))
-        assertEquals(ViewportHint(0, 0), pagePresenter.loadAround(2))
-        assertEquals(ViewportHint(0, 1), pagePresenter.loadAround(3))
-        assertEquals(ViewportHint(1, 0), pagePresenter.loadAround(4))
-        assertEquals(ViewportHint(1, 1), pagePresenter.loadAround(5))
-        assertEquals(ViewportHint(1, 2), pagePresenter.loadAround(6))
+        assertEquals(ViewportHint(-1, -1), pagePresenter.indexToHint(0))
+        assertEquals(ViewportHint(-1, 0), pagePresenter.indexToHint(1))
+        assertEquals(ViewportHint(0, 0), pagePresenter.indexToHint(2))
+        assertEquals(ViewportHint(0, 1), pagePresenter.indexToHint(3))
+        assertEquals(ViewportHint(1, 0), pagePresenter.indexToHint(4))
+        assertEquals(ViewportHint(1, 1), pagePresenter.indexToHint(5))
+        assertEquals(ViewportHint(1, 2), pagePresenter.indexToHint(6))
     }
 
     companion object {
         val IDLE_EVENTS = listOf<PresenterEvent>(
-            StateEvent(REFRESH, NotLoading.Idle),
-            StateEvent(PREPEND, NotLoading.Idle),
-            StateEvent(APPEND, NotLoading.Idle)
+            StateEvent(REFRESH, false, NotLoading.Incomplete),
+            StateEvent(PREPEND, false, NotLoading.Incomplete),
+            StateEvent(APPEND, false, NotLoading.Incomplete)
         )
     }
 }

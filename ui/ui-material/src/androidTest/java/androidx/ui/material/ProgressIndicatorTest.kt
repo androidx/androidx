@@ -17,14 +17,17 @@ package androidx.ui.material
 
 import androidx.compose.mutableStateOf
 import androidx.test.filters.LargeTest
-import androidx.ui.core.TestTag
+import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Strings
 import androidx.ui.semantics.AccessibilityRangeInfo
+import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertRangeInfoEquals
 import androidx.ui.test.assertValueEquals
+import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.dp
 import org.junit.Ignore
@@ -50,12 +53,10 @@ class ProgressIndicatorTest {
 
         composeTestRule
             .setMaterialContent {
-                TestTag(tag = tag) {
-                    LinearProgressIndicator(progress = progress.value)
-                }
+                LinearProgressIndicator(modifier = Modifier.testTag(tag), progress = progress.value)
             }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertValueEquals("0 percent")
             .assertRangeInfoEquals(AccessibilityRangeInfo(0f, 0f..1f))
@@ -64,7 +65,7 @@ class ProgressIndicatorTest {
             progress.value = 0.5f
         }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertValueEquals("50 percent")
             .assertRangeInfoEquals(AccessibilityRangeInfo(0.5f, 0f..1f))
@@ -73,11 +74,11 @@ class ProgressIndicatorTest {
     @Test
     fun determinateLinearProgressIndicator_Size() {
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 LinearProgressIndicator(progress = 0f)
             }
-            .assertWidthEqualsTo(ExpectedLinearWidth)
-            .assertHeightEqualsTo(ExpectedLinearHeight)
+            .assertWidthIsEqualTo(ExpectedLinearWidth)
+            .assertHeightIsEqualTo(ExpectedLinearHeight)
     }
 
     @Test
@@ -87,12 +88,10 @@ class ProgressIndicatorTest {
 
         composeTestRule
             .setMaterialContent {
-                TestTag(tag = tag) {
-                    LinearProgressIndicator()
-                }
+                LinearProgressIndicator(modifier = Modifier.testTag(tag))
             }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertValueEquals(Strings.InProgress)
     }
 
@@ -100,11 +99,11 @@ class ProgressIndicatorTest {
     @Ignore("b/154757752")
     fun indeterminateLinearProgressIndicator_Size() {
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 LinearProgressIndicator()
             }
-            .assertWidthEqualsTo(ExpectedLinearWidth)
-            .assertHeightEqualsTo(ExpectedLinearHeight)
+            .assertWidthIsEqualTo(ExpectedLinearWidth)
+            .assertHeightIsEqualTo(ExpectedLinearHeight)
     }
 
     @Test
@@ -114,12 +113,13 @@ class ProgressIndicatorTest {
 
         composeTestRule
             .setMaterialContent {
-                TestTag(tag = tag) {
-                    CircularProgressIndicator(progress = progress.value)
-                }
+                CircularProgressIndicator(
+                    modifier = Modifier.testTag(tag),
+                    progress = progress.value
+                )
             }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertValueEquals("0 percent")
             .assertRangeInfoEquals(AccessibilityRangeInfo(0f, 0f..1f))
@@ -128,7 +128,7 @@ class ProgressIndicatorTest {
             progress.value = 0.5f
         }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertValueEquals("50 percent")
             .assertRangeInfoEquals(AccessibilityRangeInfo(0.5f, 0f..1f))
@@ -137,10 +137,10 @@ class ProgressIndicatorTest {
     @Test
     fun determinateCircularProgressIndicator_Size() {
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 CircularProgressIndicator(progress = 0f)
             }
-            .assertIsSquareWithSize { 4.dp.toIntPx() * 2 + 40.dp.toIntPx() }
+            .assertIsSquareWithSize(4.dp * 2 + 40.dp)
     }
 
     @Test
@@ -150,12 +150,10 @@ class ProgressIndicatorTest {
 
         composeTestRule
             .setMaterialContent {
-                TestTag(tag = tag) {
-                    CircularProgressIndicator()
-                }
+                CircularProgressIndicator(modifier = Modifier.testTag(tag))
             }
 
-        findByTag(tag)
+        onNodeWithTag(tag)
             .assertValueEquals(Strings.InProgress)
     }
 
@@ -163,9 +161,9 @@ class ProgressIndicatorTest {
     @Ignore("b/154757752")
     fun indeterminateCircularProgressIndicator_Size() {
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 CircularProgressIndicator()
             }
-            .assertIsSquareWithSize { 4.dp.toIntPx() * 2 + 40.dp.toIntPx() }
+            .assertIsSquareWithSize(4.dp * 2 + 40.dp)
     }
 }

@@ -16,25 +16,44 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.AndroidOwner
 import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.test.android.AndroidInputDispatcher
+import androidx.ui.test.android.SynchronizedTreeCollector.getAllSemanticsNodes
 
 /**
  * Represents a semantics node and the path to fetch it from the semantics tree. One can interact
- * with this node by performing actions such as [doClick], assertions such as
- * [assertHasClickAction], or navigate to other nodes such as [children].
+ * with this node by performing actions such as [performClick], assertions such as
+ * [assertHasClickAction], or navigate to other nodes such as [onChildren].
  *
- * This is usually obtained from methods like [findByTag], [find].
+ * This is usually obtained from methods like [onNodeWithTag], [onNode].
  *
  * Example usage:
  * ```
- * findByTag("myCheckbox")
- *    .doClick()
+ * onNodeWithTag("myCheckbox")
+ *    .performClick()
  *    .assertIsOn()
+ * ````
+ *
+ * useUnmergedTree is for tests with a special need to inspect "implementation
+ * detail" children.  For example:
+ * ```
+ * composeTestRule.setMaterialContent {
+ *     // IconButton is a semantically merging composable.  All testTags of its children
+ *     // are merged up into it in the default, "merged" semantics tree.
+ *     IconButton(onClick = {}) {
+ *         MyIcon(Modifier.testTag("icon"))
+ *     }
+ * }
+ *
+ * // Assert that MyIcon is at the expected position inside the IconButton.
+ * // Without useUnmergedTree, then the test would check the position of the IconButton (0, 0)
+ * // instead of the position of the Icon (30, 30).
+ * onNodeWithTag("icon", useUnmergedTree = true)
+ *     .assertLeftPosition(30.dp)
+ *     .assertTopPosition(30.dp)
  * ````
  */
 class SemanticsNodeInteraction internal constructor(
+    internal val useUnmergedTree: Boolean,
     internal val selector: SemanticsSelector
 ) {
     private var nodeIds: List<Int>? = null
@@ -50,11 +69,11 @@ class SemanticsNodeInteraction internal constructor(
     internal fun fetchSemanticsNodes(errorMessageOnFail: String? = null): SelectionResult {
         if (nodeIds == null) {
             return selector
-                .map(getAllSemanticsNodes(), errorMessageOnFail.orEmpty())
+                .map(getAllSemanticsNodes(useUnmergedTree), errorMessageOnFail.orEmpty())
                 .apply { nodeIds = selectedNodes.map { it.id }.toList() }
         }
 
-        return SelectionResult(getAllSemanticsNodes().filter { it.id in nodeIds!! })
+        return SelectionResult(getAllSemanticsNodes(useUnmergedTree).filter { it.id in nodeIds!! })
     }
 
     /**
@@ -136,7 +155,7 @@ class SemanticsNodeInteraction internal constructor(
             ))
         }
 
-        lastSeenSemantics = result.selectedNodes.first().toStringInfo()
+        lastSeenSemantics = result.selectedNodes.first().printToString()
         return result.selectedNodes.first()
     }
 }
@@ -146,15 +165,16 @@ class SemanticsNodeInteraction internal constructor(
  * One can interact with these nodes by performing assertions such as [assertCountEquals], or
  * navigate to other nodes such as [get].
  *
- * This is usually obtained from methods like [findAll] or chains of [find].[children].
+ * This is usually obtained from methods like [onAllNodes] or chains of [onNode].[onChildren].
  *
  * Example usage:
  * ```
- * findAll(isClickable())
+ * onAllNodes(isClickable())
  *    .assertCountEquals(2)
  * ````
  */
 class SemanticsNodeInteractionCollection(
+    internal val useUnmergedTree: Boolean,
     internal val selector: SemanticsSelector
 ) {
     private var nodeIds: List<Int>? = null
@@ -169,12 +189,12 @@ class SemanticsNodeInteractionCollection(
     fun fetchSemanticsNodes(errorMessageOnFail: String? = null): List<SemanticsNode> {
         if (nodeIds == null) {
             return selector
-                .map(getAllSemanticsNodes(), errorMessageOnFail.orEmpty())
+                .map(getAllSemanticsNodes(useUnmergedTree), errorMessageOnFail.orEmpty())
                 .apply { nodeIds = selectedNodes.map { it.id }.toList() }
                 .selectedNodes
         }
 
-        return getAllSemanticsNodes().filter { it.id in nodeIds!! }
+        return getAllSemanticsNodes(useUnmergedTree).filter { it.id in nodeIds!! }
     }
 
     /**
@@ -185,11 +205,6 @@ class SemanticsNodeInteractionCollection(
      * none or more than one element is found.
      */
     operator fun get(index: Int): SemanticsNodeInteraction {
-        return SemanticsNodeInteraction(selector.addIndexSelector(index))
+        return SemanticsNodeInteraction(useUnmergedTree, selector.addIndexSelector(index))
     }
-}
-
-private var inputDispatcherFactory: (SemanticsNode) -> InputDispatcher = { node ->
-    val view = (node.componentNode.owner as AndroidOwner).view
-    AndroidInputDispatcher { view.dispatchTouchEvent(it) }
 }

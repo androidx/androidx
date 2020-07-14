@@ -24,7 +24,8 @@ import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.vo.findFieldByColumnName
 import asTypeElement
-import com.google.auto.common.MoreTypes
+import isSameType
+import isTypeOf
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
@@ -64,7 +65,7 @@ class ShortcutMethodProcessor(
         context.checker.check(params.isNotEmpty(), executableElement, missingParamError)
 
         val targetEntity = if (targetEntityType != null &&
-            !MoreTypes.isTypeOf(Any::class.java, targetEntityType)) {
+            !targetEntityType.isTypeOf(Any::class)) {
             processEntity(
                 element = targetEntityType.asTypeElement(),
                 onInvalid = {
@@ -92,13 +93,13 @@ class ShortcutMethodProcessor(
         params: List<ShortcutQueryParameter>,
         onValidatePartialEntity: (Entity, Pojo) -> Unit
     ) = params.associateBy({ it.name }, { param ->
-        if (context.processingEnv.typeUtils.isSameType(targetEntity.type, param.pojoType)) {
+        if (targetEntity.type.isSameType(context.processingEnv.typeUtils, param.pojoType!!)) {
             ShortcutEntity(entity = targetEntity, partialEntity = null)
         } else {
             // Target entity and pojo param are not the same, process and validate partial entity.
             val pojo = PojoProcessor.createFor(
                 context = context,
-                element = param.pojoType!!.asTypeElement(),
+                element = param.pojoType.asTypeElement(),
                 bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
                 parent = null
             ).process().also { pojo ->

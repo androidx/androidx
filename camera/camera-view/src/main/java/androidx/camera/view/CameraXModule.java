@@ -41,7 +41,6 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.impl.LensFacingConverter;
-import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -78,7 +77,7 @@ final class CameraXModule {
     private static final Rational ASPECT_RATIO_3_4 = new Rational(3, 4);
 
     private final Preview.Builder mPreviewBuilder;
-    private final VideoCaptureConfig.Builder mVideoCaptureConfigBuilder;
+    private final VideoCapture.Builder mVideoCaptureBuilder;
     private final ImageCapture.Builder mImageCaptureBuilder;
     private final CameraView mCameraView;
     final AtomicBoolean mVideoIsRecording = new AtomicBoolean(false);
@@ -106,7 +105,6 @@ final class CameraXModule {
                 public void onDestroy(LifecycleOwner owner) {
                     if (owner == mCurrentLifecycle) {
                         clearCurrentLifecycle();
-                        mPreview.setSurfaceProvider(null);
                     }
                 }
             };
@@ -145,8 +143,7 @@ final class CameraXModule {
 
         mImageCaptureBuilder = new ImageCapture.Builder().setTargetName("ImageCapture");
 
-        mVideoCaptureConfigBuilder =
-                new VideoCaptureConfig.Builder().setTargetName("VideoCapture");
+        mVideoCaptureBuilder = new VideoCapture.Builder().setTargetName("VideoCapture");
     }
 
     @RequiresPermission(permission.CAMERA)
@@ -165,12 +162,15 @@ final class CameraXModule {
         }
 
         clearCurrentLifecycle();
+        if (mNewLifecycle.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
+            // Lifecycle is already in a destroyed state. Since it may have been a valid
+            // lifecycle when bound, but became destroyed while waiting for layout, treat this as
+            // a no-op now that we have cleared the previous lifecycle.
+            mNewLifecycle = null;
+            return;
+        }
         mCurrentLifecycle = mNewLifecycle;
         mNewLifecycle = null;
-        if (mCurrentLifecycle.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
-            mCurrentLifecycle = null;
-            throw new IllegalArgumentException("Cannot bind to lifecycle in a destroyed state.");
-        }
 
         if (mCameraProvider == null) {
             // try again once the camera provider is no longer null
@@ -213,15 +213,15 @@ final class CameraXModule {
             targetAspectRatio = isDisplayPortrait ? ASPECT_RATIO_3_4 : ASPECT_RATIO_4_3;
         } else {
             mImageCaptureBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-            mVideoCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
+            mVideoCaptureBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
             targetAspectRatio = isDisplayPortrait ? ASPECT_RATIO_9_16 : ASPECT_RATIO_16_9;
         }
 
         mImageCaptureBuilder.setTargetRotation(getDisplaySurfaceRotation());
         mImageCapture = mImageCaptureBuilder.build();
 
-        mVideoCaptureConfigBuilder.setTargetRotation(getDisplaySurfaceRotation());
-        mVideoCapture = mVideoCaptureConfigBuilder.build();
+        mVideoCaptureBuilder.setTargetRotation(getDisplaySurfaceRotation());
+        mVideoCapture = mVideoCaptureBuilder.build();
 
         // Adjusts the preview resolution according to the view size and the target aspect ratio.
         int height = (int) (getMeasuredWidth() / targetAspectRatio.floatValue());
@@ -493,6 +493,11 @@ final class CameraXModule {
 
             if (!toUnbind.isEmpty()) {
                 mCameraProvider.unbind(toUnbind.toArray((new UseCase[0])));
+            }
+
+            // Remove surface provider once unbound.
+            if (mPreview != null) {
+                mPreview.setSurfaceProvider(null);
             }
         }
         mCamera = null;

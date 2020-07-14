@@ -936,7 +936,7 @@ class FragmentTransition {
     /**
      * Utility to find the String key in {@code map} that maps to {@code value}.
      */
-    private static String findKeyForValue(ArrayMap<String, String> map, String value) {
+    static String findKeyForValue(ArrayMap<String, String> map, String value) {
         final int numElements = map.size();
         for (int i = 0; i < numElements; i++) {
             if (value.equals(map.valueAt(i))) {
@@ -1002,8 +1002,8 @@ class FragmentTransition {
      * that has a key in {@code namedViews}. This is a useful equivalent to
      * {@link ArrayMap#retainAll(Collection)} for values.
      */
-    private static void retainValues(ArrayMap<String, String> nameOverrides,
-            ArrayMap<String, View> namedViews) {
+    static void retainValues(@NonNull ArrayMap<String, String> nameOverrides,
+            @NonNull ArrayMap<String, View> namedViews) {
         for (int i = nameOverrides.size() - 1; i >= 0; i--) {
             final String targetName = nameOverrides.valueAt(i);
             if (!namedViews.containsKey(targetName)) {

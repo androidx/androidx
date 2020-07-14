@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.pipe.integration
 
+import androidx.annotation.experimental.UseExperimental
+import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
@@ -30,12 +32,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class InitializationTest {
 
+    @UseExperimental(ExperimentalCameraProviderConfiguration::class)
     @Test
     fun initializeCameraX_withCameraPipeConfig() = runBlocking {
-        ProcessCameraProvider.initializeInstance(
-            ApplicationProvider.getApplicationContext(),
-            CameraPipeConfig.defaultConfig()
-        )
+        ProcessCameraProvider.configureInstance(CameraPipeConfig.defaultConfig())
 
         // Retrieve camera provider initialized with CameraPipeConfig
         val cameraProvider =

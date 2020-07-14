@@ -171,6 +171,7 @@ class Camera2PreviewSessionStateCallback(
 
         val surface = Surface(surfaceTexture)
         try {
+            @Suppress("DEPRECATION")
             params.device?.createCaptureSession(
                 Arrays.asList(surface),
                 object : CameraCaptureSession.StateCallback() {

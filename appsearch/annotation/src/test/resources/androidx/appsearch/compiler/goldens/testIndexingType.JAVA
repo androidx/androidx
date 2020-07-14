@@ -1,13 +1,15 @@
 package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.DataClassFactory;
 import androidx.appsearch.app.GenericDocument;
+import java.lang.Override;
 import java.lang.String;
 
-class $$__AppSearch__Gift {
-  public static final String SCHEMA_TYPE = "Gift";
+public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
+  private static final String SCHEMA_TYPE = "Gift";
 
-  public static final AppSearchSchema SCHEMA = new AppSearchSchema.Builder(SCHEMA_TYPE)
+  private static final AppSearchSchema SCHEMA = new AppSearchSchema.Builder(SCHEMA_TYPE)
     .addProperty(new AppSearchSchema.PropertyConfig.Builder("indexNone")
       .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
       .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
@@ -28,6 +30,17 @@ class $$__AppSearch__Gift {
       .build())
     .build();
 
+  @Override
+  public String getSchemaType() {
+    return SCHEMA_TYPE;
+  }
+
+  @Override
+  public AppSearchSchema getSchema() {
+    return SCHEMA;
+  }
+
+  @Override
   public GenericDocument toGenericDocument(Gift dataClass) {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
@@ -44,5 +57,31 @@ class $$__AppSearch__Gift {
       builder.setProperty("indexPrefix", indexPrefixCopy);
     }
     return builder.build();
+  }
+
+  @Override
+  public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String uriConv = genericDoc.getUri();
+    String[] indexNoneCopy = genericDoc.getPropertyStringArray("indexNone");
+    String indexNoneConv = null;
+    if (indexNoneCopy != null && indexNoneCopy.length != 0) {
+      indexNoneConv = indexNoneCopy[0];
+    }
+    String[] indexExactCopy = genericDoc.getPropertyStringArray("indexExact");
+    String indexExactConv = null;
+    if (indexExactCopy != null && indexExactCopy.length != 0) {
+      indexExactConv = indexExactCopy[0];
+    }
+    String[] indexPrefixCopy = genericDoc.getPropertyStringArray("indexPrefix");
+    String indexPrefixConv = null;
+    if (indexPrefixCopy != null && indexPrefixCopy.length != 0) {
+      indexPrefixConv = indexPrefixCopy[0];
+    }
+    Gift dataClass = new Gift();
+    dataClass.uri = uriConv;
+    dataClass.indexNone = indexNoneConv;
+    dataClass.indexExact = indexExactConv;
+    dataClass.indexPrefix = indexPrefixConv;
+    return dataClass;
   }
 }

@@ -47,12 +47,15 @@ import androidx.compose.Composable
  * @param showBackground If true, the @[Composable] will use a default background color.
  * @param backgroundColor The 32-bit ARGB color int for the background or 0 if not set
  * @param uiMode Bit mask of the ui mode as per [android.content.res.Configuration#uiMode]
+ * @param device Device string indicating the device to use in the preview. See the available
+ * devices in [Devices].
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.SOURCE)
 @Target(
     AnnotationTarget.FUNCTION
 )
+@Repeatable
 annotation class Preview(
     val name: String = "",
     val group: String = "",
@@ -66,5 +69,6 @@ annotation class Preview(
     val showDecoration: Boolean = false,
     val showBackground: Boolean = false,
     val backgroundColor: Long = 0,
-    @UiMode val uiMode: Int = 0
+    @UiMode val uiMode: Int = 0,
+    @Device val device: String = Devices.DEFAULT
 )

@@ -103,7 +103,7 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
+    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
         return null;
     }
 
@@ -127,7 +127,7 @@ public abstract class UseCase {
     protected final void updateUseCaseConfig(@NonNull UseCaseConfig<?> useCaseConfig) {
         // Attempt to retrieve builder containing defaults for this use case's config
         UseCaseConfig.Builder<?, ?, ?> defaultBuilder =
-                getDefaultBuilder(getCamera() == null ? null : getCamera().getCameraInfo());
+                getDefaultBuilder(getCamera() == null ? null : getCamera().getCameraInfoInternal());
 
         // Combine with default configuration.
         mUseCaseConfig = applyDefaults(useCaseConfig, defaultBuilder);
@@ -147,7 +147,7 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected UseCaseConfig<?> applyDefaults(
+    public UseCaseConfig<?> applyDefaults(
             @NonNull UseCaseConfig<?> userConfig,
             @Nullable UseCaseConfig.Builder<?, ?, ?> defaultConfigBuilder) {
         if (defaultConfigBuilder == null) {
@@ -275,7 +275,7 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected final void notifyState() {
+    public final void notifyState() {
         switch (mState) {
             case INACTIVE:
                 for (StateChangeCallback stateChangeCallback : mStateChangeCallbacks) {
@@ -427,7 +427,8 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void onAttach(@NonNull CameraInternal camera) {
+    public void onAttach(@NonNull CameraInternal camera) {
+
         synchronized (mCameraLock) {
             mCamera = camera;
             addStateChangeCallback(camera);
@@ -446,7 +447,7 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    public void onDetach() {
+    public void onDetach(@NonNull CameraInternal camera) {
         // Do any cleanup required by the UseCase implementation
         clear();
 
@@ -457,11 +458,10 @@ public abstract class UseCase {
         }
 
         synchronized (mCameraLock) {
-            if (mCamera != null) {
-                mCamera.detachUseCases(Collections.singleton(this));
-                removeStateChangeCallback(mCamera);
-                mCamera = null;
-            }
+            Preconditions.checkArgument(camera == mCamera);
+            mCamera.detachUseCases(Collections.singleton(this));
+            removeStateChangeCallback(mCamera);
+            mCamera = null;
         }
     }
 
@@ -504,8 +504,8 @@ public abstract class UseCase {
      *
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void setViewPortCropRect(@Nullable Rect viewPortCropRect) {
+    @RestrictTo(Scope.LIBRARY)
+    public void setViewPortCropRect(@Nullable Rect viewPortCropRect) {
         mViewPortCropRect = viewPortCropRect;
     }
 
@@ -514,8 +514,9 @@ public abstract class UseCase {
      *
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.LIBRARY)
     @Nullable
+    @SuppressWarnings("KotlinPropertyAccess")
     protected Rect getViewPortCropRect() {
         return mViewPortCropRect;
     }

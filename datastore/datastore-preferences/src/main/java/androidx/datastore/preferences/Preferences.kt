@@ -22,7 +22,7 @@ package androidx.datastore.preferences
  * 1. There is no edit() method. Instead use the toBuilder() to create a new PreferencesBuilder
  * and pass the result to DataStore.updateData().
  * 2. There is no (un)registerOnSharedPreferenceChangeListener() methods. Instead, use DataStore
- * .dataFlow.
+ * .data.
  */
 class Preferences internal constructor(
     private val preferences: Map<String, Any> = mapOf()
@@ -165,6 +165,7 @@ class Preferences internal constructor(
          *
          * @return Returns a new Preferences instance with no preferences set.
          */
+        @JvmStatic
         fun empty(): Preferences {
             return Preferences()
         }

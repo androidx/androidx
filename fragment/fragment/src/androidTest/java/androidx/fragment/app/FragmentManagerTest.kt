@@ -32,6 +32,78 @@ import org.junit.runner.RunWith
 class FragmentManagerTest {
 
     @Test
+    fun addRemoveFragmentOnAttachListener() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBefore = StrictFragment()
+            val fragmentDuring = StrictFragment()
+            val fragmentAfter = StrictFragment()
+
+            val attachedFragments = mutableListOf<Fragment>()
+            val listener = FragmentOnAttachListener { _, fragment ->
+                attachedFragments.add(fragment)
+            }
+
+            fm.beginTransaction()
+                .add(fragmentBefore, "before")
+                .commit()
+            executePendingTransactions()
+
+            fm.addFragmentOnAttachListener(listener)
+
+            fm.beginTransaction()
+                .add(fragmentDuring, "during")
+                .commit()
+            executePendingTransactions()
+
+            fm.removeFragmentOnAttachListener(listener)
+
+            fm.beginTransaction()
+                .add(fragmentAfter, "after")
+                .commit()
+            executePendingTransactions()
+
+            assertThat(attachedFragments).containsExactly(fragmentDuring)
+        }
+    }
+
+    @Test
+    fun removeReentrantFragmentOnAttachListener() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentDuring = StrictFragment()
+            val fragmentAfter = StrictFragment()
+
+            val attachedFragments = mutableListOf<Fragment>()
+            fm.addFragmentOnAttachListener(object : FragmentOnAttachListener {
+                override fun onAttachFragment(
+                    fragmentManager: FragmentManager,
+                    fragment: Fragment
+                ) {
+                    attachedFragments.add(fragment)
+                    fragmentManager.removeFragmentOnAttachListener(this)
+                }
+            })
+
+            fm.beginTransaction()
+                .add(fragmentDuring, "during")
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .add(fragmentAfter, "after")
+                .commit()
+            executePendingTransactions()
+
+            assertThat(attachedFragments).containsExactly(fragmentDuring)
+        }
+    }
+
+    @Test
     fun findFragmentChildFragment() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {

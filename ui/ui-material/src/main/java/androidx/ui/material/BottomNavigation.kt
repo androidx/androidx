@@ -16,27 +16,28 @@
 
 package androidx.ui.material
 
+import androidx.animation.VectorizedAnimationSpec
 import androidx.animation.FastOutSlowInEasing
-import androidx.animation.TweenBuilder
+import androidx.animation.TweenSpec
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.emptyContent
 import androidx.ui.animation.animate
 import androidx.ui.core.Constraints
-import androidx.ui.text.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.drawOpacity
-import androidx.ui.core.tag
+import androidx.ui.core.id
+import androidx.ui.core.layoutId
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.contentColor
-import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
+import androidx.ui.foundation.selection.selectable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.layout.Arrangement
@@ -44,12 +45,12 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
-import androidx.ui.material.ripple.ripple
+import androidx.ui.text.LastBaseline
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
-import androidx.ui.unit.max
+import kotlin.math.max
+import kotlin.math.roundToInt
 
 // TODO: b/149825331 add documentation references to Scaffold here and samples for using
 // BottomNavigation inside a Scaffold
@@ -141,22 +142,20 @@ fun BottomNavigationItem(
         val style = MaterialTheme.typography.caption.copy(textAlign = TextAlign.Center)
         ProvideTextStyle(style, children = text)
     }
-    MutuallyExclusiveSetItem(
-        selected = selected,
-        onClick = onSelected,
-        modifier = Modifier.ripple()
-    ) {
-        // TODO This composable has magic behavior within a Row; reconsider this behavior later
-        Box(with(RowScope) { modifier.weight(1f) }, gravity = ContentGravity.Center) {
-            BottomNavigationTransition(activeColor, inactiveColor, selected) { progress ->
-                val animationProgress = if (alwaysShowLabels) 1f else progress
+    // TODO This composable has magic behavior within a Row; reconsider this behavior later
+    Box(with(RowScope) {
+        modifier
+            .selectable(selected = selected, onClick = onSelected)
+            .weight(1f)
+    }, gravity = ContentGravity.Center) {
+        BottomNavigationTransition(activeColor, inactiveColor, selected) { progress ->
+            val animationProgress = if (alwaysShowLabels) 1f else progress
 
-                BottomNavigationItemBaselineLayout(
-                    icon = icon,
-                    text = styledText,
-                    iconPositionAnimationProgress = animationProgress
-                )
-            }
+            BottomNavigationItemBaselineLayout(
+                icon = icon,
+                text = styledText,
+                iconPositionAnimationProgress = animationProgress
+            )
         }
     }
 }
@@ -182,7 +181,7 @@ private fun BottomNavigationTransition(
 ) {
     val animationProgress = animate(
         target = if (selected) 1f else 0f,
-        animBuilder = BottomNavigationAnimationBuilder
+        animSpec = BottomNavigationAnimationSpec
     )
 
     val color = lerp(inactiveColor, activeColor, animationProgress)
@@ -210,26 +209,27 @@ private fun BottomNavigationItemBaselineLayout(
 ) {
     Layout(
         {
-            Box(Modifier.tag("icon"), children = icon)
+            Box(Modifier.layoutId("icon"), children = icon)
             Box(
-                Modifier.tag("text").drawOpacity(iconPositionAnimationProgress),
+                Modifier.layoutId("text").drawOpacity(iconPositionAnimationProgress),
                 paddingStart = BottomNavigationItemHorizontalPadding,
                 paddingEnd = BottomNavigationItemHorizontalPadding,
                 children = text
             )
         }
-    ) { measurables, constraints, _ ->
-        val iconPlaceable = measurables.first { it.tag == "icon" }.measure(constraints)
+    ) { measurables, constraints ->
+        val iconPlaceable = measurables.first { it.id == "icon" }.measure(constraints)
 
-        val textPlaceable = measurables.first { it.tag == "text" }.measure(
+        val textPlaceable = measurables.first { it.id == "text" }.measure(
             // Measure with loose constraints for height as we don't want the text to take up more
             // space than it needs
-            constraints.copy(minHeight = IntPx.Zero)
+            constraints.copy(minHeight = 0)
         )
 
         // If the text is empty, just place the icon.
         if (textPlaceable.width <= BottomNavigationItemHorizontalPadding.toIntPx() * 2 &&
-            textPlaceable.height == IntPx.Zero) {
+            textPlaceable.height == 0
+        ) {
             placeIcon(iconPlaceable, constraints)
         } else {
             placeTextAndIcon(
@@ -252,7 +252,7 @@ private fun MeasureScope.placeIcon(
     val height = constraints.maxHeight
     val iconY = (height - iconPlaceable.height) / 2
     return layout(iconPlaceable.width, height) {
-        iconPlaceable.place(IntPx.Zero, iconY)
+        iconPlaceable.place(0, iconY)
     }
 }
 
@@ -310,7 +310,7 @@ private fun MeasureScope.placeTextAndIcon(
     // When selected the icon is above the unselected position, so we will animate moving
     // downwards from the selected state, so when progress is 1, the total distance is 0, and we
     // are at the selected state.
-    val offset = iconDistance * (1 - iconPositionAnimationProgress)
+    val offset = (iconDistance * (1 - iconPositionAnimationProgress)).roundToInt()
 
     return layout(containerWidth, height) {
         if (iconPositionAnimationProgress != 0f) {
@@ -321,13 +321,13 @@ private fun MeasureScope.placeTextAndIcon(
 }
 
 /**
- * [AnimationBuilder] controlling the transition between unselected and selected
+ * [VectorizedAnimationSpec] controlling the transition between unselected and selected
  * [BottomNavigationItem]s.
  */
-private val BottomNavigationAnimationBuilder = TweenBuilder<Float>().apply {
-    duration = 300
+private val BottomNavigationAnimationSpec = TweenSpec<Float>(
+    durationMillis = 300,
     easing = FastOutSlowInEasing
-}
+)
 
 /**
  * Height of a [BottomNavigation] component

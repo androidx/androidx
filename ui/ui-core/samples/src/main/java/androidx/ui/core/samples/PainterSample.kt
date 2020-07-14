@@ -19,7 +19,8 @@ package androidx.ui.core.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Image
+import androidx.ui.core.paint
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
@@ -45,11 +46,11 @@ fun PainterModifierSample() {
         }
     }
 
-    Image(
+    Box(
         modifier =
             Modifier.drawBackground(Color.Gray)
                 .padding(30.dp)
-                .drawBackground(Color.Yellow),
-        painter = CustomPainter()
-    )
+                .drawBackground(Color.Yellow)
+                .paint(CustomPainter())
+    ) { /** intentionally empty **/ }
 }

@@ -19,7 +19,7 @@ package androidx.ui.animation.demos
 import androidx.animation.AnimationEndReason
 import androidx.animation.ExponentialDecay
 import androidx.animation.FastOutSlowInEasing
-import androidx.animation.PhysicsBuilder
+import androidx.animation.SpringSpec
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
 import androidx.compose.Composable
@@ -40,7 +40,6 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import kotlin.math.sign
@@ -68,7 +67,7 @@ private fun SwipeToDismiss() {
     val itemWidth = state { 0f }
     val isFlinging = state { false }
     val modifier = Modifier.rawDragGestureFilter(dragObserver = object : DragObserver {
-        override fun onStart(downPosition: PxPosition) {
+        override fun onStart(downPosition: Offset) {
             itemBottom.setBounds(0f, height)
             if (isFlinging.value && itemBottom.targetValue < 100f) {
                 reset()
@@ -83,8 +82,8 @@ private fun SwipeToDismiss() {
             }
         }
 
-        override fun onDrag(dragDistance: PxPosition): PxPosition {
-            itemBottom.snapTo(itemBottom.targetValue + dragDistance.y.value)
+        override fun onDrag(dragDistance: Offset): Offset {
+            itemBottom.snapTo(itemBottom.targetValue + dragDistance.y)
             return dragDistance
         }
 
@@ -94,7 +93,9 @@ private fun SwipeToDismiss() {
                 if (target <= 0) {
                     null
                 } else {
-                    val animation = PhysicsBuilder<Float>(dampingRatio = 0.8f, stiffness = 300f)
+                    val animation = SpringSpec<Float>(
+                        dampingRatio = 0.8f, stiffness = 300f
+                    )
                     val projectedTarget = target + sign(velocity) * 0.2f * height
                     if (projectedTarget < 0.6 * height) {
                         TargetAnimation(0f, animation)
@@ -105,11 +106,11 @@ private fun SwipeToDismiss() {
             }
         }
 
-        override fun onStop(velocity: PxPosition) {
+        override fun onStop(velocity: Offset) {
             isFlinging.value = true
-            itemBottom.fling(velocity.y.value,
+            itemBottom.fling(velocity.y,
                 ExponentialDecay(3.0f),
-                adjustTarget(velocity.y.value),
+                adjustTarget(velocity.y),
                 onEnd = { endReason, final, _ ->
                     isFlinging.value = false
                     if (endReason != AnimationEndReason.Interrupted && final == 0f) {
@@ -125,7 +126,7 @@ private fun SwipeToDismiss() {
         modifier.fillMaxWidth()
             .preferredHeight(heightDp)
             .onPositioned { coordinates ->
-                itemWidth.value = coordinates.size.width.value * 2 / 3f
+                itemWidth.value = coordinates.size.width * 2 / 3f
             }
     ) {
         val progress = 1 - itemBottom.value / height
@@ -143,11 +144,11 @@ private fun DrawScope.drawLeftItems(
     height: Float,
     index: Int
 ) {
-    val offset = Offset(center.dx - width * 1.5f + horizontalOffset + padding, size.height - height)
+    val offset = Offset(center.x - width * 1.5f + horizontalOffset + padding, size.height - height)
     val rectSize = Size(width - (2 * padding), height)
     drawRect(colors[index % colors.size], offset, rectSize)
 
-    if (offset.dx >= 0) {
+    if (offset.x >= 0) {
         // draw another item
         drawRect(
             colors[(index - 1 + colors.size) % colors.size],
@@ -164,11 +165,11 @@ private fun DrawScope.drawDismissingItem(
     index: Int,
     alpha: Float
 ) = drawRect(
-        colors[index % colors.size],
-        topLeft = Offset(center.dx - width / 2 + padding, bottom - height),
-        size = Size(width - (2 * padding), height),
-        alpha = alpha
-    )
+    colors[index % colors.size],
+    topLeft = Offset(center.x - width / 2 + padding, bottom - height),
+    size = Size(width - (2 * padding), height),
+    alpha = alpha
+)
 
 private val colors = listOf(
     Color(0xFFffd7d7),

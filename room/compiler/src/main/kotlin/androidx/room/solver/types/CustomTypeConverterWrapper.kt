@@ -34,7 +34,11 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
 
     override fun convert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            if (custom.isStatic) {
+            if (custom.isEnclosingClassKotlinObject) {
+                addStatement("$L = $T.INSTANCE.$L($L)",
+                    outputVarName, custom.typeName,
+                    custom.methodName, inputVarName)
+            } else if (custom.isStatic) {
                 addStatement("$L = $T.$L($L)",
                         outputVarName, custom.typeName,
                         custom.methodName, inputVarName)

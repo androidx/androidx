@@ -19,12 +19,12 @@ package androidx.ui.util {
     method public static float lerp(float start, float stop, float fraction);
     method public static int lerp(int start, int stop, float fraction);
     method public static long lerp(long start, long stop, float fraction);
-    method public static String toHexString(int);
+    method @kotlin.UseExperimental(markerClass=kotlin.ExperimentalUnsignedTypes::class) public static String toHexString(int);
     method public static String toStringAsFixed(float, int digits);
   }
 
   public final class SynchronizationHelperKt {
-    method public static <T> T! synchronized(Object lock, kotlin.jvm.functions.Function0<? extends T> block);
+    method @kotlin.UseExperimental(markerClass=ExperimentalContracts::class) public static <T> T! synchronized(Object lock, kotlin.jvm.functions.Function0<? extends T> block);
   }
 
   public final class TraceKt {

@@ -19,11 +19,12 @@ package androidx.ui.test.inputdispatcher
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_UP
 import androidx.test.filters.SmallTest
+import androidx.ui.geometry.Offset
 import androidx.ui.test.InputDispatcher
+import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.unit.Duration
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
@@ -33,8 +34,6 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-
-private val anyPosition = PxPosition.Origin
 
 /**
  * Tests if [AndroidInputDispatcher.delay] works by performing three gestures with a delay in
@@ -53,21 +52,18 @@ class DelayTest(private val config: TestConfig) {
 
     enum class Gesture(internal val function: (InputDispatcher) -> Unit) {
         Click({ it.sendClick(anyPosition) }),
-        Swipe({ it.sendSwipe(anyPosition, anyPosition, 100.milliseconds) }),
-        Partial({
-            val token = it.sendDown(anyPosition)
-            it.sendMove(token, anyPosition)
-            it.sendUp(token, anyPosition)
-        })
+        Swipe({ it.sendSwipe(anyPosition, anyPosition, 107.milliseconds) })
     }
 
     companion object {
+        private val anyPosition = Offset.Zero
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
             return mutableListOf<TestConfig>().apply {
-                for (delay1 in listOf(0, 10, 100)) {
-                    for (delay2 in listOf(0, 23, 47)) {
+                for (delay1 in listOf(0, 23)) {
+                    for (delay2 in listOf(0, 47)) {
                         for (gesture1 in Gesture.values()) {
                             for (gesture2 in Gesture.values()) {
                                 for (gesture3 in Gesture.values()) {
@@ -90,16 +86,14 @@ class DelayTest(private val config: TestConfig) {
     }
 
     @get:Rule
-    val inputDispatcherRule: TestRule = AndroidInputDispatcher.TestRule(
-        disableDispatchInRealTime = true
-    )
+    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
 
     private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::sendEvent)
+    private val subject = AndroidInputDispatcher(recorder::recordEvent)
 
     @After
     fun tearDown() {
-        recorder.clear()
+        recorder.disposeEvents()
     }
 
     @Test

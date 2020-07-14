@@ -286,7 +286,7 @@ class PageFetcherTest {
     @Test
     fun jump() = testScope.runBlockingTest {
         pauseDispatcher {
-            var pagingSources = mutableListOf<PagingSource<Int, Int>>()
+            val pagingSources = mutableListOf<PagingSource<Int, Int>>()
             val pagingSourceFactory = { TestPagingSource().also { pagingSources.add(it) } }
             val config = PagingConfig(
                 pageSize = 1,
@@ -305,13 +305,38 @@ class PageFetcherTest {
             advanceUntilIdle()
 
             val expected: List<PageEvent<Int>> = listOf(
-                LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                LoadStateUpdate(REFRESH, false, Loading),
                 createRefresh(range = 50..51)
             )
             assertEvents(expected, fetcherState.pageEventLists[0])
             assertTrue { pagingSources[0].invalid }
 
             fetcherState.job.cancel()
+        }
+    }
+
+    @Test
+    fun checksFactoryForNewInstance() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pagingSource = TestPagingSource()
+            val config = PagingConfig(
+                pageSize = 1,
+                prefetchDistance = 1,
+                initialLoadSize = 2
+            )
+            val pageFetcher = PageFetcher({ pagingSource }, 50, config)
+            val job = testScope.launch {
+                assertFailsWith<IllegalStateException> {
+                    pageFetcher.flow.collect { }
+                }
+            }
+
+            advanceUntilIdle()
+
+            pageFetcher.refresh()
+            advanceUntilIdle()
+
+            assertTrue { job.isCompleted }
         }
     }
 }

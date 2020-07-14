@@ -16,16 +16,15 @@
  */
 package androidx.contentaccess
 
+import kotlin.reflect.KClass
+
 /**
  * Annotates a method that accesses a content provider.
  *
  * Both the updates and selection parameters are ignored if the method takes as input the entity
  * as that entity will be updated instead.
  *
- * @property query The entity fields to updates (e.g arrayOf("column1 = :value1",
- *     "column2 = :value2").
- *
- * @property selection The matching conditions, if empty applies to all (e.g "column1 = :value").
+ * @property where The matching conditions, if empty applies to all (e.g "column1 = :value").
  *
  * @property uri The string representation of the uri to query, if empty then uses the entity's uri,
  * if existing.
@@ -33,7 +32,7 @@ package androidx.contentaccess
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION)
 annotation class ContentUpdate(
-    val updates: Array<String>,
-    val selection: String,
-    val uri: String
+    val where: String = "",
+    val uri: String = "",
+    val contentEntity: KClass<*> = Void::class
 )

@@ -59,7 +59,6 @@ import androidx.media2.player.MediaPlayer2.MediaPlayer2State;
 import androidx.media2.player.TestUtils.Monitor;
 import androidx.media2.player.test.R;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,7 +72,6 @@ import java.util.List;
 import java.util.concurrent.Executors;
 
 @RunWith(Parameterized.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
 public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final String LOG_TAG = "MediaPlayer2StateTest";
 

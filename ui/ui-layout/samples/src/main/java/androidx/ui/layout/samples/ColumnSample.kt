@@ -27,14 +27,12 @@ import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-import androidx.ui.unit.max
-import androidx.ui.unit.min
+import kotlin.math.max
+import kotlin.math.min
 
 @Sampled
 @Composable
@@ -45,8 +43,9 @@ fun SimpleColumn() {
         // Has weight, the child will occupy half of the remaining height.
         Box(Modifier.preferredWidth(40.dp).weight(1f), backgroundColor = Color.Yellow)
         // Has weight and does not fill, the child will occupy at most half of the remaining height.
+        // Therefore it will occupy 80.dp (its preferred height) if the assigned height is larger.
         Box(
-            Modifier.preferredHeight(80.dp)
+            Modifier.preferredSize(40.dp, 80.dp)
                 .weight(1f, fill = false),
             backgroundColor = Color.Green
         )
@@ -91,7 +90,7 @@ fun SimpleRelativeToSiblings() {
         // Center of the first rectangle is aligned to the right edge of the second rectangle and
         // left edge of the third one.
         Box(
-            Modifier.preferredSize(80.dp, 40.dp).alignWithSiblings { it.width * 0.5 },
+            Modifier.preferredSize(80.dp, 40.dp).alignWithSiblings { it.width / 2 },
             backgroundColor = Color.Blue
         )
         Box(
@@ -99,7 +98,7 @@ fun SimpleRelativeToSiblings() {
             backgroundColor = Color.Magenta
         )
         Box(
-            Modifier.preferredSize(80.dp, 40.dp).alignWithSiblings { 0.ipx },
+            Modifier.preferredSize(80.dp, 40.dp).alignWithSiblings { 0 },
             backgroundColor = Color.Red
         )
     }
@@ -124,10 +123,10 @@ fun SimpleRelativeToSiblingsInColumn() {
         Layout(
             children = { },
             modifier = modifier.drawBackground(color = color)
-        ) { _, constraints, _ ->
+        ) { _, constraints ->
             val widthPx = max(width.toIntPx(), constraints.minWidth)
             val heightPx = max(height.toIntPx(), constraints.minHeight)
-            layout(widthPx, heightPx, mapOf(start to 0.ipx, end to widthPx)) {}
+            layout(widthPx, heightPx, mapOf(start to 0, end to widthPx)) {}
         }
     }
 
@@ -135,7 +134,7 @@ fun SimpleRelativeToSiblingsInColumn() {
         // Center of the first rectangle is aligned to the right edge of the second rectangle and
         // left edge of the third one.
         Box(
-            Modifier.preferredSize(80.dp, 40.dp).alignWithSiblings { it.width * 0.5 },
+            Modifier.preferredSize(80.dp, 40.dp).alignWithSiblings { it.width / 2 },
             backgroundColor = Color.Blue
         )
         RectangleWithStartEnd(

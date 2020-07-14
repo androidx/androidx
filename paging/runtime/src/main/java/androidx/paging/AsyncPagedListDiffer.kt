@@ -270,7 +270,11 @@ open class AsyncPagedListDiffer<T : Any> {
             "kotlinx.coroutines.Dispatchers"
         )
     )
-    constructor(listUpdateCallback: ListUpdateCallback, config: AsyncDifferConfig<T>) {
+    constructor(
+        listUpdateCallback: ListUpdateCallback,
+        @Suppress("ListenerLast")
+        config: AsyncDifferConfig<T>
+    ) {
         updateCallback = listUpdateCallback
         this.config = config
     }
@@ -282,6 +286,8 @@ open class AsyncPagedListDiffer<T : Any> {
      *
      * @param index Index of item to get, must be >= 0, and < `getItemCount`.
      * @return The item, or null, if a null placeholder is at the specified position.
+     *
+     * @throws IndexOutOfBoundsException if [itemCount] is 0.
      */
     open fun getItem(index: Int): T? {
         val snapshot = this.snapshot
@@ -324,6 +330,8 @@ open class AsyncPagedListDiffer<T : Any> {
      * @param pagedList The new [PagedList].
      * @param commitCallback Optional runnable that is executed when the PagedList is committed, if
      * it is committed.
+     *
+     * @throws IllegalStateException if previous PagedList wasn't snapshotted correctly.
      */
     open fun submitList(
         @Suppress("DEPRECATION") pagedList: PagedList<T>?,

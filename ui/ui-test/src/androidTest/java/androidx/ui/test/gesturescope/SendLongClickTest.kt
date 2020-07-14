@@ -19,109 +19,52 @@ package androidx.ui.test.gesturescope
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.core.gesture.longPressGestureFilter
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
-import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendLongClick
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.longClick
 import androidx.ui.test.util.ClickableTestBox
-import androidx.ui.test.util.PointerInputRecorder
-import androidx.ui.test.util.areAlmostEqualTo
-import androidx.ui.test.util.assertOnlyLastEventIsUp
-import androidx.ui.test.util.assertTimestampsAreIncreasing
+import androidx.ui.test.util.ClickableTestBox.defaultSize
+import androidx.ui.test.util.ClickableTestBox.defaultTag
+import androidx.ui.test.util.SinglePointerInputRecorder
+import androidx.ui.test.util.isAlmostEqualTo
 import androidx.ui.test.util.recordedDuration
-import androidx.ui.unit.PxPosition
+import androidx.ui.test.waitForIdle
+import androidx.ui.unit.Duration
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.junit.runners.Parameterized
 
-private const val tag = "widget"
-private val width = 100.0f
-private val height = 100.0f
-private val expectedDuration = LongPressTimeout + 100.milliseconds
-
 /**
- * Tests [sendLongClick] without arguments. Verifies that the click is in the middle
- * of the component, that the gesture has a duration of 600 milliseconds and that all input
- * events were on the same location.
- */
-@MediumTest
-@RunWith(JUnit4::class)
-class SendLongClickWithoutArgumentsTest {
-
-    @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
-
-    private val recorder = PointerInputRecorder()
-    private val recordedLongClicks = mutableListOf<PxPosition>()
-    private val expectedPosition = PxPosition(width / 2, height / 2)
-
-    private fun recordLongPress(position: PxPosition) {
-        recordedLongClicks.add(position)
-    }
-
-    @Test
-    fun testLongClick() {
-        // Given some content
-        composeTestRule.setContent {
-            Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
-                ClickableTestBox(
-                    modifier = Modifier.longPressGestureFilter(::recordLongPress).plus(recorder),
-                    width = width,
-                    height = height,
-                    tag = tag
-                )
-            }
-        }
-
-        // When we inject a long click
-        findByTag(tag).doGesture { sendLongClick() }
-
-        // Then we record 1 long click
-        assertThat(recordedLongClicks).hasSize(1)
-
-        // And all events are at the click location
-        runOnIdleCompose {
-            recorder.run {
-                assertTimestampsAreIncreasing()
-                assertOnlyLastEventIsUp()
-                events.areAlmostEqualTo(expectedPosition)
-                assertThat(recordedDuration).isEqualTo(expectedDuration)
-            }
-        }
-    }
-}
-
-/**
- * Tests [sendLongClick] with arguments. Verifies that the click is in the middle
+ * Tests [longClick] with arguments. Verifies that the click is in the middle
  * of the component, that the gesture has a duration of 600 milliseconds and that all input
  * events were on the same location.
  */
 @MediumTest
 @RunWith(Parameterized::class)
-class SendLongClickWithArgumentsTest(private val config: TestConfig) {
-    data class TestConfig(
-        val position: PxPosition
-    )
+class SendLongClickTest(private val config: TestConfig) {
+    data class TestConfig(val position: Offset?, val duration: Duration?)
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
             return mutableListOf<TestConfig>().apply {
-                for (x in listOf(1.0f, width / 4)) {
-                    for (y in listOf(1.0f, height / 4)) {
-                        add(TestConfig(PxPosition(x, y)))
+                for (duration in listOf(null, 700.milliseconds)) {
+                    for (x in listOf(1.0f, defaultSize / 4)) {
+                        for (y in listOf(1.0f, defaultSize / 3)) {
+                            add(TestConfig(Offset(x, y), duration))
+                        }
                     }
+                    add(TestConfig(null, duration))
                 }
             }
         }
@@ -130,41 +73,45 @@ class SendLongClickWithArgumentsTest(private val config: TestConfig) {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
 
-    private val recorder = PointerInputRecorder()
-    private val recordedLongClicks = mutableListOf<PxPosition>()
+    private val recordedLongClicks = mutableListOf<Offset>()
+    private val expectedClickPosition =
+        config.position ?: Offset(defaultSize / 2, defaultSize / 2)
+    private val expectedDuration = config.duration ?: 600.milliseconds
 
-    private fun recordLongPress(position: PxPosition) {
+    private fun recordLongPress(position: Offset) {
         recordedLongClicks.add(position)
     }
 
     @Test
     fun testLongClick() {
         // Given some content
+        val recorder = SinglePointerInputRecorder()
         composeTestRule.setContent {
             Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
-                ClickableTestBox(
-                    modifier = Modifier.longPressGestureFilter(::recordLongPress).plus(recorder),
-                    width = width,
-                    height = height,
-                    tag = tag
-                )
+                ClickableTestBox(Modifier.longPressGestureFilter(::recordLongPress) + recorder)
             }
         }
 
         // When we inject a long click
-        findByTag(tag).doGesture { sendLongClick(config.position) }
-
-        // Then we record 1 long click
-        assertThat(recordedLongClicks).hasSize(1)
-
-        // And all events are at the click location
-        runOnIdleCompose {
-            recorder.run {
-                assertTimestampsAreIncreasing()
-                assertOnlyLastEventIsUp()
-                events.areAlmostEqualTo(config.position)
-                assertThat(recordedDuration).isEqualTo(expectedDuration)
+        onNodeWithTag(defaultTag).performGesture {
+            if (config.position != null && config.duration != null) {
+                longClick(config.position, config.duration)
+            } else if (config.position != null) {
+                longClick(config.position)
+            } else if (config.duration != null) {
+                longClick(duration = config.duration)
+            } else {
+                longClick()
             }
         }
+
+        waitForIdle()
+
+        // Then we record 1 long click at the expected position
+        assertThat(recordedLongClicks).hasSize(1)
+        recordedLongClicks[0].isAlmostEqualTo(expectedClickPosition)
+
+        // And that the duration was as expected
+        assertThat(recorder.recordedDuration).isEqualTo(expectedDuration)
     }
 }

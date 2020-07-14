@@ -16,21 +16,25 @@
 
 package androidx.ui.material
 
+import androidx.animation.AnimationConstants.Infinite
 import androidx.animation.CubicBezierEasing
 import androidx.animation.FloatPropKey
-import androidx.animation.Infinite
 import androidx.animation.IntPropKey
 import androidx.animation.LinearEasing
+import androidx.animation.keyframes
+import androidx.animation.repeatable
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
+import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.DeterminateProgressIndicator
 import androidx.ui.foundation.Strings
+import androidx.ui.foundation.determinateProgressIndicator
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
@@ -40,7 +44,6 @@ import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.graphics.vectormath.degrees
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
-import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
@@ -60,18 +63,14 @@ fun LinearProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary
 ) {
-    DeterminateProgressIndicator(progress = progress) {
-        val stroke = with(DensityAmbient.current) {
-            Stroke(
-                width = ProgressIndicatorConstants.DefaultStrokeWidth.toPx().value,
-                cap = StrokeCap.butt
-            )
-        }
-        val backgroundColor = color.copy(alpha = BackgroundOpacity)
-        Canvas(modifier.preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)) {
-            drawLinearIndicatorBackground(backgroundColor, stroke)
-            drawLinearIndicator(0f, progress, color, stroke)
-        }
+    val backgroundColor = color.copy(alpha = BackgroundOpacity)
+    Canvas(
+        modifier.determinateProgressIndicator(progress)
+            .preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)
+    ) {
+        val strokeWidth = ProgressIndicatorConstants.DefaultStrokeWidth.toPx()
+        drawLinearIndicatorBackground(backgroundColor, strokeWidth)
+        drawLinearIndicator(0f, progress, color, strokeWidth)
     }
 }
 
@@ -86,42 +85,38 @@ fun LinearProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary
 ) {
-    // TODO(b/154875304) create IndeterminateProgressIndicator in foundation and move the
-    //  semantics there
-    Semantics(container = true, properties = { accessibilityValue = Strings.InProgress }) {
-        Transition(
-            definition = LinearIndeterminateTransition,
-            initState = 0,
-            toState = 1
-        ) { state ->
-            val firstLineHead = state[FirstLineHeadProp]
-            val firstLineTail = state[FirstLineTailProp]
-            val secondLineHead = state[SecondLineHeadProp]
-            val secondLineTail = state[SecondLineTailProp]
-            val backgroundColor = color.copy(alpha = BackgroundOpacity)
-            val stroke = with(DensityAmbient.current) {
-                Stroke(
-                    width = ProgressIndicatorConstants.DefaultStrokeWidth.toPx().value,
-                    cap = StrokeCap.butt
-                )
-            }
-            Canvas(modifier.preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)) {
-                drawLinearIndicatorBackground(backgroundColor, stroke)
-                if (firstLineHead - firstLineTail > 0) {
-                    drawLinearIndicator(
-                        firstLineHead,
-                        firstLineTail,
-                        color,
-                        stroke)
-                }
-                if ((secondLineHead - secondLineTail) > 0) {
-                    drawLinearIndicator(
-                        secondLineHead,
-                        secondLineTail,
-                        color,
-                        stroke)
-                }
-            }
+    val state = transition(
+        definition = LinearIndeterminateTransition,
+        initState = 0,
+        toState = 1
+    )
+    val firstLineHead = state[FirstLineHeadProp]
+    val firstLineTail = state[FirstLineTailProp]
+    val secondLineHead = state[SecondLineHeadProp]
+    val secondLineTail = state[SecondLineTailProp]
+    val backgroundColor = color.copy(alpha = BackgroundOpacity)
+    Canvas(modifier
+        // TODO(b/154875304) create IndeterminateProgressIndicator in foundation and move the
+        //  semantics there
+        .semantics { accessibilityValue = Strings.InProgress }
+        .preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)) {
+        val strokeWidth = ProgressIndicatorConstants.DefaultStrokeWidth.toPx()
+        drawLinearIndicatorBackground(backgroundColor, strokeWidth)
+        if (firstLineHead - firstLineTail > 0) {
+            drawLinearIndicator(
+                firstLineHead,
+                firstLineTail,
+                color,
+                strokeWidth
+            )
+        }
+        if ((secondLineHead - secondLineTail) > 0) {
+            drawLinearIndicator(
+                secondLineHead,
+                secondLineTail,
+                color,
+                strokeWidth
+            )
         }
     }
 }
@@ -130,7 +125,7 @@ private fun DrawScope.drawLinearIndicator(
     startFraction: Float,
     endFraction: Float,
     color: Color,
-    stroke: Stroke
+    strokeWidth: Float
 ) {
     val width = size.width
     val height = size.height
@@ -142,13 +137,13 @@ private fun DrawScope.drawLinearIndicator(
     val barEnd = (if (isLtr) endFraction else 1f - startFraction) * width
 
     // Progress line
-    drawLine(color, Offset(barStart, yOffset), Offset(barEnd, yOffset), stroke)
+    drawLine(color, Offset(barStart, yOffset), Offset(barEnd, yOffset), strokeWidth)
 }
 
 private fun DrawScope.drawLinearIndicatorBackground(
     color: Color,
-    stroke: Stroke
-) = drawLinearIndicator(0f, 1f, color, stroke)
+    strokeWidth: Float
+) = drawLinearIndicator(0f, 1f, color, strokeWidth)
 
 /**
  * A determinate circular progress indicator that represents progress by drawing an arc ranging from
@@ -166,20 +161,19 @@ fun CircularProgressIndicator(
     color: Color = MaterialTheme.colors.primary,
     strokeWidth: Dp = ProgressIndicatorConstants.DefaultStrokeWidth
 ) {
-    DeterminateProgressIndicator(progress = progress) {
-        val stroke = with(DensityAmbient.current) {
-            Stroke(width = strokeWidth.toPx().value, cap = StrokeCap.butt)
-        }
-        Canvas(
-            modifier
-                .padding(CircularIndicatorPadding)
-                .preferredSize(CircularIndicatorDiameter)
-        ) {
-            // Start at 12 O'clock
-            val startAngle = 270f
-            val sweep = progress * 360f
-            drawDeterminateCircularIndicator(startAngle, sweep, color, stroke)
-        }
+    val stroke = with(DensityAmbient.current) {
+        Stroke(width = strokeWidth.toPx(), cap = StrokeCap.butt)
+    }
+    Canvas(
+        modifier
+            .determinateProgressIndicator(progress)
+            .padding(CircularIndicatorPadding)
+            .preferredSize(CircularIndicatorDiameter)
+    ) {
+        // Start at 12 O'clock
+        val startAngle = 270f
+        val sweep = progress * 360f
+        drawDeterminateCircularIndicator(startAngle, sweep, color, stroke)
     }
 }
 
@@ -196,38 +190,37 @@ fun CircularProgressIndicator(
     color: Color = MaterialTheme.colors.primary,
     strokeWidth: Dp = ProgressIndicatorConstants.DefaultStrokeWidth
 ) {
-    // TODO(b/154875304) create IndeterminateProgressIndicator in foundation and move the
-    //  semantics there
-    Semantics(container = true, properties = { accessibilityValue = Strings.InProgress }) {
-        val stroke = with(DensityAmbient.current) {
-            Stroke(width = strokeWidth.toPx().value, cap = StrokeCap.square)
-        }
-        Transition(
-            definition = CircularIndeterminateTransition,
-            initState = 0,
-            toState = 1
-        ) { state ->
-            val currentRotation = state[IterationProp]
-            val baseRotation = state[BaseRotationProp]
+    val stroke = with(DensityAmbient.current) {
+        Stroke(width = strokeWidth.toPx(), cap = StrokeCap.square)
+    }
+    val state = transition(
+        definition = CircularIndeterminateTransition,
+        initState = 0,
+        toState = 1
+    )
+    val currentRotation = state[IterationProp]
+    val baseRotation = state[BaseRotationProp]
 
-            val currentRotationAngleOffset = (currentRotation * RotationAngleOffset) % 360f
+    val currentRotationAngleOffset = (currentRotation * RotationAngleOffset) % 360f
 
-            var startAngle = state[TailRotationProp]
-            val endAngle = state[HeadRotationProp]
-            // How long a line to draw using the start angle as a reference point
-            val sweep = abs(endAngle - startAngle)
+    var startAngle = state[TailRotationProp]
+    val endAngle = state[HeadRotationProp]
+    // How long a line to draw using the start angle as a reference point
+    val sweep = abs(endAngle - startAngle)
 
-            // Offset by the constant offset and the per rotation offset
-            startAngle += StartAngleOffset + currentRotationAngleOffset
-            startAngle += baseRotation
+    // Offset by the constant offset and the per rotation offset
+    startAngle += StartAngleOffset + currentRotationAngleOffset
+    startAngle += baseRotation
 
-            Canvas(
-                modifier.padding(CircularIndicatorPadding)
-                    .preferredSize(CircularIndicatorDiameter)
-            ) {
-                drawIndeterminateCircularIndicator(startAngle, strokeWidth, sweep, color, stroke)
-            }
-        }
+    Canvas(
+        modifier
+            // TODO(b/154875304) create IndeterminateProgressIndicator in foundation and move the
+            //  semantics there
+            .semantics { accessibilityValue = Strings.InProgress }
+            .padding(CircularIndicatorPadding)
+            .preferredSize(CircularIndicatorDiameter)
+    ) {
+        drawIndeterminateCircularIndicator(startAngle, strokeWidth, sweep, color, stroke)
     }
 }
 
@@ -355,38 +348,38 @@ private val LinearIndeterminateTransition = transitionDefinition {
     }
 
     transition(fromState = 0, toState = 1) {
-        FirstLineHeadProp using repeatable {
-            iterations = Infinite
+        FirstLineHeadProp using repeatable(
+            iterations = Infinite,
             animation = keyframes {
-                duration = LinearAnimationDuration
+                durationMillis = LinearAnimationDuration
                 0f at FirstLineHeadDelay with FirstLineHeadEasing
                 1f at FirstLineHeadDuration + FirstLineHeadDelay
             }
-        }
-        FirstLineTailProp using repeatable {
-            iterations = Infinite
+        )
+        FirstLineTailProp using repeatable(
+            iterations = Infinite,
             animation = keyframes {
-                duration = LinearAnimationDuration
+                durationMillis = LinearAnimationDuration
                 0f at FirstLineTailDelay with FirstLineTailEasing
                 1f at FirstLineTailDuration + FirstLineTailDelay
             }
-        }
-        SecondLineHeadProp using repeatable {
-            iterations = Infinite
+        )
+        SecondLineHeadProp using repeatable(
+            iterations = Infinite,
             animation = keyframes {
-                duration = LinearAnimationDuration
+                durationMillis = LinearAnimationDuration
                 0f at SecondLineHeadDelay with SecondLineHeadEasing
                 1f at SecondLineHeadDuration + SecondLineHeadDelay
             }
-        }
-        SecondLineTailProp using repeatable {
-            iterations = Infinite
+        )
+        SecondLineTailProp using repeatable(
+            iterations = Infinite,
             animation = keyframes {
-                duration = LinearAnimationDuration
+                durationMillis = LinearAnimationDuration
                 0f at SecondLineTailDelay with SecondLineTailEasing
                 1f at SecondLineTailDuration + SecondLineTailDelay
             }
-        }
+        )
     }
 }
 
@@ -444,35 +437,35 @@ private val CircularIndeterminateTransition = transitionDefinition {
     }
 
     transition(fromState = 0, toState = 1) {
-        IterationProp using repeatable {
-            iterations = Infinite
-            animation = tween {
-                duration = RotationDuration * RotationsPerCycle
+        IterationProp using repeatable(
+            iterations = Infinite,
+            animation = tween(
+                durationMillis = RotationDuration * RotationsPerCycle,
                 easing = LinearEasing
-            }
-        }
-        BaseRotationProp using repeatable {
-            iterations = Infinite
-            animation = tween {
-                duration = RotationDuration
+            )
+        )
+        BaseRotationProp using repeatable(
+            iterations = Infinite,
+            animation = tween(
+                durationMillis = RotationDuration,
                 easing = LinearEasing
-            }
-        }
-        HeadRotationProp using repeatable {
-            iterations = Infinite
+            )
+        )
+        HeadRotationProp using repeatable(
+            iterations = Infinite,
             animation = keyframes {
-                duration = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
+                durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
                 0f at 0 with CircularEasing
                 JumpRotationAngle at HeadAndTailAnimationDuration
             }
-        }
-        TailRotationProp using repeatable {
-            iterations = Infinite
+        )
+        TailRotationProp using repeatable(
+            iterations = Infinite,
             animation = keyframes {
-                duration = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
+                durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
                 0f at HeadAndTailDelayDuration with CircularEasing
-                JumpRotationAngle at duration
+                JumpRotationAngle at durationMillis
             }
-        }
+        )
     }
 }

@@ -18,44 +18,44 @@ package androidx.ui.test
 
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.ui.core.AndroidOwner
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Rect
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.SemanticsProperties
-import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.height
-import androidx.ui.unit.px
+import androidx.ui.unit.toRect
 import androidx.ui.unit.width
 
 /**
- * Asserts that the current component has hidden property set to true.
+ * Asserts that the current semantics node has hidden property set to true.
  *
- * Note that this does not verify parents of the component. For stronger guarantees of visibility
- * see [assertIsNotDisplayed]. If you want to assert that the component is not even in the hierarchy
+ * Note that this does not verify parents of the node. For stronger guarantees of visibility
+ * see [assertIsNotDisplayed]. If you want to assert that the node is not even in the hierarchy
  * use [SemanticsNodeInteraction.assertDoesNotExist].
  *
- * Throws [AssertionError] if the component is not hidden.
+ * Throws [AssertionError] if the node is not hidden.
  */
 fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction = assert(isHidden())
 
 /**
- * Asserts that the current component has hidden property set to false.
+ * Asserts that the current semantics node has hidden property set to false.
  *
- * Note that this does not verify parents of the component. For stronger guarantees of visibility
- * see [assertIsDisplayed]. If you only want to assert that the component is in the hierarchy use
+ * Note that this does not verify parents of the node. For stronger guarantees of visibility
+ * see [assertIsDisplayed]. If you only want to assert that the node is in the hierarchy use
  * [SemanticsNodeInteraction.assertExists]
  *
- * Throws [AssertionError] if the component is hidden.
+ * Throws [AssertionError] if the node is hidden.
  */
 fun SemanticsNodeInteraction.assertIsNotHidden(): SemanticsNodeInteraction = assert(isNotHidden())
 
 /**
- * Asserts that the current component is displayed on screen.
+ * Asserts that the current semantics node is displayed on screen.
  *
- * Throws [AssertionError] if the component is not displayed.
+ * Throws [AssertionError] if the node is not displayed.
  */
 fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteraction {
     // TODO(b/143607231): check semantics hidden property
@@ -69,9 +69,9 @@ fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteraction {
 }
 
 /**
- * Asserts that the current component is not displayed on screen.
+ * Asserts that the current semantics node is not displayed on screen.
  *
- * Throws [AssertionError] if the component is displayed.
+ * Throws [AssertionError] if the node is displayed.
  */
 fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
     // TODO(b/143607231): check semantics hidden property
@@ -85,81 +85,89 @@ fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
 }
 
 /**
- * Asserts that the current component is enabled.
+ * Asserts that the current semantics node is enabled.
  *
- * Throws [AssertionError] if the component is not enabled or does not define the property at all.
+ * Throws [AssertionError] if the node is not enabled or does not define the property at all.
  */
 fun SemanticsNodeInteraction.assertIsEnabled(): SemanticsNodeInteraction = assert(isEnabled())
 
 /**
- * Asserts that the current component is not enabled.
+ * Asserts that the current semantics node is not enabled.
  *
- * Throws [AssertionError] if the component is enabled or does not defined the property at all.
+ * Throws [AssertionError] if the node is enabled or does not defined the property at all.
  */
 fun SemanticsNodeInteraction.assertIsNotEnabled(): SemanticsNodeInteraction = assert(isNotEnabled())
 
 /**
- * Asserts that the current component is checked.
+ * Asserts that the current semantics node is checked.
  *
- * Throws [AssertionError] if the component is not unchecked, indeterminate, or not toggleable.
+ * Throws [AssertionError] if the node is not unchecked, indeterminate, or not toggleable.
  */
 fun SemanticsNodeInteraction.assertIsOn(): SemanticsNodeInteraction = assert(isOn())
 
 /**
- * Asserts that the current component is unchecked.
+ * Asserts that the current semantics node is unchecked.
  *
- * Throws [AssertionError] if the component is checked, indeterminate, or not toggleable.
+ * Throws [AssertionError] if the node is checked, indeterminate, or not toggleable.
  */
 fun SemanticsNodeInteraction.assertIsOff(): SemanticsNodeInteraction = assert(isOff())
 
 /**
- * Asserts that the current component is selected.
+ * Asserts that the current semantics node is selected.
  *
- * Throws [AssertionError] if the component is unselected or not selectable.
+ * Throws [AssertionError] if the node is unselected or not selectable.
  */
 fun SemanticsNodeInteraction.assertIsSelected(): SemanticsNodeInteraction = assert(isSelected())
 
 /**
- * Asserts that the current component is unselected.
+ * Asserts that the current semantics node is unselected.
  *
- * Throws [AssertionError] if the component is selected or not selectable.
+ * Throws [AssertionError] if the node is selected or not selectable.
  */
 fun SemanticsNodeInteraction.assertIsUnselected(): SemanticsNodeInteraction =
     assert(isUnselected())
 
 /**
- * Asserts that the current component is toggleable.
+ * Asserts that the current semantics node is toggleable.
  *
- * Throws [AssertionError] if the component is not toggleable.
+ * Throws [AssertionError] if the node is not toggleable.
  */
 fun SemanticsNodeInteraction.assertIsToggleable(): SemanticsNodeInteraction =
     assert(isToggleable())
 
 /**
- * Asserts that the current component is selectable.
+ * Asserts that the current semantics node is selectable.
  *
- * Throws [AssertionError] if the component is not selectable.
+ * Throws [AssertionError] if the node is not selectable.
  */
 fun SemanticsNodeInteraction.assertIsSelectable(): SemanticsNodeInteraction =
     assert(isSelectable())
 
 /**
- * Asserts the component is in a mutually exclusive group. This is used by radio groups to assert
- * only one is selected at a given time.
+ * Asserts the semantics node is in a mutually exclusive group. This is used by radio groups to
+ * assert only one is selected at a given time.
  */
 fun SemanticsNodeInteraction.assertIsInMutuallyExclusiveGroup(): SemanticsNodeInteraction =
     assert(isInMutuallyExclusiveGroup())
 
 /**
- * Asserts the component's label equals the given String.
+ * Asserts the node's label equals the given String.
  * For further details please check [SemanticsProperties.AccessibilityLabel].
  * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
  */
 fun SemanticsNodeInteraction.assertLabelEquals(value: String): SemanticsNodeInteraction =
+    assert(hasLabel(value))
+
+/**
+ * Asserts the node's text equals the given String.
+ * For further details please check [SemanticsProperties.Text].
+ * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
+ */
+fun SemanticsNodeInteraction.assertTextEquals(value: String): SemanticsNodeInteraction =
     assert(hasText(value))
 
 /**
- * Asserts the component's value equals the given value.
+ * Asserts the node's value equals the given value.
  *
  * For further details please check [SemanticsProperties.AccessibilityValue].
  * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
@@ -168,7 +176,7 @@ fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInte
     assert(hasValue(value))
 
 /**
- * Asserts the component's range info equals the given value.
+ * Asserts the node's range info equals the given value.
  *
  * For further details please check [SemanticsProperties.AccessibilityRangeInfo].
  * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
@@ -178,17 +186,17 @@ fun SemanticsNodeInteraction.assertRangeInfoEquals(value: AccessibilityRangeInfo
     assert(hasRangeInfo(value))
 
 /**
- * Asserts that the current component has a click action.
+ * Asserts that the current semantics node has a click action.
  *
- * Throws [AssertionError] if the component is doesn't have a click action.
+ * Throws [AssertionError] if the node is doesn't have a click action.
  */
 fun SemanticsNodeInteraction.assertHasClickAction(): SemanticsNodeInteraction =
     assert(hasClickAction())
 
 /**
- * Asserts that the current component doesn't have a click action.
+ * Asserts that the current semantics node has doesn't have a click action.
  *
- * Throws [AssertionError] if the component has a click action.
+ * Throws [AssertionError] if the node has a click action.
  */
 fun SemanticsNodeInteraction.assertHasNoClickAction(): SemanticsNodeInteraction =
     assert(hasNoClickAction())
@@ -289,6 +297,7 @@ fun SemanticsNodeInteractionCollection.assertAll(
     return this
 }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
     // hierarchy check - check layout nodes are visible
     val errorMessageOnFail = "Failed to perform isDisplayed check."
@@ -315,23 +324,37 @@ private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
         return false
     }
 
-    return (globalRect.width > 0.px && globalRect.height > 0.px)
+    return (globalRect.width > 0f && globalRect.height > 0f)
 }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
+private fun SemanticsNode.nodeBoundsInWindow(): Rect {
+    val composeView = (componentNode.owner as AndroidOwner).view
+    val rootLocationInWindow = intArrayOf(0, 0).let {
+        composeView.getLocationInWindow(it)
+        Offset(it[0].toFloat(), it[1].toFloat())
+    }
+    return boundsInRoot.toRect().shift(rootLocationInWindow)
+}
+
+@OptIn(ExperimentalLayoutNodeApi::class)
 private fun SemanticsNode.isInScreenBounds(): Boolean {
-    val nodeBounds = globalBounds
-    if (nodeBounds.width == 0.px && nodeBounds.height == 0.px) {
+    val composeView = (componentNode.owner as AndroidOwner).view
+
+    // Window relative bounds of our node
+    val nodeBoundsInWindow = nodeBoundsInWindow()
+    if (nodeBoundsInWindow.width == 0f || nodeBoundsInWindow.height == 0f) {
         return false
     }
 
-    val displayMetrics = (componentNode.owner as AndroidOwner).view.resources.displayMetrics
-    val screenBounds = PxBounds(
-        PxPosition.Origin,
-        PxSize(displayMetrics.widthPixels.px, displayMetrics.heightPixels.px)
-    )
+    // Window relative bounds of our compose root view that are visible on the screen
+    val globalRootRect = android.graphics.Rect()
+    if (!composeView.getGlobalVisibleRect(globalRootRect)) {
+        return false
+    }
 
-    return nodeBounds.top >= screenBounds.top &&
-            nodeBounds.left >= screenBounds.left &&
-            nodeBounds.right <= screenBounds.right &&
-            nodeBounds.bottom <= screenBounds.bottom
+    return nodeBoundsInWindow.top >= globalRootRect.top &&
+            nodeBoundsInWindow.left >= globalRootRect.left &&
+            nodeBoundsInWindow.right <= globalRootRect.right &&
+            nodeBoundsInWindow.bottom <= globalRootRect.bottom
 }

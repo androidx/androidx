@@ -124,17 +124,19 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     static final int INITIALIZING = -1;          // Not yet attached.
     static final int ATTACHED = 0;               // Attached to the host.
     static final int CREATED = 1;                // Created.
-    static final int AWAITING_EXIT_EFFECTS = 2;  // Downward state, awaiting exit effects
-    static final int ACTIVITY_CREATED = 3;       // Fully created, not started.
-    static final int STARTED = 4;                // Created and started, not resumed.
-    static final int AWAITING_ENTER_EFFECTS = 5; // Upward state, awaiting enter effects
-    static final int RESUMED = 6;                // Created started and resumed.
+    static final int VIEW_CREATED = 2;           // View Created.
+    static final int AWAITING_EXIT_EFFECTS = 3;  // Downward state, awaiting exit effects
+    static final int ACTIVITY_CREATED = 4;       // Fully created, not started.
+    static final int STARTED = 5;                // Created and started, not resumed.
+    static final int AWAITING_ENTER_EFFECTS = 6; // Upward state, awaiting enter effects
+    static final int RESUMED = 7;                // Created started and resumed.
 
     int mState = INITIALIZING;
 
     // When instantiated from saved state, this is the saved state.
     Bundle mSavedFragmentState;
     SparseArray<Parcelable> mSavedViewState;
+    Bundle mSavedViewRegistryState;
     // If the userVisibleHint is changed before the state is set,
     // it is stored here
     @Nullable Boolean mSavedUserVisibleHint;
@@ -546,19 +548,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     private void initLifecycle() {
         mLifecycleRegistry = new LifecycleRegistry(this);
         mSavedStateRegistryController = SavedStateRegistryController.create(this);
-        if (Build.VERSION.SDK_INT >= 19) {
-            mLifecycleRegistry.addObserver(new LifecycleEventObserver() {
-                @Override
-                public void onStateChanged(@NonNull LifecycleOwner source,
-                        @NonNull Lifecycle.Event event) {
-                    if (event == Lifecycle.Event.ON_STOP) {
-                        if (mView != null) {
-                            mView.cancelPendingInputEvents();
-                        }
-                    }
-                }
-            });
-        }
     }
 
     /**
@@ -627,6 +616,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mSavedViewState != null) {
             mView.restoreHierarchyState(mSavedViewState);
             mSavedViewState = null;
+        }
+        if (mView != null) {
+            mViewLifecycleOwner.performRestore(mSavedViewRegistryState);
+            mSavedViewRegistryState = null;
         }
         mCalled = false;
         onViewStateRestored(savedInstanceState);
@@ -1483,6 +1476,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * the signature of the app declaring the permissions.
      * </p>
      * <p>
+     * Call {@link #shouldShowRequestPermissionRationale(String)} before calling this API to
+     * check if the system recommends to show a rationale dialog before asking for a permission.
+     * </p>
+     * <p>
      * If your app does not have the requested permissions the user will be presented
      * with UI for accepting them. After the user has accepted or rejected the
      * requested permissions you will receive a callback on {@link
@@ -1511,29 +1508,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * can be useful if the way your app uses the data guarded by the permissions
      * changes significantly.
      * </p>
-     * <p>
-     * A sample permissions request looks like this:
-     * </p>
-     * <code><pre><p>
-     * private void showContacts() {
-     *     if (getActivity().checkSelfPermission(Manifest.permission.READ_CONTACTS)
-     *             != PackageManager.PERMISSION_GRANTED) {
-     *         requestPermissions(new String[]{Manifest.permission.READ_CONTACTS},
-     *                 PERMISSIONS_REQUEST_READ_CONTACTS);
-     *     } else {
-     *         doShowContacts();
-     *     }
-     * }
-     *
-     * {@literal @}Override
-     * public void onRequestPermissionsResult(int requestCode, String[] permissions,
-     *         int[] grantResults) {
-     *     if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS
-     *             && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-     *         doShowContacts();
-     *     }
-     * }
-     * </code></pre></p>
      *
      * @param permissions The requested permissions.
      * @param requestCode Application specific request code to match with a result reported to
@@ -1586,20 +1560,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Gets whether you should show UI with rationale for requesting a permission.
-     * You should do this only if you do not have the permission and the context in
-     * which the permission is requested does not clearly communicate to the user
-     * what would be the benefit from granting this permission.
-     * <p>
-     * For example, if you write a camera app, requesting the camera permission
-     * would be expected by the user and no rationale for why it is requested is
-     * needed. If however, the app needs location for tagging photos then a non-tech
-     * savvy user may wonder how location is related to taking photos. In this case
-     * you may choose to show UI with rationale of requesting this permission.
-     * </p>
+     * Gets whether you should show UI with rationale before requesting a permission.
      *
      * @param permission A permission your app wants to request.
-     * @return Whether you can show permission rationale UI.
+     * @return Whether you should show permission rationale UI.
      *
      * @see Context#checkSelfPermission(String)
      * @see #requestPermissions(String[], int)
@@ -1760,8 +1724,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * call to <code>onCreate</code>.</p>
      *
      * @param childFragment child fragment being attached
+     *
+     * @deprecated The responsibility for listening for fragments being attached has been moved
+     * to FragmentManager. You can add a listener to
+     * {@link #getChildFragmentManager()} the child FragmentManager} by calling
+     * {@link FragmentManager#addFragmentOnAttachListener(FragmentOnAttachListener)}
+     *  in {@link #onAttach(Context)} to get callbacks when a child fragment is attached.
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "DeprecatedIsStillUsed"})
+    @Deprecated
     @MainThread
     public void onAttachFragment(@NonNull Fragment childFragment) {
     }
@@ -2757,6 +2728,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
         if (listener != null) {
             listener.onStartEnterTransition();
+        } else if (FragmentManager.USE_STATE_MANAGER && mView != null
+                && mContainer != null && mFragmentManager != null) {
+            SpecialEffectsController controller = SpecialEffectsController.getOrCreateController(
+                    mContainer, mFragmentManager);
+            controller.markPostponedState();
+            controller.executePendingOperations();
         }
     }
 
@@ -2812,6 +2789,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mSavedViewState != null) {
             writer.print(prefix); writer.print("mSavedViewState=");
                     writer.println(mSavedViewState);
+        }
+        if (mSavedViewRegistryState != null) {
+            writer.print(prefix); writer.print("mSavedViewRegistryState=");
+                    writer.println(mSavedViewRegistryState);
         }
         Fragment target = getTargetFragment();
         if (target != null) {
@@ -2878,11 +2859,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onAttach()");
         }
-        if (mParentFragment == null) {
-            mHost.onAttachFragment(this);
-        } else {
-            mParentFragment.onAttachFragment(this);
-        }
+        mFragmentManager.dispatchOnAttachFragment(this);
         mChildFragmentManager.dispatchAttach();
     }
 
@@ -2890,6 +2867,19 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mChildFragmentManager.noteStateNotSaved();
         mState = CREATED;
         mCalled = false;
+        if (Build.VERSION.SDK_INT >= 19) {
+            mLifecycleRegistry.addObserver(new LifecycleEventObserver() {
+                @Override
+                public void onStateChanged(@NonNull LifecycleOwner source,
+                        @NonNull Lifecycle.Event event) {
+                    if (event == Lifecycle.Event.ON_STOP) {
+                        if (mView != null) {
+                            mView.cancelPendingInputEvents();
+                        }
+                    }
+                }
+            });
+        }
         mSavedStateRegistryController.performRestore(savedInstanceState);
         onCreate(savedInstanceState);
         mIsCreated = true;
@@ -2914,7 +2904,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             // ViewTree get() methods return something meaningful
             ViewTreeLifecycleOwner.set(mView, mViewLifecycleOwner);
             ViewTreeViewModelStoreOwner.set(mView, this);
-            ViewTreeSavedStateRegistryOwner.set(mView, this);
+            ViewTreeSavedStateRegistryOwner.set(mView, mViewLifecycleOwner);
             // Then inform any Observers of the new LifecycleOwner
             mViewLifecycleOwnerLiveData.setValue(mViewLifecycleOwner);
         } else {
@@ -2924,6 +2914,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             }
             mViewLifecycleOwner = null;
         }
+    }
+
+    void performViewCreated() {
+        // since calling super.onViewCreated() is not required, we do not need to set and check the
+        // `mCalled` flag
+        onViewCreated(mView, mSavedFragmentState);
+        mChildFragmentManager.dispatchViewCreated();
     }
 
     @SuppressWarnings("deprecation")
@@ -2936,7 +2933,18 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onActivityCreated()");
         }
+        restoreViewState();
         mChildFragmentManager.dispatchActivityCreated();
+    }
+
+    private void restoreViewState() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(FragmentManager.TAG, "moveto RESTORE_VIEW_STATE: " + this);
+        }
+        if (mView != null) {
+            restoreViewState(mSavedFragmentState);
+        }
+        mSavedFragmentState = null;
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -3376,6 +3384,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 if (delegate != null) {
                     delegate.unregister();
                 }
+            }
+
+            @NonNull
+            @Override
+            public ActivityResultContract<I, ?> getContract() {
+                return contract;
             }
         };
     }

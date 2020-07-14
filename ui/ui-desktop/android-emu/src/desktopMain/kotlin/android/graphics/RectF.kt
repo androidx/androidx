@@ -16,10 +16,16 @@
 
 package android.graphics
 
+import org.jetbrains.skija.Rect as SkRect
+
 class RectF(
+    @kotlin.jvm.JvmField
     var left: Float,
+    @kotlin.jvm.JvmField
     var top: Float,
+    @kotlin.jvm.JvmField
     var right: Float,
+    @kotlin.jvm.JvmField
     var bottom: Float
 ) {
     constructor() : this(0f, 0f, 0f, 0f)
@@ -30,4 +36,21 @@ class RectF(
         this.right = right
         this.bottom = bottom
     }
+
+    fun set(src: RectF) {
+        this.left = src.left
+        this.top = src.top
+        this.right = src.right
+        this.bottom = src.bottom
+    }
+
+    fun set(src: Rect) {
+        this.left = src.left.toFloat()
+        this.top = src.top.toFloat()
+        this.right = src.right.toFloat()
+        this.bottom = src.bottom.toFloat()
+    }
 }
+
+internal fun RectF.toSkia() =
+    SkRect.makeLTRB(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat())

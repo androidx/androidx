@@ -17,18 +17,13 @@
 package androidx.benchmark
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.os.Build
 import android.os.Bundle
-import android.os.Debug
 import android.util.Log
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Errors.PREFIX
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.Trace
-import java.io.File
 import java.util.concurrent.TimeUnit
 
 /**
@@ -208,48 +203,6 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         paused = false
     }
 
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun startProfilingTimeStageIfRequested() {
-        when (Arguments.profilingMode) {
-            ProfilingMode.Sampled, ProfilingMode.Method -> {
-                val path = File(
-                    Arguments.testOutputDir,
-                    "$traceUniqueName-${Arguments.profilingMode}.trace"
-                ).absolutePath
-
-                Log.d(TAG, "Profiling output file: $path")
-
-                val bufferSize = 16 * 1024 * 1024
-                if (Arguments.profilingMode == ProfilingMode.Sampled &&
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                ) {
-                    Debug.startMethodTracingSampling(path, bufferSize, 100)
-                } else {
-                    Debug.startMethodTracing(path, bufferSize, 0)
-                }
-            }
-            ProfilingMode.ConnectedAllocation, ProfilingMode.ConnectedSampled -> {
-                Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)
-            }
-            else -> {
-            }
-        }
-    }
-
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun stopProfilingTimeStageIfRequested() {
-        when (Arguments.profilingMode) {
-            ProfilingMode.Sampled, ProfilingMode.Method -> {
-                Debug.stopMethodTracing()
-            }
-            ProfilingMode.ConnectedAllocation, ProfilingMode.ConnectedSampled -> {
-                Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)
-            }
-            else -> {
-            }
-        }
-    }
-
     private fun beginRunningStage() {
         metrics = stages[state]
         repeatCount = 0
@@ -264,7 +217,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
                 Trace.beginSection("Warmup")
             }
             RUNNING_TIME_STAGE -> {
-                startProfilingTimeStageIfRequested()
+                Arguments.profiler?.start(traceUniqueName)
                 Trace.beginSection("Benchmark Time")
             }
             RUNNING_ALLOCATION_STAGE -> {
@@ -298,7 +251,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             }
             RUNNING_TIME_STAGE, RUNNING_ALLOCATION_STAGE -> {
                 if (state == RUNNING_TIME_STAGE) {
-                    stopProfilingTimeStageIfRequested()
+                    Arguments.profiler?.stop()
                 }
 
                 stats.addAll(metrics.captureFinished(maxIterations = iterationsPerRepeat))
@@ -312,7 +265,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             if (simplifiedTimingOnlyMode ||
                 Arguments.startupMode ||
                 Arguments.dryRunMode ||
-                Arguments.profilingMode != ProfilingMode.None
+                Arguments.profiler != null
             ) {
                 state++
             }
@@ -529,17 +482,14 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             // these 'legacy' CI output stats are considered output
             stats.forEach { it.putInBundle(status, PREFIX) }
         }
-        status.putIdeSummaryLine(
-            testName = key,
-            nanos = getMinTimeNanos(),
-            allocations = stats.firstOrNull { it.name == "allocationCount" }?.median
+        status.putAll(
+            InstrumentationResults.getIdeSummaryLine(
+                testName = key,
+                nanos = getMinTimeNanos(),
+                allocations = stats.firstOrNull { it.name == "allocationCount" }?.median
+            )
         )
         return status
-    }
-
-    private fun sendStatus(testName: String) {
-        val bundle = getFullStatusReport(key = testName, includeStats = Arguments.outputEnable)
-        InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK, bundle)
     }
 
     private fun sleepIfThermalThrottled(sleepSeconds: Long) = when {
@@ -565,7 +515,10 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     ) {
         checkState() // this method is triggered externally
         val fullTestName = "$PREFIX$simpleClassName.$methodName"
-        sendStatus(fullTestName)
+
+        InstrumentationResults.report(
+            getFullStatusReport(key = fullTestName, includeStats = !Arguments.dryRunMode)
+        )
 
         ResultWriter.appendReport(
             getReport(
@@ -584,29 +537,27 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         private const val RUNNING_ALLOCATION_STAGE = 2 // The alloc benchmarking stage is running.
         private const val FINISHED = 3 // The benchmark has stopped; all stages are finished.
 
-        private const val CONNECTED_PROFILING_SLEEP_MS = 20_000L
-
         // Values determined empirically.
         @VisibleForTesting
         internal val REPEAT_COUNT_TIME = when {
             Arguments.dryRunMode -> 1
-            Arguments.profilingMode == ProfilingMode.ConnectedAllocation -> 1
+            Arguments.profiler?.requiresSingleMeasurementIteration == true -> 1
             Arguments.startupMode -> 10
             else -> 50
         }
 
-        internal const val REPEAT_COUNT_ALLOCATION = 10
+        internal const val REPEAT_COUNT_ALLOCATION = 5
 
         private val OVERRIDE_ITERATIONS = if (
             Arguments.dryRunMode ||
             Arguments.startupMode ||
-            Arguments.profilingMode == ProfilingMode.ConnectedAllocation
+            Arguments.profiler?.requiresSingleMeasurementIteration == true
         ) 1 else null
 
-        internal val REPEAT_DURATION_TARGET_NS = when (Arguments.profilingMode) {
-            ProfilingMode.None, ProfilingMode.Method -> TimeUnit.MICROSECONDS.toNanos(500)
+        internal val REPEAT_DURATION_TARGET_NS = when (Arguments.profiler?.requiresExtraRuntime) {
             // longer measurements while profiling to ensure we have enough data
-            else -> TimeUnit.MILLISECONDS.toNanos(20)
+            true -> TimeUnit.MILLISECONDS.toNanos(50)
+            else -> TimeUnit.MICROSECONDS.toNanos(500)
         }
         internal const val MAX_TEST_ITERATIONS = 1_000_000
         internal const val MIN_TEST_ITERATIONS = 1
@@ -663,15 +614,15 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
                 warmupIterations = warmupIterations
             )
             // Report value to Studio console
-            val bundle = Bundle()
             val fullTestName = PREFIX +
                     if (className.isNotEmpty()) "$className.$testName" else testName
-            bundle.putIdeSummaryLine(
-                testName = fullTestName,
-                nanos = report.getStats("timeNs").min,
-                allocations = null
+            InstrumentationResults.report(
+                InstrumentationResults.getIdeSummaryLine(
+                    testName = fullTestName,
+                    nanos = report.getStats("timeNs").min,
+                    allocations = null
+                )
             )
-            InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK, bundle)
 
             // Report values to file output
             ResultWriter.appendReport(report)

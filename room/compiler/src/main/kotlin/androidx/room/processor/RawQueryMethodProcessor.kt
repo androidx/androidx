@@ -19,15 +19,19 @@ package androidx.room.processor
 import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.room.ext.SupportDbTypeNames
+import androidx.room.ext.asMemberOf
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.isEntityElement
+import androidx.room.ext.name
+import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.toAnnotationBox
+import androidx.room.ext.type
 import androidx.room.ext.typeName
 import androidx.room.parser.SqlParser
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
 import androidx.room.vo.RawQueryMethod
 import asTypeElement
-import com.google.auto.common.MoreTypes
+import isAssignableFrom
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
@@ -57,7 +61,7 @@ class RawQueryMethodProcessor(
         val inTransaction = executableElement.hasAnnotation(Transaction::class)
         val rawQueryMethod = RawQueryMethod(
                 element = executableElement,
-                name = executableElement.simpleName.toString(),
+                name = executableElement.name,
                 observedTableNames = observedTableNames,
                 returnType = returnType,
                 runtimeQueryParam = runtimeQueryParam,
@@ -94,7 +98,7 @@ class RawQueryMethodProcessor(
                         // if it is empty, report error as it does not make sense
                         if (tableNames.isEmpty()) {
                             context.logger.e(executableElement,
-                                    ProcessorErrors.rawQueryBadEntity(it.asType().typeName()))
+                                    ProcessorErrors.rawQueryBadEntity(it.type.typeName()))
                         }
                         tableNames
                     }
@@ -106,21 +110,17 @@ class RawQueryMethodProcessor(
     ): RawQueryMethod.RuntimeQueryParameter? {
         val types = context.processingEnv.typeUtils
         if (extractParams.size == 1 && !executableElement.isVarArgs) {
-            val param = MoreTypes.asMemberOf(
-                    types,
-                    containing,
-                    extractParams[0])
-            val elementUtils = context.processingEnv.elementUtils
-            val supportQueryType = elementUtils
-                    .getTypeElement(SupportDbTypeNames.QUERY.toString()).asType()
-            val isSupportSql = types.isAssignable(param, supportQueryType)
+            val param = extractParams.first().asMemberOf(types, containing)
+            val processingEnv = context.processingEnv
+            val supportQueryType = processingEnv.requireTypeMirror(SupportDbTypeNames.QUERY)
+            val isSupportSql = supportQueryType.isAssignableFrom(types, param)
             if (isSupportSql) {
                 return RawQueryMethod.RuntimeQueryParameter(
-                        paramName = extractParams[0].simpleName.toString(),
+                        paramName = extractParams[0].name,
                         type = supportQueryType.typeName())
             }
-            val stringType = elementUtils.getTypeElement("java.lang.String").asType()
-            val isString = types.isAssignable(param, stringType)
+            val stringType = processingEnv.requireTypeMirror("java.lang.String")
+            val isString = stringType.isAssignableFrom(types, param)
             if (isString) {
                 // special error since this was initially allowed but removed in 1.1 beta1
                 context.logger.e(executableElement, RAW_QUERY_STRING_PARAMETER_REMOVED)

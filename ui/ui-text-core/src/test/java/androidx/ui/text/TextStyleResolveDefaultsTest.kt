@@ -16,6 +16,7 @@
 
 package androidx.ui.text
 
+import androidx.ui.intl.LocaleList
 import androidx.ui.core.LayoutDirection
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
@@ -26,7 +27,7 @@ import androidx.ui.text.font.FontWeight
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDecoration
-import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.TextUnit
@@ -64,7 +65,7 @@ class TextStyleResolveDefaultsTest {
             assertThat(it.textDecoration).isEqualTo(TextDecoration.None)
             assertThat(it.shadow).isEqualTo(Shadow.None)
             assertThat(it.textAlign).isEqualTo(TextAlign.Start)
-            assertThat(it.textDirectionAlgorithm).isEqualTo(TextDirectionAlgorithm.ContentOrLtr)
+            assertThat(it.textDirection).isEqualTo(TextDirection.Ltr)
             assertThat(it.lineHeight).isEqualTo(DefaultLineHeight)
             assertThat(it.textIndent).isEqualTo(TextIndent.None)
         }
@@ -243,109 +244,109 @@ class TextStyleResolveDefaultsTest {
     fun test_use_provided_values_textDirectionAlgorithm_with_default_layoutDirection() {
         assertThat(
             resolveDefaults(
-                TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr),
+                TextStyle(textDirection = TextDirection.ContentOrLtr),
                 direction = LayoutDirection.Ltr
-            ).textDirectionAlgorithm
-        ).isEqualTo(TextDirectionAlgorithm.ContentOrLtr)
+            ).textDirection
+        ).isEqualTo(TextDirection.ContentOrLtr)
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr),
+                TextStyle(textDirection = TextDirection.Ltr),
                 direction = LayoutDirection.Ltr
-            ).textDirectionAlgorithm
-        ).isEqualTo(TextDirectionAlgorithm.ForceLtr)
+            ).textDirection
+        ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr),
+                TextStyle(textDirection = TextDirection.ContentOrLtr),
                 direction = LayoutDirection.Ltr
-            ).textDirectionAlgorithm
-        ).isEqualTo(TextDirectionAlgorithm.ContentOrLtr)
+            ).textDirection
+        ).isEqualTo(TextDirection.ContentOrLtr)
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl),
+                TextStyle(textDirection = TextDirection.Rtl),
                 direction = LayoutDirection.Ltr
-            ).textDirectionAlgorithm
-        ).isEqualTo(TextDirectionAlgorithm.ForceRtl)
+            ).textDirection
+        ).isEqualTo(TextDirection.Rtl)
     }
 
     @Test
     fun test_use_provided_values_textDirectionAlgorithm_with_LTR_layoutDirection() {
         assertThat(
             resolveDefaults(
-                TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr),
+                TextStyle(textDirection = TextDirection.ContentOrLtr),
                 direction = LayoutDirection.Ltr
-            ).textDirectionAlgorithm
-        ).isEqualTo(TextDirectionAlgorithm.ContentOrLtr)
+            ).textDirection
+        ).isEqualTo(TextDirection.ContentOrLtr)
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr),
+                TextStyle(textDirection = TextDirection.Ltr),
                 direction = LayoutDirection.Ltr
-            ).textDirectionAlgorithm
-        ).isEqualTo(TextDirectionAlgorithm.ForceLtr)
+            ).textDirection
+        ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr),
+                TextStyle(textDirection = TextDirection.ContentOrLtr),
                 direction = LayoutDirection.Ltr
-            ).textDirectionAlgorithm
-        ).isEqualTo(TextDirectionAlgorithm.ContentOrLtr)
+            ).textDirection
+        ).isEqualTo(TextDirection.ContentOrLtr)
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl),
+                TextStyle(textDirection = TextDirection.Rtl),
                 direction = LayoutDirection.Ltr
-            ).textDirectionAlgorithm
-        ).isEqualTo(TextDirectionAlgorithm.ForceRtl)
+            ).textDirection
+        ).isEqualTo(TextDirection.Rtl)
     }
 
     @Test
     fun test_use_provided_values_textDirectionAlgorithm_with_RTL_layoutDirection() {
         assertThat(
             resolveDefaults(
-                TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr),
+                TextStyle(textDirection = TextDirection.ContentOrLtr),
                 direction = LayoutDirection.Ltr
-            ).textDirectionAlgorithm
-        ).isEqualTo(TextDirectionAlgorithm.ContentOrLtr)
+            ).textDirection
+        ).isEqualTo(TextDirection.ContentOrLtr)
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr),
+                TextStyle(textDirection = TextDirection.Ltr),
                 direction = LayoutDirection.Ltr
-            ).textDirectionAlgorithm
-        ).isEqualTo(TextDirectionAlgorithm.ForceLtr)
+            ).textDirection
+        ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr),
+                TextStyle(textDirection = TextDirection.ContentOrLtr),
                 direction = LayoutDirection.Ltr
-            ).textDirectionAlgorithm
-        ).isEqualTo(TextDirectionAlgorithm.ContentOrLtr)
+            ).textDirection
+        ).isEqualTo(TextDirection.ContentOrLtr)
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl),
+                TextStyle(textDirection = TextDirection.Rtl),
                 direction = LayoutDirection.Ltr
-            ).textDirectionAlgorithm
-        ).isEqualTo(TextDirectionAlgorithm.ForceRtl)
+            ).textDirection
+        ).isEqualTo(TextDirection.Rtl)
     }
 
     @Test
-    fun test_default_direction_algorithm_with_provided_layoutDirecction() {
+    fun test_default_direction_algorithm_with_provided_layoutDirection() {
         assertThat(
             resolveDefaults(
                 TextStyle(),
                 direction = LayoutDirection.Ltr
-            ).textDirectionAlgorithm
-        ).isEqualTo(TextDirectionAlgorithm.ContentOrLtr)
+            ).textDirection
+        ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
             resolveDefaults(
                 TextStyle(),
                 direction = LayoutDirection.Rtl
-            ).textDirectionAlgorithm
-        ).isEqualTo(TextDirectionAlgorithm.ContentOrRtl)
+            ).textDirection
+        ).isEqualTo(TextDirection.Rtl)
     }
 }

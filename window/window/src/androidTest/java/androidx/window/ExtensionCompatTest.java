@@ -52,9 +52,12 @@ import java.util.List;
 public final class ExtensionCompatTest extends ExtensionCompatDeviceTest
         implements CompatTestInterface {
 
+    private ExtensionInterface mMockExtensionInterface;
+
     @Before
     public void setUp() {
-        mExtensionCompat = new ExtensionCompat(mock(ExtensionInterface.class));
+        mMockExtensionInterface = mock(ExtensionInterface.class);
+        mExtensionCompat = new ExtensionCompat(mMockExtensionInterface);
 
         // Setup mocked extension responses
         ExtensionDeviceState defaultDeviceState =
@@ -75,18 +78,19 @@ public final class ExtensionCompatTest extends ExtensionCompatDeviceTest
     @Test
     public void testGetWindowLayout_featureWithEmptyBounds() {
         // Add a feature with an empty bounds to the reported list
-        ExtensionWindowLayoutInfo originalWindowLayoutInfo =
-                mExtensionCompat.mWindowExtension.getWindowLayoutInfo(mock(IBinder.class));
-        List<ExtensionDisplayFeature> extensionDisplayFeatures =
-                originalWindowLayoutInfo.getDisplayFeatures();
-        extensionDisplayFeatures.add(
-                new ExtensionDisplayFeature(new Rect(), ExtensionDisplayFeature.TYPE_HINGE));
+        List<ExtensionDisplayFeature> features = new ArrayList<>();
+        ExtensionDisplayFeature emptyRectFeature = new ExtensionDisplayFeature(new Rect(),
+                ExtensionDisplayFeature.TYPE_HINGE);
+        features.add(emptyRectFeature);
+        ExtensionWindowLayoutInfo infoWithEmptyRect = new ExtensionWindowLayoutInfo(features);
+        when(mMockExtensionInterface.getWindowLayoutInfo(any()))
+                .thenReturn(infoWithEmptyRect);
 
         // Verify that this feature is skipped.
         WindowLayoutInfo windowLayoutInfo =
                 mExtensionCompat.getWindowLayoutInfo(mock(IBinder.class));
 
-        assertEquals(extensionDisplayFeatures.size() - 1,
+        assertEquals(features.size() - 1,
                 windowLayoutInfo.getDisplayFeatures().size());
     }
 

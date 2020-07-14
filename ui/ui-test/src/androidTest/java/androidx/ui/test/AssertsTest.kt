@@ -17,19 +17,16 @@
 package androidx.ui.test
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
+import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.semantics.inMutuallyExclusiveGroup
 import androidx.ui.foundation.semantics.selected
 import androidx.ui.foundation.semantics.toggleableState
 import androidx.ui.layout.Column
-import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.hidden
 import androidx.ui.semantics.testTag
-import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
-import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Rule
 import org.junit.Test
 
@@ -41,40 +38,40 @@ class AssertsTest {
     @Test
     fun assertIsNotHidden_forVisibleElement_isOk() {
         composeTestRule.setContent {
-            BoundaryNode { testTag = "test"; hidden = false }
+            BoundaryNode { testTag = "test" }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsNotHidden()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsNotHidden_forHiddenElement_throwsError() {
         composeTestRule.setContent {
-            BoundaryNode { testTag = "test"; hidden = true }
+            BoundaryNode { testTag = "test"; hidden() }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsNotHidden()
     }
 
     @Test
     fun assertIsHidden_forHiddenElement_isOk() {
         composeTestRule.setContent {
-            BoundaryNode { testTag = "test"; hidden = true }
+            BoundaryNode { testTag = "test"; hidden() }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsHidden()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsHidden_forNotHiddenElement_throwsError() {
         composeTestRule.setContent {
-            BoundaryNode { testTag = "test"; hidden = false }
+            BoundaryNode { testTag = "test" }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsHidden()
     }
 
@@ -84,7 +81,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; toggleableState = ToggleableState.On }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsOn()
     }
 
@@ -94,7 +91,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; toggleableState = ToggleableState.Off }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsOn()
     }
 
@@ -104,7 +101,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test" }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsOn()
     }
 
@@ -114,7 +111,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; toggleableState = ToggleableState.On }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsOff()
     }
 
@@ -124,7 +121,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; toggleableState = ToggleableState.Off }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsOff()
     }
 
@@ -134,7 +131,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsOff()
     }
 
@@ -144,7 +141,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; selected = false }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsSelected()
     }
 
@@ -154,7 +151,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; selected = true }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsSelected()
     }
 
@@ -164,7 +161,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsSelected()
     }
 
@@ -174,7 +171,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; selected = true }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsUnselected()
     }
 
@@ -184,7 +181,7 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; selected = false }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsUnselected()
     }
 
@@ -194,27 +191,26 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsUnselected()
     }
-
     @Test(expected = AssertionError::class)
     fun assertItemInExclusiveGroup_forItemNotInGroup_throwsError() {
         composeTestRule.setContent {
             BoundaryNode { testTag = "test"; inMutuallyExclusiveGroup = false }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsInMutuallyExclusiveGroup()
     }
 
     @Test(expected = AssertionError::class)
     fun assertItemInExclusiveGroup_forItemWithoutProperty_throwsError() {
         composeTestRule.setContent {
-            BoundaryNode { testTag = "test"; }
+            BoundaryNode { testTag = "test" }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsInMutuallyExclusiveGroup()
     }
 
@@ -224,38 +220,12 @@ class AssertsTest {
             BoundaryNode { testTag = "test"; inMutuallyExclusiveGroup = true }
         }
 
-        findByTag("test")
+        onNodeWithTag("test")
             .assertIsInMutuallyExclusiveGroup()
     }
 
-    @Test
-    fun assertSizesTest_testPixelAssertion() {
-        val size = PxSize(50.ipx, 31.ipx)
-        val spec = CollectedSizes(size, Density(0f))
-        spec.assertWidthEqualsTo { 50.ipx }
-        spec.assertHeightEqualsTo { 31.ipx }
-    }
-
-    @Test
-    fun assertSizesTest_testDpAssertion() {
-        val size = PxSize(50.ipx, 30.ipx)
-        val spec = CollectedSizes(size, Density(2f))
-        spec.assertWidthEqualsTo(25.dp)
-        spec.assertHeightEqualsTo(15.dp)
-    }
-
-    @Test
-    fun assertSizesTest_testSquare() {
-        val size = PxSize(50.ipx, 50.ipx)
-        val spec = CollectedSizes(size, Density(2f))
-        spec.assertIsSquareWithSize(25.dp)
-        spec.assertIsSquareWithSize { 50.ipx }
-    }
-
     @Composable
-    fun BoundaryNode(props: (SemanticsPropertyReceiver.() -> Unit)? = null) {
-        Semantics(container = true, properties = props) {
-            Column {}
-        }
+    fun BoundaryNode(props: (SemanticsPropertyReceiver.() -> Unit)) {
+        Column(Modifier.semantics(properties = props)) {}
     }
 }

@@ -117,6 +117,11 @@ public class SliceStyle {
                 mRowStyle = new RowStyle(context, rowStyleRes);
             }
 
+            int defaultRowMinHeight = context.getResources().getDimensionPixelSize(
+                    R.dimen.abc_slice_row_min_height);
+            mRowMinHeight = (int) a.getDimension(
+                    R.styleable.SliceView_rowMinHeight, defaultRowMinHeight);
+
             int defaultRowMaxHeight = context.getResources().getDimensionPixelSize(
                     R.dimen.abc_slice_row_max_height);
             mRowMaxHeight = (int) a.getDimension(
@@ -132,6 +137,11 @@ public class SliceStyle {
             mRowSingleTextWithRangeHeight = (int) a.getDimension(
                     R.styleable.SliceView_rowRangeSingleTextHeight,
                     defaultRowSingleTextWithRangeHeight);
+
+            int defaultRowInlineRangeHeight = context.getResources().getDimensionPixelSize(
+                    R.dimen.abc_slice_row_range_inline_height);
+            mRowInlineRangeHeight = (int) a.getDimension(
+                    R.styleable.SliceView_rowInlineRangeHeight, defaultRowInlineRangeHeight);
         } finally {
             a.recycle();
         }
@@ -142,13 +152,11 @@ public class SliceStyle {
 
         mRowTextWithRangeHeight = r.getDimensionPixelSize(
                 R.dimen.abc_slice_row_range_multi_text_height);
-        mRowMinHeight = r.getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
         mRowSelectionHeight = r.getDimensionPixelSize(R.dimen.abc_slice_row_selection_height);
         mRowTextWithSelectionHeight = r.getDimensionPixelSize(
                 R.dimen.abc_slice_row_selection_multi_text_height);
         mRowSingleTextWithSelectionHeight = r.getDimensionPixelSize(
                 R.dimen.abc_slice_row_selection_single_text_height);
-        mRowInlineRangeHeight = r.getDimensionPixelSize(R.dimen.abc_slice_row_range_inline_height);
 
         mGridBigPicMinHeight = r.getDimensionPixelSize(R.dimen.abc_slice_big_pic_min_height);
         mGridBigPicMaxHeight = r.getDimensionPixelSize(R.dimen.abc_slice_big_pic_max_height);
@@ -161,8 +169,16 @@ public class SliceStyle {
         mListLargeHeight = r.getDimensionPixelSize(R.dimen.abc_slice_large_height);
     }
 
+    public int getRowMinHeight() {
+        return mRowMinHeight;
+    }
+
     public int getRowMaxHeight() {
         return mRowMaxHeight;
+    }
+
+    public int getRowInlineRangeHeight() {
+        return mRowInlineRangeHeight;
     }
 
     public void setTintColor(int tint) {

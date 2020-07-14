@@ -19,6 +19,7 @@ package androidx.room.vo
 /**
  * Internal representation of supported warnings
  */
+// If these warnings are updated also update androidx.room.RoomWarnings
 enum class Warning(val publicKey: String) {
     ALL("ALL"),
     CURSOR_MISMATCH("ROOM_CURSOR_MISMATCH"),
@@ -34,6 +35,7 @@ enum class Warning(val publicKey: String) {
     MISSING_INDEX_ON_FOREIGN_KEY_CHILD("ROOM_MISSING_FOREIGN_KEY_CHILD_INDEX"),
     RELATION_QUERY_WITHOUT_TRANSACTION("ROOM_RELATION_QUERY_WITHOUT_TRANSACTION"),
     DEFAULT_CONSTRUCTOR("ROOM_DEFAULT_CONSTRUCTOR"),
+    // TODO(danysantiago): These warning keys should have 'ROOM_' prefix.
     MISSING_COPY_ANNOTATIONS("MISSING_COPY_ANNOTATIONS"),
     MISSING_INDEX_ON_JUNCTION("MISSING_INDEX_ON_JUNCTION"),
     JDK_VERSION_HAS_BUG("JDK_VERSION_HAS_BUG"),

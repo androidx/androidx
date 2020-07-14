@@ -134,16 +134,6 @@ public final class ForwardingImageProxyTest {
         assertThat(mImageProxy.getImage()).isEqualTo(mBaseImageProxy.getImage());
     }
 
-    @Test
-    public void getViewPortRect_returnsViewPortRectForWrappedImage() {
-        // Arrange.
-        Rect rect = new Rect();
-        when(mBaseImageProxy.getViewPortRect()).thenReturn(rect);
-
-        // Assert.
-        assertThat(mImageProxy.getViewPortRect()).isEqualTo(rect);
-    }
-
     private static final class ConcreteImageProxy extends ForwardingImageProxy {
         private ConcreteImageProxy(ImageProxy baseImageProxy) {
             super(baseImageProxy);

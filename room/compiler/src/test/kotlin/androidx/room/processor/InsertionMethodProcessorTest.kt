@@ -22,13 +22,17 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RxJava2TypeNames
+import androidx.room.ext.RxJava3TypeNames
+import androidx.room.ext.asDeclaredType
+import androidx.room.ext.asExecutableElement
+import androidx.room.ext.asTypeElement
+import androidx.room.ext.getAllMethods
+import androidx.room.ext.hasAnnotation
 import androidx.room.ext.typeName
 import androidx.room.solver.shortcut.result.InsertMethodAdapter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.InsertionMethod
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertAbout
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -413,7 +417,17 @@ class InsertionMethodProcessorTest {
                 Pair("${RxJava2TypeNames.MAYBE}<Long>",
                         InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID),
                 Pair("${RxJava2TypeNames.MAYBE}<List<Long>>",
-                        InsertMethodAdapter.InsertionType.INSERT_ID_LIST)
+                        InsertMethodAdapter.InsertionType.INSERT_ID_LIST),
+                Pair(RxJava3TypeNames.COMPLETABLE,
+                    InsertMethodAdapter.InsertionType.INSERT_VOID_OBJECT),
+                Pair("${RxJava3TypeNames.SINGLE}<Long>",
+                    InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID),
+                Pair("${RxJava3TypeNames.SINGLE}<List<Long>>",
+                    InsertMethodAdapter.InsertionType.INSERT_ID_LIST),
+                Pair("${RxJava3TypeNames.MAYBE}<Long>",
+                    InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID),
+                Pair("${RxJava3TypeNames.MAYBE}<List<Long>>",
+                    InsertMethodAdapter.InsertionType.INSERT_ID_LIST)
         ).forEach { pair ->
             val dots = if (pair.second in setOf(
                             InsertMethodAdapter.InsertionType.INSERT_ID_LIST,
@@ -740,28 +754,28 @@ class InsertionMethodProcessorTest {
         return assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX),
-                        COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY,
-                        COMMON.COMPLETABLE, COMMON.MAYBE, COMMON.SINGLE) + additionalJFOs
+                        COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
+                        COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX3_COMPLETABLE,
+                        COMMON.RX3_MAYBE, COMMON.RX3_SINGLE) + additionalJFOs
                 )
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(Insert::class, Dao::class)
                         .nextRunHandler { invocation ->
                             val (owner, methods) = invocation.roundEnv
-                                    .getElementsAnnotatedWith(Dao::class.java)
-                                    .map {
-                                        Pair(it,
-                                                invocation.processingEnv.elementUtils
-                                                        .getAllMembers(MoreElements.asType(it))
-                                                        .filter {
-                                                            MoreElements.isAnnotationPresent(it,
-                                                                    Insert::class.java)
-                                                        }
-                                        )
-                                    }.first { it.second.isNotEmpty() }
+                                .getElementsAnnotatedWith(Dao::class.java)
+                                .map {
+                                    Pair(it,
+                                        it.asTypeElement().getAllMethods(
+                                            invocation.processingEnv
+                                        ).filter {
+                                            it.hasAnnotation(Insert::class.java)
+                                        }
+                                    )
+                                }.first { it.second.isNotEmpty() }
                             val processor = InsertionMethodProcessor(
                                     baseContext = invocation.context,
-                                    containing = MoreTypes.asDeclared(owner.asType()),
-                                    executableElement = MoreElements.asExecutable(methods.first()))
+                                    containing = owner.asDeclaredType(),
+                                    executableElement = methods.first().asExecutableElement())
                             val processed = processor.process()
                             handler(processed, invocation)
                             true

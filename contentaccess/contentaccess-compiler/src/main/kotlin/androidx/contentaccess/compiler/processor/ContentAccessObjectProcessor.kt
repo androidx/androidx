@@ -18,12 +18,17 @@ package androidx.contentaccess.compiler.processor
 
 import androidx.contentaccess.ContentAccessObject
 import androidx.contentaccess.ContentQuery
+import androidx.contentaccess.ContentUpdate
+import androidx.contentaccess.compiler.utils.ErrorReporter
 import androidx.contentaccess.compiler.vo.ContentAccessObjectVO
 import androidx.contentaccess.compiler.writer.ContentAccessObjectWriter
 import androidx.contentaccess.ext.getAllMethodsIncludingSupers
 import androidx.contentaccess.ext.hasAnnotation
 import javax.annotation.processing.ProcessingEnvironment
 import androidx.contentaccess.ext.toAnnotationBox
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
+import isVoidObject
+import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
 
 class ContentAccessObjectProcessor(
@@ -31,22 +36,67 @@ class ContentAccessObjectProcessor(
     private val processingEnv:
             ProcessingEnvironment
 ) {
+    @KotlinPoetMetadataPreview
     fun process() {
-        // TODO(obenabde): Verify this is indeed an interface
-        // TODO(obenabde): Ensure only one ContentAccessObject annotation exists on the object
-        val entity = ContentEntityProcessor(element.toAnnotationBox
-            (ContentAccessObject::class)!!.getAsTypeMirror("contentEntity")!!,
-            processingEnv).processEntity()
-        // TODO(obenabde): ensure there are some methods!
+        val errorReporter = ErrorReporter(processingEnv.messager)
+        if (element.kind != ElementKind.INTERFACE) {
+            errorReporter.reportError("Only interfaces should be annotated with " +
+                    "@ContentAccessObject, '${element.qualifiedName}' is not interface.", element)
+        } else {
+            if (element.getAllMethodsIncludingSupers().isEmpty()) {
+                errorReporter.reportError("Interface '${element.qualifiedName}' annotated with " +
+                        "@ContentAccessObject doesn't delcare any functions. Interfaces annotated" +
+                        " with @ContentAccessObject should declare at least one function.", element)
+            }
+        }
+        val contentEntityType = element.toAnnotationBox(ContentAccessObject::class)!!
+            .getAsTypeMirror("contentEntity")!!
+        val entity = if (contentEntityType.isVoidObject()) {
+            null
+        } else {
+            ContentEntityProcessor(contentEntityType, processingEnv, errorReporter).processEntity()
+        }
+        if (errorReporter.errorReported) {
+            // Any of the above errors should handicap progress, stop early.
+            return
+        }
         val queryMethods = element.getAllMethodsIncludingSupers()
             .filter { it.hasAnnotation(ContentQuery::class) }
             .map {
-                ContentQueryProcessor(entity, it, it.getAnnotation
-                    (ContentQuery::class
-                    .java), processingEnv).process()
+                ContentQueryProcessor(
+                    contentEntity = entity,
+                    method = it,
+                    contentQueryAnnotation = it.getAnnotation(ContentQuery::class.java),
+                    processingEnv = processingEnv,
+                    errorReporter = errorReporter
+                ).process()
             }
-        ContentAccessObjectWriter(ContentAccessObjectVO(entity, element
-            .qualifiedName.toString(), processingEnv.elementUtils.getPackageOf
-            (element).toString(), element.asType(), queryMethods), processingEnv).generateFile()
+
+        val updateMethods = element.getAllMethodsIncludingSupers()
+            .filter { it.hasAnnotation(ContentUpdate::class) }
+            .map {
+                ContentUpdateProcessor(
+                    contentEntity = entity,
+                    method = it,
+                    contentUpdateAnnotation = it.getAnnotation(ContentUpdate::class.java),
+                    processingEnv = processingEnv,
+                    errorReporter = errorReporter
+                ).process()
+            }
+        // Return if there was an error.
+        if (errorReporter.errorReported) {
+            return
+        }
+        ContentAccessObjectWriter(
+            ContentAccessObjectVO(
+                contentEntity = entity,
+                interfaceName = element.qualifiedName.toString(),
+                packageName = processingEnv.elementUtils.getPackageOf(element).toString(),
+                interfaceType = element.asType(),
+                queries = queryMethods.mapNotNull { it },
+                updates = updateMethods.mapNotNull { it }
+            ),
+            processingEnv
+        ).generateFile()
     }
 }

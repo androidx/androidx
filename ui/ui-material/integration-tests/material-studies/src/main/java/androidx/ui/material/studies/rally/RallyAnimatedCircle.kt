@@ -20,8 +20,9 @@ import androidx.animation.CubicBezierEasing
 import androidx.animation.FloatPropKey
 import androidx.animation.LinearOutSlowInEasing
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
@@ -45,16 +46,16 @@ private val CircularTransition = transitionDefinition {
         this[Shift] = 30f
     }
     transition(fromState = 0, toState = 1) {
-        AngleOffset using tween {
-            delay = 500
-            duration = 900
+        AngleOffset using tween(
+            delayMillis = 500,
+            durationMillis = 900,
             easing = CubicBezierEasing(0f, 0.75f, 0.35f, 0.85f)
-        }
-        Shift using tween {
-            delay = 500
-            duration = 900
+        )
+        Shift using tween(
+            delayMillis = 500,
+            durationMillis = 900,
             easing = LinearOutSlowInEasing
-        }
+        )
     }
 }
 
@@ -67,29 +68,28 @@ fun AnimatedCircle(
     colors: List<Color>
 ) {
     val stroke = Stroke(5.dp.value * DensityAmbient.current.density)
-    Transition(definition = CircularTransition, initState = 0, toState = 1) { state ->
-        Canvas(modifier) {
-            val innerRadius = (size.minDimension - stroke.width) / 2
-            val halfSize = size / 2.0f
-            val topLeft = Offset(
-                halfSize.width - innerRadius,
-                halfSize.height - innerRadius
+    val state = transition(definition = CircularTransition, initState = 0, toState = 1)
+    Canvas(modifier) {
+        val innerRadius = (size.minDimension - stroke.width) / 2
+        val halfSize = size / 2.0f
+        val topLeft = Offset(
+            halfSize.width - innerRadius,
+            halfSize.height - innerRadius
+        )
+        val size = Size(innerRadius * 2, innerRadius * 2)
+        var startAngle = state[Shift] - 90f
+        proportions.forEachIndexed { index, proportion ->
+            val sweep = proportion * state[AngleOffset]
+            drawArc(
+                color = colors[index],
+                startAngle = startAngle + DividerLengthInDegrees / 2,
+                sweepAngle = sweep - DividerLengthInDegrees,
+                topLeft = topLeft,
+                size = size,
+                useCenter = false,
+                style = stroke
             )
-            val size = Size(innerRadius * 2, innerRadius * 2)
-            var startAngle = state[Shift] - 90f
-            proportions.forEachIndexed { index, proportion ->
-                val sweep = proportion * state[AngleOffset]
-                drawArc(
-                    color = colors[index],
-                    startAngle = startAngle,
-                    sweepAngle = sweep,
-                    topLeft = topLeft,
-                    size = size,
-                    useCenter = false,
-                    style = stroke
-                )
-                startAngle += sweep + DividerLengthInDegrees
-            }
+            startAngle += sweep
         }
     }
 }

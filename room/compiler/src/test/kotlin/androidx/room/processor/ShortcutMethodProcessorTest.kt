@@ -21,12 +21,16 @@ import androidx.room.Dao
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.RxJava2TypeNames
+import androidx.room.ext.RxJava3TypeNames
+import androidx.room.ext.asDeclaredType
+import androidx.room.ext.asExecutableElement
+import androidx.room.ext.asTypeElement
+import androidx.room.ext.getAllMethods
+import androidx.room.ext.hasAnnotation
 import androidx.room.ext.typeName
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.ShortcutMethod
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -141,6 +145,9 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 "${RxJava2TypeNames.SINGLE}<Integer>",
                 "${RxJava2TypeNames.MAYBE}<Integer>",
                 RxJava2TypeNames.COMPLETABLE,
+                "${RxJava3TypeNames.SINGLE}<Integer>",
+                "${RxJava3TypeNames.MAYBE}<Integer>",
+                RxJava3TypeNames.COMPLETABLE,
                 "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Integer>"
         ).forEach { type ->
             singleShortcutMethod(
@@ -244,6 +251,9 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 "${RxJava2TypeNames.SINGLE}<Integer>",
                 "${RxJava2TypeNames.MAYBE}<Integer>",
                 RxJava2TypeNames.COMPLETABLE,
+                "${RxJava3TypeNames.SINGLE}<Integer>",
+                "${RxJava3TypeNames.MAYBE}<Integer>",
+                RxJava3TypeNames.COMPLETABLE,
                 "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Integer>"
         ).forEach { type ->
             singleShortcutMethod(
@@ -453,8 +463,10 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
-                ), COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.COMPLETABLE, COMMON.MAYBE,
-                    COMMON.SINGLE, COMMON.LISTENABLE_FUTURE, COMMON.GUAVA_ROOM) + additionalJFOs)
+                ), COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
+                    COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX3_COMPLETABLE,
+                    COMMON.RX3_MAYBE, COMMON.RX3_SINGLE, COMMON.LISTENABLE_FUTURE,
+                    COMMON.GUAVA_ROOM) + additionalJFOs)
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(annotation, Dao::class)
                         .nextRunHandler { invocation ->
@@ -462,18 +474,17 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                                     .getElementsAnnotatedWith(Dao::class.java)
                                     .map {
                                         Pair(it,
-                                                invocation.processingEnv.elementUtils
-                                                        .getAllMembers(MoreElements.asType(it))
-                                                        .filter {
-                                                            MoreElements.isAnnotationPresent(it,
-                                                                    annotation.java)
-                                                        }
+                                            it.asTypeElement().getAllMethods(
+                                                invocation.processingEnv
+                                            ).filter {
+                                                it.hasAnnotation(annotation)
+                                            }
                                         )
                                     }.first { it.second.isNotEmpty() }
                             val processed = process(
                                     baseContext = invocation.context,
-                                    containing = MoreTypes.asDeclared(owner.asType()),
-                                    executableElement = MoreElements.asExecutable(methods.first()))
+                                    containing = owner.asDeclaredType(),
+                                    executableElement = methods.first().asExecutableElement())
                             handler(processed, invocation)
                             true
                         }

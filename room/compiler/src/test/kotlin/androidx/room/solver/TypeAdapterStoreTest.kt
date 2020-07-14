@@ -27,7 +27,11 @@ import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RoomTypeNames.STRING_UTIL
 import androidx.room.ext.RxJava2TypeNames
+import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.T
+import androidx.room.ext.asDeclaredType
+import androidx.room.ext.requireTypeElement
+import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.Context
@@ -36,21 +40,16 @@ import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderPro
 import androidx.room.solver.binderprovider.DataSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room.solver.binderprovider.PagingSourceQueryResultBinderProvider
-import androidx.room.solver.binderprovider.RxFlowableQueryResultBinderProvider
-import androidx.room.solver.binderprovider.RxObservableQueryResultBinderProvider
+import androidx.room.solver.binderprovider.RxQueryResultBinderProvider
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureInsertMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxCompletableDeleteOrUpdateMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxCompletableInsertMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxMaybeDeleteOrUpdateMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxMaybeInsertMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxSingleDeleteOrUpdateMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxSingleInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxCallableDeleteOrUpdateMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxCallableInsertMethodBinderProvider
 import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
-import com.google.auto.common.MoreTypes
+import asDeclaredType
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -67,7 +66,6 @@ import org.junit.runners.JUnit4
 import simpleRun
 import testCodeGenScope
 import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.type.TypeKind
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
@@ -80,7 +78,7 @@ class TypeAdapterStoreTest {
     fun testDirect() {
         singleRun { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
-            val primitiveType = invocation.processingEnv.typeUtils.getPrimitiveType(TypeKind.INT)
+            val primitiveType = invocation.processingEnv.requireTypeMirror(TypeName.INT)
             val adapter = store.findColumnTypeAdapter(primitiveType, null)
             assertThat(adapter, notNullValue())
         }.compilesWithoutError()
@@ -92,9 +90,7 @@ class TypeAdapterStoreTest {
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
             val boolean = invocation
                     .processingEnv
-                    .elementUtils
-                    .getTypeElement("java.lang.Boolean")
-                    .asType()
+                    .requireTypeMirror("java.lang.Boolean")
             val adapter = store.findColumnTypeAdapter(boolean, null)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
@@ -110,8 +106,7 @@ class TypeAdapterStoreTest {
     fun testVia1TypeAdapter() {
         singleRun { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
-            val booleanType = invocation.processingEnv.typeUtils
-                    .getPrimitiveType(TypeKind.BOOLEAN)
+            val booleanType = invocation.processingEnv.requireTypeMirror(TypeName.BOOLEAN)
             val adapter = store.findColumnTypeAdapter(booleanType, null)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
@@ -138,8 +133,7 @@ class TypeAdapterStoreTest {
         singleRun { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv),
                     pointTypeConverters(invocation.processingEnv))
-            val pointType = invocation.processingEnv.elementUtils
-                    .getTypeElement("foo.bar.Point").asType()
+            val pointType = invocation.processingEnv.requireTypeMirror("foo.bar.Point")
             val adapter = store.findColumnTypeAdapter(pointType, null)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
@@ -171,7 +165,7 @@ class TypeAdapterStoreTest {
         singleRun { (processingEnv) ->
             val store = TypeAdapterStore.create(Context(processingEnv),
                     dateTypeConverters(processingEnv))
-            val tDate = processingEnv.elementUtils.getTypeElement("java.util.Date").asType()
+            val tDate = processingEnv.requireTypeMirror("java.util.Date")
             val adapter = store.findCursorValueReader(tDate, SQLTypeAffinity.INTEGER)
             assertThat(adapter, notNullValue())
             assertThat(adapter?.typeMirror(), `is`(tDate))
@@ -237,133 +231,185 @@ class TypeAdapterStoreTest {
     }
 
     @Test
-    fun testMissingRxRoom() {
-        simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.FLOWABLE)) { invocation ->
-            val publisherElement = invocation.processingEnv.elementUtils
-                    .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
+    fun testMissingRx2Room() {
+        simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.RX2_FLOWABLE)) { invocation ->
+            val publisherElement = invocation.processingEnv
+                    .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
             assertThat(publisherElement, notNullValue())
-            assertThat(RxFlowableQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(publisherElement.asType())), `is`(true))
+            assertThat(
+                RxQueryResultBinderProvider.getAll(invocation.context).any {
+                    it.matches(publisherElement.asDeclaredType())
+                }, `is`(true))
         }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT)
     }
 
     @Test
+    fun testMissingRx3Room() {
+        simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.RX3_FLOWABLE)) { invocation ->
+            val publisherElement = invocation.processingEnv
+                .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
+            assertThat(publisherElement, notNullValue())
+            assertThat(
+                RxQueryResultBinderProvider.getAll(invocation.context).any {
+                    it.matches(publisherElement.asDeclaredType())
+                }, `is`(true))
+        }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_ROOM_RXJAVA3_ARTIFACT)
+    }
+
+    @Test
     fun testFindPublisher() {
-        simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.FLOWABLE, COMMON.RX2_ROOM)) {
-            invocation ->
-            val publisher = invocation.processingEnv.elementUtils
-                    .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
-            assertThat(publisher, notNullValue())
-            assertThat(RxFlowableQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(publisher.asType())), `is`(true))
-        }.compilesWithoutError()
+        listOf(
+            COMMON.RX2_FLOWABLE to COMMON.RX2_ROOM,
+            COMMON.RX3_FLOWABLE to COMMON.RX3_ROOM
+        ).forEach { (rxTypeSrc, rxRoomSrc) ->
+            simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)) {
+                    invocation ->
+                val publisher = invocation.processingEnv
+                    .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
+                assertThat(publisher, notNullValue())
+                assertThat(
+                    RxQueryResultBinderProvider.getAll(invocation.context).any {
+                        it.matches(publisher.asDeclaredType())
+                    }, `is`(true))
+            }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindFlowable() {
-        simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.FLOWABLE, COMMON.RX2_ROOM)) {
-            invocation ->
-            val flowable = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.FLOWABLE.toString())
-            assertThat(flowable, notNullValue())
-            assertThat(RxFlowableQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(flowable.asType())), `is`(true))
-        }.compilesWithoutError()
+        listOf(
+            Triple(COMMON.RX2_FLOWABLE, COMMON.RX2_ROOM, RxJava2TypeNames.FLOWABLE),
+            Triple(COMMON.RX3_FLOWABLE, COMMON.RX3_ROOM, RxJava3TypeNames.FLOWABLE)
+        ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
+            simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)) {
+                invocation ->
+                val flowable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
+                assertThat(
+                    RxQueryResultBinderProvider.getAll(invocation.context).any {
+                        it.matches(flowable.asDeclaredType())
+                    }, `is`(true))
+            }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindObservable() {
-        simpleRun(jfos = *arrayOf(COMMON.OBSERVABLE, COMMON.RX2_ROOM)) {
-            invocation ->
-            val observable = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.OBSERVABLE.toString())
-            assertThat(observable, notNullValue())
-            assertThat(RxObservableQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(observable.asType())), `is`(true))
-        }.compilesWithoutError()
+        listOf(
+            Triple(COMMON.RX2_OBSERVABLE, COMMON.RX2_ROOM, RxJava2TypeNames.OBSERVABLE),
+            Triple(COMMON.RX3_OBSERVABLE, COMMON.RX3_ROOM, RxJava3TypeNames.OBSERVABLE)
+        ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
+            simpleRun(jfos = *arrayOf(rxTypeSrc, rxRoomSrc)) {
+                invocation ->
+                val observable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
+                assertThat(observable, notNullValue())
+                assertThat(
+                    RxQueryResultBinderProvider.getAll(invocation.context).any {
+                        it.matches(observable.asDeclaredType())
+                    }, `is`(true))
+            }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindInsertSingle() {
-        simpleRun(jfos = *arrayOf(COMMON.SINGLE)) {
-            invocation ->
-            val single = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.SINGLE.toString())
-            assertThat(single, notNullValue())
-            assertThat(RxSingleInsertMethodBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(single.asType())), `is`(true))
-        }.compilesWithoutError()
+        listOf(
+            Triple(COMMON.RX2_SINGLE, COMMON.RX2_ROOM, RxJava2TypeNames.SINGLE),
+            Triple(COMMON.RX3_SINGLE, COMMON.RX3_ROOM, RxJava3TypeNames.SINGLE)
+        ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
+            simpleRun(jfos = *arrayOf(rxTypeSrc)) {
+                invocation ->
+                val single = invocation.processingEnv.requireTypeElement(rxTypeClassName)
+                assertThat(single, notNullValue())
+                assertThat(
+                    RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
+                        it.matches(single.asDeclaredType())
+                    }, `is`(true))
+            }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindInsertMaybe() {
-        simpleRun(jfos = *arrayOf(COMMON.MAYBE)) {
-            invocation ->
-            val maybe = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.MAYBE.toString())
-            assertThat(maybe, notNullValue())
-            assertThat(RxMaybeInsertMethodBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(maybe.asType())), `is`(true))
-        }.compilesWithoutError()
+        listOf(
+            Triple(COMMON.RX2_MAYBE, COMMON.RX2_ROOM, RxJava2TypeNames.MAYBE),
+            Triple(COMMON.RX3_MAYBE, COMMON.RX3_ROOM, RxJava3TypeNames.MAYBE)
+        ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
+            simpleRun(jfos = *arrayOf(rxTypeSrc)) {
+                invocation ->
+                val maybe = invocation.processingEnv.requireTypeElement(rxTypeClassName)
+                assertThat(
+                    RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
+                        it.matches(maybe.asDeclaredType())
+                    }, `is`(true))
+            }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindInsertCompletable() {
-        simpleRun(jfos = *arrayOf(COMMON.COMPLETABLE)) {
-            invocation ->
-            val completable = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.COMPLETABLE.toString())
-            assertThat(completable, notNullValue())
-            assertThat(RxCompletableInsertMethodBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(completable.asType())), `is`(true))
-        }.compilesWithoutError()
+        listOf(
+            Triple(COMMON.RX2_COMPLETABLE, COMMON.RX2_ROOM, RxJava2TypeNames.COMPLETABLE),
+            Triple(COMMON.RX3_COMPLETABLE, COMMON.RX3_ROOM, RxJava3TypeNames.COMPLETABLE)
+        ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
+            simpleRun(jfos = *arrayOf(rxTypeSrc)) {
+                invocation ->
+                val completable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
+                assertThat(
+                    RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
+                        it.matches(completable.asDeclaredType())
+                    }, `is`(true))
+            }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindInsertListenableFuture() {
         simpleRun(jfos = *arrayOf(COMMON.LISTENABLE_FUTURE)) {
                 invocation ->
-            val future = invocation.processingEnv.elementUtils
-                .getTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.toString())
-            assertThat(future, notNullValue())
+            val future = invocation.processingEnv
+                .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
             assertThat(GuavaListenableFutureInsertMethodBinderProvider(invocation.context).matches(
-                MoreTypes.asDeclared(future.asType())), `is`(true))
+                future.asDeclaredType()), `is`(true))
         }.compilesWithoutError()
     }
 
     @Test
     fun testFindDeleteOrUpdateSingle() {
-        simpleRun(jfos = *arrayOf(COMMON.SINGLE)) {
+        simpleRun(jfos = *arrayOf(COMMON.RX2_SINGLE)) {
             invocation ->
-            val single = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.SINGLE.toString())
+            val single = invocation.processingEnv.requireTypeElement(RxJava2TypeNames.SINGLE)
             assertThat(single, notNullValue())
-            assertThat(RxSingleDeleteOrUpdateMethodBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(single.asType())), `is`(true))
+            assertThat(
+                RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
+                    it.matches(single.asDeclaredType())
+                }, `is`(true))
         }.compilesWithoutError()
     }
 
     @Test
     fun testFindDeleteOrUpdateMaybe() {
-        simpleRun(jfos = *arrayOf(COMMON.MAYBE)) {
+        simpleRun(jfos = *arrayOf(COMMON.RX2_MAYBE)) {
             invocation ->
-            val maybe = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.MAYBE.toString())
+            val maybe = invocation.processingEnv.requireTypeElement(RxJava2TypeNames.MAYBE)
             assertThat(maybe, notNullValue())
-            assertThat(RxMaybeDeleteOrUpdateMethodBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(maybe.asType())), `is`(true))
+            assertThat(
+                RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
+                    it.matches(maybe.asDeclaredType())
+                }, `is`(true))
         }.compilesWithoutError()
     }
 
     @Test
     fun testFindDeleteOrUpdateCompletable() {
-        simpleRun(jfos = *arrayOf(COMMON.COMPLETABLE)) {
+        simpleRun(jfos = *arrayOf(COMMON.RX2_COMPLETABLE)) {
             invocation ->
-            val completable = invocation.processingEnv.elementUtils
-                    .getTypeElement(RxJava2TypeNames.COMPLETABLE.toString())
+            val completable = invocation.processingEnv
+                    .requireTypeElement(RxJava2TypeNames.COMPLETABLE)
             assertThat(completable, notNullValue())
-            assertThat(RxCompletableDeleteOrUpdateMethodBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(completable.asType())), `is`(true))
+            assertThat(
+                RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
+                    it.matches(completable.asDeclaredType())
+                }, `is`(true))
         }.compilesWithoutError()
     }
 
@@ -371,11 +417,11 @@ class TypeAdapterStoreTest {
     fun testFindDeleteOrUpdateListenableFuture() {
         simpleRun(jfos = *arrayOf(COMMON.LISTENABLE_FUTURE)) {
                 invocation ->
-            val future = invocation.processingEnv.elementUtils
-                .getTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.toString())
+            val future = invocation.processingEnv
+                .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
             assertThat(future, notNullValue())
             assertThat(GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(invocation.context)
-                .matches(MoreTypes.asDeclared(future.asType())), `is`(true))
+                .matches(future.asDeclaredType()), `is`(true))
         }.compilesWithoutError()
     }
 
@@ -383,45 +429,41 @@ class TypeAdapterStoreTest {
     fun testFindLiveData() {
         simpleRun(jfos = *arrayOf(COMMON.COMPUTABLE_LIVE_DATA, COMMON.LIVE_DATA)) {
             invocation ->
-            val liveData = invocation.processingEnv.elementUtils
-                    .getTypeElement(LifecyclesTypeNames.LIVE_DATA.toString())
+            val liveData = invocation.processingEnv
+                    .requireTypeElement(LifecyclesTypeNames.LIVE_DATA)
             assertThat(liveData, notNullValue())
             assertThat(LiveDataQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(liveData.asType())), `is`(true))
+                    liveData.asDeclaredType()), `is`(true))
         }.compilesWithoutError()
     }
 
     @Test
     fun findPagingSourceIntKey() {
         simpleRun { invocation ->
-            val pagingSourceElement = invocation.processingEnv.elementUtils
-                .getTypeElement(PagingSource::class.java.canonicalName)
-            val intType = invocation.processingEnv.elementUtils
-                .getTypeElement(Integer::class.java.canonicalName)
-                .asType()
+            val pagingSourceElement = invocation.processingEnv
+                .requireTypeElement(PagingSource::class)
+            val intType = invocation.processingEnv.requireTypeMirror(Integer::class)
             val pagingSourceIntIntType = invocation.processingEnv.typeUtils
                 .getDeclaredType(pagingSourceElement, intType, intType)
 
             assertThat(pagingSourceIntIntType, notNullValue())
             assertThat(PagingSourceQueryResultBinderProvider(invocation.context)
-                .matches(MoreTypes.asDeclared(pagingSourceIntIntType)), `is`(true))
+                .matches(pagingSourceIntIntType.asDeclaredType()), `is`(true))
         }
     }
 
     @Test
     fun findPagingSourceStringKey() {
         simpleRun { invocation ->
-            val pagingSourceElement = invocation.processingEnv.elementUtils
-                .getTypeElement(PagingSource::class.java.canonicalName)
-            val stringType = invocation.processingEnv.elementUtils
-                .getTypeElement(String::class.java.canonicalName)
-                .asType()
+            val pagingSourceElement = invocation.processingEnv
+                .requireTypeElement(PagingSource::class)
+            val stringType = invocation.processingEnv.requireTypeMirror(String::class)
             val pagingSourceIntIntType = invocation.processingEnv.typeUtils
                 .getDeclaredType(pagingSourceElement, stringType, stringType)
 
             assertThat(pagingSourceIntIntType, notNullValue())
             assertThat(PagingSourceQueryResultBinderProvider(invocation.context)
-                .matches(MoreTypes.asDeclared(pagingSourceIntIntType)), `is`(true))
+                .matches(pagingSourceIntIntType.asDeclaredType()), `is`(true))
         }.failsToCompile().withErrorContaining(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_TYPE)
     }
 
@@ -429,11 +471,10 @@ class TypeAdapterStoreTest {
     fun findDataSource() {
         simpleRun {
             invocation ->
-            val dataSource = invocation.processingEnv.elementUtils
-                    .getTypeElement(DataSource::class.java.canonicalName)
+            val dataSource = invocation.processingEnv.requireTypeElement(DataSource::class)
             assertThat(dataSource, notNullValue())
             assertThat(DataSourceQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(dataSource.asType())), `is`(true))
+                    dataSource.asDeclaredType()), `is`(true))
         }.failsToCompile().withErrorContaining(ProcessorErrors.PAGING_SPECIFY_DATA_SOURCE_TYPE)
     }
 
@@ -442,11 +483,11 @@ class TypeAdapterStoreTest {
         simpleRun {
             invocation ->
             @Suppress("DEPRECATION")
-            val dataSource = invocation.processingEnv.elementUtils
-                    .getTypeElement(androidx.paging.PositionalDataSource::class.java.canonicalName)
+            val dataSource = invocation.processingEnv
+                .requireTypeElement(androidx.paging.PositionalDataSource::class)
             assertThat(dataSource, notNullValue())
             assertThat(DataSourceQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(dataSource.asType())), `is`(true))
+                    dataSource.asDeclaredType()), `is`(true))
         }.compilesWithoutError()
     }
 
@@ -454,21 +495,18 @@ class TypeAdapterStoreTest {
     fun findDataSourceFactory() {
         simpleRun(jfos = *arrayOf(COMMON.DATA_SOURCE_FACTORY)) {
             invocation ->
-            val pagedListProvider = invocation.processingEnv.elementUtils
-                    .getTypeElement(PagingTypeNames.DATA_SOURCE_FACTORY.toString())
+            val pagedListProvider = invocation.processingEnv
+                    .requireTypeElement(PagingTypeNames.DATA_SOURCE_FACTORY)
             assertThat(pagedListProvider, notNullValue())
             assertThat(DataSourceFactoryQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(pagedListProvider.asType())), `is`(true))
+                    pagedListProvider.asDeclaredType()), `is`(true))
         }.compilesWithoutError()
     }
 
     private fun createIntListToStringBinders(invocation: TestInvocation): List<TypeConverter> {
-        val intType = invocation.processingEnv.elementUtils
-                .getTypeElement(Integer::class.java.canonicalName)
-                .asType()
-        val listType = invocation.processingEnv.elementUtils
-                .getTypeElement(java.util.List::class.java.canonicalName)
-        val listOfInts = invocation.processingEnv.typeUtils.getDeclaredType(listType, intType)
+        val intType = invocation.processingEnv.requireTypeMirror(Integer::class)
+        val listElement = invocation.processingEnv.requireTypeElement(java.util.List::class)
+        val listOfInts = invocation.processingEnv.typeUtils.getDeclaredType(listElement, intType)
 
         val intListConverter = object : TypeConverter(listOfInts,
                 invocation.context.COMMON_TYPES.STRING) {
@@ -539,8 +577,8 @@ class TypeAdapterStoreTest {
     }
 
     fun pointTypeConverters(env: ProcessingEnvironment): List<TypeConverter> {
-        val tPoint = env.elementUtils.getTypeElement("foo.bar.Point").asType()
-        val tBoolean = env.typeUtils.getPrimitiveType(TypeKind.BOOLEAN)
+        val tPoint = env.requireTypeMirror("foo.bar.Point")
+        val tBoolean = env.requireTypeMirror(TypeName.BOOLEAN)
         return listOf(
                 object : TypeConverter(tPoint, tBoolean) {
                     override fun convert(
@@ -569,8 +607,8 @@ class TypeAdapterStoreTest {
     }
 
     fun dateTypeConverters(env: ProcessingEnvironment): List<TypeConverter> {
-        val tDate = env.elementUtils.getTypeElement("java.util.Date").asType()
-        val tLong = env.elementUtils.getTypeElement("java.lang.Long").asType()
+        val tDate = env.requireTypeMirror("java.util.Date")
+        val tLong = env.requireTypeMirror("java.lang.Long")
         return listOf(
                 object : TypeConverter(tDate, tLong) {
                     override fun convert(

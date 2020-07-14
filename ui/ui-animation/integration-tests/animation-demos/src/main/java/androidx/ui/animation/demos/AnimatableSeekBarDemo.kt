@@ -19,12 +19,13 @@ package androidx.ui.animation.demos
 import androidx.animation.FastOutSlowInEasing
 import androidx.animation.FloatPropKey
 import androidx.animation.ManualAnimationClock
-import androidx.animation.TweenBuilder
+import androidx.animation.TweenSpec
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.remember
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Modifier
@@ -42,7 +43,6 @@ import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 
@@ -61,33 +61,32 @@ fun AnimatableSeekBarDemo() {
                 MovingTargetExample(clock)
             }
 
-            Transition(
+            val state = transition(
                 definition = transDef,
                 initState = "start",
                 toState = "end"
-            ) { state ->
-                Canvas(Modifier.preferredSize(600.dp, 400.dp)) {
-                    val rectSize = size * 0.2f
-                    drawRect(Color(1.0f, 0f, 0f, state[alphaKey]), size = rectSize)
+            )
+            Canvas(Modifier.preferredSize(600.dp, 400.dp)) {
+                val rectSize = size * 0.2f
+                drawRect(Color(1.0f, 0f, 0f, state[alphaKey]), size = rectSize)
 
-                    drawRect(
-                        Color(0f, 0f, 1f, state[alphaKey]),
-                        topLeft = Offset(state[offset1] * size.width, 0.0f),
-                        size = rectSize
-                    )
+                drawRect(
+                    Color(0f, 0f, 1f, state[alphaKey]),
+                    topLeft = Offset(state[offset1] * size.width, 0.0f),
+                    size = rectSize
+                )
 
-                    drawRect(
-                        Color(0f, 1f, 1f, state[alphaKey]),
-                        topLeft = Offset(state[offset2] * size.width, 0.0f),
-                        size = rectSize
-                    )
+                drawRect(
+                    Color(0f, 1f, 1f, state[alphaKey]),
+                    topLeft = Offset(state[offset2] * size.width, 0.0f),
+                    size = rectSize
+                )
 
-                    drawRect(
-                        Color(0f, 1f, 0f, state[alphaKey]),
-                        topLeft = Offset(state[offset3] * size.width, 0.0f),
-                        size = rectSize
-                    )
-                }
+                drawRect(
+                    Color(0f, 1f, 0f, state[alphaKey]),
+                    topLeft = Offset(state[offset3] * size.width, 0.0f),
+                    size = rectSize
+                )
             }
         }
     }
@@ -98,17 +97,14 @@ fun MovingTargetExample(clock: ManualAnimationClock) {
     val animValue = animatedFloat(0f)
 
     val dragObserver = object : DragObserver {
-        override fun onDrag(dragDistance: PxPosition): PxPosition {
-            animValue.snapTo(animValue.targetValue + dragDistance.x.value)
+        override fun onDrag(dragDistance: Offset): Offset {
+            animValue.snapTo(animValue.targetValue + dragDistance.x)
             return dragDistance
         }
     }
 
-    val onPress: (PxPosition) -> Unit = { position ->
-        animValue.animateTo(position.x.value,
-            TweenBuilder<Float>().apply {
-                duration = 400
-            })
+    val onPress: (Offset) -> Unit = { position ->
+        animValue.animateTo(position.x, TweenSpec(durationMillis = 400))
     }
 
     DrawSeekBar(
@@ -127,7 +123,7 @@ fun DrawSeekBar(modifier: Modifier = Modifier, x: Float, clock: ManualAnimationC
         clock.clockTimeMillis = (400 * (x / size.width)).toLong().coerceIn(0, 399)
         // draw bar
         val barHeight = 10.0f
-        val offset = Offset(0.0f, center.dy - 5)
+        val offset = Offset(0.0f, center.y - 5)
         drawRect(
             Color.Gray,
             topLeft = offset,
@@ -142,7 +138,7 @@ fun DrawSeekBar(modifier: Modifier = Modifier, x: Float, clock: ManualAnimationC
         // draw ticker
         drawCircle(
             Color.Magenta,
-            center = Offset(xConstraint, center.dy),
+            center = Offset(xConstraint, center.y),
             radius = 40f
         )
     }
@@ -170,21 +166,21 @@ private val transDef = transitionDefinition {
     }
 
     transition {
-        alphaKey using tween {
-            easing = FastOutSlowInEasing
-            duration = 400
-        }
-        offset1 using tween {
-            easing = FastOutSlowInEasing
-            duration = 400
-        }
-        offset2 using tween {
-            easing = FastOutSlowInEasing
-            duration = 400
-        }
-        offset3 using tween {
-            easing = FastOutSlowInEasing
-            duration = 400
-        }
+        alphaKey using tween(
+            easing = FastOutSlowInEasing,
+            durationMillis = 400
+        )
+        offset1 using tween(
+            easing = FastOutSlowInEasing,
+            durationMillis = 400
+        )
+        offset2 using tween(
+            easing = FastOutSlowInEasing,
+            durationMillis = 400
+        )
+        offset3 using tween(
+            easing = FastOutSlowInEasing,
+            durationMillis = 400
+        )
     }
 }

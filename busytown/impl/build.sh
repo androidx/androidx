@@ -30,6 +30,7 @@ cd "$SCRIPT_DIR/../../../.."
 # display the contents of the out/ directory, to allow us to be sure that it was empty before this build started
 echoAndDo "ls -la out"
 
-# run gradle
-echoAndDo OUT_DIR=out/ui DIST_DIR=$DIST_DIR/ui ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/ui/gradlew -p frameworks/support/ui --stacktrace "$@"
-echoAndDo OUT_DIR=out    DIST_DIR=$DIST_DIR    ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/gradlew    -p frameworks/support    --stacktrace "$@"
+LOG_SIMPLIFIER="$SCRIPT_DIR/../../development/build_log_simplifier.sh"
+
+time "$LOG_SIMPLIFIER" OUT_DIR=out/ui DIST_DIR=$DIST_DIR/ui ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/ui/gradlew -p frameworks/support/ui --stacktrace "$@"
+time "$LOG_SIMPLIFIER" OUT_DIR=out    DIST_DIR=$DIST_DIR    ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/gradlew    -p frameworks/support    --stacktrace "$@"

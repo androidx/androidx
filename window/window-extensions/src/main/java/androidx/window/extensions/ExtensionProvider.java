@@ -28,7 +28,7 @@ import androidx.annotation.Nullable;
  *
  * @see ExtensionInterface
  */
-public class ExtensionProvider {
+public final class ExtensionProvider {
 
     private ExtensionProvider() {}
 

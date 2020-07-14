@@ -30,7 +30,6 @@ import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.DeniedByServerException;
 import android.media.MediaDrm;
-import android.media.MediaDrmException;
 import android.media.MediaFormat;
 import android.os.PersistableBundle;
 import android.util.Log;
@@ -47,6 +46,7 @@ import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.concurrent.futures.AbstractResolvableFuture;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.FileMediaItem;
@@ -68,7 +68,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -1970,7 +1969,7 @@ public final class MediaPlayer extends SessionPlayer {
      * Closes the player and relinquish underlying resources.
      */
     @Override
-    public void close() throws Exception {
+    public void close() {
         super.close();
 
         synchronized (mStateLock) {
@@ -2503,12 +2502,13 @@ public final class MediaPlayer extends SessionPlayer {
     }
 
     /**
-     * Returns metadata of the audio or video track currently selected for playback.
+     * Returns the selected track for the given track type.
      * The return value is an element in the list returned by {@link #getTracks()}.
      *
      * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO},
-     * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}, or {@link TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE}.
-     * @return metadata corresponding to the audio or video track currently selected for
+     * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}, {@link TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE},
+     * or {@link TrackInfo#MEDIA_TRACK_TYPE_METADATA}.
+     * @return metadata corresponding to the  track currently selected for
      * playback; {@code null} is returned when there is no selected track for {@code trackType} or
      * when {@code trackType} is not one of audio or video.
      * @throws IllegalStateException if called after {@link #close()}
@@ -2542,9 +2542,8 @@ public final class MediaPlayer extends SessionPlayer {
      * The first audio and video tracks are selected by default if available, even though
      * this method is not called.
      * <p>
-     * Currently, audio and subtitle tracks can be selected via this method. {@link #getTracks()}
-     * returns the list of tracks that can be selected, but the list may be invalidated when
-     * {@link PlayerCallback#onTracksChanged(SessionPlayer, List)} is called.
+     * Currently, tracks that return true for {@link TrackInfo#isSelectable()} can be selected via
+     * this method.
      *
      * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
      * object can be obtained from {@link #getTracks()}.
@@ -3135,7 +3134,7 @@ public final class MediaPlayer extends SessionPlayer {
             mNextPlaylistItem = null;
             return new Pair<>(null, null);
         }
-        if (!Objects.equals(mCurPlaylistItem, mShuffledList.get(mCurrentShuffleIdx))) {
+        if (!ObjectsCompat.equals(mCurPlaylistItem, mShuffledList.get(mCurrentShuffleIdx))) {
             changedCurItem = mCurPlaylistItem = mShuffledList.get(mCurrentShuffleIdx);
         }
         int nextShuffleIdx = mCurrentShuffleIdx + 1;
@@ -3149,7 +3148,7 @@ public final class MediaPlayer extends SessionPlayer {
 
         if (nextShuffleIdx == END_OF_PLAYLIST) {
             mNextPlaylistItem = null;
-        } else if (!Objects.equals(mNextPlaylistItem, mShuffledList.get(nextShuffleIdx))) {
+        } else if (!ObjectsCompat.equals(mNextPlaylistItem, mShuffledList.get(nextShuffleIdx))) {
             changedNextItem = mNextPlaylistItem = mShuffledList.get(nextShuffleIdx);
         }
 
@@ -3608,7 +3607,8 @@ public final class MediaPlayer extends SessionPlayer {
      */
     public static final class TrackInfo extends SessionPlayer.TrackInfo {
         TrackInfo(SessionPlayer.TrackInfo infoInternal) {
-            super(infoInternal.getId(), infoInternal.getTrackType(), infoInternal.getFormat());
+            super(infoInternal.getId(), infoInternal.getTrackType(), infoInternal.getFormat(),
+                    (infoInternal.getTrackType() != MEDIA_TRACK_TYPE_VIDEO));
         }
 
         @Nullable
@@ -3680,7 +3680,7 @@ public final class MediaPlayer extends SessionPlayer {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public static class NoDrmSchemeException extends MediaDrmException {
+    public static class NoDrmSchemeException extends Exception {
         public NoDrmSchemeException(@Nullable String detailMessage) {
             super(detailMessage);
         }

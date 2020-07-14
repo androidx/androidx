@@ -20,6 +20,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.test.assertMeasureSizeIsPositive
 import androidx.ui.test.assertNoPendingChanges
 import androidx.ui.integration.test.foundation.RectsInColumnSharedModelTestCase
+import androidx.ui.test.ExperimentalTesting
 import androidx.ui.test.createComposeRule
 import org.junit.Rule
 import org.junit.Test
@@ -31,6 +32,7 @@ import org.junit.runners.Parameterized
  */
 @MediumTest
 @RunWith(Parameterized::class)
+@OptIn(ExperimentalTesting::class)
 class RectsInColumnSharedModelTest(private val numberOfRectangles: Int) {
 
     companion object {

@@ -20,7 +20,9 @@ import android.database.sqlite.SQLiteDatabase
 import androidx.inspection.Connection
 import androidx.inspection.InspectorEnvironment
 import androidx.inspection.InspectorFactory
+import androidx.inspection.testing.DefaultTestInspectorEnvironment
 import androidx.inspection.testing.InspectorTester
+import androidx.inspection.testing.TestInspectorExecutors
 import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.InvalidationTracker
@@ -31,6 +33,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -77,7 +80,8 @@ class RoomInvalidationHookTest {
     fun invalidationHook() = runBlocking<Unit> {
         val testEnv = TestInspectorEnvironment(
             roomDatabase = db,
-            sqliteDb = db.getSqliteDb()
+            sqliteDb = db.getSqliteDb(),
+            parentJob = this.coroutineContext[Job]!!
         )
         val tester = InspectorTester(
             inspectorId = "test",
@@ -146,8 +150,9 @@ private fun RoomDatabase.getSqliteDb(): SQLiteDatabase {
 @Suppress("UNCHECKED_CAST")
 class TestInspectorEnvironment(
     private val roomDatabase: RoomDatabase,
-    private val sqliteDb: SQLiteDatabase
-) : InspectorEnvironment {
+    private val sqliteDb: SQLiteDatabase,
+    parentJob: Job
+) : DefaultTestInspectorEnvironment(TestInspectorExecutors(parentJob)) {
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,

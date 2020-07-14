@@ -24,11 +24,11 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
+import androidx.room.ext.asExecutableElement
 import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
-import com.google.auto.common.MoreElements
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -176,7 +176,7 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
     }
 
     private fun createDaoGetter(field: FieldSpec, method: DaoMethod): MethodSpec {
-        return MethodSpec.overriding(MoreElements.asExecutable(method.element)).apply {
+        return MethodSpec.overriding(method.element.asExecutableElement()).apply {
             beginControlFlow("if ($N != null)", field).apply {
                 addStatement("return $N", field)
             }

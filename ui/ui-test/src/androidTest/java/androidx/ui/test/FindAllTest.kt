@@ -47,7 +47,7 @@ class FindAllTest {
             }
         }
 
-        findAll(isOn())
+        onAllNodes(isOn())
             .assertCountEquals(2)
             .apply {
                 get(0).assertIsOn()
@@ -76,14 +76,14 @@ class FindAllTest {
             }
         }
 
-        findAll(isToggleable())
+        onAllNodes(isToggleable())
             .assertCountEquals(2)
             .apply {
                 get(0)
-                    .doClick()
+                    .performClick()
                     .assertIsOn()
                 get(1)
-                    .doClick()
+                    .performClick()
                     .assertIsOn()
             }
     }
@@ -101,7 +101,7 @@ class FindAllTest {
             }
         }
 
-        findAll(isOff())
+        onAllNodes(isOff())
             .assertCountEquals(0)
     }
 
@@ -127,9 +127,9 @@ class FindAllTest {
             }
         }
 
-        findAll(isToggleable()).apply {
+        onAllNodes(isToggleable()).apply {
             get(0)
-                .doClick()
+                .performClick()
                 .assertIsOn()
             get(1)
                 .assertIsOff()
@@ -168,15 +168,15 @@ class FindAllTest {
             }
         }
 
-        findAll(isToggleable())
+        onAllNodes(isToggleable())
             .assertCountEquals(2).apply {
                 get(0)
                     .assertIsOff()
-                    .doClick()
+                    .performClick()
                     .assertIsOn()
             }
 
-        findAll(isToggleable())
+        onAllNodes(isToggleable())
             .assertCountEquals(3).apply {
                 get(2)
                     .assertIsOff()
@@ -209,12 +209,12 @@ class FindAllTest {
             }
         }
 
-        findAll(isToggleable())
+        onAllNodes(isToggleable())
             .assertCountEquals(2)
             .apply {
                 get(0)
                     .assertIsOff()
-                    .doClick()
+                    .performClick()
                     .assertIsOn()
                 get(1)
                     .assertDoesNotExist()

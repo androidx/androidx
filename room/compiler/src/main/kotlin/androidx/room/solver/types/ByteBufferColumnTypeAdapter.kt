@@ -18,6 +18,7 @@ package androidx.room.solver.types
 
 import androidx.room.ext.L
 import androidx.room.ext.T
+import androidx.room.ext.requireTypeMirror
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.TypeName
@@ -25,7 +26,7 @@ import java.nio.ByteBuffer
 import javax.annotation.processing.ProcessingEnvironment
 
 class ByteBufferColumnTypeAdapter(env: ProcessingEnvironment) : ColumnTypeAdapter(
-    out = env.elementUtils.getTypeElement("java.nio.ByteBuffer").asType(),
+    out = env.requireTypeMirror("java.nio.ByteBuffer"),
     typeAffinity = SQLTypeAffinity.BLOB
 ) {
     override fun readFromCursor(

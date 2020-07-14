@@ -21,18 +21,21 @@ import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.ui.animation.Crossfade
 import androidx.ui.core.Alignment
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.WithConstraints
+import androidx.ui.core.testTag
 import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.Demo
 import androidx.ui.demos.common.DemoCategory
 import androidx.ui.demos.common.allLaunchableDemos
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.TextFieldValue
-import androidx.ui.foundation.VerticalScroller
+import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.material.IconButton
@@ -43,6 +46,7 @@ import androidx.ui.material.Surface
 import androidx.ui.material.TopAppBar
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.ArrowBack
+import androidx.ui.material.icons.filled.ArrowForward
 import androidx.ui.material.icons.filled.Search
 import androidx.ui.material.icons.filled.Settings
 import androidx.ui.savedinstancestate.savedInstanceState
@@ -60,15 +64,11 @@ fun DemoApp(
     onNavigateUp: () -> Unit,
     launchSettings: () -> Unit
 ) {
-    val navigationIcon = (@Composable {
-        IconButton(onClick = onNavigateUp) {
-            Icon(Icons.Filled.ArrowBack)
-        }
-    }).takeIf { canNavigateUp }
+    val navigationIcon = (@Composable { AppBarIcons.Back(onNavigateUp) }).takeIf { canNavigateUp }
 
     var filterText by savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
 
-    Scaffold(topAppBar = {
+    Scaffold(topBar = {
         DemoAppBar(
             title = backStackTitle,
             navigationIcon = navigationIcon,
@@ -79,20 +79,22 @@ fun DemoApp(
             onStartFiltering = onStartFiltering,
             onEndFiltering = onEndFiltering
         )
-    }) {
-        DemoContent(currentDemo, isFiltering, filterText.text, onNavigateToDemo)
+    }) { innerPadding ->
+        val modifier = Modifier.padding(innerPadding)
+        DemoContent(modifier, currentDemo, isFiltering, filterText.text, onNavigateToDemo)
     }
 }
 
 @Composable
 private fun DemoContent(
+    modifier: Modifier,
     currentDemo: Demo,
     isFiltering: Boolean,
     filterText: String,
     onNavigate: (Demo) -> Unit
 ) {
     Crossfade(isFiltering to currentDemo) { (filtering, demo) ->
-        Surface(Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
+        Surface(modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
             if (filtering) {
                 DemoFilter(
                     launchableDemos = AllDemosCategory.allLaunchableDemos(),
@@ -119,7 +121,7 @@ private fun DisplayDemo(demo: Demo, onNavigate: (Demo) -> Unit) {
 
 @Composable
 private fun DisplayDemoCategory(category: DemoCategory, onNavigate: (Demo) -> Unit) {
-    VerticalScroller {
+    ScrollableColumn {
         category.demos.forEach { demo ->
             ListItem(
                 text = {
@@ -157,15 +159,11 @@ private fun DemoAppBar(
     } else {
         TopAppBar(
             title = {
-                TestTag(Tags.AppBarTitle) {
-                    Text(title)
-                }
+                Text(title, Modifier.testTag(Tags.AppBarTitle))
             },
             navigationIcon = navigationIcon,
             actions = {
-                TestTag(Tags.FilterButton) {
-                    AppBarIcons.Filter(onClick = onStartFiltering)
-                }
+                AppBarIcons.Filter(onClick = onStartFiltering)
                 AppBarIcons.Settings(onClick = launchSettings)
             }
         )
@@ -174,8 +172,21 @@ private fun DemoAppBar(
 
 private object AppBarIcons {
     @Composable
+    fun Back(onClick: () -> Unit) {
+        WithConstraints {
+            val icon = when (layoutDirection) {
+                LayoutDirection.Ltr -> Icons.Filled.ArrowBack
+                LayoutDirection.Rtl -> Icons.Filled.ArrowForward
+            }
+            IconButton(onClick = onClick) {
+                Icon(icon)
+            }
+        }
+    }
+
+    @Composable
     fun Filter(onClick: () -> Unit) {
-        IconButton(onClick = onClick) {
+        IconButton(modifier = Modifier.testTag(Tags.FilterButton), onClick = onClick) {
             Icon(Icons.Filled.Search)
         }
     }

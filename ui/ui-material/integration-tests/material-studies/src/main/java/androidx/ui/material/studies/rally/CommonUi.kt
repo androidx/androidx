@@ -126,3 +126,11 @@ fun formatAmount(amount: Float): String {
 
 private val accountDecimalFormat = DecimalFormat("####")
 private val amountDecimalFormat = DecimalFormat("#,###.##")
+
+/**
+ * Used with accounts and bills to create the animated circle.
+ */
+fun <E> List<E>.extractProportions(selector: (E) -> Float): List<Float> {
+    val total = this.sumByDouble { selector(it).toDouble() }
+    return this.map { (selector(it) / total).toFloat() }
+}

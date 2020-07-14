@@ -21,12 +21,14 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static junit.framework.TestCase.assertNotNull;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeTrue;
 
 import android.content.Intent;
@@ -119,7 +121,7 @@ public final class ToggleButtonUITest {
     @Test
     public void testFlashToggleButton() {
         waitFor(new WaitForViewToShow(R.id.constraintLayout));
-        assumeTrue(detectButtonVisibility(R.id.flash_toggle));
+        assumeTrue(isButtonEnabled(R.id.flash_toggle));
 
         ImageCapture useCase = mActivityRule.getActivity().getImageCapture();
         assertNotNull(useCase);
@@ -144,7 +146,7 @@ public final class ToggleButtonUITest {
     @Test
     public void testTorchToggleButton() {
         waitFor(new WaitForViewToShow(R.id.constraintLayout));
-        assumeTrue(detectButtonVisibility(R.id.torch_toggle));
+        assumeTrue(isButtonEnabled(R.id.torch_toggle));
 
         CameraInfo cameraInfo = mActivityRule.getActivity().getCameraInfo();
         assertNotNull(cameraInfo);
@@ -163,26 +165,19 @@ public final class ToggleButtonUITest {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
         waitFor(new WaitForViewToShow(R.id.direction_toggle));
 
-        boolean isPreviewExist = mActivityRule.getActivity().getPreview() != null;
-        boolean isImageCaptureExist = mActivityRule.getActivity().getImageCapture() != null;
-        boolean isVideoCaptureExist = mActivityRule.getActivity().getVideoCapture() != null;
-        boolean isImageAnalysisExist = mActivityRule.getActivity().getImageAnalysis() != null;
+        assumeNotNull(mActivityRule.getActivity().getPreview());
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 5; i++) {
+
+            // Wait for preview update.
+            mActivityRule.getActivity().resetViewIdlingResource();
+            IdlingRegistry.getInstance().register(
+                    mActivityRule.getActivity().getViewIdlingResource());
+            onView(withId(R.id.viewFinder)).check(matches(isDisplayed()));
+            IdlingRegistry.getInstance().unregister(
+                    mActivityRule.getActivity().getViewIdlingResource());
+
             onView(withId(R.id.direction_toggle)).perform(click());
-            waitFor(new ElapsedTimeIdlingResource(2000));
-            if (isImageCaptureExist) {
-                assertNotNull(mActivityRule.getActivity().getImageCapture());
-            }
-            if (isImageAnalysisExist) {
-                assertNotNull(mActivityRule.getActivity().getImageAnalysis());
-            }
-            if (isVideoCaptureExist) {
-                assertNotNull(mActivityRule.getActivity().getVideoCapture());
-            }
-            if (isPreviewExist) {
-                assertNotNull(mActivityRule.getActivity().getPreview());
-            }
         }
     }
 
@@ -190,9 +185,9 @@ public final class ToggleButtonUITest {
         return cameraInfo.getTorchState().getValue() == TorchState.ON;
     }
 
-    private boolean detectButtonVisibility(int resource) {
+    private boolean isButtonEnabled(int resource) {
         try {
-            onView(withId(resource)).check(matches(isDisplayed()));
+            onView(withId(resource)).check(matches(isEnabled()));
             // View is in hierarchy
             return true;
         } catch (AssertionFailedError e) {

@@ -71,6 +71,26 @@ class NonNullableMutableLiveDataDetectorTest : LintDetectorTest() {
     }
 
     @Test
+    fun mutableListAssignmentPass() {
+        check(
+            kotlin("""
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                fun foo() {
+                    val lists = MutableLiveData<List<Int>>()
+                    val map = HashMap<Int, Int>()
+
+                    map[1] = 1
+
+                    lists.value = map.values.toMutableList()
+                }
+            """).indented()
+        ).expectClean()
+    }
+
+    @Test
     fun helperMethodFails() {
         check(
             kotlin("""
@@ -124,6 +144,114 @@ Fix for src/com/example/test.kt line 8: Add non-null asserted (!!) call:
 @@ -8 +8
 -     liveData.value = bar
 +     liveData.value = bar!!
+        """)
+    }
+
+    @Test
+    fun nullLiteralFailField() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                val liveDataField = MutableLiveData<Boolean>()
+
+                fun foo() {
+                    liveDataField.value = null
+                }
+            """
+            ).indented()
+        ).expect("""
+src/com/example/test.kt:8: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+    liveDataField.value = null
+                          ~~~~
+1 errors, 0 warnings
+        """)
+    }
+
+    @Test
+    fun nullLiteralFailMultipleFields() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                val liveDataField = MutableLiveData<Boolean>()
+                val secondLiveDataField = MutableLiveData<String>()
+
+                fun foo() {
+                    liveDataField.value = null
+                    secondLiveDataField.value = null
+                }
+            """
+            ).indented()
+        ).expect("""
+src/com/example/test.kt:9: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+    liveDataField.value = null
+                          ~~~~
+src/com/example/test.kt:10: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+    secondLiveDataField.value = null
+                                ~~~~
+2 errors, 0 warnings
+        """)
+    }
+
+    @Test
+    fun nullLiteralFailFieldAndIgnore() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                val liveDataField = MutableLiveData<Boolean>()
+                val ignoreThisField = ArrayList<String>(arrayListOf("a", "b"))
+
+                fun foo() {
+                    liveDataField.value = null
+                    ignoreThisField[0] = null
+                }
+            """
+            ).indented()
+        ).expect("""
+src/com/example/test.kt:9: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+    liveDataField.value = null
+                          ~~~~
+1 errors, 0 warnings
+        """)
+    }
+
+    @Test
+    fun nullLiteralFailFieldAndLocalVariable() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                val liveDataField = MutableLiveData<Boolean>()
+
+                fun foo() {
+                    liveDataField.value = null
+                    val liveDataVariable = MutableLiveData<Boolean>()
+                    liveDataVariable.value = null
+                }
+            """
+            ).indented()
+        ).expect("""
+src/com/example/test.kt:8: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+    liveDataField.value = null
+                          ~~~~
+src/com/example/test.kt:10: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+    liveDataVariable.value = null
+                             ~~~~
+2 errors, 0 warnings
         """)
     }
 

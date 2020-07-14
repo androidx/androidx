@@ -17,10 +17,11 @@
 package androidx.fragment.app
 
 import androidx.fragment.test.R
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
-import org.junit.Rule
+import androidx.testutils.withActivity
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -28,14 +29,24 @@ import org.junit.runner.RunWith
 @MediumTest
 class ContentViewTest {
 
-    @get:Rule
-    var activityRule = ActivityTestRule(ContentViewActivity::class.java, false, false)
-
     @Test
     fun testContentViewWithInflatedFragment() {
-        // The StrictViewFragment runs the appropriate checks to make sure
-        // we're moving through the states appropriately
-        activityRule.launchActivity(null)
+        // Test basic lifecycle when the fragment view is inflated with <fragment> tag
+        with(ActivityScenario.launch(ContentViewActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val f1 = fm.findFragmentById(R.id.inflated_fragment) as StrictViewFragment
+
+            assertWithMessage("onDestroyView was called when the fragment was added")
+                .that(f1.onDestroyViewCalled).isFalse()
+
+            fm.beginTransaction().remove(f1).commit()
+            executePendingTransactions(fm)
+
+            assertWithMessage("onDestroyView was not called when the fragment was removed")
+                .that(f1.onDestroyViewCalled).isTrue()
+        }
     }
 }
 

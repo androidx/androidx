@@ -42,7 +42,7 @@ class SqliteInspectionExecutors {
         }
 
         private String generateThreadName() {
-            return String.format(Locale.ROOT, "Studio: SqliteInspector thread-%d",
+            return String.format(Locale.ROOT, "Studio:SqlIns%d",
                     mNextId.getAndIncrement());
         }
     };

@@ -29,12 +29,6 @@ android {
         versionCode 1
         multiDexEnabled true
     }
-
-    buildTypes {
-        debug {
-            testCoverageEnabled true
-        }
-    }
 }
 
 dependencies {

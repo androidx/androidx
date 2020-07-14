@@ -19,11 +19,11 @@ package androidx.ui.text.demos
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.focus.FocusModifier
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.TextFieldValue
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
+import androidx.ui.input.TextFieldValue
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.sp
@@ -32,7 +32,7 @@ import androidx.ui.unit.sp
 fun TextFieldFocusTransition() {
     val focusModifiers = List(6) { FocusModifier() }
 
-    VerticalScroller {
+    ScrollableColumn {
         TextFieldWithFocusId(focusModifiers[0], focusModifiers[1])
         TextFieldWithFocusId(focusModifiers[1], focusModifiers[2])
         TextFieldWithFocusId(focusModifiers[2], focusModifiers[3])

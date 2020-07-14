@@ -18,9 +18,9 @@ package androidx.room.writer
 
 import androidx.room.RoomProcessor
 import androidx.room.ext.S
+import androidx.room.ext.getGeneratedAnnotation
 import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope.Companion.CLASS_PROPERTY_PREFIX
-import com.google.auto.common.GeneratedAnnotations
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
@@ -66,9 +66,7 @@ abstract class ClassWriter(private val className: ClassName) {
         adapterTypeSpecBuilder: TypeSpec.Builder,
         processingEnv: ProcessingEnvironment
     ) {
-        GeneratedAnnotations.generatedAnnotation(
-            processingEnv.elementUtils, processingEnv.sourceVersion
-        ).ifPresent {
+        processingEnv.getGeneratedAnnotation()?.let {
             val generatedAnnotationSpec =
                 AnnotationSpec.builder(ClassName.get(it))
                     .addMember("value", S, RoomProcessor::class.java.canonicalName)

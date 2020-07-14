@@ -17,6 +17,7 @@
 package androidx.ui.test
 
 import androidx.ui.core.AndroidOwner
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.DeleteAllEditOp
 import androidx.ui.input.EditOperation
@@ -31,9 +32,9 @@ import androidx.ui.text.TextSemanticsProperties
  * @param alreadyHasFocus Whether the node already has a focus and thus does not need to be
  * clicked on.
  */
-fun SemanticsNodeInteraction.doClearText(alreadyHasFocus: Boolean = false) {
+fun SemanticsNodeInteraction.performTextClearance(alreadyHasFocus: Boolean = false) {
     if (!alreadyHasFocus) {
-        doClick()
+        performClick()
     }
     // TODO: There should be some assertion on focus in the future.
 
@@ -47,9 +48,9 @@ fun SemanticsNodeInteraction.doClearText(alreadyHasFocus: Boolean = false) {
  * @param alreadyHasFocus Whether the node already has a focus and thus does not need to be
  * clicked on.
  */
-fun SemanticsNodeInteraction.doSendText(text: String, alreadyHasFocus: Boolean = false) {
+fun SemanticsNodeInteraction.performTextInput(text: String, alreadyHasFocus: Boolean = false) {
     if (!alreadyHasFocus) {
-        doClick()
+        performClick()
     }
     // TODO: There should be some assertion on focus in the future.
 
@@ -65,9 +66,12 @@ fun SemanticsNodeInteraction.doSendText(text: String, alreadyHasFocus: Boolean =
  * @param alreadyHasFocus Whether the node already has a focus and thus does not need to be
  * clicked on.
  */
-fun SemanticsNodeInteraction.doReplaceText(text: String, alreadyHasFocus: Boolean = false) {
+fun SemanticsNodeInteraction.performTextReplacement(
+    text: String,
+    alreadyHasFocus: Boolean = false
+) {
     if (!alreadyHasFocus) {
-        doClick()
+        performClick()
     }
 
     // TODO: There should be some assertion on focus in the future.
@@ -87,12 +91,12 @@ fun SemanticsNodeInteraction.doReplaceText(text: String, alreadyHasFocus: Boolea
  * @throws IllegalStateException if tne node did not establish input connection (e.g. is not
  * focused)
  */
-fun SemanticsNodeInteraction.doSendImeAction(alreadyHasFocus: Boolean = false) {
+fun SemanticsNodeInteraction.performImeAction(alreadyHasFocus: Boolean = false) {
     if (!alreadyHasFocus) {
-        doClick()
+        performClick()
     }
 
-    val errorOnFail = "Failed to send IME action."
+    val errorOnFail = "Failed to perform IME action."
     val node = fetchSemanticsNode(errorOnFail)
 
     assert(hasInputMethodsSupport()) { errorOnFail }
@@ -102,9 +106,10 @@ fun SemanticsNodeInteraction.doSendImeAction(alreadyHasFocus: Boolean = false) {
     }
     if (actionSpecified == ImeAction.Unspecified) {
         throw AssertionError(buildGeneralErrorMessage(
-            "Failed to send IME action as current node does not specify any.", selector, node))
+            "Failed to perform IME action as current node does not specify any.", selector, node))
     }
 
+    @OptIn(ExperimentalLayoutNodeApi::class)
     val owner = node.componentNode.owner as AndroidOwner
 
     runOnUiThread {
@@ -118,8 +123,9 @@ fun SemanticsNodeInteraction.doSendImeAction(alreadyHasFocus: Boolean = false) {
 }
 
 internal fun SemanticsNodeInteraction.sendTextInputCommand(command: List<EditOperation>) {
-    val errorOnFail = "Failed to send text input."
+    val errorOnFail = "Failed to perform text input."
     val node = fetchSemanticsNode(errorOnFail)
+    @OptIn(ExperimentalLayoutNodeApi::class)
     val owner = node.componentNode.owner as AndroidOwner
 
     assert(hasInputMethodsSupport()) { errorOnFail }
@@ -139,3 +145,61 @@ internal fun AndroidOwner.getTextInputServiceOrDie(): TextInputServiceForTests {
         ?: throw IllegalStateException ("Text input service wrapper not set up! Did you use " +
                 "ComposeTestRule?")
 }
+
+// DEPRECATED APIs SECTION
+
+/**
+ * Clears the text in this node in similar way to IME.
+ *
+ * Note performing this operation requires to get a focus.
+ *
+ * @param alreadyHasFocus Whether the node already has a focus and thus does not need to be
+ * clicked on.
+ */
+@Deprecated("Renamed to performTextClearance",
+    replaceWith = ReplaceWith("performTextClearance(alreadyHasFocus)"))
+fun SemanticsNodeInteraction.doClearText(alreadyHasFocus: Boolean = false) =
+    performTextClearance(alreadyHasFocus)
+
+/**
+ * Sends the given text to this node in similar way to IME.
+ *
+ * @param text Text to send.
+ * @param alreadyHasFocus Whether the node already has a focus and thus does not need to be
+ * clicked on.
+ */
+@Deprecated("Renamed to performTextInput",
+    replaceWith = ReplaceWith("performTextInput(text, alreadyHasFocus)"))
+fun SemanticsNodeInteraction.doSendText(text: String, alreadyHasFocus: Boolean = false) =
+    performTextInput(text, alreadyHasFocus)
+
+/**
+ * Replaces existing text with the given text in this node in similar way to IME.
+ *
+ * This does not reflect text selection. All the text gets cleared out and new inserted.
+ *
+ * @param text Text to send.
+ * @param alreadyHasFocus Whether the node already has a focus and thus does not need to be
+ * clicked on.
+ */
+@Deprecated("Renamed to performTextReplacement",
+    replaceWith = ReplaceWith("performTextReplacement(text, alreadyHasFocus)"))
+fun SemanticsNodeInteraction.doReplaceText(text: String, alreadyHasFocus: Boolean = false) =
+    performTextReplacement(text, alreadyHasFocus)
+
+/**
+ * Sends to this node the IME action associated with it in similar way to IME.
+ *
+ * The node needs to define its IME action in semantics.
+ *
+ * @param alreadyHasFocus Whether the node already has a focus and thus does not need to be
+ * clicked on.
+ *
+ * @throws AssertionError if the node does not support input or does not define IME action.
+ * @throws IllegalStateException if tne node did not establish input connection (e.g. is not
+ * focused)
+ */
+@Deprecated("Renamed to performImeAction",
+    replaceWith = ReplaceWith("performImeAction(alreadyHasFocus)"))
+fun SemanticsNodeInteraction.doSendImeAction(alreadyHasFocus: Boolean = false) =
+    performImeAction(alreadyHasFocus)

@@ -17,30 +17,30 @@
 package androidx.room.solver.types
 
 import androidx.room.ext.L
+import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SQLTypeAffinity.REAL
 import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.TypeName.BYTE
+import com.squareup.javapoet.TypeName.CHAR
+import com.squareup.javapoet.TypeName.DOUBLE
+import com.squareup.javapoet.TypeName.FLOAT
+import com.squareup.javapoet.TypeName.INT
+import com.squareup.javapoet.TypeName.LONG
+import com.squareup.javapoet.TypeName.SHORT
 import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.type.PrimitiveType
-import javax.lang.model.type.TypeKind.BYTE
-import javax.lang.model.type.TypeKind.CHAR
-import javax.lang.model.type.TypeKind.DOUBLE
-import javax.lang.model.type.TypeKind.FLOAT
-import javax.lang.model.type.TypeKind.INT
-import javax.lang.model.type.TypeKind.LONG
-import javax.lang.model.type.TypeKind.SHORT
+import javax.lang.model.type.TypeMirror
 
 /**
  * Adapters for all primitives that has direct cursor mappings.
  */
 open class PrimitiveColumnTypeAdapter(
-    out: PrimitiveType,
+    out: TypeMirror,
     val cursorGetter: String,
     val stmtSetter: String,
     typeAffinity: SQLTypeAffinity
-) :
-        ColumnTypeAdapter(out, typeAffinity) {
+) : ColumnTypeAdapter(out, typeAffinity) {
     val cast = if (cursorGetter == "get${out.typeName().toString().capitalize()}")
                     ""
                 else
@@ -60,7 +60,7 @@ open class PrimitiveColumnTypeAdapter(
                     Triple(DOUBLE, "getDouble", "bindDouble")
             ).map {
                 PrimitiveColumnTypeAdapter(
-                        out = processingEnvironment.typeUtils.getPrimitiveType(it.first),
+                        out = processingEnvironment.requireTypeMirror(it.first),
                         cursorGetter = it.second,
                         stmtSetter = it.third,
                         typeAffinity = when (it.first) {

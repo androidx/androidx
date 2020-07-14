@@ -46,10 +46,10 @@ public final class VideoCaptureConfigProvider implements ConfigProvider<VideoCap
 
     @Override
     @NonNull
+    @SuppressWarnings("deprecation") /* defaultDisplay */
     public VideoCaptureConfig getConfig(@Nullable CameraInfo cameraInfo) {
-        VideoCaptureConfig.Builder builder =
-                VideoCaptureConfig.Builder.fromConfig(
-                        VideoCapture.DEFAULT_CONFIG.getConfig(cameraInfo));
+        VideoCapture.Builder builder = VideoCapture.Builder.fromConfig(
+                VideoCapture.DEFAULT_CONFIG.getConfig(cameraInfo));
 
         // SessionConfig containing all intrinsic properties needed for VideoCapture
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();

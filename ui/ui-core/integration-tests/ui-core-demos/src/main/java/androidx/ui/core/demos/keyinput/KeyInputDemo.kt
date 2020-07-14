@@ -20,14 +20,15 @@ import androidx.compose.Composable
 import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.focus.FocusState.Focused
 import androidx.ui.core.focus.FocusState.NotFocusable
 import androidx.ui.core.focus.FocusState.NotFocused
 import androidx.ui.core.focus.focusState
+import androidx.ui.core.gesture.tapGestureFilter
+import androidx.ui.core.keyinput.ExperimentalKeyInput
 import androidx.ui.core.keyinput.Key
-import androidx.ui.core.keyinput.KeyEvent
+import androidx.ui.core.keyinput.KeyEvent2
 import androidx.ui.core.keyinput.KeyEventType
 import androidx.ui.core.keyinput.keyInputFilter
 import androidx.ui.foundation.Text
@@ -61,6 +62,7 @@ fun KeyInputDemo() {
 }
 
 @Composable
+@OptIn(ExperimentalKeyInput::class)
 private fun FocusableText(text: MutableState<String>) {
     val focusModifier = FocusModifier()
     Text(
@@ -85,7 +87,8 @@ private fun CenteredRow(children: @Composable RowScope.() -> Unit) {
     )
 }
 
-private val KeyEvent.value: String?
+@OptIn(ExperimentalKeyInput::class)
+private val KeyEvent2.value: String?
     get() {
         if (type != KeyEventType.KeyUp) return null
         return when (key) {

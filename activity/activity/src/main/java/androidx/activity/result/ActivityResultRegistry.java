@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A registry that stores {@link ActivityResultCallback activity result callbacks} for
  * {@link ActivityResultCaller#registerForActivityResult registered calls}.
  *
- * You can create your own instance for testing by overriding {@link #invoke} and calling
+ * You can create your own instance for testing by overriding {@link #onLaunch} and calling
  * {@link #dispatchResult} immediately within it, thus skipping the actual
  * {@link Activity#startActivityForResult} call.
  *
@@ -59,7 +59,7 @@ public abstract class ActivityResultRegistry {
     private static final String LOG_TAG = "ActivityResultRegistry";
 
     // Use upper 16 bits for request codes
-    private final AtomicInteger mNextRc = new AtomicInteger(0x0000ffff);
+    private final AtomicInteger mNextRc = new AtomicInteger(0x00010000);
     private final Map<Integer, String> mRcToKey = new HashMap<>();
     private final Map<String, Integer> mKeyToRc = new HashMap<>();
 
@@ -77,7 +77,7 @@ public abstract class ActivityResultRegistry {
      * @param options Additional options for how the Activity should be started.
      */
     @MainThread
-    public abstract <I, O> void invoke(
+    public abstract <I, O> void onLaunch(
             int requestCode,
             @NonNull ActivityResultContract<I, O> contract,
             @SuppressLint("UnknownNullness") I input,
@@ -144,12 +144,18 @@ public abstract class ActivityResultRegistry {
         return new ActivityResultLauncher<I>() {
             @Override
             public void launch(I input, @Nullable ActivityOptionsCompat options) {
-                invoke(requestCode, contract, input, options);
+                onLaunch(requestCode, contract, input, options);
             }
 
             @Override
             public void unregister() {
                 ActivityResultRegistry.this.unregister(key);
+            }
+
+            @NonNull
+            @Override
+            public ActivityResultContract<I, ?> getContract() {
+                return contract;
             }
         };
     }
@@ -189,12 +195,18 @@ public abstract class ActivityResultRegistry {
         return new ActivityResultLauncher<I>() {
             @Override
             public void launch(I input, @Nullable ActivityOptionsCompat options) {
-                invoke(requestCode, contract, input, options);
+                onLaunch(requestCode, contract, input, options);
             }
 
             @Override
             public void unregister() {
                 ActivityResultRegistry.this.unregister(key);
+            }
+
+            @NonNull
+            @Override
+            public ActivityResultContract<I, ?> getContract() {
+                return contract;
             }
         };
     }

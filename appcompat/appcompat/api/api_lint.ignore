@@ -613,8 +613,6 @@ MissingNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#onCr
     Missing nullability on method `onCreateInputConnection` return
 MissingNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
     Missing nullability on parameter `outAttrs` in method `onCreateInputConnection`
-MissingNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#setBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `background` in method `setBackgroundDrawable`
 MissingNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
     Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
 MissingNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#setTextAppearance(android.content.Context, int) parameter #0:
@@ -625,14 +623,10 @@ MissingNullability: androidx.appcompat.widget.AppCompatButton#onInitializeAccess
     Missing nullability on parameter `info` in method `onInitializeAccessibilityNodeInfo`
 MissingNullability: androidx.appcompat.widget.AppCompatButton#onTextChanged(CharSequence, int, int, int) parameter #0:
     Missing nullability on parameter `text` in method `onTextChanged`
-MissingNullability: androidx.appcompat.widget.AppCompatButton#setBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `background` in method `setBackgroundDrawable`
 MissingNullability: androidx.appcompat.widget.AppCompatButton#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
     Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
 MissingNullability: androidx.appcompat.widget.AppCompatButton#setTextAppearance(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `setTextAppearance`
-MissingNullability: androidx.appcompat.widget.AppCompatCheckBox#setBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `background` in method `setBackgroundDrawable`
 MissingNullability: androidx.appcompat.widget.AppCompatCheckBox#setButtonDrawable(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `buttonDrawable` in method `setButtonDrawable`
 MissingNullability: androidx.appcompat.widget.AppCompatCheckedTextView#onCreateInputConnection(android.view.inputmethod.EditorInfo):
@@ -647,26 +641,18 @@ MissingNullability: androidx.appcompat.widget.AppCompatEditText#onCreateInputCon
     Missing nullability on method `onCreateInputConnection` return
 MissingNullability: androidx.appcompat.widget.AppCompatEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
     Missing nullability on parameter `outAttrs` in method `onCreateInputConnection`
-MissingNullability: androidx.appcompat.widget.AppCompatEditText#setBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `background` in method `setBackgroundDrawable`
 MissingNullability: androidx.appcompat.widget.AppCompatEditText#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
     Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
 MissingNullability: androidx.appcompat.widget.AppCompatEditText#setTextAppearance(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `setTextAppearance`
-MissingNullability: androidx.appcompat.widget.AppCompatImageButton#setBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `background` in method `setBackgroundDrawable`
 MissingNullability: androidx.appcompat.widget.AppCompatImageButton#setImageBitmap(android.graphics.Bitmap) parameter #0:
     Missing nullability on parameter `bm` in method `setImageBitmap`
-MissingNullability: androidx.appcompat.widget.AppCompatImageView#setBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `background` in method `setBackgroundDrawable`
 MissingNullability: androidx.appcompat.widget.AppCompatImageView#setImageBitmap(android.graphics.Bitmap) parameter #0:
     Missing nullability on parameter `bm` in method `setImageBitmap`
 MissingNullability: androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView#onCreateInputConnection(android.view.inputmethod.EditorInfo):
     Missing nullability on method `onCreateInputConnection` return
 MissingNullability: androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
     Missing nullability on parameter `outAttrs` in method `onCreateInputConnection`
-MissingNullability: androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView#setBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `background` in method `setBackgroundDrawable`
 MissingNullability: androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView#setTextAppearance(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `setTextAppearance`
 MissingNullability: androidx.appcompat.widget.AppCompatRadioButton#AppCompatRadioButton(android.content.Context) parameter #0:
@@ -675,8 +661,6 @@ MissingNullability: androidx.appcompat.widget.AppCompatRadioButton#AppCompatRadi
     Missing nullability on parameter `context` in method `AppCompatRadioButton`
 MissingNullability: androidx.appcompat.widget.AppCompatRadioButton#AppCompatRadioButton(android.content.Context, android.util.AttributeSet, int) parameter #0:
     Missing nullability on parameter `context` in method `AppCompatRadioButton`
-MissingNullability: androidx.appcompat.widget.AppCompatRadioButton#setBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `background` in method `setBackgroundDrawable`
 MissingNullability: androidx.appcompat.widget.AppCompatRadioButton#setButtonDrawable(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `buttonDrawable` in method `setButtonDrawable`
 MissingNullability: androidx.appcompat.widget.AppCompatSeekBar#onDraw(android.graphics.Canvas) parameter #0:
@@ -697,8 +681,6 @@ MissingNullability: androidx.appcompat.widget.AppCompatSpinner#onTouchEvent(andr
     Missing nullability on parameter `event` in method `onTouchEvent`
 MissingNullability: androidx.appcompat.widget.AppCompatSpinner#setAdapter(android.widget.SpinnerAdapter) parameter #0:
     Missing nullability on parameter `adapter` in method `setAdapter`
-MissingNullability: androidx.appcompat.widget.AppCompatSpinner#setBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `background` in method `setBackgroundDrawable`
 MissingNullability: androidx.appcompat.widget.AppCompatSpinner#setPopupBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `background` in method `setPopupBackgroundDrawable`
 MissingNullability: androidx.appcompat.widget.AppCompatSpinner#setPrompt(CharSequence) parameter #0:
@@ -711,8 +693,6 @@ MissingNullability: androidx.appcompat.widget.AppCompatTextView#onCreateInputCon
     Missing nullability on parameter `outAttrs` in method `onCreateInputConnection`
 MissingNullability: androidx.appcompat.widget.AppCompatTextView#onTextChanged(CharSequence, int, int, int) parameter #0:
     Missing nullability on parameter `text` in method `onTextChanged`
-MissingNullability: androidx.appcompat.widget.AppCompatTextView#setBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `background` in method `setBackgroundDrawable`
 MissingNullability: androidx.appcompat.widget.AppCompatTextView#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
     Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
 MissingNullability: androidx.appcompat.widget.AppCompatTextView#setTextAppearance(android.content.Context, int) parameter #0:

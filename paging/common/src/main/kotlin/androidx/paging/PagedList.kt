@@ -611,6 +611,8 @@ abstract class PagedList<T : Any> internal constructor(
              *
              * @param pageSize Number of items loaded at once from the [PagingSource].
              * @return this
+             *
+             * @throws IllegalArgumentException if pageSize is < `1`.
              */
             fun setPageSize(@IntRange(from = 1) pageSize: Int) = apply {
                 if (pageSize < 1) {
@@ -722,6 +724,11 @@ abstract class PagedList<T : Any> internal constructor(
              * Creates a [PagedList.Config] with the given parameters.
              *
              * @return A new [PagedList.Config].
+             *
+             * @throws IllegalArgumentException if placeholders are disabled and prefetchDistance
+             * is set to 0
+             * @throws IllegalArgumentException if maximum size is less than pageSize +
+             * 2*prefetchDistance
              */
             fun build(): Config {
                 if (prefetchDistance < 0) {
@@ -764,6 +771,7 @@ abstract class PagedList<T : Any> internal constructor(
              * When [maxSize] is set to [MAX_SIZE_UNBOUNDED], the maximum number of items loaded is
              * unbounded, and pages will never be dropped.
              */
+            @Suppress("MinMaxConstant")
             const val MAX_SIZE_UNBOUNDED = Int.MAX_VALUE
         }
     }
@@ -860,9 +868,9 @@ abstract class PagedList<T : Any> internal constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     abstract class LoadStateManager {
-        var refreshState: LoadState = LoadState.NotLoading.Idle
-        var startState: LoadState = LoadState.NotLoading.Idle
-        var endState: LoadState = LoadState.NotLoading.Idle
+        var refreshState: LoadState = LoadState.NotLoading.Incomplete
+        var startState: LoadState = LoadState.NotLoading.Incomplete
+        var endState: LoadState = LoadState.NotLoading.Incomplete
 
         fun setState(type: LoadType, state: LoadState) {
             // deduplicate signals
@@ -1086,6 +1094,8 @@ abstract class PagedList<T : Any> internal constructor(
      * Load adjacent items to passed index.
      *
      * @param index Index at which to load.
+     *
+     * @throws IndexOutOfBoundsException if index is not within bounds.
      */
     fun loadAround(index: Int) {
         if (index < 0 || index >= size) {
@@ -1180,6 +1190,7 @@ abstract class PagedList<T : Any> internal constructor(
      *
      * @see removeWeakCallback
      */
+    @Suppress("RegistrationName")
     fun addWeakCallback(callback: Callback) {
         // first, clean up any empty weak refs
         callbacks.removeAll { it.get() == null }
@@ -1195,6 +1206,7 @@ abstract class PagedList<T : Any> internal constructor(
      *
      * @see addWeakCallback
      */
+    @Suppress("RegistrationName")
     fun removeWeakCallback(callback: Callback) {
         callbacks.removeAll { it.get() == null || it.get() === callback }
     }
@@ -1237,7 +1249,11 @@ abstract class PagedList<T : Any> internal constructor(
  * @param boundaryCallback [PagedList.BoundaryCallback] for listening to out-of-data events.
  * @param initialKey [Key] the [DataSource] should load around as part of initialization.
  */
-@Suppress("FunctionName", "DEPRECATION")
+@Suppress(
+    "FunctionName",
+    "DEPRECATION"
+)
+@JvmSynthetic
 @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
 fun <Key : Any, Value : Any> PagedList(
     dataSource: DataSource<Key, Value>,

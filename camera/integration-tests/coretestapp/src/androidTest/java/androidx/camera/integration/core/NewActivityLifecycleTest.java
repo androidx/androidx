@@ -104,7 +104,7 @@ public final class NewActivityLifecycleTest {
 
         // check the 1st activity Preview
         IdlingRegistry.getInstance().register(mActivityRule.getActivity().getViewIdlingResource());
-        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+        onView(withId(R.id.viewFinder)).check(matches(isDisplayed()));
         IdlingRegistry.getInstance().unregister(
                 mActivityRule.getActivity().getViewIdlingResource());
 
@@ -119,7 +119,7 @@ public final class NewActivityLifecycleTest {
         // check the New activity Preview
         IdlingRegistry.getInstance().register(
                 mNewActivityRule.getActivity().getViewIdlingResource());
-        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+        onView(withId(R.id.viewFinder)).check(matches(isDisplayed()));
         IdlingRegistry.getInstance().unregister(
                 mNewActivityRule.getActivity().getViewIdlingResource());
 

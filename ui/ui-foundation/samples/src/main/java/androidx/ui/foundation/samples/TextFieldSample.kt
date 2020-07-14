@@ -21,7 +21,8 @@ import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.TextFieldValue
+import androidx.ui.input.TextFieldValue
+import androidx.ui.layout.Stack
 import androidx.ui.savedinstancestate.savedInstanceState
 
 @Sampled
@@ -32,4 +33,21 @@ fun TextFieldSample() {
         value = value,
         onValueChange = { value = it }
     )
+}
+
+@Sampled
+@Composable
+fun PlaceholderTextFieldSample() {
+    val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
+    Stack {
+        TextField(
+            value = state.value,
+            onValueChange = { state.value = it }
+        )
+        if (state.value.text.isEmpty()) {
+            androidx.ui.foundation.Text(
+                text = "Placeholder"
+            )
+        }
+    }
 }

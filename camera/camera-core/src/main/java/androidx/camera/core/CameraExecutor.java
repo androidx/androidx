@@ -77,7 +77,7 @@ class CameraExecutor implements Executor {
         int cameraNumber = 0;
         try {
             cameraNumber = cameraFactory.getAvailableCameraIds().size();
-        } catch (CameraInfoUnavailableException e) {
+        } catch (CameraUnavailableException e) {
             e.printStackTrace();
         }
         // According to the document of ThreadPoolExecutor, "If there are more than corePoolSize

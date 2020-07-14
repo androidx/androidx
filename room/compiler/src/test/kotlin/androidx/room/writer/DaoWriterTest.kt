@@ -18,10 +18,11 @@ package androidx.room.writer
 
 import COMMON
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.asDeclaredType
+import androidx.room.ext.asTypeElement
+import androidx.room.ext.requireTypeElement
 import androidx.room.processor.DaoProcessor
 import androidx.room.testing.TestProcessor
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaSourcesSubjectFactory
@@ -75,10 +76,10 @@ class DaoWriterTest {
     private fun singleDao(vararg jfo: JavaFileObject): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(jfo.toList() + COMMON.USER + COMMON.MULTI_PKEY_ENTITY + COMMON.BOOK +
-                        COMMON.LIVE_DATA + COMMON.COMPUTABLE_LIVE_DATA + COMMON.SINGLE +
-                        COMMON.MAYBE + COMMON.COMPLETABLE + COMMON.USER_SUMMARY + COMMON.RX2_ROOM +
-                        COMMON.PARENT + COMMON.CHILD1 + COMMON.CHILD2 + COMMON.INFO +
-                        COMMON.LISTENABLE_FUTURE + COMMON.GUAVA_ROOM)
+                        COMMON.LIVE_DATA + COMMON.COMPUTABLE_LIVE_DATA + COMMON.RX2_SINGLE +
+                        COMMON.RX2_MAYBE + COMMON.RX2_COMPLETABLE + COMMON.USER_SUMMARY +
+                        COMMON.RX2_ROOM + COMMON.PARENT + COMMON.CHILD1 + COMMON.CHILD2 +
+                        COMMON.INFO + COMMON.LISTENABLE_FUTURE + COMMON.GUAVA_ROOM)
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(androidx.room.Dao::class)
                         .nextRunHandler { invocation ->
@@ -90,17 +91,12 @@ class DaoWriterTest {
                                     .getElementsAnnotatedWith(
                                             androidx.room.Database::class.java)
                                     .firstOrNull()
-                                    ?: invocation.context.processingEnv.elementUtils
-                                        .getTypeElement(RoomTypeNames.ROOM_DB.toString())
-                            val dbType = if (db != null) {
-                                db.asType()
-                            } else {
-                                invocation.context.processingEnv.elementUtils
-                                    .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType()
-                            }.let { MoreTypes.asDeclared(it) }
+                                    ?: invocation.context.processingEnv
+                                        .requireTypeElement(RoomTypeNames.ROOM_DB)
+                            val dbType = db.asDeclaredType()
                             val parser = DaoProcessor(
                                     baseContext = invocation.context,
-                                    element = MoreElements.asType(dao),
+                                    element = dao.asTypeElement(),
                                     dbType = dbType,
                                     dbVerifier = createVerifierFromEntitiesAndViews(invocation))
                             val parsedDao = parser.process()

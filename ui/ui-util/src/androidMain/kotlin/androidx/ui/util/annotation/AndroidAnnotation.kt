@@ -16,9 +16,11 @@
 
 package androidx.ui.util.annotation
 
+actual typealias CallSuper = androidx.annotation.CallSuper
 actual typealias ColorInt = androidx.annotation.ColorInt
-actual typealias FloatRange = androidx.annotation.FloatRange
 actual typealias IntRange = androidx.annotation.IntRange
-actual typealias Size = androidx.annotation.Size
+actual typealias FloatRange = androidx.annotation.FloatRange
 actual typealias GuardedBy = androidx.annotation.GuardedBy
+actual typealias MainThread = androidx.annotation.MainThread
+actual typealias Size = androidx.annotation.Size
 actual typealias VisibleForTesting = androidx.annotation.VisibleForTesting

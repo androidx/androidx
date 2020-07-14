@@ -109,7 +109,7 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
             ImageCapture.OutputFileOptions outputFileOptions;
             ContentValues contentValues = new ContentValues();
             contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, saveFile.getName());
-            contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
+            contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH,
                         Environment.DIRECTORY_PICTURES);

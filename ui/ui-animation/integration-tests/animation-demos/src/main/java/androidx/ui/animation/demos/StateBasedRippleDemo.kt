@@ -21,11 +21,13 @@ import androidx.animation.FloatPropKey
 import androidx.animation.InterruptionHandling
 import androidx.animation.TransitionDefinition
 import androidx.animation.TransitionState
+import androidx.animation.keyframes
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
@@ -34,7 +36,6 @@ import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
 @Composable
@@ -48,22 +49,19 @@ fun StateBasedRippleDemo() {
 private fun RippleRect() {
     val radius = with(DensityAmbient.current) { TargetRadius.toPx() }
     val toState = state { ButtonStatus.Initial }
-    val rippleTransDef = remember { createTransDef(radius.value) }
-    val onPress: (PxPosition) -> Unit = { position ->
-        down.x = position.x.value
-        down.y = position.y.value
+    val rippleTransDef = remember { createTransDef(radius) }
+    val onPress: (Offset) -> Unit = { position ->
+        down.x = position.x
+        down.y = position.y
         toState.value = ButtonStatus.Pressed
     }
 
     val onRelease: () -> Unit = {
         toState.value = ButtonStatus.Released
     }
-    Transition(definition = rippleTransDef, toState = toState.value) { state ->
-        RippleRectFromState(
-            Modifier.pressIndicatorGestureFilter(onStart = onPress, onStop = onRelease), state =
-            state
-        )
-    }
+    val state = transition(definition = rippleTransDef, toState = toState.value)
+    RippleRectFromState(
+        Modifier.pressIndicatorGestureFilter(onStart = onPress, onStop = onRelease), state = state)
 }
 
 @Composable
@@ -114,22 +112,18 @@ private fun createTransDef(targetRadius: Float): TransitionDefinition<ButtonStat
         // Grow the ripple
         transition(ButtonStatus.Initial to ButtonStatus.Pressed) {
             alpha using keyframes {
-                duration = 225
+                durationMillis = 225
                 0f at 0 // optional
                 0.2f at 75
                 0.2f at 225 // optional
             }
-            radius using tween {
-                duration = 225
-            }
+            radius using tween(durationMillis = 225)
             interruptionHandling = InterruptionHandling.UNINTERRUPTIBLE
         }
 
         // Fade out the ripple
         transition(ButtonStatus.Pressed to ButtonStatus.Released) {
-            alpha using tween {
-                duration = 200
-            }
+            alpha using tween(durationMillis = 200)
             interruptionHandling = InterruptionHandling.UNINTERRUPTIBLE
             // switch back to Initial to prepare for the next ripple cycle
             nextState = ButtonStatus.Initial

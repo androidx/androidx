@@ -19,12 +19,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,7 +47,7 @@ import javax.lang.model.element.VariableElement;
 class AppSearchDocumentModel {
 
     /** Enumeration of fields that must be handled specially (i.e. are not properties) */
-    enum SpecialField { URI, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE }
+    enum SpecialField { URI, NAMESPACE, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE }
     /** Determines how the annotation processor has decided to read the value of a field. */
     enum ReadKind { FIELD, GETTER }
     /** Determines how the annotation processor has decided to write the value of a field. */
@@ -62,8 +64,7 @@ class AppSearchDocumentModel {
     private final Map<VariableElement, ReadKind> mReadKinds = new HashMap<>();
     private final Map<VariableElement, WriteKind> mWriteKinds = new HashMap<>();
     private final Map<VariableElement, ProcessingException> mWriteWhyConstructor = new HashMap<>();
-    // TODO(b/156296904): use this for output
-    // private ExecutableElement mChosenConstructor = null;
+    private List<String> mChosenConstructorParams = null;
 
     private AppSearchDocumentModel(
             @NonNull ProcessingEnvironment env,
@@ -91,10 +92,6 @@ class AppSearchDocumentModel {
 
         scanFields();
         scanConstructors();
-
-        // TODO(b/156296904): This line is to squash a populated-but-not-used warning. Use this map
-        // for source file output and remove this line.
-        mReadKinds.size();
     }
 
     @NonNull
@@ -114,6 +111,11 @@ class AppSearchDocumentModel {
     }
 
     @NonNull
+    public Map<String, VariableElement> getAllFields() {
+        return Collections.unmodifiableMap(mAllAppSearchFields);
+    }
+
+    @NonNull
     public Map<String, VariableElement> getPropertyFields() {
         return Collections.unmodifiableMap(mPropertyFields);
     }
@@ -129,8 +131,38 @@ class AppSearchDocumentModel {
         return mReadKinds.get(element);
     }
 
+    @Nullable
+    public WriteKind getFieldWriteKind(String fieldName) {
+        VariableElement element = mAllAppSearchFields.get(fieldName);
+        return mWriteKinds.get(element);
+    }
+
+    /**
+     * Finds the AppSearch name for the given property.
+     *
+     * <p>This is usually the name of the field in Java, but may be changed if the developer
+     * specifies a different 'name' parameter in the annotation.
+     */
+    @NonNull
+    public String getPropertyName(@NonNull VariableElement property) throws ProcessingException {
+        AnnotationMirror annotation =
+                mIntrospectionHelper.getAnnotation(property, IntrospectionHelper.PROPERTY_CLASS);
+        Map<String, Object> params = mIntrospectionHelper.getAnnotationParams(annotation);
+        String propertyName = params.get("name").toString();
+        if (propertyName.isEmpty()) {
+            propertyName = property.getSimpleName().toString();
+        }
+        return propertyName;
+    }
+
+    @NonNull
+    public List<String> getChosenConstructorParams() {
+        return Collections.unmodifiableList(mChosenConstructorParams);
+    }
+
     private void scanFields() throws ProcessingException {
         Element uriField = null;
+        Element namespaceField = null;
         Element creationTimestampField = null;
         Element ttlField = null;
         Element scoreField = null;
@@ -148,6 +180,14 @@ class AppSearchDocumentModel {
                     }
                     uriField = child;
                     mSpecialFieldNames.put(SpecialField.URI, fieldName);
+
+                } else if (IntrospectionHelper.NAMESPACE_CLASS.equals(annotationFq)) {
+                    if (namespaceField != null) {
+                        throw new ProcessingException(
+                                "Class contains multiple fields annotated @Namespace", child);
+                    }
+                    namespaceField = child;
+                    mSpecialFieldNames.put(SpecialField.NAMESPACE, fieldName);
 
                 } else if (
                         IntrospectionHelper.CREATION_TIMESTAMP_MILLIS_CLASS.equals(annotationFq)) {
@@ -324,6 +364,7 @@ class AppSearchDocumentModel {
                 whyNotConstructor.put(constructor, "Constructor is private");
                 continue constructorSearch;
             }
+            List<String> constructorParamFields = new ArrayList<>();
             Set<String> remainingFields = new HashSet<>(constructorWrittenFields.keySet());
             for (VariableElement parameter : constructor.getParameters()) {
                 String name = parameter.getSimpleName().toString();
@@ -335,6 +376,7 @@ class AppSearchDocumentModel {
                     continue constructorSearch;
                 }
                 remainingFields.remove(name);
+                constructorParamFields.add(name);
             }
             if (!remainingFields.isEmpty()) {
                 whyNotConstructor.put(
@@ -344,8 +386,7 @@ class AppSearchDocumentModel {
                 continue constructorSearch;
             }
             // Found one!
-            // TODO(b/156296904): use this for output
-            // mChosenConstructor = constructor;
+            mChosenConstructorParams = constructorParamFields;
             return;
         }
 

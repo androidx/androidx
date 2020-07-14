@@ -84,7 +84,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Allows interaction with media controllers, volume keys, media buttons, and
@@ -571,11 +573,14 @@ public class MediaSessionCompat {
             setCallback(new Callback() {}, handler);
             mImpl.setMediaButtonReceiver(mbrIntent);
         } else if (android.os.Build.VERSION.SDK_INT >= 19) {
-            mImpl = new MediaSessionImplApi19(context, tag, mbrComponent, mbrIntent, sessionInfo);
+            mImpl = new MediaSessionImplApi19(context, tag, mbrComponent, mbrIntent,
+                    session2Token, sessionInfo);
         } else if (android.os.Build.VERSION.SDK_INT >= 18) {
-            mImpl = new MediaSessionImplApi18(context, tag, mbrComponent, mbrIntent, sessionInfo);
+            mImpl = new MediaSessionImplApi18(context, tag, mbrComponent, mbrIntent,
+                    session2Token, sessionInfo);
         } else {
-            mImpl = new MediaSessionImplBase(context, tag, mbrComponent, mbrIntent, sessionInfo);
+            mImpl = new MediaSessionImplBase(context, tag, mbrComponent, mbrIntent, session2Token,
+                    sessionInfo);
         }
         mController = new MediaControllerCompat(context, this);
 
@@ -625,6 +630,7 @@ public class MediaSessionCompat {
      * @param callback The callback to receive updates on.
      * @param handler The handler that events should be posted on.
      */
+    @SuppressWarnings("deprecation")
     public void setCallback(Callback callback, Handler handler) {
         if (callback == null) {
             mImpl.setCallback(null, null);
@@ -821,6 +827,18 @@ public class MediaSessionCompat {
      * @param queue A list of items in the play queue.
      */
     public void setQueue(List<QueueItem> queue) {
+        if (queue != null) {
+            Set<Long> set = new HashSet<>();
+            for (QueueItem item : queue) {
+                if (item == null) {
+                    throw new IllegalArgumentException("queue shouldn't have null items");
+                }
+                if (set.contains(item.getQueueId())) {
+                    throw new IllegalArgumentException("id of each queue item should be unique");
+                }
+                set.add(item.getQueueId());
+            }
+        }
         mImpl.setQueue(queue);
     }
 
@@ -2408,7 +2426,7 @@ public class MediaSessionCompat {
         };
 
         public MediaSessionImplBase(Context context, String tag, ComponentName mbrComponent,
-                PendingIntent mbrIntent, Bundle sessionInfo) {
+                PendingIntent mbrIntent, VersionedParcelable session2Token, Bundle sessionInfo) {
             if (mbrComponent == null) {
                 throw new IllegalArgumentException(
                         "MediaButtonReceiver component may not be null");
@@ -2421,7 +2439,7 @@ public class MediaSessionCompat {
             mMediaButtonReceiverComponentName = mbrComponent;
             mMediaButtonReceiverIntent = mbrIntent;
             mStub = new MediaSessionStub();
-            mToken = new Token(mStub);
+            mToken = new Token(mStub, /* extraBinder= */ null, session2Token);
 
             mRatingType = RatingCompat.RATING_NONE;
             mVolumeType = MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL;
@@ -3599,8 +3617,8 @@ public class MediaSessionCompat {
         private static boolean sIsMbrPendingIntentSupported = true;
 
         MediaSessionImplApi18(Context context, String tag, ComponentName mbrComponent,
-                PendingIntent mbrIntent, Bundle sessionInfo) {
-            super(context, tag, mbrComponent, mbrIntent, sessionInfo);
+                PendingIntent mbrIntent, VersionedParcelable session2Token, Bundle sessionInfo) {
+            super(context, tag, mbrComponent, mbrIntent, session2Token, sessionInfo);
         }
 
         @Override
@@ -3683,8 +3701,8 @@ public class MediaSessionCompat {
     @RequiresApi(19)
     static class MediaSessionImplApi19 extends MediaSessionImplApi18 {
         MediaSessionImplApi19(Context context, String tag, ComponentName mbrComponent,
-                PendingIntent mbrIntent, Bundle sessionInfo) {
-            super(context, tag, mbrComponent, mbrIntent, sessionInfo);
+                PendingIntent mbrIntent, VersionedParcelable session2Token, Bundle sessionInfo) {
+            super(context, tag, mbrComponent, mbrIntent, session2Token, sessionInfo);
         }
 
         @Override

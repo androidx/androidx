@@ -20,11 +20,15 @@ import android.os.Handler
 import android.os.Looper
 import androidx.animation.FloatPropKey
 import androidx.animation.TransitionState
+import androidx.animation.spring
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
-import androidx.compose.Recompose
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
@@ -60,13 +64,13 @@ private val definition = transitionDefinition {
     }
     // Apply this transition to all state changes (i.e. Open -> Closed and Closed -> Open)
     transition {
-        background using tween {
-            duration = 800
-        }
-        y using physics {
+        background using tween(
+            durationMillis = 800
+        )
+        y using spring(
             // Extremely low stiffness
             stiffness = 40f
-        }
+        )
     }
 }
 
@@ -74,22 +78,18 @@ private val handler = Handler(Looper.getMainLooper())
 
 @Composable
 private fun ColorRect() {
-    var toState = OverlayState.Closed
-    Recompose { recompose ->
-        handler.postDelayed(object : Runnable {
-            override fun run() {
-                if ((0..1).random() == 0) {
-                    toState = OverlayState.Open
-                } else {
-                    toState = OverlayState.Closed
-                }
-                recompose()
+    var toState by mutableStateOf(OverlayState.Closed)
+    handler.postDelayed(object : Runnable {
+        override fun run() {
+            if ((0..1).random() == 0) {
+                toState = OverlayState.Open
+            } else {
+                toState = OverlayState.Closed
             }
-        }, (200..800).random().toLong())
-        Transition(definition = definition, toState = toState) { state ->
-            ColorRectState(state = state)
         }
-    }
+    }, (200..800).random().toLong())
+    val state = transition(definition = definition, toState = toState)
+    ColorRectState(state = state)
 }
 
 @Composable

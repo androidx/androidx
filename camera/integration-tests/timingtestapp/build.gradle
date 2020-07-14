@@ -41,9 +41,6 @@ android {
         release {
             minifyEnabled false
         }
-        debug {
-            testCoverageEnabled true
-        }
     }
     testOptions {
         animationsDisabled = true

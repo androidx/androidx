@@ -27,7 +27,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.test.filters.MediumTest
 import androidx.ui.core.LifecycleOwnerAmbient
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -79,11 +79,11 @@ class LiveDataAdapterTest : LifecycleOwner {
             realValue = liveData.observeAsState().value
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             liveData.postValue("value2")
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(realValue).isEqualTo("value2")
         }
     }
@@ -99,15 +99,15 @@ class LiveDataAdapterTest : LifecycleOwner {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             lifecycle.currentState = Lifecycle.State.DESTROYED
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             liveData.postValue("value2")
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(realValue).isEqualTo("value")
         }
     }
@@ -124,15 +124,15 @@ class LiveDataAdapterTest : LifecycleOwner {
             }
         }
 
-        val initialCount = runOnIdleCompose { lifecycle.observerCount }
+        val initialCount = runOnIdle { lifecycle.observerCount }
 
-        runOnIdleCompose { emit = true }
+        runOnIdle { emit = true }
 
-        assertThat(runOnIdleCompose { lifecycle.observerCount }).isEqualTo(initialCount + 1)
+        assertThat(runOnIdle { lifecycle.observerCount }).isEqualTo(initialCount + 1)
 
-        runOnIdleCompose { emit = false }
+        runOnIdle { emit = false }
 
-        assertThat(runOnIdleCompose { lifecycle.observerCount }).isEqualTo(initialCount)
+        assertThat(runOnIdle { lifecycle.observerCount }).isEqualTo(initialCount)
     }
 
     @Test
@@ -145,24 +145,24 @@ class LiveDataAdapterTest : LifecycleOwner {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             // activity stopped
             lifecycle.currentState = Lifecycle.State.CREATED
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             liveData.postValue("value2")
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(realValue).isNull()
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             lifecycle.currentState = Lifecycle.State.RESUMED
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(realValue).isEqualTo("value2")
         }
     }

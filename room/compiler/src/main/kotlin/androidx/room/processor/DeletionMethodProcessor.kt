@@ -16,6 +16,7 @@
 package androidx.room.processor
 
 import androidx.room.Delete
+import androidx.room.ext.name
 import androidx.room.vo.DeletionMethod
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
@@ -50,7 +51,7 @@ class DeletionMethodProcessor(
 
         return DeletionMethod(
                 element = delegate.executableElement,
-                name = delegate.executableElement.simpleName.toString(),
+                name = delegate.executableElement.name,
                 entities = entities,
                 parameters = params,
                 methodBinder = methodBinder

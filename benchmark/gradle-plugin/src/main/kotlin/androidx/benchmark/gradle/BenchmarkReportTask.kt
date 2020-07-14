@@ -113,7 +113,7 @@ open class BenchmarkReportTask : DefaultTask() {
     private fun getReportDirForDevice(adb: Adb, deviceId: String): String {
         // _data NOT LIKE '%files/Download' filters app-scoped shared external storage.
         val cmd = "shell content query --uri content://media/external/file --projection _data" +
-                " --where \"_data LIKE '%Download' AND _data NOT LIKE '%files/Download'\""
+                " --where \"_data LIKE '%/Download' AND _data NOT LIKE '%files/Download'\""
 
         // NOTE: stdout of the above command is of the form:
         // Row: 0 _data=/storage/emulated/0/Download

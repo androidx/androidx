@@ -46,43 +46,40 @@ class KeyframeAnimationTest {
         val start = 0f
         val end = start // the same
         val fullTime = 400
-        val animation = KeyframesBuilder<Float>().run {
-            duration = fullTime
+        val animation = keyframes<Float> {
+            durationMillis = fullTime
             start at 100
             0.5f at 200
             0.8f at 300
             end at fullTime
-            build()
-        }
+        }.vectorize(FloatToVectorConverter)
 
         assertThat(animation.at(0)).isEqualTo(start)
         assertThat(animation.at(250)).isEqualTo(0.65f)
-        assertThat(animation.at(fullTime)).isEqualTo(end)
+        assertThat(animation.at(fullTime.toLong())).isEqualTo(end)
     }
 
     @Test
     fun possibleToOverrideStartAndEndValues() {
         val fullTime = 100
-        val animation = KeyframesBuilder<Float>().run {
-            duration = fullTime
+        val animation = keyframes<Float> {
+            durationMillis = fullTime
             1f at 0
             0f at fullTime
-            build()
-        }
+        }.vectorize(FloatToVectorConverter)
 
         assertThat(animation.at(0)).isEqualTo(1f)
-        assertThat(animation.at(fullTime)).isEqualTo(0f)
+        assertThat(animation.at(fullTime.toLong())).isEqualTo(0f)
     }
 
     @Test
     fun withEasingOnFullDuration() {
         val easing = FastOutSlowInEasing
-        val animation = KeyframesBuilder<Float>().run {
-            duration = 100
+        val animation = keyframes<Float> {
+            durationMillis = 100
             0f at 0 with easing
-            1f at duration
-            build()
-        }
+            1f at durationMillis
+        }.vectorize(FloatToVectorConverter)
 
         assertThat(animation.at(31)).isEqualTo(easing(0.31f))
     }
@@ -90,24 +87,22 @@ class KeyframeAnimationTest {
     @Test
     fun easingOnTheSecondPart() {
         val easing = FastOutSlowInEasing
-        val animation = KeyframesBuilder<Float>().run {
-            duration = 200
+        val animation = keyframes<Float> {
+            durationMillis = 200
             1f at 100 with easing
-            2f at duration
-            build()
-        }
+            2f at durationMillis
+        }.vectorize(FloatToVectorConverter)
 
         assertThat(animation.at(140)).isEqualTo(1f + easing(0.4f))
     }
 
     @Test
     fun firstPartIsLinearWithEasingOnTheSecondPart() {
-        val animation = KeyframesBuilder<Float>().run {
-            duration = 100
+        val animation = keyframes<Float> {
+            durationMillis = 100
             0.5f at 50 with FastOutSlowInEasing
-            1f at duration
-            build()
-        }
+            1f at durationMillis
+        }.vectorize(FloatToVectorConverter)
 
         assertThat(animation.at(25)).isEqualTo(0.25f)
     }
@@ -115,11 +110,11 @@ class KeyframeAnimationTest {
     @Test
     fun testMultiDimensKeyframesWithEasing() {
         val easing = FastOutLinearInEasing
-        val animation = KeyframesBuilder<AnimationVector2D>().run {
-            duration = 400
+        val animation = keyframes<AnimationVector2D> {
+            durationMillis = 400
             AnimationVector(200f, 300f) at 200 with easing
-            build(TwoWayConverter<AnimationVector2D, AnimationVector2D>({ it }, { it }))
-        }
+        }.vectorize(TwoWayConverter<AnimationVector2D, AnimationVector2D>({ it }, { it }))
+
         val start = AnimationVector(0f, 0f)
         val end = AnimationVector(200f, 400f)
 

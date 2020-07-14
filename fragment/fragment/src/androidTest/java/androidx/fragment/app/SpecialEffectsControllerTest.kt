@@ -354,6 +354,76 @@ class SpecialEffectsControllerTest {
                 .isNull()
         }
     }
+
+    @MediumTest
+    @Test
+    fun enqueueAddAndPostpone() {
+        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+            val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
+            val fm = withActivity { supportFragmentManager }
+            fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
+                TestSpecialEffectsController(it)
+            }
+            val fragment = StrictViewFragment()
+            fragment.postponeEnterTransition()
+            val fragmentStore = FragmentStore()
+            fragmentStore.nonConfig = FragmentManagerViewModel(true)
+            val fragmentStateManager = FragmentStateManager(fm.lifecycleCallbacksDispatcher,
+                fragmentStore, fragment)
+            // Set up the Fragment and FragmentStateManager as if the Fragment was
+            // added to the container via a FragmentTransaction
+            fragment.mFragmentManager = fm
+            fragment.mAdded = true
+            fragment.mContainerId = android.R.id.content
+            fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
+            val controller = SpecialEffectsController
+                .getOrCreateController(container, fm) as TestSpecialEffectsController
+            onActivity {
+                // This moves the Fragment up to STARTED,
+                // calling enqueueAdd() under the hood
+                fragmentStateManager.moveToExpectedState()
+            }
+            assertThat(controller.operationsToExecute)
+                .isEmpty()
+            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
+
+            // Mark the postponed state
+            controller.markPostponedState()
+            controller.executePendingOperations()
+
+            // Verify that executePendingOperations() didn't actually execute
+            // anything since we are postponed
+            assertThat(controller.operationsToExecute)
+                .isEmpty()
+            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
+
+            onActivity {
+                fragment.startPostponedEnterTransition()
+                if (!FragmentManager.USE_STATE_MANAGER) {
+                    // These are called automatically when USE_STATE_MANAGER is true
+                    // but we need to call them manually if it is false
+                    controller.markPostponedState()
+                    controller.executePendingOperations()
+                }
+            }
+
+            // Verify that the operation was sent for execution
+            assertThat(controller.operationsToExecute)
+                .hasSize(1)
+            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
+
+            controller.completeAllOperations()
+
+            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+                .isNull()
+            // Assert that we actually moved to the STARTED state
+            assertThat(fragment.lifecycle.currentState)
+                .isEqualTo(Lifecycle.State.STARTED)
+        }
+    }
 }
 
 internal class TestSpecialEffectsController(

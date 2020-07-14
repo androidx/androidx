@@ -36,7 +36,8 @@ public class NightImageCaptureExtender extends ImageCaptureExtender {
      * @param builder Builder that will be used to create the configurations for the
      * {@link androidx.camera.core.ImageCapture}.
      */
-    public static NightImageCaptureExtender create(ImageCapture.Builder builder) {
+    @NonNull
+    public static NightImageCaptureExtender create(@NonNull ImageCapture.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorNightImageCaptureExtender(builder);

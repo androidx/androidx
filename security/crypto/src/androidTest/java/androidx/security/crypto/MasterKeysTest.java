@@ -20,11 +20,13 @@ import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,6 +40,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 
 @MediumTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 @RunWith(JUnit4.class)
 public class MasterKeysTest {
     private static final String PREFS_FILE = "test_shared_prefs";

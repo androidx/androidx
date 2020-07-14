@@ -21,6 +21,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(InternalTextApi::class)
 @RunWith(JUnit4::class)
 class TextRangeTest {
     @Test
@@ -57,6 +58,15 @@ class TextRangeTest {
 
         assertThat(TextRange(0, 1).collapsed).isFalse()
         assertThat(TextRange(1, 2).collapsed).isFalse()
+    }
+
+    @Test
+    fun test_range_reversed() {
+        assertThat(TextRange(0, 0).reversed).isFalse()
+        assertThat(TextRange(0, 1).reversed).isFalse()
+
+        assertThat(TextRange(1, 0).reversed).isTrue()
+        assertThat(TextRange(3, 2).reversed).isTrue()
     }
 
     @Test
@@ -116,5 +126,48 @@ class TextRangeTest {
         // end is exclusive therefore won't contain
         assertThat(2 in TextRange(0, 2)).isFalse()
         assertThat(3 in TextRange(0, 2)).isFalse()
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun test_does_not_accept_negative_value_for_start() {
+        TextRange(-1, 1)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun test_does_not_accept_negative_value_for_end() {
+        TextRange(1, -1)
+    }
+
+    @Test
+    fun constrain_returns_same_object_if_no_change_required() {
+        val textRange = TextRange(1, 2)
+        assertThat(textRange.constrain(0, 3)).isSameInstanceAs(textRange)
+    }
+
+    @Test
+    fun constrain_updates_start_end_if_required() {
+        assertThat(TextRange(0, 4).constrain(1, 3)).isEqualTo(TextRange(1, 3))
+    }
+
+    @Test
+    fun constrain_collapsed_TextRange_with_the_same_min_max_returns_the_same_instance() {
+        val textRange = TextRange(2, 2)
+        assertThat(textRange.constrain(2, 2)).isSameInstanceAs(textRange)
+    }
+
+    @Test
+    fun constrain_with_collapsed_min_max_returns_collapsed_values() {
+        assertThat(TextRange(1, 2).constrain(2, 2)).isEqualTo(TextRange(2, 2))
+        assertThat(TextRange(2, 3).constrain(2, 2)).isEqualTo(TextRange(2, 2))
+    }
+
+    @Test
+    fun constrain_min_max_greater_than_TextRange_values() {
+        assertThat(TextRange(0, 4).constrain(5, 6)).isEqualTo(TextRange(5, 5))
+    }
+
+    @Test
+    fun constrain_min_smaller_than_TextRange_values() {
+        assertThat(TextRange(5, 6).constrain(0, 4)).isEqualTo(TextRange(4, 4))
     }
 }

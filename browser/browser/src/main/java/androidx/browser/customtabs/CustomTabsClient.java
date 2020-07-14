@@ -24,6 +24,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -31,6 +32,7 @@ import android.os.RemoteException;
 import android.support.customtabs.ICustomTabsCallback;
 import android.support.customtabs.ICustomTabsService;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,6 +46,8 @@ import java.util.List;
  * {@link CustomTabsSession} from it.
  */
 public class CustomTabsClient {
+    private static final String TAG = "CustomTabsClient";
+
     private final ICustomTabsService mService;
     private final ComponentName mServiceComponentName;
     private final Context mApplicationContext;
@@ -78,6 +82,29 @@ public class CustomTabsClient {
     }
 
     /**
+     * Bind to a {@link CustomTabsService} using the given package name and
+     * {@link ServiceConnection}. This is similar to {@link #bindCustomTabsService} but does
+     * not use {@link Context#BIND_WAIVE_PRIORITY}, making it suitable for use cases where
+     * the browser is immediately going to be launched and breaking the connection would be
+     * unrecoverable.
+     * @param context     {@link Context} to use while calling
+     *                    {@link Context#bindService(Intent, ServiceConnection, int)}
+     * @param packageName Package name to set on the {@link Intent} for binding.
+     * @param connection  {@link CustomTabsServiceConnection} to use when binding. This will
+     *                    return a {@link CustomTabsClient} on
+     *                    {@link CustomTabsServiceConnection
+     *                    #onCustomTabsServiceConnected(ComponentName, CustomTabsClient)}
+     * @return Whether the binding was successful.
+     */
+    public static boolean bindCustomTabServicePreservePriority(@NonNull Context context,
+            @Nullable String packageName, @NonNull CustomTabsServiceConnection connection) {
+        connection.setApplicationContext(context.getApplicationContext());
+        Intent intent = new Intent(CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION);
+        if (!TextUtils.isEmpty(packageName)) intent.setPackage(packageName);
+        return context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    /**
      * Returns the preferred package to use for Custom Tabs, preferring the default VIEW handler.
      */
     public static @Nullable String getPackageName(@NonNull Context context,
@@ -91,6 +118,19 @@ public class CustomTabsClient {
      * The preferred package name is the default VIEW intent handler as long as it supports Custom
      * Tabs. To modify this preferred behavior, set <code>ignoreDefault</code> to true and give a
      * non empty list of package names in <code>packages</code>.
+     *
+     * This method queries the {@link PackageManager} to determine which packages support the
+     * Custom Tabs API. On apps that target Android 11 and above, this requires adding the
+     * following package visibility elements to your manifest.
+     *
+     * <pre>
+     * {@code
+     * <!-- Place inside the <queries> element. -->
+     * <intent>
+     *   <action android:name="android.support.customtabs.action.CustomTabsService" />
+     * </intent>
+     * }
+     * </pre>
      *
      * @param context       {@link Context} to use for querying the packages.
      * @param packages      Ordered list of packages to test for Custom Tabs support, in
@@ -119,6 +159,12 @@ public class CustomTabsClient {
         for (String packageName : packageNames) {
             serviceIntent.setPackage(packageName);
             if (pm.resolveService(serviceIntent, 0) != null) return packageName;
+        }
+
+        if (Build.VERSION.SDK_INT >= 30) {
+            Log.w(TAG, "Unable to find any Custom Tabs packages, you may need to add a "
+                    + "<queries> element to your manifest. See the docs for "
+                    + "CustomTabsClient#getPackageName.");
         }
         return null;
     }

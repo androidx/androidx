@@ -24,8 +24,14 @@ import androidx.ui.benchmark.benchmarkFirstDraw
 import androidx.ui.benchmark.benchmarkFirstLayout
 import androidx.ui.benchmark.benchmarkFirstMeasure
 import androidx.ui.benchmark.benchmarkLayoutPerf
+import androidx.ui.benchmark.toggleStateBenchmarkDraw
+import androidx.ui.benchmark.toggleStateBenchmarkLayout
+import androidx.ui.benchmark.toggleStateBenchmarkMeasure
+import androidx.ui.benchmark.toggleStateBenchmarkRecompose
 import androidx.ui.integration.test.core.text.TextBasicTestCase
 import androidx.ui.integration.test.TextBenchmarkTestRule
+import androidx.ui.unit.dp
+import androidx.ui.unit.sp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,6 +45,11 @@ import org.junit.runners.Parameterized
 class TextBasicBenchmark(
     private val textLength: Int
 ) {
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "length={0}")
+        fun initParameters(): Array<Any> = arrayOf(32, 512)
+    }
 
     @get:Rule
     val textBenchmarkRule = TextBenchmarkTestRule()
@@ -46,10 +57,24 @@ class TextBasicBenchmark(
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "length={0}")
-        fun initParameters(): Array<Any> = arrayOf(32, 512)
+    private val width = textBenchmarkRule.widthDp.dp
+    private val fontSize = textBenchmarkRule.fontSizeSp.sp
+
+    private val textCaseFactory = {
+        textBenchmarkRule.generator { textGenerator ->
+            /**
+             * Text render has a word cache in the underlying system. To get a proper metric of its
+             * performance, the cache needs to be disabled, which unfortunately is not doable via
+             * public API. Here is a workaround which generates a new string when a new test case
+             * is created.
+             */
+            val text = textGenerator.nextParagraph(textLength)
+            TextBasicTestCase(
+                text = text,
+                width = width,
+                fontSize = fontSize
+            )
+        }
     }
 
     /**
@@ -58,11 +83,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun first_compose() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstCompose {
-                TextBasicTestCase(textLength, textGenerator)
-            }
-        }
+        benchmarkRule.benchmarkFirstCompose(textCaseFactory)
     }
 
     /**
@@ -73,7 +94,7 @@ class TextBasicBenchmark(
     fun first_measure() {
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.benchmarkFirstMeasure {
-                TextBasicTestCase(textLength, textGenerator)
+                TextBasicTestCase(textGenerator.nextParagraph(textLength), width, fontSize)
             }
         }
     }
@@ -84,11 +105,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun first_layout() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstLayout {
-                TextBasicTestCase(textLength, textGenerator)
-            }
-        }
+        benchmarkRule.benchmarkFirstLayout(textCaseFactory)
     }
 
     /**
@@ -96,11 +113,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun first_draw() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstDraw {
-                TextBasicTestCase(textLength, textGenerator)
-            }
-        }
+        benchmarkRule.benchmarkFirstDraw(textCaseFactory)
     }
 
     /**
@@ -109,11 +122,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun layout() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkLayoutPerf {
-                TextBasicTestCase(textLength, textGenerator)
-            }
-        }
+        benchmarkRule.benchmarkLayoutPerf(textCaseFactory)
     }
 
     /**
@@ -121,10 +130,38 @@ class TextBasicBenchmark(
      */
     @Test
     fun draw() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkDrawPerf {
-                TextBasicTestCase(textLength, textGenerator)
-            }
-        }
+        benchmarkRule.benchmarkDrawPerf(textCaseFactory)
+    }
+
+    /**
+     * Measure the time taken to recompose the [Text] composable when color gets toggled.
+     */
+    @Test
+    fun toggleColor_recompose() {
+        benchmarkRule.toggleStateBenchmarkRecompose(textCaseFactory)
+    }
+
+    /**
+     * Measure the time taken to measure the [Text] composable when color gets toggled.
+     */
+    @Test
+    fun toggleColor_measure() {
+        benchmarkRule.toggleStateBenchmarkMeasure(textCaseFactory)
+    }
+
+    /**
+     * Measure the time taken to layout the [Text] composable when color gets toggled.
+     */
+    @Test
+    fun toggleColor_layout() {
+        benchmarkRule.toggleStateBenchmarkLayout(textCaseFactory)
+    }
+
+    /**
+     * Measure the time taken to draw the [Text] composable when color gets toggled.
+     */
+    @Test
+    fun toggleColor_draw() {
+        benchmarkRule.toggleStateBenchmarkDraw(textCaseFactory)
     }
 }

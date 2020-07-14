@@ -88,11 +88,6 @@ import java.util.WeakHashMap;
  * to a search provider. Shows a list of query suggestions or results, if available, and allows the
  * user to pick a suggestion or result to launch into.
  *
- * <p class="note"><strong>Note:</strong> This class is included in the <a
- * href="{@docRoot}tools/extras/support-library.html">support library</a> for compatibility
- * with API level 7 and higher. If you're developing your app for API level 11 and higher
- * <em>only</em>, you should instead use the framework {@link android.widget.SearchView} class.</p>
- *
  * <p>
  * When the SearchView is used in an {@link androidx.appcompat.app.ActionBar}
  * as an action view, it's collapsed by default, so you must provide an icon for the action.

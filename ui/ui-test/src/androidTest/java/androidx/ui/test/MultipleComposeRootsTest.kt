@@ -28,13 +28,14 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.MediumTest
-import androidx.ui.core.TestTag
+import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
+import androidx.ui.core.testTag
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
-import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.material.TriStateCheckbox
+import androidx.ui.test.android.AndroidComposeTestRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -78,90 +79,84 @@ class MultipleComposeRootsTest {
      */
     @Test
     fun twoHierarchiesSharingTheSameModel() {
-        val activity = composeTestRule.activityTestRule.activity
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            val state1 = mutableStateOf(value = ToggleableState.Off)
+            val state2 = mutableStateOf(value = ToggleableState.On)
 
-        activity.runOnUiThread(object : Runnable { // Workaround for lambda bug in IR
-            override fun run() {
-                val state1 = mutableStateOf(value = ToggleableState.Off)
-                val state2 = mutableStateOf(value = ToggleableState.On)
+            val linearLayout = LinearLayout(activity)
+                .apply { orientation = LinearLayout.VERTICAL }
 
-                val linearLayout = LinearLayout(activity)
-                    .apply { orientation = LinearLayout.VERTICAL }
+            val textView1 = TextView(activity).apply { text = "Compose 1" }
+            val frameLayout1 = FrameLayout(activity)
 
-                val textView1 = TextView(activity).apply { text = "Compose 1" }
-                val frameLayout1 = FrameLayout(activity)
+            val textView2 = TextView(activity).apply { text = "Compose 2" }
+            val frameLayout2 = FrameLayout(activity)
 
-                val textView2 = TextView(activity).apply { text = "Compose 2" }
-                val frameLayout2 = FrameLayout(activity)
+            activity.setContentView(linearLayout)
+            linearLayout.addView(textView1)
+            linearLayout.addView(frameLayout1)
+            linearLayout.addView(textView2)
+            linearLayout.addView(frameLayout2)
 
-                activity.setContentView(linearLayout)
-                linearLayout.addView(textView1)
-                linearLayout.addView(frameLayout1)
-                linearLayout.addView(textView2)
-                linearLayout.addView(frameLayout2)
+            fun updateTitle1() {
+                textView1.text = "Compose 1 - ${state1.value}"
+            }
 
-                fun updateTitle1() {
-                    textView1.text = "Compose 1 - ${state1.value}"
-                }
+            fun updateTitle2() {
+                textView2.text = "Compose 2 - ${state2.value}"
+            }
 
-                fun updateTitle2() {
-                    textView2.text = "Compose 2 - ${state2.value}"
-                }
-
-                frameLayout1.setContent(Recomposer.current()) {
-                    MaterialTheme {
-                        Surface {
-                            TestTag(tag = "checkbox1") {
-                                TriStateCheckbox(
-                                    state = state1.value,
-                                    onClick = {
-                                        state1.toggle()
-                                        state2.toggle()
-                                        updateTitle1()
-                                        updateTitle2()
-                                    })
-                            }
-                        }
-                    }
-                }
-
-                frameLayout2.setContent(Recomposer.current()) {
-                    MaterialTheme {
-                        Surface {
-                            TestTag(tag = "checkbox2") {
-                                TriStateCheckbox(
-                                    state = state2.value,
-                                    onClick = {
-                                        state1.toggle()
-                                        state2.toggle()
-                                        updateTitle1()
-                                        updateTitle2()
-                                    })
-                            }
-                        }
+            frameLayout1.setContent(Recomposer.current()) {
+                MaterialTheme {
+                    Surface {
+                        TriStateCheckbox(
+                            modifier = Modifier.testTag("checkbox1"),
+                            state = state1.value,
+                            onClick = {
+                                state1.toggle()
+                                state2.toggle()
+                                updateTitle1()
+                                updateTitle2()
+                            })
                     }
                 }
             }
-        })
+
+            frameLayout2.setContent(Recomposer.current()) {
+                MaterialTheme {
+                    Surface {
+                        TriStateCheckbox(
+                            modifier = Modifier.testTag("checkbox2"),
+                            state = state2.value,
+                            onClick = {
+                                state1.toggle()
+                                state2.toggle()
+                                updateTitle1()
+                                updateTitle2()
+                            })
+                    }
+                }
+            }
+        }
 
         Espresso.onView(withText("Compose 1")).check(matches(isDisplayed()))
         Espresso.onView(withText("Compose 2")).check(matches(isDisplayed()))
 
-        findByTag("checkbox1")
-            .doClick()
+        onNodeWithTag("checkbox1")
+            .performClick()
             .assertIsOn()
 
-        findByTag("checkbox2")
+        onNodeWithTag("checkbox2")
             .assertIsOff()
 
         Espresso.onView(withText("Compose 1 - On")).check(matches(isDisplayed()))
         Espresso.onView(withText("Compose 2 - Off")).check(matches(isDisplayed()))
 
-        findByTag("checkbox2")
-            .doClick()
+        onNodeWithTag("checkbox2")
+            .performClick()
             .assertIsOn()
 
-        findByTag("checkbox1")
+        onNodeWithTag("checkbox1")
             .assertIsOff()
 
         Espresso.onView(withText("Compose 1 - Off")).check(matches(isDisplayed()))

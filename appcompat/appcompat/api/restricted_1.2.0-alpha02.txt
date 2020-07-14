@@ -1218,6 +1218,7 @@ package androidx.appcompat.widget {
     method public void onNestedScrollAccepted(android.view.View!, android.view.View!, int, int);
     method public boolean onStartNestedScroll(android.view.View!, android.view.View!, int, int);
     method public void onStopNestedScroll(android.view.View!, int);
+    method public void onWindowSystemUiVisibilityChanged(int);
     method public void restoreToolbarHierarchyState(android.util.SparseArray<android.os.Parcelable!>!);
     method public void saveToolbarHierarchyState(android.util.SparseArray<android.os.Parcelable!>!);
     method public void setActionBarHideOffset(int);

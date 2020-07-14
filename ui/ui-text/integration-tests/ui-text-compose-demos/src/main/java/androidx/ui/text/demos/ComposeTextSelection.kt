@@ -21,14 +21,14 @@ import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
+import androidx.ui.intl.LocaleList
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxWidth
-import androidx.ui.text.LocaleList
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.annotatedString
@@ -38,7 +38,7 @@ import androidx.ui.text.withStyle
 
 @Composable
 fun TextSelectionDemo() {
-    VerticalScroller {
+    ScrollableColumn {
         TagLine(tag = "selection")
         TextDemoSelection()
         TagLine(tag = "selection with string input")
@@ -101,12 +101,10 @@ fun TextDemoSelectionWithStringInput() {
         onSelectionChange = { selection.value = it }) {
         Text(
             text = "$displayText    $displayTextChinese    $displayTextHindi",
-            style = TextStyle(
-                color = Color(0xFFFF0000),
-                fontSize = fontSize6,
-                fontWeight = FontWeight.W200,
-                fontStyle = FontStyle.Italic
-            )
+            color = Color(0xFFFF0000),
+            fontSize = fontSize6,
+            fontWeight = FontWeight.W200,
+            fontStyle = FontStyle.Italic
         )
     }
 }

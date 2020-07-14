@@ -46,31 +46,37 @@ public final class DeviceState {
      * The foldable device's hinge is in an intermediate position between opened and closed state,
      * there is a non-flat angle between parts of the flexible screen or between physical screen
      * panels.
-     *
-     *  |
-     *  |
-     *  |
-     *  |
-     *  |
-     *  *________________
+     * <pre>
+     * {@code
+     * |
+     * |
+     * |
+     * |
+     * *____________
+     * }
+     * </pre>
      */
     public static final int POSTURE_HALF_OPENED = 2;
 
     /**
      * The foldable device is completely open, the screen space that is presented to the user is
      * flat.
-     *
-     * ________________ ________________
-     *                 *
+     * <pre>
+     * {@code _____________ __________________
+     *                     *
+     * }</pre>
      */
     public static final int POSTURE_OPENED = 3;
 
     /**
      * The foldable device is flipped with the flexible screen parts or physical screens facing
      * opposite directions.
-     *
+     * <pre>
+     * {@code
      *   ________________
      *  *________________
+     *  }
+     * </pre>
      */
     public static final int POSTURE_FLIPPED = 4;
 
@@ -140,7 +146,7 @@ public final class DeviceState {
     /**
      * Builder for {@link DeviceState} objects.
      */
-    public static class Builder {
+    public static final class Builder {
         @Posture
         private int mPosture;
 

@@ -68,6 +68,16 @@ public class CustomTabsIntentTest {
     }
 
     @Test
+    public void testNavBarDividerColor() {
+        int color = Color.RED;
+        Intent intent = new CustomTabsIntent.Builder()
+                .setNavigationBarDividerColor(color).build().intent;
+        assertTrue(intent.hasExtra(CustomTabsIntent.EXTRA_NAVIGATION_BAR_DIVIDER_COLOR));
+        assertEquals(color, intent.getIntExtra(CustomTabsIntent.EXTRA_NAVIGATION_BAR_DIVIDER_COLOR,
+                0));
+    }
+
+    @Test
     public void testToolbarColorIsNotAResource() {
         @ColorRes int colorId = android.R.color.background_dark;
         int color = ApplicationProvider.getApplicationContext().getResources().getColor(colorId);

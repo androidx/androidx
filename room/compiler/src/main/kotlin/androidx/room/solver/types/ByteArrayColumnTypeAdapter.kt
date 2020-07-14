@@ -17,13 +17,14 @@
 package androidx.room.solver.types
 
 import androidx.room.ext.L
+import androidx.room.ext.getArrayType
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.TypeName
 import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.type.TypeKind
 
 class ByteArrayColumnTypeAdapter(env: ProcessingEnvironment) : ColumnTypeAdapter(
-        out = env.typeUtils.getArrayType(env.typeUtils.getPrimitiveType(TypeKind.BYTE)),
+        out = env.getArrayType(TypeName.BYTE),
         typeAffinity = SQLTypeAffinity.BLOB) {
     override fun readFromCursor(
         outVarName: String,

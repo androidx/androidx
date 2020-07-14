@@ -23,7 +23,6 @@ import android.content.pm.PackageManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -33,8 +32,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NavUtilsTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(NavUtilsActivity::class.java, false, false)
+    val activityRule = androidx.test.rule.ActivityTestRule(
+        NavUtilsActivity::class.java,
+        false,
+        false
+    )
 
     @Test
     fun testGetParentActivityName() {

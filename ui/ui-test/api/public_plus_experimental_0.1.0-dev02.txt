@@ -2,13 +2,11 @@
 package androidx.ui.test {
 
   public final class ActionsKt {
-    ctor public ActionsKt();
     method public static androidx.ui.test.SemanticsNodeInteraction doClick(androidx.ui.test.SemanticsNodeInteraction);
     method public static boolean waitForIdleCompose();
   }
 
   public final class AssertionsKt {
-    ctor public AssertionsKt();
     method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> assertCountEquals(java.util.List<androidx.ui.test.SemanticsNodeInteraction>, int count);
     method public static void assertDoesNotExist(kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> selector);
     method public static androidx.ui.test.SemanticsNodeInteraction assertHasClickAction(androidx.ui.test.SemanticsNodeInteraction);
@@ -46,7 +44,6 @@ package androidx.ui.test {
   }
 
   public final class ComposeTestRuleKt {
-    ctor public ComposeTestRuleKt();
     method public static androidx.ui.test.ComposeTestRule createComposeRule(boolean disableTransitions = false);
   }
 
@@ -61,14 +58,12 @@ package androidx.ui.test {
   }
 
   public final class FiltersKt {
-    ctor public FiltersKt();
     method public static boolean getHasClickAction(androidx.ui.core.semantics.SemanticsConfiguration);
     method public static boolean isInMutuallyExclusiveGroup(androidx.ui.core.semantics.SemanticsConfiguration);
     method public static boolean isToggleable(androidx.ui.core.semantics.SemanticsConfiguration);
   }
 
   public final class FindersKt {
-    ctor public FindersKt();
     method public static androidx.ui.test.SemanticsNodeInteraction find(kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> selector);
     method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> findAll(kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> selector);
     method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> findAllByTag(String testTag);
@@ -77,14 +72,12 @@ package androidx.ui.test {
   }
 
   public final class GoldenSemanticsKt {
-    ctor public GoldenSemanticsKt();
     method public static void assertEquals(androidx.ui.core.semantics.SemanticsConfiguration, androidx.ui.core.semantics.SemanticsConfiguration expected);
     method public static androidx.ui.core.semantics.SemanticsConfiguration copyWith(androidx.ui.core.semantics.SemanticsConfiguration, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,kotlin.Unit> diff);
     method public static androidx.ui.core.semantics.SemanticsConfiguration createFullSemantics(Boolean? isEnabled = null, String? value = null, androidx.ui.foundation.selection.ToggleableState? toggleableState = null, Boolean? inMutuallyExclusiveGroup = null, Boolean? isSelected = null);
   }
 
   public final class OutputKt {
-    ctor public OutputKt();
     method public static void dumpSemantics(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> consumer);
   }
 
@@ -92,11 +85,9 @@ package androidx.ui.test {
   }
 
   public final class SemanticsTreeInteractionKt {
-    ctor public SemanticsTreeInteractionKt();
   }
 
   public final class SizesTestingKt {
-    ctor public SizesTestingKt();
     method public static androidx.ui.layout.DpConstraints getBigTestConstraints();
     method public static androidx.ui.test.CollectedSizes setContentAndCollectSizes(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.core.PxSize setContentAndGetPixelSize(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> performSetContent = { setContent(it) }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
@@ -137,7 +128,6 @@ package androidx.ui.test.android {
 package androidx.ui.test.android.fake {
 
   public final class FakeViewStructureKt {
-    ctor public FakeViewStructureKt();
   }
 
 }

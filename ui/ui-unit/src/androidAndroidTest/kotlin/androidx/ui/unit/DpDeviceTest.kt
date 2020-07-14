@@ -19,7 +19,6 @@ package androidx.ui.unit
 import android.app.Activity
 import android.util.TypedValue
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -30,8 +29,11 @@ import org.junit.runners.JUnit4
 @SmallTest
 @RunWith(JUnit4::class)
 class DpDeviceTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
+        TestActivity::class.java
+    )
 
     private lateinit var activity: Activity
 
@@ -45,7 +47,7 @@ class DpDeviceTest {
         val dm = activity.resources.displayMetrics
         val dp10InPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, dm)
         with(Density(activity)) {
-            assertEquals(dp10InPx, 10.dp.toPx().value, 0.01f)
+            assertEquals(dp10InPx, 10.dp.toPx(), 0.01f)
         }
     }
 

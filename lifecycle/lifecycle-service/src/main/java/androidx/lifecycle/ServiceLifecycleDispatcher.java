@@ -35,6 +35,7 @@ public class ServiceLifecycleDispatcher {
     /**
      * @param provider {@link LifecycleOwner} for a service, usually it is a service itself
      */
+    @SuppressWarnings("deprecation")
     public ServiceLifecycleDispatcher(@NonNull LifecycleOwner provider) {
         mRegistry = new LifecycleRegistry(provider);
         mHandler = new Handler();

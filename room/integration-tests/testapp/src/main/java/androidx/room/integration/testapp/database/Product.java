@@ -17,6 +17,7 @@
 package androidx.room.integration.testapp.database;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 /**
@@ -33,6 +34,7 @@ public class Product {
     public Product() {
     }
 
+    @Ignore
     public Product(int id, String name) {
         mId = id;
         mName = name;

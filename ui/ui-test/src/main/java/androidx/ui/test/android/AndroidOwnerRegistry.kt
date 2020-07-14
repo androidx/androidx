@@ -48,6 +48,13 @@ internal object AndroidOwnerRegistry {
      */
     internal fun tearDownRegistry() {
         AndroidOwner.onAndroidOwnerCreatedCallback = null
+        synchronized(owners) {
+            getUnfilteredOwners().forEach {
+                unregisterOwner(it)
+            }
+            // Remove all listeners as well, now we've unregistered all owners
+            registryListeners.clear()
+        }
     }
 
     private fun onAndroidOwnerCreated(owner: AndroidOwner) {
@@ -68,11 +75,7 @@ internal object AndroidOwnerRegistry {
      */
     fun getOwners(): Set<AndroidOwner> {
         return owners.filterTo(mutableSetOf()) {
-            // lifecycleOwner can only be null if it.view is not yet attached, and since owners
-            // are only in the registry when they're attached we don't care about the
-            // lifecycleOwner being null.
-            val lifecycleOwner = it.lifecycleOwner ?: return@filterTo false
-            lifecycleOwner.lifecycle.currentState == Lifecycle.State.RESUMED
+            it.viewTreeOwners?.lifecycleOwner?.lifecycle?.currentState == Lifecycle.State.RESUMED
         }
     }
 
@@ -100,16 +103,22 @@ internal object AndroidOwnerRegistry {
      * Registers the [owner] in this registry. Must be called from [View.onAttachedToWindow].
      */
     internal fun registerOwner(owner: AndroidOwner) {
-        owners.add(owner)
-        dispatchOnRegistrationChanged(owner, true)
+        synchronized(owners) {
+            if (owners.add(owner)) {
+                dispatchOnRegistrationChanged(owner, true)
+            }
+        }
     }
 
     /**
      * Unregisters the [owner] from this registry. Must be called from [View.onDetachedFromWindow].
      */
     internal fun unregisterOwner(owner: AndroidOwner) {
-        owners.remove(owner)
-        dispatchOnRegistrationChanged(owner, false)
+        synchronized(owners) {
+            if (owners.remove(owner)) {
+                dispatchOnRegistrationChanged(owner, false)
+            }
+        }
     }
 
     /**

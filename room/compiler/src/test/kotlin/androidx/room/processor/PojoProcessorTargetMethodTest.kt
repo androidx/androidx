@@ -16,6 +16,7 @@
 
 package androidx.room.processor
 
+import androidx.room.ext.requireTypeElement
 import com.google.testing.compile.CompileTester
 import com.squareup.javapoet.ClassName
 import org.junit.Test
@@ -23,7 +24,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import simpleRun
 import toJFO
-import javax.lang.model.element.ElementKind
 import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
@@ -69,7 +69,7 @@ class PojoProcessorTargetMethodTest {
         singleRun(source)
                 .failsToCompile()
                 .withErrorContaining(
-                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", ElementKind.METHOD))
+                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", "method"))
     }
 
     @Test
@@ -87,7 +87,7 @@ class PojoProcessorTargetMethodTest {
         singleRun(source)
                 .failsToCompile()
                 .withErrorContaining(
-                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", ElementKind.METHOD))
+                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", "method"))
     }
 
     @Test
@@ -105,7 +105,7 @@ class PojoProcessorTargetMethodTest {
         singleRun(source)
                 .failsToCompile()
                 .withErrorContaining(
-                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", ElementKind.METHOD))
+                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", "method"))
     }
 
     @Test
@@ -127,7 +127,7 @@ class PojoProcessorTargetMethodTest {
                 long getId() { return this.id; }
                 """
         ).failsToCompile().withErrorContaining(
-                ProcessorErrors.invalidAnnotationTarget("ColumnInfo", ElementKind.METHOD))
+                ProcessorErrors.invalidAnnotationTarget("ColumnInfo", "method"))
     }
 
     @Test
@@ -174,7 +174,7 @@ class PojoProcessorTargetMethodTest {
                 """,
                 parent.toJFO("foo.bar.ParentPojo")
         ).failsToCompile().withErrorContaining(
-                ProcessorErrors.invalidAnnotationTarget("ColumnInfo", ElementKind.METHOD))
+                ProcessorErrors.invalidAnnotationTarget("ColumnInfo", "method"))
     }
 
     @Test
@@ -404,7 +404,7 @@ class PojoProcessorTargetMethodTest {
 
     private fun singleRun(vararg jfos: JavaFileObject) = simpleRun(*jfos) { invocation ->
         PojoProcessor.createFor(context = invocation.context,
-            element = invocation.typeElement(MY_POJO.toString()),
+            element = invocation.processingEnv.requireTypeElement(MY_POJO),
             bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
             parent = null).process()
     }
@@ -439,7 +439,7 @@ class PojoProcessorTargetMethodTest {
         val all = (jfos.toList() + pojoJFO + autoValuePojoJFO).toTypedArray()
         return simpleRun(*all) { invocation ->
             PojoProcessor.createFor(context = invocation.context,
-                element = invocation.typeElement(MY_POJO.toString()),
+                element = invocation.processingEnv.requireTypeElement(MY_POJO),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                 parent = null).process()
         }

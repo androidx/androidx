@@ -21,13 +21,15 @@ import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.graphics.Color
+import androidx.ui.foundation.Text
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Slider
 
 @Sampled
 @Composable
 fun SliderSample() {
     var sliderPosition by state { 0f }
+    Text(text = sliderPosition.toString())
     Slider(value = sliderPosition, onValueChange = { sliderPosition = it })
 }
 
@@ -35,11 +37,12 @@ fun SliderSample() {
 @Composable
 fun StepsSliderSample() {
     var sliderPosition by state { 0f }
+    Text(text = sliderPosition.toString())
     Slider(
         value = sliderPosition,
         onValueChange = { sliderPosition = it },
         valueRange = 0f..100f,
         steps = 5,
-        color = Color.Black
+        color = MaterialTheme.colors.secondary
     )
 }

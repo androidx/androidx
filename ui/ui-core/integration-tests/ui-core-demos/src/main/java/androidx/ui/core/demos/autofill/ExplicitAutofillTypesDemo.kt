@@ -25,8 +25,9 @@ import androidx.ui.core.AutofillAmbient
 import androidx.ui.core.AutofillTreeAmbient
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
-import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.onChildPositioned
+import androidx.ui.core.toComposeRect
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
 import androidx.ui.input.ImeAction
@@ -35,8 +36,8 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.preferredHeight
 import androidx.ui.material.MaterialTheme
-import androidx.ui.foundation.TextFieldValue
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
+import androidx.ui.input.TextFieldValue
 import androidx.ui.unit.dp
 
 @Composable
@@ -105,17 +106,18 @@ private fun Autofill(
     val autofillTree = AutofillTreeAmbient.current
     autofillTree += autofillNode
 
-    @Suppress("DEPRECATION")
-    PassThroughLayout(onChildPositioned { autofillNode.boundingBox = it.boundingBox() }) {
+    Box(Modifier.onChildPositioned {
+        autofillNode.boundingBox = it.boundingBox().toComposeRect()
+    }) {
         children(autofillNode)
     }
 }
 
-private fun LayoutCoordinates.boundingBox() = localToGlobal(PxPosition.Origin).run {
+private fun LayoutCoordinates.boundingBox() = localToGlobal(Offset.Zero).run {
     Rect(
-        x.value.toInt(),
-        y.value.toInt(),
-        x.value.toInt() + size.width.value.toInt(),
-        y.value.toInt() + size.height.value.toInt()
+        x.toInt(),
+        y.toInt(),
+        x.toInt() + size.width,
+        y.toInt() + size.height
     )
 }

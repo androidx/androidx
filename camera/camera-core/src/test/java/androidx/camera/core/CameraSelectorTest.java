@@ -19,24 +19,16 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
 
-import android.content.Context;
 import android.os.Build;
 
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.impl.CameraControlInternal;
-import androidx.camera.core.impl.CameraDeviceSurfaceManager;
-import androidx.camera.core.impl.CameraFilter;
 import androidx.camera.core.impl.CameraInternal;
-import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
-import androidx.camera.testing.fakes.FakeUseCaseConfig;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,8 +36,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.concurrent.ExecutionException;
 
 @SmallTest
@@ -59,20 +50,10 @@ public class CameraSelectorTest {
     private static final int FRONT_ROTATION_DEGREE = 90;
     private CameraInternal mRearCamera;
     private CameraInternal mFrontCamera;
-    private Set<CameraInternal> mCameras = new HashSet<>();
+    private LinkedHashSet<CameraInternal> mCameras = new LinkedHashSet<>();
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
-        Context context = ApplicationProvider.getApplicationContext();
-        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
-                ignored -> new FakeCameraDeviceSurfaceManager();
-        UseCaseConfigFactory.Provider configFactoryProvider = ignored -> {
-            ExtendableUseCaseConfigFactory defaultConfigFactory =
-                    new ExtendableUseCaseConfigFactory();
-            defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
-                    cameraInfo -> new FakeUseCaseConfig.Builder().getUseCaseConfig());
-            return defaultConfigFactory;
-        };
         FakeCameraFactory cameraFactory = new FakeCameraFactory();
         mRearCamera = new FakeCamera(mock(CameraControlInternal.class),
                 new FakeCameraInfoInternal(REAR_ROTATION_DEGREE,
@@ -84,17 +65,6 @@ public class CameraSelectorTest {
                         CameraSelector.LENS_FACING_FRONT));
         cameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, FRONT_ID, () -> mFrontCamera);
         mCameras.add(mFrontCamera);
-        CameraXConfig.Builder appConfigBuilder =
-                new CameraXConfig.Builder()
-                        .setCameraFactoryProvider((ignored1, ignored2) -> cameraFactory)
-                        .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
-                        .setUseCaseConfigFactoryProvider(configFactoryProvider);
-        CameraX.initialize(context, appConfigBuilder.build()).get();
-    }
-
-    @After
-    public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.shutdown().get();
     }
 
     @Test
@@ -128,6 +98,7 @@ public class CameraSelectorTest {
         cameraSelectorBuilder.build().getLensFacing();
     }
 
+    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     @Test
     public void canAppendFilters() {
         CameraFilter filter0 = mock(CameraFilter.class);
@@ -135,9 +106,9 @@ public class CameraSelectorTest {
         CameraFilter filter2 = mock(CameraFilter.class);
 
         CameraSelector cameraSelector = new CameraSelector.Builder()
-                .appendFilter(filter0)
-                .appendFilter(filter1)
-                .appendFilter(filter2)
+                .addCameraFilter(filter0)
+                .addCameraFilter(filter1)
+                .addCameraFilter(filter2)
                 .build();
 
         assertThat(cameraSelector.getCameraFilterSet()).containsAtLeast(filter0, filter1, filter2);
@@ -151,5 +122,35 @@ public class CameraSelectorTest {
     @Test
     public void canSelectDefaultFrontCamera() {
         assertThat(CameraSelector.DEFAULT_FRONT_CAMERA.select(mCameras)).isEqualTo(mFrontCamera);
+    }
+
+    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @Test(expected = IllegalArgumentException.class)
+    public void exception_extraOutputCamera() {
+        CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
+        cameraSelectorBuilder.addCameraFilter((cameras) -> {
+            LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>();
+            // Add an extra camera to output.
+            resultCameras.add(new FakeCamera());
+            return resultCameras;
+        });
+        cameraSelectorBuilder.build().select(mCameras);
+    }
+
+    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @Test(expected = IllegalArgumentException.class)
+    public void exception_extraInputAndOutputCamera() {
+        CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
+        cameraSelectorBuilder.addCameraFilter((cameras) -> {
+            Camera camera = new FakeCamera();
+            // Add an extra camera to input.
+            cameras.add(camera);
+            LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>();
+            // Add an extra camera to output.
+            resultCameras.add(camera);
+            return resultCameras;
+        });
+        // Should throw an exception even the extra camera is also added to the input.
+        cameraSelectorBuilder.build().select(mCameras);
     }
 }

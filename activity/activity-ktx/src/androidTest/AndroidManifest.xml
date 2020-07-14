@@ -17,5 +17,6 @@
           package="androidx.activity.ktx">
     <application>
         <activity android:name="androidx.activity.ActivityViewModelLazyTest$TestActivity"/>
+        <activity android:name="androidx.activity.result.EmptyContentActivity" />
     </application>
 </manifest>

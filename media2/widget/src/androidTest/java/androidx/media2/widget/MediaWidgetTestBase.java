@@ -28,6 +28,7 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -53,7 +54,8 @@ public class MediaWidgetTestBase extends MediaTestBase {
     static final String PLAYER_TYPE_MEDIA_PLAYER = "MediaPlayer";
 
     // Expected success time
-    static final int WAIT_TIME_MS = 1000;
+    // Increased timeout to pass on old devices (ex. Nexus4 API 17)
+    static final int WAIT_TIME_MS = 2000;
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -75,7 +77,7 @@ public class MediaWidgetTestBase extends MediaTestBase {
     }
 
     static void checkAttachedToWindow(View view) throws Exception {
-        if (!view.isAttachedToWindow()) {
+        if (!ViewCompat.isAttachedToWindow(view)) {
             final CountDownLatch latch = new CountDownLatch(1);
             View.OnAttachStateChangeListener listener = new View.OnAttachStateChangeListener() {
                 @Override

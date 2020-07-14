@@ -20,19 +20,17 @@ import android.os.Build
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.preferredSize
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,7 +42,7 @@ import org.junit.runners.Parameterized
 class ElevationOverlayTest(private val elevation: Dp?, overlayColor: Color?) {
 
     private val Tag = "Surface"
-    private val SurfaceSize = IntPxSize(10.ipx, 10.ipx)
+    private val SurfaceSize = IntSize(10, 10)
     private val expectedOverlayColor = overlayColor!!
 
     companion object {
@@ -72,7 +70,7 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayColor: Color?) {
     fun correctElevationOverlayInDarkTheme() {
         setupSurfaceForTesting(elevation!!, darkColorPalette())
 
-        findByTag(Tag)
+        onNodeWithTag(Tag)
             .captureToBitmap()
             .assertPixels(SurfaceSize) {
                 expectedOverlayColor
@@ -86,7 +84,7 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayColor: Color?) {
         // No overlay should be applied in light theme
         val expectedSurfaceColor = Color.White
 
-        findByTag(Tag)
+        onNodeWithTag(Tag)
             .captureToBitmap()
             .assertPixels(SurfaceSize) {
                 expectedSurfaceColor
@@ -100,16 +98,12 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayColor: Color?) {
                     Box {
                         Surface(elevation = elevation) {
                             // Make the surface size small so we compare less pixels
-                            TestTag(Tag) {
-                                Semantics(container = true) {
-                                    Box(
-                                        Modifier.preferredSize(
-                                            SurfaceSize.width.toDp(),
-                                            SurfaceSize.height.toDp()
-                                        )
-                                    )
-                                }
-                            }
+                            Box(
+                                Modifier.preferredSize(
+                                    SurfaceSize.width.toDp(),
+                                    SurfaceSize.height.toDp()
+                                ).testTag(Tag)
+                            )
                         }
                     }
                 }

@@ -18,11 +18,15 @@ package androidx.ui.test
 
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
+import androidx.ui.core.Modifier
+import androidx.ui.core.semantics.semantics
 import androidx.ui.layout.Column
-import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.semantics.testTag
+import androidx.ui.semantics.text
+import androidx.ui.test.util.expectError
+import androidx.ui.text.AnnotatedString
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,7 +45,7 @@ class FindersTest {
             BoundaryNode { testTag = "not_myTestTag" }
         }
 
-        findAll(hasTestTag("myTestTag")).assertCountEquals(0)
+        onAllNodes(hasTestTag("myTestTag")).assertCountEquals(0)
     }
 
     @Test
@@ -51,9 +55,9 @@ class FindersTest {
             BoundaryNode { testTag = "myTestTag2" }
         }
 
-        findAll(hasTestTag("myTestTag"))
+        onAllNodes(hasTestTag("myTestTag"))
             .assertCountEquals(1)
-            .first()
+            .onFirst()
             .assert(hasTestTag("myTestTag"))
     }
 
@@ -64,7 +68,7 @@ class FindersTest {
             BoundaryNode { testTag = "myTestTag" }
         }
 
-        findAll(hasTestTag("myTestTag"))
+        onAllNodes(hasTestTag("myTestTag"))
             .assertCountEquals(2)
             .apply {
                 get(0).assert(hasTestTag("myTestTag"))
@@ -78,7 +82,7 @@ class FindersTest {
             BoundaryNode { accessibilityLabel = "Hello World" }
         }
 
-        findByText("Hello World")
+        onNodeWithText("Hello World")
     }
 
     @Test(expected = AssertionError::class)
@@ -88,41 +92,41 @@ class FindersTest {
         }
 
         // Need to assert exists or it won't fail
-        findByText("World").assertExists()
+        onNodeWithText("World").assertExists()
     }
 
     @Test
     fun findBySubstring_matches() {
         composeTestRule.setContent {
-            BoundaryNode { accessibilityLabel = "Hello World" }
+            BoundaryNode { text = AnnotatedString("Hello World") }
         }
 
-        findBySubstring("World")
+        onNodeWithSubstring("World")
     }
 
     @Test
     fun findBySubstring_ignoreCase_matches() {
         composeTestRule.setContent {
-            BoundaryNode { accessibilityLabel = "Hello World" }
+            BoundaryNode { text = AnnotatedString("Hello World") }
         }
 
-        findBySubstring("world", ignoreCase = true)
+        onNodeWithSubstring("world", ignoreCase = true)
     }
 
-    @Test(expected = AssertionError::class)
+    @Test
     fun findBySubstring_wrongCase_fails() {
         composeTestRule.setContent {
-            BoundaryNode { accessibilityLabel = "Hello World" }
+            BoundaryNode { text = AnnotatedString("Hello World") }
         }
 
-        // Need to assert exists or it won't fail
-        findBySubstring("world").assertExists()
+        expectError<AssertionError> {
+            // Need to assert exists or it won't fetch nodes
+            onNodeWithSubstring("world").assertExists()
+        }
     }
 
     @Composable
-    fun BoundaryNode(props: (SemanticsPropertyReceiver.() -> Unit)? = null) {
-        Semantics(container = true, properties = props) {
-            Column {}
-        }
+    fun BoundaryNode(props: (SemanticsPropertyReceiver.() -> Unit)) {
+        Column(Modifier.semantics(properties = props)) {}
     }
 }

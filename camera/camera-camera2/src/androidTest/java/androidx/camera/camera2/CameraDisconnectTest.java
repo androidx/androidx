@@ -20,9 +20,7 @@ package androidx.camera.camera2;
 import static androidx.camera.testing.CoreAppTestUtil.clearDeviceUI;
 
 import static org.junit.Assume.assumeNotNull;
-import static org.junit.Assume.assumeTrue;
 
-import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -41,12 +39,12 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.ExecutionException;
@@ -56,8 +54,8 @@ import java.util.concurrent.ExecutionException;
 public class CameraDisconnectTest {
 
     @Rule
-    public GrantPermissionRule mCameraPermissionRule =
-            GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
+    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
+
     @Rule
     public ActivityTestRule<CameraXTestActivity> mCameraXTestActivityRule =
             new ActivityTestRule<>(CameraXTestActivity.class, true, false);
@@ -65,12 +63,10 @@ public class CameraDisconnectTest {
     public ActivityTestRule<Camera2TestActivity> mCamera2ActivityRule =
             new ActivityTestRule<>(Camera2TestActivity.class, true, false);
 
-    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private CameraXTestActivity mCameraXTestActivity;
 
     @Before
     public void setUp() {
-        assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
 
         Context context = ApplicationProvider.getApplicationContext();
@@ -87,12 +83,6 @@ public class CameraDisconnectTest {
     public void tearDown() throws ExecutionException, InterruptedException {
         mCameraXTestActivityRule.finishActivity();
         mCamera2ActivityRule.finishActivity();
-
-        // Actively unbind all use cases to avoid lifecycle callback later to stop/clear use case
-        // after shutdown() is complete.
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        }
 
         CameraX.shutdown().get();
     }

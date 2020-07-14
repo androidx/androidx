@@ -32,10 +32,11 @@ dependencies {
 
     implementation project(":annotation:annotation-sampled")
 
-    implementation project(":compose:compose-runtime")
-    api project(":ui:ui-unit")
-    implementation project(":ui:ui-util")
-    implementation project(":ui:ui-graphics")
+    implementation project(":compose:runtime:runtime")
+    api project(":compose:ui:ui-unit")
+    implementation project(":compose:ui:ui-util")
+    implementation project(":compose:ui:ui-graphics")
+    implementation project(":compose:foundation:foundation")
 }
 
 android {

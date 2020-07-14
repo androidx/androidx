@@ -663,6 +663,7 @@ public class ViewCompat {
      * <li>{@link AccessibilityNodeInfoCompat#setPackageName(CharSequence)},</li>
      * <li>{@link AccessibilityNodeInfoCompat#setClassName(CharSequence)},</li>
      * <li>{@link AccessibilityNodeInfoCompat#setContentDescription(CharSequence)},</li>
+     * <li>{@link AccessibilityNodeInfoCompat#setStateDescription(CharSequence)},</li>
      * <li>{@link AccessibilityNodeInfoCompat#setEnabled(boolean)},</li>
      * <li>{@link AccessibilityNodeInfoCompat#setClickable(boolean)},</li>
      * <li>{@link AccessibilityNodeInfoCompat#setFocusable(boolean)},</li>
@@ -1345,6 +1346,43 @@ public class ViewCompat {
         }
         return actions;
     }
+
+    /**
+     * Sets the state description of this node.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param stateDescription the state description of this node.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    @UiThread
+    public static void setStateDescription(@NonNull View view,
+            @Nullable CharSequence stateDescription) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            stateDescriptionProperty().set(view, stateDescription);
+        }
+    }
+
+    /**
+     * Returns the {@link View}'s state description.
+     * <p>
+     * <strong>Note:</strong> Do not override this method, as it will have no
+     * effect on the state description presented to accessibility services.
+     * You must call {@link #setStateDescription(View, CharSequence)} to modify the
+     * state description.
+     *
+     * @return the state description
+     * @see #setStateDescription(View, CharSequence)
+     */
+    @UiThread
+    public static final @Nullable CharSequence getStateDescription(@NonNull View view) {
+        return stateDescriptionProperty().get(view);
+    }
+
 
     /**
      * Allow accessibility services to find and activate clickable spans in the application.
@@ -2459,7 +2497,7 @@ public class ViewCompat {
      * window insets to this view. This will only take effect on devices with API 21 or above.
      */
     public static void setOnApplyWindowInsetsListener(@NonNull View v,
-            @Nullable final OnApplyWindowInsetsListener listener) {
+            final @Nullable OnApplyWindowInsetsListener listener) {
         if (Build.VERSION.SDK_INT >= 21) {
             if (listener == null) {
                 v.setOnApplyWindowInsetsListener(null);
@@ -2470,7 +2508,7 @@ public class ViewCompat {
                 @Override
                 public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
                     WindowInsetsCompat compatInsets = WindowInsetsCompat
-                            .toWindowInsetsCompat(insets);
+                            .toWindowInsetsCompat(insets, view);
                     compatInsets = listener.onApplyWindowInsets(view, compatInsets);
                     return compatInsets.toWindowInsets();
                 }
@@ -2499,7 +2537,7 @@ public class ViewCompat {
                 WindowInsets result = view.onApplyWindowInsets(unwrapped);
                 if (!result.equals(unwrapped)) {
                     // If the value changed, return a newly wrapped instance
-                    return WindowInsetsCompat.toWindowInsetsCompat(result);
+                    return WindowInsetsCompat.toWindowInsetsCompat(result, view);
                 }
             }
         }
@@ -2527,7 +2565,7 @@ public class ViewCompat {
                 final WindowInsets result = view.dispatchApplyWindowInsets(unwrapped);
                 if (!result.equals(unwrapped)) {
                     // If the value changed, return a newly wrapped instance
-                    return WindowInsetsCompat.toWindowInsetsCompat(unwrapped);
+                    return WindowInsetsCompat.toWindowInsetsCompat(result, view);
                 }
             }
         }
@@ -2579,7 +2617,7 @@ public class ViewCompat {
     @Nullable
     public static WindowInsetsCompat getRootWindowInsets(@NonNull View view) {
         if (Build.VERSION.SDK_INT >= 23) {
-            return WindowInsetsCompat.toWindowInsetsCompat(Api23Impl.getRootWindowInsets(view));
+            return Api23Impl.getRootWindowInsets(view);
         } else {
             return null;
         }
@@ -3535,6 +3573,7 @@ public class ViewCompat {
      * @return The logical display, or null if the view is not currently attached to a window.
      */
     @Nullable
+    @SuppressWarnings("deprecation") /* getDefaultDisplay */
     public static Display getDisplay(@NonNull View view) {
         if (Build.VERSION.SDK_INT >= 17) {
             return view.getDisplay();
@@ -4036,6 +4075,29 @@ public class ViewCompat {
         };
     }
 
+    private static AccessibilityViewProperty<CharSequence> stateDescriptionProperty() {
+        return new AccessibilityViewProperty<CharSequence>(R.id.tag_state_description,
+                CharSequence.class, AccessibilityEvent.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION, 30) {
+
+            @RequiresApi(30)
+            @Override
+            CharSequence frameworkGet(View view) {
+                return view.getStateDescription();
+            }
+
+            @RequiresApi(30)
+            @Override
+            void frameworkSet(View view, CharSequence value) {
+                view.setStateDescription(value);
+            }
+
+            @Override
+            boolean shouldUpdate(CharSequence oldValue, CharSequence newValue) {
+                return !TextUtils.equals(oldValue, newValue);
+            }
+        };
+    }
+
     /**
      * Gets whether this view is a heading for accessibility purposes.
      *
@@ -4098,6 +4160,7 @@ public class ViewCompat {
         private final int mTagKey;
         private final Class<T> mType;
         private final int mFrameworkMinimumSdk;
+        private final int mContentChangeType;
 
         AccessibilityViewProperty(int tagKey, Class<T> type, int frameworkMinimumSdk) {
             this(tagKey, type,
@@ -4108,7 +4171,9 @@ public class ViewCompat {
                 int tagKey, Class<T> type, int contentChangeType, int frameworkMinimumSdk) {
             mTagKey = tagKey;
             mType = type;
+            mContentChangeType = contentChangeType;
             mFrameworkMinimumSdk = frameworkMinimumSdk;
+
         }
 
         void set(View view, T value) {
@@ -4120,8 +4185,7 @@ public class ViewCompat {
                 // If we're here, we're guaranteed to be on v19+ (see the logic in
                 // extrasAvailable), so we can call notifyViewAccessibilityStateChangedIfNeeded
                 // which requires 19.
-                notifyViewAccessibilityStateChangedIfNeeded(view,
-                        AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED);
+                notifyViewAccessibilityStateChangedIfNeeded(view, mContentChangeType);
             }
         }
 
@@ -4448,7 +4512,7 @@ public class ViewCompat {
             WindowInsets platformInsets = insets.toWindowInsets();
             if (platformInsets != null) {
                 return WindowInsetsCompat.toWindowInsetsCompat(
-                        v.computeSystemWindowInsets(platformInsets, outLocalInsets));
+                        v.computeSystemWindowInsets(platformInsets, outLocalInsets), v);
             } else {
                 outLocalInsets.setEmpty();
                 return insets;
@@ -4462,8 +4526,17 @@ public class ViewCompat {
             // privatex
         }
 
-        public static WindowInsets getRootWindowInsets(View v) {
-            return v.getRootWindowInsets();
+        @Nullable
+        public static WindowInsetsCompat getRootWindowInsets(@NonNull View v) {
+            final WindowInsets wi = v.getRootWindowInsets();
+            if (wi == null) return null;
+
+            final WindowInsetsCompat insets = WindowInsetsCompat.toWindowInsetsCompat(wi);
+            // This looks strange, but the WindowInsetsCompat instance still needs to know about
+            // what the root window insets, and the root view visible bounds are
+            insets.setRootWindowInsets(insets);
+            insets.copyRootViewBounds(v.getRootView());
+            return insets;
         }
     }
 

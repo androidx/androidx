@@ -16,21 +16,27 @@
 
 package androidx.window;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.app.Activity;
 import android.content.ContextWrapper;
+import android.graphics.Rect;
 
 import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.google.common.util.concurrent.MoreExecutors;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.concurrent.Executor;
 
 /** Tests for {@link WindowManager} class. */
@@ -80,13 +86,18 @@ public final class WindowManagerTest extends WindowTestBase {
     @Test
     public void testRegisterLayoutChangeCallback() {
         WindowBackend backend = mock(WindowBackend.class);
+        Rect rect = new Rect(1, 2, 3, 4);
+        DisplayFeature feature = new DisplayFeature(rect, DisplayFeature.TYPE_FOLD);
+        WindowLayoutInfo info = new WindowLayoutInfo(Collections.singletonList(feature));
+        when(backend.getWindowLayoutInfo(any())).thenReturn(info);
         Activity activity = mock(Activity.class);
         WindowManager wm = new WindowManager(activity, backend);
 
-        Executor executor = mock(Executor.class);
+        Executor executor = MoreExecutors.directExecutor();
         Consumer<WindowLayoutInfo> consumer = mock(Consumer.class);
         wm.registerLayoutChangeCallback(executor, consumer);
         verify(backend).registerLayoutChangeCallback(eq(activity), eq(executor), eq(consumer));
+        verify(consumer).accept(info);
 
         wm.unregisterLayoutChangeCallback(consumer);
         verify(backend).unregisterLayoutChangeCallback(eq(consumer));
@@ -95,13 +106,16 @@ public final class WindowManagerTest extends WindowTestBase {
     @Test
     public void testRegisterDeviceStateChangeCallback() {
         WindowBackend backend = mock(WindowBackend.class);
+        DeviceState state = new DeviceState(DeviceState.POSTURE_CLOSED);
+        when(backend.getDeviceState()).thenReturn(state);
         Activity activity = mock(Activity.class);
         WindowManager wm = new WindowManager(activity, backend);
 
-        Executor executor = mock(Executor.class);
+        Executor executor = MoreExecutors.directExecutor();
         Consumer<DeviceState> consumer = mock(Consumer.class);
         wm.registerDeviceStateChangeCallback(executor, consumer);
         verify(backend).registerDeviceStateChangeCallback(eq(executor), eq(consumer));
+        verify(consumer).accept(state);
 
         wm.unregisterDeviceStateChangeCallback(consumer);
         verify(backend).unregisterDeviceStateChangeCallback(eq(consumer));

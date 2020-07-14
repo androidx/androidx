@@ -21,7 +21,9 @@
 
     <style name="Widget.Autofill.InlineSuggestionChip">
         <item name="android:background">@drawable/autofill_inline_suggestion_chip_background</item>
+        <item name="android:paddingStart">13dp</item>
         <item name="android:paddingLeft">13dp</item>
+        <item name="android:paddingEnd">13dp</item>
         <item name="android:paddingRight">13dp</item>
     </style>
 
@@ -35,7 +37,9 @@
         <item name="android:textColor">#FF202124</item>
         <item name="android:textSize">16sp</item>
         <item name="android:typeface">sans</item>
+        <item name="android:layout_marginStart">4dp</item>
         <item name="android:layout_marginLeft">4dp</item>
+        <item name="android:layout_marginEnd">4dp</item>
         <item name="android:layout_marginRight">4dp</item>
     </style>
 
@@ -43,6 +47,7 @@
         <item name="android:textColor">#99202124</item>
         <item name="android:textSize">14sp</item>
         <item name="android:typeface">sans</item>
+        <item name="android:layout_marginEnd">4dp</item>
         <item name="android:layout_marginRight">4dp</item>
     </style>
 

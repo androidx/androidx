@@ -32,11 +32,12 @@ import androidx.lifecycle.LifecycleOwner
  * @param listener listener for result changes or `null` to remove any previously registered
  * listener.
  */
+@Suppress("NAME_SHADOWING")
 inline fun FragmentResultOwner.setFragmentResultListener(
     requestKey: String,
     lifecycleOwner: LifecycleOwner,
-    crossinline listener: ((resultKey: String, bundle: Bundle) -> Unit)
+    crossinline listener: ((requestKey: String, bundle: Bundle) -> Unit)
 ) {
     setFragmentResultListener(requestKey, lifecycleOwner,
-        FragmentResultListener { resultKey, bundle -> listener.invoke(resultKey, bundle) })
+        FragmentResultListener { requestKey, bundle -> listener.invoke(requestKey, bundle) })
 }

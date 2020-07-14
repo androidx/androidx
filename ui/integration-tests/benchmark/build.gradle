@@ -33,19 +33,20 @@ dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 
     implementation project(":benchmark:benchmark-junit4")
-    implementation project(":compose:compose-runtime")
-    implementation project(":ui:integration-tests")
+    implementation project(":compose:runtime:runtime")
+    implementation project(":compose:integration-tests")
     implementation project(":ui:ui-test")
+    implementation project(":compose:foundation:foundation-layout")
     implementation(KOTLIN_STDLIB)
     implementation(KOTLIN_REFLECT)
     implementation(ANDROIDX_TEST_RULES)
     implementation(JUNIT)
 
-    androidTestImplementation project(":ui:ui-core")
-    androidTestImplementation project(":ui:ui-layout")
-    androidTestImplementation project(":ui:ui-material")
+    androidTestImplementation project(":compose:ui:ui")
+    androidTestImplementation project(":compose:foundation:foundation-layout")
+    androidTestImplementation project(":compose:material:material")
     androidTestImplementation project(":ui:ui-test")
-    androidTestImplementation project(":compose:compose-runtime")
+    androidTestImplementation project(":compose:runtime:runtime")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(KOTLIN_TEST_COMMON)
     androidTestImplementation(ANDROIDX_TEST_RULES)
@@ -53,11 +54,10 @@ dependencies {
 }
 
 androidx {
-    name = "UI Benchmarks"
+    name = "Compose Benchmarks"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
-    description = "UI Benchmarks"
+    description = "Compose Benchmarks"
 }
 
 android.defaultConfig.minSdkVersion 21

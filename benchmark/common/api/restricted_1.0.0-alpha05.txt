@@ -6,8 +6,10 @@ package androidx.benchmark {
 
   public final class BenchmarkState {
     method public boolean keepRunning();
+    method @kotlin.PublishedApi internal boolean keepRunningInternal();
     method public void pauseTiming();
     method public void resumeTiming();
+    field @kotlin.PublishedApi internal int iterationsRemaining;
   }
 
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2019 9The Android Open Source Project
+  Copyright 2019 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,6 +16,6 @@
   -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true" android:color="#00E000"/>
-    <item android:state_enabled="false" android:alpha="0.5" android:color="#00ff00"/>
-    <item android:color="#00ff00"/>
+    <item android:state_enabled="false" android:alpha="0.5" android:color="#00FF00"/>
+    <item android:color="#00FF00"/>
 </selector>

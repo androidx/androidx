@@ -1,8 +1,4 @@
 // Baseline format: 1.0
-AcronymName: androidx.ui.text.TextStyle#copy-4Bo2vQE(long, long, androidx.ui.text.font.FontWeight, androidx.ui.text.font.FontStyle, androidx.ui.text.font.FontSynthesis, androidx.ui.text.font.FontFamily, String, long, androidx.ui.text.style.BaselineShift, androidx.ui.text.style.TextGeometricTransform, androidx.ui.text.LocaleList, long, androidx.ui.text.style.TextDecoration, androidx.ui.graphics.Shadow, androidx.ui.text.style.TextAlign, androidx.ui.text.style.TextDirectionAlgorithm, long, androidx.ui.text.style.TextIndent):
-    Acronyms should not be capitalized in method names: was `copy-4Bo2vQE`, should this be `copy-4Bo2vQe`?
-
-
 BuilderSetStyle: androidx.ui.text.AnnotatedString.Builder#append(String):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.text.AnnotatedString.Builder.append(String)
 BuilderSetStyle: androidx.ui.text.AnnotatedString.Builder#append(androidx.ui.text.AnnotatedString):

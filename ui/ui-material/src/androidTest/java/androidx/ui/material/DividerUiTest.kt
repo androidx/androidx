@@ -17,9 +17,9 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
+import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.createComposeRule
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,38 +36,35 @@ class DividerUiTest {
 
     @Test
     fun divider_DefaultSizes() {
-        val dm = composeTestRule.displayMetrics
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 Divider()
             }
-            .assertHeightEqualsTo(defaultHeight)
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertHeightIsEqualTo(defaultHeight)
+            .assertWidthFillsRoot()
     }
 
     @Test
     fun divider_CustomSizes() {
         val height = 20.dp
-        val dm = composeTestRule.displayMetrics
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 Divider(thickness = height)
             }
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
-            .assertHeightEqualsTo(height)
+            .assertWidthFillsRoot()
+            .assertHeightIsEqualTo(height)
     }
 
     @Test
     fun divider_SizesWithIndent_DoesNotChanged() {
-        val dm = composeTestRule.displayMetrics
         val indent = 75.dp
         val height = 21.dp
 
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 Divider(startIndent = indent, thickness = height)
             }
-            .assertHeightEqualsTo(height)
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertHeightIsEqualTo(height)
+            .assertWidthFillsRoot()
     }
 }

@@ -18,47 +18,129 @@
 
 package androidx.contentaccess.ext
 
+import androidx.contentaccess.IgnoreConstructor
+import androidx.contentaccess.compiler.utils.JvmSignatureUtil
 import asTypeElement
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
+import com.google.auto.common.MoreTypes
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.classinspector.elements.ElementsClassInspector
+import com.squareup.kotlinpoet.metadata.ImmutableKmFunction
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
+import com.squareup.kotlinpoet.metadata.specs.toTypeSpec
+import com.squareup.kotlinpoet.tag
 import java.lang.reflect.Proxy
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
+import javax.lang.model.type.WildcardType
 import javax.lang.model.util.ElementFilter
 import javax.lang.model.util.SimpleAnnotationValueVisitor6
+import javax.lang.model.util.SimpleTypeVisitor7
 import kotlin.reflect.KClass
 
 fun Element.hasAnnotation(klass: KClass<out Annotation>): Boolean {
     return MoreElements.isAnnotationPresent(this, klass.java)
 }
 
-// TODO(obenabde): This is copied from room, see what we can do about this.
+fun TypeElement.getNonPrivateNonIgnoreConstructors(): List<ExecutableElement> {
+    return ElementFilter.constructorsIn(this.enclosedElements).filter {
+        !it.modifiers.contains(Modifier.PRIVATE) && !it.hasAnnotation(IgnoreConstructor::class)
+    }
+}
+
+fun TypeElement.hasMoreThanOneNonPrivateNonIgnoredConstructor() =
+    this.getNonPrivateNonIgnoreConstructors().size > 1
+
+fun TypeElement.isFilledThroughConstructor() = this.getNonPrivateNonIgnoreConstructors().size == 1
+
+fun TypeElement.isNotInstantiable():
+        Boolean {
+    // No constructors means we can't instantiate it to fill its public fields, user might have
+    // made the default constructor private or simply ignored it.
+    return this.getNonPrivateNonIgnoreConstructors().isEmpty()
+}
 
 /**
- * gets all members including super privates. does not handle duplicate field names!!!
+ * Gets either all the parameters of the single public constructor if they exist, otherwise returns
+ * a list of all public fields, even if empty.
  */
+fun TypeElement.getAllConstructorParamsOrPublicFields():
+        List<VariableElement> {
+    val constructors = this.getNonPrivateNonIgnoreConstructors()
 
-fun TypeElement.getAllFieldsIncludingPrivateSupers(processingEnvironment: ProcessingEnvironment):
-        Set<VariableElement> {
-    val myMembers = processingEnvironment.elementUtils.getAllMembers(this)
-            .filter { it.kind == ElementKind.FIELD }
-            .filter { it is VariableElement }
-            .map { it as VariableElement }
-            .toSet()
-    if (superclass.kind != TypeKind.NONE) {
-        return myMembers + superclass.asTypeElement()
-                .getAllFieldsIncludingPrivateSupers(processingEnvironment)
+    if (constructors.size == 1) {
+        val parameters = MoreElements.asExecutable(constructors.first()).parameters
+        if (parameters.isNotEmpty()) {
+            return parameters.map { it as VariableElement }
+        }
+    } else if (constructors.isEmpty()) {
+        error("${this.qualifiedName} has no non private and non ignored constructors!")
     } else {
-        return myMembers
+        error("${this.qualifiedName} has more than non private non ignored constructor")
     }
+
+    // TODO(obenabde): explore ways to warn users if they're unknowingly doing something wrong
+    //  e.g if there is a possibility they think we are filling fields instead of constructors
+    //  or both etc...
+    // This is a class with an empty or no public constructor, check public fields.
+    val publicFields = ElementFilter.fieldsIn(this.enclosedElements)
+        .filter { !it.modifiers.contains(Modifier.PRIVATE) }
+    return publicFields.map { it as VariableElement }
+}
+
+fun TypeElement.hasNonEmptyNonPrivateNonIgnoredConstructor(): Boolean {
+    val constructors = ElementFilter.constructorsIn(this.enclosedElements).filter {
+        !it.modifiers.contains(Modifier.PRIVATE) && !it.hasAnnotation(IgnoreConstructor::class)
+    }
+    if (constructors.isEmpty()) {
+        return false
+    }
+    val parameters = MoreElements.asExecutable(constructors.first()).parameters
+    return parameters.isNotEmpty()
+}
+
+fun TypeMirror.extendsBound(): TypeMirror? {
+    return this.accept(object : SimpleTypeVisitor7<TypeMirror?, Void?>() {
+        override fun visitWildcard(type: WildcardType, ignored: Void?): TypeMirror? {
+            return type.extendsBound ?: type.superBound
+        }
+    }, null)
+}
+
+@KotlinPoetMetadataPreview
+fun ExecutableElement.isSuspendFunction(processingEnv: ProcessingEnvironment) =
+    getKotlinFunspec(processingEnv).modifiers.contains(KModifier.SUSPEND)
+
+@KotlinPoetMetadataPreview
+fun ExecutableElement.getSuspendFunctionReturnType():
+        TypeMirror {
+    val typeParam = MoreTypes.asDeclared(parameters.last().asType()).typeArguments.first()
+    return typeParam.extendsBound() ?: typeParam
+}
+
+@KotlinPoetMetadataPreview
+fun ExecutableElement.getKotlinFunspec(processingEnv: ProcessingEnvironment):
+        FunSpec {
+    val classInspector = ElementsClassInspector.create(processingEnv.elementUtils, processingEnv
+        .typeUtils)
+    val enclosingClass = this.enclosingElement as TypeElement
+
+    val kotlinApi = enclosingClass.toTypeSpec(classInspector)
+    val jvmSignature = JvmSignatureUtil.getMethodDescriptor(this)
+    val funSpec = kotlinApi.funSpecs.find {
+        it.tag<ImmutableKmFunction>()?.signature?.asString() == jvmSignature
+    } ?: error("No matching funSpec found for $jvmSignature.")
+    return funSpec
 }
 
 fun TypeElement.getAllMethodsIncludingSupers(): Set<ExecutableElement> {

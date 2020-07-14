@@ -21,30 +21,36 @@ import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationEndReason
 import androidx.animation.TargetAnimation
-import androidx.animation.TweenBuilder
+import androidx.animation.TweenSpec
 import androidx.annotation.IntRange
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.compose.state
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.Alignment
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
+import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Interaction
+import androidx.ui.foundation.InteractionState
+import androidx.ui.foundation.Strings
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
-import androidx.ui.foundation.gestures.DragDirection
+import androidx.ui.foundation.animation.defaultFlingConfig
 import androidx.ui.foundation.gestures.draggable
+import androidx.ui.foundation.indication
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
+import androidx.ui.geometry.lerp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
@@ -52,13 +58,17 @@ import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeightIn
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidthIn
-import androidx.ui.material.ripple.ripple
-import androidx.ui.semantics.Semantics
+import androidx.ui.material.ripple.RippleIndication
+import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.accessibilityValue
+import androidx.ui.semantics.accessibilityValueRange
+import androidx.ui.semantics.scrollBackward
+import androidx.ui.semantics.scrollForward
+import androidx.ui.semantics.setProgress
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import androidx.ui.util.lerp
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 /**
  * Sliders allow users to make selections from a range of values.
@@ -106,59 +116,60 @@ fun Slider(
     }
     position.onValueChange = onValueChange
     position.scaledValue = value
-    Semantics(container = true, mergeAllDescendants = true) {
-        Box(modifier = modifier) {
-            WithConstraints {
-                val maxPx = constraints.maxWidth.value.toFloat()
-                val minPx = 0f
-                position.setBounds(minPx, maxPx)
+    WithConstraints(modifier.sliderSemantics(value, position, onValueChange, valueRange, steps)) {
+        val isRtl = layoutDirection == LayoutDirection.Rtl
+        val maxPx = constraints.maxWidth.toFloat()
+        val minPx = 0f
+        position.setBounds(minPx, maxPx)
 
-                val flingConfig = SliderFlingConfig(position, position.anchorsPx) { endValue ->
-                    position.holder.snapTo(endValue)
-                    onValueChangeEnd()
-                }
-                val gestureEndAction = { velocity: Float ->
-                    if (flingConfig != null) {
-                        position.holder.fling(flingConfig, velocity)
-                    } else {
+        val flingConfig = SliderFlingConfig(position, position.anchorsPx)
+        val gestureEndAction = { velocity: Float ->
+            if (flingConfig != null) {
+                position.holder.fling(velocity, flingConfig) { reason, endValue, _ ->
+                    if (reason != AnimationEndReason.Interrupted) {
+                        position.holder.snapTo(endValue)
                         onValueChangeEnd()
                     }
                 }
-                val pressed = state { false }
-                val press = Modifier.pressIndicatorGestureFilter(
-                    onStart = { pos ->
-                        position.holder.snapTo(pos.x.value)
-                        pressed.value = true
-                    },
-                    onStop = {
-                        pressed.value = false
-                        gestureEndAction(0f)
-                    })
-
-                val drag = Modifier.draggable(
-                    dragDirection = DragDirection.Horizontal,
-                    onDragDeltaConsumptionRequested = { delta ->
-                        position.holder.snapTo(position.holder.value + delta)
-                        // consume all so slider won't participate in nested scrolling
-                        delta
-                    },
-                    onDragStarted = { pressed.value = true },
-                    onDragStopped = { velocity ->
-                        pressed.value = false
-                        gestureEndAction(velocity)
-                    },
-                    startDragImmediately = position.holder.isRunning
-                )
-                val coerced = value.coerceIn(position.startValue, position.endValue)
-                val fraction = calcFraction(position.startValue, position.endValue, coerced)
-                Semantics(container = true, properties = { accessibilityValue = "$coerced" }) {
-                    SliderImpl(
-                        fraction, position.tickFractions, color, maxPx, pressed.value,
-                        modifier = press.plus(drag)
-                    )
-                }
+            } else {
+                onValueChangeEnd()
             }
         }
+
+        val interactionState = remember { InteractionState() }
+
+        val press = Modifier.pressIndicatorGestureFilter(
+            onStart = { pos ->
+                position.holder.snapTo(if (isRtl) maxPx - pos.x else pos.x)
+                interactionState.addInteraction(Interaction.Pressed, pos)
+            },
+            onStop = {
+                gestureEndAction(0f)
+                interactionState.removeInteraction(Interaction.Pressed)
+            },
+            onCancel = {
+                interactionState.removeInteraction(Interaction.Pressed)
+            }
+        )
+
+        val drag = Modifier.draggable(
+            orientation = Orientation.Horizontal,
+            reverseDirection = isRtl,
+            interactionState = interactionState,
+            onDragStopped = gestureEndAction,
+            startDragImmediately = position.holder.isRunning,
+            onDrag = { position.holder.snapTo(position.holder.value + it) }
+        )
+        val coerced = value.coerceIn(position.startValue, position.endValue)
+        val fraction = calcFraction(position.startValue, position.endValue, coerced)
+        SliderImpl(
+            fraction,
+            position.tickFractions,
+            color,
+            maxPx,
+            interactionState,
+            modifier = press.plus(drag)
+        )
     }
 }
 
@@ -168,11 +179,11 @@ private fun SliderImpl(
     tickFractions: List<Float>,
     color: Color,
     width: Float,
-    pressed: Boolean,
+    interactionState: InteractionState,
     modifier: Modifier
 ) {
     val widthDp = with(DensityAmbient.current) {
-        width.px.toDp()
+        width.toDp()
     }
     Stack(modifier + DefaultSliderConstraints) {
         val thumbSize = ThumbRadius * 2
@@ -182,17 +193,36 @@ private fun SliderImpl(
         val trackStrokeWidth: Float
         val thumbPx: Float
         with(DensityAmbient.current) {
-            trackStrokeWidth = TrackHeight.toPx().value
-            thumbPx = ThumbRadius.toPx().value
+            trackStrokeWidth = TrackHeight.toPx()
+            thumbPx = ThumbRadius.toPx()
         }
-        val trackStroke = Stroke(trackStrokeWidth, cap = StrokeCap.round)
-        Track(center.fillMaxSize(), color, positionFraction, tickFractions, thumbPx, trackStroke)
+        Track(
+            center.fillMaxSize(),
+            color,
+            positionFraction,
+            tickFractions,
+            thumbPx,
+            trackStrokeWidth
+        )
         Box(center.padding(start = offset)) {
+            val elevation = if (
+                Interaction.Pressed in interactionState || Interaction.Dragged in interactionState
+            ) {
+                ThumbPressedElevation
+            } else {
+                ThumbDefaultElevation
+            }
             Surface(
                 shape = CircleShape,
                 color = color,
-                elevation = if (pressed) 6.dp else 1.dp,
-                modifier = Modifier.ripple(bounded = false)
+                elevation = elevation,
+                modifier = Modifier.indication(
+                    interactionState = interactionState,
+                    indication = RippleIndication(
+                        radius = ThumbRippleRadius,
+                        bounded = false
+                    )
+                )
             ) {
                 Spacer(Modifier.preferredSize(thumbSize, thumbSize))
             }
@@ -207,33 +237,38 @@ private fun Track(
     positionFraction: Float,
     tickFractions: List<Float>,
     thumbPx: Float,
-    trackStroke: Stroke
+    trackStrokeWidth: Float
 ) {
     val activeTickColor = MaterialTheme.colors.onPrimary.copy(alpha = TickColorAlpha)
     val inactiveTickColor = color.copy(alpha = TickColorAlpha)
     Canvas(modifier) {
-        val sliderStart = Offset(thumbPx, center.dy)
-        val sliderMax = Offset(size.width - thumbPx, center.dy)
+        val isRtl = layoutDirection == LayoutDirection.Rtl
+        val sliderLeft = Offset(thumbPx, center.y)
+        val sliderRight = Offset(size.width - thumbPx, center.y)
+        val sliderStart = if (isRtl) sliderRight else sliderLeft
+        val sliderEnd = if (isRtl) sliderLeft else sliderRight
         drawLine(
             color.copy(alpha = InactiveTrackColorAlpha),
             sliderStart,
-            sliderMax,
-            trackStroke
+            sliderEnd,
+            trackStrokeWidth,
+            StrokeCap.round
         )
         val sliderValue = Offset(
-            sliderStart.dx + (sliderMax.dx - sliderStart.dx) * positionFraction,
-            center.dy
+            sliderStart.x + (sliderEnd.x - sliderStart.x) * positionFraction,
+            center.y
         )
 
-        drawLine(color, sliderStart, sliderValue, trackStroke)
+        drawLine(color, sliderStart, sliderValue, trackStrokeWidth, StrokeCap.round)
         tickFractions.groupBy { it > positionFraction }.forEach { (afterFraction, list) ->
             drawPoints(
                 list.map {
-                    Offset(Offset.lerp(sliderStart, sliderMax, it).dx, center.dy)
+                    Offset(lerp(sliderStart, sliderEnd, it).x, center.y)
                 },
                 PointMode.points,
                 if (afterFraction) inactiveTickColor else activeTickColor,
-                trackStroke
+                trackStrokeWidth,
+                StrokeCap.round
             )
         }
     }
@@ -250,28 +285,88 @@ private fun calcFraction(a: Float, b: Float, pos: Float) =
 @Composable
 private fun SliderFlingConfig(
     value: SliderPosition,
-    anchors: List<Float>,
-    onSuccessfulEnd: (Float) -> Unit
+    anchors: List<Float>
 ): FlingConfig? {
-    if (anchors.isEmpty()) {
-        return null
+    return if (anchors.isEmpty()) {
+        null
     } else {
         val adjustTarget: (Float) -> TargetAnimation? = { _ ->
             val now = value.holder.value
-            val point = anchors.minBy { abs(it - now) }
+            val point = anchors.minByOrNull { abs(it - now) }
             val adjusted = point ?: now
             TargetAnimation(adjusted, SliderToTickAnimation)
         }
-        return FlingConfig(
-            adjustTarget = adjustTarget,
-            onAnimationEnd = { reason, endValue, _ ->
-                if (reason != AnimationEndReason.Interrupted) {
-                    onSuccessfulEnd(endValue)
-                }
-            }
-        )
+        defaultFlingConfig(adjustTarget = adjustTarget)
     }
 }
+
+private fun Modifier.sliderSemantics(
+    value: Float,
+    position: SliderPosition,
+    onValueChange: (Float) -> Unit,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    @IntRange(from = 0) steps: Int = 0
+): Modifier {
+    val coerced = value.coerceIn(position.startValue, position.endValue)
+    val fraction = calcFraction(position.startValue, position.endValue, coerced)
+    // We only display 0% or 100% when it is exactly 0% or 100%.
+    val percent = when (fraction) {
+        0f -> 0
+        1f -> 100
+        else -> (fraction * 100).roundToInt().coerceIn(1, 99)
+    }
+    return semantics {
+        accessibilityValue = Strings.TemplatePercent.format(percent)
+        accessibilityValueRange = AccessibilityRangeInfo(coerced, valueRange)
+        setProgress(action = { setSliderProgress(it, coerced, position, onValueChange, steps) })
+
+        // TODO(b/157692376) Remove accessibility scroll actions in Slider when
+        //  talkback is fixed
+        var increment = (position.endValue - position.startValue) / AccessibilityStepsCount
+        if (steps > 0) {
+            increment = (position.endValue - position.startValue) / (steps + 1)
+        }
+        if (coerced < position.endValue) {
+            @Suppress("DEPRECATION")
+            scrollForward(action = {
+                setSliderProgress(coerced + increment, coerced, position, onValueChange, steps)
+            })
+        }
+        if (coerced > position.startValue) {
+            @Suppress("DEPRECATION")
+            scrollBackward(action = {
+                setSliderProgress(coerced - increment, coerced, position, onValueChange, steps)
+            })
+        }
+    }
+}
+
+private fun setSliderProgress(
+    targetValue: Float,
+    currentValue: Float,
+    position: SliderPosition,
+    onValueChange: (Float) -> Unit,
+    @IntRange(from = 0) steps: Int = 0
+): Boolean {
+    var newValue = targetValue.coerceIn(position.startValue, position.endValue)
+    if (steps >= 0) {
+        val anchorsValue = position.tickFractions.map {
+            lerp(position.startValue, position.endValue, it)
+        }
+        val point = anchorsValue.minByOrNull { abs(it - newValue) }
+        newValue = point ?: newValue
+    }
+    // This is to keep it consistent with AbsSeekbar.java: return false if no
+    // change from current.
+    if (newValue == currentValue) {
+        return false
+    }
+    onValueChange(newValue)
+    return true
+}
+
+// 20 is taken from AbsSeekbar.java.
+private const val AccessibilityStepsCount = 20
 
 /**
  * Internal state for [Slider] that represents the Slider value, its bounds and optional amount of
@@ -354,13 +449,21 @@ private class CallbackBasedAnimatedFloat(
         }
 }
 
-private val ThumbRadius = 10.dp
-private val TrackHeight = 4.dp
+// Internal to be referred to in tests
+internal val ThumbRadius = 10.dp
+private val ThumbRippleRadius = 24.dp
+private val ThumbDefaultElevation = 1.dp
+private val ThumbPressedElevation = 6.dp
+
+// Internal to be referred to in tests
+internal val TrackHeight = 4.dp
 private val SliderHeight = 48.dp
 private val SliderMinWidth = 144.dp // TODO: clarify min width
 private val DefaultSliderConstraints =
     Modifier.preferredWidthIn(minWidth = SliderMinWidth)
         .preferredHeightIn(maxHeight = SliderHeight)
-private val InactiveTrackColorAlpha = 0.24f
+
+// Internal to be referred to in tests
+internal val InactiveTrackColorAlpha = 0.24f
 private val TickColorAlpha = 0.54f
-private val SliderToTickAnimation = TweenBuilder<Float>().apply { duration = 100 }
+private val SliderToTickAnimation = TweenSpec<Float>(durationMillis = 100)

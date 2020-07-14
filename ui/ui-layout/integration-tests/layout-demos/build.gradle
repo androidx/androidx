@@ -30,14 +30,14 @@ dependencies {
 
     implementation(KOTLIN_STDLIB)
 
-    implementation project(":compose:compose-runtime")
-    implementation project(":ui:integration-tests:demos:common")
-    implementation project(":ui:ui-core")
-    implementation project(":ui:ui-layout")
-    implementation project(":ui:ui-layout:samples")
-    implementation project(":ui:ui-text-core")
-    implementation project(":ui:ui-text")
-    implementation project(":ui:ui-foundation")
+    implementation project(":compose:runtime:runtime")
+    implementation project(":compose:integration-tests:demos:common")
+    implementation project(":compose:ui:ui")
+    implementation project(":compose:foundation:foundation-layout")
+    implementation project(":compose:foundation:foundation-layout:samples")
+    implementation project(":compose:ui:ui-text")
+    implementation project(":compose:foundation:foundation-text")
+    implementation project(":compose:foundation:foundation")
 }
 
 android {

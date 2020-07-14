@@ -17,6 +17,7 @@
 package android.view
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Rect
@@ -78,8 +79,6 @@ open class View(val context: Context) {
 
     open fun onLayout (changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {}
 
-    open fun onAttachedToWindow() {}
-
     open fun dispatchDraw(canvas: Canvas) {}
 
     open fun dispatchTouchEvent(event: MotionEvent): Boolean = true
@@ -89,12 +88,30 @@ open class View(val context: Context) {
         outLocation[1] = 0
     }
 
+    open fun getRootView(): View {
+        if (parent != null && parent is View) return (parent as View).getRootView()
+        return this
+    }
+
     fun setMeasuredDimension(measuredWidth: Int, measuredHeight: Int) {}
 
-    fun getTag(key: Int): Any? = null
-    fun setTag(key: Int, obj: Any?) {}
+    private val tags = mutableMapOf<Int, Any?>()
+    fun getTag(key: Int): Any? {
+        return tags.get(key)
+    }
+    fun setTag(key: Int, obj: Any?) {
+        tags[key] = obj
+    }
+
+    private val attachListeners = mutableListOf<View.OnAttachStateChangeListener>()
+
+    open fun addOnAttachStateChangeListener(listener: View.OnAttachStateChangeListener) {
+        attachListeners.add(listener)
+    }
 
     var parent: ViewParent? = null
+
+    var viewTreeObserver: ViewTreeObserver? = ViewTreeObserver()
 
     class MeasureSpec {
         companion object {
@@ -142,6 +159,12 @@ open class View(val context: Context) {
 
     var mRecreateDisplayList: Boolean = false
 
+    var isAttachedToWindow = false
+
+    var isLayoutRequested = false
+
+    var name = "View"
+
     fun layout(left: Int, top: Int, right: Int, bottom: Int) {
         this.left = left
         this.top = top
@@ -164,5 +187,22 @@ open class View(val context: Context) {
             runnable.run()
         }
         return true
+    }
+
+    private val resources = Resources()
+    fun getResources(): Resources = resources
+
+    fun offsetTopAndBottom(offset: Int) {
+        if (offset != 0) {
+            top += offset
+            bottom += offset
+        }
+    }
+
+    open fun onAttachedToWindow() {
+        isAttachedToWindow = true
+        attachListeners.forEach {
+            it.onViewAttachedToWindow(this)
+        }
     }
 }

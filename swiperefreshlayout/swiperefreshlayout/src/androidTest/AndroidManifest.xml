@@ -20,6 +20,7 @@
     <application
         android:supportsRtl="true"
         android:theme="@style/TestActivityTheme">
+        <activity android:name="androidx.activity.ComponentActivity"/>
         <activity android:name="androidx.swiperefreshlayout.widget.CircularProgressDrawableActivity"/>
         <activity android:name="androidx.swiperefreshlayout.widget.SwipeRefreshLayoutActivity"/>
         <activity android:name="androidx.swiperefreshlayout.widget.SwipeRefreshLayoutInRecyclerViewWithSimpleChildActivity"/>

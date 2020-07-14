@@ -168,6 +168,73 @@ class TestGitClient(unittest.TestCase):
 			commitWithApiChange.files
 		)
 		self.assertEqual("Added an awesome new API!", commitWithApiChange.releaseNote)
+		self.assertEqual(
+			"Added a new API! ([myChan]" +
+			"(https://android-review.googlesource.com/#/q/myChangeId), " +
+			"[b/123456](https://issuetracker.google.com/issues/123456), " +
+			"[b/1234567](https://issuetracker.google.com/issues/1234567), " +
+			"[b/123123](https://issuetracker.google.com/issues/123123))",
+			str(commitWithApiChange)
+		)
+
+	def test_parseAPICommitWithOneBug(self):
+		commitWithApiChangeString = """
+				_CommitStart
+				_CommitSHA:mySha
+				_Author:anemail@google.com
+				_Date:Tue Aug 6 15:05:55 2019 -0700
+				_Subject:Added a new API!
+				_Body:Also fixed some other bugs
+
+				Relnote: Added an awesome new API!
+
+				Bug: 123456
+				Test: ./gradlew buildOnServer
+				Change-Id: myChangeId
+
+				projectdir/a.java
+				projectdir/api/current.txt
+			"""
+		commitWithApiChange = Commit(commitWithApiChangeString, "/projectdir/")
+		self.assertEqual("Added an awesome new API!", commitWithApiChange.releaseNote)
+		self.assertEqual([123456], commitWithApiChange.bugs)
+		self.assertEqual(
+			"Added a new API! ([myChan]" +
+			"(https://android-review.googlesource.com/#/q/myChangeId), " +
+			"[b/123456](https://issuetracker.google.com/issues/123456))",
+			str(commitWithApiChange)
+		)
+
+	def test_parseAPICommitWithMultipleBugs(self):
+		commitWithApiChangeString = """
+				_CommitStart
+				_CommitSHA:mySha
+				_Author:anemail@google.com
+				_Date:Tue Aug 6 15:05:55 2019 -0700
+				_Subject:Added a new API!
+				_Body:Also fixed some other bugs
+
+				Relnote: Added an awesome new API!
+
+				Bug: 123456, 1234567
+				Fixes: 123123
+				Test: ./gradlew buildOnServer
+				Change-Id: myChangeId
+
+				projectdir/a.java
+				projectdir/api/current.txt
+			"""
+		commitWithApiChange = Commit(commitWithApiChangeString, "/projectdir/")
+		self.assertEqual("Added an awesome new API!", commitWithApiChange.releaseNote)
+		self.assertEqual([123456, 1234567, 123123], commitWithApiChange.bugs)
+		self.assertEqual(
+			"Added a new API! ([myChan]" +
+			"(https://android-review.googlesource.com/#/q/myChangeId), " +
+			"[b/123456](https://issuetracker.google.com/issues/123456), " +
+			"[b/1234567](https://issuetracker.google.com/issues/1234567), " +
+			"[b/123123](https://issuetracker.google.com/issues/123123))",
+			str(commitWithApiChange)
+		)
 
 	def test_parseAPICommitWithDefaultDelimitersAndNonstandardQuoteCharacters(self):
 		commitWithApiChangeString = """
@@ -802,6 +869,8 @@ class TestMarkdown(unittest.TestCase):
 		self.assertEqual(releaseNotes.projectDir, "projectDir")
 		self.assertEqual(releaseNotes.requiresSameVersion, True)
 		self.assertEqual(releaseNotes.forceIncludeAllCommits, False)
+		self.assertEqual(str(releaseNotes.header),
+			"### Groupid Version version {:#version}")
 		self.assertEqual(str(releaseNotes.diffLogLink),
 			"[Version version contains" + \
 			" these commits.](https://android.googlesource.com/" + \
@@ -809,10 +878,10 @@ class TestMarkdown(unittest.TestCase):
 		)
 		self.assertEqual(releaseNotes.commits, [])
 		self.assertEqual(str(releaseNotes.commitMarkdownList),
-			"\n{# **New Features** #}\n\n" + \
-			"\n{# **API Changes** #}\n\n" + \
-			"\n{# **Bug Fixes** #}\n\n" + \
-			"\n{# **External Contribution** #}\n\n"
+			"\n**New Features**\n\n" + \
+			"\n**API Changes**\n\n" + \
+			"\n**Bug Fixes**\n\n" + \
+			"\n**External Contribution**\n\n"
 		)
 		self.assertEqual(releaseNotes.getFormattedReleaseSummary(),
 			"`groupId:artifactId:version` is released." + \
@@ -820,6 +889,183 @@ class TestMarkdown(unittest.TestCase):
 			"platform/frameworks/support/+log/fromSHA..untilSHA/projectDir)\n"
 		)
 		self.assertEqual(releaseNotes.bugsFixed, [])
+
+	def test_markdownCorrectlyFormatsForTwoArtifactsWithFalseRequiresSameVersion(self):
+		releaseNotes = LibraryReleaseNotes(
+			groupId = "groupId",
+			artifactIds = ["artifactId1", "artifactId2"],
+			version = "version",
+			releaseDate = "01-01-1970",
+			fromSHA = "fromSHA",
+			untilSHA = "untilSHA",
+			projectDir = "projectDir",
+			requiresSameVersion = False,
+			commitList = [],
+			forceIncludeAllCommits = False
+		)
+		self.assertEqual(releaseNotes.groupId, "groupId")
+		self.assertEqual(releaseNotes.artifactIds, ["artifactId1", "artifactId2"])
+		self.assertEqual(releaseNotes.version, "version")
+		self.assertEqual(str(releaseNotes.releaseDate), "January 1, 1970")
+		self.assertEqual(releaseNotes.fromSHA, "fromSHA")
+		self.assertEqual(releaseNotes.untilSHA, "untilSHA")
+		self.assertEqual(releaseNotes.projectDir, "projectDir")
+		self.assertEqual(releaseNotes.requiresSameVersion, False)
+		self.assertEqual(releaseNotes.forceIncludeAllCommits, False)
+		self.assertEqual(str(releaseNotes.header),
+			"### Artifactid1 Artifactid2 Version version {:#version}")
+		self.assertEqual(str(releaseNotes.diffLogLink),
+			"[Version version contains" + \
+			" these commits.](https://android.googlesource.com/" + \
+			"platform/frameworks/support/+log/fromSHA..untilSHA/projectDir)"
+		)
+		self.assertEqual(releaseNotes.commits, [])
+		self.assertEqual(str(releaseNotes.commitMarkdownList),
+			"\n**New Features**\n\n" + \
+			"\n**API Changes**\n\n" + \
+			"\n**Bug Fixes**\n\n" + \
+			"\n**External Contribution**\n\n"
+		)
+		self.assertEqual(releaseNotes.getFormattedReleaseSummary(),
+			"`groupId:artifactId1:version` and `groupId:artifactId2:version` are released." + \
+			" [Version version contains these commits.](https://android.googlesource.com/" + \
+			"platform/frameworks/support/+log/fromSHA..untilSHA/projectDir)\n"
+		)
+		self.assertEqual(releaseNotes.bugsFixed, [])
+
+	def test_markdownCorrectlyFormatsForThreeArtifactsWithFalseRequiresSameVersion(self):
+		releaseNotes = LibraryReleaseNotes(
+			groupId = "groupId",
+			artifactIds = ["artifactId1", "artifactId2", "artifactId3"],
+			version = "version",
+			releaseDate = "01-01-1970",
+			fromSHA = "fromSHA",
+			untilSHA = "untilSHA",
+			projectDir = "projectDir",
+			requiresSameVersion = False,
+			commitList = [],
+			forceIncludeAllCommits = False
+		)
+		self.assertEqual(releaseNotes.groupId, "groupId")
+		self.assertEqual(releaseNotes.artifactIds,
+			["artifactId1", "artifactId2", "artifactId3"])
+		self.assertEqual(releaseNotes.version, "version")
+		self.assertEqual(str(releaseNotes.releaseDate), "January 1, 1970")
+		self.assertEqual(releaseNotes.fromSHA, "fromSHA")
+		self.assertEqual(releaseNotes.untilSHA, "untilSHA")
+		self.assertEqual(releaseNotes.projectDir, "projectDir")
+		self.assertEqual(releaseNotes.requiresSameVersion, False)
+		self.assertEqual(releaseNotes.forceIncludeAllCommits, False)
+		self.assertEqual(str(releaseNotes.header),
+			"### Artifactid1 Artifactid2 Artifactid3 Version version {:#version}")
+		self.assertEqual(str(releaseNotes.diffLogLink),
+			"[Version version contains" + \
+			" these commits.](https://android.googlesource.com/" + \
+			"platform/frameworks/support/+log/fromSHA..untilSHA/projectDir)"
+		)
+		self.assertEqual(releaseNotes.commits, [])
+		self.assertEqual(str(releaseNotes.commitMarkdownList),
+			"\n**New Features**\n\n" + \
+			"\n**API Changes**\n\n" + \
+			"\n**Bug Fixes**\n\n" + \
+			"\n**External Contribution**\n\n"
+		)
+		self.assertEqual(releaseNotes.getFormattedReleaseSummary(),
+			"`groupId:artifactId1:version`, `groupId:artifactId2:version`, and " + \
+			"`groupId:artifactId3:version` are released. " + \
+			"[Version version contains these commits.](https://android.googlesource.com/" + \
+			"platform/frameworks/support/+log/fromSHA..untilSHA/projectDir)\n"
+		)
+		self.assertEqual(releaseNotes.bugsFixed, [])
+
+	def test_markdownCorrectlyFormatsForFiveArtifactsWithFalseRequiresSameVersion(self):
+		releaseNotes = LibraryReleaseNotes(
+			groupId = "groupId",
+			artifactIds = ["artifact-Id1", "artifact-Id2", "artifact-Id3",
+						   "artifact-Id4", "artifact-Id5"],
+			version = "version",
+			releaseDate = "01-01-1970",
+			fromSHA = "fromSHA",
+			untilSHA = "untilSHA",
+			projectDir = "projectDir",
+			requiresSameVersion = False,
+			commitList = [],
+			forceIncludeAllCommits = False
+		)
+		self.assertEqual(releaseNotes.groupId, "groupId")
+		self.assertEqual(releaseNotes.artifactIds,
+			["artifact-Id1", "artifact-Id2", "artifact-Id3",
+			 "artifact-Id4", "artifact-Id5"])
+		self.assertEqual(releaseNotes.version, "version")
+		self.assertEqual(str(releaseNotes.releaseDate), "January 1, 1970")
+		self.assertEqual(releaseNotes.fromSHA, "fromSHA")
+		self.assertEqual(releaseNotes.untilSHA, "untilSHA")
+		self.assertEqual(releaseNotes.projectDir, "projectDir")
+		self.assertEqual(releaseNotes.requiresSameVersion, False)
+		self.assertEqual(releaseNotes.forceIncludeAllCommits, False)
+		self.assertEqual(str(releaseNotes.header),
+			"### Groupid Version version {:#version}")
+		self.assertEqual(str(releaseNotes.diffLogLink),
+			"[Version version contains" + \
+			" these commits.](https://android.googlesource.com/" + \
+			"platform/frameworks/support/+log/fromSHA..untilSHA/projectDir)"
+		)
+		self.assertEqual(releaseNotes.commits, [])
+		self.assertEqual(str(releaseNotes.commitMarkdownList),
+			"\n**New Features**\n\n" + \
+			"\n**API Changes**\n\n" + \
+			"\n**Bug Fixes**\n\n" + \
+			"\n**External Contribution**\n\n"
+		)
+		self.assertEqual(releaseNotes.getFormattedReleaseSummary(),
+			"`groupId:artifact-*:version` is released. " + \
+			"[Version version contains these commits.](https://android.googlesource.com/" + \
+			"platform/frameworks/support/+log/fromSHA..untilSHA/projectDir)\n"
+		)
+		self.assertEqual(releaseNotes.bugsFixed, [])
+
+	def test_markdownCorrectlyCapitalizesGroupIds(self):
+		releaseNotes = LibraryReleaseNotes(
+			groupId = "androidx.recyclerview",
+			artifactIds = ["recyclerview"],
+			version = "version",
+			releaseDate = "01-01-1970",
+			fromSHA = "fromSHA",
+			untilSHA = "untilSHA",
+			projectDir = "projectDir",
+			requiresSameVersion = False,
+			commitList = [],
+			forceIncludeAllCommits = False
+		)
+		self.assertEqual(releaseNotes.groupId, "androidx.recyclerview")
+		self.assertEqual(str(releaseNotes.header),
+			"### RecyclerView Version version {:#recyclerview-version}")
+		self.assertEqual(releaseNotes.getFormattedReleaseSummary(),
+			"`androidx.recyclerview:recyclerview:version` is released. " + \
+			"[Version version contains these commits.](https://android.googlesource.com/" + \
+			"platform/frameworks/support/+log/fromSHA..untilSHA/projectDir)\n"
+		)
+
+		releaseNotes = LibraryReleaseNotes(
+			groupId = "androidx.swiperefreshlayout",
+			artifactIds = ["swiperefreshlayout"],
+			version = "version",
+			releaseDate = "01-01-1970",
+			fromSHA = "fromSHA",
+			untilSHA = "untilSHA",
+			projectDir = "projectDir",
+			requiresSameVersion = True,
+			commitList = [],
+			forceIncludeAllCommits = False
+		)
+		self.assertEqual(releaseNotes.groupId, "androidx.swiperefreshlayout")
+		self.assertEqual(str(releaseNotes.header),
+			"### SwipeRefreshLayout Version version {:#version}")
+		self.assertEqual(releaseNotes.getFormattedReleaseSummary(),
+			"`androidx.swiperefreshlayout:swiperefreshlayout:version` is released. " + \
+			"[Version version contains these commits.](https://android.googlesource.com/" + \
+			"platform/frameworks/support/+log/fromSHA..untilSHA/projectDir)\n"
+		)
 
 	def test_markdownCorrectlyFormatsGittilesLinkWithNoFromSHA(self):
 		releaseNotes = LibraryReleaseNotes(
@@ -842,6 +1088,56 @@ class TestMarkdown(unittest.TestCase):
 			" these commits.](https://android.googlesource.com/" + \
 			"platform/frameworks/support/+log/untilSHA/projectDir)"
 		)
+
+	def test_markdownCorrectlyGeneratesChannelSummary(self):
+		releaseNotes = LibraryReleaseNotes(
+			groupId = "androidx.recyclerview",
+			artifactIds = ["recyclerview"],
+			version = "1.2.0-alpha04",
+			releaseDate = "01-01-1970",
+			fromSHA = "fromSHA",
+			untilSHA = "untilSHA",
+			projectDir = "projectDir",
+			requiresSameVersion = False,
+			commitList = [],
+			forceIncludeAllCommits = False
+		)
+		self.assertEqual(str(releaseNotes.channelSummary),
+			"* [RecyclerView Version 1.2.0-alpha04]" + \
+			"(/jetpack/androidx/releases/recyclerview#recyclerview-1.2.0-alpha04)\n")
+
+		releaseNotes = LibraryReleaseNotes(
+			groupId = "groupId",
+			artifactIds = ["artifact-Id1", "artifact-Id2", "artifact-Id3",
+						   "artifact-Id4", "artifact-Id5"],
+			version = "version",
+			releaseDate = "01-01-1970",
+			fromSHA = "fromSHA",
+			untilSHA = "untilSHA",
+			projectDir = "projectDir",
+			requiresSameVersion = False,
+			commitList = [],
+			forceIncludeAllCommits = False
+		)
+		self.assertEqual(str(releaseNotes.channelSummary),
+			"* [Groupid Version version]" + \
+			"(/jetpack/androidx/releases/groupid#version)\n")
+
+		releaseNotes = LibraryReleaseNotes(
+			groupId = "groupId",
+			artifactIds = ["artifactId1", "artifactId2", "artifactId3"],
+			version = "version",
+			releaseDate = "01-01-1970",
+			fromSHA = "fromSHA",
+			untilSHA = "untilSHA",
+			projectDir = "projectDir",
+			requiresSameVersion = False,
+			commitList = [],
+			forceIncludeAllCommits = False
+		)
+		self.assertEqual(str(releaseNotes.channelSummary),
+			"* [Artifactid1 Artifactid2 Artifactid3 Version version]" + \
+			"(/jetpack/androidx/releases/groupid#version)\n")
 
 if __name__ == '__main__':
 	unittest.main()

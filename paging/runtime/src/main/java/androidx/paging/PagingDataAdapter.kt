@@ -19,11 +19,12 @@ package androidx.paging
 import androidx.lifecycle.Lifecycle
 import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.AdapterListUpdateCallback
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.MergeAdapter
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -46,16 +47,16 @@ import kotlinx.coroutines.flow.Flow
  *
  * @sample androidx.paging.samples.pagingDataAdapterSample
  */
-abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
+abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOverloads constructor(
     diffCallback: DiffUtil.ItemCallback<T>,
     mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
     workerDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : RecyclerView.Adapter<VH>() {
     private val differ = AsyncPagingDataDiffer(
-        mainDispatcher = mainDispatcher,
-        workerDispatcher = workerDispatcher,
         diffCallback = diffCallback,
-        updateCallback = AdapterListUpdateCallback(this)
+        updateCallback = AdapterListUpdateCallback(this),
+        mainDispatcher = mainDispatcher,
+        workerDispatcher = workerDispatcher
     )
 
     /**
@@ -151,31 +152,42 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     override fun getItemCount() = differ.itemCount
 
     /**
-     * Add a [LoadState] listener to observe the loading state of the current [PagingData].
+     * A hot [Flow] of [CombinedLoadStates] that emits a snapshot whenever the loading state of the
+     * current [PagingData] changes.
+     *
+     * This flow is conflated, so it buffers the last update to [CombinedLoadStates] and
+     * immediately delivers the current load states on collection.
+     */
+    @OptIn(FlowPreview::class)
+    val loadStateFlow: Flow<CombinedLoadStates> = differ.loadStateFlow
+
+    /**
+     * Add a [CombinedLoadStates] listener to observe the loading state of the current [PagingData].
      *
      * As new [PagingData] generations are submitted and displayed, the listener will be notified to
-     * reflect current [LoadType.REFRESH], [LoadType.PREPEND], and [LoadType.APPEND] states.
+     * reflect the current [CombinedLoadStates].
      *
-     * @param listener [LoadState] listener to receive updates.
+     * @param listener [LoadStates] listener to receive updates.
      *
      * @see removeLoadStateListener
+     * @sample androidx.paging.samples.addLoadStateListenerSample
      */
-    fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         differ.addLoadStateListener(listener)
     }
 
     /**
-     * Remove a previously registered [LoadState] listener.
+     * Remove a previously registered [CombinedLoadStates] listener.
      *
      * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         differ.removeLoadStateListener(listener)
     }
 
     /**
-     * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
+     * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
      * [LoadType.APPEND] [LoadState] as a list item at the end of the presented list.
      *
      * @see LoadStateAdapter
@@ -184,17 +196,15 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
      */
     fun withLoadStateHeader(
         header: LoadStateAdapter<*>
-    ): MergeAdapter {
-        addLoadStateListener { loadType, loadState ->
-            if (loadType == LoadType.PREPEND) {
-                header.loadState = loadState
-            }
+    ): ConcatAdapter {
+        addLoadStateListener { loadStates ->
+            header.loadState = loadStates.prepend
         }
-        return MergeAdapter(header, this)
+        return ConcatAdapter(header, this)
     }
 
     /**
-     * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
+     * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
      * [LoadType.PREPEND] [LoadState] as a list item at the start of the presented list.
      *
      * @see LoadStateAdapter
@@ -203,17 +213,15 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
      */
     fun withLoadStateFooter(
         footer: LoadStateAdapter<*>
-    ): MergeAdapter {
-        addLoadStateListener { loadType, loadState ->
-            if (loadType == LoadType.APPEND) {
-                footer.loadState = loadState
-            }
+    ): ConcatAdapter {
+        addLoadStateListener { loadStates ->
+            footer.loadState = loadStates.append
         }
-        return MergeAdapter(this, footer)
+        return ConcatAdapter(this, footer)
     }
 
     /**
-     * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
+     * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
      * [LoadType.PREPEND] and [LoadType.APPEND] [LoadState]s as list items at the start and end
      * respectively.
      *
@@ -224,33 +232,32 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     fun withLoadStateHeaderAndFooter(
         header: LoadStateAdapter<*>,
         footer: LoadStateAdapter<*>
-    ): MergeAdapter {
-        addLoadStateListener { loadType, loadState ->
-            if (loadType == LoadType.PREPEND) {
-                header.loadState = loadState
-            } else if (loadType == LoadType.APPEND) {
-                footer.loadState = loadState
-            }
+    ): ConcatAdapter {
+        addLoadStateListener { loadStates ->
+            header.loadState = loadStates.prepend
+            footer.loadState = loadStates.append
         }
-        return MergeAdapter(header, this, footer)
+        return ConcatAdapter(header, this, footer)
     }
 
     /**
-     * A [Flow] of [Unit] that is emitted when new [PagingData] generations are submitted and
-     * displayed.
+     * A [Flow] of [Boolean] that is emitted when new [PagingData] generations are submitted and
+     * displayed. The [Boolean] that is emitted is `true` if the new [PagingData] is empty,
+     * `false` otherwise.
      */
     @ExperimentalPagingApi
-    val dataRefreshFlow: Flow<Unit> = differ.dataRefreshFlow
+    val dataRefreshFlow: Flow<Boolean> = differ.dataRefreshFlow
 
     /**
      * Add a listener to observe new [PagingData] generations.
      *
-     * @param listener called whenever a new [PagingData] is submitted and displayed.
+     * @param listener called whenever a new [PagingData] is submitted and displayed. `true` is
+     * passed to the [listener] if the new [PagingData] is empty, `false` otherwise.
      *
      * @see removeDataRefreshListener
      */
     @ExperimentalPagingApi
-    fun addDataRefreshListener(listener: () -> Unit) {
+    fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
         differ.addDataRefreshListener(listener)
     }
 
@@ -262,7 +269,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
      * @see addDataRefreshListener
      */
     @ExperimentalPagingApi
-    fun removeDataRefreshListener(listener: () -> Unit) {
+    fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
         differ.removeDataRefreshListener(listener)
     }
 }

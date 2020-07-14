@@ -16,13 +16,15 @@
 
 package androidx.appsearch.app;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.collection.ArrayMap;
+import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.PropertyProto;
@@ -31,17 +33,17 @@ import com.google.android.icing.protobuf.ByteString;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Represents a document unit.
  *
  * <p>Documents are constructed via {@link GenericDocument.Builder}.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class GenericDocument {
     private static final String TAG = "GenericDocument";
+
+    /** The default empty namespace.*/
+    public static final String DEFAULT_NAMESPACE = "";
 
     /**
      * The maximum number of elements in a repeatable field. Will reject the request if exceed
@@ -54,6 +56,21 @@ public class GenericDocument {
      * {@link String}s longer than this.
      */
     private static final int MAX_STRING_LENGTH = 20_000;
+
+    /** The maximum number of indexed properties a document can have. */
+    private static final int MAX_INDEXED_PROPERTIES = 16;
+
+    /**
+     * The maximum number of indexed properties a document can have.
+     *
+     * <p>Indexed properties are properties where the
+     * {@link androidx.appsearch.annotation.AppSearchDocument.Property#indexingType} constant is
+     * anything other than {@link
+     * androidx.appsearch.app.AppSearchSchema.PropertyConfig.IndexingType#INDEXING_TYPE_NONE}.
+     */
+    public static int getMaxIndexedProperties() {
+        return MAX_INDEXED_PROPERTIES;
+    }
 
     /**
      * Contains {@link GenericDocument} basic information (uri, schemaType etc) and properties
@@ -75,6 +92,8 @@ public class GenericDocument {
      */
     GenericDocument(@NonNull DocumentProto proto,
             @NonNull Map<String, Object> propertiesMap) {
+        Preconditions.checkNotNull(proto);
+        Preconditions.checkNotNull(propertiesMap);
         mProto = proto;
         mProperties = propertiesMap;
     }
@@ -153,6 +172,12 @@ public class GenericDocument {
         return mProto.getUri();
     }
 
+    /** Returns the namespace of the {@link GenericDocument}. */
+    @NonNull
+    public String getNamespace() {
+        return mProto.getNamespace();
+    }
+
     /** Returns the schema type of the {@link GenericDocument}. */
     @NonNull
     public String getSchemaType() {
@@ -195,6 +220,7 @@ public class GenericDocument {
      */
     @Nullable
     public String getPropertyString(@NonNull String key) {
+        Preconditions.checkNotNull(key);
         String[] propertyArray = getPropertyStringArray(key);
         if (propertyArray == null || propertyArray.length == 0) {
             return null;
@@ -211,6 +237,7 @@ public class GenericDocument {
      *         there is no such key or the value is of a different type.
      */
     public long getPropertyLong(@NonNull String key) {
+        Preconditions.checkNotNull(key);
         long[] propertyArray = getPropertyLongArray(key);
         if (propertyArray == null || propertyArray.length == 0) {
             return 0;
@@ -227,8 +254,8 @@ public class GenericDocument {
      *         if there is no such key or the value is of a different type.
      */
     public double getPropertyDouble(@NonNull String key) {
+        Preconditions.checkNotNull(key);
         double[] propertyArray = getPropertyDoubleArray(key);
-        // TODO(tytytyww): Add support double array to ArraysUtils.isEmpty().
         if (propertyArray == null || propertyArray.length == 0) {
             return 0.0;
         }
@@ -244,6 +271,7 @@ public class GenericDocument {
      *         {@code false} if there is no such key or the value is of a different type.
      */
     public boolean getPropertyBoolean(@NonNull String key) {
+        Preconditions.checkNotNull(key);
         boolean[] propertyArray = getPropertyBooleanArray(key);
         if (propertyArray == null || propertyArray.length == 0) {
             return false;
@@ -261,6 +289,7 @@ public class GenericDocument {
      */
     @Nullable
     public byte[] getPropertyBytes(@NonNull String key) {
+        Preconditions.checkNotNull(key);
         byte[][] propertyArray = getPropertyBytesArray(key);
         if (propertyArray == null || propertyArray.length == 0) {
             return null;
@@ -278,6 +307,7 @@ public class GenericDocument {
      */
     @Nullable
     public GenericDocument getPropertyDocument(@NonNull String key) {
+        Preconditions.checkNotNull(key);
         GenericDocument[] propertyArray = getPropertyDocumentArray(key);
         if (propertyArray == null || propertyArray.length == 0) {
             return null;
@@ -306,6 +336,7 @@ public class GenericDocument {
      */
     @Nullable
     public String[] getPropertyStringArray(@NonNull String key) {
+        Preconditions.checkNotNull(key);
         return getAndCastPropertyArray(key, String[].class);
     }
 
@@ -318,6 +349,7 @@ public class GenericDocument {
      */
     @Nullable
     public long[] getPropertyLongArray(@NonNull String key) {
+        Preconditions.checkNotNull(key);
         return getAndCastPropertyArray(key, long[].class);
     }
 
@@ -330,6 +362,7 @@ public class GenericDocument {
      */
     @Nullable
     public double[] getPropertyDoubleArray(@NonNull String key) {
+        Preconditions.checkNotNull(key);
         return getAndCastPropertyArray(key, double[].class);
     }
 
@@ -342,6 +375,7 @@ public class GenericDocument {
      */
     @Nullable
     public boolean[] getPropertyBooleanArray(@NonNull String key) {
+        Preconditions.checkNotNull(key);
         return getAndCastPropertyArray(key, boolean[].class);
     }
 
@@ -352,8 +386,10 @@ public class GenericDocument {
      * @return The {@code byte[][]} associated with the given key, or {@code null} if no value
      *         is set or the value is of a different type.
      */
+    @SuppressLint("ArrayReturn")
     @Nullable
     public byte[][] getPropertyBytesArray(@NonNull String key) {
+        Preconditions.checkNotNull(key);
         return getAndCastPropertyArray(key, byte[][].class);
     }
 
@@ -361,11 +397,13 @@ public class GenericDocument {
      * Retrieves a repeated {@link GenericDocument} property by key.
      *
      * @param key The key to look for.
-     * @return The {@link GenericDocument[]} associated with the given key, or {@code null} if no
+     * @return The {@link GenericDocument}[] associated with the given key, or {@code null} if no
      *         value is set or the value is of a different type.
      */
+    @SuppressLint("ArrayReturn")
     @Nullable
     public GenericDocument[] getPropertyDocumentArray(@NonNull String key) {
+        Preconditions.checkNotNull(key);
         return getAndCastPropertyArray(key, GenericDocument[].class);
     }
 
@@ -385,6 +423,28 @@ public class GenericDocument {
             Log.w(TAG, "Error casting to requested type for key \"" + key + "\"", e);
             return null;
         }
+    }
+
+    /**
+     * Converts this GenericDocument into an instance of the provided data class.
+     *
+     * <p>It is the developer's responsibility to ensure the right kind of data class is being
+     * supplied here, either by structuring the application code to ensure the document type is
+     * known, or by checking the return value of {@link #getSchemaType}.
+     *
+     * <p>Document properties are identified by String keys and any that are found are assigned into
+     * fields of the given data class, so the most likely outcome of supplying the wrong data class
+     * would be an empty or partially populated result.
+     *
+     * @param dataClass a non-inner class annotated with
+     *     {@link androidx.appsearch.annotation.AppSearchDocument}.
+     */
+    @NonNull
+    public <T> T toDataClass(@NonNull Class<T> dataClass) throws AppSearchException {
+        Preconditions.checkNotNull(dataClass);
+        DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
+        DataClassFactory<T> factory = registry.getOrCreateFactory(dataClass);
+        return factory.fromGenericDocument(this);
     }
 
     @Override
@@ -424,23 +484,39 @@ public class GenericDocument {
         private final Map<String, Object> mProperties = new ArrayMap<>();
         private final DocumentProto.Builder mProtoBuilder = DocumentProto.newBuilder();
         private final BuilderType mBuilderTypeInstance;
+        private boolean mBuilt = false;
 
         /**
          * Create a new {@link GenericDocument.Builder}.
          *
          * @param uri The uri of {@link GenericDocument}.
          * @param schemaType The schema type of the {@link GenericDocument}. The passed-in
-         *        {@code schemaType} must be defined using {@link AppSearchManager#setSchema} prior
+         *        {@code schemaType} must be defined using {@code AppSearchManager#setSchema} prior
          *        to inserting a document of this {@code schemaType} into the AppSearch index using
-         *        {@link AppSearchManager#putDocuments}. Otherwise, the document will be
-         *        rejected by {@link AppSearchManager#putDocuments}.
+         *        {@code AppSearchManager#putDocuments}. Otherwise, the document will be
+         *        rejected by {@code AppSearchManager#putDocuments}.
          */
+        //TODO(b/157082794) Linkify AppSearchManager once that API is public.
         @SuppressWarnings("unchecked")
         public Builder(@NonNull String uri, @NonNull String schemaType) {
+            Preconditions.checkNotNull(uri);
+            Preconditions.checkNotNull(schemaType);
             mBuilderTypeInstance = (BuilderType) this;
             mProtoBuilder.setUri(uri).setSchema(schemaType);
+            mProtoBuilder.setNamespace(DEFAULT_NAMESPACE);
             // Set current timestamp for creation timestamp by default.
             setCreationTimestampMillis(System.currentTimeMillis());
+        }
+
+        /**
+         * Set the app-defined namespace this Document resides in. No special values  are
+         * reserved or understood by the infrastructure. URIs are unique within a namespace. The
+         * number of namespaces per app should be kept small for efficiency reasons.
+         */
+        @NonNull
+        public BuilderType setNamespace(@NonNull String namespace) {
+            mProtoBuilder.setNamespace(namespace);
+            return mBuilderTypeInstance;
         }
 
         /**
@@ -453,6 +529,7 @@ public class GenericDocument {
          */
         @NonNull
         public BuilderType setScore(@IntRange(from = 0, to = Integer.MAX_VALUE) int score) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
             if (score < 0) {
                 throw new IllegalArgumentException("Document score cannot be negative.");
             }
@@ -466,6 +543,7 @@ public class GenericDocument {
          */
         @NonNull
         public BuilderType setCreationTimestampMillis(long creationTimestampMillis) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
             mProtoBuilder.setCreationTimestampMs(creationTimestampMillis);
             return mBuilderTypeInstance;
         }
@@ -481,6 +559,7 @@ public class GenericDocument {
          */
         @NonNull
         public BuilderType setTtlMillis(long ttlMillis) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
             if (ttlMillis < 0) {
                 throw new IllegalArgumentException("Document ttlMillis cannot be negative.");
             }
@@ -497,6 +576,9 @@ public class GenericDocument {
          */
         @NonNull
         public BuilderType setProperty(@NonNull String key, @NonNull String... values) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(key);
+            Preconditions.checkNotNull(values);
             putInPropertyMap(key, values);
             return mBuilderTypeInstance;
         }
@@ -510,6 +592,9 @@ public class GenericDocument {
          */
         @NonNull
         public BuilderType setProperty(@NonNull String key, @NonNull boolean... values) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(key);
+            Preconditions.checkNotNull(values);
             putInPropertyMap(key, values);
             return mBuilderTypeInstance;
         }
@@ -523,6 +608,9 @@ public class GenericDocument {
          */
         @NonNull
         public BuilderType setProperty(@NonNull String key, @NonNull long... values) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(key);
+            Preconditions.checkNotNull(values);
             putInPropertyMap(key, values);
             return mBuilderTypeInstance;
         }
@@ -536,6 +624,9 @@ public class GenericDocument {
          */
         @NonNull
         public BuilderType setProperty(@NonNull String key, @NonNull double... values) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(key);
+            Preconditions.checkNotNull(values);
             putInPropertyMap(key, values);
             return mBuilderTypeInstance;
         }
@@ -548,6 +639,9 @@ public class GenericDocument {
          */
         @NonNull
         public BuilderType setProperty(@NonNull String key, @NonNull byte[]... values) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(key);
+            Preconditions.checkNotNull(values);
             putInPropertyMap(key, values);
             return mBuilderTypeInstance;
         }
@@ -561,14 +655,15 @@ public class GenericDocument {
          */
         @NonNull
         public BuilderType setProperty(@NonNull String key, @NonNull GenericDocument... values) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(key);
+            Preconditions.checkNotNull(values);
             putInPropertyMap(key, values);
             return mBuilderTypeInstance;
         }
 
         private void putInPropertyMap(@NonNull String key, @NonNull String[] values)
                 throws IllegalArgumentException {
-            Objects.requireNonNull(key);
-            Objects.requireNonNull(values);
             validateRepeatedPropertyLength(key, values.length);
             for (int i = 0; i < values.length; i++) {
                 if (values[i] == null) {
@@ -583,36 +678,26 @@ public class GenericDocument {
         }
 
         private void putInPropertyMap(@NonNull String key, @NonNull boolean[] values) {
-            Objects.requireNonNull(key);
-            Objects.requireNonNull(values);
             validateRepeatedPropertyLength(key, values.length);
             mProperties.put(key, values);
         }
 
         private void putInPropertyMap(@NonNull String key, @NonNull double[] values) {
-            Objects.requireNonNull(key);
-            Objects.requireNonNull(values);
             validateRepeatedPropertyLength(key, values.length);
             mProperties.put(key, values);
         }
 
         private void putInPropertyMap(@NonNull String key, @NonNull long[] values) {
-            Objects.requireNonNull(key);
-            Objects.requireNonNull(values);
             validateRepeatedPropertyLength(key, values.length);
             mProperties.put(key, values);
         }
 
         private void putInPropertyMap(@NonNull String key, @NonNull byte[][] values) {
-            Objects.requireNonNull(key);
-            Objects.requireNonNull(values);
             validateRepeatedPropertyLength(key, values.length);
             mProperties.put(key, values);
         }
 
         private void putInPropertyMap(@NonNull String key, @NonNull GenericDocument[] values) {
-            Objects.requireNonNull(key);
-            Objects.requireNonNull(values);
             for (int i = 0; i < values.length; i++) {
                 if (values[i] == null) {
                     throw new IllegalArgumentException("The document at " + i + " is null.");
@@ -636,6 +721,7 @@ public class GenericDocument {
         /** Builds the {@link GenericDocument} object. */
         @NonNull
         public GenericDocument build() {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
             // Build proto by sorting the keys in mProperties to exclude the influence of
             // order. Therefore documents will generate same proto as long as the contents are
             // same. Note that the order of repeated fields is still preserved.
@@ -676,6 +762,7 @@ public class GenericDocument {
                 }
                 mProtoBuilder.addProperties(propertyProto);
             }
+            mBuilt = true;
             return new GenericDocument(mProtoBuilder.build(), mProperties);
         }
     }

@@ -17,8 +17,7 @@
 package androidx.ui.animation.demos
 
 import android.util.Log
-import androidx.animation.DEBUG
-import androidx.animation.PhysicsBuilder
+import androidx.animation.SpringSpec
 import androidx.animation.fling
 import androidx.compose.Composable
 import androidx.compose.state
@@ -37,7 +36,6 @@ import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import kotlin.math.roundToInt
@@ -54,14 +52,14 @@ fun SpringBackScrollingDemo() {
         val itemWidth = state { 0f }
         val isFlinging = state { false }
         val gesture = Modifier.rawDragGestureFilter(dragObserver = object : DragObserver {
-            override fun onDrag(dragDistance: PxPosition): PxPosition {
-                animScroll.snapTo(animScroll.targetValue + dragDistance.x.value)
+            override fun onDrag(dragDistance: Offset): Offset {
+                animScroll.snapTo(animScroll.targetValue + dragDistance.x)
                 return dragDistance
             }
 
-            override fun onStop(velocity: PxPosition) {
+            override fun onStop(velocity: Offset) {
                 isFlinging.value = true
-                animScroll.fling(velocity.x.value, onEnd = { _, _, _ ->
+                animScroll.fling(velocity.x, onEnd = { _, _, _ ->
                     isFlinging.value = false
                 })
             }
@@ -89,7 +87,7 @@ fun SpringBackScrollingDemo() {
                 ) {
                     animScroll.animateTo(
                         springBackTarget,
-                        PhysicsBuilder(dampingRatio = 0.8f, stiffness = 200f)
+                        SpringSpec(dampingRatio = 0.8f, stiffness = 200f)
                     )
                 }
             }

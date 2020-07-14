@@ -18,6 +18,7 @@ package androidx.ui.test
 
 import androidx.test.filters.MediumTest
 import androidx.ui.test.android.AndroidOwnerRegistry
+import androidx.ui.test.util.expectError
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,27 +48,60 @@ class SynchronizationMethodsTest {
     }
 
     @Test
-    fun runOnIdleCompose() {
+    fun runOnIdle() {
         withAndroidOwnerRegistry {
-            val result = runOnIdleCompose { "Hello" }
+            val result = runOnIdle { "Hello" }
             assertThat(result).isEqualTo("Hello")
         }
     }
 
     @Test
-    fun runOnIdleCompose_void() {
+    fun runOnIdle_void() {
         withAndroidOwnerRegistry {
             var called = false
-            runOnIdleCompose { called = true }
+            runOnIdle { called = true }
             assertThat(called).isTrue()
         }
     }
 
     @Test
-    fun runOnIdleCompose_nullable() {
+    fun runOnIdle_nullable() {
         withAndroidOwnerRegistry {
-            val result: String? = runOnIdleCompose { null }
+            val result: String? = runOnIdle { null }
             assertThat(result).isEqualTo(null)
+        }
+    }
+
+    @Test
+    fun runOnIdle_assert_fails() {
+        withAndroidOwnerRegistry {
+            runOnIdle {
+                expectError<IllegalStateException> {
+                    onNodeWithTag("dummy").assertExists()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun runOnIdle_waitForIdle_fails() {
+        withAndroidOwnerRegistry {
+            runOnIdle {
+                expectError<IllegalStateException> {
+                    waitForIdle()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun runOnIdle_runOnIdle_fails() {
+        withAndroidOwnerRegistry {
+            runOnIdle {
+                expectError<IllegalStateException> {
+                    runOnIdle {}
+                }
+            }
         }
     }
 

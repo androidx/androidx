@@ -23,7 +23,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -33,8 +32,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ViewModelTestInTransaction {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(EmptyFragmentTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
 
     @Test
     @UiThreadTest

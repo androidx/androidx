@@ -34,8 +34,8 @@ val CellValue.type: String get() = valueType.second
 val CellValue.valueType: Pair<Any?, String>
     get() = when (oneOfCase) {
         OneOfCase.STRING_VALUE -> stringValue to "text"
-        OneOfCase.INT_VALUE -> intValue to "integer"
-        OneOfCase.FLOAT_VALUE -> floatValue to "float"
+        OneOfCase.LONG_VALUE -> longValue to "integer"
+        OneOfCase.DOUBLE_VALUE -> doubleValue to "float"
         OneOfCase.BLOB_VALUE -> blobValue.toByteArray().toTypedArray() to "blob"
         OneOfCase.ONEOF_NOT_SET -> null to "null"
         else -> throw IllegalArgumentException()

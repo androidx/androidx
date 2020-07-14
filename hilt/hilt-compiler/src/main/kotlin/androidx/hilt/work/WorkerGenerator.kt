@@ -105,13 +105,13 @@ internal class WorkerGenerator(
                     .addAnnotation(ClassNames.INTO_MAP)
                     .addAnnotation(
                         AnnotationSpec.builder(ClassNames.STRING_KEY)
-                            .addMember("value", S, injectedWorker.className.canonicalName())
+                            .addMember("value", S, injectedWorker.className.reflectionName())
                             .build())
                     .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
                     .returns(
                         ParameterizedTypeName.get(
                             ClassNames.WORKER_ASSISTED_FACTORY,
-                            WildcardTypeName.subtypeOf(ClassNames.WORKER)))
+                            WildcardTypeName.subtypeOf(ClassNames.LISTENABLE_WORKER)))
                     .addParameter(injectedWorker.factoryClassName, "factory")
                     .build())
             .build()

@@ -16,7 +16,7 @@
 
 package androidx.navigation.dynamicfeatures.fragment
 
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.dynamicfeatures.DynamicActivityNavigator
 import androidx.navigation.dynamicfeatures.DynamicGraphNavigator
 import androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator
@@ -32,8 +32,8 @@ import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
  */
 open class DynamicNavHostFragment : NavHostFragment() {
 
-    override fun onCreateNavController(navController: NavController) {
-        super.onCreateNavController(navController)
+    override fun onCreateNavHostController(navController: NavHostController) {
+        super.onCreateNavHostController(navController)
 
         val installManager = DynamicInstallManager(requireContext(), createSplitInstallManager())
         val navigatorProvider = navController.navigatorProvider

@@ -42,6 +42,7 @@ import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.testing.TestLifecycleOwner;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -51,6 +52,10 @@ import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import kotlinx.coroutines.test.TestCoroutineDispatcher;
 
@@ -808,6 +813,91 @@ public class LiveDataTest {
         mOwner.handleLifecycleEvent(ON_START);
         mutableLiveData.observe(mOwner, observer);
         verify(observer).onChanged("foo");
+    }
+
+    @Test
+    public void activeReentry_removeOnActive() {
+        mOwner.handleLifecycleEvent(ON_START);
+        final Observer<String> observer = new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+
+            }
+        };
+        final List<Boolean> activeCalls = new ArrayList<>();
+        LiveData<String> liveData = new MutableLiveData<String>("foo") {
+            @Override
+            protected void onActive() {
+                activeCalls.add(true);
+                super.onActive();
+                removeObserver(observer);
+            }
+
+            @Override
+            protected void onInactive() {
+                activeCalls.add(false);
+                super.onInactive();
+            }
+        };
+
+        liveData.observe(mOwner, observer);
+        assertThat(activeCalls, CoreMatchers.equalTo(Arrays.asList(true, false)));
+    }
+
+    @Test
+    public void activeReentry_addOnInactive() {
+        mOwner.handleLifecycleEvent(ON_START);
+        final Observer<String> observer1 = mock(Observer.class);
+        final Observer<String> observer2 = mock(Observer.class);
+        final List<Boolean> activeCalls = new ArrayList<>();
+        LiveData<String> liveData = new MutableLiveData<String>("foo") {
+            @Override
+            protected void onActive() {
+                activeCalls.add(true);
+                super.onActive();
+            }
+
+            @Override
+            protected void onInactive() {
+                activeCalls.add(false);
+                observe(mOwner, observer2);
+                super.onInactive();
+            }
+        };
+
+        liveData.observe(mOwner, observer1);
+        liveData.removeObserver(observer1);
+        liveData.removeObserver(observer2);
+        assertThat(activeCalls, CoreMatchers.equalTo(Arrays.asList(true, false, true, false,
+                true)));
+    }
+
+    @Test
+    public void activeReentry_lifecycleChangesActive() {
+        mOwner.handleLifecycleEvent(ON_START);
+        final Observer<String> observer = new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                mOwner.handleLifecycleEvent(ON_STOP);
+            }
+        };
+        final List<Boolean> activeCalls = new ArrayList<>();
+        LiveData<String> liveData = new MutableLiveData<String>("foo") {
+            @Override
+            protected void onActive() {
+                activeCalls.add(true);
+                super.onActive();
+            }
+
+            @Override
+            protected void onInactive() {
+                activeCalls.add(false);
+                super.onInactive();
+            }
+        };
+        liveData.observe(mOwner, observer);
+        assertThat(mOwner.getCurrentState(), is(Lifecycle.State.CREATED));
+        assertThat(activeCalls, is(Arrays.asList(true, false)));
     }
 
     private LifecycleEventObserver getLiveDataInternalObserver(Lifecycle lifecycle) {

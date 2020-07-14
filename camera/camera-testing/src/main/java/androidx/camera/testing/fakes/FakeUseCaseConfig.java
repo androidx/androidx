@@ -53,7 +53,8 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
 
     @Override
     public int getInputFormat() {
-        return ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+        return retrieveOption(OPTION_INPUT_FORMAT,
+                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
     }
 
     /** Builder for an empty Config */
@@ -212,6 +213,15 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         public Builder setSupportedResolutions(
                 @NonNull List<Pair<Integer, Size[]>> resolutionsList) {
             getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS, resolutionsList);
+            return this;
+        }
+
+        /**
+         * Sets specific image format to the fake use case.
+         */
+        @NonNull
+        public Builder setBufferFormat(int imageFormat) {
+            getMutableConfig().insertOption(OPTION_INPUT_FORMAT, imageFormat);
             return this;
         }
     }

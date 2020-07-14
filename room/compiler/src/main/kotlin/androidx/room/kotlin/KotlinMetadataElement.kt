@@ -35,7 +35,7 @@ class KotlinMetadataElement(
     private val constructorList: List<KmConstructor> by lazy { classMetadata.readConstructors() }
 
     private val ExecutableElement.descriptor: String
-        get() = descriptor(context.processingEnv.typeUtils)
+        get() = descriptor()
 
     /**
      * Returns the parameter names of the function or constructor if all have names embedded in the
@@ -60,6 +60,8 @@ class KotlinMetadataElement(
     fun isSuspendFunction(method: ExecutableElement) = functionList.firstOrNull {
         it.descriptor == method.descriptor
     }?.isSuspend() ?: false
+
+    fun isObject(): Boolean = classMetadata.isObject()
 
     companion object {
 

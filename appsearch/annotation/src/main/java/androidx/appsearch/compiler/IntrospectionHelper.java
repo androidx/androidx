@@ -18,7 +18,11 @@ package androidx.appsearch.compiler;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
+import com.squareup.javapoet.ClassName;
+
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -26,6 +30,10 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 
 /**
  * Utilities for working with data structures representing parsed Java code.
@@ -33,10 +41,13 @@ import javax.lang.model.element.ExecutableElement;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class IntrospectionHelper {
+    static final String APPSEARCH_PKG = "androidx.appsearch.app";
     static final String APP_SEARCH_DOCUMENT_CLASS =
             "androidx.appsearch.annotation.AppSearchDocument";
     static final String URI_CLASS =
             "androidx.appsearch.annotation.AppSearchDocument.Uri";
+    static final String NAMESPACE_CLASS =
+            "androidx.appsearch.annotation.AppSearchDocument.Namespace";
     static final String CREATION_TIMESTAMP_MILLIS_CLASS =
             "androidx.appsearch.annotation.AppSearchDocument.CreationTimestampMillis";
     static final String TTL_MILLIS_CLASS =
@@ -46,10 +57,44 @@ class IntrospectionHelper {
     static final String PROPERTY_CLASS =
             "androidx.appsearch.annotation.AppSearchDocument.Property";
 
+    final TypeMirror mCollectionType;
+    final TypeMirror mListType;
+    final TypeMirror mStringType;
+    final TypeMirror mIntegerBoxType;
+    final TypeMirror mIntPrimitiveType;
+    final TypeMirror mLongBoxType;
+    final TypeMirror mLongPrimitiveType;
+    final TypeMirror mFloatBoxType;
+    final TypeMirror mFloatPrimitiveType;
+    final TypeMirror mDoubleBoxType;
+    final TypeMirror mDoublePrimitiveType;
+    final TypeMirror mBooleanBoxType;
+    final TypeMirror mBooleanPrimitiveType;
+    final TypeMirror mByteBoxType;
+    final TypeMirror mByteArrayType;
+
     private final ProcessingEnvironment mEnv;
 
     IntrospectionHelper(ProcessingEnvironment env) {
         mEnv = env;
+
+        Elements elementUtil = env.getElementUtils();
+        Types typeUtil = env.getTypeUtils();
+        mCollectionType = elementUtil.getTypeElement(Collection.class.getName()).asType();
+        mListType = elementUtil.getTypeElement(List.class.getName()).asType();
+        mStringType = elementUtil.getTypeElement(String.class.getName()).asType();
+        mIntegerBoxType = elementUtil.getTypeElement(Integer.class.getName()).asType();
+        mIntPrimitiveType = typeUtil.unboxedType(mIntegerBoxType);
+        mLongBoxType = elementUtil.getTypeElement(Long.class.getName()).asType();
+        mLongPrimitiveType = typeUtil.unboxedType(mLongBoxType);
+        mFloatBoxType = elementUtil.getTypeElement(Float.class.getName()).asType();
+        mFloatPrimitiveType = typeUtil.unboxedType(mFloatBoxType);
+        mDoubleBoxType = elementUtil.getTypeElement(Double.class.getName()).asType();
+        mDoublePrimitiveType = typeUtil.unboxedType(mDoubleBoxType);
+        mBooleanBoxType = elementUtil.getTypeElement(Boolean.class.getName()).asType();
+        mBooleanPrimitiveType = typeUtil.unboxedType(mBooleanBoxType);
+        mByteBoxType = elementUtil.getTypeElement(Byte.class.getName()).asType();
+        mByteArrayType = typeUtil.getArrayType(typeUtil.getPrimitiveType(TypeKind.BYTE));
     }
 
     public AnnotationMirror getAnnotation(@NonNull Element element, @NonNull String fqClass)
@@ -73,5 +118,9 @@ class IntrospectionHelper {
             ret.put(key, entry.getValue().getValue());
         }
         return ret;
+    }
+
+    public ClassName getAppSearchClass(String clazz, String... nested) {
+        return ClassName.get(APPSEARCH_PKG, clazz, nested);
     }
 }

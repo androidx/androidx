@@ -16,14 +16,16 @@
 
 package androidx.ui.animation.demos
 
+import androidx.animation.spring
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
-import androidx.compose.StructurallyEqual
 import androidx.compose.remember
 import androidx.compose.state
+import androidx.compose.structuralEqualityPolicy
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.RectPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.clickable
@@ -44,25 +46,25 @@ fun MultiDimensionalAnimationDemo() {
             AnimState.PutAway -> AnimState.Collapsed
         }
     }
-    val width = state(areEquivalent = StructurallyEqual) { 0f }
-    val height = state(areEquivalent = StructurallyEqual) { 0f }
-    Transition(
+
+    val width = state(policy = structuralEqualityPolicy()) { 0f }
+    val height = state(policy = structuralEqualityPolicy()) { 0f }
+    val state = transition(
         definition = remember(width.value, height.value) {
             createTransDef(width.value, height.value)
         },
         toState = currentState.value
-    ) { state ->
-        Canvas(modifier = Modifier.fillMaxSize().clickable(onClick = onClick, indication = null)) {
-            width.value = size.width
-            height.value = size.height
+    )
+    Canvas(modifier = Modifier.fillMaxSize().clickable(onClick = onClick, indication = null)) {
+        width.value = size.width
+        height.value = size.height
 
-            val bounds = state[bounds]
-            drawRect(
-                state[background],
-                topLeft = Offset(bounds.left, bounds.top),
-                size = Size(bounds.width, bounds.height)
-            )
-        }
+        val bounds = state[bounds]
+        drawRect(
+            state[background],
+            topLeft = Offset(bounds.left, bounds.top),
+            size = Size(bounds.width, bounds.height)
+        )
     }
 }
 
@@ -95,11 +97,11 @@ private fun createTransDef(width: Float, height: Float) =
         }
 
         transition {
-            bounds using physics {
+            bounds using spring(
                 stiffness = 100f
-            }
-            background using tween {
-                duration = 500
-            }
+            )
+            background using tween(
+                durationMillis = 500
+            )
         }
     }

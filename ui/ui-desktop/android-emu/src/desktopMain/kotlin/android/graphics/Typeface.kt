@@ -16,12 +16,16 @@
 
 package android.graphics
 
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+
 private const val NORMAL_FONT_NAME = "NotoSans-Regular"
 private const val BOLD_FONT_NAME = "NotoSans-Bold"
 private const val ITALIC_FONT_NAME = "NotoSans-Italic"
 private const val BOLD_ITALIC_FONT_NAME = "NotoSans-BoldItalic"
 
-class Typeface(val skijaTypeface: org.jetbrains.skija.Typeface) {
+class Typeface(internal val skijaTypeface: org.jetbrains.skija.Typeface) {
     companion object {
         // TODO: Skija should make it possible to make fonts from non-file in-memory source
         val NORMAL_TYPEFACE = Typeface(org.jetbrains.skija.Typeface.makeFromFile(
@@ -59,5 +63,15 @@ class Typeface(val skijaTypeface: org.jetbrains.skija.Typeface) {
 }
 
 fun getFontPathAsString(font: String): String {
-    return Typeface::class.java.getClassLoader().getResource("$font.ttf").getFile()
+    val tempDir = File(System.getProperty("java.io.tmpdir"), "compose").apply {
+        mkdirs()
+        deleteOnExit()
+    }
+    val tempFile = File(tempDir, "$font.ttf").apply {
+        deleteOnExit()
+    }
+    val stream = Typeface::class.java.getClassLoader().getResourceAsStream("$font.ttf")
+    if (stream == null) throw Error("Cannoty find font $font")
+    Files.copy(stream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+    return tempFile.absolutePath
 }

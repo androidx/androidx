@@ -296,6 +296,13 @@ public final class CustomTabsIntent {
             "androidx.browser.customtabs.extra.NAVIGATION_BAR_COLOR";
 
     /**
+     * Extra that contains the color of the navigation bar divider.
+     * See {@link Builder#setNavigationBarDividerColor}.
+     */
+    public static final String EXTRA_NAVIGATION_BAR_DIVIDER_COLOR =
+            "androidx.browser.customtabs.extra.NAVIGATION_BAR_DIVIDER_COLOR";
+
+    /**
      * Key that specifies the unique ID for an action button. To make a button to show on the
      * toolbar, use {@link #TOOLBAR_ACTION_BUTTON_ID} as its ID.
      */
@@ -429,10 +436,23 @@ public final class CustomTabsIntent {
 
         /**
          * Enables the url bar to hide as the user scrolls down on the page.
+         * @deprecated Use {@link #setUrlBarHidingEnabled(boolean)} instead.
          */
+        @Deprecated
         @NonNull
         public Builder enableUrlBarHiding() {
             mIntent.putExtra(EXTRA_ENABLE_URLBAR_HIDING, true);
+            return this;
+        }
+
+        /**
+         * Set whether the url bar should hide as the user scrolls down on the page.
+         *
+         * @param enabled Whether url bar hiding is enabled.
+         */
+        @NonNull
+        public Builder setUrlBarHidingEnabled(boolean enabled) {
+            mIntent.putExtra(EXTRA_ENABLE_URLBAR_HIDING, enabled);
             return this;
         }
 
@@ -477,10 +497,23 @@ public final class CustomTabsIntent {
 
         /**
          * Adds a default share item to the menu.
+         * @deprecated Use {@link #setDefaultShareMenuItemEnabled(boolean)} instead.
          */
+        @Deprecated
         @NonNull
         public Builder addDefaultShareMenuItem() {
             mIntent.putExtra(EXTRA_DEFAULT_SHARE_MENU_ITEM, true);
+            return this;
+        }
+
+        /**
+         * Set whether a default share item is added to the menu.
+         *
+         * @param enabled Whether default share item is added.
+         */
+        @NonNull
+        public Builder setDefaultShareMenuItemEnabled(boolean enabled) {
+            mIntent.putExtra(EXTRA_DEFAULT_SHARE_MENU_ITEM, enabled);
             return this;
         }
 
@@ -587,6 +620,19 @@ public final class CustomTabsIntent {
         @NonNull
         public Builder setNavigationBarColor(@ColorInt int color) {
             mDefaultColorSchemeBuilder.setNavigationBarColor(color);
+            return this;
+        }
+
+        /**
+         * Sets the navigation bar divider color. Has no effect on API versions below P.
+         *
+         * Can be overridden for particular color schemes, see {@link #setColorSchemeParams}.
+         *
+         * @param color The color for the navigation bar divider.
+         */
+        @NonNull
+        public Builder setNavigationBarDividerColor(@ColorInt int color) {
+            mDefaultColorSchemeBuilder.setNavigationBarDividerColor(color);
             return this;
         }
 

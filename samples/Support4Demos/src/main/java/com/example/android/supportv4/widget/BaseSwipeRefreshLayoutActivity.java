@@ -76,6 +76,7 @@ abstract class BaseSwipeRefreshLayoutActivity extends FragmentActivity
 
     private SwipeRefreshLayout mSwipeRefreshWidget;
 
+    @SuppressWarnings("deprecation")
     private final Handler mHandler = new Handler();
     private MyViewModel mViewModel;
 

@@ -1,16 +1,20 @@
 package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.DataClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import java.lang.Integer;
+import java.lang.Override;
 import java.lang.String;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.TreeSet;
 
-class $$__AppSearch__Gift {
-  public static final String SCHEMA_TYPE = "Gift";
+public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
+  private static final String SCHEMA_TYPE = "Gift";
 
-  public static final AppSearchSchema SCHEMA = new AppSearchSchema.Builder(SCHEMA_TYPE)
+  private static final AppSearchSchema SCHEMA = new AppSearchSchema.Builder(SCHEMA_TYPE)
     .addProperty(new AppSearchSchema.PropertyConfig.Builder("listOfString")
       .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
       .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
@@ -37,6 +41,17 @@ class $$__AppSearch__Gift {
       .build())
     .build();
 
+  @Override
+  public String getSchemaType() {
+    return SCHEMA_TYPE;
+  }
+
+  @Override
+  public AppSearchSchema getSchema() {
+    return SCHEMA;
+  }
+
+  @Override
   public GenericDocument toGenericDocument(Gift dataClass) {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
@@ -45,7 +60,7 @@ class $$__AppSearch__Gift {
       String[] listOfStringConv = listOfStringCopy.toArray(new String[0]);
       builder.setProperty("listOfString", listOfStringConv);
     }
-    TreeSet<Integer> setOfIntCopy = dataClass.setOfInt;
+    Collection<Integer> setOfIntCopy = dataClass.setOfInt;
     if (setOfIntCopy != null) {
       long[] setOfIntConv = new long[setOfIntCopy.size()];
       int i = 0;
@@ -63,5 +78,36 @@ class $$__AppSearch__Gift {
       builder.setProperty("byteArray", byteArrayCopy);
     }
     return builder.build();
+  }
+
+  @Override
+  public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String uriConv = genericDoc.getUri();
+    String[] listOfStringCopy = genericDoc.getPropertyStringArray("listOfString");
+    List<String> listOfStringConv = null;
+    if (listOfStringCopy != null) {
+      listOfStringConv = Arrays.asList(listOfStringCopy);
+    }
+    long[] setOfIntCopy = genericDoc.getPropertyLongArray("setOfInt");
+    List<Integer> setOfIntConv = null;
+    if (setOfIntCopy != null) {
+      setOfIntConv = new ArrayList<>(setOfIntCopy.length);
+      for (int i = 0; i < setOfIntCopy.length; i++) {
+        setOfIntConv.set(i, setOfIntCopy[i]);
+      }
+    }
+    byte[][] repeatedByteArrayConv = genericDoc.getPropertyBytesArray("repeatedByteArray");
+    byte[][] byteArrayCopy = genericDoc.getPropertyBytesArray("byteArray");
+    byte[] byteArrayConv = null;
+    if (byteArrayCopy != null && byteArrayCopy.length != 0) {
+      byteArrayConv = byteArrayCopy[0];
+    }
+    Gift dataClass = new Gift();
+    dataClass.uri = uriConv;
+    dataClass.listOfString = listOfStringConv;
+    dataClass.setOfInt = setOfIntConv;
+    dataClass.repeatedByteArray = repeatedByteArrayConv;
+    dataClass.byteArray = byteArrayConv;
+    return dataClass;
   }
 }

@@ -16,19 +16,32 @@
 
 package androidx.contentaccess.compiler.processor
 
-import androidx.contentaccess.ext.getAllFieldsIncludingPrivateSupers
+import androidx.contentaccess.compiler.vo.PojoFieldVO
+import androidx.contentaccess.ext.hasAnnotation
+import androidx.contentaccess.ContentColumn
+import androidx.contentaccess.ContentPrimaryKey
+import androidx.contentaccess.compiler.vo.PojoVO
+import androidx.contentaccess.ext.getAllConstructorParamsOrPublicFields
 import asTypeElement
-import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.TypeMirror
 
-class PojoProcessor(val typeMirror: TypeMirror, val processingEnv: ProcessingEnvironment) {
-    fun process(): Map<String, TypeMirror> {
-        val pojoFields = HashMap<String, TypeMirror>()
-        // TODO(obenabde): change this to only consider the constructor params
-        typeMirror.asTypeElement().getAllFieldsIncludingPrivateSupers(processingEnv).forEach {
-            field ->
-            pojoFields.put(field.simpleName.toString(), field.asType())
+class PojoProcessor(val typeMirror: TypeMirror) {
+    fun process(): PojoVO {
+        val returnList = mutableListOf<PojoFieldVO>()
+        val variables = typeMirror.asTypeElement()
+            .getAllConstructorParamsOrPublicFields()
+        for (v in variables) {
+            val type = v.asType()
+            val name = v.simpleName.toString()
+            val columnName = if (v.hasAnnotation(ContentColumn::class)) {
+                v.getAnnotation(ContentColumn::class.java).columnName
+            } else if (v.hasAnnotation(ContentPrimaryKey::class)) {
+                v.getAnnotation(ContentPrimaryKey::class.java).columnName
+            } else {
+                name
+            }
+            returnList.add(PojoFieldVO(name, columnName, type, fieldIsNullable(v)))
         }
-        return pojoFields
+        return PojoVO(returnList, typeMirror)
     }
 }

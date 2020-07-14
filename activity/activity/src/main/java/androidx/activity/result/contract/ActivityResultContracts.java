@@ -261,7 +261,7 @@ public final class ActivityResultContracts {
         public Boolean parseResult(int resultCode, @Nullable Intent intent) {
             if (intent == null || resultCode != Activity.RESULT_OK) return false;
             int[] grantResults = intent.getIntArrayExtra(EXTRA_PERMISSION_GRANT_RESULTS);
-            if (grantResults == null) return false;
+            if (grantResults == null || grantResults.length == 0) return false;
             return grantResults[0] == PackageManager.PERMISSION_GRANTED;
         }
 
@@ -576,10 +576,10 @@ public final class ActivityResultContracts {
             return null;
         }
 
-        @Nullable
+        @NonNull
         @Override
         public final List<Uri> parseResult(int resultCode, @Nullable Intent intent) {
-            if (resultCode != Activity.RESULT_OK || intent == null) return null;
+            if (resultCode != Activity.RESULT_OK || intent == null) return Collections.emptyList();
             return GetMultipleContents.getClipDataUris(intent);
         }
     }

@@ -47,6 +47,13 @@ object Sources {
         )
     }
 
+    val LISTENABLE_WORKER by lazy {
+        loadJavaSource(
+            "ListenableWorker.java",
+            ClassNames.LISTENABLE_WORKER.toString()
+        )
+    }
+
     val WORKER by lazy {
         loadJavaSource(
             "Worker.java",

@@ -138,22 +138,6 @@ class MultiInstanceInvalidationClient {
         }
     };
 
-    private final Runnable mTearDownRunnable = new Runnable() {
-        @Override
-        public void run() {
-            mInvalidationTracker.removeObserver(mObserver);
-            try {
-                final IMultiInstanceInvalidationService service = mService;
-                if (service != null) {
-                    service.unregisterCallback(mCallback, mClientId);
-                }
-            } catch (RemoteException e) {
-                Log.w(Room.LOG_TAG, "Cannot unregister multi-instance invalidation callback", e);
-            }
-            mAppContext.unbindService(mServiceConnection);
-        }
-    };
-
     /**
      * @param context             The Context to be used for binding
      *                            {@link IMultiInstanceInvalidationService}.
@@ -196,7 +180,16 @@ class MultiInstanceInvalidationClient {
 
     void stop() {
         if (mStopped.compareAndSet(false, true)) {
-            mExecutor.execute(mTearDownRunnable);
+            mInvalidationTracker.removeObserver(mObserver);
+            try {
+                final IMultiInstanceInvalidationService service = mService;
+                if (service != null) {
+                    service.unregisterCallback(mCallback, mClientId);
+                }
+            } catch (RemoteException e) {
+                Log.w(Room.LOG_TAG, "Cannot unregister multi-instance invalidation callback", e);
+            }
+            mAppContext.unbindService(mServiceConnection);
         }
     }
 }

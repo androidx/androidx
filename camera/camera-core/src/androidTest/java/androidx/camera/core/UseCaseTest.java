@@ -70,8 +70,9 @@ public class UseCaseTest {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
         TestUseCase testUseCase = new TestUseCase(config);
+
         testUseCase.onAttach(mMockCameraInternal);
-        testUseCase.onDetach();
+        testUseCase.onDetach(mMockCameraInternal);
 
         testUseCase.activate();
 

@@ -54,7 +54,6 @@ import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.session.MediaSession.SessionCallback;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import junit.framework.Assert;
 
@@ -71,7 +70,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests {@link MediaSession}.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaSessionTest extends MediaSessionTestBase {
@@ -139,6 +137,12 @@ public class MediaSessionTest extends MediaSessionTestBase {
                 .setId("").build()) {
             // Using empty string as Id shouldn't crash.
         }
+    }
+
+    @Test
+    public void close_noException() {
+        MediaSession session = new MediaSession.Builder(mContext, mPlayer).build();
+        session.close();
     }
 
     @Test
@@ -662,7 +666,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     public void getSessionCompatToken_returnsCompatibleWithMediaControllerCompat()
             throws Exception {
         String expectedControllerCompatPackageName =
-                (21 <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT <= 24)
+                (21 <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT < 24)
                         ? MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER
                         : mContext.getPackageName();
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)

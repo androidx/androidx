@@ -552,7 +552,7 @@ package android.support.v4.media.session {
 
 package androidx.media {
 
-  public class AudioAttributesCompat implements androidx.versionedparcelable.VersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize(jetifyAs="android.support.v4.media.AudioAttributesCompat") public class AudioAttributesCompat implements androidx.versionedparcelable.VersionedParcelable {
     method public int getContentType();
     method public int getFlags();
     method public int getLegacyStreamType();
@@ -616,6 +616,8 @@ package androidx.media {
 
   public final class AudioManagerCompat {
     method public static int abandonAudioFocusRequest(android.media.AudioManager, androidx.media.AudioFocusRequestCompat);
+    method @IntRange(from=0) public static int getStreamMaxVolume(android.media.AudioManager, @androidx.core.app.NotificationCompat.StreamType int);
+    method @IntRange(from=0) public static int getStreamMinVolume(android.media.AudioManager, @androidx.core.app.NotificationCompat.StreamType int);
     method public static int requestAudioFocus(android.media.AudioManager, androidx.media.AudioFocusRequestCompat);
     field public static final int AUDIOFOCUS_GAIN = 1; // 0x1
     field public static final int AUDIOFOCUS_GAIN_TRANSIENT = 2; // 0x2
@@ -678,9 +680,11 @@ package androidx.media {
 
   public abstract class VolumeProviderCompat {
     ctor public VolumeProviderCompat(@androidx.media.VolumeProviderCompat.ControlType int, int, int);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public VolumeProviderCompat(@androidx.media.VolumeProviderCompat.ControlType int, int, int, String?);
     method public final int getCurrentVolume();
     method public final int getMaxVolume();
     method @androidx.media.VolumeProviderCompat.ControlType public final int getVolumeControl();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final String? getVolumeControlId();
     method public Object! getVolumeProvider();
     method public void onAdjustVolume(int);
     method public void onSetVolumeTo(int);

@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity() {
                 orientation = VERTICAL
 
                 button("Request location permission") {
-                    requestLocation()
+                    requestLocation.launch()
                 }
                 button("Get picture thumbnail") {
                     takePicturePreview.launch()

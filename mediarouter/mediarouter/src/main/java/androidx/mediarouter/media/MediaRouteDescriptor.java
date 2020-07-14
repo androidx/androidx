@@ -17,6 +17,7 @@ package androidx.mediarouter.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.annotation.SuppressLint;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.net.Uri;
@@ -438,6 +439,20 @@ public final class MediaRouteDescriptor {
         }
 
         /**
+         * Clears the group member IDs of the route.
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public Builder clearGroupMemberIds() {
+            if (mGroupMemberIds == null) {
+                mGroupMemberIds = new ArrayList<>();
+            } else {
+                mGroupMemberIds.clear();
+            }
+            return this;
+        }
+
+        /**
          * Adds a group member id of the route.
          * <p>
          * A route descriptor that has one or more group member route ids
@@ -745,6 +760,7 @@ public final class MediaRouteDescriptor {
         /**
          * Builds the {@link MediaRouteDescriptor media route descriptor}.
          */
+        @SuppressLint("UnknownNullness")
         public MediaRouteDescriptor build() {
             if (mControlFilters != null) {
                 mBundle.putParcelableArrayList(KEY_CONTROL_FILTERS, mControlFilters);

@@ -127,6 +127,22 @@ class NavDestinationTest {
     }
 
     @Test
+    fun buildDeepLinkIdsToStartDestination() {
+        val destination = NoOpNavigator().createDestination()
+        destination.id = DESTINATION_ID
+        val parentId = 2
+        val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
+        val parent = navGraphNavigator.createDestination().apply {
+            id = parentId
+            startDestination = DESTINATION_ID
+        }
+        destination.parent = parent
+        val deepLinkIds = destination.buildDeepLinkIds()
+        assertThat(deepLinkIds.size).isEqualTo(1)
+        assertThat(deepLinkIds).asList().containsExactly(parentId)
+    }
+
+    @Test
     fun buildDeepLinkIds() {
         val destination = NoOpNavigator().createDestination()
         destination.id = DESTINATION_ID
@@ -139,6 +155,70 @@ class NavDestinationTest {
         val deepLinkIds = destination.buildDeepLinkIds()
         assertThat(deepLinkIds.size).isEqualTo(2)
         assertThat(deepLinkIds).asList().containsExactly(parentId, DESTINATION_ID)
+    }
+
+    @Test
+    fun buildDeepLinkIdsToNestedStartDestination() {
+        val destination = NoOpNavigator().createDestination()
+        destination.id = DESTINATION_ID
+        val parentId = 2
+        val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
+        val parent = navGraphNavigator.createDestination().apply {
+            id = parentId
+            startDestination = DESTINATION_ID
+        }
+        destination.parent = parent
+        val grandparentId = 3
+        val grandparent = navGraphNavigator.createDestination().apply {
+            id = grandparentId
+            startDestination = parentId
+        }
+        parent.parent = grandparent
+        val deepLinkIds = destination.buildDeepLinkIds()
+        assertThat(deepLinkIds.size).isEqualTo(1)
+        assertThat(deepLinkIds).asList().containsExactly(grandparentId)
+    }
+
+    @Test
+    fun buildDeepLinkIdsWithNestedStartDestination() {
+        val destination = NoOpNavigator().createDestination()
+        destination.id = DESTINATION_ID
+        val parentId = 2
+        val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
+        val parent = navGraphNavigator.createDestination().apply {
+            id = parentId
+        }
+        destination.parent = parent
+        val grandparentId = 3
+        val grandparent = navGraphNavigator.createDestination().apply {
+            id = grandparentId
+            startDestination = parentId
+        }
+        parent.parent = grandparent
+        val deepLinkIds = destination.buildDeepLinkIds()
+        assertThat(deepLinkIds.size).isEqualTo(2)
+        assertThat(deepLinkIds).asList().containsExactly(grandparentId, DESTINATION_ID)
+    }
+
+    @Test
+    fun buildDeepLinkIdsPreviousSame() {
+        val destination = NoOpNavigator().createDestination()
+        destination.id = DESTINATION_ID
+        val parentId = 2
+        val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
+        val parent = navGraphNavigator.createDestination().apply {
+            id = parentId
+        }
+        destination.parent = parent
+        val grandparentId = 3
+        val grandparent = navGraphNavigator.createDestination().apply {
+            id = grandparentId
+            startDestination = parentId
+        }
+        parent.parent = grandparent
+        val deepLinkIds = destination.buildDeepLinkIds()
+        assertThat(deepLinkIds.size).isEqualTo(2)
+        assertThat(deepLinkIds).asList().containsExactly(grandparentId, DESTINATION_ID)
     }
 
     @Test

@@ -33,23 +33,36 @@ import androidx.ui.graphics.vector.Path
 import androidx.ui.graphics.vector.PathBuilder
 import androidx.ui.graphics.vector.PathData
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.graphics.vector.VectorScope
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
-import androidx.ui.layout.wrapContentSize
 import androidx.ui.res.loadVectorResource
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
 @Composable
 fun VectorGraphicsDemo() {
-    Column(modifier = Modifier.wrapContentSize(Alignment.Center)) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalGravity = Alignment.CenterHorizontally
+    ) {
         val vectorAsset = loadVectorResource(R.drawable.ic_crane)
         vectorAsset.resource.resource?.let {
             Image(
                 asset = it,
                 modifier = Modifier.preferredSize(200.dp, 200.dp),
                 contentScale = ContentScale.Inside
+            )
+        }
+
+        val complexVectorAsset = loadVectorResource(R.drawable.ic_hourglass)
+        complexVectorAsset.resource.resource?.let {
+            Image(
+                asset = it,
+                modifier = Modifier.preferredSize(64.dp, 64.dp),
+                contentScale = ContentScale.Fit
             )
         }
 
@@ -108,7 +121,7 @@ private fun vectorShape(width: Dp, height: Dp): Painter =
 }
 
 @Composable
-private fun VectorScope.BackgroundPath(vectorWidth: Float, vectorHeight: Float) {
+private fun BackgroundPath(vectorWidth: Float, vectorHeight: Float) {
     val background = PathData {
         horizontalLineTo(vectorWidth)
         verticalLineTo(vectorHeight)
@@ -129,7 +142,7 @@ private fun VectorScope.BackgroundPath(vectorWidth: Float, vectorHeight: Float) 
 }
 
 @Composable
-private fun VectorScope.Triangle() {
+private fun Triangle() {
     val length = 150.0f
     Path(
         fill = RadialGradient(
@@ -152,7 +165,7 @@ private fun VectorScope.Triangle() {
 }
 
 @Composable
-private fun VectorScope.TriangleWithOffsets() {
+private fun TriangleWithOffsets() {
 
     val side1 = 150.0f
     val side2 = 150.0f
@@ -174,7 +187,7 @@ private fun VectorScope.TriangleWithOffsets() {
 }
 
 @Composable
-private fun VectorScope.StripePath(vectorWidth: Float, vectorHeight: Float) {
+private fun StripePath(vectorWidth: Float, vectorHeight: Float) {
     val stripeDelegate = PathData {
         stripe(vectorWidth, vectorHeight, 10)
     }

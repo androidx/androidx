@@ -1,18 +1,20 @@
 package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.DataClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import java.lang.Boolean;
 import java.lang.Double;
 import java.lang.Float;
 import java.lang.Integer;
 import java.lang.Long;
+import java.lang.Override;
 import java.lang.String;
 
-class $$__AppSearch__Gift {
-  public static final String SCHEMA_TYPE = "Gift";
+public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
+  private static final String SCHEMA_TYPE = "Gift";
 
-  public static final AppSearchSchema SCHEMA = new AppSearchSchema.Builder(SCHEMA_TYPE)
+  private static final AppSearchSchema SCHEMA = new AppSearchSchema.Builder(SCHEMA_TYPE)
     .addProperty(new AppSearchSchema.PropertyConfig.Builder("stringProp")
       .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
       .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
@@ -57,6 +59,17 @@ class $$__AppSearch__Gift {
       .build())
     .build();
 
+  @Override
+  public String getSchemaType() {
+    return SCHEMA_TYPE;
+  }
+
+  @Override
+  public AppSearchSchema getSchema() {
+    return SCHEMA;
+  }
+
+  @Override
   public GenericDocument toGenericDocument(Gift dataClass) {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
@@ -89,5 +102,55 @@ class $$__AppSearch__Gift {
       builder.setProperty("bytesProp", bytesPropCopy);
     }
     return builder.build();
+  }
+
+  @Override
+  public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String uriConv = genericDoc.getUri();
+    String[] stringPropCopy = genericDoc.getPropertyStringArray("stringProp");
+    String stringPropConv = null;
+    if (stringPropCopy != null && stringPropCopy.length != 0) {
+      stringPropConv = stringPropCopy[0];
+    }
+    long[] integerPropCopy = genericDoc.getPropertyLongArray("integerProp");
+    Integer integerPropConv = null;
+    if (integerPropCopy != null && integerPropCopy.length != 0) {
+      integerPropConv = integerPropCopy[0];
+    }
+    long[] longPropCopy = genericDoc.getPropertyLongArray("longProp");
+    Long longPropConv = null;
+    if (longPropCopy != null && longPropCopy.length != 0) {
+      longPropConv = longPropCopy[0];
+    }
+    double[] floatPropCopy = genericDoc.getPropertyDoubleArray("floatProp");
+    Float floatPropConv = null;
+    if (floatPropCopy != null && floatPropCopy.length != 0) {
+      floatPropConv = floatPropCopy[0];
+    }
+    double[] doublePropCopy = genericDoc.getPropertyDoubleArray("doubleProp");
+    Double doublePropConv = null;
+    if (doublePropCopy != null && doublePropCopy.length != 0) {
+      doublePropConv = doublePropCopy[0];
+    }
+    boolean[] booleanPropCopy = genericDoc.getPropertyBooleanArray("booleanProp");
+    Boolean booleanPropConv = null;
+    if (booleanPropCopy != null && booleanPropCopy.length != 0) {
+      booleanPropConv = booleanPropCopy[0];
+    }
+    byte[][] bytesPropCopy = genericDoc.getPropertyBytesArray("bytesProp");
+    byte[] bytesPropConv = null;
+    if (bytesPropCopy != null && bytesPropCopy.length != 0) {
+      bytesPropConv = bytesPropCopy[0];
+    }
+    Gift dataClass = new Gift();
+    dataClass.uri = uriConv;
+    dataClass.stringProp = stringPropConv;
+    dataClass.integerProp = integerPropConv;
+    dataClass.longProp = longPropConv;
+    dataClass.floatProp = floatPropConv;
+    dataClass.doubleProp = doublePropConv;
+    dataClass.booleanProp = booleanPropConv;
+    dataClass.bytesProp = bytesPropConv;
+    return dataClass;
   }
 }

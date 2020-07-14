@@ -22,9 +22,9 @@ internal fun obfuscateNodesInfo(message: String): String {
     var result = message.trim()
     // Semantics uses a static object to generate ids. This object lives between tests. So the order
     // of tests affects the IDs assigned. To prevent flakes we obfuscate the IDs.
-    result = result.replace("Id: [0-9]+,".toRegex(), "Id: X,")
+    result = result.replace("#[0-9]+ at".toRegex(), "#X at")
     // We also obfuscate pixel values just to reduce dependency on layout changes.
-    result = result.replace("[0-9]+\\.[0-9]+\\.px".toRegex(), "X.px")
+    result = result.replace("[0-9]+\\.[0-9]+".toRegex(), "X")
     return result
 }
 

@@ -19,11 +19,15 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.IndicationAmbient
+import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.clickable
+import androidx.ui.foundation.indication
 import androidx.ui.foundation.shape.corner.CornerSize
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
@@ -33,7 +37,6 @@ import androidx.ui.layout.defaultMinSizeConstraints
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidth
-import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -66,25 +69,28 @@ fun FloatingActionButton(
     elevation: Dp = 6.dp,
     icon: @Composable () -> Unit
 ) {
-    // Since we're adding layouts in between the clickable layer and the content, we need to
-    // merge all descendants, or we'll get multiple nodes
-    Semantics(container = true, mergeAllDescendants = true) {
-        Surface(
-            modifier = modifier,
-            shape = shape,
-            color = backgroundColor,
-            contentColor = contentColor,
-            elevation = elevation
-        ) {
-            ProvideTextStyle(MaterialTheme.typography.button) {
-                Box(
-                    modifier = Modifier
-                        .defaultMinSizeConstraints(minWidth = FabSize, minHeight = FabSize)
-                        .clickable(onClick = onClick),
-                    gravity = ContentGravity.Center,
-                    children = icon
-                )
-            }
+    // TODO(aelias): Avoid manually managing the ripple once http://b/157687898
+    // is fixed and we have more flexibility to move the clickable modifier
+    // (see candidate approach aosp/1361921)
+    val interactionState = remember { InteractionState() }
+    Surface(
+        modifier = modifier.clickable(
+            onClick = onClick,
+            interactionState = interactionState,
+            indication = null),
+        shape = shape,
+        color = backgroundColor,
+        contentColor = contentColor,
+        elevation = elevation
+    ) {
+        ProvideTextStyle(MaterialTheme.typography.button) {
+            Box(
+                modifier = Modifier
+                    .defaultMinSizeConstraints(minWidth = FabSize, minHeight = FabSize)
+                    .indication(interactionState, IndicationAmbient.current()),
+                gravity = ContentGravity.Center,
+                children = icon
+            )
         }
     }
 }
@@ -96,6 +102,12 @@ fun FloatingActionButton(
  * [FloatingActionButton] for a FAB that just contains some content, typically an icon.
  *
  * @sample androidx.ui.material.samples.SimpleExtendedFabWithIcon
+ *
+ * If you want FAB’s container to have a fluid width (to be defined by its relationship to something
+ * else on screen, such as screen width or the layout grid) just apply an appropriate modifier.
+ * For example to fill the whole available width you can do:
+ *
+ * @sample androidx.ui.material.samples.FluidExtendedFab
  *
  * @param text Text label displayed inside this FAB
  * @param icon Optional icon for this FAB, typically this will be a [androidx.ui.foundation.Icon]

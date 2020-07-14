@@ -65,6 +65,11 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         return mCameraId;
     }
 
+    @NonNull
+    public CameraCharacteristics getCameraCharacteristics() {
+        return mCameraCharacteristics;
+    }
+
     @Nullable
     @Override
     public Integer getLensFacing() {

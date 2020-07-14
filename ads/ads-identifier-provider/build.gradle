@@ -42,12 +42,6 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-}
-
 androidx {
     name = "AndroidX Ads Identifier Provider"
     publish = Publish.SNAPSHOT_AND_RELEASE

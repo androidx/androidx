@@ -25,7 +25,6 @@ import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -91,8 +90,11 @@ class DialogFragmentDismissTest(
         }
     }
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule(EmptyFragmentTestActivity::class.java)
+    var activityTestRule = androidx.test.rule.ActivityTestRule(
+        EmptyFragmentTestActivity::class.java
+    )
 
     @Test
     fun testDialogFragmentDismiss() {

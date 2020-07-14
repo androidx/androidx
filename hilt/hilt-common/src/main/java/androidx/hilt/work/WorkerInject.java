@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 import dagger.hilt.GeneratesRootInput;
 
 /**
- * Identifies a {@link androidx.work.Worker}'s constructor for injection.
+ * Identifies a {@link androidx.work.ListenableWorker}'s constructor for injection.
  * <p>
  * Similar to {@link javax.inject.Inject}, a {@code Worker} containing a constructor annotated
  * with {@code WorkerInject} will have its dependencies defined in the constructor parameters
@@ -44,8 +44,7 @@ import dagger.hilt.GeneratesRootInput;
  * }
  * </pre>
  * <pre>
- * &#64;GenerateComponents
- * &#64;AndroidEntryPoint
+ * &#64;HiltAndroidApp
  * public class MyApplication extends Application implements Configuration.Provider {
  *     &#64;Inject HiltWorkerFactory workerFactory;
  *

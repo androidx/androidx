@@ -16,7 +16,10 @@
 
 package androidx.activity.result
 
+import android.content.Context
+import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.core.app.ActivityOptionsCompat
 
 /**
  * A version of [ActivityResultCaller.registerForActivityResult]
@@ -25,13 +28,14 @@ import androidx.activity.result.contract.ActivityResultContract
  *
  * @see ActivityResultCaller.registerForActivityResult
  */
-inline fun <I, O> ActivityResultCaller.registerForActivityResult(
+fun <I, O> ActivityResultCaller.registerForActivityResult(
     contract: ActivityResultContract<I, O>,
     input: I,
     registry: ActivityResultRegistry,
-    crossinline callback: (O) -> Unit
-): () -> Unit {
-    return { registerForActivityResult(contract, registry) { callback(it) }.launch(input) }
+    callback: (O) -> Unit
+): ActivityResultLauncher<Unit> {
+    val resultLauncher = registerForActivityResult(contract, registry) { callback(it) }
+    return ActivityResultCallerLauncher(resultLauncher, contract, input)
 }
 
 /**
@@ -41,10 +45,41 @@ inline fun <I, O> ActivityResultCaller.registerForActivityResult(
  *
  * @see ActivityResultCaller.registerForActivityResult
  */
-inline fun <I, O> ActivityResultCaller.registerForActivityResult(
+fun <I, O> ActivityResultCaller.registerForActivityResult(
     contract: ActivityResultContract<I, O>,
     input: I,
-    crossinline callback: (O) -> Unit
-): () -> Unit {
-    return { registerForActivityResult(contract) { callback(it) }.launch(input) }
+    callback: (O) -> Unit
+): ActivityResultLauncher<Unit> {
+    val resultLauncher = registerForActivityResult(contract) { callback(it) }
+    return ActivityResultCallerLauncher(resultLauncher, contract, input)
+}
+
+internal class ActivityResultCallerLauncher<I, O>(
+    val launcher: ActivityResultLauncher<I>,
+    val callerContract: ActivityResultContract<I, O>,
+    val input: I
+) : ActivityResultLauncher<Unit>() {
+    val resultContract: ActivityResultContract<Unit, O> by lazy {
+        object : ActivityResultContract<Unit, O>() {
+            override fun createIntent(context: Context, void: Unit?): Intent {
+                return callerContract.createIntent(context, input)
+            }
+
+            override fun parseResult(resultCode: Int, intent: Intent?): O {
+                return callerContract.parseResult(resultCode, intent)
+            }
+        }
+    }
+
+    override fun launch(void: Unit?, options: ActivityOptionsCompat?) {
+        launcher.launch(input, options)
+    }
+
+    override fun unregister() {
+        launcher.unregister()
+    }
+
+    override fun getContract(): ActivityResultContract<Unit, O> {
+        return resultContract
+    }
 }

@@ -17,8 +17,8 @@
 package androidx.paging
 
 import androidx.paging.PageEvent.Insert.Companion.Append
-import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.Insert.Companion.Prepend
+import androidx.paging.PageEvent.Insert.Companion.Refresh
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,11 +32,13 @@ import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RunWith(JUnit4::class)
-class CachedPageEventFlowTest {
+@RunWith(Parameterized::class)
+class CachedPageEventFlowTest(
+    private val terminationType: TerminationType
+) {
     private val testScope = TestCoroutineScope()
 
     @Test
@@ -49,7 +51,7 @@ class CachedPageEventFlowTest {
             ),
             placeholdersBefore = 0,
             placeholdersAfter = 0,
-            loadStates = emptyMap()
+            combinedLoadStates = localLoadStatesOf()
         )
         val appendEvent = Append(
             listOf(
@@ -58,7 +60,7 @@ class CachedPageEventFlowTest {
                 )
             ),
             placeholdersAfter = 0,
-            loadStates = emptyMap()
+            combinedLoadStates = localLoadStatesOf()
         )
         val upstream = Channel<PageEvent<String>>(Channel.UNLIMITED)
         val subject = CachedPageEventFlow(
@@ -88,7 +90,7 @@ class CachedPageEventFlowTest {
             ),
             placeholdersBefore = 0,
             placeholdersAfter = 0,
-            loadStates = emptyMap()
+            combinedLoadStates = localLoadStatesOf()
         )
         assertThat(collector2.items()).containsExactly(firstSnapshotRefreshEvent)
         val prependEvent = Prepend(
@@ -101,7 +103,7 @@ class CachedPageEventFlowTest {
                 )
             ),
             placeholdersBefore = 0,
-            loadStates = emptyMap()
+            combinedLoadStates = localLoadStatesOf()
         )
         upstream.send(prependEvent)
         assertThat(collector1.items()).isEqualTo(
@@ -112,35 +114,48 @@ class CachedPageEventFlowTest {
         )
         val collector3 = PageCollector(subject.downstreamFlow)
         collector3.collectIn(testScope)
-        assertThat(collector3.items()).containsExactly(
-            Refresh(
-                listOf(
-                    TransformablePage(
-                        listOf("a0", "a1")
-                    ),
-                    TransformablePage(
-                        listOf("a2", "a3")
-                    ),
-                    TransformablePage(
-                        listOf("a", "b", "c")
-                    ),
-                    TransformablePage(
-                        listOf("d", "e")
-                    )
+        val finalState = Refresh(
+            listOf(
+                TransformablePage(
+                    listOf("a0", "a1")
                 ),
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                loadStates = emptyMap()
-            )
+                TransformablePage(
+                    listOf("a2", "a3")
+                ),
+                TransformablePage(
+                    listOf("a", "b", "c")
+                ),
+                TransformablePage(
+                    listOf("d", "e")
+                )
+            ),
+            placeholdersBefore = 0,
+            placeholdersAfter = 0,
+            combinedLoadStates = localLoadStatesOf()
+        )
+        assertThat(collector3.items()).containsExactly(
+            finalState
         )
         assertThat(collector1.isActive()).isTrue()
         assertThat(collector2.isActive()).isTrue()
         assertThat(collector3.isActive()).isTrue()
-        subject.close()
+        when (terminationType) {
+            TerminationType.CLOSE_UPSTREAM -> upstream.close()
+            TerminationType.CLOSE_CACHED_EVENT_FLOW -> subject.close()
+        }
         runCurrent()
         assertThat(collector1.isActive()).isFalse()
         assertThat(collector2.isActive()).isFalse()
         assertThat(collector3.isActive()).isFalse()
+        val collector4 = PageCollector(subject.downstreamFlow).also {
+            it.collectIn(testScope)
+        }
+        runCurrent()
+        // since upstream is closed, this should just close
+        assertThat(collector4.isActive()).isFalse()
+        assertThat(collector4.items()).containsExactly(
+            finalState
+        )
     }
 
     private class PageCollector<T : Any>(val src: Flow<T>) {
@@ -156,5 +171,16 @@ class CachedPageEventFlowTest {
 
         fun isActive() = job?.isActive ?: false
         fun items() = items.toList()
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun params() = TerminationType.values()
+    }
+
+    enum class TerminationType {
+        CLOSE_UPSTREAM,
+        CLOSE_CACHED_EVENT_FLOW
     }
 }

@@ -20,14 +20,13 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.clickable
 import androidx.ui.layout.Column
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
-import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.test.util.expectErrorMessage
 import androidx.ui.test.util.expectErrorMessageStartsWith
@@ -52,15 +51,14 @@ class ErrorMessagesTest {
         expectErrorMessage("" +
                 "Failed to assert the following: (OnClick is defined)\n" +
                 "Semantics of the node:\n" +
-                "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- TestTag = 'MyButton'\n" +
-                "- Enabled = 'false'\n" +
-                "- AccessibilityLabel = 'Toggle'\n" +
-                "- Boundary = 'true'\n" +
-                "- MergeDescendants = 'true'\n" +
+                "Node #X at (X, X, X, X)px, Tag: 'MyButton'\n" +
+                "Disabled = 'kotlin.Unit'\n" +
+                "Text = 'Toggle'\n" +
+                "MergeDescendants = 'true'\n" +
+                "Has 1 sibling\n" +
                 "Selector used: (TestTag = 'MyButton')"
         ) {
-            findByTag("MyButton")
+            onNodeWithTag("MyButton")
                 .assertHasClickAction()
         }
     }
@@ -76,7 +74,7 @@ class ErrorMessagesTest {
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(TestTag = 'MyButton3')"
         ) {
-            findByTag("MyButton3")
+            onNodeWithTag("MyButton3")
                 .assertExists()
         }
     }
@@ -92,8 +90,8 @@ class ErrorMessagesTest {
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(TestTag = 'MyButton3')"
         ) {
-            findByTag("MyButton3")
-                .doClick()
+            onNodeWithTag("MyButton3")
+                .performClick()
         }
     }
 
@@ -108,8 +106,8 @@ class ErrorMessagesTest {
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "((TestTag = 'MyButton3') && (OnClick is defined))"
         ) {
-            find(hasTestTag("MyButton3") and hasClickAction())
-                .doClick()
+            onNode(hasTestTag("MyButton3") and hasClickAction())
+                .performClick()
         }
     }
 
@@ -122,13 +120,12 @@ class ErrorMessagesTest {
         expectErrorMessageStartsWith("" +
                 "Failed to perform a gesture.\n" +
                 "Reason: Expected exactly '1' node but found '2' nodes that satisfy: " +
-                "(AccessibilityLabel = 'Toggle' (ignoreCase: false))\n" +
+                "(Text = 'Toggle' (ignoreCase: false))\n" +
                 "Nodes found:\n" +
-                "1) Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- TestTag = 'MyButton'"
+                "1) Node #X at (X, X, X, X)px, Tag: 'MyButton'"
         ) {
-            findByText("Toggle")
-                .doClick()
+            onNodeWithText("Toggle")
+                .performClick()
         }
     }
 
@@ -139,11 +136,11 @@ class ErrorMessagesTest {
         }
 
         expectErrorMessageStartsWith("" +
-                "Failed to call OnClick action as it is not defined on the node.\n" +
+                "Failed to perform OnClick action as it is not defined on the node.\n" +
                 "Semantics of the node:"
         ) {
-            findByTag("MyButton")
-                .callSemanticsAction(SemanticsActions.OnClick)
+            onNodeWithTag("MyButton")
+                .performSemanticsAction(SemanticsActions.OnClick)
         }
     }
 
@@ -154,12 +151,12 @@ class ErrorMessagesTest {
         }
 
         expectErrorMessageStartsWith("" +
-                "Failed to call OnClick action.\n" +
+                "Failed to perform OnClick action.\n" +
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(TestTag = 'MyButton3')"
         ) {
-            findByTag("MyButton3")
-                .callSemanticsAction(SemanticsActions.OnClick)
+            onNodeWithTag("MyButton3")
+                .performSemanticsAction(SemanticsActions.OnClick)
         }
     }
 
@@ -174,10 +171,9 @@ class ErrorMessagesTest {
                 "Reason: Did not expect any node but found '1' node that satisfies: " +
                 "(TestTag = 'MyButton')\n" +
                 "Node found:\n" +
-                "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- TestTag = 'MyButton'\n"
+                "Node #X at (X, X, X, X)px, Tag: 'MyButton'"
         ) {
-            findByTag("MyButton")
+            onNodeWithTag("MyButton")
                 .assertDoesNotExist()
         }
     }
@@ -191,11 +187,11 @@ class ErrorMessagesTest {
         expectErrorMessageStartsWith("" +
                 "Failed to assert count of nodes.\n" +
                 "Reason: Expected '3' nodes but found '2' nodes that satisfy: " +
-                "(AccessibilityLabel = 'Toggle' (ignoreCase: false))\n" +
+                "(Text = 'Toggle' (ignoreCase: false))\n" +
                 "Nodes found:\n" +
-                "1) Id: X, Position: LTRB(X.px, X.px, X.px, X.px)"
+                "1) Node #X at (X, X, X, X)px"
         ) {
-            findAllByText("Toggle")
+            onAllNodesWithText("Toggle")
                 .assertCountEquals(3)
         }
     }
@@ -209,9 +205,9 @@ class ErrorMessagesTest {
         expectErrorMessage("" +
                 "Failed to assert count of nodes.\n" +
                 "Reason: Expected '3' nodes but could not find any node that satisfies: " +
-                "(AccessibilityLabel = 'Toggle2' (ignoreCase: false))"
+                "(Text = 'Toggle2' (ignoreCase: false))"
         ) {
-            findAllByText("Toggle2")
+            onAllNodesWithText("Toggle2")
                 .assertCountEquals(3)
         }
     }
@@ -222,21 +218,21 @@ class ErrorMessagesTest {
             ComposeTextToHideCase()
         }
 
-        val node = findByText("Hello")
+        val node = onNodeWithText("Hello")
             .assertExists()
 
-        findByTag("MyButton")
-            .doClick()
+        onNodeWithTag("MyButton")
+            .performClick()
 
         expectErrorMessage("" +
                 "Failed to perform a gesture.\n" +
                 "The node is no longer in the tree, last known semantics:\n" +
-                "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- AccessibilityLabel = 'Hello'\n" +
-                "- Boundary = 'true'\n" +
-                "Original selector: AccessibilityLabel = 'Hello' (ignoreCase: false)"
+                "Node #X at (X, X, X, X)px\n" +
+                "Text = 'Hello'\n" +
+                "Has 1 sibling\n" +
+                "Original selector: Text = 'Hello' (ignoreCase: false)"
         ) {
-            node.doClick()
+            node.performClick()
         }
     }
 
@@ -246,20 +242,21 @@ class ErrorMessagesTest {
             ComposeTextToHideCase()
         }
 
-        val node = findByText("Hello")
+        val node = onNodeWithText("Hello")
             .assertExists()
 
         // Hide text
-        findByTag("MyButton")
-            .doClick()
+        onNodeWithTag("MyButton")
+            .performClick()
 
         expectErrorMessage("" +
                 "Failed: assertExists.\n" +
                 "The node is no longer in the tree, last known semantics:\n" +
-                "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- AccessibilityLabel = 'Hello'\n" +
-                "- Boundary = 'true'\n" +
-                "Original selector: AccessibilityLabel = 'Hello' (ignoreCase: false)") {
+                "Node #X at (X, X, X, X)px\n" +
+                "Text = 'Hello'\n" +
+                "Has 1 sibling\n" +
+                "Original selector: Text = 'Hello' (ignoreCase: false)"
+        ) {
             node.assertExists()
         }
     }
@@ -270,20 +267,20 @@ class ErrorMessagesTest {
             ComposeTextToHideCase()
         }
 
-        val node = findByText("Hello")
+        val node = onNodeWithText("Hello")
             .assertExists()
 
         // Hide text
-        findByTag("MyButton")
-            .doClick()
+        onNodeWithTag("MyButton")
+            .performClick()
 
         expectErrorMessage("" +
                 "Failed to assert the following: (OnClick is defined)\n" +
                 "The node is no longer in the tree, last known semantics:\n" +
-                "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- AccessibilityLabel = 'Hello'\n" +
-                "- Boundary = 'true'\n" +
-                "Original selector: AccessibilityLabel = 'Hello' (ignoreCase: false)"
+                "Node #X at (X, X, X, X)px\n" +
+                "Text = 'Hello'\n" +
+                "Has 1 sibling\n" +
+                "Original selector: Text = 'Hello' (ignoreCase: false)"
         ) {
             node.assertHasClickAction()
         }
@@ -293,15 +290,11 @@ class ErrorMessagesTest {
     fun ComposeSimpleCase() {
         MaterialTheme {
             Column {
-                TestTag("MyButton") {
-                    TestButton() {
-                        Text("Toggle")
-                    }
+                TestButton(Modifier.testTag("MyButton")) {
+                    Text("Toggle")
                 }
-                TestTag("MyButton2") {
-                    TestButton() {
-                        Text("Toggle")
-                    }
+                TestButton(Modifier.testTag("MyButton2")) {
+                    Text("Toggle")
                 }
             }
         }
@@ -312,15 +305,14 @@ class ErrorMessagesTest {
         MaterialTheme {
             val (showText, toggle) = state { true }
             Column {
-                TestTag("MyButton") {
-                    TestButton(onClick = { toggle(!showText) }) {
-                        Text("Toggle")
-                    }
+                TestButton(
+                    modifier = Modifier.testTag("MyButton"),
+                    onClick = { toggle(!showText) }
+                ) {
+                    Text("Toggle")
                 }
                 if (showText) {
-                    Semantics(container = true) {
-                        Text("Hello")
-                    }
+                    Text("Hello")
                 }
             }
         }
@@ -328,16 +320,13 @@ class ErrorMessagesTest {
 
     @Composable
     fun TestButton(
+        modifier: Modifier = Modifier,
         onClick: (() -> Unit)? = null,
         children: @Composable () -> Unit
     ) {
-        // Since we're adding layouts in between the clickable layer and the content, we need to
-        // merge all descendants, or we'll get multiple nodes
-        Semantics(container = true, mergeAllDescendants = true) {
-            Surface {
-                Box(Modifier.clickable(onClick = onClick ?: {}, enabled = onClick != null)) {
-                    Box(children = children)
-                }
+        Surface {
+            Box(modifier.clickable(onClick = onClick ?: {}, enabled = onClick != null)) {
+                Box(children = children)
             }
         }
     }

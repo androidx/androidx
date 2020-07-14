@@ -17,11 +17,12 @@
 package androidx.ui.animation.demos
 
 import androidx.animation.FloatPropKey
+import androidx.animation.spring
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Canvas
@@ -47,12 +48,12 @@ private val definition = transitionDefinition {
         this[color] = Color(red = 0, green = 100, blue = 0, alpha = 255)
     }
     transition {
-        scale using physics {
+        scale using spring(
             stiffness = 50f
-        }
-        color using physics {
+        )
+        color using spring(
             stiffness = 50f
-        }
+        )
     }
 }
 
@@ -65,9 +66,8 @@ fun GestureBasedAnimationDemo() {
             onStop = { toState.value = ComponentState.Released },
             onCancel = { toState.value = ComponentState.Released })
 
-    Transition(definition = definition, toState = toState.value) { state ->
-        ScaledColorRect(pressIndicator, scale = state[scale], color = state[color])
-    }
+    val state = transition(definition = definition, toState = toState.value)
+    ScaledColorRect(pressIndicator, scale = state[scale], color = state[color])
 }
 
 @Composable
@@ -75,7 +75,7 @@ private fun ScaledColorRect(modifier: Modifier = Modifier, scale: Float, color: 
     Canvas(modifier.fillMaxSize()) {
         drawRect(
             color,
-            topLeft = Offset(center.dx - halfSize * scale, center.dy - halfSize * scale),
+            topLeft = Offset(center.x - halfSize * scale, center.y - halfSize * scale),
             size = Size(halfSize * 2 * scale, halfSize * 2 * scale)
         )
     }

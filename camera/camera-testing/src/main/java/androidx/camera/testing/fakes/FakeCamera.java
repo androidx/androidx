@@ -44,7 +44,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A fake camera which will not produce any data, but provides a valid Camera implementation.
@@ -58,6 +60,7 @@ public class FakeCamera implements CameraInternal {
     private final CameraInfoInternal mCameraInfoInternal;
     private String mCameraId;
     private UseCaseAttachState mUseCaseAttachState;
+    private Set<UseCase> mAttachedUseCases = new HashSet<>();
     private State mState = State.CLOSED;
     private int mAvailableCameraCount = 1;
 
@@ -192,7 +195,8 @@ public class FakeCamera implements CameraInternal {
     public void onUseCaseActive(@NonNull UseCase useCase) {
         Log.d(TAG, "Use case " + useCase + " ACTIVE for camera " + mCameraId);
 
-        mUseCaseAttachState.setUseCaseActive(useCase);
+        mUseCaseAttachState.setUseCaseActive(useCase.getName() + useCase.hashCode(),
+                useCase.getSessionConfig());
         updateCaptureSessionConfig();
     }
 
@@ -201,7 +205,7 @@ public class FakeCamera implements CameraInternal {
     public void onUseCaseInactive(@NonNull UseCase useCase) {
         Log.d(TAG, "Use case " + useCase + " INACTIVE for camera " + mCameraId);
 
-        mUseCaseAttachState.setUseCaseInactive(useCase);
+        mUseCaseAttachState.setUseCaseInactive(useCase.getName() + useCase.hashCode());
         updateCaptureSessionConfig();
     }
 
@@ -210,7 +214,8 @@ public class FakeCamera implements CameraInternal {
     public void onUseCaseUpdated(@NonNull UseCase useCase) {
         Log.d(TAG, "Use case " + useCase + " UPDATED for camera " + mCameraId);
 
-        mUseCaseAttachState.updateUseCase(useCase);
+        mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
+                useCase.getSessionConfig());
         updateCaptureSessionConfig();
     }
 
@@ -218,7 +223,8 @@ public class FakeCamera implements CameraInternal {
     public void onUseCaseReset(@NonNull UseCase useCase) {
         Log.d(TAG, "Use case " + useCase + " RESET for camera " + mCameraId);
 
-        mUseCaseAttachState.updateUseCase(useCase);
+        mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
+                useCase.getSessionConfig());
         updateCaptureSessionConfig();
         openCaptureSession();
     }
@@ -233,9 +239,12 @@ public class FakeCamera implements CameraInternal {
             return;
         }
 
+        mAttachedUseCases.addAll(useCases);
+
         Log.d(TAG, "Use cases " + useCases + " ATTACHED for camera " + mCameraId);
         for (UseCase useCase : useCases) {
-            mUseCaseAttachState.setUseCaseAttached(useCase);
+            mUseCaseAttachState.setUseCaseAttached(useCase.getName() + useCase.hashCode(),
+                    useCase.getSessionConfig());
         }
 
         open();
@@ -253,18 +262,25 @@ public class FakeCamera implements CameraInternal {
             return;
         }
 
+        mAttachedUseCases.removeAll(useCases);
+
         Log.d(TAG, "Use cases " + useCases + " DETACHED for camera " + mCameraId);
         for (UseCase useCase : useCases) {
-            mUseCaseAttachState.setUseCaseDetached(useCase);
+            mUseCaseAttachState.setUseCaseDetached(useCase.getName() + useCase.hashCode());
         }
 
-        if (mUseCaseAttachState.getAttachedUseCases().isEmpty()) {
+        if (mUseCaseAttachState.getAttachedSessionConfigs().isEmpty()) {
             close();
             return;
         }
 
         openCaptureSession();
         updateCaptureSessionConfig();
+    }
+
+    @NonNull
+    public Set<UseCase> getAttachedUseCases() {
+        return mAttachedUseCases;
     }
 
     // Returns fixed CameraControlInternal instance in order to verify the instance is correctly

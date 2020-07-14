@@ -19,9 +19,9 @@ package androidx.inspection.testing
 import androidx.inspection.Connection
 import androidx.inspection.Inspector
 import androidx.inspection.InspectorEnvironment
+import androidx.inspection.InspectorExecutors
 import androidx.inspection.InspectorFactory
 import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -33,16 +33,21 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import java.lang.UnsupportedOperationException
 import java.util.ServiceLoader
 import java.util.concurrent.CancellationException
 import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
 
+// TODO: should be non suspend function with CoroutineScope receiver, that would automatically
+// dispose inspector;
 /**
- * Instantiate an inspector with the given [inspectorId] and all operations such as instantition,
- * command dispatching are happening in the context of the given [dispatcher].
+ * Instantiate an inspector with the given [inspectorId] and all operations such as creation,
+ * command dispatching are happening in the context of executors passed within [environment].
+ * It is caller responsibility to shutdown those executors if the environment argument is passed.
+ * If [environment] is unspecified or null, then [DefaultTestInspectorEnvironment] is used and
+ * automatically disposed with [InspectorTester].
  *
  * You can pass [factoryOverride] to construct your inspector. This allows you to inject test
  * dependencies into the inspector, otherwise a factory for the given [inspectorId] will be looked
@@ -50,18 +55,21 @@ import kotlin.coroutines.resume
  */
 suspend fun InspectorTester(
     inspectorId: String,
-    environment: InspectorEnvironment = FakeInspectorEnvironment(),
-    dispatcher: CoroutineDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher(),
+    environment: InspectorEnvironment? = null,
     factoryOverride: InspectorFactory<*>? = null
 ): InspectorTester {
+    val inspectorTesterJob = Job()
+    val resolved =
+        environment ?: DefaultTestInspectorEnvironment(TestInspectorExecutors(inspectorTesterJob))
+    val dispatcher = resolved.executors().primary().asCoroutineDispatcher()
     return withContext(dispatcher) {
         val loader = ServiceLoader.load(InspectorFactory::class.java)
         val factory =
             factoryOverride ?: loader.iterator().asSequence().find { it.inspectorId == inspectorId }
             ?: throw AssertionError("Failed to find with inspector with $inspectorId")
         val channel = Channel<ByteArray>(Channel.UNLIMITED)
-        val scope = CoroutineScope(dispatcher)
-        val inspector = factory.createInspector(ConnectionImpl(scope, channel), environment)
+        val scope = CoroutineScope(dispatcher + inspectorTesterJob)
+        val inspector = factory.createInspector(ConnectionImpl(scope, channel), resolved)
         InspectorTester(scope, inspector, channel)
     }
 }
@@ -121,13 +129,28 @@ internal class CommandCallbackImpl(
     }
 }
 
-internal class FakeInspectorEnvironment : InspectorEnvironment {
+/**
+ * Default test implementation of InspectorEnvironment.
+ *
+ * It will use either [testInspectorExecutors] that are passed in constructor,
+ * or create [TestInspectorExecutors] scoped to given job, than those executors will be shutdown
+ * once job is complete.
+ */
+open class DefaultTestInspectorEnvironment(
+    private val testInspectorExecutors: InspectorExecutors
+) : InspectorEnvironment {
+    constructor(parent: Job) : this(TestInspectorExecutors(parent))
+
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
         entryHook: InspectorEnvironment.EntryHook
     ) {
-        TODO("not implemented")
+        throw UnsupportedOperationException()
+    }
+
+    override fun <T : Any?> findInstances(clazz: Class<T>): List<T> {
+        throw UnsupportedOperationException()
     }
 
     override fun <T : Any?> registerExitHook(
@@ -135,12 +158,10 @@ internal class FakeInspectorEnvironment : InspectorEnvironment {
         originMethod: String,
         exitHook: InspectorEnvironment.ExitHook<T>
     ) {
-        TODO("not implemented")
+        throw UnsupportedOperationException()
     }
 
-    override fun <T : Any?> findInstances(clazz: Class<T>): List<T> {
-        TODO("not implemented")
-    }
+    override fun executors() = testInspectorExecutors
 }
 
 private class ConnectionImpl(

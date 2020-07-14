@@ -16,7 +16,10 @@
 
 package androidx.camera.testing;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
@@ -33,18 +36,30 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.GrantPermissionRule;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -57,6 +72,9 @@ public final class CameraUtil {
 
     /** Amount of time to wait before timing out when trying to open a {@link CameraDevice}. */
     private static final int CAMERA_OPEN_TIMEOUT_SECONDS = 2;
+
+    /** The device debug property key for the tests to enable the camera pretest. */
+    private static final String PRETEST_CAMERA_TAG = "PreTestCamera";
 
     /**
      * Gets a new instance of a {@link CameraDevice}.
@@ -73,7 +91,8 @@ public final class CameraUtil {
      */
     @RequiresPermission(Manifest.permission.CAMERA)
     @NonNull
-    public static CameraDeviceHolder getCameraDevice()
+    public static CameraDeviceHolder getCameraDevice(
+            @Nullable CameraDevice.StateCallback stateCallback)
             throws CameraAccessException, InterruptedException, TimeoutException,
             ExecutionException {
         // Use the first camera available.
@@ -84,7 +103,7 @@ public final class CameraUtil {
         }
         String cameraName = cameraIds.get(0);
 
-        return new CameraDeviceHolder(getCameraManager(), cameraName);
+        return new CameraDeviceHolder(getCameraManager(), cameraName, stateCallback);
     }
 
     /**
@@ -106,12 +125,14 @@ public final class CameraUtil {
         private ListenableFuture<Void> mCloseFuture;
 
         @RequiresPermission(Manifest.permission.CAMERA)
-        CameraDeviceHolder(@NonNull CameraManager cameraManager, @NonNull String cameraId)
+        CameraDeviceHolder(@NonNull CameraManager cameraManager, @NonNull String cameraId,
+                @Nullable CameraDevice.StateCallback stateCallback)
                 throws InterruptedException, ExecutionException, TimeoutException {
             mHandlerThread = new HandlerThread(String.format("CameraThread-%s", cameraId));
             mHandlerThread.start();
 
-            ListenableFuture<Void> cameraOpenFuture = openCamera(cameraManager, cameraId);
+            ListenableFuture<Void> cameraOpenFuture = openCamera(cameraManager, cameraId,
+                    stateCallback);
 
             // Wait for the open future to complete before continuing.
             cameraOpenFuture.get(CAMERA_OPEN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -120,7 +141,8 @@ public final class CameraUtil {
         @RequiresPermission(Manifest.permission.CAMERA)
         // Should only be called once during initialization.
         private ListenableFuture<Void> openCamera(@NonNull CameraManager cameraManager,
-                @NonNull String cameraId) {
+                @NonNull String cameraId,
+                @Nullable CameraDevice.StateCallback extraStateCallback) {
             return CallbackToFutureAdapter.getFuture(openCompleter -> {
                 mCloseFuture = CallbackToFutureAdapter.getFuture(closeCompleter -> {
                     cameraManager.openCamera(cameraId, new CameraDevice.StateCallback() {
@@ -132,11 +154,17 @@ public final class CameraUtil {
                                         + "should not have been opened yet.");
                                 mCameraDevice = cameraDevice;
                             }
+                            if (extraStateCallback != null) {
+                                extraStateCallback.onOpened(cameraDevice);
+                            }
                             openCompleter.set(null);
                         }
 
                         @Override
                         public void onClosed(@NonNull CameraDevice cameraDevice) {
+                            if (extraStateCallback != null) {
+                                extraStateCallback.onClosed(cameraDevice);
+                            }
                             closeCompleter.set(null);
                             mHandlerThread.quitSafely();
                         }
@@ -145,6 +173,9 @@ public final class CameraUtil {
                         public void onDisconnected(@NonNull CameraDevice cameraDevice) {
                             synchronized (mLock) {
                                 mCameraDevice = null;
+                            }
+                            if (extraStateCallback != null) {
+                                extraStateCallback.onDisconnected(cameraDevice);
                             }
                             cameraDevice.close();
                         }
@@ -158,6 +189,9 @@ public final class CameraUtil {
                                 } else {
                                     mCameraDevice = null;
                                 }
+                            }
+                            if (extraStateCallback != null) {
+                                extraStateCallback.onError(cameraDevice, i);
                             }
 
                             if (notifyOpenFailed) {
@@ -207,7 +241,8 @@ public final class CameraUtil {
     /**
      * Cleans up resources that need to be kept around while the camera device is active.
      *
-     * @param cameraDeviceHolder camera that was obtained via {@link #getCameraDevice()}
+     * @param cameraDeviceHolder camera that was obtained via
+     * {@link #getCameraDevice(CameraDevice.StateCallback)}
      */
     public static void releaseCameraDevice(@NonNull CameraDeviceHolder cameraDeviceHolder)
             throws ExecutionException, InterruptedException {
@@ -220,19 +255,60 @@ public final class CameraUtil {
                         .getSystemService(Context.CAMERA_SERVICE);
     }
 
+
     /**
-     * Detach multiple use cases from a camera.
+     * Retrieves the CameraUseCaseAdapter that would be created with the given CameraSelector.
      *
-     * <p>Sets the use cases to be inactive and remove from the online list.
+     * <p> This requires that {@link CameraX#initialize(Context, CameraXConfig)} has been called
+     * to properly initialize the cameras.
      *
-     * @param cameraInternal to detach from
-     * @param useCases       to be detached
+     * @param context The context used to initialize CameraX
+     * @param cameraSelector The selector to select cameras with.
+     * @hide
      */
-    public static void detachUseCaseFromCamera(CameraInternal cameraInternal, UseCase... useCases) {
-        for (UseCase useCase : useCases) {
-            cameraInternal.onUseCaseInactive(useCase);
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public static CameraUseCaseAdapter getCameraUseCaseAdapter(@NonNull Context context,
+            @NonNull CameraSelector cameraSelector) {
+        try {
+            CameraX cameraX = CameraX.getOrCreateInstance(context).get(5000, TimeUnit.MILLISECONDS);
+            LinkedHashSet<CameraInternal> cameras =
+                    cameraSelector.filter(cameraX.getCameraRepository().getCameras());
+            return new CameraUseCaseAdapter(cameras.iterator().next(), cameras,
+                    cameraX.getCameraDeviceSurfaceManager());
+        } catch (ExecutionException | InterruptedException | TimeoutException e) {
+            throw new RuntimeException("Unable to retrieve CameraX instance");
         }
-        cameraInternal.detachUseCases(Arrays.asList(useCases));
+    }
+
+    /**
+     * Retrieves the CameraUseCaseAdapter that would be created with the given CameraSelector and
+     * attaches the UseCases.
+     *
+     * <p> This requires that {@link CameraX#initialize(Context, CameraXConfig)} has been called
+     * to properly initialize the cameras.
+     *
+     * @param context The context used to initialize CameraX
+     * @param cameraSelector The selector to select cameras with.
+     * @param useCases The UseCases to attach to the CameraUseCaseAdapter.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public static CameraUseCaseAdapter getCameraAndAttachUseCase(@NonNull Context context,
+            @NonNull CameraSelector cameraSelector, @NonNull UseCase ... useCases) {
+        CameraUseCaseAdapter cameraUseCaseAdapter = getCameraUseCaseAdapter(context,
+                cameraSelector);
+
+        // TODO(b/160249108) move off of main thread once UseCases can be attached on any
+        //  thread
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            try {
+                cameraUseCaseAdapter.addUseCases(Arrays.asList(useCases));
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                throw new IllegalArgumentException("Unable to attach use cases to camera.");
+            }
+        });
+
+        return cameraUseCaseAdapter;
     }
 
     /**
@@ -443,5 +519,118 @@ public final class CameraUtil {
             throw new IllegalStateException(
                     "Unable to retrieve info for camera with id " + cameraId + ".", e);
         }
+    }
+
+    /**
+     * Create a chained rule for the test cases that need to use the camera.
+     *
+     * <p>It will
+     * (1) Grant the camera permission.
+     * (2) Check if there is at least one camera on the device.
+     * (3) Test the camera can be opened successfully.
+     *
+     * <p>The method will set PreTestCamera throw exception will set when the PRETEST_CAMERA_TAG
+     * debug key for Log.isLoggable is enabled.
+     */
+    @NonNull
+    public static RuleChain grantCameraPermissionAndPreTest() {
+        return RuleChain.outerRule(GrantPermissionRule.grant(Manifest.permission.CAMERA)).around(
+                (base, description) -> new Statement() {
+                    @Override
+                    public void evaluate() throws Throwable {
+                        assumeTrue(deviceHasCamera());
+                        base.evaluate();
+                    }
+                }).around(
+                new CameraUtil.PreTestCamera(Log.isLoggable(PRETEST_CAMERA_TAG, Log.DEBUG)));
+    }
+
+    /**
+     * Pretest the camera device
+     *
+     * <p>Try to open the camera with the front and back lensFacing. It throws exception when
+     * camera is unavailable and mThrowOnError is true.
+     *
+     * <p>Passing false into the constructor {@link #PreTestCamera(boolean)}
+     * will never throw the exception when the camera is unavailable.
+     */
+    public static class PreTestCamera implements TestRule {
+        final boolean mThrowOnError;
+
+        public PreTestCamera(boolean throwOnError) {
+            mThrowOnError = throwOnError;
+        }
+
+        @NonNull
+        @Override
+        public Statement apply(@NonNull Statement base, @NonNull Description description) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    boolean backStatus = true;
+                    if (hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
+                        Log.w(CameraUtil.class.getSimpleName(), "Fail to open the back camera");
+                        backStatus = tryOpenCamera(CameraSelector.LENS_FACING_BACK);
+                    }
+
+                    boolean frontStatus = true;
+                    if (hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT)) {
+                        Log.w(CameraUtil.class.getSimpleName(), "Fail to open the front camera");
+                        frontStatus = tryOpenCamera(CameraSelector.LENS_FACING_FRONT);
+                    }
+                    boolean canOpenCamera = backStatus && frontStatus;
+
+                    if (canOpenCamera) {
+                        base.evaluate();
+                    } else {
+                        if (mThrowOnError) {
+                            throw new RuntimeException(
+                                    "CameraX_cannot_test_with_failed_camera, model:" + Build.MODEL);
+                        } else {
+                            // Ignore the test, so we only print a log without calling
+                            Log.w(CameraUtil.class.getSimpleName(),
+                                    "Camera fail, on test " + description.getDisplayName());
+                            base.evaluate();
+                        }
+                    }
+                }
+            };
+        }
+    }
+
+    /**
+     * Try to open the camera, and close it immediately.
+     *
+     * @param lensFacing the lensFacing of the camera to test
+     * @return true if the camera can be opened successfully
+     */
+    @SuppressLint("MissingPermission")
+    public static boolean tryOpenCamera(@CameraSelector.LensFacing int lensFacing) {
+        String cameraId = getCameraIdWithLensFacing(lensFacing);
+
+        if (cameraId == null) {
+            return false;
+        }
+
+        CameraDeviceHolder deviceHolder = null;
+        boolean ret = true;
+        try {
+            deviceHolder = new CameraDeviceHolder(getCameraManager(), cameraId, null);
+            if (deviceHolder.get() == null) {
+                ret = false;
+            }
+        } catch (Exception e) {
+            ret = false;
+        } finally {
+            if (deviceHolder != null) {
+                try {
+                    releaseCameraDevice(deviceHolder);
+                } catch (Exception e) {
+                    Log.e(CameraUtil.class.getSimpleName(), "Cannot close cameraDevice.", e);
+                }
+            }
+        }
+
+        return ret;
     }
 }

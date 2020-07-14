@@ -17,21 +17,23 @@
 package androidx.ui.test
 
 import androidx.annotation.FloatRange
-import androidx.ui.core.AndroidOwner
+import androidx.ui.core.ExperimentalLayoutNodeApi
+import androidx.ui.core.gesture.DoubleTapTimeout
 import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.test.android.AndroidInputDispatcher
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.lerp
+import androidx.ui.test.InputDispatcher.Companion.eventPeriod
 import androidx.ui.unit.Duration
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.px
-import androidx.ui.unit.toPx
 import androidx.ui.util.lerp
 import kotlin.math.atan2
+import kotlin.math.ceil
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.sign
 import kotlin.math.sin
 
@@ -56,39 +58,179 @@ sealed class BaseGestureScope(node: SemanticsNode) {
             "Can't query SemanticsNode, (Partial)GestureScope has already been disposed"
         }
 
+    // Convenience property
+    @OptIn(ExperimentalLayoutNodeApi::class)
+    private val owner get() = semanticsNode.componentNode.owner
+
     // TODO(b/133217292): Better error: explain which gesture couldn't be performed
-    private var _inputDispatcher: InputDispatcher? = run {
-        val view = (semanticsNode.componentNode.owner as AndroidOwner).view
-        AndroidInputDispatcher { view.dispatchTouchEvent(it) }
-    }
+    private var _inputDispatcher: InputDispatcher? =
+        InputDispatcher.createInstance(checkNotNull(owner))
     internal val inputDispatcher
         get() = checkNotNull(_inputDispatcher) {
             "Can't send gesture, (Partial)GestureScope has already been disposed"
         }
 
     internal fun dispose() {
+        inputDispatcher.saveState(owner)
         _semanticsNode = null
         _inputDispatcher = null
     }
 }
 
 /**
- * Returns the size of the component we're interacting with
+ * Returns the size of the node we're interacting with
  */
-val BaseGestureScope.size: IntPxSize
+val BaseGestureScope.size: IntSize
     get() = semanticsNode.size
 
 /**
- * Returns the center of the component we're interacting with, in the component's local
- * coordinate system, where (0.px, 0.px) is the top left corner of the component.
+ * Shorthand for `size.width`
  */
-val BaseGestureScope.center: PxPosition
-    get() {
-        return PxPosition(size.width / 2, size.height / 2)
-    }
+inline val BaseGestureScope.width: Int
+    get() = size.width
 
 /**
- * Returns the global bounds of the component we're interacting with
+ * Shorthand for `size.height`
+ */
+inline val BaseGestureScope.height: Int
+    get() = size.height
+
+/**
+ * Returns the x-coordinate for the left edge of the node we're interacting with, in the
+ * node's local coordinate system, where (0, 0) is the top left corner of the node.
+ */
+@Suppress("unused")
+inline val BaseGestureScope.left: Float
+    get() = 0f
+
+/**
+ * Returns the y-coordinate for the bottom of the node we're interacting with, in the
+ * node's local coordinate system, where (0, 0) is the top left corner of the node.
+ */
+@Suppress("unused")
+inline val BaseGestureScope.top: Float
+    get() = 0f
+
+/**
+ * Returns the x-coordinate for the center of the node we're interacting with, in the
+ * node's local coordinate system, where (0, 0) is the top left corner of the node.
+ */
+inline val BaseGestureScope.centerX: Float
+    get() = width / 2f
+
+/**
+ * Returns the y-coordinate for the center of the node we're interacting with, in the
+ * node's local coordinate system, where (0, 0) is the top left corner of the node.
+ */
+inline val BaseGestureScope.centerY: Float
+    get() = height / 2f
+
+/**
+ * Returns the x-coordinate for the right edge of the node we're interacting with, in the
+ * node's local coordinate system, where (0, 0) is the top left corner of the node.
+ * Note that, unless `width == 0`, `right != width`. In particular, `right == width - 1f`, because
+ * pixels are 0-based. If `width == 0`, `right == 0` too.
+ */
+inline val BaseGestureScope.right: Float
+    get() = width.let { if (it == 0) 0f else it - 1f }
+
+/**
+ * Returns the y-coordinate for the bottom of the node we're interacting with, in the
+ * node's local coordinate system, where (0, 0) is the top left corner of the node.
+ * Note that, unless `height == 0`, `bottom != height`. In particular, `bottom == height - 1f`,
+ * because pixels are 0-based. If `height == 0`, `bottom == 0` too.
+ */
+inline val BaseGestureScope.bottom: Float
+    get() = height.let { if (it == 0) 0f else it - 1f }
+
+/**
+ * Returns the top left corner of the node we're interacting with, in the node's
+ * local coordinate system, where (0, 0) is the top left corner of the node.
+ */
+@Suppress("unused")
+val BaseGestureScope.topLeft: Offset
+    get() = Offset(left, top)
+
+/**
+ * Returns the center of the top edge of the node we're interacting with, in the node's
+ * local coordinate system, where (0, 0) is the top left corner of the node.
+ */
+val BaseGestureScope.topCenter: Offset
+    get() = Offset(centerX, top)
+
+/**
+ * Returns the top right corner of the node we're interacting with, in the node's
+ * local coordinate system, where (0, 0) is the top left corner of the node. Note that
+ * `topRight.x != width`, see [right].
+ */
+val BaseGestureScope.topRight: Offset
+    get() = Offset(right, top)
+
+/**
+ * Returns the center of the left edge of the node we're interacting with, in the
+ * node's local coordinate system, where (0, 0) is the top left corner of the node.
+ */
+val BaseGestureScope.centerLeft: Offset
+    get() = Offset(left, centerY)
+
+/**
+ * Returns the center of the node we're interacting with, in the node's
+ * local coordinate system, where (0, 0) is the top left corner of the node.
+ */
+val BaseGestureScope.center: Offset
+    get() = Offset(centerX, centerY)
+
+/**
+ * Returns the center of the right edge of the node we're interacting with, in the
+ * node's local coordinate system, where (0, 0) is the top left corner of the node.
+ * Note that `centerRight.x != width`, see [right].
+ */
+val BaseGestureScope.centerRight: Offset
+    get() = Offset(right, centerY)
+
+/**
+ * Returns the bottom left corner of the node we're interacting with, in the node's
+ * local coordinate system, where (0, 0) is the top left corner of the node. Note that
+ * `bottomLeft.y != height`, see [bottom].
+ */
+val BaseGestureScope.bottomLeft: Offset
+    get() = Offset(left, bottom)
+
+/**
+ * Returns the center of the bottom edge of the node we're interacting with, in the node's
+ * local coordinate system, where (0, 0) is the top left corner of the node. Note that
+ * `bottomCenter.y != height`, see [bottom].
+ */
+val BaseGestureScope.bottomCenter: Offset
+    get() = Offset(centerX, bottom)
+
+/**
+ * Returns the bottom right corner of the node we're interacting with, in the node's
+ * local coordinate system, where (0, 0) is the top left corner of the node. Note that
+ * `bottomRight.x != width` and `bottomRight.y != height`, see [right] and [bottom].
+ */
+val BaseGestureScope.bottomRight: Offset
+    get() = Offset(right, bottom)
+
+/**
+ * Creates an [Offset] relative to the size of the node we're interacting with. [x] and [y]
+ * are fractions of the [width] and [height]. Note that `percentOffset(1f, 1f) != bottomRight`,
+ * see [right] and [bottom].
+ *
+ * For example: `percentOffset(.5f, .5f)` is the same as the [center]; `centerLeft +
+ * percentOffset(.1f, 0f)` is a point 10% inward from the middle of the left edge; and
+ * `bottomRight - percentOffset(.2f, .1f)` is a point 20% to the left and 10% to the top of the
+ * bottom right corner.
+ */
+fun BaseGestureScope.percentOffset(
+    @FloatRange(from = -1.0, to = 1.0) x: Float = 0f,
+    @FloatRange(from = -1.0, to = 1.0) y: Float = 0f
+): Offset {
+    return Offset(x * width, y * height)
+}
+
+/**
+ * Returns the global bounds of the node we're interacting with
  */
 val BaseGestureScope.globalBounds: PxBounds
     get() = semanticsNode.globalBounds
@@ -98,21 +240,21 @@ val BaseGestureScope.globalBounds: PxBounds
  *
  * @param position A position in local coordinates
  */
-fun BaseGestureScope.localToGlobal(position: PxPosition): PxPosition {
+fun BaseGestureScope.localToGlobal(position: Offset): Offset {
     val bounds = globalBounds
-    return position + PxPosition(bounds.left, bounds.top)
+    return position + Offset(bounds.left, bounds.top)
 }
 
 /**
  * The receiver scope for injecting gestures on the [semanticsNode] identified by the
  * corresponding [SemanticsNodeInteraction]. Gestures can be injected by calling methods defined
- * on [GestureScope], such as [sendSwipeUp]. The [SemanticsNodeInteraction] can be found by one
- * of the finder methods such as [findByTag].
+ * on [GestureScope], such as [swipeUp]. The [SemanticsNodeInteraction] can be found by one
+ * of the finder methods such as [onNodeWithTag].
  *
  * Example usage:
  * ```
- * findByTag("myWidget")
- *    .doGesture {
+ * onNodeWithTag("myWidget")
+ *    .performGesture {
  *        sendSwipeUp()
  *    }
  * ```
@@ -122,94 +264,75 @@ class GestureScope internal constructor(
 ) : BaseGestureScope(semanticsNode)
 
 /**
- * Performs a click gesture at the given [position] on the associated component. The [position]
- * is in the component's local coordinate system, where (0.px, 0.px) is the top left corner of
- * the component.
+ * Performs a click gesture at the given [position] on the associated node, or in the center
+ * if the [position] is omitted. The [position] is in the node's local coordinate system,
+ * where (0, 0) is the top left corner of the node. The default [position] is the
+ * center of the node.
  *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
- *
- * @param position The position where to click, in the component's local coordinate system
+ * @param position The position where to click, in the node's local coordinate system. If
+ * omitted, the center position will be used.
  */
-fun GestureScope.sendClick(position: PxPosition) {
+fun GestureScope.click(position: Offset = center) {
     inputDispatcher.sendClick(localToGlobal(position))
 }
 
 /**
- * Performs a click gesture on the associated component. The click is done in the middle of the
- * component's bounds.
+ * Performs a long click gesture at the given [position] on the associated node, or in the
+ * center if the [position] is omitted. By default, the [duration] of the press is
+ * [LongPressTimeout] + 100 milliseconds. The [position] is in the node's local coordinate
+ * system, where (0, 0) is the top left corner of the node.
  *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ * @param position The position of the long click, in the node's local coordinate system. If
+ * omitted, the center position will be used.
+ * @param duration The time between the down and the up event
  */
-fun GestureScope.sendClick() {
-    sendClick(center)
+fun GestureScope.longClick(
+    position: Offset = center,
+    duration: Duration = LongPressTimeout + 100.milliseconds
+) {
+    require(duration >= LongPressTimeout) {
+        "Long click must have a duration of at least ${LongPressTimeout.inMilliseconds()}ms"
+    }
+    swipe(position, position, duration)
 }
 
 /**
- * Performs a long click gesture at the given [position] on the associated component. There will
- * be [LongPressTimeout] + 100 milliseconds time between the down and the up event. The
- * [position] is in the component's local coordinate system, where (0.px, 0.px) is the top left
- * corner of the component.
+ * Performs a double click gesture at the given [position] on the associated node, or in the
+ * center if the [position] is omitted. By default, the [delay] between the first and the second
+ * click is 145 milliseconds (empirically established). The [position] is in the node's
+ * local coordinate system, where (0, 0) is the top left corner of the node.
  *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
- *
- * @param position The position of the long click, in the component's local coordinate system
+ * @param position The position of the double click, in the node's local coordinate system.
+ * If omitted, the center position will be used.
+ * @param delay The time between the up event of the first click and the down event of the second
+ * click
  */
-fun GestureScope.sendLongClick(position: PxPosition) {
-    // Keep down for 100ms more than needed, to allow the long press logic to trigger
-    sendSwipe(position, position, LongPressTimeout + 100.milliseconds)
-}
-
-/**
- * Performs a long click gesture at the middle of the associated component. There will
- * be [LongPressTimeout] + 100 milliseconds time between the down and the up event.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
- */
-fun GestureScope.sendLongClick() {
-    sendLongClick(center)
-}
-
-/**
- * Performs a double click gesture at the given [position] on the associated component. The
- * [position] is in the component's local coordinate system, where (0.px, 0.px) is the top left
- * corner of the component.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
- *
- * @param position The position of the double click, in the component's local coordinate system
- */
-fun GestureScope.sendDoubleClick(position: PxPosition) {
+fun GestureScope.doubleClick(
+    position: Offset = center,
+    delay: Duration = doubleClickDelay
+) {
+    require(delay <= DoubleTapTimeout - 10.milliseconds) {
+        "Time between clicks in double click can be at most ${DoubleTapTimeout - 10.milliseconds}ms"
+    }
     val globalPosition = localToGlobal(position)
     inputDispatcher.sendClick(globalPosition)
-    inputDispatcher.delay(doubleClickDelay)
+    inputDispatcher.delay(delay)
     inputDispatcher.sendClick(globalPosition)
 }
 
 /**
- * Performs a double click gesture on the associated component. The clicks are done in the middle
- * of the component's bounds.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
- */
-fun GestureScope.sendDoubleClick() {
-    sendDoubleClick(center)
-}
-
-/**
- * Performs the swipe gesture on the associated component. The motion events are linearly
- * interpolated between [start] and [end]. The coordinates are in the component's local
- * coordinate system, where (0.px, 0.px) is the top left corner of the component. The default
+ * Performs the swipe gesture on the associated node. The motion events are linearly
+ * interpolated between [start] and [end]. The coordinates are in the node's local
+ * coordinate system, where (0, 0) is the top left corner of the node. The default
  * duration is 200 milliseconds.
  *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
- *
- * @param start The start position of the gesture, in the component's local coordinate system
- * @param end The end position of the gesture, in the component's local coordinate system
+ * @param start The start position of the gesture, in the node's local coordinate system
+ * @param end The end position of the gesture, in the node's local coordinate system
  * @param duration The duration of the gesture
  */
-fun GestureScope.sendSwipe(
-    start: PxPosition,
-    end: PxPosition,
+fun GestureScope.swipe(
+    start: Offset,
+    end: Offset,
     duration: Duration = 200.milliseconds
 ) {
     val globalStart = localToGlobal(start)
@@ -218,23 +341,23 @@ fun GestureScope.sendSwipe(
 }
 
 /**
- * Performs a pinch gesture on the associated component.
+ * Performs a pinch gesture on the associated node.
  *
- * For each pair of start and end [PxPosition]s, the motion events are linearly interpolated. The
- * coordinates are in the component's local coordinate system where (0.px, 0.px) is the top left
- * corner of the component. The default duration is 400 milliseconds.
+ * For each pair of start and end [Offset]s, the motion events are linearly interpolated. The
+ * coordinates are in the node's local coordinate system where (0, 0) is the top left
+ * corner of the node. The default duration is 400 milliseconds.
  *
- * @param start0 The start position of the first gesture in the component's local coordinate system
- * @param end0 The end position of the first gesture in the component's local coordinate system
- * @param start1 The start position of the second gesture in the component's local coordinate system
- * @param end1 The end position of the second gesture in the component's local coordinate system
+ * @param start0 The start position of the first gesture in the node's local coordinate system
+ * @param end0 The end position of the first gesture in the node's local coordinate system
+ * @param start1 The start position of the second gesture in the node's local coordinate system
+ * @param end1 The end position of the second gesture in the node's local coordinate system
  * @param duration the duration of the gesture
  */
-fun GestureScope.sendPinch(
-    start0: PxPosition,
-    end0: PxPosition,
-    start1: PxPosition,
-    end1: PxPosition,
+fun GestureScope.pinch(
+    start0: Offset,
+    end0: Offset,
+    start1: Offset,
+    end1: Offset,
     duration: Duration = 400.milliseconds
 ) {
     val globalStart0 = localToGlobal(start0)
@@ -244,52 +367,53 @@ fun GestureScope.sendPinch(
     val durationFloat = duration.inMilliseconds().toFloat()
 
     inputDispatcher.sendSwipes(
-        listOf<(Long) -> PxPosition>(
-            { androidx.ui.unit.lerp(globalStart0, globalEnd0, it / durationFloat) },
-            { androidx.ui.unit.lerp(globalStart1, globalEnd1, it / durationFloat) }
+        listOf<(Long) -> Offset>(
+            { lerp(globalStart0, globalEnd0, it / durationFloat) },
+            { lerp(globalStart1, globalEnd1, it / durationFloat) }
         ),
         duration
     )
 }
 
 /**
- * Performs the swipe gesture on the associated component, such that the velocity when the
+ * Performs the swipe gesture on the associated node, such that the velocity when the
  * gesture is finished is roughly equal to [endVelocity]. The MotionEvents are linearly
- * interpolated between [start] and [end]. The coordinates are in the component's
- * local coordinate system, where (0.px, 0.px) is the top left corner of the component. The
+ * interpolated between [start] and [end]. The coordinates are in the node's
+ * local coordinate system, where (0, 0) is the top left corner of the node. The
  * default duration is 200 milliseconds.
  *
  * Note that due to imprecisions, no guarantees can be made on the precision of the actual
  * velocity at the end of the gesture, but generally it is within 0.1% of the desired velocity.
  *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
- *
- * @param start The start position of the gesture, in the component's local coordinate system
- * @param end The end position of the gesture, in the component's local coordinate system
+ * @param start The start position of the gesture, in the node's local coordinate system
+ * @param end The end position of the gesture, in the node's local coordinate system
  * @param endVelocity The velocity of the gesture at the moment it ends. Must be positive.
  * @param duration The duration of the gesture. Must be long enough that at least 3 input events
  * are generated, which happens with a duration of 25ms or more.
  */
-fun GestureScope.sendSwipeWithVelocity(
-    start: PxPosition,
-    end: PxPosition,
+fun GestureScope.swipeWithVelocity(
+    start: Offset,
+    end: Offset,
     @FloatRange(from = 0.0) endVelocity: Float,
     duration: Duration = 200.milliseconds
 ) {
     require(endVelocity >= 0f) {
         "Velocity cannot be $endVelocity, it must be positive"
     }
-    // TODO(b/146551983): require that duration >= 2.5 * eventPeriod
-    // TODO(b/146551983): check that eventPeriod < 40 milliseconds
-    require(duration >= 25.milliseconds) {
-        "Duration must be at least 25ms because velocity requires at least 3 input events"
+    require(eventPeriod < 40.milliseconds.inMilliseconds()) {
+        "InputDispatcher.eventPeriod must be smaller than 40ms in order to generate velocities"
+    }
+    val minimumDuration = ceil(2.5f * eventPeriod).roundToInt()
+    require(duration >= minimumDuration.milliseconds) {
+        "Duration must be at least ${minimumDuration}ms because " +
+                "velocity requires at least 3 input events"
     }
     val globalStart = localToGlobal(start)
     val globalEnd = localToGlobal(end)
 
     // Decompose v into it's x and y components
     val delta = end - start
-    val theta = atan2(delta.y.value, delta.x.value)
+    val theta = atan2(delta.y, delta.x)
     // VelocityTracker internally calculates px/s, not px/ms
     val vx = cos(theta) * endVelocity / 1000
     val vy = sin(theta) * endVelocity / 1000
@@ -305,70 +429,62 @@ fun GestureScope.sendSwipeWithVelocity(
     // (-age, x) and (-age, y) for vx and vy respectively, which is accounted for in
     // f(Long, Long, Float, Float, Float).
     val durationMs = duration.inMilliseconds()
-    val fx = createFunctionForVelocity(durationMs, globalStart.x.value, globalEnd.x.value, vx)
-    val fy = createFunctionForVelocity(durationMs, globalStart.y.value, globalEnd.y.value, vy)
+    val fx = createFunctionForVelocity(durationMs, globalStart.x, globalEnd.x, vx)
+    val fy = createFunctionForVelocity(durationMs, globalStart.y, globalEnd.y, vy)
 
-    inputDispatcher.sendSwipe({ t -> PxPosition(fx(t).px, fy(t).px) }, duration)
+    inputDispatcher.sendSwipe({ t -> Offset(fx(t), fy(t)) }, duration)
 }
 
 /**
- * Performs a swipe up gesture on the associated component. The gesture starts slightly above the
- * bottom of the component and ends at the top.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ * Performs a swipe up gesture on the associated node. The gesture starts slightly above the
+ * bottom of the node and ends at the top.
  */
-fun GestureScope.sendSwipeUp() {
+fun GestureScope.swipeUp() {
     val x = center.x
-    val y0 = size.height * (1 - edgeFuzzFactor)
-    val y1 = 0.px
-    val start = PxPosition(x, y0.toPx())
-    val end = PxPosition(x, y1)
-    sendSwipe(start, end, 200.milliseconds)
+    val y0 = (size.height * (1 - edgeFuzzFactor)).roundToInt().toFloat()
+    val y1 = 0.0f
+    val start = Offset(x, y0)
+    val end = Offset(x, y1)
+    swipe(start, end, 200.milliseconds)
 }
 
 /**
- * Performs a swipe down gesture on the associated component. The gesture starts slightly below the
- * top of the component and ends at the bottom.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ * Performs a swipe down gesture on the associated node. The gesture starts slightly below the
+ * top of the node and ends at the bottom.
  */
-fun GestureScope.sendSwipeDown() {
+fun GestureScope.swipeDown() {
     val x = center.x
-    val y0 = size.height * edgeFuzzFactor
-    val y1 = size.height
-    val start = PxPosition(x, y0.toPx())
-    val end = PxPosition(x, y1.toPx())
-    sendSwipe(start, end, 200.milliseconds)
+    val y0 = (size.height * edgeFuzzFactor).roundToInt().toFloat()
+    val y1 = size.height.toFloat()
+    val start = Offset(x, y0)
+    val end = Offset(x, y1)
+    swipe(start, end, 200.milliseconds)
 }
 
 /**
- * Performs a swipe left gesture on the associated component. The gesture starts slightly left of
- * the right side of the component and ends at the left side.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ * Performs a swipe left gesture on the associated node. The gesture starts slightly left of
+ * the right side of the node and ends at the left side.
  */
-fun GestureScope.sendSwipeLeft() {
-    val x0 = size.width * (1 - edgeFuzzFactor)
-    val x1 = 0.px
+fun GestureScope.swipeLeft() {
+    val x0 = (size.width * (1 - edgeFuzzFactor)).toFloat()
+    val x1 = 0.0f
     val y = center.y
-    val start = PxPosition(x0.toPx(), y)
-    val end = PxPosition(x1, y)
-    sendSwipe(start, end, 200.milliseconds)
+    val start = Offset(x0, y)
+    val end = Offset(x1, y)
+    swipe(start, end, 200.milliseconds)
 }
 
 /**
- * Performs a swipe right gesture on the associated component. The gesture starts slightly right of
- * the left side of the component and ends at the right side.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ * Performs a swipe right gesture on the associated node. The gesture starts slightly right of
+ * the left side of the node and ends at the right side.
  */
-fun GestureScope.sendSwipeRight() {
-    val x0 = size.width * edgeFuzzFactor
-    val x1 = size.width
+fun GestureScope.swipeRight() {
+    val x0 = (size.width * edgeFuzzFactor).roundToInt().toFloat()
+    val x1 = size.width.toFloat()
     val y = center.y
-    val start = PxPosition(x0.toPx(), y)
-    val end = PxPosition(x1.toPx(), y)
-    sendSwipe(start, end, 200.milliseconds)
+    val start = Offset(x0, y)
+    val end = Offset(x1, y)
+    swipe(start, end, 200.milliseconds)
 }
 
 /**
@@ -436,17 +552,16 @@ private fun createFunctionForVelocity(
 /**
  * The receiver scope for injecting partial gestures on the [semanticsNode] identified by the
  * corresponding [SemanticsNodeInteraction]. Gestures can be injected by calling methods defined
- * on [PartialGestureScope], such as [sendDown]. The [SemanticsNodeInteraction] can be found by
- * one of the finder methods such as [findByTag].
+ * on [PartialGestureScope], such as [down]. The [SemanticsNodeInteraction] can be found by
+ * one of the finder methods such as [onNodeWithTag].
  *
  * Example usage:
  * ```
- * val position = PxPosition(10.px, 10.px)
- * lateinit var token: GestureToken
- * findByTag("myWidget")
- *    .doPartialGesture { token = sendDown(position) }
+ * val position = Offset(10.px, 10.px)
+ * onNodeWithTag("myWidget")
+ *    .performPartialGesture { sendDown(position) }
  *    .assertIsDisplayed()
- *    .doPartialGesture { sendUp(token, position) }
+ *    .performPartialGesture { sendUp(position) }
  * ```
  */
 class PartialGestureScope internal constructor(
@@ -454,85 +569,464 @@ class PartialGestureScope internal constructor(
 ) : BaseGestureScope(semanticsNode)
 
 /**
- * A token to be shared between individual motion events that form a single gesture. It is
- * generated by the [sendDown] partial gesture, and must be passed to all subsequent events of
- * the gesture, such as [sendMoveTo] and [sendUp].
+ * Sends a down event for the pointer with the given [pointerId] at [position] on the associated
+ * node. The [position] is in the node's local coordinate system, where (0, 0) is
+ * the top left corner of the node.
+ *
+ * If no pointers are down yet, this will start a new partial gesture. If a partial gesture is
+ * already in progress, this event is sent with at the same timestamp as the last event. If the
+ * given pointer is already down, an [IllegalArgumentException] will be thrown.
+ *
+ * This gesture is considered _partial_, because the entire gesture can be spread over several
+ * invocations of [performPartialGesture]. An entire gesture starts with a [down][down] event,
+ * followed by several down, move or up events, and ends with an [up][up] or a
+ * [cancel][cancel] event. Movement can be expressed with [moveTo] and [moveBy] to
+ * move a single pointer at a time, or [movePointerTo] and [movePointerBy] to move multiple
+ * pointers at a time. The `movePointer[To|By]` methods do not send the move event directly, use
+ * [move] to send the move event. Some other methods can send a move event as well. All
+ * events, regardless the method used, will always contain the current position of _all_ pointers.
+ *
+ * Down and up events are sent at the same time as the previous event, but will send an extra
+ * move event just before the down or up event if [movePointerTo] or [movePointerBy] has been
+ * called and no move event has been sent yet. This does not happen for cancel events, but the
+ * cancel event will contain the up to date position of all pointers. Move and cancel events will
+ * advance the event time by 10 milliseconds.
+ *
+ * Because partial gestures don't have to be defined all in the same [performPartialGesture] block,
+ * keep in mind that while the gesture is not complete, all code you execute in between
+ * blocks that progress the gesture, will be executed while imaginary fingers are actively
+ * touching the screen.
+ *
+ * In the context of testing, it is not necessary to complete a gesture with an up or cancel
+ * event, if the test ends before it expects the finger to be lifted from the screen.
+ *
+ * @param pointerId The id of the pointer, can be any number not yet in use by another pointer
+ * @param position The position of the down event, in the node's local coordinate system
  */
-class GestureToken internal constructor(
-    internal val downTime: Long,
-    internal var lastPosition: PxPosition
-) {
-    internal var eventTime: Long = downTime
-    internal var finished: Boolean = false
+fun PartialGestureScope.down(pointerId: Int, position: Offset) {
+    val globalPosition = localToGlobal(position)
+    inputDispatcher.sendDown(pointerId, globalPosition)
 }
 
 /**
- * Sends a down event at the given [position] on the associated component. The [position] is in
- * the component's local coordinate system, where (0.px, 0.px) is the top left corner of the
- * component. The returned token needs to be used in all subsequent events of this gesture.
+ * Sends a down event for the default pointer at [position] on the associated node. The
+ * [position] is in the node's local coordinate system, where (0, 0) is the top left
+ * corner of the node. The default pointer has `pointerId = 0`.
+ *
+ * If no pointers are down yet, this will start a new partial gesture. If a partial gesture is
+ * already in progress, this event is sent with at the same timestamp as the last event. If the
+ * default pointer is already down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param position The position of the down event, in the node's local coordinate system
+ */
+fun PartialGestureScope.down(position: Offset) {
+    down(0, position)
+}
+
+/**
+ * Sends a move event on the associated node, with the position of the pointer with the
+ * given [pointerId] updated to [position]. The [position] is in the node's local coordinate
+ * system, where (0, 0) is the top left corner of the node.
+ *
+ * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param pointerId The id of the pointer to move, as supplied in [down]
+ * @param position The new position of the pointer, in the node's local coordinate system
+ */
+fun PartialGestureScope.moveTo(pointerId: Int, position: Offset) {
+    movePointerTo(pointerId, position)
+    move()
+}
+
+/**
+ * Sends a move event on the associated node, with the position of the default pointer
+ * updated to [position]. The [position] is in the node's local coordinate system, where
+ * (0, 0) is the top left corner of the node. The default pointer has `pointerId = 0`.
+ *
+ * If the default pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param position The new position of the pointer, in the node's local coordinate system
+ */
+fun PartialGestureScope.moveTo(position: Offset) {
+    moveTo(0, position)
+}
+
+/**
+ * Updates the position of the pointer with the given [pointerId] to the given [position], but
+ * does not send a move event. The move event can be sent with [move]. The [position] is in
+ * the node's local coordinate system, where (0.px, 0.px) is the top left corner of the
+ * node.
+ *
+ * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param pointerId The id of the pointer to move, as supplied in [down]
+ * @param position The new position of the pointer, in the node's local coordinate system
+ */
+fun PartialGestureScope.movePointerTo(pointerId: Int, position: Offset) {
+    val globalPosition = localToGlobal(position)
+    inputDispatcher.movePointer(pointerId, globalPosition)
+}
+
+/**
+ * Sends a move event on the associated node, with the position of the pointer with the
+ * given [pointerId] moved by the given [delta].
+ *
+ * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param pointerId The id of the pointer to move, as supplied in [down]
+ * @param delta The position for this move event, relative to the last sent position of the
+ * pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's last
+ * x-position, and subtract 10.px from the pointer's last y-position.
+ */
+fun PartialGestureScope.moveBy(pointerId: Int, delta: Offset) {
+    movePointerBy(pointerId, delta)
+    move()
+}
+
+/**
+ * Sends a move event on the associated node, with the position of the default pointer
+ * moved by the given [delta]. The default pointer has `pointerId = 0`.
+ *
+ * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param delta The position for this move event, relative to the last sent position of the
+ * pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's last
+ * x-position, and subtract 10.px from the pointer's last y-position.
+ */
+fun PartialGestureScope.moveBy(delta: Offset) {
+    moveBy(0, delta)
+}
+
+/**
+ * Moves the position of the pointer with the given [pointerId] by the given [delta], but does
+ * not send a move event. The move event can be sent with [move].
+ *
+ * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param pointerId The id of the pointer to move, as supplied in [down]
+ * @param delta The position for this move event, relative to the last sent position of the
+ * pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's last
+ * x-position, and subtract 10.px from the pointer's last y-position.
+ */
+fun PartialGestureScope.movePointerBy(pointerId: Int, delta: Offset) {
+    // Ignore currentPosition of null here, let movePointer generate the error
+    val globalPosition =
+        (inputDispatcher.getCurrentPosition(pointerId) ?: Offset.Zero) + delta
+    inputDispatcher.movePointer(pointerId, globalPosition)
+}
+
+/**
+ * Sends a move event without updating any of the pointer positions. This can be useful when
+ * batching movement of multiple pointers together, which can be done with [movePointerTo] and
+ * [movePointerBy].
+ */
+fun PartialGestureScope.move() {
+    inputDispatcher.sendMove()
+}
+
+/**
+ * Sends an up event for the pointer with the given [pointerId], or the default pointer if
+ * [pointerId] is omitted, on the associated node. If any pointers have been moved with
+ * [movePointerTo] or [movePointerBy] and no move event has been sent yet, a move event will be
+ * sent right before the up event.
+ *
+ * @param pointerId The id of the pointer to lift up, as supplied in [down]
+ */
+fun PartialGestureScope.up(pointerId: Int = 0) {
+    inputDispatcher.sendUp(pointerId)
+}
+
+/**
+ * Sends a cancel event to cancel the current partial gesture. The cancel event contains the
+ * current position of all active pointers.
+ */
+fun PartialGestureScope.cancel() {
+    inputDispatcher.sendCancel()
+}
+
+// DEPRECATED APIs SECTION
+
+/**
+ * Performs a click gesture at the given [position] on the associated component, or in the center
+ * if the [position] is omitted. The [position] is in the component's local coordinate system,
+ * where (0, 0) is the top left corner of the component. The default [position] is the
+ * center of the component.
+ *
+ * @param position The position where to click, in the component's local coordinate system. If
+ * omitted, the center position will be used.
+ */
+@Deprecated("Renamed to click",
+    replaceWith = ReplaceWith("click(position)"))
+fun GestureScope.sendClick(position: Offset = center) = click(position)
+
+/**
+ * Performs a long click gesture at the given [position] on the associated component, or in the
+ * center if the [position] is omitted. By default, the [duration] of the press is
+ * [LongPressTimeout] + 100 milliseconds. The [position] is in the component's local coordinate
+ * system, where (0, 0) is the top left corner of the component.
+ *
+ * @param position The position of the long click, in the component's local coordinate system. If
+ * omitted, the center position will be used.
+ * @param duration The time between the down and the up event
+ */
+@Deprecated("Renamed to longClick",
+    replaceWith = ReplaceWith("longClick(position, duration)"))
+fun GestureScope.sendLongClick(
+    position: Offset = center,
+    duration: Duration = LongPressTimeout + 100.milliseconds
+) = longClick(position, duration)
+
+/**
+ * Performs a double click gesture at the given [position] on the associated component, or in the
+ * center if the [position] is omitted. By default, the [delay] between the first and the second
+ * click is 145 milliseconds (empirically established). The [position] is in the component's
+ * local coordinate system, where (0, 0) is the top left corner of the component.
+ *
+ * @param position The position of the double click, in the component's local coordinate system.
+ * If omitted, the center position will be used.
+ * @param delay The time between the up event of the first click and the down event of the second
+ * click
+ */
+@Deprecated("Renamed to doubleClick",
+    replaceWith = ReplaceWith("doubleClick(position, delay)"))
+fun GestureScope.sendDoubleClick(
+    position: Offset = center,
+    delay: Duration = doubleClickDelay
+) = doubleClick(position, delay)
+
+/**
+ * Performs the swipe gesture on the associated component. The motion events are linearly
+ * interpolated between [start] and [end]. The coordinates are in the component's local
+ * coordinate system, where (0, 0) is the top left corner of the component. The default
+ * duration is 200 milliseconds.
+ *
+ * @param start The start position of the gesture, in the component's local coordinate system
+ * @param end The end position of the gesture, in the component's local coordinate system
+ * @param duration The duration of the gesture
+ */
+@Deprecated("Renamed to swipe",
+    replaceWith = ReplaceWith("swipe(start, end, duration)"))
+fun GestureScope.sendSwipe(
+    start: Offset,
+    end: Offset,
+    duration: Duration = 200.milliseconds
+) = swipe(start, end, duration)
+
+/**
+ * Performs a pinch gesture on the associated component.
+ *
+ * For each pair of start and end [Offset]s, the motion events are linearly interpolated. The
+ * coordinates are in the component's local coordinate system where (0, 0) is the top left
+ * corner of the component. The default duration is 400 milliseconds.
+ *
+ * @param start0 The start position of the first gesture in the component's local coordinate system
+ * @param end0 The end position of the first gesture in the component's local coordinate system
+ * @param start1 The start position of the second gesture in the component's local coordinate system
+ * @param end1 The end position of the second gesture in the component's local coordinate system
+ * @param duration the duration of the gesture
+ */
+@Deprecated("Renamed to pinch",
+    replaceWith = ReplaceWith("pinch(start0, end0, start1, end0, duration)"))
+fun GestureScope.sendPinch(
+    start0: Offset,
+    end0: Offset,
+    start1: Offset,
+    end1: Offset,
+    duration: Duration = 400.milliseconds
+) = pinch(start0, end0, start1, end1, duration)
+
+/**
+ * Performs the swipe gesture on the associated component, such that the velocity when the
+ * gesture is finished is roughly equal to [endVelocity]. The MotionEvents are linearly
+ * interpolated between [start] and [end]. The coordinates are in the component's
+ * local coordinate system, where (0, 0) is the top left corner of the component. The
+ * default duration is 200 milliseconds.
+ *
+ * Note that due to imprecisions, no guarantees can be made on the precision of the actual
+ * velocity at the end of the gesture, but generally it is within 0.1% of the desired velocity.
+ *
+ * @param start The start position of the gesture, in the component's local coordinate system
+ * @param end The end position of the gesture, in the component's local coordinate system
+ * @param endVelocity The velocity of the gesture at the moment it ends. Must be positive.
+ * @param duration The duration of the gesture. Must be long enough that at least 3 input events
+ * are generated, which happens with a duration of 25ms or more.
+ */
+@Deprecated("Renamed to swipeWithVelocity",
+    replaceWith = ReplaceWith("swipeWithVelocity(start, end, endVelocity, duration)"))
+fun GestureScope.sendSwipeWithVelocity(
+    start: Offset,
+    end: Offset,
+    @FloatRange(from = 0.0) endVelocity: Float,
+    duration: Duration = 200.milliseconds
+) = swipeWithVelocity(start, end, endVelocity, duration)
+
+/**
+ * Performs a swipe up gesture on the associated component. The gesture starts slightly above the
+ * bottom of the component and ends at the top.
+ */
+@Deprecated("Renamed to swipeUp",
+    replaceWith = ReplaceWith("swipeUp()"))
+fun GestureScope.sendSwipeUp() = swipeUp()
+
+/**
+ * Performs a swipe down gesture on the associated component. The gesture starts slightly below the
+ * top of the component and ends at the bottom.
+ */
+@Deprecated("Renamed to swipeDown",
+    replaceWith = ReplaceWith("swipeDown()"))
+fun GestureScope.sendSwipeDown() = swipeDown()
+
+/**
+ * Performs a swipe left gesture on the associated component. The gesture starts slightly left of
+ * the right side of the component and ends at the left side.
+ */
+@Deprecated("Renamed to swipeLeft",
+    replaceWith = ReplaceWith("swipeLeft()"))
+fun GestureScope.sendSwipeLeft() = swipeLeft()
+
+/**
+ * Performs a swipe right gesture on the associated component. The gesture starts slightly right of
+ * the left side of the component and ends at the right side.
+ */
+@Deprecated("Renamed to swipeRight",
+    replaceWith = ReplaceWith("swipeRight()"))
+fun GestureScope.sendSwipeRight() = swipeRight()
+
+/**
+ * Sends a down event for the pointer with the given [pointerId] at [position] on the associated
+ * component. The [position] is in the component's local coordinate system, where (0, 0) is
+ * the top left corner of the component.
+ *
+ * If no pointers are down yet, this will start a new partial gesture. If a partial gesture is
+ * already in progress, this event is sent with at the same timestamp as the last event. If the
+ * given pointer is already down, an [IllegalArgumentException] will be thrown.
+ *
+ * This gesture is considered _partial_, because the entire gesture can be spread over several
+ * invocations of [performPartialGesture]. An entire gesture starts with a [down][sendDown] event,
+ * followed by several down, move or up events, and ends with an [up][sendUp] or a
+ * [cancel][sendCancel] event. Movement can be expressed with [sendMoveTo] and [sendMoveBy] to
+ * move a single pointer at a time, or [movePointerTo] and [movePointerBy] to move multiple
+ * pointers at a time. The `movePointer[To|By]` methods do not send the move event directly, use
+ * [sendMove] to send the move event. Some other methods can send a move event as well. All
+ * events, regardless the method used, will always contain the current position of _all_ pointers.
+ *
+ * Down and up events are sent at the same time as the previous event, but will send an extra
+ * move event just before the down or up event if [movePointerTo] or [movePointerBy] has been
+ * called and no move event has been sent yet. This does not happen for cancel events, but the
+ * cancel event will contain the up to date position of all pointers. Move and cancel events will
+ * advance the event time by 10 milliseconds.
+ *
+ * Because partial gestures don't have to be defined all in the same [performPartialGesture] block,
+ * keep in mind that while the gesture is not complete, all code you execute in between
+ * blocks that progress the gesture, will be executed while imaginary fingers are actively
+ * touching the screen.
+ *
+ * In the context of testing, it is not necessary to complete a gesture with an up or cancel
+ * event, if the test ends before it expects the finger to be lifted from the screen.
+ *
+ * @param pointerId The id of the pointer, can be any number not yet in use by another pointer
+ * @param position The position of the down event, in the component's local coordinate system
+ */
+@Deprecated("Renamed to down",
+    replaceWith = ReplaceWith("down(pointerId, position)"))
+fun PartialGestureScope.sendDown(pointerId: Int, position: Offset) = down(pointerId, position)
+
+/**
+ * Sends a down event for the default pointer at [position] on the associated component. The
+ * [position] is in the component's local coordinate system, where (0, 0) is the top left
+ * corner of the component. The default pointer has `pointerId = 0`.
+ *
+ * If no pointers are down yet, this will start a new partial gesture. If a partial gesture is
+ * already in progress, this event is sent with at the same timestamp as the last event. If the
+ * default pointer is already down, an [IllegalArgumentException] will be thrown.
  *
  * @param position The position of the down event, in the component's local coordinate system
- * @return A token that identifies this gesture and must be passed to all subsequent events that
- * are part of this gesture.
  */
-fun PartialGestureScope.sendDown(position: PxPosition): GestureToken {
-    val globalPosition = localToGlobal(position)
-    return inputDispatcher.sendDown(globalPosition)
-}
+@Deprecated("Renamed to down",
+    replaceWith = ReplaceWith("down(position)"))
+fun PartialGestureScope.sendDown(position: Offset) = down(position)
 
 /**
- * Sends a move event at the given [position] on the associated component. The [position] is in
- * the component's local coordinate system, where (0.px, 0.px) is the top left corner of the
- * component.
+ * Sends a move event on the associated component, with the position of the pointer with the
+ * given [pointerId] updated to [position]. The [position] is in the component's local coordinate
+ * system, where (0, 0) is the top left corner of the component.
  *
- * @param token The token returned from the corresponding [down event][sendDown] that started
- * this gesture.
- * @param position The position of the move event, in the component's local coordinate system
+ * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param pointerId The id of the pointer to move, as supplied in [sendDown]
+ * @param position The new position of the pointer, in the component's local coordinate system
  */
-fun PartialGestureScope.sendMoveTo(token: GestureToken, position: PxPosition) {
-    val globalPosition = localToGlobal(position)
-    inputDispatcher.sendMove(token, globalPosition)
-}
+@Deprecated("Renamed to moveTo",
+    replaceWith = ReplaceWith("moveTo(pointerId, position)"))
+fun PartialGestureScope.sendMoveTo(pointerId: Int, position: Offset) = moveTo(pointerId, position)
 
 /**
- * Sends a move event on the associated component, using the last used coordinate and moving it
- * by the given [delta].
+ * Sends a move event on the associated component, with the position of the default pointer
+ * updated to [position]. The [position] is in the component's local coordinate system, where
+ * (0, 0) is the top left corner of the component. The default pointer has `pointerId = 0`.
  *
- * @param token The token returned from the corresponding [down event][sendDown] that started
- * this gesture.
- * @param delta The position for this move event, relative to the last sent event. For example,
- * `delta = PxPosition(10.px, -10.px) will add 10.px to the last event's x-position, and subtract
- * 10.px from the last event's y-position.
+ * If the default pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param position The new position of the pointer, in the component's local coordinate system
  */
-fun PartialGestureScope.sendMoveBy(token: GestureToken, delta: PxPosition) {
-    val globalPosition = token.lastPosition + delta
-    inputDispatcher.sendMove(token, globalPosition)
-}
+@Deprecated("Renamed to moveTo",
+    replaceWith = ReplaceWith("moveTo(position)"))
+fun PartialGestureScope.sendMoveTo(position: Offset) = moveTo(position)
 
 /**
- * Sends an up event at the given [position] on the associated component. If [position] is
- * omitted, the position of the previous event is used. The [position] is in the component's
- * local coordinate system, where (0.px, 0.px) is the top left corner of the component.
+ * Sends a move event on the associated component, with the position of the pointer with the
+ * given [pointerId] moved by the given [delta].
  *
- * @param token The token returned from the corresponding [down event][sendDown] that started
- * this gesture.
- * @param position The position of the up event, in the component's local coordinate system
+ * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param pointerId The id of the pointer to move, as supplied in [sendDown]
+ * @param delta The position for this move event, relative to the last sent position of the
+ * pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's last
+ * x-position, and subtract 10.px from the pointer's last y-position.
  */
-fun PartialGestureScope.sendUp(token: GestureToken, position: PxPosition? = null) {
-    val globalPosition = position?.let { localToGlobal(it) } ?: token.lastPosition
-    inputDispatcher.sendUp(token, globalPosition)
-}
+@Deprecated("Renamed to moveBy",
+    replaceWith = ReplaceWith("moveBy(pointerId, delta)"))
+fun PartialGestureScope.sendMoveBy(pointerId: Int, delta: Offset) = moveBy(pointerId, delta)
 
 /**
- * Sends a cancel event at the given [position] on the associated component. If [position] is
- * omitted, the position of the previous event is used. The [position] is in the component's
- * local coordinate system, where (0.px, 0.px) is the top left corner of the component.
+ * Sends a move event on the associated component, with the position of the default pointer
+ * moved by the given [delta]. The default pointer has `pointerId = 0`.
  *
- * @param token The token returned from the corresponding [down event][sendDown] that started
- * this gesture.
- * @param position The position of the cancel event, in the component's local coordinate system
+ * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param delta The position for this move event, relative to the last sent position of the
+ * pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's last
+ * x-position, and subtract 10.px from the pointer's last y-position.
  */
-fun PartialGestureScope.sendCancel(token: GestureToken, position: PxPosition? = null) {
-    val globalPosition = position?.let { localToGlobal(it) } ?: token.lastPosition
-    inputDispatcher.sendCancel(token, globalPosition)
-}
+@Deprecated("Renamed to moveBy",
+    replaceWith = ReplaceWith("moveBy(delta)"))
+fun PartialGestureScope.sendMoveBy(delta: Offset) = moveBy(delta)
+
+/**
+ * Sends a move event without updating any of the pointer positions. This can be useful when
+ * batching movement of multiple pointers together, which can be done with [movePointerTo] and
+ * [movePointerBy].
+ */
+@Deprecated("Renamed to move",
+    replaceWith = ReplaceWith("move()"))
+fun PartialGestureScope.sendMove() = move()
+
+/**
+ * Sends an up event for the pointer with the given [pointerId], or the default pointer if
+ * [pointerId] is omitted, on the associated component. If any pointers have been moved with
+ * [movePointerTo] or [movePointerBy] and no move event has been sent yet, a move event will be
+ * sent right before the up event.
+ *
+ * @param pointerId The id of the pointer to lift up, as supplied in [sendDown]
+ */
+@Deprecated("Renamed to up",
+    replaceWith = ReplaceWith("up(pointerId)"))
+fun PartialGestureScope.sendUp(pointerId: Int = 0) = up(pointerId)
+
+/**
+ * Sends a cancel event to cancel the current partial gesture. The cancel event contains the
+ * current position of all active pointers.
+ */
+@Deprecated("Renamed to cancel",
+    replaceWith = ReplaceWith("cancel()"))
+fun PartialGestureScope.sendCancel() = cancel()

@@ -48,12 +48,12 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.CaptureProcessor;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -69,6 +69,7 @@ import org.mockito.InOrder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -82,12 +83,10 @@ public class ImageCaptureExtenderTest {
             Manifest.permission.CAMERA);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-    private FakeLifecycleOwner mLifecycleOwner;
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         assumeTrue(CameraUtil.deviceHasCamera());
-        mLifecycleOwner = new FakeLifecycleOwner();
 
         Context context = ApplicationProvider.getApplicationContext();
         CameraX.initialize(context, Camera2Config.defaultConfig());
@@ -124,11 +123,13 @@ public class ImageCaptureExtenderTest {
         @CameraSelector.LensFacing int lensFacing = CameraX.getDefaultLensFacing();
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(lensFacing).build();
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, useCase);
-                mLifecycleOwner.startAndResume();
+        CameraUseCaseAdapter cameraUseCaseAdapter =
+                CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+        mInstrumentation.runOnMainSync(() -> {
+            try {
+                cameraUseCaseAdapter.addUseCases(Collections.singleton(useCase));
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                throw new IllegalArgumentException("Unable to attach use case");
             }
         });
 
@@ -141,12 +142,9 @@ public class ImageCaptureExtenderTest {
         inOrder.verify(mockImageCaptureExtenderImpl,
                 timeout(3000).atLeastOnce()).getCaptureStages();
 
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                // Unbind the use case to test the onDeInit.
-                CameraX.unbind(useCase);
-            }
+        mInstrumentation.runOnMainSync(() -> {
+            // Unbind the use case to test the onDeInit.
+            cameraUseCaseAdapter.removeUseCases(Collections.singleton(useCase));
         });
 
         // To verify the deInit should been called.
@@ -158,8 +156,7 @@ public class ImageCaptureExtenderTest {
 
     @Test
     @MediumTest
-    public void extenderLifeCycleTest_noMoreCameraEventCallbacksBeforeAndAfterInitDeInit()
-            throws CameraInfoUnavailableException {
+    public void extenderLifeCycleTest_noMoreCameraEventCallbacksBeforeAndAfterInitDeInit() {
         ImageCaptureExtenderImpl mockImageCaptureExtenderImpl = mock(
                 ImageCaptureExtenderImpl.class);
         ArrayList<CaptureStageImpl> captureStages = new ArrayList<>();
@@ -181,11 +178,13 @@ public class ImageCaptureExtenderTest {
         @CameraSelector.LensFacing int lensFacing = CameraX.getDefaultLensFacing();
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(lensFacing).build();
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, useCase);
-                mLifecycleOwner.startAndResume();
+        CameraUseCaseAdapter cameraUseCaseAdapter =
+                CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+        mInstrumentation.runOnMainSync(() -> {
+            try {
+                cameraUseCaseAdapter.addUseCases(Collections.singleton(useCase));
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                throw new IllegalArgumentException("Unable to attach use case");
             }
         });
 
@@ -198,12 +197,9 @@ public class ImageCaptureExtenderTest {
         inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce()).onPresetSession();
         inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce()).onEnableSession();
 
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                // Unbind the use case to test the onDisableSession and onDeInit.
-                CameraX.unbind(useCase);
-            }
+        mInstrumentation.runOnMainSync(() -> {
+            // Unbind the use case to test the onDisableSession and onDeInit.
+            cameraUseCaseAdapter.removeUseCases(Collections.singleton(useCase));
         });
 
         // To verify the onDisableSession and onDeInit.

@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.Lifecycle;
 
@@ -31,17 +30,15 @@ import java.util.List;
  * {@link UseCase}s to the same {@link Lifecycle}. {@link UseCase}s inside of a
  * {@link UseCaseGroup} usually share some common properties like the FOV defined by
  * {@link ViewPort}.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalUseCaseGroup
 public final class UseCaseGroup {
 
     private ViewPort mViewPort;
 
-    private UseCase[] mUseCases;
+    private List<UseCase> mUseCases;
 
-    UseCaseGroup(@NonNull ViewPort viewPort, @NonNull UseCase[] useCases) {
+    UseCaseGroup(@NonNull ViewPort viewPort, @NonNull List<UseCase> useCases) {
         mViewPort = viewPort;
         mUseCases = useCases;
     }
@@ -58,16 +55,14 @@ public final class UseCaseGroup {
      * Gets the {@link UseCase}s.
      */
     @NonNull
-    public UseCase[] getUseCases() {
+    public List<UseCase> getUseCases() {
         return mUseCases;
     }
 
     /**
      * A builder for generating {@link UseCaseGroup}.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalUseCaseGroup
     public static class Builder {
 
         private ViewPort mViewPort;
@@ -80,11 +75,8 @@ public final class UseCaseGroup {
 
         /**
          * Sets {@link ViewPort} shared by the {@link UseCase}s.
-         *
-         * @hide
          */
         @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder setViewPort(@NonNull ViewPort viewPort) {
             mViewPort = viewPort;
             return this;
@@ -92,11 +84,8 @@ public final class UseCaseGroup {
 
         /**
          * Adds {@link UseCase} to the collection.
-         *
-         * @hide
          */
         @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder addUseCase(@NonNull UseCase useCase) {
             mUseCases.add(useCase);
             return this;
@@ -104,14 +93,11 @@ public final class UseCaseGroup {
 
         /**
          * Builds a {@link UseCaseGroup} from the current state.
-         *
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
         public UseCaseGroup build() {
             Preconditions.checkArgument(!mUseCases.isEmpty(), "UseCase must not be empty.");
-            return new UseCaseGroup(mViewPort, mUseCases.toArray(new UseCase[0]));
+            return new UseCaseGroup(mViewPort, mUseCases);
         }
     }
 

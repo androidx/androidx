@@ -54,6 +54,7 @@ public class Loader<D> {
      * an update when the cursor's backing data changes.
      */
     public final class ForceLoadContentObserver extends ContentObserver {
+        @SuppressWarnings("deprecation")
         public ForceLoadContentObserver() {
             super(new Handler());
         }

@@ -19,15 +19,15 @@ package androidx.ui.material.demos
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.GenericShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Column
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.material.Button
@@ -35,6 +35,8 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.OutlinedButton
 import androidx.ui.material.TextButton
 import androidx.ui.material.samples.ButtonSample
+import androidx.ui.material.samples.ButtonWithIconSample
+import androidx.ui.material.samples.FluidExtendedFab
 import androidx.ui.material.samples.IconButtonSample
 import androidx.ui.material.samples.IconToggleButtonSample
 import androidx.ui.material.samples.OutlinedButtonSample
@@ -48,7 +50,7 @@ private val DefaultSpace = 20.dp
 
 @Composable
 fun ButtonDemo() {
-    Column(Modifier.padding(10.dp)) {
+    ScrollableColumn(contentPadding = InnerPadding(10.dp)) {
         Buttons()
         Spacer(Modifier.preferredHeight(DefaultSpace))
         Fabs()
@@ -75,14 +77,15 @@ private fun Buttons() {
         Button(onClick = {}, backgroundColor = MaterialTheme.colors.secondary) {
             Text("Secondary Color")
         }
-        Button(onClick = {}, enabled = false) {
-            Text("Disabled")
-        }
+        ButtonWithIconSample()
     }
 
     Spacer(Modifier.preferredHeight(DefaultSpace))
 
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+        Button(onClick = {}, enabled = false) {
+            Text("Disabled")
+        }
         OutlinedButton(onClick = {}, enabled = false) {
             Text("Disabled")
         }
@@ -102,6 +105,8 @@ private fun Fabs() {
         SimpleExtendedFabNoIcon()
         SimpleExtendedFabWithIcon()
     }
+    Spacer(Modifier.preferredHeight(DefaultSpace))
+    FluidExtendedFab()
 }
 
 @Composable
@@ -131,7 +136,7 @@ private fun CustomShapeButton() {
 }
 
 private val TriangleShape = GenericShape { size ->
-    moveTo(size.width.value / 2f, 0f)
-    lineTo(size.width.value, size.height.value)
-    lineTo(0f, size.height.value)
+    moveTo(size.width / 2f, 0f)
+    lineTo(size.width, size.height)
+    lineTo(0f, size.height)
 }

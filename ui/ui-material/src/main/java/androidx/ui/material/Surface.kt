@@ -36,7 +36,6 @@ import androidx.ui.graphics.compositeOver
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import kotlin.math.ln
 
 /**
@@ -120,7 +119,7 @@ val ColorPalette.primarySurface: Color get() = if (isLight) primary else surface
 // TODO("Andrey: Should be replaced with some basic layout implementation when we have it")
 @Composable
 private fun SurfaceLayout(modifier: Modifier = Modifier, children: @Composable () -> Unit) {
-    Layout(children, modifier) { measurables, constraints, _ ->
+    Layout(children, modifier) { measurables, constraints ->
         if (measurables.size > 1) {
             throw IllegalStateException("Surface can have only one direct measurable child!")
         }
@@ -130,7 +129,7 @@ private fun SurfaceLayout(modifier: Modifier = Modifier, children: @Composable (
         } else {
             val placeable = measurable.measure(constraints)
             layout(placeable.width, placeable.height) {
-                placeable.placeAbsolute(0.ipx, 0.ipx)
+                placeable.placeAbsolute(0, 0)
             }
         }
     }

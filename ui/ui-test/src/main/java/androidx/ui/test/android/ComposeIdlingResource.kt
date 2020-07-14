@@ -18,14 +18,23 @@ package androidx.ui.test.android
 
 import android.os.Handler
 import android.os.Looper
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Recomposer
-import androidx.compose.frames.currentFrame
-import androidx.compose.frames.inFrame
+import androidx.compose.snapshots.Snapshot
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
 import androidx.ui.test.TestAnimationClock
 import androidx.ui.test.runOnUiThread
 import java.util.concurrent.atomic.AtomicBoolean
+
+/**
+ * In case Espresso times out, implementing this interface enables our resources to explain why
+ * they failed to synchronize in case they were busy.
+ */
+internal interface IdlingResourceWithDiagnostics {
+    // TODO: Consider this as a public API.
+    fun getDiagnosticMessageIfBusy(): String?
+}
 
 /**
  * Register compose's idling check to Espresso.
@@ -70,7 +79,7 @@ fun unregisterTestClock(clock: TestAnimationClock) {
  * [AndroidComposeTestRule]. If you for some reasons want to only use Espresso but still have it
  * wait for Compose being idle you can register this yourself via [registerSelfIntoEspresso].
  */
-internal object ComposeIdlingResource : BaseIdlingResource() {
+internal object ComposeIdlingResource : BaseIdlingResource(), IdlingResourceWithDiagnostics {
 
     override fun getName(): String = "ComposeIdlingResource"
 
@@ -80,14 +89,21 @@ internal object ComposeIdlingResource : BaseIdlingResource() {
 
     private val handler = Handler(Looper.getMainLooper())
 
+    private var hadAnimationClocksIdle = true
+    private var hadNoSnapshotChanges = true
+    private var hadNoRecomposerChanges = true
+
     /**
      * Returns whether or not Compose is idle, without starting to poll if it is not.
      */
+    @OptIn(ExperimentalComposeApi::class)
     fun isIdle(): Boolean {
         return runOnUiThread {
-            !(inFrame && currentFrame().hasPendingChanges()) &&
-                    !Recomposer.current().hasPendingChanges() &&
-                    areAllClocksIdle()
+            hadNoSnapshotChanges = !Snapshot.current.hasPendingChanges()
+            hadNoRecomposerChanges = !Recomposer.current().hasPendingChanges()
+            hadAnimationClocksIdle = areAllClocksIdle()
+
+            hadNoSnapshotChanges && hadNoRecomposerChanges && hadAnimationClocksIdle
         }
     }
 
@@ -107,14 +123,14 @@ internal object ComposeIdlingResource : BaseIdlingResource() {
     private fun scheduleIdleCheck() {
         if (!isIdleCheckScheduled) {
             isIdleCheckScheduled = true
-            handler.post {
+            handler.postDelayed({
                 isIdleCheckScheduled = false
                 if (isIdle()) {
                     transitionToIdle()
                 } else {
                     scheduleIdleCheck()
                 }
-            }
+            }, /* delayMillis = */ 20)
         }
     }
 
@@ -134,6 +150,32 @@ internal object ComposeIdlingResource : BaseIdlingResource() {
         return synchronized(clocks) {
             clocks.all { it.isIdle }
         }
+    }
+
+    override fun getDiagnosticMessageIfBusy(): String? {
+        val wasIdle = hadNoSnapshotChanges && hadNoRecomposerChanges && hadAnimationClocksIdle
+
+        if (wasIdle) {
+            return null
+        }
+
+        val busyReasons = mutableListOf<String>()
+        if (!hadAnimationClocksIdle) {
+            busyReasons.add("animations")
+        }
+        val busyRecomposing = !(hadNoRecomposerChanges && hadNoSnapshotChanges)
+        if (busyRecomposing) {
+            busyReasons.add("pending recompositions")
+        }
+
+        var message = "$name is busy due to ${busyReasons.joinToString(", ")}.\n"
+        if (busyRecomposing) {
+            message += "- Note: Timeout on pending recomposition means that there are most likely" +
+                    " infinite re-compositions happening in the tested code.\n"
+            message += "- Debug: hadRecomposerChanges = ${!hadNoRecomposerChanges}, "
+            message += "hadSnapshotChanges = ${!hadNoSnapshotChanges} "
+        }
+        return message
     }
 }
 

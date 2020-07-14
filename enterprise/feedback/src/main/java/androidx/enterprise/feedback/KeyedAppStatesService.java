@@ -23,16 +23,14 @@ import static androidx.enterprise.feedback.KeyedAppStatesReporter.WHAT_STATE;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
-
-import com.google.common.flogger.FluentLogger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,12 +57,14 @@ import java.util.Map;
  */
 public abstract class KeyedAppStatesService extends Service {
 
-    static final FluentLogger sLogger = FluentLogger.forEnclosingClass();
+    private static final String LOG_TAG = "KeyedAppStatesService";
 
     // This form is used instead of AsyncTask.execute(Runnable) as Robolectric causes tests to wait
     // for execution of these but does not currently wait for execution of
-    // AsyncTask.execute(runnable).
-    private static final class KeyedAppStatesServiceAsyncTask extends AsyncTask<Void, Void, Void> {
+    // android.os.AsyncTask.execute(runnable).
+    @SuppressWarnings("deprecation") /* AsyncTask */
+    private static final class KeyedAppStatesServiceAsyncTask
+            extends android.os.AsyncTask<Void, Void, Void> {
 
         @SuppressLint("StaticFieldLeak")
         // Instances are short-lived so won't block garbage collection.
@@ -90,6 +90,7 @@ public abstract class KeyedAppStatesService extends Service {
         }
     }
 
+    @SuppressWarnings("deprecation") /* AsyncTask */
     private static class IncomingHandler extends Handler {
         private final KeyedAppStatesService mKeyedAppStatesService;
 
@@ -141,26 +142,26 @@ public abstract class KeyedAppStatesService extends Service {
             try {
                 bundle = (Bundle) message.obj;
             } catch (ClassCastException e) {
-                sLogger.atSevere().log("Could not extract state bundles from message");
+                Log.e(LOG_TAG, "Could not extract state bundles from message", e);
                 return Collections.emptyList();
             }
 
             if (bundle == null) {
-                sLogger.atSevere().log("Could not extract state bundles from message");
+                Log.e(LOG_TAG, "Could not extract state bundles from message");
                 return Collections.emptyList();
             }
 
             Collection<Bundle> stateBundles = bundle.getParcelableArrayList(APP_STATES);
 
             if (stateBundles == null) {
-                sLogger.atSevere().log("Could not extract state bundles from message");
+                Log.e(LOG_TAG, "Could not extract state bundles from message");
                 return Collections.emptyList();
             }
 
             Collection<ReceivedKeyedAppState> states = new ArrayList<>();
             for (Bundle stateBundle : stateBundles) {
                 if (!KeyedAppState.isValid(stateBundle)) {
-                    sLogger.atSevere().log("Invalid KeyedAppState in bundle");
+                    Log.e(LOG_TAG, "Invalid KeyedAppState in bundle");
                     continue;
                 }
                 states.add(ReceivedKeyedAppState.fromBundle(stateBundle, packageName, timestamp));

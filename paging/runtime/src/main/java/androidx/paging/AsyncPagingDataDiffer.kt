@@ -18,21 +18,20 @@ package androidx.paging
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
-import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Helper class for mapping a [PagingData] into a
@@ -42,11 +41,14 @@ import java.util.concurrent.atomic.AtomicReference
  * [AsyncPagingDataDiffer] is exposed for complex cases, and where overriding [PagingDataAdapter] to
  * support paging isn't convenient.
  */
-class AsyncPagingDataDiffer<T : Any>(
-    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
-    private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
+class AsyncPagingDataDiffer<T : Any> @JvmOverloads constructor(
     private val diffCallback: DiffUtil.ItemCallback<T>,
-    private val updateCallback: ListUpdateCallback
+    @Suppress("ListenerLast") // have to suppress for each, due to defaults / JvmOverloads
+    private val updateCallback: ListUpdateCallback,
+    @Suppress("ListenerLast") // have to suppress for each, due to defaults / JvmOverloads
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
+    @Suppress("ListenerLast") // have to suppress for each, due to defaults / JvmOverloads
+    private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) {
     internal val callback = object : PresenterCallback {
         override fun onInserted(position: Int, count: Int) {
@@ -61,42 +63,37 @@ class AsyncPagingDataDiffer<T : Any>(
             updateCallback.onChanged(position, count, null)
         }
 
-        override fun onStateUpdate(loadType: LoadType, loadState: LoadState) {
-            when (loadType) {
-                REFRESH -> {
-                    if (loadState != loadStates[REFRESH]) {
-                        loadStates[REFRESH] = loadState
-                        dispatchLoadState(REFRESH, loadState)
-                    }
-                }
-                PREPEND -> {
-                    if (loadState != loadStates[PREPEND]) {
-                        loadStates[PREPEND] = loadState
-                        dispatchLoadState(PREPEND, loadState)
-                    }
-                }
-                APPEND -> {
-                    if (loadState != loadStates[APPEND]) {
-                        loadStates[APPEND] = loadState
-                        dispatchLoadState(APPEND, loadState)
-                    }
-                }
-            }
-        }
+        override fun onStateUpdate(
+            loadType: LoadType,
+            fromMediator: Boolean,
+            loadState: LoadState
+        ) {
+            val currentLoadState = combinedLoadStates.get(loadType, fromMediator)
 
-        private fun dispatchLoadState(type: LoadType, state: LoadState) {
-            loadStateListeners.forEach { it(type, state) }
+            // No change, skip update + dispatch.
+            if (currentLoadState == loadState) return
+
+            combinedLoadStates.set(loadType, fromMediator, loadState)
+            val combinedLoadStatesSnapshot = combinedLoadStates.snapshot()
+            loadStateListeners.forEach { it(combinedLoadStatesSnapshot) }
         }
     }
 
     /** True if we're currently executing [getItem] */
     internal var inGetItem: Boolean = false
 
+    // Internal for synthetic access in differBase anonymous class.
+    internal fun PresenterCallback.dispatchLoadStates(states: CombinedLoadStates) {
+        states.forEach { type, fromMediator, state ->
+            onStateUpdate(type, fromMediator, state)
+        }
+    }
+
     private val differBase = object : PagingDataDiffer<T>(mainDispatcher) {
         override suspend fun performDiff(
             previousList: NullPaddedList<T>,
             newList: NullPaddedList<T>,
-            newLoadStates: Map<LoadType, LoadState>,
+            newCombinedLoadStates: CombinedLoadStates,
             lastAccessedIndex: Int
         ): Int? {
             return withContext(mainDispatcher) {
@@ -104,13 +101,13 @@ class AsyncPagingDataDiffer<T : Any>(
                     previousList.size == 0 -> {
                         // fast path for no items -> some items
                         callback.onInserted(0, newList.size)
-                        newLoadStates.entries.forEach { callback.onStateUpdate(it.key, it.value) }
+                        callback.dispatchLoadStates(newCombinedLoadStates)
                         return@withContext null
                     }
                     newList.size == 0 -> {
                         // fast path for some items -> no items
                         callback.onRemoved(0, previousList.size)
-                        newLoadStates.entries.forEach { callback.onStateUpdate(it.key, it.value) }
+                        callback.dispatchLoadStates(newCombinedLoadStates)
                         return@withContext null
                     }
                     else -> { // full diff
@@ -119,7 +116,7 @@ class AsyncPagingDataDiffer<T : Any>(
                         }
 
                         previousList.dispatchDiff(updateCallback, newList, diffResult)
-                        newLoadStates.entries.forEach { callback.onStateUpdate(it.key, it.value) }
+                        callback.dispatchLoadStates(newCombinedLoadStates)
 
                         return@withContext previousList.transformAnchorIndex(
                             diffResult = diffResult,
@@ -142,7 +139,7 @@ class AsyncPagingDataDiffer<T : Any>(
         }
     }
 
-    private val job = AtomicReference<Job?>(null)
+    private val submitDataId = AtomicInteger(0)
 
     /**
      * Present a [PagingData] until it is invalidated by a call to [refresh] or
@@ -166,11 +163,8 @@ class AsyncPagingDataDiffer<T : Any>(
      * @see [Pager]
      */
     suspend fun submitData(pagingData: PagingData<T>) {
-        try {
-            job.get()?.cancelAndJoin()
-        } finally {
-            differBase.collectFrom(pagingData, callback)
-        }
+        submitDataId.incrementAndGet()
+        differBase.collectFrom(pagingData, callback)
     }
 
     /**
@@ -186,16 +180,14 @@ class AsyncPagingDataDiffer<T : Any>(
      * @see [Pager]
      */
     fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
-        var oldJob: Job?
-        var newJob: Job
-        do {
-            oldJob = job.get()
-            newJob = lifecycle.coroutineScope.launch(start = CoroutineStart.LAZY) {
-                oldJob?.cancelAndJoin()
+        val id = submitDataId.incrementAndGet()
+        lifecycle.coroutineScope.launch {
+            // Check id when this job runs to ensure the last synchronous call submitData always
+            // wins.
+            if (submitDataId.get() == id) {
                 differBase.collectFrom(pagingData, callback)
             }
-        } while (!job.compareAndSet(oldJob, newJob))
-        newJob.start()
+        }
     }
 
     /**
@@ -256,61 +248,81 @@ class AsyncPagingDataDiffer<T : Any>(
     val itemCount: Int
         get() = differBase.size
 
-    internal val loadStateListeners: MutableList<(LoadType, LoadState) -> Unit> =
+    internal val loadStateListeners: MutableList<(CombinedLoadStates) -> Unit> =
         CopyOnWriteArrayList()
 
-    internal val loadStates = mutableMapOf<LoadType, LoadState>(
-        REFRESH to LoadState.NotLoading(endOfPaginationReached = false, fromMediator = false),
-        PREPEND to LoadState.NotLoading(endOfPaginationReached = false, fromMediator = false),
-        APPEND to LoadState.NotLoading(endOfPaginationReached = false, fromMediator = false)
+    internal val combinedLoadStates = MutableLoadStateCollection(
+        hasRemoteState = false
     )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _loadStateCh = ConflatedBroadcastChannel(combinedLoadStates.snapshot())
+
     /**
-     * Add a listener to observe the loading state.
+     * A hot [Flow] of [CombinedLoadStates] that emits a snapshot whenever the loading state of the
+     * current [PagingData] changes.
+     *
+     * This flow is conflated, so it buffers the last update to [CombinedLoadStates] and
+     * immediately delivers the current load states on collection.
+     *
+     * @sample androidx.paging.samples.loadStateFlowSample
+     */
+    @OptIn(FlowPreview::class)
+    val loadStateFlow: Flow<CombinedLoadStates> = _loadStateCh.asFlow()
+
+    init {
+        @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
+        addLoadStateListener { _loadStateCh.offer(combinedLoadStates.snapshot()) }
+    }
+
+    /**
+     * Add a [CombinedLoadStates] listener to observe the loading state of the current [PagingData].
      *
      * As new [PagingData] generations are submitted and displayed, the listener will be notified to
-     * reflect current [LoadType.REFRESH], [LoadType.PREPEND], and [LoadType.APPEND] states.
+     * reflect the current [CombinedLoadStates].
      *
-     * @param listener to receive [LoadState] updates.
+     * @param listener [LoadStates] listener to receive updates.
      *
      * @see removeLoadStateListener
+     *
+     * @sample androidx.paging.samples.addLoadStateListenerSample
      */
-    fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         // Note: Important to add the listener first before sending off events, in case the
         // callback triggers removal, which could lead to a leak if the listener is added
         // afterwards.
         loadStateListeners.add(listener)
-        listener(REFRESH, loadStates[REFRESH]!!)
-        if (loadStateListeners.contains(listener)) listener(PREPEND, loadStates[PREPEND]!!)
-        if (loadStateListeners.contains(listener)) listener(APPEND, loadStates[APPEND]!!)
+        listener(combinedLoadStates.snapshot())
     }
 
     /**
-     * Remove a previously registered load state listener.
+     * Remove a previously registered [CombinedLoadStates] listener.
      *
      * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         loadStateListeners.remove(listener)
     }
 
     /**
-     * A [Flow] of [Unit] that is emitted when new [PagingData] generations are submitted and
-     * displayed.
+     * A [Flow] of [Boolean] that is emitted when new [PagingData] generations are submitted and
+     * displayed. The [Boolean] that is emitted is `true` if the new [PagingData] is empty,
+     * `false` otherwise.
      */
     @ExperimentalPagingApi
-    val dataRefreshFlow: Flow<Unit> = differBase.dataRefreshFlow
+    val dataRefreshFlow: Flow<Boolean> = differBase.dataRefreshFlow
 
     /**
      * Add a listener to observe new [PagingData] generations.
      *
-     * @param listener called whenever a new [PagingData] is submitted and displayed.
+     * @param listener called whenever a new [PagingData] is submitted and displayed. `true` is
+     * passed to the [listener] if the new [PagingData] is empty, `false` otherwise.
      *
      * @see removeDataRefreshListener
      */
     @ExperimentalPagingApi
-    fun addDataRefreshListener(listener: () -> Unit) {
+    fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
         differBase.addDataRefreshListener(listener)
     }
 
@@ -322,7 +334,7 @@ class AsyncPagingDataDiffer<T : Any>(
      * @see addDataRefreshListener
      */
     @ExperimentalPagingApi
-    fun removeDataRefreshListener(listener: () -> Unit) {
+    fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
         differBase.removeDataRefreshListener(listener)
     }
 }

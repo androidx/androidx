@@ -22,6 +22,7 @@ import android.view.Window;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in {@link Window}.
@@ -91,5 +92,54 @@ public final class WindowCompat {
             throw new IllegalArgumentException("ID does not reference a View inside this Window");
         }
         return view;
+    }
+
+    /**
+     * Sets whether the decor view should fit root-level content views for
+     * {@link WindowInsetsCompat}.
+     * <p>
+     * If set to {@code false}, the framework will not fit the content view to the insets and will
+     * just pass through the {@link WindowInsetsCompat} to the content view.
+     * </p>
+     * <p>
+     * Please note: using the {@link View#setSystemUiVisibility(int)} API in your app can
+     * conflict with this method. Please discontinue use of {@link View#setSystemUiVisibility(int)}.
+     * </p>
+     *
+     * @param window                 The current window.
+     * @param decorFitsSystemWindows Whether the decor view should fit root-level content views for
+     *                               insets.
+     */
+    public static void setDecorFitsSystemWindows(@NonNull Window window,
+            final boolean decorFitsSystemWindows) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            Impl30.setDecorFitsSystemWindows(window, decorFitsSystemWindows);
+        } else if (Build.VERSION.SDK_INT >= 16) {
+            Impl16.setDecorFitsSystemWindows(window, decorFitsSystemWindows);
+        }
+    }
+
+    @RequiresApi(16)
+    private static class Impl16 {
+        static void setDecorFitsSystemWindows(@NonNull Window window,
+                final boolean decorFitsSystemWindows) {
+            final int decorFitsFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+
+            final View decorView = window.getDecorView();
+            final int sysUiVis = decorView.getSystemUiVisibility();
+            decorView.setSystemUiVisibility(decorFitsSystemWindows
+                    ? sysUiVis & ~decorFitsFlags
+                    : sysUiVis | decorFitsFlags);
+        }
+    }
+
+    @RequiresApi(30)
+    private static class Impl30 {
+        static void setDecorFitsSystemWindows(@NonNull Window window,
+                final boolean decorFitsSystemWindows) {
+            window.setDecorFitsSystemWindows(decorFitsSystemWindows);
+        }
     }
 }

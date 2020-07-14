@@ -459,6 +459,7 @@ public class DialogFragment extends Fragment
 
     @MainThread
     @Override
+    @SuppressWarnings("deprecation")
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // This assumes that onCreate() is being called on the main thread

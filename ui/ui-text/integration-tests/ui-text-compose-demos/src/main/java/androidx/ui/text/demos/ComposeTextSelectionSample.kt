@@ -22,8 +22,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
@@ -73,7 +73,7 @@ val langContent = arrayOf(
 @Composable
 fun TextSelectionSample() {
     val selection = state<Selection?> { null }
-    VerticalScroller {
+    ScrollableColumn {
         SelectionContainer(
             selection = selection.value,
             onSelectionChange = { selection.value = it }

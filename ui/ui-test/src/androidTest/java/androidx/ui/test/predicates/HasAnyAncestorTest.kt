@@ -20,9 +20,9 @@ import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.find
-import androidx.ui.test.findAll
-import androidx.ui.test.hasAnyAncestorThat
+import androidx.ui.test.onNode
+import androidx.ui.test.onAllNodes
+import androidx.ui.test.hasAnyAncestor
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.util.BoundaryNode
 import org.junit.Rule
@@ -47,7 +47,7 @@ class HasAnyAncestorTest {
             }
         }
 
-        find(hasAnyAncestorThat(hasTestTag("Parent")))
+        onNode(hasAnyAncestor(hasTestTag("Parent")))
             .assert(hasTestTag("Child"))
     }
 
@@ -63,7 +63,7 @@ class HasAnyAncestorTest {
             }
         }
 
-        findAll(hasAnyAncestorThat(hasTestTag("Parent")))
+        onAllNodes(hasAnyAncestor(hasTestTag("Parent")))
             .assertCountEquals(2)
     }
 
@@ -78,7 +78,7 @@ class HasAnyAncestorTest {
             }
         }
 
-        find(hasAnyAncestorThat(hasTestTag("Grandparent"))
+        onNode(hasAnyAncestor(hasTestTag("Grandparent"))
                 and !hasTestTag("Parent"))
             .assert(hasTestTag("Child"))
     }
@@ -94,7 +94,7 @@ class HasAnyAncestorTest {
             }
         }
 
-        findAll(hasAnyAncestorThat(hasTestTag("Parent") or hasTestTag("Grandparent")))
+        onAllNodes(hasAnyAncestor(hasTestTag("Parent") or hasTestTag("Grandparent")))
             .assertCountEquals(2)
     }
 
@@ -104,7 +104,7 @@ class HasAnyAncestorTest {
             BoundaryNode(testTag = "Node")
         }
 
-        find(hasAnyAncestorThat(hasTestTag("Node")))
+        onNode(hasAnyAncestor(hasTestTag("Node")))
             .assertDoesNotExist()
     }
 
@@ -116,7 +116,7 @@ class HasAnyAncestorTest {
             }
         }
 
-        find(hasAnyAncestorThat(hasTestTag("Child")))
+        onNode(hasAnyAncestor(hasTestTag("Child")))
             .assertDoesNotExist()
     }
 }

@@ -28,7 +28,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -44,22 +43,23 @@ import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.SurfaceTextureProvider;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -73,8 +73,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class PreviewTest {
 
     @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
 
     private static final String ANY_THREAD_NAME = "any-thread-name";
     private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);
@@ -82,32 +81,25 @@ public final class PreviewTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private final CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
     private Preview.Builder mDefaultBuilder;
-    private FakeLifecycleOwner mLifecycleOwner;
     private Size mPreviewResolution;
     private Semaphore mSurfaceFutureSemaphore;
     private Semaphore mSafeToReleaseSemaphore;
+    private Context mContext;
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
-        assumeTrue(CameraUtil.deviceHasCamera());
-
-        final Context context = ApplicationProvider.getApplicationContext();
+        mContext = ApplicationProvider.getApplicationContext();
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
-        CameraX.initialize(context, cameraXConfig).get();
+        CameraX.initialize(mContext, cameraXConfig).get();
 
         // init CameraX before creating Preview to get preview size with CameraX's context
         mDefaultBuilder = Preview.Builder.fromConfig(Preview.DEFAULT_CONFIG.getConfig(null));
         mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
         mSafeToReleaseSemaphore = new Semaphore(/*permits=*/ 0);
-        mLifecycleOwner = new FakeLifecycleOwner();
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        }
-
         // Ensure all cameras are released for the next test
         CameraX.shutdown().get();
     }
@@ -119,13 +111,13 @@ public final class PreviewTest {
                 surfaceProvider).onSurfaceRequested(
                 any(SurfaceRequest.class));
 
-        mInstrumentation.runOnMainSync(() -> {
-            final Preview preview = mDefaultBuilder.build();
-            preview.setSurfaceProvider(surfaceProvider);
+        final Preview preview = mDefaultBuilder.build();
 
-            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
-            mLifecycleOwner.startAndResume();
-        });
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
+        mInstrumentation.runOnMainSync(() -> preview.setSurfaceProvider(surfaceProvider));
+
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         verify(surfaceProvider, timeout(3000)).onSurfaceRequested(any(SurfaceRequest.class));
     }
@@ -136,20 +128,20 @@ public final class PreviewTest {
         final Preview preview = new Preview.Builder().build();
 
         // Act.
-        mInstrumentation.runOnMainSync(() -> {
-            preview.setSurfaceProvider(CameraXExecutors.mainThreadExecutor(),
-                    getSurfaceProvider(null));
-            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
-        });
-
-        mLifecycleOwner.startAndResume();
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
+        mInstrumentation.runOnMainSync(() ->
+                preview.setSurfaceProvider(CameraXExecutors.mainThreadExecutor(),
+                getSurfaceProvider(null))
+        );
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+                mCameraSelector, preview);
 
         // Wait until preview gets frame.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
 
-        // Destroy lifecycle to trigger release.
-        mLifecycleOwner.pauseAndStop();
-        mLifecycleOwner.destroy();
+        // Remove the UseCase from the camera
+        camera.removeUseCases(Collections.singleton(preview));
 
         // Assert.
         assertThat(mSafeToReleaseSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
@@ -157,35 +149,35 @@ public final class PreviewTest {
 
     @Test
     public void setSurfaceProviderBeforeBind_getsFrame() throws InterruptedException {
-        mInstrumentation.runOnMainSync(() -> {
-            // Arrange.
-            final Preview preview = mDefaultBuilder.build();
-            preview.setSurfaceProvider(getSurfaceProvider(null));
+        // Arrange.
+        final Preview preview = mDefaultBuilder.build();
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
+        mInstrumentation.runOnMainSync(() -> preview.setSurfaceProvider(getSurfaceProvider(null)));
 
-            // Act.
-            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
-            mLifecycleOwner.startAndResume();
-        });
+        // Act.
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         // Assert.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
-    public void setSurfaceProviderBeforeBind_providesSurfaceOnWorkerExecutorThread()
+    public void setSurfaceProviderBeforeAttach_providesSurfaceOnWorkerExecutorThread()
             throws InterruptedException {
         final AtomicReference<String> threadName = new AtomicReference<>();
 
-        mInstrumentation.runOnMainSync(() -> {
-            // Arrange.
-            final Preview preview = mDefaultBuilder.build();
-            preview.setSurfaceProvider(getWorkExecutorWithNamedThread(),
-                    getSurfaceProvider(threadName::set));
+        // Arrange.
+        final Preview preview = mDefaultBuilder.build();
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
+        mInstrumentation.runOnMainSync(() ->
+                preview.setSurfaceProvider(getWorkExecutorWithNamedThread(),
+                getSurfaceProvider(threadName::set))
+        );
 
-            // Act.
-            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
-            mLifecycleOwner.startAndResume();
-        });
+        // Act.
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         // Assert.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
@@ -193,16 +185,15 @@ public final class PreviewTest {
     }
 
     @Test
-    public void setSurfaceProviderAfterBind_getsFrame() throws InterruptedException {
-        mInstrumentation.runOnMainSync(() -> {
-            // Arrange.
-            Preview preview = mDefaultBuilder.build();
-            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
+    public void setSurfaceProviderAfterAttach_getsFrame() throws InterruptedException {
+        // Arrange.
+        Preview preview = mDefaultBuilder.build();
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
-            // Act.
-            preview.setSurfaceProvider(getSurfaceProvider(null));
-            mLifecycleOwner.startAndResume();
-        });
+        // Act.
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
+        mInstrumentation.runOnMainSync(() -> preview.setSurfaceProvider(getSurfaceProvider(null)));
 
         // Assert.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
@@ -213,16 +204,17 @@ public final class PreviewTest {
             throws InterruptedException {
         final AtomicReference<String> threadName = new AtomicReference<>();
 
-        mInstrumentation.runOnMainSync(() -> {
-            // Arrange.
-            Preview preview = mDefaultBuilder.build();
-            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
+        // Arrange.
+        Preview preview = mDefaultBuilder.build();
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
-            // Act.
-            preview.setSurfaceProvider(getWorkExecutorWithNamedThread(),
-                    getSurfaceProvider(threadName::set));
-            mLifecycleOwner.startAndResume();
-        });
+        // Act.
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
+        mInstrumentation.runOnMainSync(() ->
+                preview.setSurfaceProvider(getWorkExecutorWithNamedThread(),
+                        getSurfaceProvider(threadName::set))
+        );
 
         // Assert.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
@@ -230,63 +222,86 @@ public final class PreviewTest {
     }
 
     @Test
-    public void canSupportGuaranteedSize()
+    public void canSupportGuaranteedSizeFront()
             throws InterruptedException, CameraInfoUnavailableException {
         // CameraSelector.LENS_FACING_FRONT/LENS_FACING_BACK are defined as constant int 0 and 1.
         // Using for-loop to check both front and back device cameras can support the guaranteed
         // 640x480 size.
-        for (int i = 0; i <= 1; i++) {
-            final int lensFacing = i;
-            if (!CameraUtil.hasCameraWithLensFacing(lensFacing)) {
-                continue;
-            }
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
 
-            // Checks camera device sensor degrees to set correct target rotation value to make sure
-            // the exactly matching result size 640x480 can be selected if the device supports it.
-            Integer sensorOrientation = CameraUtil.getSensorOrientation(
-                    CameraSelector.LENS_FACING_BACK);
-            boolean isRotateNeeded = (sensorOrientation % 180) != 0;
-            Preview preview = new Preview.Builder().setTargetResolution(
-                    GUARANTEED_RESOLUTION).setTargetRotation(
-                    isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
+        // Checks camera device sensor degrees to set correct target rotation value to make sure
+        // the exactly matching result size 640x480 can be selected if the device supports it.
+        Integer sensorOrientation = CameraUtil.getSensorOrientation(
+                CameraSelector.LENS_FACING_FRONT);
+        boolean isRotateNeeded = (sensorOrientation % 180) != 0;
+        Preview preview = new Preview.Builder().setTargetResolution(
+                GUARANTEED_RESOLUTION).setTargetRotation(
+                isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
 
-            mInstrumentation.runOnMainSync(() -> {
-                preview.setSurfaceProvider(getSurfaceProvider(null));
-                CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(
-                        lensFacing).build();
-                CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, preview);
-                mLifecycleOwner.startAndResume();
-            });
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
+        mInstrumentation.runOnMainSync(() -> preview.setSurfaceProvider(getSurfaceProvider(null)));
+        CameraUtil.getCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_FRONT_CAMERA, preview);
 
-            // Assert.
-            assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+        // Assert.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
 
-            // Check whether 640x480 is selected for the preview use case. This test can also check
-            // whether the guaranteed resolution 640x480 is really supported for SurfaceTexture
-            // format on the devices when running the test.
-            assertEquals(GUARANTEED_RESOLUTION, mPreviewResolution);
-
-            // Reset the environment to run test for the other lens facing camera device.
-            mInstrumentation.runOnMainSync(() -> {
-                CameraX.unbindAll();
-                mLifecycleOwner.pauseAndStop();
-            });
-        }
+        // Check whether 640x480 is selected for the preview use case. This test can also check
+        // whether the guaranteed resolution 640x480 is really supported for SurfaceTexture
+        // format on the devices when running the test.
+        assertEquals(GUARANTEED_RESOLUTION, mPreviewResolution);
     }
 
+    @Test
+    public void canSupportGuaranteedSizeBack()
+            throws InterruptedException, CameraInfoUnavailableException {
+        // CameraSelector.LENS_FACING_FRONT/LENS_FACING_BACK are defined as constant int 0 and 1.
+        // Using for-loop to check both front and back device cameras can support the guaranteed
+        // 640x480 size.
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+
+        // Checks camera device sensor degrees to set correct target rotation value to make sure
+        // the exactly matching result size 640x480 can be selected if the device supports it.
+        Integer sensorOrientation = CameraUtil.getSensorOrientation(
+                CameraSelector.LENS_FACING_BACK);
+        boolean isRotateNeeded = (sensorOrientation % 180) != 0;
+        Preview preview = new Preview.Builder().setTargetResolution(
+                GUARANTEED_RESOLUTION).setTargetRotation(
+                isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
+
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
+        mInstrumentation.runOnMainSync(() -> preview.setSurfaceProvider(getSurfaceProvider(null)));
+        CameraUtil.getCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, preview);
+
+        // Assert.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+
+        // Check whether 640x480 is selected for the preview use case. This test can also check
+        // whether the guaranteed resolution 640x480 is really supported for SurfaceTexture
+        // format on the devices when running the test.
+        assertEquals(GUARANTEED_RESOLUTION, mPreviewResolution);
+    }
 
     @Test
     public void setMultipleNonNullSurfaceProviders_getsFrame() throws InterruptedException {
         final Preview preview = mDefaultBuilder.build();
 
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
         mInstrumentation.runOnMainSync(() -> {
+            // Set a different SurfaceProvider which will provide a different surface to be used
+            // for preview.
             preview.setSurfaceProvider(getSurfaceProvider(null));
-            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
-            mLifecycleOwner.startAndResume();
         });
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
 
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
         mInstrumentation.runOnMainSync(() -> {
             // Set a different SurfaceProvider which will provide a different surface to be used
             // for preview.
@@ -300,14 +315,19 @@ public final class PreviewTest {
     public void setMultipleNullableSurfaceProviders_getsFrame() throws InterruptedException {
         final Preview preview = mDefaultBuilder.build();
 
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
         mInstrumentation.runOnMainSync(() -> {
+            // Set a different SurfaceProvider which will provide a different surface to be used
+            // for preview.
             preview.setSurfaceProvider(getSurfaceProvider(null));
-            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
-            mLifecycleOwner.startAndResume();
         });
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
 
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
         mInstrumentation.runOnMainSync(() -> {
             // Set the SurfaceProvider to null in order to force the Preview into an inactive
             // state before setting a different SurfaceProvider for preview.

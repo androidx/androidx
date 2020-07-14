@@ -59,8 +59,9 @@ internal object FirstDrawRegistry {
      */
     fun haveAllDrawn(): Boolean {
         return notYetDrawn.all {
-            val lifecycleOwner = it.lifecycleOwner ?: return false
-            lifecycleOwner.lifecycle.currentState != Lifecycle.State.RESUMED
+            val viewTreeOwners = it.viewTreeOwners
+            viewTreeOwners == null ||
+                    viewTreeOwners.lifecycleOwner.lifecycle.currentState != Lifecycle.State.RESUMED
         }
     }
 
