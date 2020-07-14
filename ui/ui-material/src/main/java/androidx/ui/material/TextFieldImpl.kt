@@ -47,13 +47,13 @@ import androidx.ui.core.constrainWidth
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.focus.FocusState
 import androidx.ui.core.focus.focusState
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.offset
 import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.TextField
 import androidx.ui.foundation.clickable
-import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.ScrollableState
+import androidx.ui.foundation.gestures.rememberScrollableController
 import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
@@ -251,7 +251,7 @@ internal fun TextFieldImpl(
 }
 
 /**
- * Similar to [androidx.ui.foundation.VerticalScroller] but does not lose the minWidth constraints.
+ * Similar to [androidx.ui.foundation.ScrollableColumn] but does not lose the minWidth constraints.
  */
 @VisibleForTesting
 @Composable
@@ -264,7 +264,9 @@ internal fun TextFieldScroller(
         modifier = modifier
             .clipToBounds()
             .scrollable(
-                scrollableState = ScrollableState { delta ->
+                orientation = Orientation.Vertical,
+                canScroll = { scrollerPosition.maximum != 0f },
+                controller = rememberScrollableController { delta ->
                     val newPosition = scrollerPosition.current + delta
                     val consumedDelta = when {
                         newPosition > scrollerPosition.maximum ->
@@ -274,9 +276,7 @@ internal fun TextFieldScroller(
                     }
                     scrollerPosition.current += consumedDelta
                     consumedDelta
-                },
-                dragDirection = DragDirection.Vertical,
-                enabled = scrollerPosition.maximum != 0f
+                }
             ),
         children = textField,
         measureBlock = { measurables, constraints ->

@@ -32,8 +32,8 @@ import androidx.ui.core.setContent
 import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.DemoCategory
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.HorizontalScroller
-import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.ScrollableColumn
+import androidx.ui.foundation.ScrollableRow
 import androidx.ui.foundation.clickable
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
@@ -243,7 +243,7 @@ open class ComposeScrollInAndroidScrollSameOrientation : ComponentActivity() {
 
         val container = findViewById<ViewGroup>(R.id.container)
         composition = container.setContent(Recomposer.current()) {
-            VerticalScroller(
+            ScrollableColumn(
                 modifier = Modifier
                     .padding(48.dp)
                     .drawBackground(Color.Gray, RectangleShape)
@@ -288,7 +288,7 @@ open class ComposeScrollInAndroidScrollDifferentOrientation : ComponentActivity(
 
         val container = findViewById<ViewGroup>(R.id.container)
         composition = container.setContent(Recomposer.current()) {
-            HorizontalScroller(
+            ScrollableRow(
                 modifier = Modifier
                     .padding(48.dp)
                     .drawBackground(Color.Gray, RectangleShape)

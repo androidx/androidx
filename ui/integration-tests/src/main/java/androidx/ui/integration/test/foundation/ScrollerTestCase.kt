@@ -19,8 +19,9 @@ package androidx.ui.integration.test.foundation
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.ScrollerPosition
-import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.ScrollState
+import androidx.ui.foundation.ScrollableColumn
+import androidx.ui.foundation.rememberScrollState
 import androidx.ui.graphics.Color
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Column
@@ -33,14 +34,12 @@ import androidx.ui.unit.dp
  * Test case that puts a large number of boxes in a column in a vertical scroller to force scrolling.
  */
 class ScrollerTestCase() : ComposeTestCase, ToggleableTestCase {
-    private lateinit var scrollerPosition: ScrollerPosition
+    private lateinit var scrollState: ScrollState
 
     @Composable
     override fun emitContent() {
-        scrollerPosition = ScrollerPosition()
-        VerticalScroller(
-            scrollerPosition = scrollerPosition
-        ) {
+        scrollState = rememberScrollState()
+        ScrollableColumn(scrollState = scrollState) {
             Column(Modifier.fillMaxHeight()) {
                 for (green in 0..0xFF) {
                     ColorStripe(0xFF, green, 0)
@@ -65,7 +64,7 @@ class ScrollerTestCase() : ComposeTestCase, ToggleableTestCase {
     }
 
     override fun toggleState() {
-        scrollerPosition.scrollTo(if (scrollerPosition.value == 0f) 10f else 0f)
+        scrollState.scrollTo(if (scrollState.value == 0f) 10f else 0f)
     }
 
     @Composable

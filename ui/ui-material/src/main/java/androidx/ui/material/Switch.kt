@@ -26,10 +26,10 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Interaction
 import androidx.ui.foundation.InteractionState
-import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.indication
 import androidx.ui.foundation.selection.toggleable
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -93,8 +93,8 @@ fun Switch(
                     onStateChange = onCheckedChange,
                     anchorsToState = listOf(minBound to false, maxBound to true),
                     animationSpec = AnimationSpec,
-                    dragDirection =
-                    if (isRtl) DragDirection.ReversedHorizontal else DragDirection.Horizontal,
+                    orientation = Orientation.Horizontal,
+                    reverseDirection = isRtl,
                     minValue = minBound,
                     maxValue = maxBound,
                     enabled = enabled,

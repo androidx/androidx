@@ -18,8 +18,8 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
@@ -61,7 +61,7 @@ val fontSize10 = 30.sp
 
 @Composable
 fun TextDemo() {
-    VerticalScroller {
+    ScrollableColumn {
         TagLine(tag = "color, fontSize, fontWeight and fontStyle")
         TextDemoBasic()
         TagLine(

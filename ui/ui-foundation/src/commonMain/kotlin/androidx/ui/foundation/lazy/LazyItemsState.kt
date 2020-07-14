@@ -104,7 +104,7 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
      * The listener to be passed to onScrollDeltaConsumptionRequested.
      * Cached to avoid recreations
      */
-    val onScrollDeltaConsumptionRequestedListener: (Float) -> Float = { onScroll(it) }
+    val onScrollDelta: (Float) -> Float = { onScroll(it) }
 
     /**
      * Tracks the correspondence between the child layout nodes and their compositions, so that

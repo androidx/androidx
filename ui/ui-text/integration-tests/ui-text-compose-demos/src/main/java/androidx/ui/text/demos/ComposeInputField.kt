@@ -19,8 +19,8 @@ package androidx.ui.text.demos
 import androidx.compose.Composable
 import androidx.compose.key
 import androidx.compose.state
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.TextFieldValue
@@ -51,7 +51,7 @@ private val IME_ACTIONS = listOf(
 
 @Composable
 fun InputFieldDemo() {
-    VerticalScroller {
+    ScrollableColumn {
         TagLine(tag = "simple editing")
         EditLine()
         TagLine(tag = "simple editing2")

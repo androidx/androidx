@@ -21,12 +21,13 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.clickable
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
@@ -43,11 +44,12 @@ fun ElevationDemo() {
             val text = getMessage(MaterialTheme.colors.isLight)
             Text(text)
         }
-        VerticalScroller {
-            Column(Modifier.padding(25.dp).fillMaxSize()) {
-                elevations.forEach { elevation ->
-                    ElevatedCard(elevation)
-                }
+        ScrollableColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = InnerPadding(25.dp)
+        ) {
+            elevations.forEach { elevation ->
+                ElevatedCard(elevation)
             }
         }
     }

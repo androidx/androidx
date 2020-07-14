@@ -27,17 +27,17 @@ import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.HorizontalScroller
+import androidx.ui.foundation.ScrollableColumn
+import androidx.ui.foundation.ScrollableRow
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.drawBackground
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.viewinterop.AndroidView
 
@@ -138,7 +138,7 @@ private fun AndroidTapInComposeScroll() {
                     ". If a pointer starts on a button and then drags horizontally, the button " +
                     "will not be clicked when released."
         )
-        HorizontalScroller {
+        ScrollableRow {
             AndroidView(R.layout.android_tap_in_compose_scroll) { view ->
                 view.setBackgroundColor(Color.YELLOW)
                 view.findViewById<View>(R.id.buttonRed).apply {
@@ -176,7 +176,7 @@ private fun AndroidScrollInComposeScrollDifferentOrientation() {
         Text("Demonstrates correct \"scroll orientation\" locking when something scrollable in " +
                 "Android is nested inside something scrollable in Compose.")
         Text("You should only be able to scroll in one orientation at a time.")
-        HorizontalScroller(modifier = Modifier.drawBackground(androidx.ui.graphics.Color.Blue)) {
+        ScrollableRow(modifier = Modifier.drawBackground(androidx.ui.graphics.Color.Blue)) {
             Box(modifier = Modifier.padding(96.dp).drawBackground(androidx.ui.graphics.Color.Red)) {
                 AndroidView(R.layout.android_scroll_in_compose_scroll_different_orientation)
             }
@@ -197,7 +197,7 @@ private fun AndroidScrollInComposeScrollSameOrientation() {
                     "that for Compose, and thus the child scrolls and prevents the parent from " +
                     "intercepting. "
         )
-        VerticalScroller(modifier = Modifier.drawBackground(androidx.ui.graphics.Color.Blue)) {
+        ScrollableColumn(modifier = Modifier.drawBackground(androidx.ui.graphics.Color.Blue)) {
             Box(
                 modifier = Modifier
                     .padding(96.dp)

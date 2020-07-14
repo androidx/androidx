@@ -43,11 +43,12 @@ import androidx.ui.core.layoutId
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.ProvideTextStyle
-import androidx.ui.foundation.ScrollerPosition
+import androidx.ui.foundation.ScrollState
+import androidx.ui.foundation.ScrollableRow
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.rememberScrollState
 import androidx.ui.foundation.selection.selectable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Row
@@ -216,10 +217,10 @@ private fun ScrollableTabRow(
     indicatorContainer: @Composable (tabPositions: List<TabPosition>) -> Unit,
     divider: @Composable () -> Unit
 ) {
-    val scrollerPosition = ScrollerPosition()
-    val scrollableTabData = remember(scrollerPosition) {
+    val scrollState = rememberScrollState()
+    val scrollableTabData = remember(scrollState) {
         ScrollableTabData(
-            scrollerPosition = scrollerPosition,
+            scrollState = scrollState,
             selectedTab = selectedIndex
         )
     }
@@ -235,14 +236,11 @@ private fun ScrollableTabRow(
         }
     }
 
-    HorizontalScroller(
-        scrollerPosition = scrollerPosition,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        val indicatorTag = "indicator"
-        val dividerTag = "divider"
+    val indicatorTag = "indicator"
+    val dividerTag = "divider"
+    ScrollableRow(modifier = Modifier.fillMaxWidth(), scrollState = scrollState) {
         Layout(
-            {
+            children = {
                 tabs()
                 Box(Modifier.layoutId(indicatorTag), children = indicator)
                 Box(Modifier.layoutId(dividerTag), children = divider)
@@ -317,7 +315,7 @@ private fun ScrollableTabRow(
  * Class holding onto state needed for [ScrollableTabRow]
  */
 private class ScrollableTabData(
-    private val scrollerPosition: ScrollerPosition,
+    private val scrollState: ScrollState,
     private var selectedTab: Int
 ) {
     fun onLaidOut(
@@ -332,7 +330,7 @@ private class ScrollableTabData(
                 // Scrolls to the tab with [tabPosition], trying to place it in the center of the
                 // screen or as close to the center as possible.
                 val calculatedOffset = it.calculateTabOffset(density, edgeOffset, tabPositions)
-                scrollerPosition.smoothScrollTo(calculatedOffset)
+                scrollState.smoothScrollTo(calculatedOffset)
             }
         }
     }
@@ -348,7 +346,7 @@ private class ScrollableTabData(
         tabPositions: List<TabPosition>
     ): Float = with(density) {
         val totalTabRowWidth = tabPositions.last().right.toIntPx() + edgeOffset
-        val visibleWidth = totalTabRowWidth - scrollerPosition.maxPosition.toInt()
+        val visibleWidth = totalTabRowWidth - scrollState.maxValue.toInt()
         val tabOffset = left.toIntPx()
         val scrollerCenter = visibleWidth / 2
         val tabWidth = width.toIntPx()

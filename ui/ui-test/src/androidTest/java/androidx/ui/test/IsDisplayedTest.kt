@@ -37,7 +37,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
@@ -108,7 +108,7 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
     @Test
     fun componentInScrollable_isDisplayed() {
         composeTestRule.setContent {
-            VerticalScroller(modifier = Modifier.size(100.dp)) {
+            ScrollableColumn(modifier = Modifier.size(100.dp)) {
                 repeat(10) { Item(it, height = 30.dp) }
             }
         }
@@ -120,7 +120,7 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
     @Test
     fun componentInScrollable_isNotDisplayed() {
         composeTestRule.setContent {
-            VerticalScroller(modifier = Modifier.size(100.dp)) {
+            ScrollableColumn(modifier = Modifier.size(100.dp)) {
                 repeat(10) { Item(it, height = 30.dp) }
             }
         }
