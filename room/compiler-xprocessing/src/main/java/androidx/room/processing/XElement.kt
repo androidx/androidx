@@ -24,6 +24,16 @@ interface XElement {
 
     val packageName: String
 
+    /**
+     * TODO:
+     *  Nullability is normally a property of Type not Element but currently Room relies on
+     *  Annotations to resolve nullability which exists only on Elements, not Types.
+     *  Once we implement KSP version, we might be able to move this to the type by making sure
+     *  we carry over nullability when type is resolved from an Element. We also need nullability
+     *  on Types to properly handle DAO return types (e.g. Flow<T> vs Flow<T?>)
+     */
+    val nullability: XNullability
+
     val enclosingElement: XElement?
 
     fun isPublic(): Boolean
@@ -50,6 +60,8 @@ interface XElement {
     fun hasAnnotation(annotation: KClass<out Annotation>): Boolean
 
     fun hasAnyOf(vararg annotations: KClass<out Annotation>) = annotations.any(this::hasAnnotation)
+
+    fun isNonNull() = nullability == XNullability.NONNULL
 
     fun asTypeElement() = this as XTypeElement
 

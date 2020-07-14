@@ -194,6 +194,43 @@ class XElementTest {
     }
 
     @Test
+    fun nullability() {
+        val source = Source.java(
+            "foo.bar.Baz", """
+            package foo.bar;
+
+            import androidx.annotation.*;
+            import java.util.List;
+            class Baz {
+                public static int primitiveInt;
+                public static Integer boxedInt;
+                @NonNull
+                public static List<String> nonNullAnnotated;
+                @Nullable
+                public static List<String> nullableAnnotated;
+            }
+        """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(source)
+        ) {
+            val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
+            element.getField("primitiveInt").let { field ->
+                assertThat(field.nullability).isEqualTo(XNullability.NONNULL)
+            }
+            element.getField("boxedInt").let { field ->
+                assertThat(field.nullability).isEqualTo(XNullability.UNKNOWN)
+            }
+            element.getField("nonNullAnnotated").let { field ->
+                assertThat(field.nullability).isEqualTo(XNullability.NONNULL)
+            }
+            element.getField("nullableAnnotated").let { field ->
+                assertThat(field.nullability).isEqualTo(XNullability.NULLABLE)
+            }
+        }
+    }
+
+    @Test
     fun toStringMatchesUnderlyingElement() {
         runProcessorTest {
             it.processingEnv.findTypeElement("java.util.List").let { list ->
