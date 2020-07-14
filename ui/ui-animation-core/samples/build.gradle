@@ -33,5 +33,5 @@ dependencies {
     implementation project(":annotation:annotation-sampled")
 
     implementation project(":compose:animation:animation-core")
-    implementation project(":compose:core:core-unit")
+    implementation project(":compose:ui:ui-unit")
 }

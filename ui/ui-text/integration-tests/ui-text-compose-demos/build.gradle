@@ -16,11 +16,11 @@ dependencies {
 
     implementation project(":compose:runtime:runtime")
     implementation project(":compose:integration-tests:demos:common")
-    implementation project(":compose:core:core")
+    implementation project(":compose:ui:ui")
     implementation project(":compose:foundation:foundation")
     implementation project(":compose:foundation:foundation-layout")
-    implementation project(":compose:core:core-text")
-    implementation project(":compose:core:core-text:samples")
+    implementation project(":compose:ui:ui-text")
+    implementation project(":compose:ui:ui-text:samples")
 }
 
 android {

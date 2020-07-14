@@ -44,10 +44,10 @@ kotlin {
         commonMain.dependencies {
             implementation(KOTLIN_STDLIB_COMMON)
 
-            api project(":compose:core:core")
+            api project(":compose:ui:ui")
             implementation project(":compose:foundation:foundation-text")
             implementation project(":compose:runtime:runtime")
-            implementation project(":compose:core:core-util")
+            implementation project(":compose:ui:ui-util")
         }
 
         androidMain.dependencies {

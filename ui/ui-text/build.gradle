@@ -38,9 +38,9 @@ kotlin {
         commonMain.dependencies {
             implementation(KOTLIN_STDLIB_COMMON)
             implementation(KOTLIN_COROUTINES_CORE)
-            api project(":compose:core:core")
-            api project(":compose:core:core-text")
-            api project(":compose:core:core-util")
+            api project(":compose:ui:ui")
+            api project(":compose:ui:ui-text")
+            api project(":compose:ui:ui-util")
         }
 
         androidMain.dependencies {
@@ -62,7 +62,7 @@ kotlin {
         androidAndroidTest.dependencies {
             implementation project(":ui:ui-test")
             implementation project(":compose:foundation:foundation-layout")
-            implementation project(":compose:core:core-test-font")
+            implementation project(":compose:ui:ui-test-font")
             implementation "androidx.core:core:1.5.0-alpha01"
             implementation(ANDROIDX_TEST_RULES)
             implementation(ANDROIDX_TEST_RUNNER)

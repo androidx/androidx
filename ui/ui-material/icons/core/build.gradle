@@ -31,7 +31,7 @@ plugins {
 dependencies {
     implementation(KOTLIN_STDLIB)
 
-    api project(":compose:core:core")
+    api project(":compose:ui:ui")
 }
 
 IconGenerationTask.registerCoreIconProject(project, android)

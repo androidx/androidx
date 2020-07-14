@@ -34,7 +34,7 @@ dependencies {
 
     implementation project(":compose:runtime:runtime")
     implementation project(":compose:animation:animation")
-    implementation project(":compose:core:core-text")
+    implementation project(":compose:ui:ui-text")
     implementation project(":compose:foundation:foundation")
 }
 

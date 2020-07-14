@@ -34,8 +34,8 @@ kotlin {
         commonMain.dependencies {
             implementation(KOTLIN_STDLIB_COMMON)
 
-            api project(":compose:core:core-unit")
-            implementation project(":compose:core:core-util")
+            api project(":compose:ui:ui-unit")
+            implementation project(":compose:ui:ui-util")
             implementation project(":compose:runtime:runtime")
         }
 
@@ -51,7 +51,7 @@ kotlin {
         }
 
         androidAndroidTest.dependencies {
-            implementation project(":compose:core:core-graphics:samples")
+            implementation project(":compose:ui:ui-graphics:samples")
             implementation(ANDROIDX_TEST_RULES)
             implementation(ANDROIDX_TEST_RUNNER)
             implementation(ESPRESSO_CORE)
@@ -65,7 +65,7 @@ androidx {
     name = "Compose Graphics"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.Compose.CORE
+    mavenGroup = LibraryGroups.Compose.UI
     inceptionYear = "2020"
     description = "Compose graphics components."
 }
