@@ -46,12 +46,6 @@ import org.junit.runners.JUnit4
 import kotlin.math.roundToInt
 
 private const val DEBUG = false
-private const val LAMBDA_PATTERN = "(\\$\\d+)*\\.invoke"
-private const val LAMBDA_REPLACEMENT = "[###].invoke"
-private val lambdaExpr = Regex(LAMBDA_PATTERN)
-private const val ESCAPE_PATTERN = "\\$([a-zA-Z])"
-private const val ESCAPE_REPLACEMENT = "\\\\\\$$1"
-private val escapeExpr = Regex(ESCAPE_PATTERN)
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -98,7 +92,6 @@ class LayoutInspectorTreeTest : ToolingTest() {
             name: String,
             fileName: String,
             lineNumber: Int = -1,
-            function: String,
             left: Dp,
             top: Dp,
             width: Dp,
@@ -118,8 +111,6 @@ class LayoutInspectorTreeTest : ToolingTest() {
             if (lineNumber != -1) {
                 assertThat(node.lineNumber).isEqualTo(lineNumber)
             }
-            assertThat(node.functionName.replace(lambdaExpr, LAMBDA_REPLACEMENT))
-                .isEqualTo(function)
             with(density) {
                 assertThat(node.left.toDp().value).isWithin(2.0f).of(left.value)
                 assertThat(node.top.toDp().value).isWithin(2.0f).of(top.value)
@@ -136,7 +127,6 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "Box",
             fileName = "Box.kt",
-            function = "androidx.compose.foundation.BoxKt.Box",
             left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
             children = listOf("Column")
         ) {
@@ -152,14 +142,12 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "Column",
             fileName = "Box.kt",
-            function = "androidx.compose.foundation.BoxKt.Box",
             left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
             children = listOf("RowColumnImpl")
         )
         validate(
             name = "RowColumnImpl",
             fileName = "Column.kt",
-            function = "androidx.compose.foundation.layout.ColumnKt.Column",
             left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
             children = listOf("Column")
         ) {
@@ -169,10 +157,8 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "Column",
             fileName = "LayoutInspectorTreeTest.kt",
-            function =
-            "androidx.ui.tooling.inspector.LayoutInspectorTreeTest\$buildTree[###].invoke",
-            left = 0.0.dp, top = 0.0.dp, width = 70.5.dp, height = 54.9.dp,
-            children = listOf("RowColumnImpl")
+            left = 0.0.dp,
+            top = 0.0.dp, width = 70.5.dp, height = 54.9.dp, children = listOf("RowColumnImpl")
         ) {
             parameter(name = "horizontalGravity", type = ParameterType.String, value = "Start")
             parameter(name = "verticalArrangement", type = ParameterType.String, value = "Top")
@@ -180,7 +166,6 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "RowColumnImpl",
             fileName = "Column.kt",
-            function = "androidx.compose.foundation.layout.ColumnKt.Column",
             left = 0.0.dp, top = 0.0.dp, width = 70.5.dp, height = 54.9.dp,
             children = listOf("Text", "Surface")
         ) {
@@ -190,10 +175,8 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "Text",
             fileName = "LayoutInspectorTreeTest.kt",
-            function =
-            "androidx.ui.tooling.inspector.LayoutInspectorTreeTest\$buildTree[###].invoke",
-            left = 0.0.dp, top = 0.0.dp, width = 70.5.dp, height = 18.9.dp,
-            children = listOf("CoreText")
+            left = 0.0.dp,
+            top = 0.0.dp, width = 70.5.dp, height = 18.9.dp, children = listOf("CoreText")
         ) {
             parameter(name = "color", type = ParameterType.Color, value = 0xff00ff00.toInt())
             parameter(name = "fontSize", type = ParameterType.String, value = "Inherit")
@@ -214,7 +197,6 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "CoreText",
             fileName = "CoreText.kt",
-            function = "androidx.ui.text.CoreTextKt.CoreText",
             isRenderNode = true,
             left = 0.0.dp, top = 0.0.dp, width = 70.5.dp, height = 18.9.dp
         ) {
@@ -233,10 +215,8 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "Surface",
             fileName = "LayoutInspectorTreeTest.kt",
-            function =
-            "androidx.ui.tooling.inspector.LayoutInspectorTreeTest\$buildTree[###].invoke",
-            left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
-            children = listOf("SurfaceLayout")
+            left = 0.0.dp,
+            top = 18.9.dp, width = 64.0.dp, height = 36.0.dp, children = listOf("SurfaceLayout")
         ) {
             parameter(name = "color", type = ParameterType.Color, value = 0xffffffff.toInt())
             parameter(name = "contentColor", type = ParameterType.Color, value = 0xff000000.toInt())
@@ -244,20 +224,17 @@ class LayoutInspectorTreeTest : ToolingTest() {
             parameter(name = "shape", type = ParameterType.String, value = "Shape")
         }
         validate(
+            isRenderNode = true,
             name = "SurfaceLayout",
             fileName = "Surface.kt",
-            function = "androidx.ui.material.SurfaceKt.Surface",
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
-            isRenderNode = true,
             children = listOf("Button")
         )
         validate(
             name = "Button",
             fileName = "LayoutInspectorTreeTest.kt",
-            function =
-            "androidx.ui.tooling.inspector.LayoutInspectorTreeTest\$buildTree[###].invoke",
-            left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
-            children = listOf("Surface")
+            left = 0.0.dp,
+            top = 18.9.dp, width = 64.0.dp, height = 36.0.dp, children = listOf("Surface")
         ) {
             parameter(name = "backgroundColor", type = ParameterType.Color,
                 value = 0xff6200ee.toInt())
@@ -284,9 +261,8 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "Surface",
             fileName = "Button.kt",
-            function = "androidx.ui.material.ButtonKt.Button",
-            left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
-            children = listOf("SurfaceLayout")
+            left = 0.0.dp,
+            top = 18.9.dp, width = 64.0.dp, height = 36.0.dp, children = listOf("SurfaceLayout")
         ) {
             parameter(name = "color", type = ParameterType.Color, value = 0xff6200ee.toInt())
             parameter(name = "contentColor", type = ParameterType.Color, value = 0xffffffff.toInt())
@@ -301,7 +277,6 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "SurfaceLayout",
             fileName = "Surface.kt",
-            function = "androidx.ui.material.SurfaceKt.Surface",
             isRenderNode = true,
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
             children = listOf("Box")
@@ -309,9 +284,8 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "Box",
             fileName = "Button.kt",
-            function = "androidx.ui.material.ButtonKt\$Button[###].invoke",
-            left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
-            children = listOf("Column")
+            left = 0.0.dp,
+            top = 18.9.dp, width = 64.0.dp, height = 36.0.dp, children = listOf("Column")
         ) {
             parameter(name = "backgroundColor", type = ParameterType.Color, value = 0x0)
             parameter(name = "gravity", type = ParameterType.String, value = "TopStart")
@@ -325,14 +299,12 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "Column",
             fileName = "Box.kt",
-            function = "androidx.compose.foundation.BoxKt.Box",
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
             children = listOf("RowColumnImpl")
         )
         validate(
             name = "RowColumnImpl",
             fileName = "Column.kt",
-            function = "androidx.compose.foundation.layout.ColumnKt.Column",
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
             children = listOf("ProvideTextStyle")
         ) {
@@ -342,9 +314,8 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "ProvideTextStyle",
             fileName = "Button.kt",
-            function = "androidx.ui.material.ButtonKt\$Button[###].invoke",
-            left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
-            children = listOf("Row")
+            left = 16.0.dp,
+            top = 26.9.dp, width = 32.0.dp, height = 20.0.dp, children = listOf("Row")
         ) {
             parameter(name = "value", type = ParameterType.String, value = "TextStyle") {
                 parameter(name = "color", type = ParameterType.String, value = "Unset")
@@ -359,9 +330,8 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "Row",
             fileName = "Button.kt",
-            function = "androidx.ui.material.ButtonKt\$Button[###].invoke",
-            left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
-            children = listOf("RowColumnImpl")
+            left = 16.0.dp,
+            top = 26.9.dp, width = 32.0.dp, height = 20.0.dp, children = listOf("RowColumnImpl")
         ) {
             parameter(name = "horizontalArrangement", type = ParameterType.String, value = "Center")
             parameter(name = "verticalGravity", type = ParameterType.String,
@@ -370,7 +340,6 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "RowColumnImpl",
             fileName = "Row.kt",
-            function = "androidx.compose.foundation.layout.RowKt.Row",
             left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
             children = listOf("Text")
         ) {
@@ -380,10 +349,8 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "Text",
             fileName = "LayoutInspectorTreeTest.kt",
-            function =
-            "androidx.ui.tooling.inspector.LayoutInspectorTreeTest\$buildTree[###].invoke",
-            left = 21.8.dp, top = 27.6.dp, width = 20.4.dp, height = 18.9.dp,
-            children = listOf("CoreText")
+            left = 21.8.dp,
+            top = 27.6.dp, width = 20.4.dp, height = 18.9.dp, children = listOf("CoreText")
         ) {
             parameter(name = "color", type = ParameterType.String, value = "Unset")
             parameter(name = "fontSize", type = ParameterType.String, value = "Inherit")
@@ -406,7 +373,6 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "CoreText",
             fileName = "CoreText.kt",
-            function = "androidx.ui.text.CoreTextKt.CoreText",
             isRenderNode = true,
             left = 21.8.dp, top = 27.6.dp, width = 20.4.dp, height = 18.9.dp
         ) {
@@ -447,7 +413,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
     private fun dumpNode(node: InspectorNode, indent: Int) {
         println(
             "\"${"  ".repeat(indent * 2)}\", \"${node.name}\", \"${node.fileName}\", " +
-                    "${node.lineNumber}, \"${node.functionName}\", ${node.left}, ${node.top}, " +
+                    "${node.lineNumber}, ${node.left}, ${node.top}, " +
                     "${node.width}, ${node.height}"
         )
         node.children.forEach { dumpNode(it, indent + 1) }
@@ -459,17 +425,12 @@ class LayoutInspectorTreeTest : ToolingTest() {
             val top = round(node.top.toDp())
             val width = if (node.width == view.width) "viewWidth" else round(node.width.toDp())
             val height = if (node.height == view.height) "viewHeight" else round(node.height.toDp())
-            val function = node.functionName
-                .replace(lambdaExpr, LAMBDA_REPLACEMENT)
-                .replace(escapeExpr, ESCAPE_REPLACEMENT)
-            val functionLF = if (function.length > 75) "\n${" ".repeat(23)}" else ""
 
             print(
                 """
                   validate(
                       name = "${node.name}",
                       fileName = "${node.fileName}",
-                      function = $functionLF"$function",
                       left = $left, top = $top, width = $width, height = $height""".trimIndent()
             )
         }

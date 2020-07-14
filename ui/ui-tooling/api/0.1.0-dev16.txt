@@ -2,7 +2,7 @@
 package androidx.ui.tooling {
 
   public final class CallGroup extends androidx.ui.tooling.Group {
-    ctor public CallGroup(Object? key, androidx.ui.unit.IntBounds box, androidx.ui.tooling.SourceLocation? location, java.util.List<androidx.ui.tooling.ParameterInformation> parameters, java.util.Collection<?> data, java.util.Collection<? extends androidx.ui.tooling.Group> children);
+    ctor public CallGroup(Object? key, String? name, androidx.ui.unit.IntBounds box, androidx.ui.tooling.SourceLocation? location, java.util.List<androidx.ui.tooling.ParameterInformation> parameters, java.util.Collection<?> data, java.util.Collection<? extends androidx.ui.tooling.Group> children);
   }
 
   public abstract sealed class Group {
@@ -12,6 +12,7 @@ package androidx.ui.tooling {
     method public final Object? getKey();
     method public final androidx.ui.tooling.SourceLocation? getLocation();
     method public java.util.List<androidx.ui.core.ModifierInfo> getModifierInfo();
+    method public final String? getName();
     method public java.util.List<androidx.ui.tooling.ParameterInformation> getParameters();
     property public java.util.List<androidx.ui.core.ModifierInfo> modifierInfo;
     property public java.util.List<androidx.ui.tooling.ParameterInformation> parameters;
@@ -36,15 +37,17 @@ package androidx.ui.tooling {
   }
 
   public final class ParameterInformation {
-    ctor public ParameterInformation(String name, Object? value, boolean fromDefault, boolean p, boolean compared);
+    ctor public ParameterInformation(String name, Object? value, boolean fromDefault, boolean p, boolean compared, String? inlineClass);
     method public String component1();
     method public Object? component2();
     method public boolean component3();
     method public boolean component4();
     method public boolean component5();
-    method public androidx.ui.tooling.ParameterInformation copy(String name, Object? value, boolean fromDefault, boolean p, boolean compared);
+    method public String? component6();
+    method public androidx.ui.tooling.ParameterInformation copy(String name, Object? value, boolean fromDefault, boolean p, boolean compared, String? inlineClass);
     method public boolean getCompared();
     method public boolean getFromDefault();
+    method public String? getInlineClass();
     method public String getName();
     method public boolean getStatic();
     method public Object? getValue();
@@ -56,15 +59,17 @@ package androidx.ui.tooling {
   }
 
   public final class SourceLocation {
-    ctor public SourceLocation(int lineNumber, int offset, int length, String? sourceFile);
+    ctor public SourceLocation(int lineNumber, int offset, int length, String? sourceFile, int packageHash);
     method public int component1();
     method public int component2();
     method public int component3();
     method public String? component4();
-    method public androidx.ui.tooling.SourceLocation copy(int lineNumber, int offset, int length, String? sourceFile);
+    method public int component5();
+    method public androidx.ui.tooling.SourceLocation copy(int lineNumber, int offset, int length, String? sourceFile, int packageHash);
     method public int getLength();
     method public int getLineNumber();
     method public int getOffset();
+    method public int getPackageHash();
     method public String? getSourceFile();
   }
 
@@ -75,12 +80,14 @@ package androidx.ui.tooling.inspector {
   public final class InspectorNode {
     method public java.util.List<androidx.ui.tooling.inspector.InspectorNode> getChildren();
     method public String getFileName();
-    method public String getFunctionName();
     method public int getHeight();
     method public long getId();
     method public int getLeft();
+    method public int getLength();
     method public int getLineNumber();
     method public String getName();
+    method public int getOffset();
+    method public int getPackageHash();
     method public java.util.List<androidx.ui.tooling.inspector.NodeParameter> getParameters();
     method public int getTop();
     method public int getWidth();
