@@ -483,7 +483,7 @@ private fun calculateWidth(
             textFieldPlaceable,
             labelPlaceable,
             placeholderPlaceable
-        ).maxBy { widthOrZero(it) }
+        ).maxByOrNull { widthOrZero(it) }
     )
     val wrappedWidth =
         widthOrZero(leadingPlaceable) + middleSection + widthOrZero(
@@ -522,7 +522,7 @@ private fun calculateHeight(
             heightOrZero(leadingPlaceable),
             heightOrZero(trailingPlaceable),
             middleSectionHeight.roundToInt()
-        ).max() ?: 0,
+        ).maxOrNull() ?: 0,
         constraints.minHeight
     )
 }

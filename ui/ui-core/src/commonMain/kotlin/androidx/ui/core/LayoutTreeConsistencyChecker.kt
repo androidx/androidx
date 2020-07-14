@@ -96,14 +96,12 @@ internal class LayoutTreeConsistencyChecker(
                 for (i in 0 until depth) {
                     stringBuilder.append("..")
                 }
-                stringBuilder.append(nodeRepresentation)
-                stringBuilder.append("\n")
+                stringBuilder.appendLine(nodeRepresentation)
                 childrenDepth += 1
             }
             node.children.fastForEach { printSubTree(it, childrenDepth) }
         }
-        stringBuilder.append("Tree state:")
-        stringBuilder.append("\n")
+        stringBuilder.appendLine("Tree state:")
         printSubTree(root, 0)
         return stringBuilder.toString()
     }

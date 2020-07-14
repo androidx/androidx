@@ -494,7 +494,7 @@ private fun IconsWithTextFieldLayout(
                     leadingPlaceable,
                     trailingPlaceable,
                     textFieldPlaceable
-                ).maxBy { heightOrZero(it) }
+                ).maxByOrNull { heightOrZero(it) }
             ),
             incomingConstraints.minHeight
         )

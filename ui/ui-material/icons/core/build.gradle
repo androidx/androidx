@@ -18,6 +18,7 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.ui.material.icons.generator.tasks.IconGenerationTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -43,4 +44,12 @@ androidx {
     mavenGroup = LibraryGroups.Compose.MATERIAL
     inceptionYear = "2020"
     description = "AndroidX Core Material Icons"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xallow-jvm-ir-dependencies"
+        ]
+    }
 }

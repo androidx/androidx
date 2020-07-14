@@ -35,3 +35,11 @@ dependencies {
     implementation project(":compose:animation:animation-core")
     implementation project(":compose:core:core-unit")
 }
+
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        // useIR = true // TODO: Should just enable IR instead of `-Xallow-jvm-ir-dependencies`
+        freeCompilerArgs += "-Xallow-jvm-ir-dependencies"
+    }
+}

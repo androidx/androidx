@@ -602,8 +602,8 @@ class PainterModifierTest {
         Layout(children) { measurables, constraints ->
             val loosenedConstraints = constraints.copy(minWidth = 0, minHeight = 0)
             val placeables = measurables.map { it.measure(loosenedConstraints) }
-            val maxPlaceableWidth = placeables.maxBy { it.width }?.width ?: 0
-            val maxPlaceableHeight = placeables.maxBy { it.height }?.width ?: 0
+            val maxPlaceableWidth = placeables.maxByOrNull { it.width }?.width ?: 0
+            val maxPlaceableHeight = placeables.maxByOrNull { it.height }?.width ?: 0
             val width = max(maxPlaceableWidth, loosenedConstraints.minWidth)
             val height = max(maxPlaceableHeight, loosenedConstraints.minHeight)
             layout(width, height) {
@@ -623,11 +623,11 @@ class PainterModifierTest {
         Layout(children, modifier) { measurables, constraints ->
             val placeables = measurables.map { it.measure(constraints) }
             val width = max(
-                placeables.maxBy { it.width }?.width ?: 0, constraints
+                placeables.maxByOrNull { it.width }?.width ?: 0, constraints
                     .minWidth
             )
             val height = max(
-                placeables.maxBy { it.height }?.height ?: 0, constraints
+                placeables.maxByOrNull { it.height }?.height ?: 0, constraints
                     .minHeight
             )
             layout(width, height) {

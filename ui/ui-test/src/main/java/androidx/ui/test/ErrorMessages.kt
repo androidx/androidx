@@ -65,15 +65,15 @@ internal fun buildErrorMessageForCountMismatch(
         sb.append(".")
     }
 
-    sb.appendln()
+    sb.appendLine()
 
     if (foundNodes.isNotEmpty()) {
         if (foundNodes.size == 1) {
-            sb.appendln("Node found:")
+            sb.appendLine("Node found:")
         } else {
-            sb.appendln("Nodes found:")
+            sb.appendLine("Nodes found:")
         }
-        sb.appendln(foundNodes.printToString())
+        sb.appendLine(foundNodes.printToString())
     }
 
     return sb.toString()
@@ -100,10 +100,10 @@ internal fun buildErrorMessageForNodeMissingInTree(
     sb.append(errorMessage)
     sb.append("\n")
 
-    sb.appendln("The node is no longer in the tree, last known semantics:")
-    sb.appendln(lastSeenSemantics)
+    sb.appendLine("The node is no longer in the tree, last known semantics:")
+    sb.appendLine(lastSeenSemantics)
     sb.append("Original selector: ")
-    sb.appendln(selector.description)
+    sb.appendLine(selector.description)
 
     return sb.toString()
 }
@@ -115,14 +115,14 @@ internal fun buildErrorMessageForAssertAnyFail(
 ): String {
     val sb = StringBuilder()
 
-    sb.appendln("Failed to assertAny(${assertionMatcher.description})")
+    sb.appendLine("Failed to assertAny(${assertionMatcher.description})")
 
-    sb.appendln("None of the following nodes match:")
-    sb.appendln(nodes.printToString())
+    sb.appendLine("None of the following nodes match:")
+    sb.appendLine(nodes.printToString())
 
     sb.append("Selector used: '")
     sb.append(selector.description)
-    sb.appendln("'")
+    sb.appendLine("'")
 
     return sb.toString()
 }
@@ -134,16 +134,16 @@ internal fun buildErrorMessageForAssertAllFail(
 ): String {
     val sb = StringBuilder()
 
-    sb.appendln("Failed to assertAll(${assertionMatcher.description})")
+    sb.appendLine("Failed to assertAll(${assertionMatcher.description})")
 
     sb.append("Found '${nodesNotMatching.size}' ")
     sb.append(if (nodesNotMatching.size == 1) "node" else "nodes")
-    sb.appendln(" not matching:")
-    sb.appendln(nodesNotMatching.printToString())
+    sb.appendLine(" not matching:")
+    sb.appendLine(nodesNotMatching.printToString())
 
     sb.append("Selector used: '")
     sb.append(selector.description)
-    sb.appendln("'")
+    sb.appendLine("'")
 
     return sb.toString()
 }
@@ -154,12 +154,12 @@ internal fun buildErrorMessageForAtLeastOneNodeExpected(
 ): String {
     val sb = StringBuilder()
 
-    sb.appendln(errorMessage)
+    sb.appendLine(errorMessage)
 
     sb.append("Assert needs to receive at least 1 node but 0 nodes were found for selector: ")
     sb.append("'")
     sb.append(selector.description)
-    sb.appendln("'")
+    sb.appendLine("'")
 
     return sb.toString()
 }
@@ -171,14 +171,14 @@ internal fun buildGeneralErrorMessage(
 ): String {
     val sb = StringBuilder()
 
-    sb.appendln(errorMessage)
+    sb.appendLine(errorMessage)
 
-    sb.appendln("Semantics of the node:")
-    sb.appendln(node.printToString())
+    sb.appendLine("Semantics of the node:")
+    sb.appendLine(node.printToString())
 
     sb.append("Selector used: (")
     sb.append(selector.description)
-    sb.appendln(")")
+    sb.appendLine(")")
 
     return sb.toString()
 }
@@ -192,16 +192,16 @@ internal fun buildIndexErrorMessage(
 
     sb.append("Can't retrieve node at index '$index' of '")
     sb.append(selector.description)
-    sb.appendln("'")
+    sb.appendLine("'")
 
     if (nodes.isEmpty()) {
-        sb.appendln("There are no existing nodes for that selector.")
+        sb.appendLine("There are no existing nodes for that selector.")
     } else if (nodes.size == 1) {
-        sb.appendln("There is 1 node only:")
-        sb.appendln(nodes.printToString())
+        sb.appendLine("There is 1 node only:")
+        sb.appendLine(nodes.printToString())
     } else {
-        sb.appendln("There are '${nodes.size}' nodes only:")
-        sb.appendln(nodes.printToString())
+        sb.appendLine("There are '${nodes.size}' nodes only:")
+        sb.appendLine(nodes.printToString())
     }
 
     return sb.toString()

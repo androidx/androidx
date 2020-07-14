@@ -6,7 +6,7 @@ package androidx.animation {
     method public final float getMax();
     method public final float getMin();
     method public final float getVelocity();
-    method public final void setBounds(float min = Float.NEGATIVE_INFINITY, float max = Float.POSITIVE_INFINITY);
+    method public final void setBounds(float min = (-1.0f/0.0f), float max = (1.0f/0.0f));
     method public void snapTo(float targetValue);
     property public final float max;
     property public final float min;

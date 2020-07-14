@@ -55,6 +55,7 @@ class DisposableAnimationClock(
     private var disposed = false
 
     override fun subscribe(observer: AnimationClockObserver) {
+        @Suppress("DEPRECATION_ERROR")
         synchronized(allSubscriptions) {
             if (!disposed) {
                 allSubscriptions += observer
@@ -64,6 +65,7 @@ class DisposableAnimationClock(
     }
 
     override fun unsubscribe(observer: AnimationClockObserver) {
+        @Suppress("DEPRECATION_ERROR")
         synchronized(allSubscriptions) {
             if (allSubscriptions.remove(observer)) {
                 clock.unsubscribe(observer)
@@ -77,6 +79,7 @@ class DisposableAnimationClock(
      * After a call to [dispose], [isDisposed] will return `true`.
      */
     fun dispose() {
+        @Suppress("DEPRECATION_ERROR")
         synchronized(allSubscriptions) {
             allSubscriptions.forEach { clock.unsubscribe(it) }
             allSubscriptions.clear()
@@ -87,5 +90,6 @@ class DisposableAnimationClock(
     /**
      * `true` if [dispose] has been called and no new subscriptions are permitted.
      */
+    @Suppress("DEPRECATION_ERROR")
     val isDisposed: Boolean get() = synchronized(allSubscriptions) { disposed == true }
 }

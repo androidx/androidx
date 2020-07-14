@@ -60,7 +60,7 @@ fun List<Float>.assertSame(tolerance: Float = 0f) {
     if (size <= 1) {
         return
     }
-    assertThat(min()!!).isWithin(2 * tolerance).of(max()!!)
+    assertThat(minOrNull()!!).isWithin(2 * tolerance).of(maxOrNull()!!)
 }
 
 /**

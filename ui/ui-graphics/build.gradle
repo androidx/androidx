@@ -73,10 +73,9 @@ androidx {
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += [
-            "-Xuse-experimental=kotlin.Experimental",
-            "-XXLanguage:+InlineClasses"
+            "-XXLanguage:+InlineClasses",
+            "-Xallow-jvm-ir-dependencies"
         ]
-        useIR = true
     }
 }
 

@@ -333,11 +333,11 @@ private fun SimpleTestLayout(modifier: Modifier = Modifier, children: @Composabl
             val (width, height) = with(placeables.filterNotNull()) {
                 Pair(
                     max(
-                        maxBy { it.width }?.width ?: 0,
+                        maxByOrNull { it.width }?.width ?: 0,
                         constraints.minWidth
                     ),
                     max(
-                        maxBy { it.height }?.height ?: 0,
+                        maxByOrNull { it.height }?.height ?: 0,
                         constraints.minHeight
                     )
                 )

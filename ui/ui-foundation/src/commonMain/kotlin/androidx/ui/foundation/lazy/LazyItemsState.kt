@@ -484,7 +484,7 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
         MeasuringIntrinsicsMeasureBlocks { measurables, constraints ->
             val placeables = measurables.map { it.measure(constraints) }
             val mainAxisSize = placeables.sumBy { it.mainAxisSize }
-            val crossAxisSize = placeables.maxBy { it.crossAxisSize }?.crossAxisSize ?: 0
+            val crossAxisSize = placeables.maxByOrNull { it.crossAxisSize }?.crossAxisSize ?: 0
             layout(
                 width = if (!isVertical) mainAxisSize else crossAxisSize,
                 height = if (isVertical) mainAxisSize else crossAxisSize
