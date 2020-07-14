@@ -49,20 +49,22 @@ public final class TextureViewRenderSurface {
             private Surface mSurface;
 
             @Override
-            public void onSurfaceTextureAvailable(SurfaceTexture st, int width, int height) {
+            public void onSurfaceTextureAvailable(@NonNull SurfaceTexture st, int width,
+                    int height) {
                 mSurface = new Surface(st);
                 renderer.attachOutputSurface(mSurface, new Size(width, height),
                         Surfaces.toSurfaceRotationDegrees(textureView.getDisplay().getRotation()));
             }
 
             @Override
-            public void onSurfaceTextureSizeChanged(SurfaceTexture st, int width, int height) {
+            public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture st, int width,
+                    int height) {
                 renderer.attachOutputSurface(mSurface, new Size(width, height),
                         Surfaces.toSurfaceRotationDegrees(textureView.getDisplay().getRotation()));
             }
 
             @Override
-            public boolean onSurfaceTextureDestroyed(SurfaceTexture st) {
+            public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture st) {
                 Surface surface = mSurface;
                 mSurface = null;
                 renderer.detachOutputSurface().addListener(() -> {
@@ -73,7 +75,7 @@ public final class TextureViewRenderSurface {
             }
 
             @Override
-            public void onSurfaceTextureUpdated(SurfaceTexture st) {
+            public void onSurfaceTextureUpdated(@NonNull SurfaceTexture st) {
             }
         });
 
