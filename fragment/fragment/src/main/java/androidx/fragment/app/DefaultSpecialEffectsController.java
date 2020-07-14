@@ -237,7 +237,8 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
     }
 
     private void startTransitions(@NonNull List<TransitionInfo> transitionInfos,
-            boolean isPop, @Nullable Operation firstOut, @Nullable Operation lastIn) {
+            final boolean isPop, @Nullable final Operation firstOut,
+            @Nullable final Operation lastIn) {
         // First verify that we can run all transitions together
         FragmentTransitionImpl transitionImpl = null;
         for (TransitionInfo transitionInfo : transitionInfos) {
@@ -311,7 +312,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
 
                 // Find all of the Views from the firstOut fragment that are
                 // part of the shared element transition
-                ArrayMap<String, View> firstOutViews = new ArrayMap<>();
+                final ArrayMap<String, View> firstOutViews = new ArrayMap<>();
                 findNamedViews(firstOutViews, firstOut.getFragment().mView);
                 firstOutViews.retainAll(exitingNames);
                 if (exitingCallback != null) {
@@ -335,7 +336,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
 
                 // Find all of the Views from the lastIn fragment that are
                 // part of the shared element transition
-                ArrayMap<String, View> lastInViews = new ArrayMap<>();
+                final ArrayMap<String, View> lastInViews = new ArrayMap<>();
                 findNamedViews(lastInViews, lastIn.getFragment().mView);
                 lastInViews.retainAll(enteringNames);
                 lastInViews.retainAll(sharedElementNameMapping.values());
@@ -377,6 +378,22 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     sharedElementFirstOutViews.clear();
                     sharedElementLastInViews.clear();
                 } else {
+                    // Call through to onSharedElementStart() before capturing the
+                    // starting values for the shared element transition
+                    FragmentTransition.callSharedElementStartEnd(
+                            lastIn.getFragment(), firstOut.getFragment(), isPop,
+                            firstOutViews, true);
+                    // Trigger the onSharedElementEnd callback in the next frame after
+                    // the starting values are captured and before capturing the end states
+                    OneShotPreDrawListener.add(getContainer(), new Runnable() {
+                        @Override
+                        public void run() {
+                            FragmentTransition.callSharedElementStartEnd(
+                                    lastIn.getFragment(), firstOut.getFragment(), isPop,
+                                    lastInViews, false);
+                        }
+                    });
+
                     // Capture all views from the firstOut Fragment under the shared element views
                     for (View sharedElementView : firstOutViews.values()) {
                         captureTransitioningViews(sharedElementFirstOutViews,
