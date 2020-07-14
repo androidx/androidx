@@ -35,7 +35,7 @@ dependencies {
 
     implementation "androidx.preference:preference-ktx:1.1.0"
 
-    androidTestImplementation project(":compose:test:test-core")
+    androidTestImplementation project(":ui:ui-test")
 
     // TODO: presumably shouldn't need to specify these again? figure out why this is needed.
     androidTestImplementation project(":compose:android-view:android-view:integration-tests:android-view-demos")
