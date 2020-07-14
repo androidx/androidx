@@ -57,7 +57,7 @@ class SeekableAnimation<T>(
      * transition, this will be the duration of the longest running animation.
      */
     val duration: Long =
-            currentAnimWrappers.asSequence().map { it.value.durationMillis }.max()!!
+            currentAnimWrappers.asSequence().map { it.value.durationMillis }.maxOrNull()!!
 
     /**
      * Returns the animation values at the given playtime. This time could be any time between 0

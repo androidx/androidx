@@ -90,3 +90,11 @@ android {
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/../../../golden/ui/ui-material"
 }
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xallow-jvm-ir-dependencies"
+        ]
+    }
+}

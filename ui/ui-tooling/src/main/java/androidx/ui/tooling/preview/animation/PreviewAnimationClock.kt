@@ -170,7 +170,8 @@ internal open class PreviewAnimationClock(private val initialTimeMs: Long = 0L) 
      */
     fun getMaxDuration(): Long {
         // TODO(b/160126628): support other animation types, e.g. AnimatedValue
-        val maxTransitionAnimation = seekableAnimations.maxBy { it.value.duration }?.value?.duration
+        val maxTransitionAnimation = seekableAnimations
+            .maxByOrNull { it.value.duration }?.value?.duration
         return maxTransitionAnimation ?: -1
     }
 

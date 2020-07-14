@@ -333,7 +333,7 @@ package androidx.ui.unit {
     method @androidx.compose.Stable public static androidx.ui.unit.IntSize IntSize(int width, int height);
     method public static androidx.ui.unit.IntOffset getCenter(androidx.ui.unit.IntSize);
     method @androidx.compose.Stable public static operator androidx.ui.unit.IntSize times(int, androidx.ui.unit.IntSize size);
-    method @androidx.compose.Stable public static androidx.ui.geometry.Size toSize(androidx.ui.unit.IntSize);
+    method @androidx.compose.Stable public static long toSize(androidx.ui.unit.IntSize);
   }
 
   @androidx.compose.Immutable public final inline class Position {
@@ -398,15 +398,15 @@ package androidx.ui.unit {
   }
 
   public final class PxKt {
-    method @androidx.compose.Stable public static inline androidx.ui.unit.PxBounds PxBounds(androidx.ui.geometry.Offset topLeft, androidx.ui.geometry.Size size);
-    method @androidx.compose.Stable public static androidx.ui.geometry.Offset center(androidx.ui.geometry.Size);
+    method @androidx.compose.Stable public static inline androidx.ui.unit.PxBounds PxBounds-oHQNTA4(androidx.ui.geometry.Offset topLeft, long size);
     method @androidx.compose.Stable public static inline androidx.ui.geometry.Offset center(androidx.ui.unit.PxBounds);
+    method @androidx.compose.Stable public static androidx.ui.geometry.Offset center-b2zCL34(long);
     method public static inline float getHeight(androidx.ui.unit.PxBounds);
     method public static inline float getWidth(androidx.ui.unit.PxBounds);
     method @androidx.compose.Stable public static inline androidx.ui.unit.IntOffset round(androidx.ui.geometry.Offset);
-    method @androidx.compose.Stable public static androidx.ui.unit.PxBounds toBounds(androidx.ui.geometry.Size);
+    method @androidx.compose.Stable public static androidx.ui.unit.PxBounds toBounds-b2zCL34(long);
     method @androidx.compose.Stable public static androidx.ui.geometry.Rect toRect(androidx.ui.unit.PxBounds);
-    method @androidx.compose.Stable public static androidx.ui.geometry.Size toSize(androidx.ui.unit.PxBounds);
+    method @androidx.compose.Stable public static long toSize(androidx.ui.unit.PxBounds);
   }
 
   @androidx.compose.Immutable public final inline class PxSquared implements java.lang.Comparable<androidx.ui.unit.PxSquared> {

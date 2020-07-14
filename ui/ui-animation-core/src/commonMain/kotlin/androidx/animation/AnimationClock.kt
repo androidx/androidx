@@ -66,6 +66,7 @@ class ManualAnimationClock(
  * Base implementation for the AnimationClockObservable that handles the subscribing and
  * unsubscribing logic that would be common for all custom animation clocks.
  */
+@Suppress("DEPRECATION_ERROR") // TODO: b/159875450 use of synchronized is deprecated.
 abstract class BaseAnimationClock : AnimationClockObservable {
     // Using LinkedHashSet to increase removal performance
     private val observers: MutableSet<AnimationClockObserver> = LinkedHashSet()

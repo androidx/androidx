@@ -75,6 +75,7 @@ data class AutofillNode(
         @GuardedBy("this")
         private var previousId = 0
 
+        @Suppress("DEPRECATION_ERROR")
         private fun generateId() =
             synchronized(this) { ++previousId }
     }

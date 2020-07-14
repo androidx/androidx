@@ -42,7 +42,7 @@ fun Size(width: Float, height: Float) = Size(packFloats(width, height))
 // TODO njawad make this an inline class again once the fix for b/155690960 has been picked
 //   up by the compose kotlin compiler
 @Immutable
-/* inline */ data class Size(@PublishedApi internal val packedValue: Long) {
+inline class Size(@PublishedApi internal val packedValue: Long) {
 
     @Stable
     val width: Float

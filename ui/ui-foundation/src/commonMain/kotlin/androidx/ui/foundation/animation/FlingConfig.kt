@@ -113,7 +113,7 @@ fun AnchorsFlingConfig(
     decayAnimation: FloatDecayAnimationSpec = ExponentialDecay()
 ): FlingConfig {
     val adjustTarget: (Float) -> TargetAnimation? = { target ->
-        val point = anchors.minBy { abs(it - target) }
+        val point = anchors.minByOrNull { abs(it - target) }
         val adjusted = point ?: target
         TargetAnimation(adjusted, animationSpec)
     }

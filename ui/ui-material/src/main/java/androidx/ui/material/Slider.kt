@@ -294,7 +294,7 @@ private fun SliderFlingConfig(
     } else {
         val adjustTarget: (Float) -> TargetAnimation? = { _ ->
             val now = value.holder.value
-            val point = anchors.minBy { abs(it - now) }
+            val point = anchors.minByOrNull { abs(it - now) }
             val adjusted = point ?: now
             TargetAnimation(adjusted, SliderToTickAnimation)
         }
@@ -362,7 +362,7 @@ private fun setSliderProgress(
         val anchorsValue = position.tickFractions.map {
             lerp(position.startValue, position.endValue, it)
         }
-        val point = anchorsValue.minBy { abs(it - newValue) }
+        val point = anchorsValue.minByOrNull { abs(it - newValue) }
         newValue = point ?: newValue
     }
     // This is to keep it consistent with AbsSeekbar.java: return false if no

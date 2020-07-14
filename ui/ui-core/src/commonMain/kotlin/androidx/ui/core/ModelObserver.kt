@@ -49,6 +49,7 @@ class ModelObserver(private val commitExecutor: (command: () -> Unit) -> Unit) {
     private val commitObserver: FrameCommitObserver = { committed, _ ->
         var hasValues = false
         // This array is in the same order as commitMaps
+        @Suppress("DEPRECATION_ERROR")
         val targetsArray = synchronized(commitMaps) {
             Array(commitMaps.size) { index ->
                 commitMaps[index].map.get(committed).apply {
@@ -69,6 +70,7 @@ class ModelObserver(private val commitExecutor: (command: () -> Unit) -> Unit) {
      */
     private val readObserver: FrameReadObserver = { model ->
         if (!isPaused) {
+            @Suppress("DEPRECATION_ERROR")
             synchronized(commitMaps) {
                 currentMap!!.add(model, currentTarget!!)
             }
@@ -140,7 +142,7 @@ class ModelObserver(private val commitExecutor: (command: () -> Unit) -> Unit) {
         val oldTarget = currentTarget
         val oldPaused = isPaused
 
-        currentMap = synchronized(commitMaps) {
+        currentMap = @Suppress("DEPRECATION_ERROR") synchronized(commitMaps) {
             ensureMap(onCommit).apply { removeValue(target) }
         }
         currentTarget = target
@@ -173,6 +175,7 @@ class ModelObserver(private val commitExecutor: (command: () -> Unit) -> Unit) {
      * `onCommit` methods passed in [observeReads].
      */
     fun clear(target: Any) {
+        @Suppress("DEPRECATION_ERROR")
         synchronized(commitMaps) {
             commitMaps.fastForEach { commitMap ->
                 commitMap.map.removeValue(target)
@@ -192,6 +195,7 @@ class ModelObserver(private val commitExecutor: (command: () -> Unit) -> Unit) {
         for (i in 0..targetsArray.lastIndex) {
             val targets = targetsArray[i]
             if (targets.isNotEmpty()) {
+                @Suppress("DEPRECATION_ERROR")
                 val commitCaller = synchronized(commitMaps) { commitMaps[i] }
                 commitCaller.callOnCommit(targets)
             }
