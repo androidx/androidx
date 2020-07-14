@@ -106,12 +106,13 @@ public class ViewPorts {
     }
 
     /**
-     * Returns the container rect that the given rect fits/fills.
+     * Returns the container rect that the given rect fills.
      *
-     * <p> For FIT types, this method returns the smallest container rect that is larger the
-     * surface; For FILL types, returns the largest container rect that is smaller than the view
-     * port. The returned rectangle is also required to 1) have the view port's aspect ratio and
-     * 2) be in the surface coordinates.
+     * <p> For FILL types, returns the largest container rect that is smaller than the view port.
+     * The returned rectangle is also required to 1) have the view port's aspect ratio and 2) be
+     * in the surface coordinates.
+     *
+     * <p> For FIT, returns the largest possible rect shared by all use cases.
      */
     @SuppressLint("SwitchIntDef")
     @NonNull
@@ -121,52 +122,33 @@ public class ViewPorts {
             @ViewPort.ScaleType int scaleType,
             @ViewPort.LayoutDirection int layoutDirection,
             @IntRange(from = 0, to = 359) int rotationDegrees) {
-        Matrix viewPortToSurfaceTransformation = new Matrix();
-        RectF viewPortRect = new RectF(0, 0, containerAspectRatio.getNumerator(),
-                containerAspectRatio.getDenominator());
-        // Using Matrix' convenience methods fit/fill the viewPort into the container with given
-        // scale type.
+        if (scaleType == ViewPort.FIT) {
+            // Return the fitting rect if the rect is full covered by the container.
+            return fittingRect;
+        }
+        // Using Matrix' convenience methods fill the rect into the containing rect with given
+        // aspect ratio.
         // NOTE: By using the Matrix#setRectToRect, we assume the "start" is always (0, 0) and
         // the "end" is always (w, h), which is NOT always true depending on rotation and layout
         // orientation. We need to correct the rect based on rotation and layout direction.
-        if (scaleType == ViewPort.FIT_CENTER || scaleType == ViewPort.FIT_END
-                || scaleType == ViewPort.FIT_START) {
-            Matrix surfaceToViewPortTransformation = new Matrix();
-            switch (scaleType) {
-                // To workaround the limitation that Matrix doesn't not support FILL types
-                // natively, we use inverted backward FIT to achieve forward FILL.
-                case ViewPort.FIT_CENTER:
-                    surfaceToViewPortTransformation.setRectToRect(
-                            fittingRect, viewPortRect, Matrix.ScaleToFit.CENTER);
-                    break;
-                case ViewPort.FIT_START:
-                    surfaceToViewPortTransformation.setRectToRect(
-                            fittingRect, viewPortRect, Matrix.ScaleToFit.START);
-                    break;
-                case ViewPort.FIT_END:
-                    surfaceToViewPortTransformation.setRectToRect(
-                            fittingRect, viewPortRect, Matrix.ScaleToFit.END);
-                    break;
-            }
-            surfaceToViewPortTransformation.invert(viewPortToSurfaceTransformation);
-        } else if (scaleType == ViewPort.FILL_CENTER || scaleType == ViewPort.FILL_END
-                || scaleType == ViewPort.FILL_START) {
-            switch (scaleType) {
-                case ViewPort.FILL_CENTER:
-                    viewPortToSurfaceTransformation.setRectToRect(
-                            viewPortRect, fittingRect, Matrix.ScaleToFit.CENTER);
-                    break;
-                case ViewPort.FILL_START:
-                    viewPortToSurfaceTransformation.setRectToRect(
-                            viewPortRect, fittingRect, Matrix.ScaleToFit.START);
-                    break;
-                case ViewPort.FILL_END:
-                    viewPortToSurfaceTransformation.setRectToRect(
-                            viewPortRect, fittingRect, Matrix.ScaleToFit.END);
-                    break;
-            }
-        } else {
-            throw new IllegalStateException("Unexpected scale type: " + scaleType);
+        Matrix viewPortToSurfaceTransformation = new Matrix();
+        RectF viewPortRect = new RectF(0, 0, containerAspectRatio.getNumerator(),
+                containerAspectRatio.getDenominator());
+        switch (scaleType) {
+            case ViewPort.FILL_CENTER:
+                viewPortToSurfaceTransformation.setRectToRect(
+                        viewPortRect, fittingRect, Matrix.ScaleToFit.CENTER);
+                break;
+            case ViewPort.FILL_START:
+                viewPortToSurfaceTransformation.setRectToRect(
+                        viewPortRect, fittingRect, Matrix.ScaleToFit.START);
+                break;
+            case ViewPort.FILL_END:
+                viewPortToSurfaceTransformation.setRectToRect(
+                        viewPortRect, fittingRect, Matrix.ScaleToFit.END);
+                break;
+            default:
+                throw new IllegalStateException("Unexpected scale type: " + scaleType);
         }
 
         RectF viewPortRectInSurfaceCoordinates = new RectF();
