@@ -23,45 +23,59 @@ import androidx.ui.core.PointerInputData
 import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
-import androidx.ui.test.util.PointerInputRecorder.DataPoint
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.Duration
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.Uptime
 import com.google.common.truth.Truth.assertThat
 
-class PointerInputRecorder : PointerInputModifier {
+data class DataPoint(val id: PointerId, val data: PointerInputData) {
+    val timestamp get() = data.uptime!!
+    val position get() = data.position!!
+    val x get() = data.position!!.x
+    val y get() = data.position!!.y
+    val down get() = data.down
+}
 
-    data class DataPoint(val id: PointerId, val data: PointerInputData) {
-        val timestamp get() = data.uptime!!
-        val position get() = data.position!!
-        val x get() = data.position!!.x
-        val y get() = data.position!!.y
-        val down get() = data.down
-    }
-
+class SinglePointerInputRecorder : PointerInputModifier {
     private val _events = mutableListOf<DataPoint>()
     val events get() = _events as List<DataPoint>
 
     private val velocityTracker = VelocityTracker()
     val recordedVelocity get() = velocityTracker.calculateVelocity()
 
-    override val pointerInputFilter = RecordingFilter {
-        _events.add(DataPoint(it.id, it.current))
-        velocityTracker.addPosition(it.current.uptime!!, it.current.position!!)
+    override val pointerInputFilter = RecordingFilter { changes ->
+        changes.forEach {
+            _events.add(DataPoint(it.id, it.current))
+            velocityTracker.addPosition(it.current.uptime!!, it.current.position!!)
+        }
     }
 }
 
-class RecordingFilter(private val record: (PointerInputChange) -> Unit) : PointerInputFilter() {
+class MultiPointerInputRecorder : PointerInputModifier {
+    data class Event(val pointers: List<DataPoint>) {
+        val pointerCount: Int get() = pointers.size
+        fun getPointer(index: Int) = pointers[index]
+    }
+
+    private val _events = mutableListOf<Event>()
+    val events get() = _events as List<Event>
+
+    override val pointerInputFilter = RecordingFilter { changes ->
+        _events.add(Event(changes.map { DataPoint(it.id, it.current) }))
+    }
+}
+
+class RecordingFilter(
+    private val record: (List<PointerInputChange>) -> Unit
+) : PointerInputFilter() {
     override fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
-        bounds: IntPxSize
+        bounds: IntSize
     ): List<PointerInputChange> {
         if (pass == PointerEventPass.InitialDown) {
-            changes.forEach {
-                record(it)
-            }
+            record(changes)
         }
         return changes
     }
@@ -71,17 +85,15 @@ class RecordingFilter(private val record: (PointerInputChange) -> Unit) : Pointe
     }
 }
 
-fun Uptime.inMilliseconds(): Long = nanoseconds / 1_000_000
+val SinglePointerInputRecorder.downEvents get() = events.filter { it.down }
 
-val PointerInputRecorder.downEvents get() = events.filter { it.down }
-
-val PointerInputRecorder.recordedDuration: Duration
+val SinglePointerInputRecorder.recordedDuration: Duration
     get() {
         check(events.isNotEmpty()) { "No events recorded" }
         return events.last().timestamp - events.first().timestamp
     }
 
-fun PointerInputRecorder.assertTimestampsAreIncreasing() {
+fun SinglePointerInputRecorder.assertTimestampsAreIncreasing() {
     check(events.isNotEmpty()) { "No events recorded" }
     events.reduce { prev, curr ->
         assertThat(curr.timestamp).isAtLeast(prev.timestamp)
@@ -89,24 +101,46 @@ fun PointerInputRecorder.assertTimestampsAreIncreasing() {
     }
 }
 
-fun PointerInputRecorder.assertOnlyLastEventIsUp() {
+fun MultiPointerInputRecorder.assertTimestampsAreIncreasing() {
+    check(events.isNotEmpty()) { "No events recorded" }
+    // Check that each event has the same timestamp
+    events.forEach { event ->
+        assertThat(event.pointerCount).isAtLeast(1)
+        val currTime = event.pointers[0].timestamp
+        for (i in 1 until event.pointerCount) {
+            assertThat(event.pointers[i].timestamp).isEqualTo(currTime)
+        }
+    }
+    // Check that the timestamps are ordered
+    assertThat(events.map { it.pointers[0].timestamp }).isInOrder()
+}
+
+fun SinglePointerInputRecorder.assertOnlyLastEventIsUp() {
     check(events.isNotEmpty()) { "No events recorded" }
     assertThat(events.last().down).isFalse()
     assertThat(events.count { !it.down }).isEqualTo(1)
 }
 
-/**
- * Checks that the coordinates are progressing in a monotonous direction
- */
-fun List<DataPoint>.isMonotonicBetween(start: PxPosition, end: PxPosition) {
-    map { it.x.value }.isMonotonicBetween(start.x.value, end.x.value, 1e-3f)
-    map { it.y.value }.isMonotonicBetween(start.y.value, end.y.value, 1e-3f)
+fun DataPoint.verify(
+    expectedTimestamp: Uptime?,
+    expectedId: PointerId?,
+    expectedDown: Boolean,
+    expectedPosition: Offset
+) {
+    if (expectedTimestamp != null) {
+        assertThat(timestamp).isEqualTo(expectedTimestamp)
+    }
+    if (expectedId != null) {
+        assertThat(id).isEqualTo(expectedId)
+    }
+    assertThat(down).isEqualTo(expectedDown)
+    assertThat(position).isEqualTo(expectedPosition)
 }
 
 /**
- * Verifies that all [DataPoint]s in the list are equal to the given position, with a tolerance
- * of 0.001
+ * Checks that the coordinates are progressing in a monotonous direction
  */
-fun List<DataPoint>.areAlmostEqualTo(position: PxPosition) {
-    forEach { it.position.isAlmostEqualTo(position, 1e-3f) }
+fun List<DataPoint>.isMonotonicBetween(start: Offset, end: Offset) {
+    map { it.x }.isMonotonicBetween(start.x, end.x, 1e-3f)
+    map { it.y }.isMonotonicBetween(start.y, end.y, 1e-3f)
 }

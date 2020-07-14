@@ -49,6 +49,7 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.FragmentManager;
@@ -64,6 +65,7 @@ import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.MediaRouter.Callback;
 import androidx.mediarouter.media.MediaRouter.ProviderInfo;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
+import androidx.mediarouter.media.MediaRouterParams;
 
 import com.example.android.supportv7.R;
 
@@ -94,9 +96,9 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     private ImageButton mPauseResumeButton;
     private ImageButton mStopButton;
     private SeekBar mSeekBar;
-    private boolean mNeedResume;
     private boolean mSeeking;
 
+    @SuppressWarnings("deprecation")
     private final Handler mHandler = new Handler();
     private final Runnable mUpdateSeekRunnable = new Runnable() {
         @Override
@@ -129,15 +131,22 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onRouteSelected(MediaRouter router, RouteInfo route) {
-            Log.d(TAG, "onRouteSelected: route=" + route);
+        public void onRouteSelected(@NonNull MediaRouter router,
+                @NonNull RouteInfo requestedRoute, @NonNull RouteInfo selectedRoute,
+                int reason) {
+            Log.d(TAG, "onRouteSelected: requestedRoute=" + requestedRoute
+                    + ", route=" + selectedRoute + ", reason=" + reason);
 
-            mPlayer = Player.create(SampleMediaRouterActivity.this, route, mMediaSession);
+            mPlayer = Player.create(SampleMediaRouterActivity.this, selectedRoute, mMediaSession);
             if (isPresentationApiSupported()) {
                 mPlayer.updatePresentation();
             }
             mSessionManager.setPlayer(mPlayer);
-            mSessionManager.unsuspend();
+            if (reason == MediaRouter.UNSELECT_REASON_STOPPED) {
+                mSessionManager.stop();
+            } else {
+                mSessionManager.unsuspend();
+            }
 
             updateUi();
         }
@@ -212,13 +221,28 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         // Get the media router service.
         mMediaRouter = MediaRouter.getInstance(this);
 
+        MediaRouterParams params = new MediaRouterParams.Builder()
+                .setDialogType(MediaRouterParams.DIALOG_TYPE_DEFAULT)
+                .setOutputSwitcherEnabled(true) // Output switcher will be shown from Android R+.
+                .setTransferToLocalEnabled(true) // Phone speaker will be shown when casting.
+                .build();
+        mMediaRouter.setRouterParams(params);
+
         // Create a route selector for the type of routes that we care about.
         mSelector = new MediaRouteSelector.Builder()
-                .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
-                .addControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO)
                 .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
                 .addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE)
                 .build();
+
+        mMediaRouter.setOnPrepareTransferListener(new MediaRouter.OnPrepareTransferListener() {
+            @Override
+            public void onPrepareTransfer(@NonNull RouteInfo fromRoute, @NonNull RouteInfo toRoute,
+                    @NonNull MediaRouter.TransferNotifier notifier) {
+                Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
+                        + ", to=" + toRoute.getId());
+                notifier.notifyPrepareFinished();
+            }
+        });
 
         // Add a fragment to take care of media route discovery.
         // This fragment automatically adds or removes a callback whenever the activity
@@ -238,10 +262,11 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         // Populate an array adapter with streaming media items.
         String[] mediaNames = getResources().getStringArray(R.array.media_names);
         String[] mediaUris = getResources().getStringArray(R.array.media_uris);
+        String[] mediaMimes = getResources().getStringArray(R.array.media_mimes);
         mLibraryItems = new LibraryAdapter();
         for (int i = 0; i < mediaNames.length; i++) {
             mLibraryItems.add(new MediaItem(
-                    "[streaming] "+mediaNames[i], Uri.parse(mediaUris[i]), "video/mp4"));
+                    "[streaming] " + mediaNames[i], Uri.parse(mediaUris[i]), mediaMimes[i]));
         }
 
         // Scan local external storage directory for media files.
@@ -482,26 +507,6 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onPause() {
-        // pause media player for local playback case only
-        if (!mPlayer.isRemotePlayback() && !mSessionManager.isPaused()) {
-            mNeedResume = true;
-            mSessionManager.pause();
-        }
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        // resume media player for local playback case only
-        if (!mPlayer.isRemotePlayback() && mNeedResume) {
-            mSessionManager.resume();
-            mNeedResume = false;
-        }
-        super.onResume();
-    }
-
-    @Override
     public void onDestroy() {
         mSessionManager.stop();
         mPlayer.release();
@@ -521,7 +526,6 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         MediaRouteActionProvider mediaRouteActionProvider =
                 (MediaRouteActionProvider) MenuItemCompat.getActionProvider(mediaRouteMenuItem);
         mediaRouteActionProvider.setRouteSelector(mSelector);
-        mediaRouteActionProvider.enableDynamicGroup();
         mediaRouteActionProvider.setDialogFactory(new MediaRouteDialogFactory() {
             @Override
             public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {

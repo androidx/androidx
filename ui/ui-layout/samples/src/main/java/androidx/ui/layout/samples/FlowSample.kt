@@ -21,6 +21,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
+import androidx.ui.layout.ExperimentalLayout
 import androidx.ui.layout.FlowColumn
 import androidx.ui.layout.FlowRow
 import androidx.ui.layout.preferredSize
@@ -33,6 +34,7 @@ val sizes = listOf(
 
 @Sampled
 @Composable
+@OptIn(ExperimentalLayout::class)
 fun SimpleFlowRow() {
     FlowRow(
         mainAxisSpacing = 10.dp,
@@ -46,6 +48,7 @@ fun SimpleFlowRow() {
 
 @Sampled
 @Composable
+@OptIn(ExperimentalLayout::class)
 fun SimpleFlowColumn() {
     FlowColumn(
         mainAxisSpacing = 10.dp,

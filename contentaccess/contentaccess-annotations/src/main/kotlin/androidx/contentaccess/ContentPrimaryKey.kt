@@ -22,5 +22,5 @@ package androidx.contentaccess
  * @property columnName The column name in the content provider table.
  */
 @Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.FIELD)
+@Target(AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
 annotation class ContentPrimaryKey(val columnName: String)

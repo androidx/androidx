@@ -17,8 +17,7 @@
 package androidx.ui.animation.demos
 
 import android.util.Log
-import androidx.animation.DEBUG
-import androidx.animation.PhysicsBuilder
+import androidx.animation.SpringSpec
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
 import androidx.compose.Composable
@@ -37,10 +36,11 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import kotlin.math.roundToInt
+
+const val DEBUG = false
 
 @Composable
 fun FancyScrollingDemo() {
@@ -53,25 +53,25 @@ fun FancyScrollingDemo() {
         val animScroll = animatedFloat(0f)
         val itemWidth = state { 0f }
         val gesture = Modifier.rawDragGestureFilter(dragObserver = object : DragObserver {
-            override fun onDrag(dragDistance: PxPosition): PxPosition {
+            override fun onDrag(dragDistance: Offset): Offset {
                 // Snap to new drag position
-                animScroll.snapTo(animScroll.value + dragDistance.x.value)
+                animScroll.snapTo(animScroll.value + dragDistance.x)
                 return dragDistance
             }
 
-            override fun onStop(velocity: PxPosition) {
+            override fun onStop(velocity: Offset) {
 
                 // Uses default decay animation to calculate where the fling will settle,
                 // and adjust that position as needed. The target animation will be used for
                 // animating to the adjusted target.
-                animScroll.fling(velocity.x.value, adjustTarget = { target ->
+                animScroll.fling(velocity.x, adjustTarget = { target ->
                     // Adjust the target position to center align the item
-                    val animation = PhysicsBuilder<Float>(dampingRatio = 2.0f, stiffness = 100f)
                     var rem = target % itemWidth.value
                     if (rem < 0) {
                         rem += itemWidth.value
                     }
-                    TargetAnimation((target - rem), animation)
+                    TargetAnimation((target - rem),
+                        SpringSpec(dampingRatio = 2.0f, stiffness = 100f))
                 })
             }
         })

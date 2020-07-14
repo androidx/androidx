@@ -49,6 +49,9 @@ class SubtitleController {
     private SubtitleTrack mSelectedTrack;
     @RequiresApi(19)
     private CaptioningManager mCaptioningManager;
+    @RequiresApi(19)
+    private CaptioningManager.CaptioningChangeListener mCaptioningChangeListener;
+
     private Handler mHandler;
 
     private static final int WHAT_SHOW = 1;
@@ -78,20 +81,6 @@ class SubtitleController {
         }
     };
 
-    @RequiresApi(19)
-    private CaptioningManager.CaptioningChangeListener mCaptioningChangeListener =
-            new CaptioningManager.CaptioningChangeListener() {
-                @Override
-                public void onEnabledChanged(boolean enabled) {
-                    selectDefaultTrack();
-                }
-
-                @Override
-                public void onLocaleChanged(Locale locale) {
-                    selectDefaultTrack();
-                }
-            };
-
     SubtitleController(@NonNull Context context) {
         this(context, null, null);
     }
@@ -114,6 +103,18 @@ class SubtitleController {
         if (VERSION.SDK_INT >= 19) {
             mCaptioningManager =
                     (CaptioningManager) context.getSystemService(Context.CAPTIONING_SERVICE);
+            mCaptioningChangeListener =
+                new CaptioningManager.CaptioningChangeListener() {
+                    @Override
+                    public void onEnabledChanged(boolean enabled) {
+                        selectDefaultTrack();
+                    }
+
+                    @Override
+                    public void onLocaleChanged(Locale locale) {
+                        selectDefaultTrack();
+                    }
+            };
         }
     }
 

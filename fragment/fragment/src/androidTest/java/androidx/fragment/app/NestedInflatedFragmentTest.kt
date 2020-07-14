@@ -27,7 +27,6 @@ import androidx.fragment.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -37,8 +36,9 @@ import org.junit.runner.RunWith
 @MediumTest
 class NestedInflatedFragmentTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(FragmentTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
     @Test
     @UiThreadTest
@@ -165,7 +165,12 @@ class NestedInflatedFragmentTest {
         Fragment(R.layout.nested_inflated_fragment_container_parent)
 
     @Suppress("OverridingDeprecatedMember", "DEPRECATION")
-    class UserVisibleHintParentFragment : ParentFragment() {
+    class UserVisibleHintParentFragment : ParentFragment(), FragmentOnAttachListener {
+        override fun onAttach(context: Context) {
+            super.onAttach(context)
+            childFragmentManager.addFragmentOnAttachListener(this)
+        }
+
         override fun setUserVisibleHint(isVisibleToUser: Boolean) {
             super.setUserVisibleHint(isVisibleToUser)
             if (host != null) {
@@ -175,14 +180,19 @@ class NestedInflatedFragmentTest {
             }
         }
 
-        override fun onAttachFragment(childFragment: Fragment) {
-            super.onAttachFragment(childFragment)
+        override fun onAttachFragment(fragmentManager: FragmentManager, childFragment: Fragment) {
             childFragment.userVisibleHint = userVisibleHint
         }
     }
 
     @Suppress("OverridingDeprecatedMember", "DEPRECATION")
-    class UserVisibleHintParentFragmentContainerView : ParentFragmentContainerView() {
+    class UserVisibleHintParentFragmentContainerView : ParentFragmentContainerView(),
+        FragmentOnAttachListener {
+        override fun onAttach(context: Context) {
+            super.onAttach(context)
+            childFragmentManager.addFragmentOnAttachListener(this)
+        }
+
         override fun setUserVisibleHint(isVisibleToUser: Boolean) {
             super.setUserVisibleHint(isVisibleToUser)
             if (host != null) {
@@ -192,8 +202,7 @@ class NestedInflatedFragmentTest {
             }
         }
 
-        override fun onAttachFragment(childFragment: Fragment) {
-            super.onAttachFragment(childFragment)
+        override fun onAttachFragment(fragmentManager: FragmentManager, childFragment: Fragment) {
             childFragment.userVisibleHint = userVisibleHint
         }
     }

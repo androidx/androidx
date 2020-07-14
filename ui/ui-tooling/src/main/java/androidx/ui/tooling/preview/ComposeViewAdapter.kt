@@ -24,11 +24,19 @@ import android.util.AttributeSet
 import android.util.Log
 import android.widget.FrameLayout
 import androidx.annotation.VisibleForTesting
+import androidx.compose.AtomicReference
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.Providers
 import androidx.compose.Recomposer
 import androidx.compose.currentComposer
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.ViewTreeViewModelStoreOwner
+import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.setContent
 import androidx.ui.core.toAndroidRect
@@ -38,10 +46,9 @@ import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.SlotTableRecord
 import androidx.ui.tooling.asTree
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxBounds
+import androidx.ui.tooling.preview.animation.PreviewAnimationClock
+import androidx.ui.unit.IntBounds
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.toPx
 import androidx.ui.unit.toRect
 import kotlin.reflect.KClass
 
@@ -57,18 +64,18 @@ data class ViewInfo(
     val fileName: String,
     val lineNumber: Int,
     val methodName: String,
-    val bounds: IntPxBounds,
+    val bounds: IntBounds,
     val children: List<ViewInfo>
 ) {
-    fun hasBounds(): Boolean = bounds.bottom != IntPx.Zero && bounds.right != IntPx.Zero
+    fun hasBounds(): Boolean = bounds.bottom != 0 && bounds.right != 0
 
     fun allChildren(): List<ViewInfo> =
         children + children.flatMap { it.allChildren() }
 
     override fun toString(): String =
         """($fileName:$lineNumber,
-            |bounds=(top=${bounds.top.value}, left=${bounds.left.value},
-            |bottom=${bounds.bottom.value}, right=${bounds.right.value}),
+            |bounds=(top=${bounds.top}, left=${bounds.left},
+            |bottom=${bounds.bottom}, right=${bounds.right}),
             |childrenCount=${children.size})""".trimMargin()
 }
 
@@ -99,6 +106,9 @@ private val KEY_INFO_REGEX =
  *  for debugging purposes.
  *  - `tools:printViewInfos`: If true, the [ComposeViewAdapter] will log the tree of [ViewInfo]
  *  to logcat for debugging.
+ *  - `tools:animationClockStartTime`: When set, the [AnimationClockAmbient] will provide a
+ *  [PreviewAnimationClock] using this value as start time. The clock will control the animations
+ *  in the [ComposeViewAdapter] context.
  *
  * @suppress
  */
@@ -117,6 +127,13 @@ internal class ComposeViewAdapter : FrameLayout {
     private var debugPaintBounds = false
     internal var viewInfos: List<ViewInfo> = emptyList()
     private val slotTableRecord = SlotTableRecord.create()
+
+    /**
+     * Saved exception from the last composition. Since we can not handle the exception during the
+     * composition, we save it and throw it during onLayout, this allows Studio to catch it and
+     * display it to the user.
+     */
+    private val delayedException = AtomicReference<Throwable?>(null)
 
     private val debugBoundsPaint = Paint().apply {
         pathEffect = DashPathEffect(floatArrayOf(5f, 10f, 15f, 20f), 0f)
@@ -187,6 +204,11 @@ internal class ComposeViewAdapter : FrameLayout {
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
+        delayedException.getAndSet(null)?.let { exception ->
+            // There was a pending exception. Throw it here since Studio will catch it and show
+            // it to the user.
+            throw exception
+        }
         viewInfos = slotTableRecord.store.map { it.asTree() }.map { it.toViewInfo() }.toList()
 
         if (debugViewInfos) {
@@ -209,16 +231,23 @@ internal class ComposeViewAdapter : FrameLayout {
                 if (it.hasBounds()) {
                     canvas?.apply {
                         val pxBounds = PxBounds(
-                            it.bounds.left.toPx(),
-                            it.bounds.top.toPx(),
-                            it.bounds.right.toPx(),
-                            it.bounds.bottom.toPx()
+                            it.bounds.left.toFloat(),
+                            it.bounds.top.toFloat(),
+                            it.bounds.right.toFloat(),
+                            it.bounds.bottom.toFloat()
                         )
                         drawRect(pxBounds.toRect().toAndroidRect(), debugBoundsPaint)
                     }
                 }
             }
     }
+
+    /**
+     * Clock that controls the animations defined in the context of this [ComposeViewAdapter].
+     *
+     * @suppress
+     */
+    private lateinit var clock: PreviewAnimationClock
 
     /**
      * Wraps a given [Preview] method an does any necessary setup.
@@ -244,6 +273,8 @@ internal class ComposeViewAdapter : FrameLayout {
      * @param debugPaintBounds if true, the view will paint the boundaries around the layout
      * elements.
      * @param debugViewInfos if true, it will generate the [ViewInfo] structures and will log it.
+     * @param animationClockStartTime if positive, the [AnimationClockAmbient] will provide
+     * [clock] instead of the default clock, setting this value as the clock's initial time.
      */
     @VisibleForTesting
     internal fun init(
@@ -252,8 +283,11 @@ internal class ComposeViewAdapter : FrameLayout {
         parameterProvider: KClass<out PreviewParameterProvider<*>>? = null,
         parameterProviderIndex: Int = 0,
         debugPaintBounds: Boolean = false,
-        debugViewInfos: Boolean = false
+        debugViewInfos: Boolean = false,
+        animationClockStartTime: Long = -1
     ) {
+        ViewTreeLifecycleOwner.set(this, FakeLifecycleOwner)
+        ViewTreeViewModelStoreOwner.set(this, FakeViewModelStoreOwner)
         this.debugPaintBounds = debugPaintBounds
         this.debugViewInfos = debugViewInfos
 
@@ -263,12 +297,37 @@ internal class ComposeViewAdapter : FrameLayout {
                 // We need to delay the reflection instantiation of the class until we are in the
                 // composable to ensure all the right initialization has happened and the Composable
                 // class loads correctly.
-                invokeComposableViaReflection(
-                    className,
-                    methodName,
-                    composer,
-                    *getPreviewProviderParameters(parameterProvider, parameterProviderIndex)
-                )
+                val composable = {
+                    try {
+                        invokeComposableViaReflection(
+                            className,
+                            methodName,
+                            composer,
+                            *getPreviewProviderParameters(parameterProvider, parameterProviderIndex)
+                        )
+                    } catch (t: Throwable) {
+                        // If there is an exception, store it for later but do not catch it so
+                        // compose can handle it and dispose correctly.
+                        var exception: Throwable = t
+                        // Find the root cause and use that for the delayedException.
+                        while (exception is ReflectiveOperationException) {
+                            exception = exception.cause ?: break
+                        }
+                        delayedException.set(exception)
+                        throw t
+                    }
+                }
+                if (animationClockStartTime >= 0) {
+                    // Provide a custom clock when animation inspection is enabled, i.e. when a
+                    // valid `animationClockStartTime` is passed. This clock will control the
+                    // animations defined in this `ComposeViewAdapter` from Android Studio.
+                    clock = PreviewAnimationClock(animationClockStartTime)
+                    Providers(AnimationClockAmbient provides clock) {
+                        composable()
+                    }
+                } else {
+                    composable()
+                }
             }
         }
     }
@@ -279,6 +338,9 @@ internal class ComposeViewAdapter : FrameLayout {
     internal fun dispose() {
         composition?.dispose()
         composition = null
+        if (::clock.isInitialized) {
+            clock.dispose()
+        }
     }
 
     private fun init(attrs: AttributeSet) {
@@ -291,6 +353,12 @@ internal class ComposeViewAdapter : FrameLayout {
         )
         val parameterProviderClass = attrs.getAttributeValue(TOOLS_NS_URI, "parameterProviderClass")
             ?.asPreviewProviderClass()
+
+        val animationClockStartTime = try {
+            attrs.getAttributeValue(TOOLS_NS_URI, "animationClockStartTime").toLong()
+        } catch (e: Exception) {
+            -1L
+        }
 
         init(
             className = className,
@@ -306,7 +374,20 @@ internal class ComposeViewAdapter : FrameLayout {
                 TOOLS_NS_URI,
                 "printViewInfos",
                 debugViewInfos
-            )
+            ),
+            animationClockStartTime = animationClockStartTime
         )
+    }
+
+    private val FakeLifecycleOwner = object : LifecycleOwner {
+        val lifecycleRegistry = LifecycleRegistry(this).apply {
+            currentState = Lifecycle.State.RESUMED
+        }
+
+        override fun getLifecycle() = lifecycleRegistry
+    }
+
+    private val FakeViewModelStoreOwner = ViewModelStoreOwner {
+        throw IllegalStateException("ViewModels creation is not supported in Preview")
     }
 }

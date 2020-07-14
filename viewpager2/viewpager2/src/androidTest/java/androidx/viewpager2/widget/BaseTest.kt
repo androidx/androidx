@@ -43,7 +43,6 @@ import androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.LocaleTestUtils
 import androidx.testutils.recreate
 import androidx.testutils.waitForExecution
@@ -87,8 +86,13 @@ open class BaseTest {
 
     lateinit var localeUtil: LocaleTestUtils
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java, false, false)
+    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
+        TestActivity::class.java,
+        false,
+        false
+    )
 
     @Before
     open fun setUp() {
@@ -124,7 +128,10 @@ open class BaseTest {
         return Context(activityTestRule)
     }
 
-    data class Context(val activityTestRule: ActivityTestRule<TestActivity>) {
+    data class Context(
+        @Suppress("DEPRECATION")
+        val activityTestRule: androidx.test.rule.ActivityTestRule<TestActivity>
+    ) {
         fun recreateActivity(
             adapterProvider: AdapterProvider,
             onCreateCallback: ((ViewPager2) -> Unit) = { }

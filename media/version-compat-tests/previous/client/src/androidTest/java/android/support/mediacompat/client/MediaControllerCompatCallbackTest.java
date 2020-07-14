@@ -579,6 +579,7 @@ public class MediaControllerCompatCallbackTest {
         final MediaControllerCallback callback = new MediaControllerCallback();
         synchronized (mWaitLock) {
             getInstrumentation().runOnMainSync(new Runnable() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public void run() {
                     try {

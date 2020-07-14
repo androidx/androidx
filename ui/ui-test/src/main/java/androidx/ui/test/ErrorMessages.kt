@@ -16,9 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.unit.PxBounds
 
 /**
  * Builds error message for case where expected amount of nodes does not match reality.
@@ -67,15 +65,15 @@ internal fun buildErrorMessageForCountMismatch(
         sb.append(".")
     }
 
-    sb.appendln()
+    sb.appendLine()
 
     if (foundNodes.isNotEmpty()) {
         if (foundNodes.size == 1) {
-            sb.appendln("Node found:")
+            sb.appendLine("Node found:")
         } else {
-            sb.appendln("Nodes found:")
+            sb.appendLine("Nodes found:")
         }
-        sb.appendln(foundNodes.toStringInfo())
+        sb.appendLine(foundNodes.printToString())
     }
 
     return sb.toString()
@@ -102,10 +100,10 @@ internal fun buildErrorMessageForNodeMissingInTree(
     sb.append(errorMessage)
     sb.append("\n")
 
-    sb.appendln("The node is no longer in the tree, last known semantics:")
-    sb.appendln(lastSeenSemantics)
+    sb.appendLine("The node is no longer in the tree, last known semantics:")
+    sb.appendLine(lastSeenSemantics)
     sb.append("Original selector: ")
-    sb.appendln(selector.description)
+    sb.appendLine(selector.description)
 
     return sb.toString()
 }
@@ -117,14 +115,14 @@ internal fun buildErrorMessageForAssertAnyFail(
 ): String {
     val sb = StringBuilder()
 
-    sb.appendln("Failed to assertAny(${assertionMatcher.description})")
+    sb.appendLine("Failed to assertAny(${assertionMatcher.description})")
 
-    sb.appendln("None of the following nodes match:")
-    sb.appendln(nodes.toStringInfo())
+    sb.appendLine("None of the following nodes match:")
+    sb.appendLine(nodes.printToString())
 
     sb.append("Selector used: '")
     sb.append(selector.description)
-    sb.appendln("'")
+    sb.appendLine("'")
 
     return sb.toString()
 }
@@ -136,16 +134,16 @@ internal fun buildErrorMessageForAssertAllFail(
 ): String {
     val sb = StringBuilder()
 
-    sb.appendln("Failed to assertAll(${assertionMatcher.description})")
+    sb.appendLine("Failed to assertAll(${assertionMatcher.description})")
 
     sb.append("Found '${nodesNotMatching.size}' ")
     sb.append(if (nodesNotMatching.size == 1) "node" else "nodes")
-    sb.appendln(" not matching:")
-    sb.appendln(nodesNotMatching.toStringInfo())
+    sb.appendLine(" not matching:")
+    sb.appendLine(nodesNotMatching.printToString())
 
     sb.append("Selector used: '")
     sb.append(selector.description)
-    sb.appendln("'")
+    sb.appendLine("'")
 
     return sb.toString()
 }
@@ -156,12 +154,12 @@ internal fun buildErrorMessageForAtLeastOneNodeExpected(
 ): String {
     val sb = StringBuilder()
 
-    sb.appendln(errorMessage)
+    sb.appendLine(errorMessage)
 
     sb.append("Assert needs to receive at least 1 node but 0 nodes were found for selector: ")
     sb.append("'")
     sb.append(selector.description)
-    sb.appendln("'")
+    sb.appendLine("'")
 
     return sb.toString()
 }
@@ -173,14 +171,14 @@ internal fun buildGeneralErrorMessage(
 ): String {
     val sb = StringBuilder()
 
-    sb.appendln(errorMessage)
+    sb.appendLine(errorMessage)
 
-    sb.appendln("Semantics of the node:")
-    sb.appendln(node.toStringInfo())
+    sb.appendLine("Semantics of the node:")
+    sb.appendLine(node.printToString())
 
     sb.append("Selector used: (")
     sb.append(selector.description)
-    sb.appendln(")")
+    sb.appendLine(")")
 
     return sb.toString()
 }
@@ -194,77 +192,17 @@ internal fun buildIndexErrorMessage(
 
     sb.append("Can't retrieve node at index '$index' of '")
     sb.append(selector.description)
-    sb.appendln("'")
+    sb.appendLine("'")
 
     if (nodes.isEmpty()) {
-        sb.appendln("There are no existing nodes for that selector.")
+        sb.appendLine("There are no existing nodes for that selector.")
     } else if (nodes.size == 1) {
-        sb.appendln("There is 1 node only:")
-        sb.appendln(nodes.toStringInfo())
+        sb.appendLine("There is 1 node only:")
+        sb.appendLine(nodes.printToString())
     } else {
-        sb.appendln("There are '${nodes.size}' nodes only:")
-        sb.appendln(nodes.toStringInfo())
+        sb.appendLine("There are '${nodes.size}' nodes only:")
+        sb.appendLine(nodes.printToString())
     }
 
     return sb.toString()
-}
-
-internal fun Collection<SemanticsNode>.toStringInfo(): String {
-    var sb = StringBuilder()
-    var i = 1
-    forEach {
-        if (size > 1) {
-            sb.append(i)
-            sb.append(") ")
-        }
-        sb.append(it.toStringInfo())
-        if (i < size) {
-            sb.appendln()
-        }
-        ++i
-    }
-    return sb.toString()
-}
-
-internal fun SemanticsNode.toStringInfo(): String {
-    var sb = StringBuilder()
-    sb.append("Id: $id, Position: ")
-    sb.appendln(pxBoundsToShortString(globalBounds))
-    sb.appendConfigInfo(config)
-    return sb.toString()
-}
-
-private fun pxBoundsToShortString(bounds: PxBounds): String {
-    return "LTRB(${bounds.left}, ${bounds.top}, ${bounds.right}, ${bounds.bottom})"
-}
-
-private fun StringBuilder.appendConfigInfo(config: SemanticsConfiguration) {
-    val prefix = "- "
-    val separator = "\n"
-    val startLength = length
-
-    for ((key, value) in config) {
-        append(prefix)
-        append(key.name)
-        append(" = '")
-        append(value)
-        append("'")
-        append(separator)
-    }
-
-    if (config.isSemanticBoundary) {
-        append(prefix)
-        append("Boundary = 'true'")
-        append(separator)
-    }
-    if (config.isMergingSemanticsOfDescendants) {
-        append(prefix)
-        append("MergeDescendants = 'true'")
-        append(separator)
-    }
-
-    // Remove last separator
-    if (length > startLength) {
-        setLength(length - separator.length)
-    }
 }

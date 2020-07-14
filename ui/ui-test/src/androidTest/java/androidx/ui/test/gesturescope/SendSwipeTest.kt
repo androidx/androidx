@@ -20,22 +20,30 @@ import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.wrapContentSize
+import androidx.ui.test.bottomRight
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
-import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.sendSwipeDown
-import androidx.ui.test.sendSwipeLeft
-import androidx.ui.test.sendSwipeRight
-import androidx.ui.test.sendSwipeUp
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.runOnIdle
+import androidx.ui.test.swipe
+import androidx.ui.test.swipeDown
+import androidx.ui.test.swipeLeft
+import androidx.ui.test.swipeRight
+import androidx.ui.test.swipeUp
+import androidx.ui.test.topLeft
 import androidx.ui.test.util.ClickableTestBox
-import androidx.ui.test.util.PointerInputRecorder
+import androidx.ui.test.util.SinglePointerInputRecorder
+import androidx.ui.test.util.assertDecreasing
+import androidx.ui.test.util.assertIncreasing
 import androidx.ui.test.util.assertOnlyLastEventIsUp
+import androidx.ui.test.util.assertSame
 import androidx.ui.test.util.assertTimestampsAreIncreasing
-import com.google.common.collect.Ordering
+import androidx.ui.test.util.verify
+import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -45,13 +53,14 @@ import org.junit.runners.JUnit4
 @MediumTest
 @RunWith(JUnit4::class)
 class SendSwipeTest {
-
-    private val tag = "widget"
+    companion object {
+        private const val tag = "widget"
+    }
 
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
 
-    private val recorder = PointerInputRecorder()
+    private val recorder = SinglePointerInputRecorder()
 
     @Composable
     fun Ui(alignment: Alignment) {
@@ -63,8 +72,8 @@ class SendSwipeTest {
     @Test
     fun swipeUp() {
         composeTestRule.setContent { Ui(Alignment.TopStart) }
-        findByTag(tag).doGesture { sendSwipeUp() }
-        runOnIdleCompose {
+        onNodeWithTag(tag).performGesture { swipeUp() }
+        runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -76,8 +85,8 @@ class SendSwipeTest {
     @Test
     fun swipeDown() {
         composeTestRule.setContent { Ui(Alignment.TopEnd) }
-        findByTag(tag).doGesture { sendSwipeDown() }
-        runOnIdleCompose {
+        onNodeWithTag(tag).performGesture { swipeDown() }
+        runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -89,8 +98,8 @@ class SendSwipeTest {
     @Test
     fun swipeLeft() {
         composeTestRule.setContent { Ui(Alignment.BottomEnd) }
-        findByTag(tag).doGesture { sendSwipeLeft() }
-        runOnIdleCompose {
+        onNodeWithTag(tag).performGesture { swipeLeft() }
+        runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -102,8 +111,8 @@ class SendSwipeTest {
     @Test
     fun swipeRight() {
         composeTestRule.setContent { Ui(Alignment.BottomStart) }
-        findByTag(tag).doGesture { sendSwipeRight() }
-        runOnIdleCompose {
+        onNodeWithTag(tag).performGesture { swipeRight() }
+        runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -111,61 +120,70 @@ class SendSwipeTest {
             }
         }
     }
-}
 
-private fun PointerInputRecorder.assertSwipeIsUp() {
-    // Must have at least two events to have a direction
-    assertThat(events.size).isAtLeast(2)
-    // Last event must be above first event
-    assertThat(events.last().position.y).isLessThan(events.first().position.y)
-    // All events in between only move up
-    events.map { it.position.x.value }.assertSame(tolerance = 0.001f)
-    events.map { it.position.y }.assertDecreasing()
-}
+    @Test
+    fun swipeShort() {
+        composeTestRule.setContent { Ui(Alignment.Center) }
+        onNodeWithTag(tag).performGesture { swipe(topLeft, bottomRight, 1.milliseconds) }
+        runOnIdle {
+            recorder.run {
+                assertTimestampsAreIncreasing()
+                assertOnlyLastEventIsUp()
 
-private fun PointerInputRecorder.assertSwipeIsDown() {
-    // Must have at least two events to have a direction
-    assertThat(events.size).isAtLeast(2)
-    // Last event must be below first event
-    assertThat(events.last().position.y).isGreaterThan(events.first().position.y)
-    // All events in between only move down
-    events.map { it.position.x.value }.assertSame(tolerance = 0.001f)
-    events.map { it.position.y }.assertIncreasing()
-}
+                // DOWN, MOVE, UP
+                assertThat(events.size).isEqualTo(3)
 
-private fun PointerInputRecorder.assertSwipeIsLeft() {
-    // Must have at least two events to have a direction
-    assertThat(events.size).isAtLeast(2)
-    // Last event must be to the left of first event
-    assertThat(events.last().position.x).isLessThan(events.first().position.x)
-    // All events in between only move to the left
-    events.map { it.position.x }.assertDecreasing()
-    events.map { it.position.y.value }.assertSame(tolerance = 0.001f)
-}
+                // DOWN is in top left corner (0, 0)
+                events[0].verify(null, null, true, Offset(0f, 0f))
 
-private fun PointerInputRecorder.assertSwipeIsRight() {
-    // Must have at least two events to have a direction
-    assertThat(events.size).isAtLeast(2)
-    // Last event must be to the right of first event
-    assertThat(events.last().position.x).isGreaterThan(events.first().position.x)
-    // All events in between only move to the right
-    events.map { it.position.x }.assertIncreasing()
-    events.map { it.position.y.value }.assertSame(tolerance = 0.001f)
-}
+                val t = events[0].timestamp + 1.milliseconds
+                val pointerId = events[0].id
 
-private fun List<Float>.assertSame(tolerance: Float = 0f) {
-    if (size <= 1) {
-        return
+                // MOVE is in bottom right corner (box is 100x100, so corner is (99, 99))
+                events[1].verify(t, pointerId, true, Offset(99f, 99f))
+                // UP is also in bottom right corner
+                events[2].verify(t, pointerId, false, Offset(99f, 99f))
+            }
+        }
     }
-    val baseValue = first()
-    assertThat(min()).isWithin(tolerance).of(baseValue)
-    assertThat(max()).isWithin(tolerance).of(baseValue)
-}
 
-private fun <E : Comparable<E>> List<E>.assertIncreasing() {
-    assertThat(this).isInOrder(Ordering.natural<E>())
-}
+    private fun SinglePointerInputRecorder.assertSwipeIsUp() {
+        // Must have at least two events to have a direction
+        assertThat(events.size).isAtLeast(2)
+        // Last event must be above first event
+        assertThat(events.last().position.y).isLessThan(events.first().position.y)
+        // All events in between only move up
+        events.map { it.position.x }.assertSame(tolerance = 0.001f)
+        events.map { it.position.y }.assertDecreasing()
+    }
 
-private fun <E : Comparable<E>> List<E>.assertDecreasing() {
-    assertThat(this).isInOrder(Ordering.natural<E>().reverse<E>())
+    private fun SinglePointerInputRecorder.assertSwipeIsDown() {
+        // Must have at least two events to have a direction
+        assertThat(events.size).isAtLeast(2)
+        // Last event must be below first event
+        assertThat(events.last().position.y).isGreaterThan(events.first().position.y)
+        // All events in between only move down
+        events.map { it.position.x }.assertSame(tolerance = 0.001f)
+        events.map { it.position.y }.assertIncreasing()
+    }
+
+    private fun SinglePointerInputRecorder.assertSwipeIsLeft() {
+        // Must have at least two events to have a direction
+        assertThat(events.size).isAtLeast(2)
+        // Last event must be to the left of first event
+        assertThat(events.last().position.x).isLessThan(events.first().position.x)
+        // All events in between only move to the left
+        events.map { it.position.x }.assertDecreasing()
+        events.map { it.position.y }.assertSame(tolerance = 0.001f)
+    }
+
+    private fun SinglePointerInputRecorder.assertSwipeIsRight() {
+        // Must have at least two events to have a direction
+        assertThat(events.size).isAtLeast(2)
+        // Last event must be to the right of first event
+        assertThat(events.last().position.x).isGreaterThan(events.first().position.x)
+        // All events in between only move to the right
+        events.map { it.position.x }.assertIncreasing()
+        events.map { it.position.y }.assertSame(tolerance = 0.001f)
+    }
 }

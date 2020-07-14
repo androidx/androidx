@@ -18,16 +18,26 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
+import androidx.ui.foundation.Text
 import androidx.ui.layout.Column
+import androidx.ui.layout.Spacer
+import androidx.ui.layout.height
 import androidx.ui.layout.padding
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.samples.SliderSample
 import androidx.ui.material.samples.StepsSliderSample
 import androidx.ui.unit.dp
 
 @Composable
 fun SliderDemo() {
+    val headerStyle = MaterialTheme.typography.h6
     Column(Modifier.padding(10.dp)) {
+        Text(text = "Continuous Slider", style = headerStyle)
+        Spacer(Modifier.height(16.dp))
         SliderSample()
+        Spacer(Modifier.height(16.dp))
+        Text(text = "Discrete Slider with custom color", style = headerStyle)
+        Spacer(Modifier.height(16.dp))
         StepsSliderSample()
     }
 }

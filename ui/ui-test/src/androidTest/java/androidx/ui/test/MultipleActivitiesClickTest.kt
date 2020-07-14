@@ -24,12 +24,11 @@ import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.semantics.Semantics
-import androidx.ui.semantics.testTag
 import androidx.ui.test.android.AndroidComposeTestRule
-import androidx.ui.test.util.PointerInputRecorder
+import androidx.ui.test.util.SinglePointerInputRecorder
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -41,9 +40,10 @@ class MultipleActivitiesClickTest {
 
     @Test
     fun test() {
-        val activity1 = composeTestRule.activityTestRule.activity
+        lateinit var activity1: Activity1
+        composeTestRule.activityRule.scenario.onActivity { activity1 = it }
         activity1.startNewActivity()
-        findByTag("activity2").doGesture { sendClick() }
+        onNodeWithTag("activity2").performGesture { click() }
         val activity2 = getCurrentActivity() as Activity2
 
         assertThat(activity1.recorder.events).isEmpty()
@@ -66,14 +66,12 @@ class MultipleActivitiesClickTest {
     class Activity2 : ClickRecordingActivity("activity2")
 
     open class ClickRecordingActivity(private val tag: String) : ComponentActivity() {
-        val recorder = PointerInputRecorder()
+        val recorder = SinglePointerInputRecorder()
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             setContent {
-                Semantics(container = true, properties = { testTag = tag }) {
-                    Box(modifier = Modifier.fillMaxSize().plus(recorder))
-                }
+                Box(modifier = Modifier.testTag(tag).fillMaxSize().plus(recorder))
             }
         }
 

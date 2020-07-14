@@ -16,6 +16,7 @@
 
 package androidx.room.solver.types
 
+import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
 import com.squareup.javapoet.TypeName
 import javax.lang.model.type.TypeMirror
@@ -25,7 +26,7 @@ import javax.lang.model.type.TypeMirror
  */
 abstract class ColumnTypeAdapter(val out: TypeMirror, val typeAffinity: SQLTypeAffinity) :
         StatementValueBinder, CursorValueReader {
-    val outTypeName: TypeName by lazy { TypeName.get(out) }
+    val outTypeName: TypeName by lazy { out.typeName() }
     override fun typeMirror() = out
     override fun affinity(): SQLTypeAffinity = typeAffinity
 }

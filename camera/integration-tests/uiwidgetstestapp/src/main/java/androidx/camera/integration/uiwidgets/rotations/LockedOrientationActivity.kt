@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.uiwidgets.rotations
 
-import android.os.Bundle
 import android.view.OrientationEventListener
 import android.view.Surface
 import androidx.annotation.VisibleForTesting
@@ -46,8 +45,13 @@ class LockedOrientationActivity : CameraActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onStart() {
+        super.onStart()
         mOrientationEventListener.enable()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mOrientationEventListener.disable()
     }
 }

@@ -16,111 +16,179 @@
 
 package androidx.ui.test.inputdispatcher
 
-import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_POINTER_DOWN
+import android.view.MotionEvent.ACTION_POINTER_UP
+import android.view.MotionEvent.ACTION_UP
 import androidx.test.filters.SmallTest
+import androidx.ui.geometry.Offset
+import androidx.ui.test.InputDispatcher.Companion.eventPeriod
+import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.expectError
-import androidx.ui.test.util.verify
-import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
+import androidx.ui.test.util.verifyEvent
+import androidx.ui.test.util.verifyPointer
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
 /**
- * Tests if the [AndroidInputDispatcher.sendUp] gesture works.
+ * Tests if [AndroidInputDispatcher.sendUp] works
  */
 @SmallTest
-@RunWith(Parameterized::class)
-class SendUpTest(config: TestConfig) {
-    data class TestConfig(
-        val x: Float,
-        val y: Float
-    )
-
+class SendUpTest {
     companion object {
-        private val downPosition = PxPosition(5.px, 5.px)
+        // pointerIds
+        private const val pointer1 = 11
+        private const val pointer2 = 22
 
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun createTestSet(): List<TestConfig> {
-            return listOf(0f, 10f).flatMap { x ->
-                listOf(0f, -10f).map { y ->
-                    TestConfig(x, y)
-                }
-            }.plus(TestConfig(downPosition.x.value, downPosition.y.value))
-        }
+        // positions (used with corresponding pointerId: pointerX with positionX_Y)
+        private val position1_1 = Offset(11f, 11f)
+        private val position2_1 = Offset(21f, 21f)
     }
 
-    private val dispatcherRule = AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
-    private val eventPeriod get() = dispatcherRule.eventPeriod
-
     @get:Rule
-    val inputDispatcherRule: TestRule = dispatcherRule
-
-    private val position = PxPosition(config.x.px, config.y.px)
+    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
 
     private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::sendEvent)
+    private val subject = AndroidInputDispatcher(recorder::recordEvent)
 
     @After
     fun tearDown() {
-        recorder.clear()
+        recorder.disposeEvents()
     }
 
     @Test
-    fun testSendUp() {
-        val token = subject.sendDown(downPosition)
-        subject.sendUp(token, position)
+    fun onePointer() {
+        subject.sendDownAndCheck(pointer1, position1_1)
+        subject.sendUpAndCheck(pointer1)
+        subject.verifyNoGestureInProgress()
+
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
-            assertThat(size).isEqualTo(2)
-            first().verify(downPosition, MotionEvent.ACTION_DOWN, 0)
-            last().verify(position, MotionEvent.ACTION_UP, eventPeriod)
-        }
-        assertThat(token.lastPosition).isEqualTo(position)
-        assertThat(token.eventTime - token.downTime).isEqualTo(eventPeriod)
-        assertThat(token.finished).isTrue()
-    }
-}
+            val t = 0L
+            assertThat(this).hasSize(2)
 
-/**
- * Tests if the [AndroidInputDispatcher.sendUp] gesture throws after
- * [AndroidInputDispatcher.sendUp] or [AndroidInputDispatcher.sendCancel] has been called.
- */
-@SmallTest
-class SendUpAfterFinishedTest {
-    private val downPosition = PxPosition(5.px, 5.px)
-    private val position = PxPosition(1.px, 1.px)
+            this[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
+            this[0].verifyPointer(pointer1, position1_1)
 
-    @get:Rule
-    val inputDispatcherRule: TestRule = AndroidInputDispatcher.TestRule(
-        disableDispatchInRealTime = true
-    )
-
-    private val subject = AndroidInputDispatcher {}
-
-    @Test
-    fun testUpAfterUp() {
-        val token = subject.sendDown(downPosition)
-        subject.sendUp(token, downPosition)
-        expectError<java.lang.IllegalArgumentException> {
-            subject.sendUp(token, position)
+            this[1].verifyEvent(1, ACTION_UP, 0, t) // pointer1
+            this[1].verifyPointer(pointer1, position1_1)
         }
     }
 
     @Test
-    fun testUpAfterCancel() {
-        val token = subject.sendDown(downPosition)
-        subject.sendCancel(token, downPosition)
-        expectError<java.lang.IllegalArgumentException> {
-            subject.sendUp(token, position)
+    fun onePointerWithDelay() {
+        subject.sendDownAndCheck(pointer1, position1_1)
+        subject.sendUpAndCheck(pointer1, 2 * eventPeriod)
+        subject.verifyNoGestureInProgress()
+
+        recorder.assertHasValidEventTimes()
+        recorder.events.apply {
+            var t = 0L
+            assertThat(this).hasSize(2)
+
+            this[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
+            this[0].verifyPointer(pointer1, position1_1)
+
+            t += 2 * eventPeriod
+            this[1].verifyEvent(1, ACTION_UP, 0, t) // pointer1
+            this[1].verifyPointer(pointer1, position1_1)
+        }
+    }
+
+    @Test
+    fun multiplePointers_ascending() {
+        subject.sendDownAndCheck(pointer1, position1_1)
+        subject.sendDownAndCheck(pointer2, position2_1)
+        subject.sendUpAndCheck(pointer1)
+        subject.sendUpAndCheck(pointer2)
+        subject.verifyNoGestureInProgress()
+
+        recorder.assertHasValidEventTimes()
+        recorder.events.apply {
+            val t = 0L
+            assertThat(this).hasSize(4)
+
+            this[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
+            this[0].verifyPointer(pointer1, position1_1)
+
+            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t) // pointer2
+            this[1].verifyPointer(pointer1, position1_1)
+            this[1].verifyPointer(pointer2, position2_1)
+
+            this[2].verifyEvent(2, ACTION_POINTER_UP, 0, t) // pointer1
+            this[2].verifyPointer(pointer1, position1_1)
+            this[2].verifyPointer(pointer2, position2_1)
+
+            this[3].verifyEvent(1, ACTION_UP, 0, t) // pointer2
+            this[3].verifyPointer(pointer2, position2_1)
+        }
+    }
+
+    @Test
+    fun multiplePointers_descending() {
+        subject.sendDownAndCheck(pointer1, position1_1)
+        subject.sendDownAndCheck(pointer2, position2_1)
+        subject.sendUpAndCheck(pointer2)
+        subject.sendUpAndCheck(pointer1)
+        subject.verifyNoGestureInProgress()
+
+        recorder.assertHasValidEventTimes()
+        recorder.events.apply {
+            val t = 0L
+            assertThat(this).hasSize(4)
+
+            this[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
+            this[0].verifyPointer(pointer1, position1_1)
+
+            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t) // pointer2
+            this[1].verifyPointer(pointer1, position1_1)
+            this[1].verifyPointer(pointer2, position2_1)
+
+            this[2].verifyEvent(2, ACTION_POINTER_UP, 1, t) // pointer2
+            this[2].verifyPointer(pointer1, position1_1)
+            this[2].verifyPointer(pointer2, position2_1)
+
+            this[3].verifyEvent(1, ACTION_UP, 0, t) // pointer1
+            this[3].verifyPointer(pointer1, position1_1)
+        }
+    }
+
+    @Test
+    fun upWithoutDown() {
+        expectError<IllegalStateException> {
+            subject.sendUp(pointer1)
+        }
+    }
+
+    @Test
+    fun upWrongPointerId() {
+        subject.sendDown(pointer1, position1_1)
+        expectError<IllegalArgumentException> {
+            subject.sendUp(pointer2)
+        }
+    }
+
+    @Test
+    fun upAfterUp() {
+        subject.sendDown(pointer1, position1_1)
+        subject.sendUp(pointer1)
+        expectError<IllegalStateException> {
+            subject.sendUp(pointer1)
+        }
+    }
+
+    @Test
+    fun upAfterCancel() {
+        subject.sendDown(pointer1, position1_1)
+        subject.sendCancel()
+        expectError<IllegalStateException> {
+            subject.sendUp(pointer1)
         }
     }
 }

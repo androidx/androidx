@@ -18,6 +18,7 @@ package androidx.navigation
 
 import androidx.navigation.test.FloatingTestNavigator
 import androidx.navigation.test.R
+import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -30,6 +31,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FloatingWindowTest {
 
+    @UiThreadTest
     @Test
     fun testNavigateFloatingToNotFloating() {
         val navController = createNavController()
@@ -53,6 +55,7 @@ class FloatingWindowTest {
             .isEqualTo(1)
     }
 
+    @UiThreadTest
     @Test
     fun testNavigateFloatingToFloating() {
         val navController = createNavController()
@@ -73,6 +76,7 @@ class FloatingWindowTest {
             .isEqualTo(2)
     }
 
+    @UiThreadTest
     @Test
     fun testNavigateFloating2xToNotFloating() {
         val navController = createNavController()

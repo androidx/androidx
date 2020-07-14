@@ -13,9 +13,5 @@ BuilderSetStyle: androidx.media2.common.MediaMetadata.Builder#putText(String, Ch
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.common.MediaMetadata.Builder.putText(String,CharSequence)
 
 
-GenericException: androidx.media2.common.SessionPlayer#close():
-    Methods must not throw generic exceptions (`java.lang.Exception`)
-
-
 IntentName: androidx.media2.common.MediaMetadata#METADATA_KEY_EXTRAS:
     Intent extra constant name must be EXTRA_FOO: METADATA_KEY_EXTRAS

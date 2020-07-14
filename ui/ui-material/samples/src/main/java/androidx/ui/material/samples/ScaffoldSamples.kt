@@ -16,7 +16,7 @@
 
 package androidx.ui.material.samples
 
-import androidx.animation.TweenBuilder
+import androidx.animation.TweenSpec
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.remember
@@ -24,13 +24,12 @@ import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
 import androidx.ui.material.BottomAppBar
@@ -61,7 +60,7 @@ fun SimpleScaffoldWithTopBar() {
     Scaffold(
         scaffoldState = scaffoldState,
         drawerContent = { Text("Drawer content") },
-        topAppBar = {
+        topBar = {
             TopAppBar(
                 title = { Text("Simple Scaffold Screen") },
                 navigationIcon = {
@@ -80,15 +79,13 @@ fun SimpleScaffoldWithTopBar() {
                 onClick = { /* fab click handler */ }
             )
         },
-        bodyContent = { modifier ->
-            VerticalScroller {
-                Column(modifier) {
-                    repeat(100) {
-                        Box(
-                            Modifier.fillMaxWidth().preferredHeight(50.dp),
-                            backgroundColor = colors[it % colors.size]
-                        )
-                    }
+        bodyContent = { innerPadding ->
+            ScrollableColumn(contentPadding = innerPadding) {
+                repeat(100) {
+                    Box(
+                        Modifier.fillMaxWidth().preferredHeight(50.dp),
+                        backgroundColor = colors[it % colors.size]
+                    )
                 }
             }
         }
@@ -123,16 +120,16 @@ fun ScaffoldWithBottomBarAndCutout() {
         val nextTarget = if (target == roundEdgePercent) sharpEdgePercent else roundEdgePercent
         animatedProgress.animateTo(
             targetValue = nextTarget,
-            anim = TweenBuilder<Float>().apply { duration = 600 }
+            anim = TweenSpec(durationMillis = 600)
         )
     }
 
     Scaffold(
         scaffoldState = scaffoldState,
         drawerContent = { Text("Drawer content") },
-        topAppBar = { TopAppBar(title = { Text("Scaffold with bottom cutout") }) },
-        bottomAppBar = { fabConfiguration ->
-            BottomAppBar(fabConfiguration = fabConfiguration, cutoutShape = fabShape) {
+        topBar = { TopAppBar(title = { Text("Scaffold with bottom cutout") }) },
+        bottomBar = {
+            BottomAppBar(cutoutShape = fabShape) {
                 IconButton(onClick = {
                     scaffoldState.drawerState = DrawerState.Opened
                 }) {
@@ -147,16 +144,15 @@ fun ScaffoldWithBottomBarAndCutout() {
                 shape = fabShape
             )
         },
-        floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
-        bodyContent = { modifier ->
-            VerticalScroller {
-                Column(modifier) {
-                    repeat(100) {
-                        Box(
-                            Modifier.fillMaxWidth().preferredHeight(50.dp),
-                            backgroundColor = colors[it % colors.size]
-                        )
-                    }
+        floatingActionButtonPosition = Scaffold.FabPosition.Center,
+        isFloatingActionButtonDocked = true,
+        bodyContent = { innerPadding ->
+            ScrollableColumn(contentPadding = innerPadding) {
+                repeat(100) {
+                    Box(
+                        Modifier.fillMaxWidth().preferredHeight(50.dp),
+                        backgroundColor = colors[it % colors.size]
+                    )
                 }
             }
         }

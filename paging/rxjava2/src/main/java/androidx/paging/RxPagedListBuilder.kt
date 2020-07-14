@@ -50,6 +50,7 @@ import kotlinx.coroutines.withContext
  * @param Value Item type being presented.
  *
  */
+@Deprecated("PagedList is deprecated and has been replaced by PagingData")
 class RxPagedListBuilder<Key : Any, Value : Any> {
     private val pagingSourceFactory: (() -> PagingSource<Key, Value>)?
     private val dataSourceFactory: DataSource.Factory<Key, Value>?
@@ -88,7 +89,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
             ).flowable""",
             "androidx.paging.PagingConfig",
             "androidx.paging.Pager",
-            "androidx.paging.flowable"
+            "androidx.paging.rxjava2.getFlowable"
         )
     )
     constructor(
@@ -125,7 +126,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
             ).flowable""",
             "androidx.paging.PagingConfig",
             "androidx.paging.Pager",
-            "androidx.paging.flowable"
+            "androidx.paging.rxjava2.getFlowable"
         )
     )
     constructor(pagingSourceFactory: () -> PagingSource<Key, Value>, pageSize: Int) : this(
@@ -151,11 +152,11 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                     config.maxSize
                 ),
                 initialKey = null,
-                this.asPagingSourceFactory(Dispatchers.IO)
+                pagingSourceFactory = dataSourceFactory.asPagingSourceFactory(Dispatchers.IO)
             ).flowable""",
             "androidx.paging.PagingConfig",
             "androidx.paging.Pager",
-            "androidx.paging.flowable",
+            "androidx.paging.rxjava2.getFlowable",
             "kotlinx.coroutines.Dispatchers"
         )
     )
@@ -189,11 +190,11 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
             """Pager(
                 config = PagingConfig(pageSize),
                 initialKey = null,
-                this.asPagingSourceFactory(Dispatchers.IO)
+                pagingSourceFactory = dataSourceFactory.asPagingSourceFactory(Dispatchers.IO)
             ).flowable""",
             "androidx.paging.PagingConfig",
             "androidx.paging.Pager",
-            "androidx.paging.flowable",
+            "androidx.paging.rxjava2.getFlowable",
             "kotlinx.coroutines.Dispatchers"
         )
     )
@@ -285,7 +286,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      *
      * @return The [Observable] of PagedLists
      */
-    @Suppress("DEPRECATION")
+    @Suppress("BuilderSetStyle", "DEPRECATION")
     fun buildObservable(): Observable<PagedList<Value>> {
         @SuppressLint("RestrictedApi")
         val notifyScheduler = notifyScheduler
@@ -328,7 +329,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      * @param backpressureStrategy BackpressureStrategy for the [Flowable] to use.
      * @return The [Flowable] of PagedLists
      */
-    @Suppress("DEPRECATION")
+    @Suppress("BuilderSetStyle", "DEPRECATION")
     fun buildFlowable(backpressureStrategy: BackpressureStrategy): Flowable<PagedList<Value>> {
         return buildObservable().toFlowable(backpressureStrategy)
     }
@@ -390,7 +391,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                 pagingSource.registerInvalidatedCallback(callback)
 
                 withContext(notifyDispatcher) {
-                    currentData.setInitialLoadState(LoadType.REFRESH, Loading(fromMediator = false))
+                    currentData.setInitialLoadState(LoadType.REFRESH, Loading)
                 }
 
                 @Suppress("UNCHECKED_CAST")
@@ -400,7 +401,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                     is PagingSource.LoadResult.Error -> {
                         currentData.setInitialLoadState(
                             LoadType.REFRESH,
-                            LoadState.Error(initialResult.throwable, fromMediator = false)
+                            LoadState.Error(initialResult.throwable)
                         )
                     }
                     is PagingSource.LoadResult.Page -> {

@@ -1,37 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
+<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public List&lt;ChooserTarget> onGetChooserTargets(ComponentName targetActivityName,"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public List&lt;android.service.chooser.ChooserTarget> onGetChooserTargets("
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ChooserTargetServiceCompat.java"
-            line="56"
+            line="55"
             column="12"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public List&lt;ChooserTarget> onGetChooserTargets(ComponentName targetActivityName,"
-        errorLine2="                                                   ~~~~~~~~~~~~~">
+        errorLine1="            ComponentName targetActivityName, IntentFilter matchedFilter) {"
+        errorLine2="            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ChooserTargetServiceCompat.java"
             line="56"
-            column="52"/>
+            column="13"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            IntentFilter matchedFilter) {"
-        errorLine2="            ~~~~~~~~~~~~">
+        errorLine1="            ComponentName targetActivityName, IntentFilter matchedFilter) {"
+        errorLine2="                                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ChooserTargetServiceCompat.java"
-            line="57"
-            column="13"/>
+            line="56"
+            column="47"/>
     </issue>
 
     <issue
@@ -63,7 +63,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="152"
+            line="154"
             column="12"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="152"
+            line="154"
             column="51"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="173"
+            line="176"
             column="12"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="193"
+            line="196"
             column="12"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="207"
+            line="210"
             column="12"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="207"
+            line="210"
             column="45"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="264"
+            line="268"
             column="12"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="264"
+            line="268"
             column="48"/>
     </issue>
 

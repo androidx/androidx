@@ -16,8 +16,6 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.NotLoading
-import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
@@ -25,18 +23,14 @@ import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.LoadStateUpdate
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
-
-private val LoadStatesIdle = mapOf(
-    REFRESH to NotLoading.Idle,
-    PREPEND to NotLoading.Idle,
-    APPEND to NotLoading.Idle
-)
 
 internal fun <T : Any> adjacentInsertEvent(
     isPrepend: Boolean,
@@ -52,7 +46,7 @@ internal fun <T : Any> adjacentInsertEvent(
             )
         ),
         placeholdersBefore = placeholdersRemaining,
-        loadStates = LoadStatesIdle
+        combinedLoadStates = localLoadStatesOf()
     )
 } else {
     Append(
@@ -63,13 +57,13 @@ internal fun <T : Any> adjacentInsertEvent(
             )
         ),
         placeholdersAfter = placeholdersRemaining,
-        loadStates = LoadStatesIdle
+        combinedLoadStates = localLoadStatesOf()
     )
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class PageEventTest {
-
     @Test
     fun placeholdersException() {
         assertFailsWith<IllegalArgumentException> {
@@ -77,7 +71,7 @@ class PageEventTest {
                 pages = listOf(),
                 placeholdersBefore = 1,
                 placeholdersAfter = -1,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             )
         }
         assertFailsWith<IllegalArgumentException> {
@@ -85,7 +79,7 @@ class PageEventTest {
                 pages = listOf(),
                 placeholdersBefore = -1,
                 placeholdersAfter = 1,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             )
         }
     }
@@ -124,7 +118,7 @@ class PageEventTest {
     }
 
     @Test
-    fun dropTransform() {
+    fun dropTransform() = runBlockingTest {
         val drop = Drop<Char>(
             loadType = PREPEND,
             count = 0,
@@ -137,10 +131,11 @@ class PageEventTest {
     }
 
     @Test
-    fun stateTransform() {
+    fun stateTransform() = runBlockingTest {
         val state = LoadStateUpdate<Char>(
             loadType = REFRESH,
-            loadState = LoadState.Loading(fromMediator = false)
+            fromMediator = false,
+            loadState = LoadState.Loading
         )
 
         assertSame(state, state.map { it + 1 })
@@ -149,17 +144,17 @@ class PageEventTest {
     }
 
     @Test
-    fun insertMap() {
+    fun insertMap() = runBlockingTest {
         val insert = Append(
             pages = listOf(TransformablePage(listOf('a', 'b'))),
             placeholdersAfter = 4,
-            loadStates = LoadStatesIdle
+            combinedLoadStates = localLoadStatesOf()
         )
         assertEquals(
             Append(
                 pages = listOf(TransformablePage(listOf("a", "b"))),
                 placeholdersAfter = 4,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             ),
             insert.map { it.toString() }
         )
@@ -171,7 +166,7 @@ class PageEventTest {
     }
 
     @Test
-    fun insertMapTransformed() {
+    fun insertMapTransformed() = runBlockingTest {
         assertEquals(
             Append(
                 pages = listOf(
@@ -183,7 +178,7 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             ),
             Append(
                 pages = listOf(
@@ -195,21 +190,17 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             ).map { it.toString() }
         )
     }
 
     @Test
-    fun insertFilter() {
+    fun insertFilter() = runBlockingTest {
         val insert = Append(
             pages = listOf(TransformablePage(listOf('a', 'b', 'c', 'd'))),
             placeholdersAfter = 4,
-            loadStates = mapOf(
-                REFRESH to NotLoading.Idle,
-                PREPEND to NotLoading.Idle,
-                APPEND to NotLoading.Idle
-            )
+            combinedLoadStates = MutableLoadStateCollection(false).snapshot()
         )
 
         // filter out C
@@ -225,7 +216,7 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             ),
             insertNoC
         )
@@ -242,18 +233,18 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             ),
             insertNoC.filter { it != 'a' }
         )
     }
 
     @Test
-    fun insertFlatMap() {
+    fun insertFlatMap() = runBlockingTest {
         val insert = Append(
             pages = listOf(TransformablePage(listOf('a', 'b'))),
             placeholdersAfter = 4,
-            loadStates = LoadStatesIdle
+            combinedLoadStates = localLoadStatesOf()
         )
 
         val flatMapped = insert.flatMap {
@@ -271,7 +262,7 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             ),
             flatMapped
         )
@@ -291,7 +282,7 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             ),
             flatMappedAgain
         )

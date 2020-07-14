@@ -34,6 +34,7 @@ android {
 dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
 
+    implementation(project(":annotation:annotation-experimental"))
     implementation(project(":annotation:annotation-sampled"))
     implementation(project(":lifecycle:lifecycle-viewmodel-ktx"))
     implementation(project(":fragment:fragment-ktx"))
@@ -42,6 +43,7 @@ dependencies {
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
     implementation(project(":recyclerview:recyclerview"))
+    implementation(project(":room:room-ktx"))
     implementation(project(":swiperefreshlayout:swiperefreshlayout"))
 
     implementation(GUAVA_ANDROID)

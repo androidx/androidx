@@ -36,6 +36,7 @@ import android.util.AndroidRuntimeException;
 import android.view.View;
 
 import androidx.core.view.ViewCompat;
+import androidx.dynamicanimation.animation.AnimationHandler;
 import androidx.dynamicanimation.animation.DynamicAnimation;
 import androidx.dynamicanimation.animation.FloatPropertyCompat;
 import androidx.dynamicanimation.animation.FloatValueHolder;
@@ -800,6 +801,37 @@ public class SpringTests {
             }
         });
 
+    }
+
+    @Test
+    public void testCustomHandler() {
+        final SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.Y, 0f);
+        MyAnimationFrameCallbackScheduler scheduler =
+                new MyAnimationFrameCallbackScheduler();
+        AnimationHandler handler = new AnimationHandler(scheduler);
+
+        anim.setAnimationHandler(handler);
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                anim.start();
+            }
+        });
+
+        assertTrue(scheduler.mCallback);
+        assertEquals(handler, anim.getAnimationHandler());
+    }
+
+    static class MyAnimationFrameCallbackScheduler implements
+            AnimationHandler.FrameCallbackScheduler {
+
+        boolean mCallback;
+
+        @Override
+        public void postFrameCallback(Runnable frameCallback) {
+            mCallback = true;
+        }
     }
 
     static class MyEndListener implements DynamicAnimation.OnAnimationEndListener {

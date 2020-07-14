@@ -89,4 +89,5 @@ androidx {
     description = "AndroidX Hilt Extension Compiler"
     url = AndroidXExtension.ARCHITECTURE_URL
     compilationTarget = CompilationTarget.HOST
+    toolingProject = true
 }

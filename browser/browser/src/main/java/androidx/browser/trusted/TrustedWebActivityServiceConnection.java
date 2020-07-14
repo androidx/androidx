@@ -177,7 +177,7 @@ public final class TrustedWebActivityServiceConnection {
      */
     @SuppressWarnings("NullAway")  // TODO: b/142938599
     @Nullable
-    public Bundle extraCommand(@NonNull String commandName, @NonNull Bundle args,
+    public Bundle sendExtraCommand(@NonNull String commandName, @NonNull Bundle args,
             @Nullable TrustedWebActivityCallback callback) throws RemoteException {
         ITrustedWebActivityCallback callbackBinder = wrapCallback(callback);
         IBinder binder = callbackBinder == null ? null : callbackBinder.asBinder();

@@ -105,7 +105,7 @@ internal class ViewModelGenerator(
                     .addAnnotation(ClassNames.INTO_MAP)
                     .addAnnotation(
                         AnnotationSpec.builder(ClassNames.STRING_KEY)
-                            .addMember("value", S, injectedViewModel.className.canonicalName())
+                            .addMember("value", S, injectedViewModel.className.reflectionName())
                             .build())
                     .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
                     .returns(

@@ -34,7 +34,6 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -221,6 +220,28 @@ class FragmentScenarioTest {
     }
 
     @Test
+    fun withFragment() {
+        with(launchFragment<StateRecordingFragment>()) {
+            val stateOfFragment = withFragment { state }
+            assertThat(stateOfFragment).isEqualTo(State.RESUMED)
+        }
+    }
+
+    @Test
+    fun withFragmentException() {
+        with(launchFragment<StateRecordingFragment>()) {
+            try {
+                withFragment {
+                    throw IllegalStateException("Throwing an exception within withFragment")
+                }
+            } catch (e: IllegalStateException) {
+                assertThat(e).hasMessageThat()
+                    .isEqualTo("Throwing an exception within withFragment")
+            }
+        }
+    }
+
+    @Test
     fun fromResumedToCreated() {
         with(launchFragmentInContainer<StateRecordingFragment>()) {
             moveToState(State.CREATED)
@@ -231,7 +252,6 @@ class FragmentScenarioTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // Moving to STARTED is not supported on pre-N devices.
     @Test
     fun fromResumedToStarted() {
         with(launchFragmentInContainer<StateRecordingFragment>()) {
@@ -263,8 +283,7 @@ class FragmentScenarioTest {
 
     @Test
     fun fromCreatedToCreated() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.CREATED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.CREATED)) {
             moveToState(State.CREATED)
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.CREATED)
@@ -273,11 +292,9 @@ class FragmentScenarioTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // Moving to STARTED is not supported on pre-N devices.
     @Test
     fun fromCreatedToStarted() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.CREATED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.CREATED)) {
             moveToState(State.STARTED)
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.STARTED)
@@ -288,8 +305,7 @@ class FragmentScenarioTest {
 
     @Test
     fun fromCreatedToResumed() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.CREATED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.CREATED)) {
             moveToState(State.RESUMED)
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.RESUMED)
@@ -300,17 +316,14 @@ class FragmentScenarioTest {
 
     @Test
     fun fromCreatedToDestroyed() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.CREATED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.CREATED)) {
             moveToState(State.DESTROYED)
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // Moving to STARTED is not supported on pre-N devices.
     @Test
     fun fromStartedToCreated() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.STARTED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.STARTED)) {
             moveToState(State.CREATED)
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.CREATED)
@@ -319,11 +332,9 @@ class FragmentScenarioTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // Moving to STARTED is not supported on pre-N devices.
     @Test
     fun fromStartedToStarted() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.STARTED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.STARTED)) {
             moveToState(State.STARTED)
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.STARTED)
@@ -332,11 +343,9 @@ class FragmentScenarioTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // Moving to STARTED is not supported on pre-N devices.
     @Test
     fun fromStartedToResumed() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.STARTED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.STARTED)) {
             moveToState(State.RESUMED)
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.RESUMED)
@@ -345,11 +354,9 @@ class FragmentScenarioTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // Moving to STARTED is not supported on pre-N devices.
     @Test
     fun fromStartedToDestroyed() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.STARTED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.STARTED)) {
             moveToState(State.DESTROYED)
         }
     }
@@ -364,8 +371,7 @@ class FragmentScenarioTest {
 
     @Test
     fun recreateCreatedFragment() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.CREATED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.CREATED)) {
             recreate()
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.CREATED)
@@ -374,11 +380,9 @@ class FragmentScenarioTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // Moving to STARTED is not supported on pre-N devices.
     @Test
     fun recreateStartedFragment() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.STARTED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.STARTED)) {
             recreate()
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.STARTED)

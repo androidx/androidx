@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
@@ -60,6 +61,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.Closeable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -148,14 +150,14 @@ import java.util.concurrent.Executor;
  * <h3 id="CompatibilitySession">Backward compatibility with legacy session APIs</h3>
  * An active {@link MediaSessionCompat} is internally created with the MediaSession for the backward
  * compatibility. It's used to handle incoming connection and command from
- * {@link android.support.v4.media.session.MediaControllerCompat}. And helps to utilize existing
- * APIs that are built with legacy media session APIs. Use {@link #getSessionCompatToken} for
- * getting the token for the underlying MediaSessionCompat.
+ * {@link MediaControllerCompat}. And helps to utilize existing APIs that are built with legacy
+ * media session APIs. Use {@link #getSessionCompatToken} for getting the token for the underlying
+ * MediaSessionCompat.
  * <h3 id="CompatibilityController">Backward compatibility with legacy controller APIs</h3>
  * In addition to the {@link MediaController media2 controller} API, session also supports
  * connection from the legacy controller API -
  * {@link android.media.session.MediaController framework controller} and
- * {@link android.support.v4.media.session.MediaControllerCompat AndroidX controller compat}.
+ * {@link MediaControllerCompat AndroidX controller compat}.
  * However, {@link ControllerInfo} may not be precise for legacy controller.
  * See {@link ControllerInfo} for the details.
  * <p>
@@ -165,7 +167,7 @@ import java.util.concurrent.Executor;
  *
  * @see MediaSessionService
  */
-public class MediaSession implements AutoCloseable {
+public class MediaSession implements Closeable {
     static final String TAG = "MediaSession";
 
     // It's better to have private static lock instead of using MediaSession.class because the
@@ -432,6 +434,17 @@ public class MediaSession implements AutoCloseable {
     }
 
     /**
+     * Sets the timeout for disconnecting legacy controller.
+     * @param timeoutMs timeout in millis
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public void setLegacyControllerConnectionTimeoutMs(long timeoutMs) {
+        mImpl.setLegacyControllerConnectionTimeoutMs(timeoutMs);
+    }
+
+    /**
      * Handles the controller's connection request from {@link MediaSessionService}.
      *
      * @param controller controller aidl
@@ -507,7 +520,11 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * Called when a controller is disconnected
+         * Called when a controller is disconnected.
+         * <p>
+         * Interoperability: For legacy controller, this is called when the controller doesn't send
+         * any command for a while. It's because there were no explicit disconnect API in legacy
+         * controller API.
          *
          * @param session the session for this event
          * @param controller controller information
@@ -631,6 +648,34 @@ public class MediaSession implements AutoCloseable {
          * The implementation should create proper {@link MediaItem media item(s)} for the given
          * {@code uri} and call {@link SessionPlayer#setMediaItem} or
          * {@link SessionPlayer#setPlaylist}.
+         * <p>
+         * When {@link MediaControllerCompat} is connected and sends commands with following
+         * methods, the {@code uri} would have the following patterns:
+         * <table>
+         * <tr>
+         * <th>Method</th><th align="left">Uri pattern</th>
+         * </tr><tr>
+         * <td>{@link MediaControllerCompat.TransportControls#prepareFromUri prepareFromUri}
+         * </td><td>The {@code uri} passed as argument</td>
+         * </tr><tr>
+         * <td>{@link MediaControllerCompat.TransportControls#prepareFromMediaId prepareFromMediaId}
+         * </td><td>{@code androidx://media2-session/prepareFromMediaId?id=[mediaId]}</td>
+         * </tr><tr>
+         * <td>{@link MediaControllerCompat.TransportControls#prepareFromSearch prepareFromSearch}
+         * </td><td>{@code androidx://media2-session/prepareFromSearch?query=[query]}</td>
+         * </tr><tr>
+         * <td>{@link MediaControllerCompat.TransportControls#playFromUri playFromUri}
+         * </td><td>The {@code uri} passed as argument</td>
+         * </tr><tr>
+         * <td>{@link MediaControllerCompat.TransportControls#playFromMediaId playFromMediaId}
+         * </td><td>{@code androidx://media2-session/playFromMediaId?id=[mediaId]}</td>
+         * </tr><tr>
+         * <td>{@link MediaControllerCompat.TransportControls#playFromSearch playFromSearch}
+         * </td><td>{@code androidx://media2-session/playFromSearch?query=[query]}</td>
+         * </tr></table>
+         * <p>
+         * {@link SessionPlayer#prepare()} or {@link SessionPlayer#play()} would be followed if
+         * this is called by above methods.
          *
          * @param session the session for this event
          * @param controller controller information
@@ -1180,7 +1225,7 @@ public class MediaSession implements AutoCloseable {
                 @Nullable LibraryParams params) throws RemoteException;
     }
 
-    interface MediaSessionImpl extends MediaInterface.SessionPlayer, AutoCloseable {
+    interface MediaSessionImpl extends MediaInterface.SessionPlayer, Closeable {
         void updatePlayer(@NonNull SessionPlayer player,
                 @Nullable SessionPlayer playlistAgent);
         void updatePlayer(@NonNull SessionPlayer player);
@@ -1207,6 +1252,7 @@ public class MediaSession implements AutoCloseable {
         // Internally used methods
         MediaSession getInstance();
         MediaSessionCompat getSessionCompat();
+        void setLegacyControllerConnectionTimeoutMs(long timeoutMs);
         Context getContext();
         Executor getCallbackExecutor();
         SessionCallback getCallback();
@@ -1329,7 +1375,7 @@ public class MediaSession implements AutoCloseable {
          */
         @NonNull
         @SuppressWarnings("unchecked")
-        public U setExtras(@NonNull Bundle extras) {
+        U setExtras(@NonNull Bundle extras) {
             if (extras == null) {
                 throw new NullPointerException("extras shouldn't be null");
             }

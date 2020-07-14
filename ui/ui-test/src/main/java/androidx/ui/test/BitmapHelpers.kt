@@ -16,15 +16,14 @@
 
 package androidx.ui.test
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.os.Build
 import android.view.View
 import androidx.annotation.RequiresApi
+import androidx.ui.core.AndroidOwner
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
@@ -35,27 +34,43 @@ import androidx.ui.graphics.asAndroidPath
 import androidx.ui.test.android.captureRegionToBitmap
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxSize
-import androidx.ui.unit.ipx
-import androidx.ui.unit.toRect
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
+import androidx.ui.unit.height
+import androidx.ui.unit.width
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import kotlin.math.roundToInt
 
 /**
- * Captures the underlying component's surface into bitmap.
+ * Captures the underlying semantics node's surface into bitmap.
  *
- * This has currently several limitations. Currently we assume that the component is hosted in
- * Activity's window. Also if there is another window covering part of the component if won't occur
- * in the bitmap as this is taken from the component's window surface.
- */
+ * This has a limitation that if there is another window covering part of this node, such a
+ * window won't occur in this bitmap.
+*/
 @RequiresApi(Build.VERSION_CODES.O)
 fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
     val node = fetchSemanticsNode("Failed to capture a node to bitmap.")
     // TODO(pavlis): Consider doing assertIsDisplayed here. Will need to move things around.
-    return captureRegionToBitmap(node.globalBounds.toRect(), node.componentNode.owner!!)
+    val nodeBounds = node.boundsInRoot
+    val nodeBoundsRect = android.graphics.Rect(
+        nodeBounds.left.roundToInt(),
+        nodeBounds.top.roundToInt(),
+        nodeBounds.right.roundToInt(),
+        nodeBounds.bottom.roundToInt())
+
+    @OptIn(ExperimentalLayoutNodeApi::class)
+    val view = (node.componentNode.owner as AndroidOwner).view
+
+    val locationInWindow = intArrayOf(0, 0)
+    view.getLocationInWindow(locationInWindow)
+    val x = locationInWindow[0]
+    val y = locationInWindow[1]
+
+    // Now these are bounds in window
+    nodeBoundsRect.offset(x, y)
+
+    return captureRegionToBitmap(nodeBoundsRect, view)
 }
 
 /**
@@ -67,22 +82,12 @@ fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
  */
 @RequiresApi(Build.VERSION_CODES.O)
 fun View.captureToBitmap(): Bitmap {
-    val locationOnScreen = intArrayOf(0, 0)
-    getLocationOnScreen(locationOnScreen)
-    val x = locationOnScreen[0].toFloat()
-    val y = locationOnScreen[1].toFloat()
-    val bounds = Rect(x, y, x + width, y + height)
-
-    // Recursively search for the Activity context through (possible) ContextWrappers
-    fun Context.getActivity(): Activity? {
-        return when (this) {
-            is Activity -> this
-            is ContextWrapper -> this.baseContext.getActivity()
-            else -> null
-        }
-    }
-
-    return captureRegionToBitmap(bounds, handler, context.getActivity()!!.window)
+    val locationInWindow = intArrayOf(0, 0)
+    getLocationInWindow(locationInWindow)
+    val x = locationInWindow[0]
+    val y = locationInWindow[1]
+    val boundsInWindow = android.graphics.Rect(x, y, x + width, y + height)
+    return captureRegionToBitmap(boundsInWindow, this)
 }
 
 /**
@@ -95,11 +100,11 @@ fun View.captureToBitmap(): Bitmap {
  * @throws AssertionError if size or colors don't match.
  */
 fun Bitmap.assertPixels(
-    expectedSize: IntPxSize? = null,
-    expectedColorProvider: (pos: IntPxPosition) -> Color?
+    expectedSize: IntSize? = null,
+    expectedColorProvider: (pos: IntOffset) -> Color?
 ) {
     if (expectedSize != null) {
-        if (width != expectedSize.width.value || height != expectedSize.height.value) {
+        if (width != expectedSize.width || height != expectedSize.height) {
             throw AssertionError(
                 "Bitmap size is wrong! Expected '$expectedSize' but got " +
                         "'$width x $height'"
@@ -109,7 +114,7 @@ fun Bitmap.assertPixels(
 
     for (x in 0 until width) {
         for (y in 0 until height) {
-            val pxPos = IntPxPosition(x.ipx, y.ipx)
+            val pxPos = IntOffset(x, y)
             val expectedClr = expectedColorProvider(pxPos)
             if (expectedClr != null) {
                 assertPixelColor(expectedClr, x, y)
@@ -147,10 +152,10 @@ fun Bitmap.assertPixelColor(
 fun Path.contains(offset: Offset): Boolean {
     val path = android.graphics.Path()
     path.addRect(
-        offset.dx - 0.01f,
-        offset.dy - 0.01f,
-        offset.dx + 0.01f,
-        offset.dy + 0.01f,
+        offset.x - 0.01f,
+        offset.y - 0.01f,
+        offset.x + 0.01f,
+        offset.y + 0.01f,
         android.graphics.Path.Direction.CW
     )
     if (path.op(asAndroidPath(), android.graphics.Path.Op.INTERSECT)) {
@@ -200,7 +205,7 @@ fun Bitmap.assertShape(
     assertTrue(centerX - sizeX / 2 >= 0.0f)
     assertTrue(centerY + sizeY / 2 <= height)
     assertTrue(centerY - sizeY / 2 >= 0.0f)
-    val outline = shape.createOutline(PxSize(shapeSizeX, shapeSizeY), density)
+    val outline = shape.createOutline(Size(shapeSizeX, shapeSizeY), density)
     val path = Path()
     path.addOutline(outline)
     val shapeOffset = Offset(
@@ -208,7 +213,7 @@ fun Bitmap.assertShape(
         (centerY - shapeSizeY / 2f)
     )
     val backgroundPath = Path()
-    backgroundPath.addOutline(backgroundShape.createOutline(PxSize(sizeX, sizeY), density))
+    backgroundPath.addOutline(backgroundShape.createOutline(Size(sizeX, sizeY), density))
     for (x in centerX - sizeX / 2 until centerX + sizeX / 2) {
         for (y in centerY - sizeY / 2 until centerY + sizeY / 2) {
             val point = Offset(x.toFloat(), y.toFloat())
@@ -272,8 +277,8 @@ fun Bitmap.assertShape(
     shape: Shape = RectangleShape,
     shapeOverlapPixelCount: Float = 1.0f
 ) {
-    val fullHorizontalPadding = with(density) { horizontalPadding.toPx().value * 2 }
-    val fullVerticalPadding = with(density) { verticalPadding.toPx().value * 2 }
+    val fullHorizontalPadding = with(density) { horizontalPadding.toPx() * 2 }
+    val fullVerticalPadding = with(density) { verticalPadding.toPx() * 2 }
     return assertShape(
         density = density,
         shape = shape,
@@ -299,14 +304,14 @@ private fun pixelCloserToCenter(offset: Offset, shapeSizeX: Float, shapeSizeY: F
     val centerY = shapeSizeY / 2f
     val d = delta
     val x = when {
-        offset.dx > centerX -> offset.dx - d
-        offset.dx < centerX -> offset.dx + d
-        else -> offset.dx
+        offset.x > centerX -> offset.x - d
+        offset.x < centerX -> offset.x + d
+        else -> offset.x
     }
     val y = when {
-        offset.dy > centerY -> offset.dy - d
-        offset.dy < centerY -> offset.dy + d
-        else -> offset.dy
+        offset.y > centerY -> offset.y - d
+        offset.y < centerY -> offset.y + d
+        else -> offset.y
     }
     return Offset(x, y)
 }
@@ -321,14 +326,14 @@ private fun pixelFartherFromCenter(
     val centerY = shapeSizeY / 2f
     val d = delta
     val x = when {
-        offset.dx > centerX -> offset.dx + d
-        offset.dx < centerX -> offset.dx - d
-        else -> offset.dx
+        offset.x > centerX -> offset.x + d
+        offset.x < centerX -> offset.x - d
+        else -> offset.x
     }
     val y = when {
-        offset.dy > centerY -> offset.dy + d
-        offset.dy < centerY -> offset.dy - d
-        else -> offset.dy
+        offset.y > centerY -> offset.y + d
+        offset.y < centerY -> offset.y - d
+        else -> offset.y
     }
     return Offset(x, y)
 }

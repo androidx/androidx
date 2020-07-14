@@ -570,6 +570,7 @@ public final class MediaControllerCompat {
      * @param handler The handler to post updates on. If null the callers thread
      *            will be used.
      */
+    @SuppressWarnings("deprecation")
     public void registerCallback(@NonNull Callback callback, Handler handler) {
         if (callback == null) {
             throw new IllegalArgumentException("callback must not be null");

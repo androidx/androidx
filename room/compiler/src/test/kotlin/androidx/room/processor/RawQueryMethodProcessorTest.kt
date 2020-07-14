@@ -25,15 +25,19 @@ import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.SupportDbTypeNames
+import androidx.room.ext.asDeclaredType
+import androidx.room.ext.asExecutableElement
+import androidx.room.ext.asTypeElement
+import androidx.room.ext.getAllMethods
+import androidx.room.ext.getDeclaredMethods
 import androidx.room.ext.hasAnnotation
+import androidx.room.ext.requireTypeElement
 import androidx.room.ext.typeName
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.RawQueryMethod
 import androidx.sqlite.db.SupportSQLiteQuery
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -45,7 +49,6 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import simpleRun
-import javax.lang.model.util.ElementFilter
 
 class RawQueryMethodProcessorTest {
     @Test
@@ -197,11 +200,11 @@ class RawQueryMethodProcessorTest {
     fun suspendUnit() {
         simpleRun { invocation ->
             val daoElement =
-                invocation.typeElement(RawQuerySuspendUnitDao::class.java.canonicalName!!)
-            val daoFunctionElement = ElementFilter.methodsIn(daoElement.enclosedElements).first()
+                invocation.processingEnv.requireTypeElement(RawQuerySuspendUnitDao::class)
+            val daoFunctionElement = daoElement.getDeclaredMethods().first()
             RawQueryMethodProcessor(
                 baseContext = invocation.context,
-                containing = MoreTypes.asDeclared(daoElement.asType()),
+                containing = daoElement.asDeclaredType(),
                 executableElement = daoFunctionElement
             ).process()
         }.failsToCompile().withErrorContaining(
@@ -313,17 +316,17 @@ class RawQueryMethodProcessorTest {
                                     .getElementsAnnotatedWith(Dao::class.java)
                                     .map {
                                         Pair(it,
-                                                invocation.processingEnv.elementUtils
-                                                        .getAllMembers(MoreElements.asType(it))
-                                                        .filter {
-                                                            it.hasAnnotation(RawQuery::class)
-                                                        }
+                                                it.asTypeElement().getAllMethods(
+                                                    invocation.processingEnv
+                                                ).filter {
+                                                    it.hasAnnotation(RawQuery::class)
+                                                }
                                         )
                                     }.first { it.second.isNotEmpty() }
                             val parser = RawQueryMethodProcessor(
                                     baseContext = invocation.context,
-                                    containing = MoreTypes.asDeclared(owner.asType()),
-                                    executableElement = MoreElements.asExecutable(methods.first()))
+                                    containing = owner.asDeclaredType(),
+                                    executableElement = methods.first().asExecutableElement())
                             val parsedQuery = parser.process()
                             handler(parsedQuery, invocation)
                             true

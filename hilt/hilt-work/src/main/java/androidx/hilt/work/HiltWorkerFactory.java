@@ -21,7 +21,6 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.work.ListenableWorker;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import java.util.Map;
@@ -37,10 +36,10 @@ import javax.inject.Provider;
 public final class HiltWorkerFactory extends androidx.work.WorkerFactory {
 
     private final Map<String,
-            Provider<WorkerAssistedFactory<? extends Worker>>> mWorkerFactories;
+            Provider<WorkerAssistedFactory<? extends ListenableWorker>>> mWorkerFactories;
 
     public HiltWorkerFactory(@NonNull Map<String,
-            Provider<WorkerAssistedFactory<? extends Worker>>> workerFactories) {
+            Provider<WorkerAssistedFactory<? extends ListenableWorker>>> workerFactories) {
         mWorkerFactories = workerFactories;
     }
 
@@ -48,7 +47,7 @@ public final class HiltWorkerFactory extends androidx.work.WorkerFactory {
     @Override
     public ListenableWorker createWorker(@NonNull Context appContext,
             @NonNull String workerClassName, @NonNull WorkerParameters workerParameters) {
-        Provider<WorkerAssistedFactory<? extends Worker>> factoryProvider =
+        Provider<WorkerAssistedFactory<? extends ListenableWorker>> factoryProvider =
                 mWorkerFactories.get(workerClassName);
         if (factoryProvider == null) {
             return null;

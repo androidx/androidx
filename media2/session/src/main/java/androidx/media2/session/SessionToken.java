@@ -18,7 +18,6 @@ package androidx.media2.session;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -64,7 +63,6 @@ import java.util.List;
 //     For details about the reason, see following. (Android O+)
 //         android.media.session.MediaSessionManager.Callback#onAddressedPlayerChanged
 @VersionedParcelize
-@SuppressLint("ObsoleteSdkInt") // TODO: Remove once the minSdkVersion is lowered enough.
 public final class SessionToken implements VersionedParcelable {
     private static final String TAG = "SessionToken";
 

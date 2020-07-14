@@ -78,6 +78,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -209,11 +210,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
     private static class LifecycleAwareResultListener implements FragmentResultListener {
         private final Lifecycle mLifecycle;
         private final FragmentResultListener mListener;
+        private final LifecycleEventObserver mObserver;
 
         LifecycleAwareResultListener(@NonNull Lifecycle lifecycle,
-                @NonNull FragmentResultListener listener) {
+                @NonNull FragmentResultListener listener,
+                @NonNull LifecycleEventObserver observer) {
             mLifecycle = lifecycle;
             mListener = listener;
+            mObserver = observer;
         }
 
         public boolean isAtLeast(Lifecycle.State state) {
@@ -223,6 +227,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
         @Override
         public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
             mListener.onFragmentResult(requestKey, result);
+        }
+
+        public void removeObserver() {
+            mLifecycle.removeObserver(mObserver);
         }
     }
 
@@ -428,6 +436,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
             };
     private final FragmentLifecycleCallbacksDispatcher mLifecycleCallbacksDispatcher =
             new FragmentLifecycleCallbacksDispatcher(this);
+    private final CopyOnWriteArrayList<FragmentOnAttachListener> mOnAttachListeners =
+            new CopyOnWriteArrayList<>();
 
     int mCurState = Fragment.INITIALIZING;
     private FragmentHostCallback<?> mHost;
@@ -868,12 +878,19 @@ public abstract class FragmentManager implements FragmentResultOwner {
             }
         };
         lifecycle.addObserver(observer);
-        mResultListeners.put(requestKey, new LifecycleAwareResultListener(lifecycle, listener));
+        LifecycleAwareResultListener storedListener = mResultListeners.put(requestKey,
+                new LifecycleAwareResultListener(lifecycle, listener, observer));
+        if (storedListener != null) {
+            storedListener.removeObserver();
+        }
     }
 
     @Override
     public final void clearFragmentResultListener(@NonNull String requestKey) {
-        mResultListeners.remove(requestKey);
+        LifecycleAwareResultListener listener = mResultListeners.remove(requestKey);
+        if (listener != null) {
+            listener.removeObserver();
+        }
     }
 
     /**
@@ -1264,6 +1281,17 @@ public abstract class FragmentManager implements FragmentResultOwner {
             // Only allow this FragmentStateManager to go up to CREATED at the most
             fragmentStateManager.setFragmentManagerState(Fragment.CREATED);
         }
+        // When inflating an Activity view with a resource instead of using setContentView(), and
+        // that resource adds a fragment using the <fragment> tag (i.e. from layout and in layout),
+        // the fragment will move to the VIEW_CREATED state before the fragment manager
+        // moves to CREATED. So when moving the fragment manager moves to CREATED and the
+        // inflated fragment is already in VIEW_CREATED we need to move new state up from CREATED
+        // to VIEW_CREATED. This avoids accidentally moving the fragment back down to CREATED
+        // which would immediately destroy the Fragment's view. We rely on computeExpectedState()
+        // to pull the state back down if needed.
+        if (f.mFromLayout && f.mInLayout && f.mState == Fragment.VIEW_CREATED) {
+            newState = Math.max(newState, Fragment.VIEW_CREATED);
+        }
         newState = Math.min(newState, fragmentStateManager.computeExpectedState());
         if (f.mState <= newState) {
             // If we are moving to the same state, we do not need to give up on the animation.
@@ -1294,8 +1322,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
                     if (newState > Fragment.CREATED) {
                         fragmentStateManager.createView();
+                    }
+                    // fall through
+                case Fragment.VIEW_CREATED:
+                    if (newState > Fragment.VIEW_CREATED) {
                         fragmentStateManager.activityCreated();
-                        fragmentStateManager.restoreViewState();
                     }
                     // fall through
                 case Fragment.ACTIVITY_CREATED:
@@ -1332,6 +1363,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
                                 fragmentStateManager.saveViewState();
                             }
                         }
+                    }
+                    // fall through
+                case Fragment.VIEW_CREATED:
+                    if (newState < Fragment.VIEW_CREATED) {
                         FragmentAnim.AnimationOrAnimator anim = null;
                         if (f.mView != null && f.mContainer != null) {
                             // Stop any current animations:
@@ -2092,6 +2127,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     records, startIndex, endIndex);
             for (SpecialEffectsController controller : changedControllers) {
                 controller.updateOperationDirection(isPop);
+                controller.markPostponedState();
                 controller.executePendingOperations();
             }
         } else {
@@ -2365,9 +2401,16 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * Starts all postponed transactions regardless of whether they are ready or not.
      */
     private void forcePostponedTransactions() {
-        if (mPostponedTransactions != null) {
-            while (!mPostponedTransactions.isEmpty()) {
-                mPostponedTransactions.remove(0).completeTransaction();
+        if (USE_STATE_MANAGER) {
+            Set<SpecialEffectsController> controllers = collectAllSpecialEffectsController();
+            for (SpecialEffectsController controller : controllers) {
+                controller.forcePostponedExecutePendingOperations();
+            }
+        } else {
+            if (mPostponedTransactions != null) {
+                while (!mPostponedTransactions.isEmpty()) {
+                    mPostponedTransactions.remove(0).completeTransaction();
+                }
             }
         }
     }
@@ -2712,6 +2755,22 @@ public abstract class FragmentManager implements FragmentResultOwner {
         mHost = host;
         mContainer = container;
         mParent = parent;
+
+        // Add a FragmentOnAttachListener to the parent fragment / host to support
+        // backward compatibility with the deprecated onAttachFragment() APIs
+        if (mParent != null) {
+            addFragmentOnAttachListener(new FragmentOnAttachListener() {
+                @SuppressWarnings("deprecation")
+                @Override
+                public void onAttachFragment(@NonNull FragmentManager fragmentManager,
+                        @NonNull Fragment fragment) {
+                    parent.onAttachFragment(fragment);
+                }
+            });
+        } else if (host instanceof FragmentOnAttachListener) {
+            addFragmentOnAttachListener((FragmentOnAttachListener) host);
+        }
+
         if (mParent != null) {
             // Since the callback depends on us being the primary navigation fragment,
             // update our callback now that we have a parent so that we have the correct
@@ -2918,6 +2977,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
         mStopped = false;
         mNonConfig.setIsStateSaved(false);
         dispatchStateChange(Fragment.CREATED);
+    }
+
+    void dispatchViewCreated() {
+        dispatchStateChange(Fragment.VIEW_CREATED);
     }
 
     void dispatchActivityCreated() {
@@ -3259,6 +3322,40 @@ public abstract class FragmentManager implements FragmentResultOwner {
      */
     public void unregisterFragmentLifecycleCallbacks(@NonNull FragmentLifecycleCallbacks cb) {
         mLifecycleCallbacksDispatcher.unregisterFragmentLifecycleCallbacks(cb);
+    }
+
+    /**
+     * Add a {@link FragmentOnAttachListener} that should receive a call to
+     * {@link FragmentOnAttachListener#onAttachFragment(FragmentManager, Fragment)} when a
+     * new Fragment is attached to this FragmentManager.
+     *
+     * @param listener Listener to add
+     */
+    public void addFragmentOnAttachListener(@NonNull FragmentOnAttachListener listener) {
+        mOnAttachListeners.add(listener);
+    }
+
+    /**
+     * Dispatch {@link FragmentOnAttachListener#onAttachFragment(FragmentManager, Fragment)} to
+     * each listener registered via {@link #addFragmentOnAttachListener(FragmentOnAttachListener)}.
+     *
+     * @param fragment The Fragment that was attached
+     */
+    void dispatchOnAttachFragment(@NonNull Fragment fragment) {
+        for (FragmentOnAttachListener listener : mOnAttachListeners) {
+            listener.onAttachFragment(this, fragment);
+        }
+    }
+
+    /**
+     * Remove a {@link FragmentOnAttachListener} that was previously added via
+     * {@link #addFragmentOnAttachListener(FragmentOnAttachListener)}. It will no longer
+     * get called when a new Fragment is attached.
+     *
+     * @param listener Listener to remove
+     */
+    public void removeFragmentOnAttachListener(@NonNull FragmentOnAttachListener listener) {
+        mOnAttachListeners.remove(listener);
     }
 
     // Checks if fragments that belong to this fragment manager (or their children) have menus,

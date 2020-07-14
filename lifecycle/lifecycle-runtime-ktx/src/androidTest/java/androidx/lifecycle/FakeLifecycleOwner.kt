@@ -21,7 +21,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class FakeLifecycleOwner(initialState: Lifecycle.State? = null) : LifecycleOwner {
-    private val registry: LifecycleRegistry = LifecycleRegistry(this)
+    private val registry: LifecycleRegistry = LifecycleRegistry.createUnsafe(this)
 
     init {
         initialState?.let {

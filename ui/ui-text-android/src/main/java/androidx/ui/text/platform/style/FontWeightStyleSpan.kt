@@ -24,8 +24,8 @@ import android.text.style.MetricAffectingSpan
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.ui.text.platform.InternalPlatformTextApi
 
 private const val AndroidBoldWeight = 600
 
@@ -38,7 +38,7 @@ private const val AndroidBoldWeight = 600
  *
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalPlatformTextApi
 class FontWeightStyleSpan(
     @IntRange(from = 0, to = 1000)
     val weight: Int,

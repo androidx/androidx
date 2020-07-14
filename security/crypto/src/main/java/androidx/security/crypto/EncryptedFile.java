@@ -16,10 +16,11 @@
 
 package androidx.security.crypto;
 
-import static androidx.security.crypto.MasterKeys.KEYSTORE_PATH_URI;
+import static androidx.security.crypto.MasterKey.KEYSTORE_PATH_URI;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -61,7 +62,6 @@ import java.security.GeneralSecurityException;
  *  // read the encrypted file
  *  FileInputStream encryptedInputStream = encryptedFile.openFileInput();
  * </pre>
- *
  */
 public final class EncryptedFile {
 
@@ -74,7 +74,6 @@ public final class EncryptedFile {
     final Context mContext;
     final String mMasterKeyAlias;
     final StreamingAead mStreamingAead;
-
 
     EncryptedFile(
             @NonNull File file,
@@ -118,14 +117,43 @@ public final class EncryptedFile {
      */
     public static final class Builder {
 
+        /**
+         * Builder for an EncryptedFile.
+         *
+         * @deprecated Use {@link #Builder(Context, File, MasterKey, FileEncryptionScheme)} instead.
+         */
+        @Deprecated
         public Builder(@NonNull File file,
                 @NonNull Context context,
                 @NonNull String masterKeyAlias,
                 @NonNull FileEncryptionScheme fileEncryptionScheme) {
             mFile = file;
             mFileEncryptionScheme = fileEncryptionScheme;
-            mContext = context;
+            mContext = context.getApplicationContext();
             mMasterKeyAlias = masterKeyAlias;
+        }
+
+        /**
+         * Builder for an EncryptedFile.
+         */
+        // [StreamFiles]: Because the contents of EncryptedFile are encrypted the use of
+        // a FileDescriptor or Streams are intentionally not supported for the following reasons:
+        // - The encrypted content is tightly coupled to the current installation of the app. If
+        // the app is uninstalled, even if the data remained (such as being stored in a public
+        // directory or another DocumentProvider) it would be (intentionally) unrecoverable.
+        // - If the API did accept either an already opened FileDescriptor or a stream, then it
+        // would be possible for the developer to inadvertently commingle encrypted and plain
+        // text data, which, due to the way the API is structured, could render both encrypted
+        // and unencrypted data irrecoverable.
+        @SuppressLint("StreamFiles")
+        public Builder(@NonNull Context context,
+                @NonNull File file,
+                @NonNull MasterKey masterKey,
+                @NonNull FileEncryptionScheme fileEncryptionScheme) {
+            mFile = file;
+            mFileEncryptionScheme = fileEncryptionScheme;
+            mContext = context.getApplicationContext();
+            mMasterKeyAlias = masterKey.getKeyAlias();
         }
 
         // Required parameters
@@ -187,7 +215,7 @@ public final class EncryptedFile {
      *
      * @return The FileOutputStream that encrypts all data.
      * @throws GeneralSecurityException when a bad master key or keyset has been used
-     * @throws IOException when the file already exists or is not available for writing
+     * @throws IOException              when the file already exists or is not available for writing
      */
     @NonNull
     public FileOutputStream openFileOutput()
@@ -210,7 +238,7 @@ public final class EncryptedFile {
      *
      * @return The input stream to read previously encrypted data.
      * @throws GeneralSecurityException when a bad master key or keyset has been used
-     * @throws IOException when the file was not found
+     * @throws IOException              when the file was not found
      */
     @NonNull
     public FileInputStream openFileInput()
@@ -226,7 +254,6 @@ public final class EncryptedFile {
 
     /**
      * Encrypted file output stream
-     *
      */
     private static final class EncryptedFileOutputStream extends FileOutputStream {
 

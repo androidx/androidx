@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
@@ -91,6 +92,20 @@ public class AccessibilityNodeProviderCompat {
         }
     }
 
+    @RequiresApi(26)
+    static class AccessibilityNodeProviderApi26 extends AccessibilityNodeProviderApi19 {
+        AccessibilityNodeProviderApi26(AccessibilityNodeProviderCompat compat) {
+            super(compat);
+        }
+
+        @Override
+        public void addExtraDataToAccessibilityNodeInfo(int virtualViewId,
+                AccessibilityNodeInfo info, String extraDataKey, Bundle arguments) {
+            mCompat.addExtraDataToAccessibilityNodeInfo(virtualViewId,
+                    AccessibilityNodeInfoCompat.wrap(info), extraDataKey, arguments);
+        }
+    }
+
     /**
      * The virtual id for the hosting View.
      */
@@ -102,7 +117,9 @@ public class AccessibilityNodeProviderCompat {
      * Creates a new instance.
      */
     public AccessibilityNodeProviderCompat() {
-        if (Build.VERSION.SDK_INT >= 19) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            mProvider = new AccessibilityNodeProviderApi26(this);
+        } else if (Build.VERSION.SDK_INT >= 19) {
             mProvider = new AccessibilityNodeProviderApi19(this);
         } else if (Build.VERSION.SDK_INT >= 16) {
             mProvider = new AccessibilityNodeProviderApi16(this);
@@ -206,5 +223,27 @@ public class AccessibilityNodeProviderCompat {
     @Nullable
     public AccessibilityNodeInfoCompat findFocus(int focus) {
         return null;
+    }
+
+    /**
+     * Adds extra data to an {@link AccessibilityNodeInfoCompat} based on an explicit request for
+     * the additional data.
+     * <p>
+     * This method only needs to be implemented if a virtual view offers to provide additional
+     * data.
+     * </p>
+     *
+     * @param virtualViewId The virtual view id used to create the node
+     * @param info The info to which to add the extra data
+     * @param extraDataKey A key specifying the type of extra data to add to the info. The
+     *                     extra data should be added to the {@link Bundle} returned by
+     *                     the info's {@link AccessibilityNodeInfoCompat#getExtras} method.
+     * @param arguments A {@link Bundle} holding any arguments relevant for this request.
+     *
+     * @see AccessibilityNodeInfo#setAvailableExtraData(List)
+     */
+    public void addExtraDataToAccessibilityNodeInfo(int virtualViewId,
+            @NonNull AccessibilityNodeInfoCompat info, @NonNull String extraDataKey,
+            @Nullable Bundle arguments) {
     }
 }

@@ -16,54 +16,64 @@
 
 package androidx.ui.core.demos
 
-import androidx.ui.demos.common.ComposableDemo
-import androidx.ui.demos.common.DemoCategory
 import androidx.ui.core.demos.autofill.ExplicitAutofillTypesDemo
 import androidx.ui.core.demos.focus.FocusableDemo
-import androidx.ui.core.demos.gestures.DoubleTapGestureDetectorDemo
+import androidx.ui.core.demos.gestures.DoubleTapGestureFilterDemo
 import androidx.ui.core.demos.gestures.DoubleTapInTapDemo
-import androidx.ui.core.demos.gestures.DragScaleGestureDetectorDemo
-import androidx.ui.core.demos.gestures.LongPressDragGestureDetectorDemo
-import androidx.ui.core.demos.gestures.LongPressGestureDetectorDemo
+import androidx.ui.core.demos.gestures.DragAndScaleGestureFilterDemo
+import androidx.ui.core.demos.gestures.DragGestureFilterDemo
+import androidx.ui.core.demos.gestures.DragSlopExceededGestureFilterDemo
+import androidx.ui.core.demos.gestures.HorizontalScrollersInVerticalScrollersDemo
+import androidx.ui.core.demos.gestures.LongPressDragGestureFilterDemo
 import androidx.ui.core.demos.gestures.NestedLongPressDemo
-import androidx.ui.core.demos.gestures.NestedPressDemo
+import androidx.ui.core.demos.gestures.NestedPressingDemo
 import androidx.ui.core.demos.gestures.NestedScalingDemo
 import androidx.ui.core.demos.gestures.NestedScrollingDemo
 import androidx.ui.core.demos.gestures.PopupDragDemo
-import androidx.ui.core.demos.gestures.PressIndicatorGestureDetectorDemo
-import androidx.ui.core.demos.gestures.PressReleasedGestureDetectorDemo
-import androidx.ui.core.demos.gestures.RawDragGestureDetectorDemo
-import androidx.ui.core.demos.gestures.ScaleGestureDetectorDemo
-import androidx.ui.core.demos.gestures.TouchSlopDragGestureDetectorDemo
-import androidx.ui.core.demos.gestures.TouchSlopExceededGestureDetectorDemo
+import androidx.ui.core.demos.gestures.PressIndicatorGestureFilterDemo
+import androidx.ui.core.demos.gestures.RawDragGestureFilterDemo
+import androidx.ui.core.demos.gestures.ScaleGestureFilterDemo
+import androidx.ui.core.demos.gestures.PointerInputDuringSubComp
+import androidx.ui.core.demos.gestures.ScrollGestureFilterDemo
+import androidx.ui.core.demos.gestures.TapGestureFilterDemo
+import androidx.ui.core.demos.gestures.VerticalScrollerInDrawerDemo
 import androidx.ui.core.demos.keyinput.KeyInputDemo
-import androidx.ui.core.demos.viewinterop.ViewInComposeDemo
+import androidx.ui.core.demos.viewinterop.ViewInteropDemo
+import androidx.ui.demos.common.ComposableDemo
+import androidx.ui.demos.common.DemoCategory
 
 private val GestureDemos = DemoCategory("Gestures", listOf(
-    DemoCategory("Simple - Non-Movement", listOf(
-        ComposableDemo("PressIndicatorGestureDetector") { PressIndicatorGestureDetectorDemo() },
-        ComposableDemo("PressReleasedGestureDetector") { PressReleasedGestureDetectorDemo() },
-        ComposableDemo("LongPressGestureDetector") { LongPressGestureDetectorDemo() },
-        ComposableDemo("DoubleTapGestureDetector") { DoubleTapGestureDetectorDemo() }
+    DemoCategory("Common Gestures", listOf(
+        ComposableDemo("Press Indication") { PressIndicatorGestureFilterDemo() },
+        ComposableDemo("Tap") { TapGestureFilterDemo() },
+        ComposableDemo("Double Tap") { DoubleTapGestureFilterDemo() },
+        ComposableDemo("Long Press") { ScrollGestureFilterDemo() },
+        ComposableDemo("Scroll") { DragGestureFilterDemo() },
+        ComposableDemo("Drag") { DragGestureFilterDemo() },
+        ComposableDemo("Long Press Drag") { LongPressDragGestureFilterDemo() },
+        ComposableDemo("Scale") { ScaleGestureFilterDemo() }
     )),
-    DemoCategory("Simple - Movement", listOf(
-        ComposableDemo("TouchSlopDragGestureDetector") { TouchSlopDragGestureDetectorDemo() },
-        ComposableDemo("LongPressDragGestureDetector") { LongPressDragGestureDetectorDemo() },
-        ComposableDemo("RawDragGestureDetector") { RawDragGestureDetectorDemo() },
-        ComposableDemo("TouchSlopExceededGestureDetector") {
-            TouchSlopExceededGestureDetectorDemo()
-        },
-        ComposableDemo("ScaleGestureDetector") { ScaleGestureDetectorDemo() }
+    DemoCategory("Building Block Gestures", listOf(
+        ComposableDemo("Drag Slop Exceeded") { DragSlopExceededGestureFilterDemo() },
+        ComposableDemo("Raw Drag") { RawDragGestureFilterDemo() }
     )),
-    DemoCategory("Complex", listOf(
-        ComposableDemo("Nested scrolling") { NestedScrollingDemo() },
-        ComposableDemo("Nested press") { NestedPressDemo() },
-        ComposableDemo("Nested long press") { NestedLongPressDemo() },
-        ComposableDemo("Nested scaling") { NestedScalingDemo() },
-        ComposableDemo("Popup drag") { PopupDragDemo() },
-        ComposableDemo("Drag and scale") { DragScaleGestureDetectorDemo() },
-        ComposableDemo("Double tap in tap") { DoubleTapInTapDemo() }
-    ))
+    DemoCategory(
+        "Combinations / Case Studies", listOf(
+            ComposableDemo("Nested Pressing") { NestedPressingDemo() },
+            ComposableDemo("Horizontal Scrollers In Vertical Scroller") {
+                HorizontalScrollersInVerticalScrollersDemo()
+            },
+            ComposableDemo("Vertical Scroller in Nav Drawer") {
+                VerticalScrollerInDrawerDemo()
+            },
+            ComposableDemo("Nested Scrolling") { NestedScrollingDemo() },
+            ComposableDemo("Nested Scaling") { NestedScalingDemo() },
+            ComposableDemo("Drag and Scale") { DragAndScaleGestureFilterDemo() },
+            ComposableDemo("Popup Drag") { PopupDragDemo() },
+            ComposableDemo("Double Tap in Tap") { DoubleTapInTapDemo() },
+            ComposableDemo("Nested Long Press") { NestedLongPressDemo() },
+            ComposableDemo("Pointer Input During Sub Comp") { PointerInputDuringSubComp() }
+        ))
 ))
 
 private val GraphicsDemos = DemoCategory("Graphics", listOf(
@@ -79,5 +89,6 @@ val CoreDemos = DemoCategory("Framework", listOf(
     ComposableDemo("Popup") { PopupDemo() },
     GraphicsDemos,
     GestureDemos,
-    ComposableDemo("View in compose") { ViewInComposeDemo() }
+    ComposableDemo("Views interoperability") { ViewInteropDemo() },
+    ComposableDemo("ViewModel") { ViewModelDemo() }
 ))

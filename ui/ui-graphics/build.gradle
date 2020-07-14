@@ -25,44 +25,67 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXUiPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("kotlin-multiplatform")
 }
 
-dependencies {
-    implementation(KOTLIN_STDLIB)
+kotlin {
+    android()
+    sourceSets {
+        commonMain.dependencies {
+            implementation(KOTLIN_STDLIB_COMMON)
 
-    api "androidx.annotation:annotation:1.1.0"
-    api project(":ui:ui-unit")
-    implementation project(":ui:ui-util")
+            api project(":compose:ui:ui-unit")
+            implementation project(":compose:ui:ui-util")
+            implementation project(":compose:runtime:runtime")
+        }
 
-    implementation project(":compose:compose-runtime")
+        androidMain.dependencies {
+            api "androidx.annotation:annotation:1.1.0"
+        }
 
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
+        androidTest.dependencies {
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(JUNIT)
+            implementation(TRUTH)
+        }
 
-    androidTestImplementation project(":ui:ui-graphics:samples")
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation project(":ui:ui-test")
+        androidAndroidTest.dependencies {
+            implementation project(":compose:ui:ui-graphics:samples")
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(ESPRESSO_CORE)
+            implementation(JUNIT)
+            implementation project(":ui:ui-test")
+        }
+    }
 }
 
 androidx {
-    name = "AndroidX UI Graphics"
+    name = "Compose Graphics"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
+    mavenGroup = LibraryGroups.Compose.UI
     inceptionYear = "2020"
-    description = "AndroidX UI graphics components."
+    description = "Compose graphics components."
 }
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xuse-experimental=kotlin.Experimental", "-XXLanguage:+InlineClasses"]
-        useIR = true
+        freeCompilerArgs += [
+            "-XXLanguage:+InlineClasses",
+            "-Xallow-jvm-ir-dependencies"
+        ]
     }
 }
 
+android {
+    buildTypes {
+        debug {
+            testCoverageEnabled = false
+        }
+        release {
+            testCoverageEnabled = false
+        }
+    }
+}

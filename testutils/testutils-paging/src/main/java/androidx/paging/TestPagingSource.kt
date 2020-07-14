@@ -28,9 +28,10 @@ import kotlinx.coroutines.delay
 class TestPagingSource(
     counted: Boolean = true,
     override val jumpingSupported: Boolean = true,
-    val items: List<Int> = Companion.ITEMS
+    val items: List<Int> = ITEMS
 ) : PagingSource<Int, Int>() {
     var errorNextLoad = false
+    var nextLoadResult: LoadResult<Int, Int>? = null
 
     init {
         if (!counted) {
@@ -58,6 +59,12 @@ class TestPagingSource(
         if (errorNextLoad) {
             errorNextLoad = false
             return LoadResult.Error(LOAD_ERROR)
+        }
+
+        val nextLoadResult = nextLoadResult
+        if (nextLoadResult != null) {
+            this.nextLoadResult = null
+            return nextLoadResult
         }
 
         return LoadResult.Page(

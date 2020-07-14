@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -o pipefail
+set -e
 
 ##############################################################################
 ##
@@ -234,9 +236,15 @@ function runGradle() {
     # so that this message still prints even if buildSrc itself fails
     echo
     echo See also development/diagnose-build-failure for help with build failures in this project.
-    exit 1
+    return 1
   fi
 }
+
+if [[ " ${@} " =~ " -PdisallowExecution " ]]; then
+  echo "Passing '-PdisallowExecution' directly is forbidden. Did you mean -PverifyUpToDate ?"
+  echo "See TaskUpToDateValidator.java for more information"
+  exit 1
+fi
 
 runGradle "$@"
 # Check whether we were given the "-PverifyUpToDate" argument

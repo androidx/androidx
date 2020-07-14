@@ -21,7 +21,12 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.T
+import androidx.room.ext.asMemberOf
+import androidx.room.ext.findTypeElement
 import androidx.room.ext.getSuspendFunctionReturnType
+import androidx.room.ext.name
+import androidx.room.ext.requireTypeMirror
+import androidx.room.ext.type
 import androidx.room.kotlin.KotlinMetadataElement
 import androidx.room.parser.ParsedQuery
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
@@ -32,14 +37,15 @@ import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.C
 import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
-import androidx.room.solver.transaction.binder.InstantTransactionMethodBinder
 import androidx.room.solver.transaction.binder.CoroutineTransactionMethodBinder
+import androidx.room.solver.transaction.binder.InstantTransactionMethodBinder
 import androidx.room.solver.transaction.binder.TransactionMethodBinder
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
 import androidx.room.vo.QueryParameter
 import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.vo.TransactionMethod
-import com.google.auto.common.MoreTypes
+import erasure
+import isSameType
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
@@ -98,8 +104,8 @@ abstract class MethodProcessorDelegate(
             val kotlinMetadata =
                 KotlinMetadataElement.createFor(context, executableElement.enclosingElement)
             return if (kotlinMetadata?.isSuspendFunction(executableElement) == true) {
-                val hasCoroutineArtifact = context.processingEnv.elementUtils
-                    .getTypeElement(RoomCoroutinesTypeNames.COROUTINES_ROOM.toString()) != null
+                val hasCoroutineArtifact = context.processingEnv
+                    .findTypeElement(RoomCoroutinesTypeNames.COROUTINES_ROOM.toString()) != null
                 if (!hasCoroutineArtifact) {
                     context.logger.e(ProcessorErrors.MISSING_ROOM_COROUTINE_ARTIFACT)
                 }
@@ -132,8 +138,11 @@ class DefaultMethodProcessorDelegate(
 ) : MethodProcessorDelegate(context, containing, executableElement, classMetadata) {
 
     override fun extractReturnType(): TypeMirror {
-        val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
-        return MoreTypes.asExecutable(asMember).returnType
+        val asMember = executableElement.asMemberOf(
+            context.processingEnv.typeUtils,
+            containing
+        )
+        return asMember.returnType
     }
 
     override fun extractParams() = executableElement.parameters
@@ -156,7 +165,7 @@ class DefaultMethodProcessorDelegate(
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         InstantTransactionMethodBinder(
-            TransactionMethodAdapter(executableElement.simpleName.toString(), callType))
+            TransactionMethodAdapter(executableElement.name, callType))
 }
 
 /**
@@ -171,19 +180,19 @@ class SuspendMethodProcessorDelegate(
 
     private val continuationParam: VariableElement by lazy {
         val typesUtil = context.processingEnv.typeUtils
-        val continuationType = typesUtil.erasure(
-            context.processingEnv.elementUtils
-                .getTypeElement(KotlinTypeNames.CONTINUATION.toString())
-                .asType()
-        )
+        val continuationType = context.processingEnv
+            .requireTypeMirror(KotlinTypeNames.CONTINUATION.toString()).erasure(typesUtil)
         executableElement.parameters.last {
-            typesUtil.isSameType(typesUtil.erasure(it.asType()), continuationType)
+            it.type.erasure(typesUtil).isSameType(typesUtil, continuationType)
         }
     }
 
     override fun extractReturnType(): TypeMirror {
-        val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
-        return MoreTypes.asExecutable(asMember).getSuspendFunctionReturnType()
+        val asMember = executableElement.asMemberOf(
+            context.processingEnv.typeUtils,
+            containing
+        )
+        return asMember.getSuspendFunctionReturnType()
     }
 
     override fun extractParams() =
@@ -193,7 +202,7 @@ class SuspendMethodProcessorDelegate(
         CoroutineResultBinder(
             typeArg = returnType,
             adapter = context.typeAdapterStore.findQueryResultAdapter(returnType, query),
-            continuationParamName = continuationParam.simpleName.toString()
+            continuationParamName = continuationParam.name
         )
 
     override fun findPreparedResultBinder(
@@ -209,7 +218,7 @@ class SuspendMethodProcessorDelegate(
             dbField,
             "true", // inTransaction
             callableImpl,
-            continuationParam.simpleName.toString()
+            continuationParam.name
         )
     }
 
@@ -226,7 +235,7 @@ class SuspendMethodProcessorDelegate(
             dbField,
             "true", // inTransaction
             callableImpl,
-            continuationParam.simpleName.toString()
+            continuationParam.name
         )
     }
 
@@ -241,13 +250,13 @@ class SuspendMethodProcessorDelegate(
                 dbField,
                 "true", // inTransaction
                 callableImpl,
-                continuationParam.simpleName.toString()
+                continuationParam.name
             )
         }
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         CoroutineTransactionMethodBinder(
-            adapter = TransactionMethodAdapter(executableElement.simpleName.toString(), callType),
-            continuationParamName = continuationParam.simpleName.toString()
+            adapter = TransactionMethodAdapter(executableElement.name, callType),
+            continuationParamName = continuationParam.name
         )
 }

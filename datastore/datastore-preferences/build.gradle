@@ -26,14 +26,6 @@ plugins {
     id("com.google.protobuf")
 }
 
-android {
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // Breaks Kotlin compiler.
-        }
-    }
-}
-
 dependencies {
     api(KOTLIN_STDLIB)
     api(project(":datastore:datastore-core"))
@@ -42,8 +34,13 @@ dependencies {
 
     testImplementation(JUNIT)
     testImplementation(KOTLIN_COROUTINES_TEST)
-    testImplementation(TRUTH)
-    testImplementation(project(":internal-testutils-truth"))
+    testImplementation(KOTLIN_TEST)
+
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(KOTLIN_COROUTINES_TEST)
+    androidTestImplementation(KOTLIN_TEST)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
 }
 
 protobuf {
@@ -68,7 +65,7 @@ protobuf {
 
 androidx {
     name = "Android Preferences DataStore"
-    publish = Publish.SNAPSHOT_ONLY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android Preferences DataStore"

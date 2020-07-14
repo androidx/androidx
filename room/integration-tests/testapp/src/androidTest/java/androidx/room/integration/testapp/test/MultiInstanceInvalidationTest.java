@@ -25,7 +25,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.os.SystemClock;
 
@@ -57,6 +56,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
@@ -71,6 +71,9 @@ import java.util.concurrent.TimeoutException;
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 public class MultiInstanceInvalidationTest {
+
+    @Rule
+    public TestName testName = new TestName();
 
     private static final Customer CUSTOMER_1 = new Customer();
     private static final Customer CUSTOMER_2 = new Customer();
@@ -89,6 +92,8 @@ public class MultiInstanceInvalidationTest {
 
     private ISampleDatabaseService mService;
 
+    private String mDatabaseName;
+
     private final ArrayList<RoomDatabase> mDatabases = new ArrayList<>();
     private final SimpleArrayMap<LiveData<List<Customer>>, Observer<List<Customer>>> mObservers =
             new SimpleArrayMap<>();
@@ -96,7 +101,10 @@ public class MultiInstanceInvalidationTest {
     @Before
     public void setUp() {
         final Context context = ApplicationProvider.getApplicationContext();
-        context.deleteDatabase(SampleDatabaseService.DATABASE_NAME);
+        // use a separate database file for each test because we are not fully capable of closing
+        // and deleting a database connection in a multi-process setup
+        mDatabaseName = "multi-process-" + testName.getMethodName() + ".db";
+        context.deleteDatabase(mDatabaseName);
     }
 
     @After
@@ -339,7 +347,7 @@ public class MultiInstanceInvalidationTest {
     private long measure(boolean multiInstanceInvalidation, boolean bulk,
             List<Customer> customers) {
         final Context context = ApplicationProvider.getApplicationContext();
-        context.deleteDatabase(SampleDatabaseService.DATABASE_NAME);
+        context.deleteDatabase(mDatabaseName);
         final SampleDatabase db = openDatabase(multiInstanceInvalidation);
         final CustomerDao dao = db.getCustomerDao();
         final InvalidationTracker.Observer observer = new InvalidationTracker.Observer("Customer") {
@@ -373,8 +381,7 @@ public class MultiInstanceInvalidationTest {
     private SampleDatabase openDatabase(boolean multiInstanceInvalidation) {
         final Context context = ApplicationProvider.getApplicationContext();
         final RoomDatabase.Builder<SampleDatabase> builder = Room
-                .databaseBuilder(context, SampleDatabase.class,
-                        SampleDatabaseService.DATABASE_NAME);
+                .databaseBuilder(context, SampleDatabase.class, mDatabaseName);
         if (multiInstanceInvalidation) {
             builder.enableMultiInstanceInvalidation();
         }
@@ -386,8 +393,7 @@ public class MultiInstanceInvalidationTest {
     private SampleFtsDatabase openFtsDatabase(boolean multiInstanceInvalidation) {
         final Context context = ApplicationProvider.getApplicationContext();
         final RoomDatabase.Builder<SampleFtsDatabase> builder = Room
-                .databaseBuilder(context, SampleFtsDatabase.class,
-                        SampleDatabaseService.DATABASE_NAME);
+                .databaseBuilder(context, SampleFtsDatabase.class, mDatabaseName);
         if (multiInstanceInvalidation) {
             builder.enableMultiInstanceInvalidation();
         }
@@ -399,7 +405,10 @@ public class MultiInstanceInvalidationTest {
     private void bindTestService() throws TimeoutException {
         final Context context = ApplicationProvider.getApplicationContext();
         mService = ISampleDatabaseService.Stub.asInterface(
-                serviceRule.bindService(new Intent(context, SampleDatabaseService.class)));
+                serviceRule.bindService(SampleDatabaseService.intentFor(
+                        context,
+                        mDatabaseName
+                )));
     }
 
     private CountDownLatch prepareTableObserver(SampleDatabase db) {

@@ -14,10 +14,8 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.1.0")
     implementation("androidx.collection:collection:1.1.0")
-    compileOnly(project(":fragment:fragment"))
+    compileOnly("androidx.fragment:fragment:1.2.5")
     compileOnly("androidx.appcompat:appcompat:1.0.1")
-    // necessary for IJ to resolve dependencies.
-    implementation(project(":lifecycle:lifecycle-runtime"))
 
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

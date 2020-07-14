@@ -81,9 +81,9 @@ class FocusMeteringControl {
     private volatile boolean mIsActive = false;
 
     //******************** Should only be accessed by executor (WorkThread) ****************//
-    private FocusMeteringAction mCurrentFocusMeteringAction;
     private boolean mIsInAfAutoMode = false;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @NonNull
     Integer mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
     private ScheduledFuture<?> mAutoCancelHandle;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -100,11 +100,11 @@ class FocusMeteringControl {
     private MeteringRectangle[] mAwbRects = new MeteringRectangle[]{};
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    MeteringRectangle[] mDefaultAfRects = new MeteringRectangle[]{};
+            MeteringRectangle[] mDefaultAfRects = new MeteringRectangle[]{};
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    MeteringRectangle[] mDefaultAeRects = new MeteringRectangle[]{};
+            MeteringRectangle[] mDefaultAeRects = new MeteringRectangle[]{};
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    MeteringRectangle[] mDefaultAwbRects = new MeteringRectangle[]{};
+            MeteringRectangle[] mDefaultAwbRects = new MeteringRectangle[]{};
 
     CallbackToFutureAdapter.Completer<FocusMeteringResult> mRunningActionCompleter = null;
     CallbackToFutureAdapter.Completer<Void> mRunningCancelCompleter = null;
@@ -185,6 +185,10 @@ class FocusMeteringControl {
             configBuilder.setCaptureRequestOption(
                     CaptureRequest.CONTROL_AWB_REGIONS, mAwbRects);
         }
+    }
+
+    private boolean isValid(@NonNull final MeteringPoint pt) {
+        return pt.getX() >= 0f && pt.getX() <= 1f && pt.getY() >= 0f && pt.getY() <= 1f;
     }
 
     @WorkerThread
@@ -280,8 +284,8 @@ class FocusMeteringControl {
                 mCameraControl.getMaxAeRegionCount());
         int supportedAwbCount = Math.min(action.getMeteringPointsAwb().size(),
                 mCameraControl.getMaxAwbRegionCount());
-        int totatlSupportedCount = supportedAfCount + supportedAeCount + supportedAwbCount;
-        if (totatlSupportedCount <= 0) {
+        int totalSupportedCount = supportedAfCount + supportedAeCount + supportedAwbCount;
+        if (totalSupportedCount <= 0) {
             completer.setException(
                     new IllegalArgumentException("None of the specified AF/AE/AWB MeteringPoints "
                             + "is supported on this camera."));
@@ -302,17 +306,6 @@ class FocusMeteringControl {
                     supportedAwbCount));
         }
 
-        failActionFuture("Cancelled by another startFocusAndMetering()");
-        failCancelFuture("Cancelled by another startFocusAndMetering()");
-
-        if (mCurrentFocusMeteringAction != null) {
-            cancelFocusAndMeteringWithoutAsyncResult();
-        }
-
-        disableAutoCancel();
-        mCurrentFocusMeteringAction = action;
-        mRunningActionCompleter = completer;
-
         Rect cropSensorRegion = mCameraControl.getCropSensorRegion();
         Rational cropRegionAspectRatio = new Rational(cropSensorRegion.width(),
                 cropSensorRegion.height());
@@ -326,28 +319,60 @@ class FocusMeteringControl {
         List<MeteringRectangle> meteringRectanglesListAWB = new ArrayList<>();
 
         for (MeteringPoint meteringPoint : meteringPointListAF) {
+            if (!isValid(meteringPoint)) {
+                continue;
+            }
             PointF adjustedPoint = getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio,
                     defaultAspectRatio);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
                     cropSensorRegion);
+            if (meteringRectangle.getWidth() == 0 || meteringRectangle.getHeight() == 0) {
+                continue;
+            }
             meteringRectanglesListAF.add(meteringRectangle);
         }
 
         for (MeteringPoint meteringPoint : meteringPointListAE) {
+            if (!isValid(meteringPoint)) {
+                continue;
+            }
             PointF adjustedPoint = getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio,
                     defaultAspectRatio);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
                     cropSensorRegion);
+            if (meteringRectangle.getWidth() == 0 || meteringRectangle.getHeight() == 0) {
+                continue;
+            }
             meteringRectanglesListAE.add(meteringRectangle);
         }
 
         for (MeteringPoint meteringPoint : meteringPointListAWB) {
+            if (!isValid(meteringPoint)) {
+                continue;
+            }
             PointF adjustedPoint = getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio,
                     defaultAspectRatio);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
                     cropSensorRegion);
+            if (meteringRectangle.getWidth() == 0 || meteringRectangle.getHeight() == 0) {
+                continue;
+            }
             meteringRectanglesListAWB.add(meteringRectangle);
         }
+
+        if (meteringRectanglesListAF.isEmpty()
+                && meteringRectanglesListAE.isEmpty()
+                && meteringRectanglesListAWB.isEmpty()) {
+            completer.setException(
+                    new IllegalArgumentException("None of the specified AF/AE/AWB MeteringPoints "
+                            + "are valid."));
+            return;
+        }
+
+        failActionFuture("Cancelled by another startFocusAndMetering()");
+        failCancelFuture("Cancelled by another startFocusAndMetering()");
+        disableAutoCancel();
+        mRunningActionCompleter = completer;
 
         executeMeteringAction(
                 meteringRectanglesListAF.toArray(new MeteringRectangle[0]),
@@ -600,7 +625,11 @@ class FocusMeteringControl {
                 result -> {
                     Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
                     if (shouldTriggerAF()) {
-                        if (mCurrentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
+                        if (!isAfModeSupported || afState == null) {
+                            // set isFocusSuccessful to true when camera does not support AF_AUTO.
+                            mIsFocusSuccessful = true;
+                            mIsAutoFocusCompleted = true;
+                        } else if (mCurrentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
                             if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED) {
                                 mIsFocusSuccessful = true;
                                 mIsAutoFocusCompleted = true;
@@ -609,10 +638,6 @@ class FocusMeteringControl {
                                 mIsFocusSuccessful = false;
                                 mIsAutoFocusCompleted = true;
                             }
-                        } else if (!isAfModeSupported) {
-                            // set isFocusSuccessful to true when camera does not support AF_AUTO.
-                            mIsFocusSuccessful = true;
-                            mIsAutoFocusCompleted = true;
                         }
                     }
 
@@ -639,7 +664,7 @@ class FocusMeteringControl {
                         }
                     }
 
-                    if (!mCurrentAfState.equals(afState)) {
+                    if (!mCurrentAfState.equals(afState) && afState != null) {
                         mCurrentAfState = afState;
                     }
                     return false; // continue checking
@@ -725,6 +750,5 @@ class FocusMeteringControl {
 
         mIsInAfAutoMode = false;
         mCameraControl.updateSessionConfig();
-        mCurrentFocusMeteringAction = null;
     }
 }

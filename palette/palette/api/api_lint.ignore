@@ -1,8 +1,6 @@
 // Baseline format: 1.0
 BuilderSetStyle: androidx.palette.graphics.Palette.Builder#generate():
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.palette.graphics.Palette.Builder.generate()
-BuilderSetStyle: androidx.palette.graphics.Palette.Builder#generate(androidx.palette.graphics.Palette.PaletteAsyncListener):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.palette.graphics.Palette.Builder.generate(androidx.palette.graphics.Palette.PaletteAsyncListener)
 BuilderSetStyle: androidx.palette.graphics.Palette.Builder#maximumColorCount(int):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.palette.graphics.Palette.Builder.maximumColorCount(int)
 BuilderSetStyle: androidx.palette.graphics.Palette.Builder#resizeBitmapArea(int):

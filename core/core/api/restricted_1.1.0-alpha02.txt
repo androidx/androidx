@@ -1223,7 +1223,7 @@ package androidx.core.graphics.drawable {
     method public static android.graphics.drawable.Drawable! wrap(android.graphics.drawable.Drawable);
   }
 
-  public class IconCompat extends androidx.versionedparcelable.CustomVersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, ignoreParcelables=true, isCustom=true, jetifyAs="android.support.v4.graphics.drawable.IconCompat") public class IconCompat extends androidx.versionedparcelable.CustomVersionedParcelable {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void addToShortcutIntent(android.content.Intent, android.graphics.drawable.Drawable?, android.content.Context);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void checkResource(android.content.Context!);
     method public static androidx.core.graphics.drawable.IconCompat? createFromBundle(android.os.Bundle);

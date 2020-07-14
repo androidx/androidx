@@ -17,7 +17,6 @@
 package com.example.android.leanback;
 
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -47,12 +46,12 @@ public abstract class PlaybackSeekAsyncDataProvider extends PlaybackSeekDataProv
     int mLastRequestedIndex = -1;
 
     protected boolean isCancelled(Object task) {
-        return ((AsyncTask) task).isCancelled();
+        return ((android.os.AsyncTask) task).isCancelled();
     }
 
     protected abstract Bitmap doInBackground(Object task, int index, long position);
 
-    class LoadBitmapTask extends AsyncTask<Object, Object, Bitmap> {
+    class LoadBitmapTask extends android.os.AsyncTask<Object, Object, Bitmap> {
 
         int mIndex;
         ResultCallback mResultCallback;
@@ -101,6 +100,7 @@ public abstract class PlaybackSeekAsyncDataProvider extends PlaybackSeekDataProv
     }
 
     @Override
+    @SuppressWarnings("deprecation") /* AsyncTask */
     public void getThumbnail(int index, ResultCallback callback) {
         Integer key = index;
         Bitmap bitmap = mCache.get(key);
@@ -118,7 +118,7 @@ public abstract class PlaybackSeekAsyncDataProvider extends PlaybackSeekDataProv
                     // no normal task or prefetch for the position, create a new task
                     task = new LoadBitmapTask(index, callback);
                     mRequests.put(index, task);
-                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    task.executeOnExecutor(android.os.AsyncTask.THREAD_POOL_EXECUTOR);
                 } else {
                     // update existing ResultCallback which might be normal task or prefetch
                     task.mResultCallback = callback;
@@ -133,6 +133,7 @@ public abstract class PlaybackSeekAsyncDataProvider extends PlaybackSeekDataProv
         }
     }
 
+    @SuppressWarnings("deprecation") /* AsyncTask */
     protected void prefetch(int hintIndex, boolean forward) {
         for (Iterator<Map.Entry<Integer, Bitmap>> it =
                 mPrefetchCache.snapshot().entrySet().iterator(); it.hasNext(); ) {
@@ -151,7 +152,7 @@ public abstract class PlaybackSeekAsyncDataProvider extends PlaybackSeekDataProv
                 if (task == null) {
                     task = new LoadBitmapTask(key, null);
                     mRequests.put(i, task);
-                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    task.executeOnExecutor(android.os.AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
         }

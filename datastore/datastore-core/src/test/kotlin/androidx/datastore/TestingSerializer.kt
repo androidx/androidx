@@ -21,14 +21,13 @@ import java.io.InputStream
 import java.io.OutputStream
 
 internal class TestingSerializer(
-    override val defaultValue: Byte = 0,
     @Volatile var failReadWithCorruptionException: Boolean = false,
     @Volatile var failingRead: Boolean = false,
     @Volatile var failingWrite: Boolean = false
-) : DataStore.Serializer<Byte> {
+) : Serializer<Byte> {
     override fun readFrom(input: InputStream): Byte {
         if (failReadWithCorruptionException) {
-            throw DataStore.Serializer.CorruptionException(
+            throw CorruptionException(
                 "CorruptionException",
                 IOException()
             )
@@ -40,7 +39,7 @@ internal class TestingSerializer(
 
         val read = input.read()
         if (read == -1) {
-            return defaultValue
+            return 0
         }
         return read.toByte()
     }

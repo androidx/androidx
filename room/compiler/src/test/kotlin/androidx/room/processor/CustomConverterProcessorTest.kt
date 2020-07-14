@@ -17,10 +17,10 @@
 package androidx.room.processor
 
 import androidx.room.TypeConverter
+import androidx.room.ext.requireTypeElement
 import androidx.room.ext.typeName
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_EMPTY_CLASS
-import androidx.room.processor.ProcessorErrors
-        .TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
+import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_BE_PUBLIC
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
 import androidx.room.testing.TestInvocation
@@ -207,7 +207,7 @@ class CustomConverterProcessorTest {
                         }.build().toString())
 
         simpleRun(baseConverter, extendingClass) { invocation ->
-            val element = invocation.processingEnv.elementUtils.getTypeElement(extendingQName)
+            val element = invocation.processingEnv.requireTypeElement(extendingQName)
             val converter = CustomConverterProcessor(invocation.context, element)
                     .process().firstOrNull()
             assertThat(converter?.fromTypeName, `is`(ParameterizedTypeName.get(
@@ -264,7 +264,7 @@ class CustomConverterProcessorTest {
     ): CompileTester {
         return simpleRun(*((jfo.toList() + CONTAINER).toTypedArray())) { invocation ->
             val processed = CustomConverterProcessor.findConverters(invocation.context,
-                    invocation.processingEnv.elementUtils.getTypeElement("foo.bar.Container"))
+                    invocation.processingEnv.requireTypeElement("foo.bar.Container"))
             handler(processed.converters.firstOrNull()?.custom, invocation)
         }
     }

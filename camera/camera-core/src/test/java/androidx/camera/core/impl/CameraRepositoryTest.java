@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.os.Build;
 
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.InitializationException;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
@@ -52,7 +53,7 @@ public final class CameraRepositoryTest {
     private CameraRepository mCameraRepository;
 
     @Before
-    public void setUp() {
+    public void setUp() throws InitializationException {
         mCameraRepository = new CameraRepository();
         FakeCameraFactory fakeCameraFactory = new FakeCameraFactory();
 
@@ -110,7 +111,8 @@ public final class CameraRepositoryTest {
     public void camerasAreReleasedByDeinit() throws ExecutionException, InterruptedException {
         List<CameraInternal> cameraInternals = new ArrayList<>();
         for (String cameraId : mCameraRepository.getCameraIds()) {
-            cameraInternals.add(mCameraRepository.getCamera(cameraId));
+            cameraInternals.add(
+                    mCameraRepository.getCamera(cameraId));
         }
 
         ListenableFuture<Void> deinitFuture = mCameraRepository.deinit();

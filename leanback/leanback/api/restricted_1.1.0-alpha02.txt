@@ -115,6 +115,7 @@ package androidx.leanback.app {
   }
 
   @Deprecated public class BrowseFragment extends androidx.leanback.app.BaseFragment {
+    ctor @Deprecated public BrowseFragment();
     method @Deprecated public static android.os.Bundle! createArgs(android.os.Bundle!, String!, int);
     method @Deprecated public void enableMainFragmentScaling(boolean);
     method @Deprecated public void enableRowScaling(boolean);
@@ -217,6 +218,7 @@ package androidx.leanback.app {
   }
 
   public class BrowseSupportFragment extends androidx.leanback.app.BaseSupportFragment {
+    ctor public BrowseSupportFragment();
     method public static android.os.Bundle! createArgs(android.os.Bundle!, String!, int);
     method public void enableMainFragmentScaling(boolean);
     method @Deprecated public void enableRowScaling(boolean);
@@ -316,6 +318,7 @@ package androidx.leanback.app {
   }
 
   @Deprecated public class DetailsFragment extends androidx.leanback.app.BaseFragment {
+    ctor @Deprecated public DetailsFragment();
     method @Deprecated public androidx.leanback.widget.ObjectAdapter! getAdapter();
     method @Deprecated public androidx.leanback.widget.BaseOnItemViewClickedListener! getOnItemViewClickedListener();
     method @Deprecated public androidx.leanback.widget.DetailsParallax! getParallax();
@@ -357,6 +360,7 @@ package androidx.leanback.app {
   }
 
   public class DetailsSupportFragment extends androidx.leanback.app.BaseSupportFragment {
+    ctor public DetailsSupportFragment();
     method public androidx.leanback.widget.ObjectAdapter! getAdapter();
     method public androidx.leanback.widget.BaseOnItemViewClickedListener! getOnItemViewClickedListener();
     method public androidx.leanback.widget.DetailsParallax! getParallax();
@@ -974,6 +978,7 @@ package androidx.leanback.app {
   }
 
   @Deprecated public class VerticalGridFragment extends androidx.leanback.app.BaseFragment {
+    ctor @Deprecated public VerticalGridFragment();
     method @Deprecated public androidx.leanback.widget.ObjectAdapter! getAdapter();
     method @Deprecated public androidx.leanback.widget.VerticalGridPresenter! getGridPresenter();
     method @Deprecated public androidx.leanback.widget.OnItemViewClickedListener! getOnItemViewClickedListener();
@@ -986,6 +991,7 @@ package androidx.leanback.app {
   }
 
   public class VerticalGridSupportFragment extends androidx.leanback.app.BaseSupportFragment {
+    ctor public VerticalGridSupportFragment();
     method public androidx.leanback.widget.ObjectAdapter! getAdapter();
     method public androidx.leanback.widget.VerticalGridPresenter! getGridPresenter();
     method public androidx.leanback.widget.OnItemViewClickedListener! getOnItemViewClickedListener();

@@ -29,6 +29,8 @@ package androidx.ui.autofill {
   }
 
   public enum AutofillType {
+    method public static androidx.ui.autofill.AutofillType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.autofill.AutofillType[] values();
     enum_constant public static final androidx.ui.autofill.AutofillType EmailAddress;
     enum_constant public static final androidx.ui.autofill.AutofillType Name;
   }
@@ -39,6 +41,8 @@ package androidx.ui.core {
 
   public enum Alignment {
     method public final androidx.ui.unit.IntPxPosition align(androidx.ui.unit.IntPxSize size, androidx.ui.core.LayoutDirection layoutDirection = androidx.ui.core.LayoutDirection.Ltr);
+    method public static androidx.ui.core.Alignment valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.Alignment[] values();
     enum_constant public static final androidx.ui.core.Alignment BottomCenter;
     enum_constant public static final androidx.ui.core.Alignment BottomEnd;
     enum_constant public static final androidx.ui.core.Alignment BottomStart;
@@ -57,19 +61,19 @@ package androidx.ui.core {
     method public static androidx.ui.unit.IntPx merge(androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx position1, androidx.ui.unit.IntPx position2);
   }
 
-  public final class Constraints {
+  @androidx.compose.Immutable public final class Constraints {
     ctor public Constraints(androidx.ui.unit.IntPx minWidth, androidx.ui.unit.IntPx maxWidth, androidx.ui.unit.IntPx minHeight, androidx.ui.unit.IntPx maxHeight);
     ctor public Constraints();
     method public androidx.ui.unit.IntPx component1();
     method public androidx.ui.unit.IntPx component2();
     method public androidx.ui.unit.IntPx component3();
     method public androidx.ui.unit.IntPx component4();
-    method public androidx.ui.core.Constraints copy(androidx.ui.unit.IntPx minWidth, androidx.ui.unit.IntPx maxWidth, androidx.ui.unit.IntPx minHeight, androidx.ui.unit.IntPx maxHeight);
+    method @androidx.compose.Immutable public androidx.ui.core.Constraints copy(androidx.ui.unit.IntPx minWidth, androidx.ui.unit.IntPx maxWidth, androidx.ui.unit.IntPx minHeight, androidx.ui.unit.IntPx maxHeight);
     method public androidx.ui.unit.IntPx getMaxHeight();
     method public androidx.ui.unit.IntPx getMaxWidth();
     method public androidx.ui.unit.IntPx getMinHeight();
     method public androidx.ui.unit.IntPx getMinWidth();
-    field public static final androidx.ui.core.Constraints.Companion! Companion;
+    field public static final androidx.ui.core.Constraints.Companion Companion;
   }
 
   public static final class Constraints.Companion {
@@ -108,6 +112,8 @@ package androidx.ui.core {
   }
 
   public enum Direction {
+    method public static androidx.ui.core.Direction valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.Direction[] values();
     enum_constant public static final androidx.ui.core.Direction DOWN;
     enum_constant public static final androidx.ui.core.Direction LEFT;
     enum_constant public static final androidx.ui.core.Direction RIGHT;
@@ -167,29 +173,37 @@ package androidx.ui.core {
   }
 
   public enum LayoutDirection {
+    method public static androidx.ui.core.LayoutDirection valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.LayoutDirection[] values();
     enum_constant public static final androidx.ui.core.LayoutDirection Ltr;
     enum_constant public static final androidx.ui.core.LayoutDirection Rtl;
   }
 
   public interface LayoutModifier extends androidx.ui.core.Modifier.Element {
-    method public default androidx.ui.unit.IntPx maxIntrinsicHeightOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width, androidx.ui.core.LayoutDirection layoutDirection);
-    method public default androidx.ui.unit.IntPx maxIntrinsicWidthOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height, androidx.ui.core.LayoutDirection layoutDirection);
-    method public default androidx.ui.unit.IntPx minIntrinsicHeightOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width, androidx.ui.core.LayoutDirection layoutDirection);
-    method public default androidx.ui.unit.IntPx minIntrinsicWidthOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height, androidx.ui.core.LayoutDirection layoutDirection);
-    method public default androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
-    method public default androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
-    method public default androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
-    method public default androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
-    method public default androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
+    method public default androidx.ui.unit.IntPx maxIntrinsicHeightOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
+    method public default androidx.ui.unit.IntPx maxIntrinsicWidthOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
+    method public default androidx.ui.unit.IntPx minIntrinsicHeightOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
+    method public default androidx.ui.unit.IntPx minIntrinsicWidthOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
+    method public default androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public default androidx.ui.core.Constraints modifyConstraints(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints);
+    method public default androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
+    method public default androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public default androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
   }
 
   public interface Measurable extends androidx.ui.core.IntrinsicMeasurable {
     method public androidx.ui.core.Placeable measure(androidx.ui.core.Constraints constraints);
   }
 
-  public abstract class MeasureScope implements androidx.ui.unit.Density {
+  public abstract class MeasureScope implements androidx.ui.core.ModifierScope {
     ctor public MeasureScope();
+    method public androidx.ui.core.LayoutDirection getAmbientLayoutDirection();
+    method public androidx.ui.core.LayoutDirection getLayoutDirection();
     method public final androidx.ui.core.MeasureScope.LayoutResult layout(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height, java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> alignmentLines = emptyMap(), kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable.PlacementScope,kotlin.Unit> placementBlock);
+    method public void setAmbientLayoutDirection(androidx.ui.core.LayoutDirection p);
+    method public void setLayoutDirection(androidx.ui.core.LayoutDirection p);
+    property public androidx.ui.core.LayoutDirection ambientLayoutDirection;
+    property public androidx.ui.core.LayoutDirection layoutDirection;
   }
 
   public static interface MeasureScope.LayoutResult {
@@ -205,7 +219,7 @@ package androidx.ui.core {
   public final class MeasureScopeKt {
   }
 
-  public interface Modifier {
+  @androidx.compose.Stable public interface Modifier {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public default operator androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
@@ -220,7 +234,14 @@ package androidx.ui.core {
   public static final class Modifier.None implements androidx.ui.core.Modifier {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
-    field public static final androidx.ui.core.Modifier.None! INSTANCE;
+    field public static final androidx.ui.core.Modifier.None INSTANCE;
+  }
+
+  public interface ModifierScope extends androidx.ui.unit.Density {
+    method public androidx.ui.core.LayoutDirection getAmbientLayoutDirection();
+    method public androidx.ui.core.LayoutDirection getLayoutDirection();
+    property public abstract androidx.ui.core.LayoutDirection ambientLayoutDirection;
+    property public abstract androidx.ui.core.LayoutDirection layoutDirection;
   }
 
   public interface ParentDataModifier extends androidx.ui.core.Modifier.Element {
@@ -237,7 +258,7 @@ package androidx.ui.core {
     property public final androidx.ui.unit.IntPx height;
     property public abstract androidx.ui.unit.IntPxSize size;
     property public final androidx.ui.unit.IntPx width;
-    field public static final androidx.ui.core.Placeable.PlacementScope! PlacementScope;
+    field public static final androidx.ui.core.Placeable.PlacementScope PlacementScope;
   }
 
   public static final class Placeable.PlacementScope {
@@ -248,6 +269,8 @@ package androidx.ui.core {
   }
 
   public enum PointerEventPass {
+    method public static androidx.ui.core.PointerEventPass valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.PointerEventPass[] values();
     enum_constant public static final androidx.ui.core.PointerEventPass InitialDown;
     enum_constant public static final androidx.ui.core.PointerEventPass PostDown;
     enum_constant public static final androidx.ui.core.PointerEventPass PostUp;
@@ -310,6 +333,8 @@ package androidx.ui.core {
 package androidx.ui.focus {
 
   public enum FocusDetailedState {
+    method public static androidx.ui.focus.FocusDetailedState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.focus.FocusDetailedState[] values();
     enum_constant public static final androidx.ui.focus.FocusDetailedState Active;
     enum_constant public static final androidx.ui.focus.FocusDetailedState ActiveParent;
     enum_constant public static final androidx.ui.focus.FocusDetailedState Captured;
@@ -318,6 +343,8 @@ package androidx.ui.focus {
   }
 
   public enum FocusState {
+    method public static androidx.ui.focus.FocusState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.focus.FocusState[] values();
     enum_constant public static final androidx.ui.focus.FocusState Focused;
     enum_constant public static final androidx.ui.focus.FocusState NotFocusable;
     enum_constant public static final androidx.ui.focus.FocusState NotFocused;
@@ -325,21 +352,6 @@ package androidx.ui.focus {
 
   public final class FocusStateKt {
     method public static androidx.ui.focus.FocusState focusState(androidx.ui.focus.FocusDetailedState);
-  }
-
-}
-
-package androidx.ui.platform {
-
-  public final class PlatformHandler {
-    ctor public PlatformHandler(androidx.ui.platform.UriHandler uriHandler);
-    method public androidx.ui.platform.UriHandler component1();
-    method public androidx.ui.platform.PlatformHandler copy(androidx.ui.platform.UriHandler uriHandler);
-    method public androidx.ui.platform.UriHandler getUriHandler();
-  }
-
-  public interface UriHandler {
-    method public void openLink(String uri);
   }
 
 }

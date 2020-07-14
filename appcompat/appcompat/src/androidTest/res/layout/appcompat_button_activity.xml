@@ -63,7 +63,7 @@
             app:backgroundTintMode="src_in"
             android:focusable="false" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/view_tinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

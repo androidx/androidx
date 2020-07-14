@@ -142,18 +142,17 @@ public class TypefaceCompatApi29Impl extends TypefaceCompatBaseImpl {
     public Typeface createFromResourcesFontFile(
             Context context, Resources resources, int id, String path, int style) {
         FontFamily family = null;
+        Font font = null;
         try {
-            family = new FontFamily.Builder(new Font.Builder(resources, id).build()).build();
+            font = new Font.Builder(resources, id).build();
+            family = new FontFamily.Builder(font).build();
         } catch (IOException e) {
             return null;
         }
-        final FontStyle defaultStyle = new FontStyle(
-                (style & Typeface.BOLD) != 0 ? FontStyle.FONT_WEIGHT_BOLD
-                        : FontStyle.FONT_WEIGHT_NORMAL,
-                (style & Typeface.ITALIC) != 0 ? FontStyle.FONT_SLANT_ITALIC
-                        : FontStyle.FONT_SLANT_UPRIGHT
-        );
-        return new Typeface.CustomFallbackBuilder(family).setStyle(defaultStyle).build();
+        return new Typeface.CustomFallbackBuilder(family)
+                // Set font's style to the display style for backward compatibility.
+                .setStyle(font.getStyle())
+                .build();
     }
 
 }

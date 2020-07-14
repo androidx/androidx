@@ -78,6 +78,7 @@
     <string name="appcompat_widgets_switches">AppCompat/Widgets/Switches</string>
     <string name="appcompat_widgets_text_input">AppCompat/Widgets/Text Input</string>
     <string name="appcompat_widgets_text_views">AppCompat/Widgets/Text Views</string>
+    <string name="appcompat_widgets_toggle_buttons">AppCompat/Widgets/Toggle Buttons</string>
 
     <string name="action_bar_search">Search</string>
     <string name="action_bar_add">Add</string>
@@ -282,4 +283,6 @@
     <string name="launch_activity">Launch Activity</string>
 
     <string name="custom_drawable">Drawable/Custom drawable</string>
+
+    <string name="action_mode_done_content_description">Cancel</string>
 </resources>

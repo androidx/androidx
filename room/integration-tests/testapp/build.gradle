@@ -39,6 +39,9 @@ android {
             }
         }
     }
+    buildFeatures {
+        aidl = true
+    }
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
         androidTest.assets.srcDirs += files("$projectDir/databases".toString())
@@ -74,10 +77,9 @@ android {
 dependencies {
     implementation(project(":room:room-common"))
     implementation(project(":room:room-runtime"))
-    implementation(project(":sqlite:sqlite"))
-    implementation(project(":sqlite:sqlite-framework"))
-    implementation(project(":arch:core-runtime"))
-    implementation(project(":lifecycle:lifecycle-livedata"))
+    implementation(projectOrArtifact(":arch:core-runtime"))
+    implementation(projectOrArtifact(":lifecycle:lifecycle-livedata"))
+    implementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
     implementation(MULTIDEX)
 
     // FINDBUGS dependency resolves an app/testapp version conflict.
@@ -93,16 +95,19 @@ dependencies {
 
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation(project(":room:room-rxjava2"))
+    androidTestImplementation(project(":room:room-rxjava3"))
     androidTestImplementation(project(":room:room-guava"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
-    androidTestImplementation(project(":paging:paging-runtime"))
-    androidTestImplementation(project(":lifecycle:lifecycle-runtime"))
-    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation(projectOrArtifact(":paging:paging-runtime"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata"))
 
     // FINDBUGS dependency resolves an app/testapp version conflict.
     androidTestImplementation(FINDBUGS)
     androidTestImplementation(GUAVA_ANDROID)
     androidTestImplementation(RX_JAVA)
+    androidTestImplementation(RX_JAVA3)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

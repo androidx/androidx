@@ -21,7 +21,6 @@ import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.PageEvent.Insert.Companion.Refresh
 
 /**
  * Callbacks for the presenter/adapter to listen to the state of pagination data.
@@ -37,7 +36,7 @@ interface PresenterCallback {
     fun onChanged(position: Int, count: Int)
     fun onInserted(position: Int, count: Int)
     fun onRemoved(position: Int, count: Int)
-    fun onStateUpdate(loadType: LoadType, loadState: LoadState)
+    fun onStateUpdate(loadType: LoadType, fromMediator: Boolean, loadState: LoadState)
 }
 
 /**
@@ -95,12 +94,10 @@ internal class PagePresenter<T : Any>(
         return pages[pageIndex].data[indexInPage]
     }
 
-    /**
-     * For a given index location, returns a ViewportHint reporting the nearest page and index.
-     */
-    fun loadAround(index: Int): ViewportHint {
-        checkIndex(index)
-
+    private inline fun <T> withIndex(
+        index: Int,
+        block: (pageIndex: Int, indexInPage: Int) -> T
+    ): T {
         var pageIndex = 0
         var indexInPage = index - placeholdersBefore
         while (indexInPage >= pages[pageIndex].data.size && pageIndex < pages.lastIndex) {
@@ -108,7 +105,33 @@ internal class PagePresenter<T : Any>(
             indexInPage -= pages[pageIndex].data.size
             pageIndex++
         }
-        return pages[pageIndex].getLoadHint(indexInPage)
+
+        return block(pageIndex, indexInPage)
+    }
+
+    /**
+     * @return For a given index location, returns a [ViewportHint] reporting the nearest page and
+     * index.
+     */
+    fun indexToHint(index: Int): ViewportHint {
+        checkIndex(index)
+
+        return withIndex(index) { pageIndex, indexInPage ->
+            pages[pageIndex].getLoadHint(indexInPage)
+        }
+    }
+
+    /**
+     * @return For a given index location, returns a [ViewportHint] reporting the nearest page and
+     * index if it is a placeholder, `null` otherwise.
+     */
+    fun placeholderIndexToHintOrNull(
+        index: Int
+    ): ViewportHint? = withIndex(index) { pageIndex, indexInPage ->
+        when (indexInPage) {
+            in pages[pageIndex].data.indices -> null
+            else -> pages[pageIndex].getLoadHint(indexInPage)
+        }
     }
 
     override val size: Int
@@ -124,7 +147,11 @@ internal class PagePresenter<T : Any>(
             is PageEvent.Insert -> insertPage(pageEvent, callback)
             is PageEvent.Drop -> dropPages(pageEvent, callback)
             is PageEvent.LoadStateUpdate -> {
-                callback.onStateUpdate(pageEvent.loadType, pageEvent.loadState)
+                callback.onStateUpdate(
+                    loadType = pageEvent.loadType,
+                    fromMediator = pageEvent.fromMediator,
+                    loadState = pageEvent.loadState
+                )
             }
         }
     }
@@ -200,7 +227,9 @@ internal class PagePresenter<T : Any>(
                 }
             }
         }
-        insert.loadStates.entries.forEach { callback.onStateUpdate(it.key, it.value) }
+        insert.combinedLoadStates.forEach { type, fromMediator, state ->
+            callback.onStateUpdate(type, fromMediator, state)
+        }
     }
 
     private fun dropPages(drop: PageEvent.Drop<T>, callback: PresenterCallback) {
@@ -233,7 +262,11 @@ internal class PagePresenter<T : Any>(
             }
 
             // Dropping from prepend direction implies NotLoading(endOfPaginationReached = false).
-            callback.onStateUpdate(PREPEND, NotLoading.Idle)
+            callback.onStateUpdate(
+                loadType = PREPEND,
+                fromMediator = false,
+                loadState = NotLoading.Incomplete
+            )
         } else {
             val removeCount = pages.takeLast(drop.count).fullCount()
 
@@ -261,23 +294,16 @@ internal class PagePresenter<T : Any>(
             }
 
             // Dropping from append direction implies NotLoading(endOfPaginationReached = false).
-            callback.onStateUpdate(APPEND, NotLoading.Idle)
+            callback.onStateUpdate(
+                loadType = APPEND,
+                fromMediator = false,
+                loadState = NotLoading.Incomplete
+            )
         }
     }
 
     internal companion object {
-        private val INITIAL = PagePresenter<Any>(
-            Refresh(
-                pages = listOf(),
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                loadStates = mapOf(
-                    REFRESH to NotLoading.Idle,
-                    PREPEND to NotLoading.Done,
-                    APPEND to NotLoading.Done
-                )
-            )
-        )
+        private val INITIAL = PagePresenter<Any>(PageEvent.Insert.EMPTY_REFRESH_LOCAL)
 
         @Suppress("UNCHECKED_CAST", "SyntheticAccessor")
         internal fun <T : Any> initial(): PagePresenter<T> = INITIAL as PagePresenter<T>

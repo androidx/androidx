@@ -20,6 +20,8 @@ import android.app.Application
 import android.database.sqlite.SQLiteDatabase
 import androidx.inspection.InspectorEnvironment
 import androidx.inspection.testing.InspectorTester
+import androidx.inspection.testing.DefaultTestInspectorEnvironment
+import androidx.inspection.testing.TestInspectorExecutors
 import androidx.sqlite.inspection.SqliteInspectorFactory
 import androidx.sqlite.inspection.SqliteInspectorProtocol
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command
@@ -28,6 +30,8 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.Event
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Response
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.runBlocking
 import org.junit.rules.ExternalResource
 
@@ -38,9 +42,10 @@ class SqliteInspectorTestEnvironment(
 ) : ExternalResource() {
     private lateinit var inspectorTester: InspectorTester
     private lateinit var environment: FakeInspectorEnvironment
+    private val job = Job()
 
     override fun before() {
-        environment = FakeInspectorEnvironment()
+        environment = FakeInspectorEnvironment(job)
         inspectorTester = runBlocking {
             InspectorTester(
                 inspectorId = SQLITE_INSPECTOR_ID,
@@ -52,6 +57,9 @@ class SqliteInspectorTestEnvironment(
 
     override fun after() {
         inspectorTester.dispose()
+        runBlocking {
+            job.cancelAndJoin()
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -123,7 +131,9 @@ suspend fun SqliteInspectorTestEnvironment.inspectDatabase(
  * - [registerEntryHook] and [registerExitHook] record the calls which can later be
  * retrieved in [consumeRegisteredHooks].
  */
-private class FakeInspectorEnvironment : InspectorEnvironment {
+private class FakeInspectorEnvironment(
+    job: Job
+) : DefaultTestInspectorEnvironment(TestInspectorExecutors(job)) {
     private val instancesToFind = mutableListOf<Any>()
     private val registeredHooks = mutableListOf<Hook>()
 

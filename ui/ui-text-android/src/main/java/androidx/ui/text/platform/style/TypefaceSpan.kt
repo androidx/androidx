@@ -19,7 +19,7 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
-import androidx.annotation.RestrictTo
+import androidx.ui.text.platform.InternalPlatformTextApi
 
 /**
  * Span that displays text in the given Typeface. In Android Framework, TypefaceSpan that accepts
@@ -31,7 +31,7 @@ import androidx.annotation.RestrictTo
  *
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalPlatformTextApi
 class TypefaceSpan(val typeface: Typeface) : MetricAffectingSpan() {
     override fun updateDrawState(ds: TextPaint) {
         updateTypeface(ds)

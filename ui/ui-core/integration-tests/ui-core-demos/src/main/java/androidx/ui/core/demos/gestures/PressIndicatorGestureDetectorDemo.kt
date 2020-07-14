@@ -23,21 +23,23 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.compositeOver
+import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 
 /**
- * Simple PressIndicatorGestureDetector demo.
+ * Simple [pressIndicatorGestureFilter] demo.
  */
 @Composable
-fun PressIndicatorGestureDetectorDemo() {
+fun PressIndicatorGestureFilterDemo() {
     val pressed = state { false }
 
-    val onStart: (PxPosition) -> Unit = {
+    val onStart: (Offset) -> Unit = {
         pressed.value = true
     }
 
@@ -52,12 +54,15 @@ fun PressIndicatorGestureDetectorDemo() {
             Grey
         }
 
-    Box(
-        Modifier.fillMaxSize()
-            .wrapContentSize(Alignment.Center)
-            .pressIndicatorGestureFilter(onStart, onStop, onStop)
-            .preferredSize(192.dp),
-        backgroundColor = color,
-        border = Border(2.dp, BorderColor)
-    )
+    Column {
+        Text("The box shows press indication when you press it.")
+        Box(
+            Modifier.fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+                .preferredSize(192.dp)
+                .pressIndicatorGestureFilter(onStart, onStop, onStop),
+            backgroundColor = color,
+            border = Border(2.dp, BorderColor)
+        )
+    }
 }

@@ -20,7 +20,7 @@ class R {
     class id {
         companion object {
             @JvmField
-            val wrapped_composition_tag = 0
+            val wrapped_composition_tag = 101
             @JvmField
             val accessibility_custom_action_0 = 0
             @JvmField
@@ -85,6 +85,8 @@ class R {
             val accessibility_custom_action_30 = 30
             @JvmField
             val accessibility_custom_action_31 = 31
+            @JvmField
+            var inspection_slot_table_set = 0
         }
     }
 }

@@ -34,10 +34,11 @@ import androidx.ui.material.DropdownMenuItem
 import androidx.ui.material.IconButton
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.MoreVert
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.Position
 import androidx.ui.unit.dp
+import kotlin.math.roundToInt
 
 @Composable
 fun MenuDemo() {
@@ -48,9 +49,12 @@ fun MenuDemo() {
                     Modifier.fillMaxSize().wrapContentSize(
                         object : Alignment {
                             override fun align(
-                                size: IntPxSize,
+                                size: IntSize,
                                 layoutDirection: LayoutDirection
-                            ) = IntPxPosition(size.width * i / 10f, size.height * j / 10f)
+                            ) = IntOffset(
+                                (size.width * i / 10f).roundToInt(),
+                                (size.height * j / 10f).roundToInt()
+                            )
                         }
                     )
                 )

@@ -60,12 +60,24 @@ final class DatabaseExtensions {
             database.acquireReference();
             return true; // success
         } catch (IllegalStateException e) {
-            String message = e.getMessage();
-            if (message != null
-                    && message.contains("attempt to re-open an already-closed object")) {
-                return false; // too late to secure a reference
+            if (isAttemptAtUsingClosedDatabase(e)) {
+                return false;
             }
-            throw e; // unexpected exception
+            throw e;
         }
+    }
+
+    /**
+     * Note that this is best-effort as relies on Exception message parsing, which could break in
+     * the future.
+     * Use in the context where false negatives (more likely) and false positives (less likely
+     * due to the specificity of the message) are tolerable, e.g. to assign error codes where if
+     * it fails we will just send an 'unknown' error.
+     */
+    static boolean isAttemptAtUsingClosedDatabase(IllegalStateException exception) {
+        String message = exception.getMessage();
+        return message != null && (message.contains("attempt to re-open an already-closed object")
+                || message.contains(
+                "Cannot perform this operation because the connection pool has been closed"));
     }
 }

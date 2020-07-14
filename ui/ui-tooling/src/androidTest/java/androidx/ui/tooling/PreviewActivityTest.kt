@@ -18,7 +18,6 @@ package androidx.ui.tooling
 
 import android.content.Intent
 import android.view.ViewGroup
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.tooling.preview.PreviewActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -26,8 +25,9 @@ import org.junit.Rule
 import org.junit.Test
 
 class PreviewActivityTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule(PreviewActivity::class.java)
+    val activityTestRule = androidx.test.rule.ActivityTestRule(PreviewActivity::class.java)
 
     private lateinit var intent: Intent
 

@@ -35,25 +35,24 @@ dependencies {
 
     api "androidx.annotation:annotation:1.1.0"
 
-    api project(":compose:compose-runtime")
-    implementation project(":ui:ui-util")
-    api project(":ui:ui-core")
-    api project(":ui:ui-foundation")
-    api project(":ui:ui-material-icons-core")
-    api project(":ui:ui-text-core")
-    api project(":ui:ui-text")
-    api project(":ui:ui-animation-core")
+    api project(":compose:runtime:runtime")
+    implementation project(":compose:ui:ui-util")
+    api project(":compose:ui:ui")
+    api project(":compose:foundation:foundation")
+    api project(":compose:material:material-icons-core")
+    api project(":compose:ui:ui-text")
+    api project(":compose:foundation:foundation-text")
+    api project(":compose:animation:animation-core")
 
-    implementation project(":ui:ui-layout")
-    implementation project(":ui:ui-animation")
-    implementation project(":ui:ui-vector")
+    implementation project(":compose:foundation:foundation-layout")
+    implementation project(":compose:animation:animation")
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
     testImplementation(TRUTH)
 
-    androidTestImplementation project(":ui:ui-material:samples")
+    androidTestImplementation project(":compose:material:material:samples")
     androidTestImplementation project(":ui:ui-test")
     androidTestImplementation project(":test-screenshot")
 
@@ -72,7 +71,7 @@ androidx {
     name = "Androidx Material"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
+    mavenGroup = LibraryGroups.Compose.MATERIAL
     inceptionYear = "2018"
     description = "AndroidX Material"
 }
@@ -90,4 +89,12 @@ android {
     }
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/../../../golden/ui/ui-material"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xallow-jvm-ir-dependencies"
+        ]
+    }
 }

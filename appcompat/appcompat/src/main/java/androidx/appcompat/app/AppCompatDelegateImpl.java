@@ -513,9 +513,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                     ab.setDefaultDisplayHomeAsUpEnabled(true);
                 }
             }
-        }
 
-        addActiveDelegate(this);
+            // Only activity-hosted delegates should apply night mode changes.
+            addActiveDelegate(this);
+        }
 
         mCreated = true;
     }
@@ -719,7 +720,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @Override
     public void onDestroy() {
-        removeActiveDelegate(this);
+        if (mHost instanceof Activity) {
+            removeActivityDelegate(this);
+        }
 
         if (mInvalidatePanelMenuPosted) {
             mWindow.getDecorView().removeCallbacks(mInvalidatePanelMenuRunnable);

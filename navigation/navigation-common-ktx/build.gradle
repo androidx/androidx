@@ -27,12 +27,6 @@ plugins {
 }
 
 android {
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // Breaks Kotlin compiler.
-        }
-    }
-
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }

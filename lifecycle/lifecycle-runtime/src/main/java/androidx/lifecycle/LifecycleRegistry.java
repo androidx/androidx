@@ -16,21 +16,16 @@
 
 package androidx.lifecycle;
 
-import static androidx.lifecycle.Lifecycle.Event.ON_CREATE;
-import static androidx.lifecycle.Lifecycle.Event.ON_DESTROY;
-import static androidx.lifecycle.Lifecycle.Event.ON_PAUSE;
-import static androidx.lifecycle.Lifecycle.Event.ON_RESUME;
-import static androidx.lifecycle.Lifecycle.Event.ON_START;
-import static androidx.lifecycle.Lifecycle.Event.ON_STOP;
-import static androidx.lifecycle.Lifecycle.State.CREATED;
 import static androidx.lifecycle.Lifecycle.State.DESTROYED;
 import static androidx.lifecycle.Lifecycle.State.INITIALIZED;
-import static androidx.lifecycle.Lifecycle.State.RESUMED;
-import static androidx.lifecycle.Lifecycle.State.STARTED;
+
+import android.annotation.SuppressLint;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.internal.FastSafeIterableMap;
 
 import java.lang.ref.WeakReference;
@@ -82,6 +77,7 @@ public class LifecycleRegistry extends Lifecycle {
     // this onStart method. our invariant with mObserverMap doesn't help, because parent observer
     // is no longer in the map.
     private ArrayList<State> mParentStates = new ArrayList<>();
+    private final boolean mEnforceMainThread;
 
     /**
      * Creates a new LifecycleRegistry for the given provider.
@@ -92,8 +88,13 @@ public class LifecycleRegistry extends Lifecycle {
      * @param provider The owner LifecycleOwner
      */
     public LifecycleRegistry(@NonNull LifecycleOwner provider) {
+        this(provider, true);
+    }
+
+    private LifecycleRegistry(@NonNull LifecycleOwner provider, boolean enforceMainThread) {
         mLifecycleOwner = new WeakReference<>(provider);
         mState = INITIALIZED;
+        mEnforceMainThread = enforceMainThread;
     }
 
     /**
@@ -105,6 +106,7 @@ public class LifecycleRegistry extends Lifecycle {
     @Deprecated
     @MainThread
     public void markState(@NonNull State state) {
+        enforceMainThreadIfNeeded("markState");
         setCurrentState(state);
     }
 
@@ -115,6 +117,7 @@ public class LifecycleRegistry extends Lifecycle {
      */
     @MainThread
     public void setCurrentState(@NonNull State state) {
+        enforceMainThreadIfNeeded("setCurrentState");
         moveToState(state);
     }
 
@@ -127,8 +130,8 @@ public class LifecycleRegistry extends Lifecycle {
      * @param event The event that was received
      */
     public void handleLifecycleEvent(@NonNull Lifecycle.Event event) {
-        State next = getStateAfter(event);
-        moveToState(next);
+        enforceMainThreadIfNeeded("handleLifecycleEvent");
+        moveToState(event.getTargetState());
     }
 
     private void moveToState(State next) {
@@ -166,6 +169,7 @@ public class LifecycleRegistry extends Lifecycle {
 
     @Override
     public void addObserver(@NonNull LifecycleObserver observer) {
+        enforceMainThreadIfNeeded("addObserver");
         State initialState = mState == DESTROYED ? DESTROYED : INITIALIZED;
         ObserverWithState statefulObserver = new ObserverWithState(observer, initialState);
         ObserverWithState previous = mObserverMap.putIfAbsent(observer, statefulObserver);
@@ -185,7 +189,11 @@ public class LifecycleRegistry extends Lifecycle {
         while ((statefulObserver.mState.compareTo(targetState) < 0
                 && mObserverMap.contains(observer))) {
             pushParentState(statefulObserver.mState);
-            statefulObserver.dispatchEvent(lifecycleOwner, upEvent(statefulObserver.mState));
+            final Event event = Event.upFrom(statefulObserver.mState);
+            if (event == null) {
+                throw new IllegalStateException("no event up from " + statefulObserver.mState);
+            }
+            statefulObserver.dispatchEvent(lifecycleOwner, event);
             popParentState();
             // mState / subling may have been changed recalculate
             targetState = calculateTargetState(observer);
@@ -208,6 +216,7 @@ public class LifecycleRegistry extends Lifecycle {
 
     @Override
     public void removeObserver(@NonNull LifecycleObserver observer) {
+        enforceMainThreadIfNeeded("removeObserver");
         // we consciously decided not to send destruction events here in opposition to addObserver.
         // Our reasons for that:
         // 1. These events haven't yet happened at all. In contrast to events in addObservers, that
@@ -230,6 +239,7 @@ public class LifecycleRegistry extends Lifecycle {
      */
     @SuppressWarnings("WeakerAccess")
     public int getObserverCount() {
+        enforceMainThreadIfNeeded("getObserverCount");
         return mObserverMap.size();
     }
 
@@ -237,55 +247,6 @@ public class LifecycleRegistry extends Lifecycle {
     @Override
     public State getCurrentState() {
         return mState;
-    }
-
-    static State getStateAfter(Event event) {
-        switch (event) {
-            case ON_CREATE:
-            case ON_STOP:
-                return CREATED;
-            case ON_START:
-            case ON_PAUSE:
-                return STARTED;
-            case ON_RESUME:
-                return RESUMED;
-            case ON_DESTROY:
-                return DESTROYED;
-            case ON_ANY:
-                break;
-        }
-        throw new IllegalArgumentException("Unexpected event value " + event);
-    }
-
-    private static Event downEvent(State state) {
-        switch (state) {
-            case INITIALIZED:
-                throw new IllegalArgumentException();
-            case CREATED:
-                return ON_DESTROY;
-            case STARTED:
-                return ON_STOP;
-            case RESUMED:
-                return ON_PAUSE;
-            case DESTROYED:
-                throw new IllegalArgumentException();
-        }
-        throw new IllegalArgumentException("Unexpected state value " + state);
-    }
-
-    private static Event upEvent(State state) {
-        switch (state) {
-            case INITIALIZED:
-            case DESTROYED:
-                return ON_CREATE;
-            case CREATED:
-                return ON_START;
-            case STARTED:
-                return ON_RESUME;
-            case RESUMED:
-                throw new IllegalArgumentException();
-        }
-        throw new IllegalArgumentException("Unexpected state value " + state);
     }
 
     private void forwardPass(LifecycleOwner lifecycleOwner) {
@@ -297,7 +258,11 @@ public class LifecycleRegistry extends Lifecycle {
             while ((observer.mState.compareTo(mState) < 0 && !mNewEventOccurred
                     && mObserverMap.contains(entry.getKey()))) {
                 pushParentState(observer.mState);
-                observer.dispatchEvent(lifecycleOwner, upEvent(observer.mState));
+                final Event event = Event.upFrom(observer.mState);
+                if (event == null) {
+                    throw new IllegalStateException("no event up from " + observer.mState);
+                }
+                observer.dispatchEvent(lifecycleOwner, event);
                 popParentState();
             }
         }
@@ -311,8 +276,11 @@ public class LifecycleRegistry extends Lifecycle {
             ObserverWithState observer = entry.getValue();
             while ((observer.mState.compareTo(mState) > 0 && !mNewEventOccurred
                     && mObserverMap.contains(entry.getKey()))) {
-                Event event = downEvent(observer.mState);
-                pushParentState(getStateAfter(event));
+                Event event = Event.downFrom(observer.mState);
+                if (event == null) {
+                    throw new IllegalStateException("no event down from " + observer.mState);
+                }
+                pushParentState(event.getTargetState());
                 observer.dispatchEvent(lifecycleOwner, event);
                 popParentState();
             }
@@ -342,6 +310,31 @@ public class LifecycleRegistry extends Lifecycle {
         mNewEventOccurred = false;
     }
 
+    @SuppressLint("RestrictedApi")
+    private void enforceMainThreadIfNeeded(String methodName) {
+        if (mEnforceMainThread) {
+            if (!ArchTaskExecutor.getInstance().isMainThread()) {
+                throw new IllegalStateException("Method " + methodName + " must be called on the "
+                        + "main thread");
+            }
+        }
+    }
+
+    /**
+     * Creates a new LifecycleRegistry for the given provider, that doesn't check
+     * that its methods are called on the threads other than main.
+     * <p>
+     * LifecycleRegistry is not synchronized: if multiple threads access this {@code
+     * LifecycleRegistry}, it must be synchronized externally.
+     * <p>
+     * Another possible use-case for this method is JVM testing, when main thread is not present.
+     */
+    @VisibleForTesting
+    @NonNull
+    public static LifecycleRegistry createUnsafe(@NonNull LifecycleOwner owner) {
+        return new LifecycleRegistry(owner, false);
+    }
+
     static State min(@NonNull State state1, @Nullable State state2) {
         return state2 != null && state2.compareTo(state1) < 0 ? state2 : state1;
     }
@@ -356,7 +349,7 @@ public class LifecycleRegistry extends Lifecycle {
         }
 
         void dispatchEvent(LifecycleOwner owner, Event event) {
-            State newState = getStateAfter(event);
+            State newState = event.getTargetState();
             mState = min(mState, newState);
             mLifecycleObserver.onStateChanged(owner, event);
             mState = newState;

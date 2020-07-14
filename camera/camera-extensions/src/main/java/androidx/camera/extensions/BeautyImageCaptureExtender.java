@@ -36,7 +36,8 @@ public class BeautyImageCaptureExtender extends ImageCaptureExtender {
      * @param builder Builder that will be used to create the configurations for the
      * {@link androidx.camera.core.ImageCapture}.
      */
-    public static BeautyImageCaptureExtender create(ImageCapture.Builder builder) {
+    @NonNull
+    public static BeautyImageCaptureExtender create(@NonNull ImageCapture.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorBeautyImageCaptureExtender(builder);

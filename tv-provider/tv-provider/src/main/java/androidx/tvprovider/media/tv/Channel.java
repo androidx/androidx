@@ -23,6 +23,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels.ServiceType;
@@ -333,6 +335,14 @@ public final class Channel {
     }
 
     /**
+     * @return The value of {@link Channels#COLUMN_GLOBAL_CONTENT_ID} for the channel.
+     */
+    @Nullable
+    public String getGlobalContentId() {
+        return mValues.getAsString(Channels.COLUMN_GLOBAL_CONTENT_ID);
+    }
+
+    /**
      * @return The value of {@link Channels#COLUMN_LOCKED} for the channel.
      */
     public boolean isLocked() {
@@ -391,6 +401,9 @@ public final class Channel {
             values.remove(Channels.COLUMN_TRANSIENT);
             values.remove(Channels.COLUMN_CONFIGURATION_DISPLAY_ORDER);
             values.remove(Channels.COLUMN_SYSTEM_CHANNEL_KEY);
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            values.remove(Channels.COLUMN_GLOBAL_CONTENT_ID);
         }
 
         if (!includeProtectedFields) {
@@ -539,6 +552,12 @@ public final class Channel {
                 builder.setSystemChannelKey(cursor.getString(index));
             }
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if ((index = cursor.getColumnIndex(Channels.COLUMN_GLOBAL_CONTENT_ID)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setGlobalContentId(cursor.getString(index));
+            }
+        }
         return builder.build();
     }
 
@@ -580,6 +599,16 @@ public final class Channel {
                 Channels.COLUMN_CONFIGURATION_DISPLAY_ORDER,
                 Channels.COLUMN_SYSTEM_CHANNEL_KEY
         };
+        String[] rReleaseColumns = new String[] {
+                Channels.COLUMN_GLOBAL_CONTENT_ID,
+        };
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return CollectionUtils.concatAll(
+                    baseColumns,
+                    marshmallowColumns,
+                    oReleaseColumns,
+                    rReleaseColumns);
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return CollectionUtils.concatAll(baseColumns, marshmallowColumns, oReleaseColumns);
         }
@@ -979,6 +1008,18 @@ public final class Channel {
          */
         public Builder setSystemChannelKey(String value) {
             mValues.put(Channels.COLUMN_SYSTEM_CHANNEL_KEY, value);
+            return this;
+        }
+
+        /**
+         * Sets the global content ID for this channel.
+         *
+         * @param value The value of {@link Channels#COLUMN_GLOBAL_CONTENT_ID} for the channel.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        @NonNull
+        public Builder setGlobalContentId(@NonNull String value) {
+            mValues.put(Channels.COLUMN_GLOBAL_CONTENT_ID, value);
             return this;
         }
 

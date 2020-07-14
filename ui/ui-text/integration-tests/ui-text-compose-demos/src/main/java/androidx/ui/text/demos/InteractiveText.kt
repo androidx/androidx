@@ -19,8 +19,8 @@ package androidx.ui.text.demos
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.foundation.ClickableText
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.text.AnnotatedString
 
 @Composable
@@ -31,7 +31,7 @@ fun InteractiveTextDemo() {
 @Composable
 fun TextOnClick() {
     val clickedOffset = state { -1 }
-    VerticalScroller {
+    ScrollableColumn {
         Text("Clicked Offset: ${clickedOffset.value}")
         ClickableText(
             text = AnnotatedString("Click Me")

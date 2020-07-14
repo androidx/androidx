@@ -16,6 +16,7 @@ attr actionMenuTextAppearance
 attr actionMenuTextColor
 attr actionModeBackground
 attr actionModeCloseButtonStyle
+attr actionModeCloseContentDescription
 attr actionModeCloseDrawable
 attr actionModeCopyDrawable
 attr actionModeCutDrawable
@@ -25,6 +26,7 @@ attr actionModeSelectAllDrawable
 attr actionModeShareDrawable
 attr actionModeSplitBackground
 attr actionModeStyle
+attr actionModeTheme
 attr actionModeWebSearchDrawable
 attr actionOverflowButtonStyle
 attr actionOverflowMenuStyle

@@ -53,11 +53,11 @@ fun Icon(
 }
 
 /**
- * Icons below are copied from [Icons.Filled] in ui-material-icons-extended to avoid recompiling the
+ * Icons below are copied from [Icons.Filled] in material-icons-extended to avoid recompiling the
  * module in demos. In the future when we release a stable artifact we could directly depend on
  * that, instead of a project dependency which causes recompilation.
  *
- * If the generated icons change, just build ui-material-icons-extended and copy the generated
+ * If the generated icons change, just build material-icons-extended and copy the generated
  * file, which should appear in Studio sources by searching for the name of that icon.
  */
 

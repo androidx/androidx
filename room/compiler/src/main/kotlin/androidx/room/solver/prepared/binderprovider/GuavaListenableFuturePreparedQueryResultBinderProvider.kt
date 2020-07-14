@@ -21,25 +21,26 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.T
+import androidx.room.ext.findTypeElement
 import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
+import erasure
 import javax.lang.model.type.DeclaredType
 
 class GuavaListenableFuturePreparedQueryResultBinderProvider(val context: Context) :
     PreparedQueryResultBinderProvider {
 
     private val hasGuavaRoom by lazy {
-        context.processingEnv.elementUtils
-            .getTypeElement(RoomGuavaTypeNames.GUAVA_ROOM.toString()) != null
+        context.processingEnv.findTypeElement(RoomGuavaTypeNames.GUAVA_ROOM) != null
     }
 
     override fun matches(declared: DeclaredType): Boolean =
         declared.typeArguments.size == 1 &&
-                context.processingEnv.typeUtils.erasure(declared).typeName() ==
+                declared.erasure(context.processingEnv.typeUtils).typeName() ==
                 GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 
     override fun provide(declared: DeclaredType, query: ParsedQuery): PreparedQueryResultBinder {

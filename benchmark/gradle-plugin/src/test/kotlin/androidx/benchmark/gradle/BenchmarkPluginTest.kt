@@ -28,7 +28,6 @@ import java.io.File
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import kotlin.test.assertEquals
 
 private val PLUGINS_HEADER = """
     plugins {
@@ -363,12 +362,14 @@ class BenchmarkPluginTest {
 
             tasks.register("printReleaseSigningConfig") {
                 def extension = project.extensions.getByType(TestedExtension)
-                println extension.buildTypes.getByName("release").signingConfig.name
+                def signingConfigName = extension.buildTypes.getByName("release").signingConfig.name
+                println "BenchmarkPluginTestKt_applyPluginSigningConfig_${"$"}signingConfigName"
             }
         """.trimIndent()
         )
 
         val releaseTask = gradleRunner.withArguments("printReleaseSigningConfig").build()
-        assertEquals("debug", releaseTask.output.lines().first())
+        assertTrue(releaseTask.output.lines()
+            .contains("BenchmarkPluginTestKt_applyPluginSigningConfig_debug"))
     }
 }

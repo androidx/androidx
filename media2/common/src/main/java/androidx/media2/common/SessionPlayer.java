@@ -43,6 +43,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.Closeable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -155,7 +156,7 @@ import java.util.concurrent.Executor;
 // Players can extend this directly (e.g. MediaPlayer) or create wrapper and control underlying
 // player.
 // Preferably it can be interface, but API guideline requires to use abstract class.
-public abstract class SessionPlayer implements AutoCloseable {
+public abstract class SessionPlayer implements Closeable {
     private static final String TAG = "SessionPlayer";
 
     /**
@@ -1008,7 +1009,7 @@ public abstract class SessionPlayer implements AutoCloseable {
      */
     @CallSuper
     @Override
-    public void close() throws Exception {
+    public void close() {
         synchronized (mLock) {
             mCallbacks.clear();
         }
@@ -1037,6 +1038,11 @@ public abstract class SessionPlayer implements AutoCloseable {
         public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4;
         public static final int MEDIA_TRACK_TYPE_METADATA = 5;
 
+        private static final String KEY_IS_FORMAT_NULL =
+                "androidx.media2.common.SessionPlayer.TrackInfo.KEY_IS_FORMAT_NULL";
+        private static final String KEY_IS_SELECTABLE =
+                "androidx.media2.common.SessionPlayer.TrackInfo.KEY_IS_SELECTABLE";
+
         /**
          * @hide
          */
@@ -1053,19 +1059,25 @@ public abstract class SessionPlayer implements AutoCloseable {
 
         @ParcelField(1)
         int mId;
-        @ParcelField(2)
-        @Deprecated
-        MediaItem mUpCastMediaItem;
+
+        // Removed @ParcelField(2)
+
         @ParcelField(3)
         int mTrackType;
 
-        // Parceled via mParcelledFormat.
+        // Parceled via mParcelableExtras.
         @NonParcelField
         @Nullable
         MediaFormat mFormat;
-        // For parceling mFormat. Should be only used by onPreParceling() and onPostParceling().
+        // Parceled via mParcelableExtras.
+        @NonParcelField
+        boolean mIsSelectable;
+        // For extra information containing MediaFormat and isSelectable data. Should only be used
+        // by onPreParceling() and onPostParceling().
         @ParcelField(4)
-        Bundle mParcelableFormatBundle;
+        Bundle mParcelableExtras;
+        @NonParcelField
+        private final Object mLock = new Object();
 
         // WARNING: Adding a new ParcelField may break old library users (b/152830728)
 
@@ -1079,14 +1091,30 @@ public abstract class SessionPlayer implements AutoCloseable {
         /**
          * Constructor to create a TrackInfo instance.
          *
+         * Note: The default value for {@link #isSelectable()} is false.
+         *
          * @param id id of track unique across {@link MediaItem}s
          * @param type type of track. Can be video, audio or subtitle
          * @param format format of track
          */
         public TrackInfo(int id, int type, @Nullable MediaFormat format) {
+            this(id, type, format, /* isSelectable= */ false);
+        }
+
+        /**
+         * Constructor to create a TrackInfo instance.
+         *
+         * @param id id of track unique across {@link MediaItem}s
+         * @param type type of track. Can be video, audio or subtitle
+         * @param format format of track
+         * @param isSelectable whether track can be selected via
+         * {@link SessionPlayer#selectTrack(TrackInfo)}.
+         */
+        public TrackInfo(int id, int type, @Nullable MediaFormat format, boolean isSelectable) {
             mId = id;
             mTrackType = type;
             mFormat = format;
+            mIsSelectable = isSelectable;
         }
 
         /**
@@ -1134,6 +1162,15 @@ public abstract class SessionPlayer implements AutoCloseable {
             return mId;
         }
 
+        /**
+         * Whether the current track can be selected via {@link #selectTrack(TrackInfo)} or not.
+         *
+         * @return true if the current track can be selected; false if otherwise.
+         */
+        public boolean isSelectable() {
+            return mIsSelectable;
+        }
+
         @Override
         @NonNull
         public String toString() {
@@ -1159,6 +1196,7 @@ public abstract class SessionPlayer implements AutoCloseable {
                     break;
             }
             out.append(", ").append(mFormat);
+            out.append(", isSelectable=").append(mIsSelectable);
             out.append("}");
             return out.toString();
         }
@@ -1186,24 +1224,21 @@ public abstract class SessionPlayer implements AutoCloseable {
          */
         @RestrictTo(LIBRARY)
         @Override
-        @SuppressWarnings("SynchronizeOnNonFinalField") // mFormat effectively final.
         public void onPreParceling(boolean isStream) {
-            if (mFormat != null) {
-                synchronized (mFormat) {
-                    if (mParcelableFormatBundle == null) {
-                        mParcelableFormatBundle = new Bundle();
-                        putStringValueToBundle(MediaFormat.KEY_LANGUAGE,
-                                mFormat, mParcelableFormatBundle);
-                        putStringValueToBundle(MediaFormat.KEY_MIME,
-                                mFormat, mParcelableFormatBundle);
-                        putIntValueToBundle(MediaFormat.KEY_IS_FORCED_SUBTITLE,
-                                mFormat, mParcelableFormatBundle);
-                        putIntValueToBundle(MediaFormat.KEY_IS_AUTOSELECT,
-                                mFormat, mParcelableFormatBundle);
-                        putIntValueToBundle(MediaFormat.KEY_IS_DEFAULT,
-                                mFormat, mParcelableFormatBundle);
-                    }
+            synchronized (mLock) {
+                mParcelableExtras = new Bundle();
+
+                mParcelableExtras.putBoolean(KEY_IS_FORMAT_NULL, mFormat == null);
+                if (mFormat != null) {
+                    putStringValueToBundle(MediaFormat.KEY_LANGUAGE, mFormat, mParcelableExtras);
+                    putStringValueToBundle(MediaFormat.KEY_MIME, mFormat, mParcelableExtras);
+                    putIntValueToBundle(MediaFormat.KEY_IS_FORCED_SUBTITLE, mFormat,
+                            mParcelableExtras);
+                    putIntValueToBundle(MediaFormat.KEY_IS_AUTOSELECT, mFormat, mParcelableExtras);
+                    putIntValueToBundle(MediaFormat.KEY_IS_DEFAULT, mFormat, mParcelableExtras);
                 }
+
+                mParcelableExtras.putBoolean(KEY_IS_SELECTABLE, mIsSelectable);
             }
         }
 
@@ -1213,18 +1248,20 @@ public abstract class SessionPlayer implements AutoCloseable {
         @RestrictTo(LIBRARY)
         @Override
         public void onPostParceling() {
-            if (mParcelableFormatBundle != null) {
+            if (mParcelableExtras != null && !mParcelableExtras.getBoolean(KEY_IS_FORMAT_NULL)) {
                 mFormat = new MediaFormat();
-                setStringValueToMediaFormat(MediaFormat.KEY_LANGUAGE,
-                        mFormat, mParcelableFormatBundle);
-                setStringValueToMediaFormat(MediaFormat.KEY_MIME,
-                        mFormat, mParcelableFormatBundle);
-                setIntValueToMediaFormat(MediaFormat.KEY_IS_FORCED_SUBTITLE,
-                        mFormat, mParcelableFormatBundle);
-                setIntValueToMediaFormat(MediaFormat.KEY_IS_AUTOSELECT,
-                        mFormat, mParcelableFormatBundle);
-                setIntValueToMediaFormat(MediaFormat.KEY_IS_DEFAULT,
-                        mFormat, mParcelableFormatBundle);
+                setStringValueToMediaFormat(MediaFormat.KEY_LANGUAGE, mFormat, mParcelableExtras);
+                setStringValueToMediaFormat(MediaFormat.KEY_MIME, mFormat, mParcelableExtras);
+                setIntValueToMediaFormat(MediaFormat.KEY_IS_FORCED_SUBTITLE, mFormat,
+                        mParcelableExtras);
+                setIntValueToMediaFormat(MediaFormat.KEY_IS_AUTOSELECT, mFormat, mParcelableExtras);
+                setIntValueToMediaFormat(MediaFormat.KEY_IS_DEFAULT, mFormat, mParcelableExtras);
+            }
+
+            if (mParcelableExtras == null || !mParcelableExtras.containsKey(KEY_IS_SELECTABLE)) {
+                mIsSelectable = mTrackType != MEDIA_TRACK_TYPE_VIDEO;
+            } else {
+                mIsSelectable = mParcelableExtras.getBoolean(KEY_IS_SELECTABLE);
             }
         }
 

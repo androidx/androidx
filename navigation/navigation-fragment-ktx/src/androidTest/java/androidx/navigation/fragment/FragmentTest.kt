@@ -23,7 +23,6 @@ import androidx.navigation.NavArgs
 import androidx.navigation.fragment.ktx.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -32,7 +31,9 @@ import org.junit.Test
 
 @LargeTest
 class ActivityTest {
-    @get:Rule val activityRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     private val fragmentManager get() = activityRule.activity.supportFragmentManager
     private val contentFragment get() = fragmentManager.findFragmentById(android.R.id.content)!!
 

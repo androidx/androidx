@@ -20,25 +20,34 @@ import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
 import androidx.ui.material.samples.BottomDrawerSample
+import androidx.ui.material.samples.CustomAlertDialogSample
 import androidx.ui.material.samples.EmphasisSample
 import androidx.ui.material.samples.ModalDrawerSample
 import androidx.ui.material.samples.ScaffoldWithBottomBarAndCutout
 import androidx.ui.material.samples.SideBySideAlertDialogSample
+import androidx.ui.material.samples.StackedAlertDialogSample
 
 val MaterialDemos = DemoCategory("Material", listOf(
-    ComposableDemo("AlertDialog") { SideBySideAlertDialogSample() },
+    DemoCategory("AlertDialog", listOf(
+        ComposableDemo("Side by side buttons") { SideBySideAlertDialogSample() },
+        ComposableDemo("Stacked buttons") { StackedAlertDialogSample() },
+        ComposableDemo("Custom buttons") { CustomAlertDialogSample() }
+    )),
     ComposableDemo("App Bars") { AppBarDemo() },
     ComposableDemo("Bottom Navigation") { BottomNavigationDemo() },
     ComposableDemo("Buttons & FABs") { ButtonDemo() },
-    DemoCategory("Drawer", listOf(
-        ComposableDemo("Modal") { ModalDrawerSample() },
-        ComposableDemo("Bottom") { BottomDrawerSample() }
+    DemoCategory("Navigation drawer", listOf(
+        ComposableDemo("Modal drawer") { ModalDrawerSample() },
+        ComposableDemo("Bottom drawer") { BottomDrawerSample() }
     )),
     ComposableDemo("Elevation") { ElevationDemo() },
     ComposableDemo("Emphasis") { EmphasisSample() },
-    ComposableDemo("ListItems") { ListItemDemo() },
+    DemoCategory("ListItems", listOf(
+        ComposableDemo("ListItems") { ListItemDemo() },
+        ComposableDemo("Mixing RTL and LTR") { MixedRtlLtrListItemDemo() }
+    )),
     DemoCategory("TextFields", listOf(
-        ComposableDemo("FilledTextField") { FilledTextFieldDemo() },
+        ComposableDemo("FilledTextField/OutlinedTextField") { MaterialTextFieldDemo() },
         ComposableDemo("Multiple text fields") { TextFieldsDemo() }
     )),
     ComposableDemo("Material Theme") { MaterialThemeDemo() },

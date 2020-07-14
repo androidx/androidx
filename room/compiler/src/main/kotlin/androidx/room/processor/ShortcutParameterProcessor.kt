@@ -16,15 +16,21 @@
 
 package androidx.room.processor
 
+import androidx.room.ext.asMemberOf
 import androidx.room.ext.extendsBound
+import androidx.room.ext.getAllNonPrivateInstanceMethods
+import androidx.room.ext.name
+import androidx.room.ext.requireTypeMirror
 import androidx.room.vo.ShortcutQueryParameter
-import com.google.auto.common.MoreTypes
-import javax.lang.model.element.TypeElement
+import asDeclaredType
+import asTypeElement
+import erasure
+import isAssignableFrom
+import isType
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
-import javax.lang.model.util.ElementFilter
 
 /**
  * Processes parameters of methods that are annotated with Insert, Update or Delete.
@@ -36,8 +42,11 @@ class ShortcutParameterProcessor(
 ) {
     val context = baseContext.fork(element)
     fun process(): ShortcutQueryParameter {
-        val asMember = MoreTypes.asMemberOf(context.processingEnv.typeUtils, containing, element)
-        val name = element.simpleName.toString()
+        val asMember = element.asMemberOf(
+            context.processingEnv.typeUtils,
+            containing
+        )
+        val name = element.name
         context.checker.check(!name.startsWith("_"), element,
                 ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE)
 
@@ -54,11 +63,11 @@ class ShortcutParameterProcessor(
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     private fun extractPojoType(typeMirror: TypeMirror): Pair<TypeMirror?, Boolean> {
 
-        val elementUtils = context.processingEnv.elementUtils
+        val processingEnv = context.processingEnv
         val typeUtils = context.processingEnv.typeUtils
 
         fun verifyAndPair(pojoType: TypeMirror, isMultiple: Boolean): Pair<TypeMirror?, Boolean> {
-            if (!MoreTypes.isType(pojoType)) {
+            if (!pojoType.isType()) {
                 // kotlin may generate ? extends T so we should reduce it.
                 val boundedVar = pojoType.extendsBound()
                 return boundedVar?.let {
@@ -69,21 +78,22 @@ class ShortcutParameterProcessor(
         }
 
         fun extractPojoTypeFromIterator(iterableType: DeclaredType): TypeMirror {
-            ElementFilter.methodsIn(elementUtils
-                    .getAllMembers(typeUtils.asElement(iterableType) as TypeElement)).forEach {
-                if (it.simpleName.toString() == "iterator") {
-                    return MoreTypes.asDeclared(MoreTypes.asExecutable(
-                            typeUtils.asMemberOf(iterableType, it)).returnType)
-                            .typeArguments.first()
+            iterableType.asTypeElement().getAllNonPrivateInstanceMethods(processingEnv).forEach {
+                if (it.name == "iterator") {
+                    return it.asMemberOf(typeUtils, iterableType)
+                        .returnType
+                        .asDeclaredType()
+                        .typeArguments
+                        .first()
                 }
             }
             throw IllegalArgumentException("iterator() not found in Iterable $iterableType")
         }
 
-        val iterableType = typeUtils.erasure(elementUtils
-                .getTypeElement("java.lang.Iterable").asType())
-        if (typeUtils.isAssignable(typeMirror, iterableType)) {
-            val declared = MoreTypes.asDeclared(typeMirror)
+        val iterableType = processingEnv
+                .requireTypeMirror("java.lang.Iterable").erasure(typeUtils)
+        if (iterableType.isAssignableFrom(typeUtils, typeMirror)) {
+            val declared = typeMirror.asDeclaredType()
             val pojo = extractPojoTypeFromIterator(declared)
             return verifyAndPair(pojo, true)
         }

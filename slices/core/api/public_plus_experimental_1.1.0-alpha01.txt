@@ -1,7 +1,7 @@
 // Signature format: 3.0
 package androidx.slice {
 
-  @RequiresApi(19) public final class Slice extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.versionedparcelable.VersionedParcelable {
+  @RequiresApi(19) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, isCustom=true) public final class Slice extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.versionedparcelable.VersionedParcelable {
     method public java.util.List<java.lang.String!>! getHints();
     method public java.util.List<androidx.slice.SliceItem!>! getItems();
     method public android.net.Uri! getUri();
@@ -13,7 +13,7 @@ package androidx.slice {
     method public static androidx.slice.Slice! wrap(android.app.slice.Slice!, android.content.Context!);
   }
 
-  @RequiresApi(19) public final class SliceItem extends androidx.versionedparcelable.CustomVersionedParcelable {
+  @RequiresApi(19) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, ignoreParcelables=true, isCustom=true) public final class SliceItem extends androidx.versionedparcelable.CustomVersionedParcelable {
     method public static android.text.ParcelableSpan createSensitiveSpan();
     method public void fireAction(android.content.Context?, android.content.Intent?) throws android.app.PendingIntent.CanceledException;
     method public android.app.PendingIntent! getAction();
@@ -30,7 +30,7 @@ package androidx.slice {
   }
 
   @RequiresApi(19) public abstract class SliceManager {
-    method public abstract int checkSlicePermission(android.net.Uri, int, int);
+    method @androidx.core.content.PermissionChecker.PermissionResult public abstract int checkSlicePermission(android.net.Uri, int, int);
     method public static androidx.slice.SliceManager getInstance(android.content.Context);
     method public abstract java.util.List<android.net.Uri!> getPinnedSlices();
     method public abstract void grantSlicePermission(String, android.net.Uri);

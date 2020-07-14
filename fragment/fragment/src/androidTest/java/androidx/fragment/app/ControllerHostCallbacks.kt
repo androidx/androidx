@@ -24,12 +24,12 @@ import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.runOnUiThreadRethrow
 import java.io.FileDescriptor
 import java.io.PrintWriter
 
-fun ActivityTestRule<out FragmentActivity>.startupFragmentController(
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.startupFragmentController(
     viewModelStore: ViewModelStore,
     savedState: Parcelable? = null
 ): FragmentController {
@@ -52,7 +52,8 @@ fun ActivityTestRule<out FragmentActivity>.startupFragmentController(
 }
 
 fun FragmentController.restart(
-    rule: ActivityTestRule<out FragmentActivity>,
+    @Suppress("DEPRECATION")
+    rule: androidx.test.rule.ActivityTestRule<out FragmentActivity>,
     viewModelStore: ViewModelStore,
     destroyNonConfig: Boolean = true
 ): FragmentController {
@@ -145,10 +146,6 @@ class ControllerHostCallbacks(
 
     override fun onGetWindowAnimations() =
         activity.window?.attributes?.windowAnimations ?: 0
-
-    public override fun onAttachFragment(fragment: Fragment) {
-        activity.onAttachFragment(fragment)
-    }
 
     override fun onFindViewById(id: Int): View? {
         return activity.findViewById(id)

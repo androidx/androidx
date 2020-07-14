@@ -71,6 +71,8 @@ public class NavController {
     private static final String KEY_BACK_STACK =
             "android-support-nav:controller:backStack";
     static final String KEY_DEEP_LINK_IDS = "android-support-nav:controller:deepLinkIds";
+    static final String KEY_DEEP_LINK_ARGS =
+            "android-support-nav:controller:deepLinkArgs";
     static final String KEY_DEEP_LINK_EXTRAS =
             "android-support-nav:controller:deepLinkExtras";
     static final String KEY_DEEP_LINK_HANDLED =
@@ -605,8 +607,12 @@ public class NavController {
                 NavBackStackEntryState state = (NavBackStackEntryState) parcelable;
                 NavDestination node = findDestination(state.getDestinationId());
                 if (node == null) {
-                    throw new IllegalStateException("unknown destination during restore: "
-                            + mContext.getResources().getResourceName(state.getDestinationId()));
+                    final String dest = NavDestination.getDisplayName(mContext,
+                            state.getDestinationId());
+                    throw new IllegalStateException("Restoring the Navigation back stack failed:"
+                            + " destination " + dest
+                            + " cannot be found from the current destination "
+                            + getCurrentDestination());
                 }
                 Bundle args = state.getArgs();
                 if (args != null) {
@@ -660,17 +666,21 @@ public class NavController {
         }
         Bundle extras = intent.getExtras();
         int[] deepLink = extras != null ? extras.getIntArray(KEY_DEEP_LINK_IDS) : null;
-        Bundle bundle = new Bundle();
+        ArrayList<Bundle> deepLinkArgs = extras != null
+                ? extras.getParcelableArrayList(KEY_DEEP_LINK_ARGS)
+                : null;
+        Bundle globalArgs = new Bundle();
         Bundle deepLinkExtras = extras != null ? extras.getBundle(KEY_DEEP_LINK_EXTRAS) : null;
         if (deepLinkExtras != null) {
-            bundle.putAll(deepLinkExtras);
+            globalArgs.putAll(deepLinkExtras);
         }
         if ((deepLink == null || deepLink.length == 0) && intent.getData() != null) {
             NavDestination.DeepLinkMatch matchingDeepLink =
                     mGraph.matchDeepLink(new NavDeepLinkRequest(intent));
             if (matchingDeepLink != null) {
                 deepLink = matchingDeepLink.getDestination().buildDeepLinkIds();
-                bundle.putAll(matchingDeepLink.getMatchingArgs());
+                deepLinkArgs = null;
+                globalArgs.putAll(matchingDeepLink.getMatchingArgs());
             }
         }
         if (deepLink == null || deepLink.length == 0) {
@@ -683,7 +693,19 @@ public class NavController {
                     + " in the navigation graph, ignoring the deep link from " + intent);
             return false;
         }
-        bundle.putParcelable(KEY_DEEP_LINK_INTENT, intent);
+        globalArgs.putParcelable(KEY_DEEP_LINK_INTENT, intent);
+        Bundle[] args = new Bundle[deepLink.length];
+        for (int index = 0; index < args.length; index++) {
+            Bundle arguments = new Bundle();
+            arguments.putAll(globalArgs);
+            if (deepLinkArgs != null) {
+                Bundle deepLinkArguments = deepLinkArgs.get(index);
+                if (deepLinkArguments != null) {
+                    arguments.putAll(deepLinkArguments);
+                }
+            }
+            args[index] = arguments;
+        }
         int flags = intent.getFlags();
         if ((flags & Intent.FLAG_ACTIVITY_NEW_TASK) != 0
                 && (flags & Intent.FLAG_ACTIVITY_CLEAR_TASK) == 0) {
@@ -709,13 +731,17 @@ public class NavController {
             }
             int index = 0;
             while (index < deepLink.length) {
-                int destinationId = deepLink[index++];
+                int destinationId = deepLink[index];
+                Bundle arguments = args[index++];
                 NavDestination node = findDestination(destinationId);
                 if (node == null) {
-                    throw new IllegalStateException("unknown destination during deep link: "
-                            + NavDestination.getDisplayName(mContext, destinationId));
+                    final String dest = NavDestination.getDisplayName(mContext, destinationId);
+                    throw new IllegalStateException("Deep Linking failed:"
+                            + " destination " + dest
+                            + " cannot be found from the current destination "
+                            + getCurrentDestination());
                 }
-                navigate(node, bundle,
+                navigate(node, arguments,
                         new NavOptions.Builder().setEnterAnim(0).setExitAnim(0).build(), null);
             }
             return true;
@@ -724,22 +750,27 @@ public class NavController {
         NavGraph graph = mGraph;
         for (int i = 0; i < deepLink.length; i++) {
             int destinationId = deepLink[i];
+            Bundle arguments = args[i];
             NavDestination node = i == 0 ? mGraph : graph.findNode(destinationId);
             if (node == null) {
-                throw new IllegalStateException("unknown destination during deep link: "
-                        + NavDestination.getDisplayName(mContext, destinationId));
+                final String dest = NavDestination.getDisplayName(mContext, destinationId);
+                throw new IllegalStateException("Deep Linking failed:"
+                        + " destination " + dest
+                        + " cannot be found in graph " + graph);
             }
             if (i != deepLink.length - 1) {
                 // We're not at the final NavDestination yet, so keep going through the chain
-                graph = (NavGraph) node;
-                // Automatically go down the navigation graph when
-                // the start destination is also a NavGraph
-                while (graph.findNode(graph.getStartDestination()) instanceof NavGraph) {
-                    graph = (NavGraph) graph.findNode(graph.getStartDestination());
+                if (node instanceof NavGraph) {
+                    graph = (NavGraph) node;
+                    // Automatically go down the navigation graph when
+                    // the start destination is also a NavGraph
+                    while (graph.findNode(graph.getStartDestination()) instanceof NavGraph) {
+                        graph = (NavGraph) graph.findNode(graph.getStartDestination());
+                    }
                 }
             } else {
                 // Navigate to the last NavDestination, clearing any existing destinations
-                navigate(node, node.addInDefaultArgs(bundle), new NavOptions.Builder()
+                navigate(node, arguments, new NavOptions.Builder()
                         .setPopUpTo(mGraph.getId(), true)
                         .setEnterAnim(0).setExitAnim(0).build(), null);
             }
@@ -769,11 +800,13 @@ public class NavController {
             }
             if (i != deepLink.length - 1) {
                 // We're not at the final NavDestination yet, so keep going through the chain
-                graph = (NavGraph) node;
-                // Automatically go down the navigation graph when
-                // the start destination is also a NavGraph
-                while (graph.findNode(graph.getStartDestination()) instanceof NavGraph) {
-                    graph = (NavGraph) graph.findNode(graph.getStartDestination());
+                if (node instanceof NavGraph) {
+                    graph = (NavGraph) node;
+                    // Automatically go down the navigation graph when
+                    // the start destination is also a NavGraph
+                    while (graph.findNode(graph.getStartDestination()) instanceof NavGraph) {
+                        graph = (NavGraph) graph.findNode(graph.getStartDestination());
+                    }
                 }
             }
         }
@@ -913,11 +946,15 @@ public class NavController {
         NavDestination node = findDestination(destId);
         if (node == null) {
             final String dest = NavDestination.getDisplayName(mContext, destId);
-            throw new IllegalArgumentException("navigation destination " + dest
-                    + (navAction != null
-                    ? " referenced from action " + NavDestination.getDisplayName(mContext, resId)
-                    : "")
-                    + " is unknown to this NavController");
+            if (navAction != null) {
+                throw new IllegalArgumentException("Navigation destination " + dest
+                        + " referenced from action "
+                        + NavDestination.getDisplayName(mContext, resId)
+                        + " cannot be found from the current destination " + currentNode);
+            } else {
+                throw new IllegalArgumentException("Navigation action/destination " + dest
+                        + " cannot be found from the current destination " + currentNode);
+            }
         }
         navigate(node, combinedArgs, navOptions, navigatorExtras);
     }
@@ -1015,8 +1052,8 @@ public class NavController {
             NavDestination node = deepLinkMatch.getDestination();
             navigate(node, args, navOptions, navigatorExtras);
         } else {
-            throw new IllegalArgumentException("navigation destination that matches request "
-                    + request + " is unknown to this NavController");
+            throw new IllegalArgumentException("Navigation destination that matches request "
+                    + request + " cannot be found in the navigation graph " + mGraph);
         }
     }
 
@@ -1074,8 +1111,9 @@ public class NavController {
             mBackStack.add(newBackStackEntry);
         } else if (navOptions != null && navOptions.shouldLaunchSingleTop()) {
             launchSingleTop = true;
-            if (mBackStack.peekLast() != null && args != null) {
-                mBackStack.peekLast().getArguments().putAll(args);
+            NavBackStackEntry singleTopBackStackEntry = mBackStack.peekLast();
+            if (singleTopBackStackEntry != null) {
+                singleTopBackStackEntry.replaceArguments(args);
             }
         }
         updateOnBackPressedCallbackEnabled();

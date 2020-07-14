@@ -21,7 +21,7 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
-import javax.lang.model.type.TypeKind
+import isNotVoid
 import javax.lang.model.type.TypeMirror
 
 /**
@@ -41,7 +41,7 @@ class InstantTransactionMethodBinder(
         scope.builder().apply {
             addStatement("$N.beginTransaction()", dbField)
             beginControlFlow("try").apply {
-                val returnsValue = returnType.kind != TypeKind.VOID
+                val returnsValue = returnType.isNotVoid()
                 val resultVar = if (returnsValue) {
                     scope.getTmpVar("_result")
                 } else {

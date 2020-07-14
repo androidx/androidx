@@ -567,26 +567,26 @@ class AnnotatedStringBuilderTest {
     fun pushAnnotation() {
         val text = "Test"
         val annotation = "Annotation"
-        val scope = "Scope"
+        val tag = "tag"
         val buildResult = AnnotatedString.Builder().apply {
-            pushStringAnnotation(scope, annotation)
+            pushStringAnnotation(tag, annotation)
             append(text)
             pop()
         }.toAnnotatedString()
 
         assertThat(buildResult.text).isEqualTo(text)
-        assertThat(buildResult.getStringAnnotations(scope, 0, text.length)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(tag, 0, text.length)).hasSize(1)
     }
 
     @Test
     fun pushAnnotation_multiple_nested() {
         val annotation1 = "Annotation1"
         val annotation2 = "Annotation2"
-        val scope = "Scope"
+        val tag = "tag"
         val buildResult = AnnotatedString.Builder().apply {
-            pushStringAnnotation(scope, annotation1)
+            pushStringAnnotation(tag, annotation1)
             append("Hello")
-            pushStringAnnotation(scope, annotation2)
+            pushStringAnnotation(tag, annotation2)
             append("world")
             pop()
             append("!")
@@ -597,29 +597,29 @@ class AnnotatedStringBuilderTest {
         //                     [         ]
         //                          [   ]
         assertThat(buildResult.text).isEqualTo("Helloworld!")
-        assertThat(buildResult.getStringAnnotations(scope, 0, 11)).hasSize(2)
-        assertThat(buildResult.getStringAnnotations(scope, 0, 5)).hasSize(1)
-        assertThat(buildResult.getStringAnnotations(scope, 5, 10)).hasSize(2)
-        assertThat(buildResult.getStringAnnotations(scope, 10, 11)).hasSize(1)
-        val annotations = buildResult.getStringAnnotations(scope, 0, 11)
+        assertThat(buildResult.getStringAnnotations(tag, 0, 11)).hasSize(2)
+        assertThat(buildResult.getStringAnnotations(tag, 0, 5)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(tag, 5, 10)).hasSize(2)
+        assertThat(buildResult.getStringAnnotations(tag, 10, 11)).hasSize(1)
+        val annotations = buildResult.getStringAnnotations(tag, 0, 11)
         assertThat(annotations[0]).isEqualTo(
-            AnnotatedString.Range(annotation1, 0, 11, scope)
+            AnnotatedString.Range(annotation1, 0, 11, tag)
         )
         assertThat(annotations[1]).isEqualTo(
-            AnnotatedString.Range(annotation2, 5, 10, scope)
+            AnnotatedString.Range(annotation2, 5, 10, tag)
         )
     }
 
     @Test
-    fun pushAnnotation_multiple_differentScope() {
+    fun pushAnnotation_multiple_differentTag() {
         val annotation1 = "Annotation1"
         val annotation2 = "Annotation2"
-        val scope1 = "Scope1"
-        val scope2 = "Scope2"
+        val tag1 = "tag1"
+        val tag2 = "tag2"
         val buildResult = AnnotatedString.Builder().apply {
-            pushStringAnnotation(scope1, annotation1)
+            pushStringAnnotation(tag1, annotation1)
             append("Hello")
-            pushStringAnnotation(scope2, annotation2)
+            pushStringAnnotation(tag2, annotation2)
             append("world")
             pop()
             append("!")
@@ -630,44 +630,79 @@ class AnnotatedStringBuilderTest {
         //                     [         ]
         //                          [   ]
         assertThat(buildResult.text).isEqualTo("Helloworld!")
-        assertThat(buildResult.getStringAnnotations(scope1, 0, 11)).hasSize(1)
-        assertThat(buildResult.getStringAnnotations(scope1, 0, 5)).hasSize(1)
-        assertThat(buildResult.getStringAnnotations(scope1, 5, 10)).hasSize(1)
-        assertThat(buildResult.getStringAnnotations(scope1, 5, 10).first())
-            .isEqualTo(AnnotatedString.Range(annotation1, 0, 11, scope1))
+        assertThat(buildResult.getStringAnnotations(tag1, 0, 11)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(tag1, 0, 5)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(tag1, 5, 10)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(tag1, 5, 10).first())
+            .isEqualTo(AnnotatedString.Range(annotation1, 0, 11, tag1))
 
-        assertThat(buildResult.getStringAnnotations(scope2, 5, 10)).hasSize(1)
-        assertThat(buildResult.getStringAnnotations(scope2, 5, 10).first())
-            .isEqualTo(AnnotatedString.Range(annotation2, 5, 10, scope2))
-        assertThat(buildResult.getStringAnnotations(scope2, 10, 11)).hasSize(0)
+        assertThat(buildResult.getStringAnnotations(tag2, 5, 10)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(tag2, 5, 10).first())
+            .isEqualTo(AnnotatedString.Range(annotation2, 5, 10, tag2))
+        assertThat(buildResult.getStringAnnotations(tag2, 10, 11)).hasSize(0)
     }
 
     @Test
     fun getAnnotation() {
         val annotation = "Annotation"
-        val scope = "Scope"
+        val tag = "tag"
         val buildResult = AnnotatedString.Builder().apply {
             append("Hello")
-            pushStringAnnotation(scope, annotation)
+            pushStringAnnotation(tag, annotation)
             append("World")
             pop()
             append("Hello")
-            pushStringAnnotation(scope, annotation)
+            pushStringAnnotation(tag, annotation)
             pop()
             append("World")
         }.toAnnotatedString()
         // The final result is: HelloWorldHelloWorld
         //                           [   ]
         //                                    []
-        assertThat(buildResult.getStringAnnotations(scope, 0, 5)).hasSize(0)
-        assertThat(buildResult.getStringAnnotations(scope, 0, 6)).hasSize(1)
-        assertThat(buildResult.getStringAnnotations(scope, 6, 6)).hasSize(1)
-        assertThat(buildResult.getStringAnnotations(scope, 10, 10)).hasSize(0)
-        assertThat(buildResult.getStringAnnotations(scope, 8, 13)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(tag, 0, 5)).hasSize(0)
+        assertThat(buildResult.getStringAnnotations(tag, 0, 6)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(tag, 6, 6)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(tag, 10, 10)).hasSize(0)
+        assertThat(buildResult.getStringAnnotations(tag, 8, 13)).hasSize(1)
 
-        assertThat(buildResult.getStringAnnotations(scope, 15, 15)).hasSize(1)
-        assertThat(buildResult.getStringAnnotations(scope, 10, 15)).hasSize(0)
-        assertThat(buildResult.getStringAnnotations(scope, 15, 20)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(tag, 15, 15)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(tag, 10, 15)).hasSize(0)
+        assertThat(buildResult.getStringAnnotations(tag, 15, 20)).hasSize(1)
+    }
+
+    @Test
+    fun getAnnotation_withOutTag_multipleAnnotations() {
+        val annotation1 = "Annotation1"
+        val annotation2 = "Annotation2"
+        val tag1 = "tag1"
+        val tag2 = "tag2"
+        val buildResult = AnnotatedString.Builder().apply {
+            pushStringAnnotation(tag1, annotation1)
+            append("Hello")
+            pushStringAnnotation(tag2, annotation2)
+            append("world")
+            pop()
+            append("!")
+            pop()
+        }.toAnnotatedString()
+
+        // The final result is Helloworld!
+        //                     [         ]
+        //                          [   ]
+        assertThat(buildResult.getStringAnnotations(0, 5)).isEqualTo(
+            listOf(AnnotatedString.Range(annotation1, 0, 11, tag1))
+        )
+
+        assertThat(buildResult.getStringAnnotations(5, 6)).isEqualTo(
+            listOf(
+                AnnotatedString.Range(annotation1, 0, 11, tag1),
+                AnnotatedString.Range(annotation2, 5, 10, tag2)
+            )
+        )
+
+        assertThat(buildResult.getStringAnnotations(10, 11)).isEqualTo(
+            listOf(AnnotatedString.Range(annotation1, 0, 11, tag1))
+        )
     }
 
     private fun createAnnotatedString(

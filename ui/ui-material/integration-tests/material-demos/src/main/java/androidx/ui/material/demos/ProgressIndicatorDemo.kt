@@ -17,6 +17,7 @@
 package androidx.ui.material.demos
 
 import android.os.Handler
+import android.os.Looper
 import androidx.compose.Composable
 import androidx.compose.Stable
 import androidx.compose.getValue
@@ -27,9 +28,9 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.material.CircularProgressIndicator
@@ -42,7 +43,7 @@ fun ProgressIndicatorDemo() {
     onActive { state.start() }
     onDispose { state.stop() }
 
-    Column {
+    ScrollableColumn {
         val modifier = Modifier.weight(1f, true)
             .gravity(Alignment.CenterHorizontally)
             .fillMaxWidth()
@@ -85,8 +86,8 @@ private class ProgressState {
         handler.removeCallbacks(updateProgress)
     }
 
-    private val handler = Handler()
-    private val updateProgress: Runnable = object : Runnable {
+    val handler = Handler(Looper.getMainLooper())
+    val updateProgress: Runnable = object : Runnable {
         override fun run() {
             if (progress == 1f) {
                 color = when (color) {

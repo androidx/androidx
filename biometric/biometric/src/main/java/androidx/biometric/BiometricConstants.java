@@ -19,8 +19,9 @@ package androidx.biometric;
 import androidx.annotation.RestrictTo;
 
 /**
- * Interface containing all of the biometric modality agnostic constants. These constants must
- * be kept in sync with the platform BiometricConstants.java
+ * An interface containing all of the biometric modality-agnostic constants. These constants must
+ * be kept in sync with BiometricConstants.java in the framework.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)

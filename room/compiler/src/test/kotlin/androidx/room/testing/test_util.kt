@@ -23,7 +23,10 @@ import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.RoomRxJava2TypeNames
+import androidx.room.ext.RoomRxJava3TypeNames
 import androidx.room.ext.RxJava2TypeNames
+import androidx.room.ext.RxJava3TypeNames
+import androidx.room.ext.asTypeElement
 import androidx.room.processor.DatabaseViewProcessor
 import androidx.room.processor.TableEntityProcessor
 import androidx.room.solver.CodeGenScope
@@ -31,7 +34,6 @@ import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.writer.ClassWriter
-import com.google.auto.common.MoreElements
 import com.google.common.io.Files
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
@@ -46,6 +48,7 @@ import java.io.File
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.Locale
 import javax.lang.model.element.Element
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.tools.JavaFileObject
@@ -100,29 +103,54 @@ object COMMON {
         loadJavaCode("common/input/reactivestreams/Publisher.java",
                 ReactiveStreamsTypeNames.PUBLISHER.toString())
     }
-    val FLOWABLE by lazy {
+    val RX2_FLOWABLE by lazy {
         loadJavaCode("common/input/rxjava2/Flowable.java",
                 RxJava2TypeNames.FLOWABLE.toString())
     }
-    val OBSERVABLE by lazy {
+    val RX2_OBSERVABLE by lazy {
         loadJavaCode("common/input/rxjava2/Observable.java",
                 RxJava2TypeNames.OBSERVABLE.toString())
     }
-    val SINGLE by lazy {
+    val RX2_SINGLE by lazy {
         loadJavaCode("common/input/rxjava2/Single.java",
                 RxJava2TypeNames.SINGLE.toString())
     }
-    val MAYBE by lazy {
+    val RX2_MAYBE by lazy {
         loadJavaCode("common/input/rxjava2/Maybe.java",
                 RxJava2TypeNames.MAYBE.toString())
     }
-    val COMPLETABLE by lazy {
+    val RX2_COMPLETABLE by lazy {
         loadJavaCode("common/input/rxjava2/Completable.java",
                 RxJava2TypeNames.COMPLETABLE.toString())
     }
 
     val RX2_ROOM by lazy {
         loadJavaCode("common/input/Rx2Room.java", RoomRxJava2TypeNames.RX_ROOM.toString())
+    }
+
+    val RX3_FLOWABLE by lazy {
+        loadJavaCode("common/input/rxjava3/Flowable.java",
+            RxJava3TypeNames.FLOWABLE.toString())
+    }
+    val RX3_OBSERVABLE by lazy {
+        loadJavaCode("common/input/rxjava3/Observable.java",
+            RxJava3TypeNames.OBSERVABLE.toString())
+    }
+    val RX3_SINGLE by lazy {
+        loadJavaCode("common/input/rxjava3/Single.java",
+            RxJava3TypeNames.SINGLE.toString())
+    }
+    val RX3_MAYBE by lazy {
+        loadJavaCode("common/input/rxjava3/Maybe.java",
+            RxJava3TypeNames.MAYBE.toString())
+    }
+    val RX3_COMPLETABLE by lazy {
+        loadJavaCode("common/input/rxjava3/Completable.java",
+            RxJava3TypeNames.COMPLETABLE.toString())
+    }
+
+    val RX3_ROOM by lazy {
+        loadJavaCode("common/input/Rx3Room.java", RoomRxJava3TypeNames.RX_ROOM.toString())
     }
 
     val DATA_SOURCE_FACTORY by lazy {
@@ -198,13 +226,13 @@ fun createVerifierFromEntitiesAndViews(invocation: TestInvocation): DatabaseVeri
 
 fun TestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {
     return roundEnv.getElementsAnnotatedWith(DatabaseView::class.java).map {
-        DatabaseViewProcessor(context, MoreElements.asType(it)).process()
+        DatabaseViewProcessor(context, it.asTypeElement()).process()
     }
 }
 
 fun TestInvocation.getEntities(): List<androidx.room.vo.Entity> {
     val entities = roundEnv.getElementsAnnotatedWith(Entity::class.java).map {
-        TableEntityProcessor(context, MoreElements.asType(it)).process()
+        TableEntityProcessor(context, it.asTypeElement()).process()
     }
     return entities
 }
@@ -213,8 +241,8 @@ fun TestInvocation.getEntities(): List<androidx.room.vo.Entity> {
  * Create mocks of [Element] and [TypeMirror] so that they can be used for instantiating a fake
  * [androidx.room.vo.Field].
  */
-fun mockElementAndType(): Pair<Element, TypeMirror> {
-    val element = mock(Element::class.java)
+fun mockElementAndType(): Pair<VariableElement, TypeMirror> {
+    val element = mock(VariableElement::class.java)
     val type = mock(TypeMirror::class.java)
     doReturn(TypeKind.DECLARED).`when`(type).kind
     doReturn(type).`when`(element).asType()

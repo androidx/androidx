@@ -21,6 +21,7 @@ package androidx.paging.samples
 import androidx.annotation.Sampled
 import androidx.paging.PagingData
 import androidx.paging.insertSeparators
+import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

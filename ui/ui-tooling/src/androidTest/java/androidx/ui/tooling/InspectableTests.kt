@@ -27,7 +27,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -56,15 +55,15 @@ class InspectableTests : ToolingTest() {
         // Should be able to find the group for this test
         val tree = slotTableRecord.store.first().asTree()
         val group = tree.firstOrNull {
-            it.position?.contains("InspectableTests.kt") == true && it.box.right.value > 0
+            it.position?.contains("InspectableTests.kt") == true && it.box.right > 0
         } ?: error("Expected a group from this file")
         assertNotNull(group)
 
         // The group should have a non-empty bounding box
-        assertEquals(0.ipx, group.box.top)
-        assertEquals(0.ipx, group.box.left)
-        assertNotEquals(0.ipx, group.box.right)
-        assertNotEquals(0.ipx, group.box.bottom)
+        assertEquals(0, group.box.top)
+        assertEquals(0, group.box.left)
+        assertNotEquals(0, group.box.right)
+        assertNotEquals(0, group.box.bottom)
     }
 
     @Test

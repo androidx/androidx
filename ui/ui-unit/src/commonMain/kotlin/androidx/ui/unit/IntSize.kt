@@ -19,6 +19,8 @@
 package androidx.ui.unit
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
+import androidx.ui.geometry.Size
 import androidx.ui.util.packInts
 import androidx.ui.util.unpackInt1
 import androidx.ui.util.unpackInt2
@@ -26,45 +28,87 @@ import androidx.ui.util.unpackInt2
 /**
  * A two-dimensional size class used for measuring in [Int] pixels.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class IntSize(@PublishedApi internal val value: Long) {
+/*inline*/ class IntSize(@PublishedApi internal val packedValue: Long) {
     /**
      * The horizontal aspect of the size in [Int] pixels.
      */
+    @Stable
     val width: Int
-        get() = unpackInt1(value)
+        get() = unpackInt1(packedValue)
 
     /**
      * The vertical aspect of the size in [Int] pixels.
      */
+    @Stable
     val height: Int
-        get() = unpackInt2(value)
+        get() = unpackInt2(packedValue)
+
+    @Stable
+    inline operator fun component1(): Int = width
+
+    @Stable
+    inline operator fun component2(): Int = height
 
     /**
      * Returns an IntSize scaled by multiplying [width] and [height] by [other]
      */
-
+    @Stable
     operator fun times(other: Int): IntSize =
         IntSize(width = width * other, height = height * other)
 
     /**
      * Returns an IntSize scaled by dividing [width] and [height] by [other]
      */
+    @Stable
     operator fun div(other: Int): IntSize =
         IntSize(width = width / other, height = height / other)
 
+    @Stable
     override fun toString(): String = "$width x $height"
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is IntSize) {
+            return false
+        }
+        return other.packedValue == packedValue
+    }
+
+    @Stable
+    override fun hashCode(): Int {
+        return packedValue.hashCode()
+    }
+
+    companion object {
+        /**
+         * IntSize with a zero (0) width and height.
+         */
+        val Zero = IntSize(0L)
+    }
 }
 
 /**
  * Returns an [IntSize] with [size]'s [IntSize.width] and [IntSize.height]
  * multiplied by [this].
  */
+@Stable
 operator fun Int.times(size: IntSize) = size * this
 
 /**
- * Constructs an [IntPxSize] from width and height [IntPx] values.
+ * Constructs an [IntSize] from width and height [Int] values.
  */
+@Stable
 fun IntSize(width: Int, height: Int): IntSize =
     IntSize(packInts(width, height))
+
+/**
+ * Returns the [IntOffset] of the center of the rect from the point of [0, 0]
+ * with this [IntSize].
+ */
+@Stable
+val IntSize.center: IntOffset
+    get() = IntOffset(width / 2, height / 2)
+
+// temporary while PxSize is transitioned to Size
+@Stable
+fun IntSize.toSize() = Size(width.toFloat(), height.toFloat())

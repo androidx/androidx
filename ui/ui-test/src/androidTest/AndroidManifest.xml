@@ -21,7 +21,7 @@
             android:theme="@style/TestTheme"/>
         <activity android:name="androidx.ui.test.CustomActivity"
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
-        <activity android:name="androidx.ui.test.gesturescope.ActivityWithActionBar" />
+        <activity android:name="androidx.ui.test.ActivityWithActionBar" />
         <activity android:name="androidx.ui.test.MultipleActivitiesFindTest$Activity1" />
         <activity android:name="androidx.ui.test.MultipleActivitiesFindTest$Activity2" />
         <activity android:name="androidx.ui.test.MultipleActivitiesClickTest$Activity1" />

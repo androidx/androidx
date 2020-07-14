@@ -17,26 +17,32 @@ package androidx.ui.material
 
 import android.os.Build
 import androidx.compose.state
-import androidx.test.filters.LargeTest
+import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
-import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.captureToBitmap
+import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.find
+import androidx.ui.test.performClick
+import androidx.ui.test.performPartialGesture
+import androidx.ui.test.onNode
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.isToggleable
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.down
+import androidx.ui.test.waitForIdle
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@LargeTest
+@MediumTest
 @RunWith(JUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class CheckboxScreenshotTest {
@@ -49,69 +55,144 @@ class CheckboxScreenshotTest {
 
     val wrap = Modifier.wrapContentSize(Alignment.TopStart)
 
-    val matcher = MSSIMMatcher(threshold = 0.96)
+    // TODO: this test tag as well as Boxes inside testa are temporarty, remove then b/157687898
+    //  is fixed
+    private val wrapperTestTag = "checkboxWrapper"
 
     @Test
     fun checkBoxTest_checked() {
         composeTestRule.setMaterialContent {
-            Checkbox(modifier = wrap, checked = true, onCheckedChange = { })
+            Box(wrap.testTag(wrapperTestTag)) {
+                Checkbox(checked = true, onCheckedChange = { })
+            }
         }
-        find(isToggleable())
-            .captureToBitmap()
-            .assertAgainstGolden(screenshotRule, "checkbox_checked", matcher)
+        assertToggeableAgainstGolden("checkbox_checked")
     }
 
     @Test
     fun checkBoxTest_unchecked() {
         composeTestRule.setMaterialContent {
-            Checkbox(modifier = wrap, checked = false, onCheckedChange = { })
+            Box(wrap.testTag(wrapperTestTag)) {
+                Checkbox(modifier = wrap, checked = false, onCheckedChange = { })
+            }
         }
-        find(isToggleable())
-            .captureToBitmap()
-            .assertAgainstGolden(screenshotRule, "checkbox_unchecked", matcher)
+        assertToggeableAgainstGolden("checkbox_unchecked")
+    }
+
+    @Test
+    fun checkBoxTest_pressed() {
+        composeTestRule.setMaterialContent {
+            Box(wrap.testTag(wrapperTestTag)) {
+                Checkbox(modifier = wrap, checked = false, onCheckedChange = { })
+            }
+        }
+        onNodeWithTag(wrapperTestTag).performPartialGesture {
+            down(center)
+        }
+        assertToggeableAgainstGolden("checkbox_pressed")
+    }
+
+    @Test
+    fun checkBoxTest_indeterminate() {
+        composeTestRule.setMaterialContent {
+            Box(wrap.testTag(wrapperTestTag)) {
+                TriStateCheckbox(
+                    state = ToggleableState.Indeterminate,
+                    modifier = wrap,
+                    onClick = {})
+            }
+        }
+        assertToggeableAgainstGolden("checkbox_indeterminate")
+    }
+
+    @Test
+    fun checkBoxTest_disabled_checked() {
+        composeTestRule.setMaterialContent {
+            Box(wrap.testTag(wrapperTestTag)) {
+                Checkbox(modifier = wrap, checked = true, enabled = false, onCheckedChange = { })
+            }
+        }
+        assertToggeableAgainstGolden("checkbox_disabled_checked")
+    }
+
+    @Test
+    fun checkBoxTest_disabled_unchecked() {
+        composeTestRule.setMaterialContent {
+            Box(wrap.testTag(wrapperTestTag)) {
+                Checkbox(modifier = wrap, checked = false, enabled = false, onCheckedChange = { })
+            }
+        }
+        assertToggeableAgainstGolden("checkbox_disabled_unchecked")
+    }
+
+    @Test
+    fun checkBoxTest_disabled_indeterminate() {
+        composeTestRule.setMaterialContent {
+            Box(wrap.testTag(wrapperTestTag)) {
+                TriStateCheckbox(
+                    state = ToggleableState.Indeterminate,
+                    enabled = false,
+                    modifier = wrap,
+                    onClick = {})
+            }
+        }
+        assertToggeableAgainstGolden("checkbox_disabled_indeterminate")
     }
 
     @Test
     fun checkBoxTest_unchecked_animateToChecked() {
         composeTestRule.setMaterialContent {
             val isChecked = state { false }
-            Checkbox(modifier = wrap, checked = isChecked.value,
-                onCheckedChange = { isChecked.value = it })
+            Box(wrap.testTag(wrapperTestTag)) {
+                Checkbox(
+                    modifier = wrap,
+                    checked = isChecked.value,
+                    onCheckedChange = { isChecked.value = it }
+                )
+            }
         }
 
         composeTestRule.clockTestRule.pauseClock()
 
-        find(isToggleable())
-            .doClick()
+        onNode(isToggleable())
+            .performClick()
 
-        runOnIdleCompose { }
+        waitForIdle()
 
-        composeTestRule.clockTestRule.advanceClock(120)
+        composeTestRule.clockTestRule.advanceClock(60)
 
-        find(isToggleable())
-            .captureToBitmap()
-            .assertAgainstGolden(screenshotRule, "checkbox_animateToChecked", matcher)
+        assertToggeableAgainstGolden("checkbox_animateToChecked")
     }
 
     @Test
     fun checkBoxTest_checked_animateToUnchecked() {
         composeTestRule.setMaterialContent {
             val isChecked = state { true }
-            Checkbox(modifier = wrap, checked = isChecked.value,
-                onCheckedChange = { isChecked.value = it })
+            Box(wrap.testTag(wrapperTestTag)) {
+                Checkbox(
+                    modifier = wrap,
+                    checked = isChecked.value,
+                    onCheckedChange = { isChecked.value = it }
+                )
+            }
         }
 
         composeTestRule.clockTestRule.pauseClock()
 
-        find(isToggleable())
-            .doClick()
+        onNode(isToggleable())
+            .performClick()
 
-        runOnIdleCompose { }
+        waitForIdle()
 
-        composeTestRule.clockTestRule.advanceClock(120)
+        composeTestRule.clockTestRule.advanceClock(60)
 
-        find(isToggleable())
+        assertToggeableAgainstGolden("checkbox_animateToUnchecked")
+    }
+
+    private fun assertToggeableAgainstGolden(goldenName: String) {
+        // TODO: replace with find(isToggeable()) after b/157687898 is fixed
+        onNodeWithTag(wrapperTestTag)
             .captureToBitmap()
-            .assertAgainstGolden(screenshotRule, "checkbox_animateToUnchecked", matcher)
+            .assertAgainstGolden(screenshotRule, goldenName)
     }
 }

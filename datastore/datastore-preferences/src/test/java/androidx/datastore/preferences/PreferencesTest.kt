@@ -16,11 +16,14 @@
 
 package androidx.datastore.preferences
 
-import androidx.testutils.assertThrows
-import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class PreferencesTest {
@@ -35,14 +38,13 @@ class PreferencesTest {
             .setBoolean(booleanKey, true)
             .build()
 
-        assertThat(prefs.contains(booleanKey)).isTrue()
-        assertThat(prefs.getBoolean(booleanKey, false)).isTrue()
+        assertTrue { prefs.contains(booleanKey) }
+        assertTrue { prefs.getBoolean(booleanKey, false) }
     }
 
     @Test
     fun testBooleanDefault() {
-        assertThat(Preferences.empty().getBoolean("nonexistent key", false))
-            .isFalse()
+        assertFalse(Preferences.empty().getBoolean("nonexistent key", false))
     }
 
     @Test
@@ -55,14 +57,13 @@ class PreferencesTest {
             .setFloat(floatKey, 1.1f)
             .build()
 
-        assertThat(prefs.contains(floatKey)).isTrue()
-        assertThat(prefs.getFloat(floatKey, 0.0f)).isEqualTo(1.1f)
+        assertTrue { prefs.contains(floatKey) }
+        assertEquals(1.1f, prefs.getFloat(floatKey, 0.0f))
     }
 
     @Test
     fun testFloatDefault() {
-        assertThat(Preferences.empty().getFloat("nonexistent key", 0.1f))
-            .isEqualTo(0.1f)
+        assertEquals(0.1f, Preferences.empty().getFloat("nonexistent key", 0.1f))
     }
 
     @Test
@@ -75,14 +76,13 @@ class PreferencesTest {
             .setInt(intKey, 1)
             .build()
 
-        assertThat(prefs.contains(intKey)).isTrue()
-        assertThat(prefs.getInt(intKey, -1)).isEqualTo(1)
+        assertTrue { prefs.contains(intKey) }
+        assertEquals(1, prefs.getInt(intKey, -1))
     }
 
     @Test
     fun testIntDefault() {
-        assertThat(Preferences.empty().getInt("nonexistent key", 123))
-            .isEqualTo(123)
+        assertEquals(123, Preferences.empty().getInt("nonexistent key", 123))
     }
 
     @Test
@@ -97,14 +97,13 @@ class PreferencesTest {
             .setLong(longKey, bigLong)
             .build()
 
-        assertThat(prefs.contains(longKey)).isTrue()
-        assertThat(prefs.getLong(longKey, -1)).isEqualTo(bigLong)
+        assertTrue { prefs.contains(longKey) }
+        assertEquals(bigLong, prefs.getLong(longKey, -1))
     }
 
     @Test
     fun testLongDefault() {
-        assertThat(Preferences.empty().getLong("nonexistent key", 123))
-            .isEqualTo(123)
+        assertEquals(123, Preferences.empty().getLong("nonexistent key", 123))
     }
 
     @Test
@@ -117,15 +116,13 @@ class PreferencesTest {
             .setString(stringKey, "string123")
             .build()
 
-        assertThat(prefs.contains(stringKey)).isTrue()
-        assertThat(prefs.getString(stringKey, "default string"))
-            .isEqualTo("string123")
+        assertTrue { prefs.contains(stringKey) }
+        assertEquals("string123", prefs.getString(stringKey, "default string"))
     }
 
     @Test
     fun testStringDefault() {
-        assertThat(Preferences.empty().getString("nonexistent key", "default val"))
-            .isEqualTo("default val")
+        assertEquals("default val", Preferences.empty().getString("nonexistent key", "default val"))
     }
 
     @Test
@@ -138,23 +135,24 @@ class PreferencesTest {
             .setStringSet(stringSetKey, setOf("string1", "string2", "string3"))
             .build()
 
-        assertThat(prefs.contains(stringSetKey)).isTrue()
-        assertThat(prefs.getStringSet(stringSetKey, setOf())).isEqualTo(
+        assertTrue { prefs.contains(stringSetKey) }
+        assertEquals(
+
             setOf(
                 "string1",
                 "string2",
                 "string3"
-            )
+            ), prefs.getStringSet(stringSetKey, setOf())
         )
     }
 
     @Test
     fun testStringSetDefault() {
-        assertThat(
-            Preferences.empty().getStringSet(
+        assertEquals(
+            setOf("default set"), Preferences.empty().getStringSet(
                 "nonexistent key", setOf("default set")
             )
-        ).isEqualTo(setOf("default set"))
+        )
     }
 
     @Test
@@ -172,12 +170,13 @@ class PreferencesTest {
         mutableReturnedSet.clear()
         mutableReturnedSet.add("Original set does not contain this string")
 
-        assertThat(prefs.getStringSet(stringSetKey, setOf())).isEqualTo(
+        assertEquals(
             setOf(
                 "string1",
                 "string2",
                 "string3"
-            )
+            ),
+            prefs.getStringSet(stringSetKey, setOf())
         )
     }
 
@@ -191,10 +190,10 @@ class PreferencesTest {
             .setString(stringKey, "string123")
             .build()
 
-        assertThat(prefs.contains(stringKey)).isTrue()
+        assertTrue { prefs.contains(stringKey) }
 
         // Trying to get a long where there is a string value throws a ClassCastException.
-        assertThrows<ClassCastException> { prefs.getLong(stringKey, 123) }
+        assertFailsWith<ClassCastException> { prefs.getLong(stringKey, 123) }
     }
 
     @Test
@@ -210,10 +209,10 @@ class PreferencesTest {
             .build()
 
         val allPreferences = prefs.getAll()
-        assertThat(allPreferences.size).isEqualTo(2)
+        assertEquals(2, allPreferences.size)
 
-        assertThat(allPreferences[intKey]).isEqualTo(123)
-        assertThat(allPreferences[stringSetKey]).isEqualTo(setOf("1", "2", "3"))
+        assertEquals(123, allPreferences[intKey])
+        assertEquals(setOf("1", "2", "3"), (allPreferences[stringSetKey]))
     }
 
     @Test
@@ -233,8 +232,8 @@ class PreferencesTest {
         mutableAllPreferences[intKey] = 99999
         (mutableAllPreferences[stringSetKey] as MutableSet<String>).clear()
 
-        assertThat(prefs.getInt(intKey, -1)).isEqualTo(123)
-        assertThat(prefs.getStringSet(stringSetKey, setOf())).isEqualTo(setOf("1", "2", "3"))
+        assertEquals(123, prefs.getInt(intKey, -1))
+        assertEquals(setOf("1", "2", "3"), prefs.getStringSet(stringSetKey, setOf()))
     }
 
     @Test
@@ -249,7 +248,7 @@ class PreferencesTest {
 
         val emptyPrefs = prefsWithInt.toBuilder().clear().build()
 
-        assertThat(emptyPrefs).isEqualTo(Preferences.empty())
+        assertEquals(Preferences.empty(), emptyPrefs)
     }
 
     @Test
@@ -264,14 +263,14 @@ class PreferencesTest {
 
         val emptyPrefs = prefsWithInt.toBuilder().remove(intKey).build()
 
-        assertThat(emptyPrefs).isEqualTo(Preferences.empty())
+        assertEquals(Preferences.empty(), emptyPrefs)
     }
 
     @Test
     fun testBuilderPublicConstructor() {
         val emptyPrefs = Preferences.Builder().build()
 
-        assertThat(emptyPrefs).isEqualTo(Preferences.empty())
+        assertEquals(Preferences.empty(), emptyPrefs)
     }
 
     @Test
@@ -281,7 +280,7 @@ class PreferencesTest {
         val prefs1 = Preferences.empty().toBuilder().setInt(intKey1, 123).build()
         val prefs2 = Preferences.empty().toBuilder().setInt(intKey1, 123).build()
 
-        assertThat(prefs1).isEqualTo(prefs2)
+        assertEquals(prefs1, prefs2)
     }
 
     @Test
@@ -301,7 +300,7 @@ class PreferencesTest {
             .setInt(intKey2, 123)
             .build()
 
-        assertThat(prefs1).isNotEqualTo(prefs2)
+        assertNotEquals(prefs1, prefs2)
     }
 
     @Test
@@ -320,7 +319,7 @@ class PreferencesTest {
             .setInt(intKey, 999)
             .build()
 
-        assertThat(prefs1).isNotEqualTo(prefs2)
+        assertNotEquals(prefs1, prefs2)
     }
 
     @Test
@@ -339,6 +338,6 @@ class PreferencesTest {
             .setStringSet(stringSetKey, setOf("different string1", "string2"))
             .build()
 
-        assertThat(prefs1).isNotEqualTo(prefs2)
+        assertNotEquals(prefs1, prefs2)
     }
 }

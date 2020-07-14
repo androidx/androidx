@@ -20,6 +20,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
+    id("kotlin-android-extensions")
     id("kotlin-kapt")
 }
 
@@ -33,7 +34,10 @@ android {
 }
 
 dependencies {
+    implementation("androidx.annotation:annotation:1.1.0")
     implementation(project(":contentaccess:contentaccess-annotations"))
+    implementation(project(":contentaccess:contentaccess-runtime"))
     kapt(project(":contentaccess:contentaccess-compiler"))
     implementation(KOTLIN_STDLIB)
+    api(RX_JAVA)
 }

@@ -23,29 +23,34 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.longPressGestureFilter
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
+import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 
 /**
- * Simple LongPressGestureDetector demo.
+ * Simple [longPressGestureFilter] demo.
  */
 @Composable
 fun LongPressGestureDetectorDemo() {
     val color = state { Colors.random() }
 
-    val onLongPress = { _: PxPosition ->
+    val onLongPress = { _: Offset ->
         color.value = color.value.anotherRandomColor()
     }
 
-    Box(
-        Modifier.fillMaxSize()
-            .wrapContentSize(Alignment.Center)
-            .longPressGestureFilter(onLongPress)
-            .preferredSize(192.dp),
-        backgroundColor = color.value,
-        border = Border(2.dp, BorderColor)
-    )
+    Column {
+        Text("The box changes color when you long press on it.")
+        Box(
+            Modifier.fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+                .preferredSize(192.dp)
+                .longPressGestureFilter(onLongPress),
+            backgroundColor = color.value,
+            border = Border(2.dp, BorderColor)
+        )
+    }
 }

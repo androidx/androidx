@@ -58,7 +58,7 @@ internal fun isOnUiThread(): Boolean {
  *
  * This method is blocking until the action is complete.
  */
-fun <T> runOnIdleCompose(action: () -> T): T {
+fun <T> runOnIdle(action: () -> T): T {
     // Method below make sure that compose is idle.
     waitForIdle()
     // Execute the action on ui thread in a blocking way.
@@ -76,3 +76,16 @@ fun <T> runOnIdleCompose(action: () -> T): T {
 fun waitForIdle() {
     SynchronizedTreeCollector.waitForIdle()
 }
+
+// DEPRECATED APIs SECTION
+
+/**
+ * Executes the given action in the same way as [runOnUiThread] but also makes sure Compose
+ * is idle before executing it. This is great place for doing your assertions on shared
+ * variables.
+ *
+ * This method is blocking until the action is complete.
+ */
+@Deprecated("Renamed to runOnIdle",
+    replaceWith = ReplaceWith("runOnIdle(action)"))
+fun <T> runOnIdleCompose(action: () -> T): T = runOnIdle(action)

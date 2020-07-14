@@ -213,9 +213,11 @@
         <item name="actionDropDownStyle">@style/Widget.AppCompat.Spinner.DropDown.ActionBar</item>
 
         <!-- Action Mode -->
+        <item name="actionModeTheme">?attr/actionBarTheme</item>
         <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
         <item name="actionModeBackground">@drawable/abc_cab_background_top_material</item>
         <item name="actionModeSplitBackground">?attr/colorPrimaryDark</item>
+        <item name="actionModeCloseContentDescription">@string/abc_action_mode_done</item>
         <item name="actionModeCloseDrawable">@drawable/abc_ic_ab_back_material</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode</item>
 
@@ -382,9 +384,11 @@
         <item name="actionMenuTextColor">?android:attr/textColorPrimaryDisableOnly</item>
 
         <!-- Action Mode -->
+        <item name="actionModeTheme">?attr/actionBarTheme</item>
         <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
         <item name="actionModeBackground">@drawable/abc_cab_background_top_material</item>
         <item name="actionModeSplitBackground">?attr/colorPrimaryDark</item>
+        <item name="actionModeCloseContentDescription">@string/abc_action_mode_done</item>
         <item name="actionModeCloseDrawable">@drawable/abc_ic_ab_back_material</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode</item>
 
@@ -525,6 +529,7 @@
         <item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="actionBarWidgetTheme">@null</item>
         <item name="actionBarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <item name="actionModeTheme">?attr/actionBarTheme</item>
 
         <!-- Panel attributes -->
         <item name="listChoiceBackgroundIndicator">@drawable/abc_list_selector_holo_dark</item>

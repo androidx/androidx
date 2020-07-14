@@ -18,12 +18,13 @@ package androidx.ui.test.inputdispatcher
 
 import android.view.MotionEvent
 import androidx.test.filters.SmallTest
+import androidx.ui.geometry.Offset
+import androidx.ui.test.InputDispatcher.Companion.eventPeriod
+import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.verify
-import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Rule
@@ -33,7 +34,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Tests if the [AndroidInputDispatcher.sendClick] gesture works
+ * Tests if [AndroidInputDispatcher.sendClick] works
  */
 @SmallTest
 @RunWith(Parameterized::class)
@@ -55,20 +56,17 @@ class SendClickTest(config: TestConfig) {
         }
     }
 
-    private val dispatcherRule = AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
-    private val eventPeriod get() = dispatcherRule.eventPeriod
-
     @get:Rule
-    val inputDispatcherRule: TestRule = dispatcherRule
+    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
 
-    private val position = PxPosition(config.x.px, config.y.px)
+    private val position = Offset(config.x, config.y)
 
     private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::sendEvent)
+    private val subject = AndroidInputDispatcher(recorder::recordEvent)
 
     @After
     fun tearDown() {
-        recorder.clear()
+        recorder.disposeEvents()
     }
 
     @Test
@@ -76,9 +74,10 @@ class SendClickTest(config: TestConfig) {
         subject.sendClick(position)
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
-            assertThat(size).isEqualTo(2)
-            first().verify(position, MotionEvent.ACTION_DOWN, 0)
-            last().verify(position, MotionEvent.ACTION_UP, eventPeriod)
+            assertThat(size).isEqualTo(3)
+            this[0].verify(position, MotionEvent.ACTION_DOWN, 0)
+            this[1].verify(position, MotionEvent.ACTION_MOVE, eventPeriod)
+            this[2].verify(position, MotionEvent.ACTION_UP, eventPeriod)
         }
     }
 }

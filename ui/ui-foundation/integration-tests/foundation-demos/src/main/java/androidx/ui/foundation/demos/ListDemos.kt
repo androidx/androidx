@@ -19,33 +19,40 @@ package androidx.ui.foundation.demos
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.getValue
+import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.demos.common.ComposableDemo
-import androidx.ui.foundation.AdapterList
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentColorAmbient
+import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.lazy.LazyColumnItems
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.clickable
 import androidx.ui.foundation.currentTextStyle
+import androidx.ui.foundation.lazy.LazyRowItems
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
+import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.padding
+import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
+import kotlin.random.Random
 
-val ListDemos = listOf(
-    ComposableDemo("Simple list") { ListDemo() },
-    ComposableDemo("Add/remove items") { ListAddRemoveItemsDemo() }
+val LazyListDemos = listOf(
+    ComposableDemo("Simple column") { LazyColumnDemo() },
+    ComposableDemo("Add/remove items") { ListAddRemoveItemsDemo() },
+    ComposableDemo("Horizontal list") { LazyRowItemsDemo() }
 )
 
 @Composable
-private fun ListDemo() {
-    AdapterList(
-        data = listOf(
+private fun LazyColumnDemo() {
+    LazyColumnItems(
+        items = listOf(
             "Hello,", "World:", "It works!", "",
             "this one is really long and spans a few lines for scrolling purposes",
             "these", "are", "offscreen"
@@ -71,7 +78,7 @@ private fun ListAddRemoveItemsDemo() {
             Button(modifier = buttonModifier, onClick = { offset++ }) { Text("Offset") }
         }
         Column {
-            AdapterList((1..numItems).map { it + offset }.toList()) {
+            LazyColumnItems((1..numItems).map { it + offset }.toList()) {
                 Text("$it", style = currentTextStyle().copy(fontSize = 20.sp))
             }
         }
@@ -94,3 +101,30 @@ fun Button(modifier: Modifier, onClick: () -> Unit, children: @Composable () -> 
         }
     }
 }
+
+@Composable
+private fun LazyRowItemsDemo() {
+    LazyRowItems(items = (1..1000).toList()) {
+        Square(it)
+    }
+}
+
+@Composable
+private fun Square(index: Int) {
+    val width = remember { Random.nextInt(50, 150).dp }
+    Box(
+        Modifier.preferredWidth(width).fillMaxHeight(),
+        backgroundColor = colors[index % colors.size],
+        gravity = ContentGravity.Center
+    ) {
+        Text(index.toString())
+    }
+}
+
+private val colors = listOf(
+    Color(0xFFffd7d7.toInt()),
+    Color(0xFFffe9d6.toInt()),
+    Color(0xFFfffbd0.toInt()),
+    Color(0xFFe3ffd9.toInt()),
+    Color(0xFFd0fff8.toInt())
+)

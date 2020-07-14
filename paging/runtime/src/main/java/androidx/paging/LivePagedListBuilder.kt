@@ -36,6 +36,7 @@ import java.util.concurrent.Executor
  *
  * @see toLiveData
  */
+@Deprecated("PagedList is deprecated and has been replaced by PagingData")
 class LivePagedListBuilder<Key : Any, Value : Any> {
     private val pagingSourceFactory: (() -> PagingSource<Key, Value>)?
     private val dataSourceFactory: DataSource.Factory<Key, Value>?

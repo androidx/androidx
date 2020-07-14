@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
+<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/emoji/text/EmojiProcessor.java"
+            line="662"
+            column="5"/>
+    </issue>
 
     <issue
         id="KotlinPropertyAccess"
@@ -562,7 +573,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
-            line="78"
+            line="79"
             column="35"/>
     </issue>
 
@@ -573,7 +584,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
-            line="83"
+            line="84"
             column="35"/>
     </issue>
 
@@ -584,7 +595,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
-            line="89"
+            line="90"
             column="35"/>
     </issue>
 
@@ -595,7 +606,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
-            line="96"
+            line="97"
             column="35"/>
     </issue>
 
@@ -606,7 +617,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
-            line="96"
+            line="97"
             column="52"/>
     </issue>
 
@@ -617,7 +628,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
-            line="164"
+            line="163"
             column="41"/>
     </issue>
 
@@ -628,7 +639,7 @@
         errorLine2="                                                                               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
-            line="164"
+            line="163"
             column="80"/>
     </issue>
 

@@ -18,11 +18,17 @@
 
 package androidx.room.ext
 
+import asDeclaredType
 import asTypeElement
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
+import isAssignableFrom
+import isDeclared
+import isNotNone
+import isSameType
 import java.lang.reflect.Proxy
+import java.util.Locale
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
@@ -32,19 +38,39 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
+import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.ExecutableType
-import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.type.WildcardType
 import javax.lang.model.util.ElementFilter
 import javax.lang.model.util.SimpleAnnotationValueVisitor6
 import javax.lang.model.util.SimpleTypeVisitor7
 import javax.lang.model.util.Types
+import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
-fun Element.hasAnyOf(vararg modifiers: Modifier): Boolean {
-    return this.modifiers.any { modifiers.contains(it) }
+private fun Element.hasModifier(modifier: Modifier): Boolean {
+    return this.modifiers.contains(modifier)
 }
+
+fun Element.isPublic() = hasModifier(Modifier.PUBLIC)
+
+fun Element.isAbstract() = hasModifier(Modifier.ABSTRACT)
+
+fun Element.isPrivate() = hasModifier(Modifier.PRIVATE)
+
+fun Element.isStatic() = hasModifier(Modifier.STATIC)
+
+fun Element.isTransient() = hasModifier(Modifier.TRANSIENT)
+
+fun Element.isFinal() = hasModifier(Modifier.FINAL)
+
+// we handle kotlin and java defaults differently
+fun ExecutableElement.isJavaDefault() = hasModifier(Modifier.DEFAULT)
+
+// checks if this executable element can be overridden but does not check if the enclosing element
+// can be overridden
+fun ExecutableElement.isOverrideableIgnoringContainer(): Boolean = !isPrivate() && !isFinal()
 
 fun Element.hasAnnotation(klass: KClass<out Annotation>): Boolean {
     return MoreElements.isAnnotationPresent(this, klass.java)
@@ -65,6 +91,10 @@ fun Element.isNonNull() =
 
 fun Element.isEntityElement() = this.hasAnnotation(androidx.room.Entity::class)
 
+fun TypeElement.getConstructors(): List<ExecutableElement> {
+    return ElementFilter.constructorsIn(enclosedElements)
+}
+
 /**
  * gets all members including super privates. does not handle duplicate field names!!!
  */
@@ -76,23 +106,11 @@ fun TypeElement.getAllFieldsIncludingPrivateSupers(processingEnvironment: Proces
             .filter { it is VariableElement }
             .map { it as VariableElement }
             .toSet()
-    if (superclass.kind != TypeKind.NONE) {
+    if (superclass.isNotNone()) {
         return myMembers + superclass.asTypeElement()
                 .getAllFieldsIncludingPrivateSupers(processingEnvironment)
     } else {
         return myMembers
-    }
-}
-
-fun TypeElement.getAllMethodsIncludingSupers(): Set<ExecutableElement> {
-    val myMethods = ElementFilter.methodsIn(this.enclosedElements).toSet()
-    val interfaceMethods = interfaces.flatMap {
-        it.asTypeElement().getAllMethodsIncludingSupers()
-    }
-    return if (superclass.kind != TypeKind.NONE) {
-        myMethods + interfaceMethods + superclass.asTypeElement().getAllMethodsIncludingSupers()
-    } else {
-        myMethods + interfaceMethods
     }
 }
 
@@ -301,12 +319,17 @@ private fun <T : Enum<*>> AnnotationValue.getAsEnum(enumClass: Class<T>): T {
 }
 
 // a variant of Types.isAssignable that ignores variance.
-fun Types.isAssignableWithoutVariance(from: TypeMirror, to: TypeMirror): Boolean {
-    val assignable = isAssignable(from, to)
+fun TypeMirror.isAssignableFromWithoutVariance(
+    typeUtils: Types,
+    from: TypeMirror
+) = typeUtils.isAssignableWithoutVariance(from = from, to = this)
+
+private fun Types.isAssignableWithoutVariance(from: TypeMirror, to: TypeMirror): Boolean {
+    val assignable = to.isAssignableFrom(this, from)
     if (assignable) {
         return true
     }
-    if (from.kind != TypeKind.DECLARED || to.kind != TypeKind.DECLARED) {
+    if (!from.isDeclared() || !to.isDeclared()) {
         return false
     }
     val declaredFrom = MoreTypes.asDeclared(from)
@@ -318,7 +341,7 @@ fun Types.isAssignableWithoutVariance(from: TypeMirror, to: TypeMirror): Boolean
         return false
     }
     // check erasure version first, if it does not match, no reason to proceed
-    if (!isAssignable(erasure(from), erasure(to))) {
+    if (!erasure(to).isAssignableFrom(this, erasure(from))) {
         return false
     }
     // convert from args to their upper bounds if it exists
@@ -370,7 +393,7 @@ fun ExecutableElement.findKotlinDefaultImpl(typeUtils: Types): ExecutableElement
         }
         ourParams.forEachIndexed { i, variableElement ->
             // Plus 1 to their index because their first param is a self object.
-            if (!typeUtils.isSameType(theirParams[i + 1].asType(), variableElement.asType())) {
+            if (!theirParams[i + 1].type.isSameType(typeUtils, variableElement.type)) {
                 return false
             }
         }
@@ -378,11 +401,11 @@ fun ExecutableElement.findKotlinDefaultImpl(typeUtils: Types): ExecutableElement
     }
 
     val parent = this.enclosingElement as TypeElement
-    val innerClass = parent.enclosedElements.find {
-        it.kind == ElementKind.CLASS && it.simpleName.contentEquals(DEFAULT_IMPLS_CLASS_NAME)
-    } ?: return null
-    return ElementFilter.methodsIn(innerClass.enclosedElements).find {
-        it.simpleName == this.simpleName && paramsMatch(this.parameters, it.parameters)
+    val innerClass: TypeElement = parent.enclosedElements.find {
+        it.isType() && it.simpleName.contentEquals(DEFAULT_IMPLS_CLASS_NAME)
+    } as? TypeElement ?: return null
+    return innerClass.getDeclaredMethods().find {
+        it.name == this.name && paramsMatch(this.parameters, it.parameters)
     }
 }
 
@@ -397,3 +420,111 @@ fun ExecutableType.getSuspendFunctionReturnType(): TypeMirror {
     val typeParam = MoreTypes.asDeclared(parameterTypes.last()).typeArguments.first()
     return typeParam.extendsBoundOrSelf() // reduce the type param
 }
+
+fun Element.getPackage() = MoreElements.getPackage(this).qualifiedName.toString()
+
+fun Element.asTypeElement() = MoreElements.asType(this)
+
+fun Element.asVariableElement() = MoreElements.asVariable(this)
+
+fun Element.asExecutableElement() = MoreElements.asExecutable(this)
+
+fun Element.isType(): Boolean {
+    contract {
+        returns(true) implies (this@isType is TypeElement)
+    }
+    return MoreElements.isType(this)
+}
+
+fun Element.isMethod(): Boolean {
+    contract {
+        returns(true) implies (this@isMethod is ExecutableElement)
+    }
+    return kind == ElementKind.METHOD
+}
+
+fun Element.isConstructor(): Boolean {
+    contract {
+        returns(true) implies (this@isConstructor is ExecutableElement)
+    }
+    return kind == ElementKind.CONSTRUCTOR
+}
+
+fun Element.isField(): Boolean {
+    contract {
+        returns(true) implies (this@isField is VariableElement)
+    }
+    return kind == ElementKind.FIELD
+}
+
+fun Element.isInterface(): Boolean {
+    contract {
+        returns(true) implies (this@isInterface is TypeElement)
+    }
+    return kind == ElementKind.INTERFACE
+}
+
+fun Element.asDeclaredType() = asType().asDeclaredType()
+
+/**
+ * methods declared in this type
+ *  includes all instance/static methods in this
+ */
+fun TypeElement.getDeclaredMethods() = ElementFilter.methodsIn(
+    enclosedElements
+)
+
+/**
+ * Methods declared in this type and its parents
+ *  includes all instance/static methods in this
+ *  includes all instance/static methods in parent CLASS if they are accessible from this (e.g. not
+ *  private).
+ *  does not include static methods in parent interfaces
+ */
+fun TypeElement.getAllMethods(
+    processingEnv: ProcessingEnvironment
+) = ElementFilter.methodsIn(
+    processingEnv.elementUtils.getAllMembers(this)
+)
+
+/**
+ * Instance methods declared in this and supers
+ *  include non private instance methods
+ *  also includes non-private instance methods from supers
+ */
+fun TypeElement.getAllNonPrivateInstanceMethods(
+    processingEnvironment: ProcessingEnvironment
+) = MoreElements.getLocalAndInheritedMethods(
+    this,
+    processingEnvironment.typeUtils,
+    processingEnvironment.elementUtils)
+
+fun VariableElement.asMemberOf(
+    types: Types,
+    container: DeclaredType?
+) = MoreTypes.asMemberOf(types, container, this)
+
+fun ExecutableElement.asMemberOf(
+    types: Types,
+    container: DeclaredType?
+) = MoreTypes.asExecutable(types.asMemberOf(container, this))
+
+/**
+ * Returns the string representation of the element kind.
+ */
+fun Element.kindName() = kind.name.toLowerCase(Locale.US)
+
+// instead of using asType on Element, we should use a specific Element subclass's  .type
+// it is not enforce-able until migrating to the abstraction but still a step in the right direction
+// of safety
+val VariableElement.type: TypeMirror
+    get() = asType()
+
+val TypeElement.type: DeclaredType
+    get() = MoreTypes.asDeclared(asType())
+
+val ExecutableElement.executableType: ExecutableType
+    get() = MoreTypes.asExecutable(asType())
+
+val Element.name: String
+    get() = simpleName.toString()

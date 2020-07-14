@@ -14,7 +14,7 @@ package androidx.navigation.dynamicfeatures {
     property public final String? moduleName;
   }
 
-  public final class DynamicActivityNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.ActivityNavigator.Destination> {
+  @androidx.navigation.NavDestinationDsl public final class DynamicActivityNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.ActivityNavigator.Destination> {
     ctor public DynamicActivityNavigatorDestinationBuilder(androidx.navigation.dynamicfeatures.DynamicActivityNavigator activityNavigator, @IdRes int id);
     method public androidx.navigation.dynamicfeatures.DynamicActivityNavigator.Destination build();
     method public String? getAction();
@@ -84,7 +84,7 @@ package androidx.navigation.dynamicfeatures {
     property public final String? moduleName;
   }
 
-  public final class DynamicIncludeNavGraphBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph> {
+  @androidx.navigation.NavDestinationDsl public final class DynamicIncludeNavGraphBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph> {
     ctor public DynamicIncludeNavGraphBuilder(androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator dynamicIncludeGraphNavigator, @IdRes int id, String moduleName, String graphResourceName);
     method public androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph build();
     method public String? getGraphPackage();
@@ -114,7 +114,7 @@ package androidx.navigation.dynamicfeatures {
     property public final androidx.lifecycle.LiveData<com.google.android.play.core.splitinstall.SplitInstallSessionState> status;
   }
 
-  public final class DynamicNavGraphBuilder extends androidx.navigation.NavGraphBuilder {
+  @androidx.navigation.NavDestinationDsl public final class DynamicNavGraphBuilder extends androidx.navigation.NavGraphBuilder {
     ctor public DynamicNavGraphBuilder(androidx.navigation.NavigatorProvider provider, @IdRes int id, @IdRes int startDestination);
     method public String? getModuleName();
     method public int getProgressDestination();

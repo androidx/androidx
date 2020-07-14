@@ -66,6 +66,8 @@ package androidx.ui.input {
   }
 
   public enum ImeAction {
+    method public static androidx.ui.input.ImeAction valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.input.ImeAction[] values();
     enum_constant public static final androidx.ui.input.ImeAction Done;
     enum_constant public static final androidx.ui.input.ImeAction Go;
     enum_constant public static final androidx.ui.input.ImeAction Next;
@@ -82,6 +84,8 @@ package androidx.ui.input {
   }
 
   public enum KeyboardType {
+    method public static androidx.ui.input.KeyboardType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.input.KeyboardType[] values();
     enum_constant public static final androidx.ui.input.KeyboardType Ascii;
     enum_constant public static final androidx.ui.input.KeyboardType Email;
     enum_constant public static final androidx.ui.input.KeyboardType Number;
@@ -103,7 +107,7 @@ package androidx.ui.input {
   public interface OffsetMap {
     method public int originalToTransformed(int offset);
     method public int transformedToOriginal(int offset);
-    field public static final androidx.ui.input.OffsetMap.Companion! Companion;
+    field public static final androidx.ui.input.OffsetMap.Companion Companion;
   }
 
   public static final class OffsetMap.Companion {
@@ -251,7 +255,7 @@ package androidx.ui.text {
     method public static inline <R> R withStyle(androidx.ui.text.AnnotatedString.Builder, androidx.ui.text.ParagraphStyle style, kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,? extends R> block);
   }
 
-  public final class Locale {
+  @androidx.compose.Immutable public final class Locale {
     ctor public Locale(String languageTag);
     method public String getLanguage();
     method public String getRegion();
@@ -260,7 +264,7 @@ package androidx.ui.text {
     property public final String language;
     property public final String region;
     property public final String script;
-    field public static final androidx.ui.text.Locale.Companion! Companion;
+    field public static final androidx.ui.text.Locale.Companion Companion;
   }
 
   public static final class Locale.Companion {
@@ -268,21 +272,21 @@ package androidx.ui.text {
     property public final androidx.ui.text.Locale current;
   }
 
-  public final class LocaleList implements java.util.Collection<androidx.ui.text.Locale> kotlin.jvm.internal.markers.KMappedMarker {
+  @androidx.compose.Immutable public final class LocaleList implements java.util.Collection<androidx.ui.text.Locale> kotlin.jvm.internal.markers.KMappedMarker {
     ctor public LocaleList(java.util.List<androidx.ui.text.Locale> localeList);
     ctor public LocaleList(String languageTags);
     ctor public LocaleList(androidx.ui.text.Locale... locales);
     method public java.util.List<androidx.ui.text.Locale> component1();
     method public operator boolean contains(androidx.ui.text.Locale element);
     method public boolean containsAll(java.util.Collection<?> elements);
-    method public androidx.ui.text.LocaleList copy(java.util.List<androidx.ui.text.Locale> localeList);
+    method @androidx.compose.Immutable public androidx.ui.text.LocaleList copy(java.util.List<androidx.ui.text.Locale> localeList);
     method public operator androidx.ui.text.Locale get(int i);
     method public java.util.List<androidx.ui.text.Locale> getLocaleList();
     method public int getSize();
     method public boolean isEmpty();
     method public java.util.Iterator<androidx.ui.text.Locale> iterator();
     property public int size;
-    field public static final androidx.ui.text.LocaleList.Companion! Companion;
+    field public static final androidx.ui.text.LocaleList.Companion Companion;
   }
 
   public static final class LocaleList.Companion {
@@ -407,14 +411,14 @@ package androidx.ui.text {
     method public static androidx.ui.text.Paragraph Paragraph(androidx.ui.text.ParagraphIntrinsics paragraphIntrinsics, int maxLines = 2147483647, boolean ellipsis = false, androidx.ui.text.ParagraphConstraints constraints);
   }
 
-  public final class ParagraphStyle {
+  @androidx.compose.Immutable public final class ParagraphStyle {
     ctor public ParagraphStyle(androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.unit.TextUnit lineHeight, androidx.ui.text.style.TextIndent? textIndent);
     ctor public ParagraphStyle();
     method public androidx.ui.text.style.TextAlign? component1();
     method public androidx.ui.text.style.TextDirectionAlgorithm? component2();
     method public androidx.ui.unit.TextUnit component3();
     method public androidx.ui.text.style.TextIndent? component4();
-    method public androidx.ui.text.ParagraphStyle copy(androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.unit.TextUnit lineHeight, androidx.ui.text.style.TextIndent? textIndent);
+    method @androidx.compose.Immutable public androidx.ui.text.ParagraphStyle copy(androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.unit.TextUnit lineHeight, androidx.ui.text.style.TextIndent? textIndent);
     method public androidx.ui.unit.TextUnit getLineHeight();
     method public androidx.ui.text.style.TextAlign? getTextAlign();
     method public androidx.ui.text.style.TextDirectionAlgorithm? getTextDirectionAlgorithm();
@@ -438,6 +442,8 @@ package androidx.ui.text {
   }
 
   public enum PlaceholderVerticalAlign {
+    method public static androidx.ui.text.PlaceholderVerticalAlign valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.text.PlaceholderVerticalAlign[] values();
     enum_constant public static final androidx.ui.text.PlaceholderVerticalAlign AboveBaseline;
     enum_constant public static final androidx.ui.text.PlaceholderVerticalAlign Bottom;
     enum_constant public static final androidx.ui.text.PlaceholderVerticalAlign Center;
@@ -447,7 +453,7 @@ package androidx.ui.text {
     enum_constant public static final androidx.ui.text.PlaceholderVerticalAlign Top;
   }
 
-  public final class SpanStyle {
+  @androidx.compose.Immutable public final class SpanStyle {
     ctor public SpanStyle(androidx.ui.graphics.Color? color, androidx.ui.unit.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.unit.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow);
     ctor public SpanStyle();
     method public androidx.ui.graphics.Color? component1();
@@ -464,7 +470,7 @@ package androidx.ui.text {
     method public String? component7();
     method public androidx.ui.unit.TextUnit component8();
     method public androidx.ui.text.style.BaselineShift? component9();
-    method public androidx.ui.text.SpanStyle copy(androidx.ui.graphics.Color? color, androidx.ui.unit.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.unit.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow);
+    method @androidx.compose.Immutable public androidx.ui.text.SpanStyle copy(androidx.ui.graphics.Color? color, androidx.ui.unit.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.unit.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow);
     method public androidx.ui.graphics.Color? getBackground();
     method public androidx.ui.text.style.BaselineShift? getBaselineShift();
     method public androidx.ui.graphics.Color? getColor();
@@ -557,7 +563,7 @@ package androidx.ui.text {
 
   public final class TextPainter {
     method public void paint(androidx.ui.graphics.Canvas canvas, androidx.ui.text.TextLayoutResult textLayoutResult);
-    field public static final androidx.ui.text.TextPainter! INSTANCE;
+    field public static final androidx.ui.text.TextPainter INSTANCE;
   }
 
   public final class TextRange {
@@ -584,7 +590,7 @@ package androidx.ui.text {
     method public static String substring(CharSequence, androidx.ui.text.TextRange range);
   }
 
-  public final class TextStyle {
+  @androidx.compose.Immutable public final class TextStyle {
     ctor public TextStyle(androidx.ui.graphics.Color? color, androidx.ui.unit.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.unit.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow, androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.unit.TextUnit lineHeight, androidx.ui.text.style.TextIndent? textIndent);
     ctor public TextStyle();
     method public androidx.ui.graphics.Color? component1();
@@ -605,7 +611,7 @@ package androidx.ui.text {
     method public String? component7();
     method public androidx.ui.unit.TextUnit component8();
     method public androidx.ui.text.style.BaselineShift? component9();
-    method public androidx.ui.text.TextStyle copy(androidx.ui.graphics.Color? color, androidx.ui.unit.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.unit.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow, androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.unit.TextUnit lineHeight, androidx.ui.text.style.TextIndent? textIndent);
+    method @androidx.compose.Immutable public androidx.ui.text.TextStyle copy(androidx.ui.graphics.Color? color, androidx.ui.unit.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.unit.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow, androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.unit.TextUnit lineHeight, androidx.ui.text.style.TextIndent? textIndent);
     method public androidx.ui.graphics.Color? getBackground();
     method public androidx.ui.text.style.BaselineShift? getBaselineShift();
     method public androidx.ui.graphics.Color? getColor();
@@ -629,7 +635,7 @@ package androidx.ui.text {
     method public androidx.ui.text.TextStyle merge(androidx.ui.text.ParagraphStyle other);
     method public androidx.ui.text.ParagraphStyle toParagraphStyle();
     method public androidx.ui.text.SpanStyle toSpanStyle();
-    field public static final androidx.ui.text.TextStyle.Companion! Companion;
+    field public static final androidx.ui.text.TextStyle.Companion Companion;
   }
 
   public static final class TextStyle.Companion {
@@ -669,9 +675,9 @@ package androidx.ui.text.font {
     method public Object load(androidx.ui.text.font.Font font);
   }
 
-  public abstract sealed class FontFamily {
+  @androidx.compose.Immutable public abstract sealed class FontFamily {
     method public final boolean getCanLoadSynchronously();
-    field public static final androidx.ui.text.font.FontFamily.Companion! Companion;
+    field public static final androidx.ui.text.font.FontFamily.Companion Companion;
   }
 
   public static final class FontFamily.Companion {
@@ -698,12 +704,12 @@ package androidx.ui.text.font {
     method public static androidx.ui.text.font.Font font(int resId, androidx.ui.text.font.FontWeight weight = FontWeight.Normal, androidx.ui.text.font.FontStyle style = androidx.ui.text.font.FontStyle.Normal);
   }
 
-  public final class FontListFontFamily extends androidx.ui.text.font.FileBasedFontFamily implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.text.font.Font> {
+  @androidx.compose.Immutable public final class FontListFontFamily extends androidx.ui.text.font.FileBasedFontFamily implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.text.font.Font> {
     ctor public FontListFontFamily(java.util.List<? extends androidx.ui.text.font.Font> fonts);
     method public java.util.List<androidx.ui.text.font.Font> component1();
     method public boolean contains(androidx.ui.text.font.Font element);
     method public boolean containsAll(java.util.Collection<?> elements);
-    method public androidx.ui.text.font.FontListFontFamily copy(java.util.List<? extends androidx.ui.text.font.Font> fonts);
+    method @androidx.compose.Immutable public androidx.ui.text.font.FontListFontFamily copy(java.util.List<? extends androidx.ui.text.font.Font> fonts);
     method public androidx.ui.text.font.Font get(int index);
     method public java.util.List<androidx.ui.text.font.Font> getFonts();
     method public int getSize();
@@ -717,21 +723,25 @@ package androidx.ui.text.font {
   }
 
   public enum FontStyle {
+    method public static androidx.ui.text.font.FontStyle valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.text.font.FontStyle[] values();
     enum_constant public static final androidx.ui.text.font.FontStyle Italic;
     enum_constant public static final androidx.ui.text.font.FontStyle Normal;
   }
 
   public enum FontSynthesis {
+    method public static androidx.ui.text.font.FontSynthesis valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.text.font.FontSynthesis[] values();
     enum_constant public static final androidx.ui.text.font.FontSynthesis All;
     enum_constant public static final androidx.ui.text.font.FontSynthesis None;
     enum_constant public static final androidx.ui.text.font.FontSynthesis Style;
     enum_constant public static final androidx.ui.text.font.FontSynthesis Weight;
   }
 
-  public final class FontWeight implements java.lang.Comparable<androidx.ui.text.font.FontWeight> {
+  @androidx.compose.Immutable public final class FontWeight implements java.lang.Comparable<androidx.ui.text.font.FontWeight> {
     method public int compareTo(androidx.ui.text.font.FontWeight other);
-    method public androidx.ui.text.font.FontWeight copy(int weight);
-    field public static final androidx.ui.text.font.FontWeight.Companion! Companion;
+    method @androidx.compose.Immutable public androidx.ui.text.font.FontWeight copy(int weight);
+    field public static final androidx.ui.text.font.FontWeight.Companion Companion;
   }
 
   public static final class FontWeight.Companion {
@@ -777,7 +787,7 @@ package androidx.ui.text.font {
     method public static androidx.ui.text.font.FontWeight lerp(androidx.ui.text.font.FontWeight start, androidx.ui.text.font.FontWeight stop, float fraction);
   }
 
-  public final class GenericFontFamily extends androidx.ui.text.font.SystemFontFamily {
+  @androidx.compose.Immutable public final class GenericFontFamily extends androidx.ui.text.font.SystemFontFamily {
     method public String getName();
   }
 
@@ -819,12 +829,12 @@ package androidx.ui.text.platform {
 
 package androidx.ui.text.style {
 
-  public final class BaselineShift {
+  @androidx.compose.Immutable public final class BaselineShift {
     ctor public BaselineShift(float multiplier);
     method public float component1();
-    method public androidx.ui.text.style.BaselineShift copy(float multiplier);
+    method @androidx.compose.Immutable public androidx.ui.text.style.BaselineShift copy(float multiplier);
     method public float getMultiplier();
-    field public static final androidx.ui.text.style.BaselineShift.Companion! Companion;
+    field public static final androidx.ui.text.style.BaselineShift.Companion Companion;
   }
 
   public static final class BaselineShift.Companion {
@@ -841,6 +851,8 @@ package androidx.ui.text.style {
   }
 
   public enum TextAlign {
+    method public static androidx.ui.text.style.TextAlign valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.text.style.TextAlign[] values();
     enum_constant public static final androidx.ui.text.style.TextAlign Center;
     enum_constant public static final androidx.ui.text.style.TextAlign End;
     enum_constant public static final androidx.ui.text.style.TextAlign Justify;
@@ -849,12 +861,12 @@ package androidx.ui.text.style {
     enum_constant public static final androidx.ui.text.style.TextAlign Start;
   }
 
-  public final class TextDecoration {
+  @androidx.compose.Immutable public final class TextDecoration {
     method public int component1();
     method public boolean contains(androidx.ui.text.style.TextDecoration other);
-    method public androidx.ui.text.style.TextDecoration copy(int mask);
+    method @androidx.compose.Immutable public androidx.ui.text.style.TextDecoration copy(int mask);
     method public int getMask();
-    field public static final androidx.ui.text.style.TextDecoration.Companion! Companion;
+    field public static final androidx.ui.text.style.TextDecoration.Companion Companion;
   }
 
   public static final class TextDecoration.Companion {
@@ -868,26 +880,30 @@ package androidx.ui.text.style {
   }
 
   public enum TextDirection {
+    method public static androidx.ui.text.style.TextDirection valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.text.style.TextDirection[] values();
     enum_constant public static final androidx.ui.text.style.TextDirection Ltr;
     enum_constant public static final androidx.ui.text.style.TextDirection Rtl;
   }
 
   public enum TextDirectionAlgorithm {
+    method public static androidx.ui.text.style.TextDirectionAlgorithm valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.text.style.TextDirectionAlgorithm[] values();
     enum_constant public static final androidx.ui.text.style.TextDirectionAlgorithm ContentOrLtr;
     enum_constant public static final androidx.ui.text.style.TextDirectionAlgorithm ContentOrRtl;
     enum_constant public static final androidx.ui.text.style.TextDirectionAlgorithm ForceLtr;
     enum_constant public static final androidx.ui.text.style.TextDirectionAlgorithm ForceRtl;
   }
 
-  public final class TextGeometricTransform {
+  @androidx.compose.Immutable public final class TextGeometricTransform {
     ctor public TextGeometricTransform(float scaleX, float skewX);
     ctor public TextGeometricTransform();
     method public float component1();
     method public float component2();
-    method public androidx.ui.text.style.TextGeometricTransform copy(float scaleX, float skewX);
+    method @androidx.compose.Immutable public androidx.ui.text.style.TextGeometricTransform copy(float scaleX, float skewX);
     method public float getScaleX();
     method public float getSkewX();
-    field public static final androidx.ui.text.style.TextGeometricTransform.Companion! Companion;
+    field public static final androidx.ui.text.style.TextGeometricTransform.Companion Companion;
   }
 
   public static final class TextGeometricTransform.Companion {
@@ -897,15 +913,15 @@ package androidx.ui.text.style {
     method public static androidx.ui.text.style.TextGeometricTransform lerp(androidx.ui.text.style.TextGeometricTransform start, androidx.ui.text.style.TextGeometricTransform stop, float fraction);
   }
 
-  public final class TextIndent {
+  @androidx.compose.Immutable public final class TextIndent {
     ctor public TextIndent(androidx.ui.unit.TextUnit firstLine, androidx.ui.unit.TextUnit restLine);
     ctor public TextIndent();
     method public androidx.ui.unit.TextUnit component1();
     method public androidx.ui.unit.TextUnit component2();
-    method public androidx.ui.text.style.TextIndent copy(androidx.ui.unit.TextUnit firstLine, androidx.ui.unit.TextUnit restLine);
+    method @androidx.compose.Immutable public androidx.ui.text.style.TextIndent copy(androidx.ui.unit.TextUnit firstLine, androidx.ui.unit.TextUnit restLine);
     method public androidx.ui.unit.TextUnit getFirstLine();
     method public androidx.ui.unit.TextUnit getRestLine();
-    field public static final androidx.ui.text.style.TextIndent.Companion! Companion;
+    field public static final androidx.ui.text.style.TextIndent.Companion Companion;
   }
 
   public static final class TextIndent.Companion {
@@ -918,6 +934,8 @@ package androidx.ui.text.style {
   }
 
   public enum TextOverflow {
+    method public static androidx.ui.text.style.TextOverflow valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.text.style.TextOverflow[] values();
     enum_constant public static final androidx.ui.text.style.TextOverflow Clip;
     enum_constant public static final androidx.ui.text.style.TextOverflow Ellipsis;
   }

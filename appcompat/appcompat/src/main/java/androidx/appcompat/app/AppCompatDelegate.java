@@ -92,7 +92,7 @@ import java.util.Iterator;
  * retained until the Activity is destroyed.</p>
  */
 public abstract class AppCompatDelegate {
-    static final boolean DEBUG = true;
+    static final boolean DEBUG = false;
     static final String TAG = "AppCompatDelegate";
 
     /**
@@ -165,9 +165,14 @@ public abstract class AppCompatDelegate {
     @NightMode
     private static int sDefaultNightMode = MODE_NIGHT_UNSPECIFIED;
 
-    private static final ArraySet<WeakReference<AppCompatDelegate>> sActiveDelegates =
+    /**
+     * All AppCompatDelegate instances associated with a "live" Activity, e.g. lifecycle state is
+     * post-onCreate and pre-onDestroy. These instances are used to instrument night mode's uiMode
+     * configuration changes.
+     */
+    private static final ArraySet<WeakReference<AppCompatDelegate>> sActivityDelegates =
             new ArraySet<>();
-    private static final Object sActiveDelegatesLock = new Object();
+    private static final Object sActivityDelegatesLock = new Object();
 
     /** @hide */
     @SuppressWarnings("deprecation")
@@ -647,25 +652,25 @@ public abstract class AppCompatDelegate {
     }
 
     static void addActiveDelegate(@NonNull AppCompatDelegate delegate) {
-        synchronized (sActiveDelegatesLock) {
+        synchronized (sActivityDelegatesLock) {
             // Remove any existing records pointing to the delegate.
             // There should not be any, but we'll make sure
             removeDelegateFromActives(delegate);
             // Add a new record to the set
-            sActiveDelegates.add(new WeakReference<>(delegate));
+            sActivityDelegates.add(new WeakReference<>(delegate));
         }
     }
 
-    static void removeActiveDelegate(@NonNull AppCompatDelegate delegate) {
-        synchronized (sActiveDelegatesLock) {
+    static void removeActivityDelegate(@NonNull AppCompatDelegate delegate) {
+        synchronized (sActivityDelegatesLock) {
             // Remove any WeakRef records pointing to the delegate in the set
             removeDelegateFromActives(delegate);
         }
     }
 
     private static void removeDelegateFromActives(@NonNull AppCompatDelegate toRemove) {
-        synchronized (sActiveDelegatesLock) {
-            final Iterator<WeakReference<AppCompatDelegate>> i = sActiveDelegates.iterator();
+        synchronized (sActivityDelegatesLock) {
+            final Iterator<WeakReference<AppCompatDelegate>> i = sActivityDelegates.iterator();
             while (i.hasNext()) {
                 final AppCompatDelegate delegate = i.next().get();
                 if (delegate == toRemove || delegate == null) {
@@ -678,8 +683,8 @@ public abstract class AppCompatDelegate {
     }
 
     private static void applyDayNightToActiveDelegates() {
-        synchronized (sActiveDelegatesLock) {
-            for (WeakReference<AppCompatDelegate> activeDelegate : sActiveDelegates) {
+        synchronized (sActivityDelegatesLock) {
+            for (WeakReference<AppCompatDelegate> activeDelegate : sActivityDelegates) {
                 final AppCompatDelegate delegate = activeDelegate.get();
                 if (delegate != null) {
                     if (DEBUG) {

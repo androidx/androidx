@@ -25,7 +25,6 @@ import android.text.TextPaint
 import android.text.TextUtils
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.ui.text.platform.LayoutCompat.ALIGN_CENTER
 import androidx.ui.text.platform.LayoutCompat.ALIGN_LEFT
@@ -85,7 +84,8 @@ import kotlin.math.min
  *
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@OptIn(InternalPlatformTextApi::class)
+@InternalPlatformTextApi
 class TextLayout constructor(
     charSequence: CharSequence,
     width: Float = 0.0f,
@@ -271,6 +271,7 @@ class TextLayout constructor(
 }
 
 @RequiresApi(api = 18)
+@OptIn(InternalPlatformTextApi::class)
 internal fun getTextDirectionHeuristic(@TextDirection textDirectionHeuristic: Int):
         TextDirectionHeuristic {
     return when (textDirectionHeuristic) {
@@ -284,6 +285,7 @@ internal fun getTextDirectionHeuristic(@TextDirection textDirectionHeuristic: In
     }
 }
 
+@OptIn(InternalPlatformTextApi::class)
 internal object TextAlignmentAdapter {
     private val ALIGN_LEFT_FRAMEWORK: Layout.Alignment
     private val ALIGN_RIGHT_FRAMEWORK: Layout.Alignment

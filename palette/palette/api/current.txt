@@ -37,7 +37,7 @@ package androidx.palette.graphics {
     method public androidx.palette.graphics.Palette.Builder clearRegion();
     method public androidx.palette.graphics.Palette.Builder clearTargets();
     method public androidx.palette.graphics.Palette generate();
-    method public android.os.AsyncTask<android.graphics.Bitmap!,java.lang.Void!,androidx.palette.graphics.Palette!> generate(androidx.palette.graphics.Palette.PaletteAsyncListener);
+    method @Deprecated public android.os.AsyncTask<android.graphics.Bitmap!,java.lang.Void!,androidx.palette.graphics.Palette!> generate(androidx.palette.graphics.Palette.PaletteAsyncListener);
     method public androidx.palette.graphics.Palette.Builder maximumColorCount(int);
     method public androidx.palette.graphics.Palette.Builder resizeBitmapArea(int);
     method @Deprecated public androidx.palette.graphics.Palette.Builder resizeBitmapSize(int);

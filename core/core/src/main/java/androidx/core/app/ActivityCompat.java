@@ -40,6 +40,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.LocusIdCompat;
 import androidx.core.view.DragAndDropPermissionsCompat;
 
 import java.util.Arrays;
@@ -435,6 +436,10 @@ public class ActivityCompat extends ContextCompat {
      * the signature of the app declaring the permissions.
      * </p>
      * <p>
+     * Call {@link #shouldShowRequestPermissionRationale(Activity, String)} before calling this API
+     * to check if the system recommends to show a rationale dialog before asking for a permission.
+     * </p>
+     * <p>
      * If your app does not have the requested permissions the user will be presented
      * with UI for accepting them. After the user has accepted or rejected the
      * requested permissions you will receive a callback reporting whether the
@@ -533,21 +538,11 @@ public class ActivityCompat extends ContextCompat {
     }
 
     /**
-     * Gets whether you should show UI with rationale for requesting a permission.
-     * You should do this only if you do not have the permission and the context in
-     * which the permission is requested does not clearly communicate to the user
-     * what would be the benefit from granting this permission.
-     * <p>
-     * For example, if you write a camera app, requesting the camera permission
-     * would be expected by the user and no rationale for why it is requested is
-     * needed. If however, the app needs location for tagging photos then a non-tech
-     * savvy user may wonder how location is related to taking photos. In this case
-     * you may choose to show UI with rationale of requesting this permission.
-     * </p>
+     * Gets whether you should show UI with rationale before requesting a permission.
      *
      * @param activity The target activity.
      * @param permission A permission your app wants to request.
-     * @return Whether you can show permission rationale UI.
+     * @return Whether you should show permission rationale UI.
      *
      * @see #checkSelfPermission(android.content.Context, String)
      * @see #requestPermissions(android.app.Activity, String[], int)
@@ -590,6 +585,43 @@ public class ActivityCompat extends ContextCompat {
                 // If ActivityRecreator did not start a recreation, we'll just invoke the platform
                 activity.recreate();
             }
+        }
+    }
+
+    /**
+     * Sets the {@link LocusIdCompat} for this activity. The locus id helps identify different
+     * instances of the same {@code Activity} class.
+     * <p> For example, a locus id based on a specific conversation could be set on a
+     * conversation app's chat {@code Activity}. The system can then use this locus id
+     * along with app's contents to provide ranking signals in various UI surfaces
+     * including sharing, notifications, shortcuts and so on.
+     * <p> It is recommended to set the same locus id in the shortcut's locus id using
+     * {@link androidx.core.content.pm.ShortcutInfoCompat.Builder#setLocusId(LocusIdCompat)}
+     * so that the system can learn appropriate ranking signals linking the activity's
+     * locus id with the matching shortcut.
+     *
+     * @param locusId  a unique, stable id that identifies this {@code Activity} instance. LocusId
+     *      is an opaque ID that links this Activity's state to different Android concepts:
+     *      {@link androidx.core.content.pm.ShortcutInfoCompat.Builder#setLocusId(LocusIdCompat)}.
+     *      LocusID is null by default or if you explicitly reset it.
+     * @param bundle extras set or updated as part of this locus context. This may help provide
+     *      additional metadata such as URLs, conversation participants specific to this
+     *      {@code Activity}'s context. Bundle can be null if additional metadata is not needed.
+     *      Bundle should always be null for null locusId.
+     *
+     * @see android.view.contentcapture.ContentCaptureManager
+     * @see android.view.contentcapture.ContentCaptureContext
+     *
+     * Compatibility behavior:
+     * <ul>
+     *      <li>API 30 and above, this method matches platform behavior.
+     *      <li>API 29 and earlier, this method is no-op.
+     * </ul>
+     */
+    public static void setLocusContext(@NonNull final Activity activity,
+            @Nullable final LocusIdCompat locusId, @Nullable final Bundle bundle) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            Api30Impl.setLocusContext(activity, locusId, bundle);
         }
     }
 
@@ -648,6 +680,22 @@ public class ActivityCompat extends ContextCompat {
                             listener.onSharedElementsReady();
                         }
                     });
+        }
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+
+        /**
+         * This class should not be instantiated.
+         */
+        private Api30Impl() {
+            // Not intented for instantiation.
+        }
+
+        static void setLocusContext(@NonNull final Activity activity,
+                @Nullable final LocusIdCompat locusId, @Nullable final Bundle bundle) {
+            activity.setLocusContext(locusId == null ? null : locusId.toLocusId(), bundle);
         }
     }
 }

@@ -188,7 +188,7 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPageFetcher.KeyPro
                 config.initialLoadSizeHint,
                 config.maxSize
             ),
-            placeholdersBefore = placeholdersBefore
+            leadingPlaceholderCount = placeholdersBefore
         )
     }
 

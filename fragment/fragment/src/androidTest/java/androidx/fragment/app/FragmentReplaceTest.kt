@@ -20,7 +20,6 @@ import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -32,8 +31,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class FragmentReplaceTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(FragmentTestActivity::class.java)
+    val activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
     @Test
     fun testReplaceFragment() {

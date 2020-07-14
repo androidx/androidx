@@ -114,39 +114,34 @@ fun AlertDialog(
     buttons: @Composable () -> Unit,
     shape: Shape = MaterialTheme.shapes.medium
 ) {
-    // TODO: Find a cleaner way to pass the properties of the MaterialTheme
-    val currentColors = MaterialTheme.colors
-    val currentTypography = MaterialTheme.typography
     Dialog(onCloseRequest = onCloseRequest) {
-        MaterialTheme(colors = currentColors, typography = currentTypography) {
-            Surface(
-                modifier = AlertDialogWidth,
-                shape = shape
-            ) {
-                val emphasisLevels = EmphasisAmbient.current
-                Column {
-                    if (title != null) {
-                        Box(TitlePadding.gravity(Alignment.Start)) {
-                            ProvideEmphasis(emphasisLevels.high) {
-                                val textStyle = MaterialTheme.typography.h6
-                                ProvideTextStyle(textStyle, title)
-                            }
-                        }
-                    } else {
-                        // TODO(b/138924683): Temporary until padding for the Text's
-                        //  baseline
-                        Spacer(NoTitleExtraHeight)
-                    }
-
-                    Box(TextPadding.gravity(Alignment.Start)) {
-                        ProvideEmphasis(emphasisLevels.medium) {
-                            val textStyle = MaterialTheme.typography.body1
-                            ProvideTextStyle(textStyle, text)
+        Surface(
+            modifier = AlertDialogWidth,
+            shape = shape
+        ) {
+            val emphasisLevels = EmphasisAmbient.current
+            Column {
+                if (title != null) {
+                    Box(TitlePadding.gravity(Alignment.Start)) {
+                        ProvideEmphasis(emphasisLevels.high) {
+                            val textStyle = MaterialTheme.typography.subtitle1
+                            ProvideTextStyle(textStyle, title)
                         }
                     }
-                    Spacer(TextToButtonsHeight)
-                    buttons()
+                } else {
+                    // TODO(b/138924683): Temporary until padding for the Text's
+                    //  baseline
+                    Spacer(NoTitleExtraHeight)
                 }
+
+                Box(TextPadding.gravity(Alignment.Start)) {
+                    ProvideEmphasis(emphasisLevels.medium) {
+                        val textStyle = MaterialTheme.typography.body2
+                        ProvideTextStyle(textStyle, text)
+                    }
+                }
+                Spacer(TextToButtonsHeight)
+                buttons()
             }
         }
     }
@@ -194,7 +189,7 @@ private fun AlertDialogButtonLayout(
     }
 }
 
-private val AlertDialogWidth = Modifier.preferredWidth(280.dp)
+private val AlertDialogWidth = Modifier.preferredWidth(312.dp)
 private val ButtonsBoxModifier = Modifier.fillMaxWidth().padding(all = 8.dp)
 private val ButtonsWidthSpace = Modifier.preferredWidth(8.dp)
 private val ButtonsHeightSpace = Modifier.preferredHeight(12.dp)

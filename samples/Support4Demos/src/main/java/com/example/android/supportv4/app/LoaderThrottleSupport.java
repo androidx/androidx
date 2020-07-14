@@ -30,7 +30,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
@@ -398,7 +397,7 @@ public class LoaderThrottleSupport extends FragmentActivity {
         String mCurFilter;
 
         // Task we have running to populate the database.
-        AsyncTask<Void, Void, Void> mPopulatingTask;
+        android.os.AsyncTask<Void, Void, Void> mPopulatingTask;
 
         @Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -429,6 +428,7 @@ public class LoaderThrottleSupport extends FragmentActivity {
             clearItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }
 
+        @SuppressWarnings("deprecation") /* AsyncTask */
         @Override public boolean onOptionsItemSelected(MenuItem item) {
             final ContentResolver cr = getActivity().getContentResolver();
 
@@ -437,7 +437,7 @@ public class LoaderThrottleSupport extends FragmentActivity {
                     if (mPopulatingTask != null) {
                         mPopulatingTask.cancel(false);
                     }
-                    mPopulatingTask = new AsyncTask<Void, Void, Void>() {
+                    mPopulatingTask = new android.os.AsyncTask<Void, Void, Void>() {
                         @Override protected Void doInBackground(Void... params) {
                             for (char c='Z'; c>='A'; c--) {
                                 if (isCancelled()) {
@@ -465,13 +465,13 @@ public class LoaderThrottleSupport extends FragmentActivity {
                         mPopulatingTask.cancel(false);
                         mPopulatingTask = null;
                     }
-                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-                        @Override protected Void doInBackground(Void... params) {
+                    new android.os.AsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackground(Void... params) {
                             cr.delete(MainTable.CONTENT_URI, null, null);
                             return null;
                         }
-                    };
-                    task.execute((Void[])null);
+                    }.execute((Void[]) null);
                     return true;
 
                 default:

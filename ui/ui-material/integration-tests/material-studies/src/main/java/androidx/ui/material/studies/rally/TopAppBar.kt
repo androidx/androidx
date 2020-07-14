@@ -18,14 +18,14 @@ package androidx.ui.material.studies.rally
 
 import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
+import androidx.ui.foundation.selection.selectable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.layout.Row
@@ -36,7 +36,7 @@ import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredWidth
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
-import androidx.ui.material.ripple.ripple
+import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.unit.dp
 import java.util.Locale
 
@@ -68,19 +68,20 @@ private fun RallyTab(
     selected: Boolean
 ) {
     TabTransition(selected = selected) { tabTintColor ->
-        Box(Modifier.padding(16.dp).preferredHeight(TabHeight)) {
-            MutuallyExclusiveSetItem(
-                selected = selected,
-                onClick = onSelected,
-                modifier = Modifier.ripple(bounded = false)
-            ) {
-                Row {
-                    Icon(vectorImage = icon, tintColor = tabTintColor)
-                    if (selected) {
-                        Spacer(Modifier.preferredWidth(12.dp))
-                        Text(text, color = tabTintColor)
-                    }
-                }
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .preferredHeight(TabHeight)
+                .selectable(
+                    selected = selected,
+                    onClick = onSelected,
+                    indication = RippleIndication(bounded = false)
+                )
+        ) {
+            Icon(vectorImage = icon, tintColor = tabTintColor)
+            if (selected) {
+                Spacer(Modifier.preferredWidth(12.dp))
+                Text(text, color = tabTintColor)
             }
         }
     }
@@ -103,25 +104,24 @@ private fun TabTransition(
             }
 
             transition(fromState = false, toState = true) {
-                TabTintColorKey using tween {
-                    duration = TabFadeInAnimationDuration
-                    delay = TabFadeInAnimationDelay
+                TabTintColorKey using tween(
+                    durationMillis = TabFadeInAnimationDuration,
+                    delayMillis = TabFadeInAnimationDelay,
                     easing = LinearEasing
-                }
+                )
             }
 
             transition(fromState = true, toState = false) {
-                TabTintColorKey using tween {
-                    duration = TabFadeOutAnimationDuration
-                    delay = TabFadeInAnimationDelay
+                TabTintColorKey using tween(
+                    durationMillis = TabFadeOutAnimationDuration,
+                    delayMillis = TabFadeInAnimationDelay,
                     easing = LinearEasing
-                }
+                )
             }
         }
     }
-    Transition(transitionDefinition, selected) { state ->
-        children(state[TabTintColorKey])
-    }
+    val state = transition(transitionDefinition, selected)
+    children(state[TabTintColorKey])
 }
 
 private val TabTintColorKey = ColorPropKey()

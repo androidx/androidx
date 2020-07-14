@@ -23,8 +23,8 @@ import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.InnerPadding
@@ -44,14 +44,12 @@ import java.util.Locale
 
 @Composable
 fun OverviewBody() {
-    VerticalScroller {
-        Column(Modifier.padding(16.dp)) {
-            AlertCard()
-            Spacer(Modifier.preferredHeight(RallyDefaultPadding))
-            AccountsCard()
-            Spacer(Modifier.preferredHeight(RallyDefaultPadding))
-            BillsCard()
-        }
+    ScrollableColumn(contentPadding = InnerPadding(16.dp)) {
+        AlertCard()
+        Spacer(Modifier.preferredHeight(RallyDefaultPadding))
+        AccountsCard()
+        Spacer(Modifier.preferredHeight(RallyDefaultPadding))
+        BillsCard()
     }
 }
 

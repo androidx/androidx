@@ -54,7 +54,7 @@ import java.util.concurrent.TimeUnit;
  * In order to get the media key events, the player state is set to 'Playing' before every test
  * method.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT) // For AudioManager#dispatchMediaKeyEvent()
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaSession_KeyEventTest extends MediaSessionTestBase {

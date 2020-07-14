@@ -16,15 +16,16 @@
 
 package androidx.contentaccess.compiler.vo
 
-import javax.lang.model.element.VariableElement
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.TypeMirror
 
 data class ContentQueryVO(
     val name: String,
     val toQueryFor: List<ContentColumnVO>,
     val selection: SelectionVO?,
-    // TODO(obenabde): support runtime specified uris
+    val orderBy: String,
     val uri: String,
     val returnType: TypeMirror,
-    val parameters: List<VariableElement>
+    val method: ExecutableElement,
+    val isSuspend: Boolean
 )

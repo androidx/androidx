@@ -98,7 +98,7 @@ package androidx.ui.text.platform.style {
     method public int getWeight();
     method public void updateDrawState(android.text.TextPaint textPaint);
     method public void updateMeasureState(android.text.TextPaint textPaint);
-    field public static final androidx.ui.text.platform.style.FontWeightStyleSpan.Companion! Companion;
+    field public static final androidx.ui.text.platform.style.FontWeightStyleSpan.Companion Companion;
     field public static final int STYLE_ITALIC = 2; // 0x2
     field public static final int STYLE_NONE = -1; // 0xffffffff
     field public static final int STYLE_NORMAL = 0; // 0x0
@@ -148,7 +148,7 @@ package androidx.ui.text.platform.style {
     field public static final int ALIGN_TEXT_CENTER = 6; // 0x6
     field public static final int ALIGN_TEXT_TOP = 4; // 0x4
     field public static final int ALIGN_TOP = 1; // 0x1
-    field public static final androidx.ui.text.platform.style.PlaceholderSpan.Companion! Companion;
+    field public static final androidx.ui.text.platform.style.PlaceholderSpan.Companion Companion;
     field public static final int UNIT_EM = 1; // 0x1
     field public static final int UNIT_INHERIT = 2; // 0x2
     field public static final int UNIT_SP = 0; // 0x0

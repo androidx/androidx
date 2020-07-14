@@ -44,10 +44,9 @@ dependencies {
 }
 
 androidx {
-    name = "UI lint checks"
+    name = "Compose internal lint checks"
     publish = Publish.NONE
     toolingProject = true
-    mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
     description = "Internal lint checks for Compose"
 }

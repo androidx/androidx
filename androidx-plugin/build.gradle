@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 buildscript {
     apply from: '../buildSrc/build_dependencies.gradle'
 
@@ -5,7 +7,7 @@ buildscript {
         google()
         jcenter()
         maven {
-            url 'https://androidx.dev/dokka/builds/6402791/artifacts/repository'
+            url 'https://androidx.dev/dokka/builds/6656073/artifacts/repository'
             metadataSources {
                 mavenPom()
                 artifact()
@@ -27,18 +29,29 @@ allprojects {
         mavenCentral()
         jcenter()
         maven {
-            url 'https://androidx.dev/metalava/builds/6401339/artifacts/repo/m2repository'
+            url 'https://androidx.dev/metalava/builds/6604778/artifacts/repo/m2repository'
             metadataSources {
                 mavenPom()
                 artifact()
             }
         }
         maven {
-            url 'https://androidx.dev/dokka/builds/6402791/artifacts/repository'
+            url 'https://androidx.dev/dokka/builds/6656073/artifacts/repository'
             metadataSources {
                 mavenPom()
                 artifact()
             }
+        }
+    }
+    tasks.withType(KotlinCompile).configureEach {
+        kotlinOptions {
+            jvmTarget = "1.8"
+            freeCompilerArgs += [
+                    "-Werror",
+                    "-Xskip-runtime-version-check",
+                    // Allow `@OptIn` and `@UseExperimental`
+                    "-Xopt-in=kotlin.RequiresOptIn"
+            ]
         }
     }
 }

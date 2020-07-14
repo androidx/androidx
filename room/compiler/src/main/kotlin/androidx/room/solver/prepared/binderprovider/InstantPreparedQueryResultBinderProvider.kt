@@ -31,6 +31,6 @@ class InstantPreparedQueryResultBinderProvider(
         declared: DeclaredType,
         query: ParsedQuery
     ) = InstantPreparedQueryResultBinder(
-        context.typeAdapterStore.findPreparedQueryResultAdapter(declared.enclosingType, query)
+        context.typeAdapterStore.findPreparedQueryResultAdapter(declared, query)
     )
 }

@@ -16,7 +16,6 @@
 
 package androidx.appsearch.annotation;
 
-import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
 
 import java.lang.annotation.Documented;
@@ -54,23 +53,11 @@ import java.lang.annotation.Target;
  * </ol>
  *
  * <p>The class must also have exactly one member annotated with {@link Uri @Uri}.
- *
- * @hide
  */
 @Documented
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public @interface AppSearchDocument {
-    /**
-     * The maximum number of indexed properties a document can have.
-     *
-     * <p>Indexed properties are properties where the {@link Property#indexingType()} constant is
-     * anything other than {@link
-     * androidx.appsearch.app.AppSearchSchema.PropertyConfig.IndexingType#INDEXING_TYPE_NONE}.
-     */
-    int MAX_INDEXED_PROPERTIES = 16;
-
     /**
      * Marks a member field of a document as the document's URI.
      *
@@ -88,6 +75,27 @@ public @interface AppSearchDocument {
     @Retention(RetentionPolicy.CLASS)
     @Target(ElementType.FIELD)
     @interface Uri {}
+
+    /**
+     * Marks a member field of a document as the document's namespace.
+     *
+     * <p>The namespace is an arbitrary user-provided string that can be used to group documents
+     * during querying or deletion. Indexing a document with a particular {@link java.net.URI}
+     * replaces any existing documents with the same URI in that namespace.
+     *
+     * <p>This field is not required. If not present or not set, the document will be assigned to
+     * the default namespace, {@link androidx.appsearch.app.GenericDocument#DEFAULT_NAMESPACE}.
+     *
+     * <p>If present, the field must be of type {@code String}.
+     *
+     * <p>See the class description of {@link AppSearchDocument} for other requirements (i.e. if
+     * present it must be visible, or have a visible getter and setter, or be exposed through a
+     * visible constructor).
+     */
+    @Documented
+    @Retention(RetentionPolicy.CLASS)
+    @Target(ElementType.FIELD)
+    @interface Namespace {}
 
     /**
      * Marks a member field of a document as the document's creation timestamp.
@@ -152,8 +160,9 @@ public @interface AppSearchDocument {
      * Configures a member field of a class as a property known to Appsearch.
      *
      * <p>Properties contain the document's data. They may be indexed or non-indexed (the default).
-     * Only indexed properties can be searched for in queries. There is a limit of {@link
-     * AppSearchDocument#MAX_INDEXED_PROPERTIES} indexed properties in one document.
+     * Only indexed properties can be searched for in queries. There is a limit of
+     * {@link androidx.appsearch.app.GenericDocument#getMaxIndexedProperties} indexed properties in
+     * one document.
      */
     @Documented
     @Retention(RetentionPolicy.CLASS)
@@ -192,9 +201,10 @@ public @interface AppSearchDocument {
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
          *
          * <p>Please make sure you understand the consequences of required fields on
-         * {@link androidx.appsearch.app.AppSearchManager#setSchema schema migration} before setting
+         * {@code androidx.appsearch.app.AppSearchManager#setSchema schema migration} before setting
          * this attribute to {@code true}.
          */
+        // TODO(b/157082794) Linkify AppSearchManager once that API is public.
         boolean required() default false;
     }
 

@@ -23,5 +23,5 @@ package androidx.contentaccess
  *
  */
 @Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.FIELD)
+@Target(AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
 annotation class ContentColumn(val columnName: String)

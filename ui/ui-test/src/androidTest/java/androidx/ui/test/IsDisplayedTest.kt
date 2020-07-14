@@ -31,12 +31,13 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withParent
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
@@ -49,20 +50,33 @@ import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
 @MediumTest
-@RunWith(JUnit4::class)
-class IsDisplayedTest {
+@RunWith(Parameterized::class)
+class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
+    data class TestConfig(
+        val activityClass: Class<out ComponentActivity>
+    )
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun createTestSet(): List<BitmapCapturingTest.TestConfig> = listOf(
+            BitmapCapturingTest.TestConfig(ComponentActivity::class.java),
+            BitmapCapturingTest.TestConfig(ActivityWithActionBar::class.java)
+        )
+    }
 
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<ComponentActivity>(disableTransitions = true)
+    val composeTestRule = AndroidComposeTestRule(
+        ActivityScenarioRule(config.activityClass)
+    )
 
     private val colors = listOf(Color.Red, Color.Green, Color.Blue)
 
@@ -79,14 +93,14 @@ class IsDisplayedTest {
 
     @Composable
     fun PlaceConditionally(place: Boolean, child: @Composable () -> Unit) {
-        Layout(children = child) { measurables, constraints, _ ->
+        Layout(children = child) { measurables, constraints ->
             if (place) {
                 val placeable = measurables[0].measure(constraints)
                 layout(placeable.width, placeable.height) {
-                    placeable.place(0.ipx, 0.ipx)
+                    placeable.place(0, 0)
                 }
             } else {
-                layout(0.ipx, 0.ipx) {}
+                layout(0, 0) {}
             }
         }
     }
@@ -94,24 +108,24 @@ class IsDisplayedTest {
     @Test
     fun componentInScrollable_isDisplayed() {
         composeTestRule.setContent {
-            VerticalScroller(modifier = Modifier.size(100.dp)) {
+            ScrollableColumn(modifier = Modifier.size(100.dp)) {
                 repeat(10) { Item(it, height = 30.dp) }
             }
         }
 
-        findByTag("item0")
+        onNodeWithTag("item0")
             .assertIsDisplayed()
     }
 
     @Test
     fun componentInScrollable_isNotDisplayed() {
         composeTestRule.setContent {
-            VerticalScroller(modifier = Modifier.size(100.dp)) {
+            ScrollableColumn(modifier = Modifier.size(100.dp)) {
                 repeat(10) { Item(it, height = 30.dp) }
             }
         }
 
-        findByTag("item4")
+        onNodeWithTag("item4")
             .assertIsNotDisplayed()
     }
 
@@ -126,14 +140,14 @@ class IsDisplayedTest {
             }
         }
 
-        findByTag("item0")
+        onNodeWithTag("item0")
             .assertIsDisplayed()
 
-        runOnIdleCompose {
+        runOnIdle {
             place = false
         }
 
-        findByTag("item0")
+        onNodeWithTag("item0")
             .assertIsNotDisplayed()
     }
 
@@ -150,14 +164,14 @@ class IsDisplayedTest {
             }
         }
 
-        findByTag("item0")
+        onNodeWithTag("item0")
             .assertIsDisplayed()
 
-        runOnIdleCompose {
+        runOnIdle {
             place = false
         }
 
-        findByTag("item0")
+        onNodeWithTag("item0")
             .assertIsNotDisplayed()
     }
 
@@ -169,17 +183,17 @@ class IsDisplayedTest {
             }
         }
 
-        findByTag("item9")
+        onNodeWithTag("item9")
             .assertIsNotDisplayed()
     }
 
     @Test
     fun viewVisibility_androidComposeView() {
-        val activity = composeTestRule.activityTestRule.activity
-        val androidComposeView = runOnUiThread {
+        lateinit var androidComposeView: View
+        composeTestRule.activityRule.scenario.onActivity { activity ->
             // FrameLayout(id=100, w=100, h=100)
             // '- AndroidComposeView
-            FrameLayout(activity).apply {
+            androidComposeView = FrameLayout(activity).apply {
                 id = 100
                 layoutParams = ViewGroup.MarginLayoutParams(100, 100)
                 activity.setContentView(this)
@@ -194,24 +208,24 @@ class IsDisplayedTest {
         }
 
         onComposeView().check(matches(isDisplayed()))
-        findByTag("item0").assertIsDisplayed()
+        onNodeWithTag("item0").assertIsDisplayed()
 
-        runOnIdleCompose {
+        runOnIdle {
             androidComposeView.visibility = View.GONE
         }
 
         onComposeView().check(matches(not(isDisplayed())))
-        findByTag("item0").assertIsNotDisplayed()
+        onNodeWithTag("item0").assertIsNotDisplayed()
     }
 
     @Test
     fun viewVisibility_parentView() {
-        val activity = composeTestRule.activityTestRule.activity
-        val composeContainer = runOnUiThread {
+        lateinit var composeContainer: View
+        composeTestRule.activityRule.scenario.onActivity { activity ->
             // FrameLayout
             // '- FrameLayout(id=100, w=100, h=100) -> composeContainer
             //    '- AndroidComposeView
-            FrameLayout(activity).apply {
+            composeContainer = FrameLayout(activity).apply {
                 id = 100
                 layoutParams = ViewGroup.MarginLayoutParams(100, 100)
                 activity.setContentView(FrameLayout(activity).also { it.addView(this) })
@@ -226,13 +240,13 @@ class IsDisplayedTest {
         }
 
         onComposeView().check(matches(isDisplayed()))
-        findByTag("item0").assertIsDisplayed()
+        onNodeWithTag("item0").assertIsDisplayed()
 
-        runOnIdleCompose {
+        runOnIdle {
             composeContainer.visibility = View.GONE
         }
 
         onComposeView().check(matches(not(isDisplayed())))
-        findByTag("item0").assertIsNotDisplayed()
+        onNodeWithTag("item0").assertIsNotDisplayed()
     }
 }

@@ -24,11 +24,12 @@ import org.junit.runners.JUnit4
 import java.lang.Long.max
 
 @RunWith(JUnit4::class)
+@OptIn(InternalAnimationApi::class)
 class ToolingGlueTest {
     @Test
     fun testSeekableAnimation() {
         val animation = SeekableAnimation(def, "start", "end")
-        val defaultAnim = SpringAnimation()
+        val defaultAnim = FloatSpringSpec()
         assertEquals(max(defaultAnim.getDurationMillis(0f, 100f, 0f), 500L),
             animation.duration)
 
@@ -60,7 +61,8 @@ class ToolingGlueTest {
 
     @Test
     fun testGetStates() {
-        val states = def.getStates()
+        val anim = def.createAnimation(ManualAnimationClock(0L))
+        val states = anim.getStates()
         assertEquals(2, states.size)
         assertTrue(states.contains("start"))
         assertTrue(states.contains("end"))
@@ -82,18 +84,18 @@ private val def = transitionDefinition<String> {
     }
 
     transition("start" to "end") {
-        alpha using tween {
-            easing = LinearEasing
-            duration = 500
-        }
+        alpha using tween(
+            easing = LinearEasing,
+            durationMillis = 500
+        )
     }
 
     transition("end" to "start") {
-        scale using tween {
-            duration = 600
-        }
-        alpha using tween {
-            duration = 600
-        }
+        scale using tween(
+            durationMillis = 600
+        )
+        alpha using tween(
+            durationMillis = 600
+        )
     }
 }

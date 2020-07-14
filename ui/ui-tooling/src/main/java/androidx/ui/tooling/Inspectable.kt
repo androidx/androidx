@@ -17,9 +17,11 @@
 package androidx.ui.tooling
 
 import androidx.compose.Composable
+import androidx.compose.InternalComposeApi
 import androidx.compose.Providers
 import androidx.compose.SlotTable
 import androidx.compose.currentComposer
+import androidx.compose.tooling.InspectionTables
 import java.util.Collections
 import java.util.WeakHashMap
 
@@ -48,13 +50,19 @@ private class SlotTableRecordImpl : SlotTableRecord {
  * @suppress
  */
 @Composable
+@OptIn(InternalComposeApi::class)
 internal fun Inspectable(
     slotTableRecord: SlotTableRecord,
     children: @Composable () -> Unit
 ) {
     currentComposer.collectKeySourceInformation()
-    (slotTableRecord as SlotTableRecordImpl).store.add(currentComposer.slotTable)
-    Providers(InspectionMode provides true, children = children)
+    val store = (slotTableRecord as SlotTableRecordImpl).store
+    store.add(currentComposer.slotTable)
+    Providers(
+        InspectionMode provides true,
+        InspectionTables provides store,
+        children = children
+    )
 }
 
 /**

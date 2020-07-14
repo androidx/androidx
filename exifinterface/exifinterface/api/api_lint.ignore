@@ -1,7 +1,4 @@
 // Baseline format: 1.0
-AutoBoxing: androidx.exifinterface.media.ExifInterface#getGpsDateTime():
-    Must avoid boxed primitives (`java.lang.Long`)
-
 MissingNullability: androidx.exifinterface.media.ExifInterface#BITS_PER_SAMPLE_GREYSCALE_1:
     Missing nullability on field `BITS_PER_SAMPLE_GREYSCALE_1` in class `class androidx.exifinterface.media.ExifInterface`
 MissingNullability: androidx.exifinterface.media.ExifInterface#BITS_PER_SAMPLE_GREYSCALE_2:

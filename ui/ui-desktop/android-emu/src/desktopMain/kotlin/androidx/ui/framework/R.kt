@@ -20,7 +20,7 @@ class R {
     class id {
         companion object {
             @JvmField
-            val wrapped_composition_tag = 0
+            val wrapped_composition_tag = 102
         }
     }
 }

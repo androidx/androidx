@@ -17,12 +17,12 @@
 package androidx.room.solver.binderprovider
 
 import androidx.room.ext.AndroidTypeNames
+import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.query.result.CursorQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
-import com.squareup.javapoet.TypeName
 import javax.lang.model.type.DeclaredType
 
 class CursorQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
@@ -31,5 +31,5 @@ class CursorQueryResultBinderProvider(val context: Context) : QueryResultBinderP
     }
 
     override fun matches(declared: DeclaredType): Boolean =
-        declared.typeArguments.size == 0 && TypeName.get(declared) == AndroidTypeNames.CURSOR
+        declared.typeArguments.size == 0 && declared.typeName() == AndroidTypeNames.CURSOR
 }

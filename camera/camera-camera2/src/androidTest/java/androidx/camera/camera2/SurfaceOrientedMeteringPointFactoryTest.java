@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
 
-import android.app.Instrumentation;
 import android.content.Context;
 import android.util.Rational;
 
@@ -33,10 +32,7 @@ import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -47,25 +43,20 @@ import java.util.concurrent.ExecutionException;
 public final class SurfaceOrientedMeteringPointFactoryTest {
     private static final float WIDTH = 480;
     private static final float HEIGHT = 640;
-    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-    private LifecycleOwner mLifecycle;
     SurfaceOrientedMeteringPointFactory mPointFactory;
+    private Context mContext;
 
     @Before
     public void setUp() {
-        Context context = ApplicationProvider.getApplicationContext();
+        mContext = ApplicationProvider.getApplicationContext();
         CameraXConfig config = Camera2Config.defaultConfig();
 
-        CameraX.initialize(context, config);
-        mLifecycle = new FakeLifecycleOwner();
+        CameraX.initialize(mContext, config);
         mPointFactory = new SurfaceOrientedMeteringPointFactory(WIDTH, HEIGHT);
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        }
         CameraX.shutdown().get();
     }
 
@@ -123,12 +114,7 @@ public final class SurfaceOrientedMeteringPointFactoryTest {
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(
                         CameraSelector.LENS_FACING_BACK).build();
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                CameraX.bindToLifecycle(mLifecycle, cameraSelector, imageAnalysis);
-            }
-        });
+        CameraUtil.getCameraAndAttachUseCase(mContext, cameraSelector, imageAnalysis);
 
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(
                 WIDTH, HEIGHT, imageAnalysis);

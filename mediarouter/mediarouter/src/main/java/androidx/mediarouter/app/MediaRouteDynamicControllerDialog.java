@@ -26,7 +26,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -140,7 +139,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
     private boolean mCreated;
     private boolean mAttachedToWindow;
     private long mLastUpdateTime;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "deprecation"}) /* synthetic access */
     final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message message) {
@@ -577,13 +576,10 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     List<MediaRouter.RouteInfo> getCurrentGroupableRoutes() {
         List<MediaRouter.RouteInfo> groupableRoutes = new ArrayList<>();
-        if (mSelectedRoute.getDynamicGroupState() != null) {
-            for (MediaRouter.RouteInfo route : mSelectedRoute.getProvider().getRoutes()) {
-                MediaRouter.RouteInfo.DynamicGroupState state = route.getDynamicGroupState();
-                if (state != null && state.isGroupable()) {
-                    groupableRoutes.add(route);
-                }
-
+        for (MediaRouter.RouteInfo route : mSelectedRoute.getProvider().getRoutes()) {
+            MediaRouter.RouteInfo.DynamicGroupState state = route.getDynamicGroupState();
+            if (state != null && state.isGroupable()) {
+                groupableRoutes.add(route);
             }
         }
         return groupableRoutes;
@@ -628,17 +624,15 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         mTransferableRoutes.clear();
 
         mMemberRoutes.addAll(mSelectedRoute.getMemberRoutes());
-        if (mSelectedRoute.getDynamicGroupState() != null) {
-            for (MediaRouter.RouteInfo route : mSelectedRoute.getProvider().getRoutes()) {
-                MediaRouter.RouteInfo.DynamicGroupState state = route.getDynamicGroupState();
-                if (state == null) continue;
+        for (MediaRouter.RouteInfo route : mSelectedRoute.getProvider().getRoutes()) {
+            MediaRouter.RouteInfo.DynamicGroupState state = route.getDynamicGroupState();
+            if (state == null) continue;
 
-                if (state.isGroupable()) {
-                    mGroupableRoutes.add(route);
-                }
-                if (state.isTransferable()) {
-                    mTransferableRoutes.add(route);
-                }
+            if (state.isGroupable()) {
+                mGroupableRoutes.add(route);
+            }
+            if (state.isTransferable()) {
+                mTransferableRoutes.add(route);
             }
         }
 
@@ -664,13 +658,15 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         blurScript.setRadius(radius);
         blurScript.setInput(allocation);
         blurScript.forEach(blurAllocation);
-        blurAllocation.copyTo(bitmap);
+
+        Bitmap mutableBitmap = bitmap.copy(bitmap.getConfig(), true /* isMutable */);
+        blurAllocation.copyTo(mutableBitmap);
 
         allocation.destroy();
         blurAllocation.destroy();
         blurScript.destroy();
         rs.destroy();
-        return bitmap;
+        return mutableBitmap;
     }
 
     private abstract class MediaRouteVolumeSliderHolder extends RecyclerView.ViewHolder {
@@ -1196,7 +1192,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
                     return false;
                 }
                 // Selected route that can't be unselected has to be disabled.
-                if (isSelected(route) && mSelectedRoute.getDynamicGroupState() != null) {
+                if (isSelected(route)) {
                     MediaRouter.RouteInfo.DynamicGroupState state = route.getDynamicGroupState();
                     return state != null && state.isUnselectable();
                 }
@@ -1220,39 +1216,31 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
                 // Get icons for route and checkbox.
                 mImageView.setImageDrawable(getIconDrawable(route));
                 mTextView.setText(route.getName());
-                if (mSelectedRoute.getDynamicGroupState() != null) {
-                    mCheckBox.setVisibility(View.VISIBLE);
-                    boolean selected = isSelected(route);
-                    boolean enabled = isEnabled(route);
+                mCheckBox.setVisibility(View.VISIBLE);
+                boolean selected = isSelected(route);
+                boolean enabled = isEnabled(route);
 
-                    // Set checked state of checkbox and replace progress bar with route type icon.
-                    mCheckBox.setChecked(selected);
-                    mProgressBar.setVisibility(View.INVISIBLE);
-                    mImageView.setVisibility(View.VISIBLE);
+                // Set checked state of checkbox and replace progress bar with route type icon.
+                mCheckBox.setChecked(selected);
+                mProgressBar.setVisibility(View.INVISIBLE);
+                mImageView.setVisibility(View.VISIBLE);
 
-                    // Set enabled states of views, height of volume slider layout and alpha value
-                    // of itemView.
-                    mItemView.setEnabled(enabled);
-                    mCheckBox.setEnabled(enabled);
-                    mMuteButton.setEnabled(enabled || selected);
-                    mVolumeSlider.setEnabled(enabled || selected);
-                    mItemView.setOnClickListener(mViewClickListener);
-                    mCheckBox.setOnClickListener(mViewClickListener);
+                // Set enabled states of views, height of volume slider layout and alpha value
+                // of itemView.
+                mItemView.setEnabled(enabled);
+                mCheckBox.setEnabled(enabled);
+                mMuteButton.setEnabled(enabled || selected);
+                mVolumeSlider.setEnabled(enabled || selected);
+                mItemView.setOnClickListener(mViewClickListener);
+                mCheckBox.setOnClickListener(mViewClickListener);
 
-                    // Do not show the volume slider of a group in this row
-                    setLayoutHeight(mVolumeSliderLayout, selected
-                            && !mRoute.isGroup()
-                            ? mExpandedLayoutHeight : mCollapsedLayoutHeight);
+                // Do not show the volume slider of a group in this row
+                setLayoutHeight(mVolumeSliderLayout, selected
+                        && !mRoute.isGroup()
+                        ? mExpandedLayoutHeight : mCollapsedLayoutHeight);
 
-                    mItemView.setAlpha(enabled || selected ? 1.0f : mDisabledAlpha);
-                    mCheckBox.setAlpha(enabled || !selected ? 1.0f : mDisabledAlpha);
-                } else {
-                    mCheckBox.setVisibility(View.GONE);
-                    mProgressBar.setVisibility(View.INVISIBLE);
-                    mImageView.setVisibility(View.VISIBLE);
-                    setLayoutHeight(mVolumeSliderLayout, mExpandedLayoutHeight);
-                    mItemView.setAlpha(1.0f);
-                }
+                mItemView.setAlpha(enabled || selected ? 1.0f : mDisabledAlpha);
+                mCheckBox.setAlpha(enabled || !selected ? 1.0f : mDisabledAlpha);
             }
 
             void showSelectingProgress(boolean selected, boolean shouldChangeHeight) {
@@ -1292,13 +1280,11 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
             }
 
             private boolean isEnabled(MediaRouter.RouteInfo route) {
-                if (mSelectedRoute.getDynamicGroupState() != null) {
-                    List<MediaRouter.RouteInfo> currentMemberRoutes =
-                            mSelectedRoute.getMemberRoutes();
-                    // Disable individual route if the only member of dynamic group is that route.
-                    if (currentMemberRoutes.size() == 1 && currentMemberRoutes.get(0) == route) {
-                        return false;
-                    }
+                List<MediaRouter.RouteInfo> currentMemberRoutes =
+                        mSelectedRoute.getMemberRoutes();
+                // Disable individual route if the only member of dynamic group is that route.
+                if (currentMemberRoutes.size() == 1 && currentMemberRoutes.get(0) == route) {
+                    return false;
                 }
                 return true;
             }
@@ -1314,8 +1300,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
                 mItemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mIsSelectingRoute = true;
-                        mRoute.select();
+                        mRouter.transferToRoute(mRoute);
                         mImageView.setVisibility(View.INVISIBLE);
                         mProgressBar.setVisibility(View.VISIBLE);
                     }
@@ -1424,7 +1409,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         }
     }
 
-    private class FetchArtTask extends AsyncTask<Void, Void, Bitmap> {
+    private class FetchArtTask extends android.os.AsyncTask<Void, Void, Bitmap> {
         private final Bitmap mIconBitmap;
         private final Uri mIconUri;
         private int mBackgroundColor;

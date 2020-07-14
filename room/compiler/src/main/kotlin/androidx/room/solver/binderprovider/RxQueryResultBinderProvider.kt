@@ -16,27 +16,24 @@
 
 package androidx.room.solver.binderprovider
 
-import androidx.room.ext.RoomRxJava2TypeNames
+import androidx.room.ext.findTypeMirror
 import androidx.room.processor.Context
-import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.ObservableQueryResultBinderProvider
+import androidx.room.solver.RxType
 import androidx.room.solver.query.result.QueryResultAdapter
 import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.query.result.RxQueryResultBinder
+import erasure
+import isAssignableFrom
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
-sealed class RxQueryResultBinderProvider(
+class RxQueryResultBinderProvider private constructor(
     context: Context,
-    private val rxType: RxQueryResultBinder.RxType
+    private val rxType: RxType
 ) : ObservableQueryResultBinderProvider(context) {
     private val typeMirror: TypeMirror? by lazy {
-        context.processingEnv.elementUtils
-                .getTypeElement(rxType.className.toString())?.asType()
-    }
-    private val hasRxJava2Artifact by lazy {
-        context.processingEnv.elementUtils
-                .getTypeElement(RoomRxJava2TypeNames.RX_ROOM.toString()) != null
+        context.processingEnv.findTypeMirror(rxType.className)
     }
 
     override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
@@ -47,31 +44,37 @@ sealed class RxQueryResultBinderProvider(
         tableNames: Set<String>
     ): QueryResultBinder {
         return RxQueryResultBinder(
-                rxType = rxType,
-                typeArg = typeArg,
-                queryTableNames = tableNames,
-                adapter = resultAdapter
+            rxType = rxType,
+            typeArg = typeArg,
+            queryTableNames = tableNames,
+            adapter = resultAdapter
         )
     }
 
     override fun matches(declared: DeclaredType): Boolean =
-            declared.typeArguments.size == 1 && matchesRxType(declared)
+        declared.typeArguments.size == 1 && matchesRxType(declared)
 
     private fun matchesRxType(declared: DeclaredType): Boolean {
         if (typeMirror == null) {
             return false
         }
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
-        val match = context.processingEnv.typeUtils.isAssignable(typeMirror, erasure)
-        if (match && !hasRxJava2Artifact) {
-            context.logger.e(ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT)
+        val typeUtils = context.processingEnv.typeUtils
+        val erasure = declared.erasure(typeUtils)
+        return erasure.isAssignableFrom(typeUtils, typeMirror!!)
+    }
+
+    companion object {
+        fun getAll(context: Context) = listOf(
+            RxType.RX2_FLOWABLE,
+            RxType.RX2_OBSERVABLE,
+            RxType.RX3_FLOWABLE,
+            RxType.RX3_OBSERVABLE
+        ).map {
+            RxQueryResultBinderProvider(context, it).requireArtifact(
+                context = context,
+                requiredType = it.version.rxRoomClassName,
+                missingArtifactErrorMsg = it.version.missingArtifactMessage
+            )
         }
-        return match
     }
 }
-
-class RxFlowableQueryResultBinderProvider(context: Context) :
-    RxQueryResultBinderProvider(context, RxQueryResultBinder.RxType.FLOWABLE)
-
-class RxObservableQueryResultBinderProvider(context: Context) :
-    RxQueryResultBinderProvider(context, RxQueryResultBinder.RxType.OBSERVABLE)

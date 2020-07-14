@@ -36,7 +36,8 @@ public class NightPreviewExtender extends PreviewExtender {
      * @param builder Builder that will be used to create the configurations for the
      *                {@link androidx.camera.core.Preview}.
      */
-    public static NightPreviewExtender create(Preview.Builder builder) {
+    @NonNull
+    public static NightPreviewExtender create(@NonNull Preview.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorNightPreviewExtender(builder);

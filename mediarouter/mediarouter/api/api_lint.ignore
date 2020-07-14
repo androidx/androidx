@@ -327,8 +327,6 @@ MissingNullability: androidx.mediarouter.media.MediaRouteProviderService#onBind(
     Missing nullability on parameter `intent` in method `onBind`
 MissingNullability: androidx.mediarouter.media.MediaRouteProviderService#onCreateMediaRouteProvider():
     Missing nullability on method `onCreateMediaRouteProvider` return
-MissingNullability: androidx.mediarouter.media.MediaRouteProviderService#onUnbind(android.content.Intent) parameter #0:
-    Missing nullability on parameter `intent` in method `onUnbind`
 MissingNullability: androidx.mediarouter.media.MediaRouteSelector#EMPTY:
     Missing nullability on field `EMPTY` in class `class androidx.mediarouter.media.MediaRouteSelector`
 MissingNullability: androidx.mediarouter.media.MediaRouteSelector#asBundle():

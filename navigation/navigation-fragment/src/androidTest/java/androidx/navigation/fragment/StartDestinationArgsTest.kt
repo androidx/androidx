@@ -27,7 +27,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.navigation.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Rule
@@ -41,8 +40,9 @@ private const val TEST_ARG_VALUE = "value"
 @RunWith(AndroidJUnit4::class)
 class StartDestinationArgsTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(StartDestinationArgsActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(StartDestinationArgsActivity::class.java)
 
     @Test
     fun testNavigateInOnResume() {

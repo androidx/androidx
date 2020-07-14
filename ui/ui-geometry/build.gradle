@@ -34,8 +34,8 @@ kotlin {
         commonMain.dependencies {
             implementation(KOTLIN_STDLIB_COMMON)
 
-            implementation project(":ui:ui-util")
-            implementation project(":compose:compose-runtime")
+            implementation project(":compose:ui:ui-util")
+            implementation project(":compose:runtime:runtime")
         }
         jvmMain.dependencies {
             implementation(KOTLIN_STDLIB)
@@ -51,12 +51,12 @@ kotlin {
 }
 
 androidx {
-    name = "AndroidX UI Geometry"
+    name = "Compose Geometry"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
+    mavenGroup = LibraryGroups.Compose.UI
     inceptionYear = "2020"
-    description = "AndroidX UI classes related to dimensions without units."
+    description = "Compose classes related to dimensions without units."
 }
 
 tasks.withType(KotlinCompile).configureEach {

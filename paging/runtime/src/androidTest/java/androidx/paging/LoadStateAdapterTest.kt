@@ -103,27 +103,27 @@ class LoadStateAdapterTest {
         assertEquals(0, adapter.itemCount)
         assertFalse(
             adapter.displayLoadStateAsItem(
-                NotLoading(endOfPaginationReached = false, fromMediator = false)
+                NotLoading(endOfPaginationReached = false)
             )
         )
         assertFalse(
             adapter.displayLoadStateAsItem(
-                NotLoading(endOfPaginationReached = true, fromMediator = false)
+                NotLoading(endOfPaginationReached = true)
             )
         )
-        assertTrue(adapter.displayLoadStateAsItem(Error(Throwable(), fromMediator = false)))
-        assertTrue(adapter.displayLoadStateAsItem(Loading(fromMediator = false)))
+        assertTrue(adapter.displayLoadStateAsItem(Error(Throwable())))
+        assertTrue(adapter.displayLoadStateAsItem(Loading))
     }
 
     @Test
     fun notifyEquality() {
         val adapter = SimpleLoadStateAdapter()
-        adapter.loadState = Loading(fromMediator = false)
+        adapter.loadState = Loading
 
         val eventRecorder = AdapterEventRecorder()
         adapter.registerAdapterDataObserver(eventRecorder)
 
-        adapter.loadState = Loading(fromMediator = false)
+        adapter.loadState = Loading
         assertTrue(eventRecorder.getClearEvents().isEmpty())
     }
 
@@ -134,12 +134,12 @@ class LoadStateAdapterTest {
         assertFalse("sanity check", throwable1 == throwable2)
 
         val adapter = SimpleLoadStateAdapter()
-        adapter.loadState = Error(throwable1, fromMediator = false)
+        adapter.loadState = Error(throwable1)
 
         val eventRecorder = AdapterEventRecorder()
         adapter.registerAdapterDataObserver(eventRecorder)
 
-        adapter.loadState = Error(throwable2, fromMediator = false)
+        adapter.loadState = Error(throwable2)
         assertEquals(listOf(CHANGE), eventRecorder.getClearEvents())
     }
 
@@ -151,25 +151,25 @@ class LoadStateAdapterTest {
         adapter.registerAdapterDataObserver(eventRecorder)
 
         // idle, done, nothing should happen
-        adapter.loadState = NotLoading(endOfPaginationReached = false, fromMediator = false)
+        adapter.loadState = NotLoading(endOfPaginationReached = false)
         assertTrue(eventRecorder.getClearEvents().isEmpty())
-        adapter.loadState = NotLoading(endOfPaginationReached = true, fromMediator = false)
+        adapter.loadState = NotLoading(endOfPaginationReached = true)
         assertTrue(eventRecorder.getClearEvents().isEmpty())
 
         // insert item
-        adapter.loadState = Loading(fromMediator = false)
+        adapter.loadState = Loading
         assertEquals(listOf(INSERT), eventRecorder.getClearEvents())
 
         // change to error
-        adapter.loadState = Error(Throwable(), fromMediator = false)
+        adapter.loadState = Error(Throwable())
         assertEquals(listOf(CHANGE), eventRecorder.getClearEvents())
 
         // change to different error
-        adapter.loadState = Error(Throwable(), fromMediator = false)
+        adapter.loadState = Error(Throwable())
         assertEquals(listOf(CHANGE), eventRecorder.getClearEvents())
 
         // remove
-        adapter.loadState = NotLoading(endOfPaginationReached = true, fromMediator = false)
+        adapter.loadState = NotLoading(endOfPaginationReached = true)
         assertEquals(listOf(REMOVED), eventRecorder.getClearEvents())
     }
 }

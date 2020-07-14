@@ -30,14 +30,14 @@ import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 
 /**
  * Demonstration of how various press/tap gesture interact together in a nested fashion.
  */
 @Composable
-fun NestedPressDemo() {
+fun NestedPressingDemo() {
     Column {
         Text(
             "Demonstrates correct behavior of a nested set of regions that each respond with " +
@@ -76,16 +76,16 @@ private fun PressableContainer(
         pressed.value = false
     }
 
-    val onLongPress = { _: PxPosition ->
+    val onLongPress = { _: Offset ->
         pressed.value = false
         currentColor.value = defaultColor
     }
 
-    val onTap: (PxPosition) -> Unit = {
+    val onTap: (Offset) -> Unit = {
         currentColor.value = currentColor.value.next()
     }
 
-    val onDoubleTap = { _: PxPosition ->
+    val onDoubleTap = { _: Offset ->
         currentColor.value = currentColor.value.prev()
     }
 

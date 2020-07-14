@@ -36,10 +36,13 @@ import androidx.camera.view.CameraView.CaptureMode;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Locale;
+import java.util.Objects;
 
 /** The main camera fragment. */
 public class CameraViewFragment extends Fragment {
@@ -53,6 +56,22 @@ public class CameraViewFragment extends Fragment {
     // strings (case-insensitive): "image", "video", "mixed"
     private static final String INTENT_EXTRA_CAPTURE_MODE = "captureMode";
 
+    // Argument key which determines the lifecycle used to control the camera of CameraView.
+    // Possible values for this argument key are LIFECYCLE_TYPE_ACTIVITY, LIFECYCLE_TYPE_FRAGMENT,
+    // LIFECYCLE_TYPE_FRAGMENT_VIEW, LIFECYCLE_TYPE_CUSTOM. If using LIFECYCLE_TYPE_DEBUG, then
+    // a lifecycle must be provided via setDebugLifecycleOwner().
+    static final String ARG_LIFECYCLE_TYPE = "lifecycle_type";
+
+    // Fragment's Activity lifecycle
+    static final String LIFECYCLE_TYPE_ACTIVITY = "activity";
+    // Fragment lifecycle (this). This is the default lifecycle used by this fragment
+    static final String LIFECYCLE_TYPE_FRAGMENT = "fragment";
+    // Fragment's View lifecycle (getViewLifecycleOwner())
+    static final String LIFECYCLE_TYPE_FRAGMENT_VIEW = "fragment_view";
+    // Lifecycle provided by setDebugLifecycleOwner
+    static final String LIFECYCLE_TYPE_DEBUG = "debug";
+
+
     private View mCameraHolder;
     private CameraView mCameraView;
     private View mCaptureView;
@@ -60,6 +79,22 @@ public class CameraViewFragment extends Fragment {
     @Nullable
     private CompoundButton mToggleCameraButton;
     private CompoundButton mToggleCropButton;
+    @Nullable
+    private LifecycleOwner mDebugLifecycleOwner;
+
+    /**
+     * Sets the debug lifecycle used by this fragment IF the fragment has argument
+     * {@link #ARG_LIFECYCLE_TYPE} set to {@link #LIFECYCLE_TYPE_DEBUG}.
+     *
+     * <p>This lifecycle must be set before the fragment lifecycle reaches
+     * {@link #onViewStateRestored(Bundle)}, or it will be ignored.
+     *
+     * <p>This value set here is not retained across fragment recreation, so it is only safe to
+     * use for debugging/testing purposes.
+     */
+    public void setDebugLifecycleOwner(@NonNull LifecycleOwner owner) {
+        mDebugLifecycleOwner = owner;
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -118,13 +153,40 @@ public class CameraViewFragment extends Fragment {
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
 
-        if (ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.CAMERA)
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
             throw new IllegalStateException("App has not been granted CAMERA permission");
         }
 
         // Set the lifecycle that will be used to control the camera
-        mCameraView.bindToLifecycle(CameraViewFragment.this);
+        Bundle args = getArguments();
+        String lifecycleType = args == null ? LIFECYCLE_TYPE_FRAGMENT :
+                args.getString(ARG_LIFECYCLE_TYPE, LIFECYCLE_TYPE_FRAGMENT);
+        Log.d(TAG, "Attempting bindToLifecycle with lifecycle type: " + lifecycleType);
+        switch (lifecycleType) {
+            case LIFECYCLE_TYPE_ACTIVITY:
+                mCameraView.bindToLifecycle(requireActivity());
+                break;
+            case LIFECYCLE_TYPE_FRAGMENT:
+                mCameraView.bindToLifecycle(CameraViewFragment.this);
+                break;
+            case LIFECYCLE_TYPE_FRAGMENT_VIEW:
+                mCameraView.bindToLifecycle(Objects.requireNonNull(getViewLifecycleOwner()));
+                break;
+            case LIFECYCLE_TYPE_DEBUG:
+                if (mDebugLifecycleOwner == null) {
+                    throw new IllegalStateException("Lifecycle type set to DEBUG, but no debug "
+                            + "lifecycle exists. setDebugLifecycleOwner() must be called before "
+                            + "onViewStateRestored()");
+                }
+                mCameraView.bindToLifecycle(mDebugLifecycleOwner);
+                break;
+            default:
+                throw new IllegalArgumentException(String.format(Locale.US, "Invalid lifecycle "
+                                + "type: %s. Valid options are %s, %s, %s, and %s.", lifecycleType,
+                        LIFECYCLE_TYPE_ACTIVITY, LIFECYCLE_TYPE_FRAGMENT,
+                        LIFECYCLE_TYPE_FRAGMENT_VIEW, LIFECYCLE_TYPE_DEBUG));
+        }
 
         mCameraView.setPinchToZoomEnabled(true);
         mCaptureView.setOnTouchListener(new CaptureViewOnTouchListener(mCameraView));

@@ -38,7 +38,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.rule.ActivityTestRule
 import org.hamcrest.Description
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.not
@@ -55,8 +54,9 @@ import org.junit.runner.RunWith
 @LargeTest
 class SeekBarPreferenceTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(PreferenceTestHelperActivity::class.java)
+    val activityRule = androidx.test.rule.ActivityTestRule(PreferenceTestHelperActivity::class.java)
 
     private lateinit var seekBarPreference: SeekBarPreference
 
@@ -259,6 +259,7 @@ class SeekBarPreferenceTest {
                 // We want to swipe all the way to the right edge of the screen to avoid
                 // flakiness due to sometimes not reaching the end of the seekbar
                 val metrics = DisplayMetrics()
+                @Suppress("DEPRECATION") /* defaultDisplay */
                 activityRule.activity.windowManager.defaultDisplay.getMetrics(metrics)
                 val posX = metrics.widthPixels
                 val posY = location[1]

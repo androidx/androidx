@@ -18,30 +18,33 @@ package androidx.appsearch.exceptions;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchResult;
 
 /**
- * An exception thrown by {@link androidx.appsearch.app.AppSearchManager} or a subcomponent.
+ * An exception thrown by {@code androidx.appsearch.app.AppSearchManager} or a subcomponent.
  *
  * <p>These exceptions can be converted into a failed {@link AppSearchResult}
  * for propagating to the client.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+//TODO(b/157082794): Linkify to AppSearchManager once that API is public
 public class AppSearchException extends Exception {
     private final @AppSearchResult.ResultCode int mResultCode;
 
-    /** Initializes an {@link AppSearchException} with no message. */
+    /**
+     * Initializes an {@link AppSearchException} with no message.
+     * @hide
+     */
     public AppSearchException(@AppSearchResult.ResultCode int resultCode) {
         this(resultCode, /*message=*/ null);
     }
 
+    /** @hide */
     public AppSearchException(
             @AppSearchResult.ResultCode int resultCode, @Nullable String message) {
         this(resultCode, message, /*cause=*/ null);
     }
 
+    /** @hide */
     public AppSearchException(
             @AppSearchResult.ResultCode int resultCode,
             @Nullable String message,

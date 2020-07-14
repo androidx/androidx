@@ -17,19 +17,21 @@
 package androidx.room.solver.binderprovider
 
 import androidx.room.ext.LifecyclesTypeNames
+import androidx.room.ext.findTypeMirror
 import androidx.room.processor.Context
 import androidx.room.solver.ObservableQueryResultBinderProvider
 import androidx.room.solver.query.result.LiveDataQueryResultBinder
 import androidx.room.solver.query.result.QueryResultAdapter
 import androidx.room.solver.query.result.QueryResultBinder
+import erasure
+import isAssignableFrom
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
 class LiveDataQueryResultBinderProvider(context: Context) :
     ObservableQueryResultBinderProvider(context) {
     private val liveDataTypeMirror: TypeMirror? by lazy {
-        context.processingEnv.elementUtils
-                .getTypeElement(LifecyclesTypeNames.LIVE_DATA.toString())?.asType()
+        context.processingEnv.findTypeMirror(LifecyclesTypeNames.LIVE_DATA)
     }
 
     override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
@@ -52,7 +54,8 @@ class LiveDataQueryResultBinderProvider(context: Context) :
         if (liveDataTypeMirror == null) {
             return false
         }
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
-        return context.processingEnv.typeUtils.isAssignable(liveDataTypeMirror, erasure)
+        val typeUtils = context.processingEnv.typeUtils
+        val erasure = declared.erasure(typeUtils)
+        return erasure.isAssignableFrom(typeUtils, liveDataTypeMirror!!)
     }
 }

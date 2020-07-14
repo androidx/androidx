@@ -31,6 +31,10 @@ from shutil import rmtree
 # See b/147606199
 #
 
+# Import the JetpadClient from the parent directory
+sys.path.append("..")
+from JetpadClient import *
+
 # cd into directory of script
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -55,71 +59,6 @@ def rm(path):
 		rmtree(path)
 	elif os.path.exists(path):
 		os.remove(path)
-
-def get_jetpad_release_info(date):
-	try:
-		raw_jetpad_release_output = subprocess.check_output('span sql /span/global/androidx-jetpad:prod_instance \"SELECT GroupId, ArtifactId, ReleaseVersion, PreviousReleaseSHA, ReleaseSHA, Path, RequireSameVersionGroupBuild FROM LibraryReleases WHERE ReleaseDate = %s\"' % date, shell=True)
-	except subprocess.CalledProcessError:
-		print_e('FAIL: Failed to get jetpad release info for  %s' %  date)
-		return None
-	raw_jetpad_release_output_lines = raw_jetpad_release_output.splitlines()
-	if len(raw_jetpad_release_output_lines) <= 2:
-		print_e("Error: Date %s returned zero results from Jetpad.  Please check your date" % args.date)
-		return None
-	jetpad_release_output = iter(raw_jetpad_release_output_lines)
-	return jetpad_release_output
-
-def get_release_note_object(date, include_all_commits, jetpad_release_info):
-	releaseDateTime = datetime.datetime.fromtimestamp(float(date)/1000.0)
-	release_json_object = {}
-	release_json_object["releaseDate"] = "%02d-%02d-%s" % (releaseDateTime.month, releaseDateTime.day, releaseDateTime.year)
-	release_json_object["includeAllCommits"] = include_all_commits
-	release_json_object["modules"] = {}
-	for line in jetpad_release_info:
-		if "androidx" not in line.decode(): continue
-		# Remove all white space and split line based on '|'
-		artifactId_release_line = line.decode().replace(" ", "").split('|')
-		groupId = artifactId_release_line[1]
-		artifactId = artifactId_release_line[2]
-		version = artifactId_release_line[3]
-		fromSHA = artifactId_release_line[4]
-		untilSHA = artifactId_release_line[5]
-		path = artifactId_release_line[6]
-		if path[0] == '/': path = path[1:]
-		requiresSameVersion = False
-		if artifactId_release_line[7] == "true":
-			requiresSameVersion = True
-		if groupId in release_json_object["modules"]:
-			release_json_object["modules"][groupId].append({
-				"groupId": groupId,
-				"artifactId": artifactId,
-				"version": version,
-				"fromSHA": fromSHA,
-				"untilSHA": untilSHA,
-				"requiresSameVersion": requiresSameVersion,
-				"path": path
-			})
-		else:
-			release_json_object["modules"][groupId] = [{
-				"groupId": groupId,
-				"artifactId": artifactId,
-				"version": version,
-				"fromSHA": fromSHA,
-				"untilSHA": untilSHA,
-				"requiresSameVersion": requiresSameVersion,
-				"path": path
-			}]
-	return release_json_object
-
-def generate_release_json_file(date, include_all_commits, jetpad_release_info):
-	release_json_object = get_release_note_object(date, include_all_commits, jetpad_release_info)
-	# Serialize the json release_json_object into a json file for reading from gradle
-	output_json_filename = "release_info_%s.json" % date
-	with open(output_json_filename, 'w') as f:
-		json.dump(release_json_object, f)
-		output_json_filepath = os.path.abspath(f.name)
-	return output_json_filepath
-
 
 def isExcludedAuthorEmail(authorEmail):
 	""" Check if an email address is a robot
@@ -159,7 +98,7 @@ def mergeCommitListBIntoCommitListA(commitListA, commitListB):
 		if commitB.sha not in commitListAShaSet:
 			commitListA.append(commitB)
 
-def commonPathPrefix(pathA, pathB):
+def getCommonPathPrefix(pathA, pathB):
 	pathAList = pathA.split('/')
 	pathBList = pathB.split('/')
 
@@ -171,15 +110,15 @@ def commonPathPrefix(pathA, pathB):
 			lastCommonIndex = i
 	return "/".join(pathAList[:lastCommonIndex + 1])
 
-def writeArtifactIdReleaseNotesToFile(groupId, artifactId, version, releaseNotesString, outputDir):
+def writeArtifactIdReleaseNotesToFile(groupId, artifactId, version, releaseNotesString, channelSummary, outputDir):
 	releaseNotesFileName = "%s_%s_%s_release_notes.txt" % (groupId, artifactId, version)
 	groupIdDir = "%s/%s" % (outputDir, groupId)
-	writeReleaseNotesToNewFile(groupIdDir, releaseNotesFileName, releaseNotesString)
+	writeReleaseNotesToNewFile(groupIdDir, releaseNotesFileName, channelSummary + "\n" + releaseNotesString)
 
-def writeGroupIdReleaseNotesToFile(groupId, releaseNotesString, outputDir):
+def writeGroupIdReleaseNotesToFile(groupId, releaseNotesString, channelSummary, outputDir):
 	releaseNotesFileName = "%s_release_notes.txt" % (groupId)
 	groupIdDir = "%s/%s" % (outputDir, groupId)
-	writeReleaseNotesToNewFile(groupIdDir, releaseNotesFileName, releaseNotesString)
+	writeReleaseNotesToNewFile(groupIdDir, releaseNotesFileName, channelSummary + "\n" + releaseNotesString)
 
 def writeReleaseNotesToNewFile(groupIdDir, releaseNotesFileName, releaseNotesString):
 	if not os.path.exists(groupIdDir):
@@ -188,20 +127,26 @@ def writeReleaseNotesToNewFile(groupIdDir, releaseNotesFileName, releaseNotesStr
 	with open(fullReleaseNotesFilePath, 'w') as f:
 		f.write(releaseNotesString)
 
-def generateAllReleaseNotes(releaseDate, include_all_commits, jetpad_release_info, outputDir):
+def generateAllReleaseNotes(releaseDate, include_all_commits, outputDir):
 	""" Creates all the release notes.  Creates each individual artifactId release notes, each
 		individual groupId release notes, then creates an aggregrate release notes file that
 		contains all of the groupId release Notes
 		@param releaseDate The release date of the entire release
 		@param includeAllCommits Set to true to include all commits regardless of whether or not they
 				 have the release notes tag
-		@param jetpad_release_info The raw output of information from Jetpad
 	"""
 	gitClient = GitClient(os.getcwd())
-	releaseJsonObject = get_release_note_object(releaseDate, include_all_commits, jetpad_release_info)
+	releaseJsonObject = getJetpadRelease(releaseDate, include_all_commits)
+	print("Creating release notes...")
 	allReleaseNotes = ""
+	allReleaseNotesSummary = ""
 	for groupId in releaseJsonObject["modules"]:
-		allReleaseNotes += "\n\n" + generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir)
+		groupReleaseNotes, groupReleaseNotesSummary = generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir)
+		allReleaseNotes += "\n\n" + groupReleaseNotes
+		allReleaseNotesSummary += groupReleaseNotesSummary
+	formattedReleaseDate = str(MarkdownDate(releaseJsonObject["releaseDate"])) + "\n"
+	allReleaseNotesSummary = formattedReleaseDate + allReleaseNotesSummary
+	allReleaseNotes = allReleaseNotesSummary + "\n" + allReleaseNotes
 	writeReleaseNotesToNewFile(outputDir, "all_androidx_release_notes.txt", allReleaseNotes)
 
 def generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir):
@@ -217,6 +162,7 @@ def generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir
 	versionToArtifactRNMap = getVersionToReleaseNotesMap(releaseJsonObject, groupId)
 
 	groupReleaseNotesStringList = []
+	groupReleaseNotesSummaryList = []
 	# For each version, collect and write the release notes for all artifactIds of that version
 	for (version, versionRNList) in versionToArtifactRNMap.items():
 		versionArtifactIds = []
@@ -235,7 +181,7 @@ def generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir
 			)
 			fromSHA = artifact["fromSHA"]
 			untilSHA = artifact["untilSHA"]
-			groupIdCommonDir = commonPathPrefix(groupIdCommonDir, artifact["path"])
+			groupIdCommonDir = getCommonPathPrefix(groupIdCommonDir, artifact["path"])
 		for commit in versionGroupCommitList:
 			if isExcludedAuthorEmail(commit.authorEmail):
 				versionGroupCommitList.remove(commit)
@@ -254,14 +200,17 @@ def generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir
 		)
 
 		groupReleaseNotesStringList.append(str(releaseNotes))
+		groupReleaseNotesSummaryList.append(str(releaseNotes.channelSummary))
 
 	completeGroupIdReleaseNotes = "\n\n".join((groupReleaseNotesStringList))
+	completeGroupReleaseNotesSummary = "".join(groupReleaseNotesSummaryList)
 	writeGroupIdReleaseNotesToFile(
 		groupId,
 		completeGroupIdReleaseNotes,
+		completeGroupReleaseNotesSummary,
 		outputDir
 	)
-	return completeGroupIdReleaseNotes
+	return completeGroupIdReleaseNotes, completeGroupReleaseNotesSummary
 
 
 def generateArtifactIdReleaseNotes(gitClient, artifact, releaseDate, includeAllCommits, outputDir):
@@ -309,6 +258,7 @@ def generateArtifactIdReleaseNotes(gitClient, artifact, releaseDate, includeAllC
 		artifact["artifactId"],
 		artifact["version"],
 		str(artifactIdReleaseNotes),
+		str(artifactIdReleaseNotes.channelSummary),
 		outputDir
 	)
 	return artifactIdReleaseNotes
@@ -319,16 +269,10 @@ def main(args):
 	if not args.date:
 		parser.error("You must specify a release date in Milliseconds since epoch")
 		sys.exit(1)
-	print("Getting the release info from Jetpad...")
-	jetpad_release_info = get_jetpad_release_info(args.date)
-	if not jetpad_release_info:
-		exit(1)
-	print("Successful")
-	print("Creating release notes...")
 	outputDir = "./out"
 	# Remove the local output dir so that leftover release notes from the previous run are removed
 	rm(outputDir)
-	generateAllReleaseNotes(args.date, args.include_all_commits, jetpad_release_info, outputDir)
+	generateAllReleaseNotes(args.date, args.include_all_commits, outputDir)
 	print("Successful.")
 	print("Release notes have been written to %s" % outputDir)
 

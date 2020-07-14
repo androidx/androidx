@@ -41,15 +41,17 @@ import java.util.concurrent.Executor;
  * <p>CameraXConfig provides customizable options for camera provider instances that persist for
  * the lifetime of the provider.
  *
- * <p>An implementation of AppConfig must be provided by subclassing the
- * {@link Application} object and implementing {@link CameraXConfig.Provider}.
+ * <p>An implementation of CameraXConfig can be provided by subclassing the
+ * {@link Application} object and implementing {@link CameraXConfig.Provider}. Alternatively,
+ * other methods configuration exist such as
+ * {@link androidx.camera.lifecycle.ProcessCameraProvider#configureInstance(CameraXConfig)}.
  * {@linkplain androidx.camera.lifecycle.ProcessCameraProvider#getInstance(android.content.Context)
- * An example} of how this is used can be found in the {@link androidx.camera.lifecycle} package.
+ * Examples} of how this is used can be found in the {@link androidx.camera.lifecycle} package.
  *
  * <p>Applications can create and use {@linkplain androidx.camera.camera2.Camera2Config the
- * implementation} of AppConfig provided in {@link androidx.camera.camera2}.
+ * implementation} of CameraXConfig provided in {@link androidx.camera.camera2}.
  *
- * @see androidx.camera.lifecycle
+ * @see androidx.camera.lifecycle.ProcessCameraProvider#configureInstance(CameraXConfig)
  * @see CameraXConfig.Builder
  */
 public final class CameraXConfig implements TargetConfig<CameraX> {

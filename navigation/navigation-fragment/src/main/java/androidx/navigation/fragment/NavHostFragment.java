@@ -24,6 +24,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.OnBackPressedDispatcher;
+import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NavigationRes;
 import androidx.annotation.NonNull;
@@ -56,7 +58,7 @@ import androidx.navigation.Navigator;
  *            android:name="androidx.navigation.fragment.NavHostFragment"
  *            app:navGraph="@navigation/nav_sample"
  *            app:defaultNavHost="true" /&gt;
- *    &lt;android.support.design.widget.NavigationView
+ *    &lt;com.google.android.material.navigation.NavigationView
  *            android:layout_width="wrap_content"
  *            android:layout_height="match_parent"
  *            android:layout_gravity="start"/&gt;
@@ -208,14 +210,19 @@ public class NavHostFragment extends Fragment implements NavHost {
 
         mNavController = new NavHostController(context);
         mNavController.setLifecycleOwner(this);
-        mNavController.setOnBackPressedDispatcher(requireActivity().getOnBackPressedDispatcher());
+        if (context instanceof OnBackPressedDispatcherOwner) {
+            mNavController.setOnBackPressedDispatcher(
+                    ((OnBackPressedDispatcherOwner) context).getOnBackPressedDispatcher());
+            // Otherwise, caller must register a dispatcher on the controller explicitly
+            // by overriding onCreateNavHostController()
+        }
         // Set the default state - this will be updated whenever
         // onPrimaryNavigationFragmentChanged() is called
         mNavController.enableOnBackPressed(
                 mIsPrimaryBeforeOnCreate != null && mIsPrimaryBeforeOnCreate);
         mIsPrimaryBeforeOnCreate = null;
         mNavController.setViewModelStore(getViewModelStore());
-        onCreateNavController(mNavController);
+        onCreateNavHostController(mNavController);
 
         Bundle navState = null;
         if (savedInstanceState != null) {
@@ -250,18 +257,44 @@ public class NavHostFragment extends Fragment implements NavHost {
     }
 
     /**
+     * Callback for when the {@link NavHostController} is created. If you
+     * support any custom destination types, their {@link Navigator} should be added here to
+     * ensure it is available before the navigation graph is inflated / set.
+     * <p>
+     * This provides direct access to the host specific methods available on
+     * {@link NavHostController} such as
+     * {@link NavHostController#setOnBackPressedDispatcher(OnBackPressedDispatcher)}.
+     * <p>
+     * By default, this adds a {@link DialogFragmentNavigator} and {@link FragmentNavigator}.
+     * <p>
+     * This is only called once in {@link #onCreate(Bundle)} and should not be called directly by
+     * subclasses.
+     *
+     * @param navHostController The newly created {@link NavHostController} that will be
+     *                          returned by {@link #getNavController()} after
+     */
+    @SuppressWarnings("deprecation")
+    @CallSuper
+    protected void onCreateNavHostController(@NonNull NavHostController navHostController) {
+        onCreateNavController(navHostController);
+    }
+
+    /**
      * Callback for when the {@link #getNavController() NavController} is created. If you
      * support any custom destination types, their {@link Navigator} should be added here to
      * ensure it is available before the navigation graph is inflated / set.
      * <p>
-     * By default, this adds a {@link FragmentNavigator}.
+     * By default, this adds a {@link DialogFragmentNavigator} and {@link FragmentNavigator}.
      * <p>
      * This is only called once in {@link #onCreate(Bundle)} and should not be called directly by
      * subclasses.
      *
      * @param navController The newly created {@link NavController}.
+     * @deprecated Override {@link #onCreateNavHostController(NavHostController)} to gain
+     * access to the full {@link NavHostController} that is created by this NavHostFragment.
      */
-    @SuppressWarnings({"WeakerAccess", "deprecation"})
+    @SuppressWarnings({"DeprecatedIsStillUsed", "deprecation"})
+    @Deprecated
     @CallSuper
     protected void onCreateNavController(@NonNull NavController navController) {
         navController.getNavigatorProvider().addNavigator(
@@ -288,7 +321,6 @@ public class NavHostFragment extends Fragment implements NavHost {
      * @return a new instance of a FragmentNavigator
      * @deprecated Use {@link #onCreateNavController(NavController)}
      */
-    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     @NonNull
     protected Navigator<? extends FragmentNavigator.Destination> createFragmentNavigator() {

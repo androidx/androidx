@@ -21,7 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert
 import org.junit.Assert.assertThat
@@ -36,8 +35,9 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class RecyclerViewSmoothScrollToPositionTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val mActivityTestRule = ActivityTestRule(TestContentViewActivity::class.java)
+    val mActivityTestRule = androidx.test.rule.ActivityTestRule(TestContentViewActivity::class.java)
 
     @Test
     @Throws(Throwable::class)

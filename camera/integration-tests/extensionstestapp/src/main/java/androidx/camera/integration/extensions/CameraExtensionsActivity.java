@@ -305,7 +305,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
-                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
+                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
                 contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH,
                         "Pictures/ExtensionsPictures");
                 outputFileOptions = new ImageCapture.OutputFileOptions.Builder(

@@ -16,8 +16,9 @@
 
 package androidx.room.processor
 
+import androidx.room.ext.asMemberOf
+import androidx.room.ext.name
 import androidx.room.vo.QueryParameter
-import com.google.auto.common.MoreTypes
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
 
@@ -29,12 +30,15 @@ class QueryParameterProcessor(
 ) {
     val context = baseContext.fork(element)
     fun process(): QueryParameter {
-        val asMember = MoreTypes.asMemberOf(context.processingEnv.typeUtils, containing, element)
+        val asMember = element.asMemberOf(
+            context.processingEnv.typeUtils,
+            containing
+        )
         val parameterAdapter = context.typeAdapterStore.findQueryParameterAdapter(asMember)
         context.checker.check(parameterAdapter != null, element,
                 ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
 
-        val name = element.simpleName.toString()
+        val name = element.name
         context.checker.check(!name.startsWith("_"), element,
                 ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE)
         return QueryParameter(

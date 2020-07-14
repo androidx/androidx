@@ -22,9 +22,6 @@ import javax.lang.model.type.DeclaredType
 data class ContentEntityVO(
     val defaultUri: String,
     val type: DeclaredType,
-    // TODO(obenabde): maybe eventually make this a map where the key is the field name for a
-    // slight optimization. Trying to keep it simple for now. This should still contain the
-    // primary key column.
     val columns: Map<String, ContentColumnVO>,
     val primaryKeyColumn: ContentColumnVO
 )

@@ -20,26 +20,22 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
+import android.graphics.Rect
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.PixelCopy
+import android.view.View
 import android.view.ViewTreeObserver
-import android.view.Window
 import androidx.annotation.RequiresApi
-import androidx.ui.core.AndroidOwner
-import androidx.ui.core.Owner
-import androidx.ui.geometry.Rect
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
 
 @RequiresApi(Build.VERSION_CODES.O)
 internal fun captureRegionToBitmap(
-    captureRect: Rect,
-    owner: Owner
+    captureRectInWindow: Rect,
+    view: View
 ): Bitmap {
-
     fun Context.getActivity(): Activity? {
         return when (this) {
             is Activity -> this
@@ -48,23 +44,9 @@ internal fun captureRegionToBitmap(
         }
     }
 
-    // TODO(pavlis): Make sure that the Activity actually hosts the view. As in case of popup
-    //  it wouldn't. This will require us rewriting the structure how we collect the nodes.
-
-    // TODO(pavlis): Add support for popups. So if we find composable hosted in popup we can
-    //  grab its reference to its window (need to add a hook to popup).
-
-    val window = (owner as AndroidOwner).view.context.getActivity()!!.window
+    val window = view.context.getActivity()!!.window
     val handler = Handler(Looper.getMainLooper())
-    return captureRegionToBitmap(captureRect, handler, window)
-}
 
-@RequiresApi(Build.VERSION_CODES.O)
-internal fun captureRegionToBitmap(
-    captureRect: Rect,
-    handler: Handler,
-    window: Window
-): Bitmap {
     // first we wait for the drawing to happen
     val drawLatch = CountDownLatch(1)
     val decorView = window.decorView
@@ -95,29 +77,18 @@ internal fun captureRegionToBitmap(
 
     // and then request the pixel copy of the drawn buffer
     val destBitmap = Bitmap.createBitmap(
-        captureRect.width.roundToInt(),
-        captureRect.height.roundToInt(),
+        captureRectInWindow.width(),
+        captureRectInWindow.height(),
         Bitmap.Config.ARGB_8888
-    )
-
-    // TODO: This could go to some Android specific extensions.
-    val srcRect = android.graphics.Rect(
-        captureRect.left.roundToInt(),
-        captureRect.top.roundToInt(),
-        captureRect.right.roundToInt(),
-        captureRect.bottom.roundToInt()
     )
 
     val latch = CountDownLatch(1)
     var copyResult = 0
-    val onCopyFinished = object : PixelCopy.OnPixelCopyFinishedListener {
-        override fun onPixelCopyFinished(result: Int) {
-            copyResult = result
-            latch.countDown()
-        }
+    val onCopyFinished = PixelCopy.OnPixelCopyFinishedListener { result ->
+        copyResult = result
+        latch.countDown()
     }
-
-    PixelCopy.request(window, srcRect, destBitmap, onCopyFinished, handler)
+    PixelCopy.request(window, captureRectInWindow, destBitmap, onCopyFinished, handler)
 
     if (!latch.await(1, TimeUnit.SECONDS)) {
         throw AssertionError("Failed waiting for PixelCopy!")

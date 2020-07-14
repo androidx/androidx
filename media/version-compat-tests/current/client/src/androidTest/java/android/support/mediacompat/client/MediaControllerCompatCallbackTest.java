@@ -580,6 +580,7 @@ public class MediaControllerCompatCallbackTest {
         final SessionReadyCallback callback = new SessionReadyCallback();
         synchronized (callback.mWaitLock) {
             getInstrumentation().runOnMainSync(new Runnable() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public void run() {
                     try {
@@ -611,6 +612,7 @@ public class MediaControllerCompatCallbackTest {
                 MediaSessionCompat.Token.fromToken(mSessionToken.getToken());
         synchronized (callback.mWaitLock) {
             getInstrumentation().runOnMainSync(new Runnable() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public void run() {
                     try {
@@ -642,6 +644,7 @@ public class MediaControllerCompatCallbackTest {
         final SessionReadyCallback callback = new SessionReadyCallback();
         synchronized (callback.mWaitLock) {
             getInstrumentation().runOnMainSync(new Runnable() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public void run() {
                     try {
@@ -674,6 +677,7 @@ public class MediaControllerCompatCallbackTest {
         final SessionReadyCallback callback = new SessionReadyCallback();
         synchronized (callback.mWaitLock) {
             getInstrumentation().runOnMainSync(new Runnable() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public void run() {
                     try {

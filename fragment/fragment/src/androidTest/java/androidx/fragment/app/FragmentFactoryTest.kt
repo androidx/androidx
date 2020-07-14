@@ -22,7 +22,6 @@ import androidx.fragment.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -33,8 +32,9 @@ import org.junit.runner.RunWith
 @LargeTest
 class FragmentFactoryTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(EmptyFragmentTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
 
     private lateinit var activity: EmptyFragmentTestActivity
     private lateinit var fragmentManager: FragmentManager

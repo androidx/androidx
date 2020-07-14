@@ -17,10 +17,15 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.ScrollableColumn
+import androidx.ui.material.icons.Icons
+import androidx.ui.material.icons.filled.Call
 import androidx.ui.material.samples.OneLineListItems
+import androidx.ui.material.samples.OneLineRtlLtrListItems
 import androidx.ui.material.samples.ThreeLineListItems
+import androidx.ui.material.samples.ThreeLineRtlLtrListItems
 import androidx.ui.material.samples.TwoLineListItems
+import androidx.ui.material.samples.TwoLineRtlLtrListItems
 import androidx.ui.res.imageResource
 
 @Composable
@@ -28,9 +33,21 @@ fun ListItemDemo() {
     val icon24 = imageResource(R.drawable.ic_bluetooth)
     val icon40 = imageResource(R.drawable.ic_account_box)
     val icon56 = imageResource(R.drawable.ic_android)
-    VerticalScroller {
-        OneLineListItems(icon24, icon40, icon56)
+    val vectorIcon = Icons.Default.Call
+    ScrollableColumn {
+        OneLineListItems(icon24, icon40, icon56, vectorIcon)
         TwoLineListItems(icon24, icon40)
-        ThreeLineListItems(icon24, icon40)
+        ThreeLineListItems(icon24, vectorIcon)
+    }
+}
+
+@Composable
+fun MixedRtlLtrListItemDemo() {
+    val icon24 = imageResource(R.drawable.ic_bluetooth)
+    val icon40 = imageResource(R.drawable.ic_account_box)
+    ScrollableColumn {
+        OneLineRtlLtrListItems(icon24, icon40)
+        TwoLineRtlLtrListItems(icon40)
+        ThreeLineRtlLtrListItems(icon40)
     }
 }

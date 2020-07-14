@@ -16,35 +16,53 @@
 
 package androidx.ui.geometry
 
+import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.util.lerp
+import androidx.ui.util.packFloats
 import androidx.ui.util.toStringAsFixed
+import androidx.ui.util.unpackFloat1
+import androidx.ui.util.unpackFloat2
 import kotlin.math.truncate
 
+/**
+ * Constructs a Radius with the given [x] and [y] parameters for the
+ * size of the radius along the x and y axis respectively. By default
+ * the radius along the Y axis matches that of the given x-axis
+ * unless otherwise specified
+ */
+@Suppress("NOTHING_TO_INLINE")
+@Stable
+inline fun Radius(x: Float, y: Float = x) = Radius(packFloats(x, y))
+
 /** A radius for either circular or elliptical shapes. */
-data class Radius(
+@Immutable
+inline class Radius(@PublishedApi internal val packedValue: Long) {
+
     /** The radius value on the horizontal axis. */
-    val x: Float,
+    @Stable
+    val x: Float
+        get() = unpackFloat1(packedValue)
     /** The radius value on the vertical axis. */
+    @Stable
     val y: Float
-) {
+        get() = unpackFloat2(packedValue)
+
+    /**
+     * Returns a copy of this Radius instance optionally overriding the
+     * radius parameter for the x or y axis
+     */
+    fun copy(x: Float = this.x, y: Float = this.y) = Radius(x, y)
 
     companion object {
-        /** Constructs a circular radius. [x] and [y] will have the same radius value. */
-        fun circular(radius: Float): Radius {
-            return Radius(radius, radius)
-        }
-
-        /** Constructs an elliptical radius with the given radii. */
-        fun elliptical(x: Float, y: Float): Radius {
-            return Radius(x, y)
-        }
 
         /**
          * A radius with [x] and [y] values set to zero.
          *
-         * You can use [Radius.zero] with [RRect] to have right-angle corners.
+         * You can use [Radius.Zero] with [RRect] to have right-angle corners.
          */
-        val zero: Radius = circular(0.0f)
+        @Stable
+        val Zero: Radius = Radius(0.0f)
     }
 
     /**
@@ -57,7 +75,8 @@ data class Radius(
      * and then adding the result to another radius is equivalent to subtracting
      * a radius of one pixel from the other.
      */
-    operator fun unaryMinus() = elliptical(-x, -y)
+    @Stable
+    operator fun unaryMinus() = Radius(-x, -y)
 
     /**
      * Binary subtraction operator.
@@ -66,7 +85,8 @@ data class Radius(
      * minus the right-hand-side operand's [x] and whose [y] value is the
      * left-hand-side operand's [y] minus the right-hand-side operand's [y].
      */
-    operator fun minus(other: Radius) = elliptical(x - other.x, y - other.y)
+    @Stable
+    operator fun minus(other: Radius) = Radius(x - other.x, y - other.y)
 
     /**
      * Binary addition operator.
@@ -75,7 +95,8 @@ data class Radius(
      * two operands, and whose [y] value is the sum of the [y] values of the
      * two operands.
      */
-    operator fun plus(other: Radius) = elliptical(x + other.x, y + other.y)
+    @Stable
+    operator fun plus(other: Radius) = Radius(x + other.x, y + other.y)
 
     /**
      * Multiplication operator.
@@ -84,7 +105,8 @@ data class Radius(
      * left-hand-side operand (a radius) multiplied by the scalar
      * right-hand-side operand (a Float).
      */
-    operator fun times(operand: Float) = elliptical(x * operand, y * operand)
+    @Stable
+    operator fun times(operand: Float) = Radius(x * operand, y * operand)
 
     /**
      * Division operator.
@@ -93,7 +115,8 @@ data class Radius(
      * left-hand-side operand (a radius) divided by the scalar right-hand-side
      * operand (a Float).
      */
-    operator fun div(operand: Float) = elliptical(x / operand, y / operand)
+    @Stable
+    operator fun div(operand: Float) = Radius(x / operand, y / operand)
 
     /**
      * Integer (truncating) division operator.
@@ -103,7 +126,7 @@ data class Radius(
      * operand (a Float), rounded towards zero.
      */
     fun truncDiv(operand: Float): Radius =
-        elliptical(truncate(x / operand), truncate(y / operand))
+        Radius(truncate(x / operand), truncate(y / operand))
 
     /**
      * Modulo (remainder) operator.
@@ -112,7 +135,8 @@ data class Radius(
      * coordinates of the left-hand-side operand (a radius) by the scalar
      * right-hand-side operand (a Float).
      */
-    operator fun rem(operand: Float) = elliptical(x % operand, y % operand)
+    @Stable
+    operator fun rem(operand: Float) = Radius(x % operand, y % operand)
 
     override fun toString(): String {
         return if (x == y) {
@@ -121,20 +145,6 @@ data class Radius(
             "Radius.elliptical(${x.toStringAsFixed(1)}, ${y.toStringAsFixed(1)})"
         }
     }
-
-// TODO(Filip): I think data class handles this no need to re-implement
-//    @override
-//    bool operator ==(dynamic other) {
-//        if (identical(this, other))
-//            return true;
-//        if (runtimeType != other.runtimeType)
-//            return false;
-//        final Radius typedOther = other;
-//        return typedOther.x == x && typedOther.y == y;
-//    }
-//
-//    @override
-//    int get hashCode => hashValues(x, y);
 }
 
 /**
@@ -152,8 +162,9 @@ data class Radius(
  * Values for [fraction] are usually obtained from an [Animation<Float>], such as
  * an `AnimationController`.
  */
+@Stable
 fun lerp(start: Radius, stop: Radius, fraction: Float): Radius {
-    return Radius.elliptical(
+    return Radius(
         lerp(start.x, stop.x, fraction),
         lerp(start.y, stop.y, fraction)
     )

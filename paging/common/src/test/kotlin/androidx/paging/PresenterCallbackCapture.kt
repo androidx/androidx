@@ -20,7 +20,11 @@ sealed class PresenterEvent
 data class ChangeEvent(val position: Int, val count: Int) : PresenterEvent()
 data class InsertEvent(val position: Int, val count: Int) : PresenterEvent()
 data class RemoveEvent(val position: Int, val count: Int) : PresenterEvent()
-data class StateEvent(val loadType: LoadType, val loadState: LoadState) : PresenterEvent()
+data class StateEvent(
+    val loadType: LoadType,
+    val fromMediator: Boolean,
+    val loadState: LoadState
+) : PresenterEvent()
 
 class PresenterCallbackCapture : PresenterCallback {
     private val list = mutableListOf<PresenterEvent>()
@@ -44,8 +48,8 @@ class PresenterCallbackCapture : PresenterCallback {
         }
     }
 
-    override fun onStateUpdate(loadType: LoadType, loadState: LoadState) {
-        list.add(StateEvent(loadType, loadState))
+    override fun onStateUpdate(loadType: LoadType, fromMediator: Boolean, loadState: LoadState) {
+        list.add(StateEvent(loadType, fromMediator, loadState))
     }
 }
 

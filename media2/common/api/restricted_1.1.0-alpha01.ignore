@@ -31,6 +31,10 @@ RemovedField: androidx.media2.common.MediaMetadata#METADATA_KEY_RADIO_PROGRAM_NA
     Removed field androidx.media2.common.MediaMetadata.METADATA_KEY_RADIO_PROGRAM_NAME
 
 
+RemovedInterface: androidx.media2.common.SessionPlayer:
+    Class androidx.media2.common.SessionPlayer no longer implements java.lang.AutoCloseable
+
+
 RemovedMethod: androidx.media2.common.FileMediaItem#decreaseRefCount():
     Removed method androidx.media2.common.FileMediaItem.decreaseRefCount()
 RemovedMethod: androidx.media2.common.FileMediaItem#increaseRefCount():

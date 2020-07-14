@@ -16,4 +16,19 @@
 
 package androidx.camera.integration.uiwidgets.rotations
 
-class UnlockedOrientationActivity : CameraActivity()
+import android.os.Bundle
+import java.util.concurrent.Semaphore
+
+class UnlockedOrientationActivity : CameraActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mCreated.release()
+    }
+
+    // region For testing
+    companion object {
+        var mCreated = Semaphore(0)
+    }
+    // endregion
+}

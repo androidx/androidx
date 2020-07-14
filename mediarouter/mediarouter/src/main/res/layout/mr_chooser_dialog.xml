@@ -32,6 +32,7 @@
     <ListView android:id="@+id/mr_chooser_list"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
+              android:paddingBottom="24dp"
               android:divider="@android:color/transparent"
               android:dividerHeight="0dp" />
     <LinearLayout android:id="@android:id/empty"

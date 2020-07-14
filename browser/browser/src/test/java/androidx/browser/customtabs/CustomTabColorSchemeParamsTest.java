@@ -50,18 +50,21 @@ public class CustomTabColorSchemeParamsTest {
                 .setToolbarColor(0x0000ff)
                 .setSecondaryToolbarColor(0x00aaff)
                 .setNavigationBarColor(0xaabbcc)
+                .setNavigationBarDividerColor(0x00ff00)
                 .build();
 
         CustomTabColorSchemeParams darkParams = new CustomTabColorSchemeParams.Builder()
                 .setToolbarColor(0xff0000)
                 .setSecondaryToolbarColor(0xff8800)
                 .setNavigationBarColor(0x112233)
+                .setNavigationBarDividerColor(0xff00ff)
                 .build();
 
         Intent intent = new CustomTabsIntent.Builder()
                 .setToolbarColor(0xaaaaaa) // These colors should get overridden.
                 .setSecondaryToolbarColor(0x555555)
                 .setNavigationBarColor(0x111111)
+                .setNavigationBarDividerColor(0xdddddd)
                 .setColorSchemeParams(COLOR_SCHEME_LIGHT, lightParams)
                 .setColorSchemeParams(COLOR_SCHEME_DARK, darkParams)
                 .build()
@@ -86,17 +89,20 @@ public class CustomTabColorSchemeParamsTest {
         int defaultToolbarColor = 0x0000ff;
         int defaultSecondaryToolbarColor = 0x00aaff;
         int defaultNavigationBarColor = 0xaabbcc;
+        int defaultNavigationBarDividerColor = 0xdddddd;
 
         CustomTabColorSchemeParams darkParams = new CustomTabColorSchemeParams.Builder()
                 .setToolbarColor(0xff0000)
                 .setSecondaryToolbarColor(0xff8800)
                 .setNavigationBarColor(0x112233)
+                .setNavigationBarDividerColor(0xff00ff)
                 .build();
 
         Intent intent = new CustomTabsIntent.Builder()
                 .setToolbarColor(defaultToolbarColor)
                 .setSecondaryToolbarColor(defaultSecondaryToolbarColor)
                 .setNavigationBarColor(defaultNavigationBarColor)
+                .setNavigationBarDividerColor(defaultNavigationBarDividerColor)
                 .setColorSchemeParams(COLOR_SCHEME_DARK, darkParams)
                 .build()
                 .intent;
@@ -111,6 +117,7 @@ public class CustomTabColorSchemeParamsTest {
                 .setToolbarColor(defaultToolbarColor)
                 .setSecondaryToolbarColor(defaultSecondaryToolbarColor)
                 .setNavigationBarColor(defaultNavigationBarColor)
+                .setNavigationBarDividerColor(defaultNavigationBarDividerColor)
                 .build();
 
         assertSchemeParamsEqual(expectedLightParams, lightParamsFromIntent);

@@ -18,63 +18,88 @@ package androidx.contentaccess.integration.testapp
 
 import android.app.Activity
 import android.os.Bundle
+import android.provider.CalendarContract
+import android.provider.CalendarContract.Events.TITLE
+import android.provider.CalendarContract.Events._ID
+import androidx.contentaccess.ContentAccess
 import androidx.contentaccess.ContentQuery
-import androidx.contentaccess.ContentEntity
-import androidx.contentaccess.ContentPrimaryKey
 import androidx.contentaccess.ContentColumn
+import androidx.contentaccess.ContentAccessObject
+import androidx.contentaccess.ContentUpdate
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.util.Optional
+import java.util.concurrent.Executor
+import android.provider.CalendarContract.Events.DTSTART as DTSTART1
 
-public class MainActivity : Activity() {
+class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        // val im = _ContactsAccessorImpl(contentResolver).getDisplayNameById("id!")
+        val defaultAccessor = ContentAccess.getAccessor(CalendarAccessor::class, contentResolver)
+
+        val accessorWithExecutor = ContentAccess.getAccessor(
+            CalendarAccessor::class,
+            contentResolver,
+            object : Executor {
+                override fun execute(p0: Runnable?) {
+                    p0?.run()
+                }
+            }
+        )
+        // Check suspend function working properly.
+        GlobalScope.launch {
+            val eventsBefore = accessorWithExecutor.getAllEventsTitlesAndDescriptions()
+            eventsbeforeid.text = eventsBefore.joinToString("\n")
+        }
+        // May 18th 2020: 1589777445000L
+        val eventsAfter = defaultAccessor.getAllEventsAfter(1589777445000L, CalendarContract.Events
+            .CONTENT_URI.toString())
+        eventsafterid.text = eventsAfter.joinToString("\n")
     }
 
-    // @ContentAccessObject(Contact::class)
-    interface ContactsAccessor {
-        @ContentQuery(query = "displayNamePrimary", selection = "iD = :iD")
-        fun getDisplayNameById(iD: String): String
+    data class TitleDescription(
+        @ContentColumn(_ID) val eventId: Long,
+        @ContentColumn(TITLE) val title: String?,
+        @ContentColumn(DTSTART1) val startTime: Long?,
+        val description: String?
+    )
 
-        @ContentQuery(query = "math", selection = "iD = :iD", contentEntity =
-        ContactGrades::class, uri = "customuri")
-        fun getNamRawContactId(iD: Long): Int
+    @ContentAccessObject(Event::class)
+    interface CalendarAccessor {
 
-        @ContentQuery(selection = "toy = :toy")
-        fun getAnyContact(toy: String): Contact
+        @ContentQuery
+        suspend fun getAll(): List<Event>
 
-        @ContentQuery(contentEntity = ContactGrades::class, uri = "custom2")
-        fun getContactsMathPhysicsGrades(): List<MathPhysicsGrades>
+        @ContentQuery
+        suspend fun getOneEvent(): Event?
+
+        @ContentQuery(projection = arrayOf(_ID, DTSTART1))
+        suspend fun getAllEventsTitlesAndDescriptions(): List<TitleDescription>
+
+        @ContentQuery(selection = "$DTSTART1 > :t", projection = arrayOf(_ID), uri = ":uri")
+        fun getAllEventsAfter(t: Long, uri: String): List<Long>
+
+        @ContentQuery(selection = "$DTSTART1 > :t and dtend > :l and dtend < :k", uri = ":uri")
+        fun getAllEventsAfters(t: Long, l: Long, k: Long, uri: String): List<TitleDescription>
+
+        @ContentQuery(projection = arrayOf(_ID, DTSTART1))
+        fun getAllEventIdsAndStartTimes(): List<EventIdStartTime>
+
+        @ContentQuery(projection = arrayOf("description"))
+        fun getSingleDescription(): String?
+
+        @ContentQuery(projection = arrayOf("description"))
+        fun getSetOfDescriptions(): Set<String?>
+
+        @ContentQuery(projection = arrayOf("description"))
+        fun getOptionalSingleDescription(): Optional<String>
+
+        @ContentUpdate(where = "dtstart = :startTime")
+        fun updateDescription(@ContentColumn("description") desc: String, startTime: Long): Int
+
+        @ContentUpdate
+        fun updateDescription(@ContentColumn("dtend") newEndTime: Long?): Int
     }
-
-    data class MathPhysicsGrades(val math: Int, val physics: Int)
-
-    // This content entity should be supplied by us for system providers.
-    @ContentEntity("content://com.android.contacts/contacts")
-    data class Contact(
-        @ContentPrimaryKey("_id")
-        var iD: Long,
-        @ContentColumn("display_name")
-        var displayNamePrimary: String,
-        @ContentColumn("favorite_toy")
-        var toy: String,
-        @ContentColumn("contact_height")
-        var height: Int,
-        @ContentColumn("contact_weight")
-        var weight: String
-    )
-
-    // Other entity to know we can differentiate when specifying a custom entity somewhere else.
-    @ContentEntity()
-    data class ContactGrades(
-        @ContentPrimaryKey("_id")
-        var iD: Long,
-        @ContentColumn("name")
-        var nameRawContactId: Long,
-        @ContentColumn("math_grade")
-        var math: Int,
-        @ContentColumn("physics_grade")
-        var physics: Int,
-        @ContentColumn("cs_grade")
-        var cs: Int
-    )
 }

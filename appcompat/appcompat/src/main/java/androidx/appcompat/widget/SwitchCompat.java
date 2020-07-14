@@ -56,12 +56,16 @@ import androidx.core.view.ViewCompat;
 import androidx.core.widget.TextViewCompat;
 
 /**
- * SwitchCompat is a version of the Switch widget which on devices back to API v7. It does not
- * make any attempt to use the platform provided widget on those devices which it is available
- * normally.
+ * SwitchCompat is a complete backport of the core {@link android.widget.Switch} widget that
+ * brings the visuals and the functionality of that widget to older versions of the platform.
+ * Unlike other widgets in this package, SwitchCompat is <strong>not</strong> automatically used
+ * in layouts that use the <code>&lt;Switch&gt;</code> element. Instead, you need to explicitly
+ * use <code>&lt;androidx.appcompat.widget.SwitchCompat&gt;</code> and the matching attributes
+ * in your layouts.
+ *
  * <p>
- * A Switch is a two-state toggle switch widget that can select between two
- * options. The user may drag the "thumb" back and forth to choose the selected option,
+ * A Switch is a two-state toggle switch widget that can be used to select one of the two
+ * available options. The user may drag the "thumb" back and forth to choose the selected option,
  * or simply tap to toggle as if it were a checkbox. The {@link #setText(CharSequence) text}
  * property controls the text displayed in the label for the switch, whereas the
  * {@link #setTextOff(CharSequence) off} and {@link #setTextOn(CharSequence) on} text
@@ -70,6 +74,12 @@ import androidx.core.widget.TextViewCompat;
  * setTypeface() methods control the typeface and style of label text, whereas the
  * {@link #setSwitchTextAppearance(android.content.Context, int) switchTextAppearance} and
  * the related setSwitchTypeface() methods control that of the thumb.
+ *
+ * <p>
+ * The thumb can be tinted with {@link #setThumbTintList(ColorStateList)} and
+ * {@link #setThumbTintMode(PorterDuff.Mode)} APIs, as well as with the matching XML attributes.
+ * The track can be tinted with {@link #setTrackTintList(ColorStateList)} and
+ * {@link #setTrackTintMode(PorterDuff.Mode)} APIs, as well as with the matching XML attributes.
  *
  * <p>See the <a href="{@docRoot}guide/topics/ui/controls/togglebutton.html">Toggle Buttons</a>
  * guide.</p>
@@ -82,6 +92,10 @@ import androidx.core.widget.TextViewCompat;
  * {@link android.R.attr#thumb}
  * {@link androidx.appcompat.R.attr#thumbTextPadding}
  * {@link androidx.appcompat.R.attr#track}
+ * {@link androidx.appcompat.R.attr#thumbTint}
+ * {@link androidx.appcompat.R.attr#thumbTintMode}
+ * {@link androidx.appcompat.R.attr#trackTint}
+ * {@link androidx.appcompat.R.attr#trackTintMode}
  */
 public class SwitchCompat extends CompoundButton {
     private static final int THUMB_ANIMATION_DURATION = 250;

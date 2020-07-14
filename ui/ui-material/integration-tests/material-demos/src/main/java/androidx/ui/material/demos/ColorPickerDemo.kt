@@ -19,6 +19,7 @@ package androidx.ui.material.demos
 import android.graphics.SweepGradient
 import androidx.animation.FloatPropKey
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.compose.getValue
@@ -26,7 +27,7 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.animation.DpPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
@@ -48,7 +49,6 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
-import androidx.ui.graphics.Shader
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.isSet
 import androidx.ui.graphics.toArgb
@@ -69,7 +69,6 @@ import androidx.ui.material.Surface
 import androidx.ui.material.TopAppBar
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import java.util.Locale
 
@@ -96,8 +95,8 @@ private fun ColorPicker(onColorChange: (Color) -> Unit) {
             .fillMaxSize()
             .aspectRatio(1f)
     ) {
-        val diameter = constraints.maxWidth.value
-        var position by state { PxPosition.Origin }
+        val diameter = constraints.maxWidth
+        var position by state { Offset.Zero }
         val colorWheel = remember(diameter) { ColorWheel(diameter) }
 
         var isDragging by state { false }
@@ -136,17 +135,17 @@ private fun ColorPicker(onColorChange: (Color) -> Unit) {
  */
 @Composable
 private fun SimplePointerInput(
-    position: PxPosition,
-    onPositionChange: (PxPosition) -> Unit,
+    position: Offset,
+    onPositionChange: (Offset) -> Unit,
     onDragStateChange: (Boolean) -> Unit
 ): Modifier {
     val observer = object : DragObserver {
-        override fun onStart(downPosition: PxPosition) {
+        override fun onStart(downPosition: Offset) {
             onDragStateChange(true)
             onPositionChange(downPosition)
         }
 
-        override fun onDrag(dragDistance: PxPosition): PxPosition {
+        override fun onDrag(dragDistance: Offset): Offset {
             onPositionChange(position + dragDistance)
             return dragDistance
         }
@@ -155,7 +154,7 @@ private fun SimplePointerInput(
             onDragStateChange(false)
         }
 
-        override fun onStop(velocity: PxPosition) {
+        override fun onStop(velocity: Offset) {
             onDragStateChange(false)
         }
     }
@@ -167,7 +166,7 @@ private fun SimplePointerInput(
  * Magnifier displayed on top of [position] with the currently selected [color].
  */
 @Composable
-private fun Magnifier(visible: Boolean, position: PxPosition, color: Color) {
+private fun Magnifier(visible: Boolean, position: Offset, color: Color) {
     val offset = with(DensityAmbient.current) {
         Modifier.offset(
             position.x.toDp() - MagnifierWidth / 2,
@@ -205,7 +204,7 @@ private val MagnifierLabelHeight = 50.dp
 private val SelectionCircleDiameter = 30.dp
 
 /**
- * [Transition] that animates between [visible] states of the magnifier by animating the width of
+ * [transition] that animates between [visible] states of the magnifier by animating the width of
  * the label, diameter of the selection circle, and opacity of the overall magnifier
  */
 @Composable
@@ -228,23 +227,22 @@ private fun MagnifierTransition(
                 this[OpacityPropKey] = 1f
             }
             transition(false to true) {
-                LabelWidthPropKey using tween {}
-                MagnifierDiameterPropKey using tween {}
-                OpacityPropKey using tween {}
+                LabelWidthPropKey using tween()
+                MagnifierDiameterPropKey using tween()
+                OpacityPropKey using tween()
             }
             transition(true to false) {
-                LabelWidthPropKey using tween {}
-                MagnifierDiameterPropKey using tween {}
-                OpacityPropKey using tween {
-                    delay = 100
-                    duration = 200
-                }
+                LabelWidthPropKey using tween()
+                MagnifierDiameterPropKey using tween()
+                OpacityPropKey using tween(
+                    delayMillis = 100,
+                    durationMillis = 200
+                )
             }
         }
     }
-    Transition(transitionDefinition, visible) { state ->
-        children(state[LabelWidthPropKey], state[MagnifierDiameterPropKey], state[OpacityPropKey])
-    }
+    val state = transition(transitionDefinition, visible)
+    children(state[LabelWidthPropKey], state[MagnifierDiameterPropKey], state[OpacityPropKey])
 }
 
 private val LabelWidthPropKey = DpPropKey()
@@ -292,8 +290,8 @@ private fun MagnifierSelectionCircle(modifier: Modifier, color: Color) {
  * A [GenericShape] that draws a box with a triangle at the bottom center to indicate a popup.
  */
 private val MagnifierPopupShape = GenericShape { size ->
-    val width = size.width.value
-    val height = size.height.value
+    val width = size.width
+    val height = size.height
 
     val arrowY = height * 0.8f
     val arrowXOffset = width * 0.4f
@@ -331,7 +329,7 @@ private class ColorWheel(diameter: Int) {
     val image = ImageAsset(diameter, diameter).also { asset ->
         val canvas = Canvas(asset)
         val center = Offset(radius, radius)
-        val paint = Paint().apply { shader = Shader(sweepShader) }
+        val paint = Paint().apply { shader = sweepShader }
         canvas.drawCircle(center, radius, paint)
     }
 }
@@ -340,9 +338,9 @@ private class ColorWheel(diameter: Int) {
  * @return the matching color for [position] inside [ColorWheel], or `null` if there is no color
  * or the color is partially transparent.
  */
-private fun ColorWheel.colorForPosition(position: PxPosition): Color {
-    val x = position.x.value.toInt().coerceAtLeast(0)
-    val y = position.y.value.toInt().coerceAtLeast(0)
+private fun ColorWheel.colorForPosition(position: Offset): Color {
+    val x = position.x.toInt().coerceAtLeast(0)
+    val y = position.y.toInt().coerceAtLeast(0)
     with(image.toPixelMap()) {
         if (x >= width || y >= height) return Color.Unset
         return this[x, y].takeIf { it.alpha == 1f } ?: Color.Unset

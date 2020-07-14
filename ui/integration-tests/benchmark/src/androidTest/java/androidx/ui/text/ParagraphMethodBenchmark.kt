@@ -20,15 +20,14 @@ import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.sp
 import androidx.ui.integration.test.RandomTextGenerator
 import androidx.ui.integration.test.TextBenchmarkTestRule
 import androidx.ui.integration.test.TextType
 import androidx.ui.integration.test.cartesian
 import androidx.ui.text.font.Font
-import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.text.style.TextDirection
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -77,7 +76,7 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
             density = Density(density = 1f),
             style = TextStyle(
                 fontSize = 12.sp,
-                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                textDirection = TextDirection.ContentOrLtr
             ),
             resourceLoader = resourceLoader,
             spanStyles = spanStyles
@@ -165,7 +164,7 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
     fun getOffsetForPosition() {
         textBenchmarkRule.generator { generator ->
             val paragraph = paragraph(generator)
-            val centerPosition = PxPosition((paragraph.width / 2).px, (paragraph.height / 2).px)
+            val centerPosition = Offset(paragraph.width / 2, paragraph.height / 2)
             benchmarkRule.measureRepeated {
                 paragraph.getOffsetForPosition(centerPosition)
             }

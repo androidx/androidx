@@ -59,7 +59,6 @@ project.tasks.named("lint") {
 android {
     defaultConfig {
         minSdkVersion SupportConfig.TARGET_SDK_VERSION
-        javaCompileOptions.annotationProcessorOptions.includeCompileClasspath = false
     }
 
     sourceSets {

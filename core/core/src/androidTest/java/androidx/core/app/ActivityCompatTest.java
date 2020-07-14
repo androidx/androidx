@@ -33,6 +33,7 @@ import android.view.View;
 
 import androidx.core.app.ActivityCompat.PermissionCompatDelegate;
 import androidx.core.test.R;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -55,48 +56,74 @@ public class ActivityCompatTest extends BaseInstrumentationTestCase<TestActivity
 
     @Test
     public void testPermissionDelegate() {
-        Activity activity = mActivityTestRule.getActivity();
-        ActivityCompat.PermissionCompatDelegate delegate = mock(PermissionCompatDelegate.class);
+        try (ActivityScenario<TestActivity> scenario =
+                     ActivityScenario.launch(TestActivity.class)) {
+            scenario.onActivity(new ActivityScenario.ActivityAction<TestActivity>() {
+                @Override
+                public void perform(TestActivity activity) {
+                    ActivityCompat.PermissionCompatDelegate delegate =
+                            mock(PermissionCompatDelegate.class);
 
-        // First test setting the delegate
-        ActivityCompat.setPermissionCompatDelegate(delegate);
+                    // First test setting the delegate
+                    ActivityCompat.setPermissionCompatDelegate(delegate);
 
-        ActivityCompat.requestPermissions(activity, new String[]{
-                Manifest.permission.ACCESS_FINE_LOCATION}, 42);
-        verify(delegate).requestPermissions(same(activity), aryEq(
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION}), eq(42));
+                    ActivityCompat.requestPermissions(activity, new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION}, 42);
+                    verify(delegate).requestPermissions(same(activity), aryEq(
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION}), eq(42));
 
-        // Test clearing the delegate
-        ActivityCompat.setPermissionCompatDelegate(null);
+                    // Test clearing the delegate
+                    ActivityCompat.setPermissionCompatDelegate(null);
 
-        ActivityCompat.requestPermissions(activity, new String[]{
-                Manifest.permission.ACCESS_FINE_LOCATION}, 42);
-        verifyNoMoreInteractions(delegate);
+                    ActivityCompat.requestPermissions(activity, new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION}, 42);
+                    verifyNoMoreInteractions(delegate);
+                }
+            });
+        }
     }
 
     @Test
     public void testPermissionNull() {
-        Activity activity = mActivityTestRule.getActivity();
-        String[] permissions = new String[]{null};
+        try (ActivityScenario<TestActivity> scenario =
+                     ActivityScenario.launch(TestActivity.class)) {
+            scenario.onActivity(new ActivityScenario.ActivityAction<TestActivity>() {
+                @Override
+                public void perform(TestActivity activity) {
+                    String[] permissions = new String[]{null};
 
-        try {
-            ActivityCompat.requestPermissions(activity, permissions, 42);
-        } catch (IllegalArgumentException e) {
-            assertThat(e).hasMessageThat().contains("Permission request for permissions "
-                    + Arrays.toString(permissions) + " must not contain null or empty values");
+                    try {
+                        ActivityCompat.requestPermissions(activity, permissions, 42);
+                    } catch (IllegalArgumentException e) {
+                        assertThat(e).hasMessageThat().contains("Permission request for "
+                                + "permissions " + Arrays.toString(permissions) + " must not "
+                                + "contain null or empty values");
+                    }
+                }
+            });
         }
     }
 
     @Test
     public void testPermissionEmpty() {
-        Activity activity = mActivityTestRule.getActivity();
-        String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, ""};
+        try (ActivityScenario<TestActivity> scenario =
+                     ActivityScenario.launch(TestActivity.class)) {
+            scenario.onActivity(new ActivityScenario.ActivityAction<TestActivity>() {
+                @Override
+                public void perform(TestActivity activity) {
+                    String[] permissions = new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION, ""
+                    };
 
-        try {
-            ActivityCompat.requestPermissions(activity, permissions, 42);
-        } catch (IllegalArgumentException e) {
-            assertThat(e).hasMessageThat().contains("Permission request for permissions "
-                    + Arrays.toString(permissions) + " must not contain null or empty values");
+                    try {
+                        ActivityCompat.requestPermissions(activity, permissions, 42);
+                    } catch (IllegalArgumentException e) {
+                        assertThat(e).hasMessageThat().contains("Permission request for "
+                                + "permissions " + Arrays.toString(permissions) + " must not "
+                                + "contain null or empty values");
+                    }
+                }
+            });
         }
     }
 

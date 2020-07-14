@@ -32,7 +32,12 @@ internal data class ViewportHint(
      * Note: It is valid for this field to be a negative number, indicating access of an element
      * before the page referenced by [sourcePageIndex].
      */
-    val indexInPage: Int
+    val indexInPage: Int,
+
+    /**
+     * `true` if this hint should be resolved even if Paging is in an error state.
+     */
+    val fromRetry: Boolean = false
 ) : Comparable<ViewportHint> {
     override operator fun compareTo(other: ViewportHint): Int {
         if (sourcePageIndex != other.sourcePageIndex) return sourcePageIndex - other.sourcePageIndex

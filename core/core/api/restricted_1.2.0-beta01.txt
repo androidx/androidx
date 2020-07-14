@@ -748,7 +748,7 @@ package androidx.core.app {
     method public androidx.core.app.Person.Builder setUri(String?);
   }
 
-  public final class RemoteActionCompat implements androidx.versionedparcelable.VersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize(jetifyAs="android.support.v4.app.RemoteActionCompat") public final class RemoteActionCompat implements androidx.versionedparcelable.VersionedParcelable {
     ctor public RemoteActionCompat(androidx.core.graphics.drawable.IconCompat, CharSequence, CharSequence, android.app.PendingIntent);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public RemoteActionCompat();
     ctor public RemoteActionCompat(androidx.core.app.RemoteActionCompat);
@@ -762,12 +762,12 @@ package androidx.core.app {
     method public void setShouldShowIcon(boolean);
     method public boolean shouldShowIcon();
     method @RequiresApi(26) public android.app.RemoteAction toRemoteAction();
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.app.PendingIntent! mActionIntent;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public CharSequence! mContentDescription;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean mEnabled;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.core.graphics.drawable.IconCompat! mIcon;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean mShouldShowIcon;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public CharSequence! mTitle;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(4) public android.app.PendingIntent! mActionIntent;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(3) public CharSequence! mContentDescription;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(5) public boolean mEnabled;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(1) public androidx.core.graphics.drawable.IconCompat! mIcon;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(6) public boolean mShouldShowIcon;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(2) public CharSequence! mTitle;
   }
 
   public final class RemoteInput {
@@ -1366,7 +1366,7 @@ package androidx.core.graphics.drawable {
     method public static android.graphics.drawable.Drawable! wrap(android.graphics.drawable.Drawable);
   }
 
-  public class IconCompat extends androidx.versionedparcelable.CustomVersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, ignoreParcelables=true, isCustom=true, jetifyAs="android.support.v4.graphics.drawable.IconCompat") public class IconCompat extends androidx.versionedparcelable.CustomVersionedParcelable {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addToShortcutIntent(android.content.Intent, android.graphics.drawable.Drawable?, android.content.Context);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void checkResource(android.content.Context!);
     method public static androidx.core.graphics.drawable.IconCompat? createFromBundle(android.os.Bundle);
@@ -1392,7 +1392,7 @@ package androidx.core.graphics.drawable {
     method public android.os.Bundle! toBundle();
     method @RequiresApi(23) public android.graphics.drawable.Icon! toIcon();
     field public static final int TYPE_UNKNOWN = -1; // 0xffffffff
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mType;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.ParcelField(value=1, defaultValue="androidx.core.graphics.drawable.IconCompat.TYPE_UNKNOWN") public int mType;
   }
 
   public abstract class RoundedBitmapDrawable extends android.graphics.drawable.Drawable {

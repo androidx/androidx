@@ -23,7 +23,13 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
+import androidx.room.ext.asDeclaredType
+import androidx.room.ext.asExecutableElement
+import androidx.room.ext.asTypeElement
+import androidx.room.ext.getAllMethods
+import androidx.room.ext.getArrayType
 import androidx.room.ext.hasAnnotation
+import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.typeName
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
@@ -40,8 +46,6 @@ import androidx.room.vo.QueryMethod
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
 import androidx.room.vo.WriteQueryMethod
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.CompileTester
@@ -68,7 +72,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.Mockito
 import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeKind.INT
 import javax.lang.model.type.TypeMirror
 import javax.tools.JavaFileObject
 
@@ -129,7 +132,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             assertThat(param.name, `is`("x"))
             assertThat(param.sqlName, `is`("x"))
             assertThat(param.type,
-                    `is`(invocation.processingEnv.typeUtils.getPrimitiveType(INT) as TypeMirror))
+                    `is`(invocation.processingEnv.requireTypeMirror(TypeName.INT)))
         }.compilesWithoutError()
     }
 
@@ -146,9 +149,9 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             val param = parsedQuery.parameters.first()
             assertThat(param.name, `is`("ids"))
             assertThat(param.sqlName, `is`("ids"))
-            val types = invocation.processingEnv.typeUtils
+            val env = invocation.processingEnv
             assertThat(param.type,
-                    `is`(types.getArrayType(types.getPrimitiveType(INT)) as TypeMirror))
+                    `is`(env.getArrayType(TypeName.INT) as TypeMirror))
         }.compilesWithoutError()
     }
 
@@ -372,8 +375,8 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 }
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.parameters.first().type,
-                    `is`(invocation.processingEnv.elementUtils
-                            .getTypeElement("java.lang.Integer").asType()))
+                    `is`(invocation.processingEnv
+                            .requireTypeMirror("java.lang.Integer")))
         }.compilesWithoutError()
     }
 
@@ -982,11 +985,11 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                         .getElementsAnnotatedWith(Dao::class.java)
                         .map {
                             Pair(it,
-                                invocation.processingEnv.elementUtils
-                                    .getAllMembers(MoreElements.asType(it))
-                                    .filter {
-                                        it.hasAnnotation(Query::class)
-                                    }
+                                it.asTypeElement().getAllMethods(
+                                    invocation.processingEnv
+                                ).filter {
+                                    it.hasAnnotation(Query::class)
+                                }
                             )
                         }.first { it.second.isNotEmpty() }
                     val verifier = if (enableVerification) {
@@ -998,8 +1001,8 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                     }
                     val parser = QueryMethodProcessor(
                         baseContext = invocation.context,
-                        containing = MoreTypes.asDeclared(owner.asType()),
-                        executableElement = MoreElements.asExecutable(methods.first()),
+                        containing = owner.asDeclaredType(),
+                        executableElement = methods.first().asExecutableElement(),
                         dbVerifier = verifier
                     )
                     val parsedQuery = parser.process()

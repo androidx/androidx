@@ -20,7 +20,7 @@ dependencies {
     api("androidx.drawerlayout:drawerlayout:1.0.0")
     implementation(project(":lifecycle:lifecycle-runtime"))
     implementation(project(":lifecycle:lifecycle-viewmodel"))
-    implementation(project(":savedstate:savedstate"))
+    api("androidx.savedstate:savedstate:1.1.0-alpha01")
 
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

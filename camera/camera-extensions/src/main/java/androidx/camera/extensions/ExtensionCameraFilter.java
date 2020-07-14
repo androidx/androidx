@@ -18,18 +18,22 @@ package androidx.camera.extensions;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.impl.CameraFilter;
+import androidx.annotation.experimental.UseExperimental;
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraFilter;
+import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
+import androidx.core.util.Preconditions;
 
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  * A filter that filters camera based on extender implementation. If the implementation is
  * unavailable, the camera will be considered available.
  */
+@UseExperimental(markerClass = ExperimentalCameraFilter.class)
 public final class ExtensionCameraFilter implements CameraFilter {
     private PreviewExtenderImpl mPreviewExtenderImpl;
     private ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
@@ -52,10 +56,12 @@ public final class ExtensionCameraFilter implements CameraFilter {
 
     @NonNull
     @Override
-    public Set<CameraInternal> filterCameras(@NonNull Set<CameraInternal> cameras) {
-        Set<CameraInternal> resultCameras = new LinkedHashSet<>();
-        for (CameraInternal camera : cameras) {
-            String cameraId = camera.getCameraInfoInternal().getCameraId();
+    public LinkedHashSet<Camera> filter(@NonNull LinkedHashSet<Camera> cameras) {
+        LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>();
+        for (Camera camera : cameras) {
+            Preconditions.checkState(camera instanceof CameraInternal,
+                    "The camera doesn't contain internal implementation.");
+            String cameraId = ((CameraInternal) camera).getCameraInfoInternal().getCameraId();
 
             boolean available = true;
 

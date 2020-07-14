@@ -22,7 +22,10 @@ import androidx.ui.layout.samples.SimpleFlowRow
 
 val LayoutDemos = DemoCategory("Layout", listOf(
     ComposableDemo("Complex layout") { ComplexLayoutDemo() },
-    ComposableDemo("ConstraintLayout") { ConstraintLayoutDemo() },
+    DemoCategory("ConstraintLayout", listOf(
+        ComposableDemo("With inline (modifier based) DSL") { DemoInlineDSL() },
+        ComposableDemo("With ConstraintSet DSL") { DemoConstraintSet() }
+    )),
     ComposableDemo("Flow layout") { SimpleFlowRow() },
     ComposableDemo("Row and column") { SimpleLayoutDemo() },
     ComposableDemo("Rtl support") { RtlDemo() }

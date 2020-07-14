@@ -30,7 +30,7 @@ class DeleteSurroundingTextEditOpTest {
 
     @Test
     fun test_delete_after() {
-        val eb = EditingBuffer("ABCDE", TextRange(1, 1))
+        val eb = EditingBuffer("ABCDE", TextRange(1))
 
         DeleteSurroundingTextEditOp(0, 1).process(eb)
 
@@ -41,7 +41,7 @@ class DeleteSurroundingTextEditOpTest {
 
     @Test
     fun test_delete_before() {
-        val eb = EditingBuffer("ABCDE", TextRange(1, 1))
+        val eb = EditingBuffer("ABCDE", TextRange(1))
 
         DeleteSurroundingTextEditOp(1, 0).process(eb)
 
@@ -52,7 +52,7 @@ class DeleteSurroundingTextEditOpTest {
 
     @Test
     fun test_delete_both() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         DeleteSurroundingTextEditOp(1, 1).process(eb)
 
@@ -63,7 +63,7 @@ class DeleteSurroundingTextEditOpTest {
 
     @Test
     fun test_delete_after_multiple() {
-        val eb = EditingBuffer("ABCDE", TextRange(2, 2))
+        val eb = EditingBuffer("ABCDE", TextRange(2))
 
         DeleteSurroundingTextEditOp(0, 2).process(eb)
 
@@ -74,7 +74,7 @@ class DeleteSurroundingTextEditOpTest {
 
     @Test
     fun test_delete_before_multiple() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         DeleteSurroundingTextEditOp(2, 0).process(eb)
 
@@ -85,7 +85,7 @@ class DeleteSurroundingTextEditOpTest {
 
     @Test
     fun test_delete_both_multiple() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         DeleteSurroundingTextEditOp(2, 2).process(eb)
 
@@ -108,7 +108,7 @@ class DeleteSurroundingTextEditOpTest {
 
     @Test
     fun test_delete_before_too_many() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         DeleteSurroundingTextEditOp(1000, 0).process(eb)
 
@@ -119,7 +119,7 @@ class DeleteSurroundingTextEditOpTest {
 
     @Test
     fun test_delete_after_too_many() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         DeleteSurroundingTextEditOp(0, 1000).process(eb)
 
@@ -130,7 +130,7 @@ class DeleteSurroundingTextEditOpTest {
 
     @Test
     fun test_delete_both_too_many() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         DeleteSurroundingTextEditOp(1000, 1000).process(eb)
 
@@ -141,7 +141,7 @@ class DeleteSurroundingTextEditOpTest {
 
     @Test
     fun test_delete_composition_no_intersection_preceding_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         eb.setComposition(0, 1)
 
@@ -155,7 +155,7 @@ class DeleteSurroundingTextEditOpTest {
 
     @Test
     fun test_delete_composition_no_intersection_trailing_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         eb.setComposition(4, 5)
 
@@ -169,7 +169,7 @@ class DeleteSurroundingTextEditOpTest {
 
     @Test
     fun test_delete_composition_intersection_preceding_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         eb.setComposition(0, 3)
 
@@ -183,7 +183,7 @@ class DeleteSurroundingTextEditOpTest {
 
     @Test
     fun test_delete_composition_intersection_trailing_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         eb.setComposition(3, 5)
 
@@ -197,7 +197,7 @@ class DeleteSurroundingTextEditOpTest {
 
     @Test
     fun test_delete_covered_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         eb.setComposition(2, 3)
 
@@ -210,7 +210,7 @@ class DeleteSurroundingTextEditOpTest {
 
     @Test
     fun test_delete_composition_covered() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         eb.setComposition(0, 5)
 

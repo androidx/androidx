@@ -18,7 +18,7 @@ package androidx.ui.text
 
 import androidx.ui.core.LayoutDirection
 import androidx.ui.text.font.Font
-import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
 import com.google.common.truth.Truth.assertThat
@@ -27,6 +27,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(InternalTextApi::class)
 @RunWith(JUnit4::class)
 class TextDelegateTest {
     private val density = Density(density = 1f)
@@ -118,13 +119,13 @@ class TextDelegateTest {
             resolveTextDirectionAlgorithm(
                 LayoutDirection.Ltr,
                 null)
-        ).isEqualTo(TextDirectionAlgorithm.ContentOrLtr)
+        ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
             resolveTextDirectionAlgorithm(
                 LayoutDirection.Rtl,
                 null)
-        ).isEqualTo(TextDirectionAlgorithm.ContentOrRtl)
+        ).isEqualTo(TextDirection.Rtl)
     }
 
     @Test
@@ -132,15 +133,15 @@ class TextDelegateTest {
         assertThat(
             resolveTextDirectionAlgorithm(
                 LayoutDirection.Ltr,
-                TextDirectionAlgorithm.ContentOrLtr
+                TextDirection.ContentOrLtr
             )
-        ).isEqualTo(TextDirectionAlgorithm.ContentOrLtr)
+        ).isEqualTo(TextDirection.ContentOrLtr)
 
         assertThat(
             resolveTextDirectionAlgorithm(LayoutDirection.Rtl,
-                TextDirectionAlgorithm.ContentOrLtr
+                TextDirection.ContentOrLtr
             )
-        ).isEqualTo(TextDirectionAlgorithm.ContentOrLtr)
+        ).isEqualTo(TextDirection.ContentOrLtr)
     }
 
     @Test
@@ -148,16 +149,16 @@ class TextDelegateTest {
         assertThat(
             resolveTextDirectionAlgorithm(
                 LayoutDirection.Ltr,
-                TextDirectionAlgorithm.ContentOrRtl
+                TextDirection.ContentOrRtl
             )
-        ).isEqualTo(TextDirectionAlgorithm.ContentOrRtl)
+        ).isEqualTo(TextDirection.ContentOrRtl)
 
         assertThat(
             resolveTextDirectionAlgorithm(
                 LayoutDirection.Rtl,
-                TextDirectionAlgorithm.ContentOrRtl
+                TextDirection.ContentOrRtl
             )
-        ).isEqualTo(TextDirectionAlgorithm.ContentOrRtl)
+        ).isEqualTo(TextDirection.ContentOrRtl)
     }
 
     @Test
@@ -165,16 +166,16 @@ class TextDelegateTest {
         assertThat(
             resolveTextDirectionAlgorithm(
                 LayoutDirection.Ltr,
-                TextDirectionAlgorithm.ForceLtr
+                TextDirection.Ltr
             )
-        ).isEqualTo(TextDirectionAlgorithm.ForceLtr)
+        ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
             resolveTextDirectionAlgorithm(
                 LayoutDirection.Rtl,
-                TextDirectionAlgorithm.ForceLtr
+                TextDirection.Ltr
             )
-        ).isEqualTo(TextDirectionAlgorithm.ForceLtr)
+        ).isEqualTo(TextDirection.Ltr)
     }
 
     @Test
@@ -182,15 +183,15 @@ class TextDelegateTest {
         assertThat(
             resolveTextDirectionAlgorithm(
                 LayoutDirection.Ltr,
-                TextDirectionAlgorithm.ForceRtl
+                TextDirection.Rtl
             )
-        ).isEqualTo(TextDirectionAlgorithm.ForceRtl)
+        ).isEqualTo(TextDirection.Rtl)
 
         assertThat(
             resolveTextDirectionAlgorithm(
                 LayoutDirection.Rtl,
-                TextDirectionAlgorithm.ForceRtl
+                TextDirection.Rtl
             )
-        ).isEqualTo(TextDirectionAlgorithm.ForceRtl)
+        ).isEqualTo(TextDirection.Rtl)
     }
 }

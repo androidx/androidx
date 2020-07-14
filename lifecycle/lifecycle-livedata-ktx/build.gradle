@@ -28,14 +28,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-android {
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // Breaks Kotlin compiler.
-        }
-    }
-}
-
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
@@ -53,6 +45,12 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(TRUTH)
     testImplementation(KOTLIN_COROUTINES_TEST)
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(KOTLIN_COROUTINES_TEST)
+    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
 }
 
 androidx {

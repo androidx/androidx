@@ -16,169 +16,71 @@
 
 package androidx.ui.test.gesturescope
 
-import android.os.Bundle
-import android.view.Gravity
-import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.Composable
-import androidx.compose.Recomposer
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.changedToUp
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
-import androidx.ui.core.setContent
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
+import androidx.ui.test.ActivityWithActionBar
 import androidx.ui.test.android.AndroidComposeTestRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
-import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.runOnUiThread
-import androidx.ui.test.sendClick
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.runOnIdle
+import androidx.ui.test.click
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.RecordingFilter
-import androidx.ui.unit.PxPosition
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-private const val tag = "widget"
-private const val numberOfSquares = 5
-private const val first = 0
-private const val last = numberOfSquares - 1
-private val squareSize = 10.0f
-private val center = PxPosition(squareSize / 2, squareSize / 2)
-private val colors = listOf(Color.Red, Color.Yellow, Color.Blue, Color.Green, Color.Cyan)
-
-private data class ClickData(
-    val componentIndex: Int,
-    val position: PxPosition
-)
-
-private class ClickRecorder(
-    private val componentIndex: Int,
-    private val recordedClicks: MutableList<ClickData>
-) : PointerInputModifier {
-    override val pointerInputFilter: PointerInputFilter = RecordingFilter {
-        if (it.changedToUp()) {
-            recordedClicks.add(ClickData(componentIndex, it.current.position!!))
-        }
-    }
-}
-
-// The presence of an ActionBar follows from the theme set in AndroidManifest.xml
-class ActivityWithActionBar : ComponentActivity() {
-    private lateinit var composeHolder: FrameLayout
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val root = FrameLayout(this)
-        composeHolder = FrameLayout(this).apply {
-            layoutParams = FrameLayout.LayoutParams(100, 100).apply {
-                gravity = Gravity.BOTTOM or Gravity.END
-            }
-            // Set background color for recognizability on screen / in screenshots
-            setBackgroundColor(android.graphics.Color.LTGRAY)
-        }
-        root.addView(composeHolder)
-        setContentView(root)
-    }
-
-    fun setContent(composable: @Composable () -> Unit) {
-        composeHolder.setContent(Recomposer.current(), composable)
-    }
-}
-
-private fun AndroidComposeTestRule<*>.setContent(recordedClicks: MutableList<ClickData>) {
-    val content = @Composable {
-        Column {
-            repeat(numberOfSquares) { i ->
-                ClickableTestBox(
-                    modifier = ClickRecorder(i, recordedClicks),
-                    width = squareSize,
-                    height = squareSize,
-                    color = colors[i],
-                    tag = "$tag$i"
-                )
-            }
-        }
-    }
-
-    val activity = activityTestRule.activity
-    if (activity is ActivityWithActionBar) {
-        runOnUiThread {
-            activity.setContent(content)
-        }
-    } else {
-        setContent(content)
-    }
-}
-
 @MediumTest
 @RunWith(Parameterized::class)
-class SendClickWithoutArgumentsTest(config: TestConfig) {
+class SendClickTest(private val config: TestConfig) {
     data class TestConfig(
+        val position: Offset?,
         val activityClass: Class<out ComponentActivity>
     )
 
     companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun createTestSet(): List<TestConfig> = listOf(
-            TestConfig(ComponentActivity::class.java),
-            TestConfig(ActivityWithActionBar::class.java)
-        )
-    }
+        private const val squareSize = 10.0f
+        private val colors = listOf(Color.Red, Color.Yellow, Color.Blue, Color.Green, Color.Cyan)
 
-    @get:Rule
-    val composeTestRule = AndroidComposeTestRule(
-        ActivityTestRule(config.activityClass),
-        disableTransitions = true
-    )
-
-    @Test
-    fun testClickWithoutArguments() {
-        // Given a column of 5 small components
-        val recordedClicks = mutableListOf<ClickData>()
-        composeTestRule.setContent(recordedClicks)
-
-        // When I click each of the components
-        findByTag("$tag$first").doGesture { sendClick() }
-        findByTag("$tag$last").doGesture { sendClick() }
-
-        // Then each component has registered a click
-        runOnIdleCompose {
-            assertThat(recordedClicks).isEqualTo(
-                listOf(
-                    ClickData(first, center),
-                    ClickData(last, center)
-                )
-            )
-        }
-    }
-}
-
-@MediumTest
-@RunWith(Parameterized::class)
-class SendClickWithArgumentsTest(private val config: TestConfig) {
-    data class TestConfig(
-        val position: PxPosition,
-        val activityClass: Class<out ComponentActivity>
-    )
-
-    companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
             return mutableListOf<TestConfig>().apply {
                 for (x in listOf(0.0f, squareSize - 1.0f)) {
                     for (y in listOf(0.0f, squareSize - 1.0f)) {
-                        add(TestConfig(PxPosition(x, y), ComponentActivity::class.java))
-                        add(TestConfig(PxPosition(x, y), ActivityWithActionBar::class.java))
+                        add(TestConfig(Offset(x, y), ComponentActivity::class.java))
+                        add(TestConfig(Offset(x, y), ActivityWithActionBar::class.java))
                     }
+                }
+                add(TestConfig(null, ComponentActivity::class.java))
+                add(TestConfig(null, ActivityWithActionBar::class.java))
+            }
+        }
+    }
+
+    private data class ClickData(
+        val componentIndex: Int,
+        val position: Offset
+    )
+
+    private class ClickRecorder(
+        private val componentIndex: Int,
+        private val recordedClicks: MutableList<ClickData>
+    ) : PointerInputModifier {
+        override val pointerInputFilter: PointerInputFilter = RecordingFilter { changes ->
+            changes.forEach {
+                if (it.changedToUp()) {
+                    recordedClicks.add(ClickData(componentIndex, it.current.position!!))
                 }
             }
         }
@@ -186,28 +88,66 @@ class SendClickWithArgumentsTest(private val config: TestConfig) {
 
     @get:Rule
     val composeTestRule = AndroidComposeTestRule(
-        ActivityTestRule(config.activityClass),
+        ActivityScenarioRule(config.activityClass),
         disableTransitions = true
     )
 
+    private val recordedClicks = mutableListOf<ClickData>()
+    private val expectedClickPosition =
+        config.position ?: Offset(squareSize / 2, squareSize / 2)
+
     @Test
-    fun testClickWithArguments() {
+    fun testClick() {
         // Given a column of 5 small components
-        val recordedClicks = mutableListOf<ClickData>()
-        composeTestRule.setContent(recordedClicks)
+        var contentSet = false
+        composeTestRule.activityRule.scenario.onActivity {
+            if (it is ActivityWithActionBar) {
+                it.setContent { ColumnOfSquares(5) }
+                contentSet = true
+            }
+        }
+        if (!contentSet) {
+            composeTestRule.setContent { ColumnOfSquares(5) }
+        }
 
-        // When I click each of the components
-        findByTag("$tag$first").doGesture { sendClick(config.position) }
-        findByTag("$tag$last").doGesture { sendClick(config.position) }
+        // When I click the first and last of these components
+        click("square0")
+        click("square4")
 
-        // Then each component has registered a click
-        runOnIdleCompose {
+        // Then those components have registered a click
+        runOnIdle {
             assertThat(recordedClicks).isEqualTo(
                 listOf(
-                    ClickData(first, config.position),
-                    ClickData(last, config.position)
+                    ClickData(0, expectedClickPosition),
+                    ClickData(4, expectedClickPosition)
                 )
             )
+        }
+    }
+
+    private fun click(tag: String) {
+        onNodeWithTag(tag).performGesture {
+            if (config.position != null) {
+                click(config.position)
+            } else {
+                click()
+            }
+        }
+    }
+
+    @Composable
+    @Suppress("SameParameterValue")
+    private fun ColumnOfSquares(numberOfSquares: Int) {
+        Column {
+            repeat(numberOfSquares) { i ->
+                ClickableTestBox(
+                    modifier = ClickRecorder(i, recordedClicks),
+                    width = squareSize,
+                    height = squareSize,
+                    color = colors[i],
+                    tag = "square$i"
+                )
+            }
         }
     }
 }

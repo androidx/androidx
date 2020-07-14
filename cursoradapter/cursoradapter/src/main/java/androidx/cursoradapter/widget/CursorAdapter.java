@@ -480,6 +480,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
     }
 
     private class ChangeObserver extends ContentObserver {
+        @SuppressWarnings("deprecation")
         ChangeObserver() {
             super(new Handler());
         }

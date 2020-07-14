@@ -18,6 +18,8 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.core.AlignmentLine
+import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
@@ -38,12 +40,10 @@ import androidx.ui.text.LastBaseline
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-import androidx.ui.unit.max
 import androidx.ui.util.fastForEachIndexed
+import kotlin.math.max
 
 /**
  * Material Design implementation of [list items](https://material.io/components/lists).
@@ -174,9 +174,11 @@ fun ListItem(
 
     if (onClick != null) {
         val indication = RippleIndication(
-            color = MaterialTheme.colors.onSurface.copy(alpha = RippleOpacity)
+            // TODO: should this be defined here? Should we just use the default here instead?
+            color = MaterialTheme.colors.onSurface
         )
-        Box(Modifier.clickable(onClick = onClick, indication = indication), children = item)
+        Box(Modifier
+            .clickable(onClick = onClick, indication = indication), children = item)
     } else {
         item()
     }
@@ -400,29 +402,29 @@ private object ThreeLine {
  * top of the layout and the first text, as well as the last baseline and first baseline
  * for subsequent pairs of texts.
  */
-// TODO(popam): consider making this a layout composable in ui-layout.
+// TODO(popam): consider making this a layout composable in `foundation-layout`.
 @Composable
 private fun BaselinesOffsetColumn(
     offsets: List<Dp>,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    Layout(content, modifier) { measurables, constraints, _ ->
-        val childConstraints = constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity)
+    Layout(content, modifier) { measurables, constraints ->
+        val childConstraints = constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity)
         val placeables = measurables.map { it.measure(childConstraints) }
 
-        val containerWidth = placeables.fold(0.ipx) { maxWidth, placeable ->
+        val containerWidth = placeables.fold(0) { maxWidth, placeable ->
             max(maxWidth, placeable.width)
         }
-        val y = Array(placeables.size) { 0.ipx }
-        var containerHeight = 0.ipx
+        val y = Array(placeables.size) { 0 }
+        var containerHeight = 0
         placeables.fastForEachIndexed { index, placeable ->
             val toPreviousBaseline = if (index > 0) {
-                placeables[index - 1].height - placeables[index - 1][LastBaseline]!!
-            } else 0.ipx
+                placeables[index - 1].height - placeables[index - 1][LastBaseline]
+            } else 0
             val topPadding = max(
-                0.ipx,
-                offsets[index].toIntPx() - placeable[FirstBaseline]!! - toPreviousBaseline
+                0,
+                offsets[index].toIntPx() - placeable[FirstBaseline] - toPreviousBaseline
             )
             y[index] = topPadding + containerHeight
             containerHeight += topPadding + placeable.height
@@ -430,7 +432,7 @@ private fun BaselinesOffsetColumn(
 
         layout(containerWidth, containerHeight) {
             placeables.fastForEachIndexed { index, placeable ->
-                placeable.place(0.ipx, y[index])
+                placeable.place(0, y[index])
             }
         }
     }
@@ -449,21 +451,21 @@ private fun OffsetToBaselineOrCenter(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    Layout(content, modifier) { measurables, constraints, _ ->
-        val placeable = measurables[0].measure(constraints.copy(minHeight = 0.ipx))
+    Layout(content, modifier) { measurables, constraints ->
+        val placeable = measurables[0].measure(constraints.copy(minHeight = 0))
         val baseline = placeable[FirstBaseline]
-        val y: IntPx
-        val containerHeight: IntPx
-        if (baseline != null) {
+        val y: Int
+        val containerHeight: Int
+        if (baseline != AlignmentLine.Unspecified) {
             y = offset.toIntPx() - baseline
             containerHeight = max(constraints.minHeight, y + placeable.height)
         } else {
             containerHeight = max(constraints.minHeight, placeable.height)
             y = Alignment.Center
-                .align(IntPxSize(0.ipx, containerHeight - placeable.height)).y
+                .align(IntSize(0, containerHeight - placeable.height)).y
         }
         layout(placeable.width, containerHeight) {
-            placeable.place(0.ipx, y)
+            placeable.place(0, y)
         }
     }
 }
@@ -480,6 +482,3 @@ private fun applyTextStyle(
         }
     }
 }
-
-// Material spec values.
-private const val RippleOpacity = 0.16f

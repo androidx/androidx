@@ -17,6 +17,7 @@
 package androidx.camera.testing.fakes;
 
 import android.graphics.ImageFormat;
+import android.graphics.SurfaceTexture;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -27,6 +28,8 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -42,7 +45,10 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     private int mHeight = 100;
     private int mImageFormat = ImageFormat.JPEG;
     private final int mMaxImages;
+
     private Surface mSurface;
+
+    @Nullable
     private Executor mExecutor;
 
     private boolean mIsClosed = false;
@@ -54,8 +60,13 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     // Queue of ImageProxys which have not yet been acquired.
     private BlockingQueue<ImageProxy> mImageProxyAcquisitionQueue;
 
+    // List of all ImageProxy which have been acquired. Close them all once the ImageReader is
+    // closed
+    private List<ImageProxy> mOutboundImageProxy = new ArrayList<>();
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-            ImageReaderProxy.OnImageAvailableListener mListener;
+    @Nullable
+    ImageReaderProxy.OnImageAvailableListener mListener;
 
     /**
      * Create a new {@link FakeImageReaderProxy} instance.
@@ -85,18 +96,22 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
     @Override
     public ImageProxy acquireLatestImage() {
-        ImageProxy imageProxy;
+        ImageProxy imageProxy = null;
 
         try {
             // Remove and close all ImageProxy aside from last one
             do {
+                if (imageProxy != null) {
+                    imageProxy.close();
+                }
                 imageProxy = mImageProxyAcquisitionQueue.remove();
-                imageProxy.close();
             } while (mImageProxyAcquisitionQueue.size() > 1);
         } catch (NoSuchElementException e) {
             throw new IllegalStateException(
                     "Unable to acquire latest image from empty FakeImageReader");
         }
+
+        mOutboundImageProxy.add(imageProxy);
 
         return imageProxy;
     }
@@ -117,6 +132,9 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
     @Override
     public void close() {
+        for (ImageProxy imageProxy : mOutboundImageProxy) {
+            imageProxy.close();
+        }
         mIsClosed = true;
     }
 
@@ -143,6 +161,11 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     @NonNull
     @Override
     public Surface getSurface() {
+        // Create a Surface using a SurfaceTexture since getSurface() requires a non-null value.
+        // However, this Surface shouldn't really be used since it isn't hooked up to anything
+        if (mSurface == null) {
+            mSurface = new Surface(new SurfaceTexture(0));
+        }
         return mSurface;
     }
 
@@ -151,6 +174,12 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
             @NonNull Executor executor) {
         mListener = listener;
         mExecutor = executor;
+    }
+
+    @Override
+    public void clearOnImageAvailableListener() {
+        mListener = null;
+        mExecutor = null;
     }
 
     public void setSurface(Surface surface) {
@@ -232,14 +261,8 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
     private void triggerImageAvailableListener() {
         if (mListener != null) {
-            Runnable listenerRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    mListener.onImageAvailable(FakeImageReaderProxy.this);
-                }
-            };
             if (mExecutor != null) {
-                mExecutor.execute(listenerRunnable);
+                mExecutor.execute(() -> mListener.onImageAvailable(FakeImageReaderProxy.this));
             } else {
                 mListener.onImageAvailable(FakeImageReaderProxy.this);
             }

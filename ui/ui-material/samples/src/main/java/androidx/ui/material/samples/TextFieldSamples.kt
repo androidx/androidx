@@ -23,15 +23,16 @@ import androidx.compose.setValue
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.TextFieldValue
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.PasswordVisualTransformation
+import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.Column
 import androidx.ui.layout.padding
 import androidx.ui.material.EmphasisAmbient
 import androidx.ui.material.FilledTextField
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.OutlinedTextField
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.icons.filled.Info
@@ -45,6 +46,18 @@ fun SimpleFilledTextFieldSample() {
     var text by savedInstanceState { "" }
 
     FilledTextField(
+        value = text,
+        onValueChange = { text = it },
+        label = { Text("Label") }
+    )
+}
+
+@Sampled
+@Composable
+fun SimpleOutlinedTextFieldSample() {
+    var text by savedInstanceState { "" }
+
+    OutlinedTextField(
         value = text,
         onValueChange = { text = it },
         label = { Text("Label") }
@@ -145,6 +158,20 @@ fun FilledTextFieldSample() {
     }
 
     FilledTextField(
+        value = text,
+        onValueChange = { text = it },
+        label = { Text("Label") }
+    )
+}
+
+@Sampled
+@Composable
+fun OutlinedTextFieldSample() {
+    var text by savedInstanceState(saver = TextFieldValue.Saver) {
+        TextFieldValue("example", TextRange(0, 7))
+    }
+
+    OutlinedTextField(
         value = text,
         onValueChange = { text = it },
         label = { Text("Label") }

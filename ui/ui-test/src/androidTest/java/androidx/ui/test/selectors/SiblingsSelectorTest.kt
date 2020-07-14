@@ -20,9 +20,9 @@ import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
-import androidx.ui.test.siblings
+import androidx.ui.test.onSiblings
 import androidx.ui.test.util.BoundaryNode
 import org.junit.Rule
 import org.junit.Test
@@ -44,8 +44,8 @@ class SiblingsSelectorTest {
             }
         }
 
-        findByTag("Child")
-            .siblings()
+        onNodeWithTag("Child")
+            .onSiblings()
             .assertCountEquals(0)
     }
 
@@ -58,8 +58,8 @@ class SiblingsSelectorTest {
             }
         }
 
-        findByTag("Child1")
-            .siblings()
+        onNodeWithTag("Child1")
+            .onSiblings()
             .assertCountEquals(1)
     }
 
@@ -73,8 +73,8 @@ class SiblingsSelectorTest {
             }
         }
 
-        findByTag("Child2")
-            .siblings()
+        onNodeWithTag("Child2")
+            .onSiblings()
             .assertCountEquals(2)
             .apply {
                 get(0).assert(hasTestTag("Child1"))

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
+<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
 
     <issue
         id="KotlinPropertyAccess"
@@ -8,7 +8,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/SessionPlayer.java"
-            line="811"
+            line="817"
             column="31"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="            ~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/MediaItem.java"
-            line="227"
+            line="231"
             column="13"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/MediaItem.java"
-            line="227"
+            line="231"
             column="32"/>
     </issue>
 
@@ -41,19 +41,8 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/MediaItem.java"
-            line="242"
+            line="246"
             column="49"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void onMetadataChanged(MediaItem item);"
-        errorLine2="                               ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/common/MediaItem.java"
-            line="333"
-            column="32"/>
     </issue>
 
     <issue
@@ -63,7 +52,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/ParcelImplListSlice.java"
-            line="127"
+            line="131"
             column="31"/>
     </issue>
 

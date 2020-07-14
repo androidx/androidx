@@ -16,8 +16,11 @@
 
 package androidx.camera.view;
 
+import android.annotation.TargetApi;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.util.Size;
+import android.view.PixelCopy;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -100,6 +103,37 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
             mOnSurfaceNotInUseListener = null;
         }
     }
+
+    /**
+     * Getting a Bitmap from a Surface is achieved using the `PixelCopy#request()` API, which
+     * would introduced in API level 24. PreviewView doesn't currently use a SurfaceView on API
+     * levels below 24.
+     */
+    @TargetApi(24)
+    @Nullable
+    @Override
+    Bitmap getPreviewBitmap() {
+        // If the preview surface isn't ready yet or isn't valid, return null
+        if (mSurfaceView == null || mSurfaceView.getHolder().getSurface() == null
+                || !mSurfaceView.getHolder().getSurface().isValid()) {
+            return null;
+        }
+
+        // Copy display contents of the surfaceView's surface into a Bitmap.
+        final Bitmap bitmap = Bitmap.createBitmap(mSurfaceView.getWidth(), mSurfaceView.getHeight(),
+                Bitmap.Config.ARGB_8888);
+        PixelCopy.request(mSurfaceView, bitmap, copyResult -> {
+            if (copyResult == PixelCopy.SUCCESS) {
+                Log.d(TAG, "PreviewView.SurfaceViewImplementation.getBitmap() succeeded");
+            } else {
+                Log.e(TAG, "PreviewView.SurfaceViewImplementation.getBitmap() failed with error "
+                        + copyResult);
+            }
+        }, mSurfaceView.getHandler());
+
+        return bitmap;
+    }
+
     /**
      * The {@link SurfaceHolder.Callback} on mSurfaceView.
      *
@@ -133,10 +167,14 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
          */
         @UiThread
         void setSurfaceRequest(@NonNull SurfaceRequest surfaceRequest) {
+            // Cancel the previous request, if any
             cancelPreviousRequest();
+
             mSurfaceRequest = surfaceRequest;
             Size targetSize = surfaceRequest.getResolution();
             mTargetSize = targetSize;
+            mWasSurfaceProvided = false;
+
             if (!tryToComplete()) {
                 // The current size is incorrect. Wait for it to change.
                 Log.d(TAG, "Wait for new Surface creation.");
@@ -152,7 +190,7 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
          */
         @UiThread
         private boolean tryToComplete() {
-            Surface surface = mSurfaceView.getHolder().getSurface();
+            final Surface surface = mSurfaceView.getHolder().getSurface();
             if (canProvideSurface()) {
                 Log.d(TAG, "Surface set on Preview.");
                 mSurfaceRequest.provideSurface(surface,
@@ -169,7 +207,7 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         }
 
         private boolean canProvideSurface() {
-            return mSurfaceRequest != null && mTargetSize != null
+            return !mWasSurfaceProvided && mSurfaceRequest != null && mTargetSize != null
                     && mTargetSize.equals(mCurrentSurfaceSize);
         }
 
@@ -205,11 +243,17 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         @Override
         public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
             Log.d(TAG, "Surface destroyed.");
+
+            // If a surface was already provided to the camera, invalidate it so that it requests
+            // a new valid one. Otherwise, cancel the surface request.
             if (mWasSurfaceProvided) {
                 invalidateSurface();
             } else {
                 cancelPreviousRequest();
             }
+
+            // Reset state
+            mWasSurfaceProvided = false;
             mSurfaceRequest = null;
             mCurrentSurfaceSize = null;
             mTargetSize = null;

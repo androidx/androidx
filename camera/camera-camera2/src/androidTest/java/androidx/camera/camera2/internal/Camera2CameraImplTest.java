@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static junit.framework.TestCase.assertTrue;
 
-import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -29,7 +28,6 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
-import android.Manifest;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraDevice;
 import android.media.ImageReader;
@@ -49,6 +47,7 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -73,7 +72,6 @@ import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.GrantPermissionRule;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -83,6 +81,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
@@ -119,8 +118,8 @@ public final class Camera2CameraImplTest {
     static ExecutorService sCameraExecutor;
 
     @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
+
 
     private ArrayList<FakeUseCase> mFakeUseCases = new ArrayList<>();
     private Camera2CameraImpl mCamera2CameraImpl;
@@ -148,8 +147,7 @@ public final class Camera2CameraImplTest {
     }
 
     @Before
-    public void setup() {
-        assumeTrue(CameraUtil.deviceHasCamera());
+    public void setup() throws CameraUnavailableException {
         mMockOnImageAvailableListener = Mockito.mock(ImageReader.OnImageAvailableListener.class);
         mSessionStateCallback = new SemaphoreReleasingCamera2Callbacks.SessionStateCallback();
         mCameraId = CameraUtil.getCameraIdWithLensFacing(DEFAULT_LENS_FACING);
@@ -799,7 +797,7 @@ public final class Camera2CameraImplTest {
 
         // we need to set Camera2OptionUnpacker to the Config to enable the camera2 callback hookup.
         @Override
-        protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(
+        public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(
                 @Nullable CameraInfo cameraInfo) {
             return new FakeUseCaseConfig.Builder()
                     .setSessionOptionUnpacker(new Camera2SessionOptionUnpacker());

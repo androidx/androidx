@@ -66,7 +66,7 @@ class TakePictureTest {
                 IdlingRegistry.getInstance().register(activity.imageSavedIdlingResource)
             }
             onView(withId(R.id.Picture)).perform(click())
-            onView(withId(R.id.textureView))
+            onView(withId(R.id.viewFinder))
             it?.onActivity { activity ->
                 IdlingRegistry.getInstance().unregister(activity.viewIdlingResource)
                 IdlingRegistry.getInstance().unregister(activity.imageSavedIdlingResource)
@@ -94,7 +94,7 @@ class TakePictureTest {
             IdlingRegistry.getInstance().register(activity.viewIdlingResource)
         }
         // Check the activity launched and Preview displays frames.
-        onView(withId(R.id.textureView))
+        onView(withId(R.id.viewFinder))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         activityScenario.onActivity { activity ->
             IdlingRegistry.getInstance().unregister(activity.viewIdlingResource)

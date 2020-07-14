@@ -28,9 +28,9 @@ package androidx.ui.test {
   }
 
   public final class BitmapHelpersKt {
-    method public static void assertPixelColor(android.graphics.Bitmap, androidx.ui.graphics.Color expected, int x, int y, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,java.lang.String> error = { color -> "Pixel(" + x + ", " + y + ") expected to be " + expected + ", but was " + color });
+    method public static void assertPixelColor(android.graphics.Bitmap, androidx.ui.graphics.Color expected, int x, int y, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,java.lang.String> error = { color -> return "Pixel(" + x + ", " + y + ") expected to be " + expected + ", but was " + color });
     method public static void assertPixels(android.graphics.Bitmap, androidx.ui.unit.IntPxSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.ui.unit.IntPxPosition,androidx.ui.graphics.Color> expectedColorProvider);
-    method public static void assertShape(android.graphics.Bitmap, androidx.ui.unit.Density density, androidx.ui.graphics.Shape shape, androidx.ui.graphics.Color shapeColor, androidx.ui.graphics.Color backgroundColor, androidx.ui.graphics.Shape backgroundShape = RectangleShape, androidx.ui.unit.Px sizeX = width.toFloat().px, androidx.ui.unit.Px sizeY = height.toFloat().px, androidx.ui.unit.Px shapeSizeX = sizeX, androidx.ui.unit.Px shapeSizeY = sizeY, androidx.ui.unit.Px centerX = width.px / 2.0, androidx.ui.unit.Px centerY = height.px / 2.0, androidx.ui.unit.Px shapeOverlapPixelCount = 1.px);
+    method public static void assertShape(android.graphics.Bitmap, androidx.ui.unit.Density density, androidx.ui.graphics.Shape shape, androidx.ui.graphics.Color shapeColor, androidx.ui.graphics.Color backgroundColor, androidx.ui.graphics.Shape backgroundShape = androidx.ui.foundation.shape.RectangleShapeKt.RectangleShape, androidx.ui.unit.Px sizeX = width.toFloat().px, androidx.ui.unit.Px sizeY = height.toFloat().px, androidx.ui.unit.Px shapeSizeX = sizeX, androidx.ui.unit.Px shapeSizeY = sizeY, androidx.ui.unit.Px centerX = width.px / 2.0, androidx.ui.unit.Px centerY = height.px / 2.0, androidx.ui.unit.Px shapeOverlapPixelCount = 1.px);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(androidx.ui.test.SemanticsNodeInteraction);
   }
 
@@ -89,7 +89,7 @@ package androidx.ui.test {
   }
 
   public interface ComposeTestCase {
-    method public void emitContent();
+    method @androidx.compose.Composable public void emitContent();
   }
 
   public interface ComposeTestCaseSetup {
@@ -148,7 +148,7 @@ package androidx.ui.test {
   public final class GestureScopeKt {
     method public static androidx.ui.unit.PxPosition getCenter(androidx.ui.test.GestureScope);
     method public static androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.test.GestureScope);
-    method public static androidx.ui.unit.IntPxSize getSize(androidx.ui.test.GestureScope);
+    method public static androidx.ui.unit.PxSize getSize(androidx.ui.test.GestureScope);
     method public static androidx.ui.unit.PxPosition localToGlobal(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
     method public static void sendClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
     method public static void sendClick(androidx.ui.test.GestureScope);
@@ -168,10 +168,6 @@ package androidx.ui.test {
     method public static void assertEquals(androidx.ui.core.semantics.SemanticsConfiguration, androidx.ui.core.semantics.SemanticsConfiguration expected);
     method public static androidx.ui.core.semantics.SemanticsConfiguration copyWith(androidx.ui.core.semantics.SemanticsConfiguration, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,kotlin.Unit> diff);
     method public static androidx.ui.core.semantics.SemanticsConfiguration createFullSemantics(Boolean? isEnabled = null, String? value = null, androidx.ui.foundation.selection.ToggleableState? toggleableState = null, Boolean? inMutuallyExclusiveGroup = null, Boolean? isSelected = null);
-  }
-
-  public final class LayoutCoordinatesHelperKt {
-    method public static androidx.ui.unit.PxPosition getPositionInParent(androidx.ui.core.LayoutCoordinates);
   }
 
   public final class OutputKt {
@@ -231,7 +227,7 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRuleKt {
-    method public static inline <reified T extends android.app.Activity> androidx.ui.test.android.AndroidComposeTestRule<T> AndroidComposeTestRule(boolean disableTransitions = false);
+    method public static inline <reified T extends android.app.Activity> androidx.ui.test.android.AndroidComposeTestRule<T>! AndroidComposeTestRule(boolean disableTransitions = false);
   }
 
   public final class ComposeIdlingResourceKt {

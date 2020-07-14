@@ -17,38 +17,45 @@
 package androidx.ui.material
 
 import android.os.Build
+import androidx.compose.Composable
+import androidx.compose.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
 import androidx.ui.core.drawShadow
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInParent
+import androidx.ui.core.semantics.semantics
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.size
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
-import androidx.ui.semantics.Semantics
+import androidx.ui.test.assertHeightIsEqualTo
+import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.performGesture
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
-import androidx.ui.test.sendSwipeLeft
-import androidx.ui.test.sendSwipeRight
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.test.swipeLeft
+import androidx.ui.test.swipeRight
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
+import androidx.ui.unit.toSize
+import androidx.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
 import org.junit.Rule
@@ -67,21 +74,21 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_onlyContent_takesWholeScreen() {
-        composeTestRule.setMaterialContentAndCollectSizes(
+        composeTestRule.setMaterialContentForSizeAssertions(
             parentConstraints = DpConstraints(maxWidth = 100.dp, maxHeight = 100.dp)
         ) {
             Scaffold {
                 Text("Scaffold body")
             }
         }
-            .assertWidthEqualsTo(100.dp)
-            .assertHeightEqualsTo(100.dp)
+            .assertWidthIsEqualTo(100.dp)
+            .assertHeightIsEqualTo(100.dp)
     }
 
     @Test
     fun scaffold_onlyContent_stackSlot() {
-        lateinit var child1: PxPosition
-        lateinit var child2: PxPosition
+        var child1: Offset = Offset.Zero
+        var child2: Offset = Offset.Zero
         composeTestRule.setMaterialContent {
             Scaffold {
                 Text("One",
@@ -98,15 +105,15 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_AppbarAndContent_inColumn() {
-        lateinit var appbarPosition: PxPosition
-        lateinit var appbarSize: IntPxSize
-        lateinit var contentPosition: PxPosition
+        var appbarPosition: Offset = Offset.Zero
+        lateinit var appbarSize: IntSize
+        var contentPosition: Offset = Offset.Zero
         composeTestRule.setMaterialContent {
             Scaffold(
-                topAppBar = {
+                topBar = {
                     Box(Modifier
                         .onPositioned { positioned: LayoutCoordinates ->
-                            appbarPosition = positioned.localToGlobal(PxPosition.Origin)
+                            appbarPosition = positioned.localToGlobal(Offset.Zero)
                             appbarSize = positioned.size
                         }
                         .fillMaxWidth()
@@ -116,25 +123,26 @@ class ScaffoldTest {
                 }
             ) {
                 Box(Modifier
-                    .onPositioned { contentPosition = it.localToGlobal(PxPosition.Origin) }
+                    .onPositioned { contentPosition = it.localToGlobal(Offset.Zero) }
                     .fillMaxWidth()
                     .preferredHeight(50.dp)
                     .drawBackground(Color.Blue)
                 )
             }
         }
-        assertThat(appbarPosition.y + appbarSize.height).isEqualTo(contentPosition.y)
+        assertThat(appbarPosition.y + appbarSize.height.toFloat())
+            .isEqualTo(contentPosition.y)
     }
 
     @Test
     fun scaffold_bottomBarAndContent_inStack() {
-        lateinit var appbarPosition: PxPosition
-        lateinit var appbarSize: IntPxSize
-        lateinit var contentPosition: PxPosition
-        lateinit var contentSize: IntPxSize
+        var appbarPosition: Offset = Offset.Zero
+        lateinit var appbarSize: IntSize
+        var contentPosition: Offset = Offset.Zero
+        lateinit var contentSize: IntSize
         composeTestRule.setMaterialContent {
             Scaffold(
-                bottomAppBar = {
+                bottomBar = {
                     Box(Modifier
                         .onPositioned { positioned: LayoutCoordinates ->
                             appbarPosition = positioned.positionInParent
@@ -165,137 +173,101 @@ class ScaffoldTest {
     @Test
     @Ignore("unignore once animation sync is ready (b/147291885)")
     fun scaffold_drawer_gestures() {
-        lateinit var drawerChildPosition: PxPosition
+        var drawerChildPosition: Offset = Offset.Zero
         val scaffoldState = ScaffoldState(isDrawerGesturesEnabled = false)
         composeTestRule.setMaterialContent {
-            TestTag(scaffoldTag) {
-                Semantics(container = true) {
-                    Scaffold(
-                        scaffoldState = scaffoldState,
-                        drawerContent = {
-                            Box(Modifier
-                                .onPositioned { positioned: LayoutCoordinates ->
-                                    drawerChildPosition = positioned.positionInParent
-                                }
-                                .fillMaxWidth()
-                                .preferredHeight(50.dp)
-                                .drawBackground(Color.Blue)
-                            )
-                        }
-                    ) {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .preferredHeight(50.dp)
-                                .drawBackground(Color.Blue)
+            Box(Modifier.testTag(scaffoldTag)) {
+                Scaffold(
+                    scaffoldState = scaffoldState,
+                    drawerContent = {
+                        Box(Modifier
+                            .onPositioned { positioned: LayoutCoordinates ->
+                                drawerChildPosition = positioned.positionInParent
+                            }
+                            .fillMaxWidth()
+                            .preferredHeight(50.dp)
+                            .drawBackground(Color.Blue)
                         )
                     }
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .preferredHeight(50.dp)
+                            .drawBackground(Color.Blue)
+                    )
                 }
             }
         }
-        assertThat(drawerChildPosition.x).isLessThan(0.px)
-        findByTag(scaffoldTag).doGesture {
-            sendSwipeRight()
+        assertThat(drawerChildPosition.x).isLessThan(0f)
+        onNodeWithTag(scaffoldTag).performGesture {
+            swipeRight()
         }
-        assertThat(drawerChildPosition.x).isLessThan(0.px)
-        findByTag(scaffoldTag).doGesture {
-            sendSwipeLeft()
+        assertThat(drawerChildPosition.x).isLessThan(0f)
+        onNodeWithTag(scaffoldTag).performGesture {
+            swipeLeft()
         }
-        assertThat(drawerChildPosition.x).isLessThan(0.px)
+        assertThat(drawerChildPosition.x).isLessThan(0f)
 
         runOnUiThread {
             scaffoldState.isDrawerGesturesEnabled = true
         }
 
-        findByTag(scaffoldTag).doGesture {
-            sendSwipeRight()
+        onNodeWithTag(scaffoldTag).performGesture {
+            swipeRight()
         }
-        assertThat(drawerChildPosition.x).isEqualTo(0.px)
-        findByTag(scaffoldTag).doGesture {
-            sendSwipeLeft()
+        assertThat(drawerChildPosition.x).isEqualTo(0f)
+        onNodeWithTag(scaffoldTag).performGesture {
+            swipeLeft()
         }
-        assertThat(drawerChildPosition.x).isLessThan(0.px)
+        assertThat(drawerChildPosition.x).isLessThan(0f)
     }
 
     @Test
     @Ignore("unignore once animation sync is ready (b/147291885)")
     fun scaffold_drawer_manualControl() {
-        lateinit var drawerChildPosition: PxPosition
+        var drawerChildPosition: Offset = Offset.Zero
         val scaffoldState = ScaffoldState()
         composeTestRule.setMaterialContent {
-            TestTag(scaffoldTag) {
-                Semantics(container = true) {
-                    Scaffold(
-                        scaffoldState = scaffoldState,
-                        drawerContent = {
-                            Box(Modifier
-                                .onPositioned { positioned: LayoutCoordinates ->
-                                    drawerChildPosition = positioned.positionInParent
-                                }
-                                .fillMaxWidth()
-                                .preferredHeight(50.dp)
-                                .drawBackground(Color.Blue)
-                            )
-                        }
-                    ) {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .preferredHeight(50.dp)
-                                .drawBackground(Color.Blue)
+            Box(Modifier.testTag(scaffoldTag)) {
+                Scaffold(
+                    scaffoldState = scaffoldState,
+                    drawerContent = {
+                        Box(Modifier
+                            .onPositioned { positioned: LayoutCoordinates ->
+                                drawerChildPosition = positioned.positionInParent
+                            }
+                            .fillMaxWidth()
+                            .preferredHeight(50.dp)
+                            .drawBackground(Color.Blue)
                         )
                     }
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .preferredHeight(50.dp)
+                            .drawBackground(Color.Blue)
+                    )
                 }
             }
         }
-        assertThat(drawerChildPosition.x).isLessThan(0.px)
+        assertThat(drawerChildPosition.x).isLessThan(0f)
         runOnUiThread {
             scaffoldState.drawerState = DrawerState.Opened
         }
-        assertThat(drawerChildPosition.x).isLessThan(0.px)
+        assertThat(drawerChildPosition.x).isLessThan(0f)
         runOnUiThread {
             scaffoldState.drawerState = DrawerState.Closed
         }
-        assertThat(drawerChildPosition.x).isLessThan(0.px)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun scaffold_centerDockedFab_withoutBottomAppBar_shouldCrash() {
-        composeTestRule.setContent {
-            Scaffold(
-                floatingActionButton = {
-                    FloatingActionButton(onClick = {}) {
-                        Icon(Icons.Filled.Favorite)
-                    }
-                },
-                floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked
-            ) {
-                Text("body")
-            }
-        }
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun scaffold_endDockedFab_withoutBottomAppBar_shouldCrash() {
-        composeTestRule.setContent {
-            Scaffold(
-                floatingActionButton = {
-                    FloatingActionButton(onClick = {}) {
-                        Icon(Icons.Filled.Favorite)
-                    }
-                },
-                floatingActionButtonPosition = Scaffold.FabPosition.EndDocked
-            ) {
-                Text("body")
-            }
-        }
+        assertThat(drawerChildPosition.x).isLessThan(0f)
     }
 
     @Test
     fun scaffold_centerDockedFab_position() {
-        lateinit var fabPosition: PxPosition
-        lateinit var fabSize: IntPxSize
-        lateinit var bottomBarPosition: PxPosition
+        var fabPosition: Offset = Offset.Zero
+        lateinit var fabSize: IntSize
+        var bottomBarPosition: Offset = Offset.Zero
         composeTestRule.setContent {
             Scaffold(
                 floatingActionButton = {
@@ -308,8 +280,9 @@ class ScaffoldTest {
                         Icon(Icons.Filled.Favorite)
                     }
                 },
-                floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
-                bottomAppBar = {
+                floatingActionButtonPosition = Scaffold.FabPosition.Center,
+                isFloatingActionButtonDocked = true,
+                bottomBar = {
                     Box(Modifier
                         .onPositioned { positioned: LayoutCoordinates ->
                             bottomBarPosition =
@@ -324,15 +297,15 @@ class ScaffoldTest {
                 Text("body")
             }
         }
-        val expectedFabY = bottomBarPosition.y - fabSize.height / 2
+        val expectedFabY = bottomBarPosition.y - (fabSize.height / 2)
         assertThat(fabPosition.y).isEqualTo(expectedFabY)
     }
 
     @Test
     fun scaffold_endDockedFab_position() {
-        lateinit var fabPosition: PxPosition
-        lateinit var fabSize: IntPxSize
-        lateinit var bottomBarPosition: PxPosition
+        var fabPosition: Offset = Offset.Zero
+        lateinit var fabSize: IntSize
+        var bottomBarPosition: Offset = Offset.Zero
         composeTestRule.setContent {
             Scaffold(
                 floatingActionButton = {
@@ -346,8 +319,9 @@ class ScaffoldTest {
                         Icon(Icons.Filled.Favorite)
                     }
                 },
-                floatingActionButtonPosition = Scaffold.FabPosition.EndDocked,
-                bottomAppBar = {
+                floatingActionButtonPosition = Scaffold.FabPosition.End,
+                isFloatingActionButtonDocked = true,
+                bottomBar = {
                     Box(Modifier
                         .onPositioned { positioned: LayoutCoordinates ->
                             bottomBarPosition =
@@ -362,7 +336,7 @@ class ScaffoldTest {
                 Text("body")
             }
         }
-        val expectedFabY = bottomBarPosition.y - fabSize.height / 2
+        val expectedFabY = bottomBarPosition.y - (fabSize.height / 2)
         assertThat(fabPosition.y).isEqualTo(expectedFabY)
     }
 
@@ -370,29 +344,30 @@ class ScaffoldTest {
     @Test
     fun scaffold_topAppBarIsDrawnOnTopOfContent() {
         composeTestRule.setContent {
-            Stack(Modifier.size(10.dp, 20.dp)) {
-                TestTag(tag = "Scaffold") {
-                    Semantics(container = true, mergeAllDescendants = true) {
-                        Scaffold(
-                            topAppBar = {
-                                Box(
-                                    Modifier.size(10.dp)
-                                        .drawShadow(4.dp)
-                                        .drawBackground(Color.White)
-                                )
-                            }
-                        ) {
-                            Box(
-                                Modifier.size(10.dp)
-                                    .drawBackground(Color.White)
-                            )
-                        }
+            Stack(
+                Modifier
+                    .size(10.dp, 20.dp)
+                    .semantics(mergeAllDescendants = true) {}
+                    .testTag("Scaffold")
+            ) {
+                Scaffold(
+                    topBar = {
+                        Box(
+                            Modifier.size(10.dp)
+                                .drawShadow(4.dp)
+                                .drawBackground(Color.White)
+                        )
                     }
+                ) {
+                    Box(
+                        Modifier.size(10.dp)
+                            .drawBackground(Color.White)
+                    )
                 }
             }
         }
 
-        findByTag("Scaffold")
+        onNodeWithTag("Scaffold")
             .captureToBitmap().apply {
                 // asserts the appbar(top half part) has the shadow
                 val yPos = height / 2 + 2
@@ -400,5 +375,178 @@ class ScaffoldTest {
                 assertThat(Color(getPixel(width / 2, yPos))).isNotEqualTo(Color.White)
                 assertThat(Color(getPixel(width - 1, yPos))).isNotEqualTo(Color.White)
             }
+    }
+
+    @Test
+    fun scaffold_geometry_fabSize() {
+        lateinit var fabSize: IntSize
+        val showFab = mutableStateOf(true)
+        val scaffoldState = ScaffoldState()
+        composeTestRule.setContent {
+            val fab: @Composable (() -> Unit)? = if (showFab.value) {
+                @Composable {
+                    FloatingActionButton(
+                        modifier = Modifier.onPositioned { positioned: LayoutCoordinates ->
+                            fabSize = positioned.size
+                        },
+                        onClick = {}
+                    ) {
+                        Icon(Icons.Filled.Favorite)
+                    }
+                }
+            } else {
+                null
+            }
+            Scaffold(
+                scaffoldState = scaffoldState,
+                floatingActionButton = fab,
+                floatingActionButtonPosition = Scaffold.FabPosition.End
+            ) {
+                Text("body")
+            }
+        }
+        runOnIdle {
+            assertThat(scaffoldState.floatingActionButtonSize).isEqualTo(fabSize.toSize())
+            showFab.value = false
+        }
+
+        runOnIdle {
+            assertThat(scaffoldState.floatingActionButtonSize).isEqualTo(null)
+        }
+    }
+
+    @Test
+    fun scaffold_geometry_bottomBarSize() {
+        lateinit var bottomBarSize: IntSize
+        val showBottom = mutableStateOf(true)
+        val scaffoldState = ScaffoldState()
+        composeTestRule.setContent {
+            val bottom: @Composable (() -> Unit)? = if (showBottom.value) {
+                @Composable {
+                    Box(Modifier
+                        .onPositioned { positioned: LayoutCoordinates ->
+                            bottomBarSize = positioned.size
+                        }
+                        .fillMaxWidth()
+                        .preferredHeight(100.dp)
+                        .drawBackground(Color.Red)
+                    )
+                }
+            } else {
+                null
+            }
+            Scaffold(
+                scaffoldState = scaffoldState,
+                bottomBar = bottom
+            ) {
+                Text("body")
+            }
+        }
+        runOnIdle {
+            assertThat(scaffoldState.bottomBarSize).isEqualTo(bottomBarSize.toSize())
+            showBottom.value = false
+        }
+
+        runOnIdle {
+            assertThat(scaffoldState.bottomBarSize).isEqualTo(null)
+        }
+    }
+
+    @Test
+    fun scaffold_geometry_topBarSize() {
+        lateinit var topBarSize: IntSize
+        val showTop = mutableStateOf(true)
+        val scaffoldState = ScaffoldState()
+        composeTestRule.setContent {
+            val top: @Composable (() -> Unit)? = if (showTop.value) {
+                @Composable {
+                    Box(Modifier
+                        .onPositioned { positioned: LayoutCoordinates ->
+                            topBarSize = positioned.size
+                        }
+                        .fillMaxWidth()
+                        .preferredHeight(100.dp)
+                        .drawBackground(Color.Red)
+                    )
+                }
+            } else {
+                null
+            }
+            Scaffold(
+                scaffoldState = scaffoldState,
+                topBar = top
+            ) {
+                Text("body")
+            }
+        }
+        runOnIdle {
+            assertThat(scaffoldState.topBarSize).isEqualTo(topBarSize.toSize())
+            showTop.value = false
+        }
+
+        runOnIdle {
+            assertThat(scaffoldState.topBarSize).isEqualTo(null)
+        }
+    }
+
+    @Test
+    fun scaffold_innerPadding_lambdaParam() {
+        lateinit var bottomBarSize: IntSize
+        lateinit var innerPadding: InnerPadding
+
+        val scaffoldState = ScaffoldState()
+        composeTestRule.setContent {
+            Scaffold(
+                scaffoldState = scaffoldState,
+                bottomBar = {
+                    Box(Modifier
+                        .onPositioned { positioned: LayoutCoordinates ->
+                            bottomBarSize = positioned.size
+                        }
+                        .fillMaxWidth()
+                        .preferredHeight(100.dp)
+                        .drawBackground(Color.Red)
+                    )
+                }
+            ) {
+                innerPadding = it
+                Text("body")
+            }
+        }
+        runOnIdle {
+            with(composeTestRule.density) {
+                assertThat(innerPadding.bottom).isEqualTo(bottomBarSize.toSize().height.toDp())
+            }
+        }
+    }
+
+    @Test
+    fun scaffold_bottomBar_geometryPropagation() {
+        lateinit var bottomBarSize: IntSize
+        lateinit var geometry: ScaffoldGeometry
+
+        val scaffoldState = ScaffoldState()
+        composeTestRule.setContent {
+            Scaffold(
+                scaffoldState = scaffoldState,
+                bottomBar = {
+                    geometry = ScaffoldGeometryAmbient.current
+                    Box(Modifier
+                        .onPositioned { positioned: LayoutCoordinates ->
+                            bottomBarSize = positioned.size
+                        }
+                        .fillMaxWidth()
+                        .preferredHeight(100.dp)
+                        .drawBackground(Color.Red)
+                    )
+                }
+            ) {
+                Text("body")
+            }
+        }
+        runOnIdle {
+            assertThat(geometry.bottomBarBounds?.toSize()).isEqualTo(bottomBarSize.toSize())
+            assertThat(geometry.bottomBarBounds?.width).isNotEqualTo(0f)
+        }
     }
 }

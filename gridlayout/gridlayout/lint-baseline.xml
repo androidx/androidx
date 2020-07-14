@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
+<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
 
     <issue
         id="UnknownNullness"
@@ -8,7 +8,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="271"
+            line="268"
             column="23"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="271"
+            line="268"
             column="40"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="294"
+            line="290"
             column="23"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="294"
+            line="290"
             column="40"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="301"
+            line="297"
             column="23"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="591"
+            line="587"
             column="12"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="603"
+            line="599"
             column="28"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="822"
+            line="818"
             column="41"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="835"
+            line="831"
             column="15"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="840"
+            line="836"
             column="12"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="840"
+            line="836"
             column="46"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="845"
+            line="841"
             column="15"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="845"
+            line="841"
             column="49"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1916"
+            line="1897"
             column="16"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1930"
+            line="1911"
             column="16"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1952"
+            line="1933"
             column="29"/>
     </issue>
 
@@ -184,7 +184,7 @@
         errorLine2="                                          ~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1952"
+            line="1933"
             column="43"/>
     </issue>
 
@@ -195,7 +195,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1970"
+            line="1951"
             column="29"/>
     </issue>
 
@@ -206,7 +206,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1977"
+            line="1958"
             column="29"/>
     </issue>
 
@@ -217,7 +217,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1987"
+            line="1968"
             column="29"/>
     </issue>
 
@@ -228,7 +228,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2002"
+            line="1983"
             column="29"/>
     </issue>
 
@@ -239,7 +239,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2002"
+            line="1983"
             column="46"/>
     </issue>
 
@@ -250,7 +250,7 @@
         errorLine2="                                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2067"
+            line="2048"
             column="42"/>
     </issue>
 
@@ -261,7 +261,7 @@
         errorLine2="               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2436"
+            line="2417"
             column="16"/>
     </issue>
 
@@ -272,7 +272,7 @@
         errorLine2="                  ~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2513"
+            line="2494"
             column="19"/>
     </issue>
 
@@ -283,7 +283,7 @@
         errorLine2="                                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2513"
+            line="2494"
             column="50"/>
     </issue>
 
@@ -294,7 +294,7 @@
         errorLine2="                  ~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2524"
+            line="2505"
             column="19"/>
     </issue>
 
@@ -305,7 +305,7 @@
         errorLine2="                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2524"
+            line="2505"
             column="40"/>
     </issue>
 
@@ -316,7 +316,7 @@
         errorLine2="                  ~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2537"
+            line="2518"
             column="19"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="                  ~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2547"
+            line="2528"
             column="19"/>
     </issue>
 
@@ -338,7 +338,7 @@
         errorLine2="                  ~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2558"
+            line="2539"
             column="19"/>
     </issue>
 
@@ -349,7 +349,7 @@
         errorLine2="                                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2558"
+            line="2539"
             column="50"/>
     </issue>
 
@@ -360,7 +360,7 @@
         errorLine2="                  ~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2576"
+            line="2557"
             column="19"/>
     </issue>
 
@@ -371,7 +371,7 @@
         errorLine2="                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2576"
+            line="2557"
             column="40"/>
     </issue>
 
@@ -382,7 +382,7 @@
         errorLine2="                  ~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2593"
+            line="2574"
             column="19"/>
     </issue>
 
@@ -393,7 +393,7 @@
         errorLine2="                  ~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2609"
+            line="2590"
             column="19"/>
     </issue>
 

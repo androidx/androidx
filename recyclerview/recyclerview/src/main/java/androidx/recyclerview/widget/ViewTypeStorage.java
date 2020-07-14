@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Used by {@link MergeAdapter} to isolate view types between nested adapters, if necessary.
+ * Used by {@link ConcatAdapter} to isolate view types between nested adapters, if necessary.
  */
 interface ViewTypeStorage {
     @NonNull

@@ -22,6 +22,7 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.InitializationException;
 
 import java.util.List;
 import java.util.Map;
@@ -36,9 +37,16 @@ public interface CameraDeviceSurfaceManager {
      * Interface for deferring creation of a CameraDeviceSurfaceManager.
      */
     interface Provider {
-        /** Creates a new, initialized instance of a CameraDeviceSurfaceManager. */
+        /**
+         * Creates a new, initialized instance of a CameraDeviceSurfaceManager.
+         *
+         * @param context the android context
+         * @return the factory instance
+         * @throws InitializationException if it fails to create the factory
+         */
         @NonNull
-        CameraDeviceSurfaceManager newInstance(@NonNull Context context);
+        CameraDeviceSurfaceManager newInstance(@NonNull Context context)
+                throws InitializationException;
     }
 
     /**

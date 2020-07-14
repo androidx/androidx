@@ -16,7 +16,6 @@
 
 package androidx.ui.test.android
 
-import android.R
 import android.annotation.TargetApi
 import android.app.Activity
 import android.graphics.Bitmap
@@ -31,15 +30,20 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.compose.Composition
-import androidx.compose.FrameManager
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Recomposer
-import androidx.compose.frames.currentFrame
-import androidx.compose.frames.inFrame
+import androidx.compose.dispatch.MonotonicFrameClock
+import androidx.compose.snapshots.Snapshot
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.setContent
 import androidx.ui.test.ComposeBenchmarkScope
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.setupContent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Factory method to provide implementation of [ComposeBenchmarkScope].
@@ -76,7 +80,17 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     private val capture = if (supportsRenderNode) RenderNodeCapture() else PictureCapture()
     private var canvas: Canvas? = null
 
-    private var recomposer: Recomposer? = null
+    private class AutoFrameClock(
+        private val singleFrameTimeNanos: Long = 16_000_000
+    ) : MonotonicFrameClock {
+        private val lastFrameTime = AtomicLong(0L)
+
+        override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R =
+            onFrame(lastFrameTime.getAndAdd(singleFrameTimeNanos))
+    }
+
+    private val frameClock = AutoFrameClock()
+    private val recomposer: Recomposer = Recomposer()
 
     private var simulationState: SimulationState = SimulationState.Initialized
 
@@ -84,6 +98,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
 
     init {
         val displayMetrics = DisplayMetrics()
+        @Suppress("DEPRECATION") /* defaultDisplay + getMetrics() */
         activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
         val height = displayMetrics.heightPixels
         val width = displayMetrics.widthPixels
@@ -105,23 +120,22 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
             "Need to call onPreEmitContent before emitContent!"
         }
 
-        recomposer = Recomposer.current()
-        composition = activity.setContent { testCase!!.emitContent() }
+        composition = activity.setContent(recomposer) { testCase!!.emitContent() }
         val ownerView = findAndroidOwner(activity)!!.view
         // AndroidOwner is postponing the composition till the saved state will be restored.
         // We will emulate the restoration of the empty state to trigger the real composition.
         ownerView.restoreHierarchyState(SparseArray())
         view = ownerView
-        FrameManager.nextFrame()
+        @OptIn(ExperimentalComposeApi::class)
+        Snapshot.notifyObjectsInitialized()
         simulationState = SimulationState.EmitContentDone
     }
 
-    // TODO: This method may advance the current frame and should be just a getter
+    // TODO: This method may advance the global snapshot and should be just a getter
     override fun hasPendingChanges(): Boolean {
-        val recomposer = recomposer ?: return false
-
         if (recomposer.hasPendingChanges() || hasPendingChangesInFrame()) {
-            FrameManager.nextFrame()
+            @OptIn(ExperimentalComposeApi::class)
+            Snapshot.sendApplyNotifications()
         }
 
         return recomposer.hasPendingChanges()
@@ -134,7 +148,8 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
      * need to recompose.
      */
     private fun hasPendingChangesInFrame(): Boolean {
-        return inFrame && currentFrame().hasPendingChanges()
+        @OptIn(ExperimentalComposeApi::class)
+        return Snapshot.current.hasPendingChanges()
     }
 
     override fun measure() {
@@ -196,12 +211,19 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     override fun recompose() {
         if (hasPendingChanges()) {
             didLastRecomposeHaveChanges = true
-            recomposer!!.recomposeSync()
+            runBlocking(frameClock) {
+                recomposer.recomposeAndApplyChanges(this, 1)
+            }
         } else {
             didLastRecomposeHaveChanges = false
         }
         simulationState = SimulationState.RecomposeDone
     }
+
+    override fun launchRecomposeIn(coroutineScope: CoroutineScope): Job =
+        coroutineScope.launch(frameClock) {
+            recomposer.runRecomposeAndApplyChanges()
+        }
 
     override fun doFrame() {
         if (view == null) {
@@ -228,7 +250,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         composition?.dispose()
 
         // Clear the view
-        val rootView = activity.findViewById(R.id.content) as ViewGroup
+        val rootView = activity.findViewById(android.R.id.content) as ViewGroup
         rootView.removeAllViews()
         // Important so we can set the content again.
         view = null

@@ -17,6 +17,7 @@
 package androidx.window.extensions;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.lang.annotation.Retention;
@@ -60,6 +61,29 @@ public class ExtensionDeviceState {
     @Posture
     public int getPosture() {
         return mPosture;
+    }
+
+    private static String postureToString(int posture) {
+        switch (posture) {
+            case POSTURE_UNKNOWN:
+                return "UNKNOWN";
+            case POSTURE_CLOSED:
+                return "CLOSED";
+            case POSTURE_HALF_OPENED:
+                return "HALF_OPENED";
+            case POSTURE_OPENED:
+                return "OPENED";
+            case POSTURE_FLIPPED:
+                return "FLIPPED";
+            default:
+                return "Unknown posture value (" + posture + ")";
+        }
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "ExtensionDeviceState { posture=" + postureToString(getPosture()) + " }";
     }
 
     @Override

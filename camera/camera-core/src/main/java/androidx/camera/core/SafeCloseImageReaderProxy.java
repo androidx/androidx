@@ -22,7 +22,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.ImageReaderProxy;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.util.concurrent.Executor;
 
@@ -43,6 +42,9 @@ class SafeCloseImageReaderProxy implements ImageReaderProxy {
     @GuardedBy("mLock")
     private final ImageReaderProxy mImageReaderProxy;
 
+    @NonNull
+    private final Surface mSurface;
+
     // Called after images are closed to check if the ImageReaderProxy should be closed
     private ForwardingImageProxy.OnImageCloseListener mImageCloseListener = (image) -> {
         synchronized (mLock) {
@@ -55,6 +57,7 @@ class SafeCloseImageReaderProxy implements ImageReaderProxy {
 
     SafeCloseImageReaderProxy(@NonNull ImageReaderProxy imageReaderProxy) {
         mImageReaderProxy = imageReaderProxy;
+        mSurface = imageReaderProxy.getSurface();
     }
 
     @Nullable
@@ -84,6 +87,7 @@ class SafeCloseImageReaderProxy implements ImageReaderProxy {
     @Override
     public void close() {
         synchronized (mLock) {
+            mSurface.release();
             mImageReaderProxy.close();
         }
     }
@@ -115,8 +119,7 @@ class SafeCloseImageReaderProxy implements ImageReaderProxy {
     void safeClose() {
         synchronized (mLock) {
             mIsClosed = true;
-            mImageReaderProxy.setOnImageAvailableListener((imageReaderProxy) -> { },
-                    CameraXExecutors.directExecutor());
+            mImageReaderProxy.clearOnImageAvailableListener();
 
             if (mOutstandingImages == 0) {
                 close();
@@ -166,6 +169,13 @@ class SafeCloseImageReaderProxy implements ImageReaderProxy {
         synchronized (mLock) {
             mImageReaderProxy.setOnImageAvailableListener(
                     imageReader -> listener.onImageAvailable(this), executor);
+        }
+    }
+
+    @Override
+    public void clearOnImageAvailableListener() {
+        synchronized (mLock) {
+            mImageReaderProxy.clearOnImageAvailableListener();
         }
     }
 }

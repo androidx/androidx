@@ -19,11 +19,9 @@ package androidx.camera.core;
 import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.media.Image;
-import android.util.Rational;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import java.nio.ByteBuffer;
 
@@ -51,29 +49,6 @@ public interface ImageProxy extends AutoCloseable {
      * @see android.media.Image#setCropRect(Rect)
      */
     void setCropRect(@Nullable Rect rect);
-
-    /**
-     * Returns the rectangle defined by {@link ViewPort}.
-     *
-     * <p> Returns the value of {@link #getCropRect()} if {@link ViewPort} is not provided.
-     *
-     * @hide
-     * @see ViewPort.Builder#setAspectRatio(Rational)
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    Rect getViewPortRect();
-
-    /**
-     * Sets the rectangle based on {@link ViewPort}.
-     *
-     * <p> If the value is null, {@link #getViewPortRect()} will return the value of
-     * {@link #getCropRect()}.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    void setViewPortRect(@Nullable Rect viewPortRect);
 
     /**
      * Returns the image format.

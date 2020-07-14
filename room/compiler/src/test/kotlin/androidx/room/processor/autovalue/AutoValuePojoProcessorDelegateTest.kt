@@ -16,6 +16,8 @@
 
 package androidx.room.processor.autovalue
 
+import androidx.room.ext.isMethod
+import androidx.room.ext.requireTypeElement
 import androidx.room.processor.FieldProcessor
 import androidx.room.processor.PojoProcessor
 import androidx.room.processor.ProcessorErrors
@@ -33,7 +35,6 @@ import org.junit.runners.JUnit4
 import simpleRun
 import toJFO
 import java.io.File
-import javax.lang.model.element.ElementKind
 import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
@@ -83,7 +84,7 @@ class AutoValuePojoProcessorDelegateTest {
         ) { pojo ->
             assertThat(pojo.type.toString(), `is`("foo.bar.MyPojo"))
             assertThat(pojo.fields.size, `is`(1))
-            assertThat(pojo.constructor?.element?.kind, `is`(ElementKind.METHOD))
+            assertThat(pojo.constructor?.element?.isMethod(), `is`(true))
         }.compilesWithoutError().withWarningCount(0)
     }
 
@@ -102,7 +103,7 @@ class AutoValuePojoProcessorDelegateTest {
         )
         simpleRun(classpathFiles = libraryClasspath) { invocation ->
                 PojoProcessor.createFor(context = invocation.context,
-                    element = invocation.typeElement(MY_POJO.toString()),
+                    element = invocation.processingEnv.requireTypeElement(MY_POJO),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                     parent = null).process()
         }.compilesWithoutError().withWarningCount(0)
@@ -265,7 +266,7 @@ class AutoValuePojoProcessorDelegateTest {
         return simpleRun(*all, classpathFiles = classpathFiles) { invocation ->
             handler.invoke(
                     PojoProcessor.createFor(context = invocation.context,
-                            element = invocation.typeElement(MY_POJO.toString()),
+                            element = invocation.processingEnv.requireTypeElement(MY_POJO),
                             bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                             parent = null).process(),
                     invocation

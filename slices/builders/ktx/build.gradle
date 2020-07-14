@@ -29,12 +29,6 @@ android {
     defaultConfig {
         minSdkVersion 19
     }
-
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // Breaks Kotlin compiler.
-        }
-    }
 }
 
 dependencies {

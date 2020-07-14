@@ -46,7 +46,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            android:theme="?attr/actionBarTheme"
+            android:theme="?attr/actionModeTheme"
             style="?attr/actionModeStyle"/>
 
     </androidx.appcompat.widget.ActionBarContainer>

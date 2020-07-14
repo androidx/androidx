@@ -1648,6 +1648,7 @@ public class MediaControlView extends MediaViewGroup {
         boolean canFfwd = mPlayer.canSeekForward();
         boolean canPrev = mPlayer.canSkipToPrevious();
         boolean canNext = mPlayer.canSkipToNext();
+        boolean canSeekTo = mPlayer.canSeekTo();
 
         int n = mTransportControlsMap.size();
         for (int i = 0; i < n; i++) {
@@ -1674,10 +1675,8 @@ public class MediaControlView extends MediaViewGroup {
                 nextButton.setVisibility(canNext ? View.VISIBLE : View.GONE);
             }
         }
-        if (mPlayer.canSeekTo()) {
-            mSeekAvailable = true;
-            mProgress.setEnabled(true);
-        }
+        mSeekAvailable = canSeekTo;
+        mProgress.setEnabled(canSeekTo);
         updateSubtitleButtonVisibility();
     }
 

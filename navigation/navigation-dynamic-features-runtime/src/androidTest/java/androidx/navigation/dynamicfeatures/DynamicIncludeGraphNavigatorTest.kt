@@ -23,7 +23,6 @@ import androidx.navigation.dynamicfeatures.shared.AndroidTestDynamicInstallManag
 import androidx.navigation.dynamicfeatures.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.fail
@@ -39,8 +38,9 @@ class DynamicIncludeGraphNavigatorTest {
 
     private lateinit var navigator: DynamicIncludeGraphNavigator
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val rule = ActivityTestRule(NavigationActivity::class.java)
+    val rule = androidx.test.rule.ActivityTestRule(NavigationActivity::class.java)
 
     @Before
     fun setup() {

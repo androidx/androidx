@@ -16,8 +16,11 @@
 
 package com.example.androidx.webkit;
 
+import androidx.test.espresso.IdlingRegistry;
 import androidx.test.filters.LargeTest;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +37,16 @@ public final class AssetLoaderAjaxActivityTestAppTest {
     public IntegrationActivityTestRule<AssetLoaderAjaxActivity> mRule =
             new IntegrationActivityTestRule<>(AssetLoaderAjaxActivity.class,
                     R.id.webview_asset_loader_webview);
+
+    @Before
+    public void setUp() {
+        IdlingRegistry.getInstance().register(mRule.getActivity().getUriIdlingResource());
+    }
+
+    @After
+    public void tearDown() {
+        IdlingRegistry.getInstance().unregister(mRule.getActivity().getUriIdlingResource());
+    }
 
     @Test
     public void testAssetLoaderAjaxActivity() {

@@ -19,14 +19,14 @@ package androidx.ui.core.demos.viewinterop
 import android.view.View
 import androidx.ui.core.Ref
 
-// TODO(popam): this file is a subset of ViewRef.kt in ui-android-view. Deduplicate later
+// TODO(popam): this file is a subset of ViewRef.kt in android-view. Deduplicate later
 
 /**
  * A Ref is essentially a "value-holder" class that can be used with Compose to get
  * controlled access to the underlying view instances that are constructed as a result
  * of a compose() pass in Compose.
  *
- * See [ViewInComposeDemo] for an example.
+ * See [ViewInteropDemo] for an example.
  */
 fun <T : View> T.setRef(ref: Ref<T>) {
     storedRef?.value = null

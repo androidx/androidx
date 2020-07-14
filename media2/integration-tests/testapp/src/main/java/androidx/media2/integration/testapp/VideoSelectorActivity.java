@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -303,7 +302,7 @@ public class VideoSelectorActivity extends Activity {
         return retVal;
     }
 
-    private final class VideoItemListTask extends AsyncTask<Void, Void, VideoItemList> {
+    private final class VideoItemListTask extends android.os.AsyncTask<Void, Void, VideoItemList> {
         private String mPath;
 
         VideoItemListTask(String path) {

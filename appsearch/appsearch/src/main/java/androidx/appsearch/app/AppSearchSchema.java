@@ -18,9 +18,9 @@ package androidx.appsearch.app;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.IllegalSchemaException;
 import androidx.collection.ArraySet;
+import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
@@ -36,17 +36,19 @@ import java.util.Set;
  * <p>For example, an e-mail message or a music recording could be a schema type.
  *
  * <p>The schema consists of type information, properties, and config (like tokenization type).
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class AppSearchSchema {
     private final SchemaTypeConfigProto mProto;
 
-    AppSearchSchema(SchemaTypeConfigProto proto) {
+    AppSearchSchema(@NonNull SchemaTypeConfigProto proto) {
+        Preconditions.checkNotNull(proto);
         mProto = proto;
     }
 
-    /** Returns the {@link SchemaTypeConfigProto} populated by this builder. */
+    /**
+     * Returns the {@link SchemaTypeConfigProto} populated by this builder.
+     * @hide
+     */
     @NonNull
     SchemaTypeConfigProto getProto() {
         return mProto;
@@ -62,14 +64,19 @@ public final class AppSearchSchema {
         private final SchemaTypeConfigProto.Builder mProtoBuilder =
                 SchemaTypeConfigProto.newBuilder();
 
+        private boolean mBuilt = false;
+
         /** Creates a new {@link AppSearchSchema.Builder}. */
         public Builder(@NonNull String typeName) {
+            Preconditions.checkNotNull(typeName);
             mProtoBuilder.setSchemaType(typeName);
         }
 
         /** Adds a property to the given type. */
         @NonNull
         public AppSearchSchema.Builder addProperty(@NonNull PropertyConfig propertyConfig) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(propertyConfig);
             mProtoBuilder.addProperties(propertyConfig.mProto);
             return this;
         }
@@ -81,6 +88,7 @@ public final class AppSearchSchema {
          */
         @NonNull
         public AppSearchSchema build() {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
             Set<String> propertyNames = new ArraySet<>();
             for (PropertyConfigProto propertyConfigProto : mProtoBuilder.getPropertiesList()) {
                 if (!propertyNames.add(propertyConfigProto.getPropertyName())) {
@@ -89,6 +97,7 @@ public final class AppSearchSchema {
                                     + propertyConfigProto.getPropertyName());
                 }
             }
+            mBuilt = true;
             return new AppSearchSchema(mProtoBuilder.build());
         }
     }
@@ -100,7 +109,10 @@ public final class AppSearchSchema {
      * a property.
      */
     public static final class PropertyConfig {
-        /** Physical data-types of the contents of the property. */
+        /**
+         * Physical data-types of the contents of the property.
+         * @hide
+         */
         // NOTE: The integer values of these constants must match the proto enum constants in
         // com.google.android.icing.proto.PropertyConfigProto.DataType.Code.
         @IntDef(value = {
@@ -129,7 +141,10 @@ public final class AppSearchSchema {
          */
         public static final int DATA_TYPE_DOCUMENT = 6;
 
-        /** The cardinality of the property (whether it is required, optional or repeated).*/
+        /**
+         * The cardinality of the property (whether it is required, optional or repeated).
+         * @hide
+         */
         // NOTE: The integer values of these constants must match the proto enum constants in
         // com.google.android.icing.proto.PropertyConfigProto.Cardinality.Code.
         @IntDef(value = {
@@ -149,7 +164,10 @@ public final class AppSearchSchema {
         /** Exactly one value [1]. */
         public static final int CARDINALITY_REQUIRED = 3;
 
-        /** Encapsulates the configurations on how AppSearch should query/index these terms. */
+        /**
+         * Encapsulates the configurations on how AppSearch should query/index these terms.
+         * @hide
+         */
         @IntDef(value = {
                 INDEXING_TYPE_NONE,
                 INDEXING_TYPE_EXACT_TERMS,
@@ -184,7 +202,10 @@ public final class AppSearchSchema {
          */
         public static final int INDEXING_TYPE_PREFIXES = 2;
 
-        /** Configures how tokens should be extracted from this property. */
+        /**
+         * Configures how tokens should be extracted from this property.
+         * @hide
+         */
         // NOTE: The integer values of these constants must match the proto enum constants in
         // com.google.android.icing.proto.IndexingConfig.TokenizerType.Code.
         @IntDef(value = {
@@ -205,7 +226,8 @@ public final class AppSearchSchema {
 
         final PropertyConfigProto mProto;
 
-        PropertyConfig(PropertyConfigProto proto) {
+        PropertyConfig(@NonNull PropertyConfigProto proto) {
+            Preconditions.checkNotNull(proto);
             mProto = proto;
         }
 
@@ -234,8 +256,11 @@ public final class AppSearchSchema {
                     mIndexingConfigProto =
                         com.google.android.icing.proto.IndexingConfig.newBuilder();
 
+            private boolean mBuilt = false;
+
             /** Creates a new {@link PropertyConfig.Builder}. */
             public Builder(@NonNull String propertyName) {
+                Preconditions.checkNotNull(propertyName);
                 mPropertyConfigProto.setPropertyName(propertyName);
             }
 
@@ -246,6 +271,7 @@ public final class AppSearchSchema {
              */
             @NonNull
             public PropertyConfig.Builder setDataType(@DataType int dataType) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
                 PropertyConfigProto.DataType.Code dataTypeProto =
                         PropertyConfigProto.DataType.Code.forNumber(dataType);
                 if (dataTypeProto == null) {
@@ -263,6 +289,8 @@ public final class AppSearchSchema {
              */
             @NonNull
             public PropertyConfig.Builder setSchemaType(@NonNull String schemaType) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                Preconditions.checkNotNull(schemaType);
                 mPropertyConfigProto.setSchemaType(schemaType);
                 return this;
             }
@@ -274,6 +302,7 @@ public final class AppSearchSchema {
              */
             @NonNull
             public PropertyConfig.Builder setCardinality(@Cardinality int cardinality) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
                 PropertyConfigProto.Cardinality.Code cardinalityProto =
                         PropertyConfigProto.Cardinality.Code.forNumber(cardinality);
                 if (cardinalityProto == null) {
@@ -288,6 +317,7 @@ public final class AppSearchSchema {
              */
             @NonNull
             public PropertyConfig.Builder setIndexingType(@IndexingType int indexingType) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
                 TermMatchType.Code termMatchTypeProto;
                 switch (indexingType) {
                     case INDEXING_TYPE_NONE:
@@ -309,6 +339,7 @@ public final class AppSearchSchema {
             /** Configures how this property should be tokenized (split into words). */
             @NonNull
             public PropertyConfig.Builder setTokenizerType(@TokenizerType int tokenizerType) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
                 com.google.android.icing.proto.IndexingConfig.TokenizerType.Code
                         tokenizerTypeProto =
                             com.google.android.icing.proto.IndexingConfig
@@ -330,6 +361,7 @@ public final class AppSearchSchema {
              */
             @NonNull
             public PropertyConfig build() {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
                 mPropertyConfigProto.setIndexingConfig(mIndexingConfigProto);
                 // TODO(b/147692920): Send the schema to Icing Lib for official validation, instead
                 //     of partially reimplementing some of the validation Icing does here.
@@ -348,6 +380,7 @@ public final class AppSearchSchema {
                         == PropertyConfigProto.Cardinality.Code.UNKNOWN) {
                     throw new IllegalSchemaException("Missing field: cardinality");
                 }
+                mBuilt = true;
                 return new PropertyConfig(mPropertyConfigProto.build());
             }
         }

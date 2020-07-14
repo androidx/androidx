@@ -40,6 +40,7 @@ class FragmentStateManager {
     private static final String TARGET_REQUEST_CODE_STATE_TAG = "android:target_req_state";
     private static final String TARGET_STATE_TAG = "android:target_state";
     private static final String VIEW_STATE_TAG = "android:view_state";
+    private static final String VIEW_REGISTRY_STATE_TAG = "android:view_registry_state";
     private static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
 
     private final FragmentLifecycleCallbacksDispatcher mDispatcher;
@@ -50,6 +51,7 @@ class FragmentStateManager {
     private boolean mMovingToState = false;
     private int mFragmentManagerState = Fragment.INITIALIZING;
     private CancellationSignal mEnterAnimationCancellationSignal;
+    private CancellationSignal mHiddenAnimationCancellationSignal;
     private CancellationSignal mExitAnimationCancellationSignal;
 
     /**
@@ -129,6 +131,7 @@ class FragmentStateManager {
         mFragmentStore = fragmentStore;
         mFragment = retainedFragment;
         mFragment.mSavedViewState = null;
+        mFragment.mSavedViewRegistryState = null;
         mFragment.mBackStackNesting = 0;
         mFragment.mInLayout = false;
         mFragment.mAdded = false;
@@ -176,9 +179,9 @@ class FragmentStateManager {
         // For fragments that are created from a layout using the <fragment> tag (mFromLayout)
         if (mFragment.mFromLayout) {
             if (mFragment.mInLayout) {
-                // Move them immediately to CREATED when they are
+                // Move them immediately to VIEW_CREATED when they are
                 // actually added to the layout (mInLayout).
-                maxState = Math.max(mFragmentManagerState, Fragment.CREATED);
+                maxState = Math.max(mFragmentManagerState, Fragment.VIEW_CREATED);
             } else {
                 if (mFragmentManagerState < Fragment.ACTIVITY_CREATED) {
                     // But while they are not in the layout, don't allow their
@@ -268,17 +271,21 @@ class FragmentStateManager {
                         case Fragment.CREATED:
                             create();
                             break;
-                        case Fragment.AWAITING_EXIT_EFFECTS:
+                        case Fragment.VIEW_CREATED:
                             ensureInflatedView();
                             createView();
+                            break;
+                        case Fragment.AWAITING_EXIT_EFFECTS:
                             activityCreated();
-                            restoreViewState();
                             break;
                         case Fragment.ACTIVITY_CREATED:
                             if (mFragment.mView != null && mFragment.mContainer != null) {
                                 SpecialEffectsController controller = SpecialEffectsController
                                         .getOrCreateController(mFragment.mContainer,
                                                 mFragment.getParentFragmentManager());
+                                if (mHiddenAnimationCancellationSignal != null) {
+                                    mHiddenAnimationCancellationSignal.cancel();
+                                }
                                 mEnterAnimationCancellationSignal = new CancellationSignal();
                                 controller.enqueueAdd(this,
                                         mEnterAnimationCancellationSignal);
@@ -328,14 +335,21 @@ class FragmentStateManager {
                                 SpecialEffectsController controller = SpecialEffectsController
                                         .getOrCreateController(mFragment.mContainer,
                                                 mFragment.getParentFragmentManager());
+                                if (mHiddenAnimationCancellationSignal != null) {
+                                    mHiddenAnimationCancellationSignal.cancel();
+                                }
                                 mExitAnimationCancellationSignal = new CancellationSignal();
                                 controller.enqueueRemove(this,
                                         mExitAnimationCancellationSignal);
                             }
                             mFragment.mState = Fragment.AWAITING_EXIT_EFFECTS;
                             break;
-                        case Fragment.CREATED:
+                        case Fragment.VIEW_CREATED:
                             destroyFragmentView();
+                            mFragment.mState = Fragment.VIEW_CREATED;
+                            break;
+                        case Fragment.CREATED:
+                            mFragment.mState = Fragment.CREATED;
                             break;
                         case Fragment.ATTACHED:
                             destroy();
@@ -345,6 +359,28 @@ class FragmentStateManager {
                             break;
                     }
                 }
+            }
+            if (FragmentManager.USE_STATE_MANAGER && mFragment.mHiddenChanged) {
+                if (mFragment.mView != null && mFragment.mContainer != null) {
+                    // Cancel any previously running show/hide
+                    if (mHiddenAnimationCancellationSignal != null) {
+                        mHiddenAnimationCancellationSignal.cancel();
+                    }
+                    // Get the controller and enqueue the show/hide
+                    SpecialEffectsController controller = SpecialEffectsController
+                            .getOrCreateController(mFragment.mContainer,
+                                    mFragment.getParentFragmentManager());
+                    mHiddenAnimationCancellationSignal = new CancellationSignal();
+                    if (mFragment.mHidden) {
+                        controller.enqueueHide(this,
+                                mHiddenAnimationCancellationSignal);
+                    } else {
+                        controller.enqueueShow(this,
+                                mHiddenAnimationCancellationSignal);
+                    }
+                }
+                mFragment.mHiddenChanged = false;
+                mFragment.onHiddenChanged(mFragment.mHidden);
             }
         } finally {
             mMovingToState = false;
@@ -362,9 +398,10 @@ class FragmentStateManager {
                 mFragment.mView.setSaveFromParentEnabled(false);
                 mFragment.mView.setTag(R.id.fragment_container_view_tag, mFragment);
                 if (mFragment.mHidden) mFragment.mView.setVisibility(View.GONE);
-                mFragment.onViewCreated(mFragment.mView, mFragment.mSavedFragmentState);
+                mFragment.performViewCreated();
                 mDispatcher.dispatchOnFragmentViewCreated(
                         mFragment, mFragment.mView, mFragment.mSavedFragmentState, false);
+                mFragment.mState = Fragment.VIEW_CREATED;
             }
         }
     }
@@ -376,6 +413,8 @@ class FragmentStateManager {
         mFragment.mSavedFragmentState.setClassLoader(classLoader);
         mFragment.mSavedViewState = mFragment.mSavedFragmentState.getSparseParcelableArray(
                 VIEW_STATE_TAG);
+        mFragment.mSavedViewRegistryState = mFragment.mSavedFragmentState.getBundle(
+                VIEW_REGISTRY_STATE_TAG);
         mFragment.mTargetWho = mFragment.mSavedFragmentState.getString(
                 TARGET_STATE_TAG);
         if (mFragment.mTargetWho != null) {
@@ -502,8 +541,25 @@ class FragmentStateManager {
             if (mFragment.mHidden) {
                 mFragment.mView.setVisibility(View.GONE);
             }
-            ViewCompat.requestApplyInsets(mFragment.mView);
-            mFragment.onViewCreated(mFragment.mView, mFragment.mSavedFragmentState);
+            // How I wish we could use doOnAttach
+            if (ViewCompat.isAttachedToWindow(mFragment.mView)) {
+                ViewCompat.requestApplyInsets(mFragment.mView);
+            } else {
+                final View fragmentView = mFragment.mView;
+                fragmentView.addOnAttachStateChangeListener(
+                        new View.OnAttachStateChangeListener() {
+                            @Override
+                            public void onViewAttachedToWindow(View v) {
+                                fragmentView.removeOnAttachStateChangeListener(this);
+                                ViewCompat.requestApplyInsets(fragmentView);
+                            }
+
+                            @Override
+                            public void onViewDetachedFromWindow(View v) {
+                            }
+                        });
+            }
+            mFragment.performViewCreated();
             mDispatcher.dispatchOnFragmentViewCreated(
                     mFragment, mFragment.mView, mFragment.mSavedFragmentState, false);
             // Only animate the view if it is visible. This is done after
@@ -511,6 +567,7 @@ class FragmentStateManager {
             mFragment.mIsNewlyAdded = (mFragment.mView.getVisibility() == View.VISIBLE)
                     && mFragment.mContainer != null;
         }
+        mFragment.mState = Fragment.VIEW_CREATED;
     }
 
     void activityCreated() {
@@ -520,16 +577,6 @@ class FragmentStateManager {
         mFragment.performActivityCreated(mFragment.mSavedFragmentState);
         mDispatcher.dispatchOnFragmentActivityCreated(
                 mFragment, mFragment.mSavedFragmentState, false);
-    }
-
-    void restoreViewState() {
-        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
-            Log.d(TAG, "moveto RESTORE_VIEW_STATE: " + mFragment);
-        }
-        if (mFragment.mView != null) {
-            mFragment.restoreViewState(mFragment.mSavedFragmentState);
-        }
-        mFragment.mSavedFragmentState = null;
     }
 
     void start() {
@@ -548,6 +595,7 @@ class FragmentStateManager {
         mDispatcher.dispatchOnFragmentResumed(mFragment, false);
         mFragment.mSavedFragmentState = null;
         mFragment.mSavedViewState = null;
+        mFragment.mSavedViewRegistryState = null;
     }
 
     void pause() {
@@ -621,6 +669,12 @@ class FragmentStateManager {
             result.putSparseParcelableArray(
                     VIEW_STATE_TAG, mFragment.mSavedViewState);
         }
+        if (mFragment.mSavedViewRegistryState != null) {
+            if (result == null) {
+                result = new Bundle();
+            }
+            result.putBundle(VIEW_REGISTRY_STATE_TAG, mFragment.mSavedViewRegistryState);
+        }
         if (!mFragment.mUserVisibleHint) {
             if (result == null) {
                 result = new Bundle();
@@ -640,6 +694,11 @@ class FragmentStateManager {
         mFragment.mView.saveHierarchyState(mStateArray);
         if (mStateArray.size() > 0) {
             mFragment.mSavedViewState = mStateArray;
+        }
+        Bundle outBundle = new Bundle();
+        mFragment.mViewLifecycleOwner.performSave(outBundle);
+        if (!outBundle.isEmpty()) {
+            mFragment.mSavedViewRegistryState = outBundle;
         }
     }
 

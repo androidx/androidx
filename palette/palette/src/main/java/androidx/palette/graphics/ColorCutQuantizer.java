@@ -17,7 +17,6 @@
 package androidx.palette.graphics;
 
 import android.graphics.Color;
-import android.util.TimingLogger;
 
 import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
@@ -43,10 +42,6 @@ import java.util.PriorityQueue;
  * colors.
  */
 final class ColorCutQuantizer {
-
-    private static final String LOG_TAG = "ColorCutQuantizer";
-    private static final boolean LOG_TIMINGS = false;
-
     static final int COMPONENT_RED = -3;
     static final int COMPONENT_GREEN = -2;
     static final int COMPONENT_BLUE = -1;
@@ -57,7 +52,6 @@ final class ColorCutQuantizer {
     final int[] mColors;
     final int[] mHistogram;
     final List<Palette.Swatch> mQuantizedColors;
-    @Nullable final TimingLogger mTimingLogger;
     @Nullable final Palette.Filter[] mFilters;
 
     private final float[] mTempHsl = new float[3];
@@ -69,9 +63,7 @@ final class ColorCutQuantizer {
      * @param maxColors The maximum number of colors that should be in the result palette.
      * @param filters Set of filters to use in the quantization stage
      */
-    @SuppressWarnings("NullAway") // mTimingLogger initialization and access guarded by LOG_TIMINGS.
     ColorCutQuantizer(int[] pixels, int maxColors, @Nullable Palette.Filter[] filters) {
-        mTimingLogger = LOG_TIMINGS ? new TimingLogger(LOG_TAG, "Creation") : null;
         mFilters = filters;
 
         final int[] hist = mHistogram = new int[1 << (QUANTIZE_WORD_WIDTH * 3)];
@@ -81,10 +73,6 @@ final class ColorCutQuantizer {
             pixels[i] = quantizedColor;
             // And update the histogram
             hist[quantizedColor]++;
-        }
-
-        if (LOG_TIMINGS) {
-            mTimingLogger.addSplit("Histogram created");
         }
 
         // Now let's count the number of distinct colors
@@ -100,10 +88,6 @@ final class ColorCutQuantizer {
             }
         }
 
-        if (LOG_TIMINGS) {
-            mTimingLogger.addSplit("Filtered colors and distinct colors counted");
-        }
-
         // Now lets go through create an array consisting of only distinct colors
         final int[] colors = mColors = new int[distinctColorCount];
         int distinctColorIndex = 0;
@@ -113,29 +97,15 @@ final class ColorCutQuantizer {
             }
         }
 
-        if (LOG_TIMINGS) {
-            mTimingLogger.addSplit("Distinct colors copied into array");
-        }
-
         if (distinctColorCount <= maxColors) {
             // The image has fewer colors than the maximum requested, so just return the colors
             mQuantizedColors = new ArrayList<>();
             for (int color : colors) {
                 mQuantizedColors.add(new Palette.Swatch(approximateToRgb888(color), hist[color]));
             }
-
-            if (LOG_TIMINGS) {
-                mTimingLogger.addSplit("Too few colors present. Copied to Swatches");
-                mTimingLogger.dumpToLog();
-            }
         } else {
             // We need use quantization to reduce the number of colors
             mQuantizedColors = quantizePixels(maxColors);
-
-            if (LOG_TIMINGS) {
-                mTimingLogger.addSplit("Quantized colors computed");
-                mTimingLogger.dumpToLog();
-            }
         }
     }
 
@@ -171,7 +141,6 @@ final class ColorCutQuantizer {
      * @param queue {@link java.util.PriorityQueue} to poll for boxes
      * @param maxSize Maximum amount of boxes to split
      */
-    @SuppressWarnings("NullAway") // mTimingLogger initialization and access guarded by LOG_TIMINGS.
     private void splitBoxes(final PriorityQueue<Vbox> queue, final int maxSize) {
         while (queue.size() < maxSize) {
             final Vbox vbox = queue.poll();
@@ -179,16 +148,9 @@ final class ColorCutQuantizer {
             if (vbox != null && vbox.canSplit()) {
                 // First split the box, and offer the result
                 queue.offer(vbox.splitBox());
-
-                if (LOG_TIMINGS) {
-                    mTimingLogger.addSplit("Box split");
-                }
                 // Then offer the box back
                 queue.offer(vbox);
             } else {
-                if (LOG_TIMINGS) {
-                    mTimingLogger.addSplit("All boxes split");
-                }
                 // If we get here then there are no more boxes to split, so return
                 return;
             }

@@ -27,7 +27,6 @@ import androidx.dynamicanimation.ktx.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -45,7 +44,8 @@ import org.mockito.Mockito.verify
 @RunWith(AndroidJUnit4::class)
 class DynamicAnimationTest {
 
-    @get:Rule val activityTestRule = ActivityTestRule<AnimationActivity>(
+    @Suppress("DEPRECATION")
+    @get:Rule val activityTestRule = androidx.test.rule.ActivityTestRule<AnimationActivity>(
         AnimationActivity::class.java)
 
     private lateinit var view: View

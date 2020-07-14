@@ -19,6 +19,7 @@ package androidx.camera.integration.view;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -30,8 +31,14 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.FocusMeteringResult;
+import androidx.camera.core.MeteringPoint;
+import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
@@ -177,9 +184,45 @@ public class PreviewViewFragment extends Fragment {
         final Preview preview = new Preview.Builder()
                 .setTargetName("Preview")
                 .build();
-        cameraProvider.bindToLifecycle(this, getCurrentCameraSelector(), preview);
         mPreviewView.setPreferredImplementationMode(PreviewView.ImplementationMode.TEXTURE_VIEW);
         preview.setSurfaceProvider(mPreviewView.createSurfaceProvider());
+        final CameraSelector cameraSelector = getCurrentCameraSelector();
+        final Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview);
+        setUpFocusAndMetering(camera.getCameraControl(), cameraSelector);
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    private void setUpFocusAndMetering(@NonNull final CameraControl cameraControl,
+            @NonNull final CameraSelector cameraSelector) {
+        mPreviewView.setOnTouchListener((view, motionEvent) -> {
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    return true;
+                case MotionEvent.ACTION_UP:
+                    final MeteringPointFactory factory = mPreviewView.createMeteringPointFactory(
+                            cameraSelector);
+                    final MeteringPoint point = factory.createPoint(motionEvent.getX(),
+                            motionEvent.getY());
+                    final FocusMeteringAction action = new FocusMeteringAction.Builder(
+                            point).build();
+                    Futures.addCallback(
+                            cameraControl.startFocusAndMetering(action),
+                            new FutureCallback<FocusMeteringResult>() {
+                                @Override
+                                public void onSuccess(FocusMeteringResult result) {
+                                    Log.d(TAG, "Focus and metering succeeded");
+                                }
+
+                                @Override
+                                public void onFailure(@NonNull Throwable throwable) {
+                                    Log.e(TAG, "Focus and metering failed", throwable);
+                                }
+                            }, ContextCompat.getMainExecutor(requireContext()));
+                    return true;
+                default:
+                    return false;
+            }
+        });
     }
 
     @SuppressWarnings("WeakerAccess")

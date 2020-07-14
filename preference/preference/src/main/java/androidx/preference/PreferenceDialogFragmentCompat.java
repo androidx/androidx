@@ -134,16 +134,15 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
     @Override
     public @NonNull
     Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Context context = getActivity();
         mWhichButtonClicked = DialogInterface.BUTTON_NEGATIVE;
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(context)
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
                 .setTitle(mDialogTitle)
                 .setIcon(mDialogIcon)
                 .setPositiveButton(mPositiveButtonText, this)
                 .setNegativeButton(mNegativeButtonText, this);
 
-        View contentView = onCreateDialogView(context);
+        View contentView = onCreateDialogView(getContext());
         if (contentView != null) {
             onBindDialogView(contentView);
             builder.setView(contentView);

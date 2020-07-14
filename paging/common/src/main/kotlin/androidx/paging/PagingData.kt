@@ -17,11 +17,6 @@
 package androidx.paging
 
 import androidx.annotation.CheckResult
-import androidx.paging.LoadState.NotLoading
-import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.PREPEND
-import androidx.paging.LoadType.REFRESH
-import androidx.paging.PageEvent.Insert.Companion.Refresh
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -36,32 +31,40 @@ class PagingData<T : Any> internal constructor(
     internal val flow: Flow<PageEvent<T>>,
     internal val receiver: UiReceiver
 ) {
-    private inline fun <R : Any> transform(crossinline transform: (PageEvent<T>) -> PageEvent<R>) =
-        PagingData(
-            flow = flow.map { transform(it) },
-            receiver = receiver
-        )
-
     /**
      * Returns a [PagingData] containing the result of applying the given [transform] to each
      * element, as it is loaded.
+     *
+     * @see map
      */
+    @JvmName("map")
     @CheckResult
-    fun <R : Any> map(transform: (T) -> R): PagingData<R> = transform { it.map(transform) }
+    fun <R : Any> mapSync(transform: (T) -> R): PagingData<R> = transform { event ->
+        event.map { transform(it) }
+    }
 
     /**
      * Returns a [PagingData] of all elements returned from applying the given [transform]
      * to each element, as it is loaded.
+     *
+     * @see flatMap
      */
+    @JvmName("flatMap")
     @CheckResult
-    fun <R : Any> flatMap(transform: (T) -> Iterable<R>): PagingData<R> =
-        transform { it.flatMap(transform) }
+    fun <R : Any> flatMapSync(transform: (T) -> Iterable<R>): PagingData<R> = transform { event ->
+        event.flatMap { transform(it) }
+    }
 
     /**
      * Returns a [PagingData] containing only elements matching the given [predicate]
+     *
+     * @see filter
      */
+    @JvmName("filter")
     @CheckResult
-    fun filter(predicate: (T) -> Boolean): PagingData<T> = transform { it.filter(predicate) }
+    fun filterSync(predicate: (T) -> Boolean): PagingData<T> = transform { event ->
+        event.filter { predicate(it) }
+    }
 
     /**
      * Returns a [PagingData] containing each original element, with the passed header [item] added
@@ -113,18 +116,7 @@ class PagingData<T : Any> internal constructor(
         }
 
         private val EMPTY = PagingData<Any>(
-            flow = flowOf(
-                Refresh(
-                    pages = listOf(TransformablePage(originalPageOffset = 0, data = emptyList())),
-                    placeholdersBefore = 0,
-                    placeholdersAfter = 0,
-                    loadStates = mapOf(
-                        REFRESH to NotLoading.Idle,
-                        PREPEND to NotLoading.Done,
-                        APPEND to NotLoading.Done
-                    )
-                )
-            ),
+            flow = flowOf(PageEvent.Insert.EMPTY_REFRESH_LOCAL),
             receiver = NOOP_RECEIVER
         )
 
@@ -224,10 +216,46 @@ class PagingData<T : Any> internal constructor(
             pagingData: PagingData<T>,
             generator: (T?, T?) -> R?
         ): PagingData<R> {
-            return pagingData.insertSeparators(generator)
+            return pagingData.insertSeparators { before, after -> generator(before, after) }
         }
     }
 }
+
+private inline fun <T : Any, R : Any> PagingData<T>.transform(
+    crossinline transform: suspend (PageEvent<T>) -> PageEvent<R>
+) = PagingData(
+    flow = flow.map { transform(it) },
+    receiver = receiver
+)
+
+/**
+ * Returns a [PagingData] containing the result of applying the given [transform] to each
+ * element, as it is loaded.
+ */
+@CheckResult
+@JvmSynthetic
+fun <T : Any, R : Any> PagingData<T>.map(
+    transform: suspend (T) -> R
+): PagingData<R> = transform { it.map(transform) }
+
+/**
+ * Returns a [PagingData] of all elements returned from applying the given [transform]
+ * to each element, as it is loaded.
+ */
+@CheckResult
+@JvmSynthetic
+fun <T : Any, R : Any> PagingData<T>.flatMap(
+    transform: suspend (T) -> Iterable<R>
+): PagingData<R> = transform { it.flatMap(transform) }
+
+/**
+ * Returns a [PagingData] containing only elements matching the given [predicate]
+ */
+@CheckResult
+@JvmSynthetic
+fun <T : Any> PagingData<T>.filter(
+    predicate: suspend (T) -> Boolean
+): PagingData<T> = transform { it.filter(predicate) }
 
 /**
  * Returns a [PagingData] containing each original element, with an optional separator
@@ -237,14 +265,13 @@ class PagingData<T : Any> internal constructor(
  * Note that this transform is applied asynchronously, as pages are loaded. Potential
  * separators between pages are only computed once both pages are loaded.
  *
- * **Java callers should instead use the static function [PagingData.insertSeparators]**
- *
  * @sample androidx.paging.samples.insertSeparatorsSample
  * @sample androidx.paging.samples.insertSeparatorsUiModelSample
  */
 @CheckResult
+@JvmSynthetic
 fun <T : R, R : Any> PagingData<T>.insertSeparators(
-    generator: (T?, T?) -> R?
+    generator: suspend (T?, T?) -> R?
 ): PagingData<R> {
     // This function must be an extension method, as it indirectly imposes a constraint on
     // the type of T (because T extends R). Ideally it would be declared not be an

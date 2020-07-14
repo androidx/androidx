@@ -19,36 +19,30 @@ package androidx.appcompat.widget;
 import static org.junit.Assert.assertEquals;
 
 import android.graphics.Typeface;
-import android.view.ViewGroup;
 
 import androidx.appcompat.test.R;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
-import androidx.test.rule.ActivityTestRule;
+import androidx.test.filters.MediumTest;
 
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * Provides tests specific to {@link AppCompatToggleButton} class.
  */
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4.class)
-public class AppCompatToggleButtonTest {
+public class AppCompatToggleButtonTest
+        extends AppCompatBaseViewTest<AppCompatToggleButtonActivity, AppCompatToggleButton> {
+    public AppCompatToggleButtonTest() {
+        super(AppCompatToggleButtonActivity.class);
+    }
 
-    @Rule
-    public final ActivityTestRule<AppCompatToggleButtonActivity> mActivityTestRule =
-            new ActivityTestRule(AppCompatToggleButtonActivity.class);
-    private AppCompatToggleButtonActivity mActivity;
-    private ViewGroup mContainer;
-
-    @Before
-    public void setUp() {
-        mActivity = mActivityTestRule.getActivity();
-        mContainer = mActivity.findViewById(androidx.appcompat.test.R.id.container);
+    @Override
+    protected boolean hasBackgroundByDefault() {
+        // Button has default background set on it
+        return true;
     }
 
     @Test

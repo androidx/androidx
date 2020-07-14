@@ -63,6 +63,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.Closeable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -141,7 +142,7 @@ import java.util.concurrent.Executors;
  * @see MediaSession
  * @see MediaSessionService
  */
-public class MediaController implements AutoCloseable {
+public class MediaController implements Closeable {
     private static final String TAG = "MediaController";
 
     /**
@@ -1451,7 +1452,7 @@ public class MediaController implements AutoCloseable {
         void run(@NonNull ControllerCallback callback);
     }
 
-    interface MediaControllerImpl extends AutoCloseable {
+    interface MediaControllerImpl extends Closeable {
         @Nullable SessionToken getConnectedToken();
         boolean isConnected();
         ListenableFuture<SessionResult> play();
@@ -1555,6 +1556,12 @@ public class MediaController implements AutoCloseable {
         @NonNull
         public Builder setSessionCompatToken(@NonNull MediaSessionCompat.Token compatToken) {
             return super.setSessionCompatToken(compatToken);
+        }
+
+        @Override
+        @NonNull
+        public Builder setConnectionHints(@NonNull Bundle connectionHints) {
+            return super.setConnectionHints(connectionHints);
         }
 
         @Override
@@ -1666,7 +1673,7 @@ public class MediaController implements AutoCloseable {
          */
         @NonNull
         @SuppressWarnings("unchecked")
-        public U setSessionToken(@NonNull SessionToken token) {
+        U setSessionToken(@NonNull SessionToken token) {
             if (token == null) {
                 throw new NullPointerException("token shouldn't be null");
             }
@@ -1686,7 +1693,7 @@ public class MediaController implements AutoCloseable {
          */
         @NonNull
         @SuppressWarnings("unchecked")
-        public U setSessionCompatToken(@NonNull MediaSessionCompat.Token compatToken) {
+        U setSessionCompatToken(@NonNull MediaSessionCompat.Token compatToken) {
             if (compatToken == null) {
                 throw new NullPointerException("compatToken shouldn't be null");
             }
@@ -1732,7 +1739,7 @@ public class MediaController implements AutoCloseable {
          */
         @NonNull
         @SuppressWarnings("unchecked")
-        public U setControllerCallback(@NonNull Executor executor, @NonNull C callback) {
+        U setControllerCallback(@NonNull Executor executor, @NonNull C callback) {
             if (executor == null) {
                 throw new NullPointerException("executor shouldn't be null");
             }

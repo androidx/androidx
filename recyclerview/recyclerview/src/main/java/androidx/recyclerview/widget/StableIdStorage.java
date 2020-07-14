@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.collection.LongSparseArray;
 
 /**
- * Used by {@link MergeAdapter} to isolate item ids between nested adapters, if necessary.
+ * Used by {@link ConcatAdapter} to isolate item ids between nested adapters, if necessary.
  */
 interface StableIdStorage {
     @NonNull
@@ -28,7 +28,7 @@ interface StableIdStorage {
 
     /**
      * Interface that provides {@link NestedAdapterWrapper}s a way to map their local stable ids
-     * into global stable ids, based on the configuration of the {@link MergeAdapter}.
+     * into global stable ids, based on the configuration of the {@link ConcatAdapter}.
      */
     interface StableIdLookup {
         long localToGlobal(long localId);

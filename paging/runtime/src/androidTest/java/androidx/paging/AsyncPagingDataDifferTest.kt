@@ -23,8 +23,6 @@ import androidx.paging.ListUpdateEvent.Moved
 import androidx.paging.ListUpdateEvent.Removed
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
-import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
@@ -33,8 +31,11 @@ import androidx.testutils.MainDispatcherRule
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -43,6 +44,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.CoroutineContext
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 private class ListUpdateCapture : ListUpdateCallback {
@@ -75,11 +78,6 @@ private sealed class ListUpdateEvent {
     data class Removed(val position: Int, val count: Int) : ListUpdateEvent()
 }
 
-private data class LoadEvent(
-    val loadType: LoadType,
-    val loadState: LoadState
-)
-
 @OptIn(ExperimentalCoroutinesApi::class)
 @SmallTest
 @RunWith(JUnit4::class)
@@ -108,9 +106,69 @@ class AsyncPagingDataDifferTest {
 
     @Test
     fun performDiff_fastPathLoadStates() = testScope.runBlockingTest {
-        val loadEvents = mutableListOf<LoadEvent>()
-        differ.addLoadStateListener { loadType, loadState ->
-            loadEvents.add(LoadEvent(loadType, loadState))
+        val loadEvents = mutableListOf<CombinedLoadStates>()
+        differ.addLoadStateListener { loadEvents.add(it) }
+
+        val pager = Pager(
+            config = PagingConfig(
+                pageSize = 2,
+                prefetchDistance = 1,
+                enablePlaceholders = true,
+                initialLoadSize = 2
+            ),
+            initialKey = 50
+        ) {
+            TestPagingSource()
+        }
+
+        val job = launch {
+            pager.flow.collect {
+                differ.submitData(it)
+            }
+        }
+
+        advanceUntilIdle()
+
+        // Assert that all load state updates are sent, even when differ enters fast path for
+        // empty previous list.
+        assertEvents(
+            listOf(
+                REFRESH to Loading,
+                REFRESH to NotLoading(endOfPaginationReached = false)
+            ).toCombinedLoadStatesLocal(),
+            loadEvents
+        )
+        loadEvents.clear()
+
+        job.cancel()
+
+        differ.submitData(TestLifecycleOwner().lifecycle, PagingData.empty())
+        advanceUntilIdle()
+
+        // Assert that all load state updates are sent, even when differ enters fast path for
+        // empty next list.
+        assertEvents(
+            expected = listOf(
+                localLoadStatesOf(
+                    refreshLocal = NotLoading(endOfPaginationReached = false),
+                    prependLocal = NotLoading(endOfPaginationReached = true),
+                    appendLocal = NotLoading(endOfPaginationReached = false)
+                ),
+                localLoadStatesOf(
+                    refreshLocal = NotLoading(endOfPaginationReached = false),
+                    prependLocal = NotLoading(endOfPaginationReached = true),
+                    appendLocal = NotLoading(endOfPaginationReached = true)
+                )
+            ),
+            actual = loadEvents
+        )
+    }
+
+    @Test
+    fun performDiff_fastPathLoadStatesFlow() = testScope.runBlockingTest {
+        val loadEvents = mutableListOf<CombinedLoadStates>()
+        val loadEventJob = launch {
+            differ.loadStateFlow.collect { loadEvents.add(it) }
         }
 
         val pager = Pager(
@@ -137,18 +195,9 @@ class AsyncPagingDataDifferTest {
         // empty previous list.
         assertEvents(
             listOf(
-                LoadEvent(
-                    REFRESH,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
-                ),
-                LoadEvent(
-                    PREPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
-                ),
-                LoadEvent(APPEND, NotLoading(endOfPaginationReached = false, fromMediator = false)),
-                LoadEvent(REFRESH, Loading(fromMediator = false)),
-                LoadEvent(REFRESH, NotLoading(endOfPaginationReached = false, fromMediator = false))
-            ),
+                REFRESH to Loading,
+                REFRESH to NotLoading(endOfPaginationReached = false)
+            ).toCombinedLoadStatesLocal(),
             loadEvents
         )
         loadEvents.clear()
@@ -161,18 +210,26 @@ class AsyncPagingDataDifferTest {
         // Assert that all load state updates are sent, even when differ enters fast path for
         // empty next list.
         assertEvents(
-            listOf(
-                LoadEvent(PREPEND, NotLoading(endOfPaginationReached = true, fromMediator = false)),
-                LoadEvent(APPEND, NotLoading(endOfPaginationReached = true, fromMediator = false))
+            expected = listOf(
+                localLoadStatesOf(
+                    refreshLocal = NotLoading(endOfPaginationReached = false),
+                    prependLocal = NotLoading(endOfPaginationReached = true),
+                    appendLocal = NotLoading(endOfPaginationReached = false)
+                ),
+                localLoadStatesOf(
+                    refreshLocal = NotLoading(endOfPaginationReached = false),
+                    prependLocal = NotLoading(endOfPaginationReached = true),
+                    appendLocal = NotLoading(endOfPaginationReached = true)
+                )
             ),
-            loadEvents
+            actual = loadEvents
         )
+
+        loadEventJob.cancel()
     }
 
     @Test
     fun lastAccessedIndex() = testScope.runBlockingTest {
-        // TODO: Consider making PagedData public, which would simplify this test by allowing it
-        //  to directly construct a flow of PagedData.
         pauseDispatcher {
             var currentPagedSource: TestPagingSource? = null
             val pager = Pager(
@@ -295,5 +352,145 @@ class AsyncPagingDataDifferTest {
             job.cancel()
             job2.cancel()
         }
+    }
+
+    @Test
+    fun submitData_guaranteesOrder() = testScope.runBlockingTest {
+        val pager = Pager(config = PagingConfig(2, enablePlaceholders = false), initialKey = 50) {
+            TestPagingSource()
+        }
+
+        val reversedDispatcher = object : CoroutineDispatcher() {
+            var lastBlock: Runnable? = null
+            override fun dispatch(context: CoroutineContext, block: Runnable) {
+                // Save the first block to be dispatched, then run second one first after receiving
+                // calls to dispatch both.
+                val lastBlock = lastBlock
+                if (lastBlock == null) {
+                    this.lastBlock = block
+                } else {
+                    block.run()
+                    lastBlock.run()
+                }
+            }
+        }
+
+        val lifecycle = TestLifecycleOwner()
+        differ.submitData(lifecycle.lifecycle, PagingData.empty())
+        differ.submitData(lifecycle.lifecycle, pager.flow.first()) // Loads 6 items
+
+        // Ensure the second call wins when dispatched in order of execution.
+        advanceUntilIdle()
+        assertEquals(6, differ.itemCount)
+
+        val reversedLifecycle = TestLifecycleOwner(coroutineDispatcher = reversedDispatcher)
+        differ.submitData(reversedLifecycle.lifecycle, PagingData.empty())
+        differ.submitData(reversedLifecycle.lifecycle, pager.flow.first()) // Loads 6 items
+
+        // Ensure the second call wins when dispatched in reverse order of execution.
+        advanceUntilIdle()
+        assertEquals(6, differ.itemCount)
+    }
+
+    @Test
+    fun submitData_cancelsLastSuspendSubmit() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pager = Pager(
+                config = PagingConfig(2),
+                initialKey = 50
+            ) { TestPagingSource() }
+            val pager2 = Pager(
+                config = PagingConfig(2),
+                initialKey = 50
+            ) { TestPagingSource() }
+
+            val lifecycle = TestLifecycleOwner()
+            var jobSubmitted = false
+            val job = launch {
+                pager.flow.collectLatest {
+                    jobSubmitted = true
+                    differ.submitData(it)
+                }
+            }
+
+            advanceUntilIdle()
+
+            var job2Submitted = false
+            val job2 = launch {
+                pager2.flow.collectLatest {
+                    job2Submitted = true
+                    differ.submitData(lifecycle.lifecycle, it)
+                }
+            }
+
+            advanceUntilIdle()
+
+            assertTrue(jobSubmitted)
+            assertTrue(job2Submitted)
+
+            job.cancel()
+            job2.cancel()
+        }
+    }
+
+    @Test
+    fun submitData_doesNotCancelCollectionsCoroutine() = testScope.runBlockingTest {
+        lateinit var source1: TestPagingSource
+        lateinit var source2: TestPagingSource
+        val pager = Pager(
+            config = PagingConfig(
+                pageSize = 5, enablePlaceholders = false, prefetchDistance = 1,
+                initialLoadSize = 17
+            ),
+            initialKey = 50
+        ) {
+            TestPagingSource().also {
+                source1 = it
+            }
+        }
+        val pager2 = Pager(
+            config = PagingConfig(
+                pageSize = 7, enablePlaceholders = false, prefetchDistance = 1,
+                initialLoadSize = 19
+            ),
+            initialKey = 50
+        ) {
+            TestPagingSource().also {
+                source2 = it
+            }
+        }
+        val job1 = launch {
+            pager.flow.collectLatest(differ::submitData)
+        }
+        advanceUntilIdle()
+        assertEquals(17, differ.itemCount)
+        val job2 = launch {
+            pager2.flow.collectLatest(differ::submitData)
+        }
+        advanceUntilIdle()
+        assertEquals(26, differ.itemCount)
+
+        // now if pager1 gets an invalidation, it overrides pager2
+        source1.invalidate()
+        advanceUntilIdle()
+        assertEquals(22, differ.itemCount)
+
+        // now if we refresh via differ, it should go into source 1
+        differ.refresh()
+        advanceUntilIdle()
+        assertEquals(22, differ.itemCount)
+
+        // now manual set data that'll clear both
+        differ.submitData(PagingData.empty())
+        advanceUntilIdle()
+        assertEquals(0, differ.itemCount)
+
+        // if source2 has new value, we reconnect to that
+        source2.invalidate()
+        advanceUntilIdle()
+        assertEquals(19, differ.itemCount)
+
+        job1.cancelAndJoin()
+        job2.cancelAndJoin()
     }
 }

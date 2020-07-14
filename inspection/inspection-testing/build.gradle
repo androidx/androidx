@@ -56,3 +56,10 @@ tasks.withType(KotlinCompile).configureEach {
         freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
     }
 }
+
+android {
+    defaultConfig {
+        // studio pipeline works only starting with Android O
+        minSdkVersion 26
+    }
+}

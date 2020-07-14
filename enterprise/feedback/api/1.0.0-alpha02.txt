@@ -1,7 +1,7 @@
 // Signature format: 3.0
 package androidx.enterprise.feedback {
 
-  public abstract class KeyedAppState {
+  @com.google.auto.value.AutoValue public abstract class KeyedAppState {
     method public static androidx.enterprise.feedback.KeyedAppState.KeyedAppStateBuilder builder();
     method public abstract String? getData();
     method public abstract String getKey();
@@ -14,7 +14,7 @@ package androidx.enterprise.feedback {
     field public static final int SEVERITY_INFO = 1; // 0x1
   }
 
-  public abstract static class KeyedAppState.KeyedAppStateBuilder {
+  @com.google.auto.value.AutoValue.Builder public abstract static class KeyedAppState.KeyedAppStateBuilder {
     method public androidx.enterprise.feedback.KeyedAppState build();
     method public abstract androidx.enterprise.feedback.KeyedAppState.KeyedAppStateBuilder setData(String?);
     method public abstract androidx.enterprise.feedback.KeyedAppState.KeyedAppStateBuilder setKey(String);
@@ -33,7 +33,7 @@ package androidx.enterprise.feedback {
     method public abstract void onReceive(java.util.Collection<androidx.enterprise.feedback.ReceivedKeyedAppState!>, boolean);
   }
 
-  public abstract class ReceivedKeyedAppState {
+  @com.google.auto.value.AutoValue public abstract class ReceivedKeyedAppState {
     method public static androidx.enterprise.feedback.ReceivedKeyedAppState.ReceivedKeyedAppStateBuilder builder();
     method public abstract String? getData();
     method public abstract String getKey();
@@ -43,7 +43,7 @@ package androidx.enterprise.feedback {
     method public abstract long getTimestamp();
   }
 
-  public abstract static class ReceivedKeyedAppState.ReceivedKeyedAppStateBuilder {
+  @com.google.auto.value.AutoValue.Builder public abstract static class ReceivedKeyedAppState.ReceivedKeyedAppStateBuilder {
     method public abstract androidx.enterprise.feedback.ReceivedKeyedAppState build();
     method public abstract androidx.enterprise.feedback.ReceivedKeyedAppState.ReceivedKeyedAppStateBuilder setData(String?);
     method public abstract androidx.enterprise.feedback.ReceivedKeyedAppState.ReceivedKeyedAppStateBuilder setKey(String);

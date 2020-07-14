@@ -20,6 +20,7 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Modifier
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Interaction
@@ -27,7 +28,6 @@ import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.clickable
 import androidx.ui.foundation.currentTextStyle
-import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.draggable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
@@ -42,9 +42,9 @@ fun InteractionStateSample() {
     val interactionState = remember { InteractionState() }
 
     val draggable = Modifier.draggable(
-        dragDirection = DragDirection.Horizontal,
+        orientation = Orientation.Horizontal,
         interactionState = interactionState
-    ) { /* update some business state here */ 0f }
+    ) { /* update some business state here */ }
 
     // Use InteractionState to determine how this component should appear during transient UI states
     val (text, color) = when {

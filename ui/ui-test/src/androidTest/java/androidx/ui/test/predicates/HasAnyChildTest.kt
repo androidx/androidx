@@ -20,9 +20,9 @@ import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.find
-import androidx.ui.test.findAll
-import androidx.ui.test.hasAnyChildThat
+import androidx.ui.test.onNode
+import androidx.ui.test.onAllNodes
+import androidx.ui.test.hasAnyChild
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.util.BoundaryNode
 import org.junit.Rule
@@ -47,7 +47,7 @@ class HasAnyChildTest {
             }
         }
 
-        find(hasAnyChildThat(hasTestTag("Child")))
+        onNode(hasAnyChild(hasTestTag("Child")))
             .assert(hasTestTag("Parent"))
     }
 
@@ -69,11 +69,11 @@ class HasAnyChildTest {
             }
         }
 
-        findAll(hasAnyChildThat(hasTestTag("Child1")))
+        onAllNodes(hasAnyChild(hasTestTag("Child1")))
             .assertCountEquals(2)
-        findAll(hasAnyChildThat(hasTestTag("Child2")))
+        onAllNodes(hasAnyChild(hasTestTag("Child2")))
             .assertCountEquals(3)
-        findAll(hasAnyChildThat(hasTestTag("Child3")))
+        onAllNodes(hasAnyChild(hasTestTag("Child3")))
             .assertCountEquals(1)
     }
 
@@ -83,7 +83,7 @@ class HasAnyChildTest {
             BoundaryNode(testTag = "Child")
         }
 
-        find(hasAnyChildThat(hasTestTag("Child")))
+        onNode(hasAnyChild(hasTestTag("Child")))
             .assertExists() // The root node
     }
 
@@ -97,7 +97,7 @@ class HasAnyChildTest {
             }
         }
 
-        find(hasAnyChildThat(hasTestTag("Child"))
+        onNode(hasAnyChild(hasTestTag("Child"))
                 and hasTestTag("Parent"))
             .assertDoesNotExist()
     }
@@ -112,7 +112,7 @@ class HasAnyChildTest {
             }
         }
 
-        find(hasAnyChildThat(hasAnyChildThat(hasTestTag("Child"))))
+        onNode(hasAnyChild(hasAnyChild(hasTestTag("Child"))))
             .assert(hasTestTag("Parent"))
     }
 }

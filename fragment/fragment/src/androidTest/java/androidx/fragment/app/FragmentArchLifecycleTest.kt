@@ -16,6 +16,7 @@
 
 package androidx.fragment.app
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
@@ -45,14 +46,16 @@ class FragmentArchLifecycleTest {
             val second = Fragment()
             fm.beginTransaction().add(first, "first").commit()
             executePendingTransactions()
-            first.lifecycle.addObserver(object : LifecycleEventObserver {
-                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-                    if (event == Lifecycle.Event.ON_STOP) {
-                        fm.beginTransaction().add(second, "second").commitNow()
-                        first.lifecycle.removeObserver(this)
+            onActivity {
+                first.lifecycle.addObserver(object : LifecycleEventObserver {
+                    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                        if (event == Lifecycle.Event.ON_STOP) {
+                            fm.beginTransaction().add(second, "second").commitNow()
+                            first.lifecycle.removeObserver(this)
+                        }
                     }
-                }
-            })
+                })
+            }
             onActivity {
                 it.onSaveInstanceState(Bundle())
             }
@@ -72,14 +75,16 @@ class FragmentArchLifecycleTest {
             val second = StrictFragment()
             fm.beginTransaction().add(android.R.id.content, first).commit()
             executePendingTransactions()
-            first.viewLifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
-                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-                    if (event == Lifecycle.Event.ON_STOP) {
-                        fm.beginTransaction().add(second, "second").commitNow()
-                        first.viewLifecycleOwner.lifecycle.removeObserver(this)
+            onActivity {
+                first.viewLifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
+                    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                        if (event == Lifecycle.Event.ON_STOP) {
+                            fm.beginTransaction().add(second, "second").commitNow()
+                            first.viewLifecycleOwner.lifecycle.removeObserver(this)
+                        }
                     }
-                }
-            })
+                })
+            }
             onActivity {
                 it.onSaveInstanceState(Bundle())
             }
@@ -247,7 +252,7 @@ class FragmentArchLifecycleActivity : FragmentActivity(R.layout.activity_content
     }
 }
 
-class NestedLifecycleFragmentParent : StrictFragment() {
+class NestedLifecycleFragmentParent : StrictFragment(), FragmentOnAttachListener {
     private val archLifecycleActivity by lazy {
         requireActivity() as FragmentArchLifecycleActivity
     }
@@ -256,6 +261,11 @@ class NestedLifecycleFragmentParent : StrictFragment() {
         lifecycle.addObserver(LifecycleEventObserver { _, event ->
             archLifecycleActivity.collectedEvents.add("parent" to event)
         })
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        childFragmentManager.addFragmentOnAttachListener(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -267,8 +277,7 @@ class NestedLifecycleFragmentParent : StrictFragment() {
         }
     }
 
-    override fun onAttachFragment(childFragment: Fragment) {
-        super.onAttachFragment(childFragment)
+    override fun onAttachFragment(fragmentManager: FragmentManager, childFragment: Fragment) {
         childFragment.lifecycle.addObserver(LifecycleEventObserver { _, event ->
             archLifecycleActivity.collectedEvents.add("child" to event)
         })

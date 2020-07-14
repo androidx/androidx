@@ -17,6 +17,7 @@
 package androidx.ui.painting
 
 import androidx.ui.geometry.Offset
+import androidx.ui.geometry.lerp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.graphics.lerp
@@ -34,7 +35,7 @@ class ShadowTest {
         val shadow = Shadow()
         assertThat(shadow.color, equalTo(Color(0xFF000000)))
         assertThat(shadow.blurRadius, equalTo(0.0f))
-        assertThat(shadow.offset, equalTo(Offset.zero))
+        assertThat(shadow.offset, equalTo(Offset.Zero))
     }
 
     @Test
@@ -63,7 +64,7 @@ class ShadowTest {
 
         val shadow = lerp(shadowA, shadowB, t)
         assertThat(shadow.color, equalTo(lerp(colorA, colorB, t)))
-        assertThat(shadow.offset, equalTo(Offset.lerp(offsetA, offsetB, t)))
+        assertThat(shadow.offset, equalTo(lerp(offsetA, offsetB, t)))
         assertThat(shadow.blurRadius, equalTo(lerp(radiusA, radiusB, t)))
     }
 }

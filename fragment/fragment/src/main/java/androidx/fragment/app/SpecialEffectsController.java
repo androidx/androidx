@@ -84,6 +84,7 @@ abstract class SpecialEffectsController {
     final HashMap<Fragment, Operation> mAwaitingCompletionOperations = new HashMap<>();
 
     boolean mOperationDirectionIsPop = false;
+    boolean mIsContainerPostponed = false;
 
     SpecialEffectsController(@NonNull ViewGroup container) {
         mContainer = container;
@@ -119,6 +120,16 @@ abstract class SpecialEffectsController {
     void enqueueAdd(@NonNull FragmentStateManager fragmentStateManager,
             @NonNull CancellationSignal cancellationSignal) {
         enqueue(Operation.Type.ADD, fragmentStateManager, cancellationSignal);
+    }
+
+    void enqueueShow(@NonNull FragmentStateManager fragmentStateManager,
+            @NonNull CancellationSignal cancellationSignal) {
+        enqueue(Operation.Type.SHOW, fragmentStateManager, cancellationSignal);
+    }
+
+    void enqueueHide(@NonNull FragmentStateManager fragmentStateManager,
+            @NonNull CancellationSignal cancellationSignal) {
+        enqueue(Operation.Type.HIDE, fragmentStateManager, cancellationSignal);
     }
 
     void enqueueRemove(@NonNull FragmentStateManager fragmentStateManager,
@@ -165,7 +176,37 @@ abstract class SpecialEffectsController {
         mOperationDirectionIsPop = isPop;
     }
 
+    void markPostponedState() {
+        synchronized (mPendingOperations) {
+            // Default to not postponed
+            mIsContainerPostponed = false;
+            for (int index = mPendingOperations.size() - 1; index >= 0; index--) {
+                Operation operation = mPendingOperations.get(index);
+                // Only consider operations with entering transitions
+                if (operation.getType() == Operation.Type.ADD
+                        || operation.getType() == Operation.Type.SHOW) {
+                    Fragment fragment = operation.getFragment();
+                    // The container is considered postponed if the Fragment
+                    // associated with the last entering Operation is postponed
+                    mIsContainerPostponed = fragment.isPostponed();
+                    break;
+                }
+            }
+        }
+    }
+
+    void forcePostponedExecutePendingOperations() {
+        if (mIsContainerPostponed) {
+            mIsContainerPostponed = false;
+            executePendingOperations();
+        }
+    }
+
     void executePendingOperations() {
+        if (mIsContainerPostponed) {
+            // No operations should execute while the container is postponed
+            return;
+        }
         synchronized (mPendingOperations) {
             executeOperations(new ArrayList<>(mPendingOperations), mOperationDirectionIsPop);
             mPendingOperations.clear();
@@ -221,11 +262,23 @@ abstract class SpecialEffectsController {
              */
             ADD,
             /**
-             * A REMOVE operation indicates that the Fragment should be removed to the
+             * A REMOVE operation indicates that the Fragment should be removed from the
              * {@link Operation#getContainer() container} and any "exit" special effects
              * should be run before calling {@link #complete()}.
              */
-            REMOVE
+            REMOVE,
+            /**
+             * An SHOW operation indicates that the Fragment should be made visible in the
+             * {@link Operation#getContainer() container} and any "enter" special effects
+             * should be run before calling {@link #complete()}.
+             */
+            SHOW,
+            /**
+             * A HIDE operation indicates that the Fragment should be hidden from the
+             * {@link Operation#getContainer() container} and any "exit" special effects
+             * should be run before calling {@link #complete()}.
+             */
+            HIDE
         }
 
         @NonNull

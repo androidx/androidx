@@ -1,2 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="androidx.enterprise.feedback" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.enterprise.feedback">
+    <queries>
+        <intent>
+            <action android:name="androidx.enterprise.feedback.action.APP_STATES" />
+        </intent>
+    </queries>
+</manifest>

@@ -19,9 +19,9 @@ package androidx.ui.test.selectors
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
-import androidx.ui.test.sibling
+import androidx.ui.test.onSibling
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
 import org.junit.Rule
@@ -45,8 +45,8 @@ class SiblingSelectorTest {
             }
         }
 
-        findByTag("Child1")
-            .sibling()
+        onNodeWithTag("Child1")
+            .onSibling()
             .assert(hasTestTag("Child2"))
     }
 
@@ -67,8 +67,8 @@ class SiblingSelectorTest {
                 "Nodes found:"
 
         ) {
-            findByTag("Child1")
-                .sibling()
+            onNodeWithTag("Child1")
+                .onSibling()
                 .assert(hasTestTag("Child2"))
         }
     }
@@ -81,8 +81,8 @@ class SiblingSelectorTest {
             }
         }
 
-        findByTag("Child")
-            .sibling()
+        onNodeWithTag("Child")
+            .onSibling()
             .assertDoesNotExist()
     }
 
@@ -94,8 +94,8 @@ class SiblingSelectorTest {
             }
         }
 
-        findByTag("Child")
-            .sibling()
+        onNodeWithTag("Child")
+            .onSibling()
             .assertExists()
     }
 }

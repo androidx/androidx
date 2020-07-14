@@ -170,6 +170,18 @@ public class TemplateView extends SliceChildView implements
     public void setStyle(SliceStyle style) {
         super.setStyle(style);
         mAdapter.setStyle(style);
+        applyRowStyle();
+    }
+
+    private void applyRowStyle() {
+        if (mSliceStyle == null || mSliceStyle.getRowStyle() == null) {
+            return;
+        }
+
+        final RowStyle rowStyle = mSliceStyle.getRowStyle();
+        if (rowStyle.getDisableRecyclerViewItemAnimator()) {
+            mRecyclerView.setItemAnimator(null);
+        }
     }
 
     @Override

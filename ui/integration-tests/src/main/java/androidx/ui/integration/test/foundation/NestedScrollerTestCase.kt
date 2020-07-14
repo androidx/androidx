@@ -23,11 +23,12 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.HorizontalScroller
-import androidx.ui.foundation.ScrollerPosition
+import androidx.ui.foundation.ScrollState
+import androidx.ui.foundation.ScrollableColumn
+import androidx.ui.foundation.ScrollableRow
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.rememberScrollState
 import androidx.ui.graphics.Color
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Column
@@ -39,7 +40,6 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.unit.px
 import kotlin.random.Random
 
 /**
@@ -47,14 +47,14 @@ import kotlin.random.Random
  */
 class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
     // ScrollerPosition must now be constructed during composition to obtain the Density
-    private lateinit var scrollerPosition: ScrollerPosition
+    private lateinit var scrollState: ScrollState
 
     @Composable
     override fun emitContent() {
-        scrollerPosition = ScrollerPosition()
+        scrollState = rememberScrollState()
         MaterialTheme {
             Surface {
-                VerticalScroller {
+                ScrollableColumn {
                     repeat(5) { index ->
                         // key is needed because of b/154920561
                         key(index) {
@@ -67,7 +67,7 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
     }
 
     override fun toggleState() {
-        scrollerPosition.scrollTo(if (scrollerPosition.value == 0f) 10f else 0f)
+        scrollState.scrollTo(if (scrollState.value == 0f) 10f else 0f)
     }
 
     @Composable
@@ -83,22 +83,22 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                             val blue = Random.nextInt(256)
                             Color(red = red, green = green, blue = blue)
                         }
-                        Box(Modifier.preferredSize(350.px.toDp()).drawBackground(color))
+                        Box(Modifier.preferredSize(350f.toDp()).drawBackground(color))
                         Text(
                             text = "Some title",
                             color = Color.Black,
-                            fontSize = 60.px.toSp()
+                            fontSize = 60f.toSp()
                         )
                         Row(Modifier.fillMaxWidth()) {
                             Text(
                                 "3.5 ★",
-                                fontSize = 40.px.toSp(),
+                                fontSize = 40.toSp(),
                                 modifier = Modifier.gravity(Alignment.CenterVertically)
                             )
                             Box(
                                 Modifier
                                     .gravity(Alignment.CenterVertically)
-                                    .preferredSize(40.px.toDp())
+                                    .preferredSize(40f.toDp())
                                     .drawBackground(playStoreColor)
                             )
                         }
@@ -107,9 +107,9 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
             }
         }
         if (useScrollerPosition) {
-            HorizontalScroller(scrollerPosition = scrollerPosition, children = content)
+            ScrollableRow(scrollState = scrollState, children = content)
         } else {
-            HorizontalScroller(children = content)
+            ScrollableRow(children = content)
         }
     }
 }

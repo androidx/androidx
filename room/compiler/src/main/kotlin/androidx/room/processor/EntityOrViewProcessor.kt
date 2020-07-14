@@ -19,11 +19,11 @@ package androidx.room.processor
 import androidx.room.DatabaseView
 import androidx.room.Entity
 import androidx.room.ext.hasAnnotation
+import androidx.room.ext.type
 import androidx.room.ext.typeName
 import androidx.room.vo.EntityOrView
 import androidx.room.vo.Fields
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 
 interface EntityOrViewProcessor {
@@ -37,7 +37,7 @@ interface EntityOrViewProcessor {
 private class NonEntityOrViewProcessor(
     val context: Context,
     val element: TypeElement,
-    private val referenceStack: LinkedHashSet<Name>
+    private val referenceStack: LinkedHashSet<String>
 ) : EntityOrViewProcessor {
 
     override fun process(): EntityOrView {
@@ -54,7 +54,7 @@ private class NonEntityOrViewProcessor(
             override val tableName: String
                 get() = typeName.toString()
             override val typeName: TypeName
-                get() = element.asType().typeName()
+                get() = element.type.typeName()
         }
     }
 }
@@ -63,7 +63,7 @@ private class NonEntityOrViewProcessor(
 fun EntityOrViewProcessor(
     context: Context,
     element: TypeElement,
-    referenceStack: LinkedHashSet<Name> = LinkedHashSet()
+    referenceStack: LinkedHashSet<String> = LinkedHashSet()
 ): EntityOrViewProcessor {
     return when {
         element.hasAnnotation(Entity::class) ->

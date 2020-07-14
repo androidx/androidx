@@ -27,6 +27,9 @@ plugins {
 }
 
 android {
+    buildFeatures {
+        aidl = true
+    }
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
@@ -34,10 +37,10 @@ android {
 
 dependencies {
     api(project(":room:room-common"))
-    api(project(":sqlite:sqlite-framework"))
-    api(project(":sqlite:sqlite"))
+    api("androidx.sqlite:sqlite-framework:2.1.0")
+    api("androidx.sqlite:sqlite:2.1.0")
     implementation("androidx.arch.core:core-runtime:2.0.1")
-    compileOnly(project(":paging:paging-common"))
+    compileOnly(projectOrArtifact(":paging:paging-common"))
     compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
 
     testImplementation("androidx.arch.core:core-testing:2.0.1")

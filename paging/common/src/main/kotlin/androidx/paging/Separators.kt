@@ -28,8 +28,8 @@ import kotlinx.coroutines.flow.map
  *
  * Separators between pages are handled outside of the page, see `Flow<PageEvent>.insertSeparators`.
  */
-internal fun <R : Any, T : R> TransformablePage<T>.insertInternalSeparators(
-    generator: (T?, T?) -> R?
+internal suspend fun <R : Any, T : R> TransformablePage<T>.insertInternalSeparators(
+    generator: suspend (T?, T?) -> R?
 ): TransformablePage<R> {
     if (data.isEmpty()) {
         @Suppress("UNCHECKED_CAST")
@@ -183,7 +183,7 @@ internal fun <T : Any> MutableList<DataPage<T>?>.dropPagesEnd(count: Int): Int =
     dropPages(count) { it.lastIndex }
 
 private class SeparatorState<R : Any, T : R>(
-    val generator: (T?, T?) -> R?
+    val generator: suspend (T?, T?) -> R?
 ) {
     /**
      * Lookup table of previously emitted pages.
@@ -204,7 +204,7 @@ private class SeparatorState<R : Any, T : R>(
     var startTerminalSeparatorDeferred = false
 
     @Suppress("UNCHECKED_CAST")
-    fun onEvent(event: PageEvent<T>): PageEvent<R> = when (event) {
+    suspend fun onEvent(event: PageEvent<T>): PageEvent<R> = when (event) {
         is Insert<T> -> onInsert(event)
         is Drop -> onDrop(event) as Drop<R>
         is PageEvent.LoadStateUpdate -> event as PageEvent<R>
@@ -223,23 +223,41 @@ private class SeparatorState<R : Any, T : R>(
         return this as Insert<R>
     }
 
-    internal fun <T : Any> Insert<T>.terminatesStart(): Boolean =
-        if (loadType == APPEND) {
-            startTerminalSeparatorDeferred
-        } else {
-            loadStates[PREPEND]?.endOfPaginationReached == true
-        }
+    fun CombinedLoadStates.terminatesStart(): Boolean {
+        val endState = prepend
+        return endState is LoadState.NotLoading && endState.endOfPaginationReached
+    }
+
+    fun CombinedLoadStates.terminatesEnd(): Boolean {
+        val endState = append
+        return endState is LoadState.NotLoading && endState.endOfPaginationReached
+    }
+
+    internal fun <T : Any> Insert<T>.terminatesStart(): Boolean = if (loadType == APPEND) {
+        startTerminalSeparatorDeferred
+    } else {
+        combinedLoadStates.terminatesStart()
+    }
 
     internal fun <T : Any> Insert<T>.terminatesEnd(): Boolean = if (loadType == PREPEND) {
         endTerminalSeparatorDeferred
     } else {
-        loadStates[APPEND]?.endOfPaginationReached == true
+        combinedLoadStates.terminatesEnd()
     }
 
-    fun onInsert(event: Insert<T>): Insert<R> {
+    suspend fun onInsert(event: Insert<T>): Insert<R> {
         val eventTerminatesStart = event.terminatesStart()
         val eventTerminatesEnd = event.terminatesEnd()
         val eventEmpty = event.pages.isEmpty()
+
+        if (pageStash.isNotEmpty()) {
+            require(pageStash.first() != null || event.loadType != PREPEND) {
+                "Additional prepend event after prepend state is done"
+            }
+            require(pageStash.last() != null || event.loadType != APPEND) {
+                "Additional append event after append state is done"
+            }
+        }
 
         if (eventEmpty) {
             if (eventTerminatesStart && eventTerminatesEnd) {
@@ -363,8 +381,8 @@ private class SeparatorState<R : Any, T : R>(
  * with PagingData.insertSeparators, which is public
  */
 internal fun <T : R, R : Any> Flow<PageEvent<T>>.insertEventSeparators(
-    generator: (T?, T?) -> R?
+    generator: suspend (T?, T?) -> R?
 ): Flow<PageEvent<R>> {
-    val separatorState = SeparatorState(generator)
+    val separatorState = SeparatorState { before: T?, after: T? -> generator(before, after) }
     return removeEmptyPages().map { separatorState.onEvent(it) }
 }

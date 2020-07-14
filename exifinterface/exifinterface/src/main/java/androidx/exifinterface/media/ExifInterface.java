@@ -2235,249 +2235,249 @@ public class ExifInterface {
             ORIENTATION_TRANSPOSE);
 
     /**
-     * The contant used by {@link #TAG_PLANAR_CONFIGURATION} to denote Chunky format.
+     * The constant used by {@link #TAG_PLANAR_CONFIGURATION} to denote Chunky format.
      */
     public static final short FORMAT_CHUNKY = 1;
     /**
-     * The contant used by {@link #TAG_PLANAR_CONFIGURATION} to denote Planar format.
+     * The constant used by {@link #TAG_PLANAR_CONFIGURATION} to denote Planar format.
      */
     public static final short FORMAT_PLANAR = 2;
 
     /**
-     * The contant used by {@link #TAG_Y_CB_CR_POSITIONING} to denote Centered positioning.
+     * The constant used by {@link #TAG_Y_CB_CR_POSITIONING} to denote Centered positioning.
      */
     public static final short Y_CB_CR_POSITIONING_CENTERED = 1;
     /**
-     * The contant used by {@link #TAG_Y_CB_CR_POSITIONING} to denote Co-sited positioning.
+     * The constant used by {@link #TAG_Y_CB_CR_POSITIONING} to denote Co-sited positioning.
      */
     public static final short Y_CB_CR_POSITIONING_CO_SITED = 2;
 
     /**
-     * The contant used to denote resolution unit as inches.
+     * The constant used to denote resolution unit as inches.
      */
     public static final short RESOLUTION_UNIT_INCHES = 2;
     /**
-     * The contant used to denote resolution unit as centimeters.
+     * The constant used to denote resolution unit as centimeters.
      */
     public static final short RESOLUTION_UNIT_CENTIMETERS = 3;
 
     /**
-     * The contant used by {@link #TAG_COLOR_SPACE} to denote sRGB color space.
+     * The constant used by {@link #TAG_COLOR_SPACE} to denote sRGB color space.
      */
     public static final int COLOR_SPACE_S_RGB = 1;
     /**
-     * The contant used by {@link #TAG_COLOR_SPACE} to denote Uncalibrated.
+     * The constant used by {@link #TAG_COLOR_SPACE} to denote Uncalibrated.
      */
     public static final int COLOR_SPACE_UNCALIBRATED = 65535;
 
     /**
-     * The contant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is not defined.
+     * The constant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is not defined.
      */
     public static final short EXPOSURE_PROGRAM_NOT_DEFINED = 0;
     /**
-     * The contant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is Manual.
+     * The constant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is Manual.
      */
     public static final short EXPOSURE_PROGRAM_MANUAL = 1;
     /**
-     * The contant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is Normal.
+     * The constant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is Normal.
      */
     public static final short EXPOSURE_PROGRAM_NORMAL = 2;
     /**
-     * The contant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is
+     * The constant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is
      * Aperture priority.
      */
     public static final short EXPOSURE_PROGRAM_APERTURE_PRIORITY = 3;
     /**
-     * The contant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is
+     * The constant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is
      * Shutter priority.
      */
     public static final short EXPOSURE_PROGRAM_SHUTTER_PRIORITY = 4;
     /**
-     * The contant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is Creative
+     * The constant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is Creative
      * program (biased toward depth of field).
      */
     public static final short EXPOSURE_PROGRAM_CREATIVE = 5;
     /**
-     * The contant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is Action
+     * The constant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is Action
      * program (biased toward fast shutter speed).
      */
     public static final short EXPOSURE_PROGRAM_ACTION = 6;
     /**
-     * The contant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is Portrait mode
-     * (for closeup photos with the background out of focus).
+     * The constant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is Portrait
+     * mode (for closeup photos with the background out of focus).
      */
     public static final short EXPOSURE_PROGRAM_PORTRAIT_MODE = 7;
     /**
-     * The contant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is Landscape
+     * The constant used by {@link #TAG_EXPOSURE_PROGRAM} to denote exposure program is Landscape
      * mode (for landscape photos with the background in focus).
      */
     public static final short EXPOSURE_PROGRAM_LANDSCAPE_MODE = 8;
 
     /**
-     * The contant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is unknown.
+     * The constant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is unknown.
      */
     public static final short SENSITIVITY_TYPE_UNKNOWN = 0;
     /**
-     * The contant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is Standard
+     * The constant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is Standard
      * output sensitivity (SOS).
      */
     public static final short SENSITIVITY_TYPE_SOS = 1;
     /**
-     * The contant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is Recommended
+     * The constant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is Recommended
      * exposure index (REI).
      */
     public static final short SENSITIVITY_TYPE_REI = 2;
     /**
-     * The contant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is ISO speed.
+     * The constant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is ISO speed.
      */
     public static final short SENSITIVITY_TYPE_ISO_SPEED = 3;
     /**
-     * The contant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is Standard
+     * The constant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is Standard
      * output sensitivity (SOS) and recommended exposure index (REI).
      */
     public static final short SENSITIVITY_TYPE_SOS_AND_REI = 4;
     /**
-     * The contant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is Standard
+     * The constant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is Standard
      * output sensitivity (SOS) and ISO speed.
      */
     public static final short SENSITIVITY_TYPE_SOS_AND_ISO = 5;
     /**
-     * The contant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is Recommended
+     * The constant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is Recommended
      * exposure index (REI) and ISO speed.
      */
     public static final short SENSITIVITY_TYPE_REI_AND_ISO = 6;
     /**
-     * The contant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is Standard
+     * The constant used by {@link #TAG_SENSITIVITY_TYPE} to denote sensitivity type is Standard
      * output sensitivity (SOS) and recommended exposure index (REI) and ISO speed.
      */
     public static final short SENSITIVITY_TYPE_SOS_AND_REI_AND_ISO = 7;
 
     /**
-     * The contant used by {@link #TAG_METERING_MODE} to denote metering mode is unknown.
+     * The constant used by {@link #TAG_METERING_MODE} to denote metering mode is unknown.
      */
     public static final short METERING_MODE_UNKNOWN = 0;
     /**
-     * The contant used by {@link #TAG_METERING_MODE} to denote metering mode is Average.
+     * The constant used by {@link #TAG_METERING_MODE} to denote metering mode is Average.
      */
     public static final short METERING_MODE_AVERAGE = 1;
     /**
-     * The contant used by {@link #TAG_METERING_MODE} to denote metering mode is
+     * The constant used by {@link #TAG_METERING_MODE} to denote metering mode is
      * CenterWeightedAverage.
      */
     public static final short METERING_MODE_CENTER_WEIGHT_AVERAGE = 2;
     /**
-     * The contant used by {@link #TAG_METERING_MODE} to denote metering mode is Spot.
+     * The constant used by {@link #TAG_METERING_MODE} to denote metering mode is Spot.
      */
     public static final short METERING_MODE_SPOT = 3;
     /**
-     * The contant used by {@link #TAG_METERING_MODE} to denote metering mode is MultiSpot.
+     * The constant used by {@link #TAG_METERING_MODE} to denote metering mode is MultiSpot.
      */
     public static final short METERING_MODE_MULTI_SPOT = 4;
     /**
-     * The contant used by {@link #TAG_METERING_MODE} to denote metering mode is Pattern.
+     * The constant used by {@link #TAG_METERING_MODE} to denote metering mode is Pattern.
      */
     public static final short METERING_MODE_PATTERN = 5;
     /**
-     * The contant used by {@link #TAG_METERING_MODE} to denote metering mode is Partial.
+     * The constant used by {@link #TAG_METERING_MODE} to denote metering mode is Partial.
      */
     public static final short METERING_MODE_PARTIAL = 6;
     /**
-     * The contant used by {@link #TAG_METERING_MODE} to denote metering mode is other.
+     * The constant used by {@link #TAG_METERING_MODE} to denote metering mode is other.
      */
     public static final short METERING_MODE_OTHER = 255;
 
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is unknown.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is unknown.
      */
     public static final short LIGHT_SOURCE_UNKNOWN = 0;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Daylight.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Daylight.
      */
     public static final short LIGHT_SOURCE_DAYLIGHT = 1;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Fluorescent.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Fluorescent.
      */
     public static final short LIGHT_SOURCE_FLUORESCENT = 2;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Tungsten
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Tungsten
      * (incandescent light).
      */
     public static final short LIGHT_SOURCE_TUNGSTEN = 3;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Flash.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Flash.
      */
     public static final short LIGHT_SOURCE_FLASH = 4;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Fine weather.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Fine weather.
      */
     public static final short LIGHT_SOURCE_FINE_WEATHER = 9;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Cloudy weather.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Cloudy weather.
      */
     public static final short LIGHT_SOURCE_CLOUDY_WEATHER = 10;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Shade.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Shade.
      */
     public static final short LIGHT_SOURCE_SHADE = 11;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Daylight fluorescent
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Daylight fluorescent
      * (D 5700 - 7100K).
      */
     public static final short LIGHT_SOURCE_DAYLIGHT_FLUORESCENT = 12;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Day white fluorescent
-     * (N 4600 - 5500K).
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Day white
+     * fluorescent (N 4600 - 5500K).
      */
     public static final short LIGHT_SOURCE_DAY_WHITE_FLUORESCENT = 13;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Cool white
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Cool white
      * fluorescent (W 3800 - 4500K).
      */
     public static final short LIGHT_SOURCE_COOL_WHITE_FLUORESCENT = 14;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is White fluorescent
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is White fluorescent
      * (WW 3250 - 3800K).
      */
     public static final short LIGHT_SOURCE_WHITE_FLUORESCENT = 15;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Warm white
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Warm white
      * fluorescent (L 2600 - 3250K).
      */
     public static final short LIGHT_SOURCE_WARM_WHITE_FLUORESCENT = 16;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Standard light A.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Standard light A.
      */
     public static final short LIGHT_SOURCE_STANDARD_LIGHT_A = 17;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Standard light B.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Standard light B.
      */
     public static final short LIGHT_SOURCE_STANDARD_LIGHT_B = 18;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Standard light C.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is Standard light C.
      */
     public static final short LIGHT_SOURCE_STANDARD_LIGHT_C = 19;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is D55.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is D55.
      */
     public static final short LIGHT_SOURCE_D55 = 20;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is D65.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is D65.
      */
     public static final short LIGHT_SOURCE_D65 = 21;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is D75.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is D75.
      */
     public static final short LIGHT_SOURCE_D75 = 22;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is D50.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is D50.
      */
     public static final short LIGHT_SOURCE_D50 = 23;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is ISO studio tungsten.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is ISO studio tungsten.
      */
     public static final short LIGHT_SOURCE_ISO_STUDIO_TUNGSTEN = 24;
     /**
-     * The contant used by {@link #TAG_LIGHT_SOURCE} to denote light source is other.
+     * The constant used by {@link #TAG_LIGHT_SOURCE} to denote light source is other.
      */
     public static final short LIGHT_SOURCE_OTHER = 255;
 
@@ -2526,218 +2526,218 @@ public class ExifInterface {
     public static final short FLAG_FLASH_RED_EYE_SUPPORTED = 0b0100_0000;
 
     /**
-     * The contant used by {@link #TAG_SENSING_METHOD} to denote the image sensor type is not
+     * The constant used by {@link #TAG_SENSING_METHOD} to denote the image sensor type is not
      * defined.
      */
     public static final short SENSOR_TYPE_NOT_DEFINED = 1;
     /**
-     * The contant used by {@link #TAG_SENSING_METHOD} to denote the image sensor type is One-chip
+     * The constant used by {@link #TAG_SENSING_METHOD} to denote the image sensor type is One-chip
      * color area sensor.
      */
     public static final short SENSOR_TYPE_ONE_CHIP = 2;
     /**
-     * The contant used by {@link #TAG_SENSING_METHOD} to denote the image sensor type is Two-chip
+     * The constant used by {@link #TAG_SENSING_METHOD} to denote the image sensor type is Two-chip
      * color area sensor.
      */
     public static final short SENSOR_TYPE_TWO_CHIP = 3;
     /**
-     * The contant used by {@link #TAG_SENSING_METHOD} to denote the image sensor type is Three-chip
-     * color area sensor.
+     * The constant used by {@link #TAG_SENSING_METHOD} to denote the image sensor type is
+     * Three-chip color area sensor.
      */
     public static final short SENSOR_TYPE_THREE_CHIP = 4;
     /**
-     * The contant used by {@link #TAG_SENSING_METHOD} to denote the image sensor type is Color
+     * The constant used by {@link #TAG_SENSING_METHOD} to denote the image sensor type is Color
      * sequential area sensor.
      */
     public static final short SENSOR_TYPE_COLOR_SEQUENTIAL = 5;
     /**
-     * The contant used by {@link #TAG_SENSING_METHOD} to denote the image sensor type is Trilinear
+     * The constant used by {@link #TAG_SENSING_METHOD} to denote the image sensor type is Trilinear
      * sensor.
      */
     public static final short SENSOR_TYPE_TRILINEAR = 7;
     /**
-     * The contant used by {@link #TAG_SENSING_METHOD} to denote the image sensor type is Color
+     * The constant used by {@link #TAG_SENSING_METHOD} to denote the image sensor type is Color
      * sequential linear sensor.
      */
     public static final short SENSOR_TYPE_COLOR_SEQUENTIAL_LINEAR = 8;
 
     /**
-     * The contant used by {@link #TAG_FILE_SOURCE} to denote the source is other.
+     * The constant used by {@link #TAG_FILE_SOURCE} to denote the source is other.
      */
     public static final short FILE_SOURCE_OTHER = 0;
     /**
-     * The contant used by {@link #TAG_FILE_SOURCE} to denote the source is scanner of transparent
+     * The constant used by {@link #TAG_FILE_SOURCE} to denote the source is scanner of transparent
      * type.
      */
     public static final short FILE_SOURCE_TRANSPARENT_SCANNER = 1;
     /**
-     * The contant used by {@link #TAG_FILE_SOURCE} to denote the source is scanner of reflex type.
+     * The constant used by {@link #TAG_FILE_SOURCE} to denote the source is scanner of reflex type.
      */
     public static final short FILE_SOURCE_REFLEX_SCANNER = 2;
     /**
-     * The contant used by {@link #TAG_FILE_SOURCE} to denote the source is DSC.
+     * The constant used by {@link #TAG_FILE_SOURCE} to denote the source is DSC.
      */
     public static final short FILE_SOURCE_DSC = 3;
 
     /**
-     * The contant used by {@link #TAG_SCENE_TYPE} to denote the scene is directly photographed.
+     * The constant used by {@link #TAG_SCENE_TYPE} to denote the scene is directly photographed.
      */
     public static final short SCENE_TYPE_DIRECTLY_PHOTOGRAPHED = 1;
 
     /**
-     * The contant used by {@link #TAG_CUSTOM_RENDERED} to denote no special processing is used.
+     * The constant used by {@link #TAG_CUSTOM_RENDERED} to denote no special processing is used.
      */
     public static final short RENDERED_PROCESS_NORMAL = 0;
     /**
-     * The contant used by {@link #TAG_CUSTOM_RENDERED} to denote special processing is used.
+     * The constant used by {@link #TAG_CUSTOM_RENDERED} to denote special processing is used.
      */
     public static final short RENDERED_PROCESS_CUSTOM = 1;
 
     /**
-     * The contant used by {@link #TAG_EXPOSURE_MODE} to denote the exposure mode is Auto.
+     * The constant used by {@link #TAG_EXPOSURE_MODE} to denote the exposure mode is Auto.
      */
     public static final short EXPOSURE_MODE_AUTO = 0;
     /**
-     * The contant used by {@link #TAG_EXPOSURE_MODE} to denote the exposure mode is Manual.
+     * The constant used by {@link #TAG_EXPOSURE_MODE} to denote the exposure mode is Manual.
      */
     public static final short EXPOSURE_MODE_MANUAL = 1;
     /**
-     * The contant used by {@link #TAG_EXPOSURE_MODE} to denote the exposure mode is Auto bracket.
+     * The constant used by {@link #TAG_EXPOSURE_MODE} to denote the exposure mode is Auto bracket.
      */
     public static final short EXPOSURE_MODE_AUTO_BRACKET = 2;
 
     /**
-     * The contant used by {@link #TAG_WHITE_BALANCE} to denote the white balance is Auto.
+     * The constant used by {@link #TAG_WHITE_BALANCE} to denote the white balance is Auto.
      *
      * @deprecated Use {@link #WHITE_BALANCE_AUTO} instead.
      */
     @Deprecated public static final int WHITEBALANCE_AUTO = 0;
     /**
-     * The contant used by {@link #TAG_WHITE_BALANCE} to denote the white balance is Manual.
+     * The constant used by {@link #TAG_WHITE_BALANCE} to denote the white balance is Manual.
      *
      * @deprecated Use {@link #WHITE_BALANCE_MANUAL} instead.
      */
     @Deprecated public static final int WHITEBALANCE_MANUAL = 1;
     /**
-     * The contant used by {@link #TAG_WHITE_BALANCE} to denote the white balance is Auto.
+     * The constant used by {@link #TAG_WHITE_BALANCE} to denote the white balance is Auto.
      */
     public static final short WHITE_BALANCE_AUTO = 0;
     /**
-     * The contant used by {@link #TAG_WHITE_BALANCE} to denote the white balance is Manual.
+     * The constant used by {@link #TAG_WHITE_BALANCE} to denote the white balance is Manual.
      */
     public static final short WHITE_BALANCE_MANUAL = 1;
 
     /**
-     * The contant used by {@link #TAG_SCENE_CAPTURE_TYPE} to denote the scene capture type is
+     * The constant used by {@link #TAG_SCENE_CAPTURE_TYPE} to denote the scene capture type is
      * Standard.
      */
     public static final short SCENE_CAPTURE_TYPE_STANDARD = 0;
     /**
-     * The contant used by {@link #TAG_SCENE_CAPTURE_TYPE} to denote the scene capture type is
+     * The constant used by {@link #TAG_SCENE_CAPTURE_TYPE} to denote the scene capture type is
      * Landscape.
      */
     public static final short SCENE_CAPTURE_TYPE_LANDSCAPE = 1;
     /**
-     * The contant used by {@link #TAG_SCENE_CAPTURE_TYPE} to denote the scene capture type is
+     * The constant used by {@link #TAG_SCENE_CAPTURE_TYPE} to denote the scene capture type is
      * Portrait.
      */
     public static final short SCENE_CAPTURE_TYPE_PORTRAIT = 2;
     /**
-     * The contant used by {@link #TAG_SCENE_CAPTURE_TYPE} to denote the scene capture type is Night
-     * scene.
+     * The constant used by {@link #TAG_SCENE_CAPTURE_TYPE} to denote the scene capture type is
+     * Night scene.
      */
     public static final short SCENE_CAPTURE_TYPE_NIGHT = 3;
 
     /**
-     * The contant used by {@link #TAG_GAIN_CONTROL} to denote none gain adjustment.
+     * The constant used by {@link #TAG_GAIN_CONTROL} to denote none gain adjustment.
      */
     public static final short GAIN_CONTROL_NONE = 0;
     /**
-     * The contant used by {@link #TAG_GAIN_CONTROL} to denote low gain up.
+     * The constant used by {@link #TAG_GAIN_CONTROL} to denote low gain up.
      */
     public static final short GAIN_CONTROL_LOW_GAIN_UP = 1;
     /**
-     * The contant used by {@link #TAG_GAIN_CONTROL} to denote high gain up.
+     * The constant used by {@link #TAG_GAIN_CONTROL} to denote high gain up.
      */
     public static final short GAIN_CONTROL_HIGH_GAIN_UP = 2;
     /**
-     * The contant used by {@link #TAG_GAIN_CONTROL} to denote low gain down.
+     * The constant used by {@link #TAG_GAIN_CONTROL} to denote low gain down.
      */
     public static final short GAIN_CONTROL_LOW_GAIN_DOWN = 3;
     /**
-     * The contant used by {@link #TAG_GAIN_CONTROL} to denote high gain down.
+     * The constant used by {@link #TAG_GAIN_CONTROL} to denote high gain down.
      */
     public static final short GAIN_CONTROL_HIGH_GAIN_DOWN = 4;
 
     /**
-     * The contant used by {@link #TAG_CONTRAST} to denote normal contrast.
+     * The constant used by {@link #TAG_CONTRAST} to denote normal contrast.
      */
     public static final short CONTRAST_NORMAL = 0;
     /**
-     * The contant used by {@link #TAG_CONTRAST} to denote soft contrast.
+     * The constant used by {@link #TAG_CONTRAST} to denote soft contrast.
      */
     public static final short CONTRAST_SOFT = 1;
     /**
-     * The contant used by {@link #TAG_CONTRAST} to denote hard contrast.
+     * The constant used by {@link #TAG_CONTRAST} to denote hard contrast.
      */
     public static final short CONTRAST_HARD = 2;
 
     /**
-     * The contant used by {@link #TAG_SATURATION} to denote normal saturation.
+     * The constant used by {@link #TAG_SATURATION} to denote normal saturation.
      */
     public static final short SATURATION_NORMAL = 0;
     /**
-     * The contant used by {@link #TAG_SATURATION} to denote low saturation.
+     * The constant used by {@link #TAG_SATURATION} to denote low saturation.
      */
     public static final short SATURATION_LOW = 0;
     /**
-     * The contant used by {@link #TAG_SHARPNESS} to denote high saturation.
+     * The constant used by {@link #TAG_SHARPNESS} to denote high saturation.
      */
     public static final short SATURATION_HIGH = 0;
 
     /**
-     * The contant used by {@link #TAG_SHARPNESS} to denote normal sharpness.
+     * The constant used by {@link #TAG_SHARPNESS} to denote normal sharpness.
      */
     public static final short SHARPNESS_NORMAL = 0;
     /**
-     * The contant used by {@link #TAG_SHARPNESS} to denote soft sharpness.
+     * The constant used by {@link #TAG_SHARPNESS} to denote soft sharpness.
      */
     public static final short SHARPNESS_SOFT = 1;
     /**
-     * The contant used by {@link #TAG_SHARPNESS} to denote hard sharpness.
+     * The constant used by {@link #TAG_SHARPNESS} to denote hard sharpness.
      */
     public static final short SHARPNESS_HARD = 2;
 
     /**
-     * The contant used by {@link #TAG_SUBJECT_DISTANCE_RANGE} to denote the subject distance range
+     * The constant used by {@link #TAG_SUBJECT_DISTANCE_RANGE} to denote the subject distance range
      * is unknown.
      */
     public static final short SUBJECT_DISTANCE_RANGE_UNKNOWN = 0;
     /**
-     * The contant used by {@link #TAG_SUBJECT_DISTANCE_RANGE} to denote the subject distance range
+     * The constant used by {@link #TAG_SUBJECT_DISTANCE_RANGE} to denote the subject distance range
      * is Macro.
      */
     public static final short SUBJECT_DISTANCE_RANGE_MACRO = 1;
     /**
-     * The contant used by {@link #TAG_SUBJECT_DISTANCE_RANGE} to denote the subject distance range
+     * The constant used by {@link #TAG_SUBJECT_DISTANCE_RANGE} to denote the subject distance range
      * is Close view.
      */
     public static final short SUBJECT_DISTANCE_RANGE_CLOSE_VIEW = 2;
     /**
-     * The contant used by {@link #TAG_SUBJECT_DISTANCE_RANGE} to denote the subject distance range
+     * The constant used by {@link #TAG_SUBJECT_DISTANCE_RANGE} to denote the subject distance range
      * is Distant view.
      */
     public static final short SUBJECT_DISTANCE_RANGE_DISTANT_VIEW = 3;
 
     /**
-     * The contant used by GPS latitude-related tags to denote the latitude is North latitude.
+     * The constant used by GPS latitude-related tags to denote the latitude is North latitude.
      *
      * @see #TAG_GPS_LATITUDE_REF
      * @see #TAG_GPS_DEST_LATITUDE_REF
      */
     public static final String LATITUDE_NORTH = "N";
     /**
-     * The contant used by GPS latitude-related tags to denote the latitude is South latitude.
+     * The constant used by GPS latitude-related tags to denote the latitude is South latitude.
      *
      * @see #TAG_GPS_LATITUDE_REF
      * @see #TAG_GPS_DEST_LATITUDE_REF
@@ -2745,14 +2745,14 @@ public class ExifInterface {
     public static final String LATITUDE_SOUTH = "S";
 
     /**
-     * The contant used by GPS longitude-related tags to denote the longitude is East longitude.
+     * The constant used by GPS longitude-related tags to denote the longitude is East longitude.
      *
      * @see #TAG_GPS_LONGITUDE_REF
      * @see #TAG_GPS_DEST_LONGITUDE_REF
      */
     public static final String LONGITUDE_EAST = "E";
     /**
-     * The contant used by GPS longitude-related tags to denote the longitude is West longitude.
+     * The constant used by GPS longitude-related tags to denote the longitude is West longitude.
      *
      * @see #TAG_GPS_LONGITUDE_REF
      * @see #TAG_GPS_DEST_LONGITUDE_REF
@@ -2760,77 +2760,79 @@ public class ExifInterface {
     public static final String LONGITUDE_WEST = "W";
 
     /**
-     * The contant used by {@link #TAG_GPS_ALTITUDE_REF} to denote the altitude is above sea level.
+     * The constant used by {@link #TAG_GPS_ALTITUDE_REF} to denote the altitude is above sea level.
      */
     public static final short ALTITUDE_ABOVE_SEA_LEVEL = 0;
     /**
-     * The contant used by {@link #TAG_GPS_ALTITUDE_REF} to denote the altitude is below sea level.
+     * The constant used by {@link #TAG_GPS_ALTITUDE_REF} to denote the altitude is below sea level.
      */
     public static final short ALTITUDE_BELOW_SEA_LEVEL = 1;
 
     /**
-     * The contant used by {@link #TAG_GPS_STATUS} to denote GPS measurement is in progress.
+     * The constant used by {@link #TAG_GPS_STATUS} to denote GPS measurement is in progress.
      */
     public static final String GPS_MEASUREMENT_IN_PROGRESS = "A";
     /**
-     * The contant used by {@link #TAG_GPS_STATUS} to denote GPS measurement is interrupted.
+     * The constant used by {@link #TAG_GPS_STATUS} to denote GPS measurement is interrupted.
      */
     public static final String GPS_MEASUREMENT_INTERRUPTED = "V";
 
     /**
-     * The contant used by {@link #TAG_GPS_MEASURE_MODE} to denote GPS measurement is 2-dimensional.
+     * The constant used by {@link #TAG_GPS_MEASURE_MODE} to denote GPS measurement is
+     * 2-dimensional.
      */
     public static final String GPS_MEASUREMENT_2D = "2";
     /**
-     * The contant used by {@link #TAG_GPS_MEASURE_MODE} to denote GPS measurement is 3-dimensional.
+     * The constant used by {@link #TAG_GPS_MEASURE_MODE} to denote GPS measurement is
+     * 3-dimensional.
      */
     public static final String GPS_MEASUREMENT_3D = "3";
 
     /**
-     * The contant used by {@link #TAG_GPS_SPEED_REF} to denote the speed unit is kilometers per
+     * The constant used by {@link #TAG_GPS_SPEED_REF} to denote the speed unit is kilometers per
      * hour.
      */
     public static final String GPS_SPEED_KILOMETERS_PER_HOUR = "K";
     /**
-     * The contant used by {@link #TAG_GPS_SPEED_REF} to denote the speed unit is miles per hour.
+     * The constant used by {@link #TAG_GPS_SPEED_REF} to denote the speed unit is miles per hour.
      */
     public static final String GPS_SPEED_MILES_PER_HOUR = "M";
     /**
-     * The contant used by {@link #TAG_GPS_SPEED_REF} to denote the speed unit is knots.
+     * The constant used by {@link #TAG_GPS_SPEED_REF} to denote the speed unit is knots.
      */
     public static final String GPS_SPEED_KNOTS = "N";
 
     /**
-     * The contant used by GPS attributes to denote the direction is true direction.
+     * The constant used by GPS attributes to denote the direction is true direction.
      */
     public static final String GPS_DIRECTION_TRUE = "T";
     /**
-     * The contant used by GPS attributes to denote the direction is magnetic direction.
+     * The constant used by GPS attributes to denote the direction is magnetic direction.
      */
     public static final String GPS_DIRECTION_MAGNETIC = "M";
 
     /**
-     * The contant used by {@link #TAG_GPS_DEST_DISTANCE_REF} to denote the distance unit is
+     * The constant used by {@link #TAG_GPS_DEST_DISTANCE_REF} to denote the distance unit is
      * kilometers.
      */
     public static final String GPS_DISTANCE_KILOMETERS = "K";
     /**
-     * The contant used by {@link #TAG_GPS_DEST_DISTANCE_REF} to denote the distance unit is miles.
+     * The constant used by {@link #TAG_GPS_DEST_DISTANCE_REF} to denote the distance unit is miles.
      */
     public static final String GPS_DISTANCE_MILES = "M";
     /**
-     * The contant used by {@link #TAG_GPS_DEST_DISTANCE_REF} to denote the distance unit is
+     * The constant used by {@link #TAG_GPS_DEST_DISTANCE_REF} to denote the distance unit is
      * nautical miles.
      */
     public static final String GPS_DISTANCE_NAUTICAL_MILES = "N";
 
     /**
-     * The contant used by {@link #TAG_GPS_DIFFERENTIAL} to denote no differential correction is
+     * The constant used by {@link #TAG_GPS_DIFFERENTIAL} to denote no differential correction is
      * applied.
      */
     public static final short GPS_MEASUREMENT_NO_DIFFERENTIAL = 0;
     /**
-     * The contant used by {@link #TAG_GPS_DIFFERENTIAL} to denote differential correction is
+     * The constant used by {@link #TAG_GPS_DIFFERENTIAL} to denote differential correction is
      * applied.
      */
     public static final short GPS_MEASUREMENT_DIFFERENTIAL_CORRECTED = 1;
@@ -2936,7 +2938,6 @@ public class ExifInterface {
     static final byte[] JPEG_SIGNATURE = new byte[] {(byte) 0xff, (byte) 0xd8, (byte) 0xff};
     private static final String RAF_SIGNATURE = "FUJIFILMCCD-RAW";
     private static final int RAF_OFFSET_TO_JPEG_IMAGE_OFFSET = 84;
-    private static final int RAF_JPEG_LENGTH_VALUE_SIZE = 4;
 
     private static final byte[] HEIF_TYPE_FTYP = new byte[] {'f', 't', 'y', 'p'};
     private static final byte[] HEIF_BRAND_MIF1 = new byte[] {'m', 'i', 'f', '1'};
@@ -3870,17 +3871,16 @@ public class ExifInterface {
     private boolean mHasThumbnail;
     private boolean mHasThumbnailStrips;
     private boolean mAreThumbnailStripsConsecutive;
-    // Used to indicate the position of the thumbnail (includes offset to EXIF data segment).
+    // Used to indicate the position of the thumbnail (doesn't include offset to EXIF data segment).
     private int mThumbnailOffset;
     private int mThumbnailLength;
     private byte[] mThumbnailBytes;
     private int mThumbnailCompression;
-    private int mExifOffset;
+    // Used to indicate offset from the start of the original input stream to EXIF data
+    private int mOffsetToExifData;
     private int mOrfMakerNoteOffset;
     private int mOrfThumbnailOffset;
     private int mOrfThumbnailLength;
-    private int mRw2JpgFromRawOffset;
-    private boolean mIsSupportedFile;
     private boolean mModified;
     // XMP data can be contained as either part of the EXIF data (tag number 700), or as a
     // separate data marker (a separate MARKER_APP1).
@@ -4541,12 +4541,13 @@ public class ExifInterface {
             if (!mIsExifDataOnly) {
                 switch (mMimeType) {
                     case IMAGE_TYPE_JPEG: {
-                        getJpegAttributes(inputStream, 0, IFD_TYPE_PRIMARY); // 0 is offset
-                        break;
+                        getJpegAttributes(inputStream, /* offsetToJpeg= */ 0,
+                                IFD_TYPE_PRIMARY);
+                        return;
                     }
                     case IMAGE_TYPE_RAF: {
                         getRafAttributes(inputStream);
-                        break;
+                        return;
                     }
                     case IMAGE_TYPE_HEIF: {
                         getHeifAttributes(inputStream);
@@ -4558,15 +4559,15 @@ public class ExifInterface {
                     }
                     case IMAGE_TYPE_RW2: {
                         getRw2Attributes(inputStream);
-                        break;
+                        return;
                     }
                     case IMAGE_TYPE_PNG: {
                         getPngAttributes(inputStream);
-                        break;
+                        return;
                     }
                     case IMAGE_TYPE_WEBP: {
                         getWebpAttributes(inputStream);
-                        break;
+                        return;
                     }
                     case IMAGE_TYPE_ARW:
                     case IMAGE_TYPE_CR2:
@@ -4587,12 +4588,11 @@ public class ExifInterface {
                 getStandaloneAttributes(inputStream);
             }
             // Set thumbnail image offset and length
+            inputStream.seek(mOffsetToExifData);
             setThumbnailData(inputStream);
-            mIsSupportedFile = true;
         } catch (IOException e) {
             // Ignore exceptions in order to keep the compatibility with the old versions of
             // ExifInterface.
-            mIsSupportedFile = false;
             if (DEBUG) {
                 Log.w(TAG, "Invalid image: ExifInterface got an unsupported image format file"
                         + "(ExifInterface supports JPEG and some RAW image formats only) "
@@ -4803,7 +4803,8 @@ public class ExifInterface {
                 throw new FileNotFoundException();
             }
 
-            if (in.skip(mThumbnailOffset) != mThumbnailOffset) {
+            if (in.skip(mThumbnailOffset + mOffsetToExifData)
+                    != mThumbnailOffset + mOffsetToExifData) {
                 throw new IOException("Corrupted image");
             }
             // TODO: Need to handle potential OutOfMemoryError
@@ -4898,7 +4899,7 @@ public class ExifInterface {
             if (mHasThumbnailStrips && !mAreThumbnailStripsConsecutive) {
                 return null;
             }
-            return new long[] { mThumbnailOffset, mThumbnailLength };
+            return new long[] { mThumbnailOffset + mOffsetToExifData, mThumbnailLength };
         }
         return null;
     }
@@ -5486,25 +5487,26 @@ public class ExifInterface {
      * Loads EXIF attributes from a JPEG input stream.
      *
      * @param in The input stream that starts with the JPEG data.
-     * @param jpegOffset The offset value in input stream for JPEG data.
+     * @param offsetToJpeg The offset to JPEG data for the original input stream.
      * @param imageType The image type from which to retrieve metadata. Use IFD_TYPE_PRIMARY for
      *                   primary image, IFD_TYPE_PREVIEW for preview image, and
      *                   IFD_TYPE_THUMBNAIL for thumbnail image.
      * @throws IOException If the data contains invalid JPEG markers, offsets, or length values.
      */
-    private void getJpegAttributes(ByteOrderedDataInputStream in, int jpegOffset, int imageType)
+    private void getJpegAttributes(ByteOrderedDataInputStream in, int offsetToJpeg, int imageType)
             throws IOException {
         // See JPEG File Interchange Format Specification, "JFIF Specification"
         if (DEBUG) {
             Log.d(TAG, "getJpegAttributes starting with: " + in);
         }
+        // Do not buffer any bytes from this input stream since we don't need to rewind to an
+        // earlier position.
+        in.mark(0);
 
         // JPEG uses Big Endian by default. See https://people.cs.umass.edu/~verts/cs32/endian.html
         in.setByteOrder(ByteOrder.BIG_ENDIAN);
 
-        // Skip to JPEG data
-        in.seek(jpegOffset);
-        int bytesRead = jpegOffset;
+        int bytesRead = 0;
 
         byte marker;
         if ((marker = in.readByte()) != MARKER) {
@@ -5550,12 +5552,15 @@ public class ExifInterface {
                     length = 0;
 
                     if (startsWith(bytes, IDENTIFIER_EXIF_APP1)) {
-                        final int offset = start + IDENTIFIER_EXIF_APP1.length;
                         final byte[] value = Arrays.copyOfRange(bytes, IDENTIFIER_EXIF_APP1.length,
                                 bytes.length);
-                        // Save offset values for handling thumbnail and attribute offsets.
-                        mExifOffset = offset;
+                        // Save offset to EXIF data for handling thumbnail and attribute offsets.
+                        mOffsetToExifData = offsetToJpeg
+                                + /* offset to EXIF from JPEG start */ start
+                                + IDENTIFIER_EXIF_APP1.length;
                         readExifSegment(value, imageType);
+
+                        setThumbnailData(new ByteOrderedDataInputStream(value));
                     } else if (startsWith(bytes, IDENTIFIER_XMP_APP1)) {
                         // See XMP Specification Part 3: Storage in Files, 1.1.3 JPEG, Table 6
                         final int offset = start + IDENTIFIER_XMP_APP1.length;
@@ -5677,22 +5682,34 @@ public class ExifInterface {
      * For data format details, see http://fileformats.archiveteam.org/wiki/Fujifilm_RAF
      */
     private void getRafAttributes(ByteOrderedDataInputStream in) throws IOException {
+        if (DEBUG) {
+            Log.d(TAG, "getRafAttributes starting with: " + in);
+        }
+        // Do not buffer any bytes from this input stream since we don't need to rewind to an
+        // earlier position.
+        in.mark(0);
         // Retrieve offset & length values
         in.skipBytes(RAF_OFFSET_TO_JPEG_IMAGE_OFFSET);
-        byte[] jpegOffsetBytes = new byte[4];
+        byte[] offsetToJpegBytes = new byte[4];
+        byte[] jpegLengthBytes = new byte[4];
         byte[] cfaHeaderOffsetBytes = new byte[4];
-        in.read(jpegOffsetBytes);
-        // Skip JPEG length value since it is not needed
-        in.skipBytes(RAF_JPEG_LENGTH_VALUE_SIZE);
+        in.read(offsetToJpegBytes);
+        in.read(jpegLengthBytes);
         in.read(cfaHeaderOffsetBytes);
-        int rafJpegOffset = ByteBuffer.wrap(jpegOffsetBytes).getInt();
-        int rafCfaHeaderOffset = ByteBuffer.wrap(cfaHeaderOffsetBytes).getInt();
+        int offsetToJpeg = ByteBuffer.wrap(offsetToJpegBytes).getInt();
+        int jpegLength = ByteBuffer.wrap(jpegLengthBytes).getInt();
+        int cfaHeaderOffset = ByteBuffer.wrap(cfaHeaderOffsetBytes).getInt();
+
+        byte[] jpegBytes = new byte[jpegLength];
+        in.seek(offsetToJpeg);
+        in.read(jpegBytes);
 
         // Retrieve JPEG image metadata
-        getJpegAttributes(in, rafJpegOffset, IFD_TYPE_PREVIEW);
+        ByteOrderedDataInputStream jpegInputStream = new ByteOrderedDataInputStream(jpegBytes);
+        getJpegAttributes(jpegInputStream, offsetToJpeg, IFD_TYPE_PREVIEW);
 
         // Skip to CFA header offset.
-        in.seek(rafCfaHeaderOffset);
+        in.seek(cfaHeaderOffset);
 
         // Retrieve primary image length/width values, if TAG_RAF_IMAGE_SIZE exists
         in.setByteOrder(ByteOrder.BIG_ENDIAN);
@@ -5874,8 +5891,8 @@ public class ExifInterface {
                 if (in.read(bytes) != length) {
                     throw new IOException("Can't read exif");
                 }
-                // Save offset values for handling thumbnail and attribute offsets.
-                mExifOffset = offset;
+                // Save offset to EXIF data for handling thumbnail and attribute offsets.
+                mOffsetToExifData = offset;
                 readExifSegment(bytes, IFD_TYPE_PRIMARY);
             }
 
@@ -5892,8 +5909,8 @@ public class ExifInterface {
         // TODO: Need to handle potential OutOfMemoryError
         byte[] data = new byte[in.available()];
         in.readFully(data);
-        // Save offset values for handling thumbnail and attribute offsets.
-        mExifOffset = IDENTIFIER_EXIF_APP1.length;
+        // Save offset to EXIF data for handling thumbnail and attribute offsets.
+        mOffsetToExifData = IDENTIFIER_EXIF_APP1.length;
         readExifSegment(data, IFD_TYPE_PRIMARY);
     }
 
@@ -5991,6 +6008,9 @@ public class ExifInterface {
     // the JpgFromRaw tag
     // See https://libopenraw.freedesktop.org/wiki/Panasonic_RAW/ and piex.cc Rw2GetPreviewData()
     private void getRw2Attributes(ByteOrderedDataInputStream in) throws IOException {
+        if (DEBUG) {
+            Log.d(TAG, "getRw2Attributes starting with: " + in);
+        }
         // Retrieve primary image data
         getRawAttributes(in);
 
@@ -5998,7 +6018,10 @@ public class ExifInterface {
         ExifAttribute jpgFromRawAttribute =
                 (ExifAttribute) mAttributes[IFD_TYPE_PRIMARY].get(TAG_RW2_JPG_FROM_RAW);
         if (jpgFromRawAttribute != null) {
-            getJpegAttributes(in, mRw2JpgFromRawOffset, IFD_TYPE_PREVIEW);
+            ByteOrderedDataInputStream jpegInputStream =
+                    new ByteOrderedDataInputStream(jpgFromRawAttribute.bytes);
+            getJpegAttributes(jpegInputStream, (int) jpgFromRawAttribute.bytesOffset,
+                    IFD_TYPE_PREVIEW);
         }
 
         // Set ISO tag value if necessary
@@ -6017,6 +6040,9 @@ public class ExifInterface {
         if (DEBUG) {
             Log.d(TAG, "getPngAttributes starting with: " + in);
         }
+        // Do not buffer any bytes from this input stream since we don't need to rewind to an
+        // earlier position.
+        in.mark(0);
 
         // PNG uses Big Endian by default.
         // See PNG (Portable Network Graphics) Specification, Version 1.2,
@@ -6079,11 +6105,12 @@ public class ExifInterface {
                                 + "\n recorded CRC value: " + dataCrcValue + ", calculated CRC "
                                 + "value: " + crc.getValue());
                     }
-                    // Save offset values for handling thumbnail and attribute offsets.
-                    mExifOffset = bytesRead;
+                    // Save offset to EXIF data for handling thumbnail and attribute offsets.
+                    mOffsetToExifData = bytesRead;
                     readExifSegment(data, IFD_TYPE_PRIMARY);
-
                     validateImages();
+
+                    setThumbnailData(new ByteOrderedDataInputStream(data));
                     break;
                 } else {
                     // Skip to next chunk
@@ -6105,6 +6132,9 @@ public class ExifInterface {
         if (DEBUG) {
             Log.d(TAG, "getWebpAttributes starting with: " + in);
         }
+        // Do not buffer any bytes from this input stream since we don't need to rewind to an
+        // earlier position.
+        in.mark(0);
 
         // WebP uses little-endian by default.
         // See Section "Terminology & Basics"
@@ -6146,12 +6176,11 @@ public class ExifInterface {
                         throw new IOException("Failed to read given length for given PNG chunk "
                                 + "type: " + byteArrayToHexString(code));
                     }
-                    // Save offset values for handling thumbnail and attribute offsets.
-                    mExifOffset = bytesRead;
+                    // Save offset to EXIF data for handling thumbnail and attribute offsets.
+                    mOffsetToExifData = bytesRead;
                     readExifSegment(payload, IFD_TYPE_PRIMARY);
 
-                    // Save offset values for handleThumbnailFromJfif() function
-                    mExifOffset = bytesRead;
+                    setThumbnailData(new ByteOrderedDataInputStream(payload));
                     break;
                 } else {
                     // Add a single padding byte at end if chunk size is odd
@@ -6310,7 +6339,7 @@ public class ExifInterface {
         //   1) if EXIF chunk did not exist in the original file, it will be stored right after the
         //      first chunk,
         //   2) if EXIF chunk existed in the original file, it will be stored in the same location.
-        if (mExifOffset == 0) {
+        if (mOffsetToExifData == 0) {
             // Copy IHDR chunk bytes
             int ihdrChunkLength = dataInputStream.readInt();
             dataOutputStream.writeInt(ihdrChunkLength);
@@ -6318,7 +6347,7 @@ public class ExifInterface {
                     + ihdrChunkLength + PNG_CHUNK_CRC_BYTE_LENGTH);
         } else {
             // Copy up until the point where EXIF chunk length information is stored.
-            int copyLength = mExifOffset - PNG_SIGNATURE.length
+            int copyLength = mOffsetToExifData - PNG_SIGNATURE.length
                     - 4 /* PNG EXIF chunk length bytes */
                     - PNG_CHUNK_TYPE_BYTE_LENGTH;
             copy(dataInputStream, dataOutputStream, copyLength);
@@ -6415,13 +6444,13 @@ public class ExifInterface {
                     new ByteOrderedDataOutputStream(nonHeaderByteArrayOutputStream,
                             ByteOrder.LITTLE_ENDIAN);
 
-            if (mExifOffset != 0) {
+            if (mOffsetToExifData != 0) {
                 // EXIF chunk exists in the original file
                 // Tested by webp_with_exif.webp
                 int bytesRead = WEBP_SIGNATURE_1.length + WEBP_FILE_SIZE_BYTE_LENGTH
                         + WEBP_SIGNATURE_2.length;
                 copy(totalInputStream, nonHeaderOutputStream,
-                        mExifOffset - bytesRead - WEBP_CHUNK_TYPE_BYTE_LENGTH
+                        mOffsetToExifData - bytesRead - WEBP_CHUNK_TYPE_BYTE_LENGTH
                                 - WEBP_CHUNK_SIZE_BYTE_LENGTH);
 
                 // Skip input stream to the end of the EXIF chunk
@@ -6805,10 +6834,6 @@ public class ExifInterface {
                         mAttributes[IFD_TYPE_THUMBNAIL].put(TAG_JPEG_INTERCHANGE_FORMAT_LENGTH,
                                 jpegInterchangeFormatLengthAttribute);
                     }
-                } else if (mMimeType == IMAGE_TYPE_RW2) {
-                    if (TAG_RW2_JPG_FROM_RAW.equals(tag.name)) {
-                        mRw2JpgFromRawOffset = offset;
-                    }
                 }
                 if (offset + byteCount <= dataInputStream.mLength) {
                     dataInputStream.seek(offset);
@@ -6881,7 +6906,7 @@ public class ExifInterface {
                 continue;
             }
 
-            final int bytesOffset = dataInputStream.peek() + mExifOffset;
+            final int bytesOffset = dataInputStream.peek() + mOffsetToExifData;
             final byte[] bytes = new byte[(int) byteCount];
             dataInputStream.readFully(bytes);
             ExifAttribute attribute = new ExifAttribute(dataFormat, numberOfComponents,
@@ -6961,12 +6986,21 @@ public class ExifInterface {
             // Find if offset for JPEG data exists
             ExifAttribute jpegInterchangeFormatAttribute =
                     (ExifAttribute) mAttributes[imageType].get(TAG_JPEG_INTERCHANGE_FORMAT);
-            if (jpegInterchangeFormatAttribute != null) {
+            ExifAttribute jpegInterchangeFormatLengthAttribute =
+                    (ExifAttribute) mAttributes[imageType].get(TAG_JPEG_INTERCHANGE_FORMAT_LENGTH);
+            if (jpegInterchangeFormatAttribute != null
+                    && jpegInterchangeFormatLengthAttribute != null) {
                 int jpegInterchangeFormat =
+                        jpegInterchangeFormatAttribute.getIntValue(mExifByteOrder);
+                int jpegInterchangeFormatLength =
                         jpegInterchangeFormatAttribute.getIntValue(mExifByteOrder);
 
                 // Searches for SOF marker in JPEG data and updates IMAGE_LENGTH & IMAGE_WIDTH tags
-                getJpegAttributes(in, jpegInterchangeFormat, imageType);
+                in.seek(jpegInterchangeFormat);
+                byte[] jpegBytes = new byte[jpegInterchangeFormatLength];
+                in.read(jpegBytes);
+                getJpegAttributes(new ByteOrderedDataInputStream(jpegBytes), jpegInterchangeFormat,
+                        imageType);
             }
         }
     }
@@ -7021,18 +7055,17 @@ public class ExifInterface {
 
             if (thumbnailOffset > 0 && thumbnailLength > 0) {
                 mHasThumbnail = true;
-                // Need to add mExifOffset, which is the offset to the EXIF data segment
-                mThumbnailOffset = thumbnailOffset + mExifOffset;
-                mThumbnailLength = thumbnailLength;
                 if (mFilename == null && mAssetInputStream == null
                         && mSeekableFileDescriptor == null) {
                     // TODO: Need to handle potential OutOfMemoryError
                     // Save the thumbnail in memory if the input doesn't support reading again.
-                    byte[] thumbnailBytes = new byte[mThumbnailLength];
-                    in.seek(mThumbnailOffset);
-                    in.readFully(thumbnailBytes);
+                    byte[] thumbnailBytes = new byte[thumbnailLength];
+                    in.skip(thumbnailOffset);
+                    in.read(thumbnailBytes);
                     mThumbnailBytes = thumbnailBytes;
                 }
+                mThumbnailOffset = thumbnailOffset;
+                mThumbnailLength = thumbnailLength;
             }
             if (DEBUG) {
                 Log.d(TAG, "Setting thumbnail attributes with offset: " + thumbnailOffset
@@ -7092,17 +7125,22 @@ public class ExifInterface {
                 }
 
                 // Skip to offset
-                int skipBytes = stripOffset - bytesRead;
-                if (skipBytes < 0) {
+                int bytesToSkip = stripOffset - bytesRead;
+                if (bytesToSkip < 0) {
                     Log.d(TAG, "Invalid strip offset value");
+                    return;
                 }
-                in.seek(skipBytes);
-                bytesRead += skipBytes;
-
+                if (in.skip(bytesToSkip) != bytesToSkip) {
+                    Log.d(TAG, "Failed to skip " + bytesToSkip + " bytes.");
+                    return;
+                }
+                bytesRead += bytesToSkip;
                 // TODO: Need to handle potential OutOfMemoryError
-                // Read strip bytes
                 byte[] stripBytes = new byte[stripByteCount];
-                in.read(stripBytes);
+                if (in.read(stripBytes) != stripByteCount) {
+                    Log.d(TAG, "Failed to read " + stripByteCount + " bytes.");
+                    return;
+                }
                 bytesRead += stripByteCount;
 
                 // Add bytes to array
@@ -7113,8 +7151,7 @@ public class ExifInterface {
             mThumbnailBytes = totalStripBytes;
 
             if (mAreThumbnailStripsConsecutive) {
-                // Need to add mExifOffset, which is the offset to the EXIF data segment
-                mThumbnailOffset = (int) stripOffsets[0] + mExifOffset;
+                mThumbnailOffset = (int) stripOffsets[0];
                 mThumbnailLength = totalStripBytes.length;
             }
         }
@@ -7356,8 +7393,7 @@ public class ExifInterface {
             int thumbnailOffset = position;
             mAttributes[IFD_TYPE_THUMBNAIL].put(JPEG_INTERCHANGE_FORMAT_TAG.name,
                     ExifAttribute.createULong(thumbnailOffset, mExifByteOrder));
-            // Need to add mExifOffset, which is the offset to the EXIF data segment
-            mThumbnailOffset = thumbnailOffset + mExifOffset;
+            mThumbnailOffset = thumbnailOffset;
             position += mThumbnailLength;
         }
 
@@ -7813,6 +7849,11 @@ public class ExifInterface {
             return Double.longBitsToDouble(readLong());
         }
 
+        @Override
+        public synchronized void mark(int readlimit) {
+            mDataInputStream.mark(readlimit);
+        }
+
         public int getLength() {
             return mLength;
         }
@@ -8031,8 +8072,8 @@ public class ExifInterface {
     }
 
     private boolean isSupportedFormatForSavingAttributes() {
-        if (mIsSupportedFile && (mMimeType == IMAGE_TYPE_JPEG || mMimeType == IMAGE_TYPE_PNG
-                || mMimeType == IMAGE_TYPE_WEBP)) {
+        if (mMimeType == IMAGE_TYPE_JPEG || mMimeType == IMAGE_TYPE_PNG
+                || mMimeType == IMAGE_TYPE_WEBP) {
             return true;
         }
         return false;

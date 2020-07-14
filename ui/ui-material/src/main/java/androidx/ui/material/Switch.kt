@@ -16,25 +16,41 @@
 
 package androidx.ui.material
 
-import androidx.animation.AnimatedFloat
-import androidx.animation.TweenBuilder
+import androidx.animation.TweenSpec
 import androidx.compose.Composable
+import androidx.compose.State
+import androidx.compose.remember
+import androidx.compose.state
+import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
+import androidx.ui.core.WithConstraints
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.selection.Toggleable
+import androidx.ui.foundation.Interaction
+import androidx.ui.foundation.InteractionState
+import androidx.ui.foundation.indication
+import androidx.ui.foundation.selection.toggleable
+import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.StrokeCap
+import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.layout.Stack
+import androidx.ui.layout.StackScope
+import androidx.ui.layout.offsetPx
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
-import androidx.ui.material.internal.StateDraggable
-import androidx.ui.material.ripple.ripple
-import androidx.ui.semantics.Semantics
+import androidx.ui.material.SwitchDefaults.disabledUncheckedThumbColor
+import androidx.ui.material.SwitchDefaults.disabledUncheckedTrackColor
+import androidx.ui.material.SwitchDefaults.makeDisabledCheckedThumbColor
+import androidx.ui.material.SwitchDefaults.makeDisabledCheckedTrackColor
+import androidx.ui.material.SwitchDefaults.uncheckedThumbColor
+import androidx.ui.material.SwitchDefaults.uncheckedTrackColor
+import androidx.ui.material.internal.stateDraggable
+import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.unit.dp
 
 /**
@@ -47,7 +63,7 @@ import androidx.ui.unit.dp
  * therefore the change of checked state is requested.
  * @param modifier Modifier to be applied to the switch layout
  * @param enabled whether or not components is enabled and can be clicked to request state change
- * @param color active color for Switch
+ * @param color main color of the track and trumb when the Switch is checked
  */
 @Composable
 fun Switch(
@@ -57,99 +73,162 @@ fun Switch(
     enabled: Boolean = true,
     color: Color = MaterialTheme.colors.secondaryVariant
 ) {
-    Semantics(container = true, mergeAllDescendants = true) {
-        Stack(modifier) {
-            Toggleable(
-                value = checked,
-                onValueChange = onCheckedChange,
+    val minBound = 0f
+    val maxBound = with(DensityAmbient.current) { ThumbPathLength.toPx() }
+    val thumbPosition = state { if (checked) maxBound else minBound }
+    val interactionState = remember { InteractionState() }
+    WithConstraints {
+        val isRtl = layoutDirection == LayoutDirection.Rtl
+        Stack(
+            modifier
+                .toggleable(
+                    value = checked,
+                    onValueChange = onCheckedChange,
+                    enabled = enabled,
+                    interactionState = interactionState,
+                    indication = null
+                )
+                .stateDraggable(
+                    state = checked,
+                    onStateChange = onCheckedChange,
+                    anchorsToState = listOf(minBound to false, maxBound to true),
+                    animationSpec = AnimationSpec,
+                    orientation = Orientation.Horizontal,
+                    reverseDirection = isRtl,
+                    minValue = minBound,
+                    maxValue = maxBound,
+                    enabled = enabled,
+                    interactionState = interactionState,
+                    onNewValue = { thumbPosition.value = it }
+                )
+                .padding(DefaultSwitchPadding)
+        ) {
+            SwitchImpl(
+                checked = checked,
                 enabled = enabled,
-                modifier = Modifier.ripple(bounded = false, enabled = enabled)
-            ) {
-                SwitchImpl(checked, onCheckedChange, color, Modifier.padding(DefaultSwitchPadding))
-            }
+                checkedColor = color,
+                thumbValue = thumbPosition,
+                interactionState = interactionState
+            )
         }
     }
 }
 
 @Composable
-private fun SwitchImpl(
+private fun StackScope.SwitchImpl(
     checked: Boolean,
-    onCheckedChange: ((Boolean) -> Unit)?,
-    color: Color,
-    modifier: Modifier
+    enabled: Boolean,
+    checkedColor: Color,
+    thumbValue: State<Float>,
+    interactionState: InteractionState
 ) {
-    val minBound = 0f
-    val maxBound = with(DensityAmbient.current) { ThumbPathLength.toPx().value }
-    StateDraggable(
-        state = checked,
-        onStateChange = onCheckedChange ?: {},
-        anchorsToState = listOf(minBound to false, maxBound to true),
-        animationBuilder = AnimationBuilder,
-        dragDirection = DragDirection.Horizontal,
-        minValue = minBound,
-        maxValue = maxBound
-    ) { model ->
-        DrawSwitch(
-            checked = checked,
-            checkedThumbColor = color,
-            thumbValue = model,
-            modifier = modifier
-        )
+    val hasInteraction =
+        Interaction.Pressed in interactionState || Interaction.Dragged in interactionState
+    val elevation =
+        if (hasInteraction) {
+            SwitchDefaults.ThumbPressedElevation
+        } else {
+            SwitchDefaults.ThumbDefaultElevation
+        }
+    val trackColor = SwitchDefaults.resolveTrackColor(checked, enabled, checkedColor)
+    val thumbColor = SwitchDefaults.resolveThumbColor(checked, enabled, checkedColor)
+    Canvas(Modifier.gravity(Alignment.Center).preferredSize(SwitchWidth, SwitchHeight)) {
+        drawTrack(trackColor, TrackWidth.toPx(), TrackStrokeWidth.toPx())
     }
+    Surface(
+        shape = CircleShape,
+        color = thumbColor,
+        elevation = elevation,
+        modifier = Modifier
+            .gravity(Alignment.CenterStart)
+            .offsetPx(x = thumbValue)
+            .indication(
+                interactionState = interactionState,
+                indication = RippleIndication(radius = ThumbRippleRadius, bounded = false)
+            )
+            .preferredSize(ThumbDiameter)
+    ) {}
 }
 
-@Composable
-private fun DrawSwitch(
-    checked: Boolean,
-    checkedThumbColor: Color,
-    thumbValue: AnimatedFloat,
-    modifier: Modifier
-) {
-    val thumbColor = if (checked) checkedThumbColor else MaterialTheme.colors.surface
-    val trackColor = if (checked) {
-        checkedThumbColor.copy(alpha = CheckedTrackOpacity)
-    } else {
-        MaterialTheme.colors.onSurface.copy(alpha = UncheckedTrackOpacity)
-    }
-
-    val trackStroke: Stroke
-    with(DensityAmbient.current) {
-        trackStroke = Stroke(width = TrackStrokeWidth.toPx().value, cap = StrokeCap.round)
-    }
-    Canvas(modifier.preferredSize(SwitchWidth, SwitchHeight)) {
-        drawTrack(trackColor, TrackWidth.toPx().value, trackStroke)
-        drawThumb(thumbValue.value, ThumbDiameter.toPx().value, thumbColor)
-    }
-}
-
-private fun DrawScope.drawTrack(trackColor: Color, trackWidth: Float, stroke: Stroke) {
-    val strokeRadius = stroke.width / 2
+private fun DrawScope.drawTrack(trackColor: Color, trackWidth: Float, strokeWidth: Float) {
+    val strokeRadius = strokeWidth / 2
     drawLine(
         trackColor,
-        Offset(strokeRadius, center.dy),
-        Offset(trackWidth - strokeRadius, center.dy),
-        stroke
+        Offset(strokeRadius, center.y),
+        Offset(trackWidth - strokeRadius, center.y),
+        strokeWidth,
+        StrokeCap.round
     )
 }
 
-private fun DrawScope.drawThumb(position: Float, thumbDiameter: Float, thumbColor: Color) {
-    val thumbRadius = thumbDiameter / 2
-    val x = position + thumbRadius
-    drawCircle(thumbColor, thumbRadius, Offset(x, center.dy))
-}
+internal val TrackWidth = 34.dp
+internal val TrackStrokeWidth = 14.dp
+internal val ThumbDiameter = 20.dp
 
-private const val CheckedTrackOpacity = 0.54f
-private const val UncheckedTrackOpacity = 0.38f
+private val ThumbRippleRadius = 24.dp
 
-private val TrackWidth = 34.dp
-private val TrackStrokeWidth = 14.dp
-
-private val ThumbDiameter = 20.dp
-
-// TODO(malkov): clarify this padding for Switch
 private val DefaultSwitchPadding = 2.dp
 private val SwitchWidth = TrackWidth
 private val SwitchHeight = ThumbDiameter
 private val ThumbPathLength = TrackWidth - ThumbDiameter
 
-private val AnimationBuilder = TweenBuilder<Float>().apply { duration = 100 }
+private val AnimationSpec = TweenSpec<Float>(durationMillis = 100)
+
+internal object SwitchDefaults {
+
+    const val CheckedTrackOpacity = 0.54f
+    const val UncheckedTrackOpacity = 0.38f
+
+    val ThumbDefaultElevation = 1.dp
+    val ThumbPressedElevation = 6.dp
+
+    @Composable
+    private val uncheckedTrackColor
+        get() = MaterialTheme.colors.onSurface
+
+    @Composable
+    private fun makeDisabledCheckedTrackColor(checkedColor: Color) = EmphasisAmbient.current
+        .disabled
+        .applyEmphasis(checkedColor)
+        .compositeOver(MaterialTheme.colors.surface)
+
+    @Composable
+    private val disabledUncheckedTrackColor
+        get() = EmphasisAmbient.current.disabled.applyEmphasis(MaterialTheme.colors.onSurface)
+            .compositeOver(MaterialTheme.colors.surface)
+
+    @Composable
+    private val uncheckedThumbColor
+        get() = MaterialTheme.colors.surface
+
+    @Composable
+    private fun makeDisabledCheckedThumbColor(checkedColor: Color) = EmphasisAmbient.current
+        .disabled
+        .applyEmphasis(checkedColor)
+        .compositeOver(MaterialTheme.colors.surface)
+
+    @Composable
+    private val disabledUncheckedThumbColor
+        get() = EmphasisAmbient.current.disabled.applyEmphasis(MaterialTheme.colors.surface)
+            .compositeOver(MaterialTheme.colors.surface)
+
+    @Composable
+    internal fun resolveTrackColor(checked: Boolean, enabled: Boolean, checkedColor: Color): Color {
+        return if (checked) {
+            val color = if (enabled) checkedColor else makeDisabledCheckedTrackColor(checkedColor)
+            color.copy(alpha = CheckedTrackOpacity)
+        } else {
+            val color = if (enabled) uncheckedTrackColor else disabledUncheckedTrackColor
+            color.copy(alpha = UncheckedTrackOpacity)
+        }
+    }
+
+    @Composable
+    internal fun resolveThumbColor(checked: Boolean, enabled: Boolean, checkedColor: Color): Color {
+        return if (checked) {
+            if (enabled) checkedColor else makeDisabledCheckedThumbColor(checkedColor)
+        } else {
+            if (enabled) uncheckedThumbColor else disabledUncheckedThumbColor
+        }
+    }
+}

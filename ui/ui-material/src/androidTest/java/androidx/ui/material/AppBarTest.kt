@@ -18,29 +18,27 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
-import androidx.ui.text.LastBaseline
-import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
-import androidx.ui.core.globalPosition
-import androidx.ui.core.onChildPositioned
-import androidx.ui.core.onPositioned
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.currentTextStyle
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.ColorPainter
+import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsDisplayed
+import androidx.ui.test.assertLeftPositionInRootIsEqualTo
+import androidx.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findByText
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onNodeWithText
+import androidx.ui.test.getBoundsInRoot
 import androidx.ui.text.TextStyle
-import androidx.ui.unit.Density
-import androidx.ui.unit.Px
+import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-import androidx.ui.unit.round
-import androidx.ui.unit.sp
-import androidx.ui.unit.toPx
+import androidx.ui.unit.height
+import androidx.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -58,13 +56,12 @@ class AppBarTest {
 
     @Test
     fun topAppBar_expandsToScreen() {
-        val dm = composeTestRule.displayMetrics
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 TopAppBar(title = { Text("Title") })
             }
-            .assertHeightEqualsTo(appBarHeight)
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertHeightIsEqualTo(appBarHeight)
+            .assertWidthFillsRoot()
     }
 
     @Test
@@ -73,110 +70,78 @@ class AppBarTest {
         composeTestRule.setMaterialContent {
             TopAppBar(title = { Text(title) })
         }
-        findByText(title).assertIsDisplayed()
+        onNodeWithText(title).assertIsDisplayed()
     }
 
     @Test
     fun topAppBar_default_positioning() {
-        var appBarCoords: LayoutCoordinates? = null
-        var navigationIconCoords: LayoutCoordinates? = null
-        var titleCoords: LayoutCoordinates? = null
-        // Position of the baseline relative to the top of the text
-        var titleLastBaselineRelativePosition: Px? = null
-        var actionCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Box(Modifier.onChildPositioned { appBarCoords = it }) {
+            Box(Modifier.testTag("bar")) {
                 TopAppBar(
                     navigationIcon = {
-                        FakeIcon(Modifier.onPositioned { navigationIconCoords = it })
+                        FakeIcon(Modifier.testTag("navigationIcon"))
                     },
                     title = {
-                        Text("title", Modifier.onPositioned { coords: LayoutCoordinates ->
-                            titleCoords = coords
-                            titleLastBaselineRelativePosition =
-                                coords[LastBaseline]!!.toPx()
-                        })
+                        Text("title", Modifier.testTag("title"))
                     },
                     actions = {
-                        FakeIcon(Modifier.onPositioned { actionCoords = it })
+                        FakeIcon(Modifier.testTag("action"))
                     }
                 )
             }
         }
 
-        composeTestRule.runOnIdleComposeWithDensity {
-            val appBarBottomEdgeY = appBarCoords!!.globalPosition.y + appBarCoords!!.size.height
+        val appBarBounds = onNodeWithTag("bar").getBoundsInRoot()
+        val titleBounds = onNodeWithTag("title").getBoundsInRoot()
+        val appBarBottomEdgeY = appBarBounds.top + appBarBounds.height
 
+        onNodeWithTag("navigationIcon")
             // Navigation icon should be 4.dp from the start
-            val navigationIconPositionX = navigationIconCoords!!.globalPosition.x
-            val navigationIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
-            assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
-
+            .assertLeftPositionInRootIsEqualTo(AppBarStartAndEndPadding)
             // Navigation icon should be 4.dp from the bottom
-            val navigationIconPositionY = navigationIconCoords!!.globalPosition.y
-            val navigationIconExpectedPositionY = (appBarBottomEdgeY -
-                    AppBarStartAndEndPadding.toPx() - FakeIconSize.toPx()
-            ).round().toPx()
-            assertThat(navigationIconPositionY).isEqualTo(navigationIconExpectedPositionY)
+            .assertTopPositionInRootIsEqualTo(
+                appBarBottomEdgeY - AppBarStartAndEndPadding - FakeIconSize)
 
+        onNodeWithTag("title")
             // Title should be 72.dp from the start
-            val titlePositionX = titleCoords!!.globalPosition.x
             // 4.dp padding for the whole app bar + 68.dp inset
-            val titleExpectedPositionX = (4.dp.toIntPx() + 68.dp.toIntPx()).toPx()
-            assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
+            .assertLeftPositionInRootIsEqualTo(4.dp + 68.dp)
+            // Title should be vertically centered
+            .assertTopPositionInRootIsEqualTo((appBarBounds.height - titleBounds.height) / 2)
 
-            // Absolute position of the baseline
-            val titleLastBaselinePositionY = titleLastBaselineRelativePosition!! +
-                    titleCoords!!.globalPosition.y
-            // Baseline should be 20.sp from the bottom of the app bar
-            val titleExpectedLastBaselinePositionY = appBarBottomEdgeY - 20.sp.toIntPx().toPx()
-            assertThat(titleLastBaselinePositionY).isEqualTo(titleExpectedLastBaselinePositionY)
-
+        onNodeWithTag("action")
             // Action should be placed at the end
-            val actionPositionX = actionCoords!!.globalPosition.x
-            val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
-            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
-
+            .assertLeftPositionInRootIsEqualTo(expectedActionPosition(appBarBounds.width))
             // Action should be 4.dp from the bottom
-            val actionPositionY = actionCoords!!.globalPosition.y
-            val actionExpectedPositionY = (appBarBottomEdgeY - AppBarStartAndEndPadding.toPx() -
-                FakeIconSize.toPx()
-            ).round().toPx()
-            assertThat(actionPositionY).isEqualTo(actionExpectedPositionY)
-        }
+            .assertTopPositionInRootIsEqualTo(
+                appBarBottomEdgeY - AppBarStartAndEndPadding - FakeIconSize)
     }
 
     @Test
     fun topAppBar_noNavigationIcon_positioning() {
-        var appBarCoords: LayoutCoordinates? = null
-        var titleCoords: LayoutCoordinates? = null
-        var actionCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Box(Modifier.onChildPositioned { appBarCoords = it }) {
+            Box(Modifier.testTag("bar")) {
                 TopAppBar(
                     title = {
-                        Text("title",
-                            Modifier.onPositioned { titleCoords = it })
+                        Text("title", Modifier.testTag("title"))
                     },
                     actions = {
-                        FakeIcon(Modifier.onPositioned { actionCoords = it })
+                        FakeIcon(Modifier.testTag("action"))
                     }
                 )
             }
         }
 
-        composeTestRule.runOnIdleComposeWithDensity {
-            // Title should now be placed 16.dp from the start, as there is no navigation icon
-            val titlePositionX = titleCoords!!.globalPosition.x
-            // 4.dp padding for the whole app bar + 12.dp inset
-            val titleExpectedPositionX = (4.dp.toIntPx() + 12.dp.toIntPx()).toPx()
-            assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
+        val appBarBounds = onNodeWithTag("bar").getBoundsInRoot()
 
+        onNodeWithTag("title")
+            // Title should now be placed 16.dp from the start, as there is no navigation icon
+            // 4.dp padding for the whole app bar + 12.dp inset
+            .assertLeftPositionInRootIsEqualTo(4.dp + 12.dp)
+
+        onNodeWithTag("action")
             // Action should still be placed at the end
-            val actionPositionX = actionCoords!!.globalPosition.x
-            val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
-            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
-        }
+            .assertLeftPositionInRootIsEqualTo(expectedActionPosition(appBarBounds.width))
     }
 
     @Test
@@ -200,42 +165,31 @@ class AppBarTest {
 
     @Test
     fun bottomAppBar_expandsToScreen() {
-        val dm = composeTestRule.displayMetrics
         composeTestRule
-            .setMaterialContentAndCollectSizes {
+            .setMaterialContentForSizeAssertions {
                 BottomAppBar {}
             }
-            .assertHeightEqualsTo(appBarHeight)
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertHeightIsEqualTo(appBarHeight)
+            .assertWidthFillsRoot()
     }
 
     @Test
     fun bottomAppBar_default_positioning() {
-        var appBarCoords: LayoutCoordinates? = null
-        var childCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Box(Modifier.onChildPositioned { appBarCoords = it }) {
-                BottomAppBar {
-                    FakeIcon(Modifier.onPositioned { childCoords = it })
-                }
+            BottomAppBar(Modifier.testTag("bar")) {
+                FakeIcon(Modifier.testTag("icon"))
             }
         }
 
-        composeTestRule.runOnIdleComposeWithDensity {
+        val appBarBounds = onNodeWithTag("bar").getBoundsInRoot()
+        val appBarBottomEdgeY = appBarBounds.top + appBarBounds.height
+
+        onNodeWithTag("icon")
             // Child icon should be 4.dp from the start
-            val childIconPositionX = childCoords!!.globalPosition.x
-            val childIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
-            assertThat(childIconPositionX).isEqualTo(childIconExpectedPositionX)
-
-            val appBarBottomEdgeY = appBarCoords!!.globalPosition.y + appBarCoords!!.size.height
-
+            .assertLeftPositionInRootIsEqualTo(AppBarStartAndEndPadding)
             // Child icon should be 4.dp from the bottom
-            val childIconPositionY = childCoords!!.globalPosition.y
-            val childIconExpectedPositionY = (appBarBottomEdgeY - AppBarStartAndEndPadding.toPx() -
-                FakeIconSize.toPx()
-            ).round().toPx()
-            assertThat(childIconPositionY).isEqualTo(childIconExpectedPositionY)
-        }
+            .assertTopPositionInRootIsEqualTo(
+                appBarBottomEdgeY - AppBarStartAndEndPadding - FakeIconSize)
     }
 
     /**
@@ -247,10 +201,8 @@ class AppBarTest {
         }
     }
 
-    private fun Density.expectedActionPosition(appBarWidth: Px): Px {
-        return appBarWidth - AppBarStartAndEndPadding.toIntPx().toPx() -
-                FakeIconSize.toIntPx().toPx()
-    }
+    private fun expectedActionPosition(appBarWidth: Dp): Dp =
+        appBarWidth - AppBarStartAndEndPadding - FakeIconSize
 
     private val AppBarStartAndEndPadding = 4.dp
 

@@ -21,12 +21,13 @@ import android.graphics.Canvas
 import android.graphics.Region
 import android.graphics.Outline
 import android.graphics.Rect
-import org.jetbrains.skija.RoundedRect
+import org.jetbrains.skija.RRect
 
 abstract class ViewGroup(context: Context) : View(context), ViewParent {
     var clipChildren: Boolean = true
     var children = mutableListOf<View>()
-    val childCount = children.count()
+    val childCount: Int
+        get() = children.count()
 
     fun getChildAt(i: Int) = children[i]
 
@@ -46,6 +47,13 @@ abstract class ViewGroup(context: Context) : View(context), ViewParent {
     fun addView(child: android.view.View, params: ViewGroup.LayoutParams?) {
         child.parent = this
         children.add(child)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        children.forEach {
+            it.onAttachedToWindow()
+        }
     }
 
     override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
@@ -90,8 +98,8 @@ abstract class ViewGroup(context: Context) : View(context), ViewParent {
         if (path != null) {
             clipPath(path, Region.Op.INTERSECT)
         } else if (radius != null && rect != null) {
-            skijaCanvas!!.clipRoundedRect(
-                RoundedRect.makeLTRB(
+            skijaCanvas!!.clipRRect(
+                RRect.makeLTRB(
                     rect.left.toFloat(),
                     rect.top.toFloat(),
                     rect.right.toFloat(),

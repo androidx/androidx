@@ -23,21 +23,22 @@ import androidx.room.RawQuery
 import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
 import androidx.room.Update
+import androidx.room.ext.asDeclaredType
 import androidx.room.ext.findKotlinDefaultImpl
+import androidx.room.ext.getAllMethods
+import androidx.room.ext.getConstructors
 import androidx.room.ext.hasAnnotation
-import androidx.room.ext.hasAnyOf
+import androidx.room.ext.isAbstract
+import androidx.room.ext.isInterface
+import androidx.room.ext.type
 import androidx.room.ext.typeName
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
 import androidx.room.vo.KotlinDefaultMethodDelegate
-import com.google.auto.common.MoreTypes
-import com.squareup.javapoet.TypeName
-import javax.lang.model.element.ElementKind
+import isAssignableFrom
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
-import javax.lang.model.util.ElementFilter
 
 class DaoProcessor(
     baseContext: Context,
@@ -55,14 +56,14 @@ class DaoProcessor(
     fun process(): Dao {
         context.checker.hasAnnotation(element, androidx.room.Dao::class,
                 ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO)
-        context.checker.check(element.hasAnyOf(ABSTRACT) || element.kind == ElementKind.INTERFACE,
+        context.checker.check(element.isAbstract() || element.isInterface(),
                 element, ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE)
 
-        val declaredType = MoreTypes.asDeclared(element.asType())
-        val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
-        val methods = ElementFilter.methodsIn(allMembers)
+        val declaredType = element.asDeclaredType()
+        val allMethods = element.getAllMethods(context.processingEnv)
+        val methods = allMethods
             .filter {
-                it.hasAnyOf(ABSTRACT) &&
+                it.isAbstract() &&
                         it.findKotlinDefaultImpl(context.processingEnv.typeUtils) == null
             }.groupBy { method ->
                 context.checker.check(
@@ -127,7 +128,7 @@ class DaoProcessor(
                     executableElement = it).process()
         } ?: emptyList()
 
-        val transactionMethods = ElementFilter.methodsIn(allMembers).filter { member ->
+        val transactionMethods = allMethods.filter { member ->
             member.hasAnnotation(Transaction::class) &&
                     PROCESSED_ANNOTATIONS.none { member.hasAnnotation(it) }
         }.map {
@@ -137,10 +138,10 @@ class DaoProcessor(
                     executableElement = it).process()
         }
 
-        val kotlinDefaultMethodDelegates = if (element.kind == ElementKind.INTERFACE) {
+        val kotlinDefaultMethodDelegates = if (element.isInterface()) {
             val allProcessedMethods =
                 methods.values.flatten() + transactionMethods.map { it.element }
-            ElementFilter.methodsIn(allMembers).filterNot {
+            allMethods.filterNot {
                 allProcessedMethods.contains(it)
             }.mapNotNull { method ->
                 method.findKotlinDefaultImpl(context.processingEnv.typeUtils)?.let { delegate ->
@@ -154,14 +155,14 @@ class DaoProcessor(
             emptyList()
         }
 
-        val constructors = ElementFilter.constructorsIn(allMembers)
+        val constructors = element.getConstructors()
         val typeUtils = context.processingEnv.typeUtils
         val goodConstructor = constructors.firstOrNull {
             it.parameters.size == 1 &&
-                    typeUtils.isAssignable(dbType, it.parameters[0].asType())
+                    it.parameters[0].type.isAssignableFrom(typeUtils, dbType)
         }
         val constructorParamType = if (goodConstructor != null) {
-            goodConstructor.parameters[0].asType().typeName()
+            goodConstructor.parameters[0].type.typeName()
         } else {
             validateEmptyConstructor(constructors)
             null
@@ -170,7 +171,7 @@ class DaoProcessor(
         context.checker.check(methods[Any::class] == null, element,
                 ProcessorErrors.ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION)
 
-        val type = TypeName.get(declaredType)
+        val type = declaredType.typeName()
         context.checker.notUnbound(type, element,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES)
 

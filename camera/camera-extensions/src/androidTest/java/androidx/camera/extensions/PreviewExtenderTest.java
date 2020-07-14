@@ -51,6 +51,7 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.Preview;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
@@ -59,7 +60,6 @@ import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.SurfaceTextureProvider;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -76,6 +76,7 @@ import org.mockito.InOrder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -84,7 +85,6 @@ import java.util.concurrent.TimeoutException;
 public class PreviewExtenderTest {
     private static final String EXTENSION_AVAILABLE_CAMERA_ID = "0";
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-    private FakeLifecycleOwner mFakeLifecycle;
 
     private static final SurfaceTextureProvider.SurfaceTextureCallback
             NO_OP_SURFACE_TEXTURE_CALLBACK =
@@ -114,17 +114,11 @@ public class PreviewExtenderTest {
         Context context = ApplicationProvider.getApplicationContext();
         CameraX.initialize(context, Camera2Config.defaultConfig());
 
-        mFakeLifecycle = new FakeLifecycleOwner();
-        mFakeLifecycle.startAndResume();
-
         assumeTrue(ExtensionsTestUtil.initExtensions());
     }
 
     @After
     public void cleanUp() throws ExecutionException, InterruptedException {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        }
         CameraX.shutdown().get();
     }
 
@@ -149,14 +143,18 @@ public class PreviewExtenderTest {
         fakePreviewExtender.enableExtension(cameraSelector);
 
         Preview useCase = configBuilder.build();
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                // To set the update listener and Preview will change to active state.
-                useCase.setSurfaceProvider(
-                        createSurfaceTextureProvider(NO_OP_SURFACE_TEXTURE_CALLBACK));
 
-                CameraX.bindToLifecycle(mFakeLifecycle, cameraSelector, useCase);
+        CameraUseCaseAdapter cameraUseCaseAdapter =
+                CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+        mInstrumentation.runOnMainSync(() -> {
+            // To set the update listener and Preview will change to active state.
+            useCase.setSurfaceProvider(
+                    createSurfaceTextureProvider(NO_OP_SURFACE_TEXTURE_CALLBACK));
+
+            try {
+                cameraUseCaseAdapter.addUseCases(Collections.singleton(useCase));
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                throw new IllegalArgumentException("Unable to bind use case " + useCase);
             }
         });
 
@@ -182,12 +180,9 @@ public class PreviewExtenderTest {
         inOrder.verify(mockPreviewExtenderImpl, timeout(3000)).onEnableSession();
         inOrder.verify(mockPreviewExtenderImpl, timeout(3000)).getCaptureStage();
 
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                // Unbind the use case to test the onDisableSession and onDeInit.
-                CameraX.unbind(useCase);
-            }
+        mInstrumentation.runOnMainSync(() -> {
+            // Unbind the use case to test the onDisableSession and onDeInit.
+            cameraUseCaseAdapter.removeUseCases(Collections.singleton(useCase));
         });
 
         // To verify the onDisableSession and onDeInit.
@@ -227,15 +222,17 @@ public class PreviewExtenderTest {
         fakePreviewExtender.enableExtension(cameraSelector);
 
         Preview preview = configBuilder.build();
+        CameraUseCaseAdapter cameraUseCaseAdapter =
+                CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+        mInstrumentation.runOnMainSync(() -> {
+            // To set the update listener and Preview will change to active state.
+            preview.setSurfaceProvider(
+                    createSurfaceTextureProvider(NO_OP_SURFACE_TEXTURE_CALLBACK));
 
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                // To set the update listener and Preview will change to active state.
-                preview.setSurfaceProvider(
-                        createSurfaceTextureProvider(NO_OP_SURFACE_TEXTURE_CALLBACK));
-
-                CameraX.bindToLifecycle(mFakeLifecycle, cameraSelector, preview);
+            try {
+                cameraUseCaseAdapter.addUseCases(Collections.singleton(preview));
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                throw new IllegalArgumentException("Unable to bind use case " + preview);
             }
         });
 
@@ -280,14 +277,18 @@ public class PreviewExtenderTest {
                         CameraSelector.LENS_FACING_BACK).build();
         fakePreviewExtender.enableExtension(cameraSelector);
         Preview preview = configBuilder.build();
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                // To set the update listener and Preview will change to active state.
-                preview.setSurfaceProvider(
-                        createSurfaceTextureProvider(NO_OP_SURFACE_TEXTURE_CALLBACK));
 
-                CameraX.bindToLifecycle(mFakeLifecycle, cameraSelector, preview);
+        CameraUseCaseAdapter cameraUseCaseAdapter =
+                CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+        mInstrumentation.runOnMainSync(() -> {
+            // To set the update listener and Preview will change to active state.
+            preview.setSurfaceProvider(
+                    createSurfaceTextureProvider(NO_OP_SURFACE_TEXTURE_CALLBACK));
+
+            try {
+                cameraUseCaseAdapter.addUseCases(Collections.singleton(preview));
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                throw new IllegalArgumentException("Unable to bind use case " + preview);
             }
         });
 

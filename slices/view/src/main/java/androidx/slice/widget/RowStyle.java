@@ -46,6 +46,12 @@ public class RowStyle {
     private int mBottomDividerEndPadding;
     private int mActionDividerHeight;
     private int mSeekBarInlineWidth;
+    private int mProgressBarInlineWidth;
+    private int mProgressBarStartPadding;
+    private int mProgressBarEndPadding;
+    private int mIconSize;
+    private boolean mDisableRecyclerViewItemAnimator;
+    private int mImageSize;
 
     public RowStyle(Context context, int resId) {
         TypedArray a = context.getTheme().obtainStyledAttributes(resId, R.styleable.RowStyle);
@@ -78,6 +84,18 @@ public class RowStyle {
                     R.styleable.RowStyle_actionDividerHeight, UNBOUNDED);
             mSeekBarInlineWidth = (int) a.getDimension(
                     R.styleable.RowStyle_seekBarInlineWidth, UNBOUNDED);
+            mProgressBarInlineWidth = (int) a.getDimension(
+                    R.styleable.RowStyle_progressBarInlineWidth, UNBOUNDED);
+            mProgressBarStartPadding = (int) a.getDimension(
+                    R.styleable.RowStyle_progressBarStartPadding, UNBOUNDED);
+            mProgressBarEndPadding = (int) a.getDimension(
+                    R.styleable.RowStyle_progressBarEndPadding, UNBOUNDED);
+            mIconSize = (int) a.getDimension(
+                    R.styleable.RowStyle_iconSize, UNBOUNDED);
+            mDisableRecyclerViewItemAnimator = a.getBoolean(
+                    R.styleable.RowStyle_disableRecyclerViewItemAnimator, false);
+            mImageSize = (int) a.getDimension(
+                    R.styleable.RowStyle_imageSize, UNBOUNDED);
         } finally {
             a.recycle();
         }
@@ -137,5 +155,29 @@ public class RowStyle {
 
     public int getSeekBarInlineWidth() {
         return mSeekBarInlineWidth;
+    }
+
+    public int getProgressBarInlineWidth() {
+        return mProgressBarInlineWidth;
+    }
+
+    public int getProgressBarStartPadding() {
+        return mProgressBarStartPadding;
+    }
+
+    public int getProgressBarEndPadding() {
+        return mProgressBarEndPadding;
+    }
+
+    public int getIconSize() {
+        return mIconSize;
+    }
+
+    public boolean getDisableRecyclerViewItemAnimator() {
+        return mDisableRecyclerViewItemAnimator;
+    }
+
+    public int getImageSize() {
+        return mImageSize;
     }
 }

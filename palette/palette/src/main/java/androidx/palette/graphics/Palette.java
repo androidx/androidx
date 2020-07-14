@@ -19,10 +19,8 @@ package androidx.palette.graphics;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
-import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseBooleanArray;
-import android.util.TimingLogger;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -30,6 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -135,7 +134,7 @@ public final class Palette {
      */
     @NonNull
     @Deprecated
-    public static AsyncTask<Bitmap, Void, Palette> generateAsync(
+    public static android.os.AsyncTask<Bitmap, Void, Palette> generateAsync(
             @NonNull Bitmap bitmap, @NonNull PaletteAsyncListener listener) {
         return from(bitmap).generate(listener);
     }
@@ -145,7 +144,7 @@ public final class Palette {
      */
     @NonNull
     @Deprecated
-    public static AsyncTask<Bitmap, Void, Palette> generateAsync(
+    public static android.os.AsyncTask<Bitmap, Void, Palette> generateAsync(
             @NonNull Bitmap bitmap, int numColors, @NonNull PaletteAsyncListener listener) {
         return from(bitmap).maximumColorCount(numColors).generate(listener);
     }
@@ -777,10 +776,6 @@ public final class Palette {
          */
         @NonNull
         public Palette generate() {
-            final TimingLogger logger = LOG_TIMINGS
-                    ? new TimingLogger(LOG_TAG, "Generation")
-                    : null;
-
             List<Swatch> swatches;
 
             if (mBitmap != null) {
@@ -788,10 +783,6 @@ public final class Palette {
 
                 // First we'll scale down the bitmap if needed
                 final Bitmap bitmap = scaleBitmapDown(mBitmap);
-
-                if (logger != null) {
-                    logger.addSplit("Processed Bitmap");
-                }
 
                 final Rect region = mRegion;
                 if (bitmap != mBitmap && region != null) {
@@ -818,10 +809,6 @@ public final class Palette {
                 }
 
                 swatches = quantizer.getQuantizedColors();
-
-                if (logger != null) {
-                    logger.addSplit("Color quantization completed");
-                }
             } else if (mSwatches != null) {
                 // Else we're using the provided swatches
                 swatches = mSwatches;
@@ -835,11 +822,6 @@ public final class Palette {
             // And make it generate itself
             p.generate();
 
-            if (logger != null) {
-                logger.addSplit("Created Palette");
-                logger.dumpToLog();
-            }
-
             return p;
         }
 
@@ -847,15 +829,18 @@ public final class Palette {
          * Generate the {@link Palette} asynchronously. The provided listener's
          * {@link PaletteAsyncListener#onGenerated} method will be called with the palette when
          * generated.
+         *
+         * @deprecated Use the standard <code>java.util.concurrent</code> or
+         * <a href="https://developer.android.com/topic/libraries/architecture/coroutines">
+         * Kotlin concurrency utilities</a> to call {@link #generate()} instead.
          */
         @NonNull
-        public AsyncTask<Bitmap, Void, Palette> generate(
+        @Deprecated
+        public android.os.AsyncTask<Bitmap, Void, Palette> generate(
                 @NonNull final PaletteAsyncListener listener) {
-            if (listener == null) {
-                throw new IllegalArgumentException("listener can not be null");
-            }
+            Preconditions.checkNotNull(listener);
 
-            return new AsyncTask<Bitmap, Void, Palette>() {
+            return new android.os.AsyncTask<Bitmap, Void, Palette>() {
                 @Override
                 @Nullable
                 protected Palette doInBackground(Bitmap... params) {
@@ -871,7 +856,7 @@ public final class Palette {
                 protected void onPostExecute(@Nullable Palette colorExtractor) {
                     listener.onGenerated(colorExtractor);
                 }
-            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mBitmap);
+            }.executeOnExecutor(android.os.AsyncTask.THREAD_POOL_EXECUTOR, mBitmap);
         }
 
         private int[] getPixelsFromBitmap(Bitmap bitmap) {

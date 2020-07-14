@@ -27,9 +27,9 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
 import androidx.ui.core.paint
 import androidx.ui.core.setContent
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
@@ -39,13 +39,11 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.res.vectorResource
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.captureToBitmap
-import androidx.ui.test.findByTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.waitForIdle
-import androidx.ui.unit.ipx
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -102,8 +100,8 @@ class IconComparisonTest(
             val programmaticVector = property.get()
             var composition: Composition? = null
 
-            runOnUiThread {
-                composition = composeTestRule.activityTestRule.activity.setContent {
+            composeTestRule.activityRule.scenario.onActivity {
+                composition = it.setContent {
                     xmlVector = drawableName.toVectorAsset()
                     DrawVectors(programmaticVector, xmlVector!!)
                 }
@@ -116,8 +114,8 @@ class IconComparisonTest(
             assertVectorAssetsAreEqual(xmlVector!!, programmaticVector, iconName)
 
             assertBitmapsAreEqual(
-                findByTag(XmlTestTag).captureToBitmap(),
-                findByTag(ProgrammaticTestTag).captureToBitmap(),
+                onNodeWithTag(XmlTestTag).captureToBitmap(),
+                onNodeWithTag(ProgrammaticTestTag).captureToBitmap(),
                 iconName
             )
 
@@ -195,29 +193,21 @@ private fun DrawVectors(programmaticVector: VectorAsset, xmlVector: VectorAsset)
         // Using ipx directly ensures that we will always have a consistent layout / drawing
         // story, so anti-aliasing should be identical.
         val layoutSize = with(DensityAmbient.current) {
-            Modifier.preferredSize(72.ipx.toDp())
+            Modifier.preferredSize(72.toDp())
         }
         Row(Modifier.gravity(Alignment.Center)) {
-            TestTag(ProgrammaticTestTag) {
-                Semantics(container = true) {
-                    Box(
-                        modifier = layoutSize.paint(
-                            VectorPainter(programmaticVector),
-                            colorFilter = ColorFilter.tint(Color.Red)
-                        )
-                    )
-                }
-            }
-            TestTag(XmlTestTag) {
-                Semantics(container = true) {
-                    Box(
-                        modifier = layoutSize.paint(
-                            VectorPainter(xmlVector),
-                            colorFilter = ColorFilter.tint(Color.Red)
-                        )
-                    )
-                }
-            }
+            Box(
+                modifier = layoutSize.paint(
+                    VectorPainter(programmaticVector),
+                    colorFilter = ColorFilter.tint(Color.Red)
+                ).testTag(ProgrammaticTestTag)
+            )
+            Box(
+                modifier = layoutSize.paint(
+                    VectorPainter(xmlVector),
+                    colorFilter = ColorFilter.tint(Color.Red)
+                ).testTag(XmlTestTag)
+            )
         }
     }
 }

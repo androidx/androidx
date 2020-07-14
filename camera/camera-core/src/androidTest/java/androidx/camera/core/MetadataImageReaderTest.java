@@ -39,6 +39,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 @MediumTest
@@ -175,6 +176,39 @@ public final class MetadataImageReaderTest {
         // Triggers CaptureCompleted with another CaptureResult.
         mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(mCameraCaptureResult1);
         mSemaphore.acquire();
+    }
+
+    @Test
+    public void clearOnImageAvailableListener() throws InterruptedException {
+        AtomicInteger mListenCount = new AtomicInteger(0);
+        ImageReaderProxy.OnImageAvailableListener outputListener =
+                (imageReader) -> {
+                    // Count how many times the output listener is triggered with an ImageProxy
+                    ImageProxy resultImage = imageReader.acquireNextImage();
+                    if (resultImage != null) {
+                        mListenCount.getAndIncrement();
+                    }
+                };
+        mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundExecutor);
+
+        // Triggers ImageAvailable with two different Image.
+        triggerImageAvailable(TIMESTAMP_0);
+        triggerImageAvailable(TIMESTAMP_1);
+
+        // Triggers CaptureCompleted with one CaptureResult.
+        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(mCameraCaptureResult0);
+
+        // Make sure the first image has been received before clearing the listener
+        HandlerUtil.waitForLooperToIdle(mBackgroundHandler);
+        mMetadataImageReader.clearOnImageAvailableListener();
+
+        // Triggers CaptureCompleted with another CaptureResult.
+        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(mCameraCaptureResult1);
+
+        HandlerUtil.waitForLooperToIdle(mBackgroundHandler);
+
+        // The second image will not have been received by the listener
+        assertThat(mListenCount.get()).isEqualTo(1);
     }
 
     @Test

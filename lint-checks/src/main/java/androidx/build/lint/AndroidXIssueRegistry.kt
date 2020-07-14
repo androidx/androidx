@@ -21,7 +21,8 @@ import com.android.tools.lint.detector.api.CURRENT_API
 import com.android.tools.lint.detector.api.Issue
 
 class AndroidXIssueRegistry : IssueRegistry() {
-    override val api = CURRENT_API
+    override val minApi = CURRENT_API
+    override val api = 8
     override val issues get(): List<Issue> {
         return Issues
     }
@@ -39,7 +40,9 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 SampledAnnotationEnforcer.UNRESOLVED_SAMPLE_LINK,
                 SampledAnnotationEnforcer.MULTIPLE_FUNCTIONS_FOUND,
                 SampledAnnotationEnforcer.INVALID_SAMPLES_LOCATION,
-                ObsoleteBuildCompatUsageDetector.ISSUE
+                ObsoleteBuildCompatUsageDetector.ISSUE,
+                MetadataTagInsideApplicationTagDetector.ISSUE,
+                PrivateConstructorForUtilityClass.ISSUE
             )
         }
     }

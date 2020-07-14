@@ -16,6 +16,7 @@
 
 package androidx.ui.material.samples
 
+import androidx.animation.spring
 import androidx.animation.transitionDefinition
 import androidx.annotation.Sampled
 import androidx.compose.Composable
@@ -25,10 +26,9 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.PxPropKey
-import androidx.ui.animation.Transition
+import androidx.ui.animation.DpPropKey
+import androidx.ui.animation.transition
 import androidx.ui.core.Alignment
-import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
@@ -55,7 +55,6 @@ import androidx.ui.material.TabRow
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.unit.dp
-import androidx.ui.unit.toPx
 
 @Sampled
 @Composable
@@ -288,8 +287,8 @@ fun FancyIndicator(color: Color) {
 @Sampled
 @Composable
 fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedIndex: Int) {
-    val indicatorStart = remember { PxPropKey() }
-    val indicatorEnd = remember { PxPropKey() }
+    val indicatorStart = remember { DpPropKey() }
+    val indicatorEnd = remember { DpPropKey() }
     val indicatorColor = remember { ColorPropKey() }
 
     val colors = listOf(Color.Yellow, Color.Red, Color.Green)
@@ -298,8 +297,8 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
             transitionDefinition {
                 tabPositions.forEachIndexed { index, position ->
                     state(index) {
-                        this[indicatorStart] = position.left.toPx()
-                        this[indicatorEnd] = position.right.toPx()
+                        this[indicatorStart] = position.left
+                        this[indicatorEnd] = position.right
                         this[indicatorColor] = colors[index % colors.size]
                     }
                 }
@@ -312,14 +311,14 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
                                 // moving to the left, we want the left side to move faster.
                                 val startStiffness = if (from < to) 50f else 1000f
                                 val endStiffness = if (from < to) 1000f else 50f
-                                indicatorStart using physics {
-                                    dampingRatio = 1f
+                                indicatorStart using spring(
+                                    dampingRatio = 1f,
                                     stiffness = startStiffness
-                                }
-                                indicatorEnd using physics {
-                                    dampingRatio = 1f
+                                )
+                                indicatorEnd using spring(
+                                    dampingRatio = 1f,
                                     stiffness = endStiffness
-                                }
+                                )
                             }
                         }
                     }
@@ -330,19 +329,15 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
     // Fill up the entire TabRow with this container, and place children at the left so we can use
     // Padding to set the 'offset'
     Box(Modifier.fillMaxSize(), gravity = ContentGravity.BottomStart) {
-        Transition(transitionDefinition, selectedIndex) { state ->
-            val density = DensityAmbient.current
-            val offset = with(density) { state[indicatorStart].toDp() }
-            val width = with(density) {
-                (state[indicatorEnd] - state[indicatorStart]).toDp()
-            }
-            Box(
-                Modifier.offset(x = offset, y = 0.dp).preferredWidth(width),
-                gravity = ContentGravity.Center
-            ) {
-                // Pass the current color to the indicator
-                FancyIndicator(state[indicatorColor])
-            }
+        val state = transition(transitionDefinition, selectedIndex)
+        val offset = state[indicatorStart]
+        val width = state[indicatorEnd] - state[indicatorStart]
+        Box(
+            Modifier.offset(x = offset, y = 0.dp).preferredWidth(width),
+            gravity = ContentGravity.Center
+        ) {
+            // Pass the current color to the indicator
+            FancyIndicator(state[indicatorColor])
         }
     }
 }

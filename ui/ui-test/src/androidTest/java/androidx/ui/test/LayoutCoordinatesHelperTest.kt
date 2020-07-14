@@ -24,13 +24,11 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -70,8 +68,8 @@ class LayoutCoordinatesHelperTest {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(
-            PxPosition.Origin,
-            parentCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin)
+            Offset.Zero,
+            parentCoordinates!!.childToLocal(childCoordinates!!, Offset.Zero)
         )
     }
 
@@ -82,16 +80,16 @@ class LayoutCoordinatesHelperTest {
         var childCoordinates: LayoutCoordinates? = null
         composeTestRule.setContent {
             with(DensityAmbient.current) {
-                Box(Modifier.preferredWidth(40.ipx.toDp()), gravity = ContentGravity.Center) {
+                Box(Modifier.preferredWidth(40.toDp()), gravity = ContentGravity.Center) {
                     Column(
-                        Modifier.preferredWidth(20.ipx.toDp())
+                        Modifier.preferredWidth(20.toDp())
                             .onPositioned { coordinates: LayoutCoordinates ->
                                 parentCoordinates = coordinates
                                 latch.countDown()
                             }
                     ) {
                         Box(
-                            Modifier.preferredSize(10.ipx.toDp())
+                            Modifier.preferredSize(10.toDp())
                                 .gravity(Alignment.CenterHorizontally)
                                 .onPositioned { coordinates ->
                                     childCoordinates = coordinates
@@ -105,8 +103,8 @@ class LayoutCoordinatesHelperTest {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(
-            PxPosition(5.px, 0.px),
-            parentCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin)
+            Offset(5f, 0f),
+            parentCoordinates!!.childToLocal(childCoordinates!!, Offset.Zero)
         )
     }
 }

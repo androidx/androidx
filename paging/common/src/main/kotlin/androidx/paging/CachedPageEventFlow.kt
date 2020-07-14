@@ -27,6 +27,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.joinAll
@@ -34,6 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.ArrayDeque
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * An intermediate flow producer that flattens previous page events and gives any new downstream
@@ -47,14 +50,28 @@ internal class CachedPageEventFlow<T : Any>(
     private val pageController = FlattenedPageController<T>()
 
     /**
+     * We can collect from source only once since Events are ordered.
+     * This flag ensures that we do not try to collect from upstream more than once.
+     */
+    private val collectedFromSource = AtomicBoolean(false)
+    /**
      * Shared upstream.
-     * Note that, if upstream flow ends, re-subscribing to this will trigger a restart of it but
-     * cached data will still be delivered immediately.
+     * Note that, if upstream flow ends, re-subscribing to this will not re-collect from upstream
+     * since PageEvent flows cannot be restarted. Instead, a new subscriber will get only the
+     * cached values from snapshot.
      */
     private val multicastedSrc = Multicaster(
         scope = scope,
         bufferSize = 0,
-        source = src.withIndex(),
+        source = flow {
+            // we can collect from a Flow<PageEvent> only once.
+            // if this multicaster ever gets restarted, we should not try to collect from the
+            // original flow, instead, return empty flow from upstream and let the new downstream
+            // only receive historical events
+            if (collectedFromSource.compareAndSet(false, true)) {
+                emitAll(src.withIndex())
+            }
+        },
         onEach = pageController::record,
         keepUpstreamAlive = true
     )
@@ -192,7 +209,13 @@ internal class FlattenedPageEventStorage<T : Any> {
     private var placeholdersBefore: Int = 0
     private var placeholdersAfter: Int = 0
     private val pages = ArrayDeque<TransformablePage<T>>()
-    private val loadStates = mutableMapOf<LoadType, LoadState>()
+
+    /**
+     * Note - this is initialized without remote state, since we don't know if we have remote
+     * data once we start getting events. This is fine, since downstream needs to handle this
+     * anyway - remote state being added after initial, empty, PagingData.
+     */
+    private val loadStates = MutableLoadStateCollection(hasRemoteState = false)
     fun add(event: PageEvent<T>) {
         when (event) {
             is PageEvent.Insert<T> -> handleInsert(event)
@@ -202,11 +225,10 @@ internal class FlattenedPageEventStorage<T : Any> {
     }
 
     private fun handlePageDrop(event: PageEvent.Drop<T>) {
-        val previousState = loadStates[event.loadType]
-        loadStates[event.loadType] = LoadState.NotLoading(
-            endOfPaginationReached = false,
-            fromMediator = previousState?.fromMediator == true
-        )
+        // TODO: include state in drop event for simplicity, instead of reconstructing behavior.
+        //  This allows upstream to control how drop affects states (e.g. letting drop affect both
+        //  remote and local)
+        loadStates.set(event.loadType, false, LoadState.NotLoading.Incomplete)
 
         when (event.loadType) {
             LoadType.PREPEND -> {
@@ -226,9 +248,7 @@ internal class FlattenedPageEventStorage<T : Any> {
     }
 
     private fun handleInsert(event: PageEvent.Insert<T>) {
-        event.loadStates.entries.forEach {
-            loadStates[it.key] = it.value
-        }
+        loadStates.set(event.combinedLoadStates)
         when (event.loadType) {
             LoadType.REFRESH -> {
                 pages.clear()
@@ -250,7 +270,7 @@ internal class FlattenedPageEventStorage<T : Any> {
     }
 
     private fun handleLoadStateUpdate(event: PageEvent.LoadStateUpdate<T>) {
-        loadStates[event.loadType] = event.loadState
+        loadStates.set(event.loadType, event.fromMediator, event.loadState)
     }
 
     fun getAsEvents(): List<PageEvent<T>> {
@@ -261,13 +281,15 @@ internal class FlattenedPageEventStorage<T : Any> {
                     pages = pages.toList(),
                     placeholdersBefore = placeholdersBefore,
                     placeholdersAfter = placeholdersAfter,
-                    loadStates = loadStates.toMap() // copy
+                    combinedLoadStates = loadStates.snapshot()
                 )
             )
         } else {
-            loadStates.forEach { entry ->
-                if (entry.value is LoadState.Loading || entry.value is LoadState.Error) {
-                    events.add(PageEvent.LoadStateUpdate(entry.key, entry.value))
+            loadStates.forEach { type, fromMediator, state ->
+                // Should be mostly safe to ignore NotLoading states since they don't need to be
+                // communicated... but it's unclear if this is true when endOfPagination = true
+                if (state is LoadState.Loading || state is LoadState.Error) {
+                    events.add(PageEvent.LoadStateUpdate(type, fromMediator, state))
                 }
             }
         }

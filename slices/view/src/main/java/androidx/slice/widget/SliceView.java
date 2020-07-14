@@ -204,6 +204,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         init(context, attrs, defStyleAttr, defStyleRes);
     }
 
+    @SuppressWarnings("deprecation")
     private void init(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         mSliceStyle = new SliceStyle(context, attrs, defStyleAttr, defStyleRes);
         mThemeTintColor = mSliceStyle.getTintColor();

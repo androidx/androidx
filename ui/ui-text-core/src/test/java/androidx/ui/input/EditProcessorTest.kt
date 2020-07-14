@@ -17,6 +17,7 @@
 package androidx.ui.input
 
 import androidx.test.filters.SmallTest
+import androidx.ui.text.InternalTextApi
 import androidx.ui.text.TextRange
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -31,6 +32,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(InternalTextApi::class)
 @SmallTest
 @RunWith(JUnit4::class)
 class EditProcessorTest {
@@ -41,10 +43,10 @@ class EditProcessorTest {
         val tis: TextInputService = mock()
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
 
-        val model = EditorValue("ABCDE", TextRange(0, 0))
+        val model = TextFieldValue("ABCDE", TextRange.Zero)
         proc.onNewState(model, tis, dummyInputSessionToken)
         assertEquals(model, proc.mPreviousState)
-        val captor = argumentCaptor<EditorValue>()
+        val captor = argumentCaptor<TextFieldValue>()
         verify(tis, times(1)).onStateUpdated(eq(dummyInputSessionToken), captor.capture())
         assertEquals(1, captor.allValues.size)
         assertEquals("ABCDE", captor.firstValue.text)

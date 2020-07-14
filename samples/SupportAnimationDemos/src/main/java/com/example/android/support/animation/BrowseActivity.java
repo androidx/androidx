@@ -16,7 +16,6 @@
 
 package com.example.android.support.animation;
 
-import android.app.ListActivity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -36,7 +35,8 @@ import java.util.Map;
 /**
  * This activity lists all the activities in this application.
  */
-public class BrowseActivity extends ListActivity {
+@SuppressWarnings("deprecation")
+public class BrowseActivity extends android.app.ListActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

@@ -19,10 +19,11 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.test.filters.MediumTest
-import androidx.ui.core.TestTag
+import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.TextFieldValue
 import androidx.ui.input.ImeAction
+import androidx.ui.input.TextFieldValue
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.expectErrorMessageStartsWith
@@ -48,17 +49,16 @@ class TextActionsTest {
         textCallback: (String) -> Unit = {}
     ) {
         val state = state { TextFieldValue("") }
-        TestTag(fieldTag) {
-            TextField(
-                value = state.value,
-                imeAction = imeAction,
-                onImeActionPerformed = onImeActionPerformed,
-                onValueChange = {
-                    state.value = it
-                    textCallback(it.text)
-                }
-            )
-        }
+        TextField(
+            modifier = Modifier.testTag(fieldTag),
+            value = state.value,
+            imeAction = imeAction,
+            onImeActionPerformed = onImeActionPerformed,
+            onValueChange = {
+                state.value = it
+                textCallback(it.text)
+            }
+        )
     }
 
     @Test
@@ -70,17 +70,17 @@ class TextActionsTest {
             }
         }
 
-        findByTag(fieldTag)
-            .doSendText("Hello!")
+        onNodeWithTag(fieldTag)
+            .performTextInput("Hello!")
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello!")
         }
 
-        findByTag(fieldTag)
-            .doClearText(alreadyHasFocus = true)
+        onNodeWithTag(fieldTag)
+            .performTextClearance(alreadyHasFocus = true)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(lastSeenText).isEqualTo("")
         }
     }
@@ -94,13 +94,13 @@ class TextActionsTest {
             }
         }
 
-        findByTag(fieldTag)
-            .doSendText("Hello ")
+        onNodeWithTag(fieldTag)
+            .performTextInput("Hello ")
 
-        findByTag(fieldTag)
-            .doSendText("world!", alreadyHasFocus = true)
+        onNodeWithTag(fieldTag)
+            .performTextInput("world!", alreadyHasFocus = true)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello world!")
         }
     }
@@ -114,16 +114,16 @@ class TextActionsTest {
             }
         }
 
-        findByTag(fieldTag)
-            .doSendText("Hello")
+        onNodeWithTag(fieldTag)
+            .performTextInput("Hello")
 
         // This helps. So there must be some timing issue.
         // Thread.sleep(3000)
 
-        findByTag(fieldTag)
-            .doSendText(" world!", alreadyHasFocus = true)
+        onNodeWithTag(fieldTag)
+            .performTextInput(" world!", alreadyHasFocus = true)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello world!")
         }
     }
@@ -135,8 +135,8 @@ class TextActionsTest {
         }
 
         expectError<IllegalStateException> {
-            findByTag(fieldTag)
-                .doSendText("Hello!", alreadyHasFocus = true)
+            onNodeWithTag(fieldTag)
+                .performTextInput("Hello!", alreadyHasFocus = true)
         }
     }
 
@@ -149,17 +149,17 @@ class TextActionsTest {
             }
         }
 
-        findByTag(fieldTag)
-            .doSendText("Hello")
+        onNodeWithTag(fieldTag)
+            .performTextInput("Hello")
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello")
         }
 
-        findByTag(fieldTag)
-            .doReplaceText("world", alreadyHasFocus = true)
+        onNodeWithTag(fieldTag)
+            .performTextReplacement("world", alreadyHasFocus = true)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(lastSeenText).isEqualTo("world")
         }
     }
@@ -173,10 +173,10 @@ class TextActionsTest {
         }
         assertThat(actionPerformed).isEqualTo(ImeAction.Unspecified)
 
-        findByTag(fieldTag)
-            .doSendImeAction()
+        onNodeWithTag(fieldTag)
+            .performImeAction()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(actionPerformed).isEqualTo(ImeAction.Search)
         }
     }
@@ -191,11 +191,11 @@ class TextActionsTest {
         assertThat(actionPerformed).isEqualTo(ImeAction.Unspecified)
 
         expectErrorMessageStartsWith("" +
-                "Failed to send IME action as current node does not specify any.\n" +
+                "Failed to perform IME action as current node does not specify any.\n" +
                 "Semantics of the node:"
         ) {
-            findByTag(fieldTag)
-                .doSendImeAction()
+            onNodeWithTag(fieldTag)
+                .performImeAction()
         }
     }
 
@@ -206,12 +206,12 @@ class TextActionsTest {
         }
 
         expectErrorMessageStartsWith("" +
-                "Failed to send IME action.\n" +
-                "Failed to assert the following: (SupportsInputMethods = 'true')\n" +
+                "Failed to perform IME action.\n" +
+                "Failed to assert the following: (SupportsInputMethods is defined)\n" +
                 "Semantics of the node:"
         ) {
-            findByTag("node")
-                .doSendImeAction()
+            onNodeWithTag("node")
+                .performImeAction()
         }
     }
 }

@@ -545,12 +545,14 @@ public class WebViewCompat {
      * Let's say the injected JavaScript object is named {@code myObject}. We will have following
      * methods on that object once it is available to use:
      * <pre class="prettyprint">
+     * // Web page (in JavaScript)
      * // message needs to be a JavaScript String, MessagePorts is an optional parameter.
      * myObject.postMessage(message[, MessagePorts])
      *
-     * // To receive the message posted from the app side. event has a "data" property, which is the
-     * // message string from the app side.
-     * myObject.onmessage(event)
+     * // To receive messages posted from the app side, assign a function to the "onmessage"
+     * // property. This function should accept a single "event" argument. "event" has a "data"
+     * // property, which is the message string from the app side.
+     * myObject.onmessage = function(event) { ... }
      *
      * // To be compatible with DOM EventTarget's addEventListener, it accepts type and listener
      * // parameters, where type can be only "message" type and listener can only be a JavaScript
@@ -575,7 +577,8 @@ public class WebViewCompat {
      *   console.log(event.data);
      * }
      * myObject.postMessage("I'm ready!");
-     *
+     * </pre>
+     * <pre class="prettyprint">
      * // App (in Java)
      * WebMessageListener myListener = new WebMessageListener() {
      *   &#064;Override
@@ -585,7 +588,9 @@ public class WebViewCompat {
      *     replyProxy.postMessage("Got it!");
      *   }
      * };
-     * WebViewCompat.addWebMessageListener(webView, "myObject", rules, myListener);
+     * if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+     *   WebViewCompat.addWebMessageListener(webView, "myObject", rules, myListener);
+     * }
      * </pre>
      *
      * <p>
@@ -607,6 +612,11 @@ public class WebViewCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void addWebMessageListener(@NonNull WebView webView, @NonNull String jsObjectName,
             @NonNull Set<String> allowedOriginRules, @NonNull WebMessageListener listener) {
+        // TODO(b/159823546): Remove the SDK_INT check and put it into
+        // WebViewFeatureInternal.getFeature() after the bug is resolved.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            throw new AssertionError("Should be on Lollipop and above.");
+        }
         final WebViewFeatureInternal feature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.WEB_MESSAGE_LISTENER);
         if (feature.isSupportedByWebView()) {
@@ -657,14 +667,14 @@ public class WebViewCompat {
     @RequiresFeature(
             name = WebViewFeature.DOCUMENT_START_SCRIPT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static @NonNull ScriptReferenceCompat addDocumentStartJavascript(
+    public static @NonNull ScriptReferenceCompat addDocumentStartJavaScript(
             @NonNull WebView webview,
             @NonNull String script,
             @NonNull Set<String> allowedOriginRules) {
         final WebViewFeatureInternal feature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.DOCUMENT_START_SCRIPT);
         if (feature.isSupportedByWebView()) {
-            return getProvider(webview).addDocumentStartJavascript(
+            return getProvider(webview).addDocumentStartJavaScript(
                     script, allowedOriginRules.toArray(new String[0]));
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();

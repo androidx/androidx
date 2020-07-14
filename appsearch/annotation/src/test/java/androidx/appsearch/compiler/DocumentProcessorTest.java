@@ -111,6 +111,19 @@ public class DocumentProcessorTest {
     }
 
     @Test
+    public void testManyNamespace() {
+        Compilation compilation = compile(
+                "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument.Uri String uri;\n"
+                        + "  @AppSearchDocument.Namespace String ns1;\n"
+                        + "  @AppSearchDocument.Namespace String ns2;\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).hadErrorContaining(
+                "contains multiple fields annotated @Namespace");
+    }
+
+    @Test
     public void testManyTtlMillis() {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
@@ -194,7 +207,7 @@ public class DocumentProcessorTest {
     }
 
     @Test
-    public void testRead_MultipleGetters() {
+    public void testRead_MultipleGetters() throws Exception {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -205,6 +218,7 @@ public class DocumentProcessorTest {
                         + "  void setPrice(int n) {}\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
     }
 
     @Test
@@ -268,7 +282,7 @@ public class DocumentProcessorTest {
     }
 
     @Test
-    public void testWrite_MultipleSetters() {
+    public void testWrite_MultipleSetters() throws Exception {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -279,6 +293,7 @@ public class DocumentProcessorTest {
                         + "  void setPrice(int n) {}\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
     }
 
     @Test
@@ -369,7 +384,7 @@ public class DocumentProcessorTest {
                         + "public class Gift {\n"
                         + "  @AppSearchDocument.Uri String uri;\n"
                         + "  @AppSearchDocument.Property List<String> listOfString;\n"
-                        + "  @AppSearchDocument.Property TreeSet<Integer> setOfInt;\n"
+                        + "  @AppSearchDocument.Property Collection<Integer> setOfInt;\n"
                         + "  @AppSearchDocument.Property byte[][] repeatedByteArray;\n"
                         + "  @AppSearchDocument.Property byte[] byteArray;\n"
                         + "}\n");
@@ -385,7 +400,7 @@ public class DocumentProcessorTest {
                         + "public class Gift {\n"
                         + "  @AppSearchDocument.Uri String uri;\n"
                         + "  @AppSearchDocument.Property(required=true) List<String> repeatReq;\n"
-                        + "  @AppSearchDocument.Property(required=false) Set<String> repeatNoReq;\n"
+                        + " @AppSearchDocument.Property(required=false) List<String> repeatNoReq;\n"
                         + "  @AppSearchDocument.Property(required=true) Float req;\n"
                         + "  @AppSearchDocument.Property(required=false) Float noReq;\n"
                         + "}\n");
@@ -498,15 +513,15 @@ public class DocumentProcessorTest {
                         + "  @Uri String uri;\n"
                         + "\n"
                         + "  // Collections\n"
-                        + "  @Property Set<Long> collectLong;\n"         // 1a
-                        + "  @Property Set<Integer> collectInteger;\n"   // 1a
-                        + "  @Property Set<Double> collectDouble;\n"     // 1a
-                        + "  @Property Set<Float> collectFloat;\n"       // 1a
-                        + "  @Property Set<Boolean> collectBoolean;\n"   // 1a
-                        + "  @Property Set<byte[]> collectByteArr;\n"    // 1a
-                        + "  @Property Set<String> collectString;\n"     // 1b
-                        //+ "  @Property Set<GenericDocument> collectGenDoc;\n" // 1b
-                        //+ "  @Property Set<Gift> collectGift;\n"         // 1c
+                        + "  @Property Collection<Long> collectLong;\n"         // 1a
+                        + "  @Property Collection<Integer> collectInteger;\n"   // 1a
+                        + "  @Property Collection<Double> collectDouble;\n"     // 1a
+                        + "  @Property Collection<Float> collectFloat;\n"       // 1a
+                        + "  @Property Collection<Boolean> collectBoolean;\n"   // 1a
+                        + "  @Property Collection<byte[]> collectByteArr;\n"    // 1a
+                        + "  @Property Collection<String> collectString;\n"     // 1b
+                        //+ "  @Property Collection<GenericDocument> collectGenDoc;\n" // 1b
+                        //+ "  @Property Collection<Gift> collectGift;\n"         // 1c
                         + "\n"
                         + "  // Arrays\n"
                         + "  @Property Long[] arrBoxLong;\n"         // 2a
@@ -546,36 +561,36 @@ public class DocumentProcessorTest {
     }
 
     @Test
-    public void testToGenericDocument_InvalidTypes() throws Exception {
+    public void testToGenericDocument_InvalidTypes() {
         Compilation compilation = compile(
                 "import java.util.*;\n"
                         + "@AppSearchDocument\n"
                         + "public class Gift {\n"
                         + "  @Uri String uri;\n"
-                        + "  @Property Set<Byte[]> collectBoxByteArr;\n" // 1x
+                        + "  @Property Collection<Byte[]> collectBoxByteArr;\n" // 1x
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "Unhandled property type java.util.Set<java.lang.Byte[]>");
+                "Unhandled out property type (1x): java.util.Collection<java.lang.Byte[]>");
 
         compilation = compile(
                 "import java.util.*;\n"
                         + "@AppSearchDocument\n"
                         + "public class Gift {\n"
                         + "  @Uri String uri;\n"
-                        + "  @Property Set<Byte> collectByte;\n" // 1x
+                        + "  @Property Collection<Byte> collectByte;\n" // 1x
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "Unhandled property type java.util.Set<java.lang.Byte>");
+                "Unhandled out property type (1x): java.util.Collection<java.lang.Byte>");
 
         compilation = compile(
                 "import java.util.*;\n"
                         + "@AppSearchDocument\n"
                         + "public class Gift {\n"
                         + "  @Uri String uri;\n"
-                        + "  @Property Set<Object> collectObject;\n" // 1x
+                        + "  @Property Collection<Object> collectObject;\n" // 1x
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "Unhandled property type java.util.Set<java.lang.Object>");
+                "Unhandled out property type (1x): java.util.Collection<java.lang.Object>");
 
         compilation = compile(
                 "import java.util.*;\n"
@@ -585,7 +600,7 @@ public class DocumentProcessorTest {
                         + "  @Property Byte[][] arrBoxByteArr;\n" // 2x
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "Unhandled property type java.lang.Byte[][]");
+                "Unhandled out property type (2x): java.lang.Byte[][]");
 
         compilation = compile(
                 "import java.util.*;\n"
@@ -595,7 +610,7 @@ public class DocumentProcessorTest {
                         + "  @Property Object[] arrObject;\n" // 2x
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "Unhandled property type java.lang.Object[]");
+                "Unhandled out property type (2x): java.lang.Object[]");
 
         compilation = compile(
                 "import java.util.*;\n"
@@ -605,7 +620,50 @@ public class DocumentProcessorTest {
                         + "  @Property Object object;\n" // 3x
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "Unhandled property type java.lang.Object");
+                "Unhandled out property type (3x): java.lang.Object");
+    }
+
+    @Test
+    public void testAllSpecialFields_Field() throws Exception {
+        Compilation compilation = compile(
+                "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument.Uri String uri;\n"
+                        + "  @AppSearchDocument.Namespace String namespace;\n"
+                        + "  @AppSearchDocument.CreationTimestampMillis long creationTs;\n"
+                        + "  @AppSearchDocument.TtlMillis int ttlMs;\n"
+                        + "  @AppSearchDocument.Property int price;\n"
+                        + "  @AppSearchDocument.Score int score;\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
+    }
+
+    @Test
+    public void testAllSpecialFields_Getter() throws Exception {
+        Compilation compilation = compile(
+                "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument.Uri private String uri;\n"
+                        + "  @AppSearchDocument.Score private int score;\n"
+                        + "  @AppSearchDocument.CreationTimestampMillis private long creationTs;\n"
+                        + "  @AppSearchDocument.TtlMillis private int ttlMs;\n"
+                        + "  @AppSearchDocument.Property private int price;\n"
+                        + "  public String getUri() { return uri; }\n"
+                        + "  public void setUri(String uri) { this.uri = uri; }\n"
+                        + "  public int getScore() { return score; }\n"
+                        + "  public void setScore(int score) { this.score = score; }\n"
+                        + "  public long getCreationTs() { return creationTs; }\n"
+                        + "  public void setCreationTs(int creationTs) {\n"
+                        + "    this.creationTs = creationTs;\n"
+                        + "  }\n"
+                        + "  public int getTtlMs() { return ttlMs; }\n"
+                        + "  public void setTtlMs(int ttlMs) { this.ttlMs = ttlMs; }\n"
+                        + "  public int getPrice() { return price; }\n"
+                        + "  public void setPrice(int price) { this.price = price; }\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
     }
 
     private Compilation compile(String classBody) {

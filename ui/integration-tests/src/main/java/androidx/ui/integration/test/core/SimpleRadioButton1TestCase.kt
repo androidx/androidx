@@ -26,8 +26,6 @@ import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawOutline
 import androidx.ui.layout.preferredSize
-import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 
 class SimpleRadioButton1TestCase : BaseSimpleRadioButtonTestCase() {
@@ -42,7 +40,7 @@ class SimpleRadioButton1TestCase : BaseSimpleRadioButtonTestCase() {
             val innerSize = getInnerSize().value
             Canvas(Modifier.preferredSize(innerSize)) {
                 drawOutline(
-                    CircleShape.createOutline(PxSize(Px(size.width), Px(size.height)), this),
+                    CircleShape.createOutline(size, this),
                     Color.Cyan
                 )
             }

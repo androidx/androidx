@@ -127,4 +127,19 @@ public class BuildCompat {
     public static boolean isAtLeastR() {
         return VERSION.SDK_INT >= 30 || VERSION.CODENAME.equals("R");
     }
+
+    /**
+     * Checks if the device is running on a pre-release version of Android S or a release version of
+     * Android S or newer.
+     * <p>
+     * <strong>Note:</strong> When Android S is finalized for release, this method will be
+     * deprecated and all calls should be replaced with {@code Build.VERSION.SDK_INT >=
+     * Build.VERSION_CODES.S}.
+     *
+     * @return {@code true} if S APIs are available for use, {@code false} otherwise
+     */
+    @ChecksSdkIntAtLeast(codename = "S")
+    public static boolean isAtLeastS() {
+        return VERSION.CODENAME.equals("S");
+    }
 }

@@ -19,19 +19,25 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.compose.remember
 import androidx.ui.foundation.Border
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.IndicationAmbient
+import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.clickable
+import androidx.ui.foundation.indication
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.InnerPadding
-import androidx.ui.layout.preferredSizeIn
-import androidx.ui.semantics.Semantics
+import androidx.ui.layout.Row
+import androidx.ui.layout.RowScope
+import androidx.ui.layout.defaultMinSizeConstraints
+import androidx.ui.layout.padding
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -51,6 +57,11 @@ import androidx.ui.unit.dp
  * [ColorPalette.onPrimary].
  *
  * @sample androidx.ui.material.samples.ButtonSample
+ *
+ * If you need to add an icon just put it inside the [content] slot together with a spacing
+ * and a text:
+ *
+ * @sample androidx.ui.material.samples.ButtonWithIconSample
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -77,37 +88,44 @@ fun Button(
     shape: Shape = MaterialTheme.shapes.small,
     border: Border? = null,
     backgroundColor: Color = MaterialTheme.colors.primary,
-    disabledBackgroundColor: Color = Button.defaultDisabledBackgroundColor,
+    disabledBackgroundColor: Color = ButtonConstants.defaultDisabledBackgroundColor,
     contentColor: Color = contentColorFor(backgroundColor),
-    disabledContentColor: Color = Button.defaultDisabledContentColor,
-    padding: InnerPadding = Button.DefaultInnerPadding,
-    text: @Composable () -> Unit
+    disabledContentColor: Color = ButtonConstants.defaultDisabledContentColor,
+    padding: InnerPadding = ButtonConstants.DefaultInnerPadding,
+    content: @Composable RowScope.() -> Unit
 ) {
-    // Since we're adding layouts in between the clickable layer and the content, we need to
-    // merge all descendants, or we'll get multiple nodes
-    Semantics(container = true, mergeAllDescendants = true) {
-        Surface(
-            shape = shape,
-            color = if (enabled) backgroundColor else disabledBackgroundColor,
-            contentColor = if (enabled) contentColor else disabledContentColor,
-            border = border,
-            elevation = if (enabled) elevation else disabledElevation,
-            modifier = modifier
+    // TODO(aelias): Avoid manually putting the clickable above the clip and
+    // the ripple below the clip once http://b/157687898 is fixed and we have
+    // more flexibility to move the clickable modifier (see candidate approach
+    // aosp/1361921)
+    val interactionState = remember { InteractionState() }
+    Surface(
+        shape = shape,
+        color = if (enabled) backgroundColor else disabledBackgroundColor,
+        contentColor = if (enabled) contentColor else disabledContentColor,
+        border = border,
+        elevation = if (enabled) elevation else disabledElevation,
+        modifier = modifier.clickable(
+            onClick = onClick,
+            enabled = enabled,
+            interactionState = interactionState,
+            indication = null)
+    ) {
+        ProvideTextStyle(
+            value = MaterialTheme.typography.button
         ) {
-            Box(
-                ButtonConstraints
-                    .clickable(onClick = onClick, enabled = enabled),
-                paddingStart = padding.start,
-                paddingTop = padding.top,
-                paddingEnd = padding.end,
-                paddingBottom = padding.bottom,
-                gravity = ContentGravity.Center
-            ) {
-                ProvideTextStyle(
-                    value = MaterialTheme.typography.button,
-                    children = text
-                )
-            }
+            Row(
+                Modifier
+                    .defaultMinSizeConstraints(
+                        minWidth = ButtonConstants.DefaultMinWidth,
+                        minHeight = ButtonConstants.DefaultMinHeight
+                    )
+                    .indication(interactionState, IndicationAmbient.current())
+                    .padding(padding),
+                horizontalArrangement = Arrangement.Center,
+                verticalGravity = Alignment.CenterVertically,
+                children = content
+            )
         }
     }
 }
@@ -156,10 +174,10 @@ inline fun OutlinedButton(
         1.dp, MaterialTheme.colors.onSurface.copy(alpha = OutlinedStrokeOpacity)
     ),
     backgroundColor: Color = MaterialTheme.colors.surface,
-    contentColor: Color = contentColorFor(backgroundColor),
-    disabledContentColor: Color = Button.defaultDisabledContentColor,
-    padding: InnerPadding = Button.DefaultInnerPadding,
-    noinline text: @Composable () -> Unit
+    contentColor: Color = MaterialTheme.colors.primary,
+    disabledContentColor: Color = ButtonConstants.defaultDisabledContentColor,
+    padding: InnerPadding = ButtonConstants.DefaultInnerPadding,
+    noinline content: @Composable RowScope.() -> Unit
 ) = Button(
     modifier = modifier,
     onClick = onClick,
@@ -173,7 +191,7 @@ inline fun OutlinedButton(
     contentColor = contentColor,
     disabledContentColor = disabledContentColor,
     padding = padding,
-    text = text
+    content = content
 )
 
 /**
@@ -216,9 +234,9 @@ inline fun TextButton(
     border: Border? = null,
     backgroundColor: Color = Color.Transparent,
     contentColor: Color = MaterialTheme.colors.primary,
-    disabledContentColor: Color = Button.defaultDisabledContentColor,
-    padding: InnerPadding = TextButton.DefaultInnerPadding,
-    noinline text: @Composable () -> Unit
+    disabledContentColor: Color = ButtonConstants.defaultDisabledContentColor,
+    padding: InnerPadding = TextButtonConstants.DefaultInnerPadding,
+    noinline content: @Composable RowScope.() -> Unit
 ) = Button(
     modifier = modifier,
     onClick = onClick,
@@ -232,16 +250,13 @@ inline fun TextButton(
     contentColor = contentColor,
     disabledContentColor = disabledContentColor,
     padding = padding,
-    text = text
+    content = content
 )
-
-// Specification for Material Button:
-private val ButtonConstraints = Modifier.preferredSizeIn(minWidth = 64.dp, minHeight = 36.dp)
 
 /**
  * Contains the default values used by [Button]
  */
-object Button {
+object ButtonConstants {
     private val ButtonHorizontalPadding = 16.dp
     private val ButtonVerticalPadding = 8.dp
 
@@ -254,6 +269,32 @@ object Button {
         end = ButtonHorizontalPadding,
         bottom = ButtonVerticalPadding
     )
+
+    /**
+     * The default min width applied for the [Button].
+     * Note that you can override it by applying [Modifier.widthIn] directly on [Button].
+     */
+    val DefaultMinWidth = 64.dp
+
+    /**
+     * The default min width applied for the [Button].
+     * Note that you can override it by applying [Modifier.heightIn] directly on [Button].
+     */
+    val DefaultMinHeight = 36.dp
+
+    /**
+     * The default size of the icon when used inside a [Button].
+     *
+     * @sample androidx.ui.material.samples.ButtonWithIconSample
+     */
+    val DefaultIconSize = 18.dp
+
+    /**
+     * The default size of the spacing between an icon and a text when they used inside a [Button].
+     *
+     * @sample androidx.ui.material.samples.ButtonWithIconSample
+     */
+    val DefaultIconSpacing = 8.dp
 
     /**
      * The default disabled background color used by Contained [Button]s
@@ -280,13 +321,13 @@ object Button {
 /**
  * Contains the default values used by [TextButton]
  */
-object TextButton {
+object TextButtonConstants {
     private val TextButtonHorizontalPadding = 8.dp
 
     /**
      * The default inner padding used by [TextButton]
      */
-    val DefaultInnerPadding = Button.DefaultInnerPadding.copy(
+    val DefaultInnerPadding = ButtonConstants.DefaultInnerPadding.copy(
         start = TextButtonHorizontalPadding,
         end = TextButtonHorizontalPadding
     )

@@ -23,4 +23,19 @@ class StaticLayout(
     align: Alignment,
     spacingmult: Float,
     spacingadd: Float
-) : Layout(text, paint, width, align, spacingmult, spacingadd)
+) : Layout(text, paint, width, align, spacingmult, spacingadd) {
+
+    constructor(
+        source: CharSequence,
+        bufstart: Int,
+        bufend: Int,
+        paint: TextPaint,
+        outerwidth: Int,
+        align: Alignment,
+        spacingmult: Float,
+        spacingadd: Float,
+        includepad: Boolean,
+        ellipsize: TextUtils.TruncateAt?,
+        ellipsizedWidth: Int
+    ) : this(source, paint, bufend - bufstart, align, spacingmult, spacingadd)
+}
