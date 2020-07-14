@@ -19,15 +19,14 @@ package androidx.ui.text
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
-import androidx.ui.unit.Density
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.sp
 import androidx.ui.integration.test.RandomTextGenerator
 import androidx.ui.integration.test.TextBenchmarkTestRule
 import androidx.ui.integration.test.TextType
 import androidx.ui.integration.test.cartesian
 import androidx.ui.text.font.Font
-import androidx.ui.text.style.TextDirection
+import androidx.ui.unit.Density
+import androidx.ui.unit.sp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,10 +73,7 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
         return ParagraphIntrinsics(
             text = text,
             density = Density(density = 1f),
-            style = TextStyle(
-                fontSize = 12.sp,
-                textDirection = TextDirection.ContentOrLtr
-            ),
+            style = TextStyle(fontSize = 12.sp),
             resourceLoader = resourceLoader,
             spanStyles = spanStyles
         )

@@ -64,10 +64,6 @@ class MultiParagraphIntrinsics(
     internal val infoList: List<ParagraphIntrinsicInfo>
 
     init {
-        requireNotNull(style.textDirection) {
-            "ParagraphStyle.textDirectionAlgorithm should not be null"
-        }
-
         val paragraphStyle = style.toParagraphStyle()
         infoList = annotatedString
             .mapEachParagraphStyle(paragraphStyle) { annotatedString, paragraphStyleItem ->

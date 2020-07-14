@@ -23,7 +23,6 @@ import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.annotatedString
 import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.sp
 
@@ -51,12 +50,10 @@ fun ParagraphStyleAnnotatedStringsSample() {
             "nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
 
     val paragraphStyle1 = ParagraphStyle(
-        textDirection = TextDirection.ContentOrLtr,
         textIndent = TextIndent(firstLine = 14.sp)
     )
     val paragraphStyle2 = ParagraphStyle(
-        lineHeight = 30.sp,
-        textDirection = TextDirection.ContentOrLtr
+        lineHeight = 30.sp
     )
 
     Text(
