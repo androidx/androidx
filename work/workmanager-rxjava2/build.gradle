@@ -47,6 +47,5 @@ androidx {
     mavenGroup = LibraryGroups.WORK
     inceptionYear = "2018"
     description = "Android WorkManager RxJava2 interoperatibility library"
-    url = AndroidXExtension.ARCHITECTURE_URL
     failOnDeprecationWarnings = false
 }

@@ -53,7 +53,6 @@ androidx {
     mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2018"
     description = "Android Paging-RXJava2"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }
 
 // Allow usage of Kotlin's @OptIn.

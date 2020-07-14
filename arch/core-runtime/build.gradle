@@ -43,5 +43,4 @@ androidx {
     mavenGroup = LibraryGroups.ARCH_CORE
     inceptionYear = "2017"
     description = "Android Arch-Runtime"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }
