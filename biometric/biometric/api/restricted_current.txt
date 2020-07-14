@@ -62,7 +62,9 @@ package androidx.biometric {
     ctor public BiometricPrompt.CryptoObject(java.security.Signature);
     ctor public BiometricPrompt.CryptoObject(javax.crypto.Cipher);
     ctor public BiometricPrompt.CryptoObject(javax.crypto.Mac);
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public BiometricPrompt.CryptoObject(android.security.identity.IdentityCredential);
     method public javax.crypto.Cipher? getCipher();
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) public android.security.identity.IdentityCredential? getIdentityCredential();
     method public javax.crypto.Mac? getMac();
     method public java.security.Signature? getSignature();
   }

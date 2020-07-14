@@ -93,6 +93,15 @@ class CryptoObjectUtils {
             return new BiometricPrompt.CryptoObject(mac);
         }
 
+        // Identity credential is only supported on API 30 and above.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            final android.security.identity.IdentityCredential identityCredential =
+                    Api30Impl.getIdentityCredential(cryptoObject);
+            if (identityCredential != null) {
+                return new BiometricPrompt.CryptoObject(identityCredential);
+            }
+        }
+
         return null;
     }
 
@@ -125,6 +134,15 @@ class CryptoObjectUtils {
         final Mac mac = cryptoObject.getMac();
         if (mac != null) {
             return Api28Impl.create(mac);
+        }
+
+        // Identity credential is only supported on API 30 and above.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            final android.security.identity.IdentityCredential identityCredential =
+                    cryptoObject.getIdentityCredential();
+            if (identityCredential != null) {
+                return Api30Impl.create(identityCredential);
+            }
         }
 
         return null;
@@ -201,6 +219,12 @@ class CryptoObjectUtils {
                     mac);
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                && cryptoObject.getIdentityCredential() != null) {
+            Log.e(TAG, "Identity credential is not supported by FingerprintManager.");
+            return null;
+        }
+
         return null;
     }
 
@@ -250,6 +274,42 @@ class CryptoObjectUtils {
     /**
      * Nested class to avoid verification errors for methods introduced in Android 9.0 (API 28).
      */
+    @RequiresApi(Build.VERSION_CODES.R)
+    private static class Api30Impl {
+        // Prevent instantiation.
+        private Api30Impl() {}
+
+        /**
+         * Creates an instance of the framework class
+         * {@link android.hardware.biometrics.BiometricPrompt.CryptoObject} from the given identity
+         * credential.
+         *
+         * @param identityCredential The identity credential object to be wrapped.
+         * @return An instance of {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         */
+        @NonNull
+        static android.hardware.biometrics.BiometricPrompt.CryptoObject create(
+                @NonNull android.security.identity.IdentityCredential identityCredential) {
+            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(identityCredential);
+        }
+
+        /**
+         * Gets the identity credential associated with the given crypto object, if any.
+         *
+         * @param crypto An instance of
+         *               {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         * @return The wrapped identity credential object, or {@code null}.
+         */
+        @Nullable
+        static android.security.identity.IdentityCredential getIdentityCredential(
+                @NonNull android.hardware.biometrics.BiometricPrompt.CryptoObject crypto) {
+            return crypto.getIdentityCredential();
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 9.0 (API 28).
+     */
     @RequiresApi(Build.VERSION_CODES.P)
     private static class Api28Impl {
         // Prevent instantiation.
@@ -262,6 +322,7 @@ class CryptoObjectUtils {
          * @param cipher The cipher object to be wrapped.
          * @return An instance of {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
          */
+        @NonNull
         static android.hardware.biometrics.BiometricPrompt.CryptoObject create(
                 @NonNull Cipher cipher) {
             return new android.hardware.biometrics.BiometricPrompt.CryptoObject(cipher);
@@ -275,6 +336,7 @@ class CryptoObjectUtils {
          * @param signature The signature object to be wrapped.
          * @return An instance of {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
          */
+        @NonNull
         static android.hardware.biometrics.BiometricPrompt.CryptoObject create(
                 @NonNull Signature signature) {
             return new android.hardware.biometrics.BiometricPrompt.CryptoObject(signature);
@@ -287,6 +349,7 @@ class CryptoObjectUtils {
          * @param mac The MAC object to be wrapped.
          * @return An instance of {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
          */
+        @NonNull
         static android.hardware.biometrics.BiometricPrompt.CryptoObject create(@NonNull Mac mac) {
             return new android.hardware.biometrics.BiometricPrompt.CryptoObject(mac);
         }
@@ -347,6 +410,7 @@ class CryptoObjectUtils {
          * @return An instance of {@link KeyGenParameterSpec.Builder}.
          */
         @SuppressWarnings("SameParameterValue")
+        @NonNull
         static KeyGenParameterSpec.Builder createKeyGenParameterSpecBuilder(
                 @NonNull String keystoreAlias, int purposes) {
             return new KeyGenParameterSpec.Builder(keystoreAlias, purposes);
@@ -376,6 +440,7 @@ class CryptoObjectUtils {
          * @param keySpecBuilder An instance of {@link KeyGenParameterSpec.Builder}.
          * @return A {@link KeyGenParameterSpec} created from the given builder.
          */
+        @NonNull
         static KeyGenParameterSpec buildKeyGenParameterSpec(
                 @NonNull KeyGenParameterSpec.Builder keySpecBuilder) {
             return keySpecBuilder.build();
