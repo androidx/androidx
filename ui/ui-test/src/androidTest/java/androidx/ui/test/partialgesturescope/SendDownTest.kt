@@ -22,7 +22,7 @@ import androidx.ui.geometry.Offset
 import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.partialgesturescope.Common.partialGesture
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.down
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.MultiPointerInputRecorder
@@ -66,7 +66,7 @@ class SendDownTest {
         // When we put a pointer down
         partialGesture { down(position1) }
 
-        runOnIdleCompose {
+        runOnIdle {
             recorder.run {
                 // Then we have recorded 1 down event
                 assertTimestampsAreIncreasing()
@@ -84,7 +84,7 @@ class SendDownTest {
         sleep(20) // (with some time in between)
         partialGesture { down(2, position2) }
 
-        runOnIdleCompose {
+        runOnIdle {
             recorder.run {
                 // Then we have recorded 2 down events with the same timestamp
                 assertTimestampsAreIncreasing()

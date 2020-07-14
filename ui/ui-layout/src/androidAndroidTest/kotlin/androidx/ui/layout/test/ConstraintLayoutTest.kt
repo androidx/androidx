@@ -42,7 +42,7 @@ import androidx.ui.layout.rtl
 import androidx.ui.layout.size
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.unit.IntSize
 import androidx.ui.test.waitForIdle
 import androidx.ui.unit.dp
@@ -101,7 +101,7 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
             assertEquals(
                 (composeTestRule.displayMetrics.widthPixels / 2),
@@ -160,7 +160,7 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
             assertEquals(
                 (composeTestRule.displayMetrics.widthPixels / 2),
@@ -220,7 +220,7 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
             assertEquals(
                 (composeTestRule.displayMetrics.widthPixels / 2),
@@ -287,7 +287,7 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             // The width of the ConstraintLayout should be twice the width of the aspect ratio box.
             assertEquals(size.toIntPx() * 2, constraintLayoutSize.value!!.width)
             // The height of the ConstraintLayout should be the height of the aspect ratio box.
@@ -353,7 +353,7 @@ class ConstraintLayoutTest : LayoutTest() {
         val displayWidth = composeTestRule.displayMetrics.widthPixels
         val displayHeight = composeTestRule.displayMetrics.heightPixels
 
-        runOnIdleCompose {
+        runOnIdle {
             assertEquals(
                 Offset(
                     ((displayWidth - boxSize) / 2).toFloat(),
@@ -421,7 +421,7 @@ class ConstraintLayoutTest : LayoutTest() {
         val displayWidth = composeTestRule.displayMetrics.widthPixels
         val displayHeight = composeTestRule.displayMetrics.heightPixels
 
-        runOnIdleCompose {
+        runOnIdle {
             assertEquals(
                 Offset(
                     (displayWidth - boxSize) / 2f,
@@ -492,7 +492,7 @@ class ConstraintLayoutTest : LayoutTest() {
         val displayWidth = composeTestRule.displayMetrics.widthPixels
         val displayHeight = composeTestRule.displayMetrics.heightPixels
 
-        runOnIdleCompose {
+        runOnIdle {
             assertEquals(
                 Offset(
                     (displayWidth - boxSize) / 2f,
@@ -549,7 +549,7 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             Assert.assertEquals(50f, position[0])
             Assert.assertEquals(50f, position[1])
             Assert.assertEquals(150f, position[2])
@@ -593,7 +593,7 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             Assert.assertEquals(150f, position[0])
             Assert.assertEquals(50f, position[1])
             Assert.assertEquals(50f, position[2])
@@ -647,7 +647,7 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             Assert.assertEquals(50f, position[0])
             Assert.assertEquals(50f, position[1])
             Assert.assertEquals(151f, position[2])
@@ -697,7 +697,7 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             Assert.assertEquals(151f, position[0])
             Assert.assertEquals(50f, position[1])
             Assert.assertEquals(50f, position[2])
@@ -753,7 +753,7 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             Assert.assertEquals(50f, position[0])
             Assert.assertEquals(50f, position[1])
             Assert.assertEquals(50f, position[2])
@@ -821,7 +821,7 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             Assert.assertEquals(50f, position[0])
             Assert.assertEquals(51f, position[1])
             Assert.assertEquals(49f, position[2])
@@ -884,7 +884,7 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             Assert.assertEquals(Offset(60f, 60f), position[0])
             Assert.assertEquals(Offset(61f, 61f), position[1])
         }
@@ -903,7 +903,7 @@ class ConstraintLayoutTest : LayoutTest() {
                 }
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             first.value = false
         }
         waitForIdle()
@@ -924,7 +924,7 @@ class ConstraintLayoutTest : LayoutTest() {
                 }
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             first.value = false
         }
         waitForIdle()
@@ -938,7 +938,7 @@ class ConstraintLayoutTest : LayoutTest() {
                 Box(if (first.value) Modifier else Modifier.size(20.dp))
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             first.value = false
         }
         waitForIdle()
@@ -955,7 +955,7 @@ class ConstraintLayoutTest : LayoutTest() {
                 Box(if (first.value) Modifier else Modifier.size(20.dp))
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             first.value = false
         }
         waitForIdle()

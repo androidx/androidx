@@ -48,7 +48,7 @@ class WaitingForOnCommitCallbackTest {
 
         assertThat(atomicBoolean.get()).isTrue()
 
-        runOnIdleCompose {
+        runOnIdle {
             switch = false
         }
         waitForIdle()
@@ -90,7 +90,7 @@ class WaitingForOnCommitCallbackTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             latch = CountDownLatch(1)
             values.clear()
 

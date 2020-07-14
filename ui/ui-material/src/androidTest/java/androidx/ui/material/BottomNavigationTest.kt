@@ -94,7 +94,7 @@ class BottomNavigationTest {
             }
         }
 
-        composeTestRule.runOnIdleComposeWithDensity {
+        composeTestRule.runOnIdleWithDensity {
             val totalWidth = parentCoords.size.width
 
             val expectedItemWidth = totalWidth / 4

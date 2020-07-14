@@ -26,7 +26,7 @@ import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performPartialGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.down
 import androidx.ui.test.up
 import androidx.ui.geometry.Offset
@@ -86,7 +86,7 @@ class IndicationTest {
             .performPartialGesture {
                 down(center)
             }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(countDownLatch.count).isEqualTo(1)
         }
         onNodeWithTag(testTag)
@@ -112,10 +112,10 @@ class IndicationTest {
             Box(Modifier.testTag(testTag).preferredSize(100.dp).plus(switchableIndication))
         }
         assertThat(countDownLatch.count).isEqualTo(1)
-        runOnIdleCompose {
+        runOnIdle {
             switchState.value = !switchState.value
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(countDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         }
     }
@@ -144,7 +144,7 @@ class IndicationTest {
                 // pointer 1, when we have multitouch
                 down(position1!!)
             }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(lastPosition).isEqualTo(position1!!)
         }
         onNodeWithTag(testTag)
@@ -155,7 +155,7 @@ class IndicationTest {
                 down(position2)
             }
         // should be still position1
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(lastPosition).isEqualTo(position1!!)
         }
         onNodeWithTag(testTag)
@@ -164,7 +164,7 @@ class IndicationTest {
                 // pointer 1, when we have multitouch
                 up()
             }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(lastPosition).isNull()
         }
         onNodeWithTag(testTag)

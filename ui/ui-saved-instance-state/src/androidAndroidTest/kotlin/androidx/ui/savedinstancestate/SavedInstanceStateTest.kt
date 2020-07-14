@@ -20,7 +20,7 @@ import androidx.compose.MutableState
 import androidx.test.filters.MediumTest
 import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -68,7 +68,7 @@ class SavedInstanceStateTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(state!!.value).isEqualTo(Holder(0))
 
             state!!.value.value = 1
@@ -78,7 +78,7 @@ class SavedInstanceStateTest {
 
         restorationTester.emulateSavedInstanceStateRestore()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(state!!.value).isEqualTo(Holder(1))
         }
     }

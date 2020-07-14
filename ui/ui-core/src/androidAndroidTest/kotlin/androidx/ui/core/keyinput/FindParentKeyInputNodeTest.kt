@@ -22,7 +22,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -54,12 +54,12 @@ class FindParentKeyInputNodeTest {
         }
 
         // Act.
-        val parent = runOnIdleCompose {
+        val parent = runOnIdle {
             modifier3.keyInputNode!!.findParentKeyInputNode()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parent).isEqualTo(modifier2.keyInputNode)
         }
     }
@@ -79,12 +79,12 @@ class FindParentKeyInputNodeTest {
         }
 
         // Act.
-        val parent = runOnIdleCompose {
+        val parent = runOnIdle {
             modifier3.keyInputNode!!.findParentKeyInputNode()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parent).isEqualTo(modifier2.keyInputNode)
         }
     }
@@ -108,12 +108,12 @@ class FindParentKeyInputNodeTest {
         }
 
         // Act.
-        val parent = runOnIdleCompose {
+        val parent = runOnIdle {
             keyInputModifier.keyInputNode!!.findParentKeyInputNode()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parent).isEqualTo(parentKeyInputModifier2.keyInputNode)
         }
     }
@@ -141,12 +141,12 @@ class FindParentKeyInputNodeTest {
         }
 
         // Act.
-        val parent = runOnIdleCompose {
+        val parent = runOnIdle {
             keyInputModifier.keyInputNode!!.findParentKeyInputNode()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parent).isEqualTo(parentKeyInputModifier.keyInputNode)
         }
     }
@@ -172,12 +172,12 @@ class FindParentKeyInputNodeTest {
         }
 
         // Act.
-        val parent = runOnIdleCompose {
+        val parent = runOnIdle {
             keyInputModifier.keyInputNode!!.findParentKeyInputNode()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parent).isEqualTo(grandparentKeyInputModifier.keyInputNode)
         }
     }

@@ -29,7 +29,7 @@ import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.pinch
 import androidx.ui.test.size
@@ -80,7 +80,7 @@ class ZoomableTest {
 
         clockRule.advanceClock(milliseconds = 1000)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertWithMessage("Should have scaled at least 4x").that(cumulativeScale).isAtLeast(4f)
         }
     }
@@ -111,7 +111,7 @@ class ZoomableTest {
 
         clockRule.advanceClock(milliseconds = 1000)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertWithMessage("Should have scaled down at least 4x")
                 .that(cumulativeScale)
                 .isAtMost(0.25f)
@@ -136,19 +136,19 @@ class ZoomableTest {
 
         clockRule.advanceClock(milliseconds = 10)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertWithMessage("Scrolling should have been smooth").that(callbackCount).isAtLeast(1)
         }
 
         clockRule.advanceClock(milliseconds = 10)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertWithMessage("Scrolling should have been smooth").that(callbackCount).isAtLeast(2)
         }
 
         clockRule.advanceClock(milliseconds = 1000)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertWithMessage("Scrolling should have been smooth").that(callbackCount).isAtLeast(3)
             assertWithMessage("Should have scaled at least 4x").that(cumulativeScale).isAtLeast(4f)
         }

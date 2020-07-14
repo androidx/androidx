@@ -25,7 +25,7 @@ import androidx.ui.core.focus.FocusModifier
 import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.width
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import androidx.ui.text.CoreTextField
 import androidx.ui.unit.dp
@@ -77,23 +77,23 @@ class TextFieldFocusTest {
             }
         }
 
-        runOnIdleCompose { testDataList[0].id.requestFocus() }
+        runOnIdle { testDataList[0].id.requestFocus() }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(testDataList[0].focused).isTrue()
             assertThat(testDataList[1].focused).isFalse()
             assertThat(testDataList[2].focused).isFalse()
         }
 
-        runOnIdleCompose { testDataList[1].id.requestFocus() }
-        runOnIdleCompose {
+        runOnIdle { testDataList[1].id.requestFocus() }
+        runOnIdle {
             assertThat(testDataList[0].focused).isFalse()
             assertThat(testDataList[1].focused).isTrue()
             assertThat(testDataList[2].focused).isFalse()
         }
 
-        runOnIdleCompose { testDataList[2].id.requestFocus() }
-        runOnIdleCompose {
+        runOnIdle { testDataList[2].id.requestFocus() }
+        runOnIdle {
             assertThat(testDataList[0].focused).isFalse()
             assertThat(testDataList[1].focused).isFalse()
             assertThat(testDataList[2].focused).isTrue()

@@ -41,7 +41,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.globalBounds
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.click
 import androidx.ui.test.swipe
@@ -93,7 +93,7 @@ class DrawerTest {
         }
 
         val width = rootWidth()
-        composeTestRule.runOnIdleComposeWithDensity {
+        composeTestRule.runOnIdleWithDensity {
             position!!.x.toDp().assertIsEqualTo(-width)
         }
     }
@@ -137,7 +137,7 @@ class DrawerTest {
         }
 
         val height = rootHeight()
-        composeTestRule.runOnIdleComposeWithDensity {
+        composeTestRule.runOnIdleWithDensity {
             position!!.y.toDp().assertIsEqualTo(height)
         }
     }
@@ -175,7 +175,7 @@ class DrawerTest {
 
         // When the drawer state is set to Opened
         openedLatch = CountDownLatch(1)
-        runOnIdleCompose {
+        runOnIdle {
             drawerState.value = DrawerState.Opened
         }
         // Then the drawer should be opened
@@ -183,7 +183,7 @@ class DrawerTest {
 
         // When the drawer state is set to Closed
         closedLatch = CountDownLatch(1)
-        runOnIdleCompose {
+        runOnIdle {
             drawerState.value = DrawerState.Closed
         }
         // Then the drawer should be closed
@@ -215,7 +215,7 @@ class DrawerTest {
         // Click in the middle of the drawer (which is the middle of the body)
         onNodeWithTag("Drawer").performGesture { click() }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerClicks).isEqualTo(0)
             assertThat(bodyClicks).isEqualTo(1)
 
@@ -230,7 +230,7 @@ class DrawerTest {
             click(Offset(left, centerY))
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerClicks).isEqualTo(1)
             assertThat(bodyClicks).isEqualTo(1)
         }
@@ -271,7 +271,7 @@ class DrawerTest {
 
         // When the drawer state is set to Opened
         openedLatch = CountDownLatch(1)
-        runOnIdleCompose {
+        runOnIdle {
             drawerState.value = BottomDrawerState.Opened
         }
         // Then the drawer should be opened
@@ -279,7 +279,7 @@ class DrawerTest {
 
         // When the drawer state is set to Closed
         closedLatch = CountDownLatch(1)
-        runOnIdleCompose {
+        runOnIdle {
             drawerState.value = BottomDrawerState.Closed
         }
         // Then the drawer should be closed
@@ -311,7 +311,7 @@ class DrawerTest {
         // Click in the middle of the drawer (which is the middle of the body)
         onNodeWithTag("Drawer").performGesture { click() }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerClicks).isEqualTo(0)
             assertThat(bodyClicks).isEqualTo(1)
         }
@@ -352,14 +352,14 @@ class DrawerTest {
         onNodeWithTag("Drawer")
             .performGesture { swipeRight() }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerState.value).isEqualTo(DrawerState.Opened)
         }
 
         onNodeWithTag("Drawer")
             .performGesture { swipeLeft() }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerState.value).isEqualTo(DrawerState.Closed)
         }
     }
@@ -383,14 +383,14 @@ class DrawerTest {
         onNodeWithTag("Drawer")
             .performGesture { swipeLeft() }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerState.value).isEqualTo(DrawerState.Opened)
         }
 
         onNodeWithTag("Drawer")
             .performGesture { swipeRight() }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerState.value).isEqualTo(DrawerState.Closed)
         }
     }
@@ -414,14 +414,14 @@ class DrawerTest {
         onNodeWithTag("Drawer")
             .performGesture { swipeUp() }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Expanded)
         }
 
         onNodeWithTag("Drawer")
             .performGesture { swipeDown() }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Closed)
         }
     }
@@ -446,56 +446,56 @@ class DrawerTest {
         onNodeWithTag("Drawer")
             .performGesture { swipeUpBy(threshold / 2) }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Closed)
         }
 
         onNodeWithTag("Drawer")
             .performGesture { swipeUpBy(threshold) }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Opened)
         }
 
         onNodeWithTag("Drawer")
             .performGesture { swipeUpBy(threshold / 2) }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Opened)
         }
 
         onNodeWithTag("Drawer")
             .performGesture { swipeUpBy(threshold) }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Expanded)
         }
 
         onNodeWithTag("Drawer")
             .performGesture { swipeDownBy(threshold / 2) }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Expanded)
         }
 
         onNodeWithTag("Drawer")
             .performGesture { swipeDownBy(threshold) }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Opened)
         }
 
         onNodeWithTag("Drawer")
             .performGesture { swipeDownBy(threshold / 2) }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Opened)
         }
 
         onNodeWithTag("Drawer")
             .performGesture { swipeDownBy(threshold) }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(drawerState.value).isEqualTo(BottomDrawerState.Closed)
         }
     }

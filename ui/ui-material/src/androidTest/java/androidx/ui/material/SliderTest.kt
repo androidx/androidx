@@ -43,7 +43,7 @@ import androidx.ui.test.performPartialGesture
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.left
 import androidx.ui.test.right
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.down
 import androidx.ui.test.moveBy
@@ -80,11 +80,11 @@ class SliderTest {
                 valueRange = 0f..1f
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             state.value = 2f
         }
         onNodeWithTag(tag).assertValueEquals("100 percent")
-        runOnIdleCompose {
+        runOnIdle {
             state.value = -123145f
         }
         onNodeWithTag(tag).assertValueEquals("0 percent")
@@ -144,7 +144,7 @@ class SliderTest {
                 up()
                 expected = calculateFraction(left, right, centerX + 100)
             }
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(abs(state.value - expected)).isLessThan(0.001f)
         }
     }
@@ -174,7 +174,7 @@ class SliderTest {
                 up()
                 expected = calculateFraction(left, right, centerX + 50)
             }
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(abs(state.value - expected)).isLessThan(0.001f)
         }
     }
@@ -206,7 +206,7 @@ class SliderTest {
                 // subtract here as we're in rtl and going in the opposite direction
                 expected = calculateFraction(left, right, centerX - 100)
             }
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(abs(state.value - expected)).isLessThan(0.001f)
         }
     }
@@ -236,7 +236,7 @@ class SliderTest {
                 up()
                 expected = calculateFraction(left, right, centerX - 50)
             }
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(abs(state.value - expected)).isLessThan(0.001f)
         }
     }

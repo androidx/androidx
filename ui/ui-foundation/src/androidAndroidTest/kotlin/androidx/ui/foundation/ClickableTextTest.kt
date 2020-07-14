@@ -22,7 +22,7 @@ import androidx.ui.core.testTag
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.text.AnnotatedString
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -52,7 +52,7 @@ class ClickableTextTest {
 
         onNodeWithTag("clickableText").performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             verify(onClick, times(1)).invoke(any())
         }
     }

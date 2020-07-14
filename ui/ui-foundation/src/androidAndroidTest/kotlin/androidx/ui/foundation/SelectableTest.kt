@@ -37,7 +37,7 @@ import androidx.ui.test.onAllNodes
 import androidx.ui.test.onNodeWithText
 import androidx.ui.test.onFirst
 import androidx.ui.test.isInMutuallyExclusiveGroup
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.down
 import androidx.ui.test.up
 import com.google.common.truth.Truth
@@ -124,21 +124,21 @@ class SelectableTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
 
         onNodeWithText("SelectableText")
             .performPartialGesture { down(center) }
 
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(interactionState.value).contains(Interaction.Pressed)
         }
 
         onNodeWithText("SelectableText")
             .performPartialGesture { up() }
 
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
     }
@@ -162,23 +162,23 @@ class SelectableTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
 
         onNodeWithText("SelectableText")
             .performPartialGesture { down(center) }
 
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(interactionState.value).contains(Interaction.Pressed)
         }
 
         // Dispose selectable
-        runOnIdleCompose {
+        runOnIdle {
             emitSelectableText = false
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
     }

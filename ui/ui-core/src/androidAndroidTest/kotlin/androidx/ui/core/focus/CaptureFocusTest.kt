@@ -24,7 +24,7 @@ import androidx.ui.core.focus.FocusDetailedState.Disabled
 import androidx.ui.core.focus.FocusDetailedState.Inactive
 import androidx.ui.foundation.Box
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -47,12 +47,12 @@ class CaptureFocusTest {
         }
 
         // Act.
-        val success = runOnIdleCompose {
+        val success = runOnIdle {
             focusModifier.captureFocus()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(success).isTrue()
             assertThat(focusModifier.focusDetailedState).isEqualTo(Captured)
         }
@@ -68,12 +68,12 @@ class CaptureFocusTest {
         }
 
         // Act.
-        val success = runOnIdleCompose {
+        val success = runOnIdle {
             focusModifier.captureFocus()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(success).isFalse()
             assertThat(focusModifier.focusDetailedState).isEqualTo(ActiveParent)
         }
@@ -89,12 +89,12 @@ class CaptureFocusTest {
         }
 
         // Act.
-        val success = runOnIdleCompose {
+        val success = runOnIdle {
             focusModifier.captureFocus()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(success).isTrue()
             assertThat(focusModifier.focusDetailedState).isEqualTo(Captured)
         }
@@ -110,12 +110,12 @@ class CaptureFocusTest {
         }
 
         // Act.
-        val success = runOnIdleCompose {
+        val success = runOnIdle {
             focusModifier.captureFocus()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(success).isFalse()
             assertThat(focusModifier.focusDetailedState).isEqualTo(Disabled)
         }
@@ -131,12 +131,12 @@ class CaptureFocusTest {
         }
 
         // Act.
-        val success = runOnIdleCompose {
+        val success = runOnIdle {
             focusModifier.captureFocus()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(success).isFalse()
             assertThat(focusModifier.focusDetailedState).isEqualTo(Inactive)
         }

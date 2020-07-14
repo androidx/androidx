@@ -48,34 +48,34 @@ class SynchronizationMethodsTest {
     }
 
     @Test
-    fun runOnIdleCompose() {
+    fun runOnIdle() {
         withAndroidOwnerRegistry {
-            val result = runOnIdleCompose { "Hello" }
+            val result = runOnIdle { "Hello" }
             assertThat(result).isEqualTo("Hello")
         }
     }
 
     @Test
-    fun runOnIdleCompose_void() {
+    fun runOnIdle_void() {
         withAndroidOwnerRegistry {
             var called = false
-            runOnIdleCompose { called = true }
+            runOnIdle { called = true }
             assertThat(called).isTrue()
         }
     }
 
     @Test
-    fun runOnIdleCompose_nullable() {
+    fun runOnIdle_nullable() {
         withAndroidOwnerRegistry {
-            val result: String? = runOnIdleCompose { null }
+            val result: String? = runOnIdle { null }
             assertThat(result).isEqualTo(null)
         }
     }
 
     @Test
-    fun runOnIdleCompose_assert_fails() {
+    fun runOnIdle_assert_fails() {
         withAndroidOwnerRegistry {
-            runOnIdleCompose {
+            runOnIdle {
                 expectError<IllegalStateException> {
                     onNodeWithTag("dummy").assertExists()
                 }
@@ -84,9 +84,9 @@ class SynchronizationMethodsTest {
     }
 
     @Test
-    fun runOnIdleCompose_waitForIdle_fails() {
+    fun runOnIdle_waitForIdle_fails() {
         withAndroidOwnerRegistry {
-            runOnIdleCompose {
+            runOnIdle {
                 expectError<IllegalStateException> {
                     waitForIdle()
                 }
@@ -95,11 +95,11 @@ class SynchronizationMethodsTest {
     }
 
     @Test
-    fun runOnIdleCompose_runOnIdleCompose_fails() {
+    fun runOnIdle_runOnIdle_fails() {
         withAndroidOwnerRegistry {
-            runOnIdleCompose {
+            runOnIdle {
                 expectError<IllegalStateException> {
-                    runOnIdleCompose {}
+                    runOnIdle {}
                 }
             }
         }

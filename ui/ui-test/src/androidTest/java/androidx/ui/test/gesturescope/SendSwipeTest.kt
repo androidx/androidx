@@ -28,7 +28,7 @@ import androidx.ui.test.bottomRight
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.swipe
 import androidx.ui.test.swipeDown
 import androidx.ui.test.swipeLeft
@@ -73,7 +73,7 @@ class SendSwipeTest {
     fun swipeUp() {
         composeTestRule.setContent { Ui(Alignment.TopStart) }
         onNodeWithTag(tag).performGesture { swipeUp() }
-        runOnIdleCompose {
+        runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -86,7 +86,7 @@ class SendSwipeTest {
     fun swipeDown() {
         composeTestRule.setContent { Ui(Alignment.TopEnd) }
         onNodeWithTag(tag).performGesture { swipeDown() }
-        runOnIdleCompose {
+        runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -99,7 +99,7 @@ class SendSwipeTest {
     fun swipeLeft() {
         composeTestRule.setContent { Ui(Alignment.BottomEnd) }
         onNodeWithTag(tag).performGesture { swipeLeft() }
-        runOnIdleCompose {
+        runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -112,7 +112,7 @@ class SendSwipeTest {
     fun swipeRight() {
         composeTestRule.setContent { Ui(Alignment.BottomStart) }
         onNodeWithTag(tag).performGesture { swipeRight() }
-        runOnIdleCompose {
+        runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -125,7 +125,7 @@ class SendSwipeTest {
     fun swipeShort() {
         composeTestRule.setContent { Ui(Alignment.Center) }
         onNodeWithTag(tag).performGesture { swipe(topLeft, bottomRight, 1.milliseconds) }
-        runOnIdleCompose {
+        runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()

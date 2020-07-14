@@ -67,13 +67,13 @@ class StateRestorationTester(private val composeTestRule: ComposeTestRule) {
         val registry = checkNotNull(registry) {
             "setContent should be called first!"
         }
-        runOnIdleCompose {
+        runOnIdle {
             registry.saveStateAndDisposeChildren()
         }
-        runOnIdleCompose {
+        runOnIdle {
             registry.emitChildrenWithRestoredState()
         }
-        runOnIdleCompose {
+        runOnIdle {
             // we just wait for the children to be emitted
         }
     }

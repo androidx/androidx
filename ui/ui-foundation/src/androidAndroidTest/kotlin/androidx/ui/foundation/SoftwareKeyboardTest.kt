@@ -28,7 +28,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
 import androidx.ui.test.onNode
 import androidx.ui.test.hasInputMethodsSupport
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.text.SoftwareKeyboardController
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -75,7 +75,7 @@ class SoftwareKeyboardTest {
         onNode(hasInputMethodsSupport())
             .performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             verify(onTextInputStarted, times(1)).invoke(any())
         }
     }

@@ -44,7 +44,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.unit.center
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
@@ -91,7 +91,7 @@ class FloatingActionButtonTest {
         onNodeWithText(text)
             .performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(counter).isEqualTo(1)
         }
     }
@@ -219,7 +219,7 @@ class FloatingActionButtonTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             val buttonBounds = buttonCoordinates!!.boundsInRoot
             val contentBounds = contentCoordinates!!.boundsInRoot
             assertThat(contentBounds.width).isLessThan(buttonBounds.width)
@@ -250,7 +250,7 @@ class FloatingActionButtonTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             val buttonBounds = buttonCoordinates!!.boundsInRoot
             val contentBounds = contentCoordinates!!.boundsInRoot
             assertThat(contentBounds.width).isLessThan(buttonBounds.width)
@@ -287,7 +287,7 @@ class FloatingActionButtonTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             val buttonBounds = buttonCoordinates!!.boundsInRoot
             val textBounds = textCoordinates!!.boundsInRoot
             val iconBounds = iconCoordinates!!.boundsInRoot

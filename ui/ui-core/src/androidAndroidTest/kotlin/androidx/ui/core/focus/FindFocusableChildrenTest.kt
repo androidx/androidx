@@ -22,7 +22,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color.Companion.Red
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -50,12 +50,12 @@ class FindFocusableChildrenTest {
         }
 
         // Act.
-        val focusableChildren = runOnIdleCompose {
+        val focusableChildren = runOnIdle {
             focusModifier1.focusNode.focusableChildren()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(focusableChildren).containsExactly(focusModifier2.focusNode)
         }
     }
@@ -73,12 +73,12 @@ class FindFocusableChildrenTest {
         }
 
         // Act.
-        val focusableChildren = runOnIdleCompose {
+        val focusableChildren = runOnIdle {
             focusModifier1.focusNode.focusableChildren()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(focusableChildren).containsExactly(focusModifier2.focusNode)
         }
     }
@@ -106,12 +106,12 @@ class FindFocusableChildrenTest {
         }
 
         // Act.
-        val focusableChildren = runOnIdleCompose {
+        val focusableChildren = runOnIdle {
             parentFocusModifier.focusNode.focusableChildren()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(focusableChildren).containsExactly(
                 focusModifier1.focusNode, focusModifier2.focusNode
             )

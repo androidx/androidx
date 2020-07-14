@@ -46,7 +46,7 @@ import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntSize
@@ -131,7 +131,7 @@ class ComposedViewTest {
             emit = false
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(frameLayout.parent).isNull()
         }
     }
@@ -209,7 +209,7 @@ class ComposedViewTest {
                     throw exception
                 }
             }
-        runOnIdleCompose { size.value = 30.dp }
+        runOnIdle { size.value = 30.dp }
         Espresso
             .onView(instanceOf(RelativeLayout::class.java))
             .check(matches(isDisplayed()))

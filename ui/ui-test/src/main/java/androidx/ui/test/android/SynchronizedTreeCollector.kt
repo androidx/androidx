@@ -71,9 +71,9 @@ internal object SynchronizedTreeCollector {
     internal fun waitForIdle() {
         check(!isOnUiThread()) {
             "Functions that involve synchronization (Assertions, Actions, Synchronization; " +
-                    "e.g. assertIsSelected(), doClick(), runOnIdleCompose()) cannot be run " +
+                    "e.g. assertIsSelected(), doClick(), runOnIdle()) cannot be run " +
                     "from the main thread. Did you nest such a function inside " +
-                    "runOnIdleCompose {}, runOnUiThread {} or setContent {}?"
+                    "runOnIdle {}, runOnUiThread {} or setContent {}?"
         }
 
         registerComposeWithEspresso()

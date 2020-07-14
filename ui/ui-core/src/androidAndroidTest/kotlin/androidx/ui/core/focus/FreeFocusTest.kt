@@ -24,7 +24,7 @@ import androidx.ui.core.focus.FocusDetailedState.Disabled
 import androidx.ui.core.focus.FocusDetailedState.Inactive
 import androidx.ui.foundation.Box
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -44,7 +44,7 @@ class FreeFocusTest {
             composeTestRule.setFocusableContent { Box(modifier = it) }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             // Act.
             val success = focusModifier.freeFocus()
 
@@ -61,7 +61,7 @@ class FreeFocusTest {
             composeTestRule.setFocusableContent { Box(modifier = it) }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             // Act.
             val success = focusModifier.freeFocus()
 
@@ -78,7 +78,7 @@ class FreeFocusTest {
             composeTestRule.setFocusableContent { Box(modifier = it) }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             // Act.
             val success = focusModifier.freeFocus()
 
@@ -95,7 +95,7 @@ class FreeFocusTest {
             composeTestRule.setFocusableContent { Box(modifier = it) }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             // Act.
             val success = focusModifier.freeFocus()
 
@@ -112,7 +112,7 @@ class FreeFocusTest {
             composeTestRule.setFocusableContent { Box(modifier = it) }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             // Act.
             val success = focusModifier.freeFocus()
 
