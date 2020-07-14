@@ -54,6 +54,10 @@ package androidx.ui.animation {
     property public androidx.animation.TwoWayConverter<androidx.ui.unit.Dp,androidx.animation.AnimationVector1D> typeConverter;
   }
 
+  public final class LegacyTransitionKt {
+    method @Deprecated @androidx.compose.Composable public static <T> void Transition(androidx.animation.TransitionDefinition<T> definition, T? toState, androidx.animation.AnimationClockObservable clock = AnimationClockAmbient.current, T? initState = toState, kotlin.jvm.functions.Function1<? super T,kotlin.Unit>? onStateChangeFinished = null, kotlin.jvm.functions.Function1<? super androidx.animation.TransitionState,kotlin.Unit> children);
+  }
+
   public final class OffsetPropKey implements androidx.animation.PropKey<androidx.ui.geometry.Offset,androidx.animation.AnimationVector2D> {
     ctor public OffsetPropKey(String label);
     ctor public OffsetPropKey();
@@ -132,7 +136,6 @@ package androidx.ui.animation {
   }
 
   public final class TransitionKt {
-    method @Deprecated @androidx.compose.Composable public static <T> void Transition(androidx.animation.TransitionDefinition<T> definition, T? toState, androidx.animation.AnimationClockObservable clock = AnimationClockAmbient.current, T? initState = toState, kotlin.jvm.functions.Function1<? super T,kotlin.Unit>? onStateChangeFinished = null, kotlin.jvm.functions.Function1<? super androidx.animation.TransitionState,kotlin.Unit> children);
     method public static boolean getTransitionsEnabled();
     method public static void setTransitionsEnabled(boolean p);
     method @androidx.compose.Composable public static <T> androidx.animation.TransitionState transition(androidx.animation.TransitionDefinition<T> definition, T? toState, androidx.animation.AnimationClockObservable clock = AnimationClockAmbient.current, T? initState = toState, kotlin.jvm.functions.Function1<? super T,kotlin.Unit>? onStateChangeFinished = null);

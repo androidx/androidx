@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,35 +17,27 @@
 package androidx.ui.animation
 
 import androidx.animation.AnimationClockObservable
-import androidx.animation.AnimationVector
-import androidx.animation.PropKey
-import androidx.animation.TransitionAnimation
 import androidx.animation.TransitionDefinition
 import androidx.animation.TransitionState
-import androidx.animation.createAnimation
 import androidx.compose.Composable
-import androidx.compose.Stable
 import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.onPreCommit
-import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.ui.core.AnimationClockAmbient
 
 /**
- * [transition] composable creates a state-based transition using the animation configuration
+ * [Transition] composable creates a state-based transition using the animation configuration
  * defined in [TransitionDefinition]. This can be especially useful when animating multiple
  * values from a predefined set of values to another. For animating a single value, consider using
  * [animatedValue], [animatedFloat], [animatedColor] or the more light-weight [animate] APIs.
  *
- * [transition] starts a new animation or changes the on-going animation when the [toState]
+ * [Transition] starts a new animation or changes the on-going animation when the [toState]
  * parameter is changed to a different value. It dutifully ensures that the animation will head
  * towards new [toState] regardless of what state (or in-between state) it’s currently in: If the
  * transition is not currently animating, having a new [toState] value will start a new animation,
  * otherwise the in-flight animation will correct course and animate towards the new [toState]
  * based on the interruption handling logic.
  *
- * [transition] takes a transition definition, a target state and child composables.
+ * [Transition] takes a transition definition, a target state and child composables.
  * These child composables will be receiving a [TransitionState] object as an argument, which
  * captures all the current values of the animation. Child composables should read the animation
  * values from the [TransitionState] object, and apply the value wherever necessary.
@@ -63,65 +55,24 @@ import androidx.ui.core.AnimationClockAmbient
  *                  will be set to the first [toState] seen in the transition.
  * @param onStateChangeFinished An optional listener to get notified when state change animation
  *                              has completed
- *
- * @return a [TransitionState] instance, from which the animation values can be read
+ * @param children The children composables that will be animated
  *
  * @see [TransitionDefinition]
  */
-// TODO: The list of params is getting a bit long. Consider grouping them.
+@Deprecated("Transition has been renamed to transition, which returns a TransitionState instead " +
+        "of passing it to children",
+    replaceWith = ReplaceWith(
+        "transition(definition, toState, clock, initState, onStateChangeFinished)",
+        "androidx.ui.animation.transition"))
 @Composable
-fun <T> transition(
+fun <T> Transition(
     definition: TransitionDefinition<T>,
     toState: T,
     clock: AnimationClockObservable = AnimationClockAmbient.current,
     initState: T = toState,
-    onStateChangeFinished: ((T) -> Unit)? = null
-): TransitionState {
-    if (transitionsEnabled) {
-        val disposableClock = clock.asDisposableClock()
-        val model = remember(definition, disposableClock) {
-            TransitionModel(definition, initState, disposableClock)
-        }
-
-        model.anim.onStateChangeFinished = onStateChangeFinished
-        // TODO(b/150674848): Should be onCommit, but that posts to the Choreographer. Until that
-        //  callback is executed, nothing is aware that the animation is kicked off, so if
-        //  Espresso checks for idleness between now and then, it will think all is idle.
-        onPreCommit(model, toState) {
-            model.anim.toState(toState)
-        }
-        return model
-    } else {
-        return remember(definition, toState) { definition.getStateFor(toState) }
-    }
-}
-
-/**
- * Stores the enabled state for [transition] animations. Useful for tests to disable
- * animations and have reliable screenshot tests.
- */
-var transitionsEnabled = true
-
-// TODO(Doris): Use Clock idea instead of TransitionModel with pulse
-@Stable
-private class TransitionModel<T>(
-    transitionDef: TransitionDefinition<T>,
-    initState: T,
-    clock: AnimationClockObservable
-) : TransitionState {
-
-    private var animationPulse by mutableStateOf(0L)
-    internal val anim: TransitionAnimation<T> =
-        transitionDef.createAnimation(clock, initState).apply {
-            onUpdate = {
-                animationPulse++
-            }
-        }
-
-    override fun <T, V : AnimationVector> get(propKey: PropKey<T, V>): T {
-        // we need to access the animationPulse so Compose will record this state values usage.
-        @Suppress("UNUSED_VARIABLE")
-        val pulse = animationPulse
-        return anim[propKey]
-    }
+    onStateChangeFinished: ((T) -> Unit)? = null,
+    children: @Composable (state: TransitionState) -> Unit
+) {
+    val state = transition(definition, toState, clock, initState, onStateChangeFinished)
+    children(state)
 }
