@@ -22,8 +22,10 @@ import androidx.ui.core.LayoutNode.LayoutState.NeedsRelayout
 import androidx.ui.core.LayoutNode.LayoutState.NeedsRemeasure
 import androidx.ui.core.LayoutNode.LayoutState.Ready
 import androidx.ui.core.focus.FocusModifier
+import androidx.ui.core.focus.FocusModifier2
 import androidx.ui.core.focus.FocusModifierImpl
 import androidx.ui.core.focus.ModifiedFocusNode
+import androidx.ui.core.focus.ModifiedFocusNode2
 import androidx.ui.core.keyinput.KeyInputModifier
 import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
@@ -554,6 +556,9 @@ class LayoutNode : Measurable {
                         wrapper = ModifiedFocusNode(wrapper, mod).also { mod.focusNode = it }
                             .assignChained(toWrap)
                     }
+                    if (mod is FocusModifier2) {
+                        wrapper = ModifiedFocusNode2(wrapper, mod).assignChained(toWrap)
+                    }
                     if (mod is KeyInputModifier) {
                         wrapper = ModifiedKeyInputNode(wrapper, mod).also { mod.keyInputNode = it }
                             .assignChained(toWrap)
@@ -1041,7 +1046,7 @@ class LayoutNode : Measurable {
                     constraints: Constraints,
                     layoutDirection: LayoutDirection
                 ) = error("Undefined measure and it is required")
-        }
+            }
     }
 
     /**
