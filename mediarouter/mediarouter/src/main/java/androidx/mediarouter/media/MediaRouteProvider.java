@@ -172,6 +172,10 @@ public abstract class MediaRouteProvider {
             return;
         }
 
+        setDiscoveryRequestInternal(request);
+    }
+
+    final void setDiscoveryRequestInternal(@Nullable MediaRouteDiscoveryRequest request) {
         mDiscoveryRequest = request;
         if (!mPendingDiscoveryRequestChange) {
             mPendingDiscoveryRequestChange = true;
