@@ -107,7 +107,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SliceBroadcastReceiver.java"
-            line="43"
+            line="44"
             column="33"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                                 ~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SliceBroadcastReceiver.java"
-            line="43"
+            line="44"
             column="50"/>
     </issue>
 
