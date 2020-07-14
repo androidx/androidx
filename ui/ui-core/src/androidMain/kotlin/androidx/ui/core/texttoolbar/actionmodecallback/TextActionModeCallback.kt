@@ -20,6 +20,7 @@ import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.ui.core.texttoolbar.ActionCallback
 
 internal const val MENU_ITEM_COPY = 0
 internal const val MENU_ITEM_PASTE = 1
@@ -27,15 +28,28 @@ internal const val MENU_ITEM_CUT = 2
 
 internal class TextActionModeCallback(
     private val view: View,
-    private val onDeselectRequested: () -> Unit,
-    private val onCopyRequested: () -> Unit
+    private val onCopyRequested: ActionCallback? = null,
+    private val onPasteRequested: ActionCallback? = null,
+    private val onCutRequested: ActionCallback? = null
 ) : ActionMode.Callback {
     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
         requireNotNull(menu)
         requireNotNull(mode)
 
-        menu.add(0, MENU_ITEM_COPY, 0, android.R.string.copy)
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
+        onCopyRequested?.let {
+            menu.add(0, MENU_ITEM_COPY, 0, android.R.string.copy)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+        }
+
+        onPasteRequested?.let {
+            menu.add(0, MENU_ITEM_PASTE, 1, android.R.string.paste)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+        }
+
+        onCutRequested?.let {
+            menu.add(0, MENU_ITEM_CUT, 2, android.R.string.cut)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+        }
         return true
     }
 
@@ -44,13 +58,14 @@ internal class TextActionModeCallback(
     }
 
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
-        if (item!!.itemId == MENU_ITEM_COPY) {
-            onCopyRequested()
-            onDeselectRequested()
-            mode?.finish()
-            return true
+        when (item!!.itemId) {
+            MENU_ITEM_COPY -> onCopyRequested?.invoke()
+            MENU_ITEM_PASTE -> onPasteRequested?.invoke()
+            MENU_ITEM_CUT -> onCutRequested?.invoke()
+            else -> return false
         }
-        return false
+        mode?.finish()
+        return true
     }
 
     override fun onDestroyActionMode(mode: ActionMode?) {}

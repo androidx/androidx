@@ -255,10 +255,12 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      */
     internal fun showSelectionToolbar() {
         selection?.let {
-            textToolbar?.showCopyMenu(
+            textToolbar?.showMenu(
                 getContentRect(),
-                onCopyRequested = { copy() },
-                onDeselectRequested = { onRelease() }
+                onCopyRequested = {
+                    copy()
+                    onRelease()
+                }
             )
         }
     }
