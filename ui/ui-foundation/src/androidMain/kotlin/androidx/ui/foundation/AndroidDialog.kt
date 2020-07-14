@@ -54,7 +54,7 @@ import androidx.ui.foundation.semantics.dialog
  * @param children The content to be displayed inside the dialog.
  */
 @Composable
-fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit) {
+actual fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit) {
     val view = ViewAmbient.current
 
     @OptIn(ExperimentalComposeApi::class)
