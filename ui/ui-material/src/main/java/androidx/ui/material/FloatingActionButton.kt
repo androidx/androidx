@@ -19,11 +19,15 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.IndicationAmbient
+import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.clickable
+import androidx.ui.foundation.indication
 import androidx.ui.foundation.shape.corner.CornerSize
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
@@ -65,8 +69,15 @@ fun FloatingActionButton(
     elevation: Dp = 6.dp,
     icon: @Composable () -> Unit
 ) {
+    // TODO(aelias): Avoid manually managing the ripple once http://b/157687898
+    // is fixed and we have more flexibility to move the clickable modifier
+    // (see candidate approach aosp/1361921)
+    val interactionState = remember { InteractionState() }
     Surface(
-        modifier = modifier.clickable(onClick = onClick),
+        modifier = modifier.clickable(
+            onClick = onClick,
+            interactionState = interactionState,
+            indication = null),
         shape = shape,
         color = backgroundColor,
         contentColor = contentColor,
@@ -75,7 +86,8 @@ fun FloatingActionButton(
         ProvideTextStyle(MaterialTheme.typography.button) {
             Box(
                 modifier = Modifier
-                    .defaultMinSizeConstraints(minWidth = FabSize, minHeight = FabSize),
+                    .defaultMinSizeConstraints(minWidth = FabSize, minHeight = FabSize)
+                    .indication(interactionState, IndicationAmbient.current()),
                 gravity = ContentGravity.Center,
                 children = icon
             )
