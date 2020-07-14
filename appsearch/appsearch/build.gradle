@@ -36,6 +36,24 @@ android {
                 'proguard-android-optimize.txt'),
                 'proguard-rules.pro'
     }
+    // TODO(b/161205849): We've had to move libicing.so compilation into appsearch:appsearch to get
+    //  it included into the exported aar. Find a proper solution for bundling libicing.so into
+    //  appsearch-release.aar and move compilation of libicing.so back into the external/icing tree.
+    defaultConfig {
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++17"
+                arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"
+                targets "icing"
+            }
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            version '3.10.2'
+            path '../../../../external/icing/CMakeLists.txt'
+        }
+    }
 }
 
 // Add :icing as jarjar dependency
@@ -54,7 +72,6 @@ android.libraryVariants.all { variant ->
 dependencies {
     api('androidx.annotation:annotation:1.1.0')
 
-    implementation project(':icing:nativeLib')
     implementation('androidx.collection:collection:1.1.0')
     implementation('androidx.concurrent:concurrent-futures:1.0.0')
     implementation('androidx.core:core:1.2.0')
