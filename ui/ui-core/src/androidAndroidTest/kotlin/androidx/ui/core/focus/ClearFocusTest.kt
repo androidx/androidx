@@ -24,7 +24,7 @@ import androidx.ui.core.focus.FocusDetailedState.Disabled
 import androidx.ui.core.focus.FocusDetailedState.Inactive
 import androidx.ui.foundation.Box
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -52,12 +52,12 @@ class ClearFocusTest(val forcedClear: Boolean) {
         }
 
         // Act.
-        val cleared = runOnIdleCompose {
+        val cleared = runOnIdle {
             modifier.focusNode!!.clearFocus(forcedClear)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(cleared).isTrue()
             assertThat(modifier.focusDetailedState).isEqualTo(Inactive)
         }
@@ -76,12 +76,12 @@ class ClearFocusTest(val forcedClear: Boolean) {
         }
 
         // Act.
-        val cleared = runOnIdleCompose {
+        val cleared = runOnIdle {
             modifier.focusNode!!.clearFocus(forcedClear)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(cleared).isTrue()
             assertThat(parent.focusedChild).isNull()
             assertThat(modifier.focusDetailedState).isEqualTo(Inactive)
@@ -97,7 +97,7 @@ class ClearFocusTest(val forcedClear: Boolean) {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             modifier.focusNode!!.clearFocus(forcedClear)
         }
     }
@@ -119,12 +119,12 @@ class ClearFocusTest(val forcedClear: Boolean) {
         }
 
         // Act.
-        val cleared = runOnIdleCompose {
+        val cleared = runOnIdle {
             modifier.focusNode!!.clearFocus(forcedClear)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(cleared).isTrue()
             assertThat(modifier.focusedChild).isNull()
             assertThat(modifier.focusDetailedState).isEqualTo(Inactive)
@@ -152,12 +152,12 @@ class ClearFocusTest(val forcedClear: Boolean) {
         }
 
         // Act.
-        val cleared = runOnIdleCompose {
+        val cleared = runOnIdle {
             modifier.focusNode!!.clearFocus(forcedClear)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(cleared).isTrue()
             assertThat(modifier.focusedChild).isNull()
             assertThat(child.focusedChild).isNull()
@@ -178,12 +178,12 @@ class ClearFocusTest(val forcedClear: Boolean) {
         }
 
         // Act.
-        val cleared = runOnIdleCompose {
+        val cleared = runOnIdle {
             modifier.focusNode!!.clearFocus(forcedClear)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             when (forcedClear) {
                 true -> {
                     assertThat(cleared).isTrue()
@@ -210,12 +210,12 @@ class ClearFocusTest(val forcedClear: Boolean) {
         }
 
         // Act.
-        val cleared = runOnIdleCompose {
+        val cleared = runOnIdle {
             modifier.focusNode!!.clearFocus(forcedClear)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             when (forcedClear) {
                 true -> {
                     assertThat(cleared).isTrue()
@@ -240,12 +240,12 @@ class ClearFocusTest(val forcedClear: Boolean) {
         }
 
         // Act.
-        val cleared = runOnIdleCompose {
+        val cleared = runOnIdle {
             modifier.focusNode!!.clearFocus(forcedClear)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(cleared).isTrue()
             assertThat(modifier.focusDetailedState).isEqualTo(Inactive)
         }
@@ -260,12 +260,12 @@ class ClearFocusTest(val forcedClear: Boolean) {
         }
 
         // Act.
-        val cleared = runOnIdleCompose {
+        val cleared = runOnIdle {
             modifier.focusNode!!.clearFocus(forcedClear)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(cleared).isTrue()
             assertThat(modifier.focusDetailedState).isEqualTo(Disabled)
         }

@@ -51,7 +51,7 @@ import androidx.ui.test.onNode
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasImeAction
 import androidx.ui.test.hasInputMethodsSupport
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.unit.dp
@@ -98,7 +98,7 @@ class TextFieldTest {
 
         onNode(hasInputMethodsSupport()).performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(focusModifier.focusState).isEqualTo(FocusState.Focused)
         }
     }
@@ -134,7 +134,7 @@ class TextFieldTest {
         onNode(hasInputMethodsSupport()).performClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
-        runOnIdleCompose {
+        runOnIdle {
             // Verify startInput is called and capture the callback.
             val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
             verify(textInputService, times(1)).startInput(
@@ -160,10 +160,10 @@ class TextFieldTest {
             // TODO: This should work only with runOnUiThread. But it seems that these events are
             // not buffered and chaining multiple of them before composition happens makes them to
             // get lost.
-            runOnIdleCompose { onEditCommandCallback!!.invoke(it) }
+            runOnIdle { onEditCommandCallback!!.invoke(it) }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             val stateCaptor = argumentCaptor<androidx.ui.input.TextFieldValue>()
             verify(textInputService, atLeastOnce())
                 .onStateUpdated(eq(inputSessionToken), stateCaptor.capture())
@@ -206,7 +206,7 @@ class TextFieldTest {
         onNode(hasInputMethodsSupport()).performClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
-        runOnIdleCompose {
+        runOnIdle {
             // Verify startInput is called and capture the callback.
             val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
             verify(textInputService, times(1)).startInput(
@@ -232,10 +232,10 @@ class TextFieldTest {
             // TODO: This should work only with runOnUiThread. But it seems that these events are
             // not buffered and chaining multiple of them before composition happens makes them to
             // get lost.
-            runOnIdleCompose { onEditCommandCallback!!.invoke(it) }
+            runOnIdle { onEditCommandCallback!!.invoke(it) }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             val stateCaptor = argumentCaptor<androidx.ui.input.TextFieldValue>()
             verify(textInputService, atLeastOnce())
                 .onStateUpdated(eq(inputSessionToken), stateCaptor.capture())
@@ -274,7 +274,7 @@ class TextFieldTest {
         onNode(hasInputMethodsSupport()).performClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
-        runOnIdleCompose {
+        runOnIdle {
             // Verify startInput is called and capture the callback.
             val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
             verify(textInputService, times(1)).startInput(
@@ -298,10 +298,10 @@ class TextFieldTest {
             // TODO: This should work only with runOnUiThread. But it seems that these events are
             // not buffered and chaining multiple of them before composition happens makes them to
             // get lost.
-            runOnIdleCompose { onEditCommandCallback!!.invoke(it) }
+            runOnIdle { onEditCommandCallback!!.invoke(it) }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             val layoutCaptor = argumentCaptor<TextLayoutResult>()
             verify(onTextLayout, atLeastOnce()).invoke(layoutCaptor.capture())
 
@@ -391,7 +391,7 @@ class TextFieldTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             state!!.value = androidx.ui.input.TextFieldValue("test", TextRange(1, 2))
 
             // we null it to ensure recomposition happened
@@ -400,7 +400,7 @@ class TextFieldTest {
 
         restorationTester.emulateSavedInstanceStateRestore()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(state!!.value).isEqualTo(
                 androidx.ui.input.TextFieldValue("test", TextRange(1, 2))
             )

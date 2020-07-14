@@ -32,7 +32,7 @@ import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onRoot
 import androidx.ui.test.getAlignmentLinePosition
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.text.FirstBaseline
 import androidx.ui.text.LastBaseline
 import androidx.ui.unit.Density
@@ -51,8 +51,8 @@ fun ComposeTestRule.setMaterialContent(
     }
 }
 
-fun <T> ComposeTestRule.runOnIdleComposeWithDensity(action: Density.() -> T): T {
-    return runOnIdleCompose {
+fun <T> ComposeTestRule.runOnIdleWithDensity(action: Density.() -> T): T {
+    return runOnIdle {
         density.action()
     }
 }

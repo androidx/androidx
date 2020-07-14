@@ -44,7 +44,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.swipeUp
 import androidx.ui.test.swipeWithVelocity
 import androidx.ui.test.waitForIdle
@@ -155,7 +155,7 @@ class LazyColumnItemsTest {
 
         composed = false
 
-        runOnIdleCompose { part2 = true }
+        runOnIdle { part2 = true }
 
         latch2.await()
 
@@ -193,7 +193,7 @@ class LazyColumnItemsTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertWithMessage("First item is not immediately disposed")
                 .that(disposeCalledOnFirstItem).isFalse()
             assertWithMessage("Second item is not immediately disposed")
@@ -201,7 +201,7 @@ class LazyColumnItemsTest {
             emitAdapterList = false
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertWithMessage("First item is correctly disposed")
                 .that(disposeCalledOnFirstItem).isTrue()
             assertWithMessage("Second item is correctly disposed")
@@ -240,7 +240,7 @@ class LazyColumnItemsTest {
             numItems--
             if (numItems >= 0) {
                 // Don't set the model to -1
-                runOnIdleCompose { numItemsModel = numItems }
+                runOnIdle { numItemsModel = numItems }
             }
         }
     }
@@ -261,7 +261,7 @@ class LazyColumnItemsTest {
         }
 
         for (data in dataLists) {
-            runOnIdleCompose { dataModel = data }
+            runOnIdle { dataModel = data }
 
             // Confirm the number of children to ensure there are no extra items
             val numItems = data.size
@@ -306,7 +306,7 @@ class LazyColumnItemsTest {
             .assertExists()
             .assertIsNotDisplayed()
 
-        runOnIdleCompose {
+        runOnIdle {
             thirdHasSize = true
         }
 

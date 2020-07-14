@@ -30,7 +30,7 @@ import androidx.ui.test.ActivityWithActionBar
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.click
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.RecordingFilter
@@ -115,7 +115,7 @@ class SendClickTest(private val config: TestConfig) {
         click("square4")
 
         // Then those components have registered a click
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(recordedClicks).isEqualTo(
                 listOf(
                     ClickData(0, expectedClickPosition),

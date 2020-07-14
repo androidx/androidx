@@ -32,7 +32,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.click
 import androidx.ui.test.doubleClick
 import androidx.ui.test.down
@@ -100,14 +100,14 @@ class ClickableTest {
         onNodeWithTag("myClickable")
             .performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(counter).isEqualTo(1)
         }
 
         onNodeWithTag("myClickable")
             .performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(counter).isEqualTo(2)
         }
     }
@@ -131,7 +131,7 @@ class ClickableTest {
                 longClick()
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(counter).isEqualTo(1)
         }
 
@@ -140,7 +140,7 @@ class ClickableTest {
                 longClick()
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(counter).isEqualTo(2)
         }
     }
@@ -171,7 +171,7 @@ class ClickableTest {
                 click()
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(clickCounter).isEqualTo(1)
             assertThat(longClickCounter).isEqualTo(0)
         }
@@ -181,7 +181,7 @@ class ClickableTest {
                 longClick()
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(clickCounter).isEqualTo(1)
             assertThat(longClickCounter).isEqualTo(1)
         }
@@ -212,7 +212,7 @@ class ClickableTest {
             .performClick()
 
         val res = clickLatch.await(1000, TimeUnit.MILLISECONDS)
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(doubleClickCounter).isEqualTo(0)
             assertThat(res).isTrue()
         }
@@ -222,7 +222,7 @@ class ClickableTest {
                 doubleClick()
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(doubleClickCounter).isEqualTo(1)
             assertThat(clickLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         }
@@ -256,7 +256,7 @@ class ClickableTest {
             .performClick()
 
         val res = clickLatch.await(1000, TimeUnit.MILLISECONDS)
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(doubleClickCounter).isEqualTo(0)
             assertThat(longClickCounter).isEqualTo(0)
             assertThat(res).isTrue()
@@ -267,7 +267,7 @@ class ClickableTest {
                 doubleClick()
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(doubleClickCounter).isEqualTo(1)
             assertThat(longClickCounter).isEqualTo(0)
             assertThat(clickLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
@@ -278,7 +278,7 @@ class ClickableTest {
                 longClick()
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(doubleClickCounter).isEqualTo(1)
             assertThat(longClickCounter).isEqualTo(1)
             assertThat(clickLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
@@ -304,7 +304,7 @@ class ClickableTest {
                 doubleClick()
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(counter).isEqualTo(1)
         }
 
@@ -313,7 +313,7 @@ class ClickableTest {
                 doubleClick()
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(counter).isEqualTo(2)
         }
     }
@@ -333,21 +333,21 @@ class ClickableTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
 
         onNodeWithTag("myClickable")
             .performPartialGesture { down(center) }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).contains(Interaction.Pressed)
         }
 
         onNodeWithTag("myClickable")
             .performPartialGesture { up() }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
     }
@@ -370,23 +370,23 @@ class ClickableTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
 
         onNodeWithTag("myClickable")
             .performPartialGesture { down(center) }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).contains(Interaction.Pressed)
         }
 
         // Dispose clickable
-        runOnIdleCompose {
+        runOnIdle {
             emitClickableText = false
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
     }
@@ -420,7 +420,7 @@ class ClickableTest {
         onNodeWithTag("myClickable")
             .performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(doubleClickCounter).isEqualTo(0)
             assertThat(longClickCounter).isEqualTo(0)
             assertThat(clickLatch.count).isEqualTo(1)
@@ -431,7 +431,7 @@ class ClickableTest {
                 doubleClick()
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(doubleClickCounter).isEqualTo(0)
             assertThat(longClickCounter).isEqualTo(0)
             assertThat(clickLatch.count).isEqualTo(1)
@@ -442,7 +442,7 @@ class ClickableTest {
                 longClick()
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(doubleClickCounter).isEqualTo(0)
             assertThat(longClickCounter).isEqualTo(0)
             assertThat(clickLatch.count).isEqualTo(1)
@@ -453,7 +453,7 @@ class ClickableTest {
             .performClick()
 
         val res = clickLatch.await(1000, TimeUnit.MILLISECONDS)
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(doubleClickCounter).isEqualTo(0)
             assertThat(longClickCounter).isEqualTo(0)
             assertThat(res).isTrue()
@@ -464,7 +464,7 @@ class ClickableTest {
                 doubleClick()
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(doubleClickCounter).isEqualTo(1)
             assertThat(longClickCounter).isEqualTo(0)
             assertThat(clickLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
@@ -475,7 +475,7 @@ class ClickableTest {
                 longClick()
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(doubleClickCounter).isEqualTo(1)
             assertThat(longClickCounter).isEqualTo(1)
             assertThat(clickLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()

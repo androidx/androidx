@@ -40,7 +40,7 @@ import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasAnyDescendant
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.isPopup
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.waitForIdle
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntBounds
@@ -80,17 +80,17 @@ class MenuTest {
         }
         onNodeWithTag("MenuContent").assertDoesNotExist()
 
-        runOnIdleCompose { expanded = true }
+        runOnIdle { expanded = true }
         waitForIdle()
         composeTestRule.clockTestRule.advanceClock(InTransitionDuration.toLong())
         onNodeWithTag("MenuContent").assertExists()
 
-        runOnIdleCompose { expanded = false }
+        runOnIdle { expanded = false }
         waitForIdle()
         composeTestRule.clockTestRule.advanceClock(OutTransitionDuration.toLong())
         onNodeWithTag("MenuContent").assertDoesNotExist()
 
-        runOnIdleCompose { expanded = true }
+        runOnIdle { expanded = true }
         waitForIdle()
         composeTestRule.clockTestRule.advanceClock(InTransitionDuration.toLong())
         onNodeWithTag("MenuContent").assertExists()
@@ -318,7 +318,7 @@ class MenuTest {
 
         onNodeWithTag("MenuItem").performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(clicked).isTrue()
         }
     }

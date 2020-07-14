@@ -33,7 +33,7 @@ import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.waitForIdle
 import androidx.ui.unit.Bounds
 import androidx.ui.unit.dp
@@ -338,7 +338,7 @@ class SingleValueAnimationTest {
                 children(enabled)
             }
         }
-        runOnIdleCompose { enabled = true }
+        runOnIdle { enabled = true }
         waitForIdle()
 
         verify()

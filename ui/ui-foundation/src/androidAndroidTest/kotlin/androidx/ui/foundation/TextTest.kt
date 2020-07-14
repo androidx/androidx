@@ -23,7 +23,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.test.assertTextEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.style.TextAlign
@@ -77,7 +77,7 @@ class TextTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(textColor).isEqualTo(ExpectedTextStyle.color)
             Truth.assertThat(textAlign).isEqualTo(ExpectedTextStyle.textAlign)
             Truth.assertThat(fontSize).isEqualTo(ExpectedTextStyle.fontSize)
@@ -118,7 +118,7 @@ class TextTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(textColor).isEqualTo(testStyle.color)
             Truth.assertThat(textAlign).isEqualTo(testStyle.textAlign)
             Truth.assertThat(fontSize).isEqualTo(testStyle.fontSize)
@@ -162,7 +162,7 @@ class TextTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             // explicit parameters should override values from the style.
             Truth.assertThat(textColor).isEqualTo(expectedColor)
             Truth.assertThat(textAlign).isEqualTo(expectedTextAlign)
@@ -209,7 +209,7 @@ class TextTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             // explicit parameters should override values from the style.
             Truth.assertThat(textColor).isEqualTo(expectedColor)
             Truth.assertThat(textAlign).isEqualTo(expectedTextAlign)

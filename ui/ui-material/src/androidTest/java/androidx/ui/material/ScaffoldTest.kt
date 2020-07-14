@@ -48,7 +48,7 @@ import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.swipeLeft
 import androidx.ui.test.swipeRight
@@ -405,12 +405,12 @@ class ScaffoldTest {
                 Text("body")
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scaffoldState.floatingActionButtonSize).isEqualTo(fabSize.toSize())
             showFab.value = false
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scaffoldState.floatingActionButtonSize).isEqualTo(null)
         }
     }
@@ -442,12 +442,12 @@ class ScaffoldTest {
                 Text("body")
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scaffoldState.bottomBarSize).isEqualTo(bottomBarSize.toSize())
             showBottom.value = false
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scaffoldState.bottomBarSize).isEqualTo(null)
         }
     }
@@ -479,12 +479,12 @@ class ScaffoldTest {
                 Text("body")
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scaffoldState.topBarSize).isEqualTo(topBarSize.toSize())
             showTop.value = false
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scaffoldState.topBarSize).isEqualTo(null)
         }
     }
@@ -513,7 +513,7 @@ class ScaffoldTest {
                 Text("body")
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             with(composeTestRule.density) {
                 assertThat(innerPadding.bottom).isEqualTo(bottomBarSize.toSize().height.toDp())
             }
@@ -544,7 +544,7 @@ class ScaffoldTest {
                 Text("body")
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(geometry.bottomBarBounds?.toSize()).isEqualTo(bottomBarSize.toSize())
             assertThat(geometry.bottomBarBounds?.width).isNotEqualTo(0f)
         }

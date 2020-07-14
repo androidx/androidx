@@ -32,7 +32,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.performGesture
 import androidx.ui.test.performPartialGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.down
 import androidx.ui.test.moveBy
 import androidx.ui.test.swipe
@@ -76,7 +76,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        val lastTotal = runOnIdleCompose {
+        val lastTotal = runOnIdle {
             assertThat(total).isGreaterThan(0)
             total
         }
@@ -87,7 +87,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(total).isEqualTo(lastTotal)
         }
         onNodeWithTag(draggableBoxTag).performGesture {
@@ -97,7 +97,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(total).isLessThan(0.01f)
         }
     }
@@ -121,7 +121,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        val lastTotal = runOnIdleCompose {
+        val lastTotal = runOnIdle {
             assertThat(total).isGreaterThan(0)
             total
         }
@@ -132,7 +132,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(total).isEqualTo(lastTotal)
         }
         onNodeWithTag(draggableBoxTag).performGesture {
@@ -142,7 +142,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(total).isLessThan(0.01f)
         }
     }
@@ -165,7 +165,7 @@ class DraggableTest {
                 }
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(startTrigger).isEqualTo(0)
             assertThat(stopTrigger).isEqualTo(0)
         }
@@ -176,7 +176,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(startTrigger).isEqualTo(1)
             assertThat(stopTrigger).isEqualTo(1)
         }
@@ -203,7 +203,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        val prevTotal = runOnIdleCompose {
+        val prevTotal = runOnIdle {
             assertThat(total).isGreaterThan(0f)
             enabled.value = false
             total
@@ -215,7 +215,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(total).isEqualTo(prevTotal)
         }
     }
@@ -243,7 +243,7 @@ class DraggableTest {
 
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(velocityTriggered - 112f).isLessThan(0.1f)
         }
     }
@@ -268,7 +268,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             // should be exactly 100 as there's no slop
             assertThat(total).isEqualTo(100f)
         }
@@ -298,7 +298,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             // should be exactly 100 as there's no slop
             assertThat(total).isGreaterThan(0f)
             assertThat(dragStopped).isEqualTo(1f)
@@ -341,7 +341,7 @@ class DraggableTest {
                 duration = 300.milliseconds
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(innerDrag).isGreaterThan(0f)
             assertThat(outerDrag).isGreaterThan(0f)
             // we consumed half delta in child, so exactly half should go to the parent
@@ -360,7 +360,7 @@ class DraggableTest {
             ) { 0f }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).doesNotContain(Interaction.Dragged)
         }
 
@@ -370,7 +370,7 @@ class DraggableTest {
                 moveBy(Offset(size.width / 2f, 0f))
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).contains(Interaction.Dragged)
         }
 
@@ -379,7 +379,7 @@ class DraggableTest {
                 up()
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).doesNotContain(Interaction.Dragged)
         }
     }
@@ -404,7 +404,7 @@ class DraggableTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).doesNotContain(Interaction.Dragged)
         }
 
@@ -414,16 +414,16 @@ class DraggableTest {
                 moveBy(Offset(size.width / 2f, 0f))
             }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).contains(Interaction.Dragged)
         }
 
         // Dispose draggable
-        runOnIdleCompose {
+        runOnIdle {
             emitDraggableBox = false
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).doesNotContain(Interaction.Dragged)
         }
     }

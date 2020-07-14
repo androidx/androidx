@@ -24,7 +24,7 @@ import androidx.ui.core.focus.FocusDetailedState.Inactive
 import androidx.ui.core.ViewAmbient
 import androidx.ui.foundation.Box
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
 import org.junit.Rule
@@ -49,12 +49,12 @@ class OwnerFocusTest {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             modifier.requestFocus()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(ownerView.isFocused).isTrue()
         }
     }
@@ -71,12 +71,12 @@ class OwnerFocusTest {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             ownerView.requestFocus()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(modifier.focusDetailedState).isEqualTo(Active)
         }
     }
@@ -93,12 +93,12 @@ class OwnerFocusTest {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             ownerView.dispatchWindowFocusChanged(true)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(modifier.focusDetailedState).isEqualTo(Active)
         }
     }
@@ -112,17 +112,17 @@ class OwnerFocusTest {
             ownerView = getOwner()
             Box(modifier = modifier)
         }
-        runOnIdleCompose {
+        runOnIdle {
             modifier.requestFocus()
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             ownerView.clearFocus()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(modifier.focusDetailedState).isEqualTo(Inactive)
         }
     }
@@ -137,17 +137,17 @@ class OwnerFocusTest {
             modifier = FocusModifier()
             Box(modifier = modifier)
         }
-        runOnIdleCompose {
+        runOnIdle {
             modifier.requestFocus()
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             ownerView.dispatchWindowFocusChanged(false)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(modifier.focusDetailedState).isEqualTo(Active)
         }
     }

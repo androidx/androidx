@@ -27,7 +27,7 @@ import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.swipeWithVelocity
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.SinglePointerInputRecorder
@@ -140,7 +140,7 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
             swipeWithVelocity(start, end, velocity, duration)
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             recorder.run {
                 val durationMs = duration.inMilliseconds()
                 val minimumEventSize = max(2, (durationMs / eventPeriod).toInt())

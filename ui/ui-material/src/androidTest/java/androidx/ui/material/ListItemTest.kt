@@ -192,7 +192,7 @@ class ListItemTest {
                 )
             }
         }
-        composeTestRule.runOnIdleComposeWithDensity {
+        composeTestRule.runOnIdleWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(expectedLeftPadding.toIntPx()
                 .toFloat())
             assertThat(textPosition.value!!.y).isEqualTo(
@@ -228,7 +228,7 @@ class ListItemTest {
                 )
             }
         }
-        composeTestRule.runOnIdleComposeWithDensity {
+        composeTestRule.runOnIdleWithDensity {
             assertThat(iconPosition.value!!.x).isEqualTo(
                 expectedLeftPadding.toIntPx().toFloat()
             )
@@ -284,7 +284,7 @@ class ListItemTest {
                 )
             }
         }
-        composeTestRule.runOnIdleComposeWithDensity {
+        composeTestRule.runOnIdleWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(
                 expectedLeftPadding.toIntPx().toFloat()
             )
@@ -347,7 +347,7 @@ class ListItemTest {
                 )
             }
         }
-        composeTestRule.runOnIdleComposeWithDensity {
+        composeTestRule.runOnIdleWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(
                 expectedLeftPadding.toIntPx().toFloat() + iconSize.value!!.width +
                         expectedContentLeftPadding.toIntPx().toFloat()
@@ -418,7 +418,7 @@ class ListItemTest {
                 )
             }
         }
-        composeTestRule.runOnIdleComposeWithDensity {
+        composeTestRule.runOnIdleWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(
                 expectedLeftPadding.toIntPx().toFloat() + iconSize.value!!.width +
                         expectedContentLeftPadding.toIntPx().toFloat()
@@ -497,7 +497,7 @@ class ListItemTest {
                 )
             }
         }
-        composeTestRule.runOnIdleComposeWithDensity {
+        composeTestRule.runOnIdleWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(
                 expectedLeftPadding.toIntPx().toFloat() + iconSize.value!!.width +
                         expectedContentLeftPadding.toIntPx().toFloat()
@@ -597,7 +597,7 @@ class ListItemTest {
                 )
             }
         }
-        composeTestRule.runOnIdleComposeWithDensity {
+        composeTestRule.runOnIdleWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(
                 expectedLeftPadding.toIntPx().toFloat() +
                         iconSize.value!!.width +

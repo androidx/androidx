@@ -22,7 +22,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color.Companion.Red
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -45,12 +45,12 @@ class FindParentFocusNodeTest {
         }
 
         // Act.
-        val rootFocusNode = runOnIdleCompose {
+        val rootFocusNode = runOnIdle {
             focusModifier.focusNode.findParentFocusNode()!!.findParentFocusNode()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(rootFocusNode).isNull()
         }
     }
@@ -74,12 +74,12 @@ class FindParentFocusNodeTest {
         }
 
         // Act.
-        val parent = runOnIdleCompose {
+        val parent = runOnIdle {
             modifier3.focusNode.findParentFocusNode()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parent).isEqualTo(modifier2.focusNode)
         }
     }
@@ -99,12 +99,12 @@ class FindParentFocusNodeTest {
         }
 
         // Act.
-        val parent = runOnIdleCompose {
+        val parent = runOnIdle {
             modifier3.focusNode.findParentFocusNode()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parent).isEqualTo(modifier2.focusNode)
         }
     }
@@ -128,12 +128,12 @@ class FindParentFocusNodeTest {
         }
 
         // Act.
-        val parent = runOnIdleCompose {
+        val parent = runOnIdle {
             focusModifier.focusNode.findParentFocusNode()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parent).isEqualTo(parentFocusModifier2.focusNode)
         }
     }
@@ -161,12 +161,12 @@ class FindParentFocusNodeTest {
         }
 
         // Act.
-        val parent = runOnIdleCompose {
+        val parent = runOnIdle {
             focusModifier.focusNode.findParentFocusNode()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parent).isEqualTo(parentFocusModifier.focusNode)
         }
     }
@@ -192,12 +192,12 @@ class FindParentFocusNodeTest {
         }
 
         // Act.
-        val parent = runOnIdleCompose {
+        val parent = runOnIdle {
             focusModifier.focusNode.findParentFocusNode()
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parent).isEqualTo(grandparentFocusModifier.focusNode)
         }
     }

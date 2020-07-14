@@ -44,7 +44,7 @@ import androidx.ui.test.onNode
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
 import androidx.ui.test.isToggleable
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.down
 import androidx.ui.test.up
 import com.google.common.truth.Truth.assertThat
@@ -171,7 +171,7 @@ class ToggleableTest {
         onNode(isToggleable())
             .performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(checked).isEqualTo(false)
         }
     }
@@ -192,21 +192,21 @@ class ToggleableTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
 
         onNodeWithText("ToggleableText")
             .performPartialGesture { down(center) }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).contains(Interaction.Pressed)
         }
 
         onNodeWithText("ToggleableText")
             .performPartialGesture { up() }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
     }
@@ -230,23 +230,23 @@ class ToggleableTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
 
         onNodeWithText("ToggleableText")
             .performPartialGesture { down(center) }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).contains(Interaction.Pressed)
         }
 
         // Dispose toggleable
-        runOnIdleCompose {
+        runOnIdle {
             emitToggleableText = false
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
     }

@@ -36,7 +36,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.swipeLeft
 import androidx.ui.test.swipeRight
 import androidx.ui.unit.dp
@@ -163,14 +163,14 @@ class SwitchTest {
         onNodeWithTag(defaultSwitchTag)
             .performGesture { swipeRight() }
 
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(state.value).isEqualTo(true)
         }
 
         onNodeWithTag(defaultSwitchTag)
             .performGesture { swipeLeft() }
 
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(state.value).isEqualTo(false)
         }
     }
@@ -193,14 +193,14 @@ class SwitchTest {
         onNodeWithTag(defaultSwitchTag)
             .performGesture { swipeLeft() }
 
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(state.value).isEqualTo(true)
         }
 
         onNodeWithTag(defaultSwitchTag)
             .performGesture { swipeRight() }
 
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(state.value).isEqualTo(false)
         }
     }

@@ -26,7 +26,7 @@ import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
 import androidx.ui.test.onNodeWithText
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import org.junit.Assert.assertEquals
 import org.junit.Ignore
 import org.junit.Rule
@@ -191,7 +191,7 @@ class DialogUiTest {
                 }
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertEquals(1f, value)
         }
     }

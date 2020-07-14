@@ -23,7 +23,7 @@ import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.inputdispatcher.verifyNoGestureInProgress
 import androidx.ui.test.partialgesturescope.Common.partialGesture
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.cancel
 import androidx.ui.test.down
 import androidx.ui.test.up
@@ -71,7 +71,7 @@ class SendUpTest {
         sleep(20) // (with some time in between)
         partialGesture { up() }
 
-        runOnIdleCompose {
+        runOnIdle {
             recorder.run {
                 // Then we have recorded 1 down event and 1 up event
                 assertTimestampsAreIncreasing()
@@ -97,7 +97,7 @@ class SendUpTest {
         partialGesture { up(1) }
         partialGesture { up(2) }
 
-        runOnIdleCompose {
+        runOnIdle {
             recorder.run {
                 // Then we have recorded two down events and two up events
                 assertTimestampsAreIncreasing()

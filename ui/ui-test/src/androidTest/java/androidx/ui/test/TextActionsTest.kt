@@ -73,14 +73,14 @@ class TextActionsTest {
         onNodeWithTag(fieldTag)
             .performTextInput("Hello!")
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello!")
         }
 
         onNodeWithTag(fieldTag)
             .performTextClearance(alreadyHasFocus = true)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(lastSeenText).isEqualTo("")
         }
     }
@@ -100,7 +100,7 @@ class TextActionsTest {
         onNodeWithTag(fieldTag)
             .performTextInput("world!", alreadyHasFocus = true)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello world!")
         }
     }
@@ -123,7 +123,7 @@ class TextActionsTest {
         onNodeWithTag(fieldTag)
             .performTextInput(" world!", alreadyHasFocus = true)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello world!")
         }
     }
@@ -152,14 +152,14 @@ class TextActionsTest {
         onNodeWithTag(fieldTag)
             .performTextInput("Hello")
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello")
         }
 
         onNodeWithTag(fieldTag)
             .performTextReplacement("world", alreadyHasFocus = true)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(lastSeenText).isEqualTo("world")
         }
     }
@@ -176,7 +176,7 @@ class TextActionsTest {
         onNodeWithTag(fieldTag)
             .performImeAction()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(actionPerformed).isEqualTo(ImeAction.Search)
         }
     }

@@ -35,7 +35,7 @@ import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.assert
 import androidx.ui.test.onAllNodesWithLabel
 import androidx.ui.test.onNodeWithLabel
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -96,7 +96,7 @@ class SemanticsTests {
 
         onNodeWithTag(TestTag).assertLabelEquals(label)
 
-        runOnIdleCompose { showSubtree.value = false }
+        runOnIdle { showSubtree.value = false }
 
         onNodeWithTag(TestTag).assertDoesNotHaveProperty(SemanticsProperties.AccessibilityLabel)
 
@@ -121,7 +121,7 @@ class SemanticsTests {
             .assertLabelEquals(label)
             .assertDoesNotHaveProperty(SemanticsProperties.AccessibilityValue)
 
-        runOnIdleCompose { showNewNode.value = true }
+        runOnIdle { showNewNode.value = true }
 
         onNodeWithTag(TestTag)
             .assertLabelEquals(label)
@@ -142,7 +142,7 @@ class SemanticsTests {
 
         onAllNodesWithLabel(label).assertCountEquals(1)
 
-        runOnIdleCompose {
+        runOnIdle {
             showSubtree.value = false
         }
 
@@ -162,7 +162,7 @@ class SemanticsTests {
 
         onNodeWithTag(TestTag).assertLabelEquals(beforeLabel)
 
-        runOnIdleCompose { isAfter.value = true }
+        runOnIdle { isAfter.value = true }
 
         onNodeWithTag(TestTag).assertLabelEquals(afterLabel)
     }
@@ -183,7 +183,7 @@ class SemanticsTests {
 
         onNodeWithTag(TestTag).assertLabelEquals(beforeLabel)
 
-        runOnIdleCompose { isAfter.value = true }
+        runOnIdle { isAfter.value = true }
 
         onNodeWithTag(TestTag).assertLabelEquals(afterLabel)
     }
@@ -206,7 +206,7 @@ class SemanticsTests {
 
         onNodeWithTag(TestTag).assertLabelEquals(beforeLabel)
 
-        runOnIdleCompose { isAfter.value = true }
+        runOnIdle { isAfter.value = true }
 
         onNodeWithTag(TestTag).assertLabelEquals(afterLabel)
     }
@@ -227,7 +227,7 @@ class SemanticsTests {
 
         onNodeWithTag(TestTag).assertLabelEquals(beforeLabel)
 
-        runOnIdleCompose { isAfter.value = true }
+        runOnIdle { isAfter.value = true }
 
         onNodeWithTag(TestTag).assertLabelEquals(afterLabel)
     }
@@ -267,7 +267,7 @@ class SemanticsTests {
 
         onNodeWithTag(TestTag).assertLabelEquals(beforeLabel)
 
-        runOnIdleCompose { isAfter.value = true }
+        runOnIdle { isAfter.value = true }
 
         onNodeWithTag(TestTag).assertLabelEquals(afterLabel)
     }
@@ -303,7 +303,7 @@ class SemanticsTests {
         onNodeWithTag(TestTag).assertLabelEquals(beforeLabel)
         assertThat(nodeCount).isEqualTo(1)
 
-        runOnIdleCompose { isAfter.value = true }
+        runOnIdle { isAfter.value = true }
 
         // Make sure everything is still behaving as expected
         onNodeWithTag(TestTag).assertLabelEquals(afterLabel)

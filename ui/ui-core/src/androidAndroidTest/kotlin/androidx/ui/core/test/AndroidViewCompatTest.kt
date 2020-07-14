@@ -82,7 +82,7 @@ import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
@@ -387,7 +387,7 @@ class AndroidViewCompatTest {
             viewRef.value?.layoutParams = layoutParams
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertEquals(expectedWidthSpec, widthMeasureSpecRef.value)
             assertEquals(expectedHeightSpec, heightMeasureSpecRef.value)
         }
@@ -406,7 +406,7 @@ class AndroidViewCompatTest {
             constraintsHolder.value = Constraints(minWidth = 20, minHeight = 30)
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertEquals(20, viewRef.value!!.minimumWidth)
             assertEquals(30, viewRef.value!!.minimumHeight)
         }
@@ -427,10 +427,10 @@ class AndroidViewCompatTest {
         }
         onNodeWithTag("view").captureToBitmap().assertPixels(IntSize(size, size)) { Color.Blue }
 
-        runOnIdleCompose { size += 20 }
+        runOnIdle { size += 20 }
         onNodeWithTag("view").captureToBitmap().assertPixels(IntSize(size, size)) { Color.Blue }
 
-        runOnIdleCompose { size += 20 }
+        runOnIdle { size += 20 }
         onNodeWithTag("view").captureToBitmap().assertPixels(IntSize(size, size)) { Color.Blue }
     }
 
@@ -455,7 +455,7 @@ class AndroidViewCompatTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertEquals(outer.x + padding * 2, inner.x)
             assertEquals(outer.y + padding * 2, inner.y)
         }
@@ -492,11 +492,11 @@ class AndroidViewCompatTest {
                 }
             }
         }
-        runOnIdleCompose { startX = coordinates.globalPosition.x.roundToInt() }
+        runOnIdle { startX = coordinates.globalPosition.x.roundToInt() }
 
-        runOnIdleCompose { topView.visibility = View.GONE }
+        runOnIdle { topView.visibility = View.GONE }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertEquals(100, startX - coordinates.globalPosition.x.roundToInt())
         }
     }
@@ -526,7 +526,7 @@ class AndroidViewCompatTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertEquals(Offset(padding, padding), inner1 - outer)
             assertEquals(Offset(padding + size, padding), inner2 - outer)
         }
@@ -613,10 +613,10 @@ class AndroidViewCompatTest {
         assertNotNull(node)
         assertTrue(node!!.isAttached())
 
-        runOnIdleCompose { composeContent = false }
+        runOnIdle { composeContent = false }
 
         // The composition has been disposed.
-        runOnIdleCompose {
+        runOnIdle {
             assertFalse(innerAndroidComposeView!!.isAttachedToWindow)
             assertFalse(node!!.isAttached())
         }
@@ -644,7 +644,7 @@ class AndroidViewCompatTest {
         onNodeWithTag("view")
             .captureToBitmap().assertPixels(IntSize(sizePx, sizePx)) { Color.Green }
 
-        runOnIdleCompose { first = false }
+        runOnIdle { first = false }
 
         onNodeWithTag("view")
             .captureToBitmap().assertPixels(IntSize(sizePx, sizePx)) { Color.Blue }
@@ -684,7 +684,7 @@ class AndroidViewCompatTest {
                 if (it.x < sizePx) Color.Green else Color.Blue
             }
 
-        runOnIdleCompose { first = false }
+        runOnIdle { first = false }
 
         onNodeWithTag("view").captureToBitmap()
             .assertPixels(IntSize(sizePx * 2, sizePx)) {

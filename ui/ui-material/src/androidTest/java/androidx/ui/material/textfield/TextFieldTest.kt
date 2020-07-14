@@ -37,7 +37,7 @@ import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.swipeDown
 import androidx.ui.test.swipeUp
 import androidx.ui.unit.IntSize
@@ -80,7 +80,7 @@ class TextFieldTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.maximum).isLessThan(Float.POSITIVE_INFINITY)
             assertThat(scrollerPosition.maximum).isGreaterThan(0f)
         }
@@ -104,7 +104,7 @@ class TextFieldTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.maximum).isEqualTo(0f)
         }
     }
@@ -138,7 +138,7 @@ class TextFieldTest {
             }
         }
 
-        runOnIdleCompose {}
+        runOnIdle {}
 
         onNodeWithTag(TextfieldTag)
             .captureToBitmap()
@@ -165,21 +165,21 @@ class TextFieldTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.current).isEqualTo(0f)
         }
 
         onNodeWithTag(TextfieldTag)
             .performGesture { swipeDown() }
 
-        val firstSwipePosition = runOnIdleCompose {
+        val firstSwipePosition = runOnIdle {
             scrollerPosition.current
         }
         assertThat(firstSwipePosition).isGreaterThan(0f)
 
         onNodeWithTag(TextfieldTag)
             .performGesture { swipeUp() }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.current).isLessThan(firstSwipePosition)
         }
     }
@@ -209,19 +209,19 @@ class TextFieldTest {
         onNodeWithTag(TextfieldTag)
             .performGesture { swipeDown() }
 
-        val swipePosition = runOnIdleCompose {
+        val swipePosition = runOnIdle {
             scrollerPosition.current
         }
         assertThat(swipePosition).isGreaterThan(0f)
 
-        runOnIdleCompose {
+        runOnIdle {
             scrollerPosition = TextFieldScrollerPosition()
             assertThat(scrollerPosition.current).isEqualTo(0f)
         }
 
         restorationTester.emulateSavedInstanceStateRestore()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.current).isEqualTo(swipePosition)
         }
     }

@@ -32,7 +32,7 @@ import androidx.ui.core.selection.SimpleContainer
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.rtl
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.unit.IntBounds
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
@@ -118,7 +118,7 @@ class PopupTest {
     // TODO(b/139861182): Remove all of this and provide helpers on ComposeTestRule
     private fun popupMatches(viewMatcher: Matcher<in View>) {
         // Make sure that current measurement/drawing is finished
-        runOnIdleCompose { }
+        runOnIdle { }
         Espresso.onView(instanceOf(Owner::class.java))
             .inRoot(PopupLayoutMatcher())
             .check(matches(viewMatcher))
@@ -913,7 +913,7 @@ class PopupTest {
                 }
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             Truth.assertThat(value).isEqualTo(1f)
         }
     }

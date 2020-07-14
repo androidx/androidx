@@ -33,7 +33,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNode
 import androidx.ui.test.hasInputMethodsSupport
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.click
 import androidx.ui.text.TextRange
@@ -93,7 +93,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
         onNode(hasInputMethodsSupport())
             .performGesture { click(Offset(1f, 1f)) }
 
-        runOnIdleCompose {
+        runOnIdle {
             // Verify startInput is called and capture the callback.
             val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
             verify(textInputService, times(1)).startInput(
@@ -122,7 +122,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
     fun commitText_onValueChange_call_once() {
         // Committing text should be reported as value change
         performEditOperation(CommitTextEditOp("ABCDE", 1))
-        runOnIdleCompose {
+        runOnIdle {
             verify(onValueChange, times(1))
                 .invoke(eq(
                     androidx.ui.input.TextFieldValue(
@@ -137,7 +137,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
     fun setComposingRegion_onValueChange_call_once() {
         // Composition change will be reported as a change
         performEditOperation(SetComposingRegionEditOp(0, 5))
-        runOnIdleCompose {
+        runOnIdle {
             verify(onValueChange, times(1)).invoke(eq(androidx.ui.input.TextFieldValue(
                 text = "abcde",
                 selection = TextRange.Zero,
@@ -150,7 +150,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
     fun setComposingText_onValueChange_call_once() {
         val composingText = "ABCDE"
         performEditOperation(SetComposingTextEditOp(composingText, 1))
-        runOnIdleCompose {
+        runOnIdle {
             verify(onValueChange, times(1))
                 .invoke(eq(
                     androidx.ui.input.TextFieldValue(
@@ -166,7 +166,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
     fun setSelection_onValueChange_call_once() {
         // Selection change is a part of value-change in EditorModel text field
         performEditOperation(SetSelectionEditOp(1, 1))
-        runOnIdleCompose {
+        runOnIdle {
             verify(onValueChange, times(1)).invoke(eq(
                 androidx.ui.input.TextFieldValue(
                     "abcde",
@@ -185,14 +185,14 @@ class TextFieldOnValueChangeTextFieldValueTest {
             selection = TextRange(5),
             composition = TextRange(0, composingText.length)
         )
-        runOnIdleCompose {
+        runOnIdle {
             verify(onValueChange, times(1)).invoke(eq(expectedTextFieldValue))
         }
 
         // Composition change will be reported as a change
         clearInvocations(onValueChange)
         performEditOperation(FinishComposingTextEditOp())
-        runOnIdleCompose {
+        runOnIdle {
             verify(onValueChange, times(1)).invoke(
                 eq(expectedTextFieldValue.copy(composition = null))
             )
@@ -202,7 +202,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
     @Test
     fun deleteSurroundingText_onValueChange_call_once() {
         performEditOperation(DeleteSurroundingTextEditOp(0, 1))
-        runOnIdleCompose {
+        runOnIdle {
             verify(onValueChange, times(1)).invoke(eq(
                 androidx.ui.input.TextFieldValue(
                     "bcde",
