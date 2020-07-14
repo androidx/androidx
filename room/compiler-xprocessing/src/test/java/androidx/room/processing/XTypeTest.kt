@@ -17,6 +17,7 @@
 package androidx.room.processing
 
 import androidx.room.processing.util.Source
+import androidx.room.processing.util.getField
 import androidx.room.processing.util.runProcessorTest
 import androidx.room.processing.util.runProcessorTestForFailedCompilation
 import com.google.common.truth.Truth.assertThat
@@ -64,6 +65,30 @@ class XTypeTest {
                     ClassName.get("java.io", "InputStream")
                 )
                 assertThat(firstType.typeName).isEqualTo(expected)
+            }
+        }
+    }
+
+    @Test
+    fun errorType() {
+        val missingTypeRef = Source.java(
+            "foo.bar.Baz",
+            """
+                package foo.bar;
+                public class Baz {
+                    NotExistingType badField;
+                }
+            """.trimIndent()
+        )
+        runProcessorTestForFailedCompilation(
+            sources = listOf(missingTypeRef)
+        ) {
+            val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
+            element.getField("badField").let { field ->
+                assertThat(field.type.isError()).isTrue()
+                assertThat(field.type.typeName).isEqualTo(
+                    ClassName.get("", "NotExistingType")
+                )
             }
         }
     }

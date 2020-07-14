@@ -17,6 +17,7 @@
 package androidx.room.processing.javac
 
 import androidx.room.processing.XTypeElement
+import androidx.room.processing.XVariableElement
 import com.squareup.javapoet.ClassName
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
@@ -36,6 +37,22 @@ internal class JavacTypeElement(
     }
 
     override fun isInterface() = element.kind == ElementKind.INTERFACE
+
+    private val _allFieldsIncludingPrivateSupers by lazy {
+        element.getAllFieldsIncludingPrivateSupers(
+            env.elementUtils
+        ).map {
+            JavacVariableElement(
+                env = env,
+                element = it,
+                containing = this
+            )
+        }
+    }
+
+    override fun getAllFieldsIncludingPrivateSupers(): List<XVariableElement> {
+        return _allFieldsIncludingPrivateSupers
+    }
 
     override val type: JavacDeclaredType by lazy {
         env.wrap<JavacDeclaredType>(element.asType())

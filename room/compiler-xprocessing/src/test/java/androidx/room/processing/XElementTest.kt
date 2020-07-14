@@ -16,7 +16,9 @@
 
 package androidx.room.processing
 
+import androidx.room.processing.testcode.OtherAnnotation
 import androidx.room.processing.util.Source
+import androidx.room.processing.util.getField
 import androidx.room.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
@@ -34,6 +36,12 @@ class XElementTest {
                     "foo.bar.Baz", """
                 package foo.bar;
                 public abstract class Baz {
+                    private int privateField;
+                    int packagePrivateField;
+                    protected int protectedField;
+                    public int publicField;
+                    transient int transientField;
+                    static int staticField;
                 }
             """.trimIndent()
                 )
@@ -56,6 +64,14 @@ class XElementTest {
                 assertThat(readModifiers()).containsExactlyElementsIn(expected)
             }
             element.assertModifiers("abstract", "public")
+            element.getField("privateField").assertModifiers("private")
+            element.getField("packagePrivateField").assertModifiers()
+            // we don't read isProtected, no reason. we should eventually get rid of most if not
+            // all anyways
+            element.getField("protectedField").assertModifiers("protected")
+            element.getField("publicField").assertModifiers("public")
+            element.getField("transientField").assertModifiers("transient")
+            element.getField("staticField").assertModifiers("static")
         }
     }
 
@@ -71,6 +87,8 @@ class XElementTest {
 
             @RunWith(JUnit4.class)
             class Baz {
+                @OtherAnnotation(value="xx")
+                String testField;
             }
         """.trimIndent()
         )
@@ -80,6 +98,10 @@ class XElementTest {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             assertThat(element.hasAnnotation(RunWith::class)).isTrue()
             assertThat(element.hasAnnotation(Test::class)).isFalse()
+            element.getField("testField").let { field ->
+                assertThat(field.hasAnnotation(OtherAnnotation::class)).isTrue()
+                assertThat(field.hasAnnotation(Test::class)).isFalse()
+            }
             assertThat(
                 element.hasAnnotationInPackage(
                     "org.junit.runner"
@@ -122,6 +144,8 @@ class XElementTest {
             "foo.bar.Baz", """
             package foo.bar;
             class Baz {
+                int field;
+
                 static interface Inner {}
             }
         """.trimIndent()
@@ -137,6 +161,35 @@ class XElementTest {
             assertThat(element.isInterface()).isFalse()
             assertThat(element.isAbstract()).isFalse()
             assertThat(element.isType()).isTrue()
+            element.getField("field").let { field ->
+                assertThat(field.isType()).isFalse()
+                assertThat(field.isAbstract()).isFalse()
+                assertThat(field.isField()).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun notATypeElement() {
+        val source = Source.java(
+            "foo.bar.Baz", """
+            package foo.bar;
+            class Baz {
+                public static int x;
+            }
+        """.trimIndent()
+        )
+        runProcessorTest(
+            listOf(source)
+        ) {
+            val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
+            element.getField("x").let { field ->
+                assertThat(field.isStatic()).isTrue()
+                val fail = runCatching {
+                    field.asTypeElement()
+                }
+                assertThat(fail.exceptionOrNull()).isNotNull()
+            }
         }
     }
 

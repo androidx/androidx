@@ -16,6 +16,8 @@
 
 package androidx.room.processing
 
+import androidx.room.processing.util.Source
+import androidx.room.processing.util.getField
 import androidx.room.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ArrayTypeName
@@ -25,7 +27,29 @@ import org.junit.Test
 class XArrayTypeTest {
     @Test
     fun xArrayType() {
-        runProcessorTest {
+        val source = Source.java(
+            "foo.bar.Baz", """
+            package foo.bar;
+            class Baz {
+                String[] param;
+            }
+        """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(source)
+        ) {
+            val type = it.processingEnv
+                .requireTypeElement("foo.bar.Baz")
+                .getField("param")
+                .type
+            assertThat(type.isArray()).isTrue()
+            assertThat(type.typeName).isEqualTo(
+                ArrayTypeName.of(TypeName.get(String::class.java))
+            )
+            assertThat(type.asArray().componentType.typeName).isEqualTo(
+                TypeName.get(String::class.java)
+            )
+
             val objArray = it.processingEnv.getArrayType(
                 TypeName.OBJECT
             )

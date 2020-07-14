@@ -14,24 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.room.processing
+package androidx.room.processing.util
 
-import com.squareup.javapoet.ClassName
+import androidx.room.processing.XTypeElement
 
-interface XTypeElement : XElement {
-    val qualifiedName: String
-
-    val type: XDeclaredType
-
-    val superType: XType?
-
-    val className: ClassName
-
-    fun isInterface(): Boolean
-
-    /**
-     * All fields, including private supers.
-     * Room only ever reads fields this way.
-     */
-    fun getAllFieldsIncludingPrivateSupers(): List<XVariableElement>
+fun XTypeElement.getField(name: String) = getAllFieldsIncludingPrivateSupers().first {
+    it.name == name
 }
