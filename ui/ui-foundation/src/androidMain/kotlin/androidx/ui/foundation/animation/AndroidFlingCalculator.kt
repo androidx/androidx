@@ -53,7 +53,7 @@ private fun computeDeceleration(friction: Float, density: Float): Float =
  *
  * @param density density of the screen. Use [DensityAmbient] to get current density in composition.
  */
-class AndroidFlingCalculator(
+internal class AndroidFlingCalculator(
     val density: Density
 ) {
 

@@ -19,16 +19,15 @@ package androidx.ui.material.demos
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.GenericShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Column
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.material.Button
@@ -51,16 +50,14 @@ private val DefaultSpace = 20.dp
 
 @Composable
 fun ButtonDemo() {
-    VerticalScroller {
-        Column(Modifier.padding(10.dp)) {
-            Buttons()
-            Spacer(Modifier.preferredHeight(DefaultSpace))
-            Fabs()
-            Spacer(Modifier.preferredHeight(DefaultSpace))
-            IconButtons()
-            Spacer(Modifier.preferredHeight(DefaultSpace))
-            CustomShapeButton()
-        }
+    ScrollableColumn(contentPadding = InnerPadding(10.dp)) {
+        Buttons()
+        Spacer(Modifier.preferredHeight(DefaultSpace))
+        Fabs()
+        Spacer(Modifier.preferredHeight(DefaultSpace))
+        IconButtons()
+        Spacer(Modifier.preferredHeight(DefaultSpace))
+        CustomShapeButton()
     }
 }
 

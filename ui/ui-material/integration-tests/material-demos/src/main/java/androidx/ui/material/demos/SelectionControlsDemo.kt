@@ -18,16 +18,15 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Column
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.height
-import androidx.ui.layout.padding
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.samples.RadioGroupSample
 import androidx.ui.material.samples.RadioButtonSample
+import androidx.ui.material.samples.RadioGroupSample
 import androidx.ui.material.samples.SwitchSample
 import androidx.ui.material.samples.TriStateCheckboxSample
 import androidx.ui.unit.dp
@@ -35,19 +34,20 @@ import androidx.ui.unit.dp
 @Composable
 fun SelectionControlsDemo() {
     val headerStyle = MaterialTheme.typography.h6
-    VerticalScroller {
-        Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.SpaceEvenly) {
-            Text(text = "Checkbox", style = headerStyle)
-            TriStateCheckboxSample()
-            Spacer(Modifier.height(16.dp))
-            Text(text = "Switch", style = headerStyle)
-            SwitchSample()
-            Spacer(Modifier.height(16.dp))
-            Text(text = "RadioButtons with custom colors", style = headerStyle)
-            RadioButtonSample()
-            Spacer(Modifier.height(16.dp))
-            Text(text = "Radio group", style = headerStyle)
-            RadioGroupSample()
-        }
+    ScrollableColumn(
+        contentPadding = InnerPadding(10.dp),
+        verticalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Text(text = "Checkbox", style = headerStyle)
+        TriStateCheckboxSample()
+        Spacer(Modifier.height(16.dp))
+        Text(text = "Switch", style = headerStyle)
+        SwitchSample()
+        Spacer(Modifier.height(16.dp))
+        Text(text = "RadioButtons with custom colors", style = headerStyle)
+        RadioButtonSample()
+        Spacer(Modifier.height(16.dp))
+        Text(text = "Radio group", style = headerStyle)
+        RadioGroupSample()
     }
 }

@@ -20,11 +20,11 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Modifier
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.ScrollableState
+import androidx.ui.foundation.gestures.rememberScrollableController
 import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.preferredSize
@@ -43,8 +43,8 @@ fun ScrollableSample() {
         Modifier
             .preferredSize(200.dp)
             .scrollable(
-                dragDirection = DragDirection.Vertical,
-                scrollableState = ScrollableState { delta ->
+                orientation = Orientation.Vertical,
+                controller = rememberScrollableController { delta ->
                     offset.value = offset.value + delta
                     delta
                 }

@@ -16,9 +16,9 @@
 
 package androidx.ui.foundation.gestures
 
-import androidx.animation.AnimatedFloat
 import androidx.compose.onDispose
-import androidx.compose.remember
+import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Direction
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.core.gesture.ScrollCallback
@@ -28,11 +28,11 @@ import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.foundation.Interaction
 import androidx.ui.foundation.InteractionState
 import androidx.ui.geometry.Offset
-import kotlin.math.sign
+import androidx.ui.unit.Density
 
 /**
- * Configure touch dragging for the UI element in a single [DragDirection]. The drag distance is
- * reported to [onDragDeltaConsumptionRequested] as a single [Float] value in pixels.
+ * Configure touch dragging for the UI element in a single [Orientation]. The drag distance is
+ * reported to [onDrag] as a single [Float] value in pixels.
  *
  * The common usecase for this component is when you need to be able to drag something
  * inside the component on the screen and represent this state via one float value
@@ -43,51 +43,38 @@ import kotlin.math.sign
  *
  * @sample androidx.ui.foundation.samples.DraggableSample
  *
- * [AnimatedFloat] offers a standard implementation of flinging behavior:
- *
- * @sample androidx.ui.foundation.samples.AnchoredDraggableSample
- *
- * @param dragDirection direction in which drag should be happening
- * @param onDragStarted callback that will be invoked when drag has been started after touch slop
- * has been passed, with starting position provided
- * @param onDragStopped callback that will be invoked when drag stops, with velocity provided
+ * @param orientation orientation of the drag
  * @param enabled whether or not drag is enabled
+ * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will
+ * behave like bottom to top and left to right will behave like right to left.
  * @param interactionState [InteractionState] that will be updated when this draggable is
  * being dragged, using [Interaction.Dragged].
  * @param startDragImmediately when set to true, draggable will start dragging immediately and
  * prevent other gesture detectors from reacting to "down" events (in order to block composed
  * press-based gestures).  This is intended to allow end users to "catch" an animating widget by
  * pressing on it. It's useful to set it when value you're dragging is settling / animating.
- * @param onDragDeltaConsumptionRequested callback to be invoked when drag occurs. Users must
- * update their state in this lambda and return amount of delta consumed
+ * @param canDrag callback to indicate whether or not dragging is allowed for given [Direction]
+ * @param onDragStarted callback that will be invoked when drag has been started after touch slop
+ * has been passed, with starting position provided
+ * @param onDragStopped callback that will be invoked when drag stops, with velocity provided
+ * @param onDrag callback to be invoked when the drag occurs with the delta dragged from the
+ * previous event. [Density] provided in the scope for the convenient conversion between px and dp
  */
 fun Modifier.draggable(
-    dragDirection: DragDirection,
-    onDragStarted: (startedPosition: Offset) -> Unit = {},
-    onDragStopped: (velocity: Float) -> Unit = {},
+    orientation: Orientation,
     enabled: Boolean = true,
+    reverseDirection: Boolean = false,
     interactionState: InteractionState? = null,
     startDragImmediately: Boolean = false,
-    onDragDeltaConsumptionRequested: (Float) -> Float
+    canDrag: (Direction) -> Boolean = { enabled },
+    onDragStarted: (startedPosition: Offset) -> Unit = {},
+    onDragStopped: (velocity: Float) -> Unit = {},
+    onDrag: Density.(Float) -> Unit
 ): Modifier = composed {
-    val dragState = remember { DraggableState() }
+    val density = DensityAmbient.current
     onDispose {
         interactionState?.removeInteraction(Interaction.Dragged)
     }
-
-    val orientation =
-        when (dragDirection) {
-            DragDirection.Horizontal -> Orientation.Horizontal
-            DragDirection.Vertical -> Orientation.Vertical
-            DragDirection.ReversedHorizontal -> Orientation.Horizontal
-        }
-
-    val sign =
-        when (dragDirection) {
-            DragDirection.Horizontal -> 1
-            DragDirection.Vertical -> 1
-            DragDirection.ReversedHorizontal -> -1
-        }
 
     scrollGestureFilter(
         scrollCallback = object : ScrollCallback {
@@ -101,11 +88,12 @@ fun Modifier.draggable(
 
             override fun onScroll(scrollDistance: Float): Float {
                 if (!enabled) return scrollDistance
-                val consumed = onDragDeltaConsumptionRequested(scrollDistance * sign)
-                dragState.value = dragState.value + consumed
-                // TODO (malkov): temporary negate reversed direction with sign
-                //  remove when b/159618405 is fixed.
-                return consumed * sign
+                val toConsume = if (reverseDirection) scrollDistance * -1 else scrollDistance
+                with(density) { onDrag(toConsume) }
+                // we explicitly disallow nested scrolling in draggable, as it should be
+                // accessible via Modifier.scrollable. For drags, usually nested dragging is not
+                // required
+                return scrollDistance
             }
 
             override fun onCancel() {
@@ -118,18 +106,12 @@ fun Modifier.draggable(
             override fun onStop(velocity: Float) {
                 if (enabled) {
                     interactionState?.removeInteraction(Interaction.Dragged)
-                    onDragStopped(velocity * sign)
+                    onDragStopped(if (reverseDirection) velocity * -1 else velocity)
                 }
             }
         },
         orientation = orientation,
-        // TODO(shepshapard): canDrag is intended to prevent something from starting a scroll in
-        //  a direction where scrolling is already at it's max.  This code is not yet doing that.
-        canDrag = { enabled },
+        canDrag = canDrag,
         startDragImmediately = startDragImmediately
     )
-}
-
-private class DraggableState {
-    var value: Float = 0f
 }

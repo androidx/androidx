@@ -27,9 +27,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.ScrollerPosition
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.rememberScrollState
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
@@ -85,9 +85,9 @@ private typealias ScrollFraction = MutableState<Float>
 @Composable
 private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalette) {
     MaterialTheme(palette) {
-        val scrollerPosition = ScrollerPosition()
+        val scrollState = rememberScrollState()
         val fraction =
-            round((scrollerPosition.value / scrollerPosition.maxPosition) * 100) / 100
+            round((scrollState.value / scrollState.maxValue) * 100) / 100
         remember(fraction) { scrollFraction.value = fraction }
         Scaffold(
             topBar = { TopAppBar({ Text("Scroll down!") }) },
@@ -96,13 +96,13 @@ private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalett
             floatingActionButtonPosition = Scaffold.FabPosition.Center,
             isFloatingActionButtonDocked = true,
             bodyContent = { innerPadding ->
-                VerticalScroller(scrollerPosition) {
+                ScrollableColumn(scrollState = scrollState, children = {
                     Column(Modifier.padding(innerPadding)) {
                         repeat(20) { index ->
                             Card(index)
                         }
                     }
-                }
+                })
             }
         )
     }

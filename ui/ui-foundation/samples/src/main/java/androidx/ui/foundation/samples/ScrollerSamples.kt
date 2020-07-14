@@ -18,22 +18,29 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.MutableState
-import androidx.compose.state
+import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.HorizontalScroller
-import androidx.ui.foundation.ScrollerPosition
+import androidx.ui.foundation.ScrollableColumn
+import androidx.ui.foundation.ScrollableRow
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.clickable
+import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.horizontalScroll
+import androidx.ui.foundation.rememberScrollState
+import androidx.ui.foundation.verticalScroll
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.HorizontalGradient
+import androidx.ui.graphics.TileMode
+import androidx.ui.graphics.VerticalGradient
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.height
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
-import androidx.ui.text.TextStyle
+import androidx.ui.layout.size
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 
@@ -80,45 +87,85 @@ private val phrases = listOf(
 
 @Sampled
 @Composable
-fun VerticalScrollerSample() {
-    val style = TextStyle(fontSize = 30.sp)
-    // Scroller will be clipped to this padding
-    VerticalScroller {
+fun HorizontalScrollSample() {
+    val scrollState = rememberScrollState()
+    val gradient = HorizontalGradient(
+        listOf(Color.Red, Color.Blue, Color.Green), 0.0f, 10000.0f, TileMode.Repeated
+    )
+    Box(
+        Modifier
+            .horizontalScroll(scrollState)
+            .size(width = 10000.dp, height = 200.dp)
+            .drawBackground(gradient)
+    )
+}
+
+@Sampled
+@Composable
+fun VerticalScrollExample() {
+    val scrollState = rememberScrollState()
+    val gradient = VerticalGradient(
+        listOf(Color.Red, Color.Blue, Color.Green), 0.0f, 10000.0f, TileMode.Repeated
+    )
+    Box(
+        Modifier
+            .verticalScroll(scrollState)
+            .fillMaxWidth()
+            .height(10000.dp)
+            .drawBackground(gradient)
+    )
+}
+
+@Sampled
+@Composable
+fun ScrollableColumnSample() {
+    ScrollableColumn {
         phrases.forEach { phrase ->
-            Text(phrase, style)
+            Text(phrase, fontSize = 30.sp)
         }
     }
 }
 
 @Sampled
 @Composable
-fun SimpleHorizontalScrollerSample() {
-    HorizontalScroller {
-        Row {
-            repeat(100) { index ->
-                Square(index)
-            }
+fun ScrollableRowSample() {
+    ScrollableRow {
+        repeat(100) { index ->
+            Square(index)
         }
     }
 }
 
 @Sampled
 @Composable
-fun ControlledHorizontalScrollerSample() {
-    // Create and own ScrollerPosition to call `smoothScrollTo` later
-    val position = ScrollerPosition()
-    val scrollable = state { true }
+fun ControlledScrollableRowSample() {
+    // Create ScrollState to own it and be able to control scroll behaviour of ScrollableRow below
+    val scrollState = rememberScrollState()
     Column {
-        HorizontalScroller(
-            scrollerPosition = position,
-            isScrollable = scrollable.value
-        ) {
+        ScrollableRow(scrollState = scrollState) {
             repeat(1000) { index ->
                 Square(index)
             }
         }
-        // Controls that will call `smoothScrollTo`, `scrollTo` or toggle `scrollable` state
-        ScrollControl(position, scrollable)
+        // Controls for scrolling
+        Row(verticalGravity = Alignment.CenterVertically) {
+            Text("Scroll")
+            Button(onClick = { scrollState.scrollTo(scrollState.value - 1000) }) {
+                Text("< -")
+            }
+            Button(onClick = { scrollState.scrollBy(10000f) }) {
+                Text("--- >")
+            }
+        }
+        Row(verticalGravity = Alignment.CenterVertically) {
+            Text("Smooth Scroll")
+            Button(onClick = { scrollState.smoothScrollTo(scrollState.value - 1000) }) {
+                Text("< -")
+            }
+            Button(onClick = { scrollState.smoothScrollBy(10000f) }) {
+                Text("--- >")
+            }
+        }
     }
 }
 
@@ -134,46 +181,13 @@ private fun Square(index: Int) {
 }
 
 @Composable
-private fun ScrollControl(position: ScrollerPosition, scrollable: MutableState<Boolean>) {
-    Column {
-        Row {
-            Text("Scroll")
-            SquareButton("< -", Color.Red) {
-                position.scrollTo(position.value - 1000)
-            }
-            SquareButton("--- >", Color.Green) {
-                position.scrollBy(10000f)
-            }
-        }
-        Row {
-            Text("Smooth Scroll")
-            SquareButton("< -", Color.Red) {
-                position.smoothScrollTo(position.value - 1000)
-            }
-            SquareButton("--- >", Color.Green) {
-                position.smoothScrollBy(10000f)
-            }
-        }
-        Row {
-            SquareButton("Scroll: ${scrollable.value}") {
-                scrollable.value = !scrollable.value
-            }
-        }
-    }
-}
-
-@Composable
-private fun SquareButton(text: String, color: Color = Color.LightGray, onClick: () -> Unit) {
+private fun Button(onClick: () -> Unit, text: @Composable () -> Unit) {
     Box(
-        Modifier.padding(5.dp).preferredSize(120.dp, 60.dp).clickable(onClick = onClick),
-        backgroundColor = color,
-        gravity = ContentGravity.Center
-    ) {
-        Text(text, fontSize = 20.sp)
-    }
-}
-
-@Composable
-private fun Text(text: String, style: TextStyle) {
-    Text(text, style = style, modifier = Modifier.clickable { })
+        Modifier.padding(5.dp)
+            .preferredSize(120.dp, 60.dp)
+            .clickable(onClick = onClick)
+            .drawBackground(Color.LightGray),
+        gravity = ContentGravity.Center,
+        children = text
+    )
 }

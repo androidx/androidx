@@ -23,11 +23,12 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.HorizontalScroller
-import androidx.ui.foundation.ScrollerPosition
+import androidx.ui.foundation.ScrollState
+import androidx.ui.foundation.ScrollableColumn
+import androidx.ui.foundation.ScrollableRow
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.rememberScrollState
 import androidx.ui.graphics.Color
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Column
@@ -46,14 +47,14 @@ import kotlin.random.Random
  */
 class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
     // ScrollerPosition must now be constructed during composition to obtain the Density
-    private lateinit var scrollerPosition: ScrollerPosition
+    private lateinit var scrollState: ScrollState
 
     @Composable
     override fun emitContent() {
-        scrollerPosition = ScrollerPosition()
+        scrollState = rememberScrollState()
         MaterialTheme {
             Surface {
-                VerticalScroller {
+                ScrollableColumn {
                     repeat(5) { index ->
                         // key is needed because of b/154920561
                         key(index) {
@@ -66,7 +67,7 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
     }
 
     override fun toggleState() {
-        scrollerPosition.scrollTo(if (scrollerPosition.value == 0f) 10f else 0f)
+        scrollState.scrollTo(if (scrollState.value == 0f) 10f else 0f)
     }
 
     @Composable
@@ -106,9 +107,9 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
             }
         }
         if (useScrollerPosition) {
-            HorizontalScroller(scrollerPosition = scrollerPosition, children = content)
+            ScrollableRow(scrollState = scrollState, children = content)
         } else {
-            HorizontalScroller(children = content)
+            ScrollableRow(children = content)
         }
     }
 }

@@ -23,12 +23,13 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.selection.selectable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.ColumnScope.gravity
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxHeight
@@ -58,148 +59,145 @@ import androidx.ui.unit.dp
 
 @Composable
 fun TextFieldsDemo() {
-    VerticalScroller {
-        Column(
-            modifier = Modifier.fillMaxHeight().padding(10.dp)
-        ) {
-            Text("Password text field")
-            PasswordFilledTextField()
-            Text("Text field with leading and trailing icons")
-            FilledTextFieldWithIcons()
-            Text("Outlined text field")
-            SimpleOutlinedTextFieldSample()
-            Text("Text field with placeholder")
-            FilledTextFieldWithPlaceholder()
-            Text("Text field with error state handling")
-            FilledTextFieldWithErrorState()
-            Text("Text field with helper/error message")
-            TextFieldWithHelperMessage()
-            Text("Hide keyboard on IME action")
-            TextFieldWithHideKeyboardOnImeAction()
-            Text("TextFieldValue overload")
-            FilledTextFieldSample()
-        }
+    ScrollableColumn(
+        modifier = Modifier.fillMaxHeight(),
+        contentPadding = InnerPadding(10.dp)
+    ) {
+        Text("Password text field")
+        PasswordFilledTextField()
+        Text("Text field with leading and trailing icons")
+        FilledTextFieldWithIcons()
+        Text("Outlined text field")
+        SimpleOutlinedTextFieldSample()
+        Text("Text field with placeholder")
+        FilledTextFieldWithPlaceholder()
+        Text("Text field with error state handling")
+        FilledTextFieldWithErrorState()
+        Text("Text field with helper/error message")
+        TextFieldWithHelperMessage()
+        Text("Hide keyboard on IME action")
+        TextFieldWithHideKeyboardOnImeAction()
+        Text("TextFieldValue overload")
+        FilledTextFieldSample()
     }
 }
 
 @Composable
 fun MaterialTextFieldDemo() {
-    VerticalScroller {
-        Column(Modifier.padding(10.dp)) {
-            var text by savedInstanceState { "" }
-            var leadingChecked by savedInstanceState { false }
-            var trailingChecked by savedInstanceState { false }
-            val characterCounterChecked by savedInstanceState { false }
-            var selectedOption by savedInstanceState { Option.None }
-            var selectedTextField by savedInstanceState { TextFieldType.Filled }
+    ScrollableColumn(contentPadding = InnerPadding(10.dp)) {
+        var text by savedInstanceState { "" }
+        var leadingChecked by savedInstanceState { false }
+        var trailingChecked by savedInstanceState { false }
+        val characterCounterChecked by savedInstanceState { false }
+        var selectedOption by savedInstanceState { Option.None }
+        var selectedTextField by savedInstanceState { TextFieldType.Filled }
 
-            val textField: @Composable () -> Unit = @Composable {
-                when (selectedTextField) {
-                    TextFieldType.Filled ->
-                        FilledTextField(
-                            value = text,
-                            onValueChange = { text = it },
-                            label = {
-                                val label =
-                                    "Label" + if (selectedOption == Option.Error) "*" else ""
-                                Text(text = label)
-                            },
-                            leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
-                            trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
-                            isErrorValue = selectedOption == Option.Error
-                        )
-                    TextFieldType.Outlined ->
-                        OutlinedTextField(
-                            value = text,
-                            onValueChange = { text = it },
-                            label = {
-                                val label =
-                                    "Label" + if (selectedOption == Option.Error) "*" else ""
-                                Text(text = label)
-                            },
-                            leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
-                            trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
-                            isErrorValue = selectedOption == Option.Error
-                        )
-                }
+        val textField: @Composable () -> Unit = @Composable {
+            when (selectedTextField) {
+                TextFieldType.Filled ->
+                    FilledTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        label = {
+                            val label =
+                                "Label" + if (selectedOption == Option.Error) "*" else ""
+                            Text(text = label)
+                        },
+                        leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
+                        trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
+                        isErrorValue = selectedOption == Option.Error
+                    )
+                TextFieldType.Outlined ->
+                    OutlinedTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        label = {
+                            val label =
+                                "Label" + if (selectedOption == Option.Error) "*" else ""
+                            Text(text = label)
+                        },
+                        leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
+                        trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
+                        isErrorValue = selectedOption == Option.Error
+                    )
             }
+        }
 
-            Box(Modifier.preferredHeight(150.dp).gravity(Alignment.CenterHorizontally)) {
-                if (selectedOption == Option.None) {
-                    textField()
-                } else {
-                    TextFieldWithMessage(textField, selectedOption)
-                }
+        Box(Modifier.preferredHeight(150.dp).gravity(Alignment.CenterHorizontally)) {
+            if (selectedOption == Option.None) {
+                textField()
+            } else {
+                TextFieldWithMessage(textField, selectedOption)
             }
+        }
 
+        Column {
+            Title("Text field type")
             Column {
-                Title("Text field type")
-                Column {
-                    TextFieldType.values().map { it.name }.forEach { textType ->
-                        Row(Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = (textType == selectedTextField.name),
-                                onClick = {
-                                    selectedTextField = TextFieldType.valueOf(textType)
-                                }
-                            )
-                            .padding(horizontal = 16.dp)
-                        ) {
-                            RadioButton(
-                                selected = (textType == selectedTextField.name),
-                                onClick = { selectedTextField = TextFieldType.valueOf(textType) }
-                            )
-                            Text(
-                                text = textType,
-                                style = MaterialTheme.typography.body1.merge(),
-                                modifier = Modifier.padding(start = 16.dp)
-                            )
-                        }
+                TextFieldType.values().map { it.name }.forEach { textType ->
+                    Row(Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = (textType == selectedTextField.name),
+                            onClick = {
+                                selectedTextField = TextFieldType.valueOf(textType)
+                            }
+                        )
+                        .padding(horizontal = 16.dp)
+                    ) {
+                        RadioButton(
+                            selected = (textType == selectedTextField.name),
+                            onClick = { selectedTextField = TextFieldType.valueOf(textType) }
+                        )
+                        Text(
+                            text = textType,
+                            style = MaterialTheme.typography.body1.merge(),
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
                     }
                 }
+            }
 
-                Title("Options")
-                OptionRow(
-                    title = "Leading icon",
-                    checked = leadingChecked,
-                    onCheckedChange = { leadingChecked = it }
-                )
-                OptionRow(
-                    title = "Trailing icon",
-                    checked = trailingChecked,
-                    onCheckedChange = { trailingChecked = it }
-                )
-                OptionRow(
-                    title = "Character counter (TODO)",
-                    checked = characterCounterChecked,
-                    enabled = false,
-                    onCheckedChange = { /* TODO */ }
-                )
+            Title("Options")
+            OptionRow(
+                title = "Leading icon",
+                checked = leadingChecked,
+                onCheckedChange = { leadingChecked = it }
+            )
+            OptionRow(
+                title = "Trailing icon",
+                checked = trailingChecked,
+                onCheckedChange = { trailingChecked = it }
+            )
+            OptionRow(
+                title = "Character counter (TODO)",
+                checked = characterCounterChecked,
+                enabled = false,
+                onCheckedChange = { /* TODO */ }
+            )
 
-                Spacer(Modifier.preferredHeight(20.dp))
+            Spacer(Modifier.preferredHeight(20.dp))
 
-                Title("Assistive text")
-                Column {
-                    Option.values().map { it.name }.forEach { text ->
-                        Row(Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = (text == selectedOption.name),
-                                onClick = { selectedOption = Option.valueOf(text) }
-                            )
-                            .padding(horizontal = 16.dp)
-                        ) {
-                            RadioButton(
-                                selected = (text == selectedOption.name),
-                                onClick = { selectedOption = Option.valueOf(text) }
-                            )
-                            Text(
-                                text = text,
-                                style = MaterialTheme.typography.body1.merge(),
-                                modifier = Modifier.padding(start = 16.dp)
-                            )
-                        }
+            Title("Assistive text")
+            Column {
+                Option.values().map { it.name }.forEach { text ->
+                    Row(Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = (text == selectedOption.name),
+                            onClick = { selectedOption = Option.valueOf(text) }
+                        )
+                        .padding(horizontal = 16.dp)
+                    ) {
+                        RadioButton(
+                            selected = (text == selectedOption.name),
+                            onClick = { selectedOption = Option.valueOf(text) }
+                        )
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.body1.merge(),
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
                     }
                 }
             }

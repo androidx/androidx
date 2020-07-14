@@ -24,10 +24,10 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Stack
@@ -125,8 +125,8 @@ fun ModalDrawerLayout(
             onStateChange = onStateChange,
             anchorsToState = anchors,
             animationSpec = AnimationSpec,
-            dragDirection =
-            if (isRtl) DragDirection.ReversedHorizontal else DragDirection.Horizontal,
+            orientation = Orientation.Horizontal,
+            reverseDirection = isRtl,
             minValue = minValue,
             maxValue = maxValue,
             enabled = gesturesEnabled,
@@ -223,7 +223,7 @@ fun BottomDrawerLayout(
                 anchorsToState = anchors,
                 thresholds = fixedThresholds(offset),
                 animationSpec = AnimationSpec,
-                dragDirection = DragDirection.Vertical,
+                orientation = Orientation.Vertical,
                 minValue = minValue,
                 maxValue = maxValue,
                 enabled = gesturesEnabled,

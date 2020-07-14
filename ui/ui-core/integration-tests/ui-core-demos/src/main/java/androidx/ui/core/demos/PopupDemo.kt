@@ -23,12 +23,11 @@ import androidx.ui.core.DropDownAlignment
 import androidx.ui.core.DropdownPopup
 import androidx.ui.core.Modifier
 import androidx.ui.core.Popup
-import androidx.ui.foundation.TextField
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.clickable
 import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -406,7 +405,7 @@ private fun ColumnScope.PopupWithChangingSize() {
 
 @Composable
 private fun ColumnScope.PopupInsideScroller() {
-    VerticalScroller(
+    ScrollableColumn(
         modifier = Modifier.preferredSize(200.dp, 400.dp).gravity(Alignment.CenterHorizontally)
     ) {
         Column(Modifier.fillMaxHeight()) {

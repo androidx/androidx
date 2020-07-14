@@ -17,19 +17,15 @@
 package androidx.ui.foundation.animation
 
 import androidx.animation.FloatDecayAnimationSpec
+import androidx.ui.unit.Density
 import kotlin.math.sign
 
 /**
  * A native Android fling curve decay.
  */
-class AndroidFlingDecaySpec(
-    flingCalculator: AndroidFlingCalculator
-) : FloatDecayAnimationSpec {
+class AndroidFlingDecaySpec(density: Density) : FloatDecayAnimationSpec {
 
-    var flingCalculator = flingCalculator
-        // Allow the @Composable factory to update this for the animation it creates
-        // when the density ambient changes.
-        internal set
+    private val flingCalculator = AndroidFlingCalculator(density)
 
     override val absVelocityThreshold: Float get() = 0f
 

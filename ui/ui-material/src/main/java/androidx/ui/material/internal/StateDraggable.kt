@@ -21,6 +21,7 @@ import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationEndReason
 import androidx.animation.AnimationSpec
 import androidx.animation.ExponentialDecay
+import androidx.animation.OnAnimationEnd
 import androidx.animation.Spring
 import androidx.animation.TargetAnimation
 import androidx.annotation.FloatRange
@@ -31,10 +32,10 @@ import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
-import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.draggable
 import androidx.ui.util.fastFirstOrNull
 import androidx.ui.util.lerp
@@ -60,12 +61,13 @@ import kotlin.math.sign
  * @param onStateChange callback to update call site's state
  * @param anchorsToState pairs of anchors to states to map anchors to state and vise versa
  * @param animationSpec animation which will be used for animations
- * @param dragDirection direction in which drag should be happening.
- * Either [DragDirection.Vertical] or [DragDirection.Horizontal]
+ * @param orientation orientation of the drag
  * @param thresholds the thresholds between anchors that determine which anchor to fling to when
  * dragging stops, represented as a lambda that takes a pair of anchors and returns a value
  * between them (note that the order of the anchors matters as it indicates the drag direction)
  * @param enabled whether or not this Draggable is enabled and should consume events
+ * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will
+ * behave like bottom to top and left to right will behave like right to left.
  * @param minValue lower bound for draggable value in this component
  * @param maxValue upper bound for draggable value in this component
  * @param onNewValue callback to update state that the developer owns when animation or drag occurs
@@ -76,9 +78,10 @@ internal fun <T> Modifier.stateDraggable(
     onStateChange: (T) -> Unit,
     anchorsToState: List<Pair<Float, T>>,
     animationSpec: AnimationSpec<Float>,
-    dragDirection: DragDirection,
+    orientation: Orientation,
     thresholds: (Float, Float) -> Float = fractionalThresholds(0.5f),
     enabled: Boolean = true,
+    reverseDirection: Boolean = false,
     minValue: Float = Float.MIN_VALUE,
     maxValue: Float = Float.MAX_VALUE,
     interactionState: InteractionState? = null,
@@ -88,17 +91,18 @@ internal fun <T> Modifier.stateDraggable(
 
     val anchors = remember(anchorsToState) { anchorsToState.map { it.first } }
     val currentValue = anchorsToState.fastFirstOrNull { it.second == state }!!.first
+
+    val onAnimationEnd: OnAnimationEnd = { reason, finalValue, _ ->
+        if (reason != AnimationEndReason.Interrupted) {
+            val newState = anchorsToState.firstOrNull { it.first == finalValue }?.second
+            if (newState != null && newState != state) {
+                onStateChange(newState)
+                forceAnimationCheck.value = !forceAnimationCheck.value
+            }
+        }
+    }
     val flingConfig = FlingConfig(
         decayAnimation = ExponentialDecay(),
-        onAnimationEnd = { reason, finalValue, _ ->
-            if (reason != AnimationEndReason.Interrupted) {
-                val newState = anchorsToState.firstOrNull { it.first == finalValue }?.second
-                if (newState != null && newState != state) {
-                    onStateChange(newState)
-                    forceAnimationCheck.value = !forceAnimationCheck.value
-                }
-            }
-        },
         adjustTarget = { target ->
             // Find the two anchors the target lies between.
             val a = anchors.filter { it <= target }.maxOrNull()
@@ -147,17 +151,15 @@ internal fun <T> Modifier.stateDraggable(
         position.animateTo(currentValue, animationSpec)
     }
     Modifier.draggable(
-        dragDirection = dragDirection,
-        onDragDeltaConsumptionRequested = { delta ->
-            val old = position.value
-            position.snapTo(position.value + delta)
-            position.value - old
-        },
-        onDragStopped = { position.fling(flingConfig, it) },
+        orientation = orientation,
         enabled = enabled,
+        reverseDirection = reverseDirection,
         startDragImmediately = position.isRunning,
-        interactionState = interactionState
-    )
+        interactionState = interactionState,
+        onDragStopped = { position.fling(it, flingConfig, onAnimationEnd) }
+    ) { delta ->
+        position.snapTo(position.value + delta)
+    }
 }
 
 /**

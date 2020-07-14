@@ -67,7 +67,7 @@ private fun computeSplineInfo(
  *
  * Ported from `android.widget.Scroller`.
  */
-object AndroidFlingSpline {
+internal object AndroidFlingSpline {
     private const val NbSamples = 100
     private val SplinePositions = FloatArray(NbSamples + 1)
     private val SplineTimes = FloatArray(NbSamples + 1)

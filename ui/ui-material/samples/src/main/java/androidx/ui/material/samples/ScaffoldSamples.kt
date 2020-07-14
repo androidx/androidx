@@ -24,15 +24,13 @@ import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.material.BottomAppBar
 import androidx.ui.material.DrawerState
@@ -82,14 +80,12 @@ fun SimpleScaffoldWithTopBar() {
             )
         },
         bodyContent = { innerPadding ->
-            VerticalScroller {
-                Column(Modifier.padding(innerPadding)) {
-                    repeat(100) {
-                        Box(
-                            Modifier.fillMaxWidth().preferredHeight(50.dp),
-                            backgroundColor = colors[it % colors.size]
-                        )
-                    }
+            ScrollableColumn(contentPadding = innerPadding) {
+                repeat(100) {
+                    Box(
+                        Modifier.fillMaxWidth().preferredHeight(50.dp),
+                        backgroundColor = colors[it % colors.size]
+                    )
                 }
             }
         }
@@ -151,14 +147,12 @@ fun ScaffoldWithBottomBarAndCutout() {
         floatingActionButtonPosition = Scaffold.FabPosition.Center,
         isFloatingActionButtonDocked = true,
         bodyContent = { innerPadding ->
-            VerticalScroller {
-                Column(Modifier.padding(innerPadding)) {
-                    repeat(100) {
-                        Box(
-                            Modifier.fillMaxWidth().preferredHeight(50.dp),
-                            backgroundColor = colors[it % colors.size]
-                        )
-                    }
+            ScrollableColumn(contentPadding = innerPadding) {
+                repeat(100) {
+                    Box(
+                        Modifier.fillMaxWidth().preferredHeight(50.dp),
+                        backgroundColor = colors[it % colors.size]
+                    )
                 }
             }
         }
