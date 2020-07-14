@@ -125,7 +125,7 @@ private fun needsPadding(
         (paddingEnd != Dp.Unspecified && paddingEnd != 0.dp) ||
         (paddingBottom != Dp.Unspecified && paddingBottom != 0.dp)
 
-private fun Alignment.toColumnArrangement() = object : Arrangement.Vertical {
+private fun Alignment.toColumnArrangement(): Arrangement.Vertical = object : Arrangement.Vertical {
     override fun arrange(
         totalSize: Int,
         size: List<Int>
@@ -142,7 +142,7 @@ private fun Alignment.toColumnArrangement() = object : Arrangement.Vertical {
     }
 }
 
-private fun Alignment.toColumnGravity() = object : Alignment.Horizontal {
+private fun Alignment.toColumnGravity(): Alignment.Horizontal = object : Alignment.Horizontal {
     override fun align(size: Int, layoutDirection: LayoutDirection): Int {
         return align(IntSize(size, 0), layoutDirection).x
     }

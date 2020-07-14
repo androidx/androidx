@@ -16,6 +16,7 @@
 
 package androidx.ui.foundation.lazy
 
+import androidx.compose.Applier
 import androidx.compose.Composable
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.compositionReference
@@ -32,7 +33,6 @@ import androidx.ui.core.materialize
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.layout.Spacer
-import androidx.ui.node.UiApplier
 
 /**
  * A vertically scrolling list that only composes and lays out the currently visible items.
@@ -100,7 +100,8 @@ private fun <T> LazyItems(
             )
             .clipToBounds()
     )
-    emit<LayoutNode, UiApplier>(
+    @OptIn(ExperimentalComposeApi::class)
+    emit<LayoutNode, Applier<Any>>(
         ctor = LayoutEmitHelper.constructor,
         update = {
             set(materialized, LayoutEmitHelper.setModifier)

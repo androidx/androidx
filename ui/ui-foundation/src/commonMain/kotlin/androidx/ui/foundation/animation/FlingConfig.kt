@@ -27,8 +27,6 @@ import androidx.animation.TargetAnimation
 import androidx.animation.fling
 import androidx.compose.Composable
 import androidx.compose.Immutable
-import androidx.compose.remember
-import androidx.ui.core.DensityAmbient
 import kotlin.math.abs
 
 /**
@@ -57,6 +55,12 @@ data class FlingConfig(
     val adjustTarget: (Float) -> TargetAnimation? = { null }
 )
 
+@Composable
+internal expect fun ActualFlingConfig(
+    onAnimationEnd: OnAnimationEnd?,
+    adjustTarget: (Float) -> TargetAnimation?
+): FlingConfig
+
 /**
  * Specify fling behavior configured for the current composition. See [FlingConfig].
  *
@@ -70,21 +74,7 @@ data class FlingConfig(
 fun FlingConfig(
     onAnimationEnd: OnAnimationEnd? = null,
     adjustTarget: (Float) -> TargetAnimation? = { null }
-): FlingConfig {
-    // This function will internally update the calculation of fling decay when the density changes,
-    // but the reference to the returned FlingConfig will not change across calls.
-    val density = DensityAmbient.current
-    val calculator = remember(density.density) { AndroidFlingCalculator(density) }
-    val decayAnimation = remember { AndroidFlingDecaySpec(calculator) }
-        .also { it.flingCalculator = calculator }
-    return remember {
-        FlingConfig(
-            decayAnimation = decayAnimation,
-            onAnimationEnd = onAnimationEnd,
-            adjustTarget = adjustTarget
-        )
-    }
-}
+): FlingConfig = ActualFlingConfig(onAnimationEnd, adjustTarget)
 
 /**
  * Starts a fling animation with the specified starting velocity and fling configuration.

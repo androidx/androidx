@@ -16,7 +16,6 @@
 
 package androidx.ui.foundation
 
-import androidx.annotation.FloatRange
 import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.Modifier
@@ -32,6 +31,7 @@ import androidx.ui.graphics.drawOutline
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.DrawStyle
 import androidx.ui.graphics.drawscope.Fill
+import androidx.ui.util.annotation.FloatRange
 
 /**
  * Draws [shape] with a solid [color] behind the content.
