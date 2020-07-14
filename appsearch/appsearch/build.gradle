@@ -38,7 +38,7 @@ android {
     }
 }
 
-// Add :icing:java as jarjar dependency
+// Add :icing as jarjar dependency
 android.libraryVariants.all { variant ->
     def variantName = variant.name
     def suffix = variantName.capitalize()
@@ -46,7 +46,7 @@ android.libraryVariants.all { variant ->
     def jarjarConf = configurations.register(jarjarConfigName)
     // Treat icing-java as a local jar and package it inside the aar.
     dependencies.add(jarjarConfigName, project.dependencies.project(
-            path: ":icing:java",
+            path: ":icing",
             configuration: jarjarConfigName))
     dependencies.add("${variantName}Implementation", files(jarjarConf))
 }

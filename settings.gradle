@@ -420,7 +420,6 @@ apply(from: "include-composite-deps.gradle")
 File externalRoot = new File(rootDir, "../../external")
 
 includeProject(":icing", new File(externalRoot, "icing"))
-includeProject(":icing:java", new File(externalRoot, "icing/java"))
 includeProject(":icing:nativeLib", new File(externalRoot, "icing/nativeLib"))
 includeProject(":noto-emoji-compat", new File(externalRoot, "noto-fonts/emoji-compat"))
 
