@@ -72,7 +72,7 @@ kotlin {
             implementation(ANDROIDX_TEST_RUNNER)
             implementation(ESPRESSO_CORE)
             implementation(JUNIT)
-            implementation project(":compose:test:test-core")
+            implementation project(":ui:ui-test")
             implementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
             implementation(MOCKITO_CORE, libs.exclude_bytebuddy)
             implementation(TRUTH)

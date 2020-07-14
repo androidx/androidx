@@ -63,7 +63,7 @@ kotlin {
 
         androidAndroidTest.dependencies {
             implementation project(":compose:foundation:foundation")
-            implementation project(":compose:test:test-core")
+            implementation project(":ui:ui-test")
 
             implementation(ANDROIDX_TEST_RULES)
             implementation(ANDROIDX_TEST_RUNNER)

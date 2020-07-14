@@ -26,7 +26,7 @@ enum class ComposeAnimationType {
 }
 
 /**
- * Simple interface to make it easier to share Compose animation objects between `tooling` and
+ * Simple interface to make it easier to share Compose animation objects between `ui-tooling` and
  * Android Studio. Since both ends communicate mostly using bytecode manipulation and reflection,
  * being able to parse these objects into a common type makes
  */

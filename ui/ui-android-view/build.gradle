@@ -40,7 +40,7 @@ dependencies {
 
     implementation project(":compose:runtime:runtime")
     implementation project(":compose:core:core")
-    implementation project(":compose:test:test-core")
+    implementation project(":ui:ui-test")
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)
