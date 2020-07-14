@@ -85,6 +85,7 @@ import java.util.Objects;
  *
  * @hide
  */
+// TODO: Add nullability annotations.
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(Build.VERSION_CODES.M)
 final class FloatingToolbar implements IFloatingToolbar {
@@ -1376,7 +1377,7 @@ final class FloatingToolbar implements IFloatingToolbar {
             ViewGroup mainPanel = new LinearLayout(mContext) {
                 @Override
                 protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-                    if (isOverflowAnimating()) {
+                    if (isOverflowAnimating() && mMainPanelSize != null) {
                         // Update widthMeasureSpec to make sure that this view is not clipped
                         // as we offset it's coordinates with respect to it's parent.
                         widthMeasureSpec = MeasureSpec.makeMeasureSpec(
