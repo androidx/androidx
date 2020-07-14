@@ -18,10 +18,11 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.compose.Providers
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.clip
-import androidx.ui.core.drawShadow
+import androidx.ui.core.drawLayer
 import androidx.ui.core.zIndex
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.ContentColorAmbient
@@ -87,8 +88,9 @@ fun Surface(
     elevation: Dp = 0.dp,
     content: @Composable () -> Unit
 ) {
+    val elevationPx = with(DensityAmbient.current) { elevation.toPx() }
     SurfaceLayout(
-        modifier.drawShadow(elevation = elevation, shape = shape, clip = false)
+        modifier.drawLayer(shadowElevation = elevationPx, shape = shape)
             .zIndex(elevation.value)
             .plus(if (border != null) Modifier.drawBorder(border, shape) else Modifier)
             .drawBackground(

@@ -31,6 +31,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
+import androidx.ui.core.drawLayer
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.core.selection.Selectable
@@ -124,7 +125,7 @@ fun CoreText(
 
     Layout(
         children = { InlineChildren(text, inlineComposables) },
-        modifier = modifier.drawBehind {
+        modifier = modifier.drawLayer().drawBehind {
             state.layoutResult?.let { layoutResult ->
                 drawCanvas { canvas, _ ->
                     state.selectionRange?.let {
