@@ -936,7 +936,7 @@ class FragmentTransition {
     /**
      * Utility to find the String key in {@code map} that maps to {@code value}.
      */
-    private static String findKeyForValue(ArrayMap<String, String> map, String value) {
+    static String findKeyForValue(ArrayMap<String, String> map, String value) {
         final int numElements = map.size();
         for (int i = 0; i < numElements; i++) {
             if (value.equals(map.valueAt(i))) {
