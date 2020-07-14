@@ -33,9 +33,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(KOTLIN_STDLIB_COMMON)
-            api project(":compose:core:core-geometry")
+            api project(":compose:ui:ui-geometry")
 
-            implementation project(":compose:core:core-util")
+            implementation project(":compose:ui:ui-util")
             implementation project(":compose:runtime:runtime")
         }
         jvmMain.dependencies {
@@ -64,7 +64,7 @@ androidx {
     name = "Compose Unit"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.Compose.CORE
+    mavenGroup = LibraryGroups.Compose.UI
     inceptionYear = "2020"
     description = "Compose classes for simple units."
 }
