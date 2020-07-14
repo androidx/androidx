@@ -17,6 +17,7 @@
 package androidx.room.processing
 
 import kotlin.contracts.contract
+import kotlin.reflect.KClass
 
 interface XElement {
     val name: String
@@ -40,6 +41,15 @@ interface XElement {
     fun isFinal(): Boolean
 
     fun kindName(): String
+
+    fun <T : Annotation> toAnnotationBox(annotation: KClass<T>): XAnnotationBox<T>?
+
+    // a very sad method but helps avoid abstraction annotation
+    fun hasAnnotationInPackage(pkg: String): Boolean
+
+    fun hasAnnotation(annotation: KClass<out Annotation>): Boolean
+
+    fun hasAnyOf(vararg annotations: KClass<out Annotation>) = annotations.any(this::hasAnnotation)
 
     fun asTypeElement() = this as XTypeElement
 

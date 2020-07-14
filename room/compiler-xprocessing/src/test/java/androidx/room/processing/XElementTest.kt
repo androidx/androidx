@@ -60,6 +60,45 @@ class XElementTest {
     }
 
     @Test
+    fun annotationAvailability() {
+        val source = Source.java(
+            "foo.bar.Baz", """
+            package foo.bar;
+            import org.junit.*;
+            import org.junit.runner.*;
+            import org.junit.runners.*;
+            import androidx.room.processing.testcode.OtherAnnotation;
+
+            @RunWith(JUnit4.class)
+            class Baz {
+            }
+        """.trimIndent()
+        )
+        runProcessorTest(
+            listOf(source)
+        ) {
+            val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
+            assertThat(element.hasAnnotation(RunWith::class)).isTrue()
+            assertThat(element.hasAnnotation(Test::class)).isFalse()
+            assertThat(
+                element.hasAnnotationInPackage(
+                    "org.junit.runner"
+                )
+            ).isTrue()
+            assertThat(
+                element.hasAnnotationInPackage(
+                    "org.junit"
+                )
+            ).isFalse()
+            assertThat(
+                element.hasAnnotationInPackage(
+                    "foo.bar"
+                )
+            ).isFalse()
+        }
+    }
+
+    @Test
     fun nonType() {
         val source = Source.java(
             "foo.bar.Baz", """

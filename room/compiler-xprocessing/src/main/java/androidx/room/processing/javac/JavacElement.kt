@@ -16,12 +16,14 @@
 
 package androidx.room.processing.javac
 
+import androidx.room.processing.XAnnotationBox
 import androidx.room.processing.XElement
 import androidx.room.processing.XEquality
 import com.google.auto.common.MoreElements
 import java.util.Locale
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
+import kotlin.reflect.KClass
 
 @Suppress("UnstableApiUsage")
 internal abstract class JavacElement(
@@ -74,6 +76,17 @@ internal abstract class JavacElement(
         return element.modifiers.contains(Modifier.FINAL)
     }
 
+    override fun <T : Annotation> toAnnotationBox(annotation: KClass<T>): XAnnotationBox<T>? {
+        return MoreElements
+            .getAnnotationMirror(element, annotation.java)
+            .orNull()
+            ?.box(env, annotation.java)
+    }
+
+    override fun hasAnnotation(annotation: KClass<out Annotation>): Boolean {
+        return MoreElements.isAnnotationPresent(element, annotation.java)
+    }
+
     override fun toString(): String {
         return element.toString()
     }
@@ -88,5 +101,11 @@ internal abstract class JavacElement(
 
     override fun kindName(): String {
         return element.kind.name.toLowerCase(Locale.US)
+    }
+
+    override fun hasAnnotationInPackage(pkg: String): Boolean {
+        return element.annotationMirrors.any {
+            MoreElements.getPackage(it.annotationType.asElement()).toString() == pkg
+        }
     }
 }
