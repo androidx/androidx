@@ -81,10 +81,17 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
             }
     }
 
-    suspend fun receiveEvent(): Event {
-        inspectorTester.channel.receive().let { responseBytes ->
-            assertThat(responseBytes).isNotEmpty()
-            return Event.parseFrom(responseBytes)
+    suspend fun receiveEvent() = receiveFilteredEvent { true }
+
+    suspend fun receiveFilteredEvent(predicate: (Event) -> Boolean): Event {
+        while (true) {
+            inspectorTester.channel.receive().let { responseBytes ->
+                assertThat(responseBytes).isNotEmpty()
+                val event = Event.parseFrom(responseBytes)
+                if (predicate(event)) {
+                    return event
+                }
+            }
         }
     }
 

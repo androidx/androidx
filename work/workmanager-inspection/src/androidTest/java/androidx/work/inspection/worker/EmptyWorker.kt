@@ -17,6 +17,7 @@
 package androidx.work.inspection.worker
 
 import android.content.Context
+import androidx.work.Data
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 
@@ -24,7 +25,13 @@ class EmptyWorker(
     context: Context,
     workerParams: WorkerParameters
 ) : Worker(context, workerParams) {
+    companion object {
+        val DATA = Data.Builder()
+            .putString("key", "value")
+            .build()
+    }
+
     override fun doWork(): Result {
-        return Result.success()
+        return Result.success(DATA)
     }
 }

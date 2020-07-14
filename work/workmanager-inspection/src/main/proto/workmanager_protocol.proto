@@ -64,6 +64,7 @@ message Event {
   oneof OneOf {
     WorkAddedEvent work_added = 1;
     WorkRemovedEvent work_removed = 2;
+    WorkUpdatedEvent work_updated = 3;
   }
 }
 
@@ -76,6 +77,17 @@ message WorkAddedEvent {
 // Notification of a work removed
 message WorkRemovedEvent {
     string id = 1;
+}
+
+// Notification of a work updated
+message WorkUpdatedEvent {
+    string id = 1;
+    oneof OneOf {
+        WorkInfo.State state = 2;
+        int32 run_attempt_count = 3;
+        Data data = 4;
+        int64 schedule_requested_at = 5;
+    }
 }
 
 // Information about a particular Work

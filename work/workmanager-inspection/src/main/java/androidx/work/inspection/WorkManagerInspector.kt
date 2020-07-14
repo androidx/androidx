@@ -37,6 +37,7 @@ import androidx.work.inspection.WorkManagerInspectorProtocol.Response
 import androidx.work.inspection.WorkManagerInspectorProtocol.TrackWorkManagerResponse
 import androidx.work.inspection.WorkManagerInspectorProtocol.WorkAddedEvent
 import androidx.work.inspection.WorkManagerInspectorProtocol.WorkRemovedEvent
+import androidx.work.inspection.WorkManagerInspectorProtocol.WorkUpdatedEvent
 import java.util.UUID
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -127,6 +128,56 @@ class WorkManagerInspector(
         return workInfoBuilder.build()
     }
 
+    private fun observeWorkUpdates(id: String) {
+        val workInfoLiveData = workManager.getWorkInfoByIdLiveData(UUID.fromString(id))
+
+        workInfoLiveData.safeObserve(this, executor) { oldWorkInfo, newWorkInfo ->
+            if (oldWorkInfo?.state != newWorkInfo.state) {
+                val updateWorkEvent = WorkUpdatedEvent.newBuilder()
+                    .setId(id)
+                    .setState(
+                        WorkManagerInspectorProtocol.WorkInfo.State
+                            .forNumber(newWorkInfo.state.ordinal + 1)
+                    )
+                    .build()
+                connection.sendEvent(
+                    Event.newBuilder().setWorkUpdated(updateWorkEvent).build().toByteArray()
+                )
+            }
+            if (oldWorkInfo?.runAttemptCount != newWorkInfo.runAttemptCount) {
+                val updateWorkEvent = WorkUpdatedEvent.newBuilder()
+                    .setId(id)
+                    .setRunAttemptCount(newWorkInfo.runAttemptCount)
+                    .build()
+                connection.sendEvent(
+                    Event.newBuilder().setWorkUpdated(updateWorkEvent).build().toByteArray()
+                )
+            }
+            if (oldWorkInfo?.outputData != newWorkInfo.outputData) {
+                val updateWorkEvent = WorkUpdatedEvent.newBuilder()
+                    .setId(id)
+                    .setData(newWorkInfo.outputData.toProto())
+                    .build()
+                connection.sendEvent(
+                    Event.newBuilder().setWorkUpdated(updateWorkEvent).build().toByteArray()
+                )
+            }
+        }
+
+        workManager.workDatabase
+            .workSpecDao()
+            .getScheduleRequestedAtLiveData(id)
+            .safeObserve(this, executor) { _, newScheduledTime ->
+                val updateWorkEvent = WorkUpdatedEvent.newBuilder()
+                    .setId(id)
+                    .setScheduleRequestedAt(newScheduledTime)
+                    .build()
+                connection.sendEvent(
+                    Event.newBuilder().setWorkUpdated(updateWorkEvent).build().toByteArray()
+                )
+            }
+    }
+
     private fun updateWorkIdList(oldWorkIds: List<String>, newWorkIds: List<String>) {
         for (removedId in oldWorkIds.minus(newWorkIds)) {
             val removeEvent = WorkRemovedEvent.newBuilder().setId(removedId).build()
@@ -138,6 +189,7 @@ class WorkManagerInspector(
                 .build()
             val event = Event.newBuilder().setWorkAdded(addEvent).build()
             connection.sendEvent(event.toByteArray())
+            observeWorkUpdates(addedId)
         }
     }
 
