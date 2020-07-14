@@ -417,19 +417,12 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
                                     mCameraX.getCameraDeviceSurfaceManager()));
         }
 
-
         if (useCases.length == 0) {
             return lifecycleCameraToBind;
         }
 
-        try {
-            lifecycleCameraToBind.getCameraUseCaseAdapter().setViewPort(viewPort);
-            lifecycleCameraToBind.bind(Arrays.asList(useCases));
-        } catch (CameraUseCaseAdapter.CameraException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
-
-        mLifecycleCameraRepository.prioritize(lifecycleCameraToBind);
+        mLifecycleCameraRepository.bindToLifecycleCamera(lifecycleCameraToBind, viewPort,
+                Arrays.asList(useCases));
 
         return lifecycleCameraToBind;
     }
@@ -471,10 +464,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     @Override
     public void unbind(@NonNull UseCase... useCases) {
         Threads.checkMainThread();
-        for (LifecycleCamera lifecycleCamera :
-                mLifecycleCameraRepository.getLifecycleCameras()) {
-            lifecycleCamera.unbind(Arrays.asList(useCases));
-        }
+        mLifecycleCameraRepository.unbind(Arrays.asList(useCases));
     }
 
     /**
@@ -488,10 +478,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     @Override
     public void unbindAll() {
         Threads.checkMainThread();
-        for (LifecycleCamera lifecycleCamera :
-                mLifecycleCameraRepository.getLifecycleCameras()) {
-            lifecycleCamera.unbindAll();
-        }
+        mLifecycleCameraRepository.unbindAll();
     }
 
     @Override
