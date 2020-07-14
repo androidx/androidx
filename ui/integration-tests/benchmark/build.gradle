@@ -42,7 +42,7 @@ dependencies {
     implementation(ANDROIDX_TEST_RULES)
     implementation(JUNIT)
 
-    androidTestImplementation project(":compose:core:core")
+    androidTestImplementation project(":compose:ui:ui")
     androidTestImplementation project(":compose:foundation:foundation-layout")
     androidTestImplementation project(":compose:material:material")
     androidTestImplementation project(":ui:ui-test")
