@@ -72,20 +72,35 @@ public class TrustedWebActivityIntentBuilder {
     /** Extra for the {@link TrustedWebActivityDisplayMode}, see {@link #setDisplayMode}. */
     public static final String EXTRA_DISPLAY_MODE = "androidx.browser.trusted.extra.DISPLAY_MODE";
 
-    @NonNull private final Uri mUri;
-    @NonNull private final CustomTabsIntent.Builder mIntentBuilder = new CustomTabsIntent.Builder();
+    /** Extra for the screenOrientation, see {@link #setScreenOrientation}. */
+    public static final String EXTRA_SCREEN_ORIENTATION =
+            "androidx.browser.trusted.extra.SCREEN_ORIENTATION";
 
-    @Nullable private List<String> mAdditionalTrustedOrigins;
-    @Nullable private Bundle mSplashScreenParams;
+    @NonNull
+    private final Uri mUri;
+    @NonNull
+    private final CustomTabsIntent.Builder mIntentBuilder = new CustomTabsIntent.Builder();
 
-    @Nullable private ShareData mShareData;
-    @Nullable private ShareTarget mShareTarget;
+    @Nullable
+    private List<String> mAdditionalTrustedOrigins;
+    @Nullable
+    private Bundle mSplashScreenParams;
 
-    @NonNull private TrustedWebActivityDisplayMode mDisplayMode =
+    @Nullable
+    private ShareData mShareData;
+    @Nullable
+    private ShareTarget mShareTarget;
+
+    @NonNull
+    private TrustedWebActivityDisplayMode mDisplayMode =
             new TrustedWebActivityDisplayMode.DefaultMode();
+
+    @ScreenOrientation.LockType
+    private int mScreenOrientation = ScreenOrientation.DEFAULT;
 
     /**
      * Creates a Builder given the required parameters.
+     *
      * @param uri The web page to launch as Trusted Web Activity.
      */
     public TrustedWebActivityIntentBuilder(@NonNull Uri uri) {
@@ -131,7 +146,8 @@ public class TrustedWebActivityIntentBuilder {
      * menus.
      *
      * @param colorScheme Must be one of {@link CustomTabsIntent#COLOR_SCHEME_SYSTEM},
-     * {@link CustomTabsIntent#COLOR_SCHEME_LIGHT}, and {@link CustomTabsIntent#COLOR_SCHEME_DARK}.
+     *                    {@link CustomTabsIntent#COLOR_SCHEME_LIGHT}, and
+     *                    {@link CustomTabsIntent#COLOR_SCHEME_DARK}.
      */
     @NonNull
     public TrustedWebActivityIntentBuilder setColorScheme(int colorScheme) {
@@ -151,6 +167,7 @@ public class TrustedWebActivityIntentBuilder {
         mIntentBuilder.setColorSchemeParams(colorScheme, params);
         return this;
     }
+
     /**
      * Sets a list of additional trusted origins that the user may navigate or be redirected to
      * from the starting uri.
@@ -196,8 +213,8 @@ public class TrustedWebActivityIntentBuilder {
      * Sets the parameters for delivering data to a Web Share Target via a Trusted Web Activity.
      *
      * @param shareTarget A {@link ShareTarget} object describing the Web Share Target.
-     * @param shareData A {@link ShareData} object containing the data to be sent to the Web Share
-     * Target.
+     * @param shareData   A {@link ShareData} object containing the data to be sent to the Web Share
+     *                    Target.
      */
     @NonNull
     public TrustedWebActivityIntentBuilder setShareParams(@NonNull ShareTarget shareTarget,
@@ -216,6 +233,20 @@ public class TrustedWebActivityIntentBuilder {
     public TrustedWebActivityIntentBuilder setDisplayMode(
             @NonNull TrustedWebActivityDisplayMode displayMode) {
         mDisplayMode = displayMode;
+        return this;
+    }
+
+    /**
+     * Sets a screenOrientation. This can be used e.g. to enable the locking of an orientation
+     * lock type {@link ScreenOrientation}.
+     *
+     * @param orientation A {@link ScreenOrientation} lock type for a Trusted Web Activity.
+     *                    Not setting it means {@link ScreenOrientation#DEFAULT} will be used.
+     */
+    @NonNull
+    public TrustedWebActivityIntentBuilder setScreenOrientation(
+            @ScreenOrientation.LockType int orientation) {
+        mScreenOrientation = orientation;
         return this;
     }
 
@@ -251,6 +282,7 @@ public class TrustedWebActivityIntentBuilder {
             }
         }
         intent.putExtra(EXTRA_DISPLAY_MODE, mDisplayMode.toBundle());
+        intent.putExtra(EXTRA_SCREEN_ORIENTATION, mScreenOrientation);
         return new TrustedWebActivityIntent(intent, sharedUris);
     }
 
@@ -275,7 +307,7 @@ public class TrustedWebActivityIntentBuilder {
     /**
      * Returns {@link TrustedWebActivityDisplayMode} set on this Builder.
      */
-    @Nullable
+    @NonNull
     public TrustedWebActivityDisplayMode getDisplayMode() {
         return mDisplayMode;
     }
