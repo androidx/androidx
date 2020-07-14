@@ -16,13 +16,14 @@
 
 package androidx.paging
 
+import androidx.annotation.IntRange
 import androidx.paging.PagingSource.LoadResult.Page
 
 /**
  * Snapshot state of Paging system including the loaded [pages], the last accessed [anchorPosition],
  * and the [config] used.
  */
-class PagingState<Key : Any, Value : Any> internal constructor(
+class PagingState<Key : Any, Value : Any> constructor(
     /**
      * Loaded pages of data in the list.
      */
@@ -38,7 +39,11 @@ class PagingState<Key : Any, Value : Any> internal constructor(
      * [PagingConfig] that was given when initializing the [PagingData] stream.
      */
     val config: PagingConfig,
-    private val placeholdersBefore: Int
+    /**
+     * Number of placeholders before the first loaded item if placeholders are enabled, otherwise 0.
+     */
+    @IntRange(from = 0)
+    private val leadingPlaceholderCount: Int
 ) {
     /**
      * Coerces [anchorPosition] to closest loaded value in [pages].
@@ -110,7 +115,7 @@ class PagingState<Key : Any, Value : Any> internal constructor(
         block: (pageIndex: Int, index: Int) -> T
     ): T {
         var pageIndex = 0
-        var index = anchorPosition - placeholdersBefore
+        var index = anchorPosition - leadingPlaceholderCount
         while (pageIndex < pages.lastIndex && index > pages[pageIndex].data.lastIndex) {
             index -= pages[pageIndex].data.size
             pageIndex++

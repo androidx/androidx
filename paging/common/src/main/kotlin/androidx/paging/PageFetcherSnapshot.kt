@@ -700,7 +700,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             pages = state.pages.toList(),
             anchorPosition = anchorPosition,
             config = config,
-            placeholdersBefore = state.placeholdersBefore
+            leadingPlaceholderCount = state.placeholdersBefore
         )
     }
 }
