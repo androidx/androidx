@@ -143,7 +143,7 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
         onNodeWithTag("item0")
             .assertIsDisplayed()
 
-        runOnIdleCompose {
+        runOnIdle {
             place = false
         }
 
@@ -167,7 +167,7 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
         onNodeWithTag("item0")
             .assertIsDisplayed()
 
-        runOnIdleCompose {
+        runOnIdle {
             place = false
         }
 
@@ -210,7 +210,7 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
         onComposeView().check(matches(isDisplayed()))
         onNodeWithTag("item0").assertIsDisplayed()
 
-        runOnIdleCompose {
+        runOnIdle {
             androidComposeView.visibility = View.GONE
         }
 
@@ -242,7 +242,7 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
         onComposeView().check(matches(isDisplayed()))
         onNodeWithTag("item0").assertIsDisplayed()
 
-        runOnIdleCompose {
+        runOnIdle {
             composeContainer.visibility = View.GONE
         }
 

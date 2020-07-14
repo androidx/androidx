@@ -32,7 +32,7 @@ import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.android.AndroidComposeTestRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.CoreText
 import androidx.ui.text.TextStyle
@@ -115,7 +115,7 @@ class SelectionContainerTest {
         // A reasonable number.
         val position = 50f
         longPress(x = position, y = position)
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(selection.value).isNotNull()
         }
 
@@ -123,7 +123,7 @@ class SelectionContainerTest {
         press(x = position, y = position)
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(selection.value).isNull()
             verify(
                 hapticFeedback,
@@ -144,7 +144,7 @@ class SelectionContainerTest {
         )
 
         // Assert. Should select "Demo".
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('D'))
             assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('o') + 1)
             verify(
@@ -171,7 +171,7 @@ class SelectionContainerTest {
         )
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(selection.value!!.start.offset).isEqualTo(startOffset)
             assertThat(selection.value!!.end.offset).isEqualTo("Text Demo".length)
             verify(
@@ -243,11 +243,11 @@ class SelectionContainerTest {
 
     private fun waitForLongPress(block: () -> Unit) {
         gestureCountDownLatch = CountDownLatch(1)
-        runOnIdleCompose(block)
+        runOnIdle(block)
         gestureCountDownLatch.await(750, TimeUnit.MILLISECONDS)
     }
 
     private fun waitForOtherGesture(block: () -> Unit) {
-        runOnIdleCompose(block)
+        runOnIdle(block)
     }
 }

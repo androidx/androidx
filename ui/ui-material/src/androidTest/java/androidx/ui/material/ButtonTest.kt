@@ -69,7 +69,7 @@ import androidx.ui.test.onNode
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
 import androidx.ui.test.hasClickAction
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.unit.Dp
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.center
@@ -138,7 +138,7 @@ class ButtonTest {
         onNodeWithText(text)
             .performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(counter).isEqualTo(1)
         }
     }
@@ -193,7 +193,7 @@ class ButtonTest {
         onNodeWithTag(button1Tag)
             .performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(button1Counter).isEqualTo(1)
             assertThat(button2Counter).isEqualTo(0)
         }
@@ -201,7 +201,7 @@ class ButtonTest {
         onNodeWithTag(button2Tag)
             .performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(button1Counter).isEqualTo(1)
             assertThat(button2Counter).isEqualTo(1)
         }
@@ -540,7 +540,7 @@ class ButtonTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             val buttonBounds = buttonCoordinates!!.boundsInRoot
             val contentBounds = contentCoordinates!!.boundsInRoot
             assertThat(contentBounds.width).isLessThan(buttonBounds.width)
@@ -645,7 +645,7 @@ class ButtonTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             val topLeft = childCoordinates!!.localToGlobal(Offset.Zero).x -
                     parentCoordinates!!.localToGlobal(Offset.Zero).x
             val currentPadding = with(composeTestRule.density) {

@@ -25,7 +25,7 @@ import androidx.ui.test.InputDispatcher.Companion.eventPeriod
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.pinch
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.MultiPointerInputRecorder
@@ -69,7 +69,7 @@ class SendPinchTest {
             pinch(start0, end0, start1, end1, duration)
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
 

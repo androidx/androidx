@@ -67,7 +67,7 @@ class TestAnimationClockTest {
         val animationState = mutableStateOf(AnimationStates.From)
         composeTestRule.setContent { Ui(animationState) }
 
-        runOnIdleCompose {
+        runOnIdle {
             recordedAnimatedValues.clear()
 
             // Kick off the animation
@@ -87,7 +87,7 @@ class TestAnimationClockTest {
         }
 
         // Advance first half of the animation (.5 sec)
-        runOnIdleCompose {
+        runOnIdle {
             clockTestRule.advanceClock(500)
             assertThat(ComposeIdlingResource.isIdle()).isFalse()
         }
@@ -101,7 +101,7 @@ class TestAnimationClockTest {
         }
 
         // Advance second half of the animation (.5 sec)
-        runOnIdleCompose {
+        runOnIdle {
             clockTestRule.advanceClock(500)
             assertThat(ComposeIdlingResource.isIdle()).isFalse()
         }
@@ -133,7 +133,7 @@ class TestAnimationClockTest {
         // Before we kick off the animation, the test clock should be idle
         assertThat(clockTestRule.clock.isIdle).isTrue()
 
-        runOnIdleCompose {
+        runOnIdle {
             recordedAnimatedValues.clear()
 
             // Kick off the animation

@@ -26,7 +26,7 @@ import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.asAndroidBitmap
 import androidx.ui.graphics.imageFromResource
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -86,7 +86,7 @@ class ResourcesTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(pendingExecutor.runnable).isNotNull()
             assertThat(res!!.resource).isInstanceOf(PendingResource::class.java)
             assertThat(res!!.resource.resource).isNotNull()
@@ -94,14 +94,14 @@ class ResourcesTest {
                 .asAndroidBitmap()))
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             pendingExecutor.runNow() // load the resource
             assertThat(uiThreadWork).isNotNull()
             // update state object so that recompose is expected to be triggered.
             uiThreadWork?.invoke()
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(pendingExecutor.runnable).isNull()
             assertThat(res!!.resource).isInstanceOf(LoadedResource::class.java)
             assertThat(res!!.resource.resource).isNotNull()
@@ -143,7 +143,7 @@ class ResourcesTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(pendingExecutor.runnable).isNotNull()
             assertThat(res!!.resource).isInstanceOf(PendingResource::class.java)
             assertThat(res!!.resource.resource).isNotNull()
@@ -153,14 +153,14 @@ class ResourcesTest {
                 .isTrue()
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             pendingExecutor.runNow() // load the resource
             assertThat(uiThreadWork).isNotNull()
             // update state object so that recompose is expected to be triggered.
             uiThreadWork?.invoke()
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(pendingExecutor.runnable).isNull()
             assertThat(res!!.resource).isInstanceOf(FailedResource::class.java)
             assertThat(res!!.resource.resource).isNotNull()

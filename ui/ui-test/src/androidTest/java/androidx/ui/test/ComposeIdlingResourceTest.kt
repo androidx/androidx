@@ -61,14 +61,14 @@ class ComposeIdlingResourceTest {
     val composeTestRule = createComposeRule()
 
     /**
-     * High level test to only verify that [runOnIdleCompose] awaits animations.
+     * High level test to only verify that [runOnIdle] awaits animations.
      */
     @Test
-    fun testRunOnIdleCompose() {
+    fun testRunOnIdle() {
         val animationState = mutableStateOf(AnimationStates.From)
         composeTestRule.setContent { Ui(animationState) }
 
-        runOnIdleCompose {
+        runOnIdle {
             // Kick off the animation
             animationRunning = true
             animationState.value = AnimationStates.To
@@ -77,7 +77,7 @@ class ComposeIdlingResourceTest {
         // Verify that animation is kicked off
         assertThat(animationRunning).isTrue()
         // Wait until it is finished
-        runOnIdleCompose {
+        runOnIdle {
             // Verify it was finished
             assertThat(animationRunning).isFalse()
         }
@@ -91,7 +91,7 @@ class ComposeIdlingResourceTest {
         val animationState = mutableStateOf(AnimationStates.From)
         composeTestRule.setContent { Ui(animationState) }
 
-        runOnIdleCompose {
+        runOnIdle {
             // Kick off the animation
             animationRunning = true
             animationState.value = AnimationStates.To
@@ -119,7 +119,7 @@ class ComposeIdlingResourceTest {
         val animationState = mutableStateOf(AnimationStates.From)
         composeTestRule.setContent { Ui(animationState) }
 
-        runOnIdleCompose {
+        runOnIdle {
             // Record idleness after this frame is committed. The mutation we're about to make
             // will trigger a commit of the frame, which is posted at the front of the handler's
             // queue. By posting a message at the front of the queue here, it will be executed

@@ -45,7 +45,7 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.OutlinedTextField
-import androidx.ui.material.runOnIdleComposeWithDensity
+import androidx.ui.material.runOnIdleWithDensity
 import androidx.ui.material.setMaterialContent
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
@@ -53,7 +53,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.click
 import androidx.ui.test.performImeAction
 import androidx.ui.test.waitForIdle
@@ -114,14 +114,14 @@ class OutlinedTextFieldTest {
 
         onNodeWithTag(textField1Tag).performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(textField1Focused).isTrue()
             assertThat(textField2Focused).isFalse()
         }
 
         onNodeWithTag(textField2Tag).performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(textField1Focused).isFalse()
             assertThat(textField2Focused).isTrue()
         }
@@ -147,7 +147,7 @@ class OutlinedTextFieldTest {
             click(Offset(2f, 2f))
         }
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             assertThat(focused).isTrue()
         }
     }
@@ -171,7 +171,7 @@ class OutlinedTextFieldTest {
             }
         }
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             // size
             assertThat(labelSize.value).isNotNull()
             assertThat(labelSize.value?.height).isGreaterThan(0)
@@ -209,7 +209,7 @@ class OutlinedTextFieldTest {
         // click to focus
         clickAndAdvanceClock(TextfieldTag, 200)
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             // size
             assertThat(labelSize.value).isNotNull()
             assertThat(labelSize.value?.height).isGreaterThan(0)
@@ -239,7 +239,7 @@ class OutlinedTextFieldTest {
             )
         }
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             // size
             assertThat(labelSize.value).isNotNull()
             assertThat(labelSize.value?.height).isGreaterThan(0)
@@ -275,7 +275,7 @@ class OutlinedTextFieldTest {
         // click to focus
         clickAndAdvanceClock(TextfieldTag, 200)
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             // size
             assertThat(placeholderSize.value).isNotNull()
             assertThat(placeholderSize.value?.height).isGreaterThan(0)
@@ -317,7 +317,7 @@ class OutlinedTextFieldTest {
         // click to focus
         clickAndAdvanceClock(TextfieldTag, 200)
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             // size
             assertThat(placeholderSize.value).isNotNull()
             assertThat(placeholderSize.value?.height).isGreaterThan(0)
@@ -360,7 +360,7 @@ class OutlinedTextFieldTest {
         // click to focus
         clickAndAdvanceClock(TextfieldTag, 200)
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             assertThat(placeholderSize.value).isNull()
             assertThat(placeholderPosition.value).isNull()
         }
@@ -421,7 +421,7 @@ class OutlinedTextFieldTest {
             )
         }
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             val minimumHeight = ExpectedMinimumTextFieldHeight.toIntPx()
             // leading
             assertThat(leadingSize.value).isEqualTo(IntSize(size.toIntPx(), size.toIntPx()))
@@ -461,7 +461,7 @@ class OutlinedTextFieldTest {
             }
         }
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             assertThat(labelPosition.value?.x).isEqualTo(
                 (ExpectedPadding.toIntPx() + IconPadding.toIntPx() + iconSize.toIntPx())
                     .toFloat()
@@ -488,7 +488,7 @@ class OutlinedTextFieldTest {
             }
         }
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             assertThat(labelPosition.value?.x).isEqualTo(
                 ExpectedPadding.toIntPx().toFloat()
             )
@@ -567,7 +567,7 @@ class OutlinedTextFieldTest {
 
         clickAndAdvanceClock(TextfieldTag, 200)
 
-        runOnIdleCompose {
+        runOnIdle {
             verify(textInputService, atLeastOnce()).startInput(
                 value = any(),
                 keyboardType = eq(KeyboardType.Email),
@@ -625,7 +625,7 @@ class OutlinedTextFieldTest {
         onNodeWithTag(TextfieldTag)
             .performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(controller).isNotNull()
         }
     }
@@ -651,7 +651,7 @@ class OutlinedTextFieldTest {
         onNodeWithTag(TextfieldTag)
             .performImeAction()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(controller).isNotNull()
         }
     }

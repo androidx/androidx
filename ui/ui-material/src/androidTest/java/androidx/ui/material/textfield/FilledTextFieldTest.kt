@@ -48,7 +48,7 @@ import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.material.FilledTextField
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.runOnIdleComposeWithDensity
+import androidx.ui.material.runOnIdleWithDensity
 import androidx.ui.material.setMaterialContent
 import androidx.ui.material.setMaterialContentForSizeAssertions
 import androidx.ui.test.assertHeightIsEqualTo
@@ -58,7 +58,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.click
 import androidx.ui.test.performImeAction
 import androidx.ui.test.waitForIdle
@@ -138,14 +138,14 @@ class FilledTextFieldTest {
 
         onNodeWithTag(textField1Tag).performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(textField1Focused).isTrue()
             assertThat(textField2Focused).isFalse()
         }
 
         onNodeWithTag(textField2Tag).performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(textField1Focused).isFalse()
             assertThat(textField2Focused).isTrue()
         }
@@ -171,7 +171,7 @@ class FilledTextFieldTest {
             click(Offset(2f, 2f))
         }
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             assertThat(focused).isTrue()
         }
     }
@@ -201,7 +201,7 @@ class FilledTextFieldTest {
             }
         }
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             // size
             assertThat(labelSize.value).isNotNull()
             assertThat(labelSize.value?.height).isGreaterThan(0)
@@ -238,7 +238,7 @@ class FilledTextFieldTest {
             }
         }
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             // size
             assertThat(labelSize.value).isNotNull()
             assertThat(labelSize.value?.height).isGreaterThan(0)
@@ -278,7 +278,7 @@ class FilledTextFieldTest {
         // click to focus
         clickAndAdvanceClock(TextfieldTag, 200)
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             // size
             assertThat(labelSize.value).isNotNull()
             assertThat(labelSize.value?.height).isGreaterThan(0)
@@ -315,7 +315,7 @@ class FilledTextFieldTest {
             }
         }
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             // size
             assertThat(labelSize.value).isNotNull()
             assertThat(labelSize.value?.height).isGreaterThan(0)
@@ -355,7 +355,7 @@ class FilledTextFieldTest {
         // click to focus
         clickAndAdvanceClock(TextfieldTag, 200)
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             // size
             assertThat(placeholderSize.value).isNotNull()
             assertThat(placeholderSize.value?.height).isGreaterThan(0)
@@ -396,7 +396,7 @@ class FilledTextFieldTest {
         // click to focus
         clickAndAdvanceClock(TextfieldTag, 200)
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             // size
             assertThat(placeholderSize.value).isNotNull()
             assertThat(placeholderSize.value?.height).isEqualTo(20.dp.toIntPx())
@@ -437,7 +437,7 @@ class FilledTextFieldTest {
         // click to focus
         clickAndAdvanceClock(TextfieldTag, 200)
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             assertThat(placeholderSize.value).isNull()
             assertThat(placeholderPosition.value).isNull()
         }
@@ -499,7 +499,7 @@ class FilledTextFieldTest {
             )
         }
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             // leading
             assertThat(leadingSize.value).isEqualTo(IntSize(size.toIntPx(), size.toIntPx()))
             assertThat(leadingPosition.value?.x).isEqualTo(IconPadding.toIntPx().toFloat())
@@ -543,7 +543,7 @@ class FilledTextFieldTest {
             }
         }
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             assertThat(labelPosition.value?.x).isEqualTo(
                 (ExpectedPadding.toIntPx() + IconPadding.toIntPx() + iconSize.toIntPx())
                     .toFloat()
@@ -572,7 +572,7 @@ class FilledTextFieldTest {
             }
         }
 
-        testRule.runOnIdleComposeWithDensity {
+        testRule.runOnIdleWithDensity {
             assertThat(labelPosition.value?.x).isEqualTo(
                 ExpectedPadding.toIntPx().toFloat()
             )
@@ -651,7 +651,7 @@ class FilledTextFieldTest {
 
         clickAndAdvanceClock(TextfieldTag, 200)
 
-        runOnIdleCompose {
+        runOnIdle {
             verify(textInputService, atLeastOnce()).startInput(
                 value = any(),
                 keyboardType = eq(KeyboardType.Email),
@@ -760,7 +760,7 @@ class FilledTextFieldTest {
         onNodeWithTag(TextfieldTag)
             .performClick()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(controller).isNotNull()
         }
     }
@@ -786,7 +786,7 @@ class FilledTextFieldTest {
         onNodeWithTag(TextfieldTag)
             .performImeAction()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(controller).isNotNull()
         }
     }

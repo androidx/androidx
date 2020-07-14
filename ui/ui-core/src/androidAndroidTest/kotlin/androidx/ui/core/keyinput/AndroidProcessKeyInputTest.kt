@@ -29,7 +29,7 @@ import androidx.ui.core.keyinput.KeyEventType.KeyDown
 import androidx.ui.core.keyinput.KeyEventType.KeyUp
 import androidx.ui.foundation.Box
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -70,17 +70,17 @@ class AndroidProcessKeyInputTest(val keyEventAction: Int) {
                 }
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.requestFocus()
         }
 
         // Act.
-        val keyConsumed = runOnIdleCompose {
+        val keyConsumed = runOnIdle {
             ownerView.dispatchKeyEvent(AndroidKeyEvent(keyEventAction, KEYCODE_A))
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             val keyEventType = when (keyEventAction) {
                 ACTION_UP -> KeyUp
                 ACTION_DOWN -> KeyDown

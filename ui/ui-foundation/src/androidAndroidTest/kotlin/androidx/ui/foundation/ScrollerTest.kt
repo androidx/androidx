@@ -43,7 +43,7 @@ import androidx.ui.test.performGesture
 import androidx.ui.test.performScrollTo
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.click
 import androidx.ui.test.swipeDown
@@ -108,7 +108,7 @@ class ScrollerTest {
 
         composeVerticalScroller(scrollerPosition)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertTrue(scrollerPosition.maxPosition == 0f)
         }
     }
@@ -137,12 +137,12 @@ class ScrollerTest {
 
         validateVerticalScroller(height = height)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertEquals(scrollDistance.toFloat(), scrollerPosition.maxPosition)
             scrollerPosition.scrollTo(scrollDistance.toFloat())
         }
 
-        runOnIdleCompose {} // Just so the block below is correct
+        runOnIdle {} // Just so the block below is correct
         validateVerticalScroller(offset = scrollDistance, height = height)
     }
 
@@ -176,11 +176,11 @@ class ScrollerTest {
 
         composeVerticalScroller(scrollerPosition, height = height)
 
-        runOnIdleCompose {
+        runOnIdle {
             scrollerPosition.scrollTo(scrollDistance.toFloat())
         }
 
-        runOnIdleCompose {} // Just so the block below is correct
+        runOnIdle {} // Just so the block below is correct
         validateVerticalScroller(offset = expectedOffset, height = height)
     }
 
@@ -219,12 +219,12 @@ class ScrollerTest {
 
         validateHorizontalScroller(width = width)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertEquals(scrollDistance.toFloat(), scrollerPosition.maxPosition)
             scrollerPosition.scrollTo(scrollDistance.toFloat())
         }
 
-        runOnIdleCompose {} // Just so the block below is correct
+        runOnIdle {} // Just so the block below is correct
         validateHorizontalScroller(offset = scrollDistance, width = width)
     }
 
@@ -260,11 +260,11 @@ class ScrollerTest {
 
         composeHorizontalScroller(scrollerPosition, width = width)
 
-        runOnIdleCompose {
+        runOnIdle {
             scrollerPosition.scrollTo(scrollDistance.toFloat())
         }
 
-        runOnIdleCompose {} // Just so the block below is correct
+        runOnIdle {} // Just so the block below is correct
         validateHorizontalScroller(offset = expectedOffset, width = width)
     }
 
@@ -372,38 +372,38 @@ class ScrollerTest {
 
         createScrollableContent(isVertical = true, scrollerPosition = scrollerPosition)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.value).isEqualTo(0f)
             assertThat(scrollerPosition.maxPosition).isGreaterThan(0f)
         }
         runOnUiThread {
             scrollerPosition.scrollTo(-100f)
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.value).isEqualTo(0f)
         }
         runOnUiThread {
             scrollerPosition.scrollBy(-100f)
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.value).isEqualTo(0f)
         }
         runOnUiThread {
             scrollerPosition.scrollTo(scrollerPosition.maxPosition)
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.value).isEqualTo(scrollerPosition.maxPosition)
         }
         runOnUiThread {
             scrollerPosition.scrollTo(scrollerPosition.maxPosition + 1000)
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.value).isEqualTo(scrollerPosition.maxPosition)
         }
         runOnUiThread {
             scrollerPosition.scrollBy(100f)
         }
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.value).isEqualTo(scrollerPosition.maxPosition)
         }
     }
@@ -429,7 +429,7 @@ class ScrollerTest {
             }
         }
 
-        val max = runOnIdleCompose {
+        val max = runOnIdle {
             assertThat(scrollerPosition.value).isEqualTo(0f)
             assertThat(scrollerPosition.maxPosition).isGreaterThan(0f)
             scrollerPosition.maxPosition
@@ -441,7 +441,7 @@ class ScrollerTest {
         runOnUiThread {
             itemCount.value -= 2
         }
-        runOnIdleCompose {
+        runOnIdle {
             val newMax = scrollerPosition.maxPosition
             assertThat(newMax).isLessThan(max)
             assertThat(scrollerPosition.value).isEqualTo(newMax)
@@ -458,7 +458,7 @@ class ScrollerTest {
 
         createScrollableContent(isVertical = true, scrollerPosition = scrollerPosition)
 
-        val max = runOnIdleCompose {
+        val max = runOnIdle {
             assertThat(scrollerPosition.value).isEqualTo(0f)
             assertThat(scrollerPosition.maxPosition).isGreaterThan(0f)
             scrollerPosition.maxPosition
@@ -494,7 +494,7 @@ class ScrollerTest {
 
         createScrollableContent(isVertical = true, scrollerPosition = scrollerPosition)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.value).isEqualTo(0f)
             assertThat(scrollerPosition.isAnimating).isEqualTo(false)
         }
@@ -502,7 +502,7 @@ class ScrollerTest {
         onNodeWithTag(scrollerTag)
             .performGesture { swipeUp() }
 
-        runOnIdleCompose {
+        runOnIdle {
             clock.clockTimeMillis += 100
             assertThat(scrollerPosition.isAnimating).isEqualTo(true)
         }
@@ -511,7 +511,7 @@ class ScrollerTest {
         onNodeWithTag(scrollerTag)
             .performGesture { click() }
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.isAnimating).isEqualTo(false)
         }
     }
@@ -530,14 +530,14 @@ class ScrollerTest {
             }
         }
 
-        runOnIdleCompose {
+        runOnIdle {
             scrollerPosition!!.scrollTo(70f)
             scrollerPosition = null
         }
 
         restorationTester.emulateSavedInstanceStateRestore()
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition!!.value).isEqualTo(70f)
         }
     }
@@ -551,11 +551,11 @@ class ScrollerTest {
         runOnUiThread {
             uiAction.invoke()
         }
-        runOnIdleCompose {
+        runOnIdle {
             clock.clockTimeMillis += 5000
         }
         onNodeWithTag(scrollerTag).awaitScrollAnimation(scrollerPosition)
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.value).isEqualTo(assertValue)
         }
     }
@@ -573,21 +573,21 @@ class ScrollerTest {
 
         createScrollableContent(isVertical, scrollerPosition = scrollerPosition)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.value).isEqualTo(0f)
         }
 
         onNodeWithTag(scrollerTag)
             .performGesture { firstSwipe() }
 
-        runOnIdleCompose {
+        runOnIdle {
             clock.clockTimeMillis += 5000
         }
 
         onNodeWithTag(scrollerTag)
             .awaitScrollAnimation(scrollerPosition)
 
-        val scrolledValue = runOnIdleCompose {
+        val scrolledValue = runOnIdle {
             scrollerPosition.value
         }
         assertThat(scrolledValue).isGreaterThan(0f)
@@ -595,14 +595,14 @@ class ScrollerTest {
         onNodeWithTag(scrollerTag)
             .performGesture { secondSwipe() }
 
-        runOnIdleCompose {
+        runOnIdle {
             clock.clockTimeMillis += 5000
         }
 
         onNodeWithTag(scrollerTag)
             .awaitScrollAnimation(scrollerPosition)
 
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(scrollerPosition.value).isLessThan(scrolledValue)
         }
     }

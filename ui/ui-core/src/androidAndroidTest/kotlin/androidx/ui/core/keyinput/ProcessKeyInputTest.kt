@@ -26,7 +26,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onRoot
 import androidx.ui.test.performKeyPress
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -82,7 +82,7 @@ class ProcessKeyInputTest {
             focusModifier = FocusModifier()
             Box(modifier = focusModifier + KeyInputModifier(null, null))
         }
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.requestFocus()
         }
 
@@ -90,7 +90,7 @@ class ProcessKeyInputTest {
         val keyConsumed = onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(keyConsumed).isFalse()
         }
     }
@@ -109,7 +109,7 @@ class ProcessKeyInputTest {
                 }
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.requestFocus()
         }
 
@@ -117,7 +117,7 @@ class ProcessKeyInputTest {
         val keyConsumed = onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             receivedKeyEvent.assertEqualTo(keyEvent(A, KeyUp))
             assertThat(keyConsumed).isTrue()
         }
@@ -137,7 +137,7 @@ class ProcessKeyInputTest {
                 }
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.requestFocus()
         }
 
@@ -145,7 +145,7 @@ class ProcessKeyInputTest {
         val keyConsumed = onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             receivedKeyEvent.assertEqualTo(keyEvent(A, KeyUp))
             assertThat(keyConsumed).isTrue()
         }
@@ -171,7 +171,7 @@ class ProcessKeyInputTest {
                     }
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.requestFocus()
         }
 
@@ -179,7 +179,7 @@ class ProcessKeyInputTest {
         onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             receivedPreviewKeyEvent.assertEqualTo(keyEvent(A, KeyUp))
             assertThat(receivedKeyEvent).isNull()
         }
@@ -206,7 +206,7 @@ class ProcessKeyInputTest {
                     }
             )
         }
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.requestFocus()
         }
 
@@ -214,7 +214,7 @@ class ProcessKeyInputTest {
         onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(onPreviewKeyEventTrigger).isEqualTo(1)
             assertThat(onKeyEventTrigger).isEqualTo(2)
         }
@@ -255,7 +255,7 @@ class ProcessKeyInputTest {
                 )
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             childFocusModifier.requestFocus()
         }
 
@@ -263,7 +263,7 @@ class ProcessKeyInputTest {
         onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parentOnPreviewKeyEventTrigger).isEqualTo(1)
             assertThat(childOnPreviewKeyEventTrigger).isEqualTo(2)
             assertThat(childOnKeyEventTrigger).isEqualTo(3)
@@ -306,7 +306,7 @@ class ProcessKeyInputTest {
                 )
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             childFocusModifier.requestFocus()
         }
 
@@ -314,7 +314,7 @@ class ProcessKeyInputTest {
         onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parentOnPreviewKeyEventTrigger).isEqualTo(1)
             assertThat(childOnPreviewKeyEventTrigger).isEqualTo(2)
             assertThat(childOnKeyEventTrigger).isEqualTo(3)
@@ -371,7 +371,7 @@ class ProcessKeyInputTest {
                 }
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             childFocusModifier.requestFocus()
         }
 
@@ -379,7 +379,7 @@ class ProcessKeyInputTest {
         onRoot().performKeyPress(keyEvent(A, KeyUp))
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(grandParentOnPreviewKeyEventTrigger).isEqualTo(1)
             assertThat(parentOnPreviewKeyEventTrigger).isEqualTo(2)
             assertThat(childOnPreviewKeyEventTrigger).isEqualTo(3)

@@ -24,7 +24,7 @@ import androidx.ui.core.focus.FocusDetailedState.Disabled
 import androidx.ui.core.focus.FocusDetailedState.Inactive
 import androidx.ui.foundation.Box
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -54,12 +54,12 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(focusModifier.focusDetailedState).isEqualTo(Active)
         }
     }
@@ -75,12 +75,12 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(focusModifier.focusDetailedState).isEqualTo(Captured)
         }
     }
@@ -95,12 +95,12 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(focusModifier.focusDetailedState).isEqualTo(Disabled)
         }
     }
@@ -115,7 +115,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.focusNode.requestFocus(propagateFocus)
         }
     }
@@ -133,17 +133,17 @@ class RequestFocusTest(val propagateFocus: Boolean) {
                 Box(modifier = childFocusModifier)
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.focusedChild = childFocusModifier.focusNode
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             when (propagateFocus) {
                 true -> {
                     // Unchanged.
@@ -169,12 +169,12 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             rootFocusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(rootFocusModifier.focusDetailedState).isEqualTo(Active)
         }
     }
@@ -193,12 +193,12 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             rootFocusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             when (propagateFocus) {
                 true -> {
                     // Unchanged.
@@ -231,12 +231,12 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             when (propagateFocus) {
                 true -> {
                     assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
@@ -262,12 +262,12 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             rootFocusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(rootFocusModifier.focusDetailedState).isEqualTo(Active)
         }
     }
@@ -286,12 +286,12 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             rootFocusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             when (propagateFocus) {
                 true -> assertThat(rootFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
                 false -> assertThat(rootFocusModifier.focusDetailedState).isEqualTo(Active)
@@ -317,12 +317,12 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             parentFocusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             when (propagateFocus) {
                 true -> assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
                 false -> assertThat(parentFocusModifier.focusDetailedState).isEqualTo(Active)
@@ -348,11 +348,11 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             childFocusModifier.focusNode.requestFocus(propagateFocus)
         }
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
         }
     }
@@ -375,12 +375,12 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             childFocusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(childFocusModifier.focusDetailedState).isEqualTo(Active)
         }
     }
@@ -399,12 +399,12 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         }
 
         // After executing requestFocus, siblingNode will be 'Active'.
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
             assertThat(focusModifier.focusDetailedState).isEqualTo(Active)
         }
@@ -422,17 +422,17 @@ class RequestFocusTest(val propagateFocus: Boolean) {
                 Box(modifier = focusModifier)
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             parentFocusModifier.focusedChild = focusModifier.focusNode
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             parentFocusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             when (propagateFocus) {
                 true -> {
                     assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
@@ -458,17 +458,17 @@ class RequestFocusTest(val propagateFocus: Boolean) {
                 Box(modifier = focusModifier)
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             parentFocusModifier.focusedChild = focusModifier.focusNode
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             parentFocusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
             assertThat(focusModifier.focusDetailedState).isEqualTo(Captured)
         }
@@ -489,17 +489,17 @@ class RequestFocusTest(val propagateFocus: Boolean) {
                 Box(modifier = siblingModifier)
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             parentFocusModifier.focusedChild = siblingModifier.focusNode
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
             assertThat(focusModifier.focusDetailedState).isEqualTo(Active)
             assertThat(siblingModifier.focusDetailedState).isEqualTo(Inactive)
@@ -521,17 +521,17 @@ class RequestFocusTest(val propagateFocus: Boolean) {
                 Box(modifier = siblingModifier)
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             parentFocusModifier.focusedChild = siblingModifier.focusNode
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
             assertThat(focusModifier.focusDetailedState).isEqualTo(Inactive)
             assertThat(siblingModifier.focusDetailedState).isEqualTo(Captured)
@@ -561,24 +561,24 @@ class RequestFocusTest(val propagateFocus: Boolean) {
                 }
             }
         }
-        runOnIdleCompose {
+        runOnIdle {
             grandParentModifier.focusedChild = auntModifier.focusNode
             auntModifier.focusedChild = cousinModifier.focusNode
         }
 
         // Verify Setup.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(cousinModifier.focusDetailedState).isEqualTo(Active)
             assertThat(focusModifier.focusDetailedState).isEqualTo(Inactive)
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(cousinModifier.focusDetailedState).isEqualTo(Inactive)
             assertThat(focusModifier.focusDetailedState).isEqualTo(Active)
         }
@@ -602,12 +602,12 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         }
 
         // Act.
-        runOnIdleCompose {
+        runOnIdle {
             focusModifier.focusNode.requestFocus(propagateFocus)
         }
 
         // Assert.
-        runOnIdleCompose {
+        runOnIdle {
             assertThat(grandParentModifier.focusDetailedState).isEqualTo(ActiveParent)
             assertThat(parentModifier.focusDetailedState).isEqualTo(ActiveParent)
             assertThat(focusModifier.focusDetailedState).isEqualTo(Active)

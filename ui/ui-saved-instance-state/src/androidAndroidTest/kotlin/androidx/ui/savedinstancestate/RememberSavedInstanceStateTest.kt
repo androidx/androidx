@@ -24,7 +24,7 @@ import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertTrue
@@ -254,7 +254,7 @@ class RememberSavedInstanceStateTest {
 
         val latch = CountDownLatch(1)
 
-        runOnIdleCompose {
+        runOnIdle {
             saver = Saver(
                 save = {
                     latch.countDown()
