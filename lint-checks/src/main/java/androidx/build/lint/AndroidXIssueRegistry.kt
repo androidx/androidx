@@ -41,7 +41,8 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 SampledAnnotationEnforcer.MULTIPLE_FUNCTIONS_FOUND,
                 SampledAnnotationEnforcer.INVALID_SAMPLES_LOCATION,
                 ObsoleteBuildCompatUsageDetector.ISSUE,
-                MetadataTagInsideApplicationTagDetector.ISSUE
+                MetadataTagInsideApplicationTagDetector.ISSUE,
+                PrivateConstructorForUtilityClass.ISSUE
             )
         }
     }

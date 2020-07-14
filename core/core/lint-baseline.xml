@@ -2,6 +2,116 @@
 <issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
 
     <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="/**"
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/core/app/AppLaunchChecker.java"
+            line="29"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="/**"
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/core/content/ContextCompat.java"
+            line="147"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="/**"
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/core/view/inputmethod/EditorInfoCompat.java"
+            line="31"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="/**"
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/core/view/inputmethod/InputConnectionCompat.java"
+            line="33"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="    // Inner class required to avoid VFY errors during class init."
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/core/content/LocusIdCompat.java"
+            line="146"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="/**"
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="78"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="    @RequiresApi(25)"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
+            line="757"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="/**"
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/core/view/ViewCompat.java"
+            line="85"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="    @RequiresApi(16)"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/core/view/WindowCompat.java"
+            line="122"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="    @RequiresApi(30)"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/core/view/WindowCompat.java"
+            line="138"
+            column="5"/>
+    </issue>
+
+    <issue
         id="KotlinPropertyAccess"
         message="The getter return type (`AccessibilityNodeInfoCompat`) and setter parameter type (`View`) getter and setter methods for property `parent` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="    public AccessibilityNodeInfoCompat getParent() {"
@@ -139,7 +249,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="555"
+            line="556"
             column="17"/>
     </issue>
 
@@ -205,7 +315,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/provider/SelfDestructiveThread.java"
-            line="164"
+            line="165"
             column="58"/>
     </issue>
 
@@ -1668,7 +1778,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeProviderCompat.java"
-            line="120"
+            line="137"
             column="44"/>
     </issue>
 
@@ -1679,7 +1789,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeProviderCompat.java"
-            line="127"
+            line="144"
             column="12"/>
     </issue>
 
@@ -1690,7 +1800,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeProviderCompat.java"
-            line="171"
+            line="188"
             column="65"/>
     </issue>
 
@@ -1701,7 +1811,7 @@
         errorLine2="                                                                              ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeProviderCompat.java"
-            line="190"
+            line="207"
             column="79"/>
     </issue>
 
@@ -2801,7 +2911,7 @@
         errorLine2="                  ~~~~">
         <location
             file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="575"
+            line="580"
             column="19"/>
     </issue>
 
@@ -2812,7 +2922,7 @@
         errorLine2="                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="657"
+            line="662"
             column="19"/>
     </issue>
 
@@ -2823,7 +2933,7 @@
         errorLine2="                                           ~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="657"
+            line="662"
             column="44"/>
     </issue>
 
@@ -2933,7 +3043,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/core/view/DisplayCutoutCompat.java"
-            line="53"
+            line="55"
             column="32"/>
     </issue>
 
@@ -2944,19 +3054,8 @@
         errorLine2="                                                ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/DisplayCutoutCompat.java"
-            line="53"
+            line="55"
             column="49"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public List&lt;Rect> getBoundingRects() {"
-        errorLine2="           ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/DisplayCutoutCompat.java"
-            line="159"
-            column="12"/>
     </issue>
 
     <issue
@@ -3384,7 +3483,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/provider/FontsContractCompat.java"
-            line="687"
+            line="688"
             column="19"/>
     </issue>
 
@@ -3395,7 +3494,7 @@
         errorLine2="                                                       ~~~~~~~">
         <location
             file="src/main/java/androidx/core/provider/FontsContractCompat.java"
-            line="687"
+            line="688"
             column="56"/>
     </issue>
 
@@ -3406,7 +3505,7 @@
         errorLine2="                                                                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/provider/FontsContractCompat.java"
-            line="687"
+            line="688"
             column="73"/>
     </issue>
 
@@ -3417,7 +3516,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/provider/FontsContractCompat.java"
-            line="688"
+            line="689"
             column="13"/>
     </issue>
 
@@ -3428,7 +3527,7 @@
         errorLine2="                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="505"
+            line="506"
             column="34"/>
     </issue>
 
@@ -3439,7 +3538,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="505"
+            line="506"
             column="51"/>
     </issue>
 
@@ -3450,7 +3549,7 @@
         errorLine2="                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="519"
+            line="520"
             column="34"/>
     </issue>
 
@@ -3461,7 +3560,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="519"
+            line="520"
             column="51"/>
     </issue>
 
@@ -3472,7 +3571,7 @@
         errorLine2="                                                                              ~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="519"
+            line="520"
             column="79"/>
     </issue>
 
@@ -3483,7 +3582,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="542"
+            line="543"
             column="33"/>
     </issue>
 
@@ -3494,7 +3593,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="566"
+            line="567"
             column="40"/>
     </issue>
 
@@ -9390,7 +9489,7 @@
         errorLine2="                                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
-            line="386"
+            line="277"
             column="54"/>
     </issue>
 
@@ -9401,7 +9500,7 @@
         errorLine2="                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
-            line="454"
+            line="345"
             column="19"/>
     </issue>
 
@@ -9412,7 +9511,7 @@
         errorLine2="                                                                              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
-            line="454"
+            line="345"
             column="79"/>
     </issue>
 
@@ -9621,7 +9720,7 @@
         errorLine2="                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/provider/SelfDestructiveThread.java"
-            line="135"
+            line="136"
             column="40"/>
     </issue>
 
@@ -9632,7 +9731,7 @@
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/provider/SelfDestructiveThread.java"
-            line="135"
+            line="136"
             column="68"/>
     </issue>
 
@@ -9643,7 +9742,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/core/provider/SelfDestructiveThread.java"
-            line="164"
+            line="165"
             column="16"/>
     </issue>
 
@@ -9654,7 +9753,7 @@
         errorLine2="                                   ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/provider/SelfDestructiveThread.java"
-            line="164"
+            line="165"
             column="36"/>
     </issue>
 

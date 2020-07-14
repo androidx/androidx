@@ -2,6 +2,17 @@
 <issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
 
     <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="/**"
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/leanback/widget/FocusHighlightHelper.java"
+            line="36"
+            column="1"/>
+    </issue>
+
+    <issue
         id="KotlinPropertyAccess"
         message="This method should be called `getHasMediaRowSeparator` such that `hasMediaRowSeparator` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="    public boolean hasMediaRowSeparator() {"
@@ -6572,7 +6583,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/FocusHighlightHelper.java"
-            line="200"
+            line="201"
             column="54"/>
     </issue>
 
@@ -6583,7 +6594,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/FocusHighlightHelper.java"
-            line="219"
+            line="220"
             column="54"/>
     </issue>
 
@@ -6594,7 +6605,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/FocusHighlightHelper.java"
-            line="233"
+            line="234"
             column="54"/>
     </issue>
 
@@ -6605,7 +6616,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/FocusHighlightHelper.java"
-            line="250"
+            line="251"
             column="54"/>
     </issue>
 
@@ -6616,7 +6627,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/FocusHighlightHelper.java"
-            line="263"
+            line="264"
             column="54"/>
     </issue>
 

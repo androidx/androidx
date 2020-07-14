@@ -3363,7 +3363,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/RegisteredMediaRouteProviderWatcher.java"
-            line="192"
+            line="193"
             column="26"/>
     </issue>
 
@@ -3374,7 +3374,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/RegisteredMediaRouteProviderWatcher.java"
-            line="193"
+            line="194"
             column="29"/>
     </issue>
 
