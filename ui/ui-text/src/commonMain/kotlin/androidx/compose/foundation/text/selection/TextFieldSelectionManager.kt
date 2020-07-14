@@ -333,18 +333,41 @@ internal class TextFieldSelectionManager() {
      * handle's horizontal coordinates, and the right is the rightmost handle's coordinates.
      */
     private fun getContentRect(): Rect {
-        state?.layoutResult?.let {
-            val startOffset = getHandlePosition(true)
-            val endOffset = getHandlePosition(false)
+        state?.let {
+            val startOffset =
+                state?.layoutCoordinates?.localToRoot(getHandlePosition(true)) ?: Offset.Zero
+            val endOffset =
+                state?.layoutCoordinates?.localToRoot(getHandlePosition(false)) ?: Offset.Zero
             val startTop =
-                it.getBoundingBox(value.selection.start.coerceIn(0, value.text.length - 1)).top
+                state?.layoutCoordinates?.localToRoot(
+                    Offset(
+                        0f,
+                        it.layoutResult?.getCursorRect(
+                            value.selection.start.coerceIn(
+                                0,
+                                max(0, value.text.length - 1)
+                            )
+                        )?.top ?: 0f
+                    )
+                )?.y ?: 0f
             val endTop =
-                it.getBoundingBox(value.selection.end.coerceIn(0, value.text.length - 1)).top
+                state?.layoutCoordinates?.localToRoot(
+                    Offset(
+                        0f,
+                        it.layoutResult?.getCursorRect(
+                            value.selection.end.coerceIn(
+                                0,
+                                max(0, value.text.length - 1)
+                            )
+                        )?.top ?: 0f
+                    )
+                )?.y ?: 0f
 
             val left = min(startOffset.x, endOffset.x)
             val right = max(startOffset.x, endOffset.x)
             val top = min(startTop, endTop)
-            val bottom = max(startOffset.y, endOffset.y) + (25.dp.value * 4.0).toFloat()
+            val bottom = max(startOffset.y, endOffset.y) +
+                    25.dp.value * it.textDelegate.density.density
 
             return Rect(left, top, right, bottom)
         }
