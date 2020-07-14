@@ -20,6 +20,7 @@ import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.onCommit
 import androidx.compose.setValue
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -57,6 +58,7 @@ class WaitingForOnCommitCallbackTest {
     }
 
     @Test
+    @FlakyTest(bugId = 160399857, detail = "Fails about 1% of the time")
     fun cascadingOnCommits() {
         // Collect unique values (markers) at each step during the process and
         // at the end verify that they were collected in the right order
