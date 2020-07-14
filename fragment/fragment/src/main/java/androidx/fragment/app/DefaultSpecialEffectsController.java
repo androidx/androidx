@@ -27,14 +27,17 @@ import android.view.animation.Animation;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
+import androidx.core.app.SharedElementCallback;
 import androidx.core.os.CancellationSignal;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewGroupCompat;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -282,16 +285,22 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 Fragment sharedElementFragment = transitionInfo.getOperation().getFragment();
                 ArrayList<String> exitingNames;
                 ArrayList<String> enteringNames;
+                SharedElementCallback exitingCallback;
+                SharedElementCallback enteringCallback;
                 if (!isPop) {
                     // Forward transitions have the source shared elements exiting
                     // and the target shared elements entering
                     exitingNames = sharedElementFragment.getSharedElementSourceNames();
                     enteringNames = sharedElementFragment.getSharedElementTargetNames();
+                    exitingCallback = firstOut.getFragment().getExitTransitionCallback();
+                    enteringCallback = lastIn.getFragment().getEnterTransitionCallback();
                 } else {
                     // A pop is the reverse: the target elements are now the ones exiting
                     // and the source shared elements are entering
                     exitingNames = sharedElementFragment.getSharedElementTargetNames();
                     enteringNames = sharedElementFragment.getSharedElementSourceNames();
+                    exitingCallback = firstOut.getFragment().getEnterTransitionCallback();
+                    enteringCallback = lastIn.getFragment().getExitTransitionCallback();
                 }
                 int numSharedElements = exitingNames.size();
                 for (int i = 0; i < numSharedElements; i++) {
@@ -304,24 +313,62 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 // part of the shared element transition
                 ArrayMap<String, View> firstOutViews = new ArrayMap<>();
                 findNamedViews(firstOutViews, firstOut.getFragment().mView);
-                // TODO call through to onMapSharedElements
                 firstOutViews.retainAll(exitingNames);
-                // Only keep the mapping of elements that were found in the firstOut Fragment
-                sharedElementNameMapping.retainAll(firstOutViews.keySet());
+                if (exitingCallback != null) {
+                    // Give the SharedElementCallback a chance to override the default mapping
+                    exitingCallback.onMapSharedElements(exitingNames, firstOutViews);
+                    for (int i = exitingNames.size() - 1; i >= 0; i--) {
+                        String name = exitingNames.get(i);
+                        View view = firstOutViews.get(name);
+                        if (view == null) {
+                            sharedElementNameMapping.remove(name);
+                        } else if (!name.equals(ViewCompat.getTransitionName(view))) {
+                            String targetValue = sharedElementNameMapping.remove(name);
+                            sharedElementNameMapping.put(ViewCompat.getTransitionName(view),
+                                    targetValue);
+                        }
+                    }
+                } else {
+                    // Only keep the mapping of elements that were found in the firstOut Fragment
+                    sharedElementNameMapping.retainAll(firstOutViews.keySet());
+                }
 
                 // Find all of the Views from the lastIn fragment that are
                 // part of the shared element transition
                 ArrayMap<String, View> lastInViews = new ArrayMap<>();
                 findNamedViews(lastInViews, lastIn.getFragment().mView);
-                // TODO call through to onMapSharedElements
                 lastInViews.retainAll(enteringNames);
-                // Only keep the mapping of elements that were found in the lastIn Fragment
-                FragmentTransition.retainValues(sharedElementNameMapping, lastInViews);
+                lastInViews.retainAll(sharedElementNameMapping.values());
+                if (enteringCallback != null) {
+                    // Give the SharedElementCallback a chance to override the default mapping
+                    enteringCallback.onMapSharedElements(enteringNames, lastInViews);
+                    for (int i = enteringNames.size() - 1; i >= 0; i--) {
+                        String name = enteringNames.get(i);
+                        View view = lastInViews.get(name);
+                        if (view == null) {
+                            String key = FragmentTransition.findKeyForValue(
+                                    sharedElementNameMapping, name);
+                            if (key != null) {
+                                sharedElementNameMapping.remove(key);
+                            }
+                        } else if (!name.equals(ViewCompat.getTransitionName(view))) {
+                            String key = FragmentTransition.findKeyForValue(
+                                    sharedElementNameMapping, name);
+                            if (key != null) {
+                                sharedElementNameMapping.put(key,
+                                        ViewCompat.getTransitionName(view));
+                            }
+                        }
+                    }
+                } else {
+                    // Only keep the mapping of elements that were found in the lastIn Fragment
+                    FragmentTransition.retainValues(sharedElementNameMapping, lastInViews);
+                }
 
                 // Now make a final pass through the Views list to ensure they
                 // don't still have elements that were removed from the mapping
-                firstOutViews.retainAll(sharedElementNameMapping.keySet());
-                lastInViews.retainAll(sharedElementNameMapping.values());
+                retainMatchingViews(firstOutViews, sharedElementNameMapping.keySet());
+                retainMatchingViews(lastInViews, sharedElementNameMapping.values());
 
                 if (sharedElementNameMapping.isEmpty()) {
                     // We couldn't find any valid shared element mappings, so clear out
@@ -473,6 +520,24 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         FragmentTransition.setViewVisibility(enteringViews, View.VISIBLE);
         transitionImpl.swapSharedElementTargets(sharedElementTransition,
                 sharedElementFirstOutViews, sharedElementLastInViews);
+    }
+
+    /**
+     * Retain only the shared element views that have a transition name that is in
+     * the set of transition names.
+     *
+     * @param sharedElementViews The map of shared element transitions that should be filtered.
+     * @param transitionNames The set of transition names to be retained.
+     */
+    void retainMatchingViews(@NonNull ArrayMap<String, View> sharedElementViews,
+            @NonNull Collection<String> transitionNames) {
+        Iterator<Map.Entry<String, View>> iterator = sharedElementViews.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, View> entry = iterator.next();
+            if (!transitionNames.contains(ViewCompat.getTransitionName(entry.getValue()))) {
+                iterator.remove();
+            }
+        }
     }
 
     /**
