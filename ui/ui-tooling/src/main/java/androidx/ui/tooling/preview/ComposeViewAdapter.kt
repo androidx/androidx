@@ -45,6 +45,7 @@ import androidx.ui.graphics.toArgb
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.SlotTableRecord
+import androidx.ui.tooling.SourceLocation
 import androidx.ui.tooling.asTree
 import androidx.ui.tooling.preview.animation.PreviewAnimationClock
 import androidx.ui.unit.IntBounds
@@ -65,6 +66,7 @@ data class ViewInfo(
     val lineNumber: Int,
     val methodName: String,
     val bounds: IntBounds,
+    val location: SourceLocation?,
     val children: List<ViewInfo>
 ) {
     fun hasBounds(): Boolean = bounds.bottom != 0 && bounds.right != 0
@@ -189,7 +191,7 @@ internal class ComposeViewAdapter : FrameLayout {
             .map { it.toViewInfo() }
 
         val match = KEY_INFO_REGEX.matchEntire(key as? String ?: "")
-            ?: return ViewInfo("", -1, "", box, childrenViewInfo)
+            ?: return ViewInfo("", -1, "", box, location, childrenViewInfo)
 
         // TODO: Use group names instead of indexing once it's supported
         return ViewInfo(
@@ -197,6 +199,7 @@ internal class ComposeViewAdapter : FrameLayout {
             match.groups[3]?.value?.toInt() ?: -1,
             match.groups[1]?.value ?: "",
             box,
+            location,
             childrenViewInfo
         )
     }
