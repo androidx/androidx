@@ -241,10 +241,10 @@ class TextStyleResolveDefaultsTest {
     }
 
     @Test
-    fun test_use_provided_values_textDirectionAlgorithm_with_default_layoutDirection() {
+    fun test_use_provided_values_textDirection_with_LTR_layoutDirection() {
         assertThat(
             resolveDefaults(
-                TextStyle(textDirection = TextDirection.ContentOrLtr),
+                TextStyle(textDirection = TextDirection.Content),
                 direction = LayoutDirection.Ltr
             ).textDirection
         ).isEqualTo(TextDirection.ContentOrLtr)
@@ -258,6 +258,13 @@ class TextStyleResolveDefaultsTest {
 
         assertThat(
             resolveDefaults(
+                TextStyle(textDirection = TextDirection.Rtl),
+                direction = LayoutDirection.Ltr
+            ).textDirection
+        ).isEqualTo(TextDirection.Rtl)
+
+        assertThat(
+            resolveDefaults(
                 TextStyle(textDirection = TextDirection.ContentOrLtr),
                 direction = LayoutDirection.Ltr
             ).textDirection
@@ -265,72 +272,48 @@ class TextStyleResolveDefaultsTest {
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirection = TextDirection.Rtl),
+                TextStyle(textDirection = TextDirection.ContentOrRtl),
                 direction = LayoutDirection.Ltr
             ).textDirection
-        ).isEqualTo(TextDirection.Rtl)
+        ).isEqualTo(TextDirection.ContentOrRtl)
     }
 
     @Test
-    fun test_use_provided_values_textDirectionAlgorithm_with_LTR_layoutDirection() {
+    fun test_use_provided_values_textDirection_with_RTL_layoutDirection() {
         assertThat(
             resolveDefaults(
-                TextStyle(textDirection = TextDirection.ContentOrLtr),
-                direction = LayoutDirection.Ltr
+                TextStyle(textDirection = TextDirection.Content),
+                direction = LayoutDirection.Rtl
             ).textDirection
-        ).isEqualTo(TextDirection.ContentOrLtr)
+        ).isEqualTo(TextDirection.ContentOrRtl)
 
         assertThat(
             resolveDefaults(
                 TextStyle(textDirection = TextDirection.Ltr),
-                direction = LayoutDirection.Ltr
+                direction = LayoutDirection.Rtl
             ).textDirection
         ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirection = TextDirection.ContentOrLtr),
-                direction = LayoutDirection.Ltr
-            ).textDirection
-        ).isEqualTo(TextDirection.ContentOrLtr)
-
-        assertThat(
-            resolveDefaults(
                 TextStyle(textDirection = TextDirection.Rtl),
-                direction = LayoutDirection.Ltr
+                direction = LayoutDirection.Rtl
             ).textDirection
         ).isEqualTo(TextDirection.Rtl)
-    }
 
-    @Test
-    fun test_use_provided_values_textDirectionAlgorithm_with_RTL_layoutDirection() {
         assertThat(
             resolveDefaults(
                 TextStyle(textDirection = TextDirection.ContentOrLtr),
-                direction = LayoutDirection.Ltr
+                direction = LayoutDirection.Rtl
             ).textDirection
         ).isEqualTo(TextDirection.ContentOrLtr)
 
         assertThat(
             resolveDefaults(
-                TextStyle(textDirection = TextDirection.Ltr),
-                direction = LayoutDirection.Ltr
+                TextStyle(textDirection = TextDirection.ContentOrRtl),
+                direction = LayoutDirection.Rtl
             ).textDirection
-        ).isEqualTo(TextDirection.Ltr)
-
-        assertThat(
-            resolveDefaults(
-                TextStyle(textDirection = TextDirection.ContentOrLtr),
-                direction = LayoutDirection.Ltr
-            ).textDirection
-        ).isEqualTo(TextDirection.ContentOrLtr)
-
-        assertThat(
-            resolveDefaults(
-                TextStyle(textDirection = TextDirection.Rtl),
-                direction = LayoutDirection.Ltr
-            ).textDirection
-        ).isEqualTo(TextDirection.Rtl)
+        ).isEqualTo(TextDirection.ContentOrRtl)
     }
 
     @Test

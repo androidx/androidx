@@ -67,7 +67,7 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `merge textDirectionAlgorithm uses other's textDirectionAlgorithm`() {
+    fun `merge textDirection uses other's textDirection`() {
         val style = ParagraphStyle(textDirection = TextDirection.Rtl)
         val otherStyle = ParagraphStyle(textDirection = TextDirection.Ltr)
 
@@ -79,7 +79,7 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `merge textDirectionAlgorithm other null, returns original`() {
+    fun `merge textDirection other null, returns original`() {
         val style = ParagraphStyle(textDirection = TextDirection.Rtl)
         val otherStyle = ParagraphStyle(textDirection = null)
 
@@ -89,7 +89,7 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `merge textDirectionAlgorithm both null returns null`() {
+    fun `merge textDirection both null returns null`() {
         val style = ParagraphStyle(textDirection = null)
         val otherStyle = ParagraphStyle(textDirection = null)
 
@@ -208,7 +208,7 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `lerp textDirectionAlgorithm with a null, b not null and t is smaller than half`() {
+    fun `lerp textDirection with a null, b not null and t is smaller than half`() {
         val style1 = ParagraphStyle(textDirection = null)
         val style2 = ParagraphStyle(textDirection = TextDirection.Rtl)
 
@@ -218,7 +218,7 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `lerp textDirectionAlgorithm with a and b are not Null and t is smaller than half`() {
+    fun `lerp textDirection with a and b are not Null and t is smaller than half`() {
         val style1 = ParagraphStyle(textDirection = TextDirection.Ltr)
         val style2 = ParagraphStyle(textDirection = TextDirection.Rtl)
 
@@ -228,7 +228,7 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `lerp textDirectionAlgorithm with a and b are not Null and t is larger than half`() {
+    fun `lerp textDirection with a and b are not Null and t is larger than half`() {
         val style1 = ParagraphStyle(textDirection = TextDirection.Ltr)
         val style2 = ParagraphStyle(textDirection = TextDirection.Rtl)
 

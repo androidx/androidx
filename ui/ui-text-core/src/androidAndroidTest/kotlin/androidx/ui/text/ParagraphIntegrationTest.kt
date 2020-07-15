@@ -61,6 +61,7 @@ class ParagraphIntegrationTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val defaultDensity = Density(density = 1f)
+    private val ltrLocaleList = LocaleList("en")
 
     private val resourceLoader = TestFontResourceLoader(context)
 
@@ -584,7 +585,7 @@ class ParagraphIntegrationTest {
             val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
-                style = TextStyle(fontSize = fontSize)
+                style = TextStyle(fontSize = fontSize, localeList = ltrLocaleList)
             )
 
             // Cursor before '\n'
@@ -717,7 +718,7 @@ class ParagraphIntegrationTest {
             val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
-                style = TextStyle(fontSize = fontSize),
+                style = TextStyle(fontSize = fontSize, localeList = ltrLocaleList),
                 constraints = ParagraphConstraints(width = 3 * fontSizeInPx)
             )
 
@@ -941,7 +942,7 @@ class ParagraphIntegrationTest {
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
-                style = TextStyle(fontSize = fontSize),
+                style = TextStyle(fontSize = fontSize, localeList = ltrLocaleList),
                 constraints = ParagraphConstraints(width)
             )
 
@@ -960,7 +961,7 @@ class ParagraphIntegrationTest {
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
-                style = TextStyle(fontSize = fontSize),
+                style = TextStyle(fontSize = fontSize, localeList = ltrLocaleList),
                 constraints = ParagraphConstraints(width)
             )
 
@@ -1205,7 +1206,7 @@ class ParagraphIntegrationTest {
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
-                style = TextStyle(fontSize = fontSize),
+                style = TextStyle(fontSize = fontSize, localeList = ltrLocaleList),
                 constraints = ParagraphConstraints(width)
             )
 
@@ -1224,7 +1225,7 @@ class ParagraphIntegrationTest {
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
-                style = TextStyle(fontSize = fontSize),
+                style = TextStyle(fontSize = fontSize, localeList = ltrLocaleList),
                 constraints = ParagraphConstraints(width)
             )
 
@@ -1610,8 +1611,7 @@ class ParagraphIntegrationTest {
                     spanStyles = listOf(),
                     style = TextStyle(
                         fontSize = fontSize,
-                        localeList = localeList,
-                        textDirection = TextDirection.ContentOrLtr
+                        localeList = localeList
                     ),
                     density = defaultDensity,
                     resourceLoader = resourceLoader,
@@ -2250,7 +2250,7 @@ class ParagraphIntegrationTest {
 
             val paragraph = simpleParagraph(
                 text = text,
-                style = TextStyle(fontSize = fontSize),
+                style = TextStyle(fontSize = fontSize, localeList = ltrLocaleList),
                 constraints = ParagraphConstraints(width = layoutWidth)
             )
 
@@ -3859,8 +3859,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    fontFamily = fontFamilyMeasureFont,
-                    textDirection = TextDirection.ContentOrLtr
+                    fontFamily = fontFamilyMeasureFont
                 ),
                 spanStyles = listOf(),
                 density = defaultDensity,
@@ -3875,17 +3874,6 @@ class ParagraphIntegrationTest {
             assertThat(paragraph.maxIntrinsicWidth).isEqualTo(paragraphIntrinsics.maxIntrinsicWidth)
             assertThat(paragraph.width).isEqualTo(fontSizeInPx * text.length)
         }
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun nullTextDirectionAlgorithm_throwsException() {
-        Paragraph(
-            text = "",
-            style = TextStyle(textDirection = null),
-            constraints = ParagraphConstraints(Float.MAX_VALUE),
-            density = defaultDensity,
-            resourceLoader = resourceLoader
-        )
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -3910,8 +3898,7 @@ class ParagraphIntegrationTest {
             text = text,
             spanStyles = spanStyles,
             style = TextStyle(
-                fontFamily = fontFamilyMeasureFont,
-                textDirection = TextDirection.ContentOrLtr
+                fontFamily = fontFamilyMeasureFont
             ).merge(style),
             maxLines = maxLines,
             ellipsis = ellipsis,
