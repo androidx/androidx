@@ -30,13 +30,6 @@ import io.reactivex.Single
 @Sampled
 @Composable
 fun ObservableSample(observable: Observable<String>) {
-    val value: String? by observable.subscribeAsState()
-    Text("Value is $value")
-}
-
-@Sampled
-@Composable
-fun ObservableWithInitialSample(observable: Observable<String>) {
     val value: String by observable.subscribeAsState("initial")
     Text("Value is $value")
 }
@@ -44,13 +37,6 @@ fun ObservableWithInitialSample(observable: Observable<String>) {
 @Sampled
 @Composable
 fun FlowableSample(flowable: Flowable<String>) {
-    val value: String? by flowable.subscribeAsState()
-    Text("Value is $value")
-}
-
-@Sampled
-@Composable
-fun FlowableWithInitialSample(flowable: Flowable<String>) {
     val value: String by flowable.subscribeAsState("initial")
     Text("Value is $value")
 }
@@ -58,13 +44,6 @@ fun FlowableWithInitialSample(flowable: Flowable<String>) {
 @Sampled
 @Composable
 fun SingleSample(single: Single<String>) {
-    val value: String? by single.subscribeAsState()
-    Text("Value is $value")
-}
-
-@Sampled
-@Composable
-fun SingleWithInitialSample(single: Single<String>) {
     val value: String by single.subscribeAsState("initial")
     Text("Value is $value")
 }
@@ -72,13 +51,6 @@ fun SingleWithInitialSample(single: Single<String>) {
 @Sampled
 @Composable
 fun MaybeSample(maybe: Maybe<String>) {
-    val value: String? by maybe.subscribeAsState()
-    Text("Value is $value")
-}
-
-@Sampled
-@Composable
-fun MaybeWithInitialSample(maybe: Maybe<String>) {
     val value: String by maybe.subscribeAsState("initial")
     Text("Value is $value")
 }
