@@ -33,10 +33,10 @@ import com.google.crypto.tink.Aead;
 import com.google.crypto.tink.DeterministicAead;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.aead.AeadFactory;
-import com.google.crypto.tink.aead.AeadKeyTemplates;
+import com.google.crypto.tink.aead.AesGcmKeyManager;
 import com.google.crypto.tink.config.TinkConfig;
+import com.google.crypto.tink.daead.AesSivKeyManager;
 import com.google.crypto.tink.daead.DeterministicAeadFactory;
-import com.google.crypto.tink.daead.DeterministicAeadKeyTemplates;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
 import com.google.crypto.tink.subtle.Base64;
 
@@ -369,7 +369,7 @@ public class EncryptedSharedPreferencesTest {
         TinkConfig.register();
 
         KeysetHandle daeadKeysetHandle = new AndroidKeysetManager.Builder()
-                .withKeyTemplate(DeterministicAeadKeyTemplates.AES256_SIV)
+                .withKeyTemplate(AesSivKeyManager.aes256SivTemplate())
                 .withSharedPref(mContext,
                         "__androidx_security_crypto_encrypted_prefs_key_keyset__", tinkTestPrefs)
                 .withMasterKeyUri(KEYSTORE_PATH_URI + "_androidx_security_master_key_")
@@ -387,7 +387,7 @@ public class EncryptedSharedPreferencesTest {
         Assert.assertTrue("Key should exist if Tink is compatible.", keyExists);
 
         KeysetHandle aeadKeysetHandle = new AndroidKeysetManager.Builder()
-                .withKeyTemplate(AeadKeyTemplates.AES256_GCM)
+                .withKeyTemplate(AesGcmKeyManager.aes256GcmTemplate())
                 .withSharedPref(mContext,
                         "__androidx_security_crypto_encrypted_prefs_value_keyset__", tinkTestPrefs)
                 .withMasterKeyUri(KEYSTORE_PATH_URI + "_androidx_security_master_key_")
