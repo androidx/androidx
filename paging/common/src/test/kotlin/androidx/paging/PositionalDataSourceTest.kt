@@ -16,7 +16,10 @@
 
 package androidx.paging
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -306,7 +309,10 @@ class PositionalDataSourceTest {
         }
     }
 
-    class ListDataSource<T : Any>(val list: List<T>) : PositionalDataSource<T>() {
+    class ListDataSource<T : Any>(
+        val list: List<T>,
+        val counted: Boolean = true
+    ) : PositionalDataSource<T> () {
         private var error = false
 
         override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
@@ -322,7 +328,12 @@ class PositionalDataSourceTest {
             // for simplicity, we could return everything immediately,
             // but we tile here since it's expected behavior
             val sublist = list.subList(position, position + loadSize)
-            callback.onResult(sublist, position, totalCount)
+
+            if (counted) {
+                callback.onResult(sublist, position, totalCount)
+            } else {
+                callback.onResult(sublist, position)
+            }
         }
 
         override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<T>) {
@@ -426,7 +437,43 @@ class PositionalDataSourceTest {
         assert(datasource.onInvalidatedCallbacks.size == 0)
     }
 
-    companion object {
-        private val ERROR = Exception()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val testScope = TestCoroutineScope()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun verifyRefreshIsTerminal(counted: Boolean): Unit = testScope.runBlockingTest {
+        val dataSource = ListDataSource(list = listOf(0, 1, 2), counted = counted)
+        dataSource.load(DataSource.Params(
+            type = LoadType.REFRESH,
+            key = 0,
+            initialLoadSize = 3,
+            placeholdersEnabled = false,
+            pageSize = 1
+        )).apply {
+            assertEquals(listOf(0, 1, 2), data)
+            // prepends always return prevKey = null if they return the first item
+            assertEquals(null, prevKey)
+            // appends only return nextKey if they return the last item, and are counted
+            assertEquals(if (counted) null else 3, nextKey)
+        }
+
+        dataSource.load(DataSource.Params(
+            type = LoadType.PREPEND,
+            key = 1,
+            initialLoadSize = 3,
+            placeholdersEnabled = false,
+            pageSize = 1
+        )).apply {
+            // prepends should return prevKey = null if they return the first item
+            assertEquals(listOf(0), data)
+            assertEquals(null, prevKey)
+            assertEquals(1, nextKey)
+        }
     }
+
+    @Test
+    fun terminalResultCounted() = verifyRefreshIsTerminal(counted = true)
+
+    @Test
+    fun terminalResultUncounted() = verifyRefreshIsTerminal(counted = false)
 }
