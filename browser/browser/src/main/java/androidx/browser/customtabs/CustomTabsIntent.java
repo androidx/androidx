@@ -723,20 +723,21 @@ public final class CustomTabsIntent {
         /**
          * Sets {@link CustomTabColorSchemeParams} for the given color scheme.
          *
-         * This can be useful if {@link CustomTabsIntent#COLOR_SCHEME_SYSTEM} is set: Custom Tabs
+         * This allows specifying two different toolbar colors for light and dark schemes.
+         * It can be useful if {@link CustomTabsIntent#COLOR_SCHEME_SYSTEM} is set: Custom Tabs
          * will follow the system settings and apply the corresponding
          * {@link CustomTabColorSchemeParams} "on the fly" when the settings change.
          *
-         * For example, this allows specifying two different toolbar colors for light and dark
-         * schemes, whereas {@link #setToolbarColor} will apply the given color to both schemes.
+         * The method {@link #setToolbarColor} will set the given color as a default color to both
+         * schemes.
          *
-         * If there is no {@link CustomTabColorSchemeParams} for the current scheme, or a
-         * particular field of it is null, Custom Tabs will fall back to the defaults provided
-         * via {@link #setToolbarColor} and similar methods. If, on the other hand, a non-null value
-         * is present, it will override the default one.
+         * If there is no {@link CustomTabColorSchemeParams} for the current scheme, or a particular
+         * field of it is null, Custom Tabs will fall back to the defaults provided via
+         * {@link #setToolbarColor}. If, on the other hand, a non-null value is present, it will
+         * override the default color from {@link #setToolbarColor}.
          *
          * **Note**: to maintain compatibility with browsers not supporting this API, do provide the
-         * defaults.
+         * defaults via {@link #setToolbarColor}.
          *
          * Example of setting two toolbar colors in backwards-compatible way:
          * <pre><code>
