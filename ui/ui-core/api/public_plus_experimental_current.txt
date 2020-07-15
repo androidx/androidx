@@ -946,6 +946,25 @@ package androidx.ui.core.focus {
   public final class FocusNodeUtilsKt {
   }
 
+  @androidx.ui.core.focus.ExperimentalFocus public final class FocusRequester {
+    ctor public FocusRequester();
+    method public boolean captureFocus();
+    method public boolean freeFocus();
+    method public void requestFocus();
+  }
+
+  public final class FocusRequesterKt {
+  }
+
+  @androidx.ui.core.focus.ExperimentalFocus public interface FocusRequesterModifier extends androidx.ui.core.Modifier.Element {
+    method public androidx.ui.core.focus.FocusRequester getFocusRequester();
+    property public abstract androidx.ui.core.focus.FocusRequester focusRequester;
+  }
+
+  public final class FocusRequesterModifierKt {
+    method @androidx.ui.core.focus.ExperimentalFocus public static androidx.ui.core.Modifier focusRequester(androidx.ui.core.Modifier, androidx.ui.core.focus.FocusRequester focusRequester);
+  }
+
   public enum FocusState {
     method public static androidx.ui.core.focus.FocusState valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.ui.core.focus.FocusState[] values();
