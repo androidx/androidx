@@ -31,7 +31,7 @@ public interface OnItemActivatedListener<K> {
 
     /**
      * Called when an item is "activated". An item is activated, for example, when no selection
-     * exists and the user taps an item with her finger, or double clicks an item with a
+     * exists and the user taps an item with their finger, or double clicks an item with a
      * pointing device like a Mouse.
      *
      * @param item details of the item.

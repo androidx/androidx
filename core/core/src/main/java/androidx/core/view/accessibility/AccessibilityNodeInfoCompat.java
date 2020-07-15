@@ -2886,7 +2886,7 @@ public class AccessibilityNodeInfoCompat {
      *   <strong>Note:</strong> The primary usage of this API is for UI test automation
      *   and in order to report the source view id of an {@link AccessibilityNodeInfoCompat}
      *   the client has to set the {@link AccessibilityServiceInfoCompat#FLAG_REPORT_VIEW_IDS}
-     *   flag when configuring his {@link android.accessibilityservice.AccessibilityService}.
+     *   flag when configuring their {@link android.accessibilityservice.AccessibilityService}.
      * </p>
      *
      * @return The id resource name.
@@ -3368,7 +3368,7 @@ public class AccessibilityNodeInfoCompat {
      *   and in order to report the fully qualified view id if an
      *   {@link AccessibilityNodeInfoCompat} the client has to set the
      *   {@link android.accessibilityservice.AccessibilityServiceInfo#FLAG_REPORT_VIEW_IDS}
-     *   flag when configuring his {@link android.accessibilityservice.AccessibilityService}.
+     *   flag when configuring their {@link android.accessibilityservice.AccessibilityService}.
      * </p>
      *
      * @param viewId The fully qualified resource name of the view id to find.
