@@ -33,6 +33,7 @@ import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 import androidx.core.util.Preconditions;
 
 import java.util.Collections;
@@ -177,6 +178,29 @@ public abstract class UseCase {
         }
 
         return defaultConfigBuilder.getUseCaseConfig();
+    }
+
+    /**
+     * Updates the target rotation of the use case config.
+     *
+     * @param targetRotation Target rotation of the output image, expressed as one of
+     *                       {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     *                       {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
+     * @return true if the target rotation was changed.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected boolean setTargetRotationInternal(
+            @ImageOutputConfig.RotationValue int targetRotation) {
+        ImageOutputConfig oldConfig = (ImageOutputConfig) getUseCaseConfig();
+        int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
+        if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != targetRotation) {
+            UseCaseConfig.Builder<?, ?, ?> builder = getUseCaseConfigBuilder();
+            UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, targetRotation);
+            updateUseCaseConfig(builder.getUseCaseConfig());
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -357,6 +381,15 @@ public abstract class UseCase {
     public UseCaseConfig<?> getUseCaseConfig() {
         return mUseCaseConfig;
     }
+
+    /**
+     * Returns a builder based on the current use case config.
+     *
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public abstract UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder();
 
     /**
      * Returns the currently attached {@link Camera} or {@code null} if none is attached.

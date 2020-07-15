@@ -104,7 +104,6 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.IoConfig;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.utils.ImageUtil;
-import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
@@ -418,6 +417,18 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
+        return Builder.fromConfig((ImageCaptureConfig) getUseCaseConfig());
+    }
+
+    /**
      * Configures flash mode to CameraControlInternal once it is ready.
      *
      * @hide
@@ -522,7 +533,7 @@ public final class ImageCapture extends UseCase {
      *
      * <p>If no target rotation is set by the application, it is set to the value of
      * {@link Display#getRotation()} of the default display at the time the use case is
-     * created.
+     * created. The use case is fully created once it has been attached to a camera.
      */
     @RotationValue
     public int getTargetRotation() {
@@ -562,7 +573,8 @@ public final class ImageCapture extends UseCase {
      * make sure the output image is cropped into expected aspect ratio.
      *
      * <p>If no target rotation is set by the application, it is set to the value of
-     * {@link Display#getRotation()} of the default display at the time the use case is created.
+     * {@link Display#getRotation()} of the default display at the time the use case is created. The
+     * use case is fully created once it has been attached to a camera.
      *
      * <p>takePicture uses the target rotation at the time it begins executing (which may be delayed
      * waiting on a previous takePicture call to complete).
@@ -572,12 +584,7 @@ public final class ImageCapture extends UseCase {
      *                 {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
      */
     public void setTargetRotation(@RotationValue int rotation) {
-        ImageCaptureConfig oldConfig = (ImageCaptureConfig) getUseCaseConfig();
-        Builder builder = Builder.fromConfig(oldConfig);
-        int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
-        if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
-            UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, rotation);
-            updateUseCaseConfig(builder.getUseCaseConfig());
+        if (setTargetRotationInternal(rotation)) {
             mUserSettingConfig = (ImageCaptureConfig) getUseCaseConfig();
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
@@ -2365,7 +2372,7 @@ public final class ImageCapture extends UseCase {
          *
          * <p>If not set, the target rotation will default to the value of
          * {@link android.view.Display#getRotation()} of the default display at the time the use
-         * case is created.
+         * case is created. The use case is fully created once it has been attached to a camera.
          *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.

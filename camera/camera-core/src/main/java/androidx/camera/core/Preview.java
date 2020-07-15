@@ -256,6 +256,33 @@ public final class Preview extends UseCase {
         return sessionConfigBuilder;
     }
 
+    /**
+     * Sets the target rotation.
+     *
+     * <p>This adjust the {@link Preview#getTargetRotation()}, which once applied will update the
+     * output to match target rotation specified here.
+     *
+     * <p>While rotation can also be set via {@link Preview.Builder#setTargetRotation(int)}
+     * , using {@link Preview#setTargetRotation(int)} allows the target rotation to be set
+     * without rebinding new use cases. When this function is called, value set by
+     * {@link Preview.Builder#setTargetResolution(Size)} will be updated automatically to
+     * make sure the suitable resolution can be selected when the use case is bound.
+     *
+     * <p>If not set here or by configuration, the target rotation will default to the value of
+     * {@link Display#getRotation()} of the default display at the time the use case is created. The
+     * use case is fully created once it has been attached to a camera.
+     *
+     * @param targetRotation Target rotation of the output image, expressed as one of
+     *                       {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     *                       {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
+     * @hide
+     * @see Preview.Builder#setTargetRotation(int)
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void setTargetRotation(@ImageOutputConfig.RotationValue int targetRotation) {
+        setTargetRotationInternal(targetRotation);
+    }
+
     private void setUpSurfaceProviderWrap(
             @NonNull final SurfaceRequest surfaceRequest) {
         final ListenableFuture<Pair<SurfaceProvider, Executor>> future =
@@ -369,7 +396,7 @@ public final class Preview extends UseCase {
      * The rotation is set when constructing an {@link Preview} instance using
      * {@link Preview.Builder#setTargetRotation(int)}. If not set, the target rotation defaults to
      * the value of {@link Display#getRotation()} of the default display at the time the use case
-     * is created.
+     * is created. The use case is fully created once it has been attached to a camera.
      * </p>
      *
      * @return The rotation of the intended target.
@@ -400,6 +427,18 @@ public final class Preview extends UseCase {
         }
 
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
+        return Preview.Builder.fromConfig((PreviewConfig) getUseCaseConfig());
     }
 
     /**
@@ -762,6 +801,12 @@ public final class Preview extends UseCase {
          *
          * <p>If not set, the target rotation will default to the value of
          * {@link Display#getRotation()} of the default display at the time the use case is created.
+         * The use case is fully created once it has been attached to a camera.
+         *
+         * <p> Note that {@link SurfaceView} does not support non-display rotation. If the target
+         * rotation is different than the value of {@link Display#getRotation()},
+         * {@link SurfaceView} should not be used to provide the {@link Surface} in
+         * {@link SurfaceRequest#provideSurface(Surface, Executor, Consumer)}
          *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
