@@ -18,7 +18,6 @@ package androidx.camera.camera2.internal;
 
 import android.content.Context;
 import android.media.CamcorderProfile;
-import android.util.Rational;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -29,7 +28,6 @@ import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
-import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceSizeDefinition;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -246,51 +244,5 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
         }
 
         return previewSize;
-    }
-
-    /**
-     * Checks whether the use case requires a corrected aspect ratio due to device constraints.
-     *
-     * @param cameraId the camera Id
-     * @return the check result that whether aspect ratio need to be corrected
-     * @throws IllegalStateException    if not initialized
-     * @throws IllegalArgumentException if supported surface information for given camera id
-     *                                  can't be found.
-     */
-    @Override
-    public boolean requiresCorrectedAspectRatio(@NonNull String cameraId) {
-        SupportedSurfaceCombination supportedSurfaceCombination =
-                mCameraSupportedSurfaceCombinationMap.get(cameraId);
-
-        if (supportedSurfaceCombination == null) {
-            throw new IllegalArgumentException(
-                    "Fail to find supported surface info - CameraId:" + cameraId);
-        }
-        return supportedSurfaceCombination.requiresCorrectedAspectRatio();
-    }
-
-    /**
-     * Returns the corrected aspect ratio for the camera id or {@code null} if
-     * no correction is needed.
-     *
-     * @param cameraId the camera Id of the device that requires correction
-     * @param rotation desired rotation of output aspect ratio relative to natural orientation
-     * @return the corrected aspect ratio for the use case
-     * @throws IllegalStateException    if not initialized
-     * @throws IllegalArgumentException if supported surface information for given camera id
-     *                                  can't be found.
-     */
-    @Nullable
-    @Override
-    public Rational getCorrectedAspectRatio(@NonNull String cameraId,
-            @ImageOutputConfig.RotationValue int rotation) {
-        SupportedSurfaceCombination supportedSurfaceCombination =
-                mCameraSupportedSurfaceCombinationMap.get(cameraId);
-
-        if (supportedSurfaceCombination == null) {
-            throw new IllegalArgumentException(
-                    "Fail to find supported surface info - CameraId:" + cameraId);
-        }
-        return supportedSurfaceCombination.getCorrectedAspectRatio(rotation);
     }
 }

@@ -228,6 +228,7 @@ public final class PreviewTest {
         // Using for-loop to check both front and back device cameras can support the guaranteed
         // 640x480 size.
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
+        assumeTrue(!CameraUtil.requiresCorrectedAspectRatio(CameraSelector.LENS_FACING_FRONT));
 
         // Checks camera device sensor degrees to set correct target rotation value to make sure
         // the exactly matching result size 640x480 can be selected if the device supports it.
@@ -260,6 +261,7 @@ public final class PreviewTest {
         // Using for-loop to check both front and back device cameras can support the guaranteed
         // 640x480 size.
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+        assumeTrue(!CameraUtil.requiresCorrectedAspectRatio(CameraSelector.LENS_FACING_BACK));
 
         // Checks camera device sensor degrees to set correct target rotation value to make sure
         // the exactly matching result size 640x480 can be selected if the device supports it.

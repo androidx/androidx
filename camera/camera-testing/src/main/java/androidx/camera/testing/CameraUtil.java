@@ -354,6 +354,25 @@ public final class CameraUtil {
     }
 
     /**
+     * Check if the aspect ratio needs to be corrected.
+     *
+     * @param lensFacing The desired camera lensFacing.
+     * @return True if the aspect ratio has been corrected.
+     * @throws IllegalStateException if the CAMERA permission is not currently granted.
+     */
+    public static boolean requiresCorrectedAspectRatio(@CameraSelector.LensFacing int lensFacing) {
+        Integer hardwareLevelValue;
+        CameraCharacteristics cameraCharacteristics = getCameraCharacteristics(lensFacing);
+        hardwareLevelValue = cameraCharacteristics.get(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+        // There is a bug because of a flipped scaling factor in the intermediate texture
+        // transform matrix, and it was fixed in L MR1. If the device is LEGACY + Android 5.0,
+        // then auto resolution will return the same aspect ratio as maximum JPEG resolution.
+        return (Build.VERSION.SDK_INT == 21 && hardwareLevelValue != null && hardwareLevelValue
+                == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+    }
+
+    /**
      * Gets the camera id of the first camera with the given lensFacing.
      *
      * @param lensFacing The desired camera lensFacing.
