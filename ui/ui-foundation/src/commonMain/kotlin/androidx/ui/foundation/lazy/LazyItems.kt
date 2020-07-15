@@ -33,13 +33,19 @@ import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.materialize
 import androidx.ui.foundation.gestures.rememberScrollableController
 import androidx.ui.foundation.gestures.scrollable
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.padding
+import androidx.ui.unit.dp
 
 /**
  * A vertically scrolling list that only composes and lays out the currently visible items.
  *
  * @param items the backing list of data to display
  * @param modifier the modifier to apply to this layout
+ * @param contentPadding convenience param to specify a padding around the whole content. This will
+ * add padding for the content after it has been clipped, which is not possible via [modifier]
+ * param. Note that it is *not* a padding applied for each item's content
  * @param itemContent emits the UI for an item from [items] list. May emit any number of components,
  * which will be stacked vertically. Note that [LazyColumnItems] can start scrolling incorrectly
  * if you emit nothing and then lazily recompose with the real content, so even if you load the
@@ -49,9 +55,10 @@ import androidx.ui.layout.Spacer
 fun <T> LazyColumnItems(
     items: List<T>,
     modifier: Modifier = Modifier,
+    contentPadding: InnerPadding = InnerPadding(0.dp),
     itemContent: @Composable (T) -> Unit
 ) {
-    LazyItems(items, modifier, itemContent, isVertical = true)
+    LazyItems(items, modifier, contentPadding, itemContent, isVertical = true)
 }
 
 /**
@@ -59,6 +66,9 @@ fun <T> LazyColumnItems(
  *
  * @param items the backing list of data to display
  * @param modifier the modifier to apply to this layout
+ * @param contentPadding convenience param to specify a padding around the whole content. This will
+ * add padding for the content after it has been clipped, which is not possible via [modifier]
+ * param. Note that it is *not* a padding applied for each item's content
  * @param itemContent emits the UI for an item from [items] list. May emit any number of components,
  * which will be stacked horizontally. Note that [LazyRowItems] can start scrolling incorrectly
  * if you emit nothing and then lazily recompose with the real content, so even if you load the
@@ -68,9 +78,10 @@ fun <T> LazyColumnItems(
 fun <T> LazyRowItems(
     items: List<T>,
     modifier: Modifier = Modifier,
+    contentPadding: InnerPadding = InnerPadding(0.dp),
     itemContent: @Composable (T) -> Unit
 ) {
-    LazyItems(items, modifier, itemContent, isVertical = false)
+    LazyItems(items, modifier, contentPadding, itemContent, isVertical = false)
 }
 
 @Composable
@@ -78,6 +89,7 @@ fun <T> LazyRowItems(
 private fun <T> LazyItems(
     items: List<T>,
     modifier: Modifier = Modifier,
+    contentPadding: InnerPadding,
     itemContent: @Composable (T) -> Unit,
     isVertical: Boolean
 ) {
@@ -96,6 +108,7 @@ private fun <T> LazyItems(
                 controller = rememberScrollableController(consumeScrollDelta = state.onScrollDelta)
             )
             .clipToBounds()
+            .padding(contentPadding)
     )
     @OptIn(ExperimentalComposeApi::class)
     emit<LayoutNode, Applier<Any>>(

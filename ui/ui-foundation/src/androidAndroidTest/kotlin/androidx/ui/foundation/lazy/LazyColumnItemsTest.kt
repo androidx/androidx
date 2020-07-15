@@ -28,6 +28,7 @@ import androidx.ui.core.testTag
 import androidx.ui.geometry.Offset
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.fillMaxWidth
@@ -41,6 +42,7 @@ import androidx.ui.test.assertIsNotDisplayed
 import androidx.ui.test.center
 import androidx.ui.test.onChildren
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.getBoundsInRoot
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
@@ -51,6 +53,9 @@ import androidx.ui.test.waitForIdle
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
+import com.google.common.collect.Range
+import com.google.common.truth.IntegerSubject
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -318,6 +323,49 @@ class LazyColumnItemsTest {
         onNodeWithTag(thirdTag)
             .assertIsDisplayed()
     }
+
+    @Test
+    fun contentPaddingIsApplied() = with(composeTestRule.density) {
+        val itemTag = "item"
+
+        composeTestRule.setContent {
+            LazyColumnItems(
+                items = listOf(1),
+                modifier = Modifier.size(100.dp)
+                    .testTag(LazyColumnItemsTag),
+                contentPadding = InnerPadding(
+                    start = 10.dp,
+                    top = 50.dp,
+                    end = 10.dp,
+                    bottom = 50.dp
+                )
+            ) {
+                Spacer(Modifier.fillMaxWidth().preferredHeight(50.dp).testTag(itemTag))
+            }
+        }
+
+        var itemBounds = onNodeWithTag(itemTag)
+            .getBoundsInRoot()
+
+        assertThat(itemBounds.top.toIntPx()).isWithin1PixelFrom(50.dp.toIntPx())
+        assertThat(itemBounds.bottom.toIntPx()).isWithin1PixelFrom(100.dp.toIntPx())
+        assertThat(itemBounds.left.toIntPx()).isWithin1PixelFrom(10.dp.toIntPx())
+        assertThat(itemBounds.right.toIntPx())
+            .isWithin1PixelFrom(100.dp.toIntPx() - 10.dp.toIntPx())
+
+        onNodeWithTag(LazyColumnItemsTag)
+            .scrollBy(y = 51.dp, density = composeTestRule.density)
+
+        itemBounds = onNodeWithTag(itemTag)
+            .getBoundsInRoot()
+
+        assertThat(itemBounds.top.toIntPx()).isWithin1PixelFrom(0)
+        assertThat(itemBounds.bottom.toIntPx()).isWithin1PixelFrom(50.dp.toIntPx())
+    }
+}
+
+internal fun IntegerSubject.isWithin1PixelFrom(expected: Int) {
+    isIn(Range.closed(expected - 1, expected + 1))
 }
 
 internal fun SemanticsNodeInteraction.scrollBy(x: Dp = 0.dp, y: Dp = 0.dp, density: Density) =
