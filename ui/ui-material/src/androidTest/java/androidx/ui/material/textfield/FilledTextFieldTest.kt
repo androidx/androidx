@@ -46,7 +46,7 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.height
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
-import androidx.ui.material.FilledTextField
+import androidx.ui.material.TextField
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.runOnIdleWithDensity
 import androidx.ui.material.setMaterialContent
@@ -99,7 +99,7 @@ class FilledTextFieldTest {
     @Test
     fun testFilledTextField_minimumHeight() {
         testRule.setMaterialContentForSizeAssertions {
-            FilledTextField(
+            TextField(
                 value = "input",
                 onValueChange = {},
                 label = {},
@@ -110,7 +110,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testTextFields_singleFocus() {
+    fun testFilledTextFields_singleFocus() {
         var textField1Focused = false
         val textField1Tag = "TextField1"
 
@@ -119,14 +119,14 @@ class FilledTextFieldTest {
 
         testRule.setMaterialContent {
             Column {
-                FilledTextField(
+                TextField(
                     modifier = Modifier.testTag(textField1Tag),
                     value = "input1",
                     onValueChange = {},
                     label = {},
                     onFocusChanged = { textField1Focused = it }
                 )
-                FilledTextField(
+                TextField(
                     modifier = Modifier.testTag(textField2Tag),
                     value = "input2",
                     onValueChange = {},
@@ -156,7 +156,7 @@ class FilledTextFieldTest {
         var focused = false
         testRule.setMaterialContent {
             Box {
-                FilledTextField(
+                TextField(
                     modifier = Modifier.testTag(TextfieldTag),
                     value = "input",
                     onValueChange = {},
@@ -182,7 +182,7 @@ class FilledTextFieldTest {
         val labelPosition = Ref<Offset>()
         testRule.setMaterialContent {
             Box {
-                FilledTextField(
+                TextField(
                     value = "",
                     onValueChange = {},
                     label = {
@@ -224,7 +224,7 @@ class FilledTextFieldTest {
         val labelPosition = Ref<Offset>()
         testRule.setMaterialContent {
             Box {
-                FilledTextField(
+                TextField(
                     value = "",
                     onValueChange = {},
                     modifier = Modifier.preferredHeight(height),
@@ -260,7 +260,7 @@ class FilledTextFieldTest {
         val baseline = Ref<Float>()
         testRule.setMaterialContent {
             Box {
-                FilledTextField(
+                TextField(
                     modifier = Modifier.testTag(TextfieldTag),
                     value = "",
                     onValueChange = {},
@@ -300,7 +300,7 @@ class FilledTextFieldTest {
         val baseline = Ref<Float>()
         testRule.setMaterialContent {
             Box {
-                FilledTextField(
+                TextField(
                     value = "input",
                     onValueChange = {},
                     label = {
@@ -336,7 +336,7 @@ class FilledTextFieldTest {
         val placeholderPosition = Ref<Offset>()
         testRule.setMaterialContent {
             Box {
-                FilledTextField(
+                TextField(
                     modifier = Modifier
                         .preferredHeight(60.dp)
                         .testTag(TextfieldTag),
@@ -379,7 +379,7 @@ class FilledTextFieldTest {
         val height = 60.dp
         testRule.setMaterialContent {
             Box {
-                FilledTextField(
+                TextField(
                     modifier = Modifier.preferredHeight(height).testTag(TextfieldTag),
                     value = "",
                     onValueChange = {},
@@ -419,7 +419,7 @@ class FilledTextFieldTest {
         val placeholderPosition = Ref<Offset>()
         testRule.setMaterialContent {
             Column {
-                FilledTextField(
+                TextField(
                     modifier = Modifier.testTag(TextfieldTag),
                     value = "input",
                     onValueChange = {},
@@ -446,7 +446,7 @@ class FilledTextFieldTest {
     @Test
     fun testFilledTextField_placeholderColorAndTextStyle() {
         testRule.setMaterialContent {
-            FilledTextField(
+            TextField(
                 modifier = Modifier.testTag(TextfieldTag),
                 value = "",
                 onValueChange = {},
@@ -479,7 +479,7 @@ class FilledTextFieldTest {
         val trailingSize = Ref<IntSize>()
 
         testRule.setMaterialContent {
-            FilledTextField(
+            TextField(
                 value = "text",
                 onValueChange = {},
                 modifier = Modifier.preferredSize(textFieldWidth, textFieldHeight),
@@ -528,7 +528,7 @@ class FilledTextFieldTest {
         val labelPosition = Ref<Offset>()
         testRule.setMaterialContent {
             Box {
-                FilledTextField(
+                TextField(
                     value = "",
                     onValueChange = {},
                     modifier = Modifier.preferredHeight(height),
@@ -557,7 +557,7 @@ class FilledTextFieldTest {
         val labelPosition = Ref<Offset>()
         testRule.setMaterialContent {
             Box {
-                FilledTextField(
+                TextField(
                     value = "",
                     onValueChange = {},
                     modifier = Modifier.preferredHeight(height),
@@ -582,7 +582,7 @@ class FilledTextFieldTest {
     @Test
     fun testFilledTextField_colorInLeadingTrailing_whenValidInput() {
         testRule.setMaterialContent {
-            FilledTextField(
+            TextField(
                 value = "",
                 onValueChange = {},
                 label = {},
@@ -610,7 +610,7 @@ class FilledTextFieldTest {
     @Test
     fun testFilledTextField_colorInLeadingTrailing_whenInvalidInput() {
         testRule.setMaterialContent {
-            FilledTextField(
+            TextField(
                 value = "",
                 onValueChange = {},
                 label = {},
@@ -637,8 +637,8 @@ class FilledTextFieldTest {
             Providers(
                 TextInputServiceAmbient provides textInputService
             ) {
-                var text = state { TextFieldValue("") }
-                FilledTextField(
+                val text = state { TextFieldValue("") }
+                TextField(
                     modifier = Modifier.testTag(TextfieldTag),
                     value = text.value,
                     onValueChange = { text.value = it },
@@ -666,7 +666,7 @@ class FilledTextFieldTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testFilledTextField_visualTransformationPropagated() {
         testRule.setMaterialContent {
-            FilledTextField(
+            TextField(
                 modifier = Modifier.testTag(TextfieldTag),
                 value = "qwerty",
                 onValueChange = {},
@@ -696,7 +696,7 @@ class FilledTextFieldTest {
 
         testRule.setMaterialContent {
             Stack(Modifier.background(color = Color.White)) {
-                FilledTextField(
+                TextField(
                     modifier = Modifier.testTag(TextfieldTag),
                     value = "",
                     onValueChange = {},
@@ -745,7 +745,7 @@ class FilledTextFieldTest {
         var controller: SoftwareKeyboardController? = null
 
         testRule.setMaterialContent {
-            FilledTextField(
+            TextField(
                 modifier = Modifier.testTag(TextfieldTag),
                 value = "",
                 onValueChange = {},
@@ -770,7 +770,7 @@ class FilledTextFieldTest {
         var controller: SoftwareKeyboardController? = null
 
         testRule.setMaterialContent {
-            FilledTextField(
+            TextField(
                 modifier = Modifier.testTag(TextfieldTag),
                 value = "",
                 onValueChange = {},

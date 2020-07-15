@@ -21,8 +21,6 @@ import androidx.animation.AnimationConstants.Infinite
 import androidx.animation.keyframes
 import androidx.animation.repeatable
 import androidx.compose.Composable
-import androidx.compose.Immutable
-import androidx.compose.Stable
 import androidx.compose.State
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
@@ -42,17 +40,15 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.useOrElse
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
+import androidx.ui.input.TextFieldValue
 import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.defaultMinSizeConstraints
-import androidx.ui.savedinstancestate.Saver
-import androidx.ui.savedinstancestate.listSaver
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.CoreTextField
 import androidx.ui.text.InternalTextApi
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextFieldDelegate
 import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.constrain
 import androidx.ui.unit.dp
@@ -64,115 +60,14 @@ var blinkingCursorEnabled: Boolean = true
     set
 
 /**
- * A class holding information about the editing state.
- *
- * The input service updates text selection or cursor as well as text. You can observe and
- * control the selection, cursor and text altogether.
- *
- * @param text the text will be rendered
- * @param selection the selection range. If the selection is collapsed, it represents cursor
- * location. Do not specify outside of the text buffer.
- */
-@Suppress("DEPRECATION")
-@Deprecated(
-    "Please use androidx.ui.input.TextFieldValue instead",
-    ReplaceWith("TextFieldValue", "androidx.ui.input.TextFieldValue")
-)
-@Immutable
-data class TextFieldValue(
-    @Stable
-    val text: String = "",
-    @Stable
-    val selection: TextRange = TextRange.Zero
-) {
-    companion object {
-        /**
-         * The default [Saver] implementation for [TextFieldValue].
-         */
-        @Deprecated(
-            "Please use androidx.ui.input.TextFieldValue.Saver instead",
-            ReplaceWith(
-                "androidx.ui.input.TextFieldValue.Saver",
-                "androidx.ui.input.TextFieldValue.Companion.Saver"
-            )
-        )
-        val Saver = listSaver<TextFieldValue, Any>(
-            save = {
-                listOf(it.text, it.selection.start, it.selection.end)
-            },
-            restore = {
-                TextFieldValue(it[0] as String, TextRange(it[1] as Int, it[2] as Int))
-            }
-        )
-    }
-}
-
-@Suppress("DEPRECATION")
-@Composable
-@Deprecated("Use the TextField with androidx.ui.input.TextFieldValue instead.")
-fun TextField(
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
-    modifier: Modifier = Modifier,
-    textColor: Color = Color.Unset,
-    textStyle: TextStyle = currentTextStyle(),
-    keyboardType: KeyboardType = KeyboardType.Text,
-    imeAction: ImeAction = ImeAction.Unspecified,
-    onFocusChange: (Boolean) -> Unit = {},
-    onImeActionPerformed: (ImeAction) -> Unit = {},
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    onTextLayout: (TextLayoutResult) -> Unit = {},
-    onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
-    cursorColor: Color = contentColor()
-) {
-    val fullModel = state { androidx.ui.input.TextFieldValue() }
-    if (fullModel.value.text != value.text || fullModel.value.selection != value.selection) {
-        @OptIn(InternalTextApi::class)
-        fullModel.value = androidx.ui.input.TextFieldValue(
-            text = value.text,
-            selection = value.selection.constrain(0, value.text.length)
-        )
-    }
-
-    val onValueChangeWrapper: (androidx.ui.input.TextFieldValue) -> Unit = {
-        val prevState = fullModel.value
-        fullModel.value = it
-        if (prevState.text != it.text || prevState.selection != it.selection) {
-            onValueChange(
-                TextFieldValue(
-                    it.text,
-                    it.selection
-                )
-            )
-        }
-    }
-
-    TextField(
-        value = fullModel.value,
-        onValueChange = onValueChangeWrapper,
-        modifier = modifier,
-        textColor = textColor,
-        textStyle = textStyle,
-        keyboardType = keyboardType,
-        imeAction = imeAction,
-        onFocusChanged = onFocusChange,
-        onImeActionPerformed = onImeActionPerformed,
-        visualTransformation = visualTransformation,
-        onTextLayout = onTextLayout,
-        onTextInputStarted = onTextInputStarted,
-        cursorColor = cursorColor
-    )
-}
-
-/**
  * Composable that enables users to edit text via hardware or software keyboard.
  *
  * Whenever the user edits the text, [onValueChange] is called with the most up to date state
- * represented by [androidx.ui.input.TextFieldValue]. [androidx.ui.input.TextFieldValue] contains
+ * represented by [TextFieldValue]. [TextFieldValue] contains
  * the text entered by user, as well as selection, cursor and text composition information.
  * Please check [TextFieldValue] for the description of its contents.
  *
- * It is crucial that the value provided in the [onValueChange] is fed back into [TextField] in
+ * It is crucial that the value provided in the [onValueChange] is fed back into [BaseTextField] in
  * order to have the final state of the text being displayed. Example usage:
  * @sample androidx.ui.foundation.samples.TextFieldSample
  *
@@ -191,9 +86,9 @@ fun TextField(
  * For example, if you need to include a hint in your TextField you can write a composable as below:
  * @sample androidx.ui.foundation.samples.PlaceholderTextFieldSample
  *
- * @param value The [androidx.ui.input.TextFieldValue] to be shown in the [TextField].
+ * @param value The [TextFieldValue] to be shown in the [BaseTextField].
  * @param onValueChange Called when the input service updates values in
- * [androidx.ui.input.TextFieldValue].
+ * [TextFieldValue].
  * @param modifier optional [Modifier] for this text field.
  * @param textColor [Color] to apply to the text. If [Color.Unset], and [textStyle] has no color
  * set, this will be [contentColor].
@@ -227,9 +122,10 @@ fun TextField(
  * @see VisualTransformation
  */
 @Composable
-fun TextField(
-    value: androidx.ui.input.TextFieldValue,
-    onValueChange: (androidx.ui.input.TextFieldValue) -> Unit,
+@ExperimentalFoundationApi
+fun BaseTextField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     textColor: Color = Color.Unset,
     textStyle: TextStyle = currentTextStyle(),
@@ -242,10 +138,10 @@ fun TextField(
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     cursorColor: Color = contentColor()
 ) {
-    val fullModel = state { androidx.ui.input.TextFieldValue() }
+    val fullModel = state { TextFieldValue() }
     if (fullModel.value != value) {
         @OptIn(InternalTextApi::class)
-        fullModel.value = androidx.ui.input.TextFieldValue(
+        fullModel.value = TextFieldValue(
             text = value.text,
             selection = value.selection.constrain(0, value.text.length),
             composition = value.composition?.constrain(0, value.text.length)
@@ -319,7 +215,7 @@ private class CursorState {
 private fun Modifier.cursorModifier(
     color: AnimatedValue<Color, *>,
     cursorState: CursorState,
-    textFieldValue: State<androidx.ui.input.TextFieldValue>,
+    textFieldValue: State<TextFieldValue>,
     visualTransformation: VisualTransformation
 ): Modifier {
     return if (cursorState.focused && textFieldValue.value.selection.collapsed) {
@@ -336,7 +232,7 @@ private fun Modifier.cursorModifier(
 private data class CursorModifier(
     val color: AnimatedValue<Color, *>,
     val cursorState: CursorState,
-    val textFieldValue: State<androidx.ui.input.TextFieldValue>,
+    val textFieldValue: State<TextFieldValue>,
     val visualTransformation: VisualTransformation
 ) : DrawModifier {
     override fun ContentDrawScope.draw() {

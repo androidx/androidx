@@ -26,7 +26,8 @@ import androidx.ui.demos.common.Demo
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.TextField
+import androidx.ui.foundation.BaseTextField
+import androidx.ui.foundation.ExperimentalFoundationApi
 import androidx.ui.graphics.compositeOver
 import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.fillMaxWidth
@@ -94,9 +95,10 @@ fun FilterAppBar(
 }
 
 /**
- * [TextField] that edits the current [filterText], providing [onFilter] when edited.
+ * [BaseTextField] that edits the current [filterText], providing [onFilter] when edited.
  */
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 private fun FilterField(
     filterText: TextFieldValue,
     onFilter: (TextFieldValue) -> Unit,
@@ -106,7 +108,7 @@ private fun FilterField(
     @Suppress("DEPRECATION")
     val focusModifier = FocusModifier()
     // TODO: replace with Material text field when available
-    TextField(
+    BaseTextField(
         modifier = modifier + focusModifier,
         value = filterText,
         onValueChange = onFilter

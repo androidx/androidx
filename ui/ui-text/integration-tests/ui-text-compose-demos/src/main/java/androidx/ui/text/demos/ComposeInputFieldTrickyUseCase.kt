@@ -18,10 +18,10 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.TextField
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.TextFieldValue
 import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.ui.text.CoreTextField
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.sp
 
@@ -39,7 +39,7 @@ fun InputFieldTrickyUseCase() {
 @Composable
 private fun RejectNonDigits() {
     val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    TextField(
+    CoreTextField(
         value = state.value,
         textStyle = TextStyle(fontSize = 32.sp),
         onValueChange = {
@@ -54,7 +54,7 @@ private fun RejectNonDigits() {
 @Composable
 private fun RejectComposition() {
     val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    TextField(
+    CoreTextField(
         value = state.value,
         textStyle = TextStyle(fontSize = 32.sp),
         onValueChange = {
