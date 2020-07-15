@@ -300,7 +300,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
     private MediaRouteDiscoveryRequest updateDiscoveryRequest(
             @Nullable MediaRouteDiscoveryRequest request, boolean transferToLocalEnabled) {
         if (request == null) {
-            return null;
+            request = new MediaRouteDiscoveryRequest(MediaRouteSelector.EMPTY, false);
         }
 
         List<String> controlCategories = request.getSelector().getControlCategories();

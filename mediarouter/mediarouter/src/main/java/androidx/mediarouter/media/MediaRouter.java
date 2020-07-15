@@ -2302,6 +2302,7 @@ public final class MediaRouter {
         // selected route group.
         final Map<String, RouteController> mRouteControllerMap = new HashMap<>();
         private MediaRouteDiscoveryRequest mDiscoveryRequest;
+        private MediaRouteDiscoveryRequest mDiscoveryRequestForMr2Provider;
         private int mCallbackCount;
         OnPrepareTransferListener mOnPrepareTransferListener;
         TransferNotifier mLastTransferNotifier;
@@ -2467,7 +2468,7 @@ public final class MediaRouter {
                 if (oldTransferToLocalEnabled != newTransferToLocalEnabled) {
                     // Since the discovery request itself is not changed,
                     // call setDiscoveryRequestInternal to avoid the equality check.
-                    mMr2Provider.setDiscoveryRequestInternal(mDiscoveryRequest);
+                    mMr2Provider.setDiscoveryRequestInternal(mDiscoveryRequestForMr2Provider);
                 }
             }
         }
@@ -2635,6 +2636,10 @@ public final class MediaRouter {
             mCallbackCount = callbackCount;
             MediaRouteSelector selector = discover ? builder.build() : MediaRouteSelector.EMPTY;
 
+            // MediaRoute2Provider should keep registering discovery preference
+            // even when the callback flag is zero.
+            updateMr2ProviderDiscoveryRequest(builder.build(), activeScan);
+
             // Create a new discovery request.
             if (mDiscoveryRequest != null
                     && mDiscoveryRequest.getSelector().equals(selector)
@@ -2664,8 +2669,43 @@ public final class MediaRouter {
             // Notify providers.
             final int providerCount = mProviders.size();
             for (int i = 0; i < providerCount; i++) {
-                mProviders.get(i).mProviderInstance.setDiscoveryRequest(mDiscoveryRequest);
+                MediaRouteProvider provider = mProviders.get(i).mProviderInstance;
+                if (provider == mMr2Provider) {
+                    // MediaRoute2Provider is handled by updateMr2ProviderDiscoveryRequest().
+                    continue;
+                }
+                provider.setDiscoveryRequest(mDiscoveryRequest);
             }
+        }
+
+        private void updateMr2ProviderDiscoveryRequest(@NonNull MediaRouteSelector selector,
+                boolean activeScan) {
+            if (!isMediaTransferEnabled()) {
+                return;
+            }
+
+            if (mDiscoveryRequestForMr2Provider != null
+                    && mDiscoveryRequestForMr2Provider.getSelector().equals(selector)
+                    && mDiscoveryRequestForMr2Provider.isActiveScan() == activeScan) {
+                return; // no change
+            }
+            if (selector.isEmpty() && !activeScan) {
+                // Discovery is not needed.
+                if (mDiscoveryRequestForMr2Provider == null) {
+                    return; // no change
+                }
+                mDiscoveryRequestForMr2Provider = null;
+            } else {
+                // Discovery is needed.
+                mDiscoveryRequestForMr2Provider =
+                        new MediaRouteDiscoveryRequest(selector, activeScan);
+            }
+            if (DEBUG) {
+                Log.d(TAG, "Updated MediaRoute2Provider's discovery request: "
+                        + mDiscoveryRequestForMr2Provider);
+            }
+
+            mMr2Provider.setDiscoveryRequest(mDiscoveryRequestForMr2Provider);
         }
 
         int getCallbackCount() {
