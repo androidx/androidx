@@ -18,6 +18,7 @@ package androidx.ui.foundation
 import androidx.compose.Providers
 import androidx.compose.ambientOf
 import androidx.compose.state
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
@@ -58,6 +59,7 @@ class DialogUiTest {
     }
 
     @Test
+    @FlakyTest(bugId = 159364185)
     fun dialogTest_isNotDismissed_whenClicked() {
         val textBeforeClick = "textBeforeClick"
         val textAfterClick = "textAfterClick"
