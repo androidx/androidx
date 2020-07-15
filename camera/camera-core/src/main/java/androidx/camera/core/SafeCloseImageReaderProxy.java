@@ -42,7 +42,7 @@ class SafeCloseImageReaderProxy implements ImageReaderProxy {
     @GuardedBy("mLock")
     private final ImageReaderProxy mImageReaderProxy;
 
-    @NonNull
+    @Nullable
     private final Surface mSurface;
 
     // Called after images are closed to check if the ImageReaderProxy should be closed
@@ -87,7 +87,9 @@ class SafeCloseImageReaderProxy implements ImageReaderProxy {
     @Override
     public void close() {
         synchronized (mLock) {
-            mSurface.release();
+            if (mSurface != null) {
+                mSurface.release();
+            }
             mImageReaderProxy.close();
         }
     }
@@ -155,7 +157,7 @@ class SafeCloseImageReaderProxy implements ImageReaderProxy {
         }
     }
 
-    @NonNull
+    @Nullable
     @Override
     public Surface getSurface() {
         synchronized (mLock) {
