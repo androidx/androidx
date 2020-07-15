@@ -143,41 +143,58 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
                             // The sample here simply returns the normal image result
                             Image normalImage = imageDataPairs.get(NORMAL_STAGE_ID).first;
 
-                            // copy y plane
-                            Image.Plane inYPlane = normalImage.getPlanes()[0];
-                            Image.Plane outYPlane = outputImage.getPlanes()[0];
-                            ByteBuffer inYBuffer = inYPlane.getBuffer();
-                            ByteBuffer outYBuffer = outYPlane.getBuffer();
-                            int inYPixelStride = inYPlane.getPixelStride();
-                            int inYRowStride = inYPlane.getRowStride();
-                            int outYPixelStride = outYPlane.getPixelStride();
-                            int outYRowStride = outYPlane.getRowStride();
-                            for (int x = 0; x < outputImage.getHeight(); x++) {
-                                for (int y = 0; y < outputImage.getWidth(); y++) {
-                                    int inIndex = x * inYRowStride + y * inYPixelStride;
-                                    int outIndex = x * outYRowStride + y * outYPixelStride;
-                                    outYBuffer.put(outIndex, inYBuffer.get(inIndex));
-                                }
+                            if (outputImage.getWidth() != normalImage.getWidth()
+                                    || outputImage.getHeight() != normalImage.getHeight()) {
+                                throw new IllegalStateException(String.format("input image "
+                                                + "resolution [%d, %d] not the same as the "
+                                                + "output image[%d, %d]", normalImage.getWidth(),
+                                        normalImage.getHeight(), outputImage.getWidth(),
+                                        outputImage.getHeight()));
                             }
 
-                            // Copy UV
-                            for (int i = 1; i < 3; i++) {
-                                Image.Plane inPlane = normalImage.getPlanes()[i];
-                                Image.Plane outPlane = outputImage.getPlanes()[i];
-                                ByteBuffer inBuffer = inPlane.getBuffer();
-                                ByteBuffer outBuffer = outPlane.getBuffer();
-                                int inPixelStride = inPlane.getPixelStride();
-                                int inRowStride = inPlane.getRowStride();
-                                int outPixelStride = outPlane.getPixelStride();
-                                int outRowStride = outPlane.getRowStride();
-                                // UV are half width compared to Y
-                                for (int x = 0; x < outputImage.getHeight() / 2; x++) {
-                                    for (int y = 0; y < outputImage.getWidth() / 2; y++) {
-                                        int inIndex = x * inRowStride + y * inPixelStride;
-                                        int outIndex = x * outRowStride + y * outPixelStride;
-                                        outBuffer.put(outIndex, inBuffer.get(inIndex));
+                            try {
+                                // copy y plane
+                                Image.Plane inYPlane = normalImage.getPlanes()[0];
+                                Image.Plane outYPlane = outputImage.getPlanes()[0];
+                                ByteBuffer inYBuffer = inYPlane.getBuffer();
+                                ByteBuffer outYBuffer = outYPlane.getBuffer();
+                                int inYPixelStride = inYPlane.getPixelStride();
+                                int inYRowStride = inYPlane.getRowStride();
+                                int outYPixelStride = outYPlane.getPixelStride();
+                                int outYRowStride = outYPlane.getRowStride();
+                                for (int x = 0; x < outputImage.getHeight(); x++) {
+                                    for (int y = 0; y < outputImage.getWidth(); y++) {
+                                        int inIndex = x * inYRowStride + y * inYPixelStride;
+                                        int outIndex = x * outYRowStride + y * outYPixelStride;
+                                        outYBuffer.put(outIndex, inYBuffer.get(inIndex));
                                     }
                                 }
+
+                                // Copy UV
+                                for (int i = 1; i < 3; i++) {
+                                    Image.Plane inPlane = normalImage.getPlanes()[i];
+                                    Image.Plane outPlane = outputImage.getPlanes()[i];
+                                    ByteBuffer inBuffer = inPlane.getBuffer();
+                                    ByteBuffer outBuffer = outPlane.getBuffer();
+                                    int inPixelStride = inPlane.getPixelStride();
+                                    int inRowStride = inPlane.getRowStride();
+                                    int outPixelStride = outPlane.getPixelStride();
+                                    int outRowStride = outPlane.getRowStride();
+                                    // UV are half width compared to Y
+                                    for (int x = 0; x < outputImage.getHeight() / 2; x++) {
+                                        for (int y = 0; y < outputImage.getWidth() / 2; y++) {
+                                            int inIndex = x * inRowStride + y * inPixelStride;
+                                            int outIndex = x * outRowStride + y * outPixelStride;
+                                            byte b = inBuffer.get(inIndex);
+                                            outBuffer.put(outIndex, b);
+                                        }
+                                    }
+                                }
+                            } catch (IllegalStateException e) {
+                                Log.e(TAG, "Error accessing the Image: " + e);
+                                // Since something went wrong, don't try to queue up the image.
+                                // Instead let the Image writing get dropped.
+                                return;
                             }
 
                             mImageWriter.queueInputImage(outputImage);
