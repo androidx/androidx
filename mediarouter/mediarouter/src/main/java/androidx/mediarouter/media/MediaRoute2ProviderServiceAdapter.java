@@ -666,9 +666,9 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             Bundle controlHints = new Bundle();
             controlHints.putParcelable(MediaRouter2Utils.KEY_MESSENGER, messenger);
             controlHints.putString(MediaRouter2Utils.KEY_SESSION_NAME,
-                    mSessionInfo.getName().toString());
-            mSessionInfo = builder.setControlHints(controlHints).build();
+                    sessionInfo.getName().toString());
 
+            mSessionInfo = builder.setControlHints(controlHints).build();
             MediaRoute2ProviderServiceAdapter.this.notifySessionCreated(requestId, mSessionInfo);
         }
 
