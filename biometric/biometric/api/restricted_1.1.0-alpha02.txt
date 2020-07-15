@@ -2,12 +2,22 @@
 package androidx.biometric {
 
   public class BiometricManager {
-    method public int canAuthenticate();
+    method @Deprecated public int canAuthenticate();
+    method public int canAuthenticate(int);
     method public static androidx.biometric.BiometricManager from(android.content.Context);
     field public static final int BIOMETRIC_ERROR_HW_UNAVAILABLE = 1; // 0x1
     field public static final int BIOMETRIC_ERROR_NONE_ENROLLED = 11; // 0xb
     field public static final int BIOMETRIC_ERROR_NO_HARDWARE = 12; // 0xc
+    field public static final int BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED = 15; // 0xf
+    field public static final int BIOMETRIC_ERROR_UNSUPPORTED = -2; // 0xfffffffe
+    field public static final int BIOMETRIC_STATUS_UNKNOWN = -1; // 0xffffffff
     field public static final int BIOMETRIC_SUCCESS = 0; // 0x0
+  }
+
+  public static interface BiometricManager.Authenticators {
+    field public static final int BIOMETRIC_STRONG = 15; // 0xf
+    field public static final int BIOMETRIC_WEAK = 255; // 0xff
+    field public static final int DEVICE_CREDENTIAL = 32768; // 0x8000
   }
 
   public class BiometricPrompt {
@@ -18,6 +28,9 @@ package androidx.biometric {
     method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo, androidx.biometric.BiometricPrompt.CryptoObject);
     method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo);
     method public void cancelAuthentication();
+    field public static final int AUTHENTICATION_RESULT_TYPE_BIOMETRIC = 2; // 0x2
+    field public static final int AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL = 1; // 0x1
+    field public static final int AUTHENTICATION_RESULT_TYPE_UNKNOWN = -1; // 0xffffffff
     field public static final int ERROR_CANCELED = 5; // 0x5
     field public static final int ERROR_HW_NOT_PRESENT = 12; // 0xc
     field public static final int ERROR_HW_UNAVAILABLE = 1; // 0x1
@@ -41,6 +54,7 @@ package androidx.biometric {
   }
 
   public static class BiometricPrompt.AuthenticationResult {
+    method public int getAuthenticationType();
     method public androidx.biometric.BiometricPrompt.CryptoObject? getCryptoObject();
   }
 
@@ -54,20 +68,22 @@ package androidx.biometric {
   }
 
   public static class BiometricPrompt.PromptInfo {
+    method public int getAllowedAuthenticators();
     method public CharSequence? getDescription();
     method public CharSequence getNegativeButtonText();
     method public CharSequence? getSubtitle();
     method public CharSequence getTitle();
     method public boolean isConfirmationRequired();
-    method public boolean isDeviceCredentialAllowed();
+    method @Deprecated public boolean isDeviceCredentialAllowed();
   }
 
   public static class BiometricPrompt.PromptInfo.Builder {
     ctor public BiometricPrompt.PromptInfo.Builder();
     method public androidx.biometric.BiometricPrompt.PromptInfo build();
+    method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setAllowedAuthenticators(int);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setConfirmationRequired(boolean);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setDescription(CharSequence?);
-    method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setDeviceCredentialAllowed(boolean);
+    method @Deprecated public androidx.biometric.BiometricPrompt.PromptInfo.Builder setDeviceCredentialAllowed(boolean);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setNegativeButtonText(CharSequence);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setSubtitle(CharSequence?);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setTitle(CharSequence);

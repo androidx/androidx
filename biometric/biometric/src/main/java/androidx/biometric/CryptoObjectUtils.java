@@ -17,21 +17,49 @@
 package androidx.biometric;
 
 import android.os.Build;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.Signature;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.security.spec.AlgorithmParameterSpec;
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 
 /**
- * Utility class for converting between different types of crypto objects that may be used
- * internally by {@link BiometricPrompt} and {@link BiometricManager}.
+ * Utility class for creating and converting between different types of crypto objects that may be
+ * used internally by {@link BiometricPrompt} and {@link BiometricManager}.
  */
 class CryptoObjectUtils {
+    private static final String TAG = "CryptoObjectUtils";
+
+    /**
+     * The key name used when creating a fake crypto object.
+     */
+    private static final String FAKE_KEY_NAME = "androidxBiometric";
+
+    /**
+     * The name of the Android keystore instance.
+     */
+    private static final String KEYSTORE_INSTANCE = "AndroidKeyStore";
+
     // Prevent instantiation.
     private CryptoObjectUtils() {}
 
@@ -73,7 +101,7 @@ class CryptoObjectUtils {
      *
      * @param cryptoObject An instance of {@link androidx.biometric.BiometricPrompt.CryptoObject}.
      * @return An equivalent crypto object that is compatible with
-     *  {@link android.hardware.biometrics.BiometricPrompt}.
+     * {@link android.hardware.biometrics.BiometricPrompt}.
      */
     @RequiresApi(Build.VERSION_CODES.P)
     @Nullable
@@ -144,7 +172,7 @@ class CryptoObjectUtils {
      *
      * @param cryptoObject An instance of {@link androidx.biometric.BiometricPrompt.CryptoObject}.
      * @return An equivalent crypto object that is compatible with
-     *  {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
      */
     @SuppressWarnings("deprecation")
     @Nullable
@@ -177,10 +205,56 @@ class CryptoObjectUtils {
     }
 
     /**
+     * Creates a {@link androidx.biometric.BiometricPrompt.CryptoObject} instance that can be passed
+     * to {@link BiometricManager} and {@link BiometricPrompt} in order to force crypto-based
+     * authentication behavior.
+     *
+     * @return An internal-only instance of {@link androidx.biometric.BiometricPrompt.CryptoObject}.
+     */
+    @RequiresApi(Build.VERSION_CODES.M)
+    @Nullable
+    static BiometricPrompt.CryptoObject createFakeCryptoObject() {
+        try {
+            final KeyStore keystore = KeyStore.getInstance(KEYSTORE_INSTANCE);
+            keystore.load(null);
+
+            final KeyGenParameterSpec.Builder keySpecBuilder =
+                    Api23Impl.createKeyGenParameterSpecBuilder(
+                            FAKE_KEY_NAME,
+                            KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT);
+            Api23Impl.setBlockModeCBC(keySpecBuilder);
+            Api23Impl.setEncryptionPaddingPKCS7(keySpecBuilder);
+
+            final KeyGenerator keyGenerator =
+                    KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_INSTANCE);
+            final KeyGenParameterSpec keySpec = Api23Impl.buildKeyGenParameterSpec(keySpecBuilder);
+            Api23Impl.initKeyGenerator(keyGenerator, keySpec);
+            keyGenerator.generateKey();
+
+            final SecretKey secretKey =
+                    (SecretKey) keystore.getKey(FAKE_KEY_NAME, null /* password */);
+            final Cipher cipher = Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/"
+                    + KeyProperties.BLOCK_MODE_CBC + "/"
+                    + KeyProperties.ENCRYPTION_PADDING_PKCS7);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+            return new BiometricPrompt.CryptoObject(cipher);
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | CertificateException
+                | KeyStoreException | InvalidKeyException | InvalidAlgorithmParameterException
+                | UnrecoverableKeyException | IOException | NoSuchProviderException e) {
+            Log.w(TAG, "Failed to create fake crypto object.", e);
+            return null;
+        }
+    }
+
+    /**
      * Nested class to avoid verification errors for methods introduced in Android 9.0 (API 28).
      */
     @RequiresApi(Build.VERSION_CODES.P)
     private static class Api28Impl {
+        // Prevent instantiation.
+        private Api28Impl() {}
+
         /**
          * Creates an instance of the framework class
          * {@link android.hardware.biometrics.BiometricPrompt.CryptoObject} from the given cipher.
@@ -254,6 +328,72 @@ class CryptoObjectUtils {
         static Mac getMac(
                 @NonNull android.hardware.biometrics.BiometricPrompt.CryptoObject crypto) {
             return crypto.getMac();
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
+     */
+    @RequiresApi(Build.VERSION_CODES.M)
+    private static class Api23Impl {
+        // Prevent instantiation.
+        private Api23Impl() {}
+
+        /**
+         * Creates a new instance of {@link KeyGenParameterSpec.Builder}.
+         *
+         * @param keystoreAlias The keystore alias for the resulting key.
+         * @param purposes      The purposes for which the resulting key will be used.
+         * @return An instance of {@link KeyGenParameterSpec.Builder}.
+         */
+        @SuppressWarnings("SameParameterValue")
+        static KeyGenParameterSpec.Builder createKeyGenParameterSpecBuilder(
+                @NonNull String keystoreAlias, int purposes) {
+            return new KeyGenParameterSpec.Builder(keystoreAlias, purposes);
+        }
+
+        /**
+         * Sets CBC block mode for the given key spec builder.
+         *
+         * @param keySpecBuilder An instance of {@link KeyGenParameterSpec.Builder}.
+         */
+        static void setBlockModeCBC(@NonNull KeyGenParameterSpec.Builder keySpecBuilder) {
+            keySpecBuilder.setBlockModes(KeyProperties.BLOCK_MODE_CBC);
+        }
+
+        /**
+         * Sets PKCS7 encryption padding for the given key spec builder.
+         *
+         * @param keySpecBuilder An instance of {@link KeyGenParameterSpec.Builder}.
+         */
+        static void setEncryptionPaddingPKCS7(@NonNull KeyGenParameterSpec.Builder keySpecBuilder) {
+            keySpecBuilder.setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7);
+        }
+
+        /**
+         * Builds a key spec from the given builder.
+         *
+         * @param keySpecBuilder An instance of {@link KeyGenParameterSpec.Builder}.
+         * @return A {@link KeyGenParameterSpec} created from the given builder.
+         */
+        static KeyGenParameterSpec buildKeyGenParameterSpec(
+                @NonNull KeyGenParameterSpec.Builder keySpecBuilder) {
+            return keySpecBuilder.build();
+        }
+
+        /**
+         * Calls {@link KeyGenerator#init(AlgorithmParameterSpec)} for the given key generator and
+         * spec.
+         *
+         * @param keyGenerator An instance of {@link KeyGenerator}.
+         * @param keySpec      The key spec with which to initialize the generator.
+         *
+         * @throws InvalidAlgorithmParameterException If the key spec is invalid.
+         */
+        static void initKeyGenerator(
+                @NonNull KeyGenerator keyGenerator, @NonNull KeyGenParameterSpec keySpec)
+                throws InvalidAlgorithmParameterException {
+            keyGenerator.init(keySpec);
         }
     }
 }
