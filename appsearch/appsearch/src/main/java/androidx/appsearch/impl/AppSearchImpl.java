@@ -32,10 +32,12 @@ import com.google.android.icing.proto.DeleteByNamespaceResultProto;
 import com.google.android.icing.proto.DeleteBySchemaTypeResultProto;
 import com.google.android.icing.proto.DeleteResultProto;
 import com.google.android.icing.proto.DocumentProto;
+import com.google.android.icing.proto.GetOptimizeInfoResultProto;
 import com.google.android.icing.proto.GetResultProto;
 import com.google.android.icing.proto.GetSchemaResultProto;
 import com.google.android.icing.proto.IcingSearchEngineOptions;
 import com.google.android.icing.proto.InitializeResultProto;
+import com.google.android.icing.proto.OptimizeResultProto;
 import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.PropertyProto;
 import com.google.android.icing.proto.PutResultProto;
@@ -80,6 +82,13 @@ import java.util.Set;
  *          {@link #query(String, SearchSpecProto, ResultSpecProto, ScoringSpecProto)}.
  * </ul>
  *
+ * <p>Methods in this class belong to two groups, the query group and the mutate group.
+ * <ul>
+ *     <li>All methods relative to modify data in Icing should be executed in the single mutate
+ *     thread to keep thread safety.
+ *     <li>All methods relative to query data from Icing should be executed in multiple query
+ *     threads to improve query performance.
+ * </ul>
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -90,11 +99,23 @@ public final class AppSearchImpl {
     private static final String NAMESPACE_SET_NAME = "namespace-set";
     private static final String SCHEMA_TYPE_SET_NAME = "schema-type-set";
     private static final String ICING_DIR = "/icing";
+    @VisibleForTesting
+    static final int OPTIMIZE_THRESHOLD_DOC_COUNT = 1000;
+    @VisibleForTesting
+    static final int OPTIMIZE_THRESHOLD_BYTES = 1_000_000; // 1MB
+    @VisibleForTesting
+    static final int CHECK_OPTIMIZE_INTERVAL = 100;
     // TODO(b/158350212) Remove SharedPreferences once getAllNamespace() is ready in Icing lib.
     // SharedPreferences is discouraged to be used in go/sharedpreferences.
     private final SharedPreferences mSharedPreferences;
     private IcingSearchEngine mIcingSearchEngine;
     private volatile boolean mInitialized = false;
+
+    /**
+     * The counter to check when to call {@link #checkForOptimize(boolean)}. The interval is
+     * {@link #CHECK_OPTIMIZE_INTERVAL}.
+     */
+    private int mOptimizeIntervalCount = 0;
 
     /** Gets the singleton instance of {@link AppSearchImpl} */
     @NonNull
@@ -117,6 +138,8 @@ public final class AppSearchImpl {
     /**
      * Initializes the underlying IcingSearchEngine.
      *
+     * <p>This method should be called in mutate thread.
+     *
      * @throws IOException        on error opening directory.
      * @throws AppSearchException on IcingSearchEngine error.
      */
@@ -137,13 +160,17 @@ public final class AppSearchImpl {
             mIcingSearchEngine = new IcingSearchEngine(options);
 
             InitializeResultProto initializeResultProto = mIcingSearchEngine.initialize();
+            boolean isReset = false;
             try {
                 checkSuccess(initializeResultProto.getStatus());
-                mInitialized = true;
             } catch (AppSearchException e) {
                 // Some error. Reset and see if it fixes it.
                 reset();
-                mInitialized = true;
+                isReset = true;
+            }
+            mInitialized = true;
+            if (!isReset) {
+                checkForOptimize(/* force= */ true);
             }
         }
     }
@@ -155,6 +182,8 @@ public final class AppSearchImpl {
 
     /**
      * Updates the AppSearch schema for this app.
+     *
+     * <p>This method should be called in mutate thread.
      *
      * @param databaseName  The name of the database where this schema lives.
      * @param origSchema    The schema to set for this app.
@@ -180,10 +209,18 @@ public final class AppSearchImpl {
         for (SchemaTypeConfigProto typeConfig : origSchema.getTypesList()) {
             addToSharedSet(databaseName, SCHEMA_TYPE_SET_NAME, typeConfig.getSchemaType());
         }
+        if (setSchemaResultProto.getDeletedSchemaTypesCount() > 0
+                || (setSchemaResultProto.getIncompatibleSchemaTypesCount() > 0 && forceOverride)) {
+            // Any existing schemas which is not in origSchema will be deleted, and all documents of
+            // these types were also deleted. And so well if we force override incompatible schemas.
+            checkForOptimize(/* force= */true);
+        }
     }
 
     /**
      * Adds a document to the AppSearch index.
+     *
+     * <p>This method should be called in mutate thread.
      *
      * @param databaseName The databaseName this document resides in.
      * @param document     The document to index.
@@ -200,10 +237,15 @@ public final class AppSearchImpl {
         checkSuccess(putResultProto.getStatus());
 
         addToSharedSet(databaseName, NAMESPACE_SET_NAME, document.getNamespace());
+        // The existing documents with same URI will be deleted, so there maybe some resources
+        // could be released after optimize().
+        checkForOptimize(/* force= */false);
     }
 
     /**
      * Retrieves a document from the AppSearch index by URI.
+     *
+     * <p>This method should be called in query thread.
      *
      * @param databaseName The databaseName this document resides in.
      * @param namespace    The namespace this document resides in.
@@ -227,6 +269,8 @@ public final class AppSearchImpl {
 
     /**
      * Executes a query against the AppSearch index and returns results.
+     *
+     * <p>This method should be called in query thread.
      *
      * @param databaseName The databaseName this query for.
      * @param searchSpec   Defines what and how to search
@@ -303,6 +347,8 @@ public final class AppSearchImpl {
     /**
      * Removes the given document by URI.
      *
+     * <p>This method should be called in mutate thread.
+     *
      * @param databaseName The databaseName the document is in.
      * @param namespace    Namespace of the document to remove.
      * @param uri          URI of the document to remove.
@@ -315,10 +361,13 @@ public final class AppSearchImpl {
         String qualifiedNamespace = getDatabasePrefix(databaseName) + namespace;
         DeleteResultProto deleteResultProto = mIcingSearchEngine.delete(qualifiedNamespace, uri);
         checkSuccess(deleteResultProto.getStatus());
+        checkForOptimize(/* force= */false);
     }
 
     /**
      * Removes all documents having the given {@code schemaType} in given database.
+     *
+     * <p>This method should be called in mutate thread.
      *
      * @param databaseName The databaseName that contains documents of schemaType.
      * @param schemaType   The schemaType of documents to remove.
@@ -332,10 +381,13 @@ public final class AppSearchImpl {
         DeleteBySchemaTypeResultProto deleteBySchemaTypeResultProto =
                 mIcingSearchEngine.deleteBySchemaType(qualifiedType);
         checkSuccess(deleteBySchemaTypeResultProto.getStatus());
+        checkForOptimize(/* force= */true);
     }
 
     /**
      * Removes all documents having the given {@code namespace} in given database.
+     *
+     * <p>This method should be called in mutate thread.
      *
      * @param databaseName The databaseName that contains documents of namespace.
      * @param namespace    The namespace of documents to remove.
@@ -349,10 +401,13 @@ public final class AppSearchImpl {
         DeleteByNamespaceResultProto deleteByNamespaceResultProto =
                 mIcingSearchEngine.deleteByNamespace(qualifiedNamespace);
         checkSuccess(deleteByNamespaceResultProto.getStatus());
+        checkForOptimize(/* force= */true);
     }
 
     /**
      * Removes all documents in given database.
+     *
+     * <p>This method should be called in mutate thread.
      *
      * @param databaseName The databaseName to remove all documents from.
      * @throws AppSearchException on IcingSearchEngine error.
@@ -366,10 +421,13 @@ public final class AppSearchImpl {
                             getDatabasePrefix(databaseName) + namespace);
             checkSuccess(deleteByNamespaceResultProto.getStatus());
         }
+        checkForOptimize(/* force= */true);
     }
 
     /**
      * Clears documents and schema across all databaseNames.
+     *
+     * <p>This method should be called in mutate thread.
      *
      * @throws AppSearchException on IcingSearchEngine error.
      */
@@ -378,6 +436,7 @@ public final class AppSearchImpl {
         // Clear data from IcingSearchEngine.
         ResetResultProto resetResultProto = mIcingSearchEngine.reset();
         checkSuccess(resetResultProto.getStatus());
+        mOptimizeIntervalCount = 0;
 
         // Clear data from SharedPreferences.
         mSharedPreferences.edit().clear().commit();
@@ -546,6 +605,43 @@ public final class AppSearchImpl {
         }
 
         throw statusProtoToAppSearchException(statusProto);
+    }
+
+    /**
+     * Checks whether {@link IcingSearchEngine#optimize()} should be called to release resources.
+     *
+     * <p>This method should be only called in mutate thread to keep thread safety.
+     * <p>{@link IcingSearchEngine#optimize()} should be called only if
+     * {@link GetOptimizeInfoResultProto} shows there is enough resources could be released.
+     * <p>{@link IcingSearchEngine#getOptimizeInfo()} should be called once per
+     * {@link #CHECK_OPTIMIZE_INTERVAL} of remove executions.
+     *
+     * @param force whether we should directly call {@link IcingSearchEngine#getOptimizeInfo()}
+     */
+    private void checkForOptimize(boolean force) throws AppSearchException {
+        ++mOptimizeIntervalCount;
+        if (force || mOptimizeIntervalCount >= CHECK_OPTIMIZE_INTERVAL) {
+            mOptimizeIntervalCount = 0;
+            GetOptimizeInfoResultProto optimizeInfo = getOptimizeInfoResult();
+            checkSuccess(optimizeInfo.getStatus());
+            // Second threshold, decide when to call optimize().
+            if (optimizeInfo.getOptimizableDocs() >= OPTIMIZE_THRESHOLD_DOC_COUNT
+                    || optimizeInfo.getEstimatedOptimizableBytes() >= OPTIMIZE_THRESHOLD_BYTES) {
+
+                // TODO(b/155939114): call optimize in the same thread will slow down api calls
+                //  significantly. Move this call to background.
+                OptimizeResultProto optimizeResultProto = mIcingSearchEngine.optimize();
+                checkSuccess(optimizeResultProto.getStatus());
+            }
+            // TODO(b/147699081): Return OptimizeResultProto & log lost data detail once we add a
+            //  field to indicate lost_schema and lost_documents in OptimizeResultProto.
+            //  go/icing-library-apis.
+        }
+    }
+
+    @VisibleForTesting
+    GetOptimizeInfoResultProto getOptimizeInfoResult() {
+        return mIcingSearchEngine.getOptimizeInfo();
     }
 
     /**
