@@ -66,7 +66,7 @@ class TextFieldCursorTest {
                 textStyle = TextStyle(color = Color.White, background = Color.White),
                 modifier = Modifier.preferredSize(width, height).drawBackground(Color.White),
                 cursorColor = Color.Red,
-                onFocusChange = { focused ->
+                onFocusChanged = { focused ->
                     if (focused) latch.countDown()
                 }
             )
@@ -101,7 +101,7 @@ class TextFieldCursorTest {
                     textStyle = TextStyle(color = Color.White, background = Color.White),
                     modifier = Modifier.preferredSize(width, height).drawBackground(Color.White),
                     cursorColor = Color.Red,
-                    onFocusChange = { focused ->
+                    onFocusChanged = { focused ->
                         if (focused) latch.countDown()
                     }
                 )

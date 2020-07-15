@@ -51,7 +51,7 @@ class TextFieldFocusTest {
                 onValueChange = {
                     editor.value = it
                 },
-                onFocusChange = {
+                onFocusChanged = {
                     data.focused = it
                 }
             )
