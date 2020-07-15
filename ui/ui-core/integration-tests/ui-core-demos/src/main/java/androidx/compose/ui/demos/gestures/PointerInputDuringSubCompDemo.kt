@@ -71,15 +71,15 @@ fun PointerInputDuringSubComp() {
             val pointerCount = state { 0 }
 
             Box(
-                Modifier.size(200.dp)
+                Modifier.fillParentMaxSize()
                     .drawBorder(size = 1.dp, color = Color.Black)
-                    .pointerCounterGestureFilter { newCount -> pointerCount.value = newCount }
+                    .pointerCounterGestureFilter { newCount -> pointerCount.value = newCount },
+                gravity = Alignment.Center
             ) {
                 Text(
                     "${pointerCount.value}",
                     fontSize = TextUnit.Em(16),
-                    color = Color.Black,
-                    modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)
+                    color = Color.Black
                 )
             }
         }

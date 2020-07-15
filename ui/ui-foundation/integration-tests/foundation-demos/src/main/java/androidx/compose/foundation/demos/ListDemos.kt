@@ -28,12 +28,14 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentColorAmbient
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Text
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.currentTextStyle
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -50,7 +52,8 @@ val LazyListDemos = listOf(
     ComposableDemo("Simple column") { LazyColumnDemo() },
     ComposableDemo("Add/remove items") { ListAddRemoveItemsDemo() },
     ComposableDemo("Horizontal list") { LazyRowItemsDemo() },
-    ComposableDemo("List with indexes") { ListWithIndexSample() }
+    ComposableDemo("List with indexes") { ListWithIndexSample() },
+    ComposableDemo("Pager-like list") { PagerLikeDemo() }
 )
 
 @Composable
@@ -135,6 +138,14 @@ private fun ListWithIndexSample() {
         LazyColumnForIndexed(friends, Modifier.fillMaxWidth()) { index, friend ->
             Text("$friend at index $index", Modifier.padding(16.dp))
         }
+    }
+}
+
+@Composable
+private fun PagerLikeDemo() {
+    val pages = listOf(Color.LightGray, Color.White, Color.DarkGray)
+    LazyRowFor(pages) {
+        Spacer(Modifier.fillParentMaxSize().background(it))
     }
 }
 
