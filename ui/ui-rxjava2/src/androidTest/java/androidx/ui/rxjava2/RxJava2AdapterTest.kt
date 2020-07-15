@@ -64,7 +64,7 @@ class RxJava2AdapterTest(private val factory: () -> Stream) {
         val stream = factory()
         var realValue: String? = "to-be-updated"
         rule.setContent {
-            realValue = stream.subscribeAsState().value
+            realValue = stream.subscribeAsState(null).value
         }
 
         assertThat(realValue).isNull()
@@ -76,7 +76,7 @@ class RxJava2AdapterTest(private val factory: () -> Stream) {
         stream.onNext("value")
         var realValue: String? = null
         rule.setContent {
-            realValue = stream.subscribeAsState().value
+            realValue = stream.subscribeAsState(null).value
         }
 
         assertThat(realValue).isEqualTo("value")
@@ -88,7 +88,7 @@ class RxJava2AdapterTest(private val factory: () -> Stream) {
 
         var realValue: String? = null
         rule.setContent {
-            realValue = stream.subscribeAsState().value
+            realValue = stream.subscribeAsState(null).value
         }
 
         runOnIdle {
@@ -108,7 +108,7 @@ class RxJava2AdapterTest(private val factory: () -> Stream) {
         stream.onNext("value")
         var realValue: String? = null
         rule.setContent {
-            realValue = stream.subscribeAsState().value
+            realValue = stream.subscribeAsState(null).value
         }
 
         runOnIdle {
@@ -127,7 +127,7 @@ class RxJava2AdapterTest(private val factory: () -> Stream) {
         var realValue: String? = "to-be-updated"
         rule.setContent {
             if (emit) {
-                realValue = stream.subscribeAsState().value
+                realValue = stream.subscribeAsState(null).value
             }
         }
 
@@ -145,7 +145,7 @@ class RxJava2AdapterTest(private val factory: () -> Stream) {
     @Test
     fun testObservableWithInitialValue() {
         val stream = factory()
-        var realValue = "to-be-updated"
+        var realValue: String? = "to-be-updated"
         rule.setContent {
             realValue = stream.subscribeAsState("value").value
         }
@@ -160,7 +160,7 @@ class RxJava2AdapterTest(private val factory: () -> Stream) {
 
         var realValue: String? = null
         rule.setContent {
-            realValue = stream.subscribeAsState().value
+            realValue = stream.subscribeAsState(null).value
             if (realValue != null) {
                 latch.countDown()
             }
@@ -182,10 +182,7 @@ interface Stream {
     fun onNext(value: String)
 
     @Composable
-    fun subscribeAsState(): State<String?>
-
-    @Composable
-    fun subscribeAsState(initial: String): State<String>
+    fun subscribeAsState(initial: String?): State<String?>
 
     fun supportMultipleValues(): Boolean
 }
@@ -199,10 +196,7 @@ private class ObservableStream : () -> Stream {
             override fun onNext(value: String) = subject.onNext(value)
 
             @Composable
-            override fun subscribeAsState(): State<String?> = subject.subscribeAsState()
-
-            @Composable
-            override fun subscribeAsState(initial: String) = subject.subscribeAsState(initial)
+            override fun subscribeAsState(initial: String?) = subject.subscribeAsState(initial)
 
             override fun supportMultipleValues(): Boolean = true
         }
@@ -220,10 +214,7 @@ private class FlowableStream : () -> Stream {
             override fun onNext(value: String) = subject.onNext(value)
 
             @Composable
-            override fun subscribeAsState(): State<String?> = flowable.subscribeAsState()
-
-            @Composable
-            override fun subscribeAsState(initial: String) = flowable.subscribeAsState(initial)
+            override fun subscribeAsState(initial: String?) = flowable.subscribeAsState(initial)
 
             override fun supportMultipleValues(): Boolean = true
         }
@@ -261,10 +252,7 @@ private class SingleStream : () -> Stream {
             }
 
             @Composable
-            override fun subscribeAsState(): State<String?> = single.subscribeAsState()
-
-            @Composable
-            override fun subscribeAsState(initial: String) = single.subscribeAsState(initial)
+            override fun subscribeAsState(initial: String?) = single.subscribeAsState(initial)
 
             override fun supportMultipleValues(): Boolean = false
         }
@@ -302,10 +290,7 @@ private class MaybeStream : () -> Stream {
             }
 
             @Composable
-            override fun subscribeAsState(): State<String?> = maybe.subscribeAsState()
-
-            @Composable
-            override fun subscribeAsState(initial: String) = maybe.subscribeAsState(initial)
+            override fun subscribeAsState(initial: String?) = maybe.subscribeAsState(initial)
 
             override fun supportMultipleValues(): Boolean = false
         }
