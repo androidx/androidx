@@ -284,9 +284,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
             }
 
             updateDynamicRouteDescriptors(/*shouldNotify=*/true);
-            if (DEBUG) {
-                Log.d(TAG, mRouteId + ": Controller created.");
-            }
+            Log.d(TAG, mRouteId + ": Controller created.");
         }
 
         //////////////////////////////////////////////
@@ -483,8 +481,9 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         void addAndSyncMemberController(String routeId, SampleRouteController newController) {
             SampleRouteController previousRoutingController = null;
             for (WeakReference<SampleRouteController> controllerRef : mControllerMap.values()) {
-                previousRoutingController = controllerRef.get();
-                if (previousRoutingController != null) {
+                SampleRouteController controller = controllerRef.get();
+                if (controller != null && !controller.isReleased()) {
+                    previousRoutingController = controller;
                     break;
                 }
             }
@@ -500,7 +499,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
             for (Iterator<WeakReference<SampleRouteController>> it =
                     mControllerMap.values().iterator(); it.hasNext(); ) {
                 SampleRouteController controller = it.next().get();
-                if (controller == null) {
+                if (controller == null || !controller.isReleased()) {
                     it.remove();
                 } else {
                     controllers.add(controller);
@@ -528,11 +527,11 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                     continue;
                 }
                 boolean isGroupable = true;
-                boolean isTransferrable = true;
+                boolean isTransferable = true;
 
                 if (mRouteId.equals(routeId)) {
                     isGroupable = false;
-                    isTransferrable = false;
+                    isTransferable = false;
                 }
                 // This route is a group and its member routes are already all selected.
                 if (!routeDescriptor.getGroupMemberIds().isEmpty()
@@ -545,15 +544,15 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 }
                 if (mMemberRouteIds.contains(routeId)) {
                     isGroupable = false;
-                    isTransferrable = false;
+                    isTransferable = false;
                 }
 
                 if (isGroupable != dynamicDescriptor.isGroupable()
-                        || isTransferrable != dynamicDescriptor.isTransferable()) {
+                        || isTransferable != dynamicDescriptor.isTransferable()) {
                     DynamicRouteDescriptor.Builder builder =
                             new DynamicRouteDescriptor.Builder(dynamicDescriptor)
                                     .setIsGroupable(isGroupable)
-                                    .setIsTransferable(isTransferrable);
+                                    .setIsTransferable(isTransferable);
 
                     mDynamicRouteDescriptors.put(routeId, builder.build());
                 }
