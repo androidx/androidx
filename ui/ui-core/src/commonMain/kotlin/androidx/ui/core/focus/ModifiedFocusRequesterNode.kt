@@ -32,6 +32,11 @@ internal class ModifiedFocusRequesterNode(
         return findNextFocusWrapper2()
     }
 
+    override fun onModifierChanged() {
+        super.onModifierChanged()
+        modifier.focusRequester.focusRequesterNode = this
+    }
+
     override fun attach() {
         super.attach()
         modifier.focusRequester.focusRequesterNode = this

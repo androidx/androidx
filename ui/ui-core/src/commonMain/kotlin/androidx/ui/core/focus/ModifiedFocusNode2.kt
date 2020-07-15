@@ -273,6 +273,10 @@ internal class ModifiedFocusNode2(
 
     override fun findNextFocusWrapper2() = this
 
+    override fun propagateFocusStateChange(focusState: FocusState2) {
+        // Do nothing. Stop propagating the focus change (since we hit another focus node).
+    }
+
     // TODO(b/152051577): Measure the performance of focusableChildren.
     //  Consider caching the children.
     internal fun focusableChildren(): List<ModifiedFocusNode2> {
