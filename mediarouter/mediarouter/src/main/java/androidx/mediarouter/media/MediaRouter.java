@@ -2866,15 +2866,13 @@ public final class MediaRouter {
                     if (DEBUG) {
                         Log.d(TAG, "Route changed: " + route);
                     }
-                    mCallbackHandler.post(
-                            CallbackHandler.MSG_ROUTE_CHANGED, route);
+                    mCallbackHandler.post(CallbackHandler.MSG_ROUTE_CHANGED, route);
                 }
                 if ((changes & RouteInfo.CHANGE_VOLUME) != 0) {
                     if (DEBUG) {
                         Log.d(TAG, "Route volume changed: " + route);
                     }
-                    mCallbackHandler.post(
-                            CallbackHandler.MSG_ROUTE_VOLUME_CHANGED, route);
+                    mCallbackHandler.post(CallbackHandler.MSG_ROUTE_VOLUME_CHANGED, route);
                 }
                 if ((changes & RouteInfo.CHANGE_PRESENTATION_DISPLAY) != 0) {
                     if (DEBUG) {
@@ -3135,6 +3133,10 @@ public final class MediaRouter {
 
         void notifyTransferAndUnselectSelectedRoute(RouteInfo newRoute,
                 @UnselectReason int unselectReason) {
+            if (mSelectedRoute == null) {
+                return;
+            }
+
             TransferNotifier transferNotifier = new TransferNotifier(this, unselectReason);
             // Save this to handle control intent on the previous newRoute.
             mLastTransferNotifier = transferNotifier;
@@ -3576,7 +3578,7 @@ public final class MediaRouter {
                     case MSG_TYPE_ROUTE: {
                         final RouteInfo route = (what == MSG_ROUTE_ANOTHER_SELECTED)
                                 ? ((Pair<RouteInfo, RouteInfo>) obj).second : (RouteInfo) obj;
-                        if (!record.filterRouteEvent(route)) {
+                        if (route == null || !record.filterRouteEvent(route)) {
                             break;
                         }
                         switch (what) {
