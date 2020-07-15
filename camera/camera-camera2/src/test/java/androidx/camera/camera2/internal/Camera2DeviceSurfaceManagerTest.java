@@ -31,9 +31,7 @@ import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.os.Build;
-import android.util.Rational;
 import android.util.Size;
-import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.camera.core.AspectRatio;
@@ -499,34 +497,6 @@ public final class Camera2DeviceSurfaceManagerTest {
         assertEquals(mMaximumSize, maximumYUVSize);
         Size maximumJPEGSize = mSurfaceManager.getMaxOutputSize(LEGACY_CAMERA_ID, ImageFormat.JPEG);
         assertEquals(mMaximumSize, maximumJPEGSize);
-    }
-
-    @Test
-    public void checkPreviewAspectRatioInLegacyDevice() throws CameraUnavailableException {
-        SupportedSurfaceCombination supportedSurfaceCombination =
-                new SupportedSurfaceCombination(
-                        mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
-
-        Rational targetAspectRatio = new Rational(9, 16);
-        PreviewConfig previewConfig = new Preview.Builder()
-                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-                .getUseCaseConfig();
-
-        Rational resultAspectRatio = mSurfaceManager.getCorrectedAspectRatio(LEGACY_CAMERA_ID,
-                previewConfig.getTargetRotation(Surface.ROTATION_0));
-
-        Size maxJpegSize = supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG);
-        Rational maxJpegAspectRatio = new Rational(maxJpegSize.getHeight(), maxJpegSize.getWidth());
-
-        if (Build.VERSION.SDK_INT == 21) {
-            // Checks targetAspectRatio and maxJpegAspectRatio, which is the ratio of maximum size
-            // in the mSupportedSizes, are not equal to make sure this test case is valid.
-            assertFalse(targetAspectRatio.equals(maxJpegAspectRatio));
-            assertTrue(resultAspectRatio.equals(maxJpegAspectRatio));
-        } else {
-            // Checks no correction is needed.
-            assertThat(resultAspectRatio).isNull();
-        }
     }
 
     private void setupCamera() {

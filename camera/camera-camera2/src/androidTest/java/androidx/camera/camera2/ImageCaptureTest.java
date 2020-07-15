@@ -201,6 +201,7 @@ public final class ImageCaptureTest {
         // Using for-loop to check both front and back device cameras can support the guaranteed
         // 640x480 size.
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
+        assumeTrue(!CameraUtil.requiresCorrectedAspectRatio(CameraSelector.LENS_FACING_FRONT));
 
         // Checks camera device sensor degrees to set correct target rotation value to make sure
         // the exactly matching result size 640x480 can be selected if the device supports it.
@@ -233,6 +234,7 @@ public final class ImageCaptureTest {
         // Using for-loop to check both front and back device cameras can support the guaranteed
         // 640x480 size.
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+        assumeTrue(!CameraUtil.requiresCorrectedAspectRatio(CameraSelector.LENS_FACING_BACK));
 
         // Checks camera device sensor degrees to set correct target rotation value to make sure
         // the exactly matching result size 640x480 can be selected if the device supports it.
@@ -947,6 +949,55 @@ public final class ImageCaptureTest {
                     imageProperties.exif.getRotation());
         }
         assertThat(resultCroppingRatio).isEqualTo(expectedCroppingRatio);
+    }
+
+    @Test
+    public void capturedImageHasCorrectCroppingSize_setCropAspectRatioAfterBindToLifecycle()
+            throws ExecutionException, InterruptedException {
+        ImageCapture useCase = new ImageCapture.Builder().build();
+
+        CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+
+        ResolvableFuture<ImageProperties> imagePropertiesFuture = ResolvableFuture.create();
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imagePropertiesFuture);
+
+        // Checks camera device sensor degrees to set target cropping aspect ratio match the
+        // sensor orientation.
+        Integer sensorOrientation = CameraUtil.getSensorOrientation(BACK_LENS_FACING);
+        boolean isRotateNeeded = (sensorOrientation % 180) != 0;
+        // Set the default aspect ratio of ImageCapture to the target cropping aspect ratio.
+        Rational targetCroppingAspectRatio =
+                isRotateNeeded ? new Rational(3, 4) : new Rational(4, 3);
+        useCase.setCropAspectRatio(targetCroppingAspectRatio);
+        useCase.takePicture(mMainExecutor, callback);
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
+
+        // After target rotation is updated, the result cropping aspect ratio should still the
+        // same as original one.
+        ImageProperties imageProperties = imagePropertiesFuture.get();
+        Rect cropRect = imageProperties.cropRect;
+        Rational resultCroppingRatio;
+
+        // Rotate the captured ImageProxy's crop rect into the coordinate space of the final
+        // displayed image
+        if ((imageProperties.rotationDegrees % 180) != 0) {
+            resultCroppingRatio = new Rational(cropRect.height(), cropRect.width());
+        } else {
+            resultCroppingRatio = new Rational(cropRect.width(), cropRect.height());
+        }
+
+        if (imageProperties.format == ImageFormat.JPEG) {
+            assertThat(imageProperties.rotationDegrees).isEqualTo(
+                    imageProperties.exif.getRotation());
+        }
+        // Compare aspect ratio with a threshold due to floating point rounding. Can't do direct
+        // comparison of height and width, because the target aspect ratio of ImageCapture will
+        // be corrected in API 21 Legacy devices and the captured image will be scaled to fit
+        // within the cropping aspect ratio.
+        double aspectRatioThreshold = 0.01;
+        assertThat(Math.abs(resultCroppingRatio.doubleValue()
+                - targetCroppingAspectRatio.doubleValue())).isLessThan(aspectRatioThreshold);
     }
 
     private static final class ImageProperties {

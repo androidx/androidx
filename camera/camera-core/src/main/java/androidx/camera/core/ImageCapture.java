@@ -258,7 +258,7 @@ public final class ImageCapture extends UseCase {
 
     /** Callback used to match the {@link ImageProxy} with the {@link ImageInfo}. */
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
-    private ImageCaptureConfig mConfig;
+    private ImageCaptureConfig mUserSettingConfig;
     private DeferrableSurface mDeferrableSurface;
     private ImageCaptureRequestProcessor mImageCaptureRequestProcessor;
 
@@ -291,19 +291,20 @@ public final class ImageCapture extends UseCase {
     ImageCapture(@NonNull ImageCaptureConfig userConfig) {
         super(userConfig);
         // Ensure we're using the combined configuration (user config + defaults)
-        mConfig = (ImageCaptureConfig) getUseCaseConfig();
-        mCaptureMode = mConfig.getCaptureMode();
-        mFlashMode = mConfig.getFlashMode();
+        mUserSettingConfig = (ImageCaptureConfig) getUseCaseConfig();
+        mCaptureMode = mUserSettingConfig.getCaptureMode();
+        mFlashMode = mUserSettingConfig.getFlashMode();
 
-        mCaptureProcessor = mConfig.getCaptureProcessor(null);
-        mMaxCaptureStages = mConfig.getMaxCaptureStages(MAX_IMAGES);
+        mCaptureProcessor = mUserSettingConfig.getCaptureProcessor(null);
+        mMaxCaptureStages = mUserSettingConfig.getMaxCaptureStages(MAX_IMAGES);
         Preconditions.checkArgument(mMaxCaptureStages >= 1,
                 "Maximum outstanding image count must be at least 1");
 
-        mCaptureBundle = mConfig.getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle());
+        mCaptureBundle = mUserSettingConfig.getCaptureBundle(
+                CaptureBundles.singleDefaultCaptureBundle());
 
-        mIoExecutor =
-                Preconditions.checkNotNull(mConfig.getIoExecutor(CameraXExecutors.ioExecutor()));
+        mIoExecutor = Preconditions.checkNotNull(
+                mUserSettingConfig.getIoExecutor(CameraXExecutors.ioExecutor()));
 
         if (mCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
             mEnableCheck3AConverged = true; // check 3A convergence in MAX_QUALITY mode
@@ -311,7 +312,7 @@ public final class ImageCapture extends UseCase {
             mEnableCheck3AConverged = false; // skip 3A convergence in MIN_LATENCY mode
         }
 
-        CaptureConfig.Builder captureBuilder = CaptureConfig.Builder.createFrom(mConfig);
+        CaptureConfig.Builder captureBuilder = CaptureConfig.Builder.createFrom(mUserSettingConfig);
         mCaptureConfig = captureBuilder.build();
     }
 
@@ -500,11 +501,11 @@ public final class ImageCapture extends UseCase {
     public void setCropAspectRatio(@NonNull Rational aspectRatio) {
         ImageCaptureConfig oldConfig = (ImageCaptureConfig) getUseCaseConfig();
         Builder builder = Builder.fromConfig(oldConfig);
-        Rational oldRatio = oldConfig.getTargetAspectRatioCustom(null);
+        Rational oldRatio = mUserSettingConfig.getTargetAspectRatioCustom(null);
         if (!aspectRatio.equals(oldRatio)) {
             builder.setTargetAspectRatioCustom(aspectRatio);
             updateUseCaseConfig(builder.getUseCaseConfig());
-            mConfig = (ImageCaptureConfig) getUseCaseConfig();
+            mUserSettingConfig = (ImageCaptureConfig) getUseCaseConfig();
 
             // TODO(b/122846516): Reconfigure capture session if the ratio is changed drastically.
         }
@@ -577,7 +578,7 @@ public final class ImageCapture extends UseCase {
         if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
             UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, rotation);
             updateUseCaseConfig(builder.getUseCaseConfig());
-            mConfig = (ImageCaptureConfig) getUseCaseConfig();
+            mUserSettingConfig = (ImageCaptureConfig) getUseCaseConfig();
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
         }
@@ -740,9 +741,9 @@ public final class ImageCapture extends UseCase {
 
         CameraInfoInternal cameraInfoInternal = attachedCamera.getCameraInfoInternal();
         int relativeRotation = cameraInfoInternal.getSensorRotationDegrees(
-                mConfig.getTargetRotation(Surface.ROTATION_0));
+                mUserSettingConfig.getTargetRotation(Surface.ROTATION_0));
 
-        Rational targetRatio = mConfig.getTargetAspectRatioCustom(null);
+        Rational targetRatio = mUserSettingConfig.getTargetAspectRatioCustom(null);
 
         mImageCaptureRequestProcessor.sendRequest(
                 new ImageCaptureRequest(relativeRotation, getJpegQuality(), targetRatio,
@@ -1026,7 +1027,8 @@ public final class ImageCapture extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
-        mSessionConfigBuilder = createPipeline(getCameraId(), mConfig, suggestedResolution);
+        mSessionConfigBuilder = createPipeline(getCameraId(), mUserSettingConfig,
+                suggestedResolution);
 
         updateSessionConfig(mSessionConfigBuilder.build());
 
