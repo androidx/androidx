@@ -34,15 +34,11 @@ internal const val DefaultMaxLines = Int.MAX_VALUE
 interface Paragraph {
     /**
      * The amount of horizontal space this paragraph occupies.
-     *
-     * Should be called after [layout] has been called.
      */
     val width: Float
 
     /**
      * The amount of vertical space this paragraph occupies.
-     *
-     * Should be called after [layout] has been called.
      */
     val height: Float
 
@@ -60,16 +56,12 @@ interface Paragraph {
     /**
      * The distance from the top of the paragraph to the alphabetic
      * baseline of the first line, in logical pixels.
-     *
-     * Should be called after [layout] has been called.
      */
     val firstBaseline: Float
 
     /**
      * The distance from the top of the paragraph to the alphabetic
      * baseline of the last line, in logical pixels.
-     *
-     * Should be called after [layout] has been called.
      */
     val lastBaseline: Float
 
@@ -80,15 +72,11 @@ interface Paragraph {
      * constraint.
      *
      * See the discussion of the `maxLines` and `ellipsis` arguments at [ParagraphStyle].
-     *
-     * Should be called after [layout] has been called.
      */
     val didExceedMaxLines: Boolean
 
     /**
      * The total number of lines in the text.
-     *
-     * Should be called after [layout] has been called.
      */
     val lineCount: Int
 
@@ -228,6 +216,9 @@ interface Paragraph {
 /**
  * Lays out a given [text] with the given constraints. A paragraph is a text that has a single
  * [ParagraphStyle].
+ *
+ * If the [style] does not contain any [androidx.ui.text.style.TextDirection],
+ * [androidx.ui.text.style.TextDirection.Content] is used as the default value.
  *
  * @param text the text to be laid out
  * @param style the [TextStyle] to be applied to the whole text

@@ -114,64 +114,79 @@ class TextDelegateTest {
     }
 
     @Test
-    fun resolveTextDirectionHeuristics_null() {
+    fun resolveTextDirection_null() {
         assertThat(
-            resolveTextDirectionAlgorithm(
+            resolveTextDirection(
                 LayoutDirection.Ltr,
                 null)
         ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
-            resolveTextDirectionAlgorithm(
+            resolveTextDirection(
                 LayoutDirection.Rtl,
                 null)
         ).isEqualTo(TextDirection.Rtl)
     }
 
     @Test
-    fun resolveTextDirectionHeuristics_DefaultLtr() {
+    fun resolveTextDirection_Content() {
         assertThat(
-            resolveTextDirectionAlgorithm(
+            resolveTextDirection(
+                LayoutDirection.Ltr,
+                TextDirection.Content
+            )
+        ).isEqualTo(TextDirection.ContentOrLtr)
+
+        assertThat(
+            resolveTextDirection(LayoutDirection.Rtl,
+                TextDirection.Content
+            )
+        ).isEqualTo(TextDirection.ContentOrRtl)
+    }
+
+    @Test
+    fun resolveTextDirection_ContentOrLtr() {
+        assertThat(
+            resolveTextDirection(
                 LayoutDirection.Ltr,
                 TextDirection.ContentOrLtr
             )
         ).isEqualTo(TextDirection.ContentOrLtr)
 
         assertThat(
-            resolveTextDirectionAlgorithm(LayoutDirection.Rtl,
+            resolveTextDirection(LayoutDirection.Rtl,
                 TextDirection.ContentOrLtr
             )
         ).isEqualTo(TextDirection.ContentOrLtr)
     }
 
     @Test
-    fun resolveTextDirectionHeuristics_DefaultRtl() {
+    fun resolveTextDirection_ContentOrRtl() {
         assertThat(
-            resolveTextDirectionAlgorithm(
+            resolveTextDirection(
                 LayoutDirection.Ltr,
                 TextDirection.ContentOrRtl
             )
         ).isEqualTo(TextDirection.ContentOrRtl)
 
         assertThat(
-            resolveTextDirectionAlgorithm(
-                LayoutDirection.Rtl,
+            resolveTextDirection(LayoutDirection.Rtl,
                 TextDirection.ContentOrRtl
             )
         ).isEqualTo(TextDirection.ContentOrRtl)
     }
 
     @Test
-    fun resolveTextDirectionHeuristics_Ltr() {
+    fun resolveTextDirection_Ltr() {
         assertThat(
-            resolveTextDirectionAlgorithm(
+            resolveTextDirection(
                 LayoutDirection.Ltr,
                 TextDirection.Ltr
             )
         ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
-            resolveTextDirectionAlgorithm(
+            resolveTextDirection(
                 LayoutDirection.Rtl,
                 TextDirection.Ltr
             )
@@ -179,16 +194,16 @@ class TextDelegateTest {
     }
 
     @Test
-    fun resolveTextDirectionHeuristics_Rtl() {
+    fun resolveTextDirection_Rtl() {
         assertThat(
-            resolveTextDirectionAlgorithm(
+            resolveTextDirection(
                 LayoutDirection.Ltr,
                 TextDirection.Rtl
             )
         ).isEqualTo(TextDirection.Rtl)
 
         assertThat(
-            resolveTextDirectionAlgorithm(
+            resolveTextDirection(
                 LayoutDirection.Rtl,
                 TextDirection.Rtl
             )

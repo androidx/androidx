@@ -37,7 +37,10 @@ interface ParagraphIntrinsics {
 }
 
 /**
- * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set
+ *  Factory method to create a [ParagraphIntrinsics].
+ *
+ *  If the [style] does not contain any [androidx.ui.text.style.TextDirection],
+ * [androidx.ui.text.style.TextDirection.Content] is used as the default value.
  *
  * @see ParagraphIntrinsics
  */

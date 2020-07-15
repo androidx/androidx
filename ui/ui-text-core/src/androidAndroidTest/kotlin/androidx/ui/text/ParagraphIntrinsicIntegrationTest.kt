@@ -19,7 +19,6 @@ package androidx.ui.text
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.text.font.asFontFamily
-import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.sp
@@ -207,8 +206,7 @@ class ParagraphIntrinsicIntegrationTest {
             placeholders = listOf(),
             style = TextStyle(
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                textDirection = TextDirection.ContentOrLtr
+                fontSize = fontSize
             ).merge(style),
             density = defaultDensity,
             resourceLoader = TestFontResourceLoader(context)

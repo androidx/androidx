@@ -1003,6 +1003,7 @@ package androidx.ui.text.style {
   public enum TextDirection {
     method public static androidx.ui.text.style.TextDirection valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.ui.text.style.TextDirection[] values();
+    enum_constant public static final androidx.ui.text.style.TextDirection Content;
     enum_constant public static final androidx.ui.text.style.TextDirection ContentOrLtr;
     enum_constant public static final androidx.ui.text.style.TextDirection ContentOrRtl;
     enum_constant public static final androidx.ui.text.style.TextDirection Ltr;
