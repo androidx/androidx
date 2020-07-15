@@ -23,10 +23,12 @@ import androidx.ui.core.LayoutNode.LayoutState.NeedsRemeasure
 import androidx.ui.core.LayoutNode.LayoutState.Ready
 import androidx.ui.core.focus.ExperimentalFocus
 import androidx.ui.core.focus.FocusModifier
+import androidx.ui.core.focus.FocusModifier2
 import androidx.ui.core.focus.FocusModifierImpl
 import androidx.ui.core.focus.FocusObserverModifier
 import androidx.ui.core.focus.FocusRequesterModifier
 import androidx.ui.core.focus.ModifiedFocusNode
+import androidx.ui.core.focus.ModifiedFocusNode2
 import androidx.ui.core.focus.ModifiedFocusObserverNode
 import androidx.ui.core.focus.ModifiedFocusRequesterNode
 import androidx.ui.core.keyinput.KeyInputModifier
@@ -562,6 +564,9 @@ class LayoutNode : Measurable {
                         require(mod is FocusModifierImpl)
                         wrapper = ModifiedFocusNode(wrapper, mod).also { mod.focusNode = it }
                             .assignChained(toWrap)
+                    }
+                    if (mod is FocusModifier2) {
+                        wrapper = ModifiedFocusNode2(wrapper, mod).assignChained(toWrap)
                     }
                     if (mod is FocusObserverModifier) {
                         wrapper = ModifiedFocusObserverNode(wrapper, mod).assignChained(toWrap)
