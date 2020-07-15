@@ -118,19 +118,40 @@ private fun <T, V : AnimationVector> TwoWayConverter<T, V>.convert(data: T?): V?
 /**
  * [RepeatableSpec] takes another [DurationBasedAnimationSpec] and plays it [iterations] times.
  *
+ * __Note__: When repeating in the [RepeatMode.Reverse] mode, it's highly recommended to have an
+ * __odd__ number of iterations, or [AnimationConstants.Infinite] iterations. Otherwise, the
+ * animation may jump to the end value when it finishes the last iteration.
+ *
  * @param iterations the count of iterations. Should be at least 1. [AnimationConstants.Infinite]
  *                   can be used to have an infinity repeating animation.
  * @param animation the [AnimationSpec] to be repeated
+ * @param repeatMode whether animation should repeat by starting from the beginning (i.e.
+ *                  [RepeatMode.Restart]) or from the end (i.e. [RepeatMode.Reverse])
  */
 class RepeatableSpec<T>(
     val iterations: Int,
-    val animation: DurationBasedAnimationSpec<T>
+    val animation: DurationBasedAnimationSpec<T>,
+    val repeatMode: RepeatMode = RepeatMode.Restart
 ) : AnimationSpec<T> {
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
     ): VectorizedAnimationSpec<V> {
-        return VectorizedRepeatableSpec(iterations, animation.vectorize(converter))
+        return VectorizedRepeatableSpec(iterations, animation.vectorize(converter), repeatMode)
     }
+}
+
+/**
+ * Repeat mode for [RepeatableSpec] and [VectorizedRepeatableSpec].
+ */
+enum class RepeatMode {
+    /**
+     * [Restart] will restart the animation and animate from the start value to the end value.
+     */
+    Restart,
+    /**
+     * [Reverse] will reverse the last iteration as the animation repeats.
+     */
+    Reverse
 }
 
 /**

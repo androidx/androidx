@@ -144,14 +144,21 @@ fun <T> keyframes(
  * The iteration count describes the amount of times the animation will run.
  * 1 means no repeat. Use [Infinite] to create an infinity repeating animation.
  *
+ * __Note__: When repeating in the [RepeatMode.Reverse] mode, it's highly recommended to have an
+ * __odd__ number of iterations, or [AnimationConstants.Infinite] iterations. Otherwise, the
+ * animation may jump to the end value when it finishes the last iteration.
+ *
  * @param iterations the total count of iterations, should be greater than 1 to repeat.
  * @param animation animation that will be repeated
+ * @param repeatMode whether animation should repeat by starting from the beginning (i.e.
+ *                  [RepeatMode.Restart]) or from the end (i.e. [RepeatMode.Reverse])
  */
 fun <T> repeatable(
     iterations: Int,
-    animation: DurationBasedAnimationSpec<T>
+    animation: DurationBasedAnimationSpec<T>,
+    repeatMode: RepeatMode = RepeatMode.Restart
 ): AnimationSpec<T> =
-    RepeatableSpec(iterations, animation)
+    RepeatableSpec(iterations, animation, repeatMode)
 
 /**
  * Creates a Snap animation for immediately switching the animating value to the end value.
