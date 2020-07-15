@@ -34,7 +34,7 @@ fun <Original : Any, Saveable : Any> listSaver(
     save = {
         val list = save(it)
         list.forEach { item -> require(canBeSaved(item)) }
-        if (list.isNotEmpty()) list else null
+        if (list.isNotEmpty()) ArrayList(list) else null
     },
     restore = restore as (Any) -> Original?
 )
