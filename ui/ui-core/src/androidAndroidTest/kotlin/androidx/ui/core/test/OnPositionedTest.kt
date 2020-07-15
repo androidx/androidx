@@ -34,6 +34,7 @@ import androidx.ui.core.globalPosition
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInParent
+import androidx.ui.core.positionInRoot
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.PxBounds
@@ -170,7 +171,7 @@ class OnPositionedTest {
                                 minWidth = 10,
                                 minHeight = 10,
                                 modifier = Modifier.onPositioned { coordinates ->
-                                    childGlobalPosition = coordinates.globalPosition
+                                    childGlobalPosition = coordinates.positionInRoot
                                     latch.countDown()
                                 }
                             )

@@ -183,9 +183,10 @@ class OnPositionedTest : LayoutTest() {
     fun globalCoordinatesAreInActivityCoordinates() = with(density) {
         val padding = 30
         val localPosition = Offset.Zero
-        val globalPosition = Offset(padding.toFloat(), padding.toFloat())
+        val framePadding = Offset(padding.toFloat(), padding.toFloat())
         var realGlobalPosition: Offset? = null
         var realLocalPosition: Offset? = null
+        var frameGlobalPosition: Offset? = null
 
         val positionedLatch = CountDownLatch(1)
         activityTestRule.runOnUiThread(object : Runnable {
@@ -194,11 +195,16 @@ class OnPositionedTest : LayoutTest() {
                 frameLayout.setPadding(padding, padding, padding, padding)
                 activity.setContentView(frameLayout)
 
+                val position = IntArray(2)
+                frameLayout.getLocationOnScreen(position)
+                frameGlobalPosition = Offset(position[0].toFloat(), position[1].toFloat())
+
                 frameLayout.setContent(Recomposer.current()) {
                     Container(
                         Modifier.onPositioned {
                             realGlobalPosition = it.localToGlobal(localPosition)
-                            realLocalPosition = it.globalToLocal(globalPosition)
+                            realLocalPosition = it.globalToLocal(framePadding +
+                                    frameGlobalPosition!!)
                             positionedLatch.countDown()
                         },
                         expanded = true,
@@ -209,7 +215,7 @@ class OnPositionedTest : LayoutTest() {
         })
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
-        assertThat(realGlobalPosition).isEqualTo(globalPosition)
+        assertThat(realGlobalPosition).isEqualTo(frameGlobalPosition!! + framePadding)
         assertThat(realLocalPosition).isEqualTo(localPosition)
     }
 
