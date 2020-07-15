@@ -132,8 +132,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
 
         @Override
         public void onRouteSelected(@NonNull MediaRouter router,
-                @NonNull RouteInfo requestedRoute, @NonNull RouteInfo selectedRoute,
-                int reason) {
+                @NonNull RouteInfo selectedRoute, int reason, @NonNull RouteInfo requestedRoute) {
             Log.d(TAG, "onRouteSelected: requestedRoute=" + requestedRoute
                     + ", route=" + selectedRoute + ", reason=" + reason);
 

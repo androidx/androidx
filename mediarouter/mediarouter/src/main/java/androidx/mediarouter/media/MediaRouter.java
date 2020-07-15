@@ -2066,13 +2066,13 @@ public final class MediaRouter {
          * with the actually selected route.
          *
          * @param router The media router reporting the event.
-         * @param requestedRoute The route that was requested to be selected.
          * @param selectedRoute The route that has been selected.
          * @param reason The reason for unselecting the previous route.
+         * @param requestedRoute The route that was requested to be selected.
          */
         public void onRouteSelected(@NonNull MediaRouter router,
-                @NonNull RouteInfo requestedRoute, @NonNull RouteInfo selectedRoute,
-                @UnselectReason int reason) {
+                @NonNull RouteInfo selectedRoute, @UnselectReason int reason,
+                @NonNull RouteInfo requestedRoute) {
             onRouteSelected(router, selectedRoute, reason);
         }
 
@@ -3596,14 +3596,14 @@ public final class MediaRouter {
                                 callback.onRoutePresentationDisplayChanged(router, route);
                                 break;
                             case MSG_ROUTE_SELECTED:
-                                callback.onRouteSelected(router, route, route, arg);
+                                callback.onRouteSelected(router, route, arg, route);
                                 break;
                             case MSG_ROUTE_UNSELECTED:
                                 callback.onRouteUnselected(router, route, arg);
                                 break;
                             case MSG_ROUTE_ANOTHER_SELECTED:
-                                callback.onRouteSelected(router,
-                                        ((Pair<RouteInfo, RouteInfo>) obj).first, route, arg);
+                                callback.onRouteSelected(router, route, arg,
+                                        ((Pair<RouteInfo, RouteInfo>) obj).first);
                                 break;
                         }
                         break;
