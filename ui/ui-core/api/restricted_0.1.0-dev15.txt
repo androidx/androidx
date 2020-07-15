@@ -968,21 +968,21 @@ package androidx.ui.core.focus {
   @kotlin.RequiresOptIn(message="The Focus API is experimental and is likely to change in the future.") public @interface ExperimentalFocus {
   }
 
-  public enum FocusDetailedState {
-    method public static androidx.ui.core.focus.FocusDetailedState valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.ui.core.focus.FocusDetailedState[] values();
-    enum_constant public static final androidx.ui.core.focus.FocusDetailedState Active;
-    enum_constant public static final androidx.ui.core.focus.FocusDetailedState ActiveParent;
-    enum_constant public static final androidx.ui.core.focus.FocusDetailedState Captured;
-    enum_constant public static final androidx.ui.core.focus.FocusDetailedState Disabled;
-    enum_constant public static final androidx.ui.core.focus.FocusDetailedState Inactive;
+  @Deprecated public enum FocusDetailedState {
+    method @Deprecated public static androidx.ui.core.focus.FocusDetailedState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method @Deprecated public static androidx.ui.core.focus.FocusDetailedState[] values();
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusDetailedState Active;
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusDetailedState ActiveParent;
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusDetailedState Captured;
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusDetailedState Disabled;
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusDetailedState Inactive;
   }
 
-  public interface FocusModifier extends androidx.ui.core.Modifier.Element {
-    method public boolean captureFocus();
-    method public boolean freeFocus();
-    method public androidx.ui.core.focus.FocusDetailedState getFocusDetailedState();
-    method public void requestFocus();
+  @Deprecated public interface FocusModifier extends androidx.ui.core.Modifier.Element {
+    method @Deprecated public boolean captureFocus();
+    method @Deprecated public boolean freeFocus();
+    method @Deprecated public androidx.ui.core.focus.FocusDetailedState getFocusDetailedState();
+    method @Deprecated public void requestFocus();
     property public abstract androidx.ui.core.focus.FocusDetailedState focusDetailedState;
   }
 
@@ -991,8 +991,8 @@ package androidx.ui.core.focus {
   }
 
   public final class FocusModifierKt {
-    method @androidx.compose.Composable public static androidx.ui.core.focus.FocusModifier FocusModifier();
-    method public static androidx.ui.core.focus.FocusState getFocusState(androidx.ui.core.focus.FocusModifier);
+    method @Deprecated @androidx.compose.Composable public static androidx.ui.core.focus.FocusModifier FocusModifier();
+    method @Deprecated public static androidx.ui.core.focus.FocusState getFocusState(androidx.ui.core.focus.FocusModifier);
   }
 
   public final class FocusNodeUtilsKt {
@@ -1026,12 +1026,12 @@ package androidx.ui.core.focus {
     method @androidx.ui.core.focus.ExperimentalFocus public static androidx.ui.core.Modifier focusRequester(androidx.ui.core.Modifier, androidx.ui.core.focus.FocusRequester focusRequester);
   }
 
-  public enum FocusState {
-    method public static androidx.ui.core.focus.FocusState valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.ui.core.focus.FocusState[] values();
-    enum_constant public static final androidx.ui.core.focus.FocusState Focused;
-    enum_constant public static final androidx.ui.core.focus.FocusState NotFocusable;
-    enum_constant public static final androidx.ui.core.focus.FocusState NotFocused;
+  @Deprecated public enum FocusState {
+    method @Deprecated public static androidx.ui.core.focus.FocusState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method @Deprecated public static androidx.ui.core.focus.FocusState[] values();
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusState Focused;
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusState NotFocusable;
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusState NotFocused;
   }
 
   @androidx.ui.core.focus.ExperimentalFocus public enum FocusState2 {
@@ -1045,7 +1045,7 @@ package androidx.ui.core.focus {
   }
 
   public final class FocusStateKt {
-    method public static androidx.ui.core.focus.FocusState focusState(androidx.ui.core.focus.FocusDetailedState);
+    method @Deprecated public static androidx.ui.core.focus.FocusState focusState(androidx.ui.core.focus.FocusDetailedState);
     method public static boolean isFocused(androidx.ui.core.focus.FocusState2);
   }
 

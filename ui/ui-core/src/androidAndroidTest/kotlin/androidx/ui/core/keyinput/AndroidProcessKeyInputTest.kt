@@ -41,6 +41,7 @@ import android.view.KeyEvent as AndroidKeyEvent
  * This test verifies that an Android key event triggers a Compose key event. More detailed test
  * cases are present at [ProcessKeyInputTest].
  */
+@Suppress("DEPRECATION")
 @SmallTest
 @RunWith(Parameterized::class)
 @OptIn(ExperimentalKeyInput::class)
@@ -62,6 +63,7 @@ class AndroidProcessKeyInputTest(val keyEventAction: Int) {
         lateinit var receivedKeyEvent: KeyEvent2
         composeTestRule.setFocusableContent {
             ownerView = ViewAmbient.current
+            // TODO(b/161296854): Replace FocusModifier with Modifier.focus.
             focusModifier = FocusModifier()
             Box(
                 modifier = focusModifier.keyInputFilter {

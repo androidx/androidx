@@ -30,7 +30,11 @@ import androidx.ui.unit.sp
 
 @Composable
 fun TextFieldFocusTransition() {
-    val focusModifiers = List(6) { FocusModifier() }
+    val focusModifiers = List(6) {
+        // TODO(b/161297615): Replace FocusModifier with Modifier.focus()
+        @Suppress("DEPRECATION")
+        FocusModifier()
+    }
 
     ScrollableColumn {
         TextFieldWithFocusId(focusModifiers[0], focusModifiers[1])
@@ -42,6 +46,8 @@ fun TextFieldFocusTransition() {
     }
 }
 
+// TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
+@Suppress("DEPRECATION")
 @Composable
 private fun TextFieldWithFocusId(focusModifier: FocusModifier, nextFocusModifier: FocusModifier) {
     val state = savedInstanceState(saver = TextFieldValue.Saver) {

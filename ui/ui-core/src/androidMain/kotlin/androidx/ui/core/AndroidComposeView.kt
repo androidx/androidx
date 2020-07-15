@@ -16,6 +16,9 @@
 
 @file:OptIn(ExperimentalComposeApi::class)
 
+// TODO(b/160821157): Replace FocusDetailedState with FocusState2
+@file:Suppress("DEPRECATION")
+
 package androidx.ui.core
 
 import android.annotation.SuppressLint
@@ -127,6 +130,9 @@ internal class AndroidComposeView constructor(
         mergeAllDescendants = false,
         properties = {}
     )
+
+    // TODO(b/160821157): Replace FocusDetailedState with FocusState2.
+    @Suppress("DEPRECATION")
     private val focusModifier = FocusModifierImpl(Inactive)
     private val keyInputModifier = KeyInputModifier(null, null)
 
@@ -165,6 +171,8 @@ internal class AndroidComposeView constructor(
     // Used as an ambient for performing autofill.
     override val autofill: Autofill? get() = _autofill
 
+    // TODO(b/160821157): Replace FocusDetailedState with FocusState2.
+    @Suppress("DEPRECATION")
     override fun onFocusChanged(gainFocus: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
         Log.d(FOCUS_TAG, "Owner FocusChanged($gainFocus)")

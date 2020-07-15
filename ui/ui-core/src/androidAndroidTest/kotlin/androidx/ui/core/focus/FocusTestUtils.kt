@@ -23,8 +23,11 @@ import androidx.ui.layout.size
 import androidx.ui.test.ComposeTestRule
 import androidx.ui.unit.dp
 
-internal val FocusModifier.focusNode get() = (this as FocusModifierImpl).focusNode!!
+@Suppress("DEPRECATION")
+internal val FocusModifier.focusNode
+    get() = (this as FocusModifierImpl).focusNode!!
 
+@Suppress("DEPRECATION")
 internal var FocusModifier.focusedChild
     get() = (this as FocusModifierImpl).focusedChild
     set(value) {
