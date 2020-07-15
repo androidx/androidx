@@ -37,8 +37,7 @@ internal class FocusModifier2(
     var focusState: FocusState2 = initialFocus
         set(value) {
             field = value
-            // TODO(b/160923326): Propagate focus state change to all observers
-            //  observing this focus modifier.
+            focusNode.wrappedBy?.propagateFocusStateChange(value)
         }
 
     var focusedChild: ModifiedFocusNode2? = null

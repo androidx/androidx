@@ -998,6 +998,15 @@ package androidx.ui.core.focus {
   public final class FocusNodeUtilsKt {
   }
 
+  @androidx.ui.core.focus.ExperimentalFocus public interface FocusObserverModifier extends androidx.ui.core.Modifier.Element {
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.focus.FocusState2,kotlin.Unit> getOnFocusChange();
+    property public abstract kotlin.jvm.functions.Function1<androidx.ui.core.focus.FocusState2,kotlin.Unit> onFocusChange;
+  }
+
+  public final class FocusObserverModifierKt {
+    method @androidx.ui.core.focus.ExperimentalFocus public static androidx.ui.core.Modifier focusObserver(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.focus.FocusState2,kotlin.Unit> onFocusChange);
+  }
+
   @androidx.ui.core.focus.ExperimentalFocus public final class FocusRequester {
     ctor public FocusRequester();
     method public boolean captureFocus();
