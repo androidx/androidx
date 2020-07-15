@@ -2327,12 +2327,16 @@ package androidx.ui.semantics {
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,java.lang.Boolean>>> getScrollBy();
     method @Deprecated public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> getScrollForward();
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Boolean>>> getSetProgress();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function3<java.lang.Integer,java.lang.Integer,java.lang.Boolean,java.lang.Boolean>>> getSetSelection();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.ui.text.AnnotatedString,java.lang.Boolean>>> getSetText();
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.CustomAccessibilityAction>> CustomActions;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> OnClick;
     property @Deprecated public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> ScrollBackward;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,java.lang.Boolean>>> ScrollBy;
     property @Deprecated public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> ScrollForward;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Boolean>>> SetProgress;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function3<java.lang.Integer,java.lang.Integer,java.lang.Boolean,java.lang.Boolean>>> SetSelection;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.ui.text.AnnotatedString,java.lang.Boolean>>> SetText;
     field public static final androidx.ui.semantics.SemanticsActions INSTANCE;
   }
 
@@ -2341,18 +2345,22 @@ package androidx.ui.semantics {
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityRangeInfo> getAccessibilityRangeInfo();
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getAccessibilityValue();
     method public androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getDisabled();
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getFocused();
     method public androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getHidden();
     method public androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getIsPopup();
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getTestTag();
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.AnnotatedString> getText();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.TextRange> getTextSelectionRange();
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityLabel;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityRangeInfo> AccessibilityRangeInfo;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityValue;
     property public final androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> Disabled;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Focused;
     property public final androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> Hidden;
     property public final androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> IsPopup;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> TestTag;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.AnnotatedString> Text;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.TextRange> TextSelectionRange;
     field public static final androidx.ui.semantics.SemanticsProperties INSTANCE;
   }
 
@@ -2362,8 +2370,10 @@ package androidx.ui.semantics {
     method public static String getAccessibilityValue(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.ui.semantics.AccessibilityRangeInfo getAccessibilityValueRange(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static java.util.List<androidx.ui.semantics.CustomAccessibilityAction> getCustomActions(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static boolean getFocused(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static String getTestTag(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.ui.text.AnnotatedString getText(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static androidx.ui.text.TextRange getTextSelectionRange(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static void hidden(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static void onClick(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function0<java.lang.Boolean> action);
     method public static void popup(androidx.ui.semantics.SemanticsPropertyReceiver);
@@ -2374,9 +2384,13 @@ package androidx.ui.semantics {
     method public static void setAccessibilityValue(androidx.ui.semantics.SemanticsPropertyReceiver, String p);
     method public static void setAccessibilityValueRange(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.semantics.AccessibilityRangeInfo p);
     method public static void setCustomActions(androidx.ui.semantics.SemanticsPropertyReceiver, java.util.List<androidx.ui.semantics.CustomAccessibilityAction> p);
+    method public static void setFocused(androidx.ui.semantics.SemanticsPropertyReceiver, boolean p);
     method public static void setProgress(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> action);
+    method public static void setSelection(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Boolean,java.lang.Boolean> action);
     method public static void setTestTag(androidx.ui.semantics.SemanticsPropertyReceiver, String p);
     method public static void setText(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.text.AnnotatedString p);
+    method public static void setText(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString,java.lang.Boolean> action);
+    method public static void setTextSelectionRange(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.text.TextRange p);
   }
 
   public final class SemanticsPropertyKey<T> {

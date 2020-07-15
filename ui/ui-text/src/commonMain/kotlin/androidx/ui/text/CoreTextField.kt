@@ -57,6 +57,11 @@ import androidx.ui.semantics.onClick
 import androidx.ui.text.selection.SelectionHandle
 import androidx.ui.text.selection.TextFieldSelectionManager
 import kotlin.math.max
+import androidx.ui.semantics.focused
+import androidx.ui.semantics.setSelection
+import androidx.ui.semantics.setText
+import androidx.ui.semantics.text
+import androidx.ui.semantics.textSelectionRange
 import kotlin.math.roundToInt
 
 @Suppress("DEPRECATION")
@@ -297,8 +302,7 @@ fun CoreTextField(
                 }
             },
             state = state,
-            longPressDragObserver = manager.longPressDragObserver,
-            imeAction = imeAction
+            longPressDragObserver = manager.longPressDragObserver
         )
 
         val drawModifier = Modifier.drawBehind {
@@ -333,6 +337,9 @@ fun CoreTextField(
             }
         }
 
+        val semanticsModifier = semanticsModifier(value, imeAction, focusModifier,
+            onValueChangeWrapper)
+
         onDispose { manager.hideSelectionToolbar() }
 
         SelectionLayout(
@@ -341,6 +348,7 @@ fun CoreTextField(
                 .plus(focusModifier)
                 .plus(drawModifier)
                 .plus(onPositionedModifier)
+                .plus(semanticsModifier)
         ) {
             Layout(
                 emptyContent(),
@@ -445,8 +453,7 @@ private fun textInputEventObserver(
     state: TextFieldState,
     longPressDragObserver: LongPressDragObserver,
     onBlur: (hasNextClient: Boolean) -> Unit,
-    focusModifier: FocusModifier,
-    imeAction: ImeAction
+    focusModifier: FocusModifier
 ): Modifier {
     val prevState = state { FocusState.NotFocused }
     if (focusModifier.focusState == FocusState.Focused &&
@@ -473,12 +480,7 @@ private fun textInputEventObserver(
         onBlur(false)
     }
 
-    val semantics = Modifier.semantics {
-        this.imeAction = imeAction
-        this.supportsInputMethods()
-        onClick(action = { doFocusIn(); return@onClick true })
-    }
-    val drag = Modifier.dragPositionGestureFilter(
+    return Modifier.dragPositionGestureFilter(
         onPress = {
             state.selectionIsOn = false
             if (focusModifier.focusState == FocusState.Focused) {
@@ -490,8 +492,51 @@ private fun textInputEventObserver(
         onRelease = onRelease,
         longPressDragObserver = longPressDragObserver
     )
+}
 
-    return semantics.plus(drag)
+private fun semanticsModifier(
+    value: TextFieldValue,
+    imeAction: ImeAction,
+    focusModifier: FocusModifier,
+    onValueChange: (TextFieldValue) -> Unit
+): Modifier {
+    return Modifier.semantics {
+        this.imeAction = imeAction
+        this.supportsInputMethods()
+        this.text = AnnotatedString(value.text)
+        this.textSelectionRange = value.selection
+        this.focused = focusModifier.focusState == FocusState.Focused
+        setText {
+            onValueChange(TextFieldValue(it.text, TextRange(it.text.length)))
+            true
+        }
+        // TODO: startSelectionActionModeAsync
+        setSelection { start, end, startSelectionActionMode ->
+            if (start == value.selection.start && end == value.selection.end) {
+                false
+            } else if (start.coerceAtMost(end) >= 0 &&
+                start.coerceAtLeast(end) <= value.text.length) {
+                onValueChange(TextFieldValue(value.text, TextRange(start, end)))
+                if (startSelectionActionMode) {
+                    // startSelectionActionModeAsync
+                    // See https://cs.android.com/android/platform/superproject/+/
+                    // master:frameworks/base/core/java/android/widget/TextView.java;
+                    // l=11980;drc=e13851556bcfecff6de4b3a1a99be4dcaa5853a1
+                } else {
+                    // stop SelectionActionMode
+                }
+                true
+            } else {
+                false
+            }
+        }
+        onClick {
+            if (focusModifier.focusState == FocusState.NotFocused) {
+                focusModifier.requestFocus()
+            }
+            true
+        }
+    }
 }
 
 /**
