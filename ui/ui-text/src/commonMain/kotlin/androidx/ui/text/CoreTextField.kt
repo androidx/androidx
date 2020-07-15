@@ -333,6 +333,8 @@ fun CoreTextField(
             }
         }
 
+        onDispose { manager.hideSelectionToolbar() }
+
         SelectionLayout(
             modifier
                 .plus(observer)
