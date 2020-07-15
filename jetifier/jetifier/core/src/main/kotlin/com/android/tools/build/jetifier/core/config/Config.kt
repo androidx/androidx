@@ -144,7 +144,7 @@ data class Config(
     /**
      * Returns whether the given ProGuard type reference is eligible for rewrite.
      *
-     * Keep in mind that his has limited capabilities - mainly when * is used as a prefix. Rules
+     * Keep in mind that this has limited capabilities - mainly when * is used as a prefix. Rules
      * like *.v7 are not matched by prefix support.v7. So don't rely on it and use
      * the [ProGuardTypesMap] as first.
      */

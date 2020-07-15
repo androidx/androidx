@@ -375,11 +375,6 @@ public class AbstractResolvableFutureTest extends TestCase {
         executor.shutdown();
     }
 
-    /**
-     * He did the bash, he did the future bash The future bash, it was a concurrency smash He did
-     * the
-     * bash, it caught on in a flash He did the bash, he did the future bash
-     */
 //    @Sequential // messing with class loading MOE:strip_line
     public void testFutureBash() {
         final CyclicBarrier barrier =

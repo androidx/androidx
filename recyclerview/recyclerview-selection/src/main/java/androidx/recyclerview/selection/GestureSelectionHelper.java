@@ -268,8 +268,9 @@ final class GestureSelectionHelper implements OnItemTouchListener, Resettable {
 
         @Override
         int getLastGlidedItemPosition(@NonNull MotionEvent e) {
-            // If user has moved his pointer to the bottom-right empty pane (ie. to the right of the
-            // last item of the recycler view), we would want to set that as the currentItemPos
+            // If user has moved their pointer to the bottom-right empty pane (ie. to the
+            // right of the last item of the recycler view), we would want to set that as
+            // the currentItemPos
             View lastItem = mRecyclerView.getLayoutManager()
                     .getChildAt(mRecyclerView.getLayoutManager().getChildCount() - 1);
             int direction = ViewCompat.getLayoutDirection(mRecyclerView);
