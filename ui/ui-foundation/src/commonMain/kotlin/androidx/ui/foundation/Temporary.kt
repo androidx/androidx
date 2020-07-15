@@ -33,5 +33,5 @@ fun <T> AdapterList(
     modifier: Modifier = Modifier,
     itemCallback: @Composable (T) -> Unit
 ) {
-    LazyColumnItems(data, modifier, itemCallback)
+    LazyColumnItems(items = data, modifier = modifier, itemContent = itemCallback)
 }
