@@ -584,4 +584,10 @@ public abstract class WorkManager {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected WorkManager() {
     }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract @NonNull LiveData<List<String>> getAllWorkIdsLiveData();
 }
