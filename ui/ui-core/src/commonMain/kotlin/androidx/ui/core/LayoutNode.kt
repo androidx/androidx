@@ -21,9 +21,12 @@ import androidx.ui.core.LayoutNode.LayoutState.Measuring
 import androidx.ui.core.LayoutNode.LayoutState.NeedsRelayout
 import androidx.ui.core.LayoutNode.LayoutState.NeedsRemeasure
 import androidx.ui.core.LayoutNode.LayoutState.Ready
+import androidx.ui.core.focus.ExperimentalFocus
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.focus.FocusModifierImpl
+import androidx.ui.core.focus.FocusRequesterModifier
 import androidx.ui.core.focus.ModifiedFocusNode
+import androidx.ui.core.focus.ModifiedFocusRequesterNode
 import androidx.ui.core.keyinput.KeyInputModifier
 import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
@@ -55,7 +58,11 @@ internal val sharedDrawScope = LayoutNodeDrawScope()
  * An element in the layout hierarchy, built with compose UI.
  */
 @ExperimentalLayoutNodeApi
-@OptIn(ExperimentalLayoutNodeApi::class, ExperimentalCollectionApi::class)
+@OptIn(
+    ExperimentalCollectionApi::class,
+    ExperimentalFocus::class,
+    ExperimentalLayoutNodeApi::class
+)
 class LayoutNode : Measurable {
     private val _children = mutableVectorOf<LayoutNode>()
 
@@ -553,6 +560,9 @@ class LayoutNode : Measurable {
                         require(mod is FocusModifierImpl)
                         wrapper = ModifiedFocusNode(wrapper, mod).also { mod.focusNode = it }
                             .assignChained(toWrap)
+                    }
+                    if (mod is FocusRequesterModifier) {
+                        wrapper = ModifiedFocusRequesterNode(wrapper, mod).assignChained(toWrap)
                     }
                     if (mod is KeyInputModifier) {
                         wrapper = ModifiedKeyInputNode(wrapper, mod).also { mod.keyInputNode = it }
