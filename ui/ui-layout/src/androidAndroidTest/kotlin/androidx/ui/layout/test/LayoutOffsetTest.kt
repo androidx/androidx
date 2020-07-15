@@ -23,8 +23,9 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.core.globalPosition
+import androidx.ui.core.positionInRoot
 import androidx.ui.core.onPositioned
+import androidx.ui.core.positionInRoot
 import androidx.ui.foundation.Box
 import androidx.ui.layout.Stack
 import androidx.ui.layout.offset
@@ -72,8 +73,8 @@ class LayoutOffsetTest : LayoutTest() {
                     .wrapContentSize(Alignment.TopStart)
                     .offset(offsetX, offsetY)
                     .onPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.globalPosition.x.roundToInt()
-                        positionY = coordinates.globalPosition.y.roundToInt()
+                        positionX = coordinates.positionInRoot.x.roundToInt()
+                        positionY = coordinates.positionInRoot.y.roundToInt()
                     }
             ) {
             }
@@ -103,8 +104,8 @@ class LayoutOffsetTest : LayoutTest() {
                     .wrapContentSize(Alignment.TopStart)
                     .offset(offsetX, offsetY)
                     .onPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.globalPosition.x.roundToInt()
-                        positionY = coordinates.globalPosition.y.roundToInt()
+                        positionX = coordinates.positionInRoot.x.roundToInt()
+                        positionY = coordinates.positionInRoot.y.roundToInt()
                     }
             ) {
                 // TODO(popam): this box should not be needed after b/154758475 is fixed.
@@ -131,8 +132,8 @@ class LayoutOffsetTest : LayoutTest() {
                     .wrapContentSize(Alignment.TopStart)
                     .offsetPx(state { offsetX }, state { offsetY })
                     .onPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.globalPosition.x
-                        positionY = coordinates.globalPosition.y
+                        positionX = coordinates.positionInRoot.x
+                        positionY = coordinates.positionInRoot.y
                     }
             ) {
             }
@@ -162,8 +163,8 @@ class LayoutOffsetTest : LayoutTest() {
                     .wrapContentSize(Alignment.TopStart)
                     .offsetPx(state { offsetX }, state { offsetY })
                     .onPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.globalPosition.x
-                        positionY = coordinates.globalPosition.y
+                        positionX = coordinates.positionInRoot.x
+                        positionY = coordinates.positionInRoot.y
                     }
             ) {
                 // TODO(popam): this box should not be needed after b/154758475 is fixed.
