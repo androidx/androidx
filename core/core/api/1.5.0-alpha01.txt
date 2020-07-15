@@ -500,7 +500,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setStyle(androidx.core.app.NotificationCompat.Style?);
     method public androidx.core.app.NotificationCompat.Builder setSubText(CharSequence?);
     method public androidx.core.app.NotificationCompat.Builder setTicker(CharSequence?);
-    method public androidx.core.app.NotificationCompat.Builder setTicker(CharSequence?, android.widget.RemoteViews?);
+    method @Deprecated public androidx.core.app.NotificationCompat.Builder setTicker(CharSequence?, android.widget.RemoteViews?);
     method public androidx.core.app.NotificationCompat.Builder setTimeoutAfter(long);
     method public androidx.core.app.NotificationCompat.Builder setUsesChronometer(boolean);
     method public androidx.core.app.NotificationCompat.Builder setVibrate(long[]?);

@@ -242,31 +242,31 @@ public class NotificationCompat {
     public static final int PRIORITY_MAX = 2;
 
     /**
-     * Notification extras key: this is the title of the notification,
+     * {@link #getExtras extras} key: this is the title of the notification,
      * as supplied to {@link Builder#setContentTitle(CharSequence)}.
      */
     public static final String EXTRA_TITLE = "android.title";
 
     /**
-     * Notification extras key: this is the title of the notification when shown in expanded form,
-     * e.g. as supplied to {@link BigTextStyle#setBigContentTitle(CharSequence)}.
+     * {@link #getExtras extras} key: this is the title of the notification when shown in expanded
+     * form, e.g. as supplied to {@link BigTextStyle#setBigContentTitle(CharSequence)}.
      */
     public static final String EXTRA_TITLE_BIG = EXTRA_TITLE + ".big";
 
     /**
-     * Notification extras key: this is the main text payload, as supplied to
+     * {@link #getExtras extras} key: this is the main text payload, as supplied to
      * {@link Builder#setContentText(CharSequence)}.
      */
     public static final String EXTRA_TEXT = "android.text";
 
     /**
-     * Notification extras key: this is a third line of text, as supplied to
+     * {@link #getExtras extras} key: this is a third line of text, as supplied to
      * {@link Builder#setSubText(CharSequence)}.
      */
     public static final String EXTRA_SUB_TEXT = "android.subText";
 
     /**
-     * Notification extras key: this is the remote input history, as supplied to
+     * {@link #getExtras extras} key: this is the remote input history, as supplied to
      * {@link Builder#setRemoteInputHistory(CharSequence[])}.
      *
      * Apps can fill this through {@link Builder#setRemoteInputHistory(CharSequence[])}
@@ -282,40 +282,40 @@ public class NotificationCompat {
     public static final String EXTRA_REMOTE_INPUT_HISTORY = "android.remoteInputHistory";
 
     /**
-     * Notification extras key: this is a small piece of additional text as supplied to
+     * {@link #getExtras extras} key: this is a small piece of additional text as supplied to
      * {@link Builder#setContentInfo(CharSequence)}.
      */
     public static final String EXTRA_INFO_TEXT = "android.infoText";
 
     /**
-     * Notification extras key: this is a line of summary information intended to be shown
+     * {@link #getExtras extras} key: this is a line of summary information intended to be shown
      * alongside expanded notifications, as supplied to (e.g.)
      * {@link BigTextStyle#setSummaryText(CharSequence)}.
      */
     public static final String EXTRA_SUMMARY_TEXT = "android.summaryText";
 
     /**
-     * Notification extras key: this is the longer text shown in the big form of a
+     * {@link #getExtras extras} key: this is the longer text shown in the big form of a
      * {@link BigTextStyle} notification, as supplied to
      * {@link BigTextStyle#bigText(CharSequence)}.
      */
     public static final String EXTRA_BIG_TEXT = "android.bigText";
 
     /**
-     * Notification extras key: this is the resource ID of the notification's main small icon, as
-     * supplied to {@link Builder#setSmallIcon(int)}.
+     * {@link #getExtras extras} key: this is the resource ID of the notification's main small icon,
+     * as supplied to {@link Builder#setSmallIcon(int)}.
      */
     public static final String EXTRA_SMALL_ICON = "android.icon";
 
     /**
-     * Notification extras key: this is a bitmap to be used instead of the small icon when showing the
-     * notification payload, as
+     * {@link #getExtras extras} key: this is a bitmap to be used instead of the small icon when
+     * showing the notification payload, as
      * supplied to {@link Builder#setLargeIcon(android.graphics.Bitmap)}.
      */
     public static final String EXTRA_LARGE_ICON = "android.largeIcon";
 
     /**
-     * Notification extras key: this is a bitmap to be used instead of the one from
+     * {@link #getExtras extras} key: this is a bitmap to be used instead of the one from
      * {@link Builder#setLargeIcon(android.graphics.Bitmap)} when the notification is
      * shown in its expanded form, as supplied to
      * {@link BigPictureStyle#bigLargeIcon(android.graphics.Bitmap)}.
@@ -323,70 +323,72 @@ public class NotificationCompat {
     public static final String EXTRA_LARGE_ICON_BIG = EXTRA_LARGE_ICON + ".big";
 
     /**
-     * Notification extras key: this is the progress value supplied to
+     * {@link #getExtras extras} key: this is the progress value supplied to
      * {@link Builder#setProgress(int, int, boolean)}.
      */
     public static final String EXTRA_PROGRESS = "android.progress";
 
     /**
-     * Notification extras key: this is the maximum value supplied to
+     * {@link #getExtras extras} key: this is the maximum value supplied to
      * {@link Builder#setProgress(int, int, boolean)}.
      */
     public static final String EXTRA_PROGRESS_MAX = "android.progressMax";
 
     /**
-     * Notification extras key: whether the progress bar is indeterminate, supplied to
+     * {@link #getExtras extras} key: whether the progress bar is indeterminate, supplied to
      * {@link Builder#setProgress(int, int, boolean)}.
      */
     public static final String EXTRA_PROGRESS_INDETERMINATE = "android.progressIndeterminate";
 
     /**
-     * Notification extras key: whether the when field set using {@link Builder#setWhen} should
-     * be shown as a count-up timer (specifically a {@link android.widget.Chronometer}) instead
-     * of a timestamp, as supplied to {@link Builder#setUsesChronometer(boolean)}.
+     * {@link #getExtras extras} key: whether the when field set using {@link Builder#setWhen}
+     * should be shown as a count-up timer (specifically a {@link android.widget.Chronometer})
+     * instead of a timestamp, as supplied to {@link Builder#setUsesChronometer(boolean)}.
      */
     public static final String EXTRA_SHOW_CHRONOMETER = "android.showChronometer";
 
     /**
-     * Notification extras key: whether the chronometer set on the notification should count down
-     * instead of counting up. Is only relevant if key {@link #EXTRA_SHOW_CHRONOMETER} is present.
-     * This extra is a boolean. The default is (@code false).
+     * {@link #getExtras extras} key: whether the chronometer set on the notification should count
+     * down instead of counting up. Is only relevant if key {@link #EXTRA_SHOW_CHRONOMETER} is
+     * present. This extra is a boolean. The default is (@code false).
      */
     public static final String EXTRA_CHRONOMETER_COUNT_DOWN = "android.chronometerCountDown";
 
     /**
-     * Notification extras key: whether the when field set using {@link Builder#setWhen} should
-     * be shown, as supplied to {@link Builder#setShowWhen(boolean)}.
+     * {@link #getExtras extras} key: whether the when field set using {@link Builder#setWhen}
+     * should be shown, as supplied to {@link Builder#setShowWhen(boolean)}.
      */
     public static final String EXTRA_SHOW_WHEN = "android.showWhen";
 
     /**
-     * Notification extras key: this is a bitmap to be shown in {@link BigPictureStyle} expanded
-     * notifications, supplied to {@link BigPictureStyle#bigPicture(android.graphics.Bitmap)}.
+     * {@link #getExtras extras} key: this is a bitmap to be shown in {@link BigPictureStyle}
+     * expanded notifications, supplied to
+     * {@link BigPictureStyle#bigPicture(android.graphics.Bitmap)}.
      */
     public static final String EXTRA_PICTURE = "android.picture";
 
     /**
-     * Notification extras key: An array of CharSequences to show in {@link InboxStyle} expanded
-     * notifications, each of which was supplied to {@link InboxStyle#addLine(CharSequence)}.
+     * {@link #getExtras extras} key: An array of CharSequences to show in {@link InboxStyle}
+     * expanded notifications, each of which was supplied to
+     * {@link InboxStyle#addLine(CharSequence)}.
      */
     public static final String EXTRA_TEXT_LINES = "android.textLines";
 
     /**
-     * Notification extras key: A string representing the name of the specific
+     * {@link #getExtras extras} key: A string representing the name of the specific
      * {@link android.app.Notification.Style} used to create this notification.
      */
     public static final String EXTRA_TEMPLATE = "android.template";
 
     /**
-     * Notification extras key: A String array containing the people that this
+     * {@link #getExtras extras} key: A String array containing the people that this
      * notification relates to, each of which was supplied to
      * {@link Builder#addPerson(String)}.
      */
     public static final String EXTRA_PEOPLE = "android.people";
 
     /**
-     * Notification extras key: A
+     * {@link #getExtras extras} key: A
      * {@link android.content.ContentUris content URI} pointing to an image that can be displayed
      * in the background when the notification is selected. The URI must point to an image stream
      * suitable for passing into
@@ -404,7 +406,7 @@ public class NotificationCompat {
     public static final String EXTRA_MEDIA_SESSION = "android.mediaSession";
 
     /**
-     * Notification extras key: the indices of actions to be shown in the compact view,
+     * {@link #getExtras extras} key: the indices of actions to be shown in the compact view,
      * as supplied to (e.g.) {@link Notification.MediaStyle#setShowActionsInCompactView(int...)}.
      */
     public static final String EXTRA_COMPACT_ACTIONS = "android.compactActions";
@@ -916,13 +918,22 @@ public class NotificationCompat {
         }
 
         /**
-         * Set the third line of text in the platform notification template.
-         * Don't use if you're also using {@link #setProgress(int, int, boolean)};
-         * they occupy the same location in the standard template.
-         * <br>
-         * If the platform does not provide large-format notifications, this method has no effect.
-         * The third line of text only appears in expanded view.
-         * <br>
+         * This provides some additional information that is displayed in the notification. No
+         * guarantees are given where exactly it is displayed.
+         *
+         * <p>This information should only be provided if it provides an essential
+         * benefit to the understanding of the notification. The more text you provide the
+         * less readable it becomes. For example, an email client should only provide the account
+         * name here if more than one email account has been added.</p>
+         *
+         * <p>As of {@link android.os.Build.VERSION_CODES#N} this information is displayed in the
+         * notification header area.</p>
+         *
+         * <p>On Android versions before {@link android.os.Build.VERSION_CODES#N}
+         * this will be shown in the third line of text in the platform notification template.
+         * You should not be using {@link #setProgress(int, int, boolean)} at the
+         * same time on those versions; they occupy the same place.
+         * </p>
          */
         public @NonNull Builder setSubText(@Nullable CharSequence text) {
             mSubText = limitCharSequenceLength(text);
@@ -949,9 +960,12 @@ public class NotificationCompat {
         }
 
         /**
-         * Set the large number at the right-hand side of the notification.  This is
-         * equivalent to setContentInfo, although it might show the number in a different
-         * font size for readability.
+         * Sets the number of items this notification represents.
+         *
+         * On the latest platforms, this may be displayed as a badge count for Launchers that
+         * support badging. Prior to {@link android.os.Build.VERSION_CODES#O} it could be
+         * shown in the header. And prior to {@link android.os.Build.VERSION_CODES#N} this was
+         * shown in the notification on the right side.
          */
         public @NonNull Builder setNumber(int number) {
             mNumber = number;
@@ -959,7 +973,13 @@ public class NotificationCompat {
         }
 
         /**
-         * Set the large text at the right-hand side of the notification.
+         * A small piece of additional information pertaining to this notification.
+         *
+         * Where this text is displayed varies between platform versions.
+         *
+         * Use {@link #setSubText(CharSequence)} instead to set a text in the header.
+         * For legacy apps targeting a version below {@link android.os.Build.VERSION_CODES#N} this
+         * field will still show up, but the subtext will take precedence.
          */
         public @NonNull Builder setContentInfo(@Nullable CharSequence info) {
             mContentInfo = limitCharSequenceLength(info);
@@ -1052,7 +1072,10 @@ public class NotificationCompat {
          * {@link Build.VERSION_CODES#LOLLIPOP}, sets the text that is displayed in the status bar
          * when the notification first arrives, and also a RemoteViews object that may be displayed
          * instead on some devices.
+         *
+         * @deprecated use {@link #setTicker(CharSequence)}
          */
+        @Deprecated
         public @NonNull Builder setTicker(@Nullable CharSequence tickerText,
                 @Nullable RemoteViews views) {
             mNotification.tickerText = limitCharSequenceLength(tickerText);
@@ -1061,7 +1084,7 @@ public class NotificationCompat {
         }
 
         /**
-         * Set the large icon that is shown in the ticker and notification.
+         * Set the large icon that is shown in the notification.
          */
         public @NonNull Builder setLargeIcon(@Nullable Bitmap icon) {
             mLargeIcon = reduceLargeIconSize(icon);
@@ -1103,6 +1126,13 @@ public class NotificationCompat {
          * On some platforms, a notification that is noisy is more likely to be presented
          * as a heads-up notification.
          * </p>
+         *
+         * <p>On platforms {@link Build.VERSION_CODES#O} and above this value is ignored in favor
+         * of the value set on the {@link #setChannelId(String) notification's channel}. On older
+         * platforms, this value is still used, so it is still required for apps supporting
+         * those platforms.</p>
+         *
+         * @see NotificationChannelCompat.Builder#setSound(Uri, AudioAttributes)
          */
         public @NonNull Builder setSound(@Nullable Uri sound) {
             mNotification.sound = sound;
@@ -1124,6 +1154,12 @@ public class NotificationCompat {
          * as a heads-up notification.
          * </p>
          *
+         * <p>On platforms {@link Build.VERSION_CODES#O} and above this value is ignored in favor
+         * of the value set on the {@link #setChannelId(String) notification's channel}. On older
+         * platforms, this value is still used, so it is still required for apps supporting
+         * those platforms.</p>
+         *
+         * @see NotificationChannelCompat.Builder#setSound(Uri, AudioAttributes)
          * @see Notification#STREAM_DEFAULT
          * @see AudioManager for the <code>STREAM_</code> constants.
          */
@@ -1147,6 +1183,13 @@ public class NotificationCompat {
          * as a heads-up notification.
          * </p>
          *
+         * <p>On platforms {@link Build.VERSION_CODES#O} and above this value is ignored in favor
+         * of the value set on the {@link #setChannelId(String) notification's channel}. On older
+         * platforms, this value is still used, so it is still required for apps supporting
+         * those platforms.</p>
+         *
+         * @see NotificationChannelCompat.Builder#setVibrationEnabled(boolean)
+         * @see NotificationChannelCompat.Builder#setVibrationPattern(long[])
          * @see android.os.Vibrator for a discussion of the <code>pattern</code>
          * parameter.
          */
@@ -1159,6 +1202,14 @@ public class NotificationCompat {
          * Set the argb value that you would like the LED on the device to blink, as well as the
          * rate.  The rate is specified in terms of the number of milliseconds to be on
          * and then the number of milliseconds to be off.
+         *
+         * <p>On platforms {@link Build.VERSION_CODES#O} and above this value is ignored in favor
+         * of the value set on the {@link #setChannelId(String) notification's channel}. On older
+         * platforms, this value is still used, so it is still required for apps supporting
+         * those platforms.</p>
+         *
+         * @see NotificationChannelCompat.Builder#setLightsEnabled(boolean)
+         * @see NotificationChannelCompat.Builder#setLightColor(int)
          */
         public @NonNull Builder setLights(@ColorInt int argb, int onMs, int offMs) {
             mNotification.ledARGB = argb;
@@ -1173,13 +1224,14 @@ public class NotificationCompat {
         /**
          * Set whether this is an ongoing notification.
          *
-         * <p>Ongoing notifications differ from regular notifications in the following ways:
-         * <ul>
-         *   <li>Ongoing notifications are sorted above the regular notifications in the
-         *   notification panel.</li>
-         *   <li>Ongoing notifications do not have an 'X' close button, and are not affected
-         *   by the "Clear all" button.
-         * </ul>
+         * Ongoing notifications cannot be dismissed by the user, so your application or service
+         * must take care of canceling them.
+         *
+         * They are typically used to indicate a background task that the user is actively engaged
+         * with (e.g., playing music) or is pending in some way and therefore occupying the device
+         * (e.g., a file download, sync operation, active network connection).
+         *
+         * @see Notification#FLAG_ONGOING_EVENT
          */
         public @NonNull Builder setOngoing(boolean ongoing) {
             setFlag(Notification.FLAG_ONGOING_EVENT, ongoing);
@@ -1264,6 +1316,14 @@ public class NotificationCompat {
          * {@link Notification#DEFAULT_LIGHTS}.
          * <p>
          * For all default values, use {@link Notification#DEFAULT_ALL}.
+         *
+         * <p>On platforms {@link Build.VERSION_CODES#O} and above this value is ignored in favor
+         * of the values set on the {@link #setChannelId(String) notification's channel}. On older
+         * platforms, this value is still used, so it is still required for apps supporting
+         * those platforms.</p>
+         *
+         * @see NotificationChannelCompat.Builder#setVibrationEnabled(boolean)
+         * @see NotificationChannelCompat.Builder#setLightsEnabled(boolean)
          */
         public @NonNull Builder setDefaults(int defaults) {
             mNotification.defaults = defaults;
@@ -1284,19 +1344,24 @@ public class NotificationCompat {
         /**
          * Set the relative priority for this notification.
          *
-         * Priority is an indication of how much of the user's
-         * valuable attention should be consumed by this
-         * notification. Low-priority notifications may be hidden from
-         * the user in certain situations, while the user might be
-         * interrupted for a higher-priority notification.
-         * The system sets a notification's priority based on various factors including the
-         * setPriority value. The effect may differ slightly on different platforms.
+         * <p>Priority is an indication of how much of the user's valuable attention should be
+         * consumed by this notification. Low-priority notifications may be hidden from
+         * the user in certain situations, while the user might be interrupted for a
+         * higher-priority notification. The system sets a notification's priority based on
+         * various factors including the setPriority value. The effect may differ slightly on
+         * different platforms.
+         *
+         * <p>On platforms {@link Build.VERSION_CODES#O} and above this value is ignored in favor
+         * of the importance value set on the {@link #setChannelId(String) notification's channel}.
+         * On older platforms, this value is still used, so it is still required for apps
+         * supporting those platforms.</p>
+         *
+         * @see NotificationChannelCompat.Builder#setImportance(int)
          *
          * @param pri Relative priority for this notification. Must be one of
          *     the priority constants defined by {@link NotificationCompat}.
-         *     Acceptable values range from {@link
-         *     NotificationCompat#PRIORITY_MIN} (-2) to {@link
-         *     NotificationCompat#PRIORITY_MAX} (2).
+         *     Acceptable values range from {@link NotificationCompat#PRIORITY_MIN} (-2) to
+         *     {@link NotificationCompat#PRIORITY_MAX} (2).
          */
         public @NonNull Builder setPriority(int pri) {
             mPriority = pri;
@@ -1621,7 +1686,7 @@ public class NotificationCompat {
         /**
          * Specifies the channel the notification should be delivered on.
          *
-         * No-op on versions prior to {@link android.os.Build.VERSION_CODES#O} .
+         * No-op on versions prior to {@link android.os.Build.VERSION_CODES#O}.
          */
         public @NonNull Builder setChannelId(@NonNull String channelId) {
             mChannelId = channelId;
@@ -1638,15 +1703,45 @@ public class NotificationCompat {
         }
 
         /**
-         * If this notification is duplicative of a Launcher shortcut, sets the
-         * {@link androidx.core.content.pm.ShortcutInfoCompat#getId() id} of the shortcut, in
-         * case the Launcher wants to hide the shortcut.
+         * From Android 11, messaging notifications (those that use {@link MessagingStyle}) that
+         * use this method to link to a published long-lived sharing shortcut may appear in a
+         * dedicated Conversation section of the shade and may show configuration options that
+         * are unique to conversations. This behavior should be reserved for person to person(s)
+         * conversations where there is a likely social obligation for an individual to respond.
+         * <p>
+         * For example, the following are some examples of notifications that belong in the
+         * conversation space:
+         * <ul>
+         * <li>1:1 conversations between two individuals</li>
+         * <li>Group conversations between individuals where everyone can contribute</li>
+         * </ul>
+         * And the following are some examples of notifications that do not belong in the
+         * conversation space:
+         * <ul>
+         * <li>Advertisements from a bot (even if personal and contextualized)</li>
+         * <li>Engagement notifications from a bot</li>
+         * <li>Directional conversations where there is an active speaker and many passive
+         * individuals</li>
+         * <li>Stream / posting updates from other individuals</li>
+         * <li>Email, document comments, or other conversation types that are not real-time</li>
+         * </ul>
+         * </p>
          *
-         * <p><strong>Note:</strong>This field will be ignored by Launchers that don't support
-         * badging or {@link androidx.core.content.pm.ShortcutManagerCompat shortcuts}.
+         * <p>
+         * Additionally, this method can be used for all types of notifications to mark this
+         * notification as duplicative of a Launcher shortcut. Launchers that show badges or
+         * notification content may then suppress the shortcut in favor of the content of this
+         * notification.
+         * <p>
+         * If this notification has {@link BubbleMetadata} attached that was created with
+         * a shortcutId a check will be performed to ensure the shortcutId supplied to bubble
+         * metadata matches the shortcutId set here, if one was set. If the shortcutId's were
+         * specified but do not match, an exception is thrown.
          *
-         * @param shortcutId the {@link androidx.core.content.pm.ShortcutInfoCompat#getId() id}
-         *                   of the shortcut this notification supersedes
+         * @param shortcutId the {@link ShortcutInfoCompat#getId() id} of the shortcut this
+         *                   notification is linked to
+         *
+         * @see BubbleMetadata.Builder#Builder()
          */
         public @NonNull Builder setShortcutId(@Nullable String shortcutId) {
             mShortcutId = shortcutId;
