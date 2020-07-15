@@ -43,6 +43,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
+import androidx.activity.contextaware.ContextAware;
+import androidx.activity.contextaware.ContextAwareHelper;
+import androidx.activity.contextaware.OnContextAvailableListener;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
@@ -87,6 +90,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * without enforcing a deep Activity class hierarchy or strong coupling between components.
  */
 public class ComponentActivity extends androidx.core.app.ComponentActivity implements
+        ContextAware,
         LifecycleOwner,
         ViewModelStoreOwner,
         HasDefaultViewModelProviderFactory,
@@ -100,6 +104,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         ViewModelStore viewModelStore;
     }
 
+    private final ContextAwareHelper mContextAwareHelper = new ContextAwareHelper(this);
     private final LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
     private final SavedStateRegistryController mSavedStateRegistryController =
             SavedStateRegistryController.create(this);
@@ -279,6 +284,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        mContextAwareHelper.dispatchOnContextAvailable(this, savedInstanceState);
         super.onCreate(savedInstanceState);
         mSavedStateRegistryController.performRestore(savedInstanceState);
         mActivityResultRegistry.onRestoreInstanceState(savedInstanceState);
@@ -393,6 +399,26 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Any listener added here will receive a callback as part of
+     * <code>super.onCreate()</code>, but importantly <strong>before</strong> any other
+     * logic is done (including calling through to the framework
+     * {@link Activity#onCreate(Bundle)}.
+     */
+    @Override
+    public final void addOnContextAvailableListener(
+            @NonNull OnContextAvailableListener listener) {
+        mContextAwareHelper.addOnContextAvailableListener(listener);
+    }
+
+    @Override
+    public final void removeOnContextAvailableListener(
+            @NonNull OnContextAvailableListener listener) {
+        mContextAwareHelper.removeOnContextAvailableListener(listener);
     }
 
     /**

@@ -1,9 +1,10 @@
 // Signature format: 3.0
 package androidx.activity {
 
-  public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
+  public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
     ctor public ComponentActivity();
     ctor @ContentView public ComponentActivity(@LayoutRes int);
+    method public final void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
     method public final androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
     method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     method @Deprecated public Object? getLastCustomNonConfigurationInstance();
@@ -16,6 +17,7 @@ package androidx.activity {
     method public final Object? onRetainNonConfigurationInstance();
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public final void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
     method @Deprecated public void startActivityForResult(android.content.Intent!, int);
     method @Deprecated public void startActivityForResult(android.content.Intent!, int, android.os.Bundle?);
     method @Deprecated public void startIntentSenderForResult(android.content.IntentSender!, int, android.content.Intent?, int, int, int) throws android.content.IntentSender.SendIntentException;
@@ -41,6 +43,26 @@ package androidx.activity {
 
   public interface OnBackPressedDispatcherOwner extends androidx.lifecycle.LifecycleOwner {
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+  }
+
+}
+
+package androidx.activity.contextaware {
+
+  public interface ContextAware {
+    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+  }
+
+  public final class ContextAwareHelper {
+    ctor public ContextAwareHelper(androidx.activity.contextaware.ContextAware);
+    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void dispatchOnContextAvailable(android.content.Context, android.os.Bundle?);
+    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+  }
+
+  public interface OnContextAvailableListener {
+    method public void onContextAvailable(androidx.activity.contextaware.ContextAware, android.content.Context, android.os.Bundle?);
   }
 
 }
