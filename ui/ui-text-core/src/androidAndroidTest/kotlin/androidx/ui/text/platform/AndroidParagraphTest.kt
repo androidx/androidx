@@ -213,9 +213,7 @@ class AndroidParagraphTest {
     fun testStyle_setTextDecoration_withLineThroughAndUnderline() {
         val text = "abcde"
         val spanStyle = SpanStyle(
-            textDecoration = TextDecoration.combine(
-                listOf(TextDecoration.LineThrough, TextDecoration.Underline)
-            )
+            textDecoration = TextDecoration.LineThrough + TextDecoration.Underline
         )
 
         val paragraph = simpleParagraph(

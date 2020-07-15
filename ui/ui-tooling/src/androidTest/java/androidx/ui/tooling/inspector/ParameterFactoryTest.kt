@@ -390,8 +390,7 @@ class ParameterFactoryTest {
             .isEqualTo(ParameterType.String to "Underline")
 
         // TODO: Return a representation of lineThrough & Underline:
-        assertThat(lookup(TextDecoration.combine(
-            listOf(TextDecoration.LineThrough, TextDecoration.Underline)))).isNull()
+        assertThat(lookup(TextDecoration.LineThrough + TextDecoration.Underline)).isNull()
     }
 
     @Test

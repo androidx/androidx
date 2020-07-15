@@ -984,9 +984,10 @@ package androidx.ui.text.style {
 
   @androidx.compose.Immutable public final class TextDecoration {
     method public int component1();
-    method public boolean contains(androidx.ui.text.style.TextDecoration other);
+    method public operator boolean contains(androidx.ui.text.style.TextDecoration other);
     method @androidx.compose.Immutable public androidx.ui.text.style.TextDecoration copy(int mask);
     method public int getMask();
+    method public operator androidx.ui.text.style.TextDecoration plus(androidx.ui.text.style.TextDecoration decoration);
     field public static final androidx.ui.text.style.TextDecoration.Companion Companion;
   }
 
