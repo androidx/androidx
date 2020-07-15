@@ -37,6 +37,7 @@ class PrivateConstructorForUtilityClass : Detector(), Detector.UastScanner {
     override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
         override fun visitClass(node: UClass) {
             if (node.isInterface ||
+                node.isEnum ||
                 node.hasModifierProperty(PsiModifier.ABSTRACT) ||
                 node is UAnonymousClass ||
                 // If this is a subclass, then don't flag it.
