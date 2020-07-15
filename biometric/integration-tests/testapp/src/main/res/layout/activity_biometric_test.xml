@@ -18,33 +18,72 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingHorizontal="8dp"
+    android:paddingVertical="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/button_show_prompt"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Show prompt" />
+            android:text="Authenticator types:"
+            android:textColor="?android:textColorPrimary" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <CheckBox
-                android:id="@+id/checkbox_device_credential"
+                android:id="@+id/checkbox_allow_biometric_strong"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Allow device credential"
+                android:text="BIOMETRIC_STRONG"
                 android:textColor="?android:textColorPrimary" />
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <CheckBox
+                android:id="@+id/checkbox_allow_biometric_weak"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BIOMETRIC_WEAK"
+                android:textColor="?android:textColorPrimary" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <CheckBox
+                android:id="@+id/checkbox_allow_device_credential"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DEVICE_CREDENTIAL"
+                android:textColor="?android:textColorPrimary" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Other options:"
+            android:textColor="?android:textColorPrimary" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -76,6 +115,33 @@
                 android:text="Require confirmation"
                 android:textColor="?android:textColorPrimary" />
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <CheckBox
+                android:id="@+id/checkbox_use_crypto_auth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Use crypto-based authentication"
+                android:textColor="?android:textColorPrimary" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/button_can_authenticate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Can authenticate" />
+
+        <Button
+            android:id="@+id/button_authenticate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Authenticate" />
 
         <Button
             android:id="@+id/button_clear_log"
