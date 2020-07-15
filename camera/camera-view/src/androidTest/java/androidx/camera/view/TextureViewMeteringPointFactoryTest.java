@@ -224,24 +224,24 @@ public class TextureViewMeteringPointFactoryTest {
             mTextureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
                 int mFrameCount = 0;
                 @Override
-                public void onSurfaceTextureAvailable(SurfaceTexture surface, int width,
+                public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width,
                         int height) {
 
                 }
 
                 @Override
-                public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width,
+                public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surface, int width,
                         int height) {
 
                 }
 
                 @Override
-                public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+                public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surface) {
                     return true;
                 }
 
                 @Override
-                public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+                public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surface) {
                     mFrameCount++;
                     if (mFrameCount == WAIT_FRAMECOUNT) {
                         mLatchForFrameReady.countDown();

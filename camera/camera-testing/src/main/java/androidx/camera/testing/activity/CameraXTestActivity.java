@@ -151,21 +151,22 @@ public class CameraXTestActivity extends AppCompatActivity {
                 new TextureView.SurfaceTextureListener() {
                     @Override
                     public void onSurfaceTextureAvailable(
-                            SurfaceTexture surfaceTexture, int i, int i1) {
+                            @NonNull SurfaceTexture surfaceTexture, int i, int i1) {
                     }
 
                     @Override
                     public void onSurfaceTextureSizeChanged(
-                            SurfaceTexture surfaceTexture, int i, int i1) {
+                            @NonNull SurfaceTexture surfaceTexture, int i, int i1) {
                     }
 
                     @Override
-                    public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
+                    public boolean onSurfaceTextureDestroyed(
+                            @NonNull SurfaceTexture surfaceTexture) {
                         return true;
                     }
 
                     @Override
-                    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+                    public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surfaceTexture) {
                         // Wait until surface texture receives enough updates.
                         if (!mPreviewReady.isIdleNow()) {
                             mPreviewReady.decrement();

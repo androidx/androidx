@@ -71,20 +71,11 @@ public final class SurfaceRequest {
     // cancellation listeners.
     private final CallbackToFutureAdapter.Completer<Void> mRequestCancellationCompleter;
 
-    /**
-     * Creates a new surface request with the given resolution.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public SurfaceRequest(@NonNull Size resolution, @NonNull Camera camera) {
-        this(resolution, camera, null);
-    }
-
     private DeferrableSurface mInternalDeferrableSurface;
 
     /**
-     * Creates a new surface request with the given resolution and {@link Camera}.
+     * Creates a new surface request with the given resolution, the {@link Camera} and the crop
+     * rect.
      *
      * @hide
      */

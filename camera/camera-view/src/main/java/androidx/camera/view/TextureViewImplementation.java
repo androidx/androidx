@@ -119,7 +119,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
                 new FrameLayout.LayoutParams(mResolution.getWidth(), mResolution.getHeight()));
         mTextureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
-            public void onSurfaceTextureAvailable(final SurfaceTexture surfaceTexture,
+            public void onSurfaceTextureAvailable(@NonNull final SurfaceTexture surfaceTexture,
                     final int width, final int height) {
                 Log.d(TAG, "SurfaceTexture available. Size: " + width +  "x" + height);
                 mSurfaceTexture = surfaceTexture;
@@ -127,7 +127,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
             }
 
             @Override
-            public void onSurfaceTextureSizeChanged(final SurfaceTexture surfaceTexture,
+            public void onSurfaceTextureSizeChanged(@NonNull final SurfaceTexture surfaceTexture,
                     final int width, final int height) {
                 Log.d(TAG, "SurfaceTexture size changed: " + width +  "x" + height);
             }
@@ -144,7 +144,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
              * @return false if the camera is not done with the surface, true otherwise.
              */
             @Override
-            public boolean onSurfaceTextureDestroyed(final SurfaceTexture surfaceTexture) {
+            public boolean onSurfaceTextureDestroyed(@NonNull final SurfaceTexture surfaceTexture) {
                 Log.d(TAG, "SurfaceTexture destroyed");
                 mSurfaceTexture = null;
                 if (mSurfaceRequest == null && mSurfaceReleaseFuture != null) {
@@ -177,7 +177,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
             }
 
             @Override
-            public void onSurfaceTextureUpdated(final SurfaceTexture surfaceTexture) {
+            public void onSurfaceTextureUpdated(@NonNull final SurfaceTexture surfaceTexture) {
                 CallbackToFutureAdapter.Completer<Void> completer =
                         mNextFrameCompleter.getAndSet(null);
 
