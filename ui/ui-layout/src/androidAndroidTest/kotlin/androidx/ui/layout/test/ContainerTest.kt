@@ -27,6 +27,7 @@ import androidx.ui.core.Ref
 import androidx.ui.core.constrainHeight
 import androidx.ui.core.constrainWidth
 import androidx.ui.core.onPositioned
+import androidx.ui.core.positionInRoot
 import androidx.ui.geometry.Offset
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.InnerPadding
@@ -92,7 +93,7 @@ class ContainerTest : LayoutTest() {
                 ) {
                     EmptyBox(width = sizeDp, height = sizeDp,
                         modifier = Modifier.onPositioned { coordinates ->
-                            childPosition.value = coordinates.localToGlobal(Offset(0f, 0f))
+                            childPosition.value = coordinates.positionInRoot
                             positionedLatch.countDown()
                         }
                     )
@@ -196,7 +197,7 @@ class ContainerTest : LayoutTest() {
                         height = sizeDp,
                         modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize.value = coordinates.size
-                            childPosition.value = coordinates.localToGlobal(Offset(0f, 0f))
+                            childPosition.value = coordinates.positionInRoot
                             positionedLatch.countDown()
                         })
                 }
@@ -244,7 +245,7 @@ class ContainerTest : LayoutTest() {
                             modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                                 childSize.value = coordinates.size
                                 childPosition.value =
-                                    coordinates.localToGlobal(Offset(0f, 0f))
+                                    coordinates.positionInRoot
                                 positionedLatch.countDown()
                             })
                     }

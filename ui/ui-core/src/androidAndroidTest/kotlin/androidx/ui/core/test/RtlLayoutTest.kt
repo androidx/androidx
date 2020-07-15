@@ -432,7 +432,7 @@ class RtlLayoutTest {
         position: Ref<Offset>,
         countDownLatch: CountDownLatch
     ): Modifier = Modifier.onPositioned {
-        position.value = it.localToGlobal(Offset(0f, 0f))
+        position.value = it.localToRoot(Offset(0f, 0f))
         countDownLatch.countDown()
     }
 }

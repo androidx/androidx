@@ -260,7 +260,7 @@ class LayoutPaddingTest : LayoutTest() {
                         .preferredSize(sizeDp, sizeDp)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             childSize[0] = coordinates.size
-                            childPosition[0] = coordinates.localToGlobal(Offset(0f, 0f))
+                            childPosition[0] = coordinates.positionInRoot
                             drawLatch.countDown()
                         }
                 ) {
@@ -271,7 +271,7 @@ class LayoutPaddingTest : LayoutTest() {
                         .preferredSize(sizeDp, sizeDp)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             childSize[1] = coordinates.size
-                            childPosition[1] = coordinates.localToGlobal(Offset(0f, 0f))
+                            childPosition[1] = coordinates.positionInRoot
                             drawLatch.countDown()
                         }
                 ) {
@@ -282,7 +282,7 @@ class LayoutPaddingTest : LayoutTest() {
                         .preferredSize(sizeDp, sizeDp)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             childSize[2] = coordinates.size
-                            childPosition[2] = coordinates.localToGlobal(Offset(0f, 0f))
+                            childPosition[2] = coordinates.positionInRoot
                             drawLatch.countDown()
                         }
                 ) {
@@ -373,7 +373,7 @@ class LayoutPaddingTest : LayoutTest() {
                     val children = @Composable {
                         Container(Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize = coordinates.size
-                            childPosition = coordinates.localToGlobal(Offset(0f, 0f))
+                            childPosition = coordinates.positionInRoot
                             drawLatch.countDown()
                         }) {
                         }
@@ -419,7 +419,7 @@ class LayoutPaddingTest : LayoutTest() {
                     val children = @Composable {
                         Container(Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize = coordinates.size
-                            childPosition = coordinates.localToGlobal(Offset(0f, 0f))
+                            childPosition = coordinates.positionInRoot
                             drawLatch.countDown()
                         }) {
                         }
@@ -472,7 +472,7 @@ class LayoutPaddingTest : LayoutTest() {
                     paddingContainer {
                         Container(Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize = coordinates.size
-                            childPosition = coordinates.localToGlobal(Offset(0f, 0f))
+                            childPosition = coordinates.positionInRoot
                             drawLatch.countDown()
                         }) {
                         }

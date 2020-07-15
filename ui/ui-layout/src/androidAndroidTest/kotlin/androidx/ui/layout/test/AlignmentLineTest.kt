@@ -23,8 +23,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.WithConstraints
-import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
+import androidx.ui.core.positionInRoot
 import androidx.ui.geometry.Offset
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSizeIn
@@ -65,7 +65,7 @@ class AlignmentLineTest : LayoutTest() {
                     Modifier
                         .onPositioned {
                             childSize.value = it.size
-                            childPosition.value = it.globalPosition
+                            childPosition.value = it.positionInRoot
                             layoutLatch.countDown()
                         }
                         .relativePaddingFrom(testLine, beforeDp, afterDp)
@@ -114,7 +114,7 @@ class AlignmentLineTest : LayoutTest() {
                     modifier = Modifier
                         .onPositioned {
                             childSize.value = it.size
-                            childPosition.value = it.globalPosition
+                            childPosition.value = it.positionInRoot
                             layoutLatch.countDown()
                         }
                         .relativePaddingFrom(testLine, beforeDp, afterDp),
