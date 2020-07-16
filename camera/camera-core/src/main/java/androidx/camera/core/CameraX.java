@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -96,7 +97,9 @@ public final class CameraX {
     private CameraFactory mCameraFactory;
     private CameraDeviceSurfaceManager mSurfaceManager;
     private UseCaseConfigFactory mDefaultConfigFactory;
-    private Application mApplication;
+    // TODO(b/161302102): Remove the stored context. Only make use of the context within the
+    //  called method.
+    private Context mAppContext;
 
     @GuardedBy("mInitializeLock")
     private InternalInitState mInitState = InternalInitState.UNINITIALIZED;
@@ -371,14 +374,15 @@ public final class CameraX {
 
     /**
      * Returns the context used for CameraX.
-     *
+     * @deprecated This method will be removed. New code should not rely on it. See b/161302102.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
+    @Deprecated
     public static Context getContext() {
         CameraX cameraX = checkInitialized();
-        return cameraX.mApplication;
+        return cameraX.mAppContext;
     }
 
     /**
@@ -453,10 +457,9 @@ public final class CameraX {
             }
 
             if (instanceFuture == null) {
-                Application app = (Application) context.getApplicationContext();
                 if (!isConfigured) {
                     // Attempt initialization through Application or Resources
-                    CameraXConfig.Provider configProvider = getConfigProvider(app);
+                    CameraXConfig.Provider configProvider = getConfigProvider(context);
                     if (configProvider == null) {
                         throw new IllegalStateException("CameraX is not configured properly. "
                                 + "The most likely cause is you did not include a default "
@@ -466,7 +469,7 @@ public final class CameraX {
                     configureInstanceLocked(configProvider);
                 }
 
-                initializeInstanceLocked(app);
+                initializeInstanceLocked(context);
                 instanceFuture = getInstanceLocked();
             }
 
@@ -475,15 +478,16 @@ public final class CameraX {
     }
 
     @Nullable
-    private static CameraXConfig.Provider getConfigProvider(@NonNull Application app) {
+    private static CameraXConfig.Provider getConfigProvider(@NonNull Context context) {
         CameraXConfig.Provider configProvider = null;
-        if (app instanceof CameraXConfig.Provider) {
+        Application application = getApplicationFromContext(context);
+        if (application instanceof CameraXConfig.Provider) {
             // Application is a CameraXConfig.Provider, use this directly
-            configProvider = (CameraXConfig.Provider) app;
+            configProvider = (CameraXConfig.Provider) application;
         } else {
             // Try to retrieve the CameraXConfig.Provider through the application's resources
             try {
-                Resources resources = app.getResources();
+                Resources resources = context.getApplicationContext().getResources();
                 String defaultProviderClassName =
                         resources.getString(
                                 R.string.androidx_camera_default_config_provider);
@@ -497,13 +501,38 @@ public final class CameraX {
                     | InstantiationException
                     | InvocationTargetException
                     | NoSuchMethodException
-                    | IllegalAccessException e) {
+                    | IllegalAccessException
+                    | NullPointerException e) {
                 Log.e(TAG, "Failed to retrieve default CameraXConfig.Provider from "
                         + "resources", e);
             }
         }
 
         return configProvider;
+    }
+
+    /**
+     * Attempts to retrieve an {@link Application} object from the provided {@link Context}.
+     *
+     * <p>Because the contract does not specify that {@code Context.getApplicationContext()} must
+     * return an {@code Application} object, this method will attempt to retrieve the
+     * {@code Application} by unwrapping the context via {@link ContextWrapper#getBaseContext()} if
+     * {@code Context.getApplicationContext()}} does not succeed.
+     */
+    @Nullable
+    private static Application getApplicationFromContext(@NonNull Context context) {
+        Application application = null;
+        Context appContext = context.getApplicationContext();
+        while (appContext instanceof ContextWrapper) {
+            if (appContext instanceof Application) {
+                application = (Application) appContext;
+                break;
+            } else {
+                appContext = ((ContextWrapper) appContext).getBaseContext();
+            }
+        }
+
+        return application;
     }
 
     @NonNull
@@ -590,7 +619,12 @@ public final class CameraX {
                         cameraExecutor.execute(() -> {
                             InitializationException initException = null;
                             try {
-                                mApplication = (Application) context.getApplicationContext();
+                                // TODO(b/161302102): Remove the stored context. Only make use of
+                                //  the context within the called method.
+                                mAppContext = getApplicationFromContext(context);
+                                if (mAppContext == null) {
+                                    mAppContext = context.getApplicationContext();
+                                }
                                 CameraFactory.Provider cameraFactoryProvider =
                                         mCameraXConfig.getCameraFactoryProvider(null);
                                 if (cameraFactoryProvider == null) {

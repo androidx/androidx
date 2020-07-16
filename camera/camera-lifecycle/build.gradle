@@ -44,6 +44,7 @@ dependencies {
     androidTestImplementation(project(":annotation:annotation-experimental"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(project(":internal-testutils-truth"))
+    androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
 }
 
 android {
