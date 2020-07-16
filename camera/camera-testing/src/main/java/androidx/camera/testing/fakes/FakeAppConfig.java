@@ -17,6 +17,7 @@
 package androidx.camera.testing.fakes;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
@@ -62,5 +63,16 @@ public final class FakeAppConfig {
                                 new ExtendableUseCaseConfigFactory());
 
         return appConfigBuilder.build();
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final class DefaultProvider implements CameraXConfig.Provider {
+
+        @NonNull
+        @Override
+        public CameraXConfig getCameraXConfig() {
+            return create();
+        }
     }
 }
