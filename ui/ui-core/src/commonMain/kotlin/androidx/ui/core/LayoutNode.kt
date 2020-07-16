@@ -560,6 +560,7 @@ class LayoutNode : Measurable {
                             innerLayerWrapper = layerWrapper
                         }
                     }
+                    @Suppress("DEPRECATION")
                     if (mod is FocusModifier) {
                         require(mod is FocusModifierImpl)
                         wrapper = ModifiedFocusNode(wrapper, mod).also { mod.focusNode = it }

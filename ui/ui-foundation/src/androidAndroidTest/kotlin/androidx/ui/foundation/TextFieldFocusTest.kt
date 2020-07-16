@@ -35,6 +35,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+// TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
+@Suppress("DEPRECATION")
 @LargeTest
 @RunWith(JUnit4::class)
 class TextFieldFocusTest {
@@ -58,6 +60,7 @@ class TextFieldFocusTest {
         }
     }
 
+    // TODO(b/161297615): Replace FocusModifier with Modifier.focus()
     data class FocusTestData(val id: FocusModifier, var focused: Boolean = false)
 
     @Test
@@ -68,6 +71,7 @@ class TextFieldFocusTest {
         runOnUiThread {
             composeTestRule.setContent {
                 testDataList = listOf(
+                    // TODO(b/161297615): Replace FocusModifier with Modifier.focus()
                     FocusTestData(FocusModifier()),
                     FocusTestData(FocusModifier()),
                     FocusTestData(FocusModifier())

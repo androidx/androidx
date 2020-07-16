@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// TODO(b/160821157): Replace FocusDetailedState with FocusState2 DEPRECATION
+@file:Suppress("DEPRECATION")
+
 package androidx.ui.material
 
 import androidx.animation.FloatPropKey
@@ -105,6 +108,7 @@ internal fun TextFieldImpl(
     backgroundColor: Color,
     shape: Shape
 ) {
+    @Suppress("DEPRECATION")
     val focusModifier = FocusModifier()
     val keyboardController: Ref<SoftwareKeyboardController> = remember { Ref() }
 

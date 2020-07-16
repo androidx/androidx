@@ -27,6 +27,11 @@ import androidx.ui.core.Modifier
  * TODO(b/152528891): Write tests for [FocusModifier] after we finalize on the api (API
  * review tracked by b/152529882).
  */
+@Suppress("DEPRECATION")
+@Deprecated(
+    "Please use FocusModifier2",
+    ReplaceWith("FocusModifier2", "androidx.ui.core.focus.FocusModifier2")
+)
 interface FocusModifier : Modifier.Element {
     /**
      * The current focus state of the component wrapped by this [Modifier].
@@ -65,9 +70,17 @@ interface FocusModifier : Modifier.Element {
  * [Composable] makes it focusable.
  */
 @Composable
+@Suppress("DEPRECATION")
+@Deprecated(
+    "Please use Modifier.focus()",
+    ReplaceWith("Modifier.focus", "androidx.ui.core.focus.focus")
+)
 fun FocusModifier(): FocusModifier = remember { FocusModifierImpl(FocusDetailedState.Inactive) }
 
 /**
  * This function returns the [FocusState] for the component wrapped by this [FocusModifier].
  */
-val FocusModifier.focusState: FocusState get() = focusDetailedState.focusState()
+@Suppress("DEPRECATION")
+@Deprecated("Please use Modifier.focusObserver() to observe focus state changes")
+val FocusModifier.focusState: FocusState
+    get() = focusDetailedState.focusState()

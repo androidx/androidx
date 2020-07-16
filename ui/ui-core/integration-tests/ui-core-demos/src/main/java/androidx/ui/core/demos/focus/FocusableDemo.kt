@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// TODO(b/160821157): Replace FocusState with FocusState2.isFocused
+@file:Suppress("DEPRECATION")
+
 package androidx.ui.core.demos.focus
 
 import androidx.compose.Composable
@@ -52,6 +55,7 @@ fun FocusableDemo() {
     }
 }
 
+@Suppress("DEPRECATION")
 @Composable
 private fun FocusableText(text: String) {
     val focusModifier = FocusModifier()
