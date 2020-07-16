@@ -32,7 +32,7 @@ import java.util.Map;
  * <p>This class parses a mailto scheme URI and then can be queried for the parsed parameters.
  * This implements RFC 6068.
  */
-public class MailTo {
+public final class MailTo {
     public static final String MAILTO_SCHEME = "mailto:";
 
     // Well known headers
