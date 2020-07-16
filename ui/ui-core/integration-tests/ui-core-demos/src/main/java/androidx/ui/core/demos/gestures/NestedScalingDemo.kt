@@ -24,7 +24,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.rawScaleGestureFilter
 import androidx.ui.core.gesture.RawScaleObserver
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.wrapContentSize
@@ -85,7 +85,7 @@ private fun Scalable(
         children = children,
         modifier = Modifier.wrapContentSize(Alignment.Center)
             .rawScaleGestureFilter(outerScaleObserver)
-            .drawBackground(color = color),
+            .background(color = color),
         measureBlock = { measurables, constraints ->
             val newConstraints =
                 constraints.copy(

@@ -46,8 +46,8 @@ import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.ScrollState
 import androidx.ui.foundation.ScrollableRow
+import androidx.ui.foundation.background
 import androidx.ui.foundation.contentColor
-import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.rememberScrollState
 import androidx.ui.foundation.selection.selectable
 import androidx.ui.graphics.Color
@@ -405,7 +405,7 @@ object TabRow {
      */
     @Composable
     fun Indicator(modifier: Modifier = Modifier, color: Color = contentColor()) {
-        Box(modifier.fillMaxWidth().preferredHeight(IndicatorHeight).drawBackground(color))
+        Box(modifier.fillMaxWidth().preferredHeight(IndicatorHeight).background(color = color))
     }
 
     /**

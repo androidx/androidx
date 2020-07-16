@@ -31,8 +31,8 @@ import androidx.ui.core.layoutId
 import androidx.ui.core.offset
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.background
 import androidx.ui.foundation.currentTextStyle
-import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.shape.corner.ZeroCornerSize
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
@@ -324,7 +324,7 @@ internal fun FilledTextFieldLayout(
     // places leading icon, text field with label and placeholder, trailing icon
     IconsWithTextFieldLayout(
         modifier = textFieldModifier
-            .drawBackground(
+            .background(
                 color = backgroundColor.applyAlpha(alpha = ContainerAlpha),
                 shape = shape
             )

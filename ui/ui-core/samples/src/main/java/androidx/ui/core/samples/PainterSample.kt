@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.paint
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.Painter
@@ -48,9 +48,9 @@ fun PainterModifierSample() {
 
     Box(
         modifier =
-            Modifier.drawBackground(Color.Gray)
+            Modifier.background(color = Color.Gray)
                 .padding(30.dp)
-                .drawBackground(Color.Yellow)
+                .background(color = Color.Yellow)
                 .paint(CustomPainter())
     ) { /** intentionally empty **/ }
 }

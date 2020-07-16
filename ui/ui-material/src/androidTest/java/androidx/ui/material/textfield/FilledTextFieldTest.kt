@@ -29,9 +29,9 @@ import androidx.ui.core.positionInRoot
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.background
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.currentTextStyle
-import androidx.ui.foundation.drawBackground
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
@@ -695,7 +695,7 @@ class FilledTextFieldTest {
         val latch = CountDownLatch(1)
 
         testRule.setMaterialContent {
-            Stack(Modifier.drawBackground(Color.White)) {
+            Stack(Modifier.background(color = Color.White)) {
                 FilledTextField(
                     modifier = Modifier.testTag(TextfieldTag),
                     value = "",

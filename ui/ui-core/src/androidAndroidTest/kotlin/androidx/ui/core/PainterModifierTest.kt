@@ -28,7 +28,7 @@ import androidx.ui.core.test.Padding
 import androidx.ui.core.test.assertColorsEqual
 import androidx.ui.core.test.background
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas
@@ -473,7 +473,7 @@ class PainterModifierTest {
             Box(
                 modifier = Modifier
                     .testTag(testTag)
-                    .drawBackground(Color.Gray)
+                    .background(color = Color.Gray)
                     .width((boxWidth / DensityAmbient.current.density).dp)
                     .height((boxHeight / DensityAmbient.current.density).dp)
                     .paint(ImagePainter(srcImage), contentScale = ContentScale.FillHeight)
@@ -512,7 +512,7 @@ class PainterModifierTest {
             val vectorWidthDp = (vectorWidth / DensityAmbient.current.density).dp
             val vectorHeightDp = (vectorHeight / DensityAmbient.current.density).dp
             Box(
-                modifier = Modifier.drawBackground(Color.Gray)
+                modifier = Modifier.background(color = Color.Gray)
                     .width((boxWidth / DensityAmbient.current.density).dp)
                     .height((boxHeight / DensityAmbient.current.density).dp)
                     .paint(

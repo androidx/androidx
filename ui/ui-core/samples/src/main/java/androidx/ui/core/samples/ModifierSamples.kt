@@ -22,7 +22,7 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
@@ -36,7 +36,7 @@ fun ModifierUsageSample() {
     Text(
         "Hello, World!",
         Modifier.padding(16.dp) // Outer padding; outside background
-            .drawBackground(Color.Green) // Solid element background color
+            .background(color = Color.Green) // Solid element background color
             .padding(16.dp) // Inner padding; inside background, around text
     )
 }

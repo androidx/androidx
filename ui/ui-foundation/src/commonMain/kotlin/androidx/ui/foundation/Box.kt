@@ -82,7 +82,7 @@ fun Box(
         if (border != null) Modifier.drawBorder(border, shape) else Modifier
     val backgroundModifier =
         if (backgroundColor != Color.Transparent) {
-            Modifier.drawBackground(backgroundColor, shape)
+            Modifier.background(color = backgroundColor, shape = shape)
         } else {
             Modifier
         }

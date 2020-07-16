@@ -23,7 +23,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
@@ -122,7 +122,7 @@ fun SimpleRelativeToSiblingsInColumn() {
     fun RectangleWithStartEnd(modifier: Modifier = Modifier, color: Color, width: Dp, height: Dp) {
         Layout(
             children = { },
-            modifier = modifier.drawBackground(color = color)
+            modifier = modifier.background(color = color)
         ) { _, constraints ->
             val widthPx = max(width.toIntPx(), constraints.minWidth)
             val heightPx = max(height.toIntPx(), constraints.minHeight)

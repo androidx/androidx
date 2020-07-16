@@ -21,7 +21,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
@@ -64,7 +64,7 @@ class BoundsAssertionsTest {
                     Box(modifier = Modifier
                         .testTag(tag)
                         .size(80.dp, 100.dp)
-                        .drawBackground(Color.Black)
+                        .background(color = Color.Black)
                     )
                 }
             }

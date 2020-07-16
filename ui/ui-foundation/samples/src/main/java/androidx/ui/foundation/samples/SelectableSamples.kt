@@ -24,7 +24,7 @@ import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.foundation.selection.selectable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -46,7 +46,7 @@ fun SelectableSample() {
                 Box(
                     Modifier
                         .size(100.dp)
-                        .drawBackground(color)
+                        .background(color = color)
                         .selectable(
                             selected = selected,
                             onClick = { selectedOption = color }

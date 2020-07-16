@@ -65,7 +65,7 @@ class BorderTest(val shape: Shape) {
             SemanticParent {
                 Stack(
                     Modifier.preferredSize(40.0f.toDp(), 40.0f.toDp())
-                        .drawBackground(Color.Blue, shape)
+                        .background(color = Color.Blue)
                         .drawBorder(Border(10.0f.toDp(), Color.Red), shape)
 
                 ) {}
@@ -90,7 +90,7 @@ class BorderTest(val shape: Shape) {
             SemanticParent {
                 Stack(
                     Modifier.preferredSize(40.0f.toDp(), 40.0f.toDp())
-                        .drawBackground(Color.Blue, shape)
+                        .background(color = Color.Blue)
                         .drawBorder(
                             Border(10.0f.toDp(), SolidColor(Color.Red)),
                             shape
@@ -117,7 +117,7 @@ class BorderTest(val shape: Shape) {
             SemanticParent {
                 Stack(
                     Modifier.preferredSize(40.0f.toDp(), 40.0f.toDp())
-                        .drawBackground(Color.Blue, shape)
+                        .background(color = Color.Blue)
                         .drawBorder(Border(1500.0f.toDp(), Color.Red), shape)
                 ) {}
             }
@@ -139,7 +139,7 @@ class BorderTest(val shape: Shape) {
             SemanticParent {
                 Stack(
                     Modifier.preferredSize(40.0f.toDp(), 40.0f.toDp())
-                        .drawBackground(Color.Blue, shape)
+                        .background(color = Color.Blue)
                         .drawBorder(Border(-5.0f.toDp(), Color.Red), shape)
                 ) {}
             }

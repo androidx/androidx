@@ -39,7 +39,7 @@ import androidx.ui.core.setContent
 import androidx.ui.core.test.R
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.size
 import androidx.ui.test.android.AndroidComposeTestRule
@@ -186,7 +186,7 @@ class ComposedViewTest {
             }
         }
         composeTestRule.setContent {
-            AndroidView(frameLayout, Modifier.testTag("view").drawBackground(Color.Blue))
+            AndroidView(frameLayout, Modifier.testTag("view").background(color = Color.Blue))
         }
 
         onNodeWithTag("view").captureToBitmap().assertPixels(IntSize(size, size)) {

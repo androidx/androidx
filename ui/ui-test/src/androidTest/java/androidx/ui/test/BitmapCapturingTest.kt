@@ -24,7 +24,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
@@ -164,27 +164,28 @@ class BitmapCapturingTest(val config: TestConfig) {
                     Box(Modifier.padding(top = 20.toDp()), backgroundColor = colorBg) {
                         Column(Modifier.testTag(rootTag)) {
                             Row {
-                                Box(Modifier
-                                    .testTag(tag11)
-                                    .preferredSize(100.toDp(), 50.toDp())
-                                    .drawBackground(color11)
+                                Box(
+                                    Modifier
+                                        .testTag(tag11)
+                                        .preferredSize(100.toDp(), 50.toDp())
+                                        .background(color = color11)
                                 )
                                 Box(Modifier
                                     .testTag(tag12)
                                     .preferredSize(100.toDp(), 50.toDp())
-                                    .drawBackground(color12)
+                                    .background(color12)
                                 )
                             }
                             Row {
                                 Box(Modifier
                                     .testTag(tag21)
                                     .preferredSize(100.toDp(), 50.toDp())
-                                    .drawBackground(color21)
+                                    .background(color21)
                                 )
                                 Box(Modifier
                                     .testTag(tag22)
                                     .preferredSize(100.toDp(), 50.toDp())
-                                    .drawBackground(color22)
+                                    .background(color22)
                                 )
                             }
                         }

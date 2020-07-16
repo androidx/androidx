@@ -24,7 +24,7 @@ import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.ui.core.zIndex
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.layout.Stack
@@ -109,7 +109,7 @@ class SurfaceTest {
                 .preferredSize(10.dp, 10.dp)
                 .semantics(mergeAllDescendants = true) {}
                 .testTag("stack")) {
-                Box(Modifier.fillMaxSize().drawBackground(Color.Green).zIndex(3f))
+                Box(Modifier.fillMaxSize().background(color = Color.Green).zIndex(3f))
                 Surface(color = Color.Yellow, elevation = 2.dp) {
                     Box(Modifier.fillMaxSize())
                 }
@@ -134,7 +134,7 @@ class SurfaceTest {
                 .preferredSize(10.dp, 10.dp)
                 .semantics(mergeAllDescendants = true) {}
                 .testTag("stack")) {
-                Box(Modifier.fillMaxSize().drawBackground(Color.Green).zIndex(1f))
+                Box(Modifier.fillMaxSize().background(color = Color.Green).zIndex(1f))
                 Surface(color = Color.Yellow, elevation = 2.dp) {
                     Box(Modifier.fillMaxSize())
                 }

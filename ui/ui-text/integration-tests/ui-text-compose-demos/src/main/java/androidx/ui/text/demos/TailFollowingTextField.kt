@@ -23,7 +23,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.constrainWidth
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.Column
@@ -48,7 +48,7 @@ fun TailFollowingTextFieldDemo() {
             modifier = Modifier
                 .padding(20.dp)
                 .fillMaxWidth()
-                .drawBackground(Color.Gray)
+                .background(color = Color.Gray)
                 .clipToBounds()
         )
 
@@ -62,7 +62,7 @@ fun TailFollowingTextFieldDemo() {
                 .padding(20.dp)
                 .fillMaxWidth()
                 .height(120.dp)
-                .drawBackground(Color.Gray)
+                .background(Color.Gray)
                 .clipToBounds()
         )
     }

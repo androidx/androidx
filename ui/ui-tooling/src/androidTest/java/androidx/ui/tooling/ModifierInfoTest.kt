@@ -26,7 +26,7 @@ import androidx.ui.core.OwnedLayer
 import androidx.ui.core.drawLayer
 import androidx.ui.core.positionInRoot
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.padding
@@ -52,7 +52,7 @@ class ModifierInfoTest : ToolingTest() {
                     val px10 = 10f.toDp()
                     val px5 = 5f.toDp()
                     Box {
-                        Column(Modifier.padding(px10).drawLayer().drawBackground(Color.Blue)) {
+                        Column(Modifier.padding(px10).drawLayer().background(color = Color.Blue)) {
                             Box(Modifier.padding(px5).size(px5))
                         }
                     }

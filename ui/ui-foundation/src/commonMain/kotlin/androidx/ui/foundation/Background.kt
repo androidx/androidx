@@ -41,6 +41,57 @@ import androidx.ui.util.annotation.FloatRange
  * @param color color to paint background with
  * @param shape desired shape of the background
  */
+fun Modifier.background(
+    color: Color,
+    shape: Shape = RectangleShape
+) = this + Background(
+    shape,
+    {
+        drawRect(color)
+    },
+    { outline ->
+        drawOutline(outline, color)
+    }
+)
+
+/**
+ * Draws [shape] with [brush] behind the content.
+ *
+ * @sample androidx.ui.foundation.samples.DrawBackgroundShapedBrush
+ *
+ * @param brush brush to paint background with
+ * @param shape desired shape of the background
+ * @param alpha Opacity to be applied to the [brush]
+ */
+fun Modifier.background(
+    brush: Brush,
+    shape: Shape = RectangleShape,
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f
+) = this + Background(
+    shape,
+    {
+        drawRect(brush = brush, alpha = alpha)
+    },
+    { outline ->
+        drawOutline(outline, brush, alpha = alpha)
+    }
+)
+
+/**
+ * Draws [shape] with a solid [color] behind the content.
+ *
+ * @sample androidx.ui.foundation.samples.DrawBackgroundColor
+ *
+ * @param color color to paint background with
+ * @param shape desired shape of the background
+ */
+@Deprecated(
+    "Use Modifier.background instead", replaceWith = ReplaceWith(
+        "this.background(color = color, shape = shape)",
+        "androidx.ui.foundation.background"
+    )
+)
+@Suppress("UNUSED_PARAMETER")
 fun Modifier.drawBackground(
     color: Color,
     shape: Shape = RectangleShape,
@@ -48,28 +99,7 @@ fun Modifier.drawBackground(
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode
-) = this + DrawBackground(
-                shape,
-                {
-                    drawRect(
-                        color,
-                        alpha = alpha,
-                        style = style,
-                        colorFilter = colorFilter,
-                        blendMode = blendMode
-                    )
-                },
-                { outline ->
-                    drawOutline(
-                        outline,
-                        color,
-                        alpha = alpha,
-                        style = style,
-                        colorFilter = colorFilter,
-                        blendMode = blendMode
-                    )
-                }
-            )
+) = background(color, shape)
 
 /**
  * Draws [shape] with [brush] behind the content.
@@ -79,6 +109,13 @@ fun Modifier.drawBackground(
  * @param brush brush to paint background with
  * @param shape desired shape of the background
  */
+@Deprecated(
+    "Use Modifier.background instead", replaceWith = ReplaceWith(
+        "this.background(brush = brush, shape = shape)",
+        "androidx.ui.foundation.background"
+    )
+)
+@Suppress("UNUSED_PARAMETER")
 fun Modifier.drawBackground(
     brush: Brush,
     shape: Shape = RectangleShape,
@@ -86,28 +123,9 @@ fun Modifier.drawBackground(
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode
-) = this + DrawBackground(
-                shape,
-                { drawRect(
-                        brush = brush,
-                        alpha = alpha,
-                        style = style,
-                        colorFilter = colorFilter,
-                        blendMode = blendMode
-                    )
-                },
-                { outline ->
-                    drawOutline(outline,
-                        brush,
-                        alpha = alpha,
-                        style = style,
-                        colorFilter = colorFilter,
-                        blendMode = blendMode
-                    )
-                }
-            )
+) = background(brush, shape, alpha)
 
-private data class DrawBackground internal constructor(
+private data class Background internal constructor(
     private val shape: Shape,
     private val drawRect: ContentDrawScope.() -> Unit,
     private val drawOutline: ContentDrawScope.(outline: Outline) -> Unit

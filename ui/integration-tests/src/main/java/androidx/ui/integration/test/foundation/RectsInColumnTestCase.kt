@@ -21,7 +21,7 @@ import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.unit.dp
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -69,6 +69,6 @@ class RectsInColumnTestCase(
     fun ColoredRectWithModel() {
         val state = state { Color.Black }
         states.add(state)
-        Box(Modifier.preferredSize(100.dp, 50.dp).drawBackground(state.value))
+        Box(Modifier.preferredSize(100.dp, 50.dp).background(color = state.value))
     }
 }

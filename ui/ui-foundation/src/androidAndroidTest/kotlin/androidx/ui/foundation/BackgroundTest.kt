@@ -42,7 +42,7 @@ import org.junit.runners.JUnit4
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RunWith(JUnit4::class)
-class DrawBackgroundTest {
+class BackgroundTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -54,10 +54,10 @@ class DrawBackgroundTest {
         composeTestRule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.preferredSize(40f.toDp()).drawBackground(Color.Magenta),
+                    Modifier.preferredSize(40f.toDp()).background(Color.Magenta),
                     gravity = ContentGravity.Center
                 ) {
-                    Box(Modifier.preferredSize(20f.toDp()).drawBackground(Color.White))
+                    Box(Modifier.preferredSize(20f.toDp()).background(Color.White))
                 }
             }
         }
@@ -77,12 +77,12 @@ class DrawBackgroundTest {
         composeTestRule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.preferredSize(40f.toDp()).drawBackground(Color.Magenta),
+                    Modifier.preferredSize(40f.toDp()).background(Color.Magenta),
                     gravity = ContentGravity.Center
                 ) {
                     Box(
                         Modifier.preferredSize(20f.toDp())
-                            .drawBackground(SolidColor(Color.White))
+                            .background(SolidColor(Color.White))
                     )
                 }
             }
@@ -104,8 +104,8 @@ class DrawBackgroundTest {
             SemanticParent {
                 Box(
                     Modifier.preferredSize(40f.toDp())
-                        .drawBackground(Color.Magenta)
-                        .drawBackground(color = Color.White, shape = CircleShape)
+                        .background(Color.Magenta)
+                        .background(color = Color.White, shape = CircleShape)
                 )
             }
         }
@@ -125,8 +125,8 @@ class DrawBackgroundTest {
             SemanticParent {
                 Box(
                     Modifier.preferredSize(40f.toDp())
-                        .drawBackground(Color.Magenta)
-                        .drawBackground(
+                        .background(Color.Magenta)
+                        .background(
                             brush = SolidColor(Color.White),
                             shape = CircleShape
                         )

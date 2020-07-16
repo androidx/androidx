@@ -27,7 +27,7 @@ import androidx.ui.core.drawOpacity
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
@@ -73,5 +73,5 @@ fun ArbitraryValueTypeTransition(enabled: Boolean) {
         convertToVector = { AnimationVector2D(it.width.value, it.height.value) },
         convertFromVector = { MySize(it.v1.dp, it.v2.dp) }
     ))
-    Box(Modifier.preferredSize(animSize.width, animSize.height).drawBackground(Color.Red))
+    Box(Modifier.preferredSize(animSize.width, animSize.height).background(color = Color.Red))
 }
