@@ -100,7 +100,7 @@ abstract class CoroutineWorker(
 
     /**
      * Makes the [CoroutineWorker] run in the context of a foreground [android.app.Service]. This
-     * is a suspending function unlike the [setProgressAsync] API which returns a
+     * is a suspending function unlike the [setForegroundAsync] API which returns a
      * [ListenableFuture].
      *
      * @param foregroundInfo The [ForegroundInfo]
