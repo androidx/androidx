@@ -15,5 +15,4 @@
 -->
 <resources>
     <item name="ws_navigation_drawer_view_pager" type="id" />
-    <item name="action_list" type="id" />
 </resources>
