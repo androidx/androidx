@@ -384,7 +384,7 @@ package androidx.mediarouter.media {
     method public void onRouteRemoved(androidx.mediarouter.media.MediaRouter!, androidx.mediarouter.media.MediaRouter.RouteInfo!);
     method @Deprecated public void onRouteSelected(androidx.mediarouter.media.MediaRouter!, androidx.mediarouter.media.MediaRouter.RouteInfo!);
     method public void onRouteSelected(androidx.mediarouter.media.MediaRouter, androidx.mediarouter.media.MediaRouter.RouteInfo, int);
-    method public void onRouteSelected(androidx.mediarouter.media.MediaRouter, androidx.mediarouter.media.MediaRouter.RouteInfo, androidx.mediarouter.media.MediaRouter.RouteInfo, int);
+    method public void onRouteSelected(androidx.mediarouter.media.MediaRouter, androidx.mediarouter.media.MediaRouter.RouteInfo, int, androidx.mediarouter.media.MediaRouter.RouteInfo);
     method @Deprecated public void onRouteUnselected(androidx.mediarouter.media.MediaRouter!, androidx.mediarouter.media.MediaRouter.RouteInfo!);
     method public void onRouteUnselected(androidx.mediarouter.media.MediaRouter!, androidx.mediarouter.media.MediaRouter.RouteInfo!, int);
     method public void onRouteVolumeChanged(androidx.mediarouter.media.MediaRouter!, androidx.mediarouter.media.MediaRouter.RouteInfo!);
