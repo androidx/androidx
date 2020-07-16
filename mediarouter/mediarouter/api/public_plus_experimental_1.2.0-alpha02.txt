@@ -397,7 +397,7 @@ package androidx.mediarouter.media {
   }
 
   public static interface MediaRouter.OnPrepareTransferListener {
-    method public void onPrepareTransfer(androidx.mediarouter.media.MediaRouter.RouteInfo, androidx.mediarouter.media.MediaRouter.RouteInfo, androidx.mediarouter.media.MediaRouter.TransferNotifier);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!>? onPrepareTransfer(androidx.mediarouter.media.MediaRouter.RouteInfo, androidx.mediarouter.media.MediaRouter.RouteInfo);
   }
 
   public static final class MediaRouter.ProviderInfo {
@@ -448,10 +448,6 @@ package androidx.mediarouter.media {
     field public static final int PLAYBACK_TYPE_REMOTE = 1; // 0x1
     field public static final int PLAYBACK_VOLUME_FIXED = 0; // 0x0
     field public static final int PLAYBACK_VOLUME_VARIABLE = 1; // 0x1
-  }
-
-  public static final class MediaRouter.TransferNotifier {
-    method public void notifyPrepareFinished();
   }
 
   public class MediaRouterParams {

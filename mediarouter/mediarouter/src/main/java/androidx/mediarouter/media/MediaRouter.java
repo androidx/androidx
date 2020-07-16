@@ -55,6 +55,8 @@ import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController
 import androidx.mediarouter.media.MediaRouteProvider.ProviderMetadata;
 import androidx.mediarouter.media.MediaRouteProvider.RouteController;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
@@ -2200,8 +2202,9 @@ public final class MediaRouter {
          * <p>
          * Setting the listener will defer stopping the previous route, from which you may
          * get the media status to resume media seamlessly on the new route.
-         * When transfer is prepared call {@link TransferNotifier#notifyPrepareFinished()}
-         * to stop media being played on the previous route and release resources.
+         * When the transfer is prepared, finish the returned future to stop media being played
+         * on the previous route and release resources.
+         * This method is called on the main thread.
          * <p>
          * {@link Callback#onRouteUnselected(MediaRouter, RouteInfo, int)} and
          * {@link Callback#onRouteSelected(MediaRouter, RouteInfo, int)} are called just after
@@ -2211,10 +2214,14 @@ public final class MediaRouter {
          *
          * @param fromRoute The route that is about to be unselected.
          * @param toRoute The route that is about to be selected.
-         * @param transferNotifier the object used to notify finish of preparation.
+         * @return A {@link ListenableFuture} whose completion indicates that the
+         * transfer is prepared or {@code null} to indicate that no preparation is needed.
+         * If a future is returned until the future is complete,
+         * the media continues to be played on the previous route.
          */
-        void onPrepareTransfer(@NonNull RouteInfo fromRoute,
-                @NonNull RouteInfo toRoute, @NonNull TransferNotifier transferNotifier);
+        @Nullable
+        ListenableFuture<Void> onPrepareTransfer(@NonNull RouteInfo fromRoute,
+                @NonNull RouteInfo toRoute);
     }
 
     /**
@@ -2304,7 +2311,8 @@ public final class MediaRouter {
         private MediaRouteDiscoveryRequest mDiscoveryRequest;
         private int mCallbackCount;
         OnPrepareTransferListener mOnPrepareTransferListener;
-        TransferNotifier mLastTransferNotifier;
+        RouteController mTransferredRouteController;
+        RouteInfo mTransferredRoute;
         private MediaSessionRecord mMediaSession;
         MediaSessionCompat mRccMediaSession;
         private MediaSessionCompat mCompatSession;
@@ -2403,9 +2411,8 @@ public final class MediaRouter {
                     return;
                 }
             }
-            if (mLastTransferNotifier != null && route == mLastTransferNotifier.mRoute
-                    && mLastTransferNotifier.mRouteController != null) {
-                if (mLastTransferNotifier.mRouteController.onControlRequest(intent, callback)) {
+            if (route == mTransferredRoute && mTransferredRouteController != null) {
+                if (mTransferredRouteController.onControlRequest(intent, callback)) {
                     return;
                 }
             }
@@ -3137,16 +3144,25 @@ public final class MediaRouter {
                 return;
             }
 
-            TransferNotifier transferNotifier = new TransferNotifier(this, unselectReason);
-            // Save this to handle control intent on the previous newRoute.
-            mLastTransferNotifier = transferNotifier;
+            PrepareTransferNotifier prepareTransferNotifier =
+                    new PrepareTransferNotifier(this, unselectReason);
+
+            // Save these to handle control intent on the previous newRoute.
+            mTransferredRoute = mSelectedRoute;
+            mTransferredRouteController = mSelectedRouteController;
 
             if (unselectReason != UNSELECT_REASON_ROUTE_CHANGED
                     || mOnPrepareTransferListener == null) {
-                transferNotifier.notifyPrepareFinished();
+                prepareTransferNotifier.notifyPrepareFinished();
             } else {
-                mOnPrepareTransferListener.onPrepareTransfer(mSelectedRoute,
-                        newRoute, transferNotifier);
+                ListenableFuture<Void> future =
+                        mOnPrepareTransferListener.onPrepareTransfer(mSelectedRoute, newRoute);
+                if (future == null) {
+                    prepareTransferNotifier.notifyPrepareFinished();
+                } else {
+                    future.addListener(prepareTransferNotifier::notifyPrepareFinished,
+                            mCallbackHandler::post);
+                }
             }
 
             mCallbackHandler.post(CallbackHandler.MSG_ROUTE_UNSELECTED, mSelectedRoute,
@@ -3632,7 +3648,7 @@ public final class MediaRouter {
     /**
      * Class to notify events about transfer.
      */
-    public static final class TransferNotifier {
+    static final class PrepareTransferNotifier {
         private static final long TRANSFER_TIMEOUT_MS = 15_000;
 
         private final @UnselectReason int mReason;
@@ -3643,7 +3659,7 @@ public final class MediaRouter {
 
         private boolean mReleased = false;
 
-        TransferNotifier(GlobalMediaRouter router, @UnselectReason int reason) {
+        PrepareTransferNotifier(GlobalMediaRouter router, @UnselectReason int reason) {
             mReason = reason;
 
             mRoute = router.mSelectedRoute;
@@ -3668,8 +3684,9 @@ public final class MediaRouter {
             mReleased = true;
 
             GlobalMediaRouter router = mRouter.get();
-            if (router != null && router.mLastTransferNotifier == this) {
-                router.mLastTransferNotifier = null;
+            if (router != null && router.mTransferredRoute == mRoute) {
+                router.mTransferredRoute = null;
+                router.mTransferredRouteController = null;
             }
 
             if (mRouteController != null) {
