@@ -25,7 +25,7 @@ import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
@@ -109,10 +109,11 @@ class TabTest {
 
             val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
                 TabRow.IndicatorContainer(tabPositions, state) {
-                    Box(Modifier
-                        .fillMaxWidth()
-                        .preferredHeight(indicatorHeight)
-                        .drawBackground(Color.Red)
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .preferredHeight(indicatorHeight)
+                            .background(color = Color.Red)
                         .testTag("indicator")
                     )
                 }
@@ -275,10 +276,11 @@ class TabTest {
 
             val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
                 TabRow.IndicatorContainer(tabPositions, state) {
-                    Box(Modifier
-                        .fillMaxWidth()
-                        .preferredHeight(indicatorHeight)
-                        .drawBackground(Color.Red)
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .preferredHeight(indicatorHeight)
+                            .background(color = Color.Red)
                         .testTag("indicator")
                     )
                 }

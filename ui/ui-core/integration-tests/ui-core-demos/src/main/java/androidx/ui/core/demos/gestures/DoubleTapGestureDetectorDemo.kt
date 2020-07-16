@@ -23,7 +23,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.doubleTapGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.foundation.drawBorder
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
@@ -51,7 +51,7 @@ fun DoubleTapGestureFilterDemo() {
                 .preferredSize(192.dp)
                 .doubleTapGestureFilter(onDoubleTap)
                 .drawBorder(2.dp, BorderColor)
-                .drawBackground(color.value)
+                .background(color = color.value)
         )
     }
 }

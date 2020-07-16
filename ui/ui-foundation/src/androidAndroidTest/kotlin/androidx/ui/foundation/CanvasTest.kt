@@ -64,7 +64,7 @@ class CanvasTest {
             val minWidth = (boxWidth / density).dp
             val minHeight = (boxHeight / density).dp
             Box(modifier = Modifier.preferredSize(containerSize)
-                .drawBackground(Color.White)
+                .background(color = Color.White)
                 .wrapContentSize(Alignment.Center)) {
                     Canvas(modifier = Modifier.preferredSize(minWidth, minHeight)) {
                         drawLine(

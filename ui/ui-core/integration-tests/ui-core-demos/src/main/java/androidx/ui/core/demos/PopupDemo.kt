@@ -28,8 +28,8 @@ import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
+import androidx.ui.foundation.background
 import androidx.ui.foundation.clickable
-import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
@@ -218,7 +218,7 @@ private fun ColumnScope.PopupWithChangingParent() {
                 backgroundColor = Color.Blue
             ) {
                 Popup(Alignment.BottomCenter) {
-                    Text("Popup", modifier = Modifier.drawBackground(color = Color.Green))
+                    Text("Popup", modifier = Modifier.background(color = Color.Green))
                 }
             }
         }
@@ -319,7 +319,7 @@ private fun ColumnScope.PopupAlignmentDemo() {
         Spacer(Modifier.preferredHeight(10.dp))
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally)
-                .drawBackground(color = Color.White),
+                .background(color = Color.White),
             text = "Alignment : " + popupAlignment.value.toString()
         )
     }
@@ -481,7 +481,7 @@ private fun EditLine(
     val state = state { TextFieldValue(initialText) }
     TextField(
         value = state.value,
-        modifier = modifier.drawBackground(color = color),
+        modifier = modifier.background(color = color),
         keyboardType = keyboardType,
         imeAction = imeAction,
         onValueChange = {

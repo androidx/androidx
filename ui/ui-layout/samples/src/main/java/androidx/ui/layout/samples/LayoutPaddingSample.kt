@@ -20,7 +20,7 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Stack
@@ -32,7 +32,7 @@ import androidx.ui.unit.dp
 @Sampled
 @Composable
 fun PaddingModifier() {
-    Stack(Modifier.drawBackground(Color.Gray)) {
+    Stack(Modifier.background(color = Color.Gray)) {
         Box(
             Modifier.padding(start = 20.dp, top = 30.dp, end = 20.dp, bottom = 30.dp)
                 .preferredSize(50.dp),
@@ -44,7 +44,7 @@ fun PaddingModifier() {
 @Sampled
 @Composable
 fun SymmetricPaddingModifier() {
-    Stack(Modifier.drawBackground(Color.Gray)) {
+    Stack(Modifier.background(color = Color.Gray)) {
         Box(
             Modifier.padding(horizontal = 20.dp, vertical = 30.dp).preferredSize(50.dp),
             backgroundColor = Color.Blue
@@ -55,7 +55,7 @@ fun SymmetricPaddingModifier() {
 @Sampled
 @Composable
 fun PaddingAllModifier() {
-    Stack(Modifier.drawBackground(Color.Gray)) {
+    Stack(Modifier.background(color = Color.Gray)) {
         Box(Modifier.padding(all = 20.dp).preferredSize(50.dp), backgroundColor = Color.Blue)
     }
 }
@@ -64,7 +64,7 @@ fun PaddingAllModifier() {
 @Composable
 fun PaddingInnerPaddingModifier() {
     val innerPadding = InnerPadding(top = 10.dp, start = 15.dp)
-    Stack(Modifier.drawBackground(Color.Gray)) {
+    Stack(Modifier.background(color = Color.Gray)) {
         Box(Modifier.padding(innerPadding).preferredSize(50.dp), backgroundColor = Color.Blue)
     }
 }
@@ -72,7 +72,7 @@ fun PaddingInnerPaddingModifier() {
 @Sampled
 @Composable
 fun AbsolutePaddingModifier() {
-    Stack(Modifier.drawBackground(Color.Gray)) {
+    Stack(Modifier.background(color = Color.Gray)) {
         Box(
             Modifier.absolutePadding(left = 20.dp, top = 30.dp, right = 20.dp, bottom = 30.dp)
                 .preferredSize(50.dp),

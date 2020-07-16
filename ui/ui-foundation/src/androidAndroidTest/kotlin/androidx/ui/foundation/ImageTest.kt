@@ -102,7 +102,7 @@ class ImageTest {
             val size = (containerSize / DensityAmbient.current.density).dp
             Box(
                 Modifier.preferredSize(size)
-                    .drawBackground(Color.White)
+                    .background(color = Color.White)
                     .wrapContentSize(Alignment.Center)
             ) {
                 Image(modifier = Modifier.testTag(contentTag), asset = createImageAsset())
@@ -133,7 +133,7 @@ class ImageTest {
             val size = (containerSize / DensityAmbient.current.density).dp
             Box(
                 Modifier.preferredSize(size)
-                    .drawBackground(Color.White)
+                    .background(color = Color.White)
                     .wrapContentSize(Alignment.Center)
             ) {
                 Image(
@@ -203,7 +203,7 @@ class ImageTest {
             val size = (containerSize * 2 / density).dp
             Box(
                 Modifier.preferredSize(size)
-                    .drawBackground(Color.White)
+                    .background(color = Color.White)
                     .wrapContentSize(Alignment.Center)
             ) {
                 // The resultant Image composable should be twice the size of the underlying
@@ -245,7 +245,7 @@ class ImageTest {
             val size = (containerSize * 2 / density).dp
             Box(
                 Modifier.preferredSize(size)
-                    .drawBackground(Color.White)
+                    .background(color = Color.White)
                     .wrapContentSize(Alignment.Center)
             ) {
                 // The resultant Image composable should be twice the size of the underlying
@@ -295,7 +295,7 @@ class ImageTest {
             val minHeight = (boxHeight / density).dp
             Box(
                 Modifier.preferredSize(size)
-                    .drawBackground(Color.White)
+                    .background(color = Color.White)
                     .wrapContentSize(Alignment.Center)
             ) {
                 // This is an async call to parse the VectorDrawable xml asset into

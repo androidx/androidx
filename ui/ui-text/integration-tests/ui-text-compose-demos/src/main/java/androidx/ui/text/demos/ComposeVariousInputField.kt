@@ -28,7 +28,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
@@ -247,7 +247,7 @@ fun VariousInputFieldDemo() {
             // Force 4 with red color cursor
             Layout(
                 children = emptyContent(),
-                modifier = Modifier.drawBackground(Color.Red)
+                modifier = Modifier.background(color = Color.Red)
             ) { _, constraints -> layout(4, constraints.maxHeight) {} }
         }
     }

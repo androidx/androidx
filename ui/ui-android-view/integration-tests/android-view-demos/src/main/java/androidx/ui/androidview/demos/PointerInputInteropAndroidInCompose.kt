@@ -30,8 +30,8 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.ScrollableRow
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
 import androidx.ui.geometry.Offset
+import androidx.ui.foundation.background
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
@@ -173,11 +173,13 @@ private fun AndroidTapInComposeScroll() {
 @Composable
 private fun AndroidScrollInComposeScrollDifferentOrientation() {
     Column {
-        Text("Demonstrates correct \"scroll orientation\" locking when something scrollable in " +
-                "Android is nested inside something scrollable in Compose.")
+        Text(
+            "Demonstrates correct \"scroll orientation\" locking when something scrollable in " +
+                    "Android is nested inside something scrollable in Compose."
+        )
         Text("You should only be able to scroll in one orientation at a time.")
-        ScrollableRow(modifier = Modifier.drawBackground(androidx.ui.graphics.Color.Blue)) {
-            Box(modifier = Modifier.padding(96.dp).drawBackground(androidx.ui.graphics.Color.Red)) {
+        ScrollableRow(modifier = Modifier.background(androidx.ui.graphics.Color.Blue)) {
+            Box(modifier = Modifier.padding(96.dp).background(androidx.ui.graphics.Color.Red)) {
                 AndroidView(R.layout.android_scroll_in_compose_scroll_different_orientation)
             }
         }
@@ -187,8 +189,10 @@ private fun AndroidScrollInComposeScrollDifferentOrientation() {
 @Composable
 private fun AndroidScrollInComposeScrollSameOrientation() {
     Column {
-        Text("Supposed to demonstrate correct nested scrolling when something scrollable in " +
-                "Android is inside something scrollable in Compose.")
+        Text(
+            "Supposed to demonstrate correct nested scrolling when something scrollable in " +
+                    "Android is inside something scrollable in Compose."
+        )
         Text(
             "This doesn't actually work because nested scrolling isn't implemented between " +
                     "Compose and Android.  Normally, this lack of implementation would mean the " +
@@ -197,11 +201,11 @@ private fun AndroidScrollInComposeScrollSameOrientation() {
                     "that for Compose, and thus the child scrolls and prevents the parent from " +
                     "intercepting. "
         )
-        ScrollableColumn(modifier = Modifier.drawBackground(androidx.ui.graphics.Color.Blue)) {
+        ScrollableColumn(modifier = Modifier.background(androidx.ui.graphics.Color.Blue)) {
             Box(
                 modifier = Modifier
                     .padding(96.dp)
-                    .drawBackground(androidx.ui.graphics.Color.Red)
+                    .background(color = androidx.ui.graphics.Color.Red)
                     .preferredHeight(750.dp)
             ) {
                 AndroidView(R.layout.android_scroll_in_compose_scroll_same_orientation)

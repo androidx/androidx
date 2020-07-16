@@ -33,7 +33,7 @@ import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.foundation.drawBorder
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
@@ -170,8 +170,8 @@ private fun Pressable(
     val layout = Modifier.fillMaxWidth().preferredHeight(height)
 
     val pressOverlay =
-        if (showPressed.value) Modifier.drawBackground(pressedColor) else Modifier
-    Box(gestureDetectors.plus(layout).drawBackground(color.value).plus(pressOverlay))
+        if (showPressed.value) Modifier.background(color = pressedColor) else Modifier
+    Box(gestureDetectors.plus(layout).background(color = color.value).plus(pressOverlay))
 }
 
 /**

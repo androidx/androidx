@@ -34,7 +34,7 @@ import androidx.ui.animation.transition
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
@@ -184,7 +184,7 @@ class TestAnimationClockTest {
     private fun Ui(animationState: State<AnimationStates>) {
         val size = Size(50.0f, 50.0f)
         hasRecomposed = true
-        Box(modifier = Modifier.drawBackground(Color.Yellow).fillMaxSize()) {
+        Box(modifier = Modifier.background(color = Color.Yellow).fillMaxSize()) {
             hasRecomposed = true
             val state = transition(
                 definition = animationDefinition,

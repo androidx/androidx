@@ -31,7 +31,7 @@ import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.lazy.LazyColumnItems
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.foundation.drawBorder
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -66,7 +66,7 @@ fun PointerInputDuringSubComp() {
                 .fillMaxSize()
                 .wrapContentSize(Alignment.Center)
                 .size(200.dp)
-                .drawBackground(Color.White)
+                .background(color = Color.White)
         ) {
             val pointerCount = state { 0 }
 

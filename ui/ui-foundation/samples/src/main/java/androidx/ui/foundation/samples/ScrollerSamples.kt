@@ -25,8 +25,8 @@ import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.ScrollableRow
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.background
 import androidx.ui.foundation.clickable
-import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.horizontalScroll
 import androidx.ui.foundation.rememberScrollState
 import androidx.ui.foundation.verticalScroll
@@ -96,7 +96,7 @@ fun HorizontalScrollSample() {
         Modifier
             .horizontalScroll(scrollState)
             .size(width = 10000.dp, height = 200.dp)
-            .drawBackground(gradient)
+            .background(brush = gradient)
     )
 }
 
@@ -112,7 +112,7 @@ fun VerticalScrollExample() {
             .verticalScroll(scrollState)
             .fillMaxWidth()
             .height(10000.dp)
-            .drawBackground(gradient)
+            .background(brush = gradient)
     )
 }
 
@@ -186,7 +186,7 @@ private fun Button(onClick: () -> Unit, text: @Composable () -> Unit) {
         Modifier.padding(5.dp)
             .preferredSize(120.dp, 60.dp)
             .clickable(onClick = onClick)
-            .drawBackground(Color.LightGray),
+            .background(color = Color.LightGray),
         gravity = ContentGravity.Center,
         children = text
     )

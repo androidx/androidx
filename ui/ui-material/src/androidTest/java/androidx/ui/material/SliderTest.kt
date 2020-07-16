@@ -23,7 +23,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.compositeOver
@@ -266,7 +266,7 @@ class SliderTest {
                 thumbStrokeWidth = TrackHeight.toIntPx()
                 thumbPx = ThumbRadius.toIntPx()
             }
-            Slider(modifier = Modifier.testTag(sliderTag).drawBackground(Color.Gray),
+            Slider(modifier = Modifier.testTag(sliderTag).background(color = Color.Gray),
                 color = Color.Green,
                 value = 0.5f,
                 onValueChange = {}

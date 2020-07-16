@@ -48,11 +48,13 @@ class DeterminateProgressTest {
 
         composeTestRule
             .setContent {
-                Box(Modifier
-                    .testTag(tag)
-                    .determinateProgressIndicator(progress.value)
-                    .preferredSize(50.dp)
-                    .drawBackground(Color.Cyan))
+                Box(
+                    Modifier
+                        .testTag(tag)
+                        .determinateProgressIndicator(progress.value)
+                        .preferredSize(50.dp)
+                        .background(color = Color.Cyan)
+                )
             }
 
         onNodeWithTag(tag)

@@ -27,9 +27,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.background
 import androidx.ui.foundation.clickable
 import androidx.ui.foundation.contentColor
-import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.size
@@ -69,7 +69,7 @@ class MenuTest {
             DropdownMenu(
                 expanded = expanded,
                 toggle = {
-                    Box(Modifier.size(20.dp).drawBackground(Color.Blue))
+                    Box(Modifier.size(20.dp).background(color = Color.Blue))
                 },
                 onDismissRequest = {}
             ) {
@@ -103,7 +103,7 @@ class MenuTest {
                 DropdownMenu(
                     expanded = true,
                     toggle = {
-                        Box(Modifier.size(20.toDp()).drawBackground(Color.Blue))
+                        Box(Modifier.size(20.toDp()).background(color = Color.Blue))
                     },
                     onDismissRequest = {}
                 ) {

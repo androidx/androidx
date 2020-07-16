@@ -25,8 +25,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.background
 import androidx.ui.foundation.clickable
-import androidx.ui.foundation.drawBackground
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
@@ -341,10 +341,10 @@ class DrawerTest {
             Box(Modifier.testTag("Drawer")) {
                 ModalDrawerLayout(drawerState.value, { drawerState.value = it },
                     drawerContent = {
-                        Box(Modifier.fillMaxSize().drawBackground(Color.Magenta))
+                        Box(Modifier.fillMaxSize().background(color = Color.Magenta))
                     },
                     bodyContent = {
-                        Box(Modifier.fillMaxSize().drawBackground(Color.Red))
+                        Box(Modifier.fillMaxSize().background(color = Color.Red))
                     })
             }
         }
@@ -372,10 +372,10 @@ class DrawerTest {
             Box(Modifier.testTag("Drawer").rtl) {
                 ModalDrawerLayout(drawerState.value, { drawerState.value = it },
                     drawerContent = {
-                        Box(Modifier.fillMaxSize().drawBackground(Color.Magenta))
+                        Box(Modifier.fillMaxSize().background(color = Color.Magenta))
                     },
                     bodyContent = {
-                        Box(Modifier.fillMaxSize().drawBackground(Color.Red))
+                        Box(Modifier.fillMaxSize().background(color = Color.Red))
                     })
             }
         }
@@ -403,10 +403,10 @@ class DrawerTest {
             Box(Modifier.testTag("Drawer")) {
                 BottomDrawerLayout(drawerState.value, { drawerState.value = it },
                     drawerContent = {
-                        Box(Modifier.fillMaxSize().drawBackground(Color.Magenta))
+                        Box(Modifier.fillMaxSize().background(color = Color.Magenta))
                     },
                     bodyContent = {
-                        Box(Modifier.fillMaxSize().drawBackground(Color.Red))
+                        Box(Modifier.fillMaxSize().background(color = Color.Red))
                     })
             }
         }
@@ -434,10 +434,10 @@ class DrawerTest {
             Box(Modifier.testTag("Drawer")) {
                 BottomDrawerLayout(drawerState.value, { drawerState.value = it },
                     drawerContent = {
-                        Box(Modifier.fillMaxSize().drawBackground(Color.Magenta))
+                        Box(Modifier.fillMaxSize().background(Color.Magenta))
                     },
                     bodyContent = {
-                        Box(Modifier.fillMaxSize().drawBackground(Color.Red))
+                        Box(Modifier.fillMaxSize().background(Color.Red))
                     })
             }
         }

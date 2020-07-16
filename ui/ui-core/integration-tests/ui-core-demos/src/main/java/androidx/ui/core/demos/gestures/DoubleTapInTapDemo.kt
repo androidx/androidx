@@ -24,7 +24,7 @@ import androidx.ui.core.gesture.doubleTapGestureFilter
 import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.foundation.drawBorder
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.RectangleShape
@@ -69,14 +69,14 @@ fun DoubleTapInTapDemo() {
                 .preferredSize(192.dp)
                 .tapGestureFilter(onTap)
                 .drawBorder(2.dp, BorderColor)
-                .drawBackground(outerColor.value, RectangleShape)
+                .background(color = outerColor.value)
 
                 .fillMaxSize()
                 .wrapContentSize(Alignment.Center)
                 .preferredSize(96.dp)
                 .doubleTapGestureFilter(onDoubleTap)
                 .drawBorder(2.dp, BorderColor)
-                .drawBackground(innerColor.value, RectangleShape)
+                .background(color = innerColor.value, shape = RectangleShape)
         )
     }
 }

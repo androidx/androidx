@@ -27,7 +27,7 @@ import androidx.ui.foundation.Border
 import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.background
 import androidx.ui.foundation.drawBorder
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
@@ -91,7 +91,7 @@ fun Surface(
         modifier.drawShadow(elevation = elevation, shape = shape, clip = false)
             .zIndex(elevation.value)
             .plus(if (border != null) Modifier.drawBorder(border, shape) else Modifier)
-            .drawBackground(
+            .background(
                 color = getBackgroundColorForElevation(color, elevation),
                 shape = shape
             )
