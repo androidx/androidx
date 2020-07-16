@@ -30,7 +30,7 @@ import androidx.core.util.Preconditions;
 /**
  * Specifies the style for an  {@link ImageView}.
  */
-@RequiresApi(api = Build.VERSION_CODES.Q) //TODO(b/147116534): Update to R.
+@RequiresApi(api = Build.VERSION_CODES.R)
 public final class ImageViewStyle extends ViewStyle {
     private static final String TAG = "ImageViewStyle";
 
