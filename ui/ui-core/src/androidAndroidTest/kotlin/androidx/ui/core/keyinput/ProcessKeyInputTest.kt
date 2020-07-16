@@ -33,6 +33,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@Suppress("DEPRECATION")
 @SmallTest
 @RunWith(JUnit4::class)
 @OptIn(ExperimentalKeyInput::class)
@@ -67,6 +68,7 @@ class ProcessKeyInputTest {
 
         // Arrange.
         composeTestRule.setFocusableContent {
+            // TODO(b/161296854): Replace FocusModifier with Modifier.focus.
             Box(modifier = FocusModifier() + KeyInputModifier(null, null))
         }
 

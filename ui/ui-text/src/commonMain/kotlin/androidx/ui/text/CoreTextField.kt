@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION_ERROR")
+
+// TODO(b/160821157): Replace FocusDetailedState with FocusState2 DEPRECATION
+@file:Suppress("DEPRECATION_ERROR", "DEPRECATION")
+
 package androidx.ui.text
 
 import androidx.compose.Composable
@@ -221,6 +224,7 @@ fun CoreTextField(
         )
 
         // TODO: Stop lookup FocusModifier from modifier chain. (b/155434146)
+        @Suppress("DEPRECATION")
         val focusModifier = chainedFocusModifier(modifier) ?: FocusModifier()
 
         state.processor.onNewState(value, textInputService, state.inputSession)
@@ -431,6 +435,8 @@ internal class TextFieldState(
     var draggingHandle = false
 }
 
+// TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
+@Suppress("DEPRECATION")
 private fun chainedFocusModifier(modifier: Modifier): FocusModifier? {
     var focusModifier: FocusModifier? = null
     modifier.foldIn(Unit) { _, element ->
@@ -444,7 +450,10 @@ private fun chainedFocusModifier(modifier: Modifier): FocusModifier? {
 
 /**
  * Helper composable for observing all text input related events.
+ *
+ * TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
  */
+@Suppress("DEPRECATION")
 @Composable
 private fun textInputEventObserver(
     onPress: (Offset) -> Unit,

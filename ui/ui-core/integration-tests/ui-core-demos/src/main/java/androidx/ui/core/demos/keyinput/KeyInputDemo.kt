@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// TODO(b/160821157): Replace FocusState with FocusState2.isFocused
+@file:Suppress("DEPRECATION")
+
 package androidx.ui.core.demos.keyinput
 
 import androidx.compose.Composable
@@ -61,6 +64,7 @@ fun KeyInputDemo() {
     }
 }
 
+@Suppress("DEPRECATION")
 @Composable
 @OptIn(ExperimentalKeyInput::class)
 private fun FocusableText(text: MutableState<String>) {

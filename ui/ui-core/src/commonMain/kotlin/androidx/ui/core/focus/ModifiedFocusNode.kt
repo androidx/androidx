@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// TODO(b/160821157): Replace FocusDetailedState with FocusState2
+@file:Suppress("DEPRECATION")
+
 package androidx.ui.core.focus
 
 import androidx.ui.core.DelegatingLayoutNodeWrapper

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// TODO(b/160821157): Replace FocusDetailedState with FocusState2 DEPRECATION
+@file:Suppress("DEPRECATION")
+
 package androidx.ui.material
 
 import androidx.compose.Composable
@@ -274,6 +277,8 @@ fun OutlinedTextField(
     )
 }
 
+// TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
+@Suppress("DEPRECATION")
 @Composable
 internal fun OutlinedTextFieldLayout(
     textFieldModifier: Modifier = Modifier,
@@ -314,6 +319,8 @@ internal fun OutlinedTextFieldLayout(
         onLabelMeasured = {
             val newLabelWidth = it * labelProgress
 
+            // TODO(b/160822875): Replace FocusState.Focused with FocusState2.isFocused.
+            @Suppress("DEPRECATION")
             val labelWidth = when {
                 focusModifier.focusState == FocusState.Focused -> newLabelWidth
                 !emptyInput -> newLabelWidth

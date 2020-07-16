@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// TODO(b/160821157): Replace FocusDetailedState with FocusState2
+@file:Suppress("DEPRECATION")
+
 package androidx.ui.core.focus
 
 import androidx.test.filters.SmallTest
@@ -31,6 +34,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+// TODO(b/161299807): Migrate this test to use the new focus API.
+@Suppress("DEPRECATION")
 @SmallTest
 @RunWith(JUnit4::class)
 class CaptureFocusTest {

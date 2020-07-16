@@ -28,6 +28,7 @@ package androidx.ui.core.focus
  *
  * TODO(b/160822875): Deprecate this after the new Modifier.Focus is ready for consumption.
  */
+@Deprecated("Please use FocusState2.isFocused instead")
 enum class FocusState { Focused, NotFocusable, NotFocused }
 
 /**
@@ -46,6 +47,10 @@ enum class FocusState { Focused, NotFocusable, NotFocused }
  *
  * TODO(b/160822875): Deprecate this after the new Modifier.Focus is ready for consumption.
  */
+@Deprecated(
+    "Please use FocusState2 instead",
+    ReplaceWith("FocusState2", "androidx.ui.core.focus.FocusState2")
+)
 enum class FocusDetailedState { Active, ActiveParent, Captured, Disabled, Inactive }
 
 /**
@@ -88,6 +93,8 @@ enum class FocusState2 {
  *
  * TODO(b/160822875): Deprecate this after the new Modifier.Focus is ready for consumption.
  */
+@Suppress("DEPRECATION")
+@Deprecated("Please use FocusState2.isFocused instead")
 fun FocusDetailedState.focusState() = when (this) {
     FocusDetailedState.Captured,
     FocusDetailedState.Active -> FocusState.Focused
