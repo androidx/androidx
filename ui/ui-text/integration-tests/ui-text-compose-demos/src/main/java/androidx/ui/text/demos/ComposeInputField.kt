@@ -20,11 +20,11 @@ import androidx.compose.Composable
 import androidx.compose.key
 import androidx.compose.state
 import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.TextField
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.TextFieldValue
 import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.ui.text.CoreTextField
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextStyle
 
@@ -82,7 +82,7 @@ private fun EditLine(
 ) {
     val controller = state<SoftwareKeyboardController?> { null }
     val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    TextField(
+    CoreTextField(
         value = state.value,
         keyboardType = keyboardType,
         imeAction = imeAction,

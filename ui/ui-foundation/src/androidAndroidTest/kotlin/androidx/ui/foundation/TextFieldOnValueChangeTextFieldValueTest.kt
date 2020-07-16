@@ -54,6 +54,7 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
+@OptIn(ExperimentalFoundationApi::class)
 class TextFieldOnValueChangeTextFieldValueTest {
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -80,7 +81,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
                         TextRange.Zero
                     )
                 }
-                TextField(
+                BaseTextField(
                     value = state.value,
                     onValueChange = {
                         state.value = it

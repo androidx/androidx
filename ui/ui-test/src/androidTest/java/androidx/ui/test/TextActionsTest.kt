@@ -21,7 +21,8 @@ import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.foundation.TextField
+import androidx.ui.foundation.BaseTextField
+import androidx.ui.foundation.ExperimentalFoundationApi
 import androidx.ui.input.ImeAction
 import androidx.ui.input.TextFieldValue
 import androidx.ui.test.util.BoundaryNode
@@ -43,13 +44,14 @@ class TextActionsTest {
     val composeTestRule = createComposeRule()
 
     @Composable
+    @OptIn(ExperimentalFoundationApi::class)
     fun TextFieldUi(
         imeAction: ImeAction = ImeAction.Unspecified,
         onImeActionPerformed: (ImeAction) -> Unit = {},
         textCallback: (String) -> Unit = {}
     ) {
         val state = state { TextFieldValue("") }
-        TextField(
+        BaseTextField(
             modifier = Modifier.testTag(fieldTag),
             value = state.value,
             imeAction = imeAction,

@@ -29,15 +29,15 @@ import androidx.ui.core.onChildPositioned
 import androidx.ui.core.toComposeRect
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.TextField
+import androidx.ui.geometry.Offset
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
+import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.Column
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.preferredHeight
 import androidx.ui.material.MaterialTheme
-import androidx.ui.geometry.Offset
-import androidx.ui.input.TextFieldValue
+import androidx.ui.text.CoreTextField
 import androidx.ui.unit.dp
 
 @Composable
@@ -54,7 +54,7 @@ fun ExplicitAutofillTypesDemo() {
             autofillTypes = listOf(AutofillType.PersonFullName),
             onFill = { nameState.value = TextFieldValue(it) }
         ) { autofillNode ->
-            TextField(
+            CoreTextField(
                 value = nameState.value,
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Unspecified,
@@ -77,7 +77,7 @@ fun ExplicitAutofillTypesDemo() {
             autofillTypes = listOf(AutofillType.EmailAddress),
             onFill = { emailState.value = TextFieldValue(it) }
         ) { autofillNode ->
-            TextField(
+            CoreTextField(
                 value = emailState.value,
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Unspecified,

@@ -22,7 +22,6 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.constrainWidth
-import androidx.ui.foundation.TextField
 import androidx.ui.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.input.TextFieldValue
@@ -31,6 +30,7 @@ import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.height
 import androidx.ui.layout.padding
 import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.ui.text.CoreTextField
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
 import androidx.ui.unit.min
@@ -77,7 +77,7 @@ private fun HorizontalTailFollowingTextField(
 ) {
     Layout(
         children = @Composable {
-            TextField(
+            CoreTextField(
                 value = value,
                 onValueChange = onValueChange,
                 textStyle = textStyle
@@ -113,7 +113,7 @@ private fun VerticalTailFollowintTextField(
 ) {
     Layout(
         children = @Composable {
-            TextField(
+            CoreTextField(
                 value = value,
                 onValueChange = onValueChange,
                 textStyle = textStyle

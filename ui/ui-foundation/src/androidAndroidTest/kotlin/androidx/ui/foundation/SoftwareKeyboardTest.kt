@@ -25,9 +25,9 @@ import androidx.ui.input.TextFieldValue
 import androidx.ui.input.TextInputService
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performClick
-import androidx.ui.test.onNode
 import androidx.ui.test.hasInputMethodsSupport
+import androidx.ui.test.onNode
+import androidx.ui.test.performClick
 import androidx.ui.test.runOnIdle
 import androidx.ui.text.SoftwareKeyboardController
 import com.nhaarman.mockitokotlin2.any
@@ -42,6 +42,7 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
+@OptIn(ExperimentalFoundationApi::class)
 class SoftwareKeyboardTest {
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -60,7 +61,7 @@ class SoftwareKeyboardTest {
                 TextInputServiceAmbient provides textInputService
             ) {
                 val state = state { TextFieldValue("") }
-                TextField(
+                BaseTextField(
                     value = state.value,
                     modifier = Modifier.fillMaxSize(),
                     onValueChange = {
