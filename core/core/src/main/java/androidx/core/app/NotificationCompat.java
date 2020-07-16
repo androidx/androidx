@@ -81,6 +81,48 @@ import java.util.List;
 public class NotificationCompat {
 
     /**
+     * An activity that provides a user interface for adjusting notification preferences for its
+     * containing application.
+     */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
+    public static final String INTENT_CATEGORY_NOTIFICATION_PREFERENCES =
+            "android.intent.category.NOTIFICATION_PREFERENCES";
+
+    /**
+     * Optional extra for {@link #INTENT_CATEGORY_NOTIFICATION_PREFERENCES}. If provided, will
+     * contain a {@link NotificationChannelCompat#getId() channel id} that can be used to narrow
+     * down what settings should be shown in the target app.
+     */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
+    public static final String EXTRA_CHANNEL_ID = "android.intent.extra.CHANNEL_ID";
+
+    /**
+     * Optional extra for {@link #INTENT_CATEGORY_NOTIFICATION_PREFERENCES}. If provided, will
+     * contain a {@link NotificationChannelGroupCompat#getId() group id} that can be used to narrow
+     * down what settings should be shown in the target app.
+     */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
+    public static final String EXTRA_CHANNEL_GROUP_ID = "android.intent.extra.CHANNEL_GROUP_ID";
+
+    /**
+     * Optional extra for {@link #INTENT_CATEGORY_NOTIFICATION_PREFERENCES}. If provided, will
+     * contain the tag provided to
+     * {@link NotificationManagerCompat#notify(String, int, Notification)}
+     * that can be used to narrow down what settings should be shown in the target app.
+     */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
+    public static final String EXTRA_NOTIFICATION_TAG = "android.intent.extra.NOTIFICATION_TAG";
+
+    /**
+     * Optional extra for {@link #INTENT_CATEGORY_NOTIFICATION_PREFERENCES}. If provided, will
+     * contain the id provided to
+     * {@link NotificationManagerCompat#notify(String, int, Notification)}
+     * that can be used to narrow down what settings should be shown in the target app.
+     */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
+    public static final String EXTRA_NOTIFICATION_ID = "android.intent.extra.NOTIFICATION_ID";
+
+    /**
      * Use all default values (where applicable).
      */
     public static final int DEFAULT_ALL = ~0;
@@ -245,24 +287,28 @@ public class NotificationCompat {
      * {@link #getExtras extras} key: this is the title of the notification,
      * as supplied to {@link Builder#setContentTitle(CharSequence)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_TITLE = "android.title";
 
     /**
      * {@link #getExtras extras} key: this is the title of the notification when shown in expanded
      * form, e.g. as supplied to {@link BigTextStyle#setBigContentTitle(CharSequence)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_TITLE_BIG = EXTRA_TITLE + ".big";
 
     /**
      * {@link #getExtras extras} key: this is the main text payload, as supplied to
      * {@link Builder#setContentText(CharSequence)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_TEXT = "android.text";
 
     /**
      * {@link #getExtras extras} key: this is a third line of text, as supplied to
      * {@link Builder#setSubText(CharSequence)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_SUB_TEXT = "android.subText";
 
     /**
@@ -279,12 +325,14 @@ public class NotificationCompat {
      *
      * @see Builder#setRemoteInputHistory(CharSequence[])
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_REMOTE_INPUT_HISTORY = "android.remoteInputHistory";
 
     /**
      * {@link #getExtras extras} key: this is a small piece of additional text as supplied to
      * {@link Builder#setContentInfo(CharSequence)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_INFO_TEXT = "android.infoText";
 
     /**
@@ -292,6 +340,7 @@ public class NotificationCompat {
      * alongside expanded notifications, as supplied to (e.g.)
      * {@link BigTextStyle#setSummaryText(CharSequence)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_SUMMARY_TEXT = "android.summaryText";
 
     /**
@@ -299,12 +348,14 @@ public class NotificationCompat {
      * {@link BigTextStyle} notification, as supplied to
      * {@link BigTextStyle#bigText(CharSequence)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_BIG_TEXT = "android.bigText";
 
     /**
      * {@link #getExtras extras} key: this is the resource ID of the notification's main small icon,
      * as supplied to {@link Builder#setSmallIcon(int)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_SMALL_ICON = "android.icon";
 
     /**
@@ -312,6 +363,7 @@ public class NotificationCompat {
      * showing the notification payload, as
      * supplied to {@link Builder#setLargeIcon(android.graphics.Bitmap)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_LARGE_ICON = "android.largeIcon";
 
     /**
@@ -320,24 +372,28 @@ public class NotificationCompat {
      * shown in its expanded form, as supplied to
      * {@link BigPictureStyle#bigLargeIcon(android.graphics.Bitmap)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_LARGE_ICON_BIG = EXTRA_LARGE_ICON + ".big";
 
     /**
      * {@link #getExtras extras} key: this is the progress value supplied to
      * {@link Builder#setProgress(int, int, boolean)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_PROGRESS = "android.progress";
 
     /**
      * {@link #getExtras extras} key: this is the maximum value supplied to
      * {@link Builder#setProgress(int, int, boolean)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_PROGRESS_MAX = "android.progressMax";
 
     /**
      * {@link #getExtras extras} key: whether the progress bar is indeterminate, supplied to
      * {@link Builder#setProgress(int, int, boolean)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_PROGRESS_INDETERMINATE = "android.progressIndeterminate";
 
     /**
@@ -345,6 +401,7 @@ public class NotificationCompat {
      * should be shown as a count-up timer (specifically a {@link android.widget.Chronometer})
      * instead of a timestamp, as supplied to {@link Builder#setUsesChronometer(boolean)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_SHOW_CHRONOMETER = "android.showChronometer";
 
     /**
@@ -352,12 +409,14 @@ public class NotificationCompat {
      * down instead of counting up. Is only relevant if key {@link #EXTRA_SHOW_CHRONOMETER} is
      * present. This extra is a boolean. The default is (@code false).
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_CHRONOMETER_COUNT_DOWN = "android.chronometerCountDown";
 
     /**
      * {@link #getExtras extras} key: whether the when field set using {@link Builder#setWhen}
      * should be shown, as supplied to {@link Builder#setShowWhen(boolean)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_SHOW_WHEN = "android.showWhen";
 
     /**
@@ -365,6 +424,7 @@ public class NotificationCompat {
      * expanded notifications, supplied to
      * {@link BigPictureStyle#bigPicture(android.graphics.Bitmap)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_PICTURE = "android.picture";
 
     /**
@@ -372,12 +432,14 @@ public class NotificationCompat {
      * expanded notifications, each of which was supplied to
      * {@link InboxStyle#addLine(CharSequence)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_TEXT_LINES = "android.textLines";
 
     /**
      * {@link #getExtras extras} key: A string representing the name of the specific
      * {@link android.app.Notification.Style} used to create this notification.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_TEMPLATE = "android.template";
 
     /**
@@ -385,6 +447,7 @@ public class NotificationCompat {
      * notification relates to, each of which was supplied to
      * {@link Builder#addPerson(String)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_PEOPLE = "android.people";
 
     /**
@@ -396,6 +459,7 @@ public class NotificationCompat {
      * BitmapFactory.decodeStream}; all other content types will be ignored. The content provider
      * URI used for this purpose must require no permissions to read the image data.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_BACKGROUND_IMAGE_URI = "android.backgroundImageUri";
 
     /**
@@ -403,42 +467,58 @@ public class NotificationCompat {
      * {@link android.media.session.MediaSession.Token} associated with a
      * {@link android.app.Notification.MediaStyle} notification.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_MEDIA_SESSION = "android.mediaSession";
 
     /**
      * {@link #getExtras extras} key: the indices of actions to be shown in the compact view,
      * as supplied to (e.g.) {@link Notification.MediaStyle#setShowActionsInCompactView(int...)}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_COMPACT_ACTIONS = "android.compactActions";
 
     /**
-     * Notification key: the username to be displayed for all messages sent by the user
-     * including direct replies {@link MessagingStyle} notification.
+     * {@link #getExtras extras} key: the username to be displayed for all messages sent by the
+     * user including direct replies {@link MessagingStyle} notification.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_SELF_DISPLAY_NAME = "android.selfDisplayName";
 
     /**
-     * Notification key: the person to display for all messages sent by the user, including direct
-     * replies to {@link MessagingStyle} notifications.
+     * {@link #getExtras extras} key: the person to display for all messages sent by the user,
+     * including direct replies to {@link MessagingStyle} notifications.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_MESSAGING_STYLE_USER = "android.messagingStyleUser";
 
     /**
-     * Notification key: a {@link String} to be displayed as the title to a conversation
-     * represented by a {@link MessagingStyle}.
+     * {@link #getExtras extras} key: a {@link String} to be displayed as the title to a
+     * conversation represented by a {@link MessagingStyle}.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_CONVERSATION_TITLE = "android.conversationTitle";
 
     /**
-     * Notification key: an array of {@link Bundle} objects representing
-     * {@link MessagingStyle.Message} objects for a {@link MessagingStyle} notification.
+     * {@link #getExtras extras} key: an array of {@link MessagingStyle.Message}
+     * bundles provided by a {@link android.app.Notification.MessagingStyle} notification.
+     * This extra is a parcelable array of {@link Bundle} objects.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_MESSAGES = "android.messages";
 
     /**
-     * Notification key: whether the {@link NotificationCompat.MessagingStyle} notification
-     * represents a group conversation.
+     * {@link #getExtras extras} key: an array of {@link MessagingStyle#addHistoricMessage historic}
+     * {@link MessagingStyle.Message} bundles provided by a {@link MessagingStyle} notification.
+     * This extra is a parcelable array of {@link Bundle} objects.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
+    public static final String EXTRA_HISTORIC_MESSAGES = "android.messages.historic";
+
+    /**
+     * {@link #getExtras extras} key: whether the {@link NotificationCompat.MessagingStyle}
+     * notification represents a group conversation.
+     */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_IS_GROUP_CONVERSATION = "android.isGroupConversation";
 
     /**
@@ -446,6 +526,7 @@ public class NotificationCompat {
      * for conversation titles as SDK < P uses the title to denote group status. This hidden title
      * doesn't appear in the notification shade.
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_HIDDEN_CONVERSATION_TITLE = "android.hiddenConversationTitle";
 
     /**
@@ -472,6 +553,7 @@ public class NotificationCompat {
      * }
      * </pre>
      */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_AUDIO_CONTENTS_URI = "android.audioContents";
 
     /**
@@ -732,6 +814,7 @@ public class NotificationCompat {
         boolean mChronometerCountDown;
         Style mStyle;
         CharSequence mSubText;
+        CharSequence mSettingsText;
         CharSequence[] mRemoteInputHistory;
         int mProgressMax;
         int mProgress;
@@ -805,6 +888,9 @@ public class NotificationCompat {
         /**
          * Set the time that the event occurred.  Notifications in the panel are
          * sorted by this time.
+         *
+         * <p>For apps targeting {@link android.os.Build.VERSION_CODES#N} and above, this time is
+         * not shown anymore by default and must be opted into using {@link #setShowWhen(boolean)}
          */
         public @NonNull Builder setWhen(long when) {
             mNotification.when = when;
@@ -814,6 +900,9 @@ public class NotificationCompat {
         /**
          * Control whether the timestamp set with {@link #setWhen(long) setWhen} is shown
          * in the content view.
+         *
+         * <p>For apps targeting {@link android.os.Build.VERSION_CODES#N} and above, this
+         * defaults to {@code false}. For earlier apps, the default is {@code true}.
          */
         public @NonNull Builder setShowWhen(boolean show) {
             mShowWhen = show;
@@ -937,6 +1026,25 @@ public class NotificationCompat {
          */
         public @NonNull Builder setSubText(@Nullable CharSequence text) {
             mSubText = limitCharSequenceLength(text);
+            return this;
+        }
+
+        /**
+         * Provides text that will appear as a link to your application's settings.
+         *
+         * <p>This text does not appear within notification {@link Style templates} but may
+         * appear when the user uses an affordance to learn more about the notification.
+         * Additionally, this text will not appear unless you provide a valid link target by
+         * handling {@link #INTENT_CATEGORY_NOTIFICATION_PREFERENCES}.
+         *
+         * <p>This text is meant to be concise description about what the user can customize
+         * when they click on this link. The recommended maximum length is 40 characters.
+         *
+         * <p>Prior to {@link Build.VERSION_CODES#O} this field has no effect.
+         */
+        @NonNull
+        public Builder setSettingsText(@Nullable CharSequence text) {
+            mSettingsText = limitCharSequenceLength(text);
             return this;
         }
 
@@ -2487,6 +2595,7 @@ public class NotificationCompat {
         public static final int MAXIMUM_RETAINED_MESSAGES = 25;
 
         private final List<Message> mMessages = new ArrayList<>();
+        private final List<Message> mHistoricMessages = new ArrayList<>();
         private Person mUser;
         private @Nullable CharSequence mConversationTitle;
         private @Nullable Boolean mIsGroupConversation;
@@ -2624,10 +2733,38 @@ public class NotificationCompat {
         }
 
         /**
+         * Adds a {@link Message} for historic context in this notification.
+         *
+         * <p>Messages should be added as historic if they are not the main subject of the
+         * notification but may give context to a conversation. The system may choose to present
+         * them only when relevant, e.g. when replying to a message through a {@link RemoteInput}.
+         *
+         * <p>The messages should be added in chronologic order, i.e. the oldest first,
+         * the newest last.
+         *
+         * @param message The historic {@link Message} to be added
+         * @return this object for method chaining
+         */
+        public @NonNull MessagingStyle addHistoricMessage(@NonNull Message message) {
+            mHistoricMessages.add(message);
+            if (mHistoricMessages.size() > MAXIMUM_RETAINED_MESSAGES) {
+                mHistoricMessages.remove(0);
+            }
+            return this;
+        }
+
+        /**
          * Gets the list of {@code Message} objects that represent the notification
          */
         public @NonNull List<Message> getMessages() {
             return mMessages;
+        }
+
+        /**
+         * Gets the list of historic {@code Message}s in the notification.
+         */
+        public @NonNull List<Message> getHistoricMessages() {
+            return mHistoricMessages;
         }
 
         /**
@@ -2718,6 +2855,16 @@ public class NotificationCompat {
                     frameworkStyle = new Notification.MessagingStyle(mUser.getName());
                 }
 
+                for (MessagingStyle.Message message : mMessages) {
+                    frameworkStyle.addMessage(message.toAndroidMessage());
+                }
+
+                if (Build.VERSION.SDK_INT >= 26) {
+                    for (MessagingStyle.Message historicMessage : mHistoricMessages) {
+                        frameworkStyle.addHistoricMessage(historicMessage.toAndroidMessage());
+                    }
+                }
+
                 // In SDK < 28, base Android will assume a MessagingStyle notification is a group
                 // chat if the conversation title is set. In compat, this isn't the case as we've
                 // introduced #setGroupConversation. When we apply these settings to base Android
@@ -2733,34 +2880,6 @@ public class NotificationCompat {
                 // if we set the conversation title or not.
                 if (Build.VERSION.SDK_INT >= 28) {
                     frameworkStyle.setGroupConversation(mIsGroupConversation);
-                }
-
-                for (MessagingStyle.Message compatMessage : mMessages) {
-                    Notification.MessagingStyle.Message frameworkMessage;
-
-                    // Use Person for P and above
-                    if (Build.VERSION.SDK_INT >= 28) {
-                        Person compatMessagePerson = compatMessage.getPerson();
-                        frameworkMessage = new Notification.MessagingStyle.Message(
-                                compatMessage.getText(),
-                                compatMessage.getTimestamp(),
-                                compatMessagePerson == null
-                                        ? null
-                                        : compatMessagePerson.toAndroidPerson());
-                    } else {
-                        CharSequence name = null;
-                        if (compatMessage.getPerson() != null) {
-                            name = compatMessage.getPerson().getName();
-                        }
-                        frameworkMessage = new Notification.MessagingStyle.Message(
-                                compatMessage.getText(), compatMessage.getTimestamp(), name);
-                    }
-
-                    if (compatMessage.getDataMimeType() != null) {
-                        frameworkMessage.setData(
-                                compatMessage.getDataMimeType(), compatMessage.getDataUri());
-                    }
-                    frameworkStyle.addMessage(frameworkMessage);
                 }
                 frameworkStyle.setBuilder(builder.getBuilder());
             } else {
@@ -2869,8 +2988,12 @@ public class NotificationCompat {
                 extras.putCharSequence(EXTRA_CONVERSATION_TITLE, mConversationTitle);
             }
             if (!mMessages.isEmpty()) {
-                extras.putParcelableArray(
-                        EXTRA_MESSAGES, Message.getBundleArrayForMessages(mMessages));
+                extras.putParcelableArray(EXTRA_MESSAGES,
+                        Message.getBundleArrayForMessages(mMessages));
+            }
+            if (!mHistoricMessages.isEmpty()) {
+                extras.putParcelableArray(EXTRA_HISTORIC_MESSAGES,
+                        Message.getBundleArrayForMessages(mHistoricMessages));
             }
             if (mIsGroupConversation != null) {
                 extras.putBoolean(EXTRA_IS_GROUP_CONVERSATION, mIsGroupConversation);
@@ -2899,9 +3022,13 @@ public class NotificationCompat {
             if (mConversationTitle == null) {
                 mConversationTitle = extras.getCharSequence(EXTRA_HIDDEN_CONVERSATION_TITLE);
             }
-            Parcelable[] parcelables = extras.getParcelableArray(EXTRA_MESSAGES);
-            if (parcelables != null) {
-                mMessages.addAll(Message.getMessagesFromBundleArray(parcelables));
+            Parcelable[] messages = extras.getParcelableArray(EXTRA_MESSAGES);
+            if (messages != null) {
+                mMessages.addAll(Message.getMessagesFromBundleArray(messages));
+            }
+            Parcelable[] historicMessages = extras.getParcelableArray(EXTRA_HISTORIC_MESSAGES);
+            if (historicMessages != null) {
+                mHistoricMessages.addAll(Message.getMessagesFromBundleArray(historicMessages));
             }
             if (extras.containsKey(EXTRA_IS_GROUP_CONVERSATION)) {
                 mIsGroupConversation = extras.getBoolean(EXTRA_IS_GROUP_CONVERSATION);
@@ -3143,6 +3270,34 @@ public class NotificationCompat {
                 } catch (ClassCastException e) {
                     return null;
                 }
+            }
+
+            /**
+             * Converts this compat {@link Message} to the base Android framework
+             * {@link android.app.Notification.MessagingStyle.Message}.
+             * @hide
+             */
+            @RestrictTo(LIBRARY_GROUP_PREFIX)
+            @NonNull
+            @RequiresApi(24)
+            Notification.MessagingStyle.Message toAndroidMessage() {
+                Notification.MessagingStyle.Message frameworkMessage;
+                Person person = getPerson();
+                // Use Person for P and above
+                if (Build.VERSION.SDK_INT >= 28) {
+                    frameworkMessage = new Notification.MessagingStyle.Message(
+                            getText(), getTimestamp(),
+                            person == null ? null : person.toAndroidPerson());
+                } else {
+                    frameworkMessage = new Notification.MessagingStyle.Message(
+                            getText(), getTimestamp(),
+                            person == null ? null : person.getName());
+                }
+
+                if (getDataMimeType() != null) {
+                    frameworkMessage.setData(getDataMimeType(), getDataUri());
+                }
+                return frameworkMessage;
             }
         }
     }
@@ -6269,6 +6424,17 @@ public class NotificationCompat {
     public static @Nullable String getShortcutId(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 26) {
             return notification.getShortcutId();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the settings text provided to {@link Builder#setSettingsText(CharSequence)}.
+     */
+    public static @Nullable CharSequence getSettingsText(@NonNull Notification notification) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            return notification.getSettingsText();
         } else {
             return null;
         }
