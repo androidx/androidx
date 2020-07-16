@@ -742,18 +742,25 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void defaultAspectRatioCustomWontBeSet_whenTargetAspectRatioIsSet() {
-        ImageCapture useCase = new ImageCapture.Builder().setTargetAspectRatio(
-                AspectRatio.RATIO_16_9).build();
+    public void defaultAspectRatioWillBeSet_whenTargetResolutionIsNotSet() {
+        ImageCapture useCase = new ImageCapture.Builder().build();
+        ImageOutputConfig config = (ImageOutputConfig) useCase.getUseCaseConfig();
+        assertThat(config.getTargetAspectRatio()).isEqualTo(AspectRatio.RATIO_4_3);
+    }
+
+    @Test
+    public void defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+        ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
+                DEFAULT_RESOLUTION).build();
 
         assertThat(useCase.getUseCaseConfig().containsOption(
-                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM)).isFalse();
+                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
 
-        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR,
-                useCase);
+        CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
 
         assertThat(useCase.getUseCaseConfig().containsOption(
-                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM)).isFalse();
+                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
     }
 
     @Test
@@ -766,23 +773,7 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void targetAspectRatioCustomCanBeUpdatedAfterUseCaseIsCreated() {
-        Rational oldRatio = new Rational(9, 16);
-        Rational newRatio = new Rational(16, 9);
-        ImageCapture imageCapture = new ImageCapture.Builder().setTargetAspectRatioCustom(
-                oldRatio).setTargetRotation(Surface.ROTATION_0).build();
-        imageCapture.setCropAspectRatio(newRatio);
-
-        Rational resultRatio =
-                ((ImageOutputConfig) imageCapture.getUseCaseConfig()).getTargetAspectRatioCustom(
-                        null);
-
-        assertThat(resultRatio).isEqualTo(newRatio);
-    }
-
-    @Test
     public void targetResolutionIsUpdatedAfterTargetRotationIsUpdated() {
-        // setTargetResolution will also set corresponding value to targetAspectRatioCustom.
         ImageCapture imageCapture = new ImageCapture.Builder().setTargetResolution(
                 DEFAULT_RESOLUTION).setTargetRotation(Surface.ROTATION_0).build();
 
@@ -792,36 +783,9 @@ public final class ImageCaptureTest {
         ImageOutputConfig newConfig = (ImageOutputConfig) imageCapture.getUseCaseConfig();
         Size expectedTargetResolution = new Size(DEFAULT_RESOLUTION.getHeight(),
                 DEFAULT_RESOLUTION.getWidth());
-        Rational expectedTargetAspectRatioCustom = new Rational(DEFAULT_RESOLUTION.getHeight(),
-                DEFAULT_RESOLUTION.getWidth());
 
-        // Expected targetResolution and targetAspectRatioCustom will be reversed from original
-        // target resolution.
+        // Expected targetResolution will be reversed from original target resolution.
         assertThat(newConfig.getTargetResolution().equals(expectedTargetResolution)).isTrue();
-        assertThat(newConfig.getTargetAspectRatioCustom().equals(
-                expectedTargetAspectRatioCustom)).isTrue();
-    }
-
-    @Test
-    public void targetAspectRatioCustomIsUpdatedAfterTargetRotationIsUpdated() {
-        // No targetResolution and targetAspectRatioCustom are set to the use case.
-        ImageCapture imageCapture = new ImageCapture.Builder().setTargetRotation(
-                Surface.ROTATION_0).build();
-
-        // ImageCapture provide public API to setTargetAspectRatioCustom after use case is created.
-        imageCapture.setCropAspectRatio(new Rational(DEFAULT_RESOLUTION.getWidth(),
-                DEFAULT_RESOLUTION.getHeight()));
-
-        // Updates target rotation from ROTATION_0 to ROTATION_90.
-        imageCapture.setTargetRotation(Surface.ROTATION_90);
-
-        ImageOutputConfig newConfig = (ImageOutputConfig) imageCapture.getUseCaseConfig();
-        Rational expectedTargetAspectRatioCustom = new Rational(DEFAULT_RESOLUTION.getHeight(),
-                DEFAULT_RESOLUTION.getWidth());
-
-        // Expected targetAspectRatioCustom will be reversed from original one.
-        assertThat(newConfig.getTargetAspectRatioCustom().equals(
-                expectedTargetAspectRatioCustom)).isTrue();
     }
 
     @Test

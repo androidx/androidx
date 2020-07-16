@@ -29,7 +29,6 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_SESSION_CONFIG_UNPA
 import static androidx.camera.core.impl.PreviewConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ASPECT_RATIO;
-import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_RESOLUTION;
@@ -44,7 +43,6 @@ import android.media.MediaCodec;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Pair;
-import android.util.Rational;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
@@ -731,40 +729,6 @@ public final class Preview extends UseCase {
         /**
          * Sets the aspect ratio of the intended target for images from this configuration.
          *
-         * <p>This is the ratio of the target's width to the image's height, where the numerator of
-         * the provided {@link Rational} corresponds to the width, and the denominator corresponds
-         * to the height.
-         *
-         * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
-         * ratio which may differ from the request, possibly due to device constraints.
-         * Application code should check the resulting output's resolution and the resulting apsect
-         * ratio may not be exactly as requested.
-         *
-         * <p>This method can be used to request an aspect ratio that is not from the standard set
-         * of aspect ratios defined in the {@link AspectRatio}.
-         *
-         * <p>This method will remove any value set by setTargetAspectRatio().
-         *
-         * <p>For Preview, the value will be used to calculate the suggested resolution size in
-         * {@link SurfaceRequest#getResolution()}.
-         *
-         * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
-         *                    height.
-         * @return The current Builder.
-         * @hide
-         */
-        @NonNull
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        public Builder setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
-            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM, aspectRatio);
-            getMutableConfig().removeOption(OPTION_TARGET_ASPECT_RATIO);
-            return this;
-        }
-
-        /**
-         * Sets the aspect ratio of the intended target for images from this configuration.
-         *
          * <p>The aspect ratio is the ratio of width to height in the sensor orientation.
          *
          * <p>It is not allowed to set both target aspect ratio and target resolution on the same
@@ -862,10 +826,6 @@ public final class Preview extends UseCase {
         public Builder setTargetResolution(@NonNull Size resolution) {
             getMutableConfig()
                     .insertOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION, resolution);
-            if (resolution != null) {
-                getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM,
-                        new Rational(resolution.getWidth(), resolution.getHeight()));
-            }
             return this;
         }
 

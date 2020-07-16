@@ -36,12 +36,14 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
@@ -339,6 +341,27 @@ public final class PreviewTest {
         });
 
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    public void defaultAspectRatioWillBeSet_whenTargetResolutionIsNotSet() {
+        Preview useCase = new Preview.Builder().build();
+        ImageOutputConfig config = (ImageOutputConfig) useCase.getUseCaseConfig();
+        assertThat(config.getTargetAspectRatio()).isEqualTo(AspectRatio.RATIO_4_3);
+    }
+
+    @Test
+    public void defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+        Preview useCase = new Preview.Builder().setTargetResolution(GUARANTEED_RESOLUTION).build();
+
+        assertThat(useCase.getUseCaseConfig().containsOption(
+                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
+
+        CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA, useCase);
+
+        assertThat(useCase.getUseCaseConfig().containsOption(
+                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
     }
 
     private Executor getWorkExecutorWithNamedThread() {
