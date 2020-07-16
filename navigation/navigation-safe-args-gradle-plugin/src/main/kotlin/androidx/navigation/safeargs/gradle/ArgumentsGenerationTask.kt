@@ -23,6 +23,7 @@ import com.google.gson.reflect.TypeToken
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.FileCollection
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.Provider
 import org.gradle.api.resources.TextResource
 import org.gradle.api.tasks.Input
@@ -34,10 +35,12 @@ import org.gradle.work.ChangeType
 import org.gradle.work.Incremental
 import org.gradle.work.InputChanges
 import java.io.File
+import javax.inject.Inject
 
 private const val MAPPING_FILE = "file_mappings.json"
 
-open class ArgumentsGenerationTask : DefaultTask() {
+open class ArgumentsGenerationTask @Inject constructor(private val projectLayout: ProjectLayout) :
+    DefaultTask() {
     @get:Input
     lateinit var rFilePackage: Provider<String>
 
@@ -79,7 +82,10 @@ open class ArgumentsGenerationTask : DefaultTask() {
             outputDir = out,
             useAndroidX = useAndroidX,
             generateKotlin = generateKotlin).generate()
-        Mapping(file.relativeTo(project.projectDir).path, output.fileNames) to output.errors
+        Mapping(file.relativeTo(
+            projectLayout.projectDirectory.asFile).path,
+            output.fileNames
+        ) to output.errors
     }.unzip().let { (mappings, errorLists) -> mappings to errorLists.flatten() }
 
     private fun writeMappings(mappings: List<Mapping>) {
@@ -101,14 +107,14 @@ open class ArgumentsGenerationTask : DefaultTask() {
         if (inputs.isIncremental) {
             doIncrementalTaskAction(inputs)
         } else {
-            project.logger.info("Unable do incremental execution: full task run")
+            logger.info("Unable do incremental execution: full task run")
             doFullTaskAction()
         }
     }
 
     private fun doFullTaskAction() {
         if (outputDir.exists() && !outputDir.deleteRecursively()) {
-            project.logger.warn("Failed to clear directory for navigation arguments")
+            logger.warn("Failed to clear directory for navigation arguments")
         }
         if (!outputDir.exists() && !outputDir.mkdirs()) {
             throw GradleException("Failed to create directory for navigation arguments")
@@ -134,7 +140,7 @@ open class ArgumentsGenerationTask : DefaultTask() {
         val newJavaFiles = newMapping.flatMap { it.javaFiles }.toSet()
         val changedInputs = removedFiles + modifiedFiles
         val (modified, unmodified) = oldMapping.partition {
-            File(project.projectDir, it.navFile) in changedInputs
+            File(projectLayout.projectDirectory.asFile, it.navFile) in changedInputs
         }
         modified.flatMap { it.javaFiles }
                 .filter { name -> name !in newJavaFiles }
