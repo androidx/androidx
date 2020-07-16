@@ -58,6 +58,19 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p> This class manages the Surface lifecycle, as well as the preview aspect ratio and
  * orientation. Internally, it uses either a {@link android.view.TextureView} or
  * {@link android.view.SurfaceView} to display the camera feed.
+ *
+ * <p> If {@link PreviewView} uses a {@link android.view.SurfaceView} to display the preview
+ * stream, be careful when overlapping a {@link View} that's initially not visible (either
+ * {@link View#INVISIBLE} or {@link View#GONE}) on top of it. When the
+ * {@link android.view.SurfaceView} is attached to the display window, it calls
+ * {@link android.view.ViewParent#requestTransparentRegion(View)} which requests a computation of
+ * the transparent regions on the display. At this point, the {@link View} isn't visible, causing
+ * the overlapped region between the {@link android.view.SurfaceView} and the {@link View} to be
+ * considered transparent. Later if the {@link View} becomes {@linkplain View#VISIBLE visible}, it
+ * will not be displayed on top of {@link android.view.SurfaceView}. A way around this is to call
+ * {@link android.view.ViewParent#requestTransparentRegion(View)} right after making the
+ * {@link View} visible, or initially hiding the {@link View} by setting its
+ * {@linkplain View#setAlpha(float) opacity} to 0, then setting it to 1.0F to show it.
  */
 public class PreviewView extends FrameLayout {
 
