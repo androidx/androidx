@@ -31,6 +31,8 @@ import androidx.ui.core.MeasureScope
 import androidx.ui.core.MeasuringIntrinsicsMeasureBlocks
 import androidx.ui.core.Placeable
 import androidx.ui.core.Ref
+import androidx.ui.core.Remeasurement
+import androidx.ui.core.RemeasurementModifier
 import androidx.ui.core.subcomposeInto
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -112,18 +114,31 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
      */
     private val compositionsForLayoutNodes = mutableMapOf<LayoutNode, Composition>()
 
+    /**
+     * The [Remeasurement] object associated with our layout. It allows us to remeasure
+     * synchronously during scroll.
+     */
+    private lateinit var remeasurement: Remeasurement
+
+    /**
+     * The modifier which provides [remeasurement].
+     */
+    val remeasurementModifier = object : RemeasurementModifier {
+        override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
+            this@LazyItemsState.remeasurement = remeasurement
+        }
+    }
+
     private val Placeable.mainAxisSize get() = if (isVertical) height else width
     private val Placeable.crossAxisSize get() = if (!isVertical) height else width
 
     // TODO: really want an Int here
-    @OptIn(ExperimentalLayoutNodeApi::class)
     private fun onScroll(distance: Float): Float {
         check(abs(scrollToBeConsumed) < 0.5f) {
             "entered drag with non-zero pending scroll: $scrollToBeConsumed"
         }
         scrollToBeConsumed = distance
-        rootNode.requestRemeasure()
-        rootNode.owner!!.measureAndLayout()
+        remeasurement.forceRemeasure()
         val scrollConsumed = distance - scrollToBeConsumed
 
         if (abs(scrollToBeConsumed) < 0.5) {

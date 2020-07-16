@@ -53,6 +53,10 @@ internal fun createDelegate(
         on { observeLayoutModelReads(any(), any()) } doAnswer {
             (it.arguments[1] as () -> Unit).invoke()
         }
+        on { measureAndLayout() } doAnswer {
+            delegate.measureAndLayout()
+            Unit
+        }
     })
     if (firstMeasureCompleted) {
         delegate.updateRootParams(
