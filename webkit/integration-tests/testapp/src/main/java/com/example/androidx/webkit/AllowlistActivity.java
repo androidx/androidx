@@ -34,18 +34,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An {@link Activity} to demonstrate how to whitelist a set of domains from Safe Browsing checks.
- * This includes buttons to toggle whether the whitelist is on or off.
+ * An {@link Activity} to demonstrate how to allowlist a set of domains from Safe Browsing checks.
+ * This includes buttons to toggle whether the allowlist is on or off.
  */
-public class WhitelistActivity extends AppCompatActivity {
+public class AllowlistActivity extends AppCompatActivity {
 
-    private WebView mWhitelistWebView;
+    private WebView mAllowlistWebView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_whitelist);
-        setTitle(R.string.whitelist_activity_title);
+        setContentView(R.layout.activity_allowlist);
+        setTitle(R.string.allowlist_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         if (!WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_WHITELIST)) {
@@ -53,33 +53,33 @@ public class WhitelistActivity extends AppCompatActivity {
             return;
         }
 
-        SwitchCompat whitelistSwitch = findViewById(R.id.whitelist_switch);
-        whitelistSwitch.setChecked(true);
-        whitelistSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        SwitchCompat allowlistSwitch = findViewById(R.id.allowlist_switch);
+        allowlistSwitch.setChecked(true);
+        allowlistSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    whitelistSafeBrowsingTestSite(null);
+                    allowlistSafeBrowsingTestSite(null);
                 } else {
-                    clearWhitelist();
+                    clearAllowlist();
                 }
             }
         });
 
-        mWhitelistWebView = findViewById(R.id.whitelist_webview);
+        mAllowlistWebView = findViewById(R.id.allowlist_webview);
 
-        // Allow mWhitelistWebView to handle navigations.
-        mWhitelistWebView.setWebViewClient(new WebViewClientCompat());
+        // Allow mAllowlistWebView to handle navigations.
+        mAllowlistWebView.setWebViewClient(new WebViewClientCompat());
 
         if (WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE)) {
-            WebSettingsCompat.setSafeBrowsingEnabled(mWhitelistWebView.getSettings(), true);
+            WebSettingsCompat.setSafeBrowsingEnabled(mAllowlistWebView.getSettings(), true);
         }
 
-        // Set the whitelist and load the test site.
-        whitelistSafeBrowsingTestSite(new Runnable() {
+        // Set the allowlist and load the test site.
+        allowlistSafeBrowsingTestSite(new Runnable() {
             @Override
             public void run() {
-                mWhitelistWebView.loadUrl(SafeBrowsingHelpers.TEST_SAFE_BROWSING_SITE);
+                mAllowlistWebView.loadUrl(SafeBrowsingHelpers.TEST_SAFE_BROWSING_SITE);
             }
         });
     }
@@ -87,40 +87,40 @@ public class WhitelistActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        clearWhitelist();
+        clearAllowlist();
     }
 
     @Override
     public void onBackPressed() {
-        if (mWhitelistWebView.canGoBack()) {
-            mWhitelistWebView.goBack();
+        if (mAllowlistWebView.canGoBack()) {
+            mAllowlistWebView.goBack();
         } else {
             super.onBackPressed();
         }
     }
 
-    private void clearWhitelist() {
-        // To clear the whitelist (and check all domains with Safe Browsing), pass an empty list.
-        final List<String> emptyWhitelist = new ArrayList<>();
+    private void clearAllowlist() {
+        // To clear the allowlist (and check all domains with Safe Browsing), pass an empty list.
+        final List<String> emptyAllowlist = new ArrayList<>();
         final Activity activity = this;
-        WebViewCompat.setSafeBrowsingWhitelist(emptyWhitelist, new ValueCallback<Boolean>() {
+        WebViewCompat.setSafeBrowsingWhitelist(emptyAllowlist, new ValueCallback<Boolean>() {
             @Override
             public void onReceiveValue(Boolean success) {
                 if (!success) {
                     WebkitHelpers.showMessageInActivity(activity,
-                            R.string.invalid_whitelist_input_message);
+                            R.string.invalid_allowlist_input_message);
                 } // Nothing interesting to do if this succeeds, let user continue to use the app.
             }
         });
     }
 
-    private void whitelistSafeBrowsingTestSite(@Nullable Runnable onSuccess) {
-        // Configure a whitelist of domains. Pages/resources loaded from these domains will never be
-        // checked by Safe Browsing (until a new whitelist is applied).
-        final List<String> whitelist = new ArrayList<>();
-        whitelist.add(SafeBrowsingHelpers.TEST_SAFE_BROWSING_DOMAIN);
+    private void allowlistSafeBrowsingTestSite(@Nullable Runnable onSuccess) {
+        // Configure an allowlist of domains. Pages/resources loaded from these domains will never
+        // be checked by Safe Browsing (until a new allowlist is applied).
+        final List<String> allowlist = new ArrayList<>();
+        allowlist.add(SafeBrowsingHelpers.TEST_SAFE_BROWSING_DOMAIN);
         final Activity activity = this;
-        WebViewCompat.setSafeBrowsingWhitelist(whitelist, new ValueCallback<Boolean>() {
+        WebViewCompat.setSafeBrowsingWhitelist(allowlist, new ValueCallback<Boolean>() {
             @Override
             public void onReceiveValue(Boolean success) {
                 if (success) {
@@ -129,7 +129,7 @@ public class WhitelistActivity extends AppCompatActivity {
                     }
                 } else {
                     WebkitHelpers.showMessageInActivity(activity,
-                            R.string.invalid_whitelist_input_message);
+                            R.string.invalid_allowlist_input_message);
                 }
             }
         });

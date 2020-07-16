@@ -185,48 +185,48 @@ public class WebViewCompatTest {
 
     /**
      * This should remain functionally equivalent to
-     * android.webkit.cts.WebViewTest#testSetSafeBrowsingWhitelistWithMalformedList. Modifications
+     * android.webkit.cts.WebViewTest#testSetSafeBrowsingAllowlistWithMalformedList. Modifications
      * to this test should be reflected in that test as necessary. See
      * http://go/modifying-webview-cts.
      */
     @Test
-    public void testSetSafeBrowsingWhitelistWithMalformedList() throws Exception {
+    public void testSetSafeBrowsingAllowlistWithMalformedList() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_WHITELIST);
 
-        List<String> whitelist = new ArrayList<>();
-        // Protocols are not supported in the whitelist
-        whitelist.add("http://google.com");
-        final ResolvableFuture<Boolean> safeBrowsingWhitelistFuture = ResolvableFuture.create();
-        WebViewCompat.setSafeBrowsingWhitelist(whitelist, new ValueCallback<Boolean>() {
+        List<String> allowlist = new ArrayList<>();
+        // Protocols are not supported in the allowlist
+        allowlist.add("http://google.com");
+        final ResolvableFuture<Boolean> safeBrowsingAllowlistFuture = ResolvableFuture.create();
+        WebViewCompat.setSafeBrowsingWhitelist(allowlist, new ValueCallback<Boolean>() {
             @Override
             public void onReceiveValue(Boolean success) {
-                safeBrowsingWhitelistFuture.set(success);
+                safeBrowsingAllowlistFuture.set(success);
             }
         });
-        assertFalse(WebkitUtils.waitForFuture(safeBrowsingWhitelistFuture));
+        assertFalse(WebkitUtils.waitForFuture(safeBrowsingAllowlistFuture));
     }
 
     /**
      * This should remain functionally equivalent to
-     * android.webkit.cts.WebViewTest#testSetSafeBrowsingWhitelistWithValidList. Modifications to
+     * android.webkit.cts.WebViewTest#testSetSafeBrowsingAllowlistWithValidList. Modifications to
      * this test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
      */
     @Test
-    public void testSetSafeBrowsingWhitelistWithValidList() throws Exception {
+    public void testSetSafeBrowsingAllowlistWithValidList() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_WHITELIST);
         // This test relies on the onSafeBrowsingHit callback to verify correctness.
         WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_HIT);
 
-        List<String> whitelist = new ArrayList<>();
-        whitelist.add("safe-browsing");
-        final ResolvableFuture<Boolean> safeBrowsingWhitelistFuture = ResolvableFuture.create();
-        WebViewCompat.setSafeBrowsingWhitelist(whitelist, new ValueCallback<Boolean>() {
+        List<String> allowlist = new ArrayList<>();
+        allowlist.add("safe-browsing");
+        final ResolvableFuture<Boolean> safeBrowsingAllowlistFuture = ResolvableFuture.create();
+        WebViewCompat.setSafeBrowsingWhitelist(allowlist, new ValueCallback<Boolean>() {
             @Override
             public void onReceiveValue(Boolean success) {
-                safeBrowsingWhitelistFuture.set(success);
+                safeBrowsingAllowlistFuture.set(success);
             }
         });
-        assertTrue(WebkitUtils.waitForFuture(safeBrowsingWhitelistFuture));
+        assertTrue(WebkitUtils.waitForFuture(safeBrowsingAllowlistFuture));
 
         final ResolvableFuture<Void> pageFinishedFuture = ResolvableFuture.create();
         mWebViewOnUiThread.setWebViewClient(new WebViewClientCompat() {
