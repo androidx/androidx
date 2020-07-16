@@ -17,22 +17,24 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.Stable
-import androidx.ui.core.Alignment
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.IntrinsicMeasurable
-import androidx.ui.core.IntrinsicMeasureScope
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.core.LayoutModifier
-import androidx.ui.core.Measurable
-import androidx.ui.core.MeasureScope
-import androidx.ui.core.Modifier
-import androidx.compose.ui.unit.constrainHeight
-import androidx.compose.ui.unit.constrainWidth
-import androidx.compose.ui.unit.enforce
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.unit.enforce
+import androidx.ui.core.Alignment
+import androidx.ui.core.InspectableParameter
+import androidx.ui.core.IntrinsicMeasurable
+import androidx.ui.core.IntrinsicMeasureScope
+import androidx.ui.core.LayoutModifier
+import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
+import androidx.ui.core.Modifier
+import androidx.ui.core.ParameterElement
 import kotlin.math.max
 
 /**
@@ -331,7 +333,7 @@ fun Modifier.fillMaxSize() = this.then(FillModifier(Direction.Both))
 @Stable
 // TODO(popam): avoid recreating modifier for common align
 fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHorizontally) =
-    this.then(AlignmentModifier(Direction.Horizontal) { size, layoutDirection ->
+    this.then(AlignmentModifier(Direction.Horizontal, align) { size, layoutDirection ->
         IntOffset(align.align(size.width, layoutDirection), 0)
     })
 
@@ -346,7 +348,7 @@ fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHori
 // TODO(popam): avoid recreating modifier for common align
 @Stable
 fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVertically) =
-    this.then(AlignmentModifier(Direction.Vertical) { size, _ ->
+    this.then(AlignmentModifier(Direction.Vertical, align) { size, _ ->
         IntOffset(0, align.align(size.height))
     })
 
@@ -361,7 +363,7 @@ fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVerti
  */
 @Stable
 fun Modifier.wrapContentSize(align: Alignment = Alignment.Center) =
-    this.then(AlignmentModifier(Direction.Both) { size, layoutDirection ->
+    this.then(AlignmentModifier(Direction.Both, align) { size, layoutDirection ->
         align.align(size, layoutDirection)
     })
 
@@ -381,7 +383,9 @@ fun Modifier.defaultMinSizeConstraints(
     minHeight: Dp = Dp.Unspecified
 ) = this.then(UnspecifiedConstraintsModifier(minWidth, minHeight))
 
-private data class FillModifier(private val direction: Direction) : LayoutModifier {
+private data class FillModifier(
+    private val direction: Direction
+) : LayoutModifier, InspectableParameter {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
@@ -407,6 +411,15 @@ private data class FillModifier(private val direction: Direction) : LayoutModifi
             placeable.place(0, 0)
         }
     }
+
+    override val nameFallback: String =
+        when (direction) {
+            Direction.Vertical -> "fillMaxHeight"
+            Direction.Horizontal -> "fillMaxWidth"
+            Direction.Both -> "fillMaxSize"
+        }
+
+    override val inspectableElements: Sequence<ParameterElement> = emptySequence()
 }
 
 private data class SizeModifier(
@@ -415,7 +428,7 @@ private data class SizeModifier(
     private val maxWidth: Dp = Dp.Unspecified,
     private val maxHeight: Dp = Dp.Unspecified,
     private val enforceIncoming: Boolean
-) : LayoutModifier {
+) : LayoutModifier, InspectableParameter {
     private val Density.targetConstraints
         get() = Constraints(
             minWidth = if (minWidth != Dp.Unspecified) minWidth.toIntPx() else 0,
@@ -506,12 +519,69 @@ private data class SizeModifier(
         val constraints = targetConstraints
         constraints.constrainHeight(it)
     }
+
+    override val nameFallback: String
+        get() {
+            val name = simpleName
+            return if (enforceIncoming) "preferred${simpleName.capitalize()}" else name
+        }
+
+    override val valueOverride: Any?
+        get() = when (simpleName) {
+            "width" -> minWidth
+            "height" -> minHeight
+            "size" -> if (minWidth == minHeight) minWidth else null
+            else -> null
+        }
+
+    override val inspectableElements: Sequence<ParameterElement>
+        get() = when (simpleName) {
+            "width" -> sequenceOf(ParameterElement("width", minWidth))
+            "height" -> sequenceOf(ParameterElement("height", minHeight))
+            "size" ->
+                if (minWidth == minHeight) {
+                    sequenceOf(ParameterElement("size", minWidth))
+                } else sequenceOf(
+                    ParameterElement("width", minWidth),
+                    ParameterElement("height", minHeight)
+                )
+            "widthIn" -> sequenceOf(
+                ParameterElement("minWidth", minWidth),
+                ParameterElement("maxWidth", maxWidth)
+            )
+            "heightIn" -> sequenceOf(
+                ParameterElement("minHeight", minHeight),
+                ParameterElement("maxHeight", maxHeight)
+            )
+            else -> sequenceOf(
+                ParameterElement("minWidth", minWidth),
+                ParameterElement("minHeight", minHeight),
+                ParameterElement("maxWidth", maxWidth),
+                ParameterElement("maxHeight", maxHeight)
+            )
+        }
+
+    private val simpleName: String =
+        if (minWidth == maxWidth && minHeight == maxHeight) {
+            when {
+                minHeight == Dp.Unspecified -> "width"
+                minWidth == Dp.Unspecified -> "height"
+                else -> "size"
+            }
+        } else {
+            when {
+                minHeight == Dp.Unspecified && maxHeight == Dp.Unspecified -> "widthIn"
+                minWidth == Dp.Unspecified && maxWidth == Dp.Unspecified -> "heightIn"
+                else -> "sizeIn"
+            }
+        }
 }
 
 private data class AlignmentModifier(
     private val direction: Direction,
+    private val alignment: Any,
     private val alignmentCallback: (IntSize, LayoutDirection) -> IntOffset
-) : LayoutModifier {
+) : LayoutModifier, InspectableParameter {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
@@ -536,12 +606,22 @@ private data class AlignmentModifier(
             placeable.placeAbsolute(position)
         }
     }
+
+    override val nameFallback: String =
+        when (direction) {
+            Direction.Vertical -> "wrapContentHeight"
+            Direction.Horizontal -> "wrapContentWidth"
+            Direction.Both -> "wrapContentSize"
+        }
+
+    override val inspectableElements: Sequence<ParameterElement>
+        get() = sequenceOf(ParameterElement("alignment", alignment))
 }
 
 private data class UnspecifiedConstraintsModifier(
     val minWidth: Dp = Dp.Unspecified,
     val minHeight: Dp = Dp.Unspecified
-) : LayoutModifier {
+) : LayoutModifier, InspectableParameter {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
@@ -598,6 +678,14 @@ private data class UnspecifiedConstraintsModifier(
     ) = measurable.maxIntrinsicHeight(width).coerceAtLeast(
         if (minHeight != Dp.Unspecified) minHeight.toIntPx() else 0
     )
+
+    override val nameFallback = "defaultMinSizeConstraints"
+
+    override val inspectableElements: Sequence<ParameterElement>
+        get() = sequenceOf(
+            ParameterElement("minWidth", minWidth),
+            ParameterElement("minHeight", minHeight)
+        )
 }
 
 internal enum class Direction {
