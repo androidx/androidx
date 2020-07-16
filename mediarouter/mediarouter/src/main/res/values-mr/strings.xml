@@ -18,10 +18,10 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="7449553026175453403">"सिस्टम"</string>
     <string name="mr_user_route_category_name" msgid="4088331695424166162">"डिव्हाइस"</string>
-    <string name="mr_button_content_description" msgid="2312677190680671081">"कास्ट बटण"</string>
-    <string name="mr_cast_button_disconnected" msgid="5305518452578895913">"कास्ट बटण. डिस्कनेक्ट केले आहे"</string>
-    <string name="mr_cast_button_connecting" msgid="5725704441125342766">"कास्ट बटण. कनेक्ट करत आहे"</string>
-    <string name="mr_cast_button_connected" msgid="4266221213305642633">"कास्ट बटण. कनेक्ट केले आहे"</string>
+    <string name="mr_button_content_description" msgid="2939063992730535343">"कास्‍ट करा"</string>
+    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"कास्‍ट करा. डिस्कनेक्ट केले आहे"</string>
+    <string name="mr_cast_button_connecting" msgid="6629927151350192407">"कास्‍ट करा. कनेक्ट करत आहे"</string>
+    <string name="mr_cast_button_connected" msgid="6073720094880410356">"कास्‍ट करा. कनेक्ट केले आहे"</string>
     <string name="mr_chooser_title" msgid="1419936397646839840">"यावर कास्ट करा"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"डिव्हाइस शोधत आहे"</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"‍डिस्कनेक्ट करा"</string>
