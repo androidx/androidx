@@ -60,9 +60,11 @@ import androidx.ui.core.clipboard.AndroidClipboardManager
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.focus.ExperimentalFocus
 import androidx.ui.core.focus.FOCUS_TAG
-import androidx.ui.core.focus.FocusDetailedState.Active
-import androidx.ui.core.focus.FocusDetailedState.Inactive
+import androidx.ui.core.focus.FocusDetailedState
+import androidx.ui.core.focus.FocusModifier2
 import androidx.ui.core.focus.FocusModifierImpl
+import androidx.ui.core.focus.FocusState2.Active
+import androidx.ui.core.focus.FocusState2.Inactive
 import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.keyinput.ExperimentalKeyInput
@@ -133,14 +135,16 @@ internal class AndroidComposeView constructor(
 
     // TODO(b/160821157): Replace FocusDetailedState with FocusState2.
     @Suppress("DEPRECATION")
-    private val focusModifier = FocusModifierImpl(Inactive)
+    private val focusModifier = FocusModifierImpl(FocusDetailedState.Inactive)
+    private val focusModifier2 = FocusModifier2(Inactive)
     private val keyInputModifier = KeyInputModifier(null, null)
 
     private val canvasHolder = CanvasHolder()
 
     override val root = LayoutNode().also {
         it.measureBlocks = RootMeasureBlocks
-        it.modifier = Modifier.drawLayer() + semanticsModifier + focusModifier + keyInputModifier
+        it.modifier = Modifier
+            .drawLayer() + semanticsModifier + focusModifier + focusModifier2 + keyInputModifier
     }
 
     override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)
@@ -179,15 +183,22 @@ internal class AndroidComposeView constructor(
         if (gainFocus) {
             // If the focus state is not Inactive, it indicates that the focus state is already
             // set (possibly by dispatchWindowFocusChanged). So we don't update the state.
-            if (focusModifier.focusDetailedState == Inactive) {
-                focusModifier.focusDetailedState = Active
+            if (focusModifier.focusDetailedState == FocusDetailedState.Inactive) {
+                focusModifier.focusDetailedState = FocusDetailedState.Active
+            }
+            if (focusModifier2.focusState == Inactive) {
+                focusModifier2.focusState = Active
                 // TODO(b/152535715): propagate focus to children based on child focusability.
             }
         } else {
             // If this view lost focus, clear focus from the children.
             with(focusModifier) {
                 focusNode?.clearFocus(forcedClear = true)
-                focusDetailedState = Inactive
+                focusDetailedState = FocusDetailedState.Inactive
+            }
+            with(focusModifier2) {
+                focusNode.clearFocus(forcedClear = true)
+                focusState = Inactive
             }
         }
     }
