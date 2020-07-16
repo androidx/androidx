@@ -16,27 +16,19 @@
 
 package androidx.compose.foundation.lazy
 
-import androidx.compose.Applier
 import androidx.compose.Composable
-import androidx.compose.ExperimentalComposeApi
-import androidx.compose.compositionReference
-import androidx.compose.currentComposer
-import androidx.compose.emit
-import androidx.compose.onDispose
 import androidx.compose.remember
-import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.LayoutNode
 import androidx.ui.core.Modifier
-import androidx.ui.core.Ref
+import androidx.ui.core.SubcomposeLayout
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.gesture.scrollorientationlocking.Orientation
-import androidx.ui.core.materialize
 import androidx.compose.foundation.gestures.rememberScrollableController
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.ui.core.Alignment
+import androidx.ui.core.ExperimentalSubcomposeLayoutApi
 import androidx.compose.ui.unit.dp
 
 /**
@@ -104,7 +96,7 @@ fun <T> LazyRowItems(
 }
 
 @Composable
-@OptIn(ExperimentalLayoutNodeApi::class)
+@OptIn(ExperimentalSubcomposeLayoutApi::class)
 private fun <T> LazyItems(
     items: List<T>,
     modifier: Modifier = Modifier,
@@ -115,16 +107,7 @@ private fun <T> LazyItems(
     isVertical: Boolean
 ) {
     val state = remember { LazyItemsState<T>(isVertical = isVertical) }
-    @OptIn(ExperimentalComposeApi::class)
-    state.recomposer = currentComposer.recomposer
-    state.itemContent = itemContent
-    state.items = items
-    state.compositionRef = compositionReference()
-    state.forceRecompose = true
-    state.horizontalAlignment = horizontalGravity
-    state.verticalAlignment = verticalGravity
-
-    val materialized = currentComposer.materialize(
+    SubcomposeLayout<DataIndex>(
         modifier
             .scrollable(
                 orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
@@ -133,30 +116,7 @@ private fun <T> LazyItems(
             .clipToBounds()
             .padding(contentPadding)
             .then(state.remeasurementModifier)
-    )
-    @OptIn(ExperimentalComposeApi::class)
-    emit<LayoutNode, Applier<Any>>(
-        ctor = LayoutEmitHelper.constructor,
-        update = {
-            set(materialized, LayoutEmitHelper.setModifier)
-            set(state.rootNodeRef, LayoutEmitHelper.setRef)
-            set(state.measureBlocks, LayoutEmitHelper.setMeasureBlocks)
-        }
-    )
-    state.recomposeIfAttached()
-    onDispose {
-        state.disposeAllChildren()
+    ) { constraints ->
+        state.measure(this, constraints, items, itemContent, horizontalGravity, verticalGravity)
     }
-}
-
-/**
- * Object of pre-allocated lambdas used to make emits to LayoutNodes allocation-less.
- */
-@OptIn(ExperimentalLayoutNodeApi::class)
-private object LayoutEmitHelper {
-    val constructor: () -> LayoutNode = { LayoutNode() }
-    val setModifier: LayoutNode.(Modifier) -> Unit = { this.modifier = it }
-    val setMeasureBlocks: LayoutNode.(LayoutNode.MeasureBlocks) -> Unit =
-        { this.measureBlocks = it }
-    val setRef: LayoutNode.(Ref<LayoutNode>) -> Unit = { it.value = this }
 }

@@ -17,34 +17,27 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.Composable
-import androidx.compose.ComposableContract
-import androidx.compose.Composition
-import androidx.compose.CompositionReference
-import androidx.compose.ExperimentalComposeApi
-import androidx.compose.Recomposer
 import androidx.ui.core.Alignment
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.core.LayoutNode
+import androidx.ui.core.ExperimentalSubcomposeLayoutApi
 import androidx.ui.core.Measurable
-import androidx.ui.core.MeasureScope
-import androidx.ui.core.MeasuringIntrinsicsMeasureBlocks
+import androidx.ui.core.MeasureScope.MeasureResult
 import androidx.ui.core.Placeable
-import androidx.ui.core.Ref
 import androidx.ui.core.Remeasurement
 import androidx.ui.core.RemeasurementModifier
+import androidx.ui.core.SubcomposeMeasureScope
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
-import androidx.ui.core.subcomposeInto
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastSumBy
 import kotlin.math.abs
-import kotlin.math.max
 import kotlin.math.roundToInt
 
 private inline class ScrollDirection(val isForward: Boolean)
 
 @Suppress("NOTHING_TO_INLINE")
-private inline class DataIndex(val value: Int) {
+internal inline class DataIndex(val value: Int) {
     inline operator fun inc(): DataIndex = DataIndex(value + 1)
     inline operator fun dec(): DataIndex = DataIndex(value - 1)
     inline operator fun plus(i: Int): DataIndex = DataIndex(value + i)
@@ -53,32 +46,8 @@ private inline class DataIndex(val value: Int) {
     inline operator fun compareTo(other: DataIndex): Int = value - other.value
 }
 
-private inline class LayoutIndex(val value: Int)
-
-@OptIn(ExperimentalLayoutNodeApi::class)
+@OptIn(ExperimentalSubcomposeLayoutApi::class)
 internal class LazyItemsState<T>(val isVertical: Boolean) {
-    lateinit var recomposer: Recomposer
-    lateinit var itemContent: @Composable (T) -> Unit
-    lateinit var items: List<T>
-
-    var forceRecompose = false
-    var compositionRef: CompositionReference? = null
-    /**
-     * Used to get the reference to populate [rootNode]
-     */
-    val rootNodeRef = Ref<LayoutNode>()
-    /**
-     * The root [LayoutNode]
-     */
-    private val rootNode get() = rootNodeRef.value!!
-    /**
-     * The measure blocks for [rootNode]
-     */
-    val measureBlocks: LayoutNode.MeasureBlocks = ListMeasureBlocks()
-    /**
-     * The layout direction
-     */
-    private var layoutDirection: LayoutDirection = LayoutDirection.Ltr
     /**
      * The index of the first item that is composed into the layout tree
      */
@@ -104,19 +73,13 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
      * The children that have been measured this measure pass.
      * Used to avoid measuring twice in a single pass, which is illegal
      */
-    private val measuredThisPass: MutableMap<DataIndex, Placeable> = mutableMapOf()
+    private val measuredThisPass: MutableMap<DataIndex, List<Placeable>> = mutableMapOf()
 
     /**
      * The listener to be passed to onScrollDeltaConsumptionRequested.
      * Cached to avoid recreations
      */
     val onScrollDelta: (Float) -> Float = { onScroll(it) }
-
-    /**
-     * Tracks the correspondence between the child layout nodes and their compositions, so that
-     * they can be disposed later
-     */
-    private val compositionsForLayoutNodes = mutableMapOf<LayoutNode, Composition>()
 
     /**
      * The [Remeasurement] object associated with our layout. It allows us to remeasure
@@ -132,16 +95,6 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
             this@LazyItemsState.remeasurement = remeasurement
         }
     }
-
-    /**
-     * The horizontal alignment used by [LazyColumnItems].
-     */
-    var horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally
-
-    /**
-     * The vertical alignment used by [LazyRowItems].
-     */
-    var verticalAlignment: Alignment.Vertical = Alignment.CenterVertically
 
     private val Placeable.mainAxisSize get() = if (isVertical) height else width
     private val Placeable.crossAxisSize get() = if (!isVertical) height else width
@@ -167,7 +120,11 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
         }
     }
 
-    private fun consumePendingScroll(childConstraints: Constraints) {
+    private fun SubcomposeMeasureScope<DataIndex>.consumePendingScroll(
+        childConstraints: Constraints,
+        items: List<T>,
+        itemContent: @Composable (T) -> Unit
+    ) {
         val scrollDirection = ScrollDirection(isForward = scrollToBeConsumed < 0f)
 
         while (true) {
@@ -180,7 +137,13 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
             // Allow up to half a pixel of scroll to remain unconsumed
             if (abs(scrollToBeConsumed) >= 0.5f) {
                 // We need to bring another item onscreen. Can we?
-                if (!composeAndMeasureNextItem(childConstraints, scrollDirection)) {
+                if (!composeAndMeasureNextItem(
+                        childConstraints,
+                        scrollDirection,
+                        items,
+                        itemContent
+                    )
+                ) {
                     // Nope. Break out and return the rest of the drag
                     break
                 }
@@ -234,30 +197,33 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
      * @return `true` if an item was composed and measured, `false` if there are no more items in
      * the scroll direction
      */
-    private fun composeAndMeasureNextItem(
+    private fun SubcomposeMeasureScope<DataIndex>.composeAndMeasureNextItem(
         childConstraints: Constraints,
-        scrollDirection: ScrollDirection
+        scrollDirection: ScrollDirection,
+        items: List<T>,
+        itemContent: @Composable (T) -> Unit
     ): Boolean {
         val nextItemIndex = if (scrollDirection.isForward) {
             if (items.size > lastComposedItem.value + 1) {
-                lastComposedItem + 1
+                ++lastComposedItem
             } else {
                 return false
             }
         } else {
             if (firstComposedItem.value > 0) {
-                firstComposedItem - 1
+                --firstComposedItem
             } else {
                 return false
             }
         }
 
-        val nextItem = composeChildForDataIndex(nextItemIndex)
+        val nextItems = composeChildForDataIndex(nextItemIndex, items, itemContent).map {
+            it.measure(childConstraints, layoutDirection)
+        }
 
-        val childPlaceable = nextItem.measure(childConstraints, layoutDirection)
-        measuredThisPass[nextItemIndex] = childPlaceable
+        measuredThisPass[nextItemIndex] = nextItems
 
-        val childSize = childPlaceable.mainAxisSize
+        val childSize = nextItems.fastSumBy { it.mainAxisSize }
 
         // Add in our newly composed space so that it may be consumed
         if (scrollDirection.isForward) {
@@ -278,272 +244,113 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
         lastItemRemainingSpace += delta
         // Scrolling forward is negative delta and adds offset, so subtract the negative
         firstItemScrollOffset -= delta
-        @OptIn(ExperimentalLayoutNodeApi::class)
-        rootNode.requestRemeasure()
-    }
-
-    @OptIn(ExperimentalLayoutNodeApi::class)
-    private inner class ListMeasureBlocks : LayoutNode.NoIntrinsicsMeasureBlocks(
-        error = "Intrinsic measurements are not supported by AdapterList (yet)"
-    ) {
-        override fun measure(
-            measureScope: MeasureScope,
-            measurables: List<Measurable>,
-            constraints: Constraints,
-            layoutDirection: LayoutDirection
-        ): MeasureScope.MeasureResult {
-            measuredThisPass.clear()
-            if (forceRecompose) {
-                rootNode.ignoreModelReads { recomposeAllChildren() }
-            }
-
-            this@LazyItemsState.layoutDirection = layoutDirection
-
-            val maxMainAxis = if (isVertical) constraints.maxHeight else constraints.maxWidth
-            val childConstraints = Constraints(
-                maxWidth = if (isVertical) constraints.maxWidth else Constraints.Infinity,
-                maxHeight = if (!isVertical) constraints.maxHeight else Constraints.Infinity
-            )
-
-            // We're being asked to consume scroll by the Scrollable
-            if (abs(scrollToBeConsumed) >= 0.5f) {
-                // Consume it in advance, because it simplifies the rest of this method if we
-                // know exactly how much scroll we've consumed - for instance, we can safely
-                // discard anything off the start of the viewport, because we know we can fill
-                // it, assuming nothing has shrunken on us (which has to be handled separately
-                // anyway)
-                consumePendingScroll(childConstraints)
-            }
-
-            var mainAxisUsed = (-firstItemScrollOffset).roundToInt()
-            var maxCrossAxis = 0
-
-            // The index of the first item that should be displayed, regardless of what is
-            // currently displayed.  Will be moved forward as we determine what's offscreen
-            var itemIndexOffset = firstComposedItem
-
-            // TODO: handle the case where we can't fill the viewport due to children shrinking,
-            //  but there are more items at the start that we could fill with
-            var index = itemIndexOffset
-            while (mainAxisUsed <= maxMainAxis && index.value < items.size) {
-                val node = getNodeForDataIndex(index)
-                val placeable = measuredThisPass.getOrPut(index) {
-                    node.measure(childConstraints, layoutDirection)
-                }
-                val childMainAxisSize = placeable.mainAxisSize
-                mainAxisUsed += childMainAxisSize
-
-                maxCrossAxis = max(maxCrossAxis, placeable.crossAxisSize)
-
-                if (mainAxisUsed < 0f) {
-                    // this item is offscreen, remove it and the offset it took up
-                    itemIndexOffset = index + 1
-                    firstItemScrollOffset -= childMainAxisSize
-                }
-
-                index++
-            }
-            lastComposedItem = index - 1 // index is incremented after the last iteration
-
-            // The number of layout children that we want to have, not including any offscreen
-            // items at the start or end
-            val numDesiredChildren = (lastComposedItem - itemIndexOffset + 1).value
-
-            // Remove no-longer-needed items from the start of the list
-            if (itemIndexOffset > firstComposedItem) {
-                val count = (itemIndexOffset - firstComposedItem).value
-                removeAndDisposeChildren(fromIndex = LayoutIndex(0), count = count)
-            }
-            firstComposedItem = itemIndexOffset
-
-            lastItemRemainingSpace = if (mainAxisUsed > maxMainAxis) {
-                (mainAxisUsed - maxMainAxis).toFloat()
-            } else {
-                0f
-            }
-
-            // Remove no-longer-needed items from the end of the list
-            val layoutChildrenInNode = rootNode.children.size
-            if (layoutChildrenInNode > numDesiredChildren) {
-                val count = layoutChildrenInNode - numDesiredChildren
-                removeAndDisposeChildren(
-                    // We've already removed the extras at the start, so the desired children
-                    // start at index 0
-                    fromIndex = LayoutIndex(numDesiredChildren),
-                    count = count
-                )
-            }
-
-            // Wrap the content of the children
-            val layoutWidth = constraints.constrainWidth(
-                if (isVertical) maxCrossAxis else mainAxisUsed
-            )
-            val layoutHeight = constraints.constrainHeight(
-                if (!isVertical) maxCrossAxis else mainAxisUsed
-            )
-
-            return measureScope.layout(layoutWidth, layoutHeight) {
-                var currentMainAxis = (-firstItemScrollOffset).roundToInt()
-                var currentCrossAxis: Int
-
-                rootNode.children.forEach {
-                    if (isVertical) {
-                        currentCrossAxis = horizontalAlignment
-                            .align(layoutWidth - it.width, layoutDirection)
-                        // TODO(b/160139359): use placeAbsolute once RTL is fixed
-                        it.place(currentCrossAxis, currentMainAxis)
-                        currentMainAxis += it.height
-                    } else {
-                        currentCrossAxis = verticalAlignment.align(layoutHeight - it.height)
-                        it.place(currentMainAxis, currentCrossAxis)
-                        currentMainAxis += it.width
-                    }
-                }
-            }
-        }
-    }
-
-    private fun removeAndDisposeChildren(
-        fromIndex: LayoutIndex,
-        count: Int
-    ) {
-        for (i in 1..count) {
-            val node = rootNode.children[fromIndex.value]
-            rootNode.removeAt(
-                index = fromIndex.value,
-                // remove one at a time to avoid creating unnecessary data structures
-                // to store the nodes we're about to dispose
-                count = 1
-            )
-            compositionFor(node).dispose()
-            compositionsForLayoutNodes.remove(node)
-        }
-    }
-
-    fun disposeAllChildren() {
-        removeAndDisposeChildren(LayoutIndex(0), rootNode.children.size)
-    }
-
-    fun recomposeIfAttached() {
-        if (rootNode.owner != null) {
-            // TODO: run this in an `onPreCommit` callback for multithreaded/deferred composition
-            //  safety
-            recomposeAllChildren()
-        }
-    }
-
-    private fun recomposeAllChildren() {
-        for (idx in rootNode.children.indices) {
-            val dataIdx = LayoutIndex(idx).toDataIndex()
-            // Make sure that we're only recomposing items that still exist in the data.
-            // Excess layout children will be removed in the next measure/layout pass
-            if (dataIdx.value < items.size && dataIdx.value >= 0) {
-                composeChildForDataIndex(dataIdx)
-            }
-        }
-        forceRecompose = false
-    }
-
-    private fun compositionFor(childNode: LayoutNode): Composition {
-        return compositionsForLayoutNodes[childNode] ?: throw IllegalStateException(
-            "No composition found for child $childNode"
-        )
-    }
-
-    private fun getNodeForDataIndex(dataIndex: DataIndex): LayoutNode {
-        val layoutIndex = dataIndex.toLayoutIndex()
-        val layoutChildren = rootNode.children
-        val numLayoutChildren = layoutChildren.size
-        check(layoutIndex.value <= numLayoutChildren) {
-            "Index too high: $dataIndex, firstComposedItem: $firstComposedItem, " +
-                    "layout index: $layoutIndex, current children: $numLayoutChildren"
-        }
-        return if (layoutIndex.value < numLayoutChildren) {
-            layoutChildren[layoutIndex.value]
-        } else {
-            composeChildForDataIndex(dataIndex)
-        }
-    }
-
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun DataIndex.toLayoutIndex(): LayoutIndex {
-        return LayoutIndex(value - firstComposedItem.value)
-    }
-
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun LayoutIndex.toDataIndex(): DataIndex {
-        return DataIndex(value + firstComposedItem.value)
     }
 
     /**
-     * Contract: this must be either a data index that is already in the LayoutNode, or one
-     * immediately on either side of those.
+     * Measures and positions currently visible [items] using [itemContent] for subcomposing.
      */
-    private fun composeChildForDataIndex(dataIndex: DataIndex): LayoutNode {
-        val layoutIndex = dataIndex.toLayoutIndex()
+    fun measure(
+        scope: SubcomposeMeasureScope<DataIndex>,
+        constraints: Constraints,
+        items: List<T>,
+        itemContent: @Composable (T) -> Unit,
+        horizontalAlignment: Alignment.Horizontal,
+        verticalAlignment: Alignment.Vertical
+    ): MeasureResult = with(scope) {
+        measuredThisPass.clear()
+        val maxMainAxis = if (isVertical) constraints.maxHeight else constraints.maxWidth
+        val childConstraints = Constraints(
+            maxWidth = if (isVertical) constraints.maxWidth else Constraints.Infinity,
+            maxHeight = if (!isVertical) constraints.maxHeight else Constraints.Infinity
+        )
 
-        check(layoutIndex.value >= -1 && layoutIndex.value <= rootNode.children.size) {
-            "composeChildForDataIndex called with invalid index, data index: $dataIndex," +
-                    " layout index: $layoutIndex"
+        // We're being asked to consume scroll by the Scrollable
+        if (abs(scrollToBeConsumed) >= 0.5f) {
+            // Consume it in advance, because it simplifies the rest of this method if we
+            // know exactly how much scroll we've consumed - for instance, we can safely
+            // discard anything off the start of the viewport, because we know we can fill
+            // it, assuming nothing has shrunken on us (which has to be handled separately
+            // anyway)
+            consumePendingScroll(childConstraints, items, itemContent)
         }
 
-        val node: LayoutNode
-        val atStart = layoutIndex.value == -1
-        val atEnd = rootNode.children.size == layoutIndex.value
-        if (atEnd || atStart) {
-            // This is a new node, either at the end or the start
-            node = LayoutNode()
-            node.measureBlocks = ListItemMeasureBlocks
+        var mainAxisUsed = (-firstItemScrollOffset).roundToInt()
+        var maxCrossAxis = 0
 
-            // If it's at the end, then the value is already correct, because we don't need to
-            // move any existing LayoutNodes.
-            // If it's at the beginning, it has a layout index of -1 because it's being inserted
-            // _before_ index 0, but this means that we need to insert it at index 0 and then
-            // the others will be shifted forward.  This accounts for these different methods of
-            // tracking.
-            val newLayoutIndex = if (atStart) 0 else layoutIndex.value
-            rootNode.insertAt(newLayoutIndex, node)
-            if (atEnd) {
-                lastComposedItem++
-            } else {
-                // atStart
-                firstComposedItem--
+        // The index of the first item that should be displayed, regardless of what is
+        // currently displayed.  Will be moved forward as we determine what's offscreen
+        var index = firstComposedItem
+
+        // TODO: handle the case where we can't fill the viewport due to children shrinking,
+        //  but there are more items at the start that we could fill with
+        val allPlaceables = mutableListOf<Placeable>()
+        while (mainAxisUsed <= maxMainAxis && index.value < items.size) {
+            val placeables = measuredThisPass.getOrPut(index) {
+                composeChildForDataIndex(index, items, itemContent).fastMap {
+                    it.measure(childConstraints)
+                }
             }
-        } else {
-            node = rootNode.children[layoutIndex.value]
-        }
-        // TODO(b/150390669): Review use of @ComposableContract(tracked = false)
-        @OptIn(ExperimentalComposeApi::class)
-        val composition = subcomposeInto(
-            node,
-            recomposer,
-            compositionRef
-        ) @ComposableContract(tracked = false) {
-            itemContent(items[dataIndex.value])
-        }
-        compositionsForLayoutNodes[node] = composition
-        return node
-    }
+            var size = 0
+            placeables.fastForEach {
+                size += it.mainAxisSize
+                maxCrossAxis = maxOf(maxCrossAxis, it.crossAxisSize)
+            }
+            mainAxisUsed += size
 
-    private val ListItemMeasureBlocks =
-        MeasuringIntrinsicsMeasureBlocks { measurables, constraints ->
-            val placeables = measurables.map { it.measure(constraints) }
-            val mainAxisSize = placeables.sumBy { it.mainAxisSize }
-            val crossAxisSize = placeables.maxByOrNull { it.crossAxisSize }?.crossAxisSize ?: 0
-            layout(
-                width = if (!isVertical) mainAxisSize else crossAxisSize,
-                height = if (isVertical) mainAxisSize else crossAxisSize
-            ) {
-                var y = 0
-                var x = 0
-                placeables.forEach { placeable ->
-                    placeable.placeAbsolute(x, y)
-                    if (isVertical) {
-                        y += placeable.mainAxisSize
-                    } else {
-                        x += placeable.mainAxisSize
+            if (mainAxisUsed < 0f) {
+                // this item is offscreen, remove it and the offset it took up
+                firstComposedItem = index + 1
+                firstItemScrollOffset -= size
+            } else {
+                allPlaceables.addAll(placeables)
+            }
+
+            index++
+        }
+        lastComposedItem = index - 1 // index is incremented after the last iteration
+
+        lastItemRemainingSpace = if (mainAxisUsed > maxMainAxis) {
+            (mainAxisUsed - maxMainAxis).toFloat()
+        } else {
+            0f
+        }
+
+        // Wrap the content of the children
+        val layoutWidth = constraints.constrainWidth(
+            if (isVertical) maxCrossAxis else mainAxisUsed
+        )
+        val layoutHeight = constraints.constrainHeight(
+            if (!isVertical) maxCrossAxis else mainAxisUsed
+        )
+
+        return layout(layoutWidth, layoutHeight) {
+            var currentMainAxis = (-firstItemScrollOffset).roundToInt()
+            allPlaceables.fastForEach {
+                if (isVertical) {
+                    val x = horizontalAlignment.align(layoutWidth - it.width, layoutDirection)
+                    if (currentMainAxis + it.height > 0 && currentMainAxis < layoutHeight) {
+                        it.placeAbsolute(x, currentMainAxis)
                     }
+                    currentMainAxis += it.height
+                } else {
+                    val y = verticalAlignment.align(layoutHeight - it.height)
+                    if (currentMainAxis + it.width > 0 && currentMainAxis < layoutWidth) {
+                        it.place(currentMainAxis, y)
+                    }
+                    currentMainAxis += it.width
                 }
             }
         }
+    }
+
+    private fun SubcomposeMeasureScope<DataIndex>.composeChildForDataIndex(
+        dataIndex: DataIndex,
+        items: List<T>,
+        itemContent: @Composable (T) -> Unit
+    ): List<Measurable> {
+        val item = items[dataIndex.value]
+        return subcompose(dataIndex) {
+            itemContent(item)
+        }
+    }
 }
