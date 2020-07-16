@@ -24,6 +24,7 @@ import android.util.Log;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.biometric.BiometricManager.Authenticators;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -117,51 +118,69 @@ public class BiometricPrompt implements BiometricConstants {
     private static final String BIOMETRIC_FRAGMENT_TAG = "androidx.biometric.BiometricFragment";
 
     /**
-     * A wrapper class for the crypto objects supported by {@link BiometricPrompt}. Currently, the
-     * framework supports {@link Signature}, {@link Cipher}, and {@link Mac} objects.
+     * A wrapper class for the crypto objects supported by {@link BiometricPrompt}.
      */
     public static class CryptoObject {
-        private final Signature mSignature;
-        private final Cipher mCipher;
-        private final Mac mMac;
+        @Nullable private final Signature mSignature;
+        @Nullable private final Cipher mCipher;
+        @Nullable private final Mac mMac;
+        @Nullable private final android.security.identity.IdentityCredential mIdentityCredential;
 
         /**
-         * Creates a {@link CryptoObject} that wraps the given {@link Signature} object.
+         * Creates a crypto object that wraps the given signature object.
          *
-         * @param signature The {@link Signature} to be associated with this {@link CryptoObject}.
+         * @param signature The signature to be associated with this crypto object.
          */
         public CryptoObject(@NonNull Signature signature) {
             mSignature = signature;
             mCipher = null;
             mMac = null;
+            mIdentityCredential = null;
         }
 
         /**
-         * Creates a {@link CryptoObject} that wraps the given {@link Cipher} object.
+         * Creates a crypto object that wraps the given cipher object.
          *
-         * @param cipher The {@link Cipher} to be associated with this {@link CryptoObject}.
+         * @param cipher The cipher to be associated with this crypto object.
          */
         public CryptoObject(@NonNull Cipher cipher) {
-            mCipher = cipher;
             mSignature = null;
+            mCipher = cipher;
             mMac = null;
+            mIdentityCredential = null;
         }
 
         /**
-         * Creates a {@link CryptoObject} that wraps the given {@link Mac} object.
+         * Creates a crypto object that wraps the given MAC object.
          *
-         * @param mac The {@link Mac} to be associated with this {@link CryptoObject}.
+         * @param mac The MAC to be associated with this crypto object.
          */
         public CryptoObject(@NonNull Mac mac) {
-            mMac = mac;
-            mCipher = null;
             mSignature = null;
+            mCipher = null;
+            mMac = mac;
+            mIdentityCredential = null;
         }
 
         /**
-         * Gets the {@link Signature} object associated with this crypto object.
+         * Creates a crypto object that wraps the given identity credential object.
          *
-         * @return The {@link Signature}, or {@code null} if none is associated with this object.
+         * @param identityCredential The identity credential to be associated with this crypto
+         *                           object.
+         */
+        @RequiresApi(Build.VERSION_CODES.R)
+        public CryptoObject(
+                @NonNull android.security.identity.IdentityCredential identityCredential) {
+            mSignature = null;
+            mCipher = null;
+            mMac = null;
+            mIdentityCredential = identityCredential;
+        }
+
+        /**
+         * Gets the signature object associated with this crypto object.
+         *
+         * @return The signature, or {@code null} if none is associated with this object.
          */
         @Nullable
         public Signature getSignature() {
@@ -169,9 +188,9 @@ public class BiometricPrompt implements BiometricConstants {
         }
 
         /**
-         * Gets the {@link Cipher} object associated with this crypto object.
+         * Gets the cipher object associated with this crypto object.
          *
-         * @return The {@link Cipher}, or {@code null} if none is associated with this object.
+         * @return The cipher, or {@code null} if none is associated with this object.
          */
         @Nullable
         public Cipher getCipher() {
@@ -179,13 +198,24 @@ public class BiometricPrompt implements BiometricConstants {
         }
 
         /**
-         * Gets the {@link Mac} object associated with this crypto object.
+         * Gets the MAC object associated with this crypto object.
          *
-         * @return The {@link Mac}, or {@code null} if none is associated with this object.
+         * @return The MAC, or {@code null} if none is associated with this object.
          */
         @Nullable
         public Mac getMac() {
             return mMac;
+        }
+
+        /**
+         * Gets the identity credential object associated with this crypto object.
+         *
+         * @return The identity credential, or {@code null} if none is associated with this object.
+         */
+        @RequiresApi(Build.VERSION_CODES.R)
+        @Nullable
+        public android.security.identity.IdentityCredential getIdentityCredential() {
+            return mIdentityCredential;
         }
     }
 
