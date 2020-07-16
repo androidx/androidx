@@ -18,10 +18,10 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="7449553026175453403">"系統"</string>
     <string name="mr_user_route_category_name" msgid="4088331695424166162">"裝置"</string>
-    <string name="mr_button_content_description" msgid="2312677190680671081">"投放按鈕"</string>
-    <string name="mr_cast_button_disconnected" msgid="5305518452578895913">"投放按鈕；已中斷連線"</string>
-    <string name="mr_cast_button_connecting" msgid="5725704441125342766">"投放按鈕；連線中"</string>
-    <string name="mr_cast_button_connected" msgid="4266221213305642633">"投放按鈕；已連線"</string>
+    <string name="mr_button_content_description" msgid="2939063992730535343">"投放"</string>
+    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"投放。已中斷連線"</string>
+    <string name="mr_cast_button_connecting" msgid="6629927151350192407">"投放。連線中"</string>
+    <string name="mr_cast_button_connected" msgid="6073720094880410356">"投放。已連線"</string>
     <string name="mr_chooser_title" msgid="1419936397646839840">"投放到"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"正在尋找裝置"</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"中斷連線"</string>

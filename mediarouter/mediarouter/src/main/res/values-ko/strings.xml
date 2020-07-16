@@ -18,10 +18,10 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="7449553026175453403">"시스템"</string>
     <string name="mr_user_route_category_name" msgid="4088331695424166162">"기기"</string>
-    <string name="mr_button_content_description" msgid="2312677190680671081">"전송 버튼"</string>
-    <string name="mr_cast_button_disconnected" msgid="5305518452578895913">"전송 버튼. 연결 해제됨"</string>
-    <string name="mr_cast_button_connecting" msgid="5725704441125342766">"전송 버튼. 연결 중"</string>
-    <string name="mr_cast_button_connected" msgid="4266221213305642633">"전송 버튼. 연결됨"</string>
+    <string name="mr_button_content_description" msgid="2939063992730535343">"전송"</string>
+    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"전송 버튼입니다. 기기가 연결 해제되었습니다"</string>
+    <string name="mr_cast_button_connecting" msgid="6629927151350192407">"전송 버튼입니다. 기기 연결 중입니다"</string>
+    <string name="mr_cast_button_connected" msgid="6073720094880410356">"전송 버튼입니다. 기기가 연결되었습니다"</string>
     <string name="mr_chooser_title" msgid="1419936397646839840">"전송 대상"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"기기를 찾는 중"</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"연결 해제"</string>

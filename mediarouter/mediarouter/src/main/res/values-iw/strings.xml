@@ -18,10 +18,10 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="7449553026175453403">"מערכת"</string>
     <string name="mr_user_route_category_name" msgid="4088331695424166162">"מכשירים"</string>
-    <string name="mr_button_content_description" msgid="2312677190680671081">"‏לחצן הפעלת Cast"</string>
-    <string name="mr_cast_button_disconnected" msgid="5305518452578895913">"‏לחצן הפעלת Cast. מנותק"</string>
-    <string name="mr_cast_button_connecting" msgid="5725704441125342766">"‏לחצן הפעלת Cast. מתחבר"</string>
-    <string name="mr_cast_button_connected" msgid="4266221213305642633">"‏לחצן הפעלת Cast. מחובר"</string>
+    <string name="mr_button_content_description" msgid="2939063992730535343">"‏העברה (cast)"</string>
+    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"‏העברה (cast). מנותק"</string>
+    <string name="mr_cast_button_connecting" msgid="6629927151350192407">"‏העברה (cast). מתבצעת התחברות"</string>
+    <string name="mr_cast_button_connected" msgid="6073720094880410356">"‏העברה (cast). מחובר"</string>
     <string name="mr_chooser_title" msgid="1419936397646839840">"העברה אל"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"מתבצע חיפוש מכשירים"</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"ניתוק"</string>

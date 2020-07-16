@@ -18,10 +18,10 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="7449553026175453403">"Sistema"</string>
     <string name="mr_user_route_category_name" msgid="4088331695424166162">"Įrenginiai"</string>
-    <string name="mr_button_content_description" msgid="2312677190680671081">"Perdavimo mygtukas"</string>
-    <string name="mr_cast_button_disconnected" msgid="5305518452578895913">"Perdavimo mygtukas. Atsijungta"</string>
-    <string name="mr_cast_button_connecting" msgid="5725704441125342766">"Perdavimo mygtukas. Prisijungiama"</string>
-    <string name="mr_cast_button_connected" msgid="4266221213305642633">"Perdavimo mygtukas. Prisijungta"</string>
+    <string name="mr_button_content_description" msgid="2939063992730535343">"Perduoti"</string>
+    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"Perduoti. Atsijungta"</string>
+    <string name="mr_cast_button_connecting" msgid="6629927151350192407">"Perduoti. Prisijungiama"</string>
+    <string name="mr_cast_button_connected" msgid="6073720094880410356">"Perduoti. Prisijungta"</string>
     <string name="mr_chooser_title" msgid="1419936397646839840">"Perduoti į"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"Randami įrenginiai"</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"Atjungti"</string>
