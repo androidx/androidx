@@ -98,7 +98,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f, 50f))
+            arrayOf(PointerCoords(50f, 50f)),
+            view
         )
         val move = MotionEvent(
             0,
@@ -106,7 +107,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(51f, 50f))
+            arrayOf(PointerCoords(51f, 50f)),
+            view
         )
         val up = MotionEvent(
             0,
@@ -114,7 +116,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(51f, 50f))
+            arrayOf(PointerCoords(51f, 50f)),
+            view
         )
         activityTestRule.runOnUiThreadIR {
             view.dispatchTouchEvent(down)
@@ -134,7 +137,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f, 50f))
+            arrayOf(PointerCoords(50f, 50f)),
+            view
         )
         val move = MotionEvent(
             0,
@@ -142,7 +146,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(51f, 50f))
+            arrayOf(PointerCoords(51f, 50f)),
+            view
         )
         val cancel = MotionEvent(
             0,
@@ -150,7 +155,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(51f, 50f))
+            arrayOf(PointerCoords(51f, 50f)),
+            view
         )
         activityTestRule.runOnUiThreadIR {
             view.dispatchTouchEvent(down)
@@ -170,7 +176,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f, 50f))
+            arrayOf(PointerCoords(50f, 50f)),
+            view
         )
         waitForLongPress {
             view.dispatchTouchEvent(down)
@@ -189,7 +196,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f, 50f))
+            arrayOf(PointerCoords(50f, 50f)),
+            view
         )
         waitForLongPress {
             view.dispatchTouchEvent(down)
@@ -200,7 +208,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(51f, 50f))
+            arrayOf(PointerCoords(51f, 50f)),
+            view
         )
         view.dispatchTouchEvent(move)
 
@@ -222,7 +231,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f, 50f))
+            arrayOf(PointerCoords(50f, 50f)),
+            view
         )
         waitForLongPress {
             view.dispatchTouchEvent(down)
@@ -233,7 +243,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(51f, 50f))
+            arrayOf(PointerCoords(51f, 50f)),
+            view
         )
         view.dispatchTouchEvent(up)
 
@@ -254,7 +265,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f, 50f))
+            arrayOf(PointerCoords(50f, 50f)),
+            view
         )
         waitForLongPress {
             view.dispatchTouchEvent(down)
@@ -265,7 +277,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(51f, 50f))
+            arrayOf(PointerCoords(51f, 50f)),
+            view
         )
         view.dispatchTouchEvent(move)
         val up = MotionEvent(
@@ -274,7 +287,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(51f, 50f))
+            arrayOf(PointerCoords(51f, 50f)),
+            view
         )
         view.dispatchTouchEvent(up)
 
@@ -297,7 +311,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f, 50f))
+            arrayOf(PointerCoords(50f, 50f)),
+            view
         )
         waitForLongPress {
             view.dispatchTouchEvent(down)
@@ -308,7 +323,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f, 50f))
+            arrayOf(PointerCoords(50f, 50f)),
+            view
         )
         view.dispatchTouchEvent(cancel)
 
@@ -328,7 +344,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f, 50f))
+            arrayOf(PointerCoords(50f, 50f)),
+            view
         )
         waitForLongPress {
             view.dispatchTouchEvent(down)
@@ -339,7 +356,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(51f, 50f))
+            arrayOf(PointerCoords(51f, 50f)),
+            view
         )
         view.dispatchTouchEvent(move)
         val cancel = MotionEvent(
@@ -348,7 +366,8 @@ class LongPressDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(51f, 50f))
+            arrayOf(PointerCoords(51f, 50f)),
+            view
         )
         view.dispatchTouchEvent(cancel)
 
