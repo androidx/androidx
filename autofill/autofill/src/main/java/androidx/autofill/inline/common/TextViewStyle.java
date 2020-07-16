@@ -32,7 +32,7 @@ import androidx.core.util.Preconditions;
 /**
  * Specifies the style for a {@link TextView}.
  */
-@RequiresApi(api = Build.VERSION_CODES.Q) //TODO(b/147116534): Update to R.
+@RequiresApi(api = Build.VERSION_CODES.R)
 public final class TextViewStyle extends ViewStyle {
 
     private static final String KEY_TEXT_VIEW_STYLE = "text_view_style";

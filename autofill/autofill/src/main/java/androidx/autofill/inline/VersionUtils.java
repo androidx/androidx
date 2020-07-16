@@ -35,7 +35,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@RequiresApi(api = Build.VERSION_CODES.Q) //TODO(b/147116534): Update to R.
+@RequiresApi(api = Build.VERSION_CODES.R)
 public final class VersionUtils {
     /**
      * Bundle key pointing to a list representing UI versions.
