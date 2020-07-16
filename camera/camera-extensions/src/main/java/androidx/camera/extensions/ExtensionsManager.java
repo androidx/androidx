@@ -15,6 +15,7 @@
  */
 package androidx.camera.extensions;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -113,8 +114,10 @@ public final class ExtensionsManager {
 
         return CallbackToFutureAdapter.getFuture(completer -> {
             try {
-                InitializerImpl.init(VersionName.getCurrentVersion().toVersionString(),
-                        CameraX.getContext(),
+                // TODO(b/161302102): Remove usage of deprecated CameraX.getContext()
+                @SuppressWarnings("deprecation")
+                Context context = CameraX.getContext();
+                InitializerImpl.init(VersionName.getCurrentVersion().toVersionString(), context,
                         new InitializerImpl.OnExtensionsInitializedCallback() {
                             @Override
                             public void onSuccess() {
