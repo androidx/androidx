@@ -61,6 +61,7 @@ import androidx.ui.text.selection.SelectionHandle
 import androidx.ui.text.selection.TextFieldSelectionManager
 import kotlin.math.max
 import androidx.ui.semantics.focused
+import androidx.ui.semantics.getTextLayoutResult
 import androidx.ui.semantics.setSelection
 import androidx.ui.semantics.setText
 import androidx.ui.semantics.text
@@ -342,7 +343,7 @@ fun CoreTextField(
         }
 
         val semanticsModifier = semanticsModifier(value, imeAction, focusModifier,
-            onValueChangeWrapper)
+            state, onValueChangeWrapper)
 
         onDispose { manager.hideSelectionToolbar() }
 
@@ -507,6 +508,7 @@ private fun semanticsModifier(
     value: TextFieldValue,
     imeAction: ImeAction,
     focusModifier: FocusModifier,
+    state: TextFieldState,
     onValueChange: (TextFieldValue) -> Unit
 ): Modifier {
     return Modifier.semantics {
@@ -515,6 +517,14 @@ private fun semanticsModifier(
         this.text = AnnotatedString(value.text)
         this.textSelectionRange = value.selection
         this.focused = focusModifier.focusState == FocusState.Focused
+        getTextLayoutResult {
+            if (state.layoutResult != null) {
+                it.add(state.layoutResult!!)
+                true
+            } else {
+                false
+            }
+        }
         setText {
             onValueChange(TextFieldValue(it.text, TextRange(it.text.length)))
             true
