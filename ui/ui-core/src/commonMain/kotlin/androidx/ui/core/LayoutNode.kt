@@ -67,7 +67,7 @@ internal val sharedDrawScope = LayoutNodeDrawScope()
     ExperimentalFocus::class,
     ExperimentalLayoutNodeApi::class
 )
-class LayoutNode : Measurable {
+class LayoutNode : Measurable, Remeasurement {
     private val _children = mutableVectorOf<LayoutNode>()
 
     /**
@@ -540,6 +540,9 @@ class LayoutNode : Measurable {
                 }
                 if (mod is ZIndexModifier) {
                     outerZIndexModifier = mod
+                }
+                if (mod is RemeasurementModifier) {
+                    mod.onRemeasurementAvailable(this)
                 }
 
                 val delegate = reuseLayoutNodeWrapper(mod, toWrap)
@@ -1024,6 +1027,11 @@ class LayoutNode : Measurable {
 
     override fun maxIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
         outerMeasurablePlaceable.maxIntrinsicHeight(width, layoutDirection)
+
+    override fun forceRemeasure() {
+        requestRemeasure()
+        owner?.measureAndLayout()
+    }
 
     /**
      * Calls [block] on all [DelegatingLayoutNodeWrapper]s in the LayoutNodeWrapper chain.

@@ -500,11 +500,12 @@ package androidx.ui.core {
     method public default int minIntrinsicWidth(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
   }
 
-  @androidx.ui.core.ExperimentalLayoutNodeApi public final class LayoutNode implements androidx.ui.core.Measurable {
+  @androidx.ui.core.ExperimentalLayoutNodeApi public final class LayoutNode implements androidx.ui.core.Measurable androidx.ui.core.Remeasurement {
     ctor public LayoutNode();
     method public void attach(androidx.ui.core.Owner owner);
     method public void detach();
     method public void draw(androidx.ui.graphics.Canvas canvas);
+    method public void forceRemeasure();
     method public Integer? getAlignmentLine(androidx.ui.core.AlignmentLine line);
     method @Deprecated public boolean getCanMultiMeasure();
     method public java.util.List<androidx.ui.core.LayoutNode> getChildren();
@@ -881,6 +882,14 @@ package androidx.ui.core {
     method public T? getValue();
     method public void setValue(T? p);
     property public final T? value;
+  }
+
+  public interface Remeasurement {
+    method public void forceRemeasure();
+  }
+
+  public interface RemeasurementModifier extends androidx.ui.core.Modifier.Element {
+    method public void onRemeasurementAvailable(androidx.ui.core.Remeasurement remeasurement);
   }
 
   public final class SavedStateDelegateKt {
