@@ -185,26 +185,19 @@ public class WearableActionDrawerView extends WearableDrawerView {
                 .getDimensionPixelOffset(R.dimen.ws_action_drawer_item_icon_right_margin);
 
         mActionList = new RecyclerView(context);
-        mActionList.setId(R.id.action_list);
         mActionList.setLayoutManager(new LinearLayoutManager(context));
         mActionListAdapter = new ActionListAdapter(getMenu());
+        mActionList.setAdapter(mActionListAdapter);
+        setDrawerContent(mActionList);
     }
 
     @Override
     public void onDrawerOpened() {
-        setContentIfFirstCall();
         if (mActionListAdapter.getItemCount() > 0) {
             RecyclerView.ViewHolder holder = mActionList.findViewHolderForAdapterPosition(0);
             if (holder != null && holder.itemView != null) {
                 holder.itemView.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED);
             }
-        }
-    }
-
-    private void setContentIfFirstCall() {
-        if (mActionList.getAdapter() == null) {
-            mActionList.setAdapter(mActionListAdapter);
-            setDrawerContent(mActionList);
         }
     }
 
