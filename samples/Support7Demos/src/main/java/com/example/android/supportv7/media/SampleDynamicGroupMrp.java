@@ -499,7 +499,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
             for (Iterator<WeakReference<SampleRouteController>> it =
                     mControllerMap.values().iterator(); it.hasNext(); ) {
                 SampleRouteController controller = it.next().get();
-                if (controller == null || !controller.isReleased()) {
+                if (controller == null || controller.isReleased()) {
                     it.remove();
                 } else {
                     controllers.add(controller);
