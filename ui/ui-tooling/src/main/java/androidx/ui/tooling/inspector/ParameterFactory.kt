@@ -16,9 +16,10 @@
 
 package androidx.ui.tooling.inspector
 
-import androidx.ui.core.AbsoluteAlignment
-import androidx.ui.core.Alignment
 import androidx.compose.foundation.Border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.CrossAxisAlignment
+import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.ui.geometry.Offset
@@ -29,11 +30,6 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.intl.LocaleList
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.CrossAxisAlignment
-import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -41,16 +37,21 @@ import androidx.compose.ui.text.font.FontListFontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.ResourceFont
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
-import androidx.ui.tooling.inspector.ParameterType.DimensionDp
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
-import java.lang.reflect.Modifier
+import androidx.ui.core.AbsoluteAlignment
+import androidx.ui.core.Alignment
+import androidx.ui.core.InspectableParameter
+import androidx.ui.core.Modifier
+import androidx.ui.tooling.inspector.ParameterType.DimensionDp
 import kotlin.math.abs
 
 /**
@@ -109,6 +110,8 @@ internal class ParameterFactory {
             is FontListFontFamily -> createFromFontListFamily(name, value)
             is FontWeight -> NodeParameter(name, ParameterType.Int32, value.weight)
             is InnerPadding -> createFromInnerPadding(node, name, value)
+            is Modifier -> createFromModifier(node, name, value)
+            is InspectableParameter -> createFromInspectableParameter(node, name, value)
             is Int -> NodeParameter(name, ParameterType.Int32, value)
             is Locale -> NodeParameter(name, ParameterType.String, value.toString())
             is LocaleList -> NodeParameter(name, ParameterType.String,
@@ -198,6 +201,39 @@ internal class ParameterFactory {
         create(node, "bottom", value.bottom)?.let { elements.add(it) }
         return parameter
     }
+
+    private fun createFromInspectableParameter(
+        node: MutableInspectorNode,
+        name: String,
+        value: InspectableParameter
+    ): NodeParameter {
+        val tempValue = value.valueOverride ?: ""
+        val parameterName = name.ifEmpty { value.nameFallback } ?: "element"
+        val parameterValue = if (tempValue is InspectableParameter) "" else tempValue
+        val parameter = create(node, parameterName, parameterValue)
+            ?: NodeParameter(parameterName, ParameterType.String, "")
+        val elements = parameter.elements
+        value.inspectableElements.mapNotNullTo(elements) { create(node, it.name, it.value) }
+        return parameter
+    }
+
+    private fun createFromModifier(
+        node: MutableInspectorNode,
+        name: String,
+        value: Modifier
+    ): NodeParameter? =
+        when {
+            name.isNotEmpty() -> {
+                val parameter = NodeParameter(name, ParameterType.String, "")
+                val elements = parameter.elements
+                value.foldIn(elements) { acc, m ->
+                    create(node, "", m)?.let { param -> acc.apply { add(param) } } ?: acc
+                }
+                parameter
+            }
+            value is InspectableParameter -> createFromInspectableParameter(node, name, value)
+            else -> null
+        }
 
     private fun createFromOffset(name: String, value: Offset): NodeParameter {
         val parameter = NodeParameter(name, ParameterType.String, Offset::class.java.simpleName)
@@ -307,7 +343,7 @@ internal class ParameterFactory {
         // REDO: If we decide to add a kotlin reflection dependency
         companionInstance::class.java.declaredMethods.asSequence()
             .filter {
-                Modifier.isPublic(it.modifiers) &&
+                java.lang.reflect.Modifier.isPublic(it.modifiers) &&
                         it.returnType != Void.TYPE &&
                         it.parameterTypes.isEmpty() &&
                         it.name.startsWith("get") &&
