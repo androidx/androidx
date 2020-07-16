@@ -126,9 +126,10 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             mContentView = b.mContentView;
             mBigContentView = b.mBigContentView;
         }
-        if (Build.VERSION.SDK_INT >= 19) {
+        if (Build.VERSION.SDK_INT >= 17) {
             mBuilder.setShowWhen(b.mShowWhen);
-
+        }
+        if (Build.VERSION.SDK_INT >= 19) {
             if (Build.VERSION.SDK_INT < 21) {
                 final List<String> people = combineLists(getPeople(b.mPersonList), b.mPeople);
                 if (people != null && !people.isEmpty()) {

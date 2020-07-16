@@ -177,6 +177,30 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    public void testShowWhen() {
+        // NOTE: It's very difficult to unit test the built notification on JellyBean because
+        // there was no extras field and the only affect is that the RemoteViews object has some
+        // different internal state.  However, this unit test still validates that the
+        // notification is built successfully (without throwing an exception).
+        {
+            Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                    .setShowWhen(true)
+                    .build();
+            if (Build.VERSION.SDK_INT >= 19) {
+                assertTrue(n.extras.getBoolean(NotificationCompat.EXTRA_SHOW_WHEN));
+            }
+        }
+        {
+            Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                    .setShowWhen(false)
+                    .build();
+            if (Build.VERSION.SDK_INT >= 19) {
+                assertFalse(n.extras.getBoolean(NotificationCompat.EXTRA_SHOW_WHEN));
+            }
+        }
+    }
+
+    @Test
     public void testNotificationChannel() throws Throwable {
         String channelId = "new ID";
         Notification n  = new NotificationCompat.Builder(mActivityTestRule.getActivity())
