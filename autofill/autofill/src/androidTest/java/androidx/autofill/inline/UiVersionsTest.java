@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 29) // Needed only on 29 and above
+@SdkSuppress(minSdkVersion = 30) // Needed only on 30 and above
 public class UiVersionsTest {
 
     @Test

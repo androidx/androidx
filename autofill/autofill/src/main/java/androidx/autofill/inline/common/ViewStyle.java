@@ -32,7 +32,7 @@ import androidx.core.util.Preconditions;
 /**
  * Specifies the style for a {@link View} or a {@link android.view.ViewGroup}.
  */
-@RequiresApi(api = Build.VERSION_CODES.Q) //TODO(b/147116534): Update to R.
+@RequiresApi(api = Build.VERSION_CODES.R)
 public class ViewStyle extends BundledStyle {
 
     private static final String KEY_VIEW_STYLE = "view_style";
