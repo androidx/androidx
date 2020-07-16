@@ -123,7 +123,7 @@ final class AndroidImageReaderProxy implements ImageReaderProxy {
         return mImageReader.getMaxImages();
     }
 
-    @NonNull
+    @Nullable
     @Override
     public synchronized Surface getSurface() {
         return mImageReader.getSurface();

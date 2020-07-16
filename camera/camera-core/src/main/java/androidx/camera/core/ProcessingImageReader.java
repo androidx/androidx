@@ -242,7 +242,7 @@ class ProcessingImageReader implements ImageReaderProxy {
         }
     }
 
-    @NonNull
+    @Nullable
     @Override
     public Surface getSurface() {
         synchronized (mLock) {
