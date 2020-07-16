@@ -1427,7 +1427,7 @@ package androidx.core.net {
     field public static final int RESTRICT_BACKGROUND_STATUS_WHITELISTED = 2; // 0x2
   }
 
-  public class MailTo {
+  public final class MailTo {
     method public String? getBcc();
     method public String? getBody();
     method public String? getCc();
