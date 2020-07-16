@@ -16,30 +16,17 @@
 
 package androidx.ui.foundation
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.content.res.Configuration
-import android.os.Build
-import android.os.PowerManager
-import androidx.annotation.RequiresApi
 import androidx.compose.Composable
-import androidx.compose.onActive
-import androidx.compose.remember
-import androidx.compose.state
 import androidx.ui.core.ConfigurationAmbient
-import androidx.ui.core.ContextAmbient
 
 /**
- * This effect should be used to help build responsive UIs that follow the system setting, to avoid
- * harsh contrast changes when switching between applications. The behaviour differs depending on
- * API:
+ * This function should be used to help build responsive UIs that follow the system setting, to
+ * avoid harsh contrast changes when switching between applications.
  *
- * On [Build.VERSION_CODES.Q] and above: returns the system-wide dark theme setting.
- *
- * On [Build.VERSION_CODES.P] and below: returns whether the device is in power saving mode or not,
- * which can be considered analogous to dark theme for these devices.
+ * This function returns `true` if the [Configuration.UI_MODE_NIGHT_YES] bit is set. It is
+ * also possible for this bit to be [Configuration.UI_MODE_NIGHT_UNDEFINED], in which case
+ * light theme is treated as the default, and this function returns `false`.
  *
  * It is also recommended to provide user accessible overrides in your application, so users can
  * choose to force an always-light or always-dark theme. To do this, you should provide the current
@@ -56,66 +43,6 @@ import androidx.ui.core.ContextAmbient
  */
 @Composable
 fun isSystemInDarkTheme(): Boolean {
-    return if (Build.VERSION.SDK_INT >= 29) {
-        isSystemSetToDarkTheme()
-    } else {
-        isInPowerSaveMode()
-    }
-}
-
-/**
- * On [Build.VERSION_CODES.P] and below there is no system-wide dark theme toggle, so we use
- * whether the device is in power save mode or not as an indicator here.
- *
- * @return `true` if the device is in power save mode
- */
-@Composable
-private fun isInPowerSaveMode(): Boolean {
-    val context = ContextAmbient.current
-    val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-
-    val isPowerSaveMode = state { powerManager.isPowerSaveMode }
-
-    val broadcastReceiver = remember {
-        object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                isPowerSaveMode.value = powerManager.isPowerSaveMode
-            }
-        }
-    }
-
-    val intentFilter = remember {
-        IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
-    }
-
-    onActive {
-        try {
-            context.registerReceiver(broadcastReceiver, intentFilter)
-        } catch (e: Exception) {
-            // already registered
-        }
-        onDispose {
-            try {
-                context.unregisterReceiver(broadcastReceiver)
-            } catch (e: Exception) {
-                // already unregistered
-            }
-        }
-    }
-
-    return isPowerSaveMode.value
-}
-
-/**
- * Check to see if [Configuration.UI_MODE_NIGHT_YES] bit is set. It is also possible for this bit to
- * be [Configuration.UI_MODE_NIGHT_UNDEFINED], in which case we treat light theme as the default,
- * so we return false.
- *
- * @return `true` if the system-wide dark theme toggle is enabled
- */
-@RequiresApi(29)
-@Composable
-private fun isSystemSetToDarkTheme(): Boolean {
     val configuration = ConfigurationAmbient.current
     return (configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration
         .UI_MODE_NIGHT_YES
