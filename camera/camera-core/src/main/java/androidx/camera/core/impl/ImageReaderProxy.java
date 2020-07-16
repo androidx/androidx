@@ -92,7 +92,7 @@ public interface ImageReaderProxy {
      *
      * <p>@see {@link ImageReader#getSurface()}.
      */
-    @NonNull
+    @Nullable
     Surface getSurface();
 
     /**

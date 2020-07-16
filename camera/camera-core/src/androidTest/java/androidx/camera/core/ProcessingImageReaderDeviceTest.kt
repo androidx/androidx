@@ -99,7 +99,7 @@ class ProcessingImageReaderDeviceTest {
                 )
 
                 processingImageReader.setCaptureBundle(mCaptureBundle)
-                val imageWriter = ImageWriter.newInstance(processingImageReader.surface, 2)
+                val imageWriter = ImageWriter.newInstance(processingImageReader.surface!!, 2)
                 val callback = processingImageReader.cameraCaptureCallback!!
 
                 // Trigger the bundle of images required for processing to occur
