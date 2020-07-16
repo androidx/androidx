@@ -39,10 +39,10 @@ import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredWidth
 import androidx.ui.material.Checkbox
 import androidx.ui.material.EmphasisAmbient
-import androidx.ui.material.FilledTextField
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.OutlinedTextField
 import androidx.ui.material.RadioButton
+import androidx.ui.material.TextField
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.icons.filled.Info
@@ -95,7 +95,7 @@ fun MaterialTextFieldDemo() {
         val textField: @Composable () -> Unit = @Composable {
             when (selectedTextField) {
                 TextFieldType.Filled ->
-                    FilledTextField(
+                    TextField(
                         value = text,
                         onValueChange = { text = it },
                         label = {

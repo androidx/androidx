@@ -27,7 +27,6 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.TextField
 import androidx.ui.foundation.background
 import androidx.ui.foundation.clickable
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -46,6 +45,7 @@ import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.text.style.TextAlign
+import androidx.ui.text.CoreTextField
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -479,7 +479,7 @@ private fun EditLine(
     color: Color = Color.White
 ) {
     val state = state { TextFieldValue(initialText) }
-    TextField(
+    CoreTextField(
         value = state.value,
         modifier = modifier.background(color = color),
         keyboardType = keyboardType,

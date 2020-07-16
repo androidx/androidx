@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 @LargeTest
+@OptIn(ExperimentalFoundationApi::class)
 class TextFieldCursorTest {
 
     @get:Rule
@@ -60,7 +61,7 @@ class TextFieldCursorTest {
         val height = 20.dp
         val latch = CountDownLatch(1)
         composeTestRule.setContent {
-            TextField(
+            BaseTextField(
                 value = TextFieldValue(),
                 onValueChange = {},
                 textStyle = TextStyle(color = Color.White, background = Color.White),
@@ -95,7 +96,7 @@ class TextFieldCursorTest {
             // the cursor to be next to the navigation bar which affects the red color to be a bit
             // different - possibly anti-aliasing.
             Box(Modifier.padding(10.dp)) {
-                TextField(
+                BaseTextField(
                     value = TextFieldValue(),
                     onValueChange = {},
                     textStyle = TextStyle(color = Color.White, background = Color.White),

@@ -27,7 +27,6 @@ import androidx.ui.core.layoutId
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.TextField
 import androidx.ui.foundation.background
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
@@ -41,6 +40,7 @@ import androidx.ui.input.VisualTransformation
 import androidx.ui.intl.LocaleList
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.AnnotatedString
+import androidx.ui.text.CoreTextField
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
@@ -261,7 +261,7 @@ private fun VariousEditLine(
     visualTransformation: VisualTransformation
 ) {
     val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    TextField(
+    CoreTextField(
         value = state.value,
         keyboardType = keyboardType,
         imeAction = imeAction,
@@ -289,7 +289,7 @@ private fun HintEditText(hintText: @Composable () -> Unit) {
     val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
 
     val inputField = @Composable {
-        TextField(
+        CoreTextField(
             modifier = Modifier.layoutId("inputField"),
             value = state.value,
             onValueChange = { state.value = it },
@@ -320,7 +320,7 @@ private fun CustomCursorTextField(cursor: @Composable () -> Unit) {
     val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     val layoutResult = state<TextLayoutResult?> { null }
     Layout({
-        TextField(
+        CoreTextField(
             modifier = Modifier.layoutId("inputField"),
             value = state.value,
             onValueChange = { state.value = it },
@@ -348,7 +348,7 @@ private fun CustomCursorTextField(cursor: @Composable () -> Unit) {
                     )
                 // Place the custom cursor aligned with center of the original cursor.
                 val cursorX = (cursorRect.left + cursorRect.right) / 2 -
-                            (cursorPlacable.width / 2)
+                        (cursorPlacable.width / 2)
                 cursorPlacable.place(cursorX.roundToInt(), cursorRect.top.roundToInt())
             }
         }

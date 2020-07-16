@@ -27,9 +27,9 @@ import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.layout.rtl
-import androidx.ui.material.FilledTextField
 import androidx.ui.material.GOLDEN_MATERIAL
 import androidx.ui.material.OutlinedTextField
+import androidx.ui.material.TextField
 import androidx.ui.material.setMaterialContent
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
@@ -123,8 +123,7 @@ class TextFieldScreenshotTest {
     fun filledTextField_withInput() {
         composeTestRule.setMaterialContent {
             Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
-                FilledTextField(
-                    value = "Text",
+                TextField(value = "Text",
                     onValueChange = {},
                     label = { Text("Label") }
                 )
@@ -138,8 +137,7 @@ class TextFieldScreenshotTest {
     fun filledTextField_notFocused() {
         composeTestRule.setMaterialContent {
             Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
-                FilledTextField(
-                    value = "",
+                TextField(value = "",
                     onValueChange = {},
                     label = { Text("Label") }
                 )
@@ -153,8 +151,7 @@ class TextFieldScreenshotTest {
     fun filledTextField_focused() {
         composeTestRule.setMaterialContent {
             Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
-                FilledTextField(
-                    value = "",
+                TextField(value = "",
                     onValueChange = {},
                     label = { Text("Label") }
                 )
@@ -171,8 +168,7 @@ class TextFieldScreenshotTest {
     fun filledTextField_focused_rtl() {
         composeTestRule.setMaterialContent {
             Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag).rtl) {
-                FilledTextField(
-                    value = "",
+                TextField(value = "",
                     onValueChange = {},
                     label = { Text("Label") }
                 )

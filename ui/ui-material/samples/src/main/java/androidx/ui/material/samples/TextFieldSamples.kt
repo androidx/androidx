@@ -30,9 +30,9 @@ import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.Column
 import androidx.ui.layout.padding
 import androidx.ui.material.EmphasisAmbient
-import androidx.ui.material.FilledTextField
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.OutlinedTextField
+import androidx.ui.material.TextField
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.icons.filled.Info
@@ -45,8 +45,7 @@ import androidx.ui.unit.dp
 fun SimpleFilledTextFieldSample() {
     var text by savedInstanceState { "" }
 
-    FilledTextField(
-        value = text,
+    TextField(value = text,
         onValueChange = { text = it },
         label = { Text("Label") }
     )
@@ -69,8 +68,7 @@ fun SimpleOutlinedTextFieldSample() {
 fun FilledTextFieldWithIcons() {
     var text by savedInstanceState { "" }
 
-    FilledTextField(
-        value = text,
+    TextField(value = text,
         onValueChange = { text = it },
         label = { Text("Label") },
         leadingIcon = { Icon(Icons.Filled.Favorite) },
@@ -83,8 +81,7 @@ fun FilledTextFieldWithIcons() {
 fun FilledTextFieldWithPlaceholder() {
     var text by savedInstanceState { "" }
 
-    FilledTextField(
-        value = text,
+    TextField(value = text,
         onValueChange = { text = it },
         label = { Text("Email") },
         placeholder = { Text("example@gmail.com") }
@@ -97,7 +94,7 @@ fun FilledTextFieldWithErrorState() {
     var text by savedInstanceState { "" }
     val isValid = text.count() > 5 && '@' in text
 
-    FilledTextField(
+    TextField(
         value = text,
         onValueChange = { text = it },
         label = {
@@ -115,7 +112,7 @@ fun TextFieldWithHelperMessage() {
     val invalidInput = text.count() < 5 || '@' !in text
 
     Column {
-        FilledTextField(
+        TextField(
             value = text,
             onValueChange = { text = it },
             label = {
@@ -141,7 +138,7 @@ fun TextFieldWithHelperMessage() {
 @Composable
 fun PasswordFilledTextField() {
     var password by savedInstanceState { "" }
-    FilledTextField(
+    TextField(
         value = password,
         onValueChange = { password = it },
         label = { Text("Enter password") },
@@ -157,8 +154,7 @@ fun FilledTextFieldSample() {
         TextFieldValue("example", TextRange(0, 7))
     }
 
-    FilledTextField(
-        value = text,
+    TextField(value = text,
         onValueChange = { text = it },
         label = { Text("Label") }
     )
@@ -183,8 +179,7 @@ fun OutlinedTextFieldSample() {
 fun TextFieldWithHideKeyboardOnImeAction() {
     var text by savedInstanceState { "" }
 
-    FilledTextField(
-        value = text,
+    TextField(value = text,
         onValueChange = { text = it },
         label = { Text("Label") },
         imeAction = ImeAction.Done,

@@ -20,11 +20,11 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.TextField
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
 import androidx.ui.input.TextFieldValue
 import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.ui.text.CoreTextField
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.sp
 
@@ -59,11 +59,10 @@ private fun TextFieldWithFocusId(focusModifier: FocusModifier, nextFocusModifier
     } else {
         Color.Black
     }
-    TextField(
+    CoreTextField(
         value = state.value,
         modifier = focusModifier,
-        textColor = color,
-        textStyle = TextStyle(fontSize = 32.sp),
+        textStyle = TextStyle(color = color, fontSize = 32.sp),
         onValueChange = {
             state.value = it
         },

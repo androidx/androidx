@@ -54,7 +54,8 @@ import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.offset
 import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ProvideTextStyle
-import androidx.ui.foundation.TextField
+import androidx.ui.foundation.BaseTextField
+import androidx.ui.foundation.ExperimentalFoundationApi
 import androidx.ui.foundation.clickable
 import androidx.ui.foundation.gestures.rememberScrollableController
 import androidx.ui.foundation.gestures.scrollable
@@ -82,9 +83,10 @@ internal enum class TextFieldType {
 }
 
 /**
- * Implementation of the [FilledTextField] and [OutlinedTextField]
+ * Implementation of the [TextField] and [OutlinedTextField]
  */
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 internal fun TextFieldImpl(
     type: TextFieldType,
     value: TextFieldValue,
@@ -146,7 +148,7 @@ internal fun TextFieldImpl(
                 },
                 modifier = tagModifier
             ) {
-                TextField(
+                BaseTextField(
                     value = value,
                     modifier = focusModifier,
                     textStyle = textStyle,
