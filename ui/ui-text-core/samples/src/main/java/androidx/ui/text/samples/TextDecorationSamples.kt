@@ -44,11 +44,6 @@ fun TextDecorationUnderlineSample() {
 fun TextDecorationCombinedSample() {
     Text(
         text = "Demo Text",
-        textDecoration = TextDecoration.combine(
-            listOf(
-                TextDecoration.Underline,
-                TextDecoration.LineThrough
-            )
-        )
+        textDecoration = TextDecoration.Underline + TextDecoration.LineThrough
     )
 }
