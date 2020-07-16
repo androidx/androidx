@@ -126,9 +126,10 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             mContentView = b.mContentView;
             mBigContentView = b.mBigContentView;
         }
-        if (Build.VERSION.SDK_INT >= 19) {
+        if (Build.VERSION.SDK_INT >= 17) {
             mBuilder.setShowWhen(b.mShowWhen);
-
+        }
+        if (Build.VERSION.SDK_INT >= 19) {
             if (Build.VERSION.SDK_INT < 21) {
                 final List<String> people = combineLists(getPeople(b.mPersonList), b.mPeople);
                 if (people != null && !people.isEmpty()) {
@@ -210,6 +211,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         }
         if (Build.VERSION.SDK_INT >= 26) {
             mBuilder.setBadgeIconType(b.mBadgeIcon)
+                    .setSettingsText(b.mSettingsText)
                     .setShortcutId(b.mShortcutId)
                     .setTimeoutAfter(b.mTimeout)
                     .setGroupAlertBehavior(b.mGroupAlertBehavior);
