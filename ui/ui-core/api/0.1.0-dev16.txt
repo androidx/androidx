@@ -366,6 +366,15 @@ package androidx.ui.core {
     ctor public HorizontalAlignmentLine(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Integer> merger);
   }
 
+  public interface InspectableParameter {
+    method public kotlin.sequences.Sequence<androidx.ui.core.ParameterElement> getInspectableElements();
+    method public default String? getNameFallback();
+    method public default Object? getValueOverride();
+    property public abstract kotlin.sequences.Sequence<androidx.ui.core.ParameterElement> inspectableElements;
+    property public default String? nameFallback;
+    property public default Object? valueOverride;
+  }
+
   @kotlin.RequiresOptIn(message="This API is internal to library.") @kotlin.annotation.Target(allowedTargets={AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER}) public @interface InternalCoreApi {
   }
 
@@ -710,6 +719,15 @@ package androidx.ui.core {
 
   public final class PainterModifierKt {
     method public static androidx.ui.core.Modifier paint(androidx.ui.core.Modifier, androidx.ui.graphics.painter.Painter painter, boolean sizeToIntrinsics = true, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
+  }
+
+  public final class ParameterElement {
+    ctor public ParameterElement(String name, Object? value);
+    method public String component1();
+    method public Object? component2();
+    method public androidx.ui.core.ParameterElement copy(String name, Object? value);
+    method public String getName();
+    method public Object? getValue();
   }
 
   public interface ParentDataModifier extends androidx.ui.core.Modifier.Element {
