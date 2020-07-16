@@ -210,6 +210,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         }
         if (Build.VERSION.SDK_INT >= 26) {
             mBuilder.setBadgeIconType(b.mBadgeIcon)
+                    .setSettingsText(b.mSettingsText)
                     .setShortcutId(b.mShortcutId)
                     .setTimeoutAfter(b.mTimeout)
                     .setGroupAlertBehavior(b.mGroupAlertBehavior);

@@ -240,6 +240,7 @@ package androidx.core.app {
     method @RequiresApi(21) public static java.util.List<androidx.core.app.NotificationCompat.Action!> getInvisibleActions(android.app.Notification);
     method public static boolean getLocalOnly(android.app.Notification);
     method public static androidx.core.content.LocusIdCompat? getLocusId(android.app.Notification);
+    method public static CharSequence? getSettingsText(android.app.Notification);
     method public static String? getShortcutId(android.app.Notification);
     method public static String? getSortKey(android.app.Notification);
     method public static long getTimeoutAfter(android.app.Notification);
@@ -271,10 +272,13 @@ package androidx.core.app {
     field public static final String EXTRA_AUDIO_CONTENTS_URI = "android.audioContents";
     field public static final String EXTRA_BACKGROUND_IMAGE_URI = "android.backgroundImageUri";
     field public static final String EXTRA_BIG_TEXT = "android.bigText";
+    field public static final String EXTRA_CHANNEL_GROUP_ID = "android.intent.extra.CHANNEL_GROUP_ID";
+    field public static final String EXTRA_CHANNEL_ID = "android.intent.extra.CHANNEL_ID";
     field public static final String EXTRA_CHRONOMETER_COUNT_DOWN = "android.chronometerCountDown";
     field public static final String EXTRA_COMPACT_ACTIONS = "android.compactActions";
     field public static final String EXTRA_CONVERSATION_TITLE = "android.conversationTitle";
     field public static final String EXTRA_HIDDEN_CONVERSATION_TITLE = "android.hiddenConversationTitle";
+    field public static final String EXTRA_HISTORIC_MESSAGES = "android.messages.historic";
     field public static final String EXTRA_INFO_TEXT = "android.infoText";
     field public static final String EXTRA_IS_GROUP_CONVERSATION = "android.isGroupConversation";
     field public static final String EXTRA_LARGE_ICON = "android.largeIcon";
@@ -282,6 +286,8 @@ package androidx.core.app {
     field public static final String EXTRA_MEDIA_SESSION = "android.mediaSession";
     field public static final String EXTRA_MESSAGES = "android.messages";
     field public static final String EXTRA_MESSAGING_STYLE_USER = "android.messagingStyleUser";
+    field public static final String EXTRA_NOTIFICATION_ID = "android.intent.extra.NOTIFICATION_ID";
+    field public static final String EXTRA_NOTIFICATION_TAG = "android.intent.extra.NOTIFICATION_TAG";
     field public static final String EXTRA_PEOPLE = "android.people";
     field public static final String EXTRA_PICTURE = "android.picture";
     field public static final String EXTRA_PROGRESS = "android.progress";
@@ -314,6 +320,7 @@ package androidx.core.app {
     field public static final int GROUP_ALERT_CHILDREN = 2; // 0x2
     field public static final int GROUP_ALERT_SUMMARY = 1; // 0x1
     field public static final String GROUP_KEY_SILENT = "silent";
+    field public static final String INTENT_CATEGORY_NOTIFICATION_PREFERENCES = "android.intent.category.NOTIFICATION_PREFERENCES";
     field public static final int PRIORITY_DEFAULT = 0; // 0x0
     field public static final int PRIORITY_HIGH = 1; // 0x1
     field public static final int PRIORITY_LOW = -1; // 0xffffffff
@@ -488,6 +495,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setProgress(int, int, boolean);
     method public androidx.core.app.NotificationCompat.Builder setPublicVersion(android.app.Notification?);
     method public androidx.core.app.NotificationCompat.Builder setRemoteInputHistory(CharSequence![]?);
+    method public androidx.core.app.NotificationCompat.Builder setSettingsText(CharSequence?);
     method public androidx.core.app.NotificationCompat.Builder setShortcutId(String?);
     method public androidx.core.app.NotificationCompat.Builder setShortcutInfo(androidx.core.content.pm.ShortcutInfoCompat?);
     method public androidx.core.app.NotificationCompat.Builder setShowWhen(boolean);
@@ -560,11 +568,13 @@ package androidx.core.app {
     ctor @Deprecated public NotificationCompat.MessagingStyle(CharSequence);
     ctor public NotificationCompat.MessagingStyle(androidx.core.app.Person);
     method public void addCompatExtras(android.os.Bundle);
+    method public androidx.core.app.NotificationCompat.MessagingStyle addHistoricMessage(androidx.core.app.NotificationCompat.MessagingStyle.Message);
     method @Deprecated public androidx.core.app.NotificationCompat.MessagingStyle addMessage(CharSequence?, long, CharSequence?);
     method public androidx.core.app.NotificationCompat.MessagingStyle addMessage(CharSequence?, long, androidx.core.app.Person?);
     method public androidx.core.app.NotificationCompat.MessagingStyle addMessage(androidx.core.app.NotificationCompat.MessagingStyle.Message);
     method public static androidx.core.app.NotificationCompat.MessagingStyle? extractMessagingStyleFromNotification(android.app.Notification);
     method public CharSequence? getConversationTitle();
+    method public java.util.List<androidx.core.app.NotificationCompat.MessagingStyle.Message!> getHistoricMessages();
     method public java.util.List<androidx.core.app.NotificationCompat.MessagingStyle.Message!> getMessages();
     method public androidx.core.app.Person getUser();
     method @Deprecated public CharSequence? getUserDisplayName();

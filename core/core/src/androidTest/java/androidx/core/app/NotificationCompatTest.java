@@ -164,6 +164,19 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    public void testSettingsText() {
+        String settingsText = "testSettingsText";
+        Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setSettingsText(settingsText)
+                .build();
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertEquals(settingsText, NotificationCompat.getSettingsText(n));
+        } else {
+            assertEquals(null, NotificationCompat.getSettingsText(n));
+        }
+    }
+
+    @Test
     public void testNotificationChannel() throws Throwable {
         String channelId = "new ID";
         Notification n  = new NotificationCompat.Builder(mActivityTestRule.getActivity())
@@ -825,6 +838,39 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         List<Message> result = NotificationCompat.MessagingStyle
                 .extractMessagingStyleFromNotification(notification)
                 .getMessages();
+
+        assertEquals(2, result.size());
+        assertEquals("text", result.get(0).getText());
+        assertEquals(200, result.get(0).getTimestamp());
+        assertEquals("test name", result.get(0).getPerson().getName());
+        assertEquals("key", result.get(0).getPerson().getKey());
+        assertEquals("text2", result.get(1).getText());
+        assertEquals(300, result.get(1).getTimestamp());
+        assertEquals("test name 2", result.get(1).getPerson().getName());
+        assertEquals("key 2", result.get(1).getPerson().getKey());
+        assertTrue(result.get(1).getPerson().isImportant());
+    }
+
+    @SdkSuppress(minSdkVersion = 16)
+    @Test
+    public void testMessagingStyle_historicMessage() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle("self name");
+        Person person = new Person.Builder().setName("test name").setKey("key").build();
+        Person person2 = new Person.Builder()
+                .setName("test name 2").setKey("key 2").setImportant(true).build();
+        messagingStyle.addHistoricMessage(new Message("text", 200, person));
+        messagingStyle.addHistoricMessage(new Message("text2", 300, person2));
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(messagingStyle)
+                .build();
+
+        List<Message> result = NotificationCompat.MessagingStyle
+                .extractMessagingStyleFromNotification(notification)
+                .getHistoricMessages();
 
         assertEquals(2, result.size());
         assertEquals("text", result.get(0).getText());
