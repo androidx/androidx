@@ -1,9 +1,6 @@
 name: AndroidX Presubmits
 on:
   pull_request:
-    branches:
-      - master
-      - androidx-master-dev
     types: [assigned, opened, synchronize, reopened, labeled]
   workflow_dispatch:
 
