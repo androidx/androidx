@@ -219,5 +219,9 @@
             android:name=".PinPickerActivity"
             android:exported="true"/>
 
+        <activity android:name=".TabLayoutActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Leanback"/>
+
     </application>
 </manifest>
