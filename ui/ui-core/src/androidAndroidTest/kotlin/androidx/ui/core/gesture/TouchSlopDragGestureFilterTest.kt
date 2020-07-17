@@ -66,7 +66,8 @@ class TouchSlopDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f, 50f))
+            arrayOf(PointerCoords(50f, 50f)),
+            view
         )
         val move = MotionEvent(
             20,
@@ -74,7 +75,8 @@ class TouchSlopDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f + touchSlop - TinyNum, 50f))
+            arrayOf(PointerCoords(50f + touchSlop - TinyNum, 50f)),
+            view
         )
         val up = MotionEvent(
             30,
@@ -82,7 +84,8 @@ class TouchSlopDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f + touchSlop - TinyNum, 50f))
+            arrayOf(PointerCoords(50f + touchSlop - TinyNum, 50f)),
+            view
         )
 
         activityTestRule.runOnUiThreadIR {
@@ -105,7 +108,8 @@ class TouchSlopDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f, 50f))
+            arrayOf(PointerCoords(50f, 50f)),
+            view
         )
         val move = MotionEvent(
             20,
@@ -113,7 +117,8 @@ class TouchSlopDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f + touchSlop + TinyNum, 50f))
+            arrayOf(PointerCoords(50f + touchSlop + TinyNum, 50f)),
+            view
         )
         val up = MotionEvent(
             30,
@@ -121,7 +126,8 @@ class TouchSlopDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f + touchSlop + TinyNum, 50f))
+            arrayOf(PointerCoords(50f + touchSlop + TinyNum, 50f)),
+            view
         )
 
         activityTestRule.runOnUiThreadIR {
@@ -152,7 +158,8 @@ class TouchSlopDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f, 50f))
+            arrayOf(PointerCoords(50f, 50f)),
+            view
         )
         val move = MotionEvent(
             20,
@@ -160,7 +167,8 @@ class TouchSlopDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f + touchSlop + TinyNum, 50f))
+            arrayOf(PointerCoords(50f + touchSlop + TinyNum, 50f)),
+            view
         )
         val cancel = MotionEvent(
             30,
@@ -168,7 +176,8 @@ class TouchSlopDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f + touchSlop, 50f))
+            arrayOf(PointerCoords(50f + touchSlop, 50f)),
+            view
         )
 
         activityTestRule.runOnUiThreadIR {
@@ -197,7 +206,8 @@ class TouchSlopDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f, 50f))
+            arrayOf(PointerCoords(50f, 50f)),
+            view
         )
 
         activityTestRule.runOnUiThreadIR {
@@ -223,7 +233,8 @@ class TouchSlopDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f, 50f))
+            arrayOf(PointerCoords(50f, 50f)),
+            view
         )
         val move = MotionEvent(
             20,
@@ -231,7 +242,8 @@ class TouchSlopDragGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f + movement, 50f))
+            arrayOf(PointerCoords(50f + movement, 50f)),
+            view
         )
 
         activityTestRule.runOnUiThreadIR {
