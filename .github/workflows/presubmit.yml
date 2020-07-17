@@ -4,8 +4,8 @@ on:
     branches:
       - master
       - androidx-master-dev
-  repository_dispatch:
-    if: always()
+    types: [assigned, opened, synchronize, reopened, labeled]
+  workflow_dispatch:
 
 jobs:
   # This workflow contains a single job called "build"
