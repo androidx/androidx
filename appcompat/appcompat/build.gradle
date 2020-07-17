@@ -82,7 +82,7 @@ android {
 }
 
 androidx {
-    name = "Android AppCompat Library v7"
+    name = "Android AppCompat Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.APPCOMPAT
     mavenGroup = LibraryGroups.APPCOMPAT
