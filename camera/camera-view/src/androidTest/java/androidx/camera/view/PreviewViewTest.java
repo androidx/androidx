@@ -38,6 +38,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.Size;
 import android.view.LayoutInflater;
+import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -474,6 +475,33 @@ public class PreviewViewTest {
         final ColorDrawable actualBackground = (ColorDrawable) previewView.getBackground();
         final int expectedBackground = ContextCompat.getColor(mContext, android.R.color.white);
         assertThat(actualBackground.getColor()).isEqualTo(expectedBackground);
+    }
+
+    @Test
+    @UiThreadTest
+    public void doNotRemovePreview_whenCreatingNewSurfaceProvider() {
+        final PreviewView previewView = new PreviewView(mContext);
+        setContentView(previewView);
+
+        // Start a preview stream
+        final Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        mSurfaceRequest = createSurfaceRequest(cameraInfo);
+        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+
+        // Create a new surfaceProvider
+        previewView.createSurfaceProvider();
+
+        // Assert PreviewView doesn't remove the current preview TextureView/SurfaceView
+        boolean wasPreviewRemoved = true;
+        for (int i = 0; i < previewView.getChildCount(); i++) {
+            if (previewView.getChildAt(i) instanceof TextureView
+                    || previewView.getChildAt(i) instanceof SurfaceView) {
+                wasPreviewRemoved = false;
+                break;
+            }
+        }
+        assertThat(wasPreviewRemoved).isFalse();
     }
 
     private void setContentView(View view) {

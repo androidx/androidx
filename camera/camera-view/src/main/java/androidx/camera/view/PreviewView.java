@@ -211,8 +211,6 @@ public class PreviewView extends FrameLayout {
     @UiThread
     public Preview.SurfaceProvider createSurfaceProvider() {
         Threads.checkMainThread();
-        removeAllViews();
-
         return surfaceRequest -> {
             Log.d(TAG, "Surface requested by Preview.");
             CameraInternal camera = (CameraInternal) surfaceRequest.getCamera();
