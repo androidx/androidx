@@ -16,7 +16,7 @@
 
 package androidx.ui.graphics.canvas
 
-import androidx.ui.desktop.TestResources.testImageAsset
+import androidx.ui.TestResources.testImageAsset
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.BlendMode

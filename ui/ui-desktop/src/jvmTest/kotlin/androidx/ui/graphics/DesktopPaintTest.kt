@@ -16,7 +16,7 @@
 
 package androidx.ui.graphics
 
-import androidx.ui.desktop.TestResources.testImageAsset
+import androidx.ui.TestResources.testImageAsset
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
