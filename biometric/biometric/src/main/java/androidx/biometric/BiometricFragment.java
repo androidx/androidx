@@ -16,8 +16,6 @@
 
 package androidx.biometric;
 
-import static androidx.biometric.BiometricConstants.ERROR_NEGATIVE_BUTTON;
-
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
@@ -593,7 +591,7 @@ public class BiometricFragment extends Fragment {
     void onCancelButtonPressed() {
         final CharSequence negativeButtonText = mViewModel.getNegativeButtonText();
         sendErrorAndDismiss(
-                ERROR_NEGATIVE_BUTTON,
+                BiometricPrompt.ERROR_NEGATIVE_BUTTON,
                 negativeButtonText != null
                         ? negativeButtonText
                         : getString(R.string.default_error_msg));
@@ -616,7 +614,9 @@ public class BiometricFragment extends Fragment {
         final KeyguardManager keyguardManager = KeyguardUtils.getKeyguardManager(activity);
         if (keyguardManager == null) {
             Log.e(TAG, "Failed to check device credential. KeyguardManager not found.");
-            handleConfirmCredentialResult(Activity.RESULT_CANCELED);
+            sendErrorAndDismiss(
+                    BiometricPrompt.ERROR_HW_UNAVAILABLE,
+                    getString(R.string.default_error_msg));
             return;
         }
 
@@ -629,9 +629,11 @@ public class BiometricFragment extends Fragment {
         final Intent intent = Api21Impl.createConfirmDeviceCredentialIntent(
                 keyguardManager, title, credentialDescription);
 
+        // A null intent from KeyguardManager means that the device is not secure.
         if (intent == null) {
-            Log.e(TAG, "Failed to check device credential. Got null intent from Keyguard.");
-            handleConfirmCredentialResult(Activity.RESULT_CANCELED);
+            sendErrorAndDismiss(
+                    BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL,
+                    getString(R.string.generic_error_no_device_credential));
             return;
         }
 
@@ -662,7 +664,7 @@ public class BiometricFragment extends Fragment {
         } else {
             // Device credential auth failed. Assume this is due to the user canceling.
             sendErrorAndDismiss(
-                    BiometricConstants.ERROR_USER_CANCELED,
+                    BiometricPrompt.ERROR_USER_CANCELED,
                     getString(R.string.generic_error_user_canceled));
         }
     }

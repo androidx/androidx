@@ -42,4 +42,7 @@
     <!-- Button label shown on a biometric authentication system dialog that lets the user
     authenticate using their lock screen credential (such as PIN or password). [CHAR LIMIT=30] -->
     <string name="confirm_device_credential_password">Use password</string>
+    <!-- Error message for when the user has not set up a secure PIN, pattern, or password on this
+    device. Generally not shown to the user. [CHAR LIMIT=NONE] -->
+    <string name="generic_error_no_device_credential">No PIN, pattern, or password set.</string>
 </resources>
