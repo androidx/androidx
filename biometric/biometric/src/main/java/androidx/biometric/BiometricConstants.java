@@ -113,6 +113,12 @@ public interface BiometricConstants {
     int ERROR_NO_DEVICE_CREDENTIAL = 14;
 
     /**
+     * A security vulnerability has been discovered with one or more hardware sensors. The
+     * affected sensor(s) are unavailable until a security update has addressed the issue.
+     */
+    int ERROR_SECURITY_UPDATE_REQUIRED = 15;
+
+    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
