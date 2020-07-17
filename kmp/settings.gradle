@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = "playground"
+rootProject.name = "kmp"
 apply from: "../playground-common/playground-include-settings.gradle"
 setupPlayground(this, "..")
 
-includeProject(":benchmark:benchmark-common", "../benchmark/common")
-includeProject(":lint-checks:tests", "../lint-checks/tests")
-includeProject(":mppsample:mppsample-library", "../mppsample/mppsample-library")
-includeProject(":mppsample:mppsample-executable", "../mppsample/mppsample-executable")
-includeProject(":tracing:tracing", "../tracing/tracing")
-includeProject(":tracing:tracing-ktx", "../tracing/tracing-ktx")
+selectProjectsFromAndroidX({ name -> false })
+
+includeProject(":mppsample-library", "mppsample/mppsample-library")
+includeProject(":mppsample-executable", "mppsample/mppsample-executable")
