@@ -30,7 +30,7 @@ import androidx.ui.core.drawBehind
 import androidx.ui.core.drawLayer
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.fillMaxSize

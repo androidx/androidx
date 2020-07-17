@@ -20,8 +20,8 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.paint
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.background
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.background
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.Painter

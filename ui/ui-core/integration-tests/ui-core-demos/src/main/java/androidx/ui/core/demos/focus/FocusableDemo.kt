@@ -27,7 +27,7 @@ import androidx.ui.core.focus.focus
 import androidx.ui.core.focus.focusObserver
 import androidx.ui.core.focus.focusRequester
 import androidx.ui.core.focus.isFocused
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Text
 import androidx.ui.graphics.Color.Companion.Black
 import androidx.ui.graphics.Color.Companion.Green
 import androidx.ui.layout.Arrangement

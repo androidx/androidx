@@ -17,9 +17,9 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.ProvideTextStyle
-import androidx.ui.foundation.shape.corner.CircleShape
+import androidx.compose.foundation.ContentGravity
+import androidx.compose.foundation.ProvideTextStyle
+import androidx.compose.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size

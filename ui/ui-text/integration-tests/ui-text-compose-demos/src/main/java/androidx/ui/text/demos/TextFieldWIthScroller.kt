@@ -19,7 +19,7 @@ package androidx.ui.text.demos
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.ScrollableColumn
+import androidx.compose.foundation.ScrollableColumn
 import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.padding
 import androidx.ui.text.CoreTextField

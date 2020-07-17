@@ -22,7 +22,7 @@ import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.focus.setFocusableContent
 import androidx.ui.core.keyinput.Key.Companion.A
 import androidx.ui.core.keyinput.KeyEventType.KeyUp
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onRoot
 import androidx.ui.test.performKeyPress

@@ -20,7 +20,7 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.layoutId
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Text
 import androidx.ui.layout.ConstraintLayout
 import androidx.ui.layout.ConstraintSet2
 import androidx.ui.layout.Dimension

@@ -30,9 +30,9 @@ import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.Demo
 import androidx.ui.demos.common.DemoCategory
 import androidx.ui.demos.common.allLaunchableDemos
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.Text
 import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding

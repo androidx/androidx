@@ -21,11 +21,11 @@ import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.selection.selectable
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.selection.selectable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.ColumnScope.gravity

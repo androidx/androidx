@@ -24,7 +24,7 @@ import androidx.ui.core.positionInRoot
 import androidx.ui.core.layoutId
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInParent
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.geometry.Offset
 import androidx.ui.layout.ConstrainScope
 import androidx.ui.layout.ConstraintLayout

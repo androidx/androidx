@@ -24,9 +24,9 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.background
-import androidx.ui.foundation.clickable
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize

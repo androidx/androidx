@@ -17,7 +17,7 @@
 package androidx.ui.text.demos
 
 import androidx.compose.Composable
-import androidx.ui.foundation.ScrollableColumn
+import androidx.compose.foundation.ScrollableColumn
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.TextFieldValue
 import androidx.compose.runtime.savedinstancestate.savedInstanceState

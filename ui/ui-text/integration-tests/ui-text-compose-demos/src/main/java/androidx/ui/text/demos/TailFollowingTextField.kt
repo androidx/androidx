@@ -22,7 +22,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.constrainWidth
-import androidx.ui.foundation.background
+import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.Column
@@ -33,7 +33,6 @@ import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.ui.text.CoreTextField
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
-import androidx.ui.unit.min
 import kotlin.math.min
 
 @Composable

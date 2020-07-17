@@ -35,7 +35,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.semantics.semantics
 import androidx.ui.core.setContent
 import androidx.ui.core.zIndex
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.layout.padding
 import androidx.ui.test.DisableTransitions
 import androidx.ui.unit.dp

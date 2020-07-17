@@ -21,9 +21,9 @@ import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
-import androidx.ui.foundation.Border
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Border
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize

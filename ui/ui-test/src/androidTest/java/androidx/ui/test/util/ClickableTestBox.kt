@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.size
 import androidx.ui.test.util.ClickableTestBox.defaultColor

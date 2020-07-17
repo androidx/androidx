@@ -14,4 +14,4 @@
   limitations under the License.
   -->
 
-<manifest package="androidx.ui.foundation.demos"/>
+<manifest package="androidx.compose.foundation.demos"/>

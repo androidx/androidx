@@ -22,9 +22,9 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.foundation.BaseTextField
-import androidx.ui.foundation.ExperimentalFoundationApi
-import androidx.ui.foundation.background
+import androidx.compose.foundation.BaseTextField
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.Stack

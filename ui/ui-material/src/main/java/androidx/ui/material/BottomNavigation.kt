@@ -32,12 +32,12 @@ import androidx.ui.core.Placeable
 import androidx.ui.core.drawOpacity
 import androidx.ui.core.id
 import androidx.ui.core.layoutId
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ContentColorAmbient
-import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.ProvideTextStyle
-import androidx.ui.foundation.contentColor
-import androidx.ui.foundation.selection.selectable
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ContentColorAmbient
+import androidx.compose.foundation.ContentGravity
+import androidx.compose.foundation.ProvideTextStyle
+import androidx.compose.foundation.contentColor
+import androidx.compose.foundation.selection.selectable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.layout.Arrangement
@@ -117,7 +117,7 @@ fun BottomNavigation(
  * A BottomNavigationItem always shows text labels (if it exists) when selected. Showing text
  * labels if not selected is controlled by [alwaysShowLabels].
  *
- * @param icon icon for this item, typically this will be a [androidx.ui.foundation.Icon]
+ * @param icon icon for this item, typically this will be a [androidx.compose.foundation.Icon]
  * @param text optional text for this item
  * @param selected whether this item is selected
  * @param onSelected the callback to be invoked when this item is selected

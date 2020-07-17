@@ -22,8 +22,8 @@ import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.Text
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.core.LayoutDirection

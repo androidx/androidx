@@ -24,9 +24,9 @@ import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.foundation.selection.selectable
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.selection.ToggleableState
+import androidx.compose.foundation.selection.selectable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row

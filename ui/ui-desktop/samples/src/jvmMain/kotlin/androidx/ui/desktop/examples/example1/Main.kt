@@ -19,12 +19,11 @@ import android.graphics.Bitmap
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
-import androidx.compose.remember
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.desktop.AppWindow
-import androidx.ui.foundation.Image
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.asImageAsset

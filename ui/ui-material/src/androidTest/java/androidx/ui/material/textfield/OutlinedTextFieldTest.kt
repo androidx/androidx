@@ -27,11 +27,11 @@ import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInRoot
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.background
-import androidx.ui.foundation.contentColor
-import androidx.ui.foundation.currentTextStyle
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.contentColor
+import androidx.compose.foundation.currentTextStyle
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape

@@ -20,7 +20,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.desktop.test.DesktopScreenshotTestRule
 import androidx.ui.desktop.test.TestSkiaWindow
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column

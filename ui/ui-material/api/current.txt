@@ -51,18 +51,18 @@ package androidx.ui.material {
   }
 
   public final class ButtonKt {
-    method @androidx.compose.Composable public static void Button-c4fKgfo(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, boolean enabled = true, float elevation = 2.dp, float disabledElevation = 0.dp, androidx.ui.graphics.Shape shape = small, androidx.ui.foundation.Border? border = null, long backgroundColor = MaterialTheme.colors.primary, long disabledBackgroundColor = ButtonConstants.defaultDisabledBackgroundColor, long contentColor = contentColorFor(backgroundColor), long disabledContentColor = ButtonConstants.defaultDisabledContentColor, androidx.ui.layout.InnerPadding padding = ButtonConstants.DefaultInnerPadding, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> content);
-    method @androidx.compose.Composable public static inline void OutlinedButton-ctvTl2I(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, boolean enabled = true, float elevation = 0.dp, androidx.ui.graphics.Shape shape = small, androidx.ui.foundation.Border? border = Border(1.dp, MaterialTheme.colors.onSurface.copy(OutlinedStrokeOpacity)), long backgroundColor = MaterialTheme.colors.surface, long contentColor = MaterialTheme.colors.primary, long disabledContentColor = ButtonConstants.defaultDisabledContentColor, androidx.ui.layout.InnerPadding padding = ButtonConstants.DefaultInnerPadding, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> content);
-    method @androidx.compose.Composable public static inline void TextButton-ctvTl2I(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, boolean enabled = true, float elevation = 0.dp, androidx.ui.graphics.Shape shape = small, androidx.ui.foundation.Border? border = null, long backgroundColor = Color.Transparent, long contentColor = MaterialTheme.colors.primary, long disabledContentColor = ButtonConstants.defaultDisabledContentColor, androidx.ui.layout.InnerPadding padding = TextButtonConstants.DefaultInnerPadding, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.Composable public static void Button-5Wokvs4(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, boolean enabled = true, float elevation = 2.dp, float disabledElevation = 0.dp, androidx.ui.graphics.Shape shape = small, androidx.compose.foundation.Border? border = null, long backgroundColor = MaterialTheme.colors.primary, long disabledBackgroundColor = ButtonConstants.defaultDisabledBackgroundColor, long contentColor = contentColorFor(backgroundColor), long disabledContentColor = ButtonConstants.defaultDisabledContentColor, androidx.ui.layout.InnerPadding padding = ButtonConstants.DefaultInnerPadding, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.Composable public static inline void OutlinedButton-LSc0Q_U(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, boolean enabled = true, float elevation = 0.dp, androidx.ui.graphics.Shape shape = small, androidx.compose.foundation.Border? border = Border(1.dp, MaterialTheme.colors.onSurface.copy(OutlinedStrokeOpacity)), long backgroundColor = MaterialTheme.colors.surface, long contentColor = MaterialTheme.colors.primary, long disabledContentColor = ButtonConstants.defaultDisabledContentColor, androidx.ui.layout.InnerPadding padding = ButtonConstants.DefaultInnerPadding, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.Composable public static inline void TextButton-LSc0Q_U(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, boolean enabled = true, float elevation = 0.dp, androidx.ui.graphics.Shape shape = small, androidx.compose.foundation.Border? border = null, long backgroundColor = Color.Transparent, long contentColor = MaterialTheme.colors.primary, long disabledContentColor = ButtonConstants.defaultDisabledContentColor, androidx.ui.layout.InnerPadding padding = TextButtonConstants.DefaultInnerPadding, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> content);
   }
 
   public final class CardKt {
-    method @androidx.compose.Composable public static void Card-r7cpYJI(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.graphics.Shape shape = medium, long color = MaterialTheme.colors.surface, long contentColor = contentColorFor(color), androidx.ui.foundation.Border? border = null, float elevation = 1.dp, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.Composable public static void Card-IuRQmAA(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.graphics.Shape shape = medium, long color = MaterialTheme.colors.surface, long contentColor = contentColorFor(color), androidx.compose.foundation.Border? border = null, float elevation = 1.dp, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   public final class CheckboxKt {
     method @androidx.compose.Composable public static void Checkbox-9ViTWCU(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, boolean enabled = true, androidx.ui.core.Modifier modifier = Modifier, long checkedColor = MaterialTheme.colors.secondary, long uncheckedColor = MaterialTheme.colors.onSurface, long disabledColor = MaterialTheme.colors.onSurface, long checkMarkColor = MaterialTheme.colors.surface);
-    method @androidx.compose.Composable public static void TriStateCheckbox-4vNNdMw(androidx.ui.foundation.selection.ToggleableState state, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, boolean enabled = true, androidx.ui.core.Modifier modifier = Modifier, long checkedColor = MaterialTheme.colors.secondary, long uncheckedColor = MaterialTheme.colors.onSurface, long disabledColor = MaterialTheme.colors.onSurface, long checkMarkColor = MaterialTheme.colors.surface);
+    method @androidx.compose.Composable public static void TriStateCheckbox-AEQ-lcQ(androidx.compose.foundation.selection.ToggleableState state, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, boolean enabled = true, androidx.ui.core.Modifier modifier = Modifier, long checkedColor = MaterialTheme.colors.secondary, long uncheckedColor = MaterialTheme.colors.onSurface, long disabledColor = MaterialTheme.colors.onSurface, long checkMarkColor = MaterialTheme.colors.surface);
   }
 
   public final class ColorKt {
@@ -247,15 +247,15 @@ package androidx.ui.material {
   }
 
   public final class Shapes {
-    ctor public Shapes(androidx.ui.foundation.shape.corner.CornerBasedShape small, androidx.ui.foundation.shape.corner.CornerBasedShape medium, androidx.ui.foundation.shape.corner.CornerBasedShape large);
+    ctor public Shapes(androidx.compose.foundation.shape.corner.CornerBasedShape small, androidx.compose.foundation.shape.corner.CornerBasedShape medium, androidx.compose.foundation.shape.corner.CornerBasedShape large);
     ctor public Shapes();
-    method public androidx.ui.foundation.shape.corner.CornerBasedShape component1();
-    method public androidx.ui.foundation.shape.corner.CornerBasedShape component2();
-    method public androidx.ui.foundation.shape.corner.CornerBasedShape component3();
-    method public androidx.ui.material.Shapes copy(androidx.ui.foundation.shape.corner.CornerBasedShape small, androidx.ui.foundation.shape.corner.CornerBasedShape medium, androidx.ui.foundation.shape.corner.CornerBasedShape large);
-    method public androidx.ui.foundation.shape.corner.CornerBasedShape getLarge();
-    method public androidx.ui.foundation.shape.corner.CornerBasedShape getMedium();
-    method public androidx.ui.foundation.shape.corner.CornerBasedShape getSmall();
+    method public androidx.compose.foundation.shape.corner.CornerBasedShape component1();
+    method public androidx.compose.foundation.shape.corner.CornerBasedShape component2();
+    method public androidx.compose.foundation.shape.corner.CornerBasedShape component3();
+    method public androidx.ui.material.Shapes copy(androidx.compose.foundation.shape.corner.CornerBasedShape small, androidx.compose.foundation.shape.corner.CornerBasedShape medium, androidx.compose.foundation.shape.corner.CornerBasedShape large);
+    method public androidx.compose.foundation.shape.corner.CornerBasedShape getLarge();
+    method public androidx.compose.foundation.shape.corner.CornerBasedShape getMedium();
+    method public androidx.compose.foundation.shape.corner.CornerBasedShape getSmall();
   }
 
   public final class ShapesKt {
@@ -271,7 +271,7 @@ package androidx.ui.material {
   }
 
   public final class SurfaceKt {
-    method @androidx.compose.Composable public static void Surface-r7cpYJI(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, long color = MaterialTheme.colors.surface, long contentColor = contentColorFor(color), androidx.ui.foundation.Border? border = null, float elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.Composable public static void Surface-IuRQmAA(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, long color = MaterialTheme.colors.surface, long contentColor = contentColorFor(color), androidx.compose.foundation.Border? border = null, float elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static long getPrimarySurface(androidx.ui.material.ColorPalette);
   }
 
@@ -367,8 +367,8 @@ package androidx.ui.material.ripple {
   public final class RippleAnimationKt {
   }
 
-  @androidx.compose.Stable public final class RippleIndication implements androidx.ui.foundation.Indication {
-    method public androidx.ui.foundation.IndicationInstance createInstance();
+  @androidx.compose.Stable public final class RippleIndication implements androidx.compose.foundation.Indication {
+    method public androidx.compose.foundation.IndicationInstance createInstance();
   }
 
   public final class RippleIndicationKt {
@@ -376,7 +376,7 @@ package androidx.ui.material.ripple {
   }
 
   public interface RippleOpacity {
-    method public float opacityForInteraction(androidx.ui.foundation.Interaction interaction);
+    method public float opacityForInteraction(androidx.compose.foundation.Interaction interaction);
   }
 
   public interface RippleTheme {

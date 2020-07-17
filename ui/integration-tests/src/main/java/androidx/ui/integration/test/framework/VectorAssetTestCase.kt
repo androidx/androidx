@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.core.paint
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.StrokeCap

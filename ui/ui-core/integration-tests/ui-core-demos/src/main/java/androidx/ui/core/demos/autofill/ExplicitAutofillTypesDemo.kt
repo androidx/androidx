@@ -27,8 +27,8 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.toComposeRect
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
 import androidx.ui.geometry.Offset
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType

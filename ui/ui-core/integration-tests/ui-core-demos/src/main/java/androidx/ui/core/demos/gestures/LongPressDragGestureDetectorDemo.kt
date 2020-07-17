@@ -23,8 +23,8 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.longPressDragGestureFilter
 import androidx.ui.core.gesture.LongPressDragObserver
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.offset

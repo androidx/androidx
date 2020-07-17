@@ -22,7 +22,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.ui.core.Alignment
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Text
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.compose.runtime.livedata.observeAsState

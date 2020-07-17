@@ -23,7 +23,7 @@ import androidx.ui.core.globalPosition
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInRoot
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize

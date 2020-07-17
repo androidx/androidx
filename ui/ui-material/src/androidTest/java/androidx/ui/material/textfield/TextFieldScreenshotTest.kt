@@ -24,8 +24,8 @@ import androidx.test.screenshot.assertAgainstGolden
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
 import androidx.ui.layout.rtl
 import androidx.ui.material.GOLDEN_MATERIAL
 import androidx.ui.material.OutlinedTextField

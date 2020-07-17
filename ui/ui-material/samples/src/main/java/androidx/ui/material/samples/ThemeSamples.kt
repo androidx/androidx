@@ -19,10 +19,10 @@ package androidx.ui.material.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.background
-import androidx.ui.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.ui.graphics.Color
 import androidx.ui.layout.aspectRatio
 import androidx.ui.layout.fillMaxSize

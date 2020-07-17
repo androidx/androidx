@@ -22,8 +22,8 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ContentGravity
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ContentGravity
 import androidx.ui.geometry.Offset
 import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize

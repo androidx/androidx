@@ -26,7 +26,7 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.paint
 import androidx.ui.core.test.AtLeastSize
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.SolidColor

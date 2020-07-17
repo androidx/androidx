@@ -22,8 +22,8 @@ import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.Providers
 import androidx.compose.staticAmbientOf
-import androidx.ui.foundation.ContentColorAmbient
-import androidx.ui.foundation.contentColor
+import androidx.compose.foundation.ContentColorAmbient
+import androidx.compose.foundation.contentColor
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.luminance
 

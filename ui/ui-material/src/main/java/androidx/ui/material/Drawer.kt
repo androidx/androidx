@@ -26,8 +26,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Canvas
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Stack

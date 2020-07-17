@@ -29,11 +29,11 @@ import androidx.ui.core.drawBehind
 import androidx.ui.core.id
 import androidx.ui.core.layoutId
 import androidx.ui.core.offset
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.background
-import androidx.ui.foundation.currentTextStyle
-import androidx.ui.foundation.shape.corner.ZeroCornerSize
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.currentTextStyle
+import androidx.compose.foundation.shape.corner.ZeroCornerSize
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape

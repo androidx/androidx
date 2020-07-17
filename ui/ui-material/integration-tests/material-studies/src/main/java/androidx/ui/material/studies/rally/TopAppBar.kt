@@ -24,8 +24,8 @@ import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.transition
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.selection.selectable
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.selection.selectable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.layout.Row

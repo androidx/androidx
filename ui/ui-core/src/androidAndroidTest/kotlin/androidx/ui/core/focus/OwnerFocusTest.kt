@@ -25,7 +25,7 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.focus.FocusDetailedState.Active
 import androidx.ui.core.focus.FocusDetailedState.Inactive
 import androidx.ui.core.ViewAmbient
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat

@@ -19,10 +19,10 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.Dialog
-import androidx.ui.foundation.ProvideTextStyle
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ContentGravity
+import androidx.compose.foundation.Dialog
+import androidx.compose.foundation.ProvideTextStyle
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column

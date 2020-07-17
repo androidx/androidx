@@ -21,8 +21,8 @@ import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
-import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.intl.LocaleList
 import androidx.ui.layout.Column

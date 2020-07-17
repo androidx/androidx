@@ -25,8 +25,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.core.positionInRoot
 import androidx.ui.core.onPositioned
-import androidx.ui.core.positionInRoot
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.layout.Stack
 import androidx.ui.layout.offset
 import androidx.ui.layout.offsetPx

@@ -21,7 +21,7 @@ import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Text
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row

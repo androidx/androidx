@@ -20,10 +20,10 @@ import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.currentTextStyle
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.currentTextStyle
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.ColorPainter
 import androidx.ui.test.assertHeightIsEqualTo

@@ -42,9 +42,9 @@ import kotlin.math.max
 
 /**
  * [RippleAnimation]s are drawn as part of [RippleIndication] as a visual indicator for an
- * [androidx.ui.foundation.Interaction.Pressed] state.
+ * [androidx.compose.foundation.Interaction.Pressed] state.
  *
- * Use [androidx.ui.foundation.clickable] or [androidx.ui.foundation.indication] to add a
+ * Use [androidx.compose.foundation.clickable] or [androidx.compose.foundation.indication] to add a
  * [RippleIndication] to your component, which contains a RippleAnimation for pressed states, and
  * a state layer for other states.
  *

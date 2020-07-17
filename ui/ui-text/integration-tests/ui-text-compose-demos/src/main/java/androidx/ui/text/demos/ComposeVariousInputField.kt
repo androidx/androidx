@@ -24,10 +24,10 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.id
 import androidx.ui.core.layoutId
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.background
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.background
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction

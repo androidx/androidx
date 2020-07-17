@@ -30,9 +30,9 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.foundation.selection.triStateToggleable
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.selection.ToggleableState
+import androidx.compose.foundation.selection.triStateToggleable
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Radius
 import androidx.ui.geometry.Size

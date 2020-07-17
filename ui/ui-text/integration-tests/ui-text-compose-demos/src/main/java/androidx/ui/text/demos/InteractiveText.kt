@@ -18,9 +18,9 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.foundation.ClickableText
-import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.ClickableText
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.Text
 import androidx.ui.text.AnnotatedString
 
 @Composable

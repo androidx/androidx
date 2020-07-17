@@ -19,7 +19,7 @@ package androidx.ui.core.demos
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Image
+import androidx.compose.foundation.Image
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.HorizontalGradient
 import androidx.ui.core.ContentScale

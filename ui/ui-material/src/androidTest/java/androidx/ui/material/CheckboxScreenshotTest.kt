@@ -24,8 +24,8 @@ import androidx.test.screenshot.assertAgainstGolden
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.selection.ToggleableState
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.selection.ToggleableState
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.center

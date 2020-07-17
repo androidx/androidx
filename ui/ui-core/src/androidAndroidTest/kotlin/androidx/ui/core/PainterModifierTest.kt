@@ -27,8 +27,7 @@ import androidx.ui.core.test.FixedSize
 import androidx.ui.core.test.Padding
 import androidx.ui.core.test.assertColorsEqual
 import androidx.ui.core.test.background
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.background
+import androidx.compose.foundation.Box
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas

@@ -56,7 +56,7 @@ internal class InlineClassConverter {
      * Cast the specified [value] into the original inline type if applicable.
      *
      * @param functionName fully qualified name including the inline part
-     *                     example: androidx.ui.foundation.TextKt.Text-g1O9ZpA
+     *                     example: androidx.compose.foundation.TextKt.Text-g1O9ZpA
      * @param parameterName name of the parameter which value to cast example: color
      * @param value the value from the group which typically is the primitive representation
      *              of the parameter type example: Long

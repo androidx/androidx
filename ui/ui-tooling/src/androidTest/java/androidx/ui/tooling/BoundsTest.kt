@@ -25,8 +25,8 @@ import androidx.compose.setValue
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
 import androidx.ui.layout.Column
 import androidx.ui.layout.padding
 import androidx.ui.unit.Density

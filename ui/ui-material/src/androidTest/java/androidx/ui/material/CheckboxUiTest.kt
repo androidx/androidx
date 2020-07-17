@@ -19,11 +19,11 @@ import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Strings
-import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.foundation.selection.ToggleableState.Indeterminate
-import androidx.ui.foundation.selection.ToggleableState.Off
-import androidx.ui.foundation.selection.ToggleableState.On
+import androidx.compose.foundation.Strings
+import androidx.compose.foundation.selection.ToggleableState
+import androidx.compose.foundation.selection.ToggleableState.Indeterminate
+import androidx.compose.foundation.selection.ToggleableState.Off
+import androidx.compose.foundation.selection.ToggleableState.On
 import androidx.ui.layout.Column
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertIsEnabled

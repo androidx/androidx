@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Text
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Slider
 

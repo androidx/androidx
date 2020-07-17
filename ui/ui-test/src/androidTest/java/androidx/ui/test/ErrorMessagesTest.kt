@@ -21,9 +21,9 @@ import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.clickable
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.clickable
 import androidx.ui.layout.Column
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface

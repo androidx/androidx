@@ -18,7 +18,7 @@ package androidx.ui.core.demos
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas
+import androidx.compose.foundation.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.inset
 import androidx.ui.graphics.drawscope.rotate

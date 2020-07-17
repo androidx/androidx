@@ -22,8 +22,8 @@ import androidx.compose.state
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ContentGravity
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ContentGravity
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize

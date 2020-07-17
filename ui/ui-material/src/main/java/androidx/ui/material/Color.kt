@@ -25,7 +25,7 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.staticAmbientOf
 import androidx.compose.structuralEqualityPolicy
-import androidx.ui.foundation.contentColor
+import androidx.compose.foundation.contentColor
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.useOrElse
 

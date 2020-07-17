@@ -27,7 +27,7 @@ import androidx.compose.onCommit
 import androidx.compose.simulateHotReload
 import androidx.test.filters.MediumTest
 import androidx.ui.core.semantics.semantics
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.node.UiApplier
 import androidx.ui.semantics.accessibilityLabel

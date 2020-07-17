@@ -70,7 +70,7 @@ import androidx.ui.core.layoutId
 import androidx.ui.core.offset
 import androidx.ui.core.setContent
 import androidx.ui.core.zIndex
-import androidx.ui.foundation.drawBackground
+import androidx.compose.foundation.drawBackground
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size

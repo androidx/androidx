@@ -34,7 +34,7 @@ import androidx.ui.core.keyinput.Key
 import androidx.ui.core.keyinput.KeyEvent2
 import androidx.ui.core.keyinput.KeyEventType
 import androidx.ui.core.keyinput.keyInputFilter
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column

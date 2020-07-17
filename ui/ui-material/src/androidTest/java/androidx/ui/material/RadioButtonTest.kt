@@ -20,7 +20,7 @@ import androidx.compose.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Strings
+import androidx.compose.foundation.Strings
 import androidx.ui.layout.Column
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.assertIsInMutuallyExclusiveGroup

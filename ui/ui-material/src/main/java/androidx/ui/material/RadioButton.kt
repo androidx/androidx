@@ -26,10 +26,10 @@ import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.selection.selectable
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.selection.selectable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.Fill
@@ -118,13 +118,13 @@ fun RadioGroup(content: @Composable RadioGroupScope.() -> Unit) {
                 "}" +
                 "}",
         "androidx.ui.material.RadioButton",
-        "androidx.ui.foundation.Text",
+        "androidx.compose.foundation.Text",
         "androidx.ui.layout.Row",
         "androidx.ui.layout.Column",
         "androidx.ui.layout.fillMaxWidth",
         "androidx.ui.core.Modifier",
         "androidx.ui.unit.dp",
-        "androidx.ui.foundation.selection.selectable"
+        "androidx.compose.foundation.selection.selectable"
     )
 )
 @Composable
@@ -203,8 +203,8 @@ class RadioGroupScope internal constructor() {
                     "),\n" +
                     "children = content\n" +
                     ")",
-            "androidx.ui.foundation.selection.selectable",
-            "androidx.ui.foundation.Box"
+            "androidx.compose.foundation.selection.selectable",
+            "androidx.compose.foundation.Box"
         )
     )
     @Composable
@@ -262,8 +262,8 @@ class RadioGroupScope internal constructor() {
                     "}\n" +
                     "}\n" +
                     ")",
-            "androidx.ui.foundation.selection.selectable",
-            "androidx.ui.foundation.Box"
+            "androidx.compose.foundation.selection.selectable",
+            "androidx.compose.foundation.Box"
         )
     )
     @Composable

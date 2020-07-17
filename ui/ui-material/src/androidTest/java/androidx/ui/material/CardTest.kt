@@ -23,8 +23,8 @@ import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.shape.corner.CutCornerShape
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.shape.corner.CutCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize

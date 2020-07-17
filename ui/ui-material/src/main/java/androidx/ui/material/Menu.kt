@@ -34,11 +34,11 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.Popup
 import androidx.ui.core.PopupPositionProvider
 import androidx.ui.core.TransformOrigin
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.ProvideTextStyle
-import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.clickable
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ContentGravity
+import androidx.compose.foundation.ProvideTextStyle
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.clickable
 import androidx.ui.layout.ColumnScope
 import androidx.ui.layout.ExperimentalLayout
 import androidx.ui.layout.IntrinsicSize

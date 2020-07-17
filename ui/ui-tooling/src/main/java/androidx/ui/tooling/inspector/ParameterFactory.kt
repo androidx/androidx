@@ -18,9 +18,9 @@ package androidx.ui.tooling.inspector
 
 import androidx.ui.core.AbsoluteAlignment
 import androidx.ui.core.Alignment
-import androidx.ui.foundation.Border
-import androidx.ui.foundation.shape.corner.CornerBasedShape
-import androidx.ui.foundation.shape.corner.CornerSize
+import androidx.compose.foundation.Border
+import androidx.compose.foundation.shape.corner.CornerBasedShape
+import androidx.compose.foundation.shape.corner.CornerSize
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Brush

@@ -19,7 +19,7 @@ package androidx.ui.layout.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Text
 import androidx.ui.layout.relativePaddingFrom
 import androidx.ui.text.FirstBaseline
 import androidx.ui.unit.dp

@@ -19,11 +19,11 @@ package androidx.ui.tooling.inspector
 import androidx.test.filters.SmallTest
 import androidx.ui.core.AbsoluteAlignment
 import androidx.ui.core.Alignment
-import androidx.ui.foundation.Border
-import androidx.ui.foundation.shape.corner.CornerSize
-import androidx.ui.foundation.shape.corner.CutCornerShape
-import androidx.ui.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.foundation.shape.corner.ZeroCornerSize
+import androidx.compose.foundation.Border
+import androidx.compose.foundation.shape.corner.CornerSize
+import androidx.compose.foundation.shape.corner.CutCornerShape
+import androidx.compose.foundation.shape.corner.RoundedCornerShape
+import androidx.compose.foundation.shape.corner.ZeroCornerSize
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.LinearGradient

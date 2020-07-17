@@ -33,10 +33,10 @@ import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.core.gesture.scrollorientationlocking.Orientation
-import androidx.ui.foundation.InteractionState
-import androidx.ui.foundation.animation.FlingConfig
-import androidx.ui.foundation.animation.fling
-import androidx.ui.foundation.gestures.draggable
+import androidx.compose.foundation.InteractionState
+import androidx.compose.foundation.animation.FlingConfig
+import androidx.compose.foundation.animation.fling
+import androidx.compose.foundation.gestures.draggable
 import androidx.ui.util.fastFirstOrNull
 import androidx.ui.util.lerp
 import kotlin.math.sign

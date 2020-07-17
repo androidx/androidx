@@ -32,9 +32,9 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
-import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.Strings
-import androidx.ui.foundation.determinateProgressIndicator
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Strings
+import androidx.compose.foundation.determinateProgressIndicator
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color

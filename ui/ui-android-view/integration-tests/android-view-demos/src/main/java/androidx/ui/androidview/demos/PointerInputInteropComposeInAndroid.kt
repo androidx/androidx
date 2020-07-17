@@ -31,11 +31,11 @@ import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.core.setContent
 import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.DemoCategory
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.ScrollableRow
-import androidx.ui.foundation.background
-import androidx.ui.foundation.clickable
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.ScrollableRow
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.toArgb

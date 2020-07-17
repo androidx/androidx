@@ -70,8 +70,8 @@ import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.drawBackground
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.Offset
 import androidx.ui.layout.fillMaxSize

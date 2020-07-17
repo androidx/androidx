@@ -21,10 +21,10 @@ import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.Image
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.contentColor
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.contentColor
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.vector.VectorAsset

@@ -32,9 +32,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.gesture.rawDragGestureFilter
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Text
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color

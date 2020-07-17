@@ -30,11 +30,11 @@ import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.core.gesture.scrollGestureFilter
 import androidx.ui.core.gesture.scrollorientationlocking.Orientation
-import androidx.ui.foundation.Border
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.background
-import androidx.ui.foundation.drawBorder
+import androidx.compose.foundation.Border
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.drawBorder
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column

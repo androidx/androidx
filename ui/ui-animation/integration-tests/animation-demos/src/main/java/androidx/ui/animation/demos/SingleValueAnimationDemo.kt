@@ -20,8 +20,8 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.animation.animate
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.clickable
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.clickable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
 

@@ -22,10 +22,10 @@ import androidx.compose.state
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.background
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight

@@ -28,7 +28,7 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.ScrollableColumn
+import androidx.compose.foundation.ScrollableColumn
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Row

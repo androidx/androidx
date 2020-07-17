@@ -27,7 +27,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.onPositioned
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.geometry.Offset
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row

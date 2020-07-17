@@ -22,9 +22,9 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.onPositioned
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Image
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.Text
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.test.assertHeightIsEqualTo

@@ -28,8 +28,8 @@ import androidx.test.espresso.IdlingResource
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
 import androidx.ui.layout.Stack
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.android.ComposeNotIdleException

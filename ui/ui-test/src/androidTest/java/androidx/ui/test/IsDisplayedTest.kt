@@ -36,8 +36,8 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ScrollableColumn
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ScrollableColumn
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack

@@ -27,8 +27,8 @@ import androidx.ui.animation.transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.rotate
 import androidx.ui.layout.Arrangement

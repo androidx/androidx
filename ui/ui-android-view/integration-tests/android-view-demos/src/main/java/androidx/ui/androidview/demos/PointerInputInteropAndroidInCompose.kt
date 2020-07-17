@@ -26,12 +26,12 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.ScrollableRow
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.ScrollableRow
+import androidx.compose.foundation.Text
 import androidx.ui.geometry.Offset
-import androidx.ui.foundation.background
+import androidx.compose.foundation.background
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding

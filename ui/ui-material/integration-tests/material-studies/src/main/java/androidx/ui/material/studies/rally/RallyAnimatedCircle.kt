@@ -25,7 +25,7 @@ import androidx.compose.Composable
 import androidx.ui.animation.transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas
+import androidx.compose.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color

@@ -28,11 +28,11 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.composed
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.lazy.LazyColumnItems
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.background
-import androidx.ui.foundation.drawBorder
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.lazy.LazyColumnItems
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.drawBorder
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize

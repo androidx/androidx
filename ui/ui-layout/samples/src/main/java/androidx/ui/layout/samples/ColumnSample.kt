@@ -22,8 +22,8 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.VerticalAlignmentLine
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.background
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
