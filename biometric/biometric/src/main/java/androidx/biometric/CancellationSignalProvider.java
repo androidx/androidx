@@ -17,10 +17,12 @@
 package androidx.biometric;
 
 import android.os.Build;
+import android.os.CancellationSignal;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 
 /**
  * Creates and caches cancellation signal objects that are compatible with
@@ -29,6 +31,34 @@ import androidx.annotation.RequiresApi;
  */
 @SuppressWarnings("deprecation")
 class CancellationSignalProvider {
+    /**
+     * An injector for various class dependencies. Used for testing.
+     */
+    @VisibleForTesting
+    interface Injector {
+        /**
+         * TODO
+         *
+         * @return TODO
+         */
+        @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+        @NonNull
+        android.os.CancellationSignal getBiometricCancellationSignal();
+
+        /**
+         * TODO
+         *
+         * @return TODO
+         */
+        @NonNull
+        androidx.core.os.CancellationSignal getFingerprintCancellationSignal();
+    }
+
+    /**
+     * The injector for class dependencies used by this provider.
+     */
+    private final Injector mInjector;
+
     /**
      * A cancellation signal object that is compatible with
      * {@link android.hardware.biometrics.BiometricPrompt}.
@@ -40,6 +70,36 @@ class CancellationSignalProvider {
      * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
      */
     @Nullable private androidx.core.os.CancellationSignal mFingerprintCancellationSignal;
+
+    /**
+     * Creates a new cancellation signal provider instance.
+     */
+    CancellationSignalProvider() {
+        mInjector = new Injector() {
+            @Override
+            @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+            @NonNull
+            public CancellationSignal getBiometricCancellationSignal() {
+                return Api16Impl.create();
+            }
+
+            @Override
+            @NonNull
+            public androidx.core.os.CancellationSignal getFingerprintCancellationSignal() {
+                return new androidx.core.os.CancellationSignal();
+            }
+        };
+    }
+
+    /**
+     * Creates a new cancellation signal provider instance with the given injector.
+     *
+     * @param injector An injector for class and method dependencies.
+     */
+    @VisibleForTesting
+    CancellationSignalProvider(Injector injector) {
+        mInjector = injector;
+    }
 
     /**
      * Provides a cancellation signal object that is compatible with
@@ -55,7 +115,7 @@ class CancellationSignalProvider {
     @NonNull
     android.os.CancellationSignal getBiometricCancellationSignal() {
         if (mBiometricCancellationSignal == null) {
-            mBiometricCancellationSignal = Api16Impl.create();
+            mBiometricCancellationSignal = mInjector.getBiometricCancellationSignal();
         }
         return mBiometricCancellationSignal;
     }
@@ -73,7 +133,7 @@ class CancellationSignalProvider {
     @NonNull
     androidx.core.os.CancellationSignal getFingerprintCancellationSignal() {
         if (mFingerprintCancellationSignal == null) {
-            mFingerprintCancellationSignal = new androidx.core.os.CancellationSignal();
+            mFingerprintCancellationSignal = mInjector.getFingerprintCancellationSignal();
         }
         return mFingerprintCancellationSignal;
     }
