@@ -329,11 +329,13 @@ class ContainerTest : LayoutTest() {
             Stack {
                 Container(width = containerSize, height = containerSize, padding = innerPadding) {
                     Spacer(
-                        Modifier.preferredSize(width = childSize, height = childSize) +
-                            Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                        Modifier
+                            .preferredSize(width = childSize, height = childSize)
+                            .onPositioned { coordinates: LayoutCoordinates ->
                                 childCoordinates = coordinates
                                 latch.countDown()
-                            })
+                            }
+                    )
                 }
             }
         }

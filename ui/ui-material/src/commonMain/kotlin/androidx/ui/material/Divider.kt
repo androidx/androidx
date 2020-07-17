@@ -47,7 +47,7 @@ fun Divider(
         Modifier
     }
     Box(
-        modifier.plus(indentMod)
+        modifier.then(indentMod)
             .fillMaxWidth()
             .preferredHeight(thickness)
             .background(color = color)

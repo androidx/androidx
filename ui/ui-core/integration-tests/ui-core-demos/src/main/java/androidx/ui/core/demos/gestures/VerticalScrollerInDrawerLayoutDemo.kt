@@ -169,8 +169,9 @@ private fun Scrollable(orientation: Orientation, children: @Composable () -> Uni
 
     Layout(
         children = children,
-        modifier = Modifier.scrollGestureFilter(scrollObserver, orientation, canDrag) +
-                ClipModifier,
+        modifier = Modifier.scrollGestureFilter(scrollObserver, orientation, canDrag).then(
+            ClipModifier
+        ),
         measureBlock = { measurables, constraints ->
             val placeable =
                 when (orientation) {
@@ -274,7 +275,7 @@ private fun Pressable(
             .preferredHeight(height)
             .drawBorder(1.dp, Color.Black)
             .background(color = color.value)
-            .plus(pressOverlay) + gestureDetectors
+            .then(pressOverlay).then(gestureDetectors)
     )
 }
 

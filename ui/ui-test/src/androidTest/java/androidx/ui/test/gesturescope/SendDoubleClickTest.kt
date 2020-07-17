@@ -85,7 +85,11 @@ class SendDoubleClickTest(private val config: TestConfig) {
         // Given some content
         val recorder = SinglePointerInputRecorder()
         composeTestRule.setContent {
-            ClickableTestBox(Modifier.doubleTapGestureFilter(this::recordDoubleClick) + recorder)
+            ClickableTestBox(
+                Modifier
+                    .doubleTapGestureFilter(this::recordDoubleClick)
+                    .then(recorder)
+            )
         }
 
         // When we inject a double click

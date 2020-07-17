@@ -45,7 +45,7 @@ fun Icon(
 ) {
     Box(
         Modifier.preferredSize(size)
-            .plus(modifier)
+            .then(modifier)
             .paint(
                 VectorPainter(vectorImage), colorFilter = ColorFilter.tint(tintColor)
             )

@@ -121,7 +121,7 @@ object ColumnScope {
      * @sample androidx.compose.foundation.layout.samples.SimpleGravityInColumn
      */
     @Stable
-    fun Modifier.gravity(align: Alignment.Horizontal) = this + HorizontalGravityModifier(align)
+    fun Modifier.gravity(align: Alignment.Horizontal) = this.then(HorizontalGravityModifier(align))
 
     /**
      * Position the element horizontally such that its [alignmentLine] aligns with sibling elements
@@ -141,7 +141,7 @@ object ColumnScope {
      */
     @Stable
     fun Modifier.alignWithSiblings(alignmentLine: VerticalAlignmentLine) =
-        this + SiblingsAlignedModifier.WithAlignmentLine(alignmentLine)
+        this.then(SiblingsAlignedModifier.WithAlignmentLine(alignmentLine))
 
     /**
      * Size the element's height proportional to its [weight] relative to other weighted sibling
@@ -160,7 +160,7 @@ object ColumnScope {
         fill: Boolean = true
     ): Modifier {
         require(weight > 0.0) { "invalid weight $weight; must be greater than zero" }
-        return this + LayoutWeightImpl(weight, fill)
+        return this.then(LayoutWeightImpl(weight, fill))
     }
 
     /**
@@ -183,5 +183,5 @@ object ColumnScope {
     @Stable
     fun Modifier.alignWithSiblings(
         alignmentLineBlock: (Measured) -> Int
-    ) = this + SiblingsAlignedModifier.WithAlignmentLineBlock(alignmentLineBlock)
+    ) = this.then(SiblingsAlignedModifier.WithAlignmentLineBlock(alignmentLineBlock))
 }

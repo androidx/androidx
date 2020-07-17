@@ -118,7 +118,7 @@ fun Modifier.relativePaddingFrom(
     alignmentLine: AlignmentLine,
     before: Dp = 0.dp,
     after: Dp = 0.dp
-): Modifier = this + AlignmentLineOffset(alignmentLine, before, after)
+): Modifier = this.then(AlignmentLineOffset(alignmentLine, before, after))
 
 private data class AlignmentLineOffset(
     val alignmentLine: AlignmentLine,

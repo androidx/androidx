@@ -92,7 +92,7 @@ fun Surface(
     SurfaceLayout(
         modifier.drawLayer(shadowElevation = elevationPx, shape = shape)
             .zIndex(elevation.value)
-            .plus(if (border != null) Modifier.drawBorder(border, shape) else Modifier)
+            .then(if (border != null) Modifier.drawBorder(border, shape) else Modifier)
             .background(
                 color = getBackgroundColorForElevation(color, elevation),
                 shape = shape

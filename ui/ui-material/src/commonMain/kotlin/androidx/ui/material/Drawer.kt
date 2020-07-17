@@ -318,7 +318,7 @@ private fun Scrim(
     Canvas(
         Modifier
             .fillMaxSize()
-            .plus(dismissDrawer)
+            .then(dismissDrawer)
     ) {
         drawRect(color, alpha = fraction() * ScrimDefaultOpacity)
     }

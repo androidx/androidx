@@ -62,7 +62,7 @@ fun LongClickableText(
     )
 
     Text(text = text,
-        modifier = modifier + gesture,
+        modifier = modifier.then(gesture),
         style = style,
         softWrap = softWrap,
         overflow = overflow,

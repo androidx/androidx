@@ -26,7 +26,7 @@ class ModifierTest {
      */
     @Test
     fun wrapElementChain() {
-        val chain = SampleModifier(1) + SampleModifier(2) + SampleModifier(3)
+        val chain = SampleModifier(1) then SampleModifier(2) then SampleModifier(3)
         val forwards = chain.foldIn(emptyList<Int>()) { acc, e ->
             acc + (e as SampleModifier).value
         }

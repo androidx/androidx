@@ -204,7 +204,7 @@ class DrawShadowTest {
         elevation: State<Dp> = mutableStateOf(8.dp),
         modifier: Modifier = Modifier
     ) {
-        AtLeastSize(size = 12, modifier = modifier + background(Color.White)) {
+        AtLeastSize(size = 12, modifier = modifier.then(background(Color.White))) {
             AtLeastSize(
                 size = 10,
                 modifier = Modifier.drawShadow(elevation = elevation.value, shape = rectShape)

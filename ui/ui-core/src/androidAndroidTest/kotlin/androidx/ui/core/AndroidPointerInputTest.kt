@@ -367,13 +367,13 @@ fun Modifier.consumeMovementGestureFilter(consumeMovement: Boolean = false): Mod
 fun Modifier.consumeDownGestureFilter(onDown: (Offset) -> Unit): Modifier = composed {
     val filter = remember { ConsumeDownChangeFilter() }
     filter.onDown = onDown
-    this + PointerInputModifierImpl(filter)
+    this.then(PointerInputModifierImpl(filter))
 }
 
 fun Modifier.logEventsGestureFilter(log: MutableList<List<PointerInputChange>>): Modifier =
     composed {
         val filter = remember { LogEventsGestureFilter(log) }
-        this + PointerInputModifierImpl(filter)
+        this.then(PointerInputModifierImpl(filter))
     }
 
 private class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :

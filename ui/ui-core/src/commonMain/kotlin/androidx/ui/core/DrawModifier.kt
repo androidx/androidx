@@ -31,7 +31,7 @@ interface DrawModifier : Modifier.Element {
  */
 fun Modifier.drawBehind(
     onDraw: DrawScope.() -> Unit
-) = this + DrawBackgroundModifier(onDraw)
+) = this.then(DrawBackgroundModifier(onDraw))
 
 private class DrawBackgroundModifier(
     val onDraw: DrawScope.() -> Unit
@@ -49,8 +49,8 @@ private class DrawBackgroundModifier(
 // TODO: Inline this function -- it breaks with current compiler
 /*inline*/ fun Modifier.drawWithContent(
     onDraw: ContentDrawScope.() -> Unit
-): Modifier = this + object : DrawModifier {
+): Modifier = this.then(object : DrawModifier {
     override fun ContentDrawScope.draw() {
         onDraw()
     }
-}
+})

@@ -75,7 +75,7 @@ fun ClickableText(
 
     Text(
         text = text,
-        modifier = modifier + pressIndicator,
+        modifier = modifier.then(pressIndicator),
         style = style,
         softWrap = softWrap,
         overflow = overflow,

@@ -251,11 +251,10 @@ class OnPositionedTest {
         rule.runOnUiThread {
             activity.setContent {
                 FixedSize(10,
-                    PaddingModifier(5) +
-                            Modifier.onPositioned {
-                                coordinates = it
-                                positionedLatch.countDown()
-                            }
+                    PaddingModifier(5).then(Modifier.onPositioned {
+                        coordinates = it
+                        positionedLatch.countDown()
+                    })
                 ) {
                 }
             }
@@ -282,11 +281,10 @@ class OnPositionedTest {
         rule.runOnUiThread {
             activity.setContent {
                 FixedSize(10,
-                    PaddingModifier(5) +
-                            Modifier.onPositioned {
-                                coordinates = it
-                                positionedLatch.countDown()
-                            }
+                    PaddingModifier(5).then(Modifier.onPositioned {
+                        coordinates = it
+                        positionedLatch.countDown()
+                    })
                 ) {
                 }
             }

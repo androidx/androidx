@@ -109,8 +109,8 @@ internal fun AndroidViewHolder.toLayoutNode(): LayoutNode {
             // cases, we need to inform the View.
             layoutAccordingTo(layoutNode)
         }
-    layoutNode.modifier = modifier + coreModifier
-    onModifierChanged = { layoutNode.modifier = it + coreModifier }
+    layoutNode.modifier = modifier.then(coreModifier)
+    onModifierChanged = { layoutNode.modifier = it.then(coreModifier) }
     layoutNode.onAttach = { owner ->
         (owner as? AndroidOwner)?.addAndroidView(this, layoutNode)
     }

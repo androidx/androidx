@@ -111,7 +111,7 @@ class TextFieldTest {
                 focusModifier = FocusModifier()
                 BaseTextField(
                     value = state.value,
-                    modifier = Modifier.fillMaxSize() + focusModifier,
+                    modifier = Modifier.fillMaxSize().then(focusModifier),
                     onValueChange = { state.value = it }
                 )
             }

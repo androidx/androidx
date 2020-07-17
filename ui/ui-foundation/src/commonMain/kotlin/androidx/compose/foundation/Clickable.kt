@@ -94,9 +94,9 @@ fun Modifier.clickable(
         }
     }
     semanticModifier
-        .plus(interactionUpdate)
+        .then(interactionUpdate)
         .indication(interactionState, indication)
-        .plus(tap)
-        .plus(longTap)
-        .plus(doubleTap)
+        .then(tap)
+        .then(longTap)
+        .then(doubleTap)
 }

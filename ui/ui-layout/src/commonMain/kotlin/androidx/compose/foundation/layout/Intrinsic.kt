@@ -46,8 +46,8 @@ import androidx.compose.ui.unit.IntOffset
 @ExperimentalLayout
 @Stable
 fun Modifier.preferredWidth(intrinsicSize: IntrinsicSize) = when (intrinsicSize) {
-    IntrinsicSize.Min -> this + PreferredMinIntrinsicWidthModifier
-    IntrinsicSize.Max -> this + PreferredMaxIntrinsicWidthModifier
+    IntrinsicSize.Min -> this.then(PreferredMinIntrinsicWidthModifier)
+    IntrinsicSize.Max -> this.then(PreferredMaxIntrinsicWidthModifier)
 }
 
 /**
@@ -67,8 +67,8 @@ fun Modifier.preferredWidth(intrinsicSize: IntrinsicSize) = when (intrinsicSize)
 @ExperimentalLayout
 @Stable
 fun Modifier.preferredHeight(intrinsicSize: IntrinsicSize) = when (intrinsicSize) {
-    IntrinsicSize.Min -> this + PreferredMinIntrinsicHeightModifier
-    IntrinsicSize.Max -> this + PreferredMaxIntrinsicHeightModifier
+    IntrinsicSize.Min -> this.then(PreferredMinIntrinsicHeightModifier)
+    IntrinsicSize.Max -> this.then(PreferredMaxIntrinsicHeightModifier)
 }
 
 /**

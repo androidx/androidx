@@ -168,7 +168,7 @@ fun Slider(
             color,
             maxPx,
             interactionState,
-            modifier = press.plus(drag)
+            modifier = press.then(drag)
         )
     }
 }
@@ -185,7 +185,7 @@ private fun SliderImpl(
     val widthDp = with(DensityAmbient.current) {
         width.toDp()
     }
-    Stack(modifier + DefaultSliderConstraints) {
+    Stack(modifier.then(DefaultSliderConstraints)) {
         val thumbSize = ThumbRadius * 2
         val offset = (widthDp - thumbSize) * positionFraction
         val center = Modifier.gravity(Alignment.CenterStart)

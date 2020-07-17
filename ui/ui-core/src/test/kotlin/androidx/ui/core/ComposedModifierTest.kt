@@ -39,7 +39,7 @@ import org.junit.Test
 
 private class TestTagModifier<T>(val name: String, val value: T) : Modifier.Element
 
-fun <T> Modifier.testTag(name: String, value: T) = this + TestTagModifier(name, value)
+fun <T> Modifier.testTag(name: String, value: T) = this then TestTagModifier(name, value)
 
 fun <T> Modifier.getTestTag(name: String, default: T): T = foldIn(default) { acc, element ->
     @Suppress("UNCHECKED_CAST")

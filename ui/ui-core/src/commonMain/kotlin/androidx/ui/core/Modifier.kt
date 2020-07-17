@@ -30,8 +30,8 @@ import androidx.compose.Stable
  *
  * @sample androidx.ui.core.samples.ModifierFactorySample
  *
- * Modifier elements may be combined using [the + operator][plus]. Order is significant; modifier
- * elements that appear first will be applied first.
+ * Modifier elements may be combined using [then]. Order is significant; modifier elements that
+ * appear first will be applied first.
  *
  * Composables that accept a [Modifier] as a parameter to be applied to the whole component
  * represented by the composable function should name the parameter `modifier` and
@@ -95,7 +95,18 @@ interface Modifier {
      *
      * Returns a [Modifier] representing this modifier followed by [other] in sequence.
      */
-    operator fun plus(other: Modifier): Modifier =
+    @Deprecated(
+        "Use \"then\" instead.",
+        replaceWith = ReplaceWith("this.then(other)")
+    )
+    operator fun plus(other: Modifier): Modifier = then(other)
+
+    /**
+     * Concatenates this modifier with another.
+     *
+     * Returns a [Modifier] representing this modifier followed by [other] in sequence.
+     */
+    infix fun then(other: Modifier): Modifier =
         if (other === Modifier) this else CombinedModifier(this, other)
 
     /**
@@ -131,7 +142,12 @@ interface Modifier {
         override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R = initial
         override fun any(predicate: (Element) -> Boolean): Boolean = false
         override fun all(predicate: (Element) -> Boolean): Boolean = true
-        override operator fun plus(other: Modifier): Modifier = other
+        @Deprecated(
+            "Use \"then\" instead.",
+            replaceWith = ReplaceWith("this.then(other)")
+        )
+        override operator fun plus(other: Modifier): Modifier = then(other)
+        override infix fun then(other: Modifier): Modifier = other
         override fun toString() = "Modifier"
 
         /**
@@ -147,7 +163,8 @@ interface Modifier {
                 "androidx.ui.core.Modifier"
             )
         )
-        val None: Modifier get() = this
+        val None: Modifier
+            get() = this
     }
 }
 

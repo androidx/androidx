@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.Density
  * @sample androidx.ui.core.samples.LayoutTagChildrenUsage
  */
 @Stable
-fun Modifier.layoutId(id: Any) = this + LayoutId(id)
+fun Modifier.layoutId(id: Any) = this.then(LayoutId(id))
 
 /**
  * Tag the element with [tag] to identify the element within its parent.
@@ -37,7 +37,7 @@ fun Modifier.layoutId(id: Any) = this + LayoutId(id)
     "tag has been deprecated, layoutId should be used instead.",
     ReplaceWith("layoutId(tag)", "androidx.ui.core.layoutId")
 )
-fun Modifier.tag(tag: Any) = this + LayoutId(tag)
+fun Modifier.tag(tag: Any) = this.then(LayoutId(tag))
 
 /**
  * A [ParentDataModifier] which tags the target with the given [id]. The provided tag
