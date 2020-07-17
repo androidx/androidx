@@ -41,6 +41,8 @@ interface XType {
 
     fun boxed(): XType
 
+    fun asArray(): XArrayType = this as XArrayType
+
     fun isPrimitiveInt(): Boolean {
         return typeName == TypeName.INT
     }
@@ -97,6 +99,13 @@ fun XType.isDeclared(): Boolean {
         returns(true) implies (this@isDeclared is XDeclaredType)
     }
     return this is XDeclaredType
+}
+
+fun XType.isArray(): Boolean {
+    contract {
+        returns(true) implies (this@isArray is XArrayType)
+    }
+    return this is XArrayType
 }
 
 fun XType.isCollection(): Boolean {

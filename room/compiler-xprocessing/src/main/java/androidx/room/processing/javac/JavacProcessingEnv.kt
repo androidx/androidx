@@ -72,6 +72,15 @@ internal class JavacProcessingEnv(
         }
     }
 
+    override fun getArrayType(type: XType): JavacArrayType {
+        check(type is JavacType) {
+            "given type must be from java, $type is not"
+        }
+        return wrap<JavacArrayType>(
+            typeUtils.getArrayType(type.typeMirror)
+        )
+    }
+
     override fun getDeclaredType(type: XTypeElement, vararg types: XType): XDeclaredType {
         check(type is JavacTypeElement)
         val args = types.map {
@@ -97,6 +106,10 @@ internal class JavacProcessingEnv(
 
     inline fun <reified T : JavacType> wrap(typeMirror: TypeMirror): T {
         return when (typeMirror.kind) {
+            TypeKind.ARRAY -> JavacArrayType(
+                env = this,
+                typeMirror = MoreTypes.asArray(typeMirror)
+            )
             TypeKind.DECLARED -> JavacDeclaredType(
                 env = this,
                 typeMirror = MoreTypes.asDeclared(typeMirror)
