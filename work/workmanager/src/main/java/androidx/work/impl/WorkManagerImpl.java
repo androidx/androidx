@@ -597,13 +597,6 @@ public class WorkManagerImpl extends WorkManager {
                 mWorkTaskExecutor);
     }
 
-    @NonNull
-    @Override
-    public LiveData<List<String>> getAllWorkIdsLiveData() {
-        WorkSpecDao dao = mWorkDatabase.workSpecDao();
-        return dao.getAllWorkSpecIdsLiveData();
-    }
-
     /**
      * @param workSpecId The {@link WorkSpec} id to start
      * @hide

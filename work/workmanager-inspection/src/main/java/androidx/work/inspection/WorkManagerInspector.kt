@@ -68,9 +68,13 @@ class WorkManagerInspector(
                 val response = Response.newBuilder()
                     .setTrackWorkManager(TrackWorkManagerResponse.getDefaultInstance())
                     .build()
-                workManager.allWorkIdsLiveData.safeObserve(this, executor) { oldList, newList ->
-                    updateWorkIdList(oldList ?: listOf(), newList)
-                }
+                workManager
+                    .workDatabase
+                    .workSpecDao()
+                    .allWorkSpecIdsLiveData
+                    .safeObserve(this, executor) { oldList, newList ->
+                        updateWorkIdList(oldList ?: listOf(), newList)
+                    }
                 callback.reply(response.toByteArray())
             }
             else -> {
