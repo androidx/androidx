@@ -301,6 +301,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     private final AtomicInteger mNextLocalRequestCode = new AtomicInteger();
 
+    private final ArrayList<OnPreAttachedListener> mOnPreAttachedListeners = new ArrayList<>();
+
+    private abstract static class OnPreAttachedListener {
+        abstract void onPreAttached();
+    }
+
     /**
      * {@inheritDoc}
      * <p>
@@ -2851,6 +2857,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     void performAttach() {
+        for (OnPreAttachedListener listener: mOnPreAttachedListeners) {
+            listener.onPreAttached();
+        }
+        mOnPreAttachedListeners.clear();
         mChildFragmentManager.attachController(mHost, createFragmentContainer(), this);
         mState = ATTACHED;
         mCalled = false;
@@ -3314,6 +3324,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * {@link ActivityResultRegistry} of the host will be used. Otherwise, this will use the
      * registry of the Fragment's Activity.
      */
+    @MainThread
     @NonNull
     @Override
     public final <I, O> ActivityResultLauncher<I> registerForActivityResult(
@@ -3330,6 +3341,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }, callback);
     }
 
+    @MainThread
     @NonNull
     @Override
     public final <I, O> ActivityResultLauncher<I> registerForActivityResult(
@@ -3350,20 +3362,17 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             @NonNull final Function<Void, ActivityResultRegistry> registryProvider,
             @NonNull final ActivityResultCallback<O> callback) {
         final AtomicReference<ActivityResultLauncher<I>> ref = new AtomicReference<>();
-
         // We can't call generateActivityResultKey during initialization of the Fragment
         // since we need to wait for the mWho to be restored from saved instance state
-        // so we'll wait until the Lifecycle is CREATED to actually generate the key
-        // and register.
-        getLifecycle().addObserver(new LifecycleEventObserver() {
+        // so we'll wait until we have all the information needed to register  to actually
+        // generate the key and register.
+
+        registerOnPreAttachListener(new OnPreAttachedListener() {
             @Override
-            public void onStateChanged(@NonNull LifecycleOwner lifecycleOwner,
-                    @NonNull Lifecycle.Event event) {
-                if (Lifecycle.Event.ON_CREATE.equals(event)) {
-                    final String key = generateActivityResultKey();
-                    ActivityResultRegistry registry = registryProvider.apply(null);
-                    ref.set(registry.register(key, Fragment.this, contract, callback));
-                }
+            void onPreAttached() {
+                final String key = generateActivityResultKey();
+                ActivityResultRegistry registry = registryProvider.apply(null);
+                ref.set(registry.register(key, Fragment.this, contract, callback));
             }
         });
 
@@ -3392,6 +3401,16 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 return contract;
             }
         };
+    }
+
+    private void registerOnPreAttachListener(@NonNull final OnPreAttachedListener callback) {
+        //If we are already attached, we can register immediately
+        if (mState >= ATTACHED) {
+            callback.onPreAttached();
+        } else {
+            // else we need to wait until we are attached
+            mOnPreAttachedListeners.add(callback);
+        }
     }
 
     @NonNull
