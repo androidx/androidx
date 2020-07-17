@@ -25,7 +25,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.foundation.Text
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.livedata.observeAsState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.ui.material.Button
 import androidx.ui.viewmodel.viewModel
 

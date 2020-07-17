@@ -53,8 +53,8 @@ import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
 import androidx.ui.layout.padding
-import androidx.ui.savedinstancestate.Saver
-import androidx.ui.savedinstancestate.rememberSavedInstanceState
+import androidx.compose.runtime.savedinstancestate.Saver
+import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.ui.semantics.scrollBy
 import androidx.ui.unit.dp
 import kotlin.math.roundToInt

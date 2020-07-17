@@ -18,8 +18,8 @@ package androidx.ui.input
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.savedinstancestate.Saver
-import androidx.ui.savedinstancestate.listSaver
+import androidx.compose.runtime.savedinstancestate.Saver
+import androidx.compose.runtime.savedinstancestate.listSaver
 import androidx.ui.text.TextRange
 import androidx.ui.text.substring
 import kotlin.math.max

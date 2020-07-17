@@ -719,7 +719,7 @@ package androidx.ui.core {
     method public androidx.ui.core.hapticfeedback.HapticFeedback getHapticFeedBack();
     method public long getMeasureIteration();
     method public androidx.ui.core.LayoutNode getRoot();
-    method public androidx.ui.savedinstancestate.UiSavedStateRegistry? getSavedStateRegistry();
+    method public androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry? getSavedStateRegistry();
     method public androidx.ui.core.semantics.SemanticsOwner getSemanticsOwner();
     method public boolean getShowLayoutBounds();
     method public androidx.ui.input.TextInputService getTextInputService();
@@ -736,7 +736,7 @@ package androidx.ui.core {
     method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public boolean requestFocus();
     method @androidx.ui.core.keyinput.ExperimentalKeyInput public boolean sendKeyEvent(androidx.ui.core.keyinput.KeyEvent2 keyEvent);
-    method public void setOnSavedStateRegistryAvailable(kotlin.jvm.functions.Function1<? super androidx.ui.savedinstancestate.UiSavedStateRegistry,kotlin.Unit> callback);
+    method public void setOnSavedStateRegistryAvailable(kotlin.jvm.functions.Function1<? super androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry,kotlin.Unit> callback);
     method @androidx.ui.core.InternalCoreApi public void setShowLayoutBounds(boolean p);
     property public abstract androidx.ui.autofill.Autofill? autofill;
     property public abstract androidx.ui.autofill.AutofillTree autofillTree;
@@ -746,7 +746,7 @@ package androidx.ui.core {
     property public abstract androidx.ui.core.hapticfeedback.HapticFeedback hapticFeedBack;
     property public abstract long measureIteration;
     property public abstract androidx.ui.core.LayoutNode root;
-    property public abstract androidx.ui.savedinstancestate.UiSavedStateRegistry? savedStateRegistry;
+    property public abstract androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry? savedStateRegistry;
     property public abstract androidx.ui.core.semantics.SemanticsOwner semanticsOwner;
     property public abstract boolean showLayoutBounds;
     property public abstract androidx.ui.input.TextInputService textInputService;

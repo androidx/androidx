@@ -25,7 +25,7 @@ import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.graphics.Canvas
 import androidx.ui.input.TextInputService
-import androidx.ui.savedinstancestate.UiSavedStateRegistry
+import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntOffset

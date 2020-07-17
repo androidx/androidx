@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.ui.input.TextFieldValue
-import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.ui.text.CoreTextField
 
 @Sampled
