@@ -5202,10 +5202,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             return lp.mDecorInsets;
         }
 
-        final boolean positionWillChange =
-                (lp.mViewHolder.getLayoutPosition() != lp.mViewHolder.getAbsoluteAdapterPosition());
-        if (mState.isPreLayout()
-                && (lp.isItemChanged() || lp.isViewInvalid() || positionWillChange)) {
+        if (mState.isPreLayout() && (lp.isItemChanged() || lp.isViewInvalid())) {
             // changed/invalid items should not be updated until they are rebound.
             return lp.mDecorInsets;
         }
