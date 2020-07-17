@@ -98,6 +98,25 @@ public abstract class FragmentManager implements FragmentResultOwner {
     static boolean USE_STATE_MANAGER = false;
 
     /**
+     * Control whether FragmentManager uses the new state manager that is responsible for:
+     * <ul>
+     *     <li>Moving Fragments through their lifecycle methods</li>
+     *     <li>Running animations and transitions</li>
+     *     <li>Handling postponed transactions</li>
+     * </ul>
+     *
+     * This should only be changed <strong>before</strong> any fragment transactions are done
+     * (i.e., in your <code>Application</code> class or prior to <code>super.onCreate()</code>
+     * in every activity).
+     *
+     * @param enabled Whether the new state manager should be enabled.
+     */
+    @FragmentStateManagerControl
+    public static void enableNewStateManager(boolean enabled) {
+        FragmentManager.USE_STATE_MANAGER = enabled;
+    }
+
+    /**
      * Control whether the framework's internal fragment manager debugging
      * logs are turned on.  If enabled, you will see output in logcat as
      * the framework performs fragment operations.
