@@ -63,7 +63,6 @@ public class AppSearchManager {
     public static final String DEFAULT_DATABASE_NAME = "";
 
     private final String mDatabaseName;
-    private final Context mContext;
     private final AppSearchImpl mAppSearchImpl;
     // Never call Executor.shutdownNow(), it will cancel the futures it's returned. And since
     // execute() won't return anything, we will hang forever waiting for the execution.
@@ -86,15 +85,21 @@ public class AppSearchManager {
         /**
          * Sets the name of the database to create or open.
          *
+         * <p>Database name cannot contain {@code '/'}.
          * <p>Databases with different names are fully separate with distinct types, namespaces, and
          * data.
          *
          * <p>If not specified, defaults to {@link #DEFAULT_DATABASE_NAME}.
+         * @param databaseName The name of the database.
+         * @throws IllegalArgumentException if the databaseName contains {@code '/'}.
          */
         @NonNull
         public Builder setDatabaseName(@NonNull String databaseName) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(databaseName);
+            if (databaseName.contains("/")) {
+                throw new IllegalArgumentException("Database name cannot contain '/'");
+            }
             mDatabaseName = databaseName;
             return this;
         }
@@ -107,8 +112,8 @@ public class AppSearchManager {
         public ListenableFuture<AppSearchResult<AppSearchManager>> build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             mBuilt = true;
-            AppSearchManager appSearchManager = new AppSearchManager(mDatabaseName, mContext);
-            return appSearchManager.initialize();
+            AppSearchManager appSearchManager = new AppSearchManager(mDatabaseName);
+            return appSearchManager.initialize(mContext);
         }
     }
 
@@ -118,15 +123,14 @@ public class AppSearchManager {
      * <p>Documents, schemas and types are fully isolated between different databases.
      *
      * @param databaseName The name of this database.
-     * @param context The context to initialize the instance in.
      */
-    AppSearchManager(@NonNull String databaseName, @NonNull Context context) {
+    AppSearchManager(@NonNull String databaseName) {
         mDatabaseName = databaseName;
-        mContext = context;
-        mAppSearchImpl = AppSearchImpl.getInstance(mContext);
+        mAppSearchImpl = AppSearchImpl.getInstance();
     }
 
-    ListenableFuture<AppSearchResult<AppSearchManager>> initialize() {
+    ListenableFuture<AppSearchResult<AppSearchManager>> initialize(
+            @NonNull Context context) {
         if (mAppSearchImpl.isInitialized()) {
             // Already initialized, nothing to do.
             ResolvableFuture<AppSearchResult<AppSearchManager>> resolvableFuture =
@@ -137,7 +141,7 @@ public class AppSearchManager {
 
         return execute(() -> {
             try {
-                mAppSearchImpl.initialize(mContext);
+                mAppSearchImpl.initialize(context);
                 return AppSearchResult.newSuccessfulResult(this);
             } catch (Throwable t) {
                 return throwableToFailedResult(t);

@@ -18,6 +18,7 @@ package androidx.appsearch.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.android.icing.proto.DocumentProto;
@@ -25,11 +26,15 @@ import com.google.android.icing.proto.GetOptimizeInfoResultProto;
 import com.google.android.icing.proto.IndexingConfig;
 import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.PropertyProto;
+import com.google.android.icing.proto.ResultSpecProto;
 import com.google.android.icing.proto.SchemaProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
+import com.google.android.icing.proto.ScoringSpecProto;
+import com.google.android.icing.proto.SearchResultProto;
+import com.google.android.icing.proto.SearchSpecProto;
+import com.google.android.icing.proto.StatusProto;
 import com.google.android.icing.proto.TermMatchType;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,12 +43,8 @@ public class AppSearchImplTest {
 
     @Before
     public void setUp() throws Exception {
-        mAppSearchImpl = AppSearchImpl.getInstance(ApplicationProvider.getApplicationContext());
+        mAppSearchImpl = AppSearchImpl.getInstance();
         mAppSearchImpl.initialize(ApplicationProvider.getApplicationContext());
-    }
-
-    @After
-    public void tearDown() throws Exception {
         mAppSearchImpl.reset();
     }
 
@@ -191,5 +192,48 @@ public class AppSearchImplTest {
         optimizeInfo = mAppSearchImpl.getOptimizeInfoResult();
         assertThat(optimizeInfo.getOptimizableDocs())
                 .isLessThan(AppSearchImpl.CHECK_OPTIMIZE_INTERVAL);
+    }
+
+    @Test
+    public void testRewriteSearchSpec() throws Exception {
+        SearchSpecProto.Builder searchSpecProto =
+                SearchSpecProto.newBuilder().setQuery("");
+
+        // Insert schema
+        SchemaProto schema = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType("type").build())
+                .build();
+        mAppSearchImpl.setSchema("database", schema, false);
+        // Insert document
+        DocumentProto insideDocument = DocumentProto.newBuilder()
+                .setUri("inside-uri")
+                .setSchema("type")
+                .setNamespace("namespace")
+                .build();
+        mAppSearchImpl.putDocument("database", insideDocument);
+
+        // Rewrite SearchSpec
+        mAppSearchImpl.rewriteSearchSpecForNonEmptyDatabase(
+                "database", searchSpecProto);
+        assertThat(searchSpecProto.getSchemaTypeFiltersList()).containsExactly("database/type");
+        assertThat(searchSpecProto.getNamespaceFiltersList()).containsExactly("database/namespace");
+    }
+
+    @Test
+    public void testQueryEmptyDatabase() throws AppSearchException, InterruptedException {
+        SearchResultProto searchResultProto = mAppSearchImpl.query("EmptyDatabase",
+                SearchSpecProto.getDefaultInstance(),
+                ResultSpecProto.getDefaultInstance(), ScoringSpecProto.getDefaultInstance());
+        assertThat(searchResultProto.getResultsCount()).isEqualTo(0);
+        assertThat(searchResultProto.getStatus().getCode()).isEqualTo(StatusProto.Code.OK);
+    }
+
+    @Test
+    public void testRemoveEmptyDatabase_NoExceptionThrown()
+            throws AppSearchException, InterruptedException {
+        mAppSearchImpl.removeByType("EmptyDatabase", "FakeType");
+        mAppSearchImpl.removeByNamespace("EmptyDatabase", "FakeNamespace");
+        mAppSearchImpl.removeAll("EmptyDatabase");
     }
 }
