@@ -1742,8 +1742,8 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
     private lateinit var measureScope: MeasureScope
     private val state by lazy(LazyThreadSafetyMode.NONE) { State(density) }
 
-    val widthConstraintsHolder = IntArray(2)
-    val heightConstraintsHolder = IntArray(2)
+    private val widthConstraintsHolder = IntArray(2)
+    private val heightConstraintsHolder = IntArray(2)
 
     fun reset() {
         placeables.clear()
@@ -1765,25 +1765,30 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
         val (initialWidth, initialHeight, initialBaseline) =
             lastMeasures[measurable] ?: lastMeasureDefaultsHolder.apply { copyFrom(measure) }
 
-        var constraints = run {
-            obtainConstraints(
+        var wrappingWidth: Boolean
+        var wrappingHeight: Boolean
+        var constraints: Constraints
+        run {
+            wrappingWidth = obtainConstraints(
                 constraintWidget.horizontalDimensionBehaviour,
                 constraintWidget.width,
                 constraintWidget.mMatchConstraintDefaultWidth,
                 measure.useDeprecated,
+                constraintWidget.wrapMeasure[0],
                 state.rootIncomingConstraints.maxWidth,
                 widthConstraintsHolder
             )
-            obtainConstraints(
+            wrappingHeight = obtainConstraints(
                 constraintWidget.verticalDimensionBehaviour,
                 constraintWidget.height,
                 constraintWidget.mMatchConstraintDefaultHeight,
                 measure.useDeprecated,
+                constraintWidget.wrapMeasure[1],
                 state.rootIncomingConstraints.maxHeight,
                 heightConstraintsHolder
             )
 
-            Constraints(
+            constraints = Constraints(
                 widthConstraintsHolder[0],
                 widthConstraintsHolder[1],
                 heightConstraintsHolder[0],
@@ -1791,7 +1796,8 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
             )
         }
 
-        if (constraintWidget.horizontalDimensionBehaviour != MATCH_CONSTRAINT ||
+        if (measure.useDeprecated ||
+            constraintWidget.horizontalDimensionBehaviour != MATCH_CONSTRAINT ||
             constraintWidget.mMatchConstraintDefaultWidth != MATCH_CONSTRAINT_SPREAD ||
             constraintWidget.verticalDimensionBehaviour != MATCH_CONSTRAINT ||
             constraintWidget.mMatchConstraintDefaultHeight != MATCH_CONSTRAINT_SPREAD
@@ -1804,6 +1810,12 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
             }
             if (DEBUG) {
                 Log.d("CCL", "${measurable.id} is size ${placeable.width} ${placeable.height}")
+            }
+            if (wrappingWidth) {
+                constraintWidget.wrapMeasure[0] = placeable.width
+            }
+            if (wrappingHeight) {
+                constraintWidget.wrapMeasure[1] = placeable.height
             }
 
             val coercedWidth = placeable.width.coerceIn(
@@ -1855,29 +1867,35 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
 
     /**
      * Calculates the [Constraints] in one direction that should be used to measure a child,
-     * based on the solver measure request.
+     * based on the solver measure request. Returns `true` if the constraints correspond to a
+     * wrap content measurement.
      */
     private fun obtainConstraints(
         dimensionBehaviour: ConstraintWidget.DimensionBehaviour,
         dimension: Int,
         matchConstraintDefaultDimension: Int,
         useDeprecated: Boolean,
+        knownWrapContentSize: Int,
         rootMaxConstraint: Int,
         outConstraints: IntArray
-    ) = when (dimensionBehaviour) {
+    ): Boolean = when (dimensionBehaviour) {
         FIXED -> {
             outConstraints[0] = dimension
             outConstraints[1] = dimension
+            false
         }
         WRAP_CONTENT -> {
             outConstraints[0] = 0
             outConstraints[1] = rootMaxConstraint
+            true
         }
         MATCH_CONSTRAINT -> {
-            val useDimension =
-                useDeprecated && matchConstraintDefaultDimension == MATCH_CONSTRAINT_WRAP
+            val useDimension = useDeprecated &&
+                    (matchConstraintDefaultDimension != MATCH_CONSTRAINT_WRAP ||
+                            dimension != knownWrapContentSize)
             outConstraints[0] = if (useDimension) dimension else 0
             outConstraints[1] = if (useDimension) dimension else rootMaxConstraint
+            !useDimension
         }
         else -> {
             error("MATCH_PARENT is not supported")
@@ -1987,8 +2005,9 @@ private val DEBUG = false
 private fun ConstraintWidget.toDebugString() =
     "$debugName " +
             "width $width minWidth $minWidth maxWidth $maxWidth " +
-            "height $height minHeight $minHeight maxHeight maxHeight " +
+            "height $height minHeight $minHeight maxHeight $maxHeight " +
             "HDB $horizontalDimensionBehaviour VDB $verticalDimensionBehaviour " +
-            "percentH $mMatchConstraintPercentWidth $mMatchConstraintPercentHeight"
+            "MCW $mMatchConstraintDefaultWidth MCH $mMatchConstraintDefaultHeight " +
+            "percentW $mMatchConstraintPercentWidth percentH $mMatchConstraintPercentHeight"
 private fun BasicMeasure.Measure.toDebugString() =
     "use deprecated is $useDeprecated "
