@@ -6,6 +6,7 @@ on:
       - androidx-master-dev
   repository_dispatch:
     if: always()
+  workflow_dispatch:
 
 jobs:
   # This workflow contains a single job called "build"
