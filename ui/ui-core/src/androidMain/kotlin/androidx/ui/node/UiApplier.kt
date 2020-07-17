@@ -95,10 +95,10 @@ class UiApplier(
                                 // Wrap the instance in an AndroidViewHolder, unless the instance
                                 // itself is already one.
                                 val androidViewHolder =
-                                    if (instance is AndroidViewHolder) {
+                                    if (instance is AndroidViewHolder<*>) {
                                         instance
                                     } else {
-                                        AndroidViewHolder(instance.context).apply {
+                                        AndroidViewHolder<View>(instance.context).apply {
                                             view = instance
                                         }
                                     }

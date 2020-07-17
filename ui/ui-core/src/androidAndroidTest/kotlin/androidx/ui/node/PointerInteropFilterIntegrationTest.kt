@@ -95,7 +95,7 @@ class PointerInteropFilterIntegrationTest {
                             paddingStart = (2f / density).dp,
                             paddingTop = (12f / density).dp
                         ) {
-                            AndroidView(two)
+                            AndroidView({ two })
                         }
                     }
                 }

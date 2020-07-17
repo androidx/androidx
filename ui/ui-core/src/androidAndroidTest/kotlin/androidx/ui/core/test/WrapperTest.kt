@@ -153,7 +153,7 @@ class WrapperTest {
                     val recomposer = Recomposer.current()
                     val composition = compositionReference()
 
-                    AndroidView(frameLayout)
+                    AndroidView({ frameLayout })
                     onCommit {
                         frameLayout.setContent(recomposer, composition) {
                             value = ambient.current

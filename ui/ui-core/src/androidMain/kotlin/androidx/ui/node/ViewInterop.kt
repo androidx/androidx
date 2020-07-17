@@ -95,7 +95,7 @@ private fun obtainMeasureSpec(
  * The component nodes will proxy the Compose core calls to the [View].
  */
 @OptIn(ExperimentalLayoutNodeApi::class)
-internal fun AndroidViewHolder.toLayoutNode(): LayoutNode {
+internal fun AndroidViewHolder<out View>.toLayoutNode(): LayoutNode {
     // TODO(soboleva): add layout direction here?
     // TODO(popam): forward pointer input, accessibility, focus
     // Prepare layout node that proxies measure and layout passes to the View.

@@ -17,6 +17,7 @@
 package androidx.ui.androidview.demos
 
 import android.graphics.Color
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Composable
@@ -71,21 +72,25 @@ private fun FourAndroidTapInCompose() {
                 .wrapContentSize(Alignment.Center)
                 .preferredSize(240.dp)
         ) {
-            AndroidView(R.layout.android_4_buttons_in_compose) { view ->
-                view as ViewGroup
-                view.findViewById<View>(R.id.buttonBlue).setOnClick {
-                    view.setBackgroundColor(Color.BLUE)
-                }
-                view.findViewById<View>(R.id.buttonRed).setOnClick {
-                    view.setBackgroundColor(Color.RED)
-                }
-                view.findViewById<View>(R.id.buttonGreen).setOnClick {
-                    view.setBackgroundColor(Color.GREEN)
-                }
-                view.findViewById<View>(R.id.buttonYellow).setOnClick {
-                    view.setBackgroundColor(Color.YELLOW)
-                }
-            }
+            AndroidView({ context ->
+                LayoutInflater.from(context)
+                    .inflate(R.layout.android_4_buttons_in_compose, null).let { view ->
+                        view as ViewGroup
+                        view.findViewById<View>(R.id.buttonBlue).setOnClick {
+                            view.setBackgroundColor(Color.BLUE)
+                        }
+                        view.findViewById<View>(R.id.buttonRed).setOnClick {
+                            view.setBackgroundColor(Color.RED)
+                        }
+                        view.findViewById<View>(R.id.buttonGreen).setOnClick {
+                            view.setBackgroundColor(Color.GREEN)
+                        }
+                        view.findViewById<View>(R.id.buttonYellow).setOnClick {
+                            view.setBackgroundColor(Color.YELLOW)
+                        }
+                        view
+                    }
+            })
         }
     }
 }
@@ -117,13 +122,17 @@ private fun AndroidTapInComposeTap() {
                 .preferredSize(240.dp)
                 .tapGestureFilter(onTap)
         ) {
-            AndroidView(R.layout.android_tap_in_compose_tap) { view ->
-                theView = view
-                theView?.setBackgroundColor(Color.GREEN)
-                view.findViewById<View>(R.id.buttonRed).setOnClick {
-                    theView?.setBackgroundColor(Color.RED)
-                }
-            }
+            AndroidView({ context ->
+                LayoutInflater.from(context)
+                    .inflate(R.layout.android_tap_in_compose_tap, null).let { view ->
+                        theView = view
+                        theView?.setBackgroundColor(Color.GREEN)
+                        view.findViewById<View>(R.id.buttonRed).setOnClick {
+                            theView?.setBackgroundColor(Color.RED)
+                        }
+                        view
+                    }
+            })
         }
     }
 }
@@ -143,33 +152,37 @@ private fun AndroidTapInComposeScroll() {
                     "will not be clicked when released."
         )
         ScrollableRow {
-            AndroidView(R.layout.android_tap_in_compose_scroll) { view ->
-                view.setBackgroundColor(Color.YELLOW)
-                view.findViewById<View>(R.id.buttonRed).apply {
-                    isClickable = false
-                    setOnClick {
-                        view.setBackgroundColor(Color.RED)
-                    }
-                }
-                view.findViewById<View>(R.id.buttonGreen).apply {
-                    isClickable = false
-                    setOnClick {
-                        view.setBackgroundColor(Color.GREEN)
-                    }
-                }
-                view.findViewById<View>(R.id.buttonBlue).apply {
-                    isClickable = false
-                    setOnClick {
-                        view.setBackgroundColor(Color.BLUE)
-                    }
-                }
-                view.findViewById<View>(R.id.buttonYellow).apply {
-                    isClickable = false
-                    setOnClick {
+            AndroidView({ context ->
+                LayoutInflater.from(context)
+                    .inflate(R.layout.android_tap_in_compose_scroll, null).let { view ->
                         view.setBackgroundColor(Color.YELLOW)
+                        view.findViewById<View>(R.id.buttonRed).apply {
+                            isClickable = false
+                            setOnClick {
+                                view.setBackgroundColor(Color.RED)
+                            }
+                        }
+                        view.findViewById<View>(R.id.buttonGreen).apply {
+                            isClickable = false
+                            setOnClick {
+                                view.setBackgroundColor(Color.GREEN)
+                            }
+                        }
+                        view.findViewById<View>(R.id.buttonBlue).apply {
+                            isClickable = false
+                            setOnClick {
+                                view.setBackgroundColor(Color.BLUE)
+                            }
+                        }
+                        view.findViewById<View>(R.id.buttonYellow).apply {
+                            isClickable = false
+                            setOnClick {
+                                view.setBackgroundColor(Color.YELLOW)
+                            }
+                        }
+                        view
                     }
-                }
-            }
+            })
         }
     }
 }
@@ -185,7 +198,12 @@ private fun AndroidScrollInComposeScrollDifferentOrientation() {
         ScrollableRow(modifier = Modifier.background(androidx.compose.ui.graphics.Color.Blue)) {
             Box(modifier = Modifier.padding(96.dp)
                 .background(androidx.compose.ui.graphics.Color.Red)) {
-                AndroidView(R.layout.android_scroll_in_compose_scroll_different_orientation)
+                AndroidView({ context ->
+                    LayoutInflater.from(context).inflate(
+                        R.layout.android_scroll_in_compose_scroll_different_orientation,
+                        null
+                    )
+                })
             }
         }
     }
@@ -213,7 +231,10 @@ private fun AndroidScrollInComposeScrollSameOrientation() {
                     .background(color = androidx.compose.ui.graphics.Color.Red)
                     .preferredHeight(750.dp)
             ) {
-                AndroidView(R.layout.android_scroll_in_compose_scroll_same_orientation)
+                AndroidView({ context ->
+                    LayoutInflater.from(context)
+                        .inflate(R.layout.android_scroll_in_compose_scroll_same_orientation, null)
+                })
             }
         }
     }
@@ -228,8 +249,20 @@ private fun TwoAndroidScrollViewsInCompose() {
                     "time, but given that we currently don't split motion, this is not work."
         )
         Row {
-            AndroidView(R.layout.android_scrollview, Modifier.weight(2f))
-            AndroidView(R.layout.android_scrollview, Modifier.weight(1f))
+            AndroidView(
+                { context ->
+                    LayoutInflater.from(context)
+                        .inflate(R.layout.android_scrollview, null)
+                },
+                Modifier.weight(2f)
+            )
+            AndroidView(
+                { context ->
+                    LayoutInflater.from(context)
+                        .inflate(R.layout.android_scrollview, null)
+                },
+                Modifier.weight(1f)
+            )
         }
     }
 }

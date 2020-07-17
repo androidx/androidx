@@ -2477,9 +2477,11 @@ package androidx.ui.tooling {
 
 package androidx.ui.viewinterop {
 
-  public final class ComposedViewKt {
-    method @androidx.compose.Composable public static void AndroidView(@LayoutRes int resId, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> postInflationCallback = { _ ->  });
-    method @androidx.compose.Composable public static void AndroidView(android.view.View view, androidx.ui.core.Modifier modifier = Modifier);
+  public final class AndroidViewKt {
+    method @androidx.compose.Composable public static <T extends android.view.View> void AndroidView(kotlin.jvm.functions.Function1<? super android.content.Context,? extends T> viewBlock, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> update = NoOpUpdate);
+    method @Deprecated @androidx.compose.Composable public static void AndroidView(@LayoutRes int resId, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> postInflationCallback = { _ ->  });
+    method @Deprecated @androidx.compose.Composable public static void AndroidView(android.view.View view, androidx.ui.core.Modifier modifier = Modifier);
+    method public static kotlin.jvm.functions.Function1<android.view.View,kotlin.Unit> getNoOpUpdate();
   }
 
   public final class EmitViewKt {
