@@ -112,8 +112,12 @@ class LayoutNode : Measurable, Remeasurement {
      * then [instance] will become [attach]ed also. [instance] must have a `null` [parent].
      */
     fun insertAt(index: Int, instance: LayoutNode) {
-        ErrorMessages.ComponentNodeHasParent.validateState(instance.parent == null)
-        ErrorMessages.OwnerAlreadyAttached.validateState(instance.owner == null)
+        check(instance.parent == null) {
+            "Cannot insert $instance because it already has a parent"
+        }
+        check(instance.owner == null) {
+            "Cannot insert $instance because it already has an owner"
+        }
 
         if (DebugChanges) {
             println("$instance added to $this at index $index")
@@ -134,7 +138,9 @@ class LayoutNode : Measurable, Remeasurement {
      * Removes one or more children, starting at [index].
      */
     fun removeAt(index: Int, count: Int) {
-        ErrorMessages.CountOutOfRange.validateArg(count >= 0, count)
+        require(count >= 0) {
+            "count ($count) must be greater than 0"
+        }
         val attached = owner != null
         for (i in index + count - 1 downTo index) {
             val child = _children.removeAt(i)
@@ -197,12 +203,13 @@ class LayoutNode : Measurable, Remeasurement {
      * [owner] must match its [parent].[owner].
      */
     fun attach(owner: Owner) {
-        ErrorMessages.OwnerAlreadyAttached.validateState(this.owner == null)
+        check(this.owner == null) {
+            "Cannot attach $this as it already is attached"
+        }
         val parent = parent
-        ErrorMessages.ParentOwnerMustMatchChild.validateState(
-            parent == null ||
-                    parent.owner == owner
-        )
+        check(parent == null || parent.owner == owner) {
+            "Attaching to a different owner($owner) than the parent's owner(${parent?.owner})"
+        }
         this.owner = owner
         this.depth = (parent?.depth ?: -1) + 1
         owner.onAttach(this)
@@ -222,7 +229,10 @@ class LayoutNode : Measurable, Remeasurement {
      * children. After executing, the [owner] will be `null`.
      */
     fun detach() {
-        val owner = owner ?: ErrorMessages.OwnerAlreadyDetached.state()
+        val owner = owner
+        checkNotNull(owner) {
+            "Cannot detach node that is already detached!"
+        }
         val parentLayoutNode = parent
         if (parentLayoutNode != null) {
             parentLayoutNode.onInvalidate()
@@ -1148,7 +1158,13 @@ class ModifierInfo(
  * Returns [LayoutNode.owner] or throws if it is null.
  */
 @OptIn(ExperimentalLayoutNodeApi::class)
-internal fun LayoutNode.requireOwner(): Owner = owner ?: ErrorMessages.NodeShouldBeAttached.state()
+internal fun LayoutNode.requireOwner(): Owner {
+    val owner = owner
+    checkNotNull(owner) {
+        "LayoutNode should be attached to an owner"
+    }
+    return owner
+}
 
 /**
  * Inserts a child [LayoutNode] at a last index. If this LayoutNode [isAttached]
