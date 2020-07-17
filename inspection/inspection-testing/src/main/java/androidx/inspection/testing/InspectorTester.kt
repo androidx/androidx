@@ -139,7 +139,6 @@ internal class CommandCallbackImpl(
 open class DefaultTestInspectorEnvironment(
     private val testInspectorExecutors: InspectorExecutors
 ) : InspectorEnvironment {
-    constructor(parent: Job) : this(TestInspectorExecutors(parent))
 
     override fun registerEntryHook(
         originClass: Class<*>,

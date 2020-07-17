@@ -22,7 +22,6 @@ import androidx.inspection.InspectorEnvironment
 import androidx.inspection.testing.InspectorTester
 import androidx.inspection.testing.DefaultTestInspectorEnvironment
 import androidx.inspection.testing.TestInspectorExecutors
-import androidx.sqlite.inspection.SqliteInspectorFactory
 import androidx.sqlite.inspection.SqliteInspectorProtocol
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command
 import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabaseOpenedEvent
@@ -34,23 +33,23 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.runBlocking
 import org.junit.rules.ExternalResource
+import java.util.concurrent.Executor
 
 private const val SQLITE_INSPECTOR_ID = "androidx.sqlite.inspection"
 
 class SqliteInspectorTestEnvironment(
-    val factoryOverride: SqliteInspectorFactory? = null
+    val ioExecutorOverride: Executor? = null
 ) : ExternalResource() {
     private lateinit var inspectorTester: InspectorTester
     private lateinit var environment: FakeInspectorEnvironment
     private val job = Job()
 
     override fun before() {
-        environment = FakeInspectorEnvironment(job)
+        environment = FakeInspectorEnvironment(job, TestInspectorExecutors(job, ioExecutorOverride))
         inspectorTester = runBlocking {
             InspectorTester(
                 inspectorId = SQLITE_INSPECTOR_ID,
-                environment = environment,
-                factoryOverride = factoryOverride
+                environment = environment
             )
         }
     }
@@ -132,8 +131,9 @@ suspend fun SqliteInspectorTestEnvironment.inspectDatabase(
  * retrieved in [consumeRegisteredHooks].
  */
 private class FakeInspectorEnvironment(
-    job: Job
-) : DefaultTestInspectorEnvironment(TestInspectorExecutors(job)) {
+    job: Job,
+    executors: TestInspectorExecutors = TestInspectorExecutors(job)
+) : DefaultTestInspectorEnvironment(executors) {
     private val instancesToFind = mutableListOf<Any>()
     private val registeredHooks = mutableListOf<Hook>()
 
