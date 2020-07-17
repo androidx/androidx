@@ -18,9 +18,9 @@ package android.view
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Region
 import android.graphics.Outline
 import android.graphics.Rect
+import org.jetbrains.skija.ClipMode
 import org.jetbrains.skija.RRect
 
 abstract class ViewGroup(context: Context) : View(context), ViewParent {
@@ -59,13 +59,13 @@ abstract class ViewGroup(context: Context) : View(context), ViewParent {
     override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
 
     fun drawChild(canvas: Canvas, view: View, drawingTime: Long): Boolean {
-        canvas.save()
-        canvas.translate(
+        canvas.skijaCanvas.save()
+        canvas.skijaCanvas.translate(
             view.left.toFloat() + view.translationX,
             view.top.toFloat() + view.translationY
         )
         if (view.clipToBounds && view.clipBounds != null) {
-            canvas.clipRect(view.clipBounds!!)
+            canvas.skijaCanvas.clipRect(view.clipBounds!!.toSkija(), ClipMode.INTERSECT)
         }
         if (view.clipToOutline) {
             val outline = Outline()
@@ -73,32 +73,29 @@ abstract class ViewGroup(context: Context) : View(context), ViewParent {
             canvas.clipOutline(outline)
         }
         if (view.scaleX != 1f || view.scaleY != 1f) {
-            canvas.scale(view.scaleX, view.scaleY)
+            canvas.skijaCanvas.scale(view.scaleX, view.scaleY)
         }
 
         view.dispatchDraw(canvas)
-        canvas.restore()
+        canvas.skijaCanvas.restore()
         return true
     }
 
-    private fun Canvas.clipRect(rect: Rect) {
-        clipRect(
-            rect.left.toFloat(),
-            rect.top.toFloat(),
-            rect.right.toFloat(),
-            rect.bottom.toFloat(),
-            Region.Op.INTERSECT
-        )
-    }
+    private fun Rect.toSkija() = org.jetbrains.skija.Rect.makeLTRB(
+        left.toFloat(),
+        top.toFloat(),
+        right.toFloat(),
+        bottom.toFloat()
+    )
 
     private fun Canvas.clipOutline(outline: Outline) {
         val rect = outline.rect
         val radius = outline.radius
         val path = outline.path
         if (path != null) {
-            clipPath(path, Region.Op.INTERSECT)
+            skijaCanvas.clipPath(path.skijaPath, ClipMode.INTERSECT)
         } else if (radius != null && rect != null) {
-            skijaCanvas!!.clipRRect(
+            skijaCanvas.clipRRect(
                 RRect.makeLTRB(
                     rect.left.toFloat(),
                     rect.top.toFloat(),
@@ -109,7 +106,7 @@ abstract class ViewGroup(context: Context) : View(context), ViewParent {
                 )
             )
         } else if (rect != null) {
-            clipRect(rect)
+            skijaCanvas.clipRect(rect.toSkija())
         }
     }
 

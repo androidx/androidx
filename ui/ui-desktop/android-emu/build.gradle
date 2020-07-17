@@ -41,7 +41,7 @@ kotlin {
         jvmMain.dependencies {
             api(KOTLIN_STDLIB)
 
-            api "org.jetbrains.skija:skija:0.4.1"
+            api(SKIJA)
         }
 
         desktopMain {

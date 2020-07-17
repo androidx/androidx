@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package android.graphics
+package androidx.ui.graphics
 
-import org.jetbrains.skija.Image
+import org.jetbrains.skija.Matrix33
 
-class Bitmap(bytes: ByteArray) {
-    val skiaImage = Image.makeFromEncoded(bytes)
-
-    val width = skiaImage.width
-    val height = skiaImage.height
-}
+internal fun identityMatrix33() = Matrix33(
+    1f, 0f, 0f,
+    0f, 1f, 0f,
+    0f, 0f, 1f
+)

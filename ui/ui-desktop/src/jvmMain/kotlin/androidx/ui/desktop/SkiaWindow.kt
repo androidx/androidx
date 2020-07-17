@@ -24,14 +24,6 @@ import com.jogamp.opengl.GLEventListener
 import com.jogamp.opengl.GLProfile
 import com.jogamp.opengl.awt.GLCanvas
 import com.jogamp.opengl.util.FPSAnimator
-import java.awt.event.KeyAdapter
-import java.awt.event.KeyEvent
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
-import java.awt.event.MouseMotionAdapter
-import java.nio.IntBuffer
-import javax.swing.JDialog
-import javax.swing.JFrame
 import org.jetbrains.skija.BackendRenderTarget
 import org.jetbrains.skija.Canvas
 import org.jetbrains.skija.ColorSpace
@@ -41,6 +33,14 @@ import org.jetbrains.skija.Library
 import org.jetbrains.skija.Surface
 import org.jetbrains.skija.SurfaceColorFormat
 import org.jetbrains.skija.SurfaceOrigin
+import java.awt.event.KeyAdapter
+import java.awt.event.KeyEvent
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+import java.awt.event.MouseMotionAdapter
+import java.nio.IntBuffer
+import javax.swing.JDialog
+import javax.swing.JFrame
 
 private class SkijaState {
     var context: Context? = null
@@ -77,18 +77,9 @@ interface SkiaRenderer {
 }
 
 class Window : JFrame, SkiaFrame {
-    @OptIn(androidx.ui.text.platform.InternalPlatformTextApi::class)
     companion object {
         init {
-            Library.load("/", "skija")
-            // Until https://github.com/Kotlin/kotlinx.coroutines/issues/2039 is resolved
-            // we have to set this property manually for coroutines to work.
-            System.getProperties().setProperty("kotlinx.coroutines.fast.service.loader", "false")
-
-            @Suppress("DEPRECATION_ERROR")
-            paragraphIntrinsicsActualFactory = ::DesktopParagraphIntrinsics
-            @Suppress("DEPRECATION_ERROR")
-            paragraphActualFactory = ::DesktopParagraph
+            initCompose()
         }
     }
 
@@ -228,9 +219,11 @@ private fun initCanvas(frame: SkiaFrame, vsync: Boolean = false): GLCanvas {
         override fun mouseClicked(event: MouseEvent) {
             frame.renderer!!.onMouseClicked(event.x, event.y, event.getModifiersEx())
         }
+
         override fun mousePressed(event: MouseEvent) {
             frame.renderer!!.onMousePressed(event.x, event.y, event.getModifiersEx())
         }
+
         override fun mouseReleased(event: MouseEvent) {
             frame.renderer!!.onMouseReleased(event.x, event.y, event.getModifiersEx())
         }
@@ -244,9 +237,11 @@ private fun initCanvas(frame: SkiaFrame, vsync: Boolean = false): GLCanvas {
         override fun keyPressed(event: KeyEvent) {
             frame.renderer!!.onKeyPressed(event.keyCode, event.keyChar)
         }
+
         override fun keyReleased(event: KeyEvent) {
             frame.renderer!!.onKeyReleased(event.keyCode, event.keyChar)
         }
+
         override fun keyTyped(event: KeyEvent) {
             frame.renderer!!.onKeyTyped(event.keyChar)
         }
@@ -262,15 +257,18 @@ private fun initCanvas(frame: SkiaFrame, vsync: Boolean = false): GLCanvas {
             initSkija(glCanvas, skijaState, vsync, false)
             frame.renderer!!.onReshape(skijaState.canvas!!, width, height)
         }
+
         override fun init(drawable: GLAutoDrawable?) {
             skijaState.context = Context.makeGL()
             initSkija(glCanvas, skijaState, vsync, false)
             frame.renderer!!.onInit()
         }
+
         override fun dispose(drawable: GLAutoDrawable?) {
             frame.renderer!!.onDispose()
             AppManager.removeWindow(frame.parent)
         }
+
         override fun display(drawable: GLAutoDrawable?) {
             skijaState.apply {
                 val gl = drawable!!.gl!!
