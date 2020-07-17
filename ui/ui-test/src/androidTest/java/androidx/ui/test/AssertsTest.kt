@@ -166,33 +166,33 @@ class AssertsTest {
     }
 
     @Test(expected = AssertionError::class)
-    fun assertIsUnselected_forSelectedElement_throwsError() {
+    fun assertIsNotSelected_forSelectedElement_throwsError() {
         composeTestRule.setContent {
             BoundaryNode { testTag = "test"; selected = true }
         }
 
         onNodeWithTag("test")
-            .assertIsUnselected()
+            .assertIsNotSelected()
     }
 
     @Test
-    fun assertIsUnselected_forUnselectedElement_isOk() {
+    fun assertIsNotSelected_forNotSelectedElement_isOk() {
         composeTestRule.setContent {
             BoundaryNode { testTag = "test"; selected = false }
         }
 
         onNodeWithTag("test")
-            .assertIsUnselected()
+            .assertIsNotSelected()
     }
 
     @Test(expected = AssertionError::class)
-    fun assertIsUnselected_forNotSelectableElement_throwsError() {
+    fun assertIsNotSelected_forNotSelectableElement_throwsError() {
         composeTestRule.setContent {
             BoundaryNode { testTag = "test"; }
         }
 
         onNodeWithTag("test")
-            .assertIsUnselected()
+            .assertIsNotSelected()
     }
     @Test(expected = AssertionError::class)
     fun assertItemInExclusiveGroup_forItemNotInGroup_throwsError() {

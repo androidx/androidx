@@ -32,7 +32,7 @@ import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsEqualTo
 import androidx.ui.test.assertIsNotDisplayed
 import androidx.ui.test.assertIsSelected
-import androidx.ui.test.assertIsUnselected
+import androidx.ui.test.assertIsNotSelected
 import androidx.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.ui.test.createComposeRule
@@ -233,16 +233,16 @@ class BottomNavigationTest {
             // Ensure semantics match for selected state of the items
             .apply {
                 get(0).assertIsSelected()
-                get(1).assertIsUnselected()
-                get(2).assertIsUnselected()
+                get(1).assertIsNotSelected()
+                get(2).assertIsNotSelected()
             }
             // Click the last item
             .apply {
                 get(2).performClick()
             }
             .apply {
-                get(0).assertIsUnselected()
-                get(1).assertIsUnselected()
+                get(0).assertIsNotSelected()
+                get(1).assertIsNotSelected()
                 get(2).assertIsSelected()
             }
     }

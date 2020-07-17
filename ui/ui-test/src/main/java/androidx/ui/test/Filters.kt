@@ -88,8 +88,24 @@ fun isSelected(): SemanticsMatcher =
  *
  * @see FoundationSemanticsProperties.Selected
  */
-fun isUnselected(): SemanticsMatcher =
+fun isNotSelected(): SemanticsMatcher =
     SemanticsMatcher.expectValue(FoundationSemanticsProperties.Selected, false)
+
+/**
+ * Returns whether the node is focused.
+ *
+ * @see SemanticsProperties.Focused
+ */
+fun isFocused(): SemanticsMatcher =
+    SemanticsMatcher.expectValue(SemanticsProperties.Focused, true)
+
+/**
+ * Returns whether the node is not focused.
+ *
+ * @see SemanticsProperties.Focused
+ */
+fun isNotFocused(): SemanticsMatcher =
+    SemanticsMatcher.expectValue(SemanticsProperties.Focused, false)
 
 /**
  * Return whether the node has a semantics click action defined.

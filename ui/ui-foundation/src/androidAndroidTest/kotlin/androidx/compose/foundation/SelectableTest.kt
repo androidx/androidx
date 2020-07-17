@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.Stack
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertIsInMutuallyExclusiveGroup
 import androidx.ui.test.assertIsSelected
-import androidx.ui.test.assertIsUnselected
+import androidx.ui.test.assertIsNotSelected
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
@@ -83,11 +83,11 @@ class SelectableTest {
         }
 
         onNode(isInMutuallyExclusiveGroup())
-            .assertIsUnselected()
+            .assertIsNotSelected()
             .performClick()
             .assertIsSelected()
             .performClick()
-            .assertIsUnselected()
+            .assertIsNotSelected()
     }
 
     @Test
@@ -103,9 +103,9 @@ class SelectableTest {
         }
 
         onNode(isInMutuallyExclusiveGroup())
-            .assertIsUnselected()
+            .assertIsNotSelected()
             .performClick()
-            .assertIsUnselected()
+            .assertIsNotSelected()
     }
 
     @Test
