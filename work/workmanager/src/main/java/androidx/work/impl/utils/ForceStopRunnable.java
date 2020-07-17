@@ -31,11 +31,14 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteAccessPermException;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.database.sqlite.SQLiteDatabaseCorruptException;
+import android.database.sqlite.SQLiteDatabaseLockedException;
+import android.database.sqlite.SQLiteTableLockedException;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.work.InitializationExceptionHandler;
 import androidx.work.Logger;
 import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkDatabase;
@@ -103,6 +106,8 @@ public class ForceStopRunnable implements Runnable {
             mWorkManager.onForceStopRunnableCompleted();
         } catch (SQLiteCantOpenDatabaseException
                 | SQLiteDatabaseCorruptException
+                | SQLiteDatabaseLockedException
+                | SQLiteTableLockedException
                 | SQLiteAccessPermException exception) {
             // ForceStopRunnable is usually the first thing that accesses a database (or an app's
             // internal data directory). This means that weird PackageManager bugs are attributed
@@ -112,7 +117,16 @@ public class ForceStopRunnable implements Runnable {
                     "The file system on the device is in a bad state. WorkManager cannot access "
                             + "the app's internal data store.";
             Logger.get().error(TAG, message, exception);
-            throw new IllegalStateException(message, exception);
+            IllegalStateException throwable = new IllegalStateException(message, exception);
+            InitializationExceptionHandler exceptionHandler =
+                    mWorkManager.getConfiguration().getExceptionHandler();
+            if (exceptionHandler != null) {
+                Logger.get().debug(TAG, "Routing exception to the specified exception handler",
+                        throwable);
+                exceptionHandler.handleException(throwable);
+            } else {
+                throw throwable;
+            }
         }
     }
 
