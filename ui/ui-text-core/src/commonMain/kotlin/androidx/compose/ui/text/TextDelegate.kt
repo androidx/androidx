@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text
 
+import androidx.compose.Stable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrain
@@ -71,6 +72,7 @@ import kotlin.math.ceil
  * @suppress
  */
 @InternalTextApi
+@Stable
 class TextDelegate(
     val text: AnnotatedString,
     val style: TextStyle,

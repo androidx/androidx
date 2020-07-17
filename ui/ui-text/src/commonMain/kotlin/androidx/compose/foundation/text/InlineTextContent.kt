@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.Composable
+import androidx.compose.Immutable
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 
@@ -59,6 +60,7 @@ fun AnnotatedString.Builder.appendInlineContent(
  * @see CoreText
  * @see Placeholder
  */
+@Immutable
 data class InlineTextContent(
     /**
      * The setting object that defines the size and vertical alignment of this composable in the
