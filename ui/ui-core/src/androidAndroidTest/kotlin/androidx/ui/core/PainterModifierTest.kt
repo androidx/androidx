@@ -19,15 +19,14 @@ package androidx.ui.core
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.Composable
-import androidx.test.filters.SdkSuppress
-import androidx.test.filters.SmallTest
-import androidx.ui.core.test.AlignTopLeft
-import androidx.ui.core.test.AtLeastSize
-import androidx.ui.core.test.FixedSize
-import androidx.ui.core.test.Padding
-import androidx.ui.core.test.assertColorsEqual
-import androidx.ui.core.test.background
 import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.ltr
+import androidx.compose.foundation.layout.rtl
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Canvas
@@ -45,21 +44,23 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.Path
 import androidx.compose.ui.graphics.vector.PathData
 import androidx.compose.ui.graphics.vector.VectorPainter
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.ltr
-import androidx.compose.foundation.layout.rtl
-import androidx.compose.foundation.layout.width
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
+import androidx.ui.core.test.AlignTopLeft
+import androidx.ui.core.test.AtLeastSize
+import androidx.ui.core.test.FixedSize
+import androidx.ui.core.test.Padding
+import androidx.ui.core.test.assertColorsEqual
+import androidx.ui.core.test.background
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onRoot
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -550,6 +551,17 @@ class PainterModifierTest {
             assertEquals(Color.Red.toArgb(),
                 getPixel(boxWidth / 2 + vectorWidth - 5, boxHeight - 1))
         }
+    }
+
+    @Test
+    fun testInspectable() {
+        val modifier = Modifier.paint(TestPainter(10f, 20f)) as InspectableParameter
+        assertThat(modifier.nameFallback).isEqualTo("paint")
+        assertThat(modifier.valueOverride).isNull()
+        assertThat(modifier.inspectableElements.map { it.name }.toList())
+            .containsExactlyElementsIn(modifier.javaClass.declaredFields
+                .filter { !it.isSynthetic && it.name != "nameFallback" }
+                .map { it.name })
     }
 
     @Composable

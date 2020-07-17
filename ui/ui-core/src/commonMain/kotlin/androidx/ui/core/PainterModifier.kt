@@ -72,7 +72,7 @@ private data class PainterModifier(
     val contentScale: ContentScale = ContentScale.Inside,
     val alpha: Float = DefaultAlpha,
     val colorFilter: ColorFilter? = null
-) : LayoutModifier, DrawModifier {
+) : LayoutModifier, DrawModifier, InspectableParameter {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
@@ -258,4 +258,16 @@ private data class PainterModifier(
             }
         }
     }
+
+    override val nameFallback = "paint"
+
+    override val inspectableElements: Sequence<ParameterElement>
+        get() = sequenceOf(
+            ParameterElement("painter", painter),
+            ParameterElement("sizeToIntrinsics", sizeToIntrinsics),
+            ParameterElement("alignment", alignment),
+            ParameterElement("contentScale", contentScale),
+            ParameterElement("alpha", alpha),
+            ParameterElement("colorFilter", colorFilter)
+        )
 }
