@@ -19,6 +19,7 @@ package androidx.ui.core
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
+import android.graphics.Rect
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -66,17 +67,17 @@ internal actual fun ActualPopup(
     val providedTestTag = PopupTestTagAmbient.current
 
     val popupPositionProperties = remember { PopupPositionProperties() }
-    val popupLayout = remember(isFocusable) {
+    val popupLayout = remember {
         PopupLayout(
             composeView = view,
-            popupIsFocusable = isFocusable,
             onDismissRequest = onDismissRequest,
-            popupPositionProperties = popupPositionProperties,
-            popupPositionProvider = popupPositionProvider,
             testTag = providedTestTag
         )
     }
-    popupLayout.popupPositionProvider = popupPositionProvider
+
+    // Refresh anything that might have changed
+    popupLayout.testTag = providedTestTag
+    remember(isFocusable) { popupLayout.updateLayoutParams(isFocusable) }
 
     var composition: Composition? = null
 
@@ -89,12 +90,12 @@ internal actual fun ActualPopup(
         val layoutPosition = coordinates.localToGlobal(Offset.Zero).round()
         val layoutSize = coordinates.size
 
-        popupLayout.popupPositionProperties.parentBounds = IntBounds(layoutPosition, layoutSize)
+        popupPositionProperties.parentGlobalBounds = IntBounds(layoutPosition, layoutSize)
 
         // Update the popup's position
-        popupLayout.updatePosition()
+        popupLayout.updatePosition(popupPositionProvider, popupPositionProperties)
     }) { _, _ ->
-        popupLayout.popupPositionProperties.parentLayoutDirection = layoutDirection
+        popupPositionProperties.parentLayoutDirection = layoutDirection
         layout(0, 0) {}
     }
 
@@ -106,10 +107,10 @@ internal actual fun ActualPopup(
         composition = popupLayout.setContent(recomposer, parentComposition) {
             SimpleStack(Modifier.semantics { this.popup() }.onPositioned {
                 // Get the size of the content
-                popupLayout.popupPositionProperties.childrenSize = it.size
+                popupPositionProperties.popupContentSize = it.size
 
                 // Update the popup's position
-                popupLayout.updatePosition()
+                popupLayout.updatePosition(popupPositionProvider, popupPositionProperties)
             }, children = children)
         }
     }
@@ -159,44 +160,64 @@ private inline fun SimpleStack(modifier: Modifier, noinline children: @Composabl
  * The layout the popup uses to display its content.
  *
  * @param composeView The parent view of the popup which is the AndroidComposeView.
- * @param popupIsFocusable Indicates if the popup can grab the focus.
  * @param onDismissRequest Executed when the popup tries to dismiss itself.
- * @param popupPositionProvider The logic of positioning the popup relative to its parent.
+ * @param testTag The test tag used to match the popup in tests.
  */
 @SuppressLint("ViewConstructor")
 private class PopupLayout(
-    val composeView: View,
-    val popupIsFocusable: Boolean,
-    val onDismissRequest: (() -> Unit)? = null,
-    var popupPositionProperties: PopupPositionProperties,
-    var popupPositionProvider: PopupPositionProvider,
+    private val composeView: View,
+    private val onDismissRequest: (() -> Unit)? = null,
     var testTag: String
 ) : FrameLayout(composeView.context) {
-    val windowManager =
+    private val windowManager =
         composeView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    val params = createLayoutParams()
-    var viewAdded: Boolean = false
+    private val params = createLayoutParams()
+    private var viewAdded: Boolean = false
 
     init {
         id = android.R.id.content
-        updateLayoutParams()
         ViewTreeLifecycleOwner.set(this, ViewTreeLifecycleOwner.get(composeView))
         ViewTreeViewModelStoreOwner.set(this, ViewTreeViewModelStoreOwner.get(composeView))
     }
 
+    private fun Rect.toIntBounds() = IntBounds(
+        left = left,
+        top = top,
+        right = right,
+        bottom = bottom
+    )
+
     /**
      * Shows the popup at a position given by the method which calculates the coordinates
      * relative to its parent.
+     *
+     * @param positionProvider The logic of positioning the popup relative to its parent.
+     * @param positionProperties Properties to use to position the popup.
      */
-    fun updatePosition() {
-        val popupGlobalPosition = popupPositionProvider.calculatePosition(
-            popupPositionProperties.parentBounds,
-            popupPositionProperties.parentLayoutDirection,
-            popupPositionProperties.childrenSize
+    fun updatePosition(
+        positionProvider: PopupPositionProvider,
+        positionProperties: PopupPositionProperties
+    ) {
+        val windowGlobalBounds = Rect().let {
+            composeView.rootView.getWindowVisibleDisplayFrame(it)
+            it.toIntBounds()
+        }
+
+        val popupGlobalPosition = positionProvider.calculatePosition(
+            positionProperties.parentGlobalBounds,
+            windowGlobalBounds,
+            positionProperties.parentLayoutDirection,
+            positionProperties.popupContentSize
         )
 
-        params.x = popupGlobalPosition.x
-        params.y = popupGlobalPosition.y
+        // WindowManager treats the given coordinates as relative to our window, not relative to the
+        // screen. Which means that we need to translate them. Other option would be to only work
+        // with window relative coordinates but our layout APIs don't provide this value so it
+        // could be confusing for the implementors of position provider.
+        val rootViewLocation = IntArray(2)
+        composeView.rootView.getLocationOnScreen(rootViewLocation)
+        params.x = popupGlobalPosition.x - rootViewLocation[0]
+        params.y = popupGlobalPosition.y - rootViewLocation[1]
 
         if (!viewAdded) {
             windowManager.addView(this, params)
@@ -207,12 +228,19 @@ private class PopupLayout(
     }
 
     /**
-     * Update the LayoutParams using the popup's properties.
+     * Update the LayoutParams.
+     *
+     * @param popupIsFocusable Indicates if the popup can grab the focus.
      */
-    fun updateLayoutParams() {
-        if (!popupIsFocusable) {
-            this.params.flags = this.params.flags or
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+    fun updateLayoutParams(popupIsFocusable: Boolean) {
+        params.flags = if (!popupIsFocusable) {
+            params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        } else {
+            params.flags and (WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE.inv())
+        }
+
+        if (viewAdded) {
+            windowManager.updateViewLayout(this, params)
         }
     }
 
