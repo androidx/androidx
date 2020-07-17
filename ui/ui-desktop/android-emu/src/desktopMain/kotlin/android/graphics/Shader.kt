@@ -19,7 +19,7 @@ import org.jetbrains.skija.FilterTileMode
 import org.jetbrains.skija.GradientStyle
 
 @Suppress("unused")
-open class Shader(internal val skija: org.jetbrains.skija.Shader? = null) {
+open class Shader(val skija: org.jetbrains.skija.Shader? = null) {
     enum class TileMode(val skija: FilterTileMode) {
         CLAMP(FilterTileMode.CLAMP),
         REPEAT(FilterTileMode.REPEAT),

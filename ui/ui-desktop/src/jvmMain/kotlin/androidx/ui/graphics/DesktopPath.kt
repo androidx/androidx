@@ -16,47 +16,33 @@
 
 package androidx.ui.graphics
 
-import androidx.compose.InternalComposeApi
-import androidx.ui.core.toAndroidRect
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.vectormath.degrees
-
-@Suppress("DEPRECATION_ERROR")
-@OptIn(InternalComposeApi::class)
-actual fun Path(): Path = GraphicsFactory.path()
-
-actual typealias NativePathEffect = android.graphics.PathEffect
+import org.jetbrains.skija.Matrix33
+import org.jetbrains.skija.PathDirection
+import org.jetbrains.skija.PathFillMode
 
 /**
- * Convert the [android.graphics.Path] instance into a compose compatible Path
- */
-fun android.graphics.Path.asComposePath(): Path = AndroidPath(this)
-
-/**
- * @Throws UnsupportedOperationException if this Path is not backed by an android.graphics.Path
+ * @Throws UnsupportedOperationException if this Path is not backed by an org.jetbrains.skija.Path
  */
 @Suppress("NOTHING_TO_INLINE")
-inline fun Path.asAndroidPath(): android.graphics.Path =
-    if (this is AndroidPath) {
+inline fun Path.asDesktopPath(): org.jetbrains.skija.Path =
+    if (this is DesktopPath) {
         internalPath
     } else {
-        throw UnsupportedOperationException("Unable to obtain android.graphics.Path")
+        throw UnsupportedOperationException("Unable to obtain org.jetbrains.skija.Path")
     }
 
-/* actual */ class AndroidPath(
-    val internalPath: android.graphics.Path = android.graphics.Path()
+class DesktopPath(
+    val internalPath: org.jetbrains.skija.Path = org.jetbrains.skija.Path()
 ) : Path {
-
-    // Temporary value holders to reuse an object (not part of a state):
-    private val rectF = android.graphics.RectF()
     private val radii = FloatArray(8)
-    private val mMatrix = android.graphics.Matrix()
 
     override var fillType: PathFillType
         get() {
-            if (internalPath.fillType == android.graphics.Path.FillType.EVEN_ODD) {
+            if (internalPath.fillMode == PathFillMode.EVEN_ODD) {
                 return PathFillType.evenOdd
             } else {
                 return PathFillType.nonZero
@@ -64,11 +50,11 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
         }
 
         set(value) {
-            internalPath.fillType =
+            internalPath.fillMode =
                 if (value == PathFillType.evenOdd) {
-                    android.graphics.Path.FillType.EVEN_ODD
+                    PathFillMode.EVEN_ODD
                 } else {
-                    android.graphics.Path.FillType.WINDING
+                    PathFillMode.WINDING
                 }
         }
 
@@ -125,13 +111,8 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
         sweepAngleDegrees: Float,
         forceMoveTo: Boolean
     ) {
-        val left = rect.left
-        val top = rect.top
-        val right = rect.right
-        val bottom = rect.bottom
-        rectF.set(left, top, right, bottom)
         internalPath.arcTo(
-            rectF,
+            rect.toSkija(),
             startAngleDegrees,
             sweepAngleDegrees,
             forceMoveTo
@@ -139,16 +120,11 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
     }
 
     override fun addRect(rect: Rect) {
-        check(_rectIsValid(rect))
-        rectF.set(rect.toAndroidRect())
-        // TODO(njawad) figure out what to do with Path Direction,
-        // Flutter does not use it, Platform does
-        internalPath.addRect(rectF, android.graphics.Path.Direction.CCW)
+        internalPath.addRect(rect.toSkija(), PathDirection.COUNTER_CLOCKWISE)
     }
 
     override fun addOval(oval: Rect) {
-        rectF.set(oval.toAndroidRect())
-        internalPath.addOval(rectF, android.graphics.Path.Direction.CCW)
+        internalPath.addOval(oval.toSkija(), PathDirection.COUNTER_CLOCKWISE)
     }
 
     override fun addArcRad(oval: Rect, startAngleRadians: Float, sweepAngleRadians: Float) {
@@ -156,13 +132,10 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
     }
 
     override fun addArc(oval: Rect, startAngleDegrees: Float, sweepAngleDegrees: Float) {
-        check(_rectIsValid(oval))
-        rectF.set(oval.toAndroidRect())
-        internalPath.addArc(rectF, startAngleDegrees, sweepAngleDegrees)
+        internalPath.addArc(oval.toSkija(), startAngleDegrees, sweepAngleDegrees)
     }
 
     override fun addRRect(rrect: RRect) {
-        rectF.set(rrect.left, rrect.top, rrect.right, rrect.bottom)
         radii[0] = rrect.topLeftRadiusX
         radii[1] = rrect.topLeftRadiusY
 
@@ -174,15 +147,21 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
 
         radii[6] = rrect.bottomLeftRadiusX
         radii[7] = rrect.bottomLeftRadiusY
-        internalPath.addRoundRect(rectF, radii, android.graphics.Path.Direction.CCW)
+
+        internalPath.addRRect(
+            org.jetbrains.skija.RRect.makeComplexLTRB(
+                rrect.left, rrect.top, rrect.right, rrect.bottom, radii
+            ),
+            PathDirection.COUNTER_CLOCKWISE
+        )
     }
 
     override fun addPath(path: Path, offset: Offset) {
-        internalPath.addPath(path.asAndroidPath(), offset.x, offset.y)
+        internalPath.addPath(path.asDesktopPath(), offset.x, offset.y)
     }
 
     override fun close() {
-        internalPath.close()
+        internalPath.closePath()
     }
 
     override fun reset() {
@@ -190,18 +169,16 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
     }
 
     override fun shift(offset: Offset) {
-        mMatrix.reset()
-        mMatrix.setTranslate(offset.x, offset.y)
-        internalPath.transform(mMatrix)
+        internalPath.transform(Matrix33.makeTranslate(offset.x, offset.y))
     }
 
     override fun getBounds(): Rect {
-        internalPath.computeBounds(rectF, true)
+        val bounds = internalPath.bounds
         return Rect(
-                rectF.left,
-                rectF.top,
-                rectF.right,
-                rectF.bottom
+            bounds.left,
+            bounds.top,
+            bounds.right,
+            bounds.bottom
         )
     }
 
@@ -210,36 +187,11 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
         path2: Path,
         operation: PathOperation
     ): Boolean {
-        // TODO njawad: determine requirements for potential API level
-        //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-        val op = when (operation) {
-            PathOperation.difference -> android.graphics.Path.Op.DIFFERENCE
-            PathOperation.intersect -> android.graphics.Path.Op.INTERSECT
-            PathOperation.reverseDifference -> android.graphics.Path.Op.REVERSE_DIFFERENCE
-            PathOperation.union -> android.graphics.Path.Op.UNION
-            else -> android.graphics.Path.Op.XOR
-        }
-        return internalPath.op(path1.asAndroidPath(), path2.asAndroidPath(), op)
+        println("Path.op not implemented yet")
+        return false
     }
 
-    @Suppress("DEPRECATION") // Path.isConvex
     override val isConvex: Boolean get() = internalPath.isConvex
 
     override val isEmpty: Boolean get() = internalPath.isEmpty
-
-    private fun _rectIsValid(rect: Rect): Boolean {
-        check(!rect.left.isNaN()) {
-            "Rect.left is NaN"
-        }
-        check(!rect.top.isNaN()) {
-            "Rect.top is NaN"
-        }
-        check(!rect.right.isNaN()) {
-            "Rect.right is NaN"
-        }
-        check(!rect.bottom.isNaN()) {
-            "Rect.bottom is NaN"
-        }
-        return true
-    }
 }

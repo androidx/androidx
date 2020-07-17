@@ -16,7 +16,7 @@
 
 package android.graphics
 
-open class PathEffect(internal val skija: org.jetbrains.skija.PathEffect)
+open class PathEffect(val skija: org.jetbrains.skija.PathEffect)
 
 @Suppress("unused")
 class DashPathEffect(intervals: FloatArray?, phase: Float) : PathEffect(

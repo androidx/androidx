@@ -101,14 +101,14 @@ class LayoutScope {
 
     fun draw(canvas: Canvas, width: Int, height: Int) {
         val androidCanvas = android.graphics.Canvas(canvas)
-        androidCanvas.save()
-        androidCanvas.translate(x.toFloat(), y.toFloat())
+        androidCanvas.skijaCanvas.save()
+        androidCanvas.skijaCanvas.translate(x.toFloat(), y.toFloat())
         if (children.isNotEmpty()) {
             val view = getChildAt(0)
             view.onMeasure(width, height)
             view.dispatchDraw(androidCanvas)
         }
-        androidCanvas.restore()
+        androidCanvas.skijaCanvas.restore()
     }
 
     fun dispatchTouchEvent(event: MotionEvent) {

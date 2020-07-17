@@ -21,8 +21,7 @@ import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.asImageAsset
 
 internal object TestResources {
-    fun testImageAsset(): ImageAsset {
-        val path = "androidx/ui/desktop/test.png"
+    fun testImageAsset(path: String = "androidx/ui/desktop/test.png"): ImageAsset {
         return Bitmap(
             javaClass.classLoader.getResource(path)!!
                 .openStream().buffered().readBytes()
