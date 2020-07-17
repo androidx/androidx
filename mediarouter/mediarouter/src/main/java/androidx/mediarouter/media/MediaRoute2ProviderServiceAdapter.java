@@ -657,7 +657,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             return mRouteIdToControllerMap.get(routeId);
         }
 
-        public void notifySessionCreated(long requestId, RoutingSessionInfo sessionInfo) {
+        public void notifySessionCreated(long requestId, @NonNull RoutingSessionInfo sessionInfo) {
             Messenger messenger = new Messenger(new IncomingHandler(
                     MediaRoute2ProviderServiceAdapter.this, mSessionId));
 
@@ -666,7 +666,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             Bundle controlHints = new Bundle();
             controlHints.putParcelable(MediaRouter2Utils.KEY_MESSENGER, messenger);
             controlHints.putString(MediaRouter2Utils.KEY_SESSION_NAME,
-                    sessionInfo.getName().toString());
+                    sessionInfo.getName() != null ? sessionInfo.getName().toString() : null);
 
             mSessionInfo = builder.setControlHints(controlHints).build();
             MediaRoute2ProviderServiceAdapter.this.notifySessionCreated(requestId, mSessionInfo);

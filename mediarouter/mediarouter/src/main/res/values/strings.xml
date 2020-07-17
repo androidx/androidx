@@ -82,6 +82,10 @@
     <!-- Placeholder text indicating that the user is currently casting screen. [CHAR LIMIT=50] -->
     <string name="mr_controller_casting_screen">Casting screen</string>
 
+    <!-- The default name of a group route in dynamic controller dialog
+          when it is not set by media route provider [CHAR LIMIT=50] -->
+    <string name="mr_dialog_default_group_name">Group</string>
+
     <!-- Section header text of groupable route section in dialog [CHAR LIMIT=50] -->
     <string name="mr_dialog_groupable_header">Add a device</string>
 
