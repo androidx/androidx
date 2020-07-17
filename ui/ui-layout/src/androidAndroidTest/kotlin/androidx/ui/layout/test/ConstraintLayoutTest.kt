@@ -18,7 +18,6 @@ package androidx.ui.layout.test
 
 import androidx.compose.mutableStateOf
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.globalPosition
@@ -40,7 +39,6 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.rtl
 import androidx.ui.layout.size
-import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.ui.unit.IntSize
@@ -69,7 +67,7 @@ class ConstraintLayoutTest : LayoutTest() {
         composeTestRule.setContent {
             ConstraintLayout(
                 // Make CL fixed width and wrap content height.
-                modifier = Modifier.wrapContentSize(Alignment.TopStart).fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 val (aspectRatioBox, divider) = createRefs()
                 val guideline = createGuidelineFromAbsoluteLeft(0.5f)
@@ -121,13 +119,71 @@ class ConstraintLayoutTest : LayoutTest() {
     }
 
     @Test
+    fun dividerMatchTextHeight_spread_withPreferredWrapHeightText() = with(density) {
+        val aspectRatioBoxSize = Ref<IntSize>()
+        val dividerSize = Ref<IntSize>()
+        composeTestRule.setContent {
+            ConstraintLayout(
+                // Make CL fixed width and wrap content height.
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                val (aspectRatioBox, divider) = createRefs()
+                val guideline = createGuidelineFromAbsoluteLeft(0.5f)
+
+                Box(Modifier
+                    .constrainAs(aspectRatioBox) {
+                        centerTo(parent)
+                        start.linkTo(guideline)
+                        width = Dimension.preferredWrapContent
+                        height = Dimension.preferredWrapContent
+                    }
+                    // Try to be large to make wrap content impossible.
+                    .preferredWidth((composeTestRule.displayMetrics.widthPixels).toDp())
+                    // This could be any (width in height out child) e.g. text
+                    .aspectRatio(2f)
+                    .onPositioned { coordinates ->
+                        aspectRatioBoxSize.value = coordinates.size
+                    }
+                )
+                Box(Modifier
+                    .constrainAs(divider) {
+                        centerTo(parent)
+                        width = Dimension.value(1.dp)
+                        height = Dimension.fillToConstraints
+                    }.onPositioned { coordinates ->
+                        dividerSize.value = coordinates.size
+                    }
+                )
+            }
+        }
+
+        runOnIdle {
+            // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
+            assertEquals(
+                (composeTestRule.displayMetrics.widthPixels / 2),
+                aspectRatioBoxSize.value!!.width
+            )
+            // Aspect ratio is preserved.
+            assertEquals(
+                (composeTestRule.displayMetrics.widthPixels / 2 / 2),
+                aspectRatioBoxSize.value!!.height
+            )
+            // Divider has fixed width 1.dp in constraint set.
+            assertEquals(1.dp.toIntPx(), dividerSize.value!!.width)
+            // Divider has spread height so it should spread to fill the height of the CL,
+            // which in turns is given by the size of the aspect ratio box.
+            assertEquals(aspectRatioBoxSize.value!!.height, dividerSize.value!!.height)
+        }
+    }
+
+    @Test
     fun dividerMatchTextHeight_percent() = with(density) {
         val aspectRatioBoxSize = Ref<IntSize>()
         val dividerSize = Ref<IntSize>()
         composeTestRule.setContent {
             ConstraintLayout(
                 // Make CL fixed width and wrap content height.
-                modifier = Modifier.wrapContentSize(Alignment.TopStart).fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 val (aspectRatioBox, divider) = createRefs()
                 val guideline = createGuidelineFromAbsoluteLeft(0.5f)
@@ -185,10 +241,8 @@ class ConstraintLayoutTest : LayoutTest() {
         val aspectRatioBoxSize = Ref<IntSize>()
         val dividerSize = Ref<IntSize>()
         composeTestRule.setContent {
-            ConstraintLayout(
-                // Make CL wrap width and height.
-                modifier = Modifier.wrapContentSize(Alignment.TopStart)
-            ) {
+            // CL is wrap content.
+            ConstraintLayout {
                 val (aspectRatioBox, divider) = createRefs()
                 val guideline = createGuidelineFromAbsoluteLeft(0.5f)
 
@@ -251,8 +305,8 @@ class ConstraintLayoutTest : LayoutTest() {
         val size = 40.toDp()
         composeTestRule.setContent {
             ConstraintLayout(
-                // Make CL wrap width and height.
-                modifier = Modifier.wrapContentSize(Alignment.TopStart).onPositioned {
+                // CL is wrapping width and height.
+                modifier = Modifier.onPositioned {
                     constraintLayoutSize.value = it.size
                 }
             ) {
