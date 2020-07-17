@@ -163,15 +163,20 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         // Skip tests where manual dragging is disabled
         assumeThat(config.enableUserInput, equalTo(true))
 
-        // start manual drag
-        val latch = test.viewPager.addWaitForStateLatch(DRAGGING)
-        // Perform manual swipe in separate thread, because the SwipeMethod.MANUAL blocks while
-        // injecting events, and we need to interrupt it
-        newSingleThreadExecutor().execute { test.swipeForward(SwipeMethod.MANUAL) }
-        assertThat(latch.await(1, SECONDS), equalTo(true))
+        val pageSwiper = PageSwiperManual(test.viewPager)
+        try {
+            // start manual drag
+            val latch = test.viewPager.addWaitForStateLatch(DRAGGING)
+            // Perform manual swipe in separate thread, because PageSwiperManual
+            // blocks while injecting events, and we need to interrupt it
+            newSingleThreadExecutor().execute { pageSwiper.swipeNext() }
+            assertThat(latch.await(1, SECONDS), equalTo(true))
 
-        // start fake drag
-        assertThat(test.viewPager.beginFakeDrag(), equalTo(false))
+            // start fake drag
+            assertThat(test.viewPager.beginFakeDrag(), equalTo(false))
+        } finally {
+            pageSwiper.cancel()
+        }
     }
 
     @Test

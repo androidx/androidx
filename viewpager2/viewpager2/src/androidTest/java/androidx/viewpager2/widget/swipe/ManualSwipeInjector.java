@@ -26,6 +26,7 @@ import android.view.animation.LinearInterpolator;
 import androidx.test.espresso.PerformException;
 import androidx.test.espresso.action.CoordinatesProvider;
 import androidx.test.espresso.action.GeneralLocation;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +40,7 @@ import java.util.List;
  * the center of one edge to the center of another edge.
  *
  * <p>Obtain a new instance of this class for each swipe you want to perform, with one of the {@link
- * #swipeLeft() swipe methods}. Inject the motion events by calling {@link #perform(Instrumentation,
- * View)}.
+ * #swipeLeft() swipe methods}. Inject the motion events by calling {@link #perform(View)}.
  */
 public class ManualSwipeInjector {
 
@@ -54,6 +54,10 @@ public class ManualSwipeInjector {
     private final CoordinatesProvider mEndCoordinatesProviders;
     private final int mDuration;
     private final int mSteps;
+
+    // Volatile because it can be written and read from different threads.
+    // Note that we don't need synchronization, as we never share resources.
+    private volatile boolean mCancelled = false;
 
     ManualSwipeInjector(CoordinatesProvider startCoordinatesProvider,
             CoordinatesProvider endCoordinatesProvider, int duration, int steps) {
@@ -99,8 +103,8 @@ public class ManualSwipeInjector {
      * Perform the swipe on the given view by generating and injecting the appropriate motion events
      * into the Instrumentation instance.
      */
-    public void perform(Instrumentation instr, View view) {
-        perform(instr, view, new LinearInterpolator());
+    public void perform(View view) {
+        perform(view, new LinearInterpolator());
     }
 
     /**
@@ -108,35 +112,46 @@ public class ManualSwipeInjector {
      * into the Instrumentation instance. Interpolation between the start and end coordinates is
      * done at regular intervals using the given interpolator.
      */
-    public void perform(Instrumentation instr, View view, Interpolator interpolator) {
+    public void perform(View view, Interpolator interpolator) {
         float[] swipeStart = mStartCoordinatesProvider.calculateCoordinates(view);
         float[] swipeEnd = mEndCoordinatesProviders.calculateCoordinates(view);
-        sendSwipe(instr, swipeStart, swipeEnd, mDuration, mSteps, view, interpolator);
+        sendSwipe(swipeStart, swipeEnd, mDuration, mSteps, view, interpolator);
+    }
+
+    /**
+     * Cancels a swipe that is in progress
+     */
+    public void cancel() {
+        mCancelled = true;
     }
 
     /**
      * Inject motion events to emulate a swipe to the target location.
-     * @param instr The controller to inject the motion events with
      * @param from The pointer location where we start the swipe
      * @param to The pointer location where we end the swipe
      * @param duration The duration in milliseconds of the swipe gesture
      * @param steps The number of move motion events that will be sent for the gesture
      * @param view The View on which the swipe is performed
      */
-    private void sendSwipe(Instrumentation instr, float[] from, float[] to, int duration,
-            int steps, View view, Interpolator interpolator) {
+    private void sendSwipe(float[] from, float[] to, int duration, int steps, View view,
+            Interpolator interpolator) {
+        Instrumentation instr = InstrumentationRegistry.getInstrumentation();
         float[][] coords = interpolate(from, to, steps, interpolator);
         long startTime = SystemClock.uptimeMillis();
 
         List<MotionEvent> events = new ArrayList<>();
         try {
-            injectMotionEvent(instr, obtainDownEvent(startTime, coords[0]), events);
-            for (int i = 1; i <= steps; i++) {
+            if (!mCancelled) {
+                injectMotionEvent(instr, obtainDownEvent(startTime, coords[0]), events);
+            }
+            for (int i = 1; !mCancelled && i <= steps; i++) {
                 injectMotionEvent(instr, obtainMoveEvent(startTime, duration * i / steps,
                         coords[i]), events);
             }
-            injectMotionEvent(instr, obtainUpEvent(startTime, duration, coords[coords.length - 1]),
-                    events);
+            if (!mCancelled) {
+                injectMotionEvent(instr, obtainUpEvent(startTime, duration,
+                        coords[coords.length - 1]), events);
+            }
         } catch (Exception e) {
             throw new PerformException.Builder().withCause(e).withActionDescription("Perform swipe")
                     .withViewDescription(view != null ? view.toString() : "unknown").build();
@@ -162,15 +177,22 @@ public class ManualSwipeInjector {
                 MotionEvent.ACTION_UP, coord[X], coord[Y], 0);
     }
 
-    private static void injectMotionEvent(Instrumentation instrumentation, MotionEvent event,
+    private void injectMotionEvent(Instrumentation instrumentation, MotionEvent event,
             List<MotionEvent> events) {
         events.add(event);
         long eventTime = event.getEventTime();
         long now = SystemClock.uptimeMillis();
-        if (eventTime - now > 10) {
-            SystemClock.sleep(eventTime - now - 10);
+        if (!mCancelled && eventTime - now > 10) {
+            try {
+                Thread.sleep(eventTime - now - 10);
+            } catch (InterruptedException e) {
+                // interrupted means cancelled
+                mCancelled = true;
+            }
         }
-        instrumentation.sendPointerSync(event);
+        if (!mCancelled) {
+            instrumentation.sendPointerSync(event);
+        }
     }
 
     private static float[][] interpolate(float[] from, float[] to, int steps,
