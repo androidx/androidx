@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-package android.graphics
+package androidx.ui
 
-class Region {
-    enum class Op(internal val skija: org.jetbrains.skija.ClipMode) {
-        DIFFERENCE(org.jetbrains.skija.ClipMode.DIFFERENCE),
-        INTERSECT(org.jetbrains.skija.ClipMode.INTERSECT)
+import android.graphics.Bitmap
+import androidx.ui.graphics.ImageAsset
+import androidx.ui.graphics.asImageAsset
+
+internal object TestResources {
+    fun testImageAsset(path: String): ImageAsset {
+        return Bitmap(
+            javaClass.classLoader.getResource(path)!!
+                .openStream().buffered().readBytes()
+        ).asImageAsset()
     }
 }
