@@ -17,9 +17,11 @@
 package androidx.camera.integration.core;
 
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.opengl.Matrix;
 import android.os.Process;
+import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
@@ -37,12 +39,14 @@ import androidx.core.util.Pair;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 final class OpenGLRenderer {
-
+    private static final String TAG = "OpenGLRenderer";
+    private static final boolean DEBUG = false;
     static {
         System.loadLibrary("opengl_renderer_jni");
     }
@@ -53,23 +57,36 @@ final class OpenGLRenderer {
                     String.format(Locale.US, "GLRenderer-%03d", RENDERER_COUNT.incrementAndGet()),
                     Process.THREAD_PRIORITY_DEFAULT); // Use UI thread priority (DEFAULT)
 
-    private Size mPreviewResolution;
     private SurfaceTexture mPreviewTexture;
-    private final float[] mPreviewTransform = new float[16];
-    private float mNaturalPreviewWidth = 0;
-    private float mNaturalPreviewHeight = 0;
+    private RectF mPreviewCropRect;
+    private Size mPreviewSize;
+    private int mTextureRotationDegrees;
+    // Transform retrieved by SurfaceTexture.getTransformMatrix
+    private final float[] mTextureTransform = new float[16];
+
+    // The Model represent the surface we are drawing on. In 3D, it is a flat rectangle.
+    private final float[] mModelTransform = new float[16];
+
+    private final float[] mViewTransform = new float[16];
+
+    private final float[] mProjectionTransform = new float[16];
+
+    // A combination of the model, view and projection transform matrices.
+    private final float[] mMvpTransform = new float[16];
+    private boolean mMvpDirty = true;
 
     private Size mSurfaceSize = null;
     private int mSurfaceRotationDegrees = 0;
-    private final float[] mSurfaceTransform = new float[16];
 
-    private final float[] mTempVec = new float[8];
-
-    private Rect mPreviewCropRect;
-
-    private final float[] mCropRectTransform = new float[16];
-
-    private final float[] mFragmentShaderTransform = new float[16];
+    // Vectors defining the 'up' direction for the 4 angles we're interested in. These are based
+    // off our world-space coordinate system (sensor coordinates), where the origin (0, 0) is in
+    // the upper left of the image, and rotations are clockwise (left-handed coordinates).
+    private static final float[] DIRECTION_UP_ROT_0 = {0f, -1f, 0f, 0f};
+    private static final float[] DIRECTION_UP_ROT_90 = {1f, 0f, 0f, 0f};
+    private static final float[] DIRECTION_UP_ROT_180 = {0f, 1f, 0f, 0f};
+    private static final float[] DIRECTION_UP_ROT_270 = {-1f, 0f, 0f, 0f};
+    private float[] mTempVec = new float[4];
+    private float[] mTempMatrix = new float[32]; // 2 concatenated matrices for calculations
 
     private long mNativeContext = 0;
 
@@ -77,6 +94,11 @@ final class OpenGLRenderer {
     private int mNumOutstandingSurfaces = 0;
 
     private Pair<Executor, Consumer<Long>> mFrameUpdateListener;
+
+    OpenGLRenderer() {
+        // Initialize the GL context on the GL thread
+        mExecutor.execute(() -> mNativeContext = initContext());
+    }
 
     @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     @MainThread
@@ -89,15 +111,18 @@ final class OpenGLRenderer {
                         return;
                     }
 
-                    if (mNativeContext == 0) {
-                        mNativeContext = initContext();
-                    }
-
                     SurfaceTexture surfaceTexture = resetPreviewTexture(
                             surfaceRequest.getResolution());
                     Surface inputSurface = new Surface(surfaceTexture);
                     mNumOutstandingSurfaces++;
-                    mPreviewCropRect = surfaceRequest.getCropRect();
+                    Rect requestCropRect = surfaceRequest.getCropRect();
+                    if (!isCropRectFullTexture(requestCropRect)) {
+                        // Crop rect is pre-calculated. Use it directly.
+                        mPreviewCropRect = new RectF(requestCropRect);
+                    } else {
+                        // Crop rect needs to be calculated before drawing.
+                        mPreviewCropRect = null;
+                    }
                     surfaceRequest.provideSurface(
                             inputSurface,
                             mExecutor,
@@ -108,7 +133,7 @@ final class OpenGLRenderer {
                                     mPreviewTexture = null;
                                 }
                                 mNumOutstandingSurfaces--;
-                                doShutdownIfNeeded();
+                                doShutdownExecutorIfNeeded();
                             });
                 });
     }
@@ -122,15 +147,15 @@ final class OpenGLRenderer {
                             return;
                         }
 
-                        if (mNativeContext == 0) {
-                            mNativeContext = initContext();
-                        }
-
                         if (setWindowSurface(mNativeContext, surface)) {
-                            this.mSurfaceRotationDegrees = surfaceRotationDegrees;
-                            this.mSurfaceSize = surfaceSize;
+                            if (surfaceRotationDegrees != mSurfaceRotationDegrees
+                                    || !Objects.equals(surfaceSize, mSurfaceSize)) {
+                                mMvpDirty = true;
+                            }
+                            mSurfaceRotationDegrees = surfaceRotationDegrees;
+                            mSurfaceSize = surfaceSize;
                         } else {
-                            this.mSurfaceSize = null;
+                            mSurfaceSize = null;
                         }
 
                     });
@@ -150,9 +175,7 @@ final class OpenGLRenderer {
      */
     void setFrameUpdateListener(@NonNull Executor executor, @NonNull Consumer<Long> listener) {
         try {
-            mExecutor.execute(() -> {
-                mFrameUpdateListener = new Pair<>(executor, listener);
-            });
+            mExecutor.execute(() -> mFrameUpdateListener = new Pair<>(executor, listener));
         } catch (RejectedExecutionException e) {
             // Renderer is shutting down. Ignore.
         }
@@ -162,8 +185,11 @@ final class OpenGLRenderer {
         try {
             mExecutor.execute(
                     () -> {
-                        this.mSurfaceRotationDegrees = surfaceRotationDegrees;
-                        if (mPreviewTexture != null && mNativeContext != 0) {
+                        if (surfaceRotationDegrees != mSurfaceRotationDegrees) {
+                            mMvpDirty = true;
+                        }
+                        mSurfaceRotationDegrees = surfaceRotationDegrees;
+                        if (mPreviewTexture != null && !mIsShutdown) {
                             renderLatest();
                         }
                     });
@@ -185,7 +211,7 @@ final class OpenGLRenderer {
             try {
                 mExecutor.execute(
                         () -> {
-                            if (mNativeContext != 0) {
+                            if (!mIsShutdown) {
                                 setWindowSurface(mNativeContext, null);
                                 mSurfaceSize = null;
                             }
@@ -203,12 +229,12 @@ final class OpenGLRenderer {
         try {
             mExecutor.execute(
                     () -> {
-                        mIsShutdown = true;
-                        if (mNativeContext != 0) {
+                        if (!mIsShutdown) {
                             closeContext(mNativeContext);
                             mNativeContext = 0;
+                            mIsShutdown = true;
                         }
-                        doShutdownIfNeeded();
+                        doShutdownExecutorIfNeeded();
                     });
         } catch (RejectedExecutionException e) {
             // Renderer already shutting down. Ignore.
@@ -216,7 +242,7 @@ final class OpenGLRenderer {
     }
 
     @WorkerThread
-    private void doShutdownIfNeeded() {
+    private void doShutdownExecutorIfNeeded() {
         if (mIsShutdown && mNumOutstandingSurfaces == 0) {
             mFrameUpdateListener = null;
             mExecutor.shutdown();
@@ -234,13 +260,16 @@ final class OpenGLRenderer {
         mPreviewTexture.setDefaultBufferSize(size.getWidth(), size.getHeight());
         mPreviewTexture.setOnFrameAvailableListener(
                 surfaceTexture -> {
-                    if (surfaceTexture == mPreviewTexture && mNativeContext != 0) {
+                    if (surfaceTexture == mPreviewTexture && !mIsShutdown) {
                         surfaceTexture.updateTexImage();
                         renderLatest();
                     }
                 },
                 mExecutor.getHandler());
-        mPreviewResolution = size;
+        if (!Objects.equals(size, mPreviewSize)) {
+            mMvpDirty = true;
+        }
+        mPreviewSize = size;
         return mPreviewTexture;
     }
 
@@ -251,27 +280,25 @@ final class OpenGLRenderer {
 
         // Get texture transform from surface texture (transform to natural orientation).
         // This will be used to transform texture coordinates in the fragment shader.
-        mPreviewTexture.getTransformMatrix(mPreviewTransform);
-
+        mPreviewTexture.getTransformMatrix(mTextureTransform);
+        // Check whether the texture's rotation has changed so we can update the MVP matrix.
+        int textureRotationDegrees = getTextureRotationDegrees();
+        if (textureRotationDegrees != mTextureRotationDegrees) {
+            mMvpDirty = true;
+        }
+        mTextureRotationDegrees = textureRotationDegrees;
         if (mSurfaceSize != null) {
-            // If the crop rect matches the preview surface, it means either the viewport is not
-            // set, or it's set but the crop rect happens to be the same as the preview surface.
-            // Either way, use the entire surface for sampling and do additional custom
-            // transformation if necessary.
-            if (isCropRectMatchPreview()) {
-                calculateCustomTransformation();
-            } else {
-                calculateViewportTransformation();
+            if (mMvpDirty) {
+                updateMvpTransform();
             }
-            boolean success = renderTexture(mNativeContext, timestampNs, mSurfaceTransform,
-                    mFragmentShaderTransform);
+            boolean success = renderTexture(mNativeContext, timestampNs, mMvpTransform, mMvpDirty,
+                    mTextureTransform);
+            mMvpDirty = false;
             if (success && mFrameUpdateListener != null) {
-                Executor executor = mFrameUpdateListener.first;
-                Consumer<Long> listener = mFrameUpdateListener.second;
+                Executor executor = Objects.requireNonNull(mFrameUpdateListener.first);
+                Consumer<Long> listener = Objects.requireNonNull(mFrameUpdateListener.second);
                 try {
-                    executor.execute(() -> {
-                        listener.accept(timestampNs);
-                    });
+                    executor.execute(() -> listener.accept(timestampNs));
                 } catch (RejectedExecutionException e) {
                     // Unable to send frame update. Ignore.
                 }
@@ -280,27 +307,26 @@ final class OpenGLRenderer {
     }
 
     /**
-     * Calculates the dimensions of the source texture after it has been transformed from the raw
-     * sensor texture to an image which is in the device's 'natural' orientation.
+     * Calculates the rotation of the source texture between the sensor coordinate space and
+     * the device's 'natural' orientation.
      *
-     * <p>The required transform is passed along with each texture update and is retrieved from
-     * {@link
-     * SurfaceTexture#getTransformMatrix(float[])}.
+     * <p>A required transform matrix is passed along with each texture update and is retrieved by
+     * {@link SurfaceTexture#getTransformMatrix(float[])}.
      *
      * <pre>{@code
      *        TEXTURE FROM SENSOR:
      * ^
-     * |
-     * |          .###########
-     * |           ***********
-     * |   ....############## ####. /           Sensor may be rotated relative
-     * |  ################### #( )#.            to the device's 'natural'
-     * |       ############## ######            orientation.
-     * |  ################### #( )#*
-     * |   ****############## ####* \
-     * |           ...........
-     * |          *###########
-     * |
+     * |                  +-----------+
+     * |          .#######|###        |
+     * |           *******|***        |
+     * |   ....###########|## ####. / |         Sensor may be rotated relative
+     * |  ################|## #( )#.  |         to the device's 'natural'
+     * |       ###########|## ######  |         orientation.
+     * |  ################|## #( )#*  |
+     * |   ****###########|## ####* \ |
+     * |           .......|...        |
+     * |          *#######|###        |
+     * |                  +-----------+
      * +-------------------------------->
      *                                               TRANSFORMED IMAGE:
      *                 | |                   ^
@@ -318,205 +344,303 @@ final class OpenGLRenderer {
      * }</pre>
      *
      * <p>The transform matrix is a 4x4 affine transform matrix that operates on standard normalized
-     * texture coordinates which are in the range of [0,1] for both s and t dimensions. Once the
-     * transform is applied, we scale by the width and height of the source texture.
+     * texture coordinates which are in the range of [0,1] for both s and t dimensions. Before
+     * the transform is applied, the texture may have dimensions that are larger than the
+     * dimensions of the SurfaceTexture we provided in order to accommodate hardware limitations.
+     *
+     * <p>For this method we are only interested in the rotation component of the transform
+     * matrix, so the calculations avoid the scaling and translation components.
      */
     @WorkerThread
-    private void calculateInputDimensions() {
-
-        // Although the transform is normally used to rotate, it can also handle scale and
-        // translation.
-        // In order to accommodate for this, we use test vectors representing the boundaries of the
-        // input, and run them through the transform to find the boundaries of the output.
+    private int getTextureRotationDegrees() {
+        // The final output image should have the requested dimensions AFTER applying the
+        // transform matrix, but width and height may be swapped. We know that the transform
+        // matrix from SurfaceTexture#getTransformMatrix() is an affine transform matrix that
+        // will only rotate in 90 degree increments, so we only need to worry about the rotation
+        // component.
         //
-        //                                Top Bound (Vt):    Right Bound (Vr):
-        //
-        //                                ^ (0.5,1)             ^
-        //                                |    ^                |
-        //                                |    |                |
-        //                                |    |                |        (1,0.5)
-        //          Texture               |    +                |     +---->
-        //          Coordinates:          |                     |
-        //          ^                     |                     |
-        //          |                     +----------->         +----------->
-        //        (0,1)     (1,1)
-        //          +---------+           Bottom Bound (Vb):     Left Bound (Vl):
-        //          |         |
-        //          |         |           ^                     ^
-        //          |    +    |           |                     |
-        //          |(0.5,0.5)|           |                     |
-        //          |         |           |                  (0,0.5)
-        //          +------------>        |    +                <----+
-        //        (0,0)     (1,0)         |    |                |
-        //                                |    |                |
-        //                                +----v------>         +----------->
-        //                                  (0.5,0)
-        //
-        // Using the above test vectors, we can calculate the transformed height using transform
-        // matrix M as:
-        //
-        // Voh = |M x (Vt * h) - M x (Vb * h)| = |M x (Vt - Vb) * h| = |M x Vih| = |M x [0 h 0 0]|
-        // where:
-        // Vih = input, pre-transform height vector,
-        // Voh = output transformed height vector,
-        //   h = pre-transform texture height,
-        //  || denotes element-wise absolute value,
-        //   x denotes matrix-vector multiplication, and
-        //   * denotes element-wise multiplication.
-        //
-        // Similarly, the transformed width will be calculated as:
-        //
-        // Vow = |M x (Vr * w) - M x (Vl * w)| = |M x (Vr - Vl) * w| = |M x Viw| = |M x [w 0 0 0]|
-        // where:
-        // Vow = output transformed width vector, and w = pre-transform texture width
-        //
-        // Since the transform matrix can potentially swap width and height, we must hold on to both
-        // elements of each output vector. However, since we assume rotations in multiples of 90
-        // degrees, and the vectors are orthogonal, we can calculate the final transformed vector
-        // as:
-        //
-        // Vo = |M x Vih| + |M x Viw|
+        // We can test this by using an test vector of [s, t, p, q] = [0, 1, 0, 0]. Using 'q = 0'
+        // will ignore the translation component of the matrix. We will only need to check if the
+        // 's' component becomes a scaled version of the 't' component and the 't' component
+        // becomes 0.
+        Matrix.multiplyMV(mTempVec, 0, mTextureTransform, 0, DIRECTION_UP_ROT_0, 0);
 
-        // Initialize the components we care about for the output vector. This will be
-        // accumulated from
-        // Voh and Vow.
-        mNaturalPreviewWidth = 0;
-        mNaturalPreviewHeight = 0;
-
-        // Calculate Voh. We use our allocated temporary vector to avoid excessive allocations since
-        // this is done per-frame.
-        float[] vih = mTempVec;
-        vih[0] = 0;
-        vih[1] = mPreviewResolution.getHeight();
-        vih[2] = 0;
-        vih[3] = 0;
-
-        // Apply the transform. Second half of the array is the result vector Voh.
-        Matrix.multiplyMV(
-                /*resultVec=*/ mTempVec, /*resultVecOffset=*/ 4,
-                /*lhsMat=*/ mPreviewTransform, /*lhsMatOffset=*/ 0,
-                /*rhsVec=*/ vih, /*rhsVecOffset=*/ 0);
-
-        // Accumulate output from Voh.
-        mNaturalPreviewWidth += Math.abs(mTempVec[4]);
-        mNaturalPreviewHeight += Math.abs(mTempVec[5]);
-
-        // Calculate Vow.
-        float[] voh = mTempVec;
-        voh[0] = mPreviewResolution.getWidth();
-        voh[1] = 0;
-        voh[2] = 0;
-        voh[3] = 0;
-
-        // Apply the transform. Second half of the array is the result vector Vow.
-        Matrix.multiplyMV(
-                /*resultVec=*/ mTempVec,
-                /*resultVecOffset=*/ 4,
-                /*lhsMat=*/ mPreviewTransform,
-                /*lhsMatOffset=*/ 0,
-                /*rhsVec=*/ voh,
-                /*rhsVecOffset=*/ 0);
-
-        // Accumulate output from Vow. This now represents the fully transformed coordinates.
-        mNaturalPreviewWidth += Math.abs(mTempVec[4]);
-        mNaturalPreviewHeight += Math.abs(mTempVec[5]);
-    }
-
-
-    /**
-     * Returns true if the crop rect matches the preview surface.
-     */
-    private boolean isCropRectMatchPreview() {
-        // If the crop rect is the same size as the preview, do custom transformation for fragment
-        // shader to sample the whole surface.
-        return mPreviewCropRect != null && mPreviewCropRect.left == 0 && mPreviewCropRect.top == 0
-                && mPreviewCropRect.width() == mPreviewResolution.getWidth()
-                && mPreviewCropRect.height() == mPreviewResolution.getHeight();
-    }
-
-    /**
-     * Calculates the vertex shader transform matrix needed to transform the output from device
-     * 'natural' orientation coordinates to a "center-crop" view of the camera viewport.
-     *
-     * <p>A device's 'natural' orientation is the orientation where the Display rotation is
-     * Surface.ROTATION_0. For most phones, this will be a portrait orientation, whereas some
-     * tablets may use landscape as their natural orientation. The Surface rotation is always
-     * provided relative to the device's 'natural' orientation.
-     *
-     * <p>Because the camera sensor (or crop of the camera sensor) may have a different aspect ratio
-     * than the Surface that is meant to display it, we also want to fit the image from the
-     * camera so the entire Surface is filled. This generally requires scaling the input texture
-     * and cropping pixels from either the width or height. We call this transform "center-crop"
-     * and is equivalent to the ScaleType with the same name in ImageView.
-     */
-    @WorkerThread
-    private void calculateCustomTransformation() {
-        // Calculate the dimensions of the source texture in the 'natural' orientation of the
-        // device.
-        calculateInputDimensions();
-
-        // Transform surface width and height to natural orientation
-        Matrix.setRotateM(mSurfaceTransform, 0, -mSurfaceRotationDegrees, 0, 0, 1.0f);
-
-        // Since rotation is a linear transform, we don't need to worry about the affine component
-        mTempVec[0] = mSurfaceSize.getWidth();
-        mTempVec[1] = mSurfaceSize.getHeight();
-
-        // Apply the transform to surface dimensions
-        Matrix.multiplyMV(mTempVec, 4, mSurfaceTransform, 0, mTempVec, 0);
-
-        float naturalSurfaceWidth = Math.abs(mTempVec[4]);
-        float naturalSurfaceHeight = Math.abs(mTempVec[5]);
-
-        // Now that both preview and surface are in the same coordinate system, calculate the ratio
-        // of width/height between preview/surface to determine which dimension to scale
-        float heightRatio = mNaturalPreviewHeight / naturalSurfaceHeight;
-        float widthRatio = mNaturalPreviewWidth / naturalSurfaceWidth;
-
-        // Now that we have calculated scale, we must apply rotation and scale in the correct order
-        // such that it will apply to the vertex shader's vertices consistently.
-        Matrix.setIdentityM(mSurfaceTransform, 0);
-
-        // Apply the scale depending on whether the width or the height needs to be scaled to match
-        // a "center crop" scale type. Because vertex coordinates are already normalized, we must
-        // remove
-        // the implicit scaling (through division) before scaling by the opposite dimension.
-        if (mNaturalPreviewWidth * naturalSurfaceHeight
-                > mNaturalPreviewHeight * naturalSurfaceWidth) {
-            Matrix.scaleM(mSurfaceTransform, 0, heightRatio / widthRatio, 1.0f, 1.0f);
-        } else {
-            Matrix.scaleM(mSurfaceTransform, 0, 1.0f, widthRatio / heightRatio, 1.0f);
+        // Calculate the normalized vector and round to integers so we can do integer comparison.
+        // Normalizing the vector removes the effects of the scaling component of the
+        // transform matrix. Once normalized, we can round and do integer comparison.
+        float length = Matrix.length(mTempVec[0], mTempVec[1], 0);
+        int s = Math.round(mTempVec[0] / length);
+        int t = Math.round(mTempVec[1] / length);
+        if (s == 0 && t == 1) {
+            //       (0,1)                               (0,1)
+            //    +----^----+          0 deg          +----^----+
+            //    |    |    |        Rotation         |    |    |
+            //    |    +    |         +----->         |    +    |
+            //    |  (0,0)  |                         |  (0,0)  |
+            //    +---------+                         +---------+
+            return 0;
+        } else if (s == 1 && t == 0) {
+            //       (0,1)
+            //    +----^----+         90 deg          +---------+
+            //    |    |    |        Rotation         |         |
+            //    |    +    |         +----->         |    +---->(1,0)
+            //    |  (0,0)  |                         |  (0,0)  |
+            //    +---------+                         +---------+
+            return 90;
+        } else if (s == 0 && t == -1) {
+            //       (0,1)
+            //    +----^----+         180 deg         +---------+
+            //    |    |    |        Rotation         |  (0,0)  |
+            //    |    +    |         +----->         |    +    |
+            //    |  (0,0)  |                         |    |    |
+            //    +---------+                         +----v----+
+            //                                           (0,-1)
+            return 180;
+        }  else if (s == -1 && t == 0) {
+            //       (0,1)
+            //    +----^----+         270 deg         +---------+
+            //    |    |    |        Rotation         |         |
+            //    |    +    |         +----->   (-1,0)<----+    |
+            //    |  (0,0)  |                         |  (0,0)  |
+            //    +---------+                         +---------+
+            return 270;
         }
 
-        // Finally add in rotation. This will be applied to vertices first.
-        Matrix.rotateM(mSurfaceTransform, 0, -mSurfaceRotationDegrees, 0, 0, 1.0f);
+        throw new RuntimeException(String.format("Unexpected texture transform matrix. Expected "
+                + "test vector [0, 1] to rotate to [0,1], [1, 0], [0, -1] or [-1, 0], but instead "
+                + "was [%d, %d].", s, t));
+    }
 
-        // For custom transformation, the fragment shader uses the SurfaceTexture transformation
-        // directly.
-        System.arraycopy(mPreviewTransform, 0, mFragmentShaderTransform, 0,
-                mFragmentShaderTransform.length);
+
+    /**
+     * Returns true if the crop rect dimensions match the entire texture dimensions.
+     */
+    @WorkerThread
+    private boolean isCropRectFullTexture(@NonNull Rect cropRect) {
+        return cropRect.left == 0 && cropRect.top == 0
+                && cropRect.width() == mPreviewSize.getWidth()
+                && cropRect.height() == mPreviewSize.getHeight();
     }
 
     /**
-     * Calculates the transformation based on viewport crop rect.
+     * Derives the model crop rect from the texture and output surface dimensions, applying a
+     * 'center-crop' transform.
+     *
+     * <p>Because the camera sensor (or crop of the camera sensor) may have a different
+     * aspect ratio than the ViewPort that is meant to display it, we want to fit the image
+     * from the camera so the entire ViewPort is filled. This generally requires scaling the input
+     * texture and cropping pixels from either the width or height. We call this transform
+     * 'center-crop' and is equivalent to {@link android.widget.ImageView.ScaleType#CENTER_CROP}.
      */
-    private void calculateViewportTransformation() {
-        // Append the transformations so that only the area within the crop rect is sampled.
-        Matrix.setIdentityM(mCropRectTransform, 0);
-        float translateX = (float) mPreviewCropRect.left / mPreviewResolution.getWidth();
-        float translateY = (float) mPreviewCropRect.top / mPreviewResolution.getHeight();
-        Matrix.translateM(mCropRectTransform, 0, translateX, translateY, 0f);
+    @WorkerThread
+    private void extractPreviewCropFromPreviewSizeAndSurface() {
+        // Swap the dimensions of the surface we are drawing the texture onto if rotating the
+        // texture to the surface orientation requires a 90 degree or 270 degree rotation.
+        int viewPortRotation = getViewPortRotation();
+        if (viewPortRotation == 90 || viewPortRotation == 270) {
+            // Width and height swapped
+            mPreviewCropRect = new RectF(0, 0, mSurfaceSize.getHeight(), mSurfaceSize.getWidth());
+        } else {
+            mPreviewCropRect = new RectF(0, 0, mSurfaceSize.getWidth(), mSurfaceSize.getHeight());
+        }
 
-        float scaleX = (float) mPreviewCropRect.width() / mPreviewResolution.getWidth();
-        float scaleY = (float) mPreviewCropRect.height() / mPreviewResolution.getHeight();
-        Matrix.scaleM(mCropRectTransform, 0, scaleX, scaleY, 1f);
+        android.graphics.Matrix centerCropMatrix = new android.graphics.Matrix();
+        RectF previewSize = new RectF(0, 0, mPreviewSize.getWidth(), mPreviewSize.getHeight());
+        centerCropMatrix.setRectToRect(mPreviewCropRect, previewSize,
+                android.graphics.Matrix.ScaleToFit.CENTER);
+        centerCropMatrix.mapRect(mPreviewCropRect);
+    }
 
-        Matrix.multiplyMM(mFragmentShaderTransform, 0, mCropRectTransform, 0,
-                mPreviewTransform, 0);
+    /**
+     * Returns the relative rotation between the sensor coordinates and the ViewPort in
+     * world-space coordinates.
+     *
+     * <p>This is the angle the sensor needs to be rotated, clockwise, in order to be upright in
+     * the viewport coordinates.
+     */
+    @WorkerThread
+    private int getViewPortRotation() {
+        // Note that since the rotation defined by Surface#ROTATION_*** are positive when the
+        // device is rotated in a counter-clockwise direction and our world-space coordinates
+        // define positive angles in the clockwise direction, we add the two together to get the
+        // total angle required.
+        return (mTextureRotationDegrees + mSurfaceRotationDegrees) % 360;
+    }
 
-        // Correct for display rotation.
-        Matrix.setIdentityM(mSurfaceTransform, 0);
-        Matrix.rotateM(mSurfaceTransform, 0, -mSurfaceRotationDegrees, 0, 0, 1.0f);
+    /**
+     * Updates the matrix used to transform the model into the correct dimensions within the
+     * world-space.
+     *
+     * <p>In order to draw the camera frames to screen, we use a flat rectangle in our
+     * world-coordinate space. The world coordinates match the preview buffer coordinates with
+     * the origin (0,0) in the upper left corner of the image. Defining the world space in this
+     * way allows subsequent models to be positioned according to buffer coordinates.
+     * Note this different than standard OpenGL coordinates; this is a left-handed coordinate
+     * system, and requires using glFrontFace(GL_CW) before drawing.
+     * <pre>{@code
+     *             Standard coordinates:                   Our coordinate system:
+     *
+     *                      | +y                                  ________+x
+     *                      |                                   /|
+     *                      |                                  / |
+     *                      |________+x                     +z/  |
+     *                     /                                     | +y
+     *                    /
+     *                   /+z
+     * }</pre>
+     * <p>Our model is initially a square with vertices in the range (-1,-1 - 1,1). It is
+     * rotated, scaled and translated to match the dimensions of preview with the origin in the
+     * upper left corner.
+     *
+     * <p>Example for a preview with dimensions 1920x1080:
+     * <pre>{@code
+     *                (-1,-1)    (1,-1)
+     *                   +---------+        Model
+     *                   |         |        Transform          (0,0)         (1920,0)
+     * Unscaled Model -> |    +    |         ---\                +----------------+
+     *                   |         |         ---/                |                |      Scaled/
+     *                   +---------+                             |                | <-- Translated
+     *                (-1,1)     (1,1)                           |                |       Model
+     *                                                           +----------------+
+     *                                                         (0,1080)      (1920,1080)
+     * }</pre>
+     */
+    @WorkerThread
+    private void updateModelTransform() {
+        // Remove the rotation to the device 'natural' orientation so our world space will be in
+        // sensor coordinates.
+        Matrix.setRotateM(mTempMatrix, 0, -mTextureRotationDegrees, 0.0f, 0.0f, 1.0f);
+
+        Matrix.setIdentityM(mTempMatrix, 16);
+        // Translate to the upper left corner of the quad so we are in buffer space
+        Matrix.translateM(mTempMatrix, 16, mPreviewSize.getWidth() / 2f,
+                mPreviewSize.getHeight() / 2f, 0);
+        // Scale the vertices so that our world space units are pixels equal in size to the
+        // pixels of the buffer sent from the camera.
+        Matrix.scaleM(mTempMatrix, 16, mPreviewSize.getWidth() / 2f, mPreviewSize.getHeight() / 2f,
+                1f);
+        Matrix.multiplyMM(mModelTransform, 0, mTempMatrix, 16, mTempMatrix, 0);
+        if (DEBUG) {
+            printMatrix("ModelTransform", mModelTransform, 0);
+        }
+    }
+
+    /**
+     * The view transform defines the position and orientation of the camera within our world-space.
+     *
+     * <p>This brings us from world-space coordinates to view (camera) space.
+     *
+     * <p>This matrix is defined by a camera position, a gaze point, and a vector that represents
+     * the "up" direction. Because we are using an orthogonal projection, we always place the
+     * camera directly in front of the gaze point and 1 unit away on the z-axis for convenience.
+     * We have defined our world coordinates in a way where we will be looking at the front of
+     * the model rectangle if our camera is placed on the positive z-axis and we gaze towards
+     * the negative z-axis.
+     */
+    @WorkerThread
+    private void updateViewTransform() {
+        // Apply the rotation of the ViewPort and look at the center of the image
+        float[] upVec = DIRECTION_UP_ROT_0;
+        switch (getViewPortRotation()) {
+            case 0:
+                upVec = DIRECTION_UP_ROT_0;
+                break;
+            case 90:
+                upVec = DIRECTION_UP_ROT_90;
+                break;
+            case 180:
+                upVec = DIRECTION_UP_ROT_180;
+                break;
+            case 270:
+                upVec = DIRECTION_UP_ROT_270;
+                break;
+        }
+        Matrix.setLookAtM(mViewTransform, 0,
+                mPreviewCropRect.centerX(), mPreviewCropRect.centerY(), 1, // Camera position
+                mPreviewCropRect.centerX(), mPreviewCropRect.centerY(), 0, // Point to look at
+                upVec[0], upVec[1], upVec[2] // Up direction
+        );
+        if (DEBUG) {
+            printMatrix("ViewTransform", mViewTransform, 0);
+        }
+    }
+
+    /**
+     * The projection matrix will map from the view space to normalized device coordinates (NDC)
+     * which OpenGL is expecting.
+     *
+     * <p>Our view is meant to only show the pixels defined by the model crop rect, so our
+     * orthogonal projection matrix will depend on the preview crop rect dimensions.
+     *
+     * <p>The projection matrix can be thought of as a cube which has sides that align with the
+     * edges of the ViewPort and the near/far sides can be adjusted as needed. In our case, we
+     * set the near side to match the camera position and the far side to match the model's
+     * position on the z-axis, 1 unit away.
+     */
+    @WorkerThread
+    private void updateProjectionTransform() {
+        float viewPortWidth = mPreviewCropRect.width();
+        float viewPortHeight = mPreviewCropRect.height();
+        // Since projection occurs after rotation of the camera, in order to map directly to model
+        // coordinates we need to take into account the surface rotation.
+        int viewPortRotation = getViewPortRotation();
+        if (viewPortRotation == 90 || viewPortRotation == 270) {
+            viewPortWidth = mPreviewCropRect.height();
+            viewPortHeight = mPreviewCropRect.width();
+        }
+
+        Matrix.orthoM(mProjectionTransform, 0,
+                /*left=*/-viewPortWidth / 2f, /*right=*/viewPortWidth / 2f,
+                /*bottom=*/viewPortHeight / 2f, /*top=*/-viewPortHeight / 2f,
+                /*near=*/0, /*far=*/1);
+        if (DEBUG) {
+            printMatrix("ProjectionTransform", mProjectionTransform, 0);
+        }
+    }
+
+    /**
+     * The MVP is the combination of model, view and projection transforms that take us from the
+     * world space to normalized device coordinates (NDC) which OpenGL uses to display images
+     * with the correct dimensions on an EGL surface.
+     */
+    @WorkerThread
+    private void updateMvpTransform() {
+        if (mPreviewCropRect == null) {
+            extractPreviewCropFromPreviewSizeAndSurface();
+        }
+
+        if (DEBUG) {
+            Log.d(TAG, String.format("Model dimensions: %s, Crop rect: %s", mPreviewSize,
+                    mPreviewCropRect));
+        }
+
+        updateModelTransform();
+        updateViewTransform();
+        updateProjectionTransform();
+
+        Matrix.multiplyMM(mTempMatrix, 0, mViewTransform, 0, mModelTransform, 0);
+
+        if (DEBUG) {
+            // Print the model-view matrix (without projection)
+            printMatrix("MVTransform", mTempMatrix, 0);
+        }
+
+        Matrix.multiplyMM(mMvpTransform, 0, mProjectionTransform, 0, mTempMatrix, 0);
+        if (DEBUG) {
+            printMatrix("MVPTransform", mMvpTransform, 0);
+        }
+    }
+
+    private static void printMatrix(String label, float[] matrix, int offset) {
+        Log.d(TAG, String.format("%s:\n"
+                        + "%.4f %.4f %.4f %.4f\n"
+                        + "%.4f %.4f %.4f %.4f\n"
+                        + "%.4f %.4f %.4f %.4f\n"
+                        + "%.4f %.4f %.4f %.4f\n", label,
+                matrix[offset],     matrix[offset + 4], matrix[offset + 8],  matrix[offset + 12],
+                matrix[offset + 1], matrix[offset + 5], matrix[offset + 9],  matrix[offset + 13],
+                matrix[offset + 2], matrix[offset + 6], matrix[offset + 10], matrix[offset + 14],
+                matrix[offset + 3], matrix[offset + 7], matrix[offset + 11], matrix[offset + 15]));
     }
 
     @WorkerThread
@@ -532,7 +656,8 @@ final class OpenGLRenderer {
     private static native boolean renderTexture(
             long nativeContext,
             long timestampNs,
-            @NonNull float[] vertexTransform,
+            @NonNull float[] mvpTransform,
+            boolean mvpDirty,
             @NonNull float[] textureTransform);
 
     @WorkerThread
