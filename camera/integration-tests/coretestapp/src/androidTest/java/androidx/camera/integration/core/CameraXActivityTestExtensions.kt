@@ -19,6 +19,7 @@ package androidx.camera.integration.core
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.testutils.withActivity
@@ -35,5 +36,20 @@ internal fun ActivityScenario<CameraXActivity>.waitForViewfinderIdle() {
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     } finally { // Always release the idling resource, in case of timeout exceptions.
         IdlingRegistry.getInstance().unregister(idlingResource)
+    }
+}
+
+/**
+ * Waits until an image has been saved and its idling resource has become idle.
+ */
+internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedIdle() {
+    val idlingResource = withActivity { imageSavedIdlingResource }
+    try {
+        IdlingRegistry.getInstance().register(idlingResource)
+        // Perform click to take a picture.
+        Espresso.onView(ViewMatchers.withId(R.id.Picture)).perform(click())
+    } finally { // Always release the idling resource, in case of timeout exceptions.
+        IdlingRegistry.getInstance().unregister(idlingResource)
+        withActivity { deleteSessionImages() }
     }
 }
