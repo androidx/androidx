@@ -16,7 +16,6 @@
 
 package androidx.ui.material
 
-import android.util.DisplayMetrics
 import androidx.animation.FloatPropKey
 import androidx.animation.LinearOutSlowInEasing
 import androidx.animation.transitionDefinition
@@ -28,7 +27,6 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.animation.transition
-import androidx.ui.core.ContextAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.LayoutDirection
@@ -107,8 +105,7 @@ fun DropdownMenu(
             val density = DensityAmbient.current
             val popupPositionProvider = DropdownMenuPositionProvider(
                 dropdownOffset,
-                density,
-                ContextAmbient.current.resources.displayMetrics
+                density
             ) { parentBounds, menuBounds ->
                 transformOrigin = calculateTransformOrigin(parentBounds, menuBounds, density)
             }
@@ -305,48 +302,48 @@ private fun calculateTransformOrigin(
 internal data class DropdownMenuPositionProvider(
     val contentOffset: Position,
     val density: Density,
-    val displayMetrics: DisplayMetrics,
     val onPositionCalculated: (IntBounds, IntBounds) -> Unit = { _, _ -> }
 ) : PopupPositionProvider {
     override fun calculatePosition(
-        parentLayoutBounds: IntBounds,
+        parentGlobalBounds: IntBounds,
+        windowGlobalBounds: IntBounds,
         layoutDirection: LayoutDirection,
-        popupSize: IntSize
+        popupContentSize: IntSize
     ): IntOffset {
         // The min margin above and below the menu, relative to the screen.
         val verticalMargin = with(density) { MenuVerticalMargin.toIntPx() }
         // The padding inset that accommodates elevation, needs to be taken into account.
         val inset = with(density) { MenuElevationInset.toIntPx() }
-        val realPopupWidth = popupSize.width - inset * 2
-        val realPopupHeight = popupSize.height - inset * 2
+        val realPopupWidth = popupContentSize.width - inset * 2
+        val realPopupHeight = popupContentSize.height - inset * 2
         val contentOffsetX = with(density) { contentOffset.x.toIntPx() }
         val contentOffsetY = with(density) { contentOffset.y.toIntPx() }
 
         // Compute horizontal position.
-        val toRight = parentLayoutBounds.right + contentOffsetX
-        val toLeft = parentLayoutBounds.left - contentOffsetX - realPopupWidth
-        val toDisplayRight = displayMetrics.widthPixels - realPopupWidth
+        val toRight = parentGlobalBounds.right + contentOffsetX
+        val toLeft = parentGlobalBounds.left - contentOffsetX - realPopupWidth
+        val toDisplayRight = windowGlobalBounds.width - realPopupWidth
         val toDisplayLeft = 0
         val x = if (layoutDirection == LayoutDirection.Ltr) {
             sequenceOf(toRight, toLeft, toDisplayRight)
         } else {
             sequenceOf(toLeft, toRight, toDisplayLeft)
         }.firstOrNull {
-            it >= 0 && it + realPopupWidth <= displayMetrics.widthPixels
+            it >= 0 && it + realPopupWidth <= windowGlobalBounds.width
         } ?: toLeft
 
         // Compute vertical position.
-        val toBottom = parentLayoutBounds.bottom + contentOffsetY
-        val toTop = parentLayoutBounds.top - contentOffsetY - realPopupHeight
-        val toCenter = parentLayoutBounds.top - realPopupHeight / 2
-        val toDisplayBottom = displayMetrics.heightPixels - realPopupHeight - verticalMargin
+        val toBottom = parentGlobalBounds.bottom + contentOffsetY
+        val toTop = parentGlobalBounds.top - contentOffsetY - realPopupHeight
+        val toCenter = parentGlobalBounds.top - realPopupHeight / 2
+        val toDisplayBottom = windowGlobalBounds.height - realPopupHeight - verticalMargin
         val y = sequenceOf(toBottom, toTop, toCenter, toDisplayBottom).firstOrNull {
             it >= verticalMargin &&
-                    it + realPopupHeight <= displayMetrics.heightPixels - verticalMargin
+                    it + realPopupHeight <= windowGlobalBounds.height - verticalMargin
         } ?: toTop
 
         onPositionCalculated(
-            parentLayoutBounds,
+            parentGlobalBounds,
             IntBounds(x - inset, y - inset, x + inset + realPopupWidth, y + inset + realPopupHeight)
         )
         return IntOffset(x - inset, y - inset)

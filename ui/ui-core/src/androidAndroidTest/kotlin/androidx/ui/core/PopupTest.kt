@@ -20,6 +20,9 @@ import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.ambientOf
 import androidx.compose.emptyContent
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Root
@@ -29,10 +32,14 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.ui.core.selection.SimpleContainer
+import androidx.ui.layout.Stack
+import androidx.ui.layout.height
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.rtl
+import androidx.ui.layout.width
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
+import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.IntBounds
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
@@ -60,6 +67,7 @@ class PopupTest {
     private val testTag = "testedPopup"
 
     private val parentBounds = IntBounds(50, 50, 150, 150)
+    private val windowBounds = IntBounds(0, 0, 1000, 1000)
     private val offset = IntOffset(10, 10)
     private val parentSize = IntSize(parentBounds.width, parentBounds.height)
     private val popupSize = IntSize(40, 20)
@@ -70,9 +78,10 @@ class PopupTest {
     //  many times
     private fun createPopupWithAlignmentRule(
         alignment: Alignment,
-        measureLatch: CountDownLatch,
         modifier: Modifier = Modifier
     ) {
+        val measureLatch = CountDownLatch(1)
+
         with(composeTestRule.density) {
             val popupWidthDp = popupSize.width.toDp()
             val popupHeightDp = popupSize.height.toDp()
@@ -113,6 +122,8 @@ class PopupTest {
                 }
             }
         }
+
+        measureLatch.await(1, TimeUnit.SECONDS)
     }
 
     // TODO(b/139861182): Remove all of this and provide helpers on ComposeTestRule
@@ -132,6 +143,23 @@ class PopupTest {
         // TODO(b/141101446): Find a way to match the window used by the popup
         override fun matchesSafely(item: Root?): Boolean {
             return item != null && isPopupLayout(item.decorView, testTag)
+        }
+    }
+
+    private inner class PopupsCounterMatcher : TypeSafeMatcher<Root>() {
+        var popupsFound = 0
+
+        override fun describeTo(description: Description?) {
+            description?.appendText("PopupLayoutMatcher")
+        }
+
+        // TODO(b/141101446): Find a way to match the window used by the popup
+        override fun matchesSafely(item: Root?): Boolean {
+            val isPopup = item != null && isPopupLayout(item.decorView, testTag)
+            if (isPopup) {
+                popupsFound++
+            }
+            return isPopup
         }
     }
 
@@ -177,17 +205,60 @@ class PopupTest {
     }
 
     @Test
+    fun changeParams_assertNoLeaks() {
+        val measureLatch = CountDownLatch(1)
+        var isFocusable by mutableStateOf(false)
+        composeTestRule.setContent {
+            Stack {
+                PopupTestTag(testTag) {
+                    Popup(
+                        alignment = Alignment.TopStart,
+                        offset = offset,
+                        isFocusable = isFocusable
+                    ) {
+                        // This is called after the OnChildPosition method in Popup() which
+                        // updates the popup to its final position
+                        Stack(
+                            modifier = Modifier.width(200.dp).height(200.dp).onPositioned {
+                                measureLatch.countDown()
+                            }
+                        ) {}
+                    }
+                }
+            }
+        }
+        measureLatch.await(1, TimeUnit.SECONDS)
+
+        fun assertSinglePopupExists() {
+            runOnIdle { }
+            val counterMatcher = PopupsCounterMatcher()
+            Espresso.onView(instanceOf(Owner::class.java))
+                .inRoot(counterMatcher)
+                .check(matches(isDisplayed()))
+
+            Truth.assertThat(counterMatcher.popupsFound).isEqualTo(1)
+        }
+
+        assertSinglePopupExists()
+
+        runOnUiThread {
+            isFocusable = true
+        }
+
+        // If we have a leak, this will crash on multiple popups found
+        assertSinglePopupExists()
+    }
+
+    @Test
     fun popup_correctPosition_alignmentTopStart() {
         /* Expected TopStart Position
            x = offset.x
            y = offset.y
         */
         val expectedPositionTopStart = IntOffset(10, 10)
-        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.TopStart, measureLatch = measureLatch)
+        createPopupWithAlignmentRule(alignment = Alignment.TopStart)
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionTopStart))
     }
 
@@ -198,15 +269,12 @@ class PopupTest {
            y = offset.y
         */
         val expectedPositionTopStart = IntOffset(50, 10)
-        val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
             modifier = Modifier.rtl,
-            alignment = Alignment.TopStart,
-            measureLatch = measureLatch
+            alignment = Alignment.TopStart
         )
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionTopStart))
     }
 
@@ -217,11 +285,9 @@ class PopupTest {
            y = offset.y
         */
         val expectedPositionTopCenter = IntOffset(40, 10)
-        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.TopCenter, measureLatch = measureLatch)
+        createPopupWithAlignmentRule(alignment = Alignment.TopCenter)
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionTopCenter))
     }
 
@@ -232,15 +298,12 @@ class PopupTest {
            y = offset.y
         */
         val expectedPositionTopCenter = IntOffset(20, 10)
-        val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
             modifier = Modifier.rtl,
-            alignment = Alignment.TopCenter,
-            measureLatch = measureLatch
+            alignment = Alignment.TopCenter
         )
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionTopCenter))
     }
 
@@ -251,11 +314,9 @@ class PopupTest {
            y = offset.y
         */
         val expectedPositionTopEnd = IntOffset(70, 10)
-        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.TopEnd, measureLatch = measureLatch)
+        createPopupWithAlignmentRule(alignment = Alignment.TopEnd)
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionTopEnd))
     }
 
@@ -266,15 +327,12 @@ class PopupTest {
            y = offset.y
         */
         val expectedPositionTopEnd = IntOffset(0, 10)
-        val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
             modifier = Modifier.rtl,
-            alignment = Alignment.TopEnd,
-            measureLatch = measureLatch
+            alignment = Alignment.TopEnd
         )
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionTopEnd))
     }
 
@@ -285,11 +343,9 @@ class PopupTest {
            y = offset.y + parentSize.y / 2 - popupSize.y / 2
         */
         val expectedPositionCenterEnd = IntOffset(70, 50)
-        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.CenterEnd, measureLatch = measureLatch)
+        createPopupWithAlignmentRule(alignment = Alignment.CenterEnd)
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionCenterEnd))
     }
 
@@ -300,15 +356,12 @@ class PopupTest {
            y = offset.y + parentSize.y / 2 - popupSize.y / 2
         */
         val expectedPositionCenterEnd = IntOffset(0, 50)
-        val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
             modifier = Modifier.rtl,
-            alignment = Alignment.CenterEnd,
-            measureLatch = measureLatch
+            alignment = Alignment.CenterEnd
         )
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionCenterEnd))
     }
 
@@ -319,11 +372,9 @@ class PopupTest {
            y = offset.y + parentSize.y - popupSize.y
         */
         val expectedPositionBottomEnd = IntOffset(70, 90)
-        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.BottomEnd, measureLatch = measureLatch)
+        createPopupWithAlignmentRule(alignment = Alignment.BottomEnd)
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionBottomEnd))
     }
 
@@ -334,15 +385,12 @@ class PopupTest {
            y = offset.y + parentSize.y - popupSize.y
         */
         val expectedPositionBottomEnd = IntOffset(0, 90)
-        val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
             modifier = Modifier.rtl,
-            alignment = Alignment.BottomEnd,
-            measureLatch = measureLatch
+            alignment = Alignment.BottomEnd
         )
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionBottomEnd))
     }
 
@@ -353,14 +401,9 @@ class PopupTest {
            y = offset.y + parentSize.y - popupSize.y
         */
         val expectedPositionBottomCenter = IntOffset(40, 90)
-        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(
-            alignment = Alignment.BottomCenter,
-            measureLatch = measureLatch
-        )
+        createPopupWithAlignmentRule(alignment = Alignment.BottomCenter)
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionBottomCenter))
     }
 
@@ -371,15 +414,12 @@ class PopupTest {
            y = offset.y + parentSize.y - popupSize.y
         */
         val expectedPositionBottomCenter = IntOffset(20, 90)
-        val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
             modifier = Modifier.rtl,
-            alignment = Alignment.BottomCenter,
-            measureLatch = measureLatch
+            alignment = Alignment.BottomCenter
         )
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionBottomCenter))
     }
 
@@ -390,11 +430,9 @@ class PopupTest {
            y = offset.y + parentSize.y - popupSize.y
         */
         val expectedPositionBottomStart = IntOffset(10, 90)
-        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.BottomStart, measureLatch = measureLatch)
+        createPopupWithAlignmentRule(alignment = Alignment.BottomStart)
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionBottomStart))
     }
 
@@ -405,15 +443,12 @@ class PopupTest {
            y = offset.y + parentSize.y - popupSize.y
         */
         val expectedPositionBottomStart = IntOffset(50, 90)
-        val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
             modifier = Modifier.rtl,
-            alignment = Alignment.BottomStart,
-            measureLatch = measureLatch
+            alignment = Alignment.BottomStart
         )
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionBottomStart))
     }
 
@@ -424,11 +459,9 @@ class PopupTest {
            y = offset.y + parentSize.y / 2 - popupSize.y / 2
         */
         val expectedPositionCenterStart = IntOffset(10, 50)
-        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.CenterStart, measureLatch = measureLatch)
+        createPopupWithAlignmentRule(alignment = Alignment.CenterStart)
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionCenterStart))
     }
 
@@ -439,15 +472,12 @@ class PopupTest {
            y = offset.y + parentSize.y / 2 - popupSize.y / 2
         */
         val expectedPositionCenterStart = IntOffset(50, 50)
-        val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
             modifier = Modifier.rtl,
-            alignment = Alignment.CenterStart,
-            measureLatch = measureLatch
+            alignment = Alignment.CenterStart
         )
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionCenterStart))
     }
 
@@ -458,11 +488,9 @@ class PopupTest {
            y = offset.y + parentSize.y / 2 - popupSize.y / 2
         */
         val expectedPositionCenter = IntOffset(40, 50)
-        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.Center, measureLatch = measureLatch)
+        createPopupWithAlignmentRule(alignment = Alignment.Center)
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionCenter))
     }
 
@@ -473,15 +501,12 @@ class PopupTest {
            y = offset.y + parentSize.y / 2 - popupSize.y / 2
         */
         val expectedPositionCenter = IntOffset(20, 50)
-        val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
             modifier = Modifier.rtl,
-            alignment = Alignment.Center,
-            measureLatch = measureLatch
+            alignment = Alignment.Center
         )
 
-        measureLatch.await(1, TimeUnit.SECONDS)
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionCenter))
     }
 
@@ -496,6 +521,7 @@ class PopupTest {
         val positionTopStart =
             AlignmentOffsetPositionProvider(Alignment.TopStart, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -514,6 +540,7 @@ class PopupTest {
         val positionTopStart =
             AlignmentOffsetPositionProvider(Alignment.TopStart, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -532,6 +559,7 @@ class PopupTest {
         val positionTopCenter =
             AlignmentOffsetPositionProvider(Alignment.TopCenter, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -550,6 +578,7 @@ class PopupTest {
         val positionTopCenter =
             AlignmentOffsetPositionProvider(Alignment.TopCenter, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -568,6 +597,7 @@ class PopupTest {
         val positionTopEnd =
             AlignmentOffsetPositionProvider(Alignment.TopEnd, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -586,6 +616,7 @@ class PopupTest {
         val positionTopEnd =
             AlignmentOffsetPositionProvider(Alignment.TopEnd, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -604,6 +635,7 @@ class PopupTest {
         val positionCenterEnd =
             AlignmentOffsetPositionProvider(Alignment.CenterEnd, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -622,6 +654,7 @@ class PopupTest {
         val positionCenterEnd =
             AlignmentOffsetPositionProvider(Alignment.CenterEnd, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -640,6 +673,7 @@ class PopupTest {
         val positionBottomEnd =
             AlignmentOffsetPositionProvider(Alignment.BottomEnd, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -658,6 +692,7 @@ class PopupTest {
         val positionBottomEnd =
             AlignmentOffsetPositionProvider(Alignment.BottomEnd, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -676,6 +711,7 @@ class PopupTest {
         val positionBottomCenter =
             AlignmentOffsetPositionProvider(Alignment.BottomCenter, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -694,6 +730,7 @@ class PopupTest {
         val positionBottomCenter =
             AlignmentOffsetPositionProvider(Alignment.BottomCenter, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -712,6 +749,7 @@ class PopupTest {
         val positionBottomStart =
             AlignmentOffsetPositionProvider(Alignment.BottomStart, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -730,6 +768,7 @@ class PopupTest {
         val positionBottomStart =
             AlignmentOffsetPositionProvider(Alignment.BottomStart, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -748,6 +787,7 @@ class PopupTest {
         val positionCenterStart =
             AlignmentOffsetPositionProvider(Alignment.CenterStart, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -766,6 +806,7 @@ class PopupTest {
         val positionCenterStart =
             AlignmentOffsetPositionProvider(Alignment.CenterStart, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -784,6 +825,7 @@ class PopupTest {
         val positionCenter =
             AlignmentOffsetPositionProvider(Alignment.Center, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -802,6 +844,7 @@ class PopupTest {
         val positionCenter =
             AlignmentOffsetPositionProvider(Alignment.Center, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -841,6 +884,7 @@ class PopupTest {
         val positionLeft =
             DropdownPositionProvider(DropDownAlignment.Start, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -859,6 +903,7 @@ class PopupTest {
         val positionLeft =
             DropdownPositionProvider(DropDownAlignment.Start, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
@@ -877,6 +922,7 @@ class PopupTest {
         val positionRight =
             DropdownPositionProvider(DropDownAlignment.End, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Ltr,
                 popupSize
             )
@@ -895,6 +941,7 @@ class PopupTest {
         val positionRight =
             DropdownPositionProvider(DropDownAlignment.End, offset).calculatePosition(
                 parentBounds,
+                windowBounds,
                 LayoutDirection.Rtl,
                 popupSize
             )
