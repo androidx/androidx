@@ -264,16 +264,17 @@ package androidx.compose.foundation.gestures {
     method public static androidx.ui.core.Modifier scrollable(androidx.ui.core.Modifier, androidx.ui.core.gesture.scrollorientationlocking.Orientation orientation, androidx.compose.foundation.gestures.ScrollableController controller, boolean enabled = true, boolean reverseDirection = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean> canScroll = { return enabled }, kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit> onScrollStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onScrollStopped = {});
   }
 
-  public final class ZoomableKt {
-    method @androidx.compose.Composable public static androidx.compose.foundation.gestures.ZoomableState ZoomableState(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onZoomDelta);
-    method @androidx.compose.Composable public static androidx.ui.core.Modifier zoomable(androidx.ui.core.Modifier, androidx.compose.foundation.gestures.ZoomableState zoomableState, kotlin.jvm.functions.Function0<kotlin.Unit>? onZoomStopped = null);
-    method @androidx.compose.Composable public static androidx.ui.core.Modifier zoomable(androidx.ui.core.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>? onZoomStopped = null, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onZoomDelta);
+  public final class ZoomableController {
+    ctor public ZoomableController(androidx.animation.AnimationClockObservable animationClock, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onZoomDelta);
+    method public kotlin.jvm.functions.Function1<java.lang.Float,kotlin.Unit> getOnZoomDelta();
+    method public void smoothScaleBy(float value, androidx.animation.AnimationSpec<java.lang.Float> spec = androidx.animation.SpringSpec(Spring.StiffnessLow), kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit>? onEnd = null);
+    method public void stopAnimation();
   }
 
-  public final class ZoomableState {
-    ctor public ZoomableState(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onZoomDelta, androidx.animation.AnimationClockObservable animationClock);
-    method public kotlin.jvm.functions.Function1<java.lang.Float,kotlin.Unit> getOnZoomDelta();
-    method public void smoothScaleBy(float value, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit>? onEnd = null);
+  public final class ZoomableKt {
+    method @androidx.compose.Composable public static androidx.compose.foundation.gestures.ZoomableController rememberZoomableController(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onZoomDelta);
+    method public static androidx.ui.core.Modifier zoomable(androidx.ui.core.Modifier, androidx.compose.foundation.gestures.ZoomableController controller, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit>? onZoomStarted = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onZoomStopped = null);
+    method public static androidx.ui.core.Modifier zoomable(androidx.ui.core.Modifier, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit>? onZoomStarted = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onZoomStopped = null, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onZoomDelta);
   }
 
 }

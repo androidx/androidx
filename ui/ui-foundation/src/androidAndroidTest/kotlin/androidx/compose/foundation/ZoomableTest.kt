@@ -17,11 +17,12 @@
 package androidx.compose.foundation
 
 import androidx.compose.Composable
+import androidx.compose.mutableStateOf
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.compose.foundation.gestures.ZoomableState
 import androidx.compose.foundation.gestures.zoomable
+import androidx.compose.foundation.gestures.ZoomableController
 import androidx.ui.geometry.Offset
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.AnimationClockTestRule
@@ -35,6 +36,7 @@ import androidx.ui.test.pinch
 import androidx.ui.test.size
 import androidx.ui.unit.dp
 import androidx.ui.unit.toSize
+import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -57,12 +59,12 @@ class ZoomableTest {
     @Test
     fun zoomable_zoomIn() {
         var cumulativeScale = 1.0f
-        val state = ZoomableState(
+        val controller = ZoomableController(
             onZoomDelta = { cumulativeScale *= it },
             animationClock = clockRule.clock
         )
 
-        setZoomableContent { Modifier.zoomable(state) }
+        setZoomableContent { Modifier.zoomable(controller) }
 
         onNodeWithTag(TEST_TAG).performGesture {
             val leftStartX = center.x - 10
@@ -88,12 +90,12 @@ class ZoomableTest {
     @Test
     fun zoomable_zoomOut() {
         var cumulativeScale = 1.0f
-        val state = ZoomableState(
+        val controller = ZoomableController(
             onZoomDelta = { cumulativeScale *= it },
             animationClock = clockRule.clock
         )
 
-        setZoomableContent { Modifier.zoomable(state) }
+        setZoomableContent { Modifier.zoomable(controller) }
 
         onNodeWithTag(TEST_TAG).performGesture {
             val leftStartX = size.toSize().width * EDGE_FUZZ_FACTOR
@@ -119,10 +121,159 @@ class ZoomableTest {
     }
 
     @Test
+    fun zoomable_startStop_notify() {
+        var cumulativeScale = 1.0f
+        var startTriggered = 0f
+        var stopTriggered = 0f
+        val controller = ZoomableController(
+            onZoomDelta = { cumulativeScale *= it },
+            animationClock = clockRule.clock
+        )
+
+        setZoomableContent {
+            Modifier
+                .zoomable(controller = controller,
+                    onZoomStarted = { startTriggered++ },
+                    onZoomStopped = { stopTriggered++ }
+                )
+        }
+
+        runOnIdle {
+            Truth.assertThat(startTriggered).isEqualTo(0)
+            Truth.assertThat(stopTriggered).isEqualTo(0)
+        }
+
+        onNodeWithTag(TEST_TAG).performGesture {
+            val leftStartX = size.toSize().width * EDGE_FUZZ_FACTOR
+            val leftEndX = center.x - 10
+            val rightStartX = size.toSize().width * (1 - EDGE_FUZZ_FACTOR)
+            val rightEndX = center.x + 10
+
+            pinch(
+                Offset(leftStartX, center.y),
+                Offset(leftEndX, center.y),
+                Offset(rightStartX, center.y),
+                Offset(rightEndX, center.y)
+            )
+        }
+
+        clockRule.advanceClock(milliseconds = 1000)
+
+        runOnIdle {
+            Truth.assertThat(startTriggered).isEqualTo(1)
+            Truth.assertThat(stopTriggered).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun zoomable_disabledWontCallLambda() {
+        val enabled = mutableStateOf(true)
+        var cumulativeScale = 1.0f
+        val controller = ZoomableController(
+            onZoomDelta = { cumulativeScale *= it },
+            animationClock = clockRule.clock
+        )
+
+        setZoomableContent {
+            Modifier
+                .zoomable(controller = controller, enabled = enabled.value)
+        }
+
+        onNodeWithTag(TEST_TAG).performGesture {
+            val leftStartX = center.x - 10
+            val leftEndX = size.toSize().width * EDGE_FUZZ_FACTOR
+            val rightStartX = center.x + 10
+            val rightEndX = size.toSize().width * (1 - EDGE_FUZZ_FACTOR)
+
+            pinch(
+                Offset(leftStartX, center.y),
+                Offset(leftEndX, center.y),
+                Offset(rightStartX, center.y),
+                Offset(rightEndX, center.y)
+            )
+        }
+
+        clockRule.advanceClock(milliseconds = 1000)
+
+        val prevScale = runOnIdle {
+            assertWithMessage("Should have scaled at least 4x").that(cumulativeScale).isAtLeast(4f)
+            enabled.value = false
+            cumulativeScale
+        }
+
+        onNodeWithTag(TEST_TAG).performGesture {
+            val leftStartX = size.toSize().width * EDGE_FUZZ_FACTOR
+            val leftEndX = center.x - 10
+            val rightStartX = size.toSize().width * (1 - EDGE_FUZZ_FACTOR)
+            val rightEndX = center.x + 10
+
+            pinch(
+                Offset(leftStartX, center.y),
+                Offset(leftEndX, center.y),
+                Offset(rightStartX, center.y),
+                Offset(rightEndX, center.y)
+            )
+        }
+
+        runOnIdle {
+            assertWithMessage("When enabled = false, scale should stay the same")
+                .that(cumulativeScale)
+                .isEqualTo(prevScale)
+        }
+    }
+
+    @Test
+    fun zoomable_callsStop_whenRemoved() {
+        var cumulativeScale = 1.0f
+        var stopTriggered = 0f
+        val controller = ZoomableController(
+            onZoomDelta = { cumulativeScale *= it },
+            animationClock = clockRule.clock
+        )
+
+        setZoomableContent {
+            if (cumulativeScale < 2f) {
+                Modifier
+                    .zoomable(
+                        controller = controller,
+                        onZoomStopped = { stopTriggered++ }
+                    )
+            } else {
+                Modifier
+            }
+        }
+
+        runOnIdle {
+            Truth.assertThat(stopTriggered).isEqualTo(0)
+        }
+
+        onNodeWithTag(TEST_TAG).performGesture {
+            val leftStartX = center.x - 10
+            val leftEndX = size.toSize().width * EDGE_FUZZ_FACTOR
+            val rightStartX = center.x + 10
+            val rightEndX = size.toSize().width * (1 - EDGE_FUZZ_FACTOR)
+
+            pinch(
+                Offset(leftStartX, center.y),
+                Offset(leftEndX, center.y),
+                Offset(rightStartX, center.y),
+                Offset(rightEndX, center.y)
+            )
+        }
+
+        clockRule.advanceClock(milliseconds = 1000)
+
+        runOnIdle {
+            Truth.assertThat(cumulativeScale).isAtLeast(2f)
+            Truth.assertThat(stopTriggered).isEqualTo(1f)
+        }
+    }
+
+    @Test
     fun zoomable_animateTo() {
         var cumulativeScale = 1.0f
         var callbackCount = 0
-        val state = ZoomableState(
+        val state = ZoomableController(
             onZoomDelta = {
                 cumulativeScale *= it
                 callbackCount += 1
