@@ -30,7 +30,6 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.dp
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,7 +43,7 @@ class ProgressIndicatorTest {
     private val ExpectedLinearHeight = 4.dp
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createComposeRule(disableTransitions = true)
 
     @Test
     fun determinateLinearProgressIndicator_Progress() {
@@ -82,7 +81,6 @@ class ProgressIndicatorTest {
     }
 
     @Test
-    @Ignore("b/154757752")
     fun indeterminateLinearProgressIndicator_progress() {
         val tag = "linear"
 
@@ -96,7 +94,6 @@ class ProgressIndicatorTest {
     }
 
     @Test
-    @Ignore("b/154757752")
     fun indeterminateLinearProgressIndicator_Size() {
         composeTestRule
             .setMaterialContentForSizeAssertions {
@@ -144,7 +141,6 @@ class ProgressIndicatorTest {
     }
 
     @Test
-    @Ignore("b/154757752")
     fun indeterminateCircularProgressIndicator_progress() {
         val tag = "circular"
 
@@ -158,7 +154,6 @@ class ProgressIndicatorTest {
     }
 
     @Test
-    @Ignore("b/154757752")
     fun indeterminateCircularProgressIndicator_Size() {
         composeTestRule
             .setMaterialContentForSizeAssertions {
