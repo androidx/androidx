@@ -15,8 +15,14 @@
  */
 package androidx.room.processing
 
+import androidx.room.processing.javac.JavacElement
+import androidx.room.processing.javac.JavacExecutableElement
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
+import javax.lang.model.element.Modifier
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
@@ -35,4 +41,60 @@ internal fun TypeMirror.safeTypeName(): TypeName = if (kind == TypeKind.NONE) {
     NONE_TYPE_NAME
 } else {
     TypeName.get(this)
+}
+
+fun TypeSpec.Builder.addOriginatingElement(element: XElement) {
+    if (element is JavacElement) {
+        this.addOriginatingElement(element.element)
+    }
+}
+
+object MethodSpecHelper {
+    /**
+     * Custom override where we mark parameters as final, overidden method as public and also
+     * preserve method names from kotlin metadata.
+     */
+    fun overridingWithFinalParams(
+        elm: XExecutableElement,
+        owner: XDeclaredType
+    ): MethodSpec.Builder {
+        return overridingWithFinalParams(
+            elm,
+            elm.asMemberOf(owner)
+        )
+    }
+
+    private fun overridingWithFinalParams(
+        executableElement: XExecutableElement,
+        resolvedType: XExecutableType = executableElement.executableType
+    ): MethodSpec.Builder {
+        return MethodSpec.methodBuilder(executableElement.name).apply {
+            addTypeVariables(
+                resolvedType.typeVariableNames
+            )
+            resolvedType.parameterTypes.forEachIndexed { index, paramType ->
+                addParameter(
+                    ParameterSpec.builder(
+                        paramType.typeName,
+                        executableElement.parameters[index].name,
+                        Modifier.FINAL
+                    ).build()
+                )
+            }
+            if (executableElement.isPublic()) {
+                addModifiers(Modifier.PUBLIC)
+            } else if (executableElement.isProtected()) {
+                addModifiers(Modifier.PROTECTED)
+            }
+            addAnnotation(Override::class.java)
+            varargs(executableElement.isVarArgs())
+            if (executableElement is JavacExecutableElement) {
+                // copy throws for java
+                executableElement.element.thrownTypes.forEach {
+                    addException(TypeName.get(it))
+                }
+            }
+            returns(resolvedType.returnType.typeName)
+        }
+    }
 }

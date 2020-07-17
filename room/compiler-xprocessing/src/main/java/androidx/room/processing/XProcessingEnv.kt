@@ -42,6 +42,8 @@ interface XProcessingEnv {
 
     fun getDeclaredType(type: XTypeElement, vararg types: XType): XDeclaredType
 
+    fun getArrayType(type: XType): XArrayType
+
     fun requireTypeElement(qName: String): XTypeElement {
         return checkNotNull(findTypeElement(qName)) {
             "Cannot find required type element $qName"
@@ -64,6 +66,10 @@ interface XProcessingEnv {
     fun findTypeElement(typeName: TypeName) = findTypeElement(typeName.toString())
 
     fun findTypeElement(klass: KClass<*>) = findTypeElement(klass.java.canonicalName!!)
+
+    fun getArrayType(typeName: TypeName) = getArrayType(
+        requireType(typeName)
+    )
 
     companion object {
         fun create(env: ProcessingEnvironment): XProcessingEnv = JavacProcessingEnv(env)
