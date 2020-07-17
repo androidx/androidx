@@ -25,6 +25,9 @@ class ComposeIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val api = 8
     override val issues get(): List<Issue> {
-        return listOf(UnnecessaryLambdaCreationDetector.ISSUE) + AndroidXIssueRegistry.Issues
+        return listOf(
+            UnnecessaryLambdaCreationDetector.ISSUE,
+            PackageNameMigrationDetector.ISSUE
+        ) + AndroidXIssueRegistry.Issues
     }
 }
