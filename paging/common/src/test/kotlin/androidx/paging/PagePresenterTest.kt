@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.paging.PagePresenter.ProcessPageEventCallback
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
@@ -54,7 +55,7 @@ internal fun <T : Any> PagePresenter<T>.insertPage(
     isPrepend: Boolean,
     page: List<T>,
     placeholdersRemaining: Int,
-    callback: PresenterCallback
+    callback: ProcessPageEventCallback
 ) = processEvent(
     adjacentInsertEvent(
         isPrepend = isPrepend,
@@ -69,7 +70,7 @@ internal fun <T : Any> PagePresenter<T>.dropPages(
     isPrepend: Boolean,
     pagesToDrop: Int,
     placeholdersRemaining: Int,
-    callback: PresenterCallback
+    callback: ProcessPageEventCallback
 ) = processEvent(
     PageEvent.Drop(
         loadType = if (isPrepend) PREPEND else APPEND,
@@ -98,7 +99,7 @@ class PagePresenterTest {
             indexOfInitialPage = 0
         )
 
-        val callback = PresenterCallbackCapture()
+        val callback = ProcessPageEventCallbackCapture()
         val page: List<Char> = List(newItems) { 'a' + it + initialItems }
         data.insertPage(
             isPrepend = false,
@@ -136,7 +137,7 @@ class PagePresenterTest {
         )
 
         val endItemCount = newItems + initialItems
-        val callback = PresenterCallbackCapture()
+        val callback = ProcessPageEventCallbackCapture()
         data.insertPage(
             isPrepend = true,
             page = List(newItems) { 'z' + it - endItemCount - 1 },
@@ -307,7 +308,7 @@ class PagePresenterTest {
 
         assertEquals(initialPages.flatten() + List<Char?>(initialNulls) { null }, data.asList())
 
-        val callback = PresenterCallbackCapture()
+        val callback = ProcessPageEventCallbackCapture()
         data.dropPages(false, pagesToDrop, newNulls, callback)
 
         assertEquals(
@@ -343,7 +344,7 @@ class PagePresenterTest {
             data.asList()
         )
 
-        val callback = PresenterCallbackCapture()
+        val callback = ProcessPageEventCallbackCapture()
         data.dropPages(true, pagesToDrop, newNulls, callback)
 
         assertEvents(
