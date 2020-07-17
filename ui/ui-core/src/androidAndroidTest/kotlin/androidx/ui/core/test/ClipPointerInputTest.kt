@@ -79,13 +79,13 @@ class ClipPointerInputTest {
      * 4 .     t .   . t     .
      *   .........   .........
      *
-     * 4 LayoutNodes with PointerInputModifiers that are positioned by their parent LayoutNode
-     * and where pointer input is clipped by a modifier on the parent. 4 touches touch just inside
-     * the parent LayoutNode and inside the child LayoutNodes. 8 touches touch just outside the
+     * 4 LayoutNodes with PointerInputModifiers that are positioned by offset modifiers and where
+     * pointer input is clipped by a modifier on the parent. 4 touches touch just inside the
+     * parent LayoutNode and inside the child LayoutNodes. 8 touches touch just outside the
      * parent LayoutNode but inside the child LayoutNodes.
      *
-     * Because layout node bounds are not used to clip pointer input hit testing, all pointers
-     * should hit.
+     * Because clipToBounds is being used on the parent LayoutNode, only the 4 touches inside the
+     * parent LayoutNode should hit.
      */
     @Test
     fun clipToBounds_childrenOffsetViaLayout_onlyCorrectPointersHit() {
@@ -169,7 +169,8 @@ class ClipPointerInputTest {
                     1,
                     0,
                     arrayOf(PointerProperties(0)),
-                    arrayOf(PointerCoords(value.x, value.y))
+                    arrayOf(PointerCoords(value.x, value.y)),
+                    view
                 )
             )
         }
@@ -184,6 +185,9 @@ class ClipPointerInputTest {
         // Assert
 
         assertThat(loggingPim1.log).isEqualTo(listOf(Offset(1f, 1f)))
+        assertThat(loggingPim2.log).isEqualTo(listOf(Offset(0f, 1f)))
+        assertThat(loggingPim3.log).isEqualTo(listOf(Offset(1f, 0f)))
+        assertThat(loggingPim4.log).isEqualTo(listOf(Offset(0f, 0f)))
     }
 
     /**
@@ -207,11 +211,11 @@ class ClipPointerInputTest {
      * parent LayoutNode and inside the child LayoutNodes. 8 touches touch just outside the
      * parent LayoutNode but inside the child LayoutNodes.
      *
-     * Because layout node bounds are not used to clip pointer input hit testing, all pointers
-     * should hit.
+     * Because clipToBounds is being used on the parent LayoutNode, only the 4 touches inside the
+     * parent LayoutNode should hit.
      */
     @Test
-    fun childrenOffsetViaModifier_onlyCorrectPointersHit() {
+    fun clipToBounds_childrenOffsetViaModifier_onlyCorrectPointersHit() {
 
         val setupLatch = CountDownLatch(2)
 
@@ -292,7 +296,8 @@ class ClipPointerInputTest {
                     1,
                     0,
                     arrayOf(PointerProperties(0)),
-                    arrayOf(PointerCoords(value.x, value.y))
+                    arrayOf(PointerCoords(value.x, value.y)),
+                    view
                 )
             )
         }
@@ -307,6 +312,9 @@ class ClipPointerInputTest {
         // Assert
 
         assertThat(loggingPim1.log).isEqualTo(listOf(Offset(1f, 1f)))
+        assertThat(loggingPim2.log).isEqualTo(listOf(Offset(0f, 1f)))
+        assertThat(loggingPim3.log).isEqualTo(listOf(Offset(1f, 0f)))
+        assertThat(loggingPim4.log).isEqualTo(listOf(Offset(0f, 0f)))
     }
 
     @Composable
