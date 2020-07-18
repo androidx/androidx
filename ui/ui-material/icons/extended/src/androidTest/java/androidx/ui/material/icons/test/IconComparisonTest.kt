@@ -23,6 +23,7 @@ import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.ui.core.Alignment
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.DensityAmbient
@@ -93,6 +94,8 @@ class IconComparisonTest(
     @get:Rule
     val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
 
+    private val matcher = MSSIMMatcher(threshold = 0.99)
+
     @Test
     fun compareVectorAssets() {
         iconSublist.forEach { (property, drawableName) ->
@@ -113,7 +116,7 @@ class IconComparisonTest(
 
             assertVectorAssetsAreEqual(xmlVector!!, programmaticVector, iconName)
 
-            assertBitmapsAreEqual(
+            matcher.assertBitmapsAreEqual(
                 onNodeWithTag(XmlTestTag).captureToBitmap(),
                 onNodeWithTag(ProgrammaticTestTag).captureToBitmap(),
                 iconName
@@ -157,27 +160,37 @@ private fun assertVectorAssetsAreEqual(
 /**
  * Compares each pixel in two bitmaps, asserting they are equal.
  */
-private fun assertBitmapsAreEqual(xmlBitmap: Bitmap, programmaticBitmap: Bitmap, iconName: String) {
+private fun MSSIMMatcher.assertBitmapsAreEqual(
+    xmlBitmap: Bitmap,
+    programmaticBitmap: Bitmap,
+    iconName: String
+) {
     try {
         Truth.assertThat(programmaticBitmap.width).isEqualTo(xmlBitmap.width)
         Truth.assertThat(programmaticBitmap.height).isEqualTo(xmlBitmap.height)
-
-        val xmlPixelArray = with(xmlBitmap) {
-            val pixels = IntArray(width * height)
-            getPixels(pixels, 0, width, 0, 0, width, height)
-            pixels
-        }
-
-        val programmaticPixelArray = with(programmaticBitmap) {
-            val pixels = IntArray(width * height)
-            getPixels(pixels, 0, width, 0, 0, width, height)
-            pixels
-        }
-
-        Truth.assertThat(programmaticPixelArray).isEqualTo(xmlPixelArray)
     } catch (e: AssertionError) {
         val message = "Bitmap comparison failed for $iconName\n" + e.localizedMessage
         throw AssertionError(message, e)
+    }
+
+    val xmlPixelArray = with(xmlBitmap) {
+        val pixels = IntArray(width * height)
+        getPixels(pixels, 0, width, 0, 0, width, height)
+        pixels
+    }
+
+    val programmaticPixelArray = with(programmaticBitmap) {
+        val pixels = IntArray(width * height)
+        getPixels(pixels, 0, width, 0, 0, width, height)
+        pixels
+    }
+
+    val result = this.compareBitmaps(xmlPixelArray, programmaticPixelArray,
+        programmaticBitmap.width, programmaticBitmap.height)
+
+    if (!result.matches) {
+        throw AssertionError("Bitmap comparison failed for $iconName, stats: " +
+                "${result.comparisonStatistics}\n")
     }
 }
 

@@ -101,7 +101,8 @@ class ScaleGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(touchSlop * 1, 50f))
+            arrayOf(PointerCoords(touchSlop * 1, 50f)),
+            view
         )
         val down2 = MotionEvent(
             10,
@@ -112,7 +113,8 @@ class ScaleGestureFilterTest {
             arrayOf(
                 PointerCoords(touchSlop * 1, 50f),
                 PointerCoords(touchSlop * 3, 50f)
-            )
+            ),
+            view
         )
         val move = MotionEvent(
             20,
@@ -126,7 +128,8 @@ class ScaleGestureFilterTest {
             arrayOf(
                 PointerCoords(touchSlop * 0 + TinyNum, 50f),
                 PointerCoords(touchSlop * 4 - TinyNum, 50f)
-            )
+            ),
+            view
         )
         val up = MotionEvent(
             30,
@@ -140,7 +143,8 @@ class ScaleGestureFilterTest {
             arrayOf(
                 PointerCoords(touchSlop * 0 + TinyNum, 50f),
                 PointerCoords(touchSlop * 4 - TinyNum, 50f)
-            )
+            ),
+            view
         )
         val up2 = MotionEvent(
             40,
@@ -152,7 +156,8 @@ class ScaleGestureFilterTest {
             ),
             arrayOf(
                 PointerCoords(touchSlop * 4 - TinyNum, 50f)
-            )
+            ),
+            view
         )
 
         activityTestRule.runOnUiThreadIR {
@@ -177,7 +182,8 @@ class ScaleGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(touchSlop * 1, 50f))
+            arrayOf(PointerCoords(touchSlop * 1, 50f)),
+            view
         )
         val down2 = MotionEvent(
             10,
@@ -188,7 +194,8 @@ class ScaleGestureFilterTest {
             arrayOf(
                 PointerCoords(touchSlop * 1, 50f),
                 PointerCoords(touchSlop * 3, 50f)
-            )
+            ),
+            view
         )
         val move = MotionEvent(
             20,
@@ -202,7 +209,8 @@ class ScaleGestureFilterTest {
             arrayOf(
                 PointerCoords(touchSlop * 0 - TinyNum, 50f),
                 PointerCoords(touchSlop * 4 + TinyNum, 50f)
-            )
+            ),
+            view
         )
         val up = MotionEvent(
             30,
@@ -216,7 +224,8 @@ class ScaleGestureFilterTest {
             arrayOf(
                 PointerCoords(touchSlop * 0 - TinyNum, 50f),
                 PointerCoords(touchSlop * 4 + TinyNum, 50f)
-            )
+            ),
+            view
         )
         val up2 = MotionEvent(
             40,
@@ -228,7 +237,8 @@ class ScaleGestureFilterTest {
             ),
             arrayOf(
                 PointerCoords(touchSlop * 4 + TinyNum, 50f)
-            )
+            ),
+            view
         )
 
         activityTestRule.runOnUiThreadIR {
@@ -258,7 +268,8 @@ class ScaleGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(touchSlop * 1, 50f))
+            arrayOf(PointerCoords(touchSlop * 1, 50f)),
+            view
         )
         val down2 = MotionEvent(
             10,
@@ -269,7 +280,8 @@ class ScaleGestureFilterTest {
             arrayOf(
                 PointerCoords(touchSlop * 1, 50f),
                 PointerCoords(touchSlop * 3, 50f)
-            )
+            ),
+            view
         )
         val move = MotionEvent(
             20,
@@ -283,7 +295,8 @@ class ScaleGestureFilterTest {
             arrayOf(
                 PointerCoords(touchSlop * 0 - TinyNum, 50f),
                 PointerCoords(touchSlop * 4 + TinyNum, 50f)
-            )
+            ),
+            view
         )
         val cancel = MotionEvent(
             30,
@@ -297,7 +310,8 @@ class ScaleGestureFilterTest {
             arrayOf(
                 PointerCoords(touchSlop * 0 - TinyNum, 50f),
                 PointerCoords(touchSlop * 4 + TinyNum, 50f)
-            )
+            ),
+            view
         )
 
         activityTestRule.runOnUiThreadIR {
@@ -326,7 +340,8 @@ class ScaleGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(touchSlop * 1, 50f))
+            arrayOf(PointerCoords(touchSlop * 1, 50f)),
+            view
         )
         val down2 = MotionEvent(
             10,
@@ -337,7 +352,8 @@ class ScaleGestureFilterTest {
             arrayOf(
                 PointerCoords(touchSlop * 1, 50f),
                 PointerCoords(touchSlop * 3, 50f)
-            )
+            ),
+            view
         )
         val move = MotionEvent(
             20,
@@ -351,7 +367,8 @@ class ScaleGestureFilterTest {
             arrayOf(
                 PointerCoords(touchSlop * -1, 50f),
                 PointerCoords(touchSlop * 5, 50f)
-            )
+            ),
+            view
         )
 
         activityTestRule.runOnUiThreadIR {
@@ -374,7 +391,8 @@ class ScaleGestureFilterTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(touchSlop * 1, 50f))
+            arrayOf(PointerCoords(touchSlop * 1, 50f)),
+            view
         )
         val down2 = MotionEvent(
             10,
@@ -388,7 +406,8 @@ class ScaleGestureFilterTest {
             arrayOf(
                 PointerCoords(touchSlop * 1, 50f),
                 PointerCoords(touchSlop * 6, 50f)
-            )
+            ),
+            view
         )
         val move = MotionEvent(
             20,
@@ -402,7 +421,8 @@ class ScaleGestureFilterTest {
             arrayOf(
                 PointerCoords(touchSlop * 3, 50f),
                 PointerCoords(touchSlop * 4, 50f)
-            )
+            ),
+            view
         )
 
         activityTestRule.runOnUiThreadIR {

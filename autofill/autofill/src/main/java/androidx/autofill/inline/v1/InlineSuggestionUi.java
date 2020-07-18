@@ -64,7 +64,7 @@ import java.util.List;
  * <p>A default theme will be applied on the UI. The client can use {@link Style} to customize
  * the style for individual widgets as well as the overall UI background.
  */
-@RequiresApi(api = Build.VERSION_CODES.Q) //TODO(b/147116534): Update to R.
+@RequiresApi(api = Build.VERSION_CODES.R)
 public final class InlineSuggestionUi {
     private static final String TAG = "InlineSuggestionUi";
 

@@ -221,7 +221,11 @@ class LayoutInspectorTree {
     }
 
     private fun getRenderNode(group: Group): Long =
-        group.modifierInfo.mapNotNull { (it.extra as? OwnedLayer)?.layerId }.singleOrNull() ?: 0
+        group.modifierInfo.asSequence()
+            .map { it.extra }
+            .filterIsInstance<OwnedLayer>()
+            .map { it.layerId }
+            .firstOrNull() ?: 0
 
     private fun addParameters(parameters: List<ParameterInformation>, node: MutableInspectorNode) =
         parameters.forEach { addParameter(it, node) }

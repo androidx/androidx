@@ -15,19 +15,10 @@
  */
 package androidx.ui.desktop.test
 
-import androidx.animation.rootAnimationClockFactory
-import androidx.animation.ManualAnimationClock
 import android.content.Context
 import android.view.ViewGroup
-import androidx.ui.text.platform.paragraphActualFactory
-import androidx.ui.text.platform.paragraphIntrinsicsActualFactory
-import org.jetbrains.skija.Canvas
-import org.jetbrains.skija.Library
-import org.jetbrains.skija.Surface
-import androidx.ui.desktop.DesktopPlatformInput
-import androidx.ui.desktop.DesktopParagraph
-import androidx.ui.desktop.DesktopParagraphIntrinsics
-import androidx.ui.desktop.FontLoader
+import androidx.animation.ManualAnimationClock
+import androidx.animation.rootAnimationClockFactory
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.Recomposer
@@ -37,10 +28,15 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
-import androidx.ui.core.setContent
-import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.FontLoaderAmbient
+import androidx.ui.core.TextInputServiceAmbient
+import androidx.ui.core.setContent
+import androidx.ui.desktop.DesktopPlatformInput
+import androidx.ui.desktop.FontLoader
+import androidx.ui.desktop.initCompose
 import androidx.ui.input.TextInputService
+import org.jetbrains.skija.Canvas
+import org.jetbrains.skija.Surface
 
 class TestSkiaWindow(
     val width: Int,
@@ -58,15 +54,7 @@ class TestSkiaWindow(
     @OptIn(androidx.ui.text.platform.InternalPlatformTextApi::class)
     companion object {
         init {
-            Library.load("/", "skija")
-            // Until https://github.com/Kotlin/kotlinx.coroutines/issues/2039 is resolved
-            // we have to set this property manually for coroutines to work.
-            System.getProperties().setProperty("kotlinx.coroutines.fast.service.loader", "false")
-
-            @Suppress("DEPRECATION_ERROR")
-            paragraphIntrinsicsActualFactory = ::DesktopParagraphIntrinsics
-            @Suppress("DEPRECATION_ERROR")
-            paragraphActualFactory = ::DesktopParagraph
+            initCompose()
         }
     }
 

@@ -16,13 +16,16 @@
 
 package androidx.ui.graphics
 
+import androidx.compose.InternalComposeApi
 import androidx.ui.core.toAndroidRect
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.vectormath.degrees
 
-actual fun Path(): Path = AndroidPath()
+@Suppress("DEPRECATION_ERROR")
+@OptIn(InternalComposeApi::class)
+actual fun Path(): Path = GraphicsFactory.path()
 
 actual typealias NativePathEffect = android.graphics.PathEffect
 

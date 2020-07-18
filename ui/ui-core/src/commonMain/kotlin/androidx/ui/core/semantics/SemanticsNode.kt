@@ -138,7 +138,7 @@ class SemanticsNode internal constructor(
     private val isMergingSemanticsOfDescendants: Boolean
         get() = mergingEnabled && unmergedConfig.isMergingSemanticsOfDescendants
 
-    private fun unmergedChildren(): List<SemanticsNode> {
+    internal fun unmergedChildren(): List<SemanticsNode> {
         val unmergedChildren: MutableList<SemanticsNode> = mutableListOf()
 
         val semanticsChildren = componentNode.findOneLayerOfSemanticsWrappers()

@@ -16,14 +16,49 @@
 
 package androidx.ui.graphics
 
-import androidx.ui.geometry.Offset
 import android.graphics.BitmapShader
 import android.graphics.LinearGradient
 import android.graphics.RadialGradient
+import androidx.compose.InternalComposeApi
+import androidx.ui.geometry.Offset
 
 actual typealias Shader = android.graphics.Shader
 
+@Suppress("DEPRECATION_ERROR")
+@OptIn(InternalComposeApi::class)
 internal actual fun ActualLinearGradientShader(
+    from: Offset,
+    to: Offset,
+    colors: List<Color>,
+    colorStops: List<Float>?,
+    tileMode: TileMode
+): Shader = GraphicsFactory.Shader.linear(
+    from, to, colors, colorStops, tileMode
+)
+
+@Suppress("DEPRECATION_ERROR")
+@OptIn(InternalComposeApi::class)
+internal actual fun ActualRadialGradientShader(
+    center: Offset,
+    radius: Float,
+    colors: List<Color>,
+    colorStops: List<Float>?,
+    tileMode: TileMode
+): Shader = GraphicsFactory.Shader.radial(
+    center, radius, colors, colorStops, tileMode
+)
+
+@Suppress("DEPRECATION_ERROR")
+@OptIn(InternalComposeApi::class)
+internal actual fun ActualImageShader(
+    image: ImageAsset,
+    tileModeX: TileMode,
+    tileModeY: TileMode
+): Shader = GraphicsFactory.Shader.image(
+    image, tileModeX, tileModeY
+)
+
+internal fun AndroidLinearGradientShader(
     from: Offset,
     to: Offset,
     colors: List<Color>,
@@ -42,7 +77,7 @@ internal actual fun ActualLinearGradientShader(
         )
 }
 
-internal actual fun ActualRadialGradientShader(
+internal fun AndroidRadialGradientShader(
     center: Offset,
     radius: Float,
     colors: List<Color>,
@@ -60,7 +95,7 @@ internal actual fun ActualRadialGradientShader(
         )
 }
 
-internal actual fun ActualImageShader(
+internal fun AndroidImageShader(
     image: ImageAsset,
     tileModeX: TileMode,
     tileModeY: TileMode

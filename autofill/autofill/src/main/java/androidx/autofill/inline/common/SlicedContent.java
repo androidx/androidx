@@ -35,7 +35,7 @@ import androidx.autofill.inline.UiVersions;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@RequiresApi(api = Build.VERSION_CODES.Q) //TODO(b/147116534): Update to R.
+@RequiresApi(api = Build.VERSION_CODES.R)
 public abstract class SlicedContent implements UiVersions.Content {
 
     static final Uri INLINE_SLICE_URI = Uri.parse("inline.slice");

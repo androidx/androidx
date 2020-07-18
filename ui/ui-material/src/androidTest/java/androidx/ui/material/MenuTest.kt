@@ -16,7 +16,6 @@
 
 package androidx.ui.material
 
-import android.util.DisplayMetrics
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
@@ -132,10 +131,7 @@ class MenuTest {
         val screenWidth = 500
         val screenHeight = 1000
         val density = Density(1f)
-        val displayMetrics = DisplayMetrics().apply {
-            widthPixels = screenWidth
-            heightPixels = screenHeight
-        }
+        val windowBounds = IntBounds(0, 0, screenWidth, screenHeight)
         val anchorPosition = IntOffset(100, 200)
         val anchorSize = IntSize(10, 20)
         val inset = with(density) { MenuElevationInset.toIntPx() }
@@ -145,10 +141,10 @@ class MenuTest {
 
         val ltrPosition = DropdownMenuPositionProvider(
             Position(offsetX.dp, offsetY.dp),
-            density,
-            displayMetrics
+            density
         ).calculatePosition(
             IntBounds(anchorPosition, anchorSize),
+            windowBounds,
             LayoutDirection.Ltr,
             popupSize
         )
@@ -162,10 +158,10 @@ class MenuTest {
 
         val rtlPosition = DropdownMenuPositionProvider(
             Position(offsetX.dp, offsetY.dp),
-            density,
-            displayMetrics
+            density
         ).calculatePosition(
             IntBounds(anchorPosition, anchorSize),
+            windowBounds,
             LayoutDirection.Rtl,
             popupSize
         )
@@ -183,10 +179,7 @@ class MenuTest {
         val screenWidth = 500
         val screenHeight = 1000
         val density = Density(1f)
-        val displayMetrics = DisplayMetrics().apply {
-            widthPixels = screenWidth
-            heightPixels = screenHeight
-        }
+        val windowBounds = IntBounds(0, 0, screenWidth, screenHeight)
         val anchorPosition = IntOffset(450, 950)
         val anchorPositionRtl = IntOffset(50, 950)
         val anchorSize = IntSize(10, 20)
@@ -197,10 +190,10 @@ class MenuTest {
 
         val ltrPosition = DropdownMenuPositionProvider(
             Position(offsetX.dp, offsetY.dp),
-            density,
-            displayMetrics
+            density
         ).calculatePosition(
             IntBounds(anchorPosition, anchorSize),
+            windowBounds,
             LayoutDirection.Ltr,
             popupSize
         )
@@ -214,10 +207,10 @@ class MenuTest {
 
         val rtlPosition = DropdownMenuPositionProvider(
             Position(offsetX.dp, offsetY.dp),
-            density,
-            displayMetrics
+            density
         ).calculatePosition(
             IntBounds(anchorPositionRtl, anchorSize),
+            windowBounds,
             LayoutDirection.Rtl,
             popupSize
         )
@@ -235,10 +228,7 @@ class MenuTest {
         val screenWidth = 500
         val screenHeight = 1000
         val density = Density(1f)
-        val displayMetrics = DisplayMetrics().apply {
-            widthPixels = screenWidth
-            heightPixels = screenHeight
-        }
+        val windowBounds = IntBounds(0, 0, screenWidth, screenHeight)
         val anchorPosition = IntOffset(100, 200)
         val anchorSize = IntSize(10, 20)
         val inset = with(density) { MenuElevationInset.toIntPx() }
@@ -250,13 +240,13 @@ class MenuTest {
         var obtainedMenuBounds = IntBounds(0, 0, 0, 0)
         DropdownMenuPositionProvider(
             Position(offsetX.dp, offsetY.dp),
-            density,
-            displayMetrics
+            density
         ) { parentBounds, menuBounds ->
             obtainedParentBounds = parentBounds
             obtainedMenuBounds = menuBounds
         }.calculatePosition(
             IntBounds(anchorPosition, anchorSize),
+            windowBounds,
             LayoutDirection.Ltr,
             popupSize
         )

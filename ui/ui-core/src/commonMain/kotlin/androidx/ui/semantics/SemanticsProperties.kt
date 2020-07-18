@@ -17,6 +17,7 @@
 package androidx.ui.semantics
 
 import androidx.ui.text.AnnotatedString
+import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import kotlin.reflect.KProperty
 
@@ -109,6 +110,15 @@ object SemanticsProperties {
  * semantics node.
  */
 object SemanticsActions {
+    /**
+     * Action to get a Text/TextField node's [TextLayoutResult]. The result is the first element
+     * of layout(the argument of the AccessibilityAction).
+     *
+     * @see SemanticsPropertyReceiver.getTextLayoutResult
+     */
+    val GetTextLayoutResult = SemanticsPropertyKey<AccessibilityAction<
+                (MutableList<TextLayoutResult>) -> Boolean>>("GetTextLayoutResult")
+
     /**
      * Action to be performed when the node is clicked.
      *
@@ -327,6 +337,19 @@ var SemanticsPropertyReceiver.textSelectionRange by SemanticsProperties.TextSele
  * @see SemanticsPropertyReceiver.customActions
  */
 var SemanticsPropertyReceiver.customActions by SemanticsActions.CustomActions
+
+/**
+ * This function adds the [SemanticsActions.GetTextLayoutResult] to the [SemanticsPropertyReceiver].
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when the [SemanticsActions.GetTextLayoutResult] is called.
+ */
+fun SemanticsPropertyReceiver.getTextLayoutResult(
+    label: String? = null,
+    action: (MutableList<TextLayoutResult>) -> Boolean
+) {
+    this[SemanticsActions.GetTextLayoutResult] = AccessibilityAction(label, action)
+}
 
 /**
  * This function adds the [SemanticsActions.OnClick] to the [SemanticsPropertyReceiver].

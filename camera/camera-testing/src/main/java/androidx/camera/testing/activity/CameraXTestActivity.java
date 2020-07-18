@@ -129,7 +129,7 @@ public class CameraXTestActivity extends AppCompatActivity {
                 new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
 
         try {
-            CameraX cameraX = CameraX.getOrCreateInstance(CameraX.getContext()).get();
+            CameraX cameraX = CameraX.getOrCreateInstance(this).get();
             LinkedHashSet<CameraInternal> cameras =
                     cameraSelector.filter(cameraX.getCameraRepository().getCameras());
             mCameraUseCaseAdapter = new CameraUseCaseAdapter(cameras.iterator().next(), cameras,

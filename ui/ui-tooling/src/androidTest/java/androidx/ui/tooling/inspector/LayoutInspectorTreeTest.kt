@@ -215,6 +215,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
             name = "CoreText",
             fileName = "CoreText.kt",
             function = "androidx.ui.text.CoreTextKt.CoreText",
+            isRenderNode = true,
             left = 0.0.dp, top = 0.0.dp, width = 70.5.dp, height = 18.9.dp
         ) {
             parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
@@ -301,6 +302,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
             name = "SurfaceLayout",
             fileName = "Surface.kt",
             function = "androidx.ui.material.SurfaceKt.Surface",
+            isRenderNode = true,
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
             children = listOf("Box")
         )
@@ -405,6 +407,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
             name = "CoreText",
             fileName = "CoreText.kt",
             function = "androidx.ui.text.CoreTextKt.CoreText",
+            isRenderNode = true,
             left = 21.8.dp, top = 27.6.dp, width = 20.4.dp, height = 18.9.dp
         ) {
             parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)

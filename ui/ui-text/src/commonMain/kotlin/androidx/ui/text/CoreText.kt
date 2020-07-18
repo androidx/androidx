@@ -31,14 +31,17 @@ import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
+import androidx.ui.core.drawLayer
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.SelectionRegistrarAmbient
+import androidx.ui.core.semantics.semantics
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.graphics.Paint
+import androidx.ui.semantics.getTextLayoutResult
 import androidx.ui.text.font.Font
 import androidx.ui.text.selection.MultiWidgetSelectionDelegate
 import androidx.ui.text.style.TextAlign
@@ -124,7 +127,7 @@ fun CoreText(
 
     Layout(
         children = { InlineChildren(text, inlineComposables) },
-        modifier = modifier.drawBehind {
+        modifier = modifier.drawLayer().drawBehind {
             state.layoutResult?.let { layoutResult ->
                 drawCanvas { canvas, _ ->
                     state.selectionRange?.let {
@@ -150,6 +153,15 @@ fun CoreText(
                     selectionRegistrar.onPositionChange()
                 }
                 state.previousGlobalPosition = newGlobalPosition
+            }
+        }.semantics {
+            getTextLayoutResult {
+                if (state.layoutResult != null) {
+                    it.add(state.layoutResult!!)
+                    true
+                } else {
+                    false
+                }
             }
         },
         minIntrinsicWidthMeasureBlock = { _, _ ->

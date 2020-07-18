@@ -15,16 +15,16 @@
  */
 package androidx.ui.desktop
 
+import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.DesktopPath
 import androidx.ui.graphics.Path
-import androidx.ui.graphics.AndroidPath
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.ParagraphIntrinsics
 import androidx.ui.text.TextRange
 import androidx.ui.text.style.ResolvedTextDirection
-import androidx.ui.geometry.Offset
 import org.jetbrains.skija.paragraph.RectHeightMode
 import org.jetbrains.skija.paragraph.RectWidthMode
 
@@ -80,9 +80,9 @@ internal class DesktopParagraph(
             RectHeightMode.MAX,
             RectWidthMode.MAX
         )
-        val path = Path() as AndroidPath
+        val path = DesktopPath()
         for (b in boxes) {
-            path.internalPath.skijaPath.addRect(b.rect)
+            path.internalPath.addRect(b.rect)
         }
         return path
     }

@@ -46,6 +46,7 @@ import android.util.SparseArray;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.mediarouter.R;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 
@@ -234,9 +235,8 @@ class MediaRoute2Provider extends MediaRouteProvider {
                 routingController.getSelectedRoutes().get(0));
 
         // TODO: Add RoutingController#getName() and use it in Android S+
-        // TODO: May need to define the string value "Group" in strings.xml for translation.
         Bundle controlHints = routingController.getControlHints();
-        String groupRouteName = "Group";
+        String groupRouteName = getContext().getString(R.string.mr_dialog_default_group_name);
         try {
             if (controlHints != null) {
                 String sessionName = controlHints.getString(MediaRouter2Utils.KEY_SESSION_NAME);

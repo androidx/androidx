@@ -54,6 +54,8 @@ class ErrorMessagesTest {
                 "Node #X at (X, X, X, X)px, Tag: 'MyButton'\n" +
                 "Disabled = 'kotlin.Unit'\n" +
                 "Text = 'Toggle'\n" +
+                "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<" +
+                "java.util.List<androidx.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
                 "MergeDescendants = 'true'\n" +
                 "Has 1 sibling\n" +
                 "Selector used: (TestTag = 'MyButton')"
@@ -229,6 +231,8 @@ class ErrorMessagesTest {
                 "The node is no longer in the tree, last known semantics:\n" +
                 "Node #X at (X, X, X, X)px\n" +
                 "Text = 'Hello'\n" +
+                "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<" +
+                "java.util.List<androidx.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
                 "Has 1 sibling\n" +
                 "Original selector: Text = 'Hello' (ignoreCase: false)"
         ) {
@@ -254,6 +258,8 @@ class ErrorMessagesTest {
                 "The node is no longer in the tree, last known semantics:\n" +
                 "Node #X at (X, X, X, X)px\n" +
                 "Text = 'Hello'\n" +
+                "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<" +
+                "java.util.List<androidx.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
                 "Has 1 sibling\n" +
                 "Original selector: Text = 'Hello' (ignoreCase: false)"
         ) {
@@ -279,6 +285,8 @@ class ErrorMessagesTest {
                 "The node is no longer in the tree, last known semantics:\n" +
                 "Node #X at (X, X, X, X)px\n" +
                 "Text = 'Hello'\n" +
+                "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<" +
+                "java.util.List<androidx.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
                 "Has 1 sibling\n" +
                 "Original selector: Text = 'Hello' (ignoreCase: false)"
         ) {

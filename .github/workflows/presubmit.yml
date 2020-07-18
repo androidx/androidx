@@ -1,11 +1,7 @@
 name: AndroidX Presubmits
 on:
   pull_request:
-    branches:
-      - master
-      - androidx-master-dev
-  repository_dispatch:
-    if: always()
+    types: [assigned, opened, synchronize, reopened, labeled]
   workflow_dispatch:
 
 jobs:
@@ -69,8 +65,7 @@ jobs:
         run: echo $DIST_DIR && ls $HOME/Library/Android/sdk
       - name: build on server
         run: |
-          cd playground
-          ./gradlew -Pandroidx.sdkPath=$(echo $HOME)/Library/Android/sdk :buildOnServer
+          cd room && ./gradlew -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m" -Pandroidx.sdkPath=$(echo $HOME)/Library/Android/sdk :buildOnServer && cd ../work && ./gradlew -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m" -Pandroidx.sdkPath=$(echo $HOME)/Library/Android/sdk :buildOnServer
         id: gradlew_bos
       - name: Set webhook outputs from ./gradlew
         if: always()

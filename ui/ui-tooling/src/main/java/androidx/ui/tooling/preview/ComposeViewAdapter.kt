@@ -64,7 +64,6 @@ const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 data class ViewInfo(
     val fileName: String,
     val lineNumber: Int,
-    val methodName: String,
     val bounds: IntBounds,
     val location: SourceLocation?,
     val children: List<ViewInfo>
@@ -77,24 +76,10 @@ data class ViewInfo(
     override fun toString(): String =
         """($fileName:$lineNumber,
             |bounds=(top=${bounds.top}, left=${bounds.left},
+            |location=${location?.let { "(${it.offset}L${it.length}"} ?: "<none>" }
             |bottom=${bounds.bottom}, right=${bounds.right}),
             |childrenCount=${children.size})""".trimMargin()
 }
-
-/**
- * Regular expression that matches and extracts the key information as serialized in
- * [KeySourceInfo#recordSourceKeyInfo]. The expression supports two formats for backwards
- * compatibility:
- *
- *  - fileName:lineNumber
- *  - methodName (fileName:lineNumber)
- *
- *  API <=21 does not support named regex but for documentation purposes, the named version
- *  of the regex would be:
- *  `(?<method>[\w\\.$]*?)\s?\(?(?<fileName>[\w.]+):(?<lineNumber>\d+)\)?`
- */
-private val KEY_INFO_REGEX =
-    """([\w\\.$]*?)\s?\(?([\w.]+):(\d+)\)?""".toRegex()
 
 /**
  * View adapter that renders a `@Composable`. The `@Composable` is found by
@@ -190,14 +175,10 @@ internal class ComposeViewAdapter : FrameLayout {
             .filter { !it.isNullGroup() }
             .map { it.toViewInfo() }
 
-        val match = KEY_INFO_REGEX.matchEntire(key as? String ?: "")
-            ?: return ViewInfo("", -1, "", box, location, childrenViewInfo)
-
         // TODO: Use group names instead of indexing once it's supported
         return ViewInfo(
-            match.groups[2]?.value ?: "",
-            match.groups[3]?.value?.toInt() ?: -1,
-            match.groups[1]?.value ?: "",
+            location?.sourceFile ?: "",
+            location?.lineNumber ?: -1,
             box,
             location,
             childrenViewInfo

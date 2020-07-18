@@ -17,14 +17,22 @@
 package androidx.ui.core
 
 import android.content.Context
+import android.graphics.RectF
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewParent
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
+import android.view.accessibility.AccessibilityNodeInfo
+import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH
+import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX
+import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
+import android.view.accessibility.AccessibilityNodeProvider
 import androidx.annotation.IntRange
 import androidx.collection.SparseArrayCompat
 import androidx.core.view.AccessibilityDelegateCompat
@@ -35,11 +43,15 @@ import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.findChildById
 import androidx.ui.core.semantics.getAllSemanticsNodesToMap
 import androidx.ui.core.semantics.getOrNull
+import androidx.ui.geometry.Rect
 import androidx.ui.semantics.CustomAccessibilityAction
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsActions.CustomActions
 import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.text.AnnotatedString
+import androidx.ui.text.TextLayoutResult
+import androidx.ui.text.length
+import androidx.ui.unit.toRect
 import androidx.ui.util.fastForEach
 
 internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidComposeView) :
@@ -48,6 +60,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         /** Virtual node identifier value for invalid nodes. */
         const val InvalidId = Integer.MIN_VALUE
         const val ClassName = "android.view.View"
+        const val LogTag = "AccessibilityDelegate"
         /**
          * Intent size limitations prevent sending over a megabyte of data. Limit
          * text length to 100K characters - 200KB.
@@ -97,7 +110,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     private val accessibilityManager: AccessibilityManager =
         view.context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
     private val handler = Handler(Looper.getMainLooper())
-    private var nodeProvider: AccessibilityNodeProviderCompat = MyNodeProvider()
+    private var nodeProvider: AccessibilityNodeProviderCompat =
+        AccessibilityNodeProviderCompat(MyNodeProvider())
     private var focusedVirtualViewId = InvalidId
     // For actionIdToId and labelToActionId, the keys are the virtualViewIds. The value of
     // actionIdToLabel holds assigned custom action id to custom action label mapping. The
@@ -133,8 +147,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         })
     }
 
-    fun createNodeInfo(virtualViewId: Int):
-            AccessibilityNodeInfoCompat {
+    private fun createNodeInfo(virtualViewId: Int): AccessibilityNodeInfo {
         val info: AccessibilityNodeInfoCompat = AccessibilityNodeInfoCompat.obtain()
         // the hidden property is often not there
         info.isVisibleToUser = true
@@ -147,7 +160,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             semanticsNode = view.semanticsOwner.rootSemanticsNode.findChildById(virtualViewId)
             if (semanticsNode == null) {
                 // throw IllegalStateException("Semantics node $virtualViewId is not attached")
-                return info
+                return info.unwrap()
             }
             info.setSource(view, semanticsNode.id)
             // TODO(b/154023028): Semantics: Immediate children of the root node report parent ==
@@ -264,6 +277,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_WORD or
                         AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_PARAGRAPH
         }
+        if (Build.VERSION.SDK_INT >= 26 && !info.text.isNullOrEmpty() &&
+            semanticsNode.config.contains(SemanticsActions.GetTextLayoutResult)) {
+            info.unwrap().availableExtraData = listOf(EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY)
+        }
 
         val rangeInfo =
             semanticsNode.config.getOrNull(SemanticsProperties.AccessibilityRangeInfo)
@@ -333,7 +350,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             labelToActionId.put(virtualViewId, currentLabelToActionId)
         }
 
-        return info
+        return info.unwrap()
     }
 
     /**
@@ -490,18 +507,17 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         return false
     }
 
-    fun performActionHelper(
+    private fun performActionHelper(
         virtualViewId: Int,
         action: Int,
         arguments: Bundle?
     ): Boolean {
-        val node: SemanticsNode
-        if (virtualViewId == AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
-            node = view.semanticsOwner.rootSemanticsNode
-        } else {
-            node = view.semanticsOwner.rootSemanticsNode.findChildById(virtualViewId)
-                ?: return false
-        }
+        val node: SemanticsNode =
+            if (virtualViewId == AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
+                view.semanticsOwner.rootSemanticsNode
+            } else {
+                view.semanticsOwner.rootSemanticsNode.findChildById(virtualViewId) ?: return false
+            }
         when (action) {
             AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS ->
                 return requestAccessibilityFocus(virtualViewId)
@@ -591,6 +607,91 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 return false
             }
         }
+    }
+
+    private fun addExtraDataToAccessibilityNodeInfoHelper(
+        virtualViewId: Int,
+        info: AccessibilityNodeInfo,
+        extraDataKey: String,
+        arguments: Bundle?
+    ) {
+        val node: SemanticsNode =
+            if (virtualViewId == AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
+                view.semanticsOwner.rootSemanticsNode
+            } else {
+                view.semanticsOwner.rootSemanticsNode.findChildById(virtualViewId) ?: return
+            }
+        // TODO(b/157474582): This only works for single text/text field
+        if (node.config.contains(SemanticsProperties.Text) &&
+            node.config.contains(SemanticsActions.GetTextLayoutResult) &&
+            arguments != null && extraDataKey == EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY) {
+            val positionInfoStartIndex = arguments.getInt(
+                EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX, -1
+            )
+            val positionInfoLength = arguments.getInt(
+                EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH, -1
+            )
+            if ((positionInfoLength <= 0) || (positionInfoStartIndex < 0) ||
+                (positionInfoStartIndex >= node.config[SemanticsProperties.Text].length)) {
+                Log.e(LogTag, "Invalid arguments for accessibility character locations")
+                return
+            }
+            val textLayoutResults = mutableListOf<TextLayoutResult>()
+            // Note now it only works for single Text/TextField until we fix the merging issue.
+            val textLayoutResult: TextLayoutResult
+            if (node.config[SemanticsActions.GetTextLayoutResult].action(textLayoutResults)) {
+                textLayoutResult = textLayoutResults[0]
+            } else {
+                return
+            }
+            val boundingRects = mutableListOf<RectF?>()
+            val textNode: SemanticsNode? = node.findNonEmptyTextChild()
+            for (i in 0 until positionInfoLength) {
+                val bounds = textLayoutResult.getBoundingBox(positionInfoStartIndex + i)
+                val screenBounds: Rect?
+                // Only the visible/partial visible locations are used.
+                if (textNode != null) {
+                    screenBounds = toScreenCoords(textNode, bounds)
+                } else {
+                    screenBounds = bounds
+                }
+                if (screenBounds == null) {
+                    boundingRects.add(null)
+                } else {
+                    boundingRects.add(
+                        RectF(
+                            screenBounds.left,
+                            screenBounds.top,
+                            screenBounds.right,
+                            screenBounds.bottom
+                        )
+                    )
+                }
+            }
+            info.extras.putParcelableArray(extraDataKey, boundingRects.toTypedArray())
+        }
+    }
+
+    private fun toScreenCoords(textNode: SemanticsNode, bounds: Rect): Rect? {
+        val screenBounds = bounds.shift(textNode.globalPosition)
+        val globalBounds = textNode.globalBounds.toRect()
+        if (screenBounds.overlaps(globalBounds)) {
+            return screenBounds.intersect(globalBounds)
+        }
+        return null
+    }
+
+    // TODO: this only works for single text/text field.
+    private fun SemanticsNode.findNonEmptyTextChild(): SemanticsNode? {
+        if (this.unmergedConfig.contains(SemanticsProperties.Text) &&
+            this.unmergedConfig[SemanticsProperties.Text].length != 0) {
+            return this
+        }
+        unmergedChildren().fastForEach {
+            val result = it.findNonEmptyTextChild()
+            if (result != null) return result
+        }
+        return null
     }
 
     /**
@@ -1049,9 +1150,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         return null
     }
 
-    inner class MyNodeProvider : AccessibilityNodeProviderCompat() {
+    // TODO(b/160820721): use AccessibilityNodeProviderCompat instead of AccessibilityNodeProvider
+    inner class MyNodeProvider : AccessibilityNodeProvider() {
         override fun createAccessibilityNodeInfo(virtualViewId: Int):
-                AccessibilityNodeInfoCompat? {
+                AccessibilityNodeInfo? {
             return createNodeInfo(virtualViewId)
         }
 
@@ -1061,6 +1163,15 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             arguments: Bundle?
         ): Boolean {
             return performActionHelper(virtualViewId, action, arguments)
+        }
+
+        override fun addExtraDataToAccessibilityNodeInfo(
+            virtualViewId: Int,
+            info: AccessibilityNodeInfo,
+            extraDataKey: String,
+            arguments: Bundle?
+        ) {
+            addExtraDataToAccessibilityNodeInfoHelper(virtualViewId, info, extraDataKey, arguments)
         }
     }
 }

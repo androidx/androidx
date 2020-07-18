@@ -16,7 +16,6 @@
 
 package androidx.ui.graphics.drawscope
 
-import androidx.ui.util.annotation.FloatRange
 import androidx.ui.core.LayoutDirection
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Radius
@@ -35,12 +34,12 @@ import androidx.ui.graphics.Path
 import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
-import androidx.ui.graphics.setNativePathEffect
 import androidx.ui.graphics.vectormath.Matrix4
 import androidx.ui.graphics.vectormath.degrees
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
+import androidx.ui.util.annotation.FloatRange
 
 /**
  * Simultaneously translate the [DrawScope] coordinate space by [left] and [top] as well as modify
@@ -1012,7 +1011,7 @@ abstract class DrawScope : Density {
                     strokeJoin = join
 
                     // TODO b/154550525 add PathEffect to Paint if necessary
-                    asFrameworkPaint().setNativePathEffect(pathEffect)
+                    nativePathEffect = pathEffect
                 }
             }
         }
@@ -1080,7 +1079,7 @@ abstract class DrawScope : Density {
             if (this.strokeMiterLimit != miter) this.strokeMiterLimit = miter
             if (this.strokeCap != cap) this.strokeCap = cap
             if (this.strokeJoin != join) this.strokeJoin = join
-            this.asFrameworkPaint().setNativePathEffect(pathEffect)
+            this.nativePathEffect = pathEffect
         }
 
     private fun configureStrokePaint(
@@ -1105,7 +1104,7 @@ abstract class DrawScope : Density {
             if (this.strokeMiterLimit != miter) this.strokeMiterLimit = miter
             if (this.strokeCap != cap) this.strokeCap = cap
             if (this.strokeJoin != join) this.strokeJoin = join
-            this.asFrameworkPaint().setNativePathEffect(pathEffect)
+            this.nativePathEffect = pathEffect
         }
 
     /**

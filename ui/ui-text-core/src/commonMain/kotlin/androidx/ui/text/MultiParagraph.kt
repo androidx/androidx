@@ -501,7 +501,7 @@ class MultiParagraph(
 
     /** Returns the start offset of the given line, inclusive. */
     fun getLineStart(lineIndex: Int): Int {
-        requireIndexInRange(lineIndex)
+        requireLineIndexInRange(lineIndex)
 
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
 
@@ -512,7 +512,7 @@ class MultiParagraph(
 
     /** Returns the end offset of the given line, exclusive. */
     fun getLineEnd(lineIndex: Int): Int {
-        requireIndexInRange(lineIndex)
+        requireLineIndexInRange(lineIndex)
 
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
 
@@ -523,7 +523,7 @@ class MultiParagraph(
 
     /** Returns the offset where ellipsis is applied, regarding to the line start. */
     fun getLineEllipsisOffset(lineIndex: Int): Int {
-        requireIndexInRange(lineIndex)
+        requireLineIndexInRange(lineIndex)
 
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
 
@@ -534,7 +534,7 @@ class MultiParagraph(
 
     /** Returns the number of characters that is ellipsized in the line. */
     fun getLineEllipsisCount(lineIndex: Int): Int {
-        requireIndexInRange(lineIndex)
+        requireLineIndexInRange(lineIndex)
 
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
 
