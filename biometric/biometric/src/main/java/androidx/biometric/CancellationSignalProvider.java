@@ -37,18 +37,20 @@ class CancellationSignalProvider {
     @VisibleForTesting
     interface Injector {
         /**
-         * TODO
+         * Returns a cancellation signal object that is compatible with
+         * {@link android.hardware.biometrics.BiometricPrompt}.
          *
-         * @return TODO
+         * @return An instance of {@link android.os.CancellationSignal}.
          */
         @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
         @NonNull
         android.os.CancellationSignal getBiometricCancellationSignal();
 
         /**
-         * TODO
+         * Returns a cancellation signal object that is compatible with
+         * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
          *
-         * @return TODO
+         * @return An instance of {@link androidx.core.os.CancellationSignal}.
          */
         @NonNull
         androidx.core.os.CancellationSignal getFingerprintCancellationSignal();
