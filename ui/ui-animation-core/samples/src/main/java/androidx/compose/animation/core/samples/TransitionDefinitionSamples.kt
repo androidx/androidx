@@ -29,7 +29,7 @@ private val alpha = FloatPropKey()
 @Sampled
 @Suppress("UNUSED_VARIABLE")
 fun TransitionDefSample() {
-    val definition = transitionDefinition {
+    val definition = transitionDefinition<ButtonState> {
         state(ButtonState.Pressed) {
             this[alpha] = 0f
             this[radius] = 200f

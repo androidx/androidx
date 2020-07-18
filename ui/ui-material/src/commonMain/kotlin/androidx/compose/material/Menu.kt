@@ -212,7 +212,7 @@ private val Alpha = FloatPropKey()
 internal const val InTransitionDuration = 120
 internal const val OutTransitionDuration = 75
 
-private val DropdownMenuOpenCloseTransition = transitionDefinition {
+private val DropdownMenuOpenCloseTransition = transitionDefinition<Boolean> {
     state(false) {
         // Menu is dismissed.
         this[Scale] = 0.8f

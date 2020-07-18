@@ -38,7 +38,7 @@ private enum class ComponentState { Pressed, Released }
 private val scale = FloatPropKey()
 private val color = ColorPropKey()
 
-private val definition = transitionDefinition {
+private val definition = transitionDefinition<ComponentState> {
     state(ComponentState.Released) {
         this[scale] = 1f
         this[color] = Color(red = 0, green = 200, blue = 0, alpha = 255)

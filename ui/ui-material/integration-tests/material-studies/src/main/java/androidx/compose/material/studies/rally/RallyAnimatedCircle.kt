@@ -36,7 +36,7 @@ private const val DividerLengthInDegrees = 1.8f
 private val AngleOffset = FloatPropKey()
 private val Shift = FloatPropKey()
 
-private val CircularTransition = transitionDefinition {
+private val CircularTransition = transitionDefinition<Int> {
     state(0) {
         this[AngleOffset] = 0f
         this[Shift] = 0f

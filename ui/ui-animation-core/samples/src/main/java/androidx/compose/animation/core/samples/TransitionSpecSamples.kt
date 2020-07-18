@@ -38,7 +38,7 @@ fun TransitionSpecWith3Properties() {
     val Alpha = FloatPropKey()
     val Background = FloatPropKey()
 
-    transitionDefinition {
+    transitionDefinition<ButtonState> {
         // This defines animations for 3 properties: Radius, Alpha, and Background.
         transition(fromState = ButtonState.Released, toState = ButtonState.Pressed) {
             Radius using tween(

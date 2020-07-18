@@ -78,7 +78,7 @@ private enum class RotationStates {
 
 private val rotation = FloatPropKey()
 
-private val definition = transitionDefinition {
+private val definition = transitionDefinition<RotationStates> {
     state(RotationStates.Original) {
         this[rotation] = 0f
     }
