@@ -640,6 +640,20 @@ class MultiParagraphIntegrationTest {
     }
 
     @Test
+    fun lineContentForEmptyText() {
+        val text = ""
+        val paragraph = simpleMultiParagraph(text = text)
+
+        assertThat(paragraph.lineCount).isEqualTo(1)
+        assertThat(paragraph.getLineStart(0)).isEqualTo(0)
+        assertThat(paragraph.getLineEnd(0)).isEqualTo(0)
+        assertThat(paragraph.getLineLeft(0)).isEqualTo(0)
+        assertThat(paragraph.getLineRight(0)).isEqualTo(0)
+        assertThat(paragraph.getLineEllipsisCount(0)).isEqualTo(0)
+        assertThat(paragraph.getLineEllipsisOffset(0)).isEqualTo(0)
+    }
+
+    @Test
     fun getLineRight() {
         with(defaultDensity) {
             val text = createAnnotatedString("aa", "\u05D0\u05D0")
