@@ -39,7 +39,7 @@ interface XProcessingStep {
 
     fun annotations(): Set<KClass<out Annotation>>
 
-    fun asAutoValueProcessor(
+    fun asAutoCommonProcessor(
         env: XProcessingEnv
     ): BasicAnnotationProcessor.ProcessingStep {
         return JavacProcessingStepDelegate(
