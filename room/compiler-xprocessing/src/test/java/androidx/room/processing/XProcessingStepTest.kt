@@ -50,7 +50,7 @@ class XProcessingStepTest {
         val mainProcessor = object : BasicAnnotationProcessor() {
             override fun initSteps(): Iterable<ProcessingStep> {
                 return listOf(
-                    processingStep.asAutoValueProcessor(
+                    processingStep.asAutoCommonProcessor(
                         XProcessingEnv.create(processingEnv)
                     )
                 )
