@@ -222,16 +222,7 @@ public class RxRoom {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static <T> Single<T> createSingle(final Callable<T> callable) {
-        return Single.create(new SingleOnSubscribe<T>() {
-            @Override
-            public void subscribe(SingleEmitter<T> emitter) throws Exception {
-                try {
-                    emitter.onSuccess(callable.call());
-                } catch (EmptyResultSetException e) {
-                    emitter.tryOnError(e);
-                }
-            }
-        });
+        return Single.fromCallable(callable);
     }
 
     private static Executor getExecutor(RoomDatabase database, boolean inTransaction) {

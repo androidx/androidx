@@ -171,13 +171,7 @@ public final class RxRoom {
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static <T> Single<T> createSingle(@NonNull final Callable<T> callable) {
-        return Single.create(emitter -> {
-            try {
-                emitter.onSuccess(callable.call());
-            } catch (EmptyResultSetException e) {
-                emitter.tryOnError(e);
-            }
-        });
+        return Single.fromCallable(callable);
     }
 
     private static Executor getExecutor(@NonNull RoomDatabase database, boolean inTransaction) {
