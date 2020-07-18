@@ -18,13 +18,16 @@ A playground project needs a `settings.gradle` file that applies
 to pull select projects from AndroidX.
 
 To share as much common configuration as possible, it is also recommended
-to symlink to the following files of `playground-common`:
+to symlink some common files like `gradle` and `.idea` configuration.
 
+To do that, execute "setup-playground.sh" comamnd in your playground directory.
 ```
-gradle -> playground-common/gradle
-gradlew -> playground-common/gradlew
-gradlew.bat -> playground-common/gradlew.bat
+cd room;
+../playground-common/setup-playground.sh
 ```
+This script will create symbolic links for `gradle` and `.idea` files that are committed
+to the git repository. It also force adds the `.idea` files to the git repository because
+by default any nested .idea folder is ignored from git.
 
 The `playground-settings.gradle` file sets a pre-defined build file (`playground-build.gradle`)
 for the root project and also provides `includeProject` and `selectProjectsFromAndroidX`
