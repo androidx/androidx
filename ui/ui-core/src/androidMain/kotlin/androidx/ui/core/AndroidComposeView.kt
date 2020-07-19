@@ -83,7 +83,7 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.CanvasHolder
 import androidx.ui.input.TextInputServiceAndroid
 import androidx.ui.input.textInputServiceFactory
-import androidx.ui.savedinstancestate.UiSavedStateRegistry
+import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntOffset

@@ -54,7 +54,7 @@ import androidx.ui.material.samples.PasswordFilledTextField
 import androidx.ui.material.samples.SimpleOutlinedTextFieldSample
 import androidx.ui.material.samples.TextFieldWithHelperMessage
 import androidx.ui.material.samples.TextFieldWithHideKeyboardOnImeAction
-import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.ui.unit.dp
 
 @Composable

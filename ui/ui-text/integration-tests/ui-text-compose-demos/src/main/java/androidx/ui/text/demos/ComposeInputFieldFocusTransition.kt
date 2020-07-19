@@ -23,7 +23,7 @@ import androidx.ui.foundation.ScrollableColumn
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
 import androidx.ui.input.TextFieldValue
-import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.ui.text.CoreTextField
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.sp

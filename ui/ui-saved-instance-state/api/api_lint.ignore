@@ -1,5 +1,5 @@
 // Baseline format: 1.0
-ArrayReturn: androidx.ui.savedinstancestate.RememberSavedInstanceStateKt#rememberSavedInstanceState(Object[], androidx.ui.savedinstancestate.Saver<T,?>, String, kotlin.jvm.functions.Function0<? extends T>) parameter #0:
+ArrayReturn: androidx.compose.runtime.savedinstancestate.RememberSavedInstanceStateKt#rememberSavedInstanceState(Object[], androidx.compose.runtime.savedinstancestate.Saver<T,?>, String, kotlin.jvm.functions.Function0<? extends T>) parameter #0:
     Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
-ArrayReturn: androidx.ui.savedinstancestate.SavedInstanceStateKt#savedInstanceState(Object[], androidx.ui.savedinstancestate.Saver<T,?>, String, androidx.compose.SnapshotMutationPolicy<T>, kotlin.jvm.functions.Function0<? extends T>) parameter #0:
+ArrayReturn: androidx.compose.runtime.savedinstancestate.SavedInstanceStateKt#savedInstanceState(Object[], androidx.compose.runtime.savedinstancestate.Saver<T,?>, String, androidx.compose.SnapshotMutationPolicy<T>, kotlin.jvm.functions.Function0<? extends T>) parameter #0:
     Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`

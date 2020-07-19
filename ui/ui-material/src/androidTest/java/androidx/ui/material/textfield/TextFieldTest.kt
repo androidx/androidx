@@ -31,7 +31,7 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.material.TextFieldScroller
 import androidx.ui.material.TextFieldScrollerPosition
-import androidx.ui.savedinstancestate.rememberSavedInstanceState
+import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap

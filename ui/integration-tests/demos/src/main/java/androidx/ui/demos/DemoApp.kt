@@ -49,7 +49,7 @@ import androidx.ui.material.icons.filled.ArrowBack
 import androidx.ui.material.icons.filled.ArrowForward
 import androidx.ui.material.icons.filled.Search
 import androidx.ui.material.icons.filled.Settings
-import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.ui.unit.dp
 
 @Composable

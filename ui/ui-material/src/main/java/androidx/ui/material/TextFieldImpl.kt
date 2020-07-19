@@ -68,8 +68,8 @@ import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.RippleIndication
-import androidx.ui.savedinstancestate.Saver
-import androidx.ui.savedinstancestate.rememberSavedInstanceState
+import androidx.compose.runtime.savedinstancestate.Saver
+import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextStyle
 import androidx.ui.text.lerp

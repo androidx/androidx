@@ -44,9 +44,9 @@ import androidx.ui.material.ColorPalette
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.darkColorPalette
 import androidx.ui.material.lightColorPalette
-import androidx.ui.savedinstancestate.Saver
-import androidx.ui.savedinstancestate.listSaver
-import androidx.ui.savedinstancestate.rememberSavedInstanceState
+import androidx.compose.runtime.savedinstancestate.Saver
+import androidx.compose.runtime.savedinstancestate.listSaver
+import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 
 /**
  * Main [Activity] containing all Compose related demos.

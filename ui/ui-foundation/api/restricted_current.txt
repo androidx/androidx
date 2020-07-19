@@ -156,7 +156,7 @@ package androidx.ui.foundation {
   }
 
   public static final class ScrollState.Companion {
-    method public androidx.ui.savedinstancestate.Saver<androidx.ui.foundation.ScrollState,?> Saver(androidx.ui.foundation.animation.FlingConfig flingConfig, androidx.animation.AnimationClockObservable animationClock);
+    method public androidx.compose.runtime.savedinstancestate.Saver<androidx.ui.foundation.ScrollState,?> Saver(androidx.ui.foundation.animation.FlingConfig flingConfig, androidx.animation.AnimationClockObservable animationClock);
   }
 
   @Deprecated @androidx.compose.Stable public final class ScrollerPosition {
@@ -175,7 +175,7 @@ package androidx.ui.foundation {
   }
 
   @Deprecated public static final class ScrollerPosition.Companion {
-    method @Deprecated @androidx.compose.Composable public androidx.ui.savedinstancestate.Saver<androidx.ui.foundation.ScrollerPosition,?> Saver(androidx.ui.foundation.animation.FlingConfig flingConfig, boolean isReversed, androidx.animation.AnimationClockObservable animationClock);
+    method @Deprecated @androidx.compose.Composable public androidx.compose.runtime.savedinstancestate.Saver<androidx.ui.foundation.ScrollerPosition,?> Saver(androidx.ui.foundation.animation.FlingConfig flingConfig, boolean isReversed, androidx.animation.AnimationClockObservable animationClock);
   }
 
   public final class Strings {

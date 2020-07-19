@@ -34,7 +34,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.ui.platform.AndroidUriHandler
 import androidx.ui.platform.UriHandler
-import androidx.ui.savedinstancestate.UiSavedStateRegistryAmbient
+import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistryAmbient
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 
