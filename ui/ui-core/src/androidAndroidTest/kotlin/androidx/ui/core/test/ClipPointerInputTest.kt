@@ -36,7 +36,7 @@ import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.Offset
-import androidx.ui.layout.offset
+import androidx.compose.foundation.layout.offset
 import androidx.ui.unit.IntSize
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before

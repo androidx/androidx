@@ -22,7 +22,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.selection.toggleable
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.unit.dp
 

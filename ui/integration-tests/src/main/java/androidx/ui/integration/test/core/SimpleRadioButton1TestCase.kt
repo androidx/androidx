@@ -25,7 +25,7 @@ import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawOutline
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.unit.dp
 
 class SimpleRadioButton1TestCase : BaseSimpleRadioButtonTestCase() {

@@ -32,12 +32,12 @@ import androidx.compose.foundation.indication
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.InnerPadding
-import androidx.ui.layout.Row
-import androidx.ui.layout.RowScope
-import androidx.ui.layout.defaultMinSizeConstraints
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.defaultMinSizeConstraints
+import androidx.compose.foundation.layout.padding
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 

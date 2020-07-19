@@ -25,10 +25,10 @@ import androidx.ui.core.constrainWidth
 import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.input.TextFieldValue
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.height
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.ui.text.CoreTextField
 import androidx.ui.text.TextStyle

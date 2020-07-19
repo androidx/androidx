@@ -26,8 +26,8 @@ import androidx.compose.foundation.selection.ToggleableState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.selection.triStateToggleable
 import androidx.compose.foundation.semantics.FoundationSemanticsProperties
-import androidx.ui.layout.Column
-import androidx.ui.layout.Stack
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Stack
 import androidx.ui.test.SemanticsMatcher
 import androidx.ui.test.assert
 import androidx.ui.test.assertHasClickAction

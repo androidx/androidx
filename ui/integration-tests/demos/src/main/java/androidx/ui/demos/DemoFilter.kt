@@ -30,9 +30,9 @@ import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.ui.graphics.compositeOver
 import androidx.ui.input.TextFieldValue
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.material.IconButton
 import androidx.ui.material.ListItem
 import androidx.ui.material.MaterialTheme

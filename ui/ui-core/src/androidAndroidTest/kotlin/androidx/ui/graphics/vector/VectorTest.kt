@@ -31,9 +31,9 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.toArgb
-import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.preferredWidth
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onRoot

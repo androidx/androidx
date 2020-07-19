@@ -41,7 +41,7 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.TextFieldValue
 import androidx.ui.input.VisualTransformation
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.padding
 import androidx.ui.text.InternalTextApi
 import androidx.ui.text.LastBaseline
 import androidx.ui.text.SoftwareKeyboardController

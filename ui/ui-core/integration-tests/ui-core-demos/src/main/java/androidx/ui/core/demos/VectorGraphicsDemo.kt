@@ -33,10 +33,10 @@ import androidx.ui.graphics.vector.Path
 import androidx.ui.graphics.vector.PathBuilder
 import androidx.ui.graphics.vector.PathData
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.res.loadVectorResource
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp

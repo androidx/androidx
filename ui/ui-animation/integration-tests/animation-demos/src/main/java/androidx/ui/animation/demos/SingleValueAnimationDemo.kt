@@ -23,7 +23,7 @@ import androidx.ui.core.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.clickable
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 
 @Composable
 fun SingleValueAnimationDemo() {

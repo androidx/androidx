@@ -28,10 +28,10 @@ import androidx.compose.foundation.ProvideTextStyle
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.padding
-import androidx.ui.layout.relativePaddingFrom
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.relativePaddingFrom
 import androidx.ui.text.FirstBaseline
 import androidx.ui.text.LastBaseline
 import androidx.ui.unit.Dp

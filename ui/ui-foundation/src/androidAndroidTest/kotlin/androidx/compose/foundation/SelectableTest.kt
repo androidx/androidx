@@ -23,7 +23,7 @@ import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.selection.selectable
-import androidx.ui.layout.Stack
+import androidx.compose.foundation.layout.Stack
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertIsInMutuallyExclusiveGroup
 import androidx.ui.test.assertIsSelected

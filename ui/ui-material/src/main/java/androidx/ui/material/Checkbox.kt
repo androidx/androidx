@@ -43,9 +43,9 @@ import androidx.ui.graphics.asAndroidPath
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.Fill
 import androidx.ui.graphics.drawscope.Stroke
-import androidx.ui.layout.padding
-import androidx.ui.layout.size
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.unit.dp
 import androidx.ui.util.lerp

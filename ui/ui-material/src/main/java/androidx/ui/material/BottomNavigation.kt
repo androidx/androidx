@@ -40,11 +40,11 @@ import androidx.compose.foundation.contentColor
 import androidx.compose.foundation.selection.selectable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Row
-import androidx.ui.layout.RowScope
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.preferredHeight
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.text.LastBaseline
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Dp

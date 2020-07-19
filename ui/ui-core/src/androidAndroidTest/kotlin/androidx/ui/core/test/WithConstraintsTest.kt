@@ -50,10 +50,10 @@ import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.layout.Constraints
-import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.ltr
-import androidx.ui.layout.rtl
+import androidx.compose.foundation.layout.Constraints
+import androidx.compose.foundation.layout.DpConstraints
+import androidx.compose.foundation.layout.ltr
+import androidx.compose.foundation.layout.rtl
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntSize

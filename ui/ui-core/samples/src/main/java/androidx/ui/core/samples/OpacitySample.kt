@@ -22,7 +22,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.drawOpacity
 import androidx.compose.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.unit.dp
 
 @Sampled

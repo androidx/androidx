@@ -29,11 +29,11 @@ import androidx.compose.foundation.ProvideTextStyle
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
 import androidx.ui.graphics.ImageAsset
-import androidx.ui.layout.Row
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredHeightIn
-import androidx.ui.layout.preferredSizeIn
-import androidx.ui.layout.preferredWidthIn
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredHeightIn
+import androidx.compose.foundation.layout.preferredSizeIn
+import androidx.compose.foundation.layout.preferredWidthIn
 import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.text.FirstBaseline
 import androidx.ui.text.LastBaseline

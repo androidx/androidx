@@ -27,8 +27,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
-import androidx.ui.layout.Column
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.ui.unit.Density
 import androidx.ui.unit.dp
 import org.junit.Assert

@@ -41,11 +41,11 @@ import androidx.ui.input.KeyboardType
 import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.input.TextFieldValue
 import androidx.ui.input.TextInputService
-import androidx.ui.layout.Column
-import androidx.ui.layout.Stack
-import androidx.ui.layout.height
-import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.material.TextField
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.runOnIdleWithDensity

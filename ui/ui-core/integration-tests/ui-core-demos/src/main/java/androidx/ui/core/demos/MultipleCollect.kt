@@ -26,7 +26,7 @@ import androidx.ui.core.id
 import androidx.ui.core.layoutId
 import androidx.compose.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 
 @Composable
 fun HeaderFooterLayout(

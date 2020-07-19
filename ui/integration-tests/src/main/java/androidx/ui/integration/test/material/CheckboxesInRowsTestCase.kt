@@ -23,9 +23,9 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Text
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface

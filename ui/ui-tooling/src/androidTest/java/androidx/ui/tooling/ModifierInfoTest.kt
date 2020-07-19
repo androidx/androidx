@@ -28,9 +28,9 @@ import androidx.ui.core.positionInRoot
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.padding
-import androidx.ui.layout.size
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

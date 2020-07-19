@@ -35,10 +35,10 @@ import androidx.compose.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.graphics.toArgb
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredHeight
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.material.BottomAppBar
 import androidx.ui.material.ColorPalette
 import androidx.ui.material.ExtendedFloatingActionButton

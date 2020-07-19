@@ -25,9 +25,9 @@ import androidx.ui.core.onPositioned
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.ui.geometry.Offset
-import androidx.ui.layout.Column
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.preferredWidth
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

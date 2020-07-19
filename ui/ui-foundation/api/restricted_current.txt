@@ -30,8 +30,8 @@ package androidx.compose.foundation {
 
   public final class BoxKt {
     method @androidx.compose.Composable public static void Box-Pkj0E94(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, long backgroundColor = Color.Transparent, androidx.compose.foundation.Border? border = null, float padding = elvis {
-    var var41190f19: androidx.ui.unit.Dp = border?.size
-    if (var41190f19 != null) var41190f19 else 0.dp
+    var var41192109: androidx.ui.unit.Dp = border?.size
+    if (var41192109 != null) var41192109 else 0.dp
 }, float paddingStart = Dp.Unspecified, float paddingTop = Dp.Unspecified, float paddingEnd = Dp.Unspecified, float paddingBottom = Dp.Unspecified, androidx.ui.core.Alignment gravity = ContentGravity.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children = emptyContent());
   }
 
@@ -129,11 +129,11 @@ package androidx.compose.foundation {
   }
 
   public final class ScrollKt {
-    method @Deprecated @androidx.compose.Composable public static void HorizontalScroller(androidx.compose.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
-    method @androidx.compose.Composable public static void ScrollableColumn(androidx.ui.core.Modifier modifier = Modifier, androidx.compose.foundation.ScrollState scrollState = rememberScrollState(0.0), androidx.ui.layout.Arrangement.Vertical verticalArrangement = Arrangement.Top, androidx.ui.core.Alignment.Horizontal horizontalGravity = Alignment.Start, boolean reverseScrollDirection = false, boolean isScrollEnabled = true, androidx.ui.layout.InnerPadding contentPadding = androidx.ui.layout.InnerPadding(0.dp), kotlin.jvm.functions.Function1<? super androidx.ui.layout.ColumnScope,kotlin.Unit> children);
-    method @androidx.compose.Composable public static void ScrollableRow(androidx.ui.core.Modifier modifier = Modifier, androidx.compose.foundation.ScrollState scrollState = rememberScrollState(0.0), androidx.ui.layout.Arrangement.Horizontal horizontalArrangement = Arrangement.Start, androidx.ui.core.Alignment.Vertical verticalGravity = Alignment.Top, boolean reverseScrollDirection = false, boolean isScrollEnabled = true, androidx.ui.layout.InnerPadding contentPadding = androidx.ui.layout.InnerPadding(0.dp), kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
+    method @Deprecated @androidx.compose.Composable public static void HorizontalScroller(androidx.compose.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> children);
+    method @androidx.compose.Composable public static void ScrollableColumn(androidx.ui.core.Modifier modifier = Modifier, androidx.compose.foundation.ScrollState scrollState = rememberScrollState(0.0), androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement = Arrangement.Top, androidx.ui.core.Alignment.Horizontal horizontalGravity = Alignment.Start, boolean reverseScrollDirection = false, boolean isScrollEnabled = true, androidx.compose.foundation.layout.InnerPadding contentPadding = androidx.compose.foundation.layout.InnerPadding(0.dp), kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> children);
+    method @androidx.compose.Composable public static void ScrollableRow(androidx.ui.core.Modifier modifier = Modifier, androidx.compose.foundation.ScrollState scrollState = rememberScrollState(0.0), androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement = Arrangement.Start, androidx.ui.core.Alignment.Vertical verticalGravity = Alignment.Top, boolean reverseScrollDirection = false, boolean isScrollEnabled = true, androidx.compose.foundation.layout.InnerPadding contentPadding = androidx.compose.foundation.layout.InnerPadding(0.dp), kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> children);
     method @Deprecated @androidx.compose.Composable public static androidx.compose.foundation.ScrollerPosition ScrollerPosition(float initial = 0f, boolean isReversed = false);
-    method @Deprecated @androidx.compose.Composable public static void VerticalScroller(androidx.compose.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function1<? super androidx.ui.layout.ColumnScope,kotlin.Unit> children);
+    method @Deprecated @androidx.compose.Composable public static void VerticalScroller(androidx.compose.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> children);
     method public static androidx.ui.core.Modifier horizontalScroll(androidx.ui.core.Modifier, androidx.compose.foundation.ScrollState state, boolean enabled = true, boolean reverseScrolling = false);
     method @androidx.compose.Composable public static androidx.compose.foundation.ScrollState rememberScrollState(float initial = 0f);
     method public static androidx.ui.core.Modifier verticalScroll(androidx.ui.core.Modifier, androidx.compose.foundation.ScrollState state, boolean enabled = true, boolean reverseScrolling = false);
@@ -281,8 +281,8 @@ package androidx.compose.foundation.gestures {
 package androidx.compose.foundation.lazy {
 
   public final class LazyItemsKt {
-    method @androidx.compose.Composable public static <T> void LazyColumnItems(java.util.List<? extends T> items, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.layout.InnerPadding contentPadding = androidx.ui.layout.InnerPadding(0.dp), kotlin.jvm.functions.Function1<? super T,kotlin.Unit> itemContent);
-    method @androidx.compose.Composable public static <T> void LazyRowItems(java.util.List<? extends T> items, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.layout.InnerPadding contentPadding = androidx.ui.layout.InnerPadding(0.dp), kotlin.jvm.functions.Function1<? super T,kotlin.Unit> itemContent);
+    method @androidx.compose.Composable public static <T> void LazyColumnItems(java.util.List<? extends T> items, androidx.ui.core.Modifier modifier = Modifier, androidx.compose.foundation.layout.InnerPadding contentPadding = androidx.compose.foundation.layout.InnerPadding(0.dp), kotlin.jvm.functions.Function1<? super T,kotlin.Unit> itemContent);
+    method @androidx.compose.Composable public static <T> void LazyRowItems(java.util.List<? extends T> items, androidx.ui.core.Modifier modifier = Modifier, androidx.compose.foundation.layout.InnerPadding contentPadding = androidx.compose.foundation.layout.InnerPadding(0.dp), kotlin.jvm.functions.Function1<? super T,kotlin.Unit> itemContent);
   }
 
 }

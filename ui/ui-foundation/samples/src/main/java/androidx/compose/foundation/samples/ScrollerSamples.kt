@@ -34,13 +34,13 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.HorizontalGradient
 import androidx.ui.graphics.TileMode
 import androidx.ui.graphics.VerticalGradient
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.height
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.size
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 

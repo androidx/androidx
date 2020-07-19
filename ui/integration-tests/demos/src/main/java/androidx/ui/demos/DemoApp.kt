@@ -34,10 +34,10 @@ import androidx.compose.foundation.Icon
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.ui.input.TextFieldValue
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.material.IconButton
 import androidx.ui.material.ListItem
 import androidx.ui.material.MaterialTheme

@@ -26,8 +26,8 @@ import androidx.ui.benchmark.toggleStateBenchmarkRecompose
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Box
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.Column
-import androidx.ui.layout.preferredWidth
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.dp
 import org.junit.Rule

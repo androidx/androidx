@@ -27,11 +27,11 @@ import androidx.ui.core.gesture.dragGestureFilter
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.offset
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 

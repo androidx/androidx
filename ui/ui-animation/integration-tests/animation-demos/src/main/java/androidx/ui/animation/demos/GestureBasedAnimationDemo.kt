@@ -29,7 +29,7 @@ import androidx.compose.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 
 private const val halfSize = 200f
 

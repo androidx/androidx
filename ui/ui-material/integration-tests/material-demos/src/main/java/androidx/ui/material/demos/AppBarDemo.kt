@@ -18,8 +18,8 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.layout.Column
-import androidx.ui.layout.Spacer
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.ui.material.samples.SimpleBottomAppBar
 import androidx.ui.material.samples.SimpleTopAppBar
 

@@ -35,7 +35,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.ui.unit.dp
 
 @Composable

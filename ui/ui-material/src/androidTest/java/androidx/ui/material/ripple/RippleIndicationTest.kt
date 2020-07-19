@@ -39,10 +39,10 @@ import androidx.compose.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.compositeOver
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.preferredWidth
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.material.GOLDEN_MATERIAL
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface

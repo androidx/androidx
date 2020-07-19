@@ -38,11 +38,11 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.layout.Stack
-import androidx.ui.layout.StackScope
-import androidx.ui.layout.offsetPx
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.StackScope
+import androidx.compose.foundation.layout.offsetPx
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.material.SwitchDefaults.disabledUncheckedThumbColor
 import androidx.ui.material.SwitchDefaults.disabledUncheckedTrackColor
 import androidx.ui.material.SwitchDefaults.makeDisabledCheckedThumbColor

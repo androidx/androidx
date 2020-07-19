@@ -27,11 +27,11 @@ import androidx.compose.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.asImageAsset
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.material.Button
 import androidx.ui.material.CircularProgressIndicator
 import androidx.ui.material.ExtendedFloatingActionButton
@@ -45,7 +45,7 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import androidx.ui.text.font.fontFamily
 import androidx.ui.desktop.font
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.padding
 import androidx.ui.unit.IntSize
 
 private const val title = "Desktop Compose Elements"

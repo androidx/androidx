@@ -30,7 +30,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp

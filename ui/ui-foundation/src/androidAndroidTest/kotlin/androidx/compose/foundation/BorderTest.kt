@@ -29,8 +29,8 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
-import androidx.ui.layout.Stack
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule

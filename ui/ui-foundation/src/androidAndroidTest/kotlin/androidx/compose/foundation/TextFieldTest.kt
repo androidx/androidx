@@ -39,10 +39,10 @@ import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.ImeAction
 import androidx.ui.input.TextInputService
-import androidx.ui.layout.Row
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.preferredWidth
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.assert

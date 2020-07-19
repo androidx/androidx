@@ -33,8 +33,8 @@ import androidx.compose.foundation.drawBorder
 import androidx.compose.foundation.gestures.ZoomableState
 import androidx.compose.foundation.gestures.zoomable
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 

@@ -23,11 +23,11 @@ import androidx.compose.foundation.samples.BorderSampleWithBrush
 import androidx.compose.foundation.samples.BorderSampleWithDataClass
 import androidx.compose.foundation.samples.DrawBackgroundColor
 import androidx.compose.foundation.samples.DrawBackgroundShapedBrush
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredHeight
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.unit.dp
 
 @Composable

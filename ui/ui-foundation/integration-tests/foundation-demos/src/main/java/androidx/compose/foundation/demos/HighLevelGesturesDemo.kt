@@ -21,9 +21,9 @@ import androidx.ui.core.Modifier
 import androidx.compose.foundation.samples.DraggableSample
 import androidx.compose.foundation.samples.ScrollableSample
 import androidx.compose.foundation.samples.ZoomableSample
-import androidx.ui.layout.Column
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.preferredHeight
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.unit.dp
 
 @Composable

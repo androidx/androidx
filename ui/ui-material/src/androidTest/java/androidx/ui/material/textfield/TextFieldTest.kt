@@ -27,8 +27,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.input.TextFieldValue
-import androidx.ui.layout.Stack
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.material.TextFieldScroller
 import androidx.ui.material.TextFieldScrollerPosition
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState

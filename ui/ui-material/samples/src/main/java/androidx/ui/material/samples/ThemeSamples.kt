@@ -24,8 +24,8 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.ui.graphics.Color
-import androidx.ui.layout.aspectRatio
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.ui.material.ExtendedFloatingActionButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Typography

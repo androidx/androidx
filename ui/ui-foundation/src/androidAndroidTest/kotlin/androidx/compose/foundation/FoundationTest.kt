@@ -19,9 +19,9 @@ package androidx.compose.foundation
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.Stack
-import androidx.ui.layout.preferredSizeIn
+import androidx.compose.foundation.layout.DpConstraints
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.ui.test.ComposeTestRule
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.onNodeWithTag

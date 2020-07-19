@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.zIndex
 import androidx.compose.foundation.Text
-import androidx.ui.layout.Stack
+import androidx.compose.foundation.layout.Stack
 
 @Sampled
 @Composable

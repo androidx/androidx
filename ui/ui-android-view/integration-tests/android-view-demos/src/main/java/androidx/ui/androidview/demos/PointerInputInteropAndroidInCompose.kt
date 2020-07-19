@@ -32,12 +32,12 @@ import androidx.compose.foundation.ScrollableRow
 import androidx.compose.foundation.Text
 import androidx.ui.geometry.Offset
 import androidx.compose.foundation.background
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.unit.dp
 import androidx.ui.viewinterop.AndroidView
 

@@ -34,9 +34,9 @@ import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.core.drawBehind
 import androidx.ui.core.testTag
 import androidx.ui.graphics.toArgb
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.preferredSizeIn
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.preferredSizeIn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.res.loadVectorResource
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule

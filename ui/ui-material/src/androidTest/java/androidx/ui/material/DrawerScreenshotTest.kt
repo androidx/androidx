@@ -25,8 +25,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.size
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.ui.test.ComposeTestRule
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule

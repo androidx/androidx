@@ -33,9 +33,9 @@ import androidx.ui.geometry.Offset
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.TextFieldValue
-import androidx.ui.layout.Column
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.preferredHeight
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.material.MaterialTheme
 import androidx.ui.text.CoreTextField
 import androidx.ui.unit.dp

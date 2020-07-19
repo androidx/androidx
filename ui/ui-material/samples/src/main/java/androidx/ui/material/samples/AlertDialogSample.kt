@@ -21,10 +21,10 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Text
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Row
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.ui.material.AlertDialog
 import androidx.ui.material.AlertDialogButtonLayout
 import androidx.ui.material.Button

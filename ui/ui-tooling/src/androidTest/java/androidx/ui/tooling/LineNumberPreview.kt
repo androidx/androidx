@@ -19,8 +19,8 @@ package androidx.ui.tooling
 import androidx.compose.Composable
 import androidx.compose.foundation.Text
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.ui.material.Button
 import androidx.ui.material.Surface
 import androidx.ui.tooling.preview.Preview

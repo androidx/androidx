@@ -27,9 +27,9 @@ import androidx.ui.benchmark.toggleStateBenchmarkMeasureLayout
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp

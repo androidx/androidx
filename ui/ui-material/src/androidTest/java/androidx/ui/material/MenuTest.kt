@@ -30,8 +30,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.contentColor
 import androidx.ui.graphics.Color
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.size
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
 import androidx.ui.test.onNode

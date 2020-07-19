@@ -22,9 +22,9 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.compose.foundation.Strings
-import androidx.ui.layout.Column
-import androidx.ui.layout.Stack
-import androidx.ui.layout.rtl
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.rtl
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsEnabled

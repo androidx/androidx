@@ -25,7 +25,7 @@ import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.compose.foundation.Box
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.padding
 import androidx.ui.material.Scaffold
 
 /**

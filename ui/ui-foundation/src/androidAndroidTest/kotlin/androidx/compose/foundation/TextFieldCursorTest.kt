@@ -24,8 +24,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.input.TextFieldValue
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.assertPixels
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap

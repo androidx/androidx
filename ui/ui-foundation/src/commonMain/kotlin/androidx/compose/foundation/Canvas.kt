@@ -20,8 +20,8 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
 import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.layout.ColumnScope
-import androidx.ui.layout.Spacer
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
 
 /**
  * Component that allow you to specify an area on the screen and perform canvas drawing on this

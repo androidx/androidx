@@ -20,10 +20,10 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Text
 import androidx.ui.graphics.RectangleShape
-import androidx.ui.layout.Column
-import androidx.ui.layout.InnerPadding
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.ui.material.AlertDialog
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme

@@ -24,7 +24,7 @@ import androidx.ui.core.setContent
 import androidx.ui.core.id
 import androidx.ui.core.layoutId
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.layout.Stack
+import androidx.compose.foundation.layout.Stack
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before

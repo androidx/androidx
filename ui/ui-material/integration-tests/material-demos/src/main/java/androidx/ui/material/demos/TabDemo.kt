@@ -23,9 +23,9 @@ import androidx.ui.core.Modifier
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.height
-import androidx.ui.layout.preferredHeight
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.material.Button
 import androidx.ui.material.samples.FancyIndicatorContainerTabs
 import androidx.ui.material.samples.FancyIndicatorTabs

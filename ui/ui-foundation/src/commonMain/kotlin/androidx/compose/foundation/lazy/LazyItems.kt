@@ -33,9 +33,9 @@ import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.materialize
 import androidx.compose.foundation.gestures.rememberScrollableController
 import androidx.compose.foundation.gestures.scrollable
-import androidx.ui.layout.InnerPadding
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.ui.unit.dp
 
 /**

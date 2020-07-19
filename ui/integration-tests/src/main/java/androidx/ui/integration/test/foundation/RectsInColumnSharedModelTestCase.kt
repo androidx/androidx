@@ -23,11 +23,11 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.ui.unit.dp
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
+import androidx.compose.foundation.layout.Column
 import androidx.ui.material.MaterialTheme
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.preferredSize
 
 /**
  * Test case that puts the given amount of rectangles into a column layout and makes changes by

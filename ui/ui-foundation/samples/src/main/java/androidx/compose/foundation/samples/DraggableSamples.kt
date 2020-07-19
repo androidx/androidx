@@ -24,9 +24,9 @@ import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.gestures.draggable
 import androidx.ui.graphics.Color
-import androidx.ui.layout.offsetPx
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.preferredWidth
+import androidx.compose.foundation.layout.offsetPx
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.unit.dp
 
 @Sampled

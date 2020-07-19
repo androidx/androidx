@@ -27,8 +27,8 @@ import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.toArgb
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertShape
 import androidx.ui.test.assertWidthIsEqualTo

@@ -25,7 +25,7 @@ import androidx.ui.core.setContent
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
 import androidx.compose.foundation.Text
-import androidx.ui.layout.Column
+import androidx.compose.foundation.layout.Column
 import androidx.ui.material.Button
 import androidx.ui.viewinterop.AndroidView
 

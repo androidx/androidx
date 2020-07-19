@@ -28,9 +28,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.compose.foundation.animation.FlingConfig
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Stack
-import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.GestureScope
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.StateRestorationTester

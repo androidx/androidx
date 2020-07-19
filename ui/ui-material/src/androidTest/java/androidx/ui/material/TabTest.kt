@@ -27,8 +27,8 @@ import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.preferredHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.samples.ScrollingTextTabs

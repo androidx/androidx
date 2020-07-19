@@ -20,10 +20,10 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.InnerPadding
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.height
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.samples.RadioButtonSample
 import androidx.ui.material.samples.RadioGroupSample

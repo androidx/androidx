@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.mutableStateOf
 import androidx.compose.foundation.Text
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.Column
+import androidx.compose.foundation.layout.Column
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.test.ComposeTestCase

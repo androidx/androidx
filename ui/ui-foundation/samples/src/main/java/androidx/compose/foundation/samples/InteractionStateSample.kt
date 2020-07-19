@@ -30,9 +30,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.currentTextStyle
 import androidx.compose.foundation.gestures.draggable
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.dp
 

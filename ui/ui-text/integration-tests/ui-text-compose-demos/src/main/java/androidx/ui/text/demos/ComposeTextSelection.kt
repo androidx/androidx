@@ -25,10 +25,10 @@ import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.intl.LocaleList
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
-import androidx.ui.layout.fillMaxHeight
-import androidx.ui.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.annotatedString

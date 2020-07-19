@@ -23,8 +23,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.ui.core.Alignment
 import androidx.compose.foundation.Text
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Column
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.ui.material.Button
 import androidx.ui.viewmodel.viewModel

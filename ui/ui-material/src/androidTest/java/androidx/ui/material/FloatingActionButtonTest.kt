@@ -30,11 +30,11 @@ import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.shape.corner.CutCornerShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.Stack
-import androidx.ui.layout.size
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.test.assertHeightIsEqualTo

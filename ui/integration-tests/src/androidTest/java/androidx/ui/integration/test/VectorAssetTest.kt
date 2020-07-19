@@ -19,7 +19,7 @@ package androidx.ui.integration.test
 import android.os.Build
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.layout.Column
+import androidx.compose.foundation.layout.Column
 import androidx.ui.test.captureToBitmap
 import androidx.ui.integration.test.framework.ProgrammaticVectorTestCase
 import androidx.ui.integration.test.framework.XmlVectorTestCase

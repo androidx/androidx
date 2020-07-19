@@ -37,9 +37,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.drawBorder
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.preferredHeight
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import kotlin.math.roundToInt

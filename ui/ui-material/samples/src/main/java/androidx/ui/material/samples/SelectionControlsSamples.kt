@@ -28,11 +28,11 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.selection.ToggleableState
 import androidx.compose.foundation.selection.selectable
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredHeight
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.RadioButton

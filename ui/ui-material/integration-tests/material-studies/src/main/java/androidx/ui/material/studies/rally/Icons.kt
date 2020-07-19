@@ -24,7 +24,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.lazyMaterialIcon
 import androidx.ui.material.icons.materialPath

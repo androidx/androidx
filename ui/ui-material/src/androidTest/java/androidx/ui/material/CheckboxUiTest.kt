@@ -24,7 +24,7 @@ import androidx.compose.foundation.selection.ToggleableState
 import androidx.compose.foundation.selection.ToggleableState.Indeterminate
 import androidx.compose.foundation.selection.ToggleableState.Off
 import androidx.compose.foundation.selection.ToggleableState.On
-import androidx.ui.layout.Column
+import androidx.compose.foundation.layout.Column
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertIsEnabled
 import androidx.ui.test.assertIsOff

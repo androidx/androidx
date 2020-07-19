@@ -27,8 +27,8 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.input.TextFieldValue
-import androidx.ui.layout.Column
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.ui.material.EmphasisAmbient
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.OutlinedTextField

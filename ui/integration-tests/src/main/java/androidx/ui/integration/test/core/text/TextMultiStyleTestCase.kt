@@ -22,8 +22,8 @@ import androidx.ui.core.Modifier
 import androidx.compose.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.integration.test.RandomTextGenerator
-import androidx.ui.layout.preferredWidth
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextStyle

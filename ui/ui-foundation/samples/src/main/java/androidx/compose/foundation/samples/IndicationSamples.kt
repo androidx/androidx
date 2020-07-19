@@ -25,10 +25,10 @@ import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
-import androidx.ui.layout.Column
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.height
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.ui.unit.dp
 
 @Composable

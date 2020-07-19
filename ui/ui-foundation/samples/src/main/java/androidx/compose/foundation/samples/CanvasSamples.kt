@@ -23,7 +23,7 @@ import androidx.compose.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.inset
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.unit.dp
 
 @Sampled

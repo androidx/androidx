@@ -26,11 +26,11 @@ import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize

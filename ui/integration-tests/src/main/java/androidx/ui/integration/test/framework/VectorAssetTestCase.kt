@@ -29,7 +29,7 @@ import androidx.ui.graphics.vector.PathData
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorAssetBuilder
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.res.vectorResource
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.dp

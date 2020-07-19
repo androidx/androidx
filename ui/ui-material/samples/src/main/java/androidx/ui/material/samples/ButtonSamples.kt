@@ -21,8 +21,8 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.size
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
 import androidx.ui.material.Button
 import androidx.ui.material.ButtonConstants
 import androidx.ui.material.OutlinedButton

@@ -23,10 +23,10 @@ import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.padding
-import androidx.ui.layout.size
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.test.assertHeightIsAtLeast
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsEqualTo

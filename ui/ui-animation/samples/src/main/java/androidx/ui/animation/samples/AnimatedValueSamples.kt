@@ -29,8 +29,8 @@ import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 

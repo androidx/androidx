@@ -36,11 +36,11 @@ import androidx.ui.core.keyinput.KeyEventType
 import androidx.ui.core.keyinput.keyInputFilter
 import androidx.compose.foundation.Text
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
-import androidx.ui.layout.RowScope
-import androidx.ui.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
 
 @Composable
 fun KeyInputDemo() {

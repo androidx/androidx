@@ -40,9 +40,9 @@ import androidx.ui.input.KeyboardType
 import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.input.TextFieldValue
 import androidx.ui.input.TextInputService
-import androidx.ui.layout.Column
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.preferredWidth
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.OutlinedTextField
 import androidx.ui.material.runOnIdleWithDensity

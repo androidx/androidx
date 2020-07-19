@@ -32,11 +32,11 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.ui.core.selection.SimpleContainer
-import androidx.ui.layout.Stack
-import androidx.ui.layout.height
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.rtl
-import androidx.ui.layout.width
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.rtl
+import androidx.compose.foundation.layout.width
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread

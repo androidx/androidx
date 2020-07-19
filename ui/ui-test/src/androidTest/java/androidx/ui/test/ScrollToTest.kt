@@ -23,8 +23,8 @@ import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.semantics.scrollBy
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth

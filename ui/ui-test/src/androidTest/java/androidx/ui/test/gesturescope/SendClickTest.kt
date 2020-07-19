@@ -25,7 +25,7 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
+import androidx.compose.foundation.layout.Column
 import androidx.ui.test.ActivityWithActionBar
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.performGesture

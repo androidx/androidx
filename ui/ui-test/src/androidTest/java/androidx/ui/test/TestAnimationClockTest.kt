@@ -38,7 +38,7 @@ import androidx.compose.foundation.background
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.ui.test.android.ComposeIdlingResource
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking

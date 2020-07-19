@@ -25,10 +25,10 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.drawBorder
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 

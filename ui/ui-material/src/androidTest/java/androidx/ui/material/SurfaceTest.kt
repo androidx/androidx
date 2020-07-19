@@ -27,9 +27,9 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
-import androidx.ui.layout.Stack
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule

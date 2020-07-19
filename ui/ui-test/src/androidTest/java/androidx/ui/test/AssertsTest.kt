@@ -23,7 +23,7 @@ import androidx.compose.foundation.selection.ToggleableState
 import androidx.compose.foundation.semantics.inMutuallyExclusiveGroup
 import androidx.compose.foundation.semantics.selected
 import androidx.compose.foundation.semantics.toggleableState
-import androidx.ui.layout.Column
+import androidx.compose.foundation.layout.Column
 import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.hidden
 import androidx.ui.semantics.testTag

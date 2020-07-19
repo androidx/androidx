@@ -36,9 +36,9 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.layout.Row
-import androidx.ui.layout.Stack
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.res.vectorResource
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.captureToBitmap

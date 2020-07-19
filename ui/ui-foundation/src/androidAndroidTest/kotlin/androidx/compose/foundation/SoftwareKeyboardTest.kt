@@ -23,7 +23,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.input.TextFieldValue
 import androidx.ui.input.TextInputService
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.onNode

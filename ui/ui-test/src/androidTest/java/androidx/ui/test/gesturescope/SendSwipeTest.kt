@@ -21,9 +21,9 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.geometry.Offset
-import androidx.ui.layout.Stack
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.test.bottomRight
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performGesture

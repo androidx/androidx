@@ -39,15 +39,15 @@ import androidx.compose.foundation.clickable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.toArgb
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxHeight
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.preferredWidth
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.unit.dp
 
 val ComposeInAndroidDemos = DemoCategory(

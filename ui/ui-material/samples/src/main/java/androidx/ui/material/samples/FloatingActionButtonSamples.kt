@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
-import androidx.ui.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.ui.material.ExtendedFloatingActionButton
 import androidx.ui.material.FloatingActionButton
 import androidx.ui.material.icons.Icons

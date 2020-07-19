@@ -65,8 +65,8 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.TextFieldValue
 import androidx.ui.input.VisualTransformation
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredSizeIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.ui.material.ripple.RippleIndication
 import androidx.compose.runtime.savedinstancestate.Saver
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState

@@ -21,7 +21,7 @@ import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.ScrollableColumn
 import androidx.ui.input.TextFieldValue
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.padding
 import androidx.ui.text.CoreTextField
 import androidx.ui.unit.dp
 

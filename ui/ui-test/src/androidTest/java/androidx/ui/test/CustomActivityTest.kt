@@ -21,7 +21,7 @@ import androidx.activity.ComponentActivity
 import androidx.test.filters.MediumTest
 import androidx.ui.core.setContent
 import androidx.compose.foundation.Text
-import androidx.ui.layout.Stack
+import androidx.compose.foundation.layout.Stack
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
 import androidx.ui.test.android.AndroidComposeTestRule

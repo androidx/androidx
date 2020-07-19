@@ -29,7 +29,7 @@ import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.unit.dp
 
 /**

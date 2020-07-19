@@ -24,11 +24,11 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.core.LayoutDirection
-import androidx.ui.layout.Stack
-import androidx.ui.layout.ltr
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.ltr
 import androidx.ui.material.DropdownMenu
 import androidx.ui.material.DropdownMenuItem
 import androidx.ui.material.IconButton

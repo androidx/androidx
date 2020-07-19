@@ -32,10 +32,10 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredHeight
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import kotlin.math.roundToInt

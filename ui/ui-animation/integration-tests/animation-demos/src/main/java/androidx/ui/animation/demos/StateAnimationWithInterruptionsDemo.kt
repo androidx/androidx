@@ -36,7 +36,7 @@ import androidx.compose.foundation.background
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 
 @Composable
 fun StateAnimationWithInterruptionsDemo() {

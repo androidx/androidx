@@ -24,7 +24,7 @@ import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Text
 import androidx.ui.input.TextFieldValue
-import androidx.ui.layout.Stack
+import androidx.compose.foundation.layout.Stack
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 
 @Sampled

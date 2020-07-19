@@ -42,8 +42,8 @@ import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.graphics.vectormath.degrees
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp

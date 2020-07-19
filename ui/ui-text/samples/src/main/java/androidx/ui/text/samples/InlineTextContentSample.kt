@@ -23,7 +23,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.ui.text.InlineTextContent
 import androidx.ui.text.Placeholder
 import androidx.ui.text.PlaceholderVerticalAlign

@@ -42,7 +42,7 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.TextFieldValue
 import androidx.ui.input.VisualTransformation
-import androidx.ui.layout.defaultMinSizeConstraints
+import androidx.compose.foundation.layout.defaultMinSizeConstraints
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.CoreTextField
 import androidx.ui.text.InternalTextApi

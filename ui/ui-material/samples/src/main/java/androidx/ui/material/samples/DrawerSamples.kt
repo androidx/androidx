@@ -23,11 +23,11 @@ import androidx.ui.core.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Text
-import androidx.ui.layout.Column
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.fillMaxHeight
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.preferredHeight
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.material.BottomDrawerLayout
 import androidx.ui.material.BottomDrawerState
 import androidx.ui.material.Button

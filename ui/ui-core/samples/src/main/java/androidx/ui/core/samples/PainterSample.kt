@@ -26,7 +26,7 @@ import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.padding
 import androidx.ui.unit.dp
 
 @Sampled

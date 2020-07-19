@@ -19,7 +19,7 @@ package androidx.ui.core.focus
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Box
-import androidx.ui.layout.size
+import androidx.compose.foundation.layout.size
 import androidx.ui.test.ComposeTestRule
 import androidx.ui.unit.dp
 

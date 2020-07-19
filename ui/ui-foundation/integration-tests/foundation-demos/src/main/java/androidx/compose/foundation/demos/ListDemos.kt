@@ -34,11 +34,11 @@ import androidx.compose.foundation.currentTextStyle
 import androidx.compose.foundation.lazy.LazyRowItems
 import androidx.compose.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
-import androidx.ui.layout.fillMaxHeight
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredWidth
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import kotlin.random.Random

@@ -34,9 +34,9 @@ import androidx.ui.graphics.colorspace.ColorModel
 import androidx.ui.graphics.toArgb
 import androidx.ui.intl.Locale
 import androidx.ui.intl.LocaleList
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.CrossAxisAlignment
-import androidx.ui.layout.InnerPadding
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.CrossAxisAlignment
+import androidx.compose.foundation.layout.InnerPadding
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontFamily

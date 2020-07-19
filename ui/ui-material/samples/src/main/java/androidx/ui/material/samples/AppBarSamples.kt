@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
-import androidx.ui.layout.Spacer
+import androidx.compose.foundation.layout.Spacer
 import androidx.ui.material.BottomAppBar
 import androidx.ui.material.IconButton
 import androidx.ui.material.TopAppBar

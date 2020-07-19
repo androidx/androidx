@@ -30,7 +30,7 @@ import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.runOnIdle
 import androidx.ui.text.AnnotatedString

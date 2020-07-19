@@ -74,9 +74,9 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.drawBackground
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.Offset
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.padding
-import androidx.ui.layout.size
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertPixels

@@ -22,7 +22,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.inset
 import androidx.ui.graphics.drawscope.rotate
 import androidx.ui.graphics.drawscope.withTransform
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.ui.unit.IntSize
 import androidx.ui.desktop.AppWindow
 

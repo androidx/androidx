@@ -24,9 +24,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Column
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
@@ -35,14 +35,14 @@ import androidx.ui.util.fastForEach
 /**
  * A convenience composable that combines common layout and draw logic.
  *
- * In order to define the size of the [Box], the [androidx.ui.layout.LayoutWidth],
- * [androidx.ui.layout.LayoutHeight] and [androidx.ui.layout.LayoutSize] modifiers can be used.
+ * In order to define the size of the [Box], the [androidx.compose.foundation.layout.LayoutWidth],
+ * [androidx.compose.foundation.layout.LayoutHeight] and [androidx.compose.foundation.layout.LayoutSize] modifiers can be used.
  * The [Box] will try to be only as small as its content. However, if it is constrained
  * otherwise, [Box] will allow its content to be smaller and will position the content inside,
  * according to [gravity].
  *
  * The specified [padding] will be applied inside the [Box]. In order to apply padding outside
- * the [Box], the [androidx.ui.layout.LayoutPadding] modifier should be used.
+ * the [Box], the [androidx.compose.foundation.layout.LayoutPadding] modifier should be used.
  *
  * @sample androidx.compose.foundation.samples.SimpleCircleBox
  *

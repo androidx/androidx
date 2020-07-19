@@ -29,8 +29,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.rtl
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.rtl
 import androidx.ui.test.GestureScope
 import androidx.ui.test.assertIsEqualTo
 import androidx.ui.test.assertLeftPositionInRootIsEqualTo

@@ -27,8 +27,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.rtl
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.rtl
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule

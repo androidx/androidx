@@ -34,8 +34,8 @@ import androidx.ui.core.Modifier
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.selection.selectable
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.RadioButton
 import androidx.ui.test.ComposeTestCase

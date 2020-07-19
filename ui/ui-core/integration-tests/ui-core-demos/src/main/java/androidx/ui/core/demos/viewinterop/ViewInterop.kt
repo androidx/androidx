@@ -39,8 +39,8 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
-import androidx.ui.layout.Column
-import androidx.ui.layout.size
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
 import androidx.ui.material.Button
 import androidx.ui.unit.dp
 import androidx.ui.viewinterop.AndroidView

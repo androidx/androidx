@@ -22,7 +22,7 @@ import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.layout.Stack
+import androidx.compose.foundation.layout.Stack
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertIsEnabled
