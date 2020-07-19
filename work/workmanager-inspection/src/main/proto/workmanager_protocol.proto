@@ -78,6 +78,51 @@ message WorkRemovedEvent {
     string id = 1;
 }
 
+// Information about a particular Work
 message WorkInfo {
+    enum State {
+        UNSPECIFIED = 0;
+        ENQUEUED = 1;
+        RUNNING = 2;
+        SUCCEEDED = 3;
+        FAILED = 4;
+        BLOCKED = 5;
+        CANCELLED = 6;
+    }
     string id = 1;
+    State state = 2;
+    string worker_class_name = 3;
+    Data data = 4;
+    repeated string tags = 5;
+    int32 run_attempt_count = 6;
+    bool is_periodic = 7;
+    Constraints constraints = 8;
+}
+
+// A list of key/value pairs which are used as inputs and outputs for Workers
+message Data {
+    repeated DataEntry entries = 1;
+}
+
+// Key/value pairs for Data
+message DataEntry {
+    string key = 1;
+    string value = 2;
+}
+
+// A specification of the requirements that need to be met before a WorkRequest can run.
+message Constraints {
+    enum NetworkType {
+        UNSPECIFIED = 0;
+        NOT_REQUIRED = 1;
+        CONNECTED = 2;
+        UNMETERED = 3;
+        NOT_ROAMING = 4;
+        METERED = 5;
+    }
+    NetworkType required_network_type = 1;
+    bool requires_charging = 2;
+    bool requires_device_idle = 3;
+    bool requires_battery_not_low = 4;
+    bool requires_storage_not_low = 5;
 }
