@@ -29,7 +29,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.height
 import androidx.ui.layout.padding
-import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.ui.text.CoreTextField
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp

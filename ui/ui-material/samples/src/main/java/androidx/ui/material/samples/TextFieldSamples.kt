@@ -36,7 +36,7 @@ import androidx.ui.material.TextField
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.icons.filled.Info
-import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextRange
 import androidx.ui.unit.dp
 

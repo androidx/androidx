@@ -42,8 +42,8 @@ class PackageNameMigrationDetector : Detector(), SourceCodeScanner {
         override fun visitFile(node: UFile) {
             val packageName = node.packageName
 
-            if (packageName in PackageNameMigrationMap) {
-                val newPackageName = PackageNameMigrationMap[packageName]
+            PackageNameMigrationMap.keys.find { it.contains(packageName) }?.let {
+                val newPackageName = PackageNameMigrationMap[it]
                 context.report(
                     ISSUE,
                     node,
@@ -54,11 +54,15 @@ class PackageNameMigrationDetector : Detector(), SourceCodeScanner {
             }
         }
     }
+
     companion object {
         private val PackageNameMigrationMap: Map<String, String> = mapOf(
             // placeholder package name used in PackageNameMigrationDetectorTest, since the
             // migration has not started yet
-            "androidx.ui.foo" to "androidx.compose.foo"
+            "androidx.ui.foo" to "androidx.compose.foo",
+            "androidx.ui.livedata" to "androidx.compose.runtime.livedata",
+            "androidx.ui.rxjava2" to "androidx.compose.runtime.rxjava2",
+            "androidx.ui.savedinstancestate" to "androidx.compose.runtime.savedinstancestate"
         )
 
         val ISSUE = Issue.create(

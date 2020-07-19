@@ -38,7 +38,7 @@ import androidx.ui.input.TextFieldValue
 import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
 import androidx.ui.intl.LocaleList
-import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.CoreTextField
 import androidx.ui.text.TextLayoutResult

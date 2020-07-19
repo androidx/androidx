@@ -27,7 +27,7 @@ import android.util.SizeF
 import android.util.SparseArray
 import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.ui.savedinstancestate.UiSavedStateRegistry
+import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry
 import java.io.Serializable
 
 /**

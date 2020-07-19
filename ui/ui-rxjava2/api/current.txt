@@ -1,5 +1,5 @@
 // Signature format: 3.0
-package androidx.ui.rxjava2 {
+package androidx.compose.runtime.rxjava2 {
 
   public final class RxJava2AdapterKt {
     method @Deprecated @androidx.compose.Composable public static inline <T> androidx.compose.State<T> subscribeAsState(io.reactivex.Observable<T>);

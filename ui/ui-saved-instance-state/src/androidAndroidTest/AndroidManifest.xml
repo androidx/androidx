@@ -16,14 +16,14 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.ui.savedinstancestate.test">
+    package="androidx.compose.runtime.savedinstancestate">
     <application
         android:requestLegacyExternalStorage="true"
         android:debuggable="false"
         tools:ignore="HardcodedDebugMode"
         tools:replace="android:debuggable">
-        <activity android:name="androidx.ui.savedinstancestate.RecreationTest1Activity" />
-        <activity android:name="androidx.ui.savedinstancestate.RecreationTest2Activity" />
-        <activity android:name="androidx.ui.savedinstancestate.RecreationTest3Activity" />
+        <activity android:name="androidx.compose.runtime.savedinstancestate.RecreationTest1Activity" />
+        <activity android:name="androidx.compose.runtime.savedinstancestate.RecreationTest2Activity" />
+        <activity android:name="androidx.compose.runtime.savedinstancestate.RecreationTest3Activity" />
     </application>
 </manifest>

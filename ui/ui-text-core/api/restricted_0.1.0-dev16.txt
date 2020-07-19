@@ -185,8 +185,8 @@ package androidx.ui.input {
   }
 
   public static final class TextFieldValue.Companion {
-    method public androidx.ui.savedinstancestate.Saver<androidx.ui.input.TextFieldValue,java.lang.Object> getSaver();
-    property public final androidx.ui.savedinstancestate.Saver<androidx.ui.input.TextFieldValue,java.lang.Object> Saver;
+    method public androidx.compose.runtime.savedinstancestate.Saver<androidx.ui.input.TextFieldValue,java.lang.Object> getSaver();
+    property public final androidx.compose.runtime.savedinstancestate.Saver<androidx.ui.input.TextFieldValue,java.lang.Object> Saver;
   }
 
   public final class TextFieldValueKt {

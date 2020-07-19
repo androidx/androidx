@@ -43,7 +43,7 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
-import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.assert
 import androidx.ui.test.assertShape
