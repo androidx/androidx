@@ -35,8 +35,8 @@ import androidx.compose.foundation.layout.preferredHeightIn
 import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.compose.foundation.layout.preferredWidthIn
 import androidx.ui.material.ripple.RippleIndication
-import androidx.ui.text.FirstBaseline
-import androidx.ui.text.LastBaseline
+import androidx.compose.foundation.text.FirstBaseline
+import androidx.compose.foundation.text.LastBaseline
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Dp

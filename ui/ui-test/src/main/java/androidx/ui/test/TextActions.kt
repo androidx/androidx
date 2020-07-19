@@ -22,7 +22,7 @@ import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.DeleteAllEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.ImeAction
-import androidx.ui.text.TextSemanticsProperties
+import androidx.compose.foundation.text.TextSemanticsProperties
 
 /**
  * Clears the text in this node in similar way to IME.

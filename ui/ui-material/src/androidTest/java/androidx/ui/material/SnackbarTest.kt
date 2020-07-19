@@ -42,8 +42,8 @@ import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
 import androidx.ui.test.getAlignmentLinePosition
 import androidx.ui.test.getBoundsInRoot
-import androidx.ui.text.FirstBaseline
-import androidx.ui.text.LastBaseline
+import androidx.compose.foundation.text.FirstBaseline
+import androidx.compose.foundation.text.LastBaseline
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
 import androidx.ui.unit.sp

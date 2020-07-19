@@ -107,19 +107,19 @@ android {
 afterEvaluate {
     ["Api", "Implementation", "CompileOnly", "RuntimeOnly"].each { scope ->
         def erroneousExtendsFrom = [
-            "androidTest$scope",
-            "androidTestDebug$scope",
-            "androidTestRelease$scope"
-            ].collect { configurations[it] }
+                "androidTest$scope",
+                "androidTestDebug$scope",
+                "androidTestRelease$scope"
+        ].collect { configurations[it] }
         [
-            "androidDebugUnitTest$scope",
-            "androidReleaseUnitTest$scope",
-            "test$scope",
-            "testDebug$scope",
-            "testRelease$scope"
-            ].each {
-                def configuration = configurations[it]
-                configuration.setExtendsFrom(configuration.extendsFrom - erroneousExtendsFrom)
+                "androidDebugUnitTest$scope",
+                "androidReleaseUnitTest$scope",
+                "test$scope",
+                "testDebug$scope",
+                "testRelease$scope"
+        ].each {
+            def configuration = configurations[it]
+            configuration.setExtendsFrom(configuration.extendsFrom - erroneousExtendsFrom)
         }
     }
 }

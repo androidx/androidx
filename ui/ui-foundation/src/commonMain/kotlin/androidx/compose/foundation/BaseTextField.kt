@@ -44,10 +44,10 @@ import androidx.ui.input.TextFieldValue
 import androidx.ui.input.VisualTransformation
 import androidx.compose.foundation.layout.defaultMinSizeConstraints
 import androidx.ui.text.AnnotatedString
-import androidx.ui.text.CoreTextField
+import androidx.compose.foundation.text.CoreTextField
 import androidx.ui.text.InternalTextApi
 import androidx.ui.text.SoftwareKeyboardController
-import androidx.ui.text.TextFieldDelegate
+import androidx.compose.foundation.text.TextFieldDelegate
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
 import androidx.ui.text.constrain

@@ -45,7 +45,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.preferredHeight
-import androidx.ui.text.LastBaseline
+import androidx.compose.foundation.text.LastBaseline
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp

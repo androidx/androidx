@@ -60,8 +60,8 @@ import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.material.TabRow.IndicatorTransition
 import androidx.ui.material.TabRow.TabPosition
-import androidx.ui.text.FirstBaseline
-import androidx.ui.text.LastBaseline
+import androidx.compose.foundation.text.FirstBaseline
+import androidx.compose.foundation.text.LastBaseline
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp

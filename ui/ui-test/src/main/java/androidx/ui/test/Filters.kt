@@ -24,7 +24,7 @@ import androidx.ui.input.ImeAction
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsProperties
-import androidx.ui.text.TextSemanticsProperties
+import androidx.compose.foundation.text.TextSemanticsProperties
 import androidx.ui.util.fastAny
 
 /**

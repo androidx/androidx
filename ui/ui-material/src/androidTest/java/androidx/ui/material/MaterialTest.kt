@@ -33,8 +33,8 @@ import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onRoot
 import androidx.ui.test.getAlignmentLinePosition
 import androidx.ui.test.runOnIdle
-import androidx.ui.text.FirstBaseline
-import androidx.ui.text.LastBaseline
+import androidx.compose.foundation.text.FirstBaseline
+import androidx.compose.foundation.text.LastBaseline
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp

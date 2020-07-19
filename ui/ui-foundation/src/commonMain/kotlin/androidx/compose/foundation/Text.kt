@@ -27,8 +27,8 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.useOrElse
 import androidx.ui.semantics.text
 import androidx.ui.text.AnnotatedString
-import androidx.ui.text.CoreText
-import androidx.ui.text.InlineTextContent
+import androidx.compose.foundation.text.CoreText
+import androidx.compose.foundation.text.InlineTextContent
 import androidx.ui.text.Paragraph
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle

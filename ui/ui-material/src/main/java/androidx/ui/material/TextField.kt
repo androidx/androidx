@@ -43,7 +43,7 @@ import androidx.ui.input.TextFieldValue
 import androidx.ui.input.VisualTransformation
 import androidx.compose.foundation.layout.padding
 import androidx.ui.text.InternalTextApi
-import androidx.ui.text.LastBaseline
+import androidx.compose.foundation.text.LastBaseline
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextStyle
 import androidx.ui.text.constrain

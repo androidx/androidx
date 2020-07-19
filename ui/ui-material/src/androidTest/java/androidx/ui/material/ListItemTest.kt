@@ -17,7 +17,7 @@
 package androidx.ui.material
 
 import androidx.test.filters.SmallTest
-import androidx.ui.text.FirstBaseline
+import androidx.compose.foundation.text.FirstBaseline
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref

@@ -32,8 +32,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.relativePaddingFrom
-import androidx.ui.text.FirstBaseline
-import androidx.ui.text.LastBaseline
+import androidx.compose.foundation.text.FirstBaseline
+import androidx.compose.foundation.text.LastBaseline
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import kotlin.math.max

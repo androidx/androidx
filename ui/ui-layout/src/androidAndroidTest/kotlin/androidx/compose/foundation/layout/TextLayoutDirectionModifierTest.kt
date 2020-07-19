@@ -21,8 +21,8 @@ import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.input.TextFieldValue
 import androidx.ui.text.AnnotatedString
-import androidx.ui.text.CoreText
-import androidx.ui.text.CoreTextField
+import androidx.compose.foundation.text.CoreText
+import androidx.compose.foundation.text.CoreTextField
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow
 import com.google.common.truth.Truth.assertThat

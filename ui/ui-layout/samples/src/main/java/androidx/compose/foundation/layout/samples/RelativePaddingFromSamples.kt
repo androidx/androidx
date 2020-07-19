@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.relativePaddingFrom
-import androidx.ui.text.FirstBaseline
+import androidx.compose.foundation.text.FirstBaseline
 import androidx.ui.unit.dp
 
 @Sampled

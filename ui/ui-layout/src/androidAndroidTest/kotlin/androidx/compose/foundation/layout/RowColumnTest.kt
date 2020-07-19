@@ -21,7 +21,7 @@ import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
-import androidx.ui.text.FirstBaseline
+import androidx.compose.foundation.text.FirstBaseline
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates

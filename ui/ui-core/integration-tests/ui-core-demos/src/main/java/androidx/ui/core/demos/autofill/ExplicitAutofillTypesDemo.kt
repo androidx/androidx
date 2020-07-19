@@ -37,7 +37,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.material.MaterialTheme
-import androidx.ui.text.CoreTextField
+import androidx.compose.foundation.text.CoreTextField
 import androidx.ui.unit.dp
 
 @Composable

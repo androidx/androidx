@@ -45,7 +45,7 @@ import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.text.style.TextAlign
-import androidx.ui.text.CoreTextField
+import androidx.compose.foundation.text.CoreTextField
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 

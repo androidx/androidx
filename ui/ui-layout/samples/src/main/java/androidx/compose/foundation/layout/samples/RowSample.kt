@@ -19,7 +19,7 @@ package androidx.compose.foundation.layout.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
-import androidx.ui.text.FirstBaseline
+import androidx.compose.foundation.text.FirstBaseline
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text

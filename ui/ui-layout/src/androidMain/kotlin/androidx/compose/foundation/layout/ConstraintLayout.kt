@@ -39,7 +39,7 @@ import androidx.constraintlayout.core.widgets.analyzer.BasicMeasure
 import androidx.compose.Immutable
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
-import androidx.ui.text.FirstBaseline
+import androidx.compose.foundation.text.FirstBaseline
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier

@@ -62,7 +62,7 @@ import androidx.ui.test.runOnIdle
 import androidx.ui.test.click
 import androidx.ui.test.performImeAction
 import androidx.ui.test.waitForIdle
-import androidx.ui.text.FirstBaseline
+import androidx.compose.foundation.text.FirstBaseline
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
