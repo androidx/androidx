@@ -22,6 +22,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.await
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command
 import androidx.work.inspection.WorkManagerInspectorProtocol.TrackWorkManagerCommand
+import androidx.work.inspection.worker.EmptyWorker
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -62,6 +63,19 @@ class WorkInfoTest {
         testEnvironment.receiveEvent().let { event ->
             assertThat(event.hasWorkRemoved()).isTrue()
             assertThat(event.workRemoved.id).isEqualTo(request.stringId)
+        }
+    }
+
+    @Test
+    fun sendWorkAddedEvent() = runBlocking {
+        inspectWorkManager()
+        val request = OneTimeWorkRequestBuilder<EmptyWorker>().build()
+        testEnvironment.workManager.enqueue(request)
+        testEnvironment.receiveEvent().let { event ->
+            assertThat(event.hasWorkAdded()).isTrue()
+            val workInfo = event.workAdded.work
+            assertThat(workInfo.id).isEqualTo(request.stringId)
+            assertThat(workInfo.isPeriodic).isFalse()
         }
     }
 }
