@@ -354,11 +354,14 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                         // https://issuetracker.google.com/issues/124511903
                         cont.resume(BaseResult.empty())
                     } else {
+                        val nextKey = position + data.size
                         resume(
                             params, BaseResult(
                                 data = data,
-                                prevKey = position,
-                                nextKey = position + data.size,
+                                // skip passing prevKey if nothing else to load
+                                prevKey = if (position == 0) null else position,
+                                // skip passing nextKey if nothing else to load
+                                nextKey = if (nextKey == totalCount) null else nextKey,
                                 itemsBefore = position,
                                 itemsAfter = totalCount - data.size - position
                             )
@@ -372,11 +375,12 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                         // https://issuetracker.google.com/issues/124511903
                         cont.resume(BaseResult.empty())
                     } else {
-                        // always pass prevKey/nextKey, since we let position
                         resume(
                             params, BaseResult(
                                 data = data,
-                                prevKey = position,
+                                // skip passing prevKey if nothing else to load
+                                prevKey = if (position == 0) null else position,
+                                // can't do same for nextKey, since we don't know if load is terminal
                                 nextKey = position + data.size,
                                 itemsBefore = position,
                                 itemsAfter = COUNT_UNDEFINED
@@ -408,12 +412,15 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
         suspendCancellableCoroutine<BaseResult<T>> { cont ->
             loadRange(params, object : LoadRangeCallback<T>() {
                 override fun onResult(data: List<T>) {
+                    // skip passing prevKey if nothing else to load. We only do this for prepend
+                    // direction, since 0 as first index is well defined, but max index may not be
+                    val prevKey = if (params.startPosition == 0) null else params.startPosition
                     when {
                         isInvalid -> cont.resume(BaseResult.empty())
                         else -> cont.resume(
                             BaseResult(
                                 data = data,
-                                prevKey = params.startPosition,
+                                prevKey = prevKey,
                                 nextKey = params.startPosition + data.size
                             )
                         )

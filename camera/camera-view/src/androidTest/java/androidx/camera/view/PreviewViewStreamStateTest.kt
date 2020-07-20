@@ -60,6 +60,7 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
 
     private lateinit var mPreviewView: PreviewView
     private val mInstrumentation = InstrumentationRegistry.getInstrumentation()
+    private var mIsSetup = false
     private lateinit var mLifecycle: FakeLifecycleOwner
     private lateinit var mCameraProvider: ProcessCameraProvider
     @get:Rule
@@ -82,6 +83,8 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
         CoreAppTestUtil.assumeCompatibleDevice()
 
+        mIsSetup = true
+
         val context = ApplicationProvider.getApplicationContext<Context>()
         val config = Camera2Config.defaultConfig()
         CameraX.initialize(context, config)
@@ -95,10 +98,12 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
 
     @After
     fun tearDown() {
-        mInstrumentation.runOnMainSync {
-            mCameraProvider.unbindAll()
+        if (mIsSetup) {
+            mInstrumentation.runOnMainSync {
+                mCameraProvider.unbindAll()
+            }
+            mCameraProvider.shutdown().get()
         }
-        mCameraProvider.shutdown().get()
     }
 
     private fun startPreview(

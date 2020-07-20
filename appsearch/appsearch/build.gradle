@@ -39,6 +39,9 @@ android {
     // TODO(b/161205849): We've had to move libicing.so compilation into appsearch:appsearch to get
     //  it included into the exported aar. Find a proper solution for bundling libicing.so into
     //  appsearch-release.aar and move compilation of libicing.so back into the external/icing tree.
+    sourceSets {
+        androidTest.java.srcDir '../../../../external/icing/java/tests/instrumentation/'
+    }
     defaultConfig {
         externalNativeBuild {
             cmake {

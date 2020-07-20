@@ -98,6 +98,31 @@ class ComposeViewAdapterTest {
     }
 
     @Test
+    fun lineNumberLocationMapping() {
+        val viewInfos = assertRendersCorrectly(
+            "androidx.ui.tooling.LineNumberPreviewKt",
+            "LineNumberPreview"
+        ).flatMap { it.allChildren() + it }
+            .filter { it.location?.let { it.sourceFile == "LineNumberPreview.kt" } == true }
+            .toList()
+
+        activityTestRule.runOnUiThread {
+            // Verify all calls, generate the correct line number information
+            assertArrayEquals(arrayOf(36, 37, 38, 40, 43, 44, 44, 45, 45),
+                viewInfos
+                    .map { it.location?.lineNumber ?: -1 }
+                    .sorted()
+                    .toTypedArray())
+            // Verify that all calls generate the correct offset information
+            assertArrayEquals(arrayOf(1158, 1195, 1216, 1344, 1392, 1414, 1431, 1454, 1471),
+                viewInfos
+                    .map { it.location?.offset ?: -1 }
+                    .sorted()
+                    .toTypedArray())
+        }
+    }
+
+    @Test
     fun instantiatePrivateComposeViewAdapter() {
         assertRendersCorrectly(
             "androidx.ui.tooling.SimpleComposablePreviewKt",

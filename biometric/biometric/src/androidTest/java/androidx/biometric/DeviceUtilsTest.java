@@ -36,10 +36,8 @@ import org.mockito.MockitoAnnotations;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class DeviceUtilsTest {
-    @Mock
-    private Context mContext;
-    @Mock
-    private Resources mResources;
+    @Mock private Context mContext;
+    @Mock private Resources mResources;
 
     @Before
     public void setUp() {
@@ -91,5 +89,23 @@ public class DeviceUtilsTest {
         assertThat(DeviceUtils.shouldHideFingerprintDialog(mContext, "abcxyz")).isFalse();
         assertThat(DeviceUtils.shouldHideFingerprintDialog(mContext, "bazfoo")).isFalse();
         assertThat(DeviceUtils.shouldHideFingerprintDialog(mContext, "FooBar")).isFalse();
+    }
+
+    @Test
+    public void testCanAssumeStrongBiometrics() {
+        final String[] modelPrefixes = {"foo", "bar"};
+        when(mContext.getResources()).thenReturn(mResources);
+        when(mResources.getStringArray(R.array.assume_strong_biometrics_prefixes))
+                .thenReturn(modelPrefixes);
+
+        final boolean isPreApi30 = Build.VERSION.SDK_INT < Build.VERSION_CODES.R;
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "foo")).isEqualTo(isPreApi30);
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "bar")).isEqualTo(isPreApi30);
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "foobar")).isEqualTo(isPreApi30);
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "bar123")).isEqualTo(isPreApi30);
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "baz")).isFalse();
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "abcxyz")).isFalse();
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "bazfoo")).isFalse();
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "FooBar")).isFalse();
     }
 }

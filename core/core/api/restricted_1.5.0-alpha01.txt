@@ -222,6 +222,53 @@ package androidx.core.app {
     method public android.app.Notification.Builder! getBuilder();
   }
 
+  public class NotificationChannelCompat {
+    method public boolean canShowBadge();
+    method public android.media.AudioAttributes? getAudioAttributes();
+    method public String? getConversationId();
+    method public String? getDescription();
+    method public String? getGroup();
+    method public String getId();
+    method public int getImportance();
+    method public int getLightColor();
+    method public CharSequence? getName();
+    method public String? getParentChannelId();
+    method public android.net.Uri? getSound();
+    method public long[]? getVibrationPattern();
+    method public boolean shouldShowLights();
+    method public boolean shouldVibrate();
+    field public static final String DEFAULT_CHANNEL_ID = "miscellaneous";
+  }
+
+  public static class NotificationChannelCompat.Builder {
+    ctor public NotificationChannelCompat.Builder(String, int);
+    method public androidx.core.app.NotificationChannelCompat build();
+    method public androidx.core.app.NotificationChannelCompat.Builder setConversationId(String, String);
+    method public androidx.core.app.NotificationChannelCompat.Builder setDescription(String?);
+    method public androidx.core.app.NotificationChannelCompat.Builder setGroup(String?);
+    method public androidx.core.app.NotificationChannelCompat.Builder setImportance(int);
+    method public androidx.core.app.NotificationChannelCompat.Builder setLightColor(int);
+    method public androidx.core.app.NotificationChannelCompat.Builder setLightsEnabled(boolean);
+    method public androidx.core.app.NotificationChannelCompat.Builder setName(CharSequence?);
+    method public androidx.core.app.NotificationChannelCompat.Builder setShowBadge(boolean);
+    method public androidx.core.app.NotificationChannelCompat.Builder setSound(android.net.Uri?, android.media.AudioAttributes?);
+    method public androidx.core.app.NotificationChannelCompat.Builder setVibrationEnabled(boolean);
+    method public androidx.core.app.NotificationChannelCompat.Builder setVibrationPattern(long[]?);
+  }
+
+  public class NotificationChannelGroupCompat {
+    method public String? getDescription();
+    method public String getId();
+    method public CharSequence? getName();
+  }
+
+  public static class NotificationChannelGroupCompat.Builder {
+    ctor public NotificationChannelGroupCompat.Builder(String);
+    method public androidx.core.app.NotificationChannelGroupCompat build();
+    method public androidx.core.app.NotificationChannelGroupCompat.Builder setDescription(String?);
+    method public androidx.core.app.NotificationChannelGroupCompat.Builder setName(CharSequence?);
+  }
+
   public class NotificationCompat {
     ctor @Deprecated public NotificationCompat();
     method public static androidx.core.app.NotificationCompat.Action! getAction(android.app.Notification!, int);
@@ -705,15 +752,21 @@ package androidx.core.app {
     method public void cancel(String?, int);
     method public void cancelAll();
     method public void createNotificationChannel(android.app.NotificationChannel);
+    method public void createNotificationChannel(androidx.core.app.NotificationChannelCompat);
     method public void createNotificationChannelGroup(android.app.NotificationChannelGroup);
+    method public void createNotificationChannelGroup(androidx.core.app.NotificationChannelGroupCompat);
     method public void createNotificationChannelGroups(java.util.List<android.app.NotificationChannelGroup!>);
+    method public void createNotificationChannelGroupsCompat(java.util.List<androidx.core.app.NotificationChannelGroupCompat!>);
     method public void createNotificationChannels(java.util.List<android.app.NotificationChannel!>);
+    method public void createNotificationChannelsCompat(java.util.List<androidx.core.app.NotificationChannelCompat!>);
     method public void deleteNotificationChannel(String);
     method public void deleteNotificationChannelGroup(String);
+    method public void deleteUnlistedNotificationChannels(java.util.Collection<java.lang.String!>);
     method public static androidx.core.app.NotificationManagerCompat from(android.content.Context);
     method public static java.util.Set<java.lang.String!> getEnabledListenerPackages(android.content.Context);
     method public int getImportance();
     method public android.app.NotificationChannel? getNotificationChannel(String);
+    method public android.app.NotificationChannel? getNotificationChannel(String, String);
     method public android.app.NotificationChannelGroup? getNotificationChannelGroup(String);
     method public java.util.List<android.app.NotificationChannelGroup!> getNotificationChannelGroups();
     method public java.util.List<android.app.NotificationChannel!> getNotificationChannels();

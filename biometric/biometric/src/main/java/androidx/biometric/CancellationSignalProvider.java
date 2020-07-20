@@ -98,6 +98,9 @@ class CancellationSignalProvider {
      */
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     private static class Api16Impl {
+        // Prevent instantiation.
+        private Api16Impl() {}
+
         /**
          * Creates a new instance of the platform class {@link android.os.CancellationSignal}.
          *

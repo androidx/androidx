@@ -18,7 +18,6 @@ package androidx.ui.text
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.text.font.asFontFamily
-import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.em
@@ -27,6 +26,10 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class ParagraphPlaceholderIntegrationTest {
+    private val fontFamilyMeasureFont = FontTestData.BASIC_MEASURE_FONT.asFontFamily()
+    private val defaultDensity = Density(density = 1f, fontScale = 1f)
+    private val context = InstrumentationRegistry.getInstrumentation().context
+
     @Test
     fun placeHolder_alignAboveBaseLine_lessThanOriginalHeight() {
         val text = "AAA"
@@ -371,8 +374,7 @@ class ParagraphPlaceholderIntegrationTest {
             text = text,
             placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             fontSize = fontSize.sp,
-            width = paragraphWidth,
-            textDirection = TextDirection.ContentOrRtl
+            width = paragraphWidth
         )
         val placeholderRects = paragraph.placeholderRects
         assertThat(placeholderRects.size).isEqualTo(1)
@@ -401,8 +403,7 @@ class ParagraphPlaceholderIntegrationTest {
             text = text,
             placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             fontSize = fontSize.sp,
-            width = paragraphWidth,
-            textDirection = TextDirection.ContentOrLtr
+            width = paragraphWidth
         )
         val placeholderRects = paragraph.placeholderRects
         assertThat(placeholderRects.size).isEqualTo(1)
@@ -431,8 +432,7 @@ class ParagraphPlaceholderIntegrationTest {
             text = text,
             placeholders = listOf(AnnotatedString.Range(placeholder, 2, 3)),
             fontSize = fontSize.sp,
-            width = paragraphWidth,
-            textDirection = TextDirection.ContentOrLtr
+            width = paragraphWidth
         )
         val placeholderRects = paragraph.placeholderRects
         assertThat(placeholderRects.size).isEqualTo(1)
@@ -461,8 +461,7 @@ class ParagraphPlaceholderIntegrationTest {
             text = text,
             placeholders = listOf(AnnotatedString.Range(placeholder, 1, 3)),
             fontSize = fontSize.sp,
-            width = paragraphWidth,
-            textDirection = TextDirection.ContentOrLtr
+            width = paragraphWidth
         )
         val placeholderRects = paragraph.placeholderRects
         assertThat(placeholderRects.size).isEqualTo(1)
@@ -503,17 +502,12 @@ class ParagraphPlaceholderIntegrationTest {
         assertThat(placeholderRects[1]).isNull()
     }
 
-    private val fontFamilyMeasureFont = FontTestData.BASIC_MEASURE_FONT.asFontFamily()
-    private val defaultDensity = Density(density = 1f, fontScale = 1f)
-    private val context = InstrumentationRegistry.getInstrumentation().context
-
     private fun simpleParagraph(
         text: String = "",
         fontSize: TextUnit = TextUnit.Inherit,
         spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
         placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
         width: Float = Float.MAX_VALUE,
-        textDirection: TextDirection = TextDirection.ContentOrLtr,
         maxLines: Int = Int.MAX_VALUE,
         ellipsis: Boolean = false
     ): Paragraph {
@@ -521,8 +515,7 @@ class ParagraphPlaceholderIntegrationTest {
             text = text,
             style = TextStyle(
                 fontSize = fontSize,
-                fontFamily = fontFamilyMeasureFont,
-                textDirection = textDirection
+                fontFamily = fontFamilyMeasureFont
             ),
             spanStyles = spanStyles,
             placeholders = placeholders,

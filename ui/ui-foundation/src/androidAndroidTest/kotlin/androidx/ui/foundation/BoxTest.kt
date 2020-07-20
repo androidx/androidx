@@ -24,7 +24,7 @@ import androidx.ui.core.AbsoluteAlignment
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.globalPosition
+import androidx.ui.core.positionInRoot
 import androidx.ui.core.onPositioned
 import androidx.ui.core.testTag
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -99,7 +99,7 @@ class BoxTest {
                 ) {
                     Box(Modifier.fillMaxSize().onPositioned {
                         childSize = it.size
-                        childPosition = it.localToGlobal(Offset.Zero)
+                        childPosition = it.positionInRoot
                     })
                 }
             }
@@ -135,7 +135,7 @@ class BoxTest {
                 ) {
                     Box(Modifier.fillMaxSize().onPositioned {
                         childSize = it.size
-                        childPosition = it.localToGlobal(Offset.Zero)
+                        childPosition = it.positionInRoot
                     })
                 }
             }
@@ -195,13 +195,13 @@ class BoxTest {
                     gravity = Alignment.TopCenter
                 ) {
                     Box(Modifier.size(childSize).onPositioned {
-                        childPosition1 = it.globalPosition
+                        childPosition1 = it.positionInRoot
                     })
                     Box(Modifier.size(childSize).onPositioned {
-                        childPosition2 = it.globalPosition
+                        childPosition2 = it.positionInRoot
                     })
                     Box(Modifier.size(childSize).onPositioned {
-                        childPosition3 = it.globalPosition
+                        childPosition3 = it.positionInRoot
                     })
                 }
             }
@@ -240,7 +240,7 @@ class BoxTest {
                     gravity = AbsoluteAlignment.TopLeft
                 ) {
                     Box(Modifier.size(childSize).onPositioned {
-                        childPosition = it.globalPosition
+                        childPosition = it.positionInRoot
                     })
                 }
             }

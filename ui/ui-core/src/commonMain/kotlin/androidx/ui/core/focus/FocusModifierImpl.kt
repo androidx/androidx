@@ -20,6 +20,7 @@ import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 
+@Suppress("DEPRECATION")
 internal class FocusModifierImpl(
     focusDetailedState: FocusDetailedState,
     var focusNode: ModifiedFocusNode? = null

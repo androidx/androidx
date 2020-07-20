@@ -275,7 +275,8 @@ class VectorizedSnapSpec<V : AnimationVector>(
  */
 class VectorizedRepeatableSpec<V : AnimationVector>(
     private val iterations: Int,
-    private val animation: VectorizedDurationBasedAnimationSpec<V>
+    private val animation: VectorizedDurationBasedAnimationSpec<V>,
+    private val repeatMode: RepeatMode = RepeatMode.Restart
 ) : VectorizedAnimationSpec<V> {
 
     init {
@@ -288,7 +289,11 @@ class VectorizedRepeatableSpec<V : AnimationVector>(
 
     private fun repetitionPlayTime(playTime: Long): Long {
         val repeatsCount = min(playTime / duration, iterations - 1L)
-        return playTime - repeatsCount * duration
+        if (repeatMode == RepeatMode.Restart || repeatsCount % 2 == 0L) {
+            return playTime - repeatsCount * duration
+        } else {
+            return (repeatsCount + 1) * duration - playTime
+        }
     }
 
     private fun repetitionStartVelocity(playTime: Long, start: V, startVelocity: V, end: V): V =
@@ -458,7 +463,9 @@ class VectorizedTweenSpec<V : AnimationVector>(
 ) : VectorizedDurationBasedAnimationSpec<V> {
 
     private val anim = VectorizedFloatAnimationSpec<V>(
-        FloatTweenSpec(durationMillis, delayMillis, easing))
+        FloatTweenSpec(durationMillis, delayMillis, easing)
+    )
+
     override fun getValue(playTime: Long, start: V, end: V, startVelocity: V): V {
         return anim.getValue(playTime, start, end, startVelocity)
     }

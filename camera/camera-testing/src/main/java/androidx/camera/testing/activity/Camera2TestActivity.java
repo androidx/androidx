@@ -75,24 +75,24 @@ public class Camera2TestActivity extends Activity {
 
                 @SuppressLint("MissingPermission")
                 @Override
-                public void onSurfaceTextureAvailable(SurfaceTexture texture, int width,
+                public void onSurfaceTextureAvailable(@NonNull SurfaceTexture texture, int width,
                         int height) {
                     openCamera();
                 }
 
                 @Override
-                public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width,
+                public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture texture, int width,
                         int height) {
 
                 }
 
                 @Override
-                public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
+                public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture texture) {
                     return true;
                 }
 
                 @Override
-                public void onSurfaceTextureUpdated(SurfaceTexture texture) {
+                public void onSurfaceTextureUpdated(@NonNull SurfaceTexture texture) {
                     // Wait until surface texture receives enough updates.
                     if (!mPreviewReady.isIdleNow()) {
                         mPreviewReady.decrement();

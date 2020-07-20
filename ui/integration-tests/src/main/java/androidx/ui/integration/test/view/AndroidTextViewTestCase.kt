@@ -19,27 +19,25 @@ package androidx.ui.integration.test.view
 import android.app.Activity
 import android.util.TypedValue
 import android.view.ViewGroup
-import android.widget.LinearLayout
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.ui.benchmark.android.AndroidTestCase
-import androidx.ui.integration.test.RandomTextGenerator
 import kotlin.math.roundToInt
 
 /**
  * Version of [androidx.ui.integration.test.core.text.TextBasicTestCase] using Android views.
  */
 class AndroidTextViewTestCase(
-    val textLength: Int,
-    val randomTextGenerator: RandomTextGenerator
+    val text: String
 ) : AndroidTestCase {
 
     private var fontSize = 8f
 
     override fun getContent(activity: Activity): ViewGroup {
-        val linearLayout = LinearLayout(activity)
+        val frameLayout = FrameLayout(activity)
         val textView = TextView(activity)
-        textView.text = randomTextGenerator.nextParagraph(textLength)
-        textView.layoutParams = LinearLayout.LayoutParams(
+        textView.text = text
+        textView.layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
@@ -51,7 +49,7 @@ class AndroidTextViewTestCase(
         ).roundToInt()
 
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize)
-        linearLayout.addView(textView)
-        return linearLayout
+        frameLayout.addView(textView)
+        return frameLayout
     }
 }

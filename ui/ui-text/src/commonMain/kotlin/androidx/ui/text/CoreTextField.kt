@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION_ERROR")
+
+// TODO(b/160821157): Replace FocusDetailedState with FocusState2 DEPRECATION
+@file:Suppress("DEPRECATION_ERROR", "DEPRECATION")
+
 package androidx.ui.text
 
 import androidx.compose.Composable
@@ -57,6 +60,11 @@ import androidx.ui.semantics.onClick
 import androidx.ui.text.selection.SelectionHandle
 import androidx.ui.text.selection.TextFieldSelectionManager
 import kotlin.math.max
+import androidx.ui.semantics.focused
+import androidx.ui.semantics.setSelection
+import androidx.ui.semantics.setText
+import androidx.ui.semantics.text
+import androidx.ui.semantics.textSelectionRange
 import kotlin.math.roundToInt
 
 @Suppress("DEPRECATION")
@@ -106,7 +114,7 @@ fun CoreTextField(
         textStyle = textStyle,
         keyboardType = keyboardType,
         imeAction = imeAction,
-        onFocusChange = onFocusChange,
+        onFocusChanged = onFocusChange,
         onImeActionPerformed = onImeActionPerformed,
         visualTransformation = visualTransformation,
         onTextLayout = onTextLayout,
@@ -146,12 +154,12 @@ fun CoreTextField(
  * on the keyboard. For example, search icon may be shown if [ImeAction.Search] is specified.
  * Then, when user tap that key, the [onImeActionPerformed] callback is called with specified
  * ImeAction.
- * @param onFocusChange Called with true value when the input field gains focus and with false
- * value when the input field loses focus. Use [FocusModifier.requestFocus] to obtain text input
- * focus to this TextField.
- * @param onImeActionPerformed Called when the input service requested an IME action. When the
+ *  * @param onImeActionPerformed Called when the input service requested an IME action. When the
  * input service emitted an IME action, this callback is called with the emitted IME action. Note
  * that this IME action may be different from what you specified in [imeAction].
+ * @param onFocusChanged Called with true value when the input field gains focus and with false
+ * value when the input field loses focus. Use [FocusModifier.requestFocus] to obtain text input
+ * focus to this TextField.
  * @param visualTransformation The visual transformation filter for changing the visual
  * representation of the input. By default no visual transformation is applied.
  * @param onTextLayout Callback that is executed when a new text layout is calculated.
@@ -169,8 +177,8 @@ fun CoreTextField(
     textStyle: TextStyle = TextStyle.Default,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
-    onFocusChange: (Boolean) -> Unit = {},
     onImeActionPerformed: (ImeAction) -> Unit = {},
+    onFocusChanged: (Boolean) -> Unit = {},
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {}
@@ -216,6 +224,7 @@ fun CoreTextField(
         )
 
         // TODO: Stop lookup FocusModifier from modifier chain. (b/155434146)
+        @Suppress("DEPRECATION")
         val focusModifier = chainedFocusModifier(modifier) ?: FocusModifier()
 
         state.processor.onNewState(value, textInputService, state.inputSession)
@@ -267,7 +276,7 @@ fun CoreTextField(
                         }
                     }
                 }
-                onFocusChange(true)
+                onFocusChanged(true)
             },
             onBlur = { hasNextClient ->
                 state.hasFocus = false
@@ -278,7 +287,7 @@ fun CoreTextField(
                     hasNextClient,
                     onValueChangeWrapper
                 )
-                onFocusChange(false)
+                onFocusChanged(false)
             },
             onRelease = {
                 if (state.selectionIsOn == false) {
@@ -297,8 +306,7 @@ fun CoreTextField(
                 }
             },
             state = state,
-            longPressDragObserver = manager.longPressDragObserver,
-            imeAction = imeAction
+            longPressDragObserver = manager.longPressDragObserver
         )
 
         val drawModifier = Modifier.drawBehind {
@@ -333,12 +341,18 @@ fun CoreTextField(
             }
         }
 
+        val semanticsModifier = semanticsModifier(value, imeAction, focusModifier,
+            onValueChangeWrapper)
+
+        onDispose { manager.hideSelectionToolbar() }
+
         SelectionLayout(
             modifier
                 .plus(observer)
                 .plus(focusModifier)
                 .plus(drawModifier)
                 .plus(onPositionedModifier)
+                .plus(semanticsModifier)
         ) {
             Layout(
                 emptyContent(),
@@ -421,6 +435,8 @@ internal class TextFieldState(
     var draggingHandle = false
 }
 
+// TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
+@Suppress("DEPRECATION")
 private fun chainedFocusModifier(modifier: Modifier): FocusModifier? {
     var focusModifier: FocusModifier? = null
     modifier.foldIn(Unit) { _, element ->
@@ -434,7 +450,10 @@ private fun chainedFocusModifier(modifier: Modifier): FocusModifier? {
 
 /**
  * Helper composable for observing all text input related events.
+ *
+ * TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
  */
+@Suppress("DEPRECATION")
 @Composable
 private fun textInputEventObserver(
     onPress: (Offset) -> Unit,
@@ -443,8 +462,7 @@ private fun textInputEventObserver(
     state: TextFieldState,
     longPressDragObserver: LongPressDragObserver,
     onBlur: (hasNextClient: Boolean) -> Unit,
-    focusModifier: FocusModifier,
-    imeAction: ImeAction
+    focusModifier: FocusModifier
 ): Modifier {
     val prevState = state { FocusState.NotFocused }
     if (focusModifier.focusState == FocusState.Focused &&
@@ -471,12 +489,7 @@ private fun textInputEventObserver(
         onBlur(false)
     }
 
-    val semantics = Modifier.semantics {
-        this.imeAction = imeAction
-        this.supportsInputMethods()
-        onClick(action = { doFocusIn(); return@onClick true })
-    }
-    val drag = Modifier.dragPositionGestureFilter(
+    return Modifier.dragPositionGestureFilter(
         onPress = {
             state.selectionIsOn = false
             if (focusModifier.focusState == FocusState.Focused) {
@@ -488,8 +501,51 @@ private fun textInputEventObserver(
         onRelease = onRelease,
         longPressDragObserver = longPressDragObserver
     )
+}
 
-    return semantics.plus(drag)
+private fun semanticsModifier(
+    value: TextFieldValue,
+    imeAction: ImeAction,
+    focusModifier: FocusModifier,
+    onValueChange: (TextFieldValue) -> Unit
+): Modifier {
+    return Modifier.semantics {
+        this.imeAction = imeAction
+        this.supportsInputMethods()
+        this.text = AnnotatedString(value.text)
+        this.textSelectionRange = value.selection
+        this.focused = focusModifier.focusState == FocusState.Focused
+        setText {
+            onValueChange(TextFieldValue(it.text, TextRange(it.text.length)))
+            true
+        }
+        // TODO: startSelectionActionModeAsync
+        setSelection { start, end, startSelectionActionMode ->
+            if (start == value.selection.start && end == value.selection.end) {
+                false
+            } else if (start.coerceAtMost(end) >= 0 &&
+                start.coerceAtLeast(end) <= value.text.length) {
+                onValueChange(TextFieldValue(value.text, TextRange(start, end)))
+                if (startSelectionActionMode) {
+                    // startSelectionActionModeAsync
+                    // See https://cs.android.com/android/platform/superproject/+/
+                    // master:frameworks/base/core/java/android/widget/TextView.java;
+                    // l=11980;drc=e13851556bcfecff6de4b3a1a99be4dcaa5853a1
+                } else {
+                    // stop SelectionActionMode
+                }
+                true
+            } else {
+                false
+            }
+        }
+        onClick {
+            if (focusModifier.focusState == FocusState.NotFocused) {
+                focusModifier.requestFocus()
+            }
+            true
+        }
+    }
 }
 
 /**

@@ -17,7 +17,6 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.content.Context
 import android.util.Log
-import android.util.Rational
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
@@ -67,14 +66,6 @@ class CameraPipeDeviceSurfaceManager(context: Context) : CameraDeviceSurfaceMana
     }
 
     override fun getPreviewSize(): Size {
-        TODO("Not implemented.")
-    }
-
-    override fun requiresCorrectedAspectRatio(cameraId: String): Boolean {
-        return false
-    }
-
-    override fun getCorrectedAspectRatio(cameraId: String, rotation: Int): Rational? {
         TODO("Not implemented.")
     }
 }

@@ -100,14 +100,14 @@ class OutlinedTextFieldTest {
                     value = "input1",
                     onValueChange = {},
                     label = {},
-                    onFocusChange = { textField1Focused = it }
+                    onFocusChanged = { textField1Focused = it }
                 )
                 OutlinedTextField(
                     modifier = Modifier.testTag(textField2Tag),
                     value = "input2",
                     onValueChange = {},
                     label = {},
-                    onFocusChange = { textField2Focused = it }
+                    onFocusChanged = { textField2Focused = it }
                 )
             }
         }
@@ -137,7 +137,7 @@ class OutlinedTextFieldTest {
                     value = "input",
                     onValueChange = {},
                     label = {},
-                    onFocusChange = { focused = it }
+                    onFocusChanged = { focused = it }
                 )
             }
         }

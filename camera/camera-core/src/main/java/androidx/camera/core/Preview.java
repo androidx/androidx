@@ -59,7 +59,6 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
-import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
@@ -401,39 +400,6 @@ public final class Preview extends UseCase {
         }
 
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @hide
-     */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public UseCaseConfig<?> applyDefaults(
-            @NonNull UseCaseConfig<?> userConfig,
-            @Nullable UseCaseConfig.Builder<?, ?, ?> defaultConfigBuilder) {
-        PreviewConfig previewConfig = (PreviewConfig) super.applyDefaults(userConfig,
-                defaultConfigBuilder);
-
-        CameraInternal attachedCamera = getCamera();
-        // Checks the device constraints and get the corrected aspect ratio.
-        if (attachedCamera != null && CameraX.getSurfaceManager().requiresCorrectedAspectRatio(
-                attachedCamera.getCameraInfoInternal().getCameraId())) {
-            ImageOutputConfig imageConfig = previewConfig;
-            Rational resultRatio =
-                    CameraX.getSurfaceManager().getCorrectedAspectRatio(
-                            attachedCamera.getCameraInfoInternal().getCameraId(),
-                            imageConfig.getTargetRotation(Surface.ROTATION_0));
-            if (resultRatio != null) {
-                Builder configBuilder = Builder.fromConfig(previewConfig);
-                configBuilder.setTargetAspectRatioCustom(resultRatio);
-                previewConfig = configBuilder.getUseCaseConfig();
-            }
-        }
-
-        return previewConfig;
     }
 
     /**

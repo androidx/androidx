@@ -82,6 +82,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @RunWith(AndroidJUnit4.class)
 public class PreviewViewTest {
 
+    private static final Size DEFAULT_SURFACE_SIZE = new Size(640, 480);
+
     @Rule
     public final GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
@@ -92,10 +94,14 @@ public class PreviewViewTest {
     private SurfaceRequest mSurfaceRequest;
 
     private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo) {
+        return createSurfaceRequest(DEFAULT_SURFACE_SIZE, cameraInfo);
+    }
+
+    private SurfaceRequest createSurfaceRequest(Size size, CameraInfo cameraInfo) {
         FakeCamera fakeCamera = spy(new FakeCamera());
         when(fakeCamera.getCameraInfo()).thenReturn(cameraInfo);
 
-        return new SurfaceRequest(new Size(640, 480), fakeCamera);
+        return new SurfaceRequest(size, fakeCamera, null);
     }
 
     private CountDownLatch mCountDownLatch = new CountDownLatch(1);
@@ -103,25 +109,25 @@ public class PreviewViewTest {
     private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
             new TextureView.SurfaceTextureListener() {
                 @Override
-                public void onSurfaceTextureAvailable(SurfaceTexture surface, int width,
+                public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width,
                         int height) {
 
                     mCountDownLatch.countDown();
                 }
 
                 @Override
-                public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width,
+                public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surface, int width,
                         int height) {
 
                 }
 
                 @Override
-                public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+                public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surface) {
                     return false;
                 }
 
                 @Override
-                public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+                public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surface) {
 
                 }
             };
@@ -386,9 +392,6 @@ public class PreviewViewTest {
         // dimension flip is needed in related transform calculations.
         final CameraInfo cameraInfo = createCameraInfo(90, CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
-        FakeCamera fakeCamera = spy(new FakeCamera());
-        when(fakeCamera.getCameraInfo()).thenReturn(cameraInfo);
-
         mActivityRule.runOnUiThread(() -> {
             previewView.set(new PreviewView(mContext));
 
@@ -408,7 +411,7 @@ public class PreviewViewTest {
             // Creates surface provider and request surface for 1080p surface size.
             Preview.SurfaceProvider surfaceProvider =
                     previewView.get().createSurfaceProvider();
-            mSurfaceRequest = new SurfaceRequest(bufferSize, fakeCamera);
+            mSurfaceRequest = createSurfaceRequest(bufferSize, cameraInfo);
             surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
             // Retrieves the TextureView

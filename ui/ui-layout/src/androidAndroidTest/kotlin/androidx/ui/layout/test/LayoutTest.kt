@@ -144,7 +144,7 @@ open class LayoutTest {
         positionedLatch: CountDownLatch
     ): Modifier = this.onPositioned { coordinates ->
         size.value = IntSize(coordinates.size.width, coordinates.size.height)
-        position.value = coordinates.localToGlobal(Offset(0f, 0f))
+        position.value = coordinates.localToRoot(Offset(0f, 0f))
         positionedLatch.countDown()
     }
 

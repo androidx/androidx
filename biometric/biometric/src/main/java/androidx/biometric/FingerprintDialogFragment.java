@@ -201,7 +201,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         mHelpMessageView = layout.findViewById(R.id.fingerprint_error);
 
         final CharSequence negativeButtonText =
-                mViewModel.isDeviceCredentialAllowed()
+                AuthenticatorUtils.isDeviceCredentialAllowed(mViewModel.getAllowedAuthenticators())
                         ? getString(R.string.confirm_device_credential_password)
                         : mViewModel.getNegativeButtonText();
         builder.setNegativeButton(negativeButtonText, new DialogInterface.OnClickListener() {
@@ -425,7 +425,10 @@ public class FingerprintDialogFragment extends DialogFragment {
      * Nested class to avoid verification errors for methods introduced in Android 8.0 (API 26).
      */
     @RequiresApi(Build.VERSION_CODES.O)
-    private static final class Api26Impl {
+    private static class Api26Impl {
+        // Prevent instantiation.
+        private Api26Impl() {}
+
         /**
          * Gets the resource ID of the {@code colorError} style attribute.
          */
@@ -438,7 +441,10 @@ public class FingerprintDialogFragment extends DialogFragment {
      * Nested class to avoid verification errors for methods introduced in Android 5.0 (API 21).
      */
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private static final class Api21Impl {
+    private static class Api21Impl {
+        // Prevent instantiation.
+        private Api21Impl() {}
+
         /**
          * Starts animating the given icon if it is an {@link AnimatedVectorDrawable}.
          *

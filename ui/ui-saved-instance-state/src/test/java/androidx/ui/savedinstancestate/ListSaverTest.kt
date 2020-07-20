@@ -16,6 +16,7 @@
 
 package androidx.ui.savedinstancestate
 
+import androidx.compose.mutableStateListOf
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -43,6 +44,21 @@ class ListSaverTest {
         with(SizeSaver) {
             disallowingScope.save(Size(2, 3))
         }
+    }
+
+    @Test
+    fun customListIsTransformedToArrayList() {
+        val saver = listSaver<List<String>, String>(save = { it }, restore = { null })
+        val scopeAllowingOnlyArrayListAndString = object : SaverScope {
+            override fun canBeSaved(value: Any) = value is ArrayList<*> || value is String
+        }
+
+        val stateList = mutableStateListOf("One", "Two")
+        val savedList = with(saver) {
+            scopeAllowingOnlyArrayListAndString.save(stateList)
+        }
+        assertThat(savedList).isInstanceOf(ArrayList::class.java)
+        assertThat(savedList).isEqualTo(listOf("One", "Two"))
     }
 }
 

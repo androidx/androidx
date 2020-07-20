@@ -223,13 +223,17 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         int maxVolume = 25;
         int currentVolume = 10;
 
-        AtomicReference<MediaControllerCompat.PlaybackInfo> infoRef = new AtomicReference<>();
-        CountDownLatch latch = new CountDownLatch(1);
+        CountDownLatch playbackInfoNotified = new CountDownLatch(1);
         MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
             @Override
             public void onAudioInfoChanged(MediaControllerCompat.PlaybackInfo info) {
-                infoRef.set(info);
-                latch.countDown();
+                if (info.getPlaybackType()
+                        == MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE
+                        && info.getVolumeControl() == controlType
+                        && info.getMaxVolume() == maxVolume
+                        && info.getCurrentVolume() == currentVolume) {
+                    playbackInfoNotified.countDown();
+                }
             }
         };
         mControllerCompat.registerCallback(callback, sHandler);
@@ -240,12 +244,8 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
                 .setCurrentVolume(currentVolume)
                 .build();
         mSession.updatePlayer(playerConfig);
-        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE,
-                infoRef.get().getPlaybackType());
-        assertEquals(controlType, infoRef.get().getVolumeControl());
-        assertEquals(maxVolume, infoRef.get().getMaxVolume());
 
+        assertTrue(playbackInfoNotified.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         MediaControllerCompat.PlaybackInfo info = mControllerCompat.getPlaybackInfo();
         assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE,
                 info.getPlaybackType());
@@ -267,39 +267,38 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(legacyStream).build();
 
-        AtomicReference<MediaControllerCompat.PlaybackInfo> infoRef = new AtomicReference<>();
-        CountDownLatch latch = new CountDownLatch(1);
+        CountDownLatch playbackInfoNotified = new CountDownLatch(1);
         MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
             @Override
             public void onAudioInfoChanged(MediaControllerCompat.PlaybackInfo info) {
-                infoRef.set(info);
-                latch.countDown();
+                if (info.getPlaybackType() == MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL
+                        && info.getAudioAttributes().getLegacyStreamType() == legacyStream) {
+                    playbackInfoNotified.countDown();
+                }
             }
         };
         mControllerCompat.registerCallback(callback, sHandler);
 
         Bundle playerConfigToUpdate = new RemoteMediaSession.MockPlayerConfigBuilder()
-                .setPlaybackSpeed(1)
                 .setAudioAttributes(attrs)
                 .build();
         mSession.updatePlayer(playerConfigToUpdate);
 
         // In API 21 and 22, onAudioInfoChanged is not called when playback is changed to local.
         if (Build.VERSION.SDK_INT == 21 || Build.VERSION.SDK_INT == 22) {
-            PollingCheck.waitFor(TIMEOUT_MS,
-                    () -> mControllerCompat.getPlaybackInfo().getPlaybackType()
-                            == MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL);
+            PollingCheck.waitFor(TIMEOUT_MS, () -> {
+                MediaControllerCompat.PlaybackInfo info = mControllerCompat.getPlaybackInfo();
+                return info.getPlaybackType()
+                        == MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL
+                        && info.getAudioAttributes().getLegacyStreamType() == legacyStream;
+            });
         } else {
-            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            assertTrue(playbackInfoNotified.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            MediaControllerCompat.PlaybackInfo info = mControllerCompat.getPlaybackInfo();
             assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL,
-                    infoRef.get().getPlaybackType());
-            assertEquals(legacyStream, infoRef.get().getAudioAttributes().getLegacyStreamType());
+                    info.getPlaybackType());
+            assertEquals(legacyStream, info.getAudioAttributes().getLegacyStreamType());
         }
-
-        MediaControllerCompat.PlaybackInfo info = mControllerCompat.getPlaybackInfo();
-        assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL,
-                info.getPlaybackType());
-        assertEquals(legacyStream, info.getAudioAttributes().getLegacyStreamType());
     }
 
     @Test
@@ -308,39 +307,38 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(legacyStream).build();
 
-        AtomicReference<MediaControllerCompat.PlaybackInfo> infoRef = new AtomicReference<>();
-        CountDownLatch latch = new CountDownLatch(1);
+        CountDownLatch playbackInfoNotified = new CountDownLatch(1);
         MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
             @Override
             public void onAudioInfoChanged(MediaControllerCompat.PlaybackInfo info) {
-                infoRef.set(info);
-                latch.countDown();
+                if (info.getPlaybackType() == MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL
+                        && info.getAudioAttributes().getLegacyStreamType() == legacyStream) {
+                    playbackInfoNotified.countDown();
+                }
             }
         };
         mControllerCompat.registerCallback(callback, sHandler);
 
         Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
-                .setPlaybackSpeed(1)
                 .setAudioAttributes(attrs)
                 .build();
         mSession.updatePlayer(playerConfig);
 
         // In API 21+, onAudioInfoChanged() is not called when playbackType is not changed.
         if (Build.VERSION.SDK_INT >= 21) {
-            PollingCheck.waitFor(TIMEOUT_MS,
-                    () -> mControllerCompat.getPlaybackInfo().getPlaybackType()
-                            == MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL);
+            PollingCheck.waitFor(TIMEOUT_MS, () -> {
+                MediaControllerCompat.PlaybackInfo info = mControllerCompat.getPlaybackInfo();
+                return info.getPlaybackType()
+                        == MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL
+                        && info.getAudioAttributes().getLegacyStreamType() == legacyStream;
+            });
         } else {
-            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            assertTrue(playbackInfoNotified.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            MediaControllerCompat.PlaybackInfo info = mControllerCompat.getPlaybackInfo();
             assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL,
-                    infoRef.get().getPlaybackType());
-            assertEquals(legacyStream, infoRef.get().getAudioAttributes().getLegacyStreamType());
+                    info.getPlaybackType());
+            assertEquals(legacyStream, info.getAudioAttributes().getLegacyStreamType());
         }
-
-        MediaControllerCompat.PlaybackInfo info = mControllerCompat.getPlaybackInfo();
-        assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL,
-                info.getPlaybackType());
-        assertEquals(legacyStream, info.getAudioAttributes().getLegacyStreamType());
     }
 
     @Test
@@ -354,15 +352,19 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
 
         int controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
         int maxVolume = 25;
-        int currentVolume = 10;
+        int currentVolume = 1;
 
-        AtomicReference<MediaControllerCompat.PlaybackInfo> infoRef = new AtomicReference<>();
-        CountDownLatch latch = new CountDownLatch(1);
+        CountDownLatch playbackInfoNotified = new CountDownLatch(1);
         MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
             @Override
             public void onAudioInfoChanged(MediaControllerCompat.PlaybackInfo info) {
-                infoRef.set(info);
-                latch.countDown();
+                if (info.getPlaybackType()
+                        == MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE
+                        && info.getVolumeControl() == controlType
+                        && info.getMaxVolume() == maxVolume
+                        && info.getCurrentVolume() == currentVolume) {
+                    playbackInfoNotified.countDown();
+                }
             }
         };
         mControllerCompat.registerCallback(callback, sHandler);
@@ -376,24 +378,23 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
 
         // In API 21+, onAudioInfoChanged() is not called when playbackType is not changed.
         if (Build.VERSION.SDK_INT >= 21) {
-            PollingCheck.waitFor(TIMEOUT_MS,
-                    () -> mControllerCompat.getPlaybackInfo().getPlaybackType()
-                            == MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE);
+            PollingCheck.waitFor(TIMEOUT_MS, () -> {
+                MediaControllerCompat.PlaybackInfo info = mControllerCompat.getPlaybackInfo();
+                return info.getPlaybackType()
+                        == MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE
+                        && info.getVolumeControl() == controlType
+                        && info.getMaxVolume() == maxVolume
+                        && info.getCurrentVolume() == currentVolume;
+            });
         } else {
-            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            assertTrue(playbackInfoNotified.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            MediaControllerCompat.PlaybackInfo info = mControllerCompat.getPlaybackInfo();
             assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE,
-                    infoRef.get().getPlaybackType());
-            assertEquals(controlType, infoRef.get().getVolumeControl());
-            assertEquals(maxVolume, infoRef.get().getMaxVolume());
-            assertEquals(currentVolume, infoRef.get().getCurrentVolume());
+                    info.getPlaybackType());
+            assertEquals(controlType, info.getVolumeControl());
+            assertEquals(maxVolume, info.getMaxVolume());
+            assertEquals(currentVolume, info.getCurrentVolume());
         }
-
-        MediaControllerCompat.PlaybackInfo info = mControllerCompat.getPlaybackInfo();
-        assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE,
-                info.getPlaybackType());
-        assertEquals(controlType, info.getVolumeControl());
-        assertEquals(maxVolume, info.getMaxVolume());
-        assertEquals(currentVolume, info.getCurrentVolume());
     }
 
     @Test
@@ -672,22 +673,20 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         mSession.updatePlayer(playerConfig);
 
         int targetVolume = 3;
-        CountDownLatch latch = new CountDownLatch(1);
+        CountDownLatch targetVolumeNotified = new CountDownLatch(1);
         MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
             @Override
             public void onAudioInfoChanged(MediaControllerCompat.PlaybackInfo info) {
-                // Filter out onAudioInfoChanged without current volume changes because it can
-                // sometimes be called prior to the current volume change as MediaSessionCompat
-                // doesn't update the playback type and the current volume atomically.
                 if (info.getCurrentVolume() == targetVolume) {
-                    latch.countDown();
+                    targetVolumeNotified.countDown();
                 }
             }
         };
         mControllerCompat.registerCallback(callback, sHandler);
 
         mSession.getMockPlayer().notifyVolumeChanged(targetVolume);
-        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+
+        assertTrue(targetVolumeNotified.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(targetVolume, mControllerCompat.getPlaybackInfo().getCurrentVolume());
     }
 }

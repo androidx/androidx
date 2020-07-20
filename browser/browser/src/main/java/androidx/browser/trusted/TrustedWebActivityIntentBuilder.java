@@ -142,7 +142,7 @@ public class TrustedWebActivityIntentBuilder {
 
     /**
      * Sets the color scheme, see {@link CustomTabsIntent.Builder#setColorScheme}.
-     * In Trusted Web Activities color scheme may effect such UI elements as info bars and context
+     * In Trusted Web Activities color scheme may affect such UI elements as info bars and context
      * menus.
      *
      * @param colorScheme Must be one of {@link CustomTabsIntent#COLOR_SCHEME_SYSTEM},
@@ -150,7 +150,8 @@ public class TrustedWebActivityIntentBuilder {
      *                    {@link CustomTabsIntent#COLOR_SCHEME_DARK}.
      */
     @NonNull
-    public TrustedWebActivityIntentBuilder setColorScheme(int colorScheme) {
+    public TrustedWebActivityIntentBuilder setColorScheme(
+            @CustomTabsIntent.ColorScheme int colorScheme) {
         mIntentBuilder.setColorScheme(colorScheme);
         return this;
     }
@@ -162,7 +163,8 @@ public class TrustedWebActivityIntentBuilder {
      * settings. For more details see {@link CustomTabsIntent.Builder#setColorSchemeParams}.
      */
     @NonNull
-    public TrustedWebActivityIntentBuilder setColorSchemeParams(int colorScheme,
+    public TrustedWebActivityIntentBuilder setColorSchemeParams(
+            @CustomTabsIntent.ColorScheme int colorScheme,
             @NonNull CustomTabColorSchemeParams params) {
         mIntentBuilder.setColorSchemeParams(colorScheme, params);
         return this;

@@ -319,7 +319,7 @@ internal class TextFieldSelectionManager() {
         )
     }
 
-    private fun hideSelectionToolbar() {
+    internal fun hideSelectionToolbar() {
         if (textToolbar?.status == TextToolbarStatus.Shown) {
             if (value.selection.collapsed) {
                 textToolbar?.hide()

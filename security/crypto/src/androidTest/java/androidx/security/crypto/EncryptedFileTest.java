@@ -62,6 +62,9 @@ public class EncryptedFileTest {
                 "__androidx_security_crypto_encrypted_file_pref__", Context.MODE_PRIVATE);
         sharedPreferences.edit().clear().commit();
 
+        SharedPreferences customSharedPreferences = mContext.getSharedPreferences(
+                "CUSTOMPREFNAME", Context.MODE_PRIVATE);
+        customSharedPreferences.edit().clear().commit();
 
         // Delete old keys for testing
         String filePath = mContext.getFilesDir().getParent() + "/shared_prefs/"
@@ -85,7 +88,7 @@ public class EncryptedFileTest {
         // Delete MasterKeys
         KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
         keyStore.load(null);
-        keyStore.deleteEntry(MasterKeys.MASTER_KEY_ALIAS);
+        keyStore.deleteEntry(MasterKey.DEFAULT_MASTER_KEY_ALIAS);
 
         mMasterKey = new MasterKey.Builder(mContext)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)

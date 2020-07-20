@@ -70,6 +70,38 @@ class RepeatableAnimationTest {
         assertEquals((DelayDuration + Duration) * iters.toLong(), duration)
     }
 
+    @Test
+    fun testRepeatModeReverse() {
+        val repeat = repeatable(
+            iterations = 9,
+            animation = TweenSpec<Float>(
+                durationMillis = 100, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+
+        val repeatAnim = TargetBasedAnimation(
+            repeat,
+            0f,
+            100f,
+            AnimationVector(0f),
+            FloatToVectorConverter
+        )
+
+        for (playtime in 0..100L) {
+            assertEquals(playtime.toFloat(), repeatAnim.getValue(playtime), 0.01f)
+        }
+        for (playtime in 100..200L) {
+            assertEquals(200f - playtime.toFloat(), repeatAnim.getValue(playtime), 0.01f)
+        }
+        assertEquals(100f, repeatAnim.getValue(100))
+        assertEquals(99f, repeatAnim.getValue(101))
+        assertEquals(0f, repeatAnim.getValue(200))
+        assertEquals(100f, repeatAnim.getValue(300))
+        assertEquals(80f, repeatAnim.getValue(880))
+        assertEquals(100f, repeatAnim.getValue(900))
+        assertEquals(100f, repeatAnim.getValue(901))
+    }
+
     private companion object {
         private val DelayDuration = 13
         private val Duration = 50

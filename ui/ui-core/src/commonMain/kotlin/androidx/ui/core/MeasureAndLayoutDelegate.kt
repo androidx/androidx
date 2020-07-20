@@ -128,7 +128,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                 postponedMeasureRequests.add(layoutNode)
             } else {
                 layoutNode.layoutState = NeedsRemeasure
-                if (layoutNode.isPlaced || layoutNode.canAffectPlacedParent) {
+                if (layoutNode.isPlaced || layoutNode.canAffectParent) {
                     val parentLayoutState = layoutNode.parent?.layoutState
                     if (parentLayoutState != NeedsRemeasure) {
                         relayoutNodes.add(layoutNode)
@@ -199,7 +199,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             relayoutNodes.popEach { layoutNode ->
                 val alignmentLinesOwner = layoutNode.alignmentLinesQueryOwner
                 if (layoutNode.isPlaced ||
-                    layoutNode.canAffectPlacedParent ||
+                    layoutNode.canAffectParent ||
                     (alignmentLinesOwner != null && alignmentLinesOwner
                         .alignmentUsageByParent != NotUsed)
                 ) {
@@ -257,7 +257,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         relayoutNodes.remove(node)
     }
 
-    private val LayoutNode.canAffectPlacedParent
-        get() = layoutState == NeedsRemeasure && parent?.isPlaced == true &&
+    private val LayoutNode.canAffectParent
+        get() = layoutState == NeedsRemeasure &&
                 (measuredByParent == InMeasureBlock || alignmentLinesQueryOwner != null)
 }

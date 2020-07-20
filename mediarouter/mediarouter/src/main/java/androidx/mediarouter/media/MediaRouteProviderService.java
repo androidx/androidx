@@ -68,13 +68,13 @@ import android.os.IBinder.DeathRecipient;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.util.ArrayMap;
 import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.collection.ArrayMap;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController;
@@ -1083,8 +1083,6 @@ public abstract class MediaRouteProviderService extends Service {
     @RequiresApi(api = Build.VERSION_CODES.R)
     static class MediaRouteProviderServiceImplApi30 extends MediaRouteProviderServiceImplBase {
         MediaRoute2ProviderServiceAdapter mMR2ProviderServiceAdapter;
-        // Maps the route ID to route controller.
-        final Map<String, RouteController> mRouteIdToControllerMap = new ArrayMap<>();
         final OnDynamicRoutesChangedListener mDynamicRoutesChangedListener =
                 (controller, groupRoute, routes) -> mMR2ProviderServiceAdapter
                         .setDynamicRouteDescriptor(controller, groupRoute, routes);
@@ -1128,36 +1126,6 @@ public abstract class MediaRouteProviderService extends Service {
             return new ClientRecord(messenger, version, packageName);
         }
 
-        RouteController getControllerForRouteId(String routeId) {
-            return mRouteIdToControllerMap.get(routeId);
-        }
-
-        RouteController createRouteControllerWithoutClient(String routeId, String routeGroupId) {
-            RouteController controller = mRouteIdToControllerMap.get(routeId);
-            if (controller != null) {
-                return controller;
-            }
-
-            controller = routeGroupId == null
-                    ? mService.getMediaRouteProvider().onCreateRouteController(routeId)
-                    : mService.getMediaRouteProvider()
-                            .onCreateRouteController(routeId, routeGroupId);
-            if (controller != null) {
-                mRouteIdToControllerMap.put(routeId, controller);
-            }
-            return controller;
-        }
-
-        boolean releaseRouteControllerForRouteId(String routeId) {
-            RouteController controller = mRouteIdToControllerMap.remove(routeId);
-            if (controller != null) {
-                controller.onUnselect(UNSELECT_REASON_UNKNOWN);
-                controller.onRelease();
-                return true;
-            }
-            return false;
-        }
-
         void setDynamicRoutesChangedListener(DynamicGroupRouteController controller) {
             controller.setOnDynamicRoutesChangedListener(
                     ContextCompat.getMainExecutor(mService.getApplicationContext()),
@@ -1165,6 +1133,9 @@ public abstract class MediaRouteProviderService extends Service {
         }
 
         class ClientRecord extends MediaRouteProviderServiceImplBase.ClientRecord {
+            // Maps the route ID to member route controller.
+            private final Map<String, RouteController> mRouteIdToControllerMap = new ArrayMap<>();
+
             ClientRecord(Messenger messenger, int version, String packageName) {
                 super(messenger, version, packageName);
             }
@@ -1182,7 +1153,8 @@ public abstract class MediaRouteProviderService extends Service {
                         controllerId);
                 // Don't add route controllers of member routes.
                 if (routeGroupId == null && result && mPackageName != null) {
-                    mMR2ProviderServiceAdapter.addRouteController(mControllers.get(controllerId),
+                    mMR2ProviderServiceAdapter.notifyRouteControllerAdded(
+                            this, mControllers.get(controllerId),
                             controllerId, mPackageName, routeId);
                 }
                 if (result) {
@@ -1197,7 +1169,8 @@ public abstract class MediaRouteProviderService extends Service {
                 Bundle result =
                         super.createDynamicGroupRouteController(initialMemberRouteId, controllerId);
                 if (result != null && mPackageName != null) {
-                    mMR2ProviderServiceAdapter.addRouteController(mControllers.get(controllerId),
+                    mMR2ProviderServiceAdapter.notifyRouteControllerAdded(
+                            this, mControllers.get(controllerId),
                             controllerId, mPackageName, initialMemberRouteId);
                 }
                 return result;
@@ -1205,7 +1178,7 @@ public abstract class MediaRouteProviderService extends Service {
 
             @Override
             public boolean releaseRouteController(int controllerId) {
-                mMR2ProviderServiceAdapter.removeRouteController(controllerId);
+                mMR2ProviderServiceAdapter.notifyRouteControllerRemoved(controllerId);
                 RouteController controller = mControllers.get(controllerId);
                 if (controller != null) {
                     for (Map.Entry<String, RouteController> entry :
@@ -1229,6 +1202,10 @@ public abstract class MediaRouteProviderService extends Service {
                     mMR2ProviderServiceAdapter.setDynamicRouteDescriptor(controller,
                             groupRoute, descriptors);
                 }
+            }
+
+            public RouteController findControllerByRouteId(String routeId) {
+                return mRouteIdToControllerMap.get(routeId);
             }
         }
     }

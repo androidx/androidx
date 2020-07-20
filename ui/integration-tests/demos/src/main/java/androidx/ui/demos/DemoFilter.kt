@@ -102,6 +102,8 @@ private fun FilterField(
     onFilter: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
+    @Suppress("DEPRECATION")
     val focusModifier = FocusModifier()
     // TODO: replace with Material text field when available
     TextField(

@@ -17,6 +17,8 @@
 package androidx.ui.core
 
 import androidx.ui.core.LayoutNode.LayoutState.Ready
+import androidx.ui.core.focus.ExperimentalFocus
+import androidx.ui.core.focus.FocusState2
 import androidx.ui.core.focus.ModifiedFocusNode
 import androidx.ui.core.focus.ModifiedFocusNode2
 import androidx.ui.core.keyinput.ModifiedKeyInputNode
@@ -72,6 +74,12 @@ internal class InnerPlaceable(
     override fun findLastFocusWrapper(): ModifiedFocusNode? = findPreviousFocusWrapper()
 
     override fun findLastFocusWrapper2(): ModifiedFocusNode2? = findPreviousFocusWrapper2()
+
+    @OptIn(ExperimentalFocus::class)
+    override fun propagateFocusStateChange(focusState: FocusState2) {
+        // TODO(b/160922058): Propagate focus controllers across layout nodes.
+        // wrappedBy?.propagateFocusStateChange(focusState)
+    }
 
     override fun findPreviousKeyInputWrapper() = wrappedBy?.findPreviousKeyInputWrapper()
 
