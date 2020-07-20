@@ -19,8 +19,6 @@ package androidx.ui.core.demos
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Alignment
-import androidx.ui.core.DropDownAlignment
-import androidx.ui.core.DropdownPopup
 import androidx.ui.core.Modifier
 import androidx.ui.core.Popup
 import androidx.ui.foundation.Box
@@ -52,7 +50,7 @@ import androidx.ui.unit.dp
 @Composable
 fun PopupDemo() {
     val exampleIndex = state { 0 }
-    val totalExamples = 9
+    val totalExamples = 8
 
     Column {
         Row(
@@ -117,12 +115,11 @@ fun PopupDemo() {
             0 -> PopupToggle()
             1 -> PopupWithChangingContent()
             2 -> PopupWithChangingParent()
-            3 -> PopupDropdownAlignment()
-            4 -> PopupAlignmentDemo()
-            5 -> PopupWithEditText()
-            6 -> PopupWithChangingSize()
-            7 -> PopupInsideScroller()
-            8 -> PopupOnKeyboardUp()
+            3 -> PopupAlignmentDemo()
+            4 -> PopupWithEditText()
+            5 -> PopupWithChangingSize()
+            6 -> PopupInsideScroller()
+            7 -> PopupOnKeyboardUp()
         }
     }
 }
@@ -249,36 +246,6 @@ private fun ColumnScope.PopupWithChangingParent() {
                 parentSizeChanged.value = !parentSizeChanged.value
             }
         )
-    }
-}
-
-@Composable
-private fun ColumnScope.PopupDropdownAlignment() {
-    Column(Modifier.gravity(Alignment.CenterHorizontally)) {
-        val heightSize = 120.dp
-        val widthSize = 160.dp
-        val dropDownAlignment = state { DropDownAlignment.Start }
-
-        ClickableTextWithBackground(
-            text = "Change alignment",
-            color = Color.Cyan,
-            onClick = {
-                dropDownAlignment.value =
-                    if (dropDownAlignment.value == DropDownAlignment.Start) {
-                        DropDownAlignment.End
-                    } else {
-                        DropDownAlignment.Start
-                    }
-            }
-        )
-
-        Spacer(Modifier.preferredHeight(10.dp))
-
-        Box(Modifier.preferredSize(widthSize, heightSize), backgroundColor = Color.Gray) {
-            DropdownPopup(dropDownAlignment = dropDownAlignment.value) {
-                Box(Modifier.preferredSize(40.dp, 70.dp), backgroundColor = Color.Blue)
-            }
-        }
     }
 }
 

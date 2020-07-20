@@ -70,8 +70,6 @@ fun Popup(
  * The dropdown popup is positioned below its parent, using the [dropDownAlignment] and [offset].
  * The dropdown popup is visible as long as it is part of the composition hierarchy.
  *
- * @sample androidx.ui.core.samples.DropdownPopupSample
- *
  * @param dropDownAlignment The start or end alignment below the parent.
  * @param offset An offset from the original aligned position of the popup.
  * @param isFocusable Indicates if the popup can grab the focus.
@@ -80,7 +78,7 @@ fun Popup(
  * @param children The content to be displayed inside the popup.
  */
 @Composable
-fun DropdownPopup(
+internal fun DropdownPopup(
     dropDownAlignment: DropDownAlignment = DropDownAlignment.Start,
     offset: IntOffset = IntOffset(0, 0),
     isFocusable: Boolean = false,
@@ -168,7 +166,7 @@ interface PopupPositionProvider {
  * The [DropdownPopup] is aligned below its parent relative to its left or right corner.
  * [DropDownAlignment] is used to specify how should [DropdownPopup] be aligned.
  */
-enum class DropDownAlignment {
+internal enum class DropDownAlignment {
     Start,
     End
 }
