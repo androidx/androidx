@@ -22,9 +22,9 @@ import androidx.compose.InternalComposeApi
 import androidx.compose.resetSourceInfo
 import androidx.test.filters.SmallTest
 import androidx.ui.core.OwnedLayer
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Text
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
+import androidx.compose.foundation.layout.Column
 import androidx.ui.material.Button
 import androidx.ui.material.Surface
 import androidx.ui.tooling.Group
@@ -136,7 +136,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "Box",
             fileName = "Box.kt",
-            function = "androidx.ui.foundation.BoxKt.Box",
+            function = "androidx.compose.foundation.BoxKt.Box",
             left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
             children = listOf("Column")
         ) {
@@ -152,14 +152,14 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "Column",
             fileName = "Box.kt",
-            function = "androidx.ui.foundation.BoxKt.Box",
+            function = "androidx.compose.foundation.BoxKt.Box",
             left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
             children = listOf("RowColumnImpl")
         )
         validate(
             name = "RowColumnImpl",
             fileName = "Column.kt",
-            function = "androidx.ui.layout.ColumnKt.Column",
+            function = "androidx.compose.foundation.layout.ColumnKt.Column",
             left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
             children = listOf("Column")
         ) {
@@ -180,7 +180,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "RowColumnImpl",
             fileName = "Column.kt",
-            function = "androidx.ui.layout.ColumnKt.Column",
+            function = "androidx.compose.foundation.layout.ColumnKt.Column",
             left = 0.0.dp, top = 0.0.dp, width = 70.5.dp, height = 54.9.dp,
             children = listOf("Text", "Surface")
         ) {
@@ -325,14 +325,14 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "Column",
             fileName = "Box.kt",
-            function = "androidx.ui.foundation.BoxKt.Box",
+            function = "androidx.compose.foundation.BoxKt.Box",
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
             children = listOf("RowColumnImpl")
         )
         validate(
             name = "RowColumnImpl",
             fileName = "Column.kt",
-            function = "androidx.ui.layout.ColumnKt.Column",
+            function = "androidx.compose.foundation.layout.ColumnKt.Column",
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
             children = listOf("ProvideTextStyle")
         ) {
@@ -370,7 +370,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "RowColumnImpl",
             fileName = "Row.kt",
-            function = "androidx.ui.layout.RowKt.Row",
+            function = "androidx.compose.foundation.layout.RowKt.Row",
             left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
             children = listOf("Text")
         ) {

@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.core.paint
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.StrokeCap
@@ -29,7 +29,7 @@ import androidx.ui.graphics.vector.PathData
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorAssetBuilder
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.res.vectorResource
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.dp

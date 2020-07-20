@@ -21,10 +21,10 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Text
-import androidx.ui.layout.Stack
-import androidx.ui.layout.size
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule

@@ -18,10 +18,10 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.Text
-import androidx.ui.layout.InnerPadding
-import androidx.ui.layout.padding
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.padding
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Snackbar
 import androidx.ui.material.TextButton

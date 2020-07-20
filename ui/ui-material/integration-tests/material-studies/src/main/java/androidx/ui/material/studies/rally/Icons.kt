@@ -19,12 +19,12 @@ package androidx.ui.material.studies.rally
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.paint
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.lazyMaterialIcon
 import androidx.ui.material.icons.materialPath
@@ -34,7 +34,7 @@ import androidx.ui.unit.dp
 /**
  * 24x24dp icon from a resource id.
  *
- * TODO: b/150460257 remove this when androidx.ui.foundation.Icon supports minimum sizes
+ * TODO: b/150460257 remove this when androidx.compose.foundation.Icon supports minimum sizes
  */
 @Composable
 fun Icon(

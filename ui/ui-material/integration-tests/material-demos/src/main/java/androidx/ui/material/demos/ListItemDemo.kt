@@ -17,7 +17,7 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.ui.foundation.ScrollableColumn
+import androidx.compose.foundation.ScrollableColumn
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Call
 import androidx.ui.material.samples.OneLineListItems

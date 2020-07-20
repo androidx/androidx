@@ -22,7 +22,7 @@ import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.animation.animate
-import androidx.ui.foundation.Icon
+import androidx.compose.foundation.Icon
 import androidx.ui.graphics.Color
 import androidx.ui.material.IconButton
 import androidx.ui.material.IconToggleButton

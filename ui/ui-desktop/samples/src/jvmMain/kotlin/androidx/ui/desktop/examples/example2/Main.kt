@@ -16,13 +16,13 @@
 package androidx.ui.desktop.examples.example2
 
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas
+import androidx.compose.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.inset
 import androidx.ui.graphics.drawscope.rotate
 import androidx.ui.graphics.drawscope.withTransform
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.ui.unit.IntSize
 import androidx.ui.desktop.AppWindow
 

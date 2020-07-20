@@ -18,15 +18,15 @@ package androidx.ui.integration.test.foundation
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.ScrollState
-import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.rememberScrollState
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.ui.graphics.Color
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxHeight
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.dp
 

@@ -30,13 +30,13 @@ import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.LargeTest
 import androidx.ui.animation.transition
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.background
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.ui.test.android.ComposeIdlingResource
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule

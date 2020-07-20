@@ -28,7 +28,7 @@ import androidx.ui.core.boundsInRoot
 import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.ui.unit.PxBounds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals

@@ -19,11 +19,11 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
-import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.foundation.semantics.inMutuallyExclusiveGroup
-import androidx.ui.foundation.semantics.selected
-import androidx.ui.foundation.semantics.toggleableState
-import androidx.ui.layout.Column
+import androidx.compose.foundation.selection.ToggleableState
+import androidx.compose.foundation.semantics.inMutuallyExclusiveGroup
+import androidx.compose.foundation.semantics.selected
+import androidx.compose.foundation.semantics.toggleableState
+import androidx.compose.foundation.layout.Column
 import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.hidden
 import androidx.ui.semantics.testTag

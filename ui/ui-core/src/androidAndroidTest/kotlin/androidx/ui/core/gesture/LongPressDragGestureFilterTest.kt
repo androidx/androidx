@@ -24,7 +24,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.layout.Stack
+import androidx.compose.foundation.layout.Stack
 import androidx.ui.geometry.Offset
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.inOrder

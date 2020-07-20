@@ -70,7 +70,7 @@ import androidx.ui.core.layoutId
 import androidx.ui.core.offset
 import androidx.ui.core.setContent
 import androidx.ui.core.zIndex
-import androidx.ui.foundation.drawBackground
+import androidx.compose.foundation.drawBackground
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
@@ -81,10 +81,10 @@ import androidx.ui.graphics.Shape
 import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.graphics.drawscope.translate
-import androidx.ui.layout.ltr
-import androidx.ui.layout.offset
-import androidx.ui.layout.padding
-import androidx.ui.layout.rtl
+import androidx.compose.foundation.layout.ltr
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.rtl
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp

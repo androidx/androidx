@@ -38,10 +38,10 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.core.test.R
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.background
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
-import androidx.ui.layout.size
+import androidx.compose.foundation.layout.size
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap

@@ -28,7 +28,7 @@ import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.MediumTest
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp

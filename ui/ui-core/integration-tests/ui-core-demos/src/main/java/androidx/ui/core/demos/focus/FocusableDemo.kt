@@ -27,14 +27,14 @@ import androidx.ui.core.focus.focus
 import androidx.ui.core.focus.focusObserver
 import androidx.ui.core.focus.focusRequester
 import androidx.ui.core.focus.isFocused
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Text
 import androidx.ui.graphics.Color.Companion.Black
 import androidx.ui.graphics.Color.Companion.Green
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
-import androidx.ui.layout.RowScope
-import androidx.ui.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
 
 @Composable
 fun FocusableDemo() {

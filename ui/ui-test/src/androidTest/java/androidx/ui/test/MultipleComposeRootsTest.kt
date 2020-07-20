@@ -31,7 +31,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.core.testTag
-import androidx.ui.foundation.selection.ToggleableState
+import androidx.compose.foundation.selection.ToggleableState
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.material.TriStateCheckbox

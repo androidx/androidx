@@ -18,11 +18,11 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.clickable
-import androidx.ui.foundation.selection.toggleable
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ContentGravity
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.unit.dp
 
@@ -34,7 +34,7 @@ import androidx.ui.unit.dp
  * This component is typically used inside an App Bar for the navigation icon / actions. See App
  * Bar documentation for samples of this.
  *
- * [icon] should typically be an [androidx.ui.foundation.Icon], using an icon from
+ * [icon] should typically be an [androidx.compose.foundation.Icon], using an icon from
  * [androidx.ui.material.icons.Icons]. If using a custom icon, note that the typical size for the
  * internal icon is 24 x 24 dp.
  *
@@ -43,7 +43,7 @@ import androidx.ui.unit.dp
  * @param onClick the lambda to be invoked when this icon is pressed
  * @param modifier optional [Modifier] for this IconButton
  * @param icon the content (icon) to be drawn inside the IconButton. This is typically an
- * [androidx.ui.foundation.Icon].
+ * [androidx.compose.foundation.Icon].
  */
 @Composable
 fun IconButton(
@@ -75,7 +75,7 @@ fun IconButton(
  * enabled for semantics purposes
  * @param modifier optional [Modifier] for this IconToggleButton
  * @param icon the content (icon) to be drawn inside the IconToggleButton. This is typically an
- * [androidx.ui.foundation.Icon].
+ * [androidx.compose.foundation.Icon].
  */
 @Composable
 fun IconToggleButton(

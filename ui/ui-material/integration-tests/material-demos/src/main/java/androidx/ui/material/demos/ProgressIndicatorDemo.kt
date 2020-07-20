@@ -28,11 +28,11 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.ScrollableColumn
+import androidx.compose.foundation.ScrollableColumn
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Row
-import androidx.ui.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.ui.material.CircularProgressIndicator
 import androidx.ui.material.LinearProgressIndicator
 

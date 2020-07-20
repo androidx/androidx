@@ -31,10 +31,10 @@ import androidx.ui.animation.AnimatedFloatModel
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.ContentDrawScope
-import androidx.ui.foundation.Indication
-import androidx.ui.foundation.IndicationInstance
-import androidx.ui.foundation.Interaction
-import androidx.ui.foundation.InteractionState
+import androidx.compose.foundation.Indication
+import androidx.compose.foundation.IndicationInstance
+import androidx.compose.foundation.Interaction
+import androidx.compose.foundation.InteractionState
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
@@ -54,9 +54,9 @@ import androidx.ui.util.fastForEach
  * responds to other interactions by showing a fixed state layer.
  *
  * By default this [Indication] with default parameters will be provided by [MaterialTheme]
- * through [androidx.ui.foundation.IndicationAmbient], and hence used in interactions such as
- * [androidx.ui.foundation.clickable] out of the box. You can also manually create a
- * [RippleIndication] and provide it to [androidx.ui.foundation.indication] in order to
+ * through [androidx.compose.foundation.IndicationAmbient], and hence used in interactions such as
+ * [androidx.compose.foundation.clickable] out of the box. You can also manually create a
+ * [RippleIndication] and provide it to [androidx.compose.foundation.indication] in order to
  * customize its appearance.
  *
  * @param bounded If true, ripples are clipped by the bounds of the target layout. Unbounded
@@ -94,9 +94,9 @@ fun RippleIndication(
  * responds to other interactions by showing a fixed state layer.
  *
  * By default this [Indication] with default parameters will be provided by [MaterialTheme]
- * through [androidx.ui.foundation.IndicationAmbient], and hence used in interactions such as
- * [androidx.ui.foundation.clickable] out of the box. You can also manually create a
- * [RippleIndication] and provide it to [androidx.ui.foundation.indication] in order to
+ * through [androidx.compose.foundation.IndicationAmbient], and hence used in interactions such as
+ * [androidx.compose.foundation.clickable] out of the box. You can also manually create a
+ * [RippleIndication] and provide it to [androidx.compose.foundation.indication] in order to
  * customize its appearance.
  */
 @Stable

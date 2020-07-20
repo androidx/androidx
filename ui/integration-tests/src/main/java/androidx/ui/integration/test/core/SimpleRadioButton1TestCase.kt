@@ -18,14 +18,14 @@ package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Border
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.shape.corner.CircleShape
+import androidx.compose.foundation.Border
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ContentGravity
+import androidx.compose.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawOutline
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.unit.dp
 
 class SimpleRadioButton1TestCase : BaseSimpleRadioButtonTestCase() {

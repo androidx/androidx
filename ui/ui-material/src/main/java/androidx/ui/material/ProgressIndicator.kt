@@ -32,9 +32,9 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
-import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.Strings
-import androidx.ui.foundation.determinateProgressIndicator
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Strings
+import androidx.compose.foundation.determinateProgressIndicator
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
@@ -42,8 +42,8 @@ import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.graphics.vectormath.degrees
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp

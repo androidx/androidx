@@ -25,7 +25,7 @@ import androidx.ui.core.focus.FocusDetailedState.ActiveParent
 import androidx.ui.core.focus.FocusDetailedState.Captured
 import androidx.ui.core.focus.FocusDetailedState.Disabled
 import androidx.ui.core.focus.FocusDetailedState.Inactive
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth

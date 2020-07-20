@@ -39,9 +39,9 @@ import androidx.ui.core.focus.focusState
 import androidx.ui.core.id
 import androidx.ui.core.layoutId
 import androidx.ui.core.offset
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.currentTextStyle
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.currentTextStyle
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.RectangleShape
@@ -50,7 +50,7 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.TextFieldValue
 import androidx.ui.input.VisualTransformation
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.padding
 import androidx.ui.text.InternalTextApi
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextStyle

@@ -19,9 +19,9 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.remember
-import androidx.ui.foundation.Indication
-import androidx.ui.foundation.IndicationAmbient
-import androidx.ui.foundation.ProvideTextStyle
+import androidx.compose.foundation.Indication
+import androidx.compose.foundation.IndicationAmbient
+import androidx.compose.foundation.ProvideTextStyle
 import androidx.ui.material.ripple.RippleIndication
 
 /**

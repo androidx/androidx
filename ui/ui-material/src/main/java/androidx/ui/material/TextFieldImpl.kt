@@ -52,21 +52,21 @@ import androidx.ui.core.focus.FocusState
 import androidx.ui.core.focus.focusState
 import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.offset
-import androidx.ui.foundation.ContentColorAmbient
-import androidx.ui.foundation.ProvideTextStyle
-import androidx.ui.foundation.BaseTextField
-import androidx.ui.foundation.ExperimentalFoundationApi
-import androidx.ui.foundation.clickable
-import androidx.ui.foundation.gestures.rememberScrollableController
-import androidx.ui.foundation.gestures.scrollable
+import androidx.compose.foundation.ContentColorAmbient
+import androidx.compose.foundation.ProvideTextStyle
+import androidx.compose.foundation.BaseTextField
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.rememberScrollableController
+import androidx.compose.foundation.gestures.scrollable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.TextFieldValue
 import androidx.ui.input.VisualTransformation
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredSizeIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.ui.material.ripple.RippleIndication
 import androidx.compose.runtime.savedinstancestate.Saver
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
@@ -257,7 +257,7 @@ internal fun TextFieldImpl(
 }
 
 /**
- * Similar to [androidx.ui.foundation.ScrollableColumn] but does not lose the minWidth constraints.
+ * Similar to [androidx.compose.foundation.ScrollableColumn] but does not lose the minWidth constraints.
  */
 @VisibleForTesting
 @Composable

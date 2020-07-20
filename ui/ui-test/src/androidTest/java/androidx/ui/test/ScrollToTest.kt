@@ -20,11 +20,11 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Canvas
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.semantics.scrollBy
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth
