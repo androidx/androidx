@@ -92,8 +92,8 @@ public final class Insets {
     /**
      * Subtract two Insets.
      *
-     * @param a The minuend.
-     * @param b The subtrahend.
+     * @param a The minuend; the value from which {@code b} will be subtracted.
+     * @param b The subtrahend; the value which will be subtracted from {@code a}.
      * @return a - b, i. e. all insets on every side are subtracted from each other.
      */
     @NonNull
