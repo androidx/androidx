@@ -17,6 +17,7 @@
 package androidx.datastore
 
 import kotlinx.coroutines.flow.Flow
+import java.io.IOException
 
 /**
  * DataStore provides a safe and durable way to store small amounts of data, such as preferences
@@ -45,7 +46,8 @@ interface DataStore<T> {
      * Do not layer a cache on top of this API: it will be be impossible to guarantee consistency.
      * Instead, use data.first() to access a single snapshot.
      *
-     * @return a flow representing the current state of the data.
+     * @return a flow representing the current state of the data
+     * @throws IOException when an exception is encountered when reading data
      */
     val data: Flow<T>
 
@@ -58,7 +60,9 @@ interface DataStore<T> {
      * [data] will reflect the update). If the transform or write to disk fails, the
      * transaction is aborted and an exception is thrown.
      *
-     * @return the snapshot returned by the transform.
+     * @return the snapshot returned by the transform
+     * @throws IOException when an exception is encountered when writing data to disk
+     * @throws Exception when thrown by the transform function
      */
     suspend fun updateData(transform: suspend (t: T) -> T): T
 }
