@@ -115,14 +115,45 @@ class PagingData<T : Any> internal constructor(
             override fun refresh() {}
         }
 
-        private val EMPTY = PagingData<Any>(
+        @Suppress("MemberVisibilityCanBePrivate") // synthetic access
+        internal val EMPTY = PagingData<Any>(
             flow = flowOf(PageEvent.Insert.EMPTY_REFRESH_LOCAL),
             receiver = NOOP_RECEIVER
         )
 
-        @Suppress("UNCHECKED_CAST", "SyntheticAccessor")
+        /**
+         * Create a [PagingData] that immediately displays an empty list of items when submitted to
+         * [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter].
+         */
+        @Suppress("UNCHECKED_CAST")
         @JvmStatic // Convenience for Java developers.
         fun <T : Any> empty() = EMPTY as PagingData<T>
+
+        /**
+         * Create a [PagingData] that immediately displays a static list of items when submitted to
+         * [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter].
+         *
+         * @param data Static list of [T] to display.
+         */
+        @JvmStatic // Convenience for Java developers.
+        fun <T : Any> from(data: List<T>) = PagingData(
+            flow = flowOf(
+                PageEvent.Insert.Refresh(
+                    pages = listOf(TransformablePage(originalPageOffset = 0, data = data)),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    combinedLoadStates = CombinedLoadStates(
+                        source = LoadStates(
+                            refresh = LoadState.NotLoading.Incomplete,
+                            prepend = LoadState.NotLoading.Complete,
+                            append = LoadState.NotLoading.Complete
+                        )
+                    )
+
+                )
+            ),
+            receiver = NOOP_RECEIVER
+        )
 
         // NOTE: samples in the doc below are manually imported from Java code in the samples
         // project, since Java cannot be linked with @sample.
