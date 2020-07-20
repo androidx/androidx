@@ -55,6 +55,8 @@ fun Project.writeSdkPathToLocalPropertiesFile() {
  */
 fun Project.getSdkPath(): File {
     if (rootProject.plugins.hasPlugin(AndroidXPlaygroundRootPlugin::class.java)) {
+        // This is not full checkout, use local settings instead.
+        // https://developer.android.com/studio/command-line/variables
         // check for local.properties first
         val localPropsFile = rootProject.projectDir.resolve("local.properties")
         if (localPropsFile.exists()) {
@@ -64,19 +66,21 @@ fun Project.getSdkPath(): File {
             }
             val localSdkDir = localProps["sdk.dir"]?.toString()
             if (localSdkDir != null) {
-                val folder = File(localSdkDir)
-                if (folder.isDirectory) {
-                    return folder
+                val sdkDirectory = File(localSdkDir)
+                if (sdkDirectory.isDirectory) {
+                    return sdkDirectory
                 }
             }
         }
-        // This is not full checkout, use local settings instead.
-        // https://developer.android.com/studio/command-line/variables
-        listOf("ANDROID_HOME", "ANDROID_SDK_ROOT").firstOrNull {
+        // check for environment variables, in the order AGP checks
+        listOf("ANDROID_HOME", "ANDROID_SDK_ROOT").forEach {
             val envValue = System.getenv(it)
-            envValue != null && File(envValue).isDirectory
-        }?.let {
-            return File(it)
+            if (envValue != null) {
+                val sdkDirectory = File(envValue)
+                if (sdkDirectory.isDirectory) {
+                    return sdkDirectory
+                }
+            }
         }
         // only print the error for SDK ROOT since ANDROID_HOME is deprecated but we first check
         // it because it is prioritized according to the documentation
