@@ -228,20 +228,21 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         }
 
         @Override
-        public void surfaceCreated(SurfaceHolder surfaceHolder) {
+        public void surfaceCreated(@NonNull SurfaceHolder surfaceHolder) {
             Log.d(TAG, "Surface created.");
             // No-op. Handling surfaceChanged() is enough because it's always called afterwards.
         }
 
         @Override
-        public void surfaceChanged(SurfaceHolder surfaceHolder, int format, int width, int height) {
+        public void surfaceChanged(@NonNull SurfaceHolder surfaceHolder, int format, int width,
+                int height) {
             Log.d(TAG, "Surface changed. Size: " + width + "x" + height);
             mCurrentSurfaceSize = new Size(width, height);
             tryToComplete();
         }
 
         @Override
-        public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+        public void surfaceDestroyed(@NonNull SurfaceHolder surfaceHolder) {
             Log.d(TAG, "Surface destroyed.");
 
             // If a surface was already provided to the camera, invalidate it so that it requests
