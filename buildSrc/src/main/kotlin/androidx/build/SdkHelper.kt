@@ -16,10 +16,12 @@
 
 package androidx.build
 
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import java.io.File
 import java.util.Locale
+import java.util.Properties
 
 /**
  * Writes the appropriate SDK path to local.properties file in specified location.
@@ -52,9 +54,34 @@ fun Project.writeSdkPathToLocalPropertiesFile() {
  * Returns the root project's platform-specific SDK path as a file.
  */
 fun Project.getSdkPath(): File {
-    val sdkPath = androidxSdkPath()
-    if (sdkPath != null) {
-        return File(sdkPath)
+    if (rootProject.plugins.hasPlugin(AndroidXPlaygroundRootPlugin::class.java)) {
+        // check for local.properties first
+        val localPropsFile = rootProject.projectDir.resolve("local.properties")
+        if (localPropsFile.exists()) {
+            val localProps = Properties()
+            localPropsFile.inputStream().use {
+                localProps.load(it)
+            }
+            val localSdkDir = localProps["sdk.dir"]?.toString()
+            if (localSdkDir != null) {
+                val folder = File(localSdkDir)
+                if (folder.isDirectory) {
+                    return folder
+                }
+            }
+        }
+        // This is not full checkout, use local settings instead.
+        // https://developer.android.com/studio/command-line/variables
+        listOf("ANDROID_HOME", "ANDROID_SDK_ROOT").firstOrNull {
+            val envValue = System.getenv(it)
+            println("env value:$it $envValue")
+            envValue != null && File(envValue).isDirectory
+        }?.let {
+            return File(it)
+        }
+        // only print the error for SDK ROOT since ANDROID_HOME is deprecated but we first check
+        // it because it is prioritized according to the documentation
+        throw GradleException("ANDROID_SDK_ROOT environment variable is not set")
     }
 
     val osName = System.getProperty("os.name").toLowerCase(Locale.US)
