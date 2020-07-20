@@ -17,20 +17,21 @@
 package androidx.compose.foundation.text.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.Constraints
-import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
-import androidx.ui.core.clipToBounds
-import androidx.ui.core.constrainWidth
+import androidx.compose.foundation.BaseTextField
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.ui.graphics.Color
-import androidx.ui.input.TextFieldValue
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.compose.foundation.text.CoreTextField
+import androidx.ui.core.Constraints
+import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
+import androidx.ui.core.clipToBounds
+import androidx.ui.core.constrainWidth
+import androidx.ui.graphics.Color
+import androidx.ui.input.TextFieldValue
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
 import kotlin.math.min
@@ -68,6 +69,7 @@ fun TailFollowingTextFieldDemo() {
 }
 
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 private fun HorizontalTailFollowingTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
@@ -76,7 +78,7 @@ private fun HorizontalTailFollowingTextField(
 ) {
     Layout(
         children = @Composable {
-            CoreTextField(
+            BaseTextField(
                 value = value,
                 onValueChange = onValueChange,
                 textStyle = textStyle
@@ -104,6 +106,7 @@ private fun HorizontalTailFollowingTextField(
 }
 
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 private fun VerticalTailFollowintTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
@@ -112,7 +115,7 @@ private fun VerticalTailFollowintTextField(
 ) {
     Layout(
         children = @Composable {
-            CoreTextField(
+            BaseTextField(
                 value = value,
                 onValueChange = onValueChange,
                 textStyle = textStyle
