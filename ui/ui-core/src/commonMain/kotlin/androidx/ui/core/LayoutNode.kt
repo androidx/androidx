@@ -672,8 +672,7 @@ class LayoutNode : Measurable, Remeasurement {
                         wrapper = ModifiedFocusRequesterNode(wrapper, mod).assignChained(toWrap)
                     }
                     if (mod is KeyInputModifier) {
-                        wrapper = ModifiedKeyInputNode(wrapper, mod).also { mod.keyInputNode = it }
-                            .assignChained(toWrap)
+                        wrapper = ModifiedKeyInputNode(wrapper, mod).assignChained(toWrap)
                     }
                     if (mod is PointerInputModifier) {
                         wrapper = PointerInputDelegatingWrapper(wrapper, mod).assignChained(toWrap)
@@ -714,7 +713,8 @@ class LayoutNode : Measurable, Remeasurement {
             // this is if no wrapping actually occurs above because no LayoutModifiers are
             // present in the modifier chain.
             if (oldOuterWrapper != innerLayoutNodeWrapper ||
-                outerWrapper != innerLayoutNodeWrapper) {
+                outerWrapper != innerLayoutNodeWrapper
+            ) {
                 requestRemeasure()
                 parent?.requestRelayout()
             } else if (layoutState == Ready && addedCallback) {
@@ -723,7 +723,8 @@ class LayoutNode : Measurable, Remeasurement {
                 requestRemeasure()
             }
             if (invalidateParentLayer || startZIndex != outerZIndexModifier ||
-                shouldInvalidateParentLayer()) {
+                shouldInvalidateParentLayer()
+            ) {
                 parent?.onInvalidate()
             }
         }
@@ -841,7 +842,8 @@ class LayoutNode : Measurable, Remeasurement {
                 _children.forEach { child ->
                     child.isPlaced = false
                     if (alignmentLinesRequired && child.layoutState == Ready &&
-                        !child.alignmentLinesCalculatedDuringLastLayout) {
+                        !child.alignmentLinesCalculatedDuringLastLayout
+                    ) {
                         child.layoutState = NeedsRelayout
                     }
                     if (!child.alignmentLinesRequired) {
@@ -1163,7 +1165,7 @@ class LayoutNode : Measurable, Remeasurement {
                     constraints: Constraints,
                     layoutDirection: LayoutDirection
                 ) = error("Undefined measure and it is required")
-        }
+            }
     }
 
     /**

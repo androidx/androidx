@@ -23,6 +23,10 @@ import androidx.ui.core.LayoutNodeWrapper
 internal class ModifiedKeyInputNode(wrapped: LayoutNodeWrapper, modifier: KeyInputModifier) :
     DelegatingLayoutNodeWrapper<KeyInputModifier>(wrapped, modifier) {
 
+    init {
+        modifier.keyInputNode = this
+    }
+
     override fun findPreviousKeyInputWrapper() = this
 
     override fun findNextKeyInputWrapper() = this
