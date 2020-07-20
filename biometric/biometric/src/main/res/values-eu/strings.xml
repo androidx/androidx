@@ -28,4 +28,6 @@
     <string name="default_error_msg" msgid="4776854077120974966">"Errore ezezaguna"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"Erabiltzaileak bertan behera utzi du autentifikazioa"</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Erabili pasahitza"</string>
+    <!-- no translation found for generic_error_no_device_credential (3791785319221634505) -->
+    <skip />
 </resources>
