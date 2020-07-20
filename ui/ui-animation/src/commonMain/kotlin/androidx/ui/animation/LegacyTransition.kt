@@ -62,7 +62,7 @@ import androidx.ui.core.AnimationClockAmbient
 @Deprecated("Transition has been renamed to transition, which returns a TransitionState instead " +
         "of passing it to children",
     replaceWith = ReplaceWith(
-        "transition(definition, toState, clock, initState, onStateChangeFinished)",
+        "transition(definition, toState, clock, initState, null, onStateChangeFinished)",
         "androidx.ui.animation.transition"))
 @Composable
 fun <T> Transition(
@@ -73,6 +73,6 @@ fun <T> Transition(
     onStateChangeFinished: ((T) -> Unit)? = null,
     children: @Composable (state: TransitionState) -> Unit
 ) {
-    val state = transition(definition, toState, clock, initState, onStateChangeFinished)
+    val state = transition(definition, toState, clock, initState, null, onStateChangeFinished)
     children(state)
 }

@@ -36,13 +36,24 @@ import androidx.animation.InterruptionHandling.UNINTERRUPTIBLE
  * Once a [TransitionDefinition] is instantiated, a [TransitionAnimation] can be created via
  * [TransitionDefinition.createAnimation].
  *
+ * @param def Transition definition that defines states and transitions
+ * @param clock Optional animation clock that pulses animations when time changes. By default,
+ *              the system uses a choreographer based clock read from the [AnimationClockAmbient].
+ *              A custom implementation of the [AnimationClockObservable] (such as a
+ *              [androidx.animation.ManualAnimationClock]) can be supplied here if there’s a need to
+ *              manually control the clock (for example in tests).
+ * @param initState Optional initial state for the transition. When undefined, the initial state
+ *                  will be set to the first [toState] seen in the transition.
+ * @param label Optional label for distinguishing different transitions in Android Studio.
+ *
  * @see [androidx.ui.animation.transition]
  */
 @OptIn(InternalAnimationApi::class)
 class TransitionAnimation<T>(
     internal val def: TransitionDefinition<T>,
     private val clock: AnimationClockObservable,
-    initState: T? = null
+    initState: T? = null,
+    val label: String? = null
 ) : TransitionState {
 
     var onUpdate: (() -> Unit)? = null

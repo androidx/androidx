@@ -22,7 +22,6 @@ import androidx.animation.PropKey
 import androidx.animation.TransitionAnimation
 import androidx.animation.TransitionDefinition
 import androidx.animation.TransitionState
-import androidx.animation.createAnimation
 import androidx.compose.Composable
 import androidx.compose.Stable
 import androidx.compose.getValue
@@ -61,6 +60,7 @@ import androidx.ui.core.AnimationClockAmbient
  *              manually control the clock (for example in tests).
  * @param initState Optional initial state for the transition. When undefined, the initial state
  *                  will be set to the first [toState] seen in the transition.
+ * @param label Optional label for distinguishing different transitions in Android Studio.
  * @param onStateChangeFinished An optional listener to get notified when state change animation
  *                              has completed
  *
@@ -75,12 +75,13 @@ fun <T> transition(
     toState: T,
     clock: AnimationClockObservable = AnimationClockAmbient.current,
     initState: T = toState,
+    label: String? = null,
     onStateChangeFinished: ((T) -> Unit)? = null
 ): TransitionState {
     if (transitionsEnabled) {
         val disposableClock = clock.asDisposableClock()
         val model = remember(definition, disposableClock) {
-            TransitionModel(definition, initState, disposableClock)
+            TransitionModel(definition, initState, disposableClock, label)
         }
 
         model.anim.onStateChangeFinished = onStateChangeFinished
@@ -107,12 +108,13 @@ var transitionsEnabled = true
 private class TransitionModel<T>(
     transitionDef: TransitionDefinition<T>,
     initState: T,
-    clock: AnimationClockObservable
+    clock: AnimationClockObservable,
+    label: String?
 ) : TransitionState {
 
     private var animationPulse by mutableStateOf(0L)
     internal val anim: TransitionAnimation<T> =
-        transitionDef.createAnimation(clock, initState).apply {
+        TransitionAnimation(transitionDef, clock, initState, label).apply {
             onUpdate = {
                 animationPulse++
             }

@@ -365,8 +365,9 @@ package androidx.animation {
   }
 
   public final class TransitionAnimation<T> implements androidx.animation.TransitionState {
-    ctor public TransitionAnimation(internal androidx.animation.TransitionDefinition<T> def, androidx.animation.AnimationClockObservable clock, T? initState);
+    ctor public TransitionAnimation(internal androidx.animation.TransitionDefinition<T> def, androidx.animation.AnimationClockObservable clock, T? initState, String? label);
     method public operator <T, V extends androidx.animation.AnimationVector> T! get(androidx.animation.PropKey<T,V> propKey);
+    method public String? getLabel();
     method public kotlin.jvm.functions.Function1<T,kotlin.Unit>? getOnStateChangeFinished();
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnUpdate();
     method public boolean isRunning();
