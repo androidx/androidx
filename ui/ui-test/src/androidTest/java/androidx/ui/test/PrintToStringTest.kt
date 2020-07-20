@@ -20,9 +20,9 @@ import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
-import androidx.ui.layout.Column
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.Column
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
 import androidx.ui.semantics.disabled

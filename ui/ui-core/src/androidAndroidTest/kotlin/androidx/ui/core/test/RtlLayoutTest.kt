@@ -36,11 +36,11 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Stack
-import androidx.ui.layout.ltr
-import androidx.ui.layout.padding
-import androidx.ui.layout.rtl
-import androidx.ui.layout.size
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.ltr
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.rtl
+import androidx.compose.foundation.layout.size
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp

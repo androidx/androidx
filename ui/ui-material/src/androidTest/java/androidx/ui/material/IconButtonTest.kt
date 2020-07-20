@@ -19,8 +19,8 @@ import androidx.compose.emptyContent
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.material.samples.IconButtonSample
 import androidx.ui.material.samples.IconToggleButtonSample
 import androidx.ui.test.assertHeightIsEqualTo

@@ -17,7 +17,7 @@ package androidx.ui.material
 
 import androidx.test.filters.LargeTest
 import androidx.ui.core.DensityAmbient
-import androidx.ui.foundation.Icon
+import androidx.compose.foundation.Icon
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.painter.ColorPainter

@@ -19,7 +19,7 @@ import androidx.compose.mutableStateOf
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Strings
+import androidx.compose.foundation.Strings
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsDisplayed

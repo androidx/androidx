@@ -23,7 +23,7 @@ import androidx.ui.animation.animatedFloat
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawLayer
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Text
 
 @Sampled
 @Composable

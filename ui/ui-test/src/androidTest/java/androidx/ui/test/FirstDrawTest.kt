@@ -24,10 +24,10 @@ import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Canvas
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.ui.test.android.AndroidComposeTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule

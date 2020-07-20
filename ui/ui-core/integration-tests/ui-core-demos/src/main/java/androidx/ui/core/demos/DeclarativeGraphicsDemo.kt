@@ -18,15 +18,15 @@ package androidx.ui.core.demos
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas
+import androidx.compose.foundation.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.inset
 import androidx.ui.graphics.drawscope.rotate
 import androidx.ui.graphics.drawscope.scale
 import androidx.ui.graphics.drawscope.translate
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.unit.dp
 
 @Composable

@@ -30,9 +30,9 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.foundation.selection.triStateToggleable
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.selection.ToggleableState
+import androidx.compose.foundation.selection.triStateToggleable
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Radius
 import androidx.ui.geometry.Size
@@ -43,9 +43,9 @@ import androidx.ui.graphics.asAndroidPath
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.Fill
 import androidx.ui.graphics.drawscope.Stroke
-import androidx.ui.layout.padding
-import androidx.ui.layout.size
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.unit.dp
 import androidx.ui.util.lerp

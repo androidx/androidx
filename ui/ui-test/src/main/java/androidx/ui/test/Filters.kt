@@ -18,13 +18,13 @@ package androidx.ui.test
 
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.getOrNull
-import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.foundation.semantics.FoundationSemanticsProperties
+import androidx.compose.foundation.selection.ToggleableState
+import androidx.compose.foundation.semantics.FoundationSemanticsProperties
 import androidx.ui.input.ImeAction
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsProperties
-import androidx.ui.text.TextSemanticsProperties
+import androidx.compose.foundation.text.TextSemanticsProperties
 import androidx.ui.util.fastAny
 
 /**

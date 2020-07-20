@@ -30,12 +30,12 @@ import androidx.ui.core.drawBehind
 import androidx.ui.core.drawLayer
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.offset
-import androidx.ui.layout.preferredSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performPartialGesture

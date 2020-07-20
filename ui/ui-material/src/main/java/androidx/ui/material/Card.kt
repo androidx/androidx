@@ -18,7 +18,7 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Border
+import androidx.compose.foundation.Border
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.unit.Dp

@@ -22,7 +22,7 @@ import androidx.compose.Stable
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
-import androidx.ui.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.ui.material.ColorPalette
 import androidx.ui.material.darkColorPalette
 import androidx.ui.material.lightColorPalette

@@ -21,7 +21,7 @@ import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
-import androidx.ui.layout.Column
+import androidx.compose.foundation.layout.Column
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsPropertyKey
 import androidx.ui.semantics.SemanticsPropertyReceiver

@@ -18,8 +18,8 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.foundation.Text
-import androidx.ui.layout.Column
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.Column
 import androidx.ui.material.EmphasisAmbient
 import androidx.ui.material.ProvideEmphasis
 

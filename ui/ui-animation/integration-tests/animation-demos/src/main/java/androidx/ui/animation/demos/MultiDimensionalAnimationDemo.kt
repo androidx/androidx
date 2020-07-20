@@ -27,13 +27,13 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.RectPropKey
 import androidx.ui.animation.transition
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.clickable
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 
 @Composable
 fun MultiDimensionalAnimationDemo() {

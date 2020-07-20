@@ -24,8 +24,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.ViewAmbient
 import androidx.ui.desktop.view.LayoutScope
 import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.foundation.Box
-import androidx.ui.layout.fillMaxSize
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.dp
 

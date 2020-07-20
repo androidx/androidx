@@ -23,11 +23,11 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.rawScaleGestureFilter
 import androidx.ui.core.gesture.RawScaleObserver
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.background
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.wrapContentSize
 import kotlin.math.roundToInt
 
 /**

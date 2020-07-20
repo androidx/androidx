@@ -21,9 +21,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.Text
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.samples.BottomNavigationSample

@@ -18,8 +18,8 @@ package androidx.ui.material.ripple
 
 import androidx.compose.Composable
 import androidx.compose.staticAmbientOf
-import androidx.ui.foundation.Interaction
-import androidx.ui.foundation.contentColor
+import androidx.compose.foundation.Interaction
+import androidx.compose.foundation.contentColor
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.luminance
 import androidx.ui.material.MaterialTheme

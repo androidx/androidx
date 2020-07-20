@@ -21,8 +21,8 @@ import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.Text
 import androidx.ui.material.BottomNavigation
 import androidx.ui.material.BottomNavigationItem
 import androidx.ui.material.icons.Icons

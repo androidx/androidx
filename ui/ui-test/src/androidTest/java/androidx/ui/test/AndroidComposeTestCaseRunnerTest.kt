@@ -21,8 +21,8 @@ import androidx.compose.mutableStateOf
 import androidx.compose.onPreCommit
 import androidx.compose.state
 import androidx.test.filters.SmallTest
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

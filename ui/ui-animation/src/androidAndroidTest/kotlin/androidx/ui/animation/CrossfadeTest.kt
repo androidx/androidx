@@ -23,7 +23,7 @@ import androidx.compose.onDispose
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.test.filters.MediumTest
-import androidx.ui.foundation.Text
+import androidx.compose.foundation.Text
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithText
 import androidx.ui.test.runOnIdle

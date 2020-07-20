@@ -35,8 +35,8 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.offset
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.InnerPadding
-import androidx.ui.layout.padding
+import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.padding
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp

@@ -27,7 +27,7 @@ import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawOpacity
-import androidx.ui.layout.Stack
+import androidx.compose.foundation.layout.Stack
 import androidx.ui.util.fastForEach
 
 /**

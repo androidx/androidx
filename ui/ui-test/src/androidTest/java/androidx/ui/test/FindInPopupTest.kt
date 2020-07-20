@@ -21,7 +21,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.Popup
 import androidx.ui.core.testTag
-import androidx.ui.foundation.Box
+import androidx.compose.foundation.Box
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

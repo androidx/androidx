@@ -21,29 +21,29 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.IndicationAmbient
-import androidx.ui.foundation.InteractionState
-import androidx.ui.foundation.ProvideTextStyle
-import androidx.ui.foundation.clickable
-import androidx.ui.foundation.indication
-import androidx.ui.foundation.shape.corner.CornerSize
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ContentGravity
+import androidx.compose.foundation.IndicationAmbient
+import androidx.compose.foundation.InteractionState
+import androidx.compose.foundation.ProvideTextStyle
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.shape.corner.CornerSize
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
-import androidx.ui.layout.Row
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.defaultMinSizeConstraints
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredSizeIn
-import androidx.ui.layout.preferredWidth
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSizeConstraints
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredSizeIn
+import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
 /**
  * A floating action button (FAB) is a button that represents the primary action of a screen.
  *
- * This FAB is typically used with an [androidx.ui.foundation.Icon]:
+ * This FAB is typically used with an [androidx.compose.foundation.Icon]:
  *
  * @sample androidx.ui.material.samples.SimpleFab
  *
@@ -110,7 +110,7 @@ fun FloatingActionButton(
  * @sample androidx.ui.material.samples.FluidExtendedFab
  *
  * @param text Text label displayed inside this FAB
- * @param icon Optional icon for this FAB, typically this will be a [androidx.ui.foundation.Icon]
+ * @param icon Optional icon for this FAB, typically this will be a [androidx.compose.foundation.Icon]
  * @param modifier [Modifier] to be applied to this FAB
  * @param onClick will be called when user clicked on this FAB. The FAB will be disabled
  * when it is null.

@@ -62,7 +62,9 @@ class PackageNameMigrationDetector : Detector(), SourceCodeScanner {
             "androidx.ui.foo" to "androidx.compose.foo",
             "androidx.ui.livedata" to "androidx.compose.runtime.livedata",
             "androidx.ui.rxjava2" to "androidx.compose.runtime.rxjava2",
-            "androidx.ui.savedinstancestate" to "androidx.compose.runtime.savedinstancestate"
+            "androidx.ui.savedinstancestate" to "androidx.compose.runtime.savedinstancestate",
+            "androidx.ui.foundation" to "androidx.compose.foundation",
+            "androidx.ui.layout" to "androidx.compose.foundation.layout"
         )
 
         val ISSUE = Issue.create(
