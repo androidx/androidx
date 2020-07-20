@@ -21,7 +21,10 @@ import androidx.inspection.testing.DefaultTestInspectorEnvironment
 import androidx.inspection.testing.InspectorTester
 import androidx.inspection.testing.TestInspectorExecutors
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.work.WorkManager
+import androidx.work.await
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command
+import androidx.work.inspection.WorkManagerInspectorProtocol.Event
 import androidx.work.inspection.WorkManagerInspectorProtocol.Response
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,6 +39,8 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
     private lateinit var inspectorTester: InspectorTester
     private lateinit var environment: FakeInspectorEnvironment
     private val job = Job()
+    lateinit var workManager: WorkManager
+        private set
 
     override fun before() {
         environment = FakeInspectorEnvironment(job)
@@ -43,6 +48,8 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
             .getInstrumentation()
             .targetContext
             .applicationContext as Application
+        workManager = WorkManager.getInstance(application)
+
         registerApplication(application)
         inspectorTester = runBlocking {
             InspectorTester(
@@ -55,6 +62,8 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
     override fun after() {
         runBlocking {
             job.cancelAndJoin()
+            workManager.cancelAllWork().await()
+            workManager.pruneWork().await()
         }
         inspectorTester.dispose()
     }
@@ -70,6 +79,13 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
                 assertThat(responseBytes).isNotEmpty()
                 return Response.parseFrom(responseBytes)
             }
+    }
+
+    suspend fun receiveEvent(): Event {
+        inspectorTester.channel.receive().let { responseBytes ->
+            assertThat(responseBytes).isNotEmpty()
+            return Event.parseFrom(responseBytes)
+        }
     }
 
     private fun registerApplication(application: Application) {

@@ -54,3 +54,30 @@ message TrackWorkManagerResponse {}
 message ErrorResponse {
   string content = 1;
 }
+
+// --- Events ---
+
+// Generic Event object grouping all Inspector Event types. Expected in
+// Connection's sendEvent method.
+message Event {
+  // Wrapped specialised Event.
+  oneof OneOf {
+    WorkAddedEvent work_added = 1;
+    WorkRemovedEvent work_removed = 2;
+  }
+}
+
+// Notification of a work established (new) / discovered
+// (existing).
+message WorkAddedEvent {
+    WorkInfo work = 1;
+}
+
+// Notification of a work removed
+message WorkRemovedEvent {
+    string id = 1;
+}
+
+message WorkInfo {
+    string id = 1;
+}

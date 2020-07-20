@@ -276,6 +276,10 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
             Log.d(TAG, mRouteId + ": Controller created");
         }
 
+        public boolean isReleased() {
+            return mHelper.isReleased();
+        }
+
         @Override
         public void onRelease() {
             Log.d(TAG, mRouteId + ": Controller released");
@@ -338,6 +342,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
         private final SessionManager mSessionManager = new SessionManager("mrp");
         private final Player mPlayer;
         private PendingIntent mSessionReceiver;
+        private boolean mReleased = false;
 
         RouteControlHelper(String routeId) {
             mRouteId = routeId;
@@ -355,7 +360,12 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
             });
         }
 
+        public boolean isReleased() {
+            return mReleased;
+        }
+
         public void onRelease() {
+            mReleased = true;
             mPlayer.release();
         }
 

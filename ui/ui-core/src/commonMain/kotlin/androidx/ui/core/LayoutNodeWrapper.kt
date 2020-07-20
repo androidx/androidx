@@ -18,6 +18,8 @@
 
 package androidx.ui.core
 
+import androidx.ui.core.focus.ExperimentalFocus
+import androidx.ui.core.focus.FocusState2
 import androidx.ui.core.focus.ModifiedFocusNode
 import androidx.ui.core.focus.ModifiedFocusNode2
 import androidx.ui.core.keyinput.ModifiedKeyInputNode
@@ -28,8 +30,8 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Paint
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
-import androidx.ui.unit.minus
 import androidx.ui.unit.PxBounds
+import androidx.ui.unit.minus
 import androidx.ui.unit.plus
 import androidx.ui.unit.toOffset
 
@@ -336,6 +338,14 @@ internal abstract class LayoutNodeWrapper(
      * It searches the wrapper list associated with this [LayoutNodeWrapper].
      */
     abstract fun findLastFocusWrapper2(): ModifiedFocusNode2?
+
+    /**
+     * When the focus state changes, a [LayoutNodeWrapper] calls this function on the wrapper
+     * that wraps it. The focus state change must be propagated to the parents until we reach
+     * another focus node [ModifiedFocusNode2].
+     */
+    @OptIn(ExperimentalFocus::class)
+    abstract fun propagateFocusStateChange(focusState: FocusState2)
 
     /**
      * Find the first ancestor that is a [ModifiedFocusNode].

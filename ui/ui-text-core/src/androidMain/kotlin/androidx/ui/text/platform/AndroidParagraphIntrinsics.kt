@@ -18,7 +18,10 @@ package androidx.ui.text.platform
 
 import android.graphics.Paint
 import android.text.TextPaint
-import androidx.ui.unit.Density
+import androidx.core.text.TextUtilsCompat
+import androidx.core.view.ViewCompat
+import androidx.ui.intl.AndroidLocale
+import androidx.ui.intl.LocaleList
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphIntrinsics
 import androidx.ui.text.Placeholder
@@ -27,6 +30,8 @@ import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
 import androidx.ui.text.platform.extensions.applySpanStyle
 import androidx.ui.text.style.TextDirection
+import androidx.ui.unit.Density
+import java.util.Locale
 
 @OptIn(InternalPlatformTextApi::class)
 internal class AndroidParagraphIntrinsics(
@@ -50,10 +55,9 @@ internal class AndroidParagraphIntrinsics(
     override val minIntrinsicWidth: Float
         get() = layoutIntrinsics.minIntrinsicWidth
 
-    internal val textDirectionHeuristic = style.textDirection?.let {
-        resolveTextDirectionHeuristics(style.textDirection)
-    } ?: throw IllegalArgumentException(
-        "TextStyle.textDirectionAlgorithm should not be null"
+    internal val textDirectionHeuristic = resolveTextDirectionHeuristics(
+        style.textDirection,
+        style.localeList
     )
 
     init {
@@ -89,14 +93,25 @@ internal class AndroidParagraphIntrinsics(
  * heuristics.
  */
 @OptIn(InternalPlatformTextApi::class)
-private fun resolveTextDirectionHeuristics(
-    textDirection: TextDirection
+internal fun resolveTextDirectionHeuristics(
+    textDirection: TextDirection? = null,
+    localeList: LocaleList? = null
 ): Int {
-    return when (textDirection) {
+    return when (textDirection ?: TextDirection.Content) {
         TextDirection.ContentOrLtr -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
         TextDirection.ContentOrRtl -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
         TextDirection.Ltr -> LayoutCompat.TEXT_DIRECTION_LTR
         TextDirection.Rtl -> LayoutCompat.TEXT_DIRECTION_RTL
+        TextDirection.Content -> {
+            val currentLocale = localeList?.let {
+                (it[0].platformLocale as AndroidLocale).javaLocale
+            } ?: Locale.getDefault()
+            when (TextUtilsCompat.getLayoutDirectionFromLocale(currentLocale)) {
+                ViewCompat.LAYOUT_DIRECTION_LTR -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
+                ViewCompat.LAYOUT_DIRECTION_RTL -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
+                else -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
+            }
+        }
     }
 }
 

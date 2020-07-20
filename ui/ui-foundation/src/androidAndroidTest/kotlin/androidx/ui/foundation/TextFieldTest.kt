@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// TODO(b/160821157): Replace FocusState with FocusState2.isFocused
+@file:Suppress("DEPRECATION")
+
 package androidx.ui.foundation
 
 import android.os.Build
@@ -77,6 +80,8 @@ class TextFieldTest {
 
     private val DefaultTextFieldWidth = 280.dp
 
+    // TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
+    @Suppress("DEPRECATION")
     @Test
     fun textField_focusInSemantics() {
         val inputService = mock<TextInputService>()
@@ -87,6 +92,7 @@ class TextFieldTest {
             Providers(
                 TextInputServiceAmbient provides inputService
             ) {
+                // TODO(b/161297615): Replace FocusModifier with Modifier.focus()
                 focusModifier = FocusModifier()
                 TextField(
                     value = state.value,

@@ -44,6 +44,11 @@ sealed class Group(
     val key: Any?,
 
     /**
+     * The source location that produce the group if it can be determined
+     */
+    val location: SourceLocation?,
+
+    /**
      * The bounding layout box for the group.
      */
     val box: IntBounds,
@@ -78,15 +83,44 @@ data class ParameterInformation(
 )
 
 /**
+ * Source location of the call that produced the call group.
+ */
+data class SourceLocation(
+    /**
+     * A 0 offset line number of the source location.
+     */
+    val lineNumber: Int,
+
+    /**
+     * Offset into the file. The offset is calculated as the number of UTF-16 code units from
+     * the beginning of the file to the first UTF-16 code unit of the call that produced the group.
+     */
+    val offset: Int,
+
+    /**
+     * The length of the source code. The length is calculated as the number of UTF-16 code units
+     * that that make up the call expression.
+     */
+    val length: Int,
+
+    /**
+     * The file name (without path information) of the source file that contains the call that
+     * produced the group.
+     */
+    val sourceFile: String?
+)
+
+/**
  * A group that represents the invocation of a component
  */
 class CallGroup(
     key: Any?,
     box: IntBounds,
+    location: SourceLocation?,
     override val parameters: List<ParameterInformation>,
     data: Collection<Any?>,
     children: Collection<Group>
-) : Group(key, box, data, children)
+) : Group(key, location, box, data, children)
 
 /**
  * A group that represents an emitted node
@@ -102,7 +136,7 @@ class NodeGroup(
     data: Collection<Any?>,
     override val modifierInfo: List<ModifierInfo>,
     children: Collection<Group>
-) : Group(key, box, data, children)
+) : Group(key, null, box, data, children)
 
 /**
  * A key that has being joined together to form one key.
@@ -123,12 +157,127 @@ private fun convertKey(key: Any?): Any? =
 
 internal val emptyBox = IntBounds(0, 0, 0, 0)
 
+private val tokenizer = Regex("(\\d+)|([,])|([*])|([:])|C|L|@")
+
+private fun MatchResult.isNumber() = groupValues[1].isNotEmpty()
+private fun MatchResult.number() = groupValues[1].toInt()
+private val MatchResult.text get() = groupValues[0]
+private fun MatchResult.isChar(c: String) = text == c
+private fun MatchResult.isFileName() = groupValues[4].isNotEmpty()
+
+private class SourceLocationInfo(val lineNumber: Int?, val offset: Int?, val length: Int?)
+
+private class SourceInformationContext(
+    val sourceFile: String?,
+    val locations: List<SourceLocationInfo>,
+    val repeatOffset: Int,
+    val isCall: Boolean
+) {
+    private var nextLocation = 0
+
+    fun nextSourceLocation(): SourceLocation? {
+        if (nextLocation >= locations.size && repeatOffset >= 0) {
+            nextLocation = repeatOffset
+        }
+        if (nextLocation < locations.size) {
+            val location = locations[nextLocation++]
+            return SourceLocation(
+                location.lineNumber ?: -1,
+                location.offset ?: -1,
+                location.length ?: -1,
+                sourceFile
+            )
+        }
+        return null
+    }
+}
+
+private fun sourceInformationContextOf(
+    information: String,
+    parent: SourceInformationContext?
+): SourceInformationContext {
+    var currentResult = tokenizer.find(information)
+
+    fun next(): MatchResult? {
+        currentResult?.let { currentResult = it.next() }
+        return currentResult
+    }
+
+    fun parseLocation(): SourceLocationInfo? {
+        var lineNumber: Int? = null
+        var offset: Int? = null
+        var length: Int? = null
+
+        var mr = currentResult
+        if (mr != null && mr.isNumber()) {
+            // Offsets are 0 based in the data, we need 1 based.
+            lineNumber = mr.number() + 1
+            mr = next()
+        }
+        if (mr != null && mr.isChar("@")) {
+            // Offset
+            mr = next()
+            if (mr == null || !mr.isNumber()) {
+                return null
+            }
+            offset = mr.number()
+            mr = next()
+            if (mr != null && mr.isChar("L")) {
+                mr = next()
+                if (mr == null || !mr.isNumber()) {
+                    return null
+                }
+                length = mr.number()
+            }
+        }
+        if (lineNumber != null && offset != null && length != null)
+            return SourceLocationInfo(lineNumber, offset, length)
+        return null
+    }
+    val sourceLocations = mutableListOf<SourceLocationInfo>()
+    var repeateOffset = -1
+    var isCall = false
+    var sourceFile: String? = null
+    loop@ while (currentResult != null) {
+        val mr = currentResult!!
+        when {
+            mr.isNumber() || mr.isChar("@") -> {
+                parseLocation()?.let { sourceLocations.add(it) }
+            }
+            mr.isChar("C") -> {
+                isCall = true
+                next()
+            }
+            mr.isChar("*") -> {
+                repeateOffset = sourceLocations.size
+            }
+            mr.isChar(",") -> next()
+            mr.isFileName() -> {
+                sourceFile = information.substring(mr.range.last + 1)
+                break@loop
+            }
+        }
+        require(mr != currentResult) { "regex didn't advance" }
+    }
+    return SourceInformationContext(
+        sourceFile = sourceFile ?: parent?.sourceFile,
+        locations = sourceLocations,
+        repeatOffset = repeateOffset,
+        isCall = isCall
+    )
+}
+
 /**
  * Iterate the slot table and extract a group tree that corresponds to the content of the table.
  */
 @OptIn(ExperimentalLayoutNodeApi::class)
-private fun SlotReader.getGroup(): Group {
+private fun SlotReader.getGroup(parentContext: SourceInformationContext?): Group {
     val key = convertKey(groupKey)
+    val groupData = groupData
+    val myContext = if (groupData != null && groupData is String) {
+        sourceInformationContextOf(groupData, parentContext)
+    } else null
+    val context = myContext ?: parentContext
     val nodeGroup = isNode
     val end = current + groupSize
     val node = if (nodeGroup) groupNode else null
@@ -136,7 +285,7 @@ private fun SlotReader.getGroup(): Group {
     val data = mutableListOf<Any?>()
     val children = mutableListOf<Group>()
     while (current < end && isGroup) {
-        children.add(getGroup())
+        children.add(getGroup(context))
     }
 
     // A group can start with data
@@ -146,7 +295,7 @@ private fun SlotReader.getGroup(): Group {
 
     // A group ends with a list of groups
     while (current < end) {
-        children.add(getGroup())
+        children.add(getGroup(context))
     }
 
     val modifierInfo = if (node is LayoutNode) {
@@ -169,7 +318,18 @@ private fun SlotReader.getGroup(): Group {
         modifierInfo,
         children
     ) else
-        CallGroup(key, box, extractParameterInfo(data), data, children)
+        CallGroup(
+            key,
+            box,
+            if (myContext != null && myContext.isCall) {
+                parentContext?.nextSourceLocation()
+            } else {
+                null
+            },
+            extractParameterInfo(data),
+            data,
+            children
+        )
 }
 
 @OptIn(ExperimentalLayoutNodeApi::class)
@@ -195,7 +355,7 @@ private fun boundsOfLayoutNode(node: LayoutNode): IntBounds {
  * Return a group tree for for the slot table that represents the entire content of the slot
  * table.
  */
-fun SlotTable.asTree(): Group = read { it.getGroup() }
+fun SlotTable.asTree(): Group = read { it.getGroup(null) }
 
 internal fun IntBounds.union(other: IntBounds): IntBounds {
     if (this == emptyBox) return other else if (other == emptyBox) return this

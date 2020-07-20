@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// TODO(b/160821157): Replace FocusDetailedState with FocusState2 DEPRECATION
+@file:Suppress("DEPRECATION")
+
 package androidx.ui.material
 
 import androidx.compose.Composable
@@ -85,6 +88,9 @@ import kotlin.math.roundToInt
  * container
  * @param isErrorValue indicates if the text field's current value is in error. If set to true, the
  * label, bottom indicator and trailing icon will be displayed in [errorColor] color
+ * @param visualTransformation transforms the visual representation of the input [value].
+ * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
+ * text field. By default no visual transformation is applied
  * @param keyboardType the keyboard type to be used with the text field.
  * Note that the input type is not guaranteed. For example, an IME may send a non-ASCII character
  * even if you set the keyboard type to [KeyboardType.Ascii]
@@ -96,10 +102,7 @@ import kotlin.math.roundToInt
  * Note that the emitted IME action may be different from what you specified through the
  * [imeAction] field. The callback also exposes a [SoftwareKeyboardController] instance as a
  * parameter that can be used to request to hide the software keyboard
- * @param visualTransformation transforms the visual representation of the input [value].
- * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
- * text field. By default no visual transformation is applied
- * @param onFocusChange a callback to be invoked when the text field receives or loses focus
+ * @param onFocusChanged a callback to be invoked when the text field receives or loses focus
  * If the boolean parameter value is `true`, it means the text field has focus, and vice versa
  * @param onTextInputStarted a callback to be invoked when the connection with the platform's text
  * input service (e.g. software keyboard on Android) has been established. Called with the
@@ -127,7 +130,7 @@ fun OutlinedTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onImeActionPerformed: (ImeAction, SoftwareKeyboardController?) -> Unit = { _, _ -> },
-    onFocusChange: (Boolean) -> Unit = {},
+    onFocusChanged: (Boolean) -> Unit = {},
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     activeColor: Color = MaterialTheme.colors.primary,
     inactiveColor: Color = MaterialTheme.colors.onSurface,
@@ -163,7 +166,7 @@ fun OutlinedTextField(
         keyboardType = keyboardType,
         imeAction = imeAction,
         onImeActionPerformed = onImeActionPerformed,
-        onFocusChange = onFocusChange,
+        onFocusChanged = onFocusChanged,
         onTextInputStarted = onTextInputStarted,
         activeColor = activeColor,
         inactiveColor = inactiveColor,
@@ -201,6 +204,9 @@ fun OutlinedTextField(
  * container
  * @param isErrorValue indicates if the text field's current value is in error state. If set to
  * true, the label, bottom indicator and trailing icon will be displayed in [errorColor] color
+ * @param visualTransformation transforms the visual representation of the input [value].
+ * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
+ * text field. By default no visual transformation is applied
  * @param keyboardType the keyboard type to be used with the text field.
  * Note that the input type is not guaranteed. For example, an IME may send a non-ASCII character
  * even if you set the keyboard type to [KeyboardType.Ascii]
@@ -212,10 +218,7 @@ fun OutlinedTextField(
  * Note that the emitted IME action may be different from what you specified through the
  * [imeAction] field. The callback also exposes a [SoftwareKeyboardController] instance as a
  * parameter that can be used to request to hide the software keyboard
- * @param visualTransformation transforms the visual representation of the input [value].
- * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
- * text field. By default no visual transformation is applied
- * @param onFocusChange a callback to be invoked when the text field receives or loses focus
+ * @param onFocusChanged a callback to be invoked when the text field receives or loses focus
  * If the boolean parameter value is `true`, it means the text field has focus, and vice versa
  * @param onTextInputStarted a callback to be invoked when the connection with the platform's text
  * input service (e.g. software keyboard on Android) has been established. Called with the
@@ -243,7 +246,7 @@ fun OutlinedTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onImeActionPerformed: (ImeAction, SoftwareKeyboardController?) -> Unit = { _, _ -> },
-    onFocusChange: (Boolean) -> Unit = {},
+    onFocusChanged: (Boolean) -> Unit = {},
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     activeColor: Color = MaterialTheme.colors.primary,
     inactiveColor: Color = MaterialTheme.colors.onSurface,
@@ -264,7 +267,7 @@ fun OutlinedTextField(
         keyboardType = keyboardType,
         imeAction = imeAction,
         onImeActionPerformed = onImeActionPerformed,
-        onFocusChange = onFocusChange,
+        onFocusChanged = onFocusChanged,
         onTextInputStarted = onTextInputStarted,
         activeColor = activeColor,
         inactiveColor = inactiveColor,
@@ -274,6 +277,8 @@ fun OutlinedTextField(
     )
 }
 
+// TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
+@Suppress("DEPRECATION")
 @Composable
 internal fun OutlinedTextFieldLayout(
     textFieldModifier: Modifier = Modifier,
@@ -314,6 +319,8 @@ internal fun OutlinedTextFieldLayout(
         onLabelMeasured = {
             val newLabelWidth = it * labelProgress
 
+            // TODO(b/160822875): Replace FocusState.Focused with FocusState2.isFocused.
+            @Suppress("DEPRECATION")
             val labelWidth = when {
                 focusModifier.focusState == FocusState.Focused -> newLabelWidth
                 !emptyInput -> newLabelWidth

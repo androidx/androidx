@@ -16,14 +16,13 @@
 
 package androidx.ui.text
 
-import androidx.ui.util.annotation.VisibleForTesting
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.intl.LocaleList
 import androidx.ui.core.LayoutDirection
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.graphics.useOrElse
+import androidx.ui.intl.LocaleList
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
@@ -36,6 +35,7 @@ import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.sp
+import androidx.ui.util.annotation.VisibleForTesting
 
 /** The default font size if none is specified. */
 private val DefaultFontSize = 14.sp
@@ -249,7 +249,7 @@ fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
 }
 
 /**
- * Fills missing values in TextStyle with default values and resolve TextDirectionAlgorithm.
+ * Fills missing values in TextStyle with default values and resolve [TextDirection].
  *
  * This function will fill all null or [TextUnit.Inherit] field with actual values.
  * @param style a text style to be resolved
@@ -276,7 +276,7 @@ fun resolveDefaults(style: TextStyle, direction: LayoutDirection) = TextStyle(
     textDecoration = style.textDecoration ?: TextDecoration.None,
     shadow = style.shadow ?: Shadow.None,
     textAlign = style.textAlign ?: TextAlign.Start,
-    textDirection = resolveTextDirectionAlgorithm(direction, style.textDirection),
+    textDirection = resolveTextDirection(direction, style.textDirection),
     lineHeight = if (style.lineHeight.isInherit) DefaultLineHeight else style.lineHeight,
     textIndent = style.textIndent ?: TextIndent.None
 )
@@ -286,13 +286,19 @@ fun resolveDefaults(style: TextStyle, direction: LayoutDirection) = TextStyle(
  * [layoutDirection].
  */
 @VisibleForTesting
-internal fun resolveTextDirectionAlgorithm(
+internal fun resolveTextDirection(
     layoutDirection: LayoutDirection,
     textDirection: TextDirection?
 ): TextDirection {
-    return textDirection
-        ?: when (layoutDirection) {
+    return when (textDirection) {
+        TextDirection.Content -> when (layoutDirection) {
+            LayoutDirection.Ltr -> TextDirection.ContentOrLtr
+            LayoutDirection.Rtl -> TextDirection.ContentOrRtl
+        }
+        null -> when (layoutDirection) {
             LayoutDirection.Ltr -> TextDirection.Ltr
             LayoutDirection.Rtl -> TextDirection.Rtl
         }
+        else -> textDirection
+    }
 }

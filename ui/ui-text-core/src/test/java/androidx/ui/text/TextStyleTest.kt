@@ -414,7 +414,7 @@ class TextStyleTest {
     }
 
     @Test
-    fun `merge textDirectionAlgorithm uses other's textDirectionAlgorithm`() {
+    fun `merge textDirection uses other's textDirection`() {
         val style = TextStyle(textDirection = TextDirection.Rtl)
         val otherStyle = TextStyle(textDirection = TextDirection.Ltr)
 
@@ -424,7 +424,7 @@ class TextStyleTest {
     }
 
     @Test
-    fun `merge textDirectionAlgorithm other null, returns original`() {
+    fun `merge textDirection other null, returns original`() {
         val style = TextStyle(textDirection = TextDirection.Rtl)
 
         val newStyle = style.merge(TextStyle(textDirection = null))
@@ -433,7 +433,7 @@ class TextStyleTest {
     }
 
     @Test
-    fun `merge textDirectionAlgorithm both null returns null`() {
+    fun `merge textDirection both null returns null`() {
         val style = TextStyle(textDirection = null)
 
         val newStyle = style.merge(TextStyle(textDirection = null))
@@ -892,7 +892,7 @@ class TextStyleTest {
     }
 
     @Test
-    fun `lerp textDirectionAlgorithm with a null, b not null and t is smaller than half`() {
+    fun `lerp textDirection with a null, b not null and t is smaller than half`() {
         val style1 = TextStyle(textDirection = null)
         val style2 = TextStyle(textDirection = TextDirection.Rtl)
 
@@ -902,7 +902,7 @@ class TextStyleTest {
     }
 
     @Test
-    fun `lerp textDirectionAlgorithm with a and b are not Null and t is smaller than half`() {
+    fun `lerp textDirection with a and b are not Null and t is smaller than half`() {
         val style1 = TextStyle(textDirection = TextDirection.Ltr)
         val style2 = TextStyle(textDirection = TextDirection.Rtl)
 
@@ -912,7 +912,7 @@ class TextStyleTest {
     }
 
     @Test
-    fun `lerp textDirectionAlgorithm with a and b are not Null and t is larger than half`() {
+    fun `lerp textDirection with a and b are not Null and t is larger than half`() {
         val style1 = TextStyle(textDirection = TextDirection.Ltr)
         val style2 = TextStyle(textDirection = TextDirection.Rtl)
 
@@ -1025,13 +1025,13 @@ class TextStyleTest {
     @Test
     fun `toParagraphStyle return attributes with correct values`() {
         val textAlign = TextAlign.Justify
-        val textDirectionAlgorithm = TextDirection.Rtl
+        val textDirection = TextDirection.Rtl
         val lineHeight = 100.sp
         val textIndent = TextIndent(firstLine = 20.sp, restLine = 40.sp)
 
         val style = TextStyle(
             textAlign = textAlign,
-            textDirection = textDirectionAlgorithm,
+            textDirection = textDirection,
             lineHeight = lineHeight,
             textIndent = textIndent
         )
@@ -1039,7 +1039,7 @@ class TextStyleTest {
         assertThat(style.toParagraphStyle()).isEqualTo(
             ParagraphStyle(
                 textAlign = textAlign,
-                textDirection = textDirectionAlgorithm,
+                textDirection = textDirection,
                 lineHeight = lineHeight,
                 textIndent = textIndent
             )

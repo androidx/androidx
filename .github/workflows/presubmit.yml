@@ -18,6 +18,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      # https://github.com/tikurahul/check-pr-format-action
+      - name: Check Pull Request Format
+        uses: 'tikurahul/check-pr-format-action@master'
+        with:
+          # Enforces a `Test: <stanza>` in the pull request
+          checks: '["(.*)?Test\:(.*)?"]'
       # https://github.com/tikurahul/github-workflow-webhook-action
       - name: Start WebHook
         uses: tikurahul/github-workflow-webhook-action@master

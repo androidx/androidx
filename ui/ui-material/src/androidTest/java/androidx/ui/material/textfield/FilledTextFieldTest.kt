@@ -124,14 +124,14 @@ class FilledTextFieldTest {
                     value = "input1",
                     onValueChange = {},
                     label = {},
-                    onFocusChange = { textField1Focused = it }
+                    onFocusChanged = { textField1Focused = it }
                 )
                 FilledTextField(
                     modifier = Modifier.testTag(textField2Tag),
                     value = "input2",
                     onValueChange = {},
                     label = {},
-                    onFocusChange = { textField2Focused = it }
+                    onFocusChanged = { textField2Focused = it }
                 )
             }
         }
@@ -161,7 +161,7 @@ class FilledTextFieldTest {
                     value = "input",
                     onValueChange = {},
                     label = {},
-                    onFocusChange = { focused = it }
+                    onFocusChanged = { focused = it }
                 )
             }
         }
@@ -705,7 +705,7 @@ class FilledTextFieldTest {
                     backgroundColor = Color.Blue,
                     activeColor = Color.Transparent,
                     inactiveColor = Color.Transparent,
-                    onFocusChange = { focused ->
+                    onFocusChanged = { focused ->
                         if (focused) latch.countDown()
                     }
                 )

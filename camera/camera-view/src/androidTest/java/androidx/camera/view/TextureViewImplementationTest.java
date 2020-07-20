@@ -341,7 +341,7 @@ public class TextureViewImplementationTest {
     @NonNull
     private SurfaceRequest getSurfaceRequest() {
         if (mSurfaceRequest == null) {
-            mSurfaceRequest = new SurfaceRequest(ANY_SIZE, new FakeCamera());
+            mSurfaceRequest = new SurfaceRequest(ANY_SIZE, new FakeCamera(), null);
         }
 
         return mSurfaceRequest;

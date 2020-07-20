@@ -13,19 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.ui.core.demos.focus
 
 import androidx.compose.Composable
+import androidx.compose.getValue
+import androidx.compose.setValue
+import androidx.compose.state
 import androidx.ui.core.Modifier
+import androidx.ui.core.focus.ExperimentalFocus
 import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.core.focus.FocusModifier
-import androidx.ui.core.focus.FocusState.Focused
-import androidx.ui.core.focus.FocusState.NotFocusable
-import androidx.ui.core.focus.FocusState.NotFocused
-import androidx.ui.core.focus.focusState
+import androidx.ui.core.focus.FocusRequester
+import androidx.ui.core.focus.focus
+import androidx.ui.core.focus.focusObserver
+import androidx.ui.core.focus.focusRequester
+import androidx.ui.core.focus.isFocused
 import androidx.ui.foundation.Text
-import androidx.ui.graphics.Color
+import androidx.ui.graphics.Color.Companion.Black
+import androidx.ui.graphics.Color.Companion.Green
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
@@ -53,16 +57,18 @@ fun FocusableDemo() {
 }
 
 @Composable
+@OptIn(ExperimentalFocus::class)
 private fun FocusableText(text: String) {
-    val focusModifier = FocusModifier()
+    var color by state { Black }
+    val focusRequester = FocusRequester()
     Text(
-        modifier = focusModifier.tapGestureFilter { focusModifier.requestFocus() },
+        modifier = Modifier
+            .focusRequester(focusRequester)
+            .focusObserver { color = if (it.isFocused) Green else Black }
+            .focus()
+            .tapGestureFilter { focusRequester.requestFocus() },
         text = text,
-        color = when (focusModifier.focusState) {
-            Focused -> Color.Green
-            NotFocused -> Color.Black
-            NotFocusable -> Color.Gray
-        }
+        color = color
     )
 }
 

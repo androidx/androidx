@@ -19,14 +19,18 @@ package androidx.ui.foundation.lazy
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.preferredWidth
+import androidx.ui.layout.size
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.getBoundsInRoot
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.unit.dp
+import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -145,5 +149,44 @@ class LazyRowItemsTest {
 
         onNodeWithTag("4")
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun contentPaddingIsApplied() = with(composeTestRule.density) {
+        val itemTag = "item"
+
+        composeTestRule.setContent {
+            LazyRowItems(
+                items = listOf(1),
+                modifier = Modifier.size(100.dp)
+                    .testTag(LazyRowItemsTag),
+                contentPadding = InnerPadding(
+                    start = 50.dp,
+                    top = 10.dp,
+                    end = 50.dp,
+                    bottom = 10.dp
+                )
+            ) {
+                Spacer(Modifier.fillMaxHeight().preferredWidth(50.dp).testTag(itemTag))
+            }
+        }
+
+        var itemBounds = onNodeWithTag(itemTag)
+            .getBoundsInRoot()
+
+        Truth.assertThat(itemBounds.left.toIntPx()).isWithin1PixelFrom(50.dp.toIntPx())
+        Truth.assertThat(itemBounds.right.toIntPx()).isWithin1PixelFrom(100.dp.toIntPx())
+        Truth.assertThat(itemBounds.top.toIntPx()).isWithin1PixelFrom(10.dp.toIntPx())
+        Truth.assertThat(itemBounds.bottom.toIntPx())
+            .isWithin1PixelFrom(100.dp.toIntPx() - 10.dp.toIntPx())
+
+        onNodeWithTag(LazyRowItemsTag)
+            .scrollBy(x = 51.dp, density = composeTestRule.density)
+
+        itemBounds = onNodeWithTag(itemTag)
+            .getBoundsInRoot()
+
+        Truth.assertThat(itemBounds.left.toIntPx()).isWithin1PixelFrom(0)
+        Truth.assertThat(itemBounds.right.toIntPx()).isWithin1PixelFrom(50.dp.toIntPx())
     }
 }

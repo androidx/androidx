@@ -16,6 +16,8 @@
 
 package androidx.ui.core
 
+import androidx.ui.core.focus.ExperimentalFocus
+import androidx.ui.core.focus.FocusState2
 import androidx.ui.core.focus.ModifiedFocusNode
 import androidx.ui.core.focus.ModifiedFocusNode2
 import androidx.ui.core.keyinput.ModifiedKeyInputNode
@@ -145,6 +147,11 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
             next = next.wrapped.findNextFocusWrapper2()
         }
         return lastFocusWrapper
+    }
+
+    @OptIn(ExperimentalFocus::class)
+    override fun propagateFocusStateChange(focusState: FocusState2) {
+        wrappedBy?.propagateFocusStateChange(focusState)
     }
 
     override fun findPreviousKeyInputWrapper() = wrappedBy?.findPreviousKeyInputWrapper()

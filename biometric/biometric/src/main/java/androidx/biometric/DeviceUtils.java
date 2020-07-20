@@ -68,6 +68,22 @@ class DeviceUtils {
     }
 
     /**
+     * Checks if all biometric sensors for the current device can be assumed to meet the
+     * <strong>Class 3</strong> (formerly <strong>Strong</strong>) security threshold.
+     *
+     * @param context The application or activity context.
+     * @param model Model name of the current device.
+     * @return Whether the device can be assumed to have only <strong>Class 3</strong> biometrics.
+     */
+    static boolean canAssumeStrongBiometrics(@NonNull Context context, String model) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Android 11 (API 30) and above may downgrade a sensor's security class at runtime.
+            return false;
+        }
+        return isModelInPrefixList(context, model, R.array.assume_strong_biometrics_prefixes);
+    }
+
+    /**
      * Checks if the name of the current device vendor matches one in the given string array
      * resource.
      *

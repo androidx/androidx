@@ -38,9 +38,12 @@ import io.reactivex.plugins.RxJavaPlugins
  * Note that errors are not handled and the default [RxJavaPlugins.onError] logic will be
  * used. To handle the error in a more meaningful way you can use operators like
  * [Observable.onErrorReturn] or [Observable.onErrorResumeNext].
- *
- * @sample androidx.ui.rxjava2.samples.ObservableSample
  */
+@Deprecated(
+    "Use subscribeAsState with an explicit initial value instead. Using null is not always the " +
+            "best default, for example when you have a List it is better to start with emptyList()",
+    ReplaceWith("subscribeAsState(null)")
+)
 @Suppress("NOTHING_TO_INLINE")
 @Composable
 inline fun <T : Any> Observable<T>.subscribeAsState(): State<T?> = subscribeAsState(null)
@@ -56,7 +59,10 @@ inline fun <T : Any> Observable<T>.subscribeAsState(): State<T?> = subscribeAsSt
  * used. To handle the error in a more meaningful way you can use operators like
  * [Observable.onErrorReturn] or [Observable.onErrorResumeNext].
  *
- * @sample androidx.ui.rxjava2.samples.ObservableWithInitialSample
+ * @sample androidx.ui.rxjava2.samples.ObservableSample
+ *
+ * @param initial The initial value for the returned [State] which will be asynchronously updated
+ * with the real one once we receive it from the stream
  */
 @Composable
 fun <R, T : R> Observable<T>.subscribeAsState(initial: R): State<R> =
@@ -72,9 +78,12 @@ fun <R, T : R> Observable<T>.subscribeAsState(initial: R): State<R> =
  * Note that errors are not handled and the default [RxJavaPlugins.onError] logic will be
  * used. To handle the error in a more meaningful way you can use operators like
  * [Flowable.onErrorReturn] or [Flowable.onErrorResumeNext].
- *
- * @sample androidx.ui.rxjava2.samples.FlowableSample
  */
+@Deprecated(
+    "Use subscribeAsState with an explicit initial value instead. Using null is not always the " +
+            "best default, for example when you have a List it is better to start with emptyList()",
+    ReplaceWith("subscribeAsState(null)")
+)
 @Suppress("NOTHING_TO_INLINE")
 @Composable
 inline fun <T : Any> Flowable<T>.subscribeAsState(): State<T?> = subscribeAsState(null)
@@ -90,7 +99,10 @@ inline fun <T : Any> Flowable<T>.subscribeAsState(): State<T?> = subscribeAsStat
  * used. To handle the error in a more meaningful way you can use operators like
  * [Flowable.onErrorReturn] or [Flowable.onErrorResumeNext].
  *
- * @sample androidx.ui.rxjava2.samples.FlowableWithInitialSample
+ * @sample androidx.ui.rxjava2.samples.FlowableSample
+ *
+ * @param initial The initial value for the returned [State] which will be asynchronously updated
+ * with the real one once we receive it from the stream
  */
 @Composable
 fun <R, T : R> Flowable<T>.subscribeAsState(initial: R): State<R> =
@@ -106,9 +118,12 @@ fun <R, T : R> Flowable<T>.subscribeAsState(initial: R): State<R> =
  * Note that errors are not handled and the default [RxJavaPlugins.onError] logic will be
  * used. To handle the error in a more meaningful way you can use operators like
  * [Single.onErrorReturn] or [Single.onErrorResumeNext].
- *
- * @sample androidx.ui.rxjava2.samples.SingleSample
  */
+@Deprecated(
+    "Use subscribeAsState with an explicit initial value instead. Using null is not always the " +
+            "best default, for example when you have a List it is better to start with emptyList()",
+    ReplaceWith("subscribeAsState(null)")
+)
 @Suppress("NOTHING_TO_INLINE")
 @Composable
 inline fun <T : Any> Single<T>.subscribeAsState(): State<T?> = subscribeAsState(null)
@@ -124,7 +139,10 @@ inline fun <T : Any> Single<T>.subscribeAsState(): State<T?> = subscribeAsState(
  * used. To handle the error in a more meaningful way you can use operators like
  * [Single.onErrorReturn] or [Single.onErrorResumeNext].
  *
- * @sample androidx.ui.rxjava2.samples.SingleWithInitialSample
+ * @sample androidx.ui.rxjava2.samples.SingleSample
+ *
+ * @param initial The initial value for the returned [State] which will be asynchronously updated
+ * with the real one once we receive it from the stream
  */
 @Composable
 fun <R, T : R> Single<T>.subscribeAsState(initial: R): State<R> =
@@ -140,9 +158,12 @@ fun <R, T : R> Single<T>.subscribeAsState(initial: R): State<R> =
  * Note that errors are not handled and the default [RxJavaPlugins.onError] logic will be
  * used. To handle the error in a more meaningful way you can use operators like
  * [Maybe.onErrorComplete], [Maybe.onErrorReturn] or [Maybe.onErrorResumeNext].
- *
- * @sample androidx.ui.rxjava2.samples.MaybeSample
  */
+@Deprecated(
+    "Use subscribeAsState with an explicit initial value instead. Using null is not always the " +
+            "best default, for example when you have a List it is better to start with emptyList()",
+    ReplaceWith("subscribeAsState(null)")
+)
 @Suppress("NOTHING_TO_INLINE")
 @Composable
 inline fun <T : Any> Maybe<T>.subscribeAsState(): State<T?> = subscribeAsState(null)
@@ -158,7 +179,10 @@ inline fun <T : Any> Maybe<T>.subscribeAsState(): State<T?> = subscribeAsState(n
  * used. To handle the error in a more meaningful way you can use operators like
  * [Maybe.onErrorComplete], [Maybe.onErrorReturn] or [Maybe.onErrorResumeNext].
  *
- * @sample androidx.ui.rxjava2.samples.MaybeWithInitialSample
+ * @sample androidx.ui.rxjava2.samples.MaybeSample
+ *
+ * @param initial The initial value for the returned [State] which will be asynchronously updated
+ * with the real one once we receive it from the stream
  */
 @Composable
 fun <R, T : R> Maybe<T>.subscribeAsState(initial: R): State<R> =

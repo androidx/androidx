@@ -59,7 +59,7 @@ fun ExplicitAutofillTypesDemo() {
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Unspecified,
                 onValueChange = { nameState.value = it },
-                onFocusChange = { focused ->
+                onFocusChanged = { focused ->
                     if (focused) {
                         autofill?.requestAutofillForNode(autofillNode)
                     } else {
@@ -82,7 +82,7 @@ fun ExplicitAutofillTypesDemo() {
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Unspecified,
                 onValueChange = { emailState.value = it },
-                onFocusChange = { focused ->
+                onFocusChanged = { focused ->
                     if (focused) {
                         autofill?.requestAutofillForNode(autofillNode)
                     } else {

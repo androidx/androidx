@@ -246,15 +246,8 @@ final class SupportedSurfaceCombination {
         return suggestedResolutionsMap;
     }
 
-    // If the device is LEGACY + Android 5.0, the aspect ratio need to be corrected, because
-    // there is a bug which was fixed in L MR1.
-    boolean requiresCorrectedAspectRatio() {
-        return mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-                && Build.VERSION.SDK_INT == 21;
-    }
-
     // Gets the corrected aspect ratio due to device constraints or null if no correction is needed.
-    Rational getCorrectedAspectRatio(@ImageOutputConfig.RotationValue int targetRotation) {
+    private Rational getCorrectedAspectRatio() {
         Rational outputRatio = null;
         /*
          * If the device is LEGACY + Android 5.0, then return the same aspect ratio as maximum JPEG
@@ -267,7 +260,6 @@ final class SupportedSurfaceCombination {
                 && Build.VERSION.SDK_INT == 21) {
             Size maxJpegSize = fetchMaxSize(ImageFormat.JPEG);
             outputRatio = new Rational(maxJpegSize.getWidth(), maxJpegSize.getHeight());
-            outputRatio = rotateAspectRatioByRotation(outputRatio, targetRotation);
         }
         return outputRatio;
     }
@@ -372,26 +364,29 @@ final class SupportedSurfaceCombination {
         List<Size> sizesMatchAspectRatio = new ArrayList<>();
         List<Size> sizesMismatchAspectRatio = new ArrayList<>();
 
-        Rational aspectRatio = null;
-        if (imageOutputConfig.hasTargetAspectRatio()) {
-            // Checks the sensor orientation.
-            boolean isSensorLandscapeOrientation = isRotationNeeded(Surface.ROTATION_0);
-            @AspectRatio.Ratio int targetAspectRatio = imageOutputConfig.getTargetAspectRatio();
-            switch (targetAspectRatio) {
-                case AspectRatio.RATIO_4_3:
-                    aspectRatio =
-                            isSensorLandscapeOrientation ? ASPECT_RATIO_4_3 : ASPECT_RATIO_3_4;
-                    break;
-                case AspectRatio.RATIO_16_9:
-                    aspectRatio =
-                            isSensorLandscapeOrientation ? ASPECT_RATIO_16_9 : ASPECT_RATIO_9_16;
-                    break;
-                default:
-                    // Unhandled event.
+        Rational aspectRatio = getCorrectedAspectRatio();
+        if (aspectRatio == null) {
+            if (imageOutputConfig.hasTargetAspectRatio()) {
+                // Checks the sensor orientation.
+                boolean isSensorLandscapeOrientation = isRotationNeeded(Surface.ROTATION_0);
+                @AspectRatio.Ratio int targetAspectRatio = imageOutputConfig.getTargetAspectRatio();
+                switch (targetAspectRatio) {
+                    case AspectRatio.RATIO_4_3:
+                        aspectRatio =
+                                isSensorLandscapeOrientation ? ASPECT_RATIO_4_3 : ASPECT_RATIO_3_4;
+                        break;
+                    case AspectRatio.RATIO_16_9:
+                        aspectRatio =
+                                isSensorLandscapeOrientation ? ASPECT_RATIO_16_9
+                                        : ASPECT_RATIO_9_16;
+                        break;
+                    default:
+                        // Unhandled event.
+                }
+            } else {
+                aspectRatio = imageOutputConfig.getTargetAspectRatioCustom(null);
+                aspectRatio = rotateAspectRatioByRotation(aspectRatio, targetRotation);
             }
-        } else {
-            aspectRatio = imageOutputConfig.getTargetAspectRatioCustom(null);
-            aspectRatio = rotateAspectRatioByRotation(aspectRatio, targetRotation);
         }
 
         for (Size outputSize : outputSizeCandidates) {

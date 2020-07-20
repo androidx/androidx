@@ -28,6 +28,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricManager.Authenticators;
 import androidx.biometric.BiometricPrompt;
 
 /**
@@ -137,7 +138,7 @@ abstract class BiometricPromptDemoController {
         mCanAuthenticateButton.setOnClickListener(v -> {
             BiometricManager biometricManager = BiometricManager.from(getApplicationContext());
             String message;
-            switch (biometricManager.canAuthenticate()) {
+            switch (biometricManager.canAuthenticate(Authenticators.BIOMETRIC_WEAK)) {
                 case BiometricManager.BIOMETRIC_SUCCESS:
                     message = BIOMETRIC_SUCCESS_MESSAGE;
                     break;

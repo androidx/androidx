@@ -28,7 +28,7 @@ class BiometricErrorData {
     /**
      * An integer ID associated with this error.
      */
-    @BiometricPrompt.BiometricError private int mErrorCode;
+    @BiometricPrompt.AuthenticationError private int mErrorCode;
 
     /**
      * A human-readable message that describes the error.
@@ -40,7 +40,7 @@ class BiometricErrorData {
         mErrorMessage = errorMessage;
     }
 
-    @BiometricPrompt.BiometricError
+    @BiometricPrompt.AuthenticationError
     int getErrorCode() {
         return mErrorCode;
     }

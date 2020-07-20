@@ -27,6 +27,8 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
+import androidx.ui.unit.height
+import androidx.ui.unit.width
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -60,10 +62,8 @@ class InspectableTests : ToolingTest() {
         assertNotNull(group)
 
         // The group should have a non-empty bounding box
-        assertEquals(0, group.box.top)
-        assertEquals(0, group.box.left)
-        assertNotEquals(0, group.box.right)
-        assertNotEquals(0, group.box.bottom)
+        assertNotEquals(0, group.box.width)
+        assertNotEquals(0, group.box.height)
     }
 
     @Test

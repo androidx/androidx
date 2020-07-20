@@ -23,6 +23,26 @@ package androidx.ui.text.style
  */
 enum class TextDirection {
     /**
+     * Always sets the text direction to be Left to Right.
+     */
+    Ltr,
+
+    /**
+     * Always sets the text direction to be Right to Left.
+     */
+    Rtl,
+
+    /**
+     * This value indicates that the text direction depends on the first strong directional
+     * character in the text according to the Unicode Bidirectional Algorithm.
+     * * If no strong directional character is present, then [androidx.ui.core.LayoutDirection]
+     * is used to resolve the final TextDirection.
+     * * if used while creating a Paragraph object, [androidx.ui.intl.LocaleList] will
+     * be used to resolve the direction as a fallback instead of [androidx.ui.core.LayoutDirection].
+     */
+    Content,
+
+    /**
      * This value indicates that the text direction depends on the first strong directional
      * character in the text according to the Unicode Bidirectional Algorithm. If no strong
      * directional character is present, then Left to Right will be used as the default direction.
@@ -34,15 +54,5 @@ enum class TextDirection {
      * character in the text according to the Unicode Bidirectional Algorithm. If no strong
      * directional character is present, then Right to Left will be used as the default direction.
      */
-    ContentOrRtl,
-
-    /**
-     * Always sets the text direction to be Left to Right.
-     */
-    Ltr,
-
-    /**
-     * Always sets the text direction to be Right to Left.
-     */
-    Rtl,
+    ContentOrRtl
 }

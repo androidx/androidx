@@ -64,7 +64,7 @@ public class PreviewViewTest {
     private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo) {
         FakeCamera fakeCamera = spy(new FakeCamera());
         when(fakeCamera.getCameraInfo()).thenReturn(cameraInfo);
-        return new SurfaceRequest(new Size(640, 480), fakeCamera);
+        return new SurfaceRequest(new Size(640, 480), fakeCamera, null);
     }
 
     @After

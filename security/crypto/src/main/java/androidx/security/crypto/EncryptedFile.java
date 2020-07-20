@@ -92,12 +92,12 @@ public final class EncryptedFile {
     public enum FileEncryptionScheme {
         /**
          * The file content is encrypted using
-         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0-rc2/com/google/crypto/tink/streamingaead/StreamingAead.html">StreamingAead</a> with AES-GCM, with the
+         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0/com/google/crypto/tink/streamingaead/StreamingAead.html">StreamingAead</a> with AES-GCM, with the
          * file name as associated data.
          *
          * For more information please see the Tink documentation:
          *
-         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0-rc2/com/google/crypto/tink/streamingaead/AesGcmHkdfStreamingKeyManager.html">AesGcmHkdfStreamingKeyManager</a>.aes256GcmHkdf4KBTemplate()
+         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0/com/google/crypto/tink/streamingaead/AesGcmHkdfStreamingKeyManager.html">AesGcmHkdfStreamingKeyManager</a>.aes256GcmHkdf4KBTemplate()
          */
         AES256_GCM_HKDF_4KB(AesGcmHkdfStreamingKeyManager.aes256GcmHkdf4KBTemplate());
 

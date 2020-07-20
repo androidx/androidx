@@ -39,7 +39,6 @@ import androidx.ui.input.TextInputService
 import androidx.ui.input.TransformedText
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDecoration
-import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
 import kotlin.jvm.JvmStatic
 import kotlin.math.ceil
@@ -66,9 +65,7 @@ private fun computeLineHeightForEmptyText(
 ): Int {
     return Paragraph(
         text = "H", // No meaning: just a reference character.
-        style = TextStyle(
-            textDirection = TextDirection.ContentOrLtr
-        ).merge(style),
+        style = style,
         spanStyles = listOf(),
         maxLines = 1,
         ellipsis = false,

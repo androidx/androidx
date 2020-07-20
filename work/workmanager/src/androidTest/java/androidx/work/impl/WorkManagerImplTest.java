@@ -1886,4 +1886,37 @@ public class WorkManagerImplTest {
         mDatabase.dependencyDao().insertDependency(
                 new Dependency(work.getStringId(), prerequisiteWork.getStringId()));
     }
+
+    @Test
+    @MediumTest
+    @SuppressWarnings("unchecked")
+    public void testGetAllWorkIdsLiveData() {
+        final String uniqueName = "myname";
+        OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
+                .setInitialState(ENQUEUED)
+                .build();
+        OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
+                .setInitialState(BLOCKED)
+                .build();
+        OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
+                .setInitialState(BLOCKED)
+                .build();
+        insertNamedWorks(uniqueName, work0, work1, work2);
+
+        Observer<List<String>> mockObserver = mock(Observer.class);
+
+        TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
+        LiveData<List<String>> liveData =
+                mWorkManagerImpl.getAllWorkIdsLiveData();
+        liveData.observe(testLifecycleOwner, mockObserver);
+
+        ArgumentCaptor<List<String>> captor = ArgumentCaptor.forClass(List.class);
+        verify(mockObserver).onChanged(captor.capture());
+        assertThat(captor.getValue(), is(not(nullValue())));
+        assertThat(captor.getValue().size(), is(3));
+        assertThat(captor.getValue(), containsInAnyOrder(
+                work0.getStringId(), work1.getStringId(), work2.getStringId()
+        ));
+        liveData.removeObservers(testLifecycleOwner);
+    }
 }

@@ -968,21 +968,21 @@ package androidx.ui.core.focus {
   @kotlin.RequiresOptIn(message="The Focus API is experimental and is likely to change in the future.") public @interface ExperimentalFocus {
   }
 
-  public enum FocusDetailedState {
-    method public static androidx.ui.core.focus.FocusDetailedState valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.ui.core.focus.FocusDetailedState[] values();
-    enum_constant public static final androidx.ui.core.focus.FocusDetailedState Active;
-    enum_constant public static final androidx.ui.core.focus.FocusDetailedState ActiveParent;
-    enum_constant public static final androidx.ui.core.focus.FocusDetailedState Captured;
-    enum_constant public static final androidx.ui.core.focus.FocusDetailedState Disabled;
-    enum_constant public static final androidx.ui.core.focus.FocusDetailedState Inactive;
+  @Deprecated public enum FocusDetailedState {
+    method @Deprecated public static androidx.ui.core.focus.FocusDetailedState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method @Deprecated public static androidx.ui.core.focus.FocusDetailedState[] values();
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusDetailedState Active;
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusDetailedState ActiveParent;
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusDetailedState Captured;
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusDetailedState Disabled;
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusDetailedState Inactive;
   }
 
-  public interface FocusModifier extends androidx.ui.core.Modifier.Element {
-    method public boolean captureFocus();
-    method public boolean freeFocus();
-    method public androidx.ui.core.focus.FocusDetailedState getFocusDetailedState();
-    method public void requestFocus();
+  @Deprecated public interface FocusModifier extends androidx.ui.core.Modifier.Element {
+    method @Deprecated public boolean captureFocus();
+    method @Deprecated public boolean freeFocus();
+    method @Deprecated public androidx.ui.core.focus.FocusDetailedState getFocusDetailedState();
+    method @Deprecated public void requestFocus();
     property public abstract androidx.ui.core.focus.FocusDetailedState focusDetailedState;
   }
 
@@ -991,19 +991,47 @@ package androidx.ui.core.focus {
   }
 
   public final class FocusModifierKt {
-    method @androidx.compose.Composable public static androidx.ui.core.focus.FocusModifier FocusModifier();
-    method public static androidx.ui.core.focus.FocusState getFocusState(androidx.ui.core.focus.FocusModifier);
+    method @Deprecated @androidx.compose.Composable public static androidx.ui.core.focus.FocusModifier FocusModifier();
+    method @Deprecated public static androidx.ui.core.focus.FocusState getFocusState(androidx.ui.core.focus.FocusModifier);
   }
 
   public final class FocusNodeUtilsKt {
   }
 
-  public enum FocusState {
-    method public static androidx.ui.core.focus.FocusState valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.ui.core.focus.FocusState[] values();
-    enum_constant public static final androidx.ui.core.focus.FocusState Focused;
-    enum_constant public static final androidx.ui.core.focus.FocusState NotFocusable;
-    enum_constant public static final androidx.ui.core.focus.FocusState NotFocused;
+  @androidx.ui.core.focus.ExperimentalFocus public interface FocusObserverModifier extends androidx.ui.core.Modifier.Element {
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.focus.FocusState2,kotlin.Unit> getOnFocusChange();
+    property public abstract kotlin.jvm.functions.Function1<androidx.ui.core.focus.FocusState2,kotlin.Unit> onFocusChange;
+  }
+
+  public final class FocusObserverModifierKt {
+    method @androidx.ui.core.focus.ExperimentalFocus public static androidx.ui.core.Modifier focusObserver(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.focus.FocusState2,kotlin.Unit> onFocusChange);
+  }
+
+  @androidx.ui.core.focus.ExperimentalFocus public final class FocusRequester {
+    ctor public FocusRequester();
+    method public boolean captureFocus();
+    method public boolean freeFocus();
+    method public void requestFocus();
+  }
+
+  public final class FocusRequesterKt {
+  }
+
+  @androidx.ui.core.focus.ExperimentalFocus public interface FocusRequesterModifier extends androidx.ui.core.Modifier.Element {
+    method public androidx.ui.core.focus.FocusRequester getFocusRequester();
+    property public abstract androidx.ui.core.focus.FocusRequester focusRequester;
+  }
+
+  public final class FocusRequesterModifierKt {
+    method @androidx.ui.core.focus.ExperimentalFocus public static androidx.ui.core.Modifier focusRequester(androidx.ui.core.Modifier, androidx.ui.core.focus.FocusRequester focusRequester);
+  }
+
+  @Deprecated public enum FocusState {
+    method @Deprecated public static androidx.ui.core.focus.FocusState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method @Deprecated public static androidx.ui.core.focus.FocusState[] values();
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusState Focused;
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusState NotFocusable;
+    enum_constant @Deprecated public static final androidx.ui.core.focus.FocusState NotFocused;
   }
 
   @androidx.ui.core.focus.ExperimentalFocus public enum FocusState2 {
@@ -1017,7 +1045,7 @@ package androidx.ui.core.focus {
   }
 
   public final class FocusStateKt {
-    method public static androidx.ui.core.focus.FocusState focusState(androidx.ui.core.focus.FocusDetailedState);
+    method @Deprecated public static androidx.ui.core.focus.FocusState focusState(androidx.ui.core.focus.FocusDetailedState);
     method public static boolean isFocused(androidx.ui.core.focus.FocusState2);
   }
 
@@ -2360,12 +2388,16 @@ package androidx.ui.semantics {
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,java.lang.Boolean>>> getScrollBy();
     method @Deprecated public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> getScrollForward();
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Boolean>>> getSetProgress();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function3<java.lang.Integer,java.lang.Integer,java.lang.Boolean,java.lang.Boolean>>> getSetSelection();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.ui.text.AnnotatedString,java.lang.Boolean>>> getSetText();
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.CustomAccessibilityAction>> CustomActions;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> OnClick;
     property @Deprecated public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> ScrollBackward;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,java.lang.Boolean>>> ScrollBy;
     property @Deprecated public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> ScrollForward;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Boolean>>> SetProgress;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function3<java.lang.Integer,java.lang.Integer,java.lang.Boolean,java.lang.Boolean>>> SetSelection;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.ui.text.AnnotatedString,java.lang.Boolean>>> SetText;
     field public static final androidx.ui.semantics.SemanticsActions INSTANCE;
   }
 
@@ -2374,18 +2406,22 @@ package androidx.ui.semantics {
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityRangeInfo> getAccessibilityRangeInfo();
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getAccessibilityValue();
     method public androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getDisabled();
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getFocused();
     method public androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getHidden();
     method public androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getIsPopup();
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getTestTag();
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.AnnotatedString> getText();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.TextRange> getTextSelectionRange();
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityLabel;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityRangeInfo> AccessibilityRangeInfo;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityValue;
     property public final androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> Disabled;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Focused;
     property public final androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> Hidden;
     property public final androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> IsPopup;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> TestTag;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.AnnotatedString> Text;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.TextRange> TextSelectionRange;
     field public static final androidx.ui.semantics.SemanticsProperties INSTANCE;
   }
 
@@ -2395,8 +2431,10 @@ package androidx.ui.semantics {
     method public static String getAccessibilityValue(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.ui.semantics.AccessibilityRangeInfo getAccessibilityValueRange(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static java.util.List<androidx.ui.semantics.CustomAccessibilityAction> getCustomActions(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static boolean getFocused(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static String getTestTag(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.ui.text.AnnotatedString getText(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static androidx.ui.text.TextRange getTextSelectionRange(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static void hidden(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static void onClick(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function0<java.lang.Boolean> action);
     method public static void popup(androidx.ui.semantics.SemanticsPropertyReceiver);
@@ -2407,9 +2445,13 @@ package androidx.ui.semantics {
     method public static void setAccessibilityValue(androidx.ui.semantics.SemanticsPropertyReceiver, String p);
     method public static void setAccessibilityValueRange(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.semantics.AccessibilityRangeInfo p);
     method public static void setCustomActions(androidx.ui.semantics.SemanticsPropertyReceiver, java.util.List<androidx.ui.semantics.CustomAccessibilityAction> p);
+    method public static void setFocused(androidx.ui.semantics.SemanticsPropertyReceiver, boolean p);
     method public static void setProgress(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> action);
+    method public static void setSelection(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Boolean,java.lang.Boolean> action);
     method public static void setTestTag(androidx.ui.semantics.SemanticsPropertyReceiver, String p);
     method public static void setText(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.text.AnnotatedString p);
+    method public static void setText(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString,java.lang.Boolean> action);
+    method public static void setTextSelectionRange(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.text.TextRange p);
   }
 
   public final class SemanticsPropertyKey<T> {

@@ -32,7 +32,6 @@ import androidx.ui.integration.test.TextBenchmarkTestRule
 import androidx.ui.integration.test.TextType
 import androidx.ui.integration.test.cartesian
 import androidx.ui.text.font.Font
-import androidx.ui.text.style.TextDirection
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -123,10 +122,7 @@ class ParagraphBenchmark(
         return ParagraphIntrinsics(
             text = text,
             density = Density(density = instrumentationContext.resources.displayMetrics.density),
-            style = TextStyle(
-                fontSize = fontSize,
-                textDirection = TextDirection.ContentOrLtr
-            ),
+            style = TextStyle(fontSize = fontSize),
             resourceLoader = resourceLoader,
             spanStyles = spanStyles
         )

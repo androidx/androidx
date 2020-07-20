@@ -60,11 +60,20 @@ data class TextDecoration internal constructor(val mask: Int) {
     }
 
     /**
+     * Creates a decoration that includes both of the TextDecorations.
+     *
+     * @sample androidx.ui.text.samples.TextDecorationCombinedSample
+     */
+    operator fun plus(decoration: TextDecoration): TextDecoration {
+        return TextDecoration(this.mask or decoration.mask)
+    }
+
+    /**
      * Check whether this [TextDecoration] contains the given decoration.
      *
      * @param other The [TextDecoration] to be checked.
      */
-    fun contains(other: TextDecoration): Boolean {
+    operator fun contains(other: TextDecoration): Boolean {
         return (mask or other.mask) == mask
     }
 
@@ -74,15 +83,15 @@ data class TextDecoration internal constructor(val mask: Int) {
         }
 
         val values: MutableList<String> = mutableListOf()
-        if (!((mask and Underline.mask) == 0)) {
+        if ((mask and Underline.mask) != 0) {
             values.add("Underline")
         }
-        if (!((mask and LineThrough.mask) == 0)) {
+        if ((mask and LineThrough.mask) != 0) {
             values.add("LineThrough")
         }
         if ((values.size == 1)) {
             return "TextDecoration.${values[0]}"
         }
-        return "TextDecoration.combine([${values.joinToString(separator = ", ")}])"
+        return "TextDecoration[${values.joinToString(separator = ", ")}]"
     }
 }

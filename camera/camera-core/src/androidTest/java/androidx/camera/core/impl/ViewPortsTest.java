@@ -22,9 +22,7 @@ import static android.util.LayoutDirection.RTL;
 import static androidx.camera.core.ViewPort.FILL_CENTER;
 import static androidx.camera.core.ViewPort.FILL_END;
 import static androidx.camera.core.ViewPort.FILL_START;
-import static androidx.camera.core.ViewPort.FIT_CENTER;
-import static androidx.camera.core.ViewPort.FIT_END;
-import static androidx.camera.core.ViewPort.FIT_START;
+import static androidx.camera.core.ViewPort.FIT;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -81,9 +79,10 @@ public class ViewPortsTest {
         private static final RectF FITTING_RECT = new RectF(10, 20, 70, 60);
         // Size of crop rect for all 4 possible aspect ratio/ fill type combinations.
         private static final Size WIDE_FILL = new Size(60, 30);
-        private static final Size WIDE_FIT = new Size(80, 40);
         private static final Size NARROW_FILL = new Size(20, 40);
-        private static final Size NARROW_FIT = new Size(60, 120);
+
+        private static final Size FIT_SIZE = new Size((int) FITTING_RECT.width(),
+                (int) FITTING_RECT.height());
 
         @Parameterized.Parameter()
         public Rational mAspectRatio;
@@ -120,16 +119,7 @@ public class ViewPortsTest {
             result.add(new Object[]{WIDE, RTL, R90, FILL_CENTER, 10, 25, WIDE_FILL});
             result.add(new Object[]{WIDE, RTL, R180, FILL_CENTER, 10, 25, WIDE_FILL});
             result.add(new Object[]{WIDE, RTL, R270, FILL_CENTER, 10, 25, WIDE_FILL});
-            // Wide viewport & FIT_CENTER. Parameter index 8~15.
-            result.add(new Object[]{WIDE, LTR, R0, FIT_CENTER, 0, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, LTR, R90, FIT_CENTER, 0, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, LTR, R180, FIT_CENTER, 0, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, LTR, R270, FIT_CENTER, 0, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, RTL, R0, FIT_CENTER, 0, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, RTL, R90, FIT_CENTER, 0, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, RTL, R180, FIT_CENTER, 0, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, RTL, R270, FIT_CENTER, 0, 20, WIDE_FIT});
-            // Wide viewport & FILL_START. Parameter index 16~23.
+            // Wide viewport & FILL_START. Parameter index 7~15.
             result.add(new Object[]{WIDE, LTR, R0, FILL_START, 10, 20, WIDE_FILL});
             result.add(new Object[]{WIDE, LTR, R90, FILL_START, 10, 30, WIDE_FILL});
             result.add(new Object[]{WIDE, LTR, R180, FILL_START, 10, 30, WIDE_FILL});
@@ -138,16 +128,7 @@ public class ViewPortsTest {
             result.add(new Object[]{WIDE, RTL, R90, FILL_START, 10, 20, WIDE_FILL});
             result.add(new Object[]{WIDE, RTL, R180, FILL_START, 10, 30, WIDE_FILL});
             result.add(new Object[]{WIDE, RTL, R270, FILL_START, 10, 30, WIDE_FILL});
-            // Wide viewport & FIT_START. Parameter index 24~31.
-            result.add(new Object[]{WIDE, LTR, R0, FIT_START, 10, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, LTR, R90, FIT_START, 10, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, LTR, R180, FIT_START, -10, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, LTR, R270, FIT_START, -10, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, RTL, R0, FIT_START, -10, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, RTL, R90, FIT_START, 10, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, RTL, R180, FIT_START, 10, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, RTL, R270, FIT_START, -10, 20, WIDE_FIT});
-            // Wide viewport & FILL_END. Parameter index 32~39.
+            // Wide viewport & FILL_END. Parameter index 16~23.
             result.add(new Object[]{WIDE, LTR, R0, FILL_END, 10, 30, WIDE_FILL});
             result.add(new Object[]{WIDE, LTR, R90, FILL_END, 10, 20, WIDE_FILL});
             result.add(new Object[]{WIDE, LTR, R180, FILL_END, 10, 20, WIDE_FILL});
@@ -156,16 +137,7 @@ public class ViewPortsTest {
             result.add(new Object[]{WIDE, RTL, R90, FILL_END, 10, 30, WIDE_FILL});
             result.add(new Object[]{WIDE, RTL, R180, FILL_END, 10, 20, WIDE_FILL});
             result.add(new Object[]{WIDE, RTL, R270, FILL_END, 10, 20, WIDE_FILL});
-            // Wide viewport & FIT_END. Parameter index 40~47.
-            result.add(new Object[]{WIDE, LTR, R0, FIT_END, -10, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, LTR, R90, FIT_END, -10, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, LTR, R180, FIT_END, 10, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, LTR, R270, FIT_END, 10, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, RTL, R0, FIT_END, 10, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, RTL, R90, FIT_END, -10, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, RTL, R180, FIT_END, -10, 20, WIDE_FIT});
-            result.add(new Object[]{WIDE, RTL, R270, FIT_END, 10, 20, WIDE_FIT});
-            // Narrow viewport & FILL_CENTER. Parameter index 48~55.
+            // Narrow viewport & FILL_CENTER. Parameter index 24~31.
             result.add(new Object[]{NARROW, LTR, R0, FILL_CENTER, 30, 20, NARROW_FILL});
             result.add(new Object[]{NARROW, LTR, R90, FILL_CENTER, 30, 20, NARROW_FILL});
             result.add(new Object[]{NARROW, LTR, R180, FILL_CENTER, 30, 20, NARROW_FILL});
@@ -174,16 +146,7 @@ public class ViewPortsTest {
             result.add(new Object[]{NARROW, RTL, R90, FILL_CENTER, 30, 20, NARROW_FILL});
             result.add(new Object[]{NARROW, RTL, R180, FILL_CENTER, 30, 20, NARROW_FILL});
             result.add(new Object[]{NARROW, RTL, R270, FILL_CENTER, 30, 20, NARROW_FILL});
-            // Narrow viewport & FIT_CENTER. Parameter index 56~63.
-            result.add(new Object[]{NARROW, LTR, R0, FIT_CENTER, 10, -20, NARROW_FIT});
-            result.add(new Object[]{NARROW, LTR, R90, FIT_CENTER, 10, -20, NARROW_FIT});
-            result.add(new Object[]{NARROW, LTR, R180, FIT_CENTER, 10, -20, NARROW_FIT});
-            result.add(new Object[]{NARROW, LTR, R270, FIT_CENTER, 10, -20, NARROW_FIT});
-            result.add(new Object[]{NARROW, RTL, R0, FIT_CENTER, 10, -20, NARROW_FIT});
-            result.add(new Object[]{NARROW, RTL, R90, FIT_CENTER, 10, -20, NARROW_FIT});
-            result.add(new Object[]{NARROW, RTL, R180, FIT_CENTER, 10, -20, NARROW_FIT});
-            result.add(new Object[]{NARROW, RTL, R270, FIT_CENTER, 10, -20, NARROW_FIT});
-            // Narrow viewport & FILL_START. Parameter index 64~71.
+            // Narrow viewport & FILL_START. Parameter index 32~39.
             result.add(new Object[]{NARROW, LTR, R0, FILL_START, 10, 20, NARROW_FILL});
             result.add(new Object[]{NARROW, LTR, R90, FILL_START, 10, 20, NARROW_FILL});
             result.add(new Object[]{NARROW, LTR, R180, FILL_START, 50, 20, NARROW_FILL});
@@ -192,16 +155,7 @@ public class ViewPortsTest {
             result.add(new Object[]{NARROW, RTL, R90, FILL_START, 10, 20, NARROW_FILL});
             result.add(new Object[]{NARROW, RTL, R180, FILL_START, 10, 20, NARROW_FILL});
             result.add(new Object[]{NARROW, RTL, R270, FILL_START, 50, 20, NARROW_FILL});
-            // Narrow viewport & FIT_START. Parameter index 72~79.
-            result.add(new Object[]{NARROW, LTR, R0, FIT_START, 10, 20, NARROW_FIT});
-            result.add(new Object[]{NARROW, LTR, R90, FIT_START, 10, -60, NARROW_FIT});
-            result.add(new Object[]{NARROW, LTR, R180, FIT_START, 10, -60, NARROW_FIT});
-            result.add(new Object[]{NARROW, LTR, R270, FIT_START, 10, 20, NARROW_FIT});
-            result.add(new Object[]{NARROW, RTL, R0, FIT_START, 10, 20, NARROW_FIT});
-            result.add(new Object[]{NARROW, RTL, R90, FIT_START, 10, 20, NARROW_FIT});
-            result.add(new Object[]{NARROW, RTL, R180, FIT_START, 10, -60, NARROW_FIT});
-            result.add(new Object[]{NARROW, RTL, R270, FIT_START, 10, -60, NARROW_FIT});
-            // Narrow viewport & FILL_END. Parameter index 80~87.
+            // Narrow viewport & FILL_END. Parameter index 40~47.
             result.add(new Object[]{NARROW, LTR, R0, FILL_END, 50, 20, NARROW_FILL});
             result.add(new Object[]{NARROW, LTR, R90, FILL_END, 50, 20, NARROW_FILL});
             result.add(new Object[]{NARROW, LTR, R180, FILL_END, 10, 20, NARROW_FILL});
@@ -210,15 +164,20 @@ public class ViewPortsTest {
             result.add(new Object[]{NARROW, RTL, R90, FILL_END, 50, 20, NARROW_FILL});
             result.add(new Object[]{NARROW, RTL, R180, FILL_END, 50, 20, NARROW_FILL});
             result.add(new Object[]{NARROW, RTL, R270, FILL_END, 10, 20, NARROW_FILL});
-            // Narrow viewport & FIT_END. Parameter index 88~95.
-            result.add(new Object[]{NARROW, LTR, R0, FIT_END, 10, -60, NARROW_FIT});
-            result.add(new Object[]{NARROW, LTR, R90, FIT_END, 10, 20, NARROW_FIT});
-            result.add(new Object[]{NARROW, LTR, R180, FIT_END, 10, 20, NARROW_FIT});
-            result.add(new Object[]{NARROW, LTR, R270, FIT_END, 10, -60, NARROW_FIT});
-            result.add(new Object[]{NARROW, RTL, R0, FIT_END, 10, -60, NARROW_FIT});
-            result.add(new Object[]{NARROW, RTL, R90, FIT_END, 10, -60, NARROW_FIT});
-            result.add(new Object[]{NARROW, RTL, R180, FIT_END, 10, 20, NARROW_FIT});
-            result.add(new Object[]{NARROW, RTL, R270, FIT_END, 10, 20, NARROW_FIT});
+
+            // FIT always returns the same rect. Parameter index 48~63.
+            for (Rational aspectRatio : new Rational[]{WIDE, NARROW}) {
+                for (int layoutDirection : new int[]{LTR, RTL}) {
+                    for (int rotationDegrees : new int[]{R0, R90, R180, R270}) {
+                        result.add(new Object[]{
+                                aspectRatio,
+                                layoutDirection,
+                                rotationDegrees,
+                                FIT,
+                                10, 20, FIT_SIZE});
+                    }
+                }
+            }
             return result;
         }
 
