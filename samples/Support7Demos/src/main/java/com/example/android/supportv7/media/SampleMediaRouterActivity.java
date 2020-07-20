@@ -51,6 +51,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.mediarouter.app.MediaRouteActionProvider;
@@ -233,14 +234,13 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
                 .addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE)
                 .build();
 
-        mMediaRouter.setOnPrepareTransferListener(new MediaRouter.OnPrepareTransferListener() {
-            @Override
-            public void onPrepareTransfer(@NonNull RouteInfo fromRoute, @NonNull RouteInfo toRoute,
-                    @NonNull MediaRouter.TransferNotifier notifier) {
-                Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
-                        + ", to=" + toRoute.getId());
-                notifier.notifyPrepareFinished();
-            }
+        mMediaRouter.setOnPrepareTransferListener((fromRoute, toRoute) -> {
+            Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
+                    + ", to=" + toRoute.getId());
+            return CallbackToFutureAdapter.getFuture(completer -> {
+                completer.set(null);
+                return "onPrepareTransfer";
+            });
         });
 
         // Add a fragment to take care of media route discovery.
