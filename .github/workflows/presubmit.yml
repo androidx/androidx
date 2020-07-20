@@ -65,7 +65,7 @@ jobs:
         run: echo $DIST_DIR && ls $HOME/Library/Android/sdk
       - name: build on server
         run: |
-          cd room && ./gradlew -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m" -Pandroidx.sdkPath=$(echo $HOME)/Library/Android/sdk :buildOnServer && cd ../work && ./gradlew -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m" -Pandroidx.sdkPath=$(echo $HOME)/Library/Android/sdk :buildOnServer
+          cd room && ./gradlew -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m" :buildOnServer && cd ../work && ./gradlew -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m" :buildOnServer
         id: gradlew_bos
       - name: Set webhook outputs from ./gradlew
         if: always()
