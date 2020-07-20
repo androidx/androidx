@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":core:core"))
     implementation project(':drawerlayout:drawerlayout')
     api(KOTLIN_STDLIB)
+    implementation 'androidx.concurrent:concurrent-futures:1.0.0'
 }
 
 android {
