@@ -18,14 +18,10 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="7449553026175453403">"ಸಿಸ್ಟಂ"</string>
     <string name="mr_user_route_category_name" msgid="4088331695424166162">"ಸಾಧನಗಳು"</string>
-    <!-- no translation found for mr_button_content_description (2939063992730535343) -->
-    <skip />
-    <!-- no translation found for mr_cast_button_disconnected (8071109333469380363) -->
-    <skip />
-    <!-- no translation found for mr_cast_button_connecting (6629927151350192407) -->
-    <skip />
-    <!-- no translation found for mr_cast_button_connected (6073720094880410356) -->
-    <skip />
+    <string name="mr_button_content_description" msgid="2939063992730535343">"ಬಿತ್ತರಿಸಿ"</string>
+    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"ಬಿತ್ತರಿಸಿ. ಸಂಪರ್ಕ ಕಡಿತಗೊಳಿಸಲಾಗಿದೆ"</string>
+    <string name="mr_cast_button_connecting" msgid="6629927151350192407">"ಬಿತ್ತರಿಸಿ. ಕನೆಕ್ಟ್ ಮಾಡಲಾಗುತ್ತಿದೆ"</string>
+    <string name="mr_cast_button_connected" msgid="6073720094880410356">"ಬಿತ್ತರಿಸಿ. ಕನೆಕ್ಟ್ ಆಗಿದೆ"</string>
     <string name="mr_chooser_title" msgid="1419936397646839840">"ಇದಕ್ಕೆ ಬಿತ್ತರಿಸಿ"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"ಸಾಧನಗಳನ್ನು ಹುಡುಕಲಾಗುತ್ತಿದೆ"</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"ಸಂಪರ್ಕ ಕಡಿತಗೊಳಿಸಿ"</string>
@@ -41,6 +37,8 @@
     <string name="mr_controller_no_media_selected" msgid="5495452265246139458">"ಯಾವುದೇ ಮಾಧ್ಯಮವನ್ನು ಆಯ್ಕೆ ಮಾಡಿಲ್ಲ"</string>
     <string name="mr_controller_no_info_available" msgid="855271725131981086">"ಯಾವುದೇ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ"</string>
     <string name="mr_controller_casting_screen" msgid="9171231064758955152">"ಪರದೆಯನ್ನು ಬಿತ್ತರಿಸಲಾಗುತ್ತಿದೆ"</string>
+    <!-- no translation found for mr_dialog_default_group_name (4115858704575247342) -->
+    <skip />
     <string name="mr_dialog_groupable_header" msgid="4307018456678388936">"ಸಾಧನವನ್ನು ಸೇರಿಸಿ"</string>
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"ಗುಂಪಿನಲ್ಲಿ ಪ್ಲೇ ಮಾಡಿ"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"ಯಾವುದೇ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ"</string>
