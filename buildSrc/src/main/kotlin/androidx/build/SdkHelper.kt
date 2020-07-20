@@ -74,7 +74,6 @@ fun Project.getSdkPath(): File {
         // https://developer.android.com/studio/command-line/variables
         listOf("ANDROID_HOME", "ANDROID_SDK_ROOT").firstOrNull {
             val envValue = System.getenv(it)
-            println("env value:$it $envValue")
             envValue != null && File(envValue).isDirectory
         }?.let {
             return File(it)
