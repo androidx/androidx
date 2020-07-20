@@ -17,14 +17,15 @@
 package androidx.compose.foundation.text.demos
 
 import androidx.compose.Composable
+import androidx.compose.foundation.BaseTextField
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.state
 import androidx.ui.core.focus.FocusModifier
-import androidx.compose.foundation.ScrollableColumn
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
 import androidx.ui.input.TextFieldValue
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.compose.foundation.text.CoreTextField
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.sp
 
@@ -48,6 +49,7 @@ fun TextFieldFocusTransition() {
 
 // TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
 @Suppress("DEPRECATION")
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TextFieldWithFocusId(focusModifier: FocusModifier, nextFocusModifier: FocusModifier) {
     val state = savedInstanceState(saver = TextFieldValue.Saver) {
@@ -59,7 +61,7 @@ private fun TextFieldWithFocusId(focusModifier: FocusModifier, nextFocusModifier
     } else {
         Color.Black
     }
-    CoreTextField(
+    BaseTextField(
         value = state.value,
         modifier = focusModifier,
         textStyle = TextStyle(color = color, fontSize = 32.sp),

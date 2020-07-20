@@ -17,23 +17,14 @@
 package androidx.ui.core.demos
 
 import androidx.compose.Composable
-import androidx.compose.state
-import androidx.ui.core.Alignment
-import androidx.ui.core.DropDownAlignment
-import androidx.ui.core.DropdownPopup
-import androidx.ui.core.Modifier
-import androidx.ui.core.Popup
+import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.corner.CircleShape
-import androidx.ui.graphics.Color
-import androidx.ui.input.ImeAction
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.TextFieldValue
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -44,8 +35,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.shape.corner.CircleShape
+import androidx.compose.state
+import androidx.ui.core.Alignment
+import androidx.ui.core.DropDownAlignment
+import androidx.ui.core.DropdownPopup
+import androidx.ui.core.Modifier
+import androidx.ui.core.Popup
+import androidx.ui.graphics.Color
+import androidx.ui.input.ImeAction
+import androidx.ui.input.KeyboardType
+import androidx.ui.input.TextFieldValue
 import androidx.ui.text.style.TextAlign
-import androidx.compose.foundation.text.CoreTextField
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -470,6 +471,7 @@ private fun ColumnScope.ClickableTextWithBackground(
 }
 
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 private fun EditLine(
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,
@@ -479,7 +481,7 @@ private fun EditLine(
     color: Color = Color.White
 ) {
     val state = state { TextFieldValue(initialText) }
-    CoreTextField(
+    BaseTextField(
         value = state.value,
         modifier = modifier.background(color = color),
         keyboardType = keyboardType,
