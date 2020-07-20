@@ -16,10 +16,10 @@
 
 package androidx.ui.material.ripple
 
-import androidx.animation.AnimationClockObservable
-import androidx.animation.AnimationSpec
-import androidx.animation.LinearEasing
-import androidx.animation.TweenSpec
+import androidx.compose.animation.core.AnimationClockObservable
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.Composable
 import androidx.compose.Stable
 import androidx.compose.State

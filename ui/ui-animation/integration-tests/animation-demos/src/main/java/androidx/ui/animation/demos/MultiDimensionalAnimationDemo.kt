@@ -16,9 +16,9 @@
 
 package androidx.ui.animation.demos
 
-import androidx.animation.spring
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state

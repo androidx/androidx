@@ -64,7 +64,8 @@ class PackageNameMigrationDetector : Detector(), SourceCodeScanner {
             "androidx.ui.rxjava2" to "androidx.compose.runtime.rxjava2",
             "androidx.ui.savedinstancestate" to "androidx.compose.runtime.savedinstancestate",
             "androidx.ui.foundation" to "androidx.compose.foundation",
-            "androidx.ui.layout" to "androidx.compose.foundation.layout"
+            "androidx.ui.layout" to "androidx.compose.foundation.layout",
+            "androidx.animation" to "androidx.compose.animation.core"
         )
 
         val ISSUE = Issue.create(

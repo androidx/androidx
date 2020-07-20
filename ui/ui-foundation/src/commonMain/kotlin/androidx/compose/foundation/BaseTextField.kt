@@ -16,10 +16,10 @@
 
 package androidx.compose.foundation
 
-import androidx.animation.AnimatedValue
-import androidx.animation.AnimationConstants.Infinite
-import androidx.animation.keyframes
-import androidx.animation.repeatable
+import androidx.compose.animation.core.AnimatedValue
+import androidx.compose.animation.core.AnimationConstants.Infinite
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.repeatable
 import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.getValue

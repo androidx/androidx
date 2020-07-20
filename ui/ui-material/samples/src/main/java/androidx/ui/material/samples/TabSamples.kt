@@ -16,8 +16,8 @@
 
 package androidx.ui.material.samples
 
-import androidx.animation.spring
-import androidx.animation.transitionDefinition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.transitionDefinition
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.emptyContent

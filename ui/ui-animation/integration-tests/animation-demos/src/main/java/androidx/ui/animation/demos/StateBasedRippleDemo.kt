@@ -17,13 +17,13 @@
 package androidx.ui.animation.demos
 
 import android.graphics.PointF
-import androidx.animation.FloatPropKey
-import androidx.animation.InterruptionHandling
-import androidx.animation.TransitionDefinition
-import androidx.animation.TransitionState
-import androidx.animation.keyframes
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
+import androidx.compose.animation.core.FloatPropKey
+import androidx.compose.animation.core.InterruptionHandling
+import androidx.compose.animation.core.TransitionDefinition
+import androidx.compose.animation.core.TransitionState
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state

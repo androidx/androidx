@@ -172,7 +172,7 @@ package androidx.ui.core {
   }
 
   public final class AmbientsKt {
-    method public static androidx.compose.ProvidableAmbient<androidx.animation.AnimationClockObservable> getAnimationClockAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.compose.animation.core.AnimationClockObservable> getAnimationClockAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.autofill.Autofill> getAutofillAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.autofill.AutofillTree> getAutofillTreeAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.core.clipboard.ClipboardManager> getClipboardManagerAmbient();

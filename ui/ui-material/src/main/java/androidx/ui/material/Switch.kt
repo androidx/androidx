@@ -16,7 +16,7 @@
 
 package androidx.ui.material
 
-import androidx.animation.TweenSpec
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.remember

@@ -18,11 +18,11 @@ package androidx.ui.test
 
 import android.os.Handler
 import android.os.Looper
-import androidx.animation.FloatPropKey
-import androidx.animation.LinearEasing
-import androidx.animation.snap
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
+import androidx.compose.animation.core.FloatPropKey
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
 import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.mutableStateOf

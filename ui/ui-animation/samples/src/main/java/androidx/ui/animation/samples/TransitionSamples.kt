@@ -16,7 +16,7 @@
 
 package androidx.ui.animation.samples
 
-import androidx.animation.transitionDefinition
+import androidx.compose.animation.core.transitionDefinition
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.animation.ColorPropKey

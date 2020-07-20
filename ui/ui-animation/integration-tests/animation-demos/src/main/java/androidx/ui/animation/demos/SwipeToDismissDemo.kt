@@ -16,12 +16,12 @@
 
 package androidx.ui.animation.demos
 
-import androidx.animation.AnimationEndReason
-import androidx.animation.ExponentialDecay
-import androidx.animation.FastOutSlowInEasing
-import androidx.animation.SpringSpec
-import androidx.animation.TargetAnimation
-import androidx.animation.fling
+import androidx.compose.animation.core.AnimationEndReason
+import androidx.compose.animation.core.ExponentialDecay
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.TargetAnimation
+import androidx.compose.animation.core.fling
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat

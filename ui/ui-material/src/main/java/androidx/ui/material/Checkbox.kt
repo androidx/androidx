@@ -17,12 +17,12 @@
 package androidx.ui.material
 
 import android.graphics.PathMeasure
-import androidx.animation.FloatPropKey
-import androidx.animation.TransitionSpec
-import androidx.animation.keyframes
-import androidx.animation.snap
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
+import androidx.compose.animation.core.FloatPropKey
+import androidx.compose.animation.core.TransitionSpec
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.remember

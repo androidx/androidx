@@ -16,7 +16,7 @@
 
 package androidx.ui.animation.demos
 
-import androidx.animation.tween
+import androidx.compose.animation.core.tween
 import androidx.compose.Composable
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text

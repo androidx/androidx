@@ -16,7 +16,7 @@
 
 package androidx.ui.material
 
-import androidx.animation.SpringSpec
+import androidx.compose.animation.core.SpringSpec
 import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.state

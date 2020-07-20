@@ -17,8 +17,8 @@
 package androidx.ui.animation.demos
 
 import android.util.Log
-import androidx.animation.SpringSpec
-import androidx.animation.fling
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.fling
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat

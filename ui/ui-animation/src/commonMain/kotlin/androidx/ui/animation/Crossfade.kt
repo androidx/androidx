@@ -16,10 +16,10 @@
 
 package androidx.ui.animation
 
-import androidx.animation.AnimatedFloat
-import androidx.animation.AnimationEndReason
-import androidx.animation.AnimationSpec
-import androidx.animation.tween
+import androidx.compose.animation.core.AnimatedFloat
+import androidx.compose.animation.core.AnimationEndReason
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.tween
 import androidx.compose.Composable
 import androidx.compose.invalidate
 import androidx.compose.key

@@ -16,8 +16,8 @@
 
 package androidx.ui.animation.samples
 
-import androidx.animation.AnimationVector2D
-import androidx.animation.TwoWayConverter
+import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.TwoWayConverter
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.remember

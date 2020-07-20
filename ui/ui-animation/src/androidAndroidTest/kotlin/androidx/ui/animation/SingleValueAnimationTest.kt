@@ -16,13 +16,13 @@
 
 package androidx.ui.animation
 
-import androidx.animation.AnimationVector
-import androidx.animation.FastOutLinearInEasing
-import androidx.animation.FastOutSlowInEasing
-import androidx.animation.FloatSpringSpec
-import androidx.animation.LinearEasing
-import androidx.animation.LinearOutSlowInEasing
-import androidx.animation.TweenSpec
+import androidx.compose.animation.core.AnimationVector
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.FloatSpringSpec
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf

@@ -16,12 +16,12 @@
 
 package androidx.ui.animation.demos
 
-import androidx.animation.FastOutSlowInEasing
-import androidx.animation.FloatPropKey
-import androidx.animation.ManualAnimationClock
-import androidx.animation.TweenSpec
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.FloatPropKey
+import androidx.compose.animation.core.ManualAnimationClock
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.remember

@@ -16,12 +16,12 @@
 
 package androidx.ui.animation
 
-import androidx.animation.AnimationVector1D
-import androidx.animation.AnimationVector2D
-import androidx.animation.AnimationVector4D
-import androidx.animation.FloatToVectorConverter
-import androidx.animation.PropKey
-import androidx.animation.TwoWayConverter
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.AnimationVector4D
+import androidx.compose.animation.core.FloatToVectorConverter
+import androidx.compose.animation.core.PropKey
+import androidx.compose.animation.core.TwoWayConverter
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color

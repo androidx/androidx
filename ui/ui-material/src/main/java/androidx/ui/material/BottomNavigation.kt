@@ -16,9 +16,9 @@
 
 package androidx.ui.material
 
-import androidx.animation.VectorizedAnimationSpec
-import androidx.animation.FastOutSlowInEasing
-import androidx.animation.TweenSpec
+import androidx.compose.animation.core.VectorizedAnimationSpec
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.TweenSpec
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.compose.Providers

@@ -16,8 +16,8 @@
 
 package androidx.ui.animation
 
-import androidx.animation.AnimationClockObservable
-import androidx.animation.AnimationClockObserver
+import androidx.compose.animation.core.AnimationClockObservable
+import androidx.compose.animation.core.AnimationClockObserver
 import androidx.compose.Composable
 import androidx.compose.onCommit
 import androidx.compose.remember

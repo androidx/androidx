@@ -16,11 +16,11 @@
 
 package androidx.ui.animation
 
-import androidx.animation.AnimationClockObservable
-import androidx.animation.AnimationSpec
-import androidx.animation.AnimationVector2D
-import androidx.animation.SpringSpec
-import androidx.animation.spring
+import androidx.compose.animation.core.AnimationClockObservable
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.spring
 import androidx.compose.remember
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Constraints

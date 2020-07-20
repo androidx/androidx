@@ -16,15 +16,15 @@
 
 package androidx.ui.material
 
-import androidx.animation.AnimationConstants.Infinite
-import androidx.animation.CubicBezierEasing
-import androidx.animation.FloatPropKey
-import androidx.animation.IntPropKey
-import androidx.animation.LinearEasing
-import androidx.animation.keyframes
-import androidx.animation.repeatable
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
+import androidx.compose.animation.core.AnimationConstants.Infinite
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.FloatPropKey
+import androidx.compose.animation.core.IntPropKey
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.repeatable
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.ui.animation.transition

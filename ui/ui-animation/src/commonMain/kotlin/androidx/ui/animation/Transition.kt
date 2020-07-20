@@ -16,12 +16,12 @@
 
 package androidx.ui.animation
 
-import androidx.animation.AnimationClockObservable
-import androidx.animation.AnimationVector
-import androidx.animation.PropKey
-import androidx.animation.TransitionAnimation
-import androidx.animation.TransitionDefinition
-import androidx.animation.TransitionState
+import androidx.compose.animation.core.AnimationClockObservable
+import androidx.compose.animation.core.AnimationVector
+import androidx.compose.animation.core.PropKey
+import androidx.compose.animation.core.TransitionAnimation
+import androidx.compose.animation.core.TransitionDefinition
+import androidx.compose.animation.core.TransitionState
 import androidx.compose.Composable
 import androidx.compose.Stable
 import androidx.compose.getValue
@@ -56,7 +56,7 @@ import androidx.ui.core.AnimationClockAmbient
  * @param clock Optional animation clock that pulses animations when time changes. By default,
  *              the system uses a choreographer based clock read from the [AnimationClockAmbient].
  *              A custom implementation of the [AnimationClockObservable] (such as a
- *              [androidx.animation.ManualAnimationClock]) can be supplied here if there’s a need to
+ *              [androidx.compose.animation.core.ManualAnimationClock]) can be supplied here if there’s a need to
  *              manually control the clock (for example in tests).
  * @param initState Optional initial state for the transition. When undefined, the initial state
  *                  will be set to the first [toState] seen in the transition.

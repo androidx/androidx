@@ -15,8 +15,8 @@
  */
 package androidx.ui.animation
 
-import androidx.animation.AnimationConstants.DefaultDurationMillis
-import androidx.animation.TweenSpec
+import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.onDispose

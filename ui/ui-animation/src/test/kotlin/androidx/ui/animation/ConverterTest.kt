@@ -16,9 +16,9 @@
 
 package androidx.ui.animation
 
-import androidx.animation.AnimationVector1D
-import androidx.animation.AnimationVector2D
-import androidx.animation.AnimationVector4D
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.AnimationVector4D
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.colorspace.ColorSpaces

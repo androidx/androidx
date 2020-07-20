@@ -16,13 +16,13 @@
 
 package androidx.ui.animation
 
-import androidx.animation.AnimatedFloat
-import androidx.animation.AnimatedValue
-import androidx.animation.AnimationClockObservable
-import androidx.animation.AnimationVector
-import androidx.animation.AnimationVector4D
-import androidx.animation.Spring
-import androidx.animation.TwoWayConverter
+import androidx.compose.animation.core.AnimatedFloat
+import androidx.compose.animation.core.AnimatedValue
+import androidx.compose.animation.core.AnimationClockObservable
+import androidx.compose.animation.core.AnimationVector
+import androidx.compose.animation.core.AnimationVector4D
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.Composable
 import androidx.compose.Stable
 import androidx.compose.getValue

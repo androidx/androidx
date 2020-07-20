@@ -18,11 +18,11 @@ package androidx.ui.animation.demos
 
 import android.os.Handler
 import android.os.Looper
-import androidx.animation.FloatPropKey
-import androidx.animation.TransitionState
-import androidx.animation.spring
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
+import androidx.compose.animation.core.FloatPropKey
+import androidx.compose.animation.core.TransitionState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
 import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf

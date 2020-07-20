@@ -16,13 +16,13 @@
 
 package androidx.ui.animation
 
-import androidx.animation.AnimationEndReason
-import androidx.animation.AnimationSpec
-import androidx.animation.AnimationVector
-import androidx.animation.AnimationVector4D
-import androidx.animation.IntToVectorConverter
-import androidx.animation.SpringSpec
-import androidx.animation.TwoWayConverter
+import androidx.compose.animation.core.AnimationEndReason
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.AnimationVector
+import androidx.compose.animation.core.AnimationVector4D
+import androidx.compose.animation.core.IntToVectorConverter
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.Composable
 import androidx.compose.onCommit
 import androidx.compose.remember

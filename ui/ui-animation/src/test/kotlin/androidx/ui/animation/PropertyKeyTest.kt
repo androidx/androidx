@@ -16,11 +16,11 @@
 
 package androidx.ui.animation
 
-import androidx.animation.FastOutLinearInEasing
-import androidx.animation.ManualAnimationClock
-import androidx.animation.createAnimation
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.ManualAnimationClock
+import androidx.compose.animation.core.createAnimation
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
 import androidx.ui.geometry.Rect
 import junit.framework.TestCase.assertEquals
 import org.junit.Test

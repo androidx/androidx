@@ -16,8 +16,8 @@
 
 package androidx.ui.animation
 
-import androidx.animation.LinearOutSlowInEasing
-import androidx.animation.tween
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.getValue

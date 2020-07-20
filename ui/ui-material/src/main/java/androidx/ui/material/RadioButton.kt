@@ -16,8 +16,8 @@
 
 package androidx.ui.material
 
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
 import androidx.compose.Composable
 import androidx.compose.Stable
 import androidx.compose.remember
