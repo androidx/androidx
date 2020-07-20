@@ -16,28 +16,10 @@
 
 package androidx.paging
 
-import androidx.annotation.RestrictTo
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-
-/**
- * Callbacks for the presenter/adapter to listen to the state of pagination data.
- *
- * Note that these won't map directly to PageEvents, since PageEvents can cause several adapter
- * events that should all be dispatched to the presentation layer at once - as part of the same
- * frame.
- *
- * @suppress
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface PresenterCallback {
-    fun onChanged(position: Int, count: Int)
-    fun onInserted(position: Int, count: Int)
-    fun onRemoved(position: Int, count: Int)
-    fun onStateUpdate(loadType: LoadType, fromMediator: Boolean, loadState: LoadState)
-}
 
 /**
  * Presents post-transform paging data as a list, with list update notifications when
@@ -142,7 +124,7 @@ internal class PagePresenter<T : Any>(
 
     private fun List<TransformablePage<T>>.fullCount() = sumBy { it.data.size }
 
-    fun processEvent(pageEvent: PageEvent<T>, callback: PresenterCallback) {
+    fun processEvent(pageEvent: PageEvent<T>, callback: ProcessPageEventCallback) {
         when (pageEvent) {
             is PageEvent.Insert -> insertPage(pageEvent, callback)
             is PageEvent.Drop -> dropPages(pageEvent, callback)
@@ -174,7 +156,7 @@ internal class PagePresenter<T : Any>(
      *     counting or filtering are the most common. In either case, we adjust placeholders at
      *     the far end of the list, so that they don't trigger animations near the user.
      */
-    private fun insertPage(insert: PageEvent.Insert<T>, callback: PresenterCallback) {
+    private fun insertPage(insert: PageEvent.Insert<T>, callback: ProcessPageEventCallback) {
         val count = insert.pages.fullCount()
         val oldSize = size
         when (insert.loadType) {
@@ -232,7 +214,7 @@ internal class PagePresenter<T : Any>(
         }
     }
 
-    private fun dropPages(drop: PageEvent.Drop<T>, callback: PresenterCallback) {
+    private fun dropPages(drop: PageEvent.Drop<T>, callback: ProcessPageEventCallback) {
         val oldSize = size
         if (drop.loadType == PREPEND) {
             val removeCount = pages.take(drop.count).fullCount()
@@ -307,5 +289,15 @@ internal class PagePresenter<T : Any>(
 
         @Suppress("UNCHECKED_CAST", "SyntheticAccessor")
         internal fun <T : Any> initial(): PagePresenter<T> = INITIAL as PagePresenter<T>
+    }
+
+    /**
+     * Callback to communicate events from [PagePresenter] to [PagingDataDiffer]
+     */
+    internal interface ProcessPageEventCallback {
+        fun onChanged(position: Int, count: Int)
+        fun onInserted(position: Int, count: Int)
+        fun onRemoved(position: Int, count: Int)
+        fun onStateUpdate(loadType: LoadType, fromMediator: Boolean, loadState: LoadState)
     }
 }
