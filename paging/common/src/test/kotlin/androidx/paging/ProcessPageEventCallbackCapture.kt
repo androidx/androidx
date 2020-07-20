@@ -16,6 +16,8 @@
 
 package androidx.paging
 
+import androidx.paging.PagePresenter.ProcessPageEventCallback
+
 sealed class PresenterEvent
 data class ChangeEvent(val position: Int, val count: Int) : PresenterEvent()
 data class InsertEvent(val position: Int, val count: Int) : PresenterEvent()
@@ -26,7 +28,7 @@ data class StateEvent(
     val loadState: LoadState
 ) : PresenterEvent()
 
-class PresenterCallbackCapture : PresenterCallback {
+class ProcessPageEventCallbackCapture : ProcessPageEventCallback {
     private val list = mutableListOf<PresenterEvent>()
     fun getAllAndClear() = list.getAllAndClear()
 
