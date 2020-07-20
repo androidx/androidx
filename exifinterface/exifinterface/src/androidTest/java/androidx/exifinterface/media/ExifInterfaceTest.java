@@ -1082,6 +1082,23 @@ public class ExifInterfaceTest {
         exifInterface.saveAttributes();
         exifInterface = new ExifInterface(imageFile.getAbsolutePath());
         compareWithExpectedValue(exifInterface, expectedValue, verboseTag, false);
+
+        // Creates via FileDescriptor.
+        if (Build.VERSION.SDK_INT >= 21) {
+            FileDescriptor fd = null;
+            try {
+                fd = Os.open(imageFile.getAbsolutePath(), OsConstants.O_RDWR,
+                        OsConstants.S_IRWXU);
+                exifInterface = new ExifInterface(fd);
+                exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
+                exifInterface.saveAttributes();
+                assertEquals("abc", exifInterface.getAttribute(ExifInterface.TAG_MAKE));
+            } catch (Exception e) {
+                throw new IOException("Failed to open file descriptor", e);
+            } finally {
+                closeQuietly(fd);
+            }
+        }
     }
 
     private void readFromFilesWithExif(String fileName, int typedArrayResourceId)
