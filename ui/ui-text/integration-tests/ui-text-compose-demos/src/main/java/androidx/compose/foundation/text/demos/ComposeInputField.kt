@@ -17,14 +17,15 @@
 package androidx.compose.foundation.text.demos
 
 import androidx.compose.Composable
-import androidx.compose.key
-import androidx.compose.state
+import androidx.compose.foundation.BaseTextField
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.key
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.state
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.TextFieldValue
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.compose.foundation.text.CoreTextField
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextStyle
 
@@ -76,13 +77,14 @@ fun InputFieldDemo() {
 }
 
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 private fun EditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified
 ) {
     val controller = state<SoftwareKeyboardController?> { null }
     val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    CoreTextField(
+    BaseTextField(
         value = state.value,
         keyboardType = keyboardType,
         imeAction = imeAction,

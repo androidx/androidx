@@ -22,10 +22,12 @@ import androidx.ui.core.Modifier
 import androidx.compose.foundation.ScrollableColumn
 import androidx.ui.input.TextFieldValue
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.CoreTextField
+import androidx.compose.foundation.BaseTextField
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.ui.unit.dp
 
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 fun TextFieldWithScrollerDemo() {
     ScrollableColumn {
         val state = state {
@@ -33,7 +35,7 @@ fun TextFieldWithScrollerDemo() {
                 text = List(100) { "Line: $it" }.joinToString("\n")
             )
         }
-        CoreTextField(
+        BaseTextField(
             value = state.value,
             onValueChange = { state.value = it },
             modifier = Modifier

@@ -18,6 +18,7 @@ package androidx.ui.core.demos.autofill
 
 import android.graphics.Rect
 import androidx.compose.Composable
+import androidx.compose.foundation.BaseTextField
 import androidx.compose.state
 import androidx.ui.autofill.AutofillNode
 import androidx.ui.autofill.AutofillType
@@ -28,6 +29,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.toComposeRect
 import androidx.compose.foundation.Box
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Text
 import androidx.ui.geometry.Offset
 import androidx.ui.input.ImeAction
@@ -37,10 +39,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.material.MaterialTheme
-import androidx.compose.foundation.text.CoreTextField
 import androidx.ui.unit.dp
 
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 fun ExplicitAutofillTypesDemo() {
     Column {
         val nameState = state { TextFieldValue("Enter name here") }
@@ -54,7 +56,7 @@ fun ExplicitAutofillTypesDemo() {
             autofillTypes = listOf(AutofillType.PersonFullName),
             onFill = { nameState.value = TextFieldValue(it) }
         ) { autofillNode ->
-            CoreTextField(
+            BaseTextField(
                 value = nameState.value,
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Unspecified,
@@ -77,7 +79,7 @@ fun ExplicitAutofillTypesDemo() {
             autofillTypes = listOf(AutofillType.EmailAddress),
             onFill = { emailState.value = TextFieldValue(it) }
         ) { autofillNode ->
-            CoreTextField(
+            BaseTextField(
                 value = emailState.value,
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Unspecified,

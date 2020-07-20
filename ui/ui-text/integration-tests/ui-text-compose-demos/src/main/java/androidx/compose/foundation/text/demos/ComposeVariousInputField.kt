@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.emptyContent
+import androidx.compose.foundation.BaseTextField
 import androidx.compose.state
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
@@ -25,6 +26,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.id
 import androidx.ui.core.layoutId
 import androidx.compose.foundation.Box
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
@@ -40,7 +42,6 @@ import androidx.ui.input.VisualTransformation
 import androidx.ui.intl.LocaleList
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.ui.text.AnnotatedString
-import androidx.compose.foundation.text.CoreTextField
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
@@ -254,6 +255,7 @@ fun VariousInputFieldDemo() {
 }
 
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 private fun VariousEditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
@@ -261,7 +263,7 @@ private fun VariousEditLine(
     visualTransformation: VisualTransformation
 ) {
     val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    CoreTextField(
+    BaseTextField(
         value = state.value,
         keyboardType = keyboardType,
         imeAction = imeAction,
@@ -285,11 +287,12 @@ private fun TextRange.constrain(minimumValue: Int, maximumValue: Int): TextRange
 }
 
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 private fun HintEditText(hintText: @Composable () -> Unit) {
     val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
 
     val inputField = @Composable {
-        CoreTextField(
+        BaseTextField(
             modifier = Modifier.layoutId("inputField"),
             value = state.value,
             onValueChange = { state.value = it },
@@ -316,11 +319,12 @@ private fun HintEditText(hintText: @Composable () -> Unit) {
 }
 
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 private fun CustomCursorTextField(cursor: @Composable () -> Unit) {
     val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     val layoutResult = state<TextLayoutResult?> { null }
     Layout({
-        CoreTextField(
+        BaseTextField(
             modifier = Modifier.layoutId("inputField"),
             value = state.value,
             onValueChange = { state.value = it },
