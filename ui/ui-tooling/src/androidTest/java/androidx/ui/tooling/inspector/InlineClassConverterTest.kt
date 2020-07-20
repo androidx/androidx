@@ -59,20 +59,18 @@ class InlineClassConverterTest : ToolingTest() {
 
         val mapper = InlineClassConverter()
 
-        fun validate(function: String, caller: Group, parameterName: String, valueType: Class<*>) {
-            val callee = caller.children.first { it.position?.contains(function) == true }
-            val functionName = callee.position!!.substringBefore(" (")
+        fun validate(caller: Group, parameterName: String, valueType: Class<*>) {
             val parameter = caller.parameters.single { it.name == parameterName }
-            val value = mapper.castParameterValue(functionName, parameterName, parameter.value)
+            val value = mapper.castParameterValue(parameter.inlineClass, parameter.value)
             assertThat(value).isInstanceOf(valueType)
         }
 
-        validate("Surface", surface, "color", Color::class.java)
-        validate("Surface", surface, "elevation", Dp::class.java)
-        validate("Button", button, "backgroundColor", Color::class.java)
-        validate("Button", button, "elevation", Dp::class.java)
-        validate("Text", text, "color", Color::class.java)
-        validate("Text", text, "fontSize", TextUnit::class.java)
+        validate(surface, "color", Color::class.java)
+        validate(surface, "elevation", Dp::class.java)
+        validate(button, "backgroundColor", Color::class.java)
+        validate(button, "elevation", Dp::class.java)
+        validate(text, "color", Color::class.java)
+        validate(text, "fontSize", TextUnit::class.java)
     }
 
     private fun flatten(group: Group): Sequence<Group> =
