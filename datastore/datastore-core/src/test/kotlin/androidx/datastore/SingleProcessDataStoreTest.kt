@@ -139,7 +139,6 @@ class SingleProcessDataStoreTest {
                 it.inc()
             }
         }
-
         // Wait for the transform to begin.
         transformStarted.await()
 
@@ -242,6 +241,10 @@ class SingleProcessDataStoreTest {
         transform.cancel()
 
         assertThrows<CancellationException> { write.await() }
+
+        // Check that the datastore's scope is still active:
+
+        assertThat(store.updateData { it.inc().inc() }).isEqualTo(2)
     }
 
     @Test
