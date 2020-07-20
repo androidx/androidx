@@ -23,41 +23,31 @@ import androidx.ui.tooling.Group
 import androidx.ui.tooling.ParameterInformation
 import androidx.ui.tooling.R
 import androidx.ui.tooling.asTree
-import androidx.ui.tooling.position
 import androidx.ui.unit.Density
 import java.util.ArrayDeque
+import kotlin.math.absoluteValue
 
-/**
- * A pattern for matching Group position.
- *
- * The Group.position() extension method will return strings like:
- *    "androidx.compose.Composer-Ah7q.startExpr (Composer.kt:620)"
- *
- * From this format we would like to extract:
- * - The qualified function name: "androidx.compose.Composer.startExpr" (group 1)
- * - The inline differential part: "-Ah7q" (group 2)
- * - The file where it is found: "Composer.kt" (group 3)
- * - The line number where it was found: 620 (group 4)
- */
-private const val POSITION_REGEX = "([\\w\\\\.$]*?)(-\\w*)?\\s?\\(?([\\w.]+):(\\d+)\\)?"
-private const val POSITION_FUNCTION_NAME = 1
-private const val POSITION_INLINE_DIFF = 2
-private const val POSITION_FILENAME = 3
-private const val POSITION_LINE_NUMBER = 4
-private const val INVOKE_FUNCTION = ".invoke"
-private val positionRegEx = Regex(POSITION_REGEX)
-private val unwantedFunctions = mapOf(
-    "AndroidAmbients.kt" to "androidx.ui.core.",
-    "Ambient.kt" to "androidx.compose.",
-    "Ambients.kt" to "androidx.ui.core.",
-    "Composer.kt" to "androidx.compose.",
-    "Inspectable.kt" to "androidx.ui.tooling.",
-    "Layout.kt" to "androidx.ui.core.",
-    "SelectionContainer.kt" to "androidx.ui.core.selection.",
-    "Semantics.kt" to "androidx.ui.semantics.",
-    "Wrapper.kt" to "androidx.ui.core.",
-    "null" to ""
+private val unwantedPackages = setOf(
+    -1,
+    packageNameHash("androidx.ui.core"),
+    packageNameHash("androidx.compose"),
+    packageNameHash("androidx.ui.tooling"),
+    packageNameHash("androidx.ui.core.selection"),
+    packageNameHash("androidx.ui.semantics")
 )
+
+private val unwantedCalls = setOf(
+    "emit",
+    "Inspectable",
+    "Layout",
+    "Providers",
+    "ProvideTextStyle",
+    "SelectionContainer",
+    "SelectionLayout"
+)
+
+private fun packageNameHash(packageName: String) =
+    packageName.fold(0) { hash, char -> hash * 31 + char.toInt() }.absoluteValue
 
 /**
  * Generator of a tree for the Layout Inspector.
@@ -105,40 +95,9 @@ class LayoutInspectorTree {
         if (group.children.isEmpty()) {
             return emptyList()
         }
-        var first: MutableInspectorNode? = null
-        val groupIterator = group.children.iterator()
-        while (groupIterator.hasNext()) {
-            val node = convert(groupIterator.next())
-            if (node.name.isNotEmpty() || node.children.isNotEmpty() || node.id != 0L) {
-                if (first != null) {
-                    return convertTailEndOfChildren(groupIterator, first, node)
-                }
-                if (node.name.isNotEmpty()) {
-                    // Assume this represents the Composable node that group is calling.
-                    addParameters(group.parameters, node)
-                    parseCallLocation(group, node)
-                    if (unwantedGroup(node)) {
-                        markUnwanted(node)
-                    }
-                }
-                first = node
-            } else {
-                release(node)
-            }
-        }
-        return listOfNotNull(first)
-    }
-
-    private fun convertTailEndOfChildren(
-        groupIterator: Iterator<Group>,
-        first: MutableInspectorNode?,
-        second: MutableInspectorNode
-    ): List<MutableInspectorNode> {
         val result = mutableListOf<MutableInspectorNode>()
-        first?.let { result.add(it) }
-        result.add(second)
-        while (groupIterator.hasNext()) {
-            val node = convert(groupIterator.next())
+        for (child in group.children) {
+            val node = convert(child)
             if (node.name.isNotEmpty() || node.children.isNotEmpty() || node.id != 0L) {
                 result.add(node)
             } else {
@@ -180,9 +139,10 @@ class LayoutInspectorTree {
     private fun parse(group: Group): MutableInspectorNode {
         val node = newNode()
         node.id = getRenderNode(group)
-        if (!parseCallLocation(group, node)) {
+        if (!parseCallLocation(group, node) && group.name.isNullOrEmpty()) {
             return markUnwanted(node)
         }
+        group.name?.let { node.name = it }
         if (unwantedGroup(node)) {
             return markUnwanted(node)
         }
@@ -194,9 +154,7 @@ class LayoutInspectorTree {
         if (node.height <= 0 || node.width <= 0) {
             return markUnwanted(node)
         }
-        if (!isLambda(node)) {
-            node.name = node.functionName.substringAfterLast(".")
-        }
+        addParameters(group.parameters, node)
         return node
     }
 
@@ -206,17 +164,13 @@ class LayoutInspectorTree {
     }
 
     private fun parseCallLocation(group: Group, node: MutableInspectorNode): Boolean {
-        val position = group.position ?: return false
-        val matcher = positionRegEx.matchEntire(position) ?: return false
-        val functionName = matcher.groups[POSITION_FUNCTION_NAME]?.value ?: return false
-        val inlineDiff = matcher.groups[POSITION_INLINE_DIFF]?.value ?: ""
-        val fileName = matcher.groups[POSITION_FILENAME]?.value ?: return false
-        val lineNumber = matcher.groups[POSITION_LINE_NUMBER]?.value?.toIntOrNull() ?: return false
-        node.functionName = functionName
-        node.qualifiedFunctionName = "$functionName$inlineDiff"
+        val location = group.location ?: return false
+        val fileName = location.sourceFile ?: return false
         node.fileName = fileName
-        node.lineNumber = lineNumber
-        node.hasInlineParameters = inlineDiff.isNotEmpty()
+        node.packageHash = location.packageHash
+        node.lineNumber = location.lineNumber
+        node.offset = location.offset
+        node.length = location.length
         return true
     }
 
@@ -231,29 +185,21 @@ class LayoutInspectorTree {
         parameters.forEach { addParameter(it, node) }
 
     private fun addParameter(parameter: ParameterInformation, node: MutableInspectorNode) {
-        val castedValue = castValue(parameter, node) ?: return
+        val castedValue = castValue(parameter) ?: return
         parameterFactory.create(node, parameter.name, castedValue)?.let { node.parameters.add(it) }
     }
 
-    private fun castValue(parameter: ParameterInformation, node: MutableInspectorNode): Any? {
+    private fun castValue(parameter: ParameterInformation): Any? {
         val value = parameter.value ?: return null
-        if (!node.hasInlineParameters) {
-            return value
-        }
-        val functionName = node.qualifiedFunctionName
-        return inlineClassConverter.castParameterValue(functionName, parameter.name, value)
+        if (parameter.inlineClass == null) return value
+        return inlineClassConverter.castParameterValue(parameter.inlineClass, value)
     }
-
-    private fun isLambda(node: MutableInspectorNode) =
-        node.functionName.endsWith(INVOKE_FUNCTION)
 
     private fun isRenderNodeId(node: MutableInspectorNode) =
-        node.id != 0L && node.functionName.isEmpty()
+        node.id != 0L
 
-    private fun unwantedGroup(node: MutableInspectorNode): Boolean {
-        val unwantedFunctionPrefix: String = unwantedFunctions[node.fileName] ?: return false
-        return node.functionName.startsWith(unwantedFunctionPrefix)
-    }
+    private fun unwantedGroup(node: MutableInspectorNode): Boolean =
+        (node.packageHash in unwantedPackages && node.name in unwantedCalls)
 
     private fun newNode(): MutableInspectorNode {
         return if (cache.isNotEmpty()) cache.pop() else MutableInspectorNode()
