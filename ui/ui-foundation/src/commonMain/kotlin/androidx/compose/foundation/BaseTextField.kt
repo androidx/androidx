@@ -28,7 +28,7 @@ import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.animation.animatedColor
+import androidx.compose.animation.animatedColor
 import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.Modifier

@@ -63,7 +63,7 @@ private class TwoWayConverterImpl<T, V : AnimationVector>(
  * state-based animation.  Each property (to be animated) needs to be associated with a [PropKey] of
  * the type of the property. For example, this creates an alpha property:
  * `val alpha = FloatPropKey()`. [PropKey]s for common data types are
- * provided out of the box: such as [androidx.ui.animation.DpPropKey],
+ * provided out of the box: such as [androidx.compose.animation.DpPropKey],
  * etc. To create a custom [PropKey] of type [T], a
  * [typeConverter] needs to be supplied to define how the animated data type can be converted to
  * and from an [AnimationVector], so that animations can support multi-dimensional data types.

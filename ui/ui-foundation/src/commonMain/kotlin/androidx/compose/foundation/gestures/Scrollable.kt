@@ -27,7 +27,7 @@ import androidx.compose.Composable
 import androidx.compose.mutableStateOf
 import androidx.compose.onDispose
 import androidx.compose.remember
-import androidx.ui.animation.asDisposableClock
+import androidx.compose.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Direction
 import androidx.ui.core.Modifier

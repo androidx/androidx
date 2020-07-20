@@ -28,7 +28,7 @@ import androidx.annotation.FloatRange
 import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.compose.state
-import androidx.ui.animation.asDisposableClock
+import androidx.compose.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed

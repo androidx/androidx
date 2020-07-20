@@ -20,8 +20,8 @@ import android.util.Log
 import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.TransitionAnimation
 import androidx.compose.animation.core.getStates
-import androidx.ui.animation.tooling.ComposeAnimation
-import androidx.ui.animation.tooling.ComposeAnimationType
+import androidx.compose.animation.tooling.ComposeAnimation
+import androidx.compose.animation.tooling.ComposeAnimationType
 
 // TODO(b/160126628): support other animation types, e.g. AnimatedValue
 /**

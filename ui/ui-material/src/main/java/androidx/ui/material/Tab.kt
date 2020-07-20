@@ -28,9 +28,9 @@ import androidx.compose.getValue
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.DpPropKey
-import androidx.ui.animation.transition
+import androidx.compose.animation.ColorPropKey
+import androidx.compose.animation.DpPropKey
+import androidx.compose.animation.transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityAmbient

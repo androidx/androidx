@@ -16,8 +16,8 @@
 
 package androidx.ui.test
 
-import androidx.ui.animation.transition
-import androidx.ui.animation.transitionsEnabled
+import androidx.compose.animation.transition
+import androidx.compose.animation.transitionsEnabled
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement

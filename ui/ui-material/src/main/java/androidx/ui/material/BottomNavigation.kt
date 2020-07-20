@@ -23,7 +23,7 @@ import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.emptyContent
-import androidx.ui.animation.animate
+import androidx.compose.animation.animate
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.MeasureScope

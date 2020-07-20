@@ -20,7 +20,7 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.ui.animation.animatedFloat
+import androidx.compose.animation.animatedFloat
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon

@@ -25,7 +25,7 @@ import androidx.compose.animation.core.SpringSpec
 import androidx.compose.Composable
 import androidx.compose.onDispose
 import androidx.compose.remember
-import androidx.ui.animation.asDisposableClock
+import androidx.compose.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed

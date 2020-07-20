@@ -25,7 +25,7 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.annotation.IntRange
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.ui.animation.asDisposableClock
+import androidx.compose.animation.asDisposableClock
 import androidx.ui.core.Alignment
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.DensityAmbient

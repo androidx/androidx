@@ -27,8 +27,8 @@ import androidx.compose.remember
 import androidx.compose.mutableStateListOf
 import androidx.compose.state
 import androidx.compose.structuralEqualityPolicy
-import androidx.ui.animation.AnimatedFloatModel
-import androidx.ui.animation.asDisposableClock
+import androidx.compose.animation.AnimatedFloatModel
+import androidx.compose.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.ContentDrawScope
 import androidx.compose.foundation.Indication

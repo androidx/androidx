@@ -28,7 +28,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
-import androidx.ui.animation.OffsetPropKey
+import androidx.compose.animation.OffsetPropKey
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color

@@ -25,8 +25,8 @@ import androidx.compose.animation.core.SeekableAnimation
 import androidx.compose.animation.core.TransitionAnimation
 import androidx.compose.animation.core.createSeekableAnimation
 import androidx.annotation.VisibleForTesting
-import androidx.ui.animation.tooling.ComposeAnimation
-import androidx.ui.animation.tooling.ComposeAnimationType
+import androidx.compose.animation.tooling.ComposeAnimation
+import androidx.compose.animation.tooling.ComposeAnimationType
 
 /**
  * [AnimationClockObservable] used to control animations in the context of Compose Previews. This

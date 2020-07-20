@@ -170,8 +170,8 @@ fun <T> snap(delayMillis: Int = 0): AnimationSpec<T> = SnapSpec(delayMillis)
 /**
  * [TransitionDefinition] contains all the animation related configurations that will be used in
  * a state-based transition. It holds a set of [TransitionState]s and an optional set of
- * [TransitionSpec]s. It can be used in [android.ui.animation.transition] to create a state-based
- * animation in Compose.
+ * [TransitionSpec]s. It can be used in [androidx.compose.animation.transition] to create a
+ * state-based animation in Compose.
  *
  * Each [TransitionState] specifies how the UI should look in terms of values
  * associated with properties that differentiates the UI from one conceptual state to anther. Each
@@ -220,10 +220,10 @@ fun <T> snap(delayMillis: Int = 0): AnimationSpec<T> = SnapSpec(delayMillis)
  *
  * @sample androidx.compose.animation.core.samples.TransitionDefSample
  *
- * Once a [TransitionDefinition] is created, [androidx.ui.animation.transition] composable can take
+ * Once a [TransitionDefinition] is created, [androidx.compose.animation.transition] composable can take
  * it as an input and create a state-based transition in compose.
  *
- * @see [androidx.ui.animation.transition]
+ * @see [androidx.compose.animation.transition]
  */
 class TransitionDefinition<T> {
     internal val states: MutableMap<T, StateImpl<T>> = mutableMapOf()

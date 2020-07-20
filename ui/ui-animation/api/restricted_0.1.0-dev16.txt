@@ -1,5 +1,5 @@
 // Signature format: 3.0
-package androidx.ui.animation {
+package androidx.compose.animation {
 
   @androidx.compose.Stable public final class AnimatedFloatModel extends androidx.compose.animation.core.AnimatedFloat {
     ctor public AnimatedFloatModel(float initialValue, androidx.compose.animation.core.AnimationClockObservable clock, float visibilityThreshold);
@@ -47,7 +47,7 @@ package androidx.ui.animation {
   }
 
   public final class DisposableAnimationClockKt {
-    method @androidx.compose.Composable public static androidx.ui.animation.DisposableAnimationClock asDisposableClock(androidx.compose.animation.core.AnimationClockObservable);
+    method @androidx.compose.Composable public static androidx.compose.animation.DisposableAnimationClock asDisposableClock(androidx.compose.animation.core.AnimationClockObservable);
   }
 
   public final class DpPropKey implements androidx.compose.animation.core.PropKey<androidx.ui.unit.Dp,androidx.compose.animation.core.AnimationVector1D> {
@@ -100,7 +100,7 @@ package androidx.ui.animation {
   }
 
   public final class SingleValueAnimationKt {
-    method @androidx.compose.Composable public static float animate(float target, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animSpec = androidx.ui.animation.SingleValueAnimationKt.defaultAnimation, float visibilityThreshold = 0.01f, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>? endListener = null);
+    method @androidx.compose.Composable public static float animate(float target, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animSpec = androidx.compose.animation.SingleValueAnimationKt.defaultAnimation, float visibilityThreshold = 0.01f, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>? endListener = null);
     method @androidx.compose.Composable public static androidx.ui.unit.Bounds animate(androidx.ui.unit.Bounds target, androidx.compose.animation.core.AnimationSpec<androidx.ui.unit.Bounds> animSpec = remember({ 
     return <init>(BoundsToVectorConverter.invoke(DpVisibilityThreshold4D))
 }), kotlin.jvm.functions.Function1<? super androidx.ui.unit.Bounds,kotlin.Unit>? endListener = null);

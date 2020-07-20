@@ -26,8 +26,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.remember
-import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.transition
+import androidx.compose.animation.ColorPropKey
+import androidx.compose.animation.transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Canvas

@@ -33,9 +33,9 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.stateFor
 import androidx.compose.structuralEqualityPolicy
-import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.DpPropKey
-import androidx.ui.animation.transition
+import androidx.compose.animation.ColorPropKey
+import androidx.compose.animation.DpPropKey
+import androidx.compose.animation.transition
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection

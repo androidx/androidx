@@ -30,7 +30,7 @@ import androidx.compose.mutableStateOf
 import androidx.compose.snapshots.Snapshot
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.MediumTest
-import androidx.ui.animation.transition
+import androidx.compose.animation.transition
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
