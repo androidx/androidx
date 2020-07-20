@@ -28,4 +28,6 @@
     <string name="default_error_msg" msgid="4776854077120974966">"خطای ناشناس"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"کاربر احراز هویت را لغو کرد."</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"استفاده از گذرواژه"</string>
+    <!-- no translation found for generic_error_no_device_credential (3791785319221634505) -->
+    <skip />
 </resources>
