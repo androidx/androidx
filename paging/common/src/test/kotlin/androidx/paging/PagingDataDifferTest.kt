@@ -22,9 +22,9 @@ import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
+import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collect
@@ -34,11 +34,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runBlockingTest
-import kotlinx.coroutines.test.setMain
-import org.junit.After
-import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -53,17 +50,10 @@ import kotlin.test.assertTrue
 class PagingDataDifferTest {
     private val testScope = TestCoroutineScope()
 
-    @Before
-    fun setup() {
-        Dispatchers.setMain(
-            testScope.coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
-        )
-    }
-
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
-    }
+    @get:Rule
+    val dispatcherRule = MainDispatcherRule(
+        testScope.coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
+    )
 
     @Test
     fun collectFrom_static() = testScope.runBlockingTest {
