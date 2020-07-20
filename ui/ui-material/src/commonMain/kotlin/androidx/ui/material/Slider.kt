@@ -16,13 +16,11 @@
 
 package androidx.ui.material
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.core.AnimatedFloat
 import androidx.compose.animation.core.AnimationClockObservable
 import androidx.compose.animation.core.AnimationEndReason
 import androidx.compose.animation.core.TargetAnimation
 import androidx.compose.animation.core.TweenSpec
-import androidx.annotation.IntRange
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.animation.asDisposableClock
@@ -66,7 +64,9 @@ import androidx.ui.semantics.scrollBackward
 import androidx.ui.semantics.scrollForward
 import androidx.ui.semantics.setProgress
 import androidx.ui.unit.dp
+import androidx.ui.util.format
 import androidx.ui.util.lerp
+import androidx.ui.util.annotation.IntRange
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -428,7 +428,7 @@ private class SliderPosition(
     internal var anchorsPx: List<Float> = emptyList()
         private set
 
-    @SuppressLint("UnnecessaryLambdaCreation")
+    @Suppress("UnnecessaryLambdaCreation")
     internal val holder =
         CallbackBasedAnimatedFloat(
             scale(startValue, endValue, initial, startPx, endPx),

@@ -18,8 +18,8 @@ package androidx.ui.material.icons.generator.tasks
 
 import androidx.ui.material.icons.generator.CoreIcons
 import androidx.ui.material.icons.generator.IconWriter
-import com.android.build.gradle.api.BaseVariant
 import org.gradle.api.Project
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 /**
  * Task responsible for converting core icons from xml to a programmatic representation.
@@ -30,15 +30,14 @@ open class CoreIconGenerationTask : IconGenerationTask() {
 
     companion object {
         /**
-         * Registers [CoreIconGenerationTask] in [project] for [variant].
+         * Registers [CoreIconGenerationTask] in [project].
          */
-        fun register(project: Project, variant: BaseVariant) {
+        fun register(project: Project) {
             val task = project.createGenerationTask(
                 "generateCoreIcons",
-                variant,
                 CoreIconGenerationTask::class.java
             )
-            variant.registerIconGenerationTask(project, task)
+            registerIconGenerationTask(project, task)
         }
     }
 }
@@ -52,28 +51,25 @@ open class ExtendedIconGenerationTask : IconGenerationTask() {
 
     companion object {
         /**
-         * Registers [ExtendedIconGenerationTask] in [project] for [variant].
+         * Registers [ExtendedIconGenerationTask] in [project].
          */
-        fun register(project: Project, variant: BaseVariant) {
+        fun register(project: Project) {
             val task = project.createGenerationTask(
                 "generateExtendedIcons",
-                variant,
                 ExtendedIconGenerationTask::class.java
             )
-            variant.registerIconGenerationTask(project, task)
+            registerIconGenerationTask(project, task)
         }
     }
 }
 
 /**
- * Helper to register [task] as the java source generating task for [project].
+ * Helper to register [task] as the Kotlin source generating task for [project].
  */
-private fun BaseVariant.registerIconGenerationTask(
+private fun registerIconGenerationTask(
     project: Project,
     task: IconGenerationTask
 ) {
-    registerJavaGeneratingTask(task, task.generatedSrcMainDirectory)
-    // TODO: b/144249620 - fixed in AGP 4.0.0 alpha 4 +
-    javaCompileProvider.configure { it.enabled = false }
-    project.tasks.named("runErrorProne").configure { it.enabled = false }
+    val sourceSet = project.getMultiplatformSourceSet(KotlinSourceSet.COMMON_MAIN_SOURCE_SET_NAME)
+    sourceSet.kotlin.srcDir(project.files(task.generatedSrcMainDirectory).builtBy(task))
 }

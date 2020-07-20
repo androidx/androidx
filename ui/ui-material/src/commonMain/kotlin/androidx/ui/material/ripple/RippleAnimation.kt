@@ -158,7 +158,7 @@ private object RippleTransition {
         endRadius: Float,
         startCenter: Offset,
         endCenter: Offset
-    ) = transitionDefinition {
+    ) = transitionDefinition<State> {
         state(State.Initial) {
             this[Alpha] = 0f
             this[Radius] = startRadius

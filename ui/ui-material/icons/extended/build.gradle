@@ -26,29 +26,37 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXUiPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("kotlin-multiplatform")
 }
 
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
-    implementation(KOTLIN_STDLIB)
-
-    api project(":compose:material:material-icons-core")
-    implementation project(":compose:runtime:runtime")
-
-    androidTestImplementation project(":compose:foundation:foundation")
-    androidTestImplementation project(":compose:foundation:foundation-layout")
-    androidTestImplementation project(":compose:ui:ui")
-    androidTestImplementation project(":ui:ui-test")
-    androidTestImplementation project(":test-screenshot")
-
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(KOTLIN_REFLECT)
-    androidTestImplementation(TRUTH)
 }
 
+kotlin {
+    android()
+    sourceSets {
+        commonMain.dependencies {
+            implementation(KOTLIN_STDLIB_COMMON)
+            api project(":compose:material:material-icons-core")
+            implementation project(":compose:runtime:runtime")
+        }
+
+        androidTest.dependencies {
+            implementation project(":compose:foundation:foundation")
+            implementation project(":compose:foundation:foundation-layout")
+            implementation project(":compose:ui:ui")
+            implementation project(":ui:ui-test")
+            implementation project(":test-screenshot")
+
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(JUNIT)
+            implementation(KOTLIN_REFLECT)
+            implementation(TRUTH)
+        }
+    }
+}
 android.buildTypes.all {
     // Jacoco hangs intermittently due to the large number of files
     testCoverageEnabled = false

@@ -26,16 +26,24 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXUiPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("kotlin-multiplatform")
 }
 
-dependencies {
-    implementation(KOTLIN_STDLIB)
+kotlin {
+    android()
+    sourceSets {
+        commonMain.dependencies {
+            implementation(KOTLIN_STDLIB_COMMON)
+            api project(":compose:ui:ui")
+        }
 
-    api project(":compose:ui:ui")
+        androidMain.dependencies {
+            implementation(KOTLIN_STDLIB)
+        }
+    }
 }
 
-IconGenerationTask.registerCoreIconProject(project, android)
+IconGenerationTask.registerCoreIconProject(project)
 
 androidx {
     name = "AndroidX Core Material Icons"

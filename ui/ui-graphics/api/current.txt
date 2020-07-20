@@ -111,6 +111,10 @@ package androidx.ui.graphics {
     method public static androidx.ui.graphics.Path asComposePath(android.graphics.Path);
   }
 
+  public final class AndroidPathMeasureKt {
+    method public static androidx.ui.graphics.PathMeasure PathMeasure();
+  }
+
   public final class AndroidShaderKt {
   }
 
@@ -518,6 +522,13 @@ package androidx.ui.graphics {
     method public static androidx.ui.graphics.PathFillType[] values();
     enum_constant public static final androidx.ui.graphics.PathFillType evenOdd;
     enum_constant public static final androidx.ui.graphics.PathFillType nonZero;
+  }
+
+  public interface PathMeasure {
+    method public float getLength();
+    method public boolean getSegment(float startDistance, float stopDistance, androidx.ui.graphics.Path path, boolean startWithMoveTo);
+    method public void setPath(androidx.ui.graphics.Path path, boolean forceClosed);
+    property public abstract float length;
   }
 
   public enum PathOperation {

@@ -19,7 +19,6 @@ package androidx.ui.material
 import androidx.compose.animation.core.VectorizedAnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.TweenSpec
-import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.emptyContent
@@ -49,6 +48,7 @@ import androidx.compose.foundation.text.LastBaseline
 import androidx.compose.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
+import androidx.ui.util.annotation.FloatRange
 import kotlin.math.max
 import kotlin.math.roundToInt
 

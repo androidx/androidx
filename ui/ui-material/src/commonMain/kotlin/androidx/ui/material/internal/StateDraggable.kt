@@ -24,7 +24,6 @@ import androidx.compose.animation.core.ExponentialDecay
 import androidx.compose.animation.core.OnAnimationEnd
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.TargetAnimation
-import androidx.annotation.FloatRange
 import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.compose.state
@@ -39,6 +38,7 @@ import androidx.compose.foundation.animation.fling
 import androidx.compose.foundation.gestures.draggable
 import androidx.ui.util.fastFirstOrNull
 import androidx.ui.util.lerp
+import androidx.ui.util.annotation.FloatRange
 import kotlin.math.sign
 
 /**
