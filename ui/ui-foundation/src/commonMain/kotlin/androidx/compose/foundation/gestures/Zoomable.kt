@@ -19,56 +19,73 @@ package androidx.compose.foundation.gestures
 import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationEndReason
+import androidx.animation.AnimationSpec
 import androidx.animation.Spring
 import androidx.animation.SpringSpec
 import androidx.compose.Composable
+import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Modifier
+import androidx.ui.core.composed
 import androidx.ui.core.gesture.ScaleObserver
 import androidx.ui.core.gesture.scaleGestureFilter
 
 /**
- * Create [ZoomableState] with default [AnimationClockObservable].
+ * Create and remember [ZoomableController] with default [AnimationClockObservable].
  *
  * @param onZoomDelta callback to be invoked when pinch/smooth zooming occurs. The callback
  * receives the delta as the ratio of the new size compared to the old. Callers should update
  * their state and UI in this callback.
  */
 @Composable
-fun ZoomableState(onZoomDelta: (Float) -> Unit): ZoomableState {
+fun rememberZoomableController(onZoomDelta: (Float) -> Unit): ZoomableController {
     val clocks = AnimationClockAmbient.current.asDisposableClock()
-    return remember(clocks) { ZoomableState(onZoomDelta, clocks) }
+    return remember(clocks) { ZoomableController(clocks, onZoomDelta) }
 }
 
 /**
- * State of the [zoomable] composable modifier. Provides smooth scaling capabilities.
+ * Controller to control [zoomable] modifier with. Provides smooth scaling capabilities.
  *
+ * @param animationClock clock observable to run animation on. Consider querying
+ * [AnimationClockAmbient] to get current composition value
  * @param onZoomDelta callback to be invoked when pinch/smooth zooming occurs. The callback
  * receives the delta as the ratio of the new size compared to the old. Callers should update
  * their state and UI in this callback.
- * @param animationClock clock observable to run animation on. Consider querying
- * [AnimationClockAmbient] to get current composition value
  */
-class ZoomableState(val onZoomDelta: (Float) -> Unit, animationClock: AnimationClockObservable) {
+class ZoomableController(
+    animationClock: AnimationClockObservable,
+    val onZoomDelta: (Float) -> Unit
+) {
 
     /**
      * Smooth scale by a ratio of [value] over the current size.
      *
      * @param value ratio over the current size by which to scale
+     * @param spec [AnimationSpec] to be used for smoothScale animation
      * @pram [onEnd] callback invoked when the smooth scaling has ended
      */
     fun smoothScaleBy(
         value: Float,
+        spec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
         onEnd: ((endReason: AnimationEndReason, finishValue: Float) -> Unit)? = null
     ) {
         val to = animatedFloat.value * value
         animatedFloat.animateTo(
             to,
             onEnd = onEnd,
-            anim = SpringSpec(stiffness = Spring.StiffnessLow)
+            anim = spec
         )
+    }
+
+    /**
+     * Stop any ongoing animation or smooth scaling for this controller
+     *
+     * Call this to stop receiving scrollable deltas in [onZoomDelta]
+     */
+    fun stopAnimation() {
+        animatedFloat.stop()
     }
 
     internal fun onScale(scaleFactor: Float) = onZoomDelta(scaleFactor)
@@ -79,27 +96,56 @@ class ZoomableState(val onZoomDelta: (Float) -> Unit, animationClock: AnimationC
 /**
  * Enable zooming of the modified UI element.
  *
- * [ZoomableState.onZoomDelta] will be invoked with the change in proportion of the UI element's
+ * [ZoomableController.onZoomDelta] will be invoked with the change in proportion of the UI element's
  * size at each change in either ratio of the gesture or smooth scaling. Callers should update
  * their state and UI in this callback.
  *
  * @sample androidx.compose.foundation.samples.ZoomableSample
  *
- * @param zoomableState [ZoomableState] object that holds the internal state of this zoomable,
+ * @param controller [ZoomableController] object that holds the internal state of this zoomable,
  * and provides smooth scaling capabilities.
+ * @param enabled whether zooming by gestures is enabled or not
+ * @param onZoomStarted callback to be invoked when zoom has started.
  * @param onZoomStopped callback to be invoked when zoom has stopped.
  */
-@Composable
-fun Modifier.zoomable(zoomableState: ZoomableState, onZoomStopped: (() -> Unit)? = null): Modifier {
-    return scaleGestureFilter(
-            scaleObserver = object : ScaleObserver {
-                override fun onScale(scaleFactor: Float) = zoomableState.onScale(scaleFactor)
+fun Modifier.zoomable(
+    controller: ZoomableController,
+    enabled: Boolean = true,
+    onZoomStarted: (() -> Unit)? = null,
+    onZoomStopped: (() -> Unit)? = null
+) = composed {
+    onDispose {
+        controller.stopAnimation()
+    }
+    scaleGestureFilter(
+        scaleObserver = object : ScaleObserver {
+            override fun onScale(scaleFactor: Float) {
+                if (enabled) {
+                    controller.stopAnimation()
+                    controller.onScale(scaleFactor)
+                }
+            }
 
-                override fun onStop() {
+            override fun onStop() {
+                if (enabled) {
                     onZoomStopped?.invoke()
                 }
             }
-        )
+
+            override fun onCancel() {
+                if (enabled) {
+                    onZoomStopped?.invoke()
+                }
+            }
+
+            override fun onStart() {
+                if (enabled) {
+                    controller.stopAnimation()
+                    onZoomStarted?.invoke()
+                }
+            }
+        }
+    )
 }
 
 /**
@@ -111,16 +157,26 @@ fun Modifier.zoomable(zoomableState: ZoomableState, onZoomStopped: (() -> Unit)?
  *
  * @sample androidx.compose.foundation.samples.ZoomableSample
  *
+ * @param enabled whether zooming by gestures is enabled or not
+ * @param onZoomStarted callback to be invoked when zoom has started.
  * @param onZoomStopped callback to be invoked when zoom has stopped.
  * @param onZoomDelta callback to be invoked when pinch/smooth zooming occurs. The callback
  * receives the delta as the ratio of the new size compared to the old. Callers should update
  * their state and UI in this callback.
  */
-@Composable
 fun Modifier.zoomable(
+    enabled: Boolean = true,
+    onZoomStarted: (() -> Unit)? = null,
     onZoomStopped: (() -> Unit)? = null,
     onZoomDelta: (Float) -> Unit
-) = Modifier.zoomable(ZoomableState(onZoomDelta), onZoomStopped)
+) = composed {
+    Modifier.zoomable(
+        controller = rememberZoomableController(onZoomDelta),
+        enabled = enabled,
+        onZoomStarted = onZoomStarted,
+        onZoomStopped = onZoomStopped
+    )
+}
 
 private class DeltaAnimatedScale(
     initial: Float,

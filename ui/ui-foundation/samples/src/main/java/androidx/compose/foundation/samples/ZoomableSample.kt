@@ -18,6 +18,15 @@ package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ContentGravity
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.drawBorder
+import androidx.compose.foundation.gestures.rememberZoomableController
+import androidx.compose.foundation.gestures.zoomable
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
@@ -25,16 +34,7 @@ import androidx.compose.structuralEqualityPolicy
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.drawLayer
-import androidx.compose.foundation.Box
-import androidx.compose.foundation.ContentGravity
-import androidx.compose.foundation.Text
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.drawBorder
-import androidx.compose.foundation.gestures.ZoomableState
-import androidx.compose.foundation.gestures.zoomable
 import androidx.ui.graphics.Color
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 
@@ -46,14 +46,13 @@ fun ZoomableSample() {
         backgroundColor = Color.LightGray
     ) {
         var scale by state(structuralEqualityPolicy()) { 1f }
-        val zoomableState = ZoomableState { scale *= it }
-
+        val zoomableController = rememberZoomableController { scale *= it }
         Box(
             Modifier
-                .zoomable(zoomableState)
+                .zoomable(zoomableController)
                 .clickable(
                     indication = null,
-                    onDoubleClick = { zoomableState.smoothScaleBy(4f) },
+                    onDoubleClick = { zoomableController.smoothScaleBy(4f) },
                     onClick = {}
                 )
                 .fillMaxSize()
