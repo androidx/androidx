@@ -51,4 +51,10 @@ interface ComposeAnimation {
     fun getStates(): Set<Any> {
         throw UnsupportedOperationException("Only available when getType() is TRANSITION_ANIMATION")
     }
+
+    /**
+     * Returns the animation label, which can be used to represent it as text in Android Studio.
+     * Null if the label is not set or if it can't be inferred from the animation states.
+     */
+    fun getLabel(): String?
 }
