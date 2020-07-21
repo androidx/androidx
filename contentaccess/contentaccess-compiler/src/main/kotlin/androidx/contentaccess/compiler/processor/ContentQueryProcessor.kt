@@ -89,7 +89,7 @@ class ContentQueryProcessor(
                     errorReporter.reportError(badlyFormulatedOrderBy(orderByMember), method)
                 }
             }
-            contentQueryAnnotation.orderBy.joinToString(" ")
+            contentQueryAnnotation.orderBy.joinToString(", ")
         } else {
             ""
         }

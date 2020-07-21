@@ -31,9 +31,7 @@ android {
             shrinkResources true
         }
     }
-    defaultConfig {
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
+
 }
 
 dependencies {
