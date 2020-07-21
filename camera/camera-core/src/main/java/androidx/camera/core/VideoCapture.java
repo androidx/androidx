@@ -1388,7 +1388,7 @@ public class VideoCapture extends UseCase {
         @Override
         public Builder setDefaultResolution(@NonNull Size resolution) {
             getMutableConfig().insertOption(OPTION_DEFAULT_RESOLUTION, resolution);
-            return null;
+            return this;
         }
 
         /** @hide */
