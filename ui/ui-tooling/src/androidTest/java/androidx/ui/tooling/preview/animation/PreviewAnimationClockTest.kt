@@ -198,6 +198,20 @@ class PreviewAnimationClockTest {
         assertEquals(1000, testClock.getMaxDuration())
     }
 
+    @Test
+    fun animationLabelIsSetExplicitlyOrImplicitly() {
+        TransitionAnimation(rotationColorDef, testClock, label = "MyRot").toState(RotationColor.RC2)
+        val rotationAnimation = testClock.observersToAnimations.values.single {
+            it.getStates().contains(RotationColor.RC1)
+        }
+        // Label explicitly set
+        assertEquals("MyRot", rotationAnimation.getLabel())
+
+        val offsetAnimation = setUpOffsetScenario()
+        // Label is not explicitly set, but inferred from the state type
+        assertEquals("Offset", offsetAnimation.getLabel())
+    }
+
     // Sets up a transition animation scenario, going from RotationColor.RC1 to RotationColor.RC3.
     private fun setUpRotationColorScenario(): ComposeAnimation {
         TransitionAnimation(rotationColorDef, testClock).toState(RotationColor.RC2)

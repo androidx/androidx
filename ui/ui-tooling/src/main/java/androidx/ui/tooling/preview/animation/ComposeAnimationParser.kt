@@ -32,11 +32,15 @@ import androidx.compose.animation.tooling.ComposeAnimationType
 internal fun TransitionAnimation<*>.TransitionAnimationClockObserver.parse(): ComposeAnimation {
     Log.d("ComposeAnimationParser", "TransitionAnimation subscribed")
     animation.monotonic = false
+    val states = animation.getStates().filterNotNull().toSet()
     return object : ComposeAnimation {
         override fun getType() = ComposeAnimationType.TRANSITION_ANIMATION
 
         override fun getAnimation() = animation
 
-        override fun getStates() = animation.getStates().filterNotNull().toSet()
+        override fun getStates() = states
+
+        override fun getLabel() =
+            animation.label ?: states.firstOrNull()?.let { it::class.simpleName }
     }
 }
