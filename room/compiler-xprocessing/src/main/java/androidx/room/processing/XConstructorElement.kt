@@ -20,5 +20,6 @@ package androidx.room.processing
  * Represents a constructor of a class.
  *
  * @see XMethodElement
+ * @see XExecutableElement
  */
 interface XConstructorElement : XExecutableElement

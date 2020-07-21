@@ -23,6 +23,9 @@ package androidx.room.processing
  * Enforcement is done in JavacType and JavacElement
  */
 internal interface XEquality {
+    /**
+     * The list of items that should participate in equality checks.
+     */
     val equalityItems: Array<out Any?>
 
     companion object {

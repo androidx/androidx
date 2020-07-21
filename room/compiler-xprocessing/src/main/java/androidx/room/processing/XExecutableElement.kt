@@ -16,8 +16,25 @@
 
 package androidx.room.processing
 
+/**
+ * Represents a method, constructor or initializer.
+ *
+ * @see [javax.lang.model.element.ExecutableElement]
+ */
 interface XExecutableElement : XElement {
-    override val enclosingElement: XElement
+    /**
+     * The [XTypeElement] that contains this method.
+     */
+    override val enclosingElement: XTypeElement
+
+    /**
+     * The list of parameters that should be passed into this method.
+     *
+     * @see [isVarArgs]
+     */
     val parameters: List<XVariableElement>
+    /**
+     * Returns true if this method receives a vararg parameter.
+     */
     fun isVarArgs(): Boolean
 }

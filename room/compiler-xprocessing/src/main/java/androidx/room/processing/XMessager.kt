@@ -18,6 +18,16 @@ package androidx.room.processing
 
 import javax.tools.Diagnostic
 
+/**
+ * Logging interface for the processor
+ */
 interface XMessager {
+    /**
+     * Prints the given [msg] to the logs while also associating it with the given [element].
+     *
+     * @param kind Kind of the message
+     * @param msg The actual message to report to the compiler
+     * @param element The element with whom the message should be associated with
+     */
     fun printMessage(kind: Diagnostic.Kind, msg: String, element: XElement? = null)
 }

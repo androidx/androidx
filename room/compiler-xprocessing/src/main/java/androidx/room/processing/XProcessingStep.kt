@@ -32,13 +32,28 @@ import kotlin.reflect.KClass
  * processing.
  */
 interface XProcessingStep {
+    /**
+     * The implementation of processing logic for the step. It is guaranteed that the keys in
+     * [elementsByAnnotation] will be a subset of the set returned by [annotations].
+     *
+     * @return the elements (a subset of the values of [elementsByAnnotation]) that this step
+     *     is unable to process, possibly until a later processing round. These elements will be
+     *     passed back to this step at the next round of processing.
+     */
     fun process(
         env: XProcessingEnv,
         elementsByAnnotation: Map<KClass<out Annotation>, List<XTypeElement>>
     ): Set<XTypeElement>
 
+    /**
+     * The set of annotations processed by this step.
+     */
     fun annotations(): Set<KClass<out Annotation>>
 
+    /**
+     * Wraps current [XProcessingStep] into an Auto Common
+     * [BasicAnnotationProcessor.ProcessingStep].
+     */
     fun asAutoCommonProcessor(
         env: XProcessingEnv
     ): BasicAnnotationProcessor.ProcessingStep {

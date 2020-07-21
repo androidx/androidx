@@ -22,28 +22,65 @@ import javax.annotation.processing.Filer
 import javax.annotation.processing.ProcessingEnvironment
 import kotlin.reflect.KClass
 
+/**
+ * API for a Processor that is either backed by Java's Annotation Processing API or KSP.
+ */
 interface XProcessingEnv {
 
+    /**
+     * The logger interface to log messages
+     */
     val messager: XMessager
 
+    /**
+     * List of options passed into the annotation processor
+     */
     val options: Map<String, String>
 
+    /**
+     * The API to generate files
+     */
     val filer: Filer
 
+    /**
+     * Looks for the [XTypeElement] with the given qualified name and returns `null` if it does not
+     * exist.
+     */
     fun findTypeElement(qName: String): XTypeElement?
 
+    /**
+     * Looks for the [XType] with the given qualified name and returns `null` if it does not exist.
+     */
     fun findType(qName: String): XType?
 
+    /**
+     * Returns the [XType] with the given qualified name or throws an exception if it does not
+     * exist.
+     */
     fun requireType(qName: String): XType = checkNotNull(findType(qName)) {
         "cannot find required type $qName"
     }
 
+    /**
+     * Returns the [XTypeElement] for the annotation that should be added to the generated code.
+     */
     fun findGeneratedAnnotation(): XTypeElement?
 
+    /**
+     * Returns an [XDeclaredType] for the given [type] element with the type arguments specified
+     * as in [types].
+     */
     fun getDeclaredType(type: XTypeElement, vararg types: XType): XDeclaredType
 
+    /**
+     * Return an [XArrayType] that has [type] as the [XArrayType.componentType].
+     */
     fun getArrayType(type: XType): XArrayType
 
+    /**
+     * Returns the [XTypeElement] with the given qualified name or throws an exception if it does
+     * not exist.
+     */
     fun requireTypeElement(qName: String): XTypeElement {
         return checkNotNull(findTypeElement(qName)) {
             "Cannot find required type element $qName"
@@ -67,11 +104,12 @@ interface XProcessingEnv {
 
     fun findTypeElement(klass: KClass<*>) = findTypeElement(klass.java.canonicalName!!)
 
-    fun getArrayType(typeName: TypeName) = getArrayType(
-        requireType(typeName)
-    )
+    fun getArrayType(typeName: TypeName) = getArrayType(requireType(typeName))
 
     companion object {
+        /**
+         * Creates a new [XProcessingEnv] implementation derived from the given Java [env].
+         */
         fun create(env: ProcessingEnvironment): XProcessingEnv = JavacProcessingEnv(env)
     }
 }
