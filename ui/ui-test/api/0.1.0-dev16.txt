@@ -374,7 +374,7 @@ package androidx.ui.test {
     method public static void waitForIdle();
   }
 
-  public interface TestAnimationClock extends androidx.animation.AnimationClockObservable {
+  public interface TestAnimationClock extends androidx.compose.animation.core.AnimationClockObservable {
     method public void advanceClock(long milliseconds);
     method public boolean isIdle();
     method public boolean isPaused();

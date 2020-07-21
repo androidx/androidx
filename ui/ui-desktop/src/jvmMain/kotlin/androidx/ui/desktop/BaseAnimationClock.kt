@@ -16,11 +16,11 @@
 
 package androidx.ui.desktop
 
-import androidx.animation.AnimationClockObservable
-import androidx.animation.AnimationClockObserver
+import androidx.compose.animation.core.AnimationClockObservable
+import androidx.compose.animation.core.AnimationClockObserver
 
 /**
- * Copy-pasted androidx.animation.BaseAnimationClock to make possible to use internal
+ * Copy-pasted androidx.compose.animation.core.BaseAnimationClock to make possible to use internal
  * dispatchTime.
  * TODO: Move DesktopAnimationClock to ui-animation-core when MPP is ready. Remove this base
  * class after that

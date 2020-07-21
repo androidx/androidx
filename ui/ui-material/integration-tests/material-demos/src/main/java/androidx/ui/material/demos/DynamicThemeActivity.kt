@@ -18,7 +18,7 @@ package androidx.ui.material.demos
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.animation.FastOutSlowInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.Composable
 import androidx.compose.MutableState
 import androidx.compose.mutableStateOf

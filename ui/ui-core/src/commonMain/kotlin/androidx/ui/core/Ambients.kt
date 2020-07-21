@@ -16,7 +16,7 @@
 
 package androidx.ui.core
 
-import androidx.animation.AnimationClockObservable
+import androidx.compose.animation.core.AnimationClockObservable
 import androidx.compose.ambientOf
 import androidx.compose.staticAmbientOf
 import androidx.ui.autofill.Autofill

@@ -17,8 +17,8 @@
 package androidx.ui.test.android
 
 import android.view.Choreographer
-import androidx.animation.AnimationClockObserver
-import androidx.animation.ManualAnimationClock
+import androidx.compose.animation.core.AnimationClockObserver
+import androidx.compose.animation.core.ManualAnimationClock
 import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.TestAnimationClock
 import androidx.ui.test.runOnUiThread

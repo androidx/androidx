@@ -17,15 +17,15 @@
 package androidx.ui.material
 
 import android.annotation.SuppressLint
-import androidx.animation.AnimatedFloat
-import androidx.animation.AnimationClockObservable
-import androidx.animation.AnimationEndReason
-import androidx.animation.TargetAnimation
-import androidx.animation.TweenSpec
+import androidx.compose.animation.core.AnimatedFloat
+import androidx.compose.animation.core.AnimationClockObservable
+import androidx.compose.animation.core.AnimationEndReason
+import androidx.compose.animation.core.TargetAnimation
+import androidx.compose.animation.core.TweenSpec
 import androidx.annotation.IntRange
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.ui.animation.asDisposableClock
+import androidx.compose.animation.asDisposableClock
 import androidx.ui.core.Alignment
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.DensityAmbient

@@ -17,11 +17,11 @@
 package androidx.ui.tooling.preview.animation
 
 import android.util.Log
-import androidx.animation.InternalAnimationApi
-import androidx.animation.TransitionAnimation
-import androidx.animation.getStates
-import androidx.ui.animation.tooling.ComposeAnimation
-import androidx.ui.animation.tooling.ComposeAnimationType
+import androidx.compose.animation.core.InternalAnimationApi
+import androidx.compose.animation.core.TransitionAnimation
+import androidx.compose.animation.core.getStates
+import androidx.compose.animation.tooling.ComposeAnimation
+import androidx.compose.animation.tooling.ComposeAnimationType
 
 // TODO(b/160126628): support other animation types, e.g. AnimatedValue
 /**

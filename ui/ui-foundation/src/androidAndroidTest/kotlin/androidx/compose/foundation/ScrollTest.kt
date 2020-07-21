@@ -17,8 +17,8 @@ package androidx.compose.foundation
 
 import android.os.Handler
 import android.os.Looper
-import androidx.animation.ExponentialDecay
-import androidx.animation.ManualAnimationClock
+import androidx.compose.animation.core.ExponentialDecay
+import androidx.compose.animation.core.ManualAnimationClock
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.compose.mutableStateOf

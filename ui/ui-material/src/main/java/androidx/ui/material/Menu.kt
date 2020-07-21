@@ -16,17 +16,17 @@
 
 package androidx.ui.material
 
-import androidx.animation.FloatPropKey
-import androidx.animation.LinearOutSlowInEasing
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
+import androidx.compose.animation.core.FloatPropKey
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.getValue
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.animation.transition
+import androidx.compose.animation.transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.LayoutDirection

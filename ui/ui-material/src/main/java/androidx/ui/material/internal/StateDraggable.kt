@@ -16,19 +16,19 @@
 
 package androidx.ui.material.internal
 
-import androidx.animation.AnimatedFloat
-import androidx.animation.AnimationClockObservable
-import androidx.animation.AnimationEndReason
-import androidx.animation.AnimationSpec
-import androidx.animation.ExponentialDecay
-import androidx.animation.OnAnimationEnd
-import androidx.animation.Spring
-import androidx.animation.TargetAnimation
+import androidx.compose.animation.core.AnimatedFloat
+import androidx.compose.animation.core.AnimationClockObservable
+import androidx.compose.animation.core.AnimationEndReason
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.ExponentialDecay
+import androidx.compose.animation.core.OnAnimationEnd
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.TargetAnimation
 import androidx.annotation.FloatRange
 import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.compose.state
-import androidx.ui.animation.asDisposableClock
+import androidx.compose.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed

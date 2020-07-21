@@ -16,8 +16,9 @@
 
 package androidx.ui.test
 
-import androidx.animation.AnimationClockObservable
-import androidx.animation.rootAnimationClockFactory
+import androidx.compose.animation.core.AnimationClockObservable
+import androidx.compose.animation.core.InternalAnimationApi
+import androidx.compose.animation.core.rootAnimationClockFactory
 import androidx.test.espresso.IdlingResource
 import androidx.ui.test.android.AndroidTestAnimationClock
 import androidx.ui.test.android.registerTestClock
@@ -121,7 +122,7 @@ class AnimationClockTestRule : TestRule {
         return AnimationClockStatement(base)
     }
 
-    @OptIn(androidx.animation.InternalAnimationApi::class)
+    @OptIn(InternalAnimationApi::class)
     private inner class AnimationClockStatement(private val base: Statement) : Statement() {
         override fun evaluate() {
             val oldFactory = rootAnimationClockFactory

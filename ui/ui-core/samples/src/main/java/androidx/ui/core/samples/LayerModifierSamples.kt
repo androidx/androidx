@@ -19,7 +19,7 @@ package androidx.ui.core.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.onCommit
-import androidx.ui.animation.animatedFloat
+import androidx.compose.animation.animatedFloat
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawLayer
