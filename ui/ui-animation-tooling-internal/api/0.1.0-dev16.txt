@@ -3,6 +3,7 @@ package androidx.compose.animation.tooling {
 
   public interface ComposeAnimation {
     method public Object getAnimation();
+    method public String? getLabel();
     method public default java.util.Set<java.lang.Object> getStates();
     method public androidx.compose.animation.tooling.ComposeAnimationType getType();
   }
