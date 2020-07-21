@@ -41,6 +41,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.graphics.useOrElse
+import androidx.ui.material.ExperimentalMaterialApi
 import androidx.ui.material.MaterialTheme
 import androidx.ui.unit.Dp
 import androidx.ui.util.fastForEach
@@ -69,6 +70,7 @@ import androidx.ui.util.fastForEach
  * [RippleTheme.defaultColor]. This color will then have [RippleTheme.rippleOpacity] applied
  */
 @Composable
+@OptIn(ExperimentalMaterialApi::class)
 fun RippleIndication(
     bounded: Boolean = true,
     radius: Dp? = null,
@@ -100,6 +102,7 @@ fun RippleIndication(
  * customize its appearance.
  */
 @Stable
+@OptIn(ExperimentalMaterialApi::class)
 class RippleIndication internal constructor(
     private val bounded: Boolean,
     private val radius: Dp? = null,
@@ -138,6 +141,7 @@ class RippleIndication internal constructor(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 private class RippleIndicationInstance internal constructor(
     private val bounded: Boolean,
     private val radius: Dp? = null,
@@ -211,6 +215,7 @@ private class RippleIndicationInstance internal constructor(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 private class StateLayer(
     clock: AnimationClockObservable,
     private val bounded: Boolean,
