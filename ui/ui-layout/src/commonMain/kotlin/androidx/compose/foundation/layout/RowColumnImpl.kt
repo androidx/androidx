@@ -16,20 +16,20 @@
 
 package androidx.compose.foundation.layout
 
-import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureBlock2
-import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
+import androidx.ui.core.LayoutNode
 import androidx.ui.core.Measured
-import androidx.ui.core.Modifier
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
+import androidx.ui.core.measureBlocksOf
 import androidx.compose.foundation.layout.LayoutOrientation.Horizontal
 import androidx.compose.foundation.layout.LayoutOrientation.Vertical
 import androidx.ui.unit.Density
@@ -38,27 +38,21 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
-/**
- * Shared implementation for [Row] and [Column].
- */
-@Composable
-internal fun RowColumnImpl(
+@PublishedApi
+@OptIn(ExperimentalLayoutNodeApi::class)
+internal fun rowColumnMeasureBlocks(
     orientation: LayoutOrientation,
-    modifier: Modifier = Modifier,
     arrangement: (Int, List<Int>, LayoutDirection) -> List<Int>,
     crossAxisSize: SizeMode,
-    crossAxisAlignment: CrossAxisAlignment,
-    children: @Composable () -> Unit
-) {
+    crossAxisAlignment: CrossAxisAlignment
+): LayoutNode.MeasureBlocks {
     fun Placeable.mainAxisSize() =
         if (orientation == LayoutOrientation.Horizontal) width else height
 
     fun Placeable.crossAxisSize() =
         if (orientation == LayoutOrientation.Horizontal) height else width
 
-    Layout(
-        children,
-        modifier = modifier,
+    return measureBlocksOf(
         minIntrinsicWidthMeasureBlock = MinIntrinsicWidthMeasureBlock(orientation),
         minIntrinsicHeightMeasureBlock = MinIntrinsicHeightMeasureBlock(orientation),
         maxIntrinsicWidthMeasureBlock = MaxIntrinsicWidthMeasureBlock(orientation),

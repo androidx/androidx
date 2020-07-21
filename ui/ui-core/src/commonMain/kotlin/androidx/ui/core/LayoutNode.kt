@@ -1121,6 +1121,7 @@ class LayoutNode : Measurable, Remeasurement {
  * Object of pre-allocated lambdas used to make emits to LayoutNodes allocation-less.
  */
 @OptIn(ExperimentalLayoutNodeApi::class)
+@PublishedApi
 internal object LayoutEmitHelper {
     val constructor: () -> LayoutNode = { LayoutNode() }
     val setModifier: LayoutNode.(Modifier) -> Unit = { this.modifier = it }
