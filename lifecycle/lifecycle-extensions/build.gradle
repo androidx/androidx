@@ -59,6 +59,5 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle Extensions"
-    url = AndroidXExtension.ARCHITECTURE_URL
     failOnDeprecationWarnings = false
 }

@@ -49,6 +49,5 @@ androidx {
     mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2019"
     description = "Lint Checks for the Fragment Testing module"
-    url = AndroidXExtension.ARCHITECTURE_URL
     compilationTarget = CompilationTarget.HOST
 }
