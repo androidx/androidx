@@ -21,11 +21,14 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -48,6 +51,50 @@ class FragmentReorderingTest {
         container = activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
         fm = activityRule.activity.supportFragmentManager
         instrumentation = InstrumentationRegistry.getInstrumentation()
+    }
+
+    // Ensure that a replaced fragment is stopped before its replacement is started
+    // and vice versa when popped
+    @Test
+    fun stopBeforeStart() {
+        if (!FragmentManager.USE_STATE_MANAGER) {
+            return
+        }
+        val fragment1 = StrictViewFragment()
+        fm.beginTransaction()
+            .add(R.id.fragmentContainer, fragment1)
+            .setReorderingAllowed(true)
+            .commit()
+        activityRule.executePendingTransactions()
+
+        val fragment2 = StrictViewFragment()
+        lateinit var replaceStateWhenStopped: Lifecycle.State
+        lateinit var replaceStateWhenPopStarted: Lifecycle.State
+        instrumentation.runOnMainSync {
+            fragment1.lifecycle.addObserver(LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_STOP) {
+                    replaceStateWhenStopped = fragment2.lifecycle.currentState
+                } else if (event == Lifecycle.Event.ON_START) {
+                    replaceStateWhenPopStarted = fragment2.lifecycle.currentState
+                }
+            })
+        }
+        fm.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment2)
+            .addToBackStack(null)
+            .setReorderingAllowed(true)
+            .commit()
+        activityRule.executePendingTransactions()
+
+        assertWithMessage("Fragment1 should be stopped before Fragment2 moves to " +
+                replaceStateWhenStopped)
+            .that(replaceStateWhenStopped).isLessThan(Lifecycle.State.STARTED)
+
+        activityRule.popBackStackImmediate()
+
+        assertWithMessage("Fragment1 should be started only after Fragment2 moves from " +
+                replaceStateWhenPopStarted)
+            .that(replaceStateWhenPopStarted).isLessThan(Lifecycle.State.STARTED)
     }
 
     // Test that when you add and replace a fragment that only the replace's add
