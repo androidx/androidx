@@ -2117,12 +2117,40 @@ public abstract class FragmentManager implements FragmentResultOwner {
         executeOps(records, isRecordPop, startIndex, endIndex);
 
         if (USE_STATE_MANAGER) {
-            if (allowReordering) {
-                moveToState(mCurState, true);
-            }
             // The last operation determines the overall direction, this ensures that operations
             // such as push, push, pop, push are correctly considered a push
             boolean isPop = isRecordPop.get(endIndex - 1);
+            if (allowReordering) {
+                // Ensure that Fragments directly affected by operations
+                // are moved to their expected state in operation order
+                for (int index = startIndex; index < endIndex; index++) {
+                    BackStackRecord record = records.get(index);
+                    if (isPop) {
+                        // Pop operations get applied in reverse order
+                        for (int opIndex = record.mOps.size() - 1; opIndex >= 0; opIndex--) {
+                            FragmentTransaction.Op op = record.mOps.get(opIndex);
+                            Fragment fragment = op.mFragment;
+                            if (fragment != null) {
+                                FragmentStateManager fragmentStateManager =
+                                        createOrGetFragmentStateManager(fragment);
+                                fragmentStateManager.moveToExpectedState();
+                            }
+                        }
+                    } else {
+                        for (FragmentTransaction.Op op : record.mOps) {
+                            Fragment fragment = op.mFragment;
+                            if (fragment != null) {
+                                FragmentStateManager fragmentStateManager =
+                                        createOrGetFragmentStateManager(fragment);
+                                fragmentStateManager.moveToExpectedState();
+                            }
+                        }
+                    }
+
+                }
+                // And only then do we move all other fragments to the current state
+                moveToState(mCurState, true);
+            }
             Set<SpecialEffectsController> changedControllers = collectChangedControllers(
                     records, startIndex, endIndex);
             for (SpecialEffectsController controller : changedControllers) {
