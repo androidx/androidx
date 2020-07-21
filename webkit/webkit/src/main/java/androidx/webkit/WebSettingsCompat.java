@@ -302,6 +302,14 @@ public class WebSettingsCompat {
      * so as to emulate a dark theme. WebViews that are not attached to the view hierarchy will not
      * be inverted.
      *
+     * <p class="note"> If your app uses a dark theme, WebView will not be inverted. Similarly, if
+     * your app's theme inherits from a {@code DayNight} theme, WebView will not be inverted.
+     * In either of these cases, you should control the mode manually with
+     * {@link ForceDark#FORCE_DARK_ON} or {@link ForceDark#FORCE_DARK_OFF}.
+     *
+     * <p> See <a href="https://developer.android.com/guide/topics/ui/look-and-feel/darktheme#force_dark">
+     * Force Dark documentation</a> for more information.
+     *
      * @see #setForceDark
      */
     public static final int FORCE_DARK_AUTO = WebSettings.FORCE_DARK_AUTO;
@@ -389,8 +397,10 @@ public class WebSettingsCompat {
 
     /**
      * In this mode WebView content will be darkened by a user agent and it will ignore the
-     * web page's dark theme if it exists.
-     * See <a href="https://drafts.csswg.org/css-color-adjust-1/">specification</a>
+     * web page's dark theme if it exists. To avoid mixing two different darkening strategies,
+     * the {@code prefers-color-scheme} media query will evaluate to light.
+     *
+     * <p> See <a href="https://drafts.csswg.org/css-color-adjust-1/">specification</a>
      * for more information.
      *
      * @see #setForceDarkStrategy
@@ -403,6 +413,9 @@ public class WebSettingsCompat {
      * If web page does not provide dark theme support WebView content will be rendered with a
      * default theme.
      *
+     * <p> See <a href="https://drafts.csswg.org/css-color-adjust-1/">specification</a>
+     * for more information.
+     *
      * @see #setForceDarkStrategy
      */
     public static final int DARK_STRATEGY_WEB_THEME_DARKENING_ONLY =
@@ -410,7 +423,14 @@ public class WebSettingsCompat {
 
     /**
      * In this mode WebView content will be darkened by a user agent unless web page supports dark
-     * theme.
+     * theme. WebView determines whether web pages supports dark theme by the presence of
+     * {@code color-scheme} metadata containing "dark" value. For example,
+     * {@code <meta name="color-scheme" content="dark light">"}.
+     * If the metadata is not presented WebView content will be darkened by a user agent and
+     * {@code prefers-color-scheme} media query will evaluate to light.
+     *
+     * <p> See <a href="https://drafts.csswg.org/css-color-adjust-1/">specification</a>
+     * for more information.
      *
      * @see #setForceDarkStrategy
      */
