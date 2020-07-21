@@ -57,4 +57,5 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle ViewModel"
+    url = AndroidXExtension.ARCHITECTURE_URL
     }

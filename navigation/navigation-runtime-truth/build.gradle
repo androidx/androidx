@@ -47,4 +47,5 @@ androidx {
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2019"
     description = "Android Navigation-Runtime-Truth"
+    url = AndroidXExtension.ARCHITECTURE_URL
 }

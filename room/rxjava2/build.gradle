@@ -43,4 +43,5 @@ androidx {
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room RXJava2"
+    url = AndroidXExtension.ARCHITECTURE_URL
 }

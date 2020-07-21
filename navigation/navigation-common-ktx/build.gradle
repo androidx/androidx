@@ -55,4 +55,5 @@ androidx {
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"
     description = "Android Navigation-Common-Ktx"
+    url = AndroidXExtension.ARCHITECTURE_URL
 }

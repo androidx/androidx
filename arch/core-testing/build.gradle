@@ -53,4 +53,5 @@ androidx {
     mavenGroup = LibraryGroups.ARCH_CORE
     inceptionYear = "2017"
     description = "Android Core-Testing"
+    url = AndroidXExtension.ARCHITECTURE_URL
 }
