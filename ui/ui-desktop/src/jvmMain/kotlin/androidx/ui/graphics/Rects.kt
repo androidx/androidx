@@ -25,3 +25,6 @@ internal fun Rect.toSkija(): org.jetbrains.skija.Rect {
         bottom
     )
 }
+
+internal fun org.jetbrains.skija.Rect.toAndroidX() =
+    Rect(left, top, right, bottom)

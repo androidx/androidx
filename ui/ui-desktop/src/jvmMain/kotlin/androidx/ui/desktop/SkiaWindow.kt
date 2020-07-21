@@ -15,6 +15,8 @@
  */
 package androidx.ui.desktop
 
+import androidx.animation.AnimationClockObserver
+import androidx.compose.dispatch.DesktopUiDispatcher
 import androidx.ui.text.platform.paragraphActualFactory
 import androidx.ui.text.platform.paragraphIntrinsicsActualFactory
 import com.jogamp.opengl.GL
@@ -23,7 +25,6 @@ import com.jogamp.opengl.GLCapabilities
 import com.jogamp.opengl.GLEventListener
 import com.jogamp.opengl.GLProfile
 import com.jogamp.opengl.awt.GLCanvas
-import com.jogamp.opengl.util.FPSAnimator
 import org.jetbrains.skija.BackendRenderTarget
 import org.jetbrains.skija.Canvas
 import org.jetbrains.skija.ColorSpace
@@ -85,9 +86,8 @@ class Window : JFrame, SkiaFrame {
 
     override val parent: AppFrame
     override val glCanvas: GLCanvas
-    override var animator: FPSAnimator? = null
     override var renderer: SkiaRenderer? = null
-    override val vsync = false
+    override val vsync = true
 
     constructor(width: Int, height: Int, parent: AppFrame) : super() {
         this.parent = parent
@@ -120,9 +120,8 @@ class Dialog : JDialog, SkiaFrame {
 
     override val parent: AppFrame
     override val glCanvas: GLCanvas
-    override var animator: FPSAnimator? = null
     override var renderer: SkiaRenderer? = null
-    override val vsync = false
+    override val vsync = true
 
     constructor(
         attached: JFrame?,
@@ -145,21 +144,8 @@ class Dialog : JDialog, SkiaFrame {
 internal interface SkiaFrame {
     val parent: AppFrame
     val glCanvas: GLCanvas
-    var animator: FPSAnimator?
     var renderer: SkiaRenderer?
     val vsync: Boolean
-
-    fun setFps(fps: Int) {
-        animator?.stop()
-        animator = if (fps > 0) {
-            FPSAnimator(fps).also {
-                it.add(glCanvas)
-                it.start()
-            }
-        } else {
-            null
-        }
-    }
 
     fun close() {
         glCanvas.destroy()
@@ -203,6 +189,21 @@ private fun initSkija(
             glCanvas.gl.glGetIntegerv(GL.GL_TEXTURE_BINDING_2D, intBuf1)
             skijaState.textureId = intBuf1[0]
         }
+    }
+}
+
+// Simple FPS tracker for debug purposes
+internal class FPSTracker {
+    private var t0 = 0L
+    private val times = DoubleArray(155)
+    private var timesIdx = 0
+
+    fun track() {
+        val t1 = System.nanoTime()
+        times[timesIdx] = (t1 - t0) / 1000000.0
+        t0 = t1
+        timesIdx = (timesIdx + 1) % times.size
+        println("FPS: ${1000 / times.takeWhile { it > 0 }.average()}")
     }
 }
 
@@ -269,10 +270,9 @@ private fun initCanvas(frame: SkiaFrame, vsync: Boolean = false): GLCanvas {
             AppManager.removeWindow(frame.parent)
         }
 
-        override fun display(drawable: GLAutoDrawable?) {
+        override fun display(drawable: GLAutoDrawable) {
             skijaState.apply {
-                val gl = drawable!!.gl!!
-                // drawable.swapBuffers()
+                val gl = drawable.gl!!
                 canvas!!.clear(0xFFFFFFF)
                 gl.glBindTexture(GL.GL_TEXTURE_2D, textureId)
                 frame.renderer!!.onRender(
@@ -287,4 +287,37 @@ private fun initCanvas(frame: SkiaFrame, vsync: Boolean = false): GLCanvas {
     })
 
     return glCanvas
+}
+
+internal class DesktopAnimationClock(fps: Int, val dispatcher: DesktopUiDispatcher) :
+    BaseAnimationClock() {
+    val delay = 1_000 / fps
+
+    @Volatile
+    private var scheduled = false
+    private fun frameCallback(time: Long) {
+        scheduled = false
+        dispatchTime(time / 1000000)
+    }
+
+    override fun subscribe(observer: AnimationClockObserver) {
+        super.subscribe(observer)
+        scheduleIfNeeded()
+    }
+
+    override fun dispatchTime(frameTimeMillis: Long) {
+        super.dispatchTime(frameTimeMillis)
+        scheduleIfNeeded()
+    }
+
+    private fun scheduleIfNeeded() {
+        when {
+            scheduled -> return
+            !hasObservers() -> return
+            else -> {
+                scheduled = true
+                dispatcher.scheduleCallbackWithDelay(delay, ::frameCallback)
+            }
+        }
+    }
 }
