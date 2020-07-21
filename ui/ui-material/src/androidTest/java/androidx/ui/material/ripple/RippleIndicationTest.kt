@@ -43,6 +43,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredWidth
+import androidx.ui.material.ExperimentalMaterialApi
 import androidx.ui.material.GOLDEN_MATERIAL
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
@@ -64,6 +65,7 @@ import org.junit.runners.JUnit4
 @LargeTest
 @RunWith(JUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterialApi::class)
 class RippleIndicationTest {
 
     @get:Rule
