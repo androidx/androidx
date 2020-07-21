@@ -246,7 +246,7 @@ class BiometricTestActivity : FragmentActivity() {
      * Logs a new [message] to the in-app [TextView].
      */
     private fun log(message: CharSequence) {
-        logView.append("${message}\n")
+        logView.text = "${message}\n${logView.text}"
     }
 
     companion object {
