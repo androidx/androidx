@@ -9,7 +9,7 @@ package androidx.hilt.work {
     method public T create(android.content.Context, androidx.work.WorkerParameters);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @dagger.Module @dagger.hilt.InstallIn(ApplicationComponent.class) public abstract class WorkerFactoryModule {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @dagger.Module @dagger.hilt.InstallIn(SingletonComponent.class) public abstract class WorkerFactoryModule {
     ctor public WorkerFactoryModule();
   }
 
