@@ -38,10 +38,10 @@ private val unwantedPackages = setOf(
 
 private val unwantedCalls = setOf(
     "emit",
+    "remember",
     "Inspectable",
     "Layout",
     "Providers",
-    "ProvideTextStyle",
     "SelectionContainer",
     "SelectionLayout"
 )
@@ -80,14 +80,13 @@ class LayoutInspectorTree {
     }
 
     private fun convert(tables: Set<SlotTable>): List<InspectorNode> {
-        return buildToList(tables.map { convert(it.asTree()) }, mutableListOf())
+        return buildToList(null, tables.map { convert(it.asTree()) }, mutableListOf())
     }
 
     private fun convert(group: Group): MutableInspectorNode {
         val children = convertChildren(group)
         val node = parse(group)
-        extractRenderIdToNode(node, children)
-        buildToList(children, node.children)
+        buildToList(node, children, node.children)
         return node
     }
 
@@ -107,31 +106,33 @@ class LayoutInspectorTree {
         return result
     }
 
-    private fun extractRenderIdToNode(
-        node: MutableInspectorNode,
-        children: List<MutableInspectorNode>
-    ) {
-        if (node.id == 0L) {
-            node.id = children.singleOrNull { isRenderNodeId(it) }?.id ?: 0L
-        }
-    }
-
     /**
      * Adds the nodes in [input] to the [result] list.
      * Nodes without a reference to a Composable are skipped.
+     * If a [parentNode] is specified then a single skipped render id will be added here.
      */
     private fun buildToList(
+        parentNode: MutableInspectorNode?,
         input: List<MutableInspectorNode>,
         result: MutableList<InspectorNode>
     ): List<InspectorNode> {
+        var id: Long? = null
         input.forEach {
             if (it.name.isEmpty()) {
                 result.addAll(it.children)
+                if (it.id != 0L) {
+                    // If multiple siblings with a render ids are dropped:
+                    // Ignore them all. And delegate the drawing to a parent in the inspector.
+                    id = if (id == null) it.id else 0L
+                }
             } else {
                 it.id = if (it.id != 0L) it.id else --generatedId
                 result.add(it.build())
             }
             release(it)
+        }
+        if (parentNode?.id == 0L) {
+            id?.let { parentNode.id = it }
         }
         return result
     }
@@ -194,9 +195,6 @@ class LayoutInspectorTree {
         if (parameter.inlineClass == null) return value
         return inlineClassConverter.castParameterValue(parameter.inlineClass, value)
     }
-
-    private fun isRenderNodeId(node: MutableInspectorNode) =
-        node.id != 0L
 
     private fun unwantedGroup(node: MutableInspectorNode): Boolean =
         (node.packageHash in unwantedPackages && node.name in unwantedCalls)
