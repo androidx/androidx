@@ -21,8 +21,12 @@ import android.view.KeyEvent.ACTION_UP
 import android.view.KeyEvent.KEYCODE_A
 import android.view.View
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Modifier
 import androidx.ui.core.ViewAmbient
-import androidx.ui.core.focus.FocusModifier
+import androidx.ui.core.focus.ExperimentalFocus
+import androidx.ui.core.focus.FocusRequester
+import androidx.ui.core.focus.focus
+import androidx.ui.core.focus.focusRequester
 import androidx.ui.core.focus.setFocusableContent
 import androidx.ui.core.keyinput.Key.Companion.A
 import androidx.ui.core.keyinput.KeyEventType.KeyDown
@@ -41,10 +45,12 @@ import android.view.KeyEvent as AndroidKeyEvent
  * This test verifies that an Android key event triggers a Compose key event. More detailed test
  * cases are present at [ProcessKeyInputTest].
  */
-@Suppress("DEPRECATION")
 @SmallTest
 @RunWith(Parameterized::class)
-@OptIn(ExperimentalKeyInput::class)
+@OptIn(
+    ExperimentalFocus::class,
+    ExperimentalKeyInput::class
+)
 class AndroidProcessKeyInputTest(val keyEventAction: Int) {
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -59,21 +65,22 @@ class AndroidProcessKeyInputTest(val keyEventAction: Int) {
     fun onKeyEvent_triggered() {
         // Arrange.
         lateinit var ownerView: View
-        lateinit var focusModifier: FocusModifier
         lateinit var receivedKeyEvent: KeyEvent2
+        val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             ownerView = ViewAmbient.current
-            // TODO(b/161296854): Replace FocusModifier with Modifier.focus.
-            focusModifier = FocusModifier()
             Box(
-                modifier = focusModifier.keyInputFilter {
-                    receivedKeyEvent = it
-                    true
-                }
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .focus()
+                    .keyInputFilter {
+                        receivedKeyEvent = it
+                        true
+                    }
             )
         }
         runOnIdle {
-            focusModifier.requestFocus()
+            focusRequester.requestFocus()
         }
 
         // Act.
