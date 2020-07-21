@@ -1,43 +1,43 @@
 // Baseline format: 1.0
-BuilderSetStyle: androidx.ui.text.AnnotatedString.Builder#append(String):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.text.AnnotatedString.Builder.append(String)
-BuilderSetStyle: androidx.ui.text.AnnotatedString.Builder#append(androidx.ui.text.AnnotatedString):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.text.AnnotatedString.Builder.append(androidx.ui.text.AnnotatedString)
-BuilderSetStyle: androidx.ui.text.AnnotatedString.Builder#append(char):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.text.AnnotatedString.Builder.append(char)
-BuilderSetStyle: androidx.ui.text.AnnotatedString.Builder#pop():
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.text.AnnotatedString.Builder.pop()
-BuilderSetStyle: androidx.ui.text.AnnotatedString.Builder#pop(int):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.text.AnnotatedString.Builder.pop(int)
-BuilderSetStyle: androidx.ui.text.AnnotatedString.Builder#pushStringAnnotation(String, String):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.text.AnnotatedString.Builder.pushStringAnnotation(String,String)
-BuilderSetStyle: androidx.ui.text.AnnotatedString.Builder#pushStyle(androidx.ui.text.ParagraphStyle):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.text.AnnotatedString.Builder.pushStyle(androidx.ui.text.ParagraphStyle)
-BuilderSetStyle: androidx.ui.text.AnnotatedString.Builder#pushStyle(androidx.ui.text.SpanStyle):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.text.AnnotatedString.Builder.pushStyle(androidx.ui.text.SpanStyle)
-BuilderSetStyle: androidx.ui.text.AnnotatedString.Builder#toAnnotatedString():
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.text.AnnotatedString.Builder.toAnnotatedString()
-BuilderSetStyle: androidx.ui.text.AnnotatedString.Builder#toString():
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.text.AnnotatedString.Builder.toString()
+BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#append(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.append(String)
+BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#append(androidx.compose.ui.text.AnnotatedString):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.append(androidx.compose.ui.text.AnnotatedString)
+BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#append(char):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.append(char)
+BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#pop():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.pop()
+BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#pop(int):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.pop(int)
+BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#pushStringAnnotation(String, String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.pushStringAnnotation(String,String)
+BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#pushStyle(androidx.compose.ui.text.ParagraphStyle):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.pushStyle(androidx.compose.ui.text.ParagraphStyle)
+BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#pushStyle(androidx.compose.ui.text.SpanStyle):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.pushStyle(androidx.compose.ui.text.SpanStyle)
+BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#toAnnotatedString():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.toAnnotatedString()
+BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#toString():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.toString()
 
 
-KotlinOperator: androidx.ui.text.font.FontListFontFamily#contains(androidx.ui.text.font.Font):
+KotlinOperator: androidx.compose.ui.text.font.FontListFontFamily#contains(androidx.compose.ui.text.font.Font):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
-KotlinOperator: androidx.ui.text.style.TextDecoration#contains(androidx.ui.text.style.TextDecoration):
+KotlinOperator: androidx.compose.ui.text.style.TextDecoration#contains(androidx.compose.ui.text.style.TextDecoration):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 
 
-MissingBuildMethod: androidx.ui.text.AnnotatedString.Builder:
-    androidx.ui.text.AnnotatedString.Builder does not declare a `build()` method, but builder classes are expected to
+MissingBuildMethod: androidx.compose.ui.text.AnnotatedString.Builder:
+    androidx.compose.ui.text.AnnotatedString.Builder does not declare a `build()` method, but builder classes are expected to
 
 
-MissingNullability: androidx.ui.text.style.BaselineShift#toString-impl(float):
+MissingNullability: androidx.compose.ui.text.style.BaselineShift#toString-impl(float):
     Missing nullability on method `toString-impl` return
 
 
-SetterReturnsThis: androidx.ui.text.AnnotatedString.Builder#addStringAnnotation(String, String, int, int):
-    Methods must return the builder object (return type androidx.ui.text.AnnotatedString.Builder instead of void): method androidx.ui.text.AnnotatedString.Builder.addStringAnnotation(String,String,int,int)
-SetterReturnsThis: androidx.ui.text.AnnotatedString.Builder#addStyle(androidx.ui.text.ParagraphStyle, int, int):
-    Methods must return the builder object (return type androidx.ui.text.AnnotatedString.Builder instead of void): method androidx.ui.text.AnnotatedString.Builder.addStyle(androidx.ui.text.ParagraphStyle,int,int)
-SetterReturnsThis: androidx.ui.text.AnnotatedString.Builder#addStyle(androidx.ui.text.SpanStyle, int, int):
-    Methods must return the builder object (return type androidx.ui.text.AnnotatedString.Builder instead of void): method androidx.ui.text.AnnotatedString.Builder.addStyle(androidx.ui.text.SpanStyle,int,int)
+SetterReturnsThis: androidx.compose.ui.text.AnnotatedString.Builder#addStringAnnotation(String, String, int, int):
+    Methods must return the builder object (return type androidx.compose.ui.text.AnnotatedString.Builder instead of void): method androidx.compose.ui.text.AnnotatedString.Builder.addStringAnnotation(String,String,int,int)
+SetterReturnsThis: androidx.compose.ui.text.AnnotatedString.Builder#addStyle(androidx.compose.ui.text.ParagraphStyle, int, int):
+    Methods must return the builder object (return type androidx.compose.ui.text.AnnotatedString.Builder instead of void): method androidx.compose.ui.text.AnnotatedString.Builder.addStyle(androidx.compose.ui.text.ParagraphStyle,int,int)
+SetterReturnsThis: androidx.compose.ui.text.AnnotatedString.Builder#addStyle(androidx.compose.ui.text.SpanStyle, int, int):
+    Methods must return the builder object (return type androidx.compose.ui.text.AnnotatedString.Builder instead of void): method androidx.compose.ui.text.AnnotatedString.Builder.addStyle(androidx.compose.ui.text.SpanStyle,int,int)

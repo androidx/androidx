@@ -29,10 +29,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize
-import androidx.ui.text.SpanStyle
-import androidx.ui.text.TextStyle
-import androidx.ui.text.annotatedString
-import androidx.ui.text.withStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.annotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 

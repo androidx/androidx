@@ -21,7 +21,7 @@ import androidx.compose.state
 import androidx.compose.foundation.ClickableText
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
-import androidx.ui.text.AnnotatedString
+import androidx.compose.ui.text.AnnotatedString
 
 @Composable
 fun InteractiveTextDemo() {

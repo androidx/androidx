@@ -50,12 +50,12 @@ import androidx.ui.core.selection.SelectionLayout
 import androidx.ui.core.semantics.semantics
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.drawscope.drawCanvas
-import androidx.ui.input.EditProcessor
-import androidx.ui.input.TextFieldValue
-import androidx.ui.input.ImeAction
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.NO_SESSION
-import androidx.ui.input.VisualTransformation
+import androidx.compose.ui.text.input.EditProcessor
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.NO_SESSION
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.ui.semantics.onClick
 import androidx.compose.foundation.text.selection.SelectionHandle
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
@@ -66,24 +66,24 @@ import androidx.ui.semantics.setSelection
 import androidx.ui.semantics.setText
 import androidx.ui.semantics.text
 import androidx.ui.semantics.textSelectionRange
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.InternalTextApi
-import androidx.ui.text.SoftwareKeyboardController
-import androidx.ui.text.TextDelegate
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextRange
-import androidx.ui.text.TextStyle
-import androidx.ui.text.constrain
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.InternalTextApi
+import androidx.compose.ui.text.SoftwareKeyboardController
+import androidx.compose.ui.text.TextDelegate
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.constrain
 import kotlin.math.roundToInt
 
 @Suppress("DEPRECATION")
 @Composable
-@Deprecated("Use the Composable with androidx.ui.input.TextFieldValue instead.")
+@Deprecated("Use the Composable with androidx.compose.ui.text.input.TextFieldValue instead.")
 @OptIn(InternalTextApi::class)
 fun CoreTextField(
-    value: androidx.ui.input.EditorValue,
+    value: androidx.compose.ui.text.input.EditorValue,
     modifier: Modifier,
-    onValueChange: (androidx.ui.input.EditorValue) -> Unit,
+    onValueChange: (androidx.compose.ui.text.input.EditorValue) -> Unit,
     textStyle: TextStyle = TextStyle.Default,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
@@ -108,7 +108,7 @@ fun CoreTextField(
     val onValueChangeWrapper: (TextFieldValue) -> Unit = {
         fullModel.value = it
         onValueChange(
-            androidx.ui.input.EditorValue(
+            androidx.compose.ui.text.input.EditorValue(
                 it.text,
                 it.selection,
                 it.composition
@@ -152,7 +152,7 @@ fun CoreTextField(
  * [TextFieldValue] may result in a context reset and end up with input session restart. Such
  * a scenario would cause glitches in the UI or text input experience for users.
  *
- * @param value The [androidx.ui.input.TextFieldValue] to be shown in the [CoreTextField].
+ * @param value The [androidx.compose.ui.text.input.TextFieldValue] to be shown in the [CoreTextField].
  * @param onValueChange Called when the input service updates the values in [TextFieldValue].
  * @param modifier optional [Modifier] for this text field.
  * @param textStyle Style configuration that applies at character level such as color, font etc.

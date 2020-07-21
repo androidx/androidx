@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.text.selection
 
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextRange
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
 
 /**
  * Return selection information for TextField.

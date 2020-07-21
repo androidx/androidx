@@ -31,8 +31,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.constrainWidth
 import androidx.ui.graphics.Color
-import androidx.ui.input.TextFieldValue
-import androidx.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextStyle
 import androidx.ui.unit.dp
 import kotlin.math.min
 

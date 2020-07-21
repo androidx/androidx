@@ -36,7 +36,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.ui.text.TextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 

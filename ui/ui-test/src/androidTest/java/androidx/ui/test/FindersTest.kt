@@ -26,7 +26,7 @@ import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.semantics.testTag
 import androidx.ui.semantics.text
 import androidx.ui.test.util.expectError
-import androidx.ui.text.AnnotatedString
+import androidx.compose.ui.text.AnnotatedString
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

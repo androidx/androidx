@@ -20,11 +20,11 @@ import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextStyle
-import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextOverflow
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 
 /**
  * A continent version of [Text] component to be able to handle click event on the text.

@@ -62,7 +62,7 @@ import androidx.ui.material.TabRow.IndicatorTransition
 import androidx.ui.material.TabRow.TabPosition
 import androidx.compose.foundation.text.FirstBaseline
 import androidx.compose.foundation.text.LastBaseline
-import androidx.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextAlign
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp

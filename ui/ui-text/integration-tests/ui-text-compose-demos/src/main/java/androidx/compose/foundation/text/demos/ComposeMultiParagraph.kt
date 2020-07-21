@@ -19,13 +19,13 @@ package androidx.compose.foundation.text.demos
 import androidx.compose.Composable
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.ParagraphStyle
-import androidx.ui.text.TextStyle
-import androidx.ui.text.annotatedString
-import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextIndent
-import androidx.ui.text.withStyle
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.annotatedString
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.withStyle
 import androidx.ui.unit.sp
 
 val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas fermentum non" +

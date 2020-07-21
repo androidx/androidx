@@ -21,13 +21,13 @@ import android.util.TypedValue
 import androidx.annotation.GuardedBy
 import androidx.compose.Composable
 import androidx.ui.core.ContextAmbient
-import androidx.ui.text.Typeface
-import androidx.ui.text.font.FontFamily
-import androidx.ui.text.font.FontListFontFamily
-import androidx.ui.text.font.LoadedFontFamily
-import androidx.ui.text.font.ResourceFont
-import androidx.ui.text.font.SystemFontFamily
-import androidx.ui.text.platform.typefaceFromFontFamily
+import androidx.compose.ui.text.Typeface
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontListFontFamily
+import androidx.compose.ui.text.font.LoadedFontFamily
+import androidx.compose.ui.text.font.ResourceFont
+import androidx.compose.ui.text.font.SystemFontFamily
+import androidx.compose.ui.text.platform.typefaceFromFontFamily
 import androidx.ui.util.fastForEach
 
 private val cacheLock = Object()

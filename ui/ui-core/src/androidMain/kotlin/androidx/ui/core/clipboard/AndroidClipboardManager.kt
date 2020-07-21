@@ -18,7 +18,7 @@ package androidx.ui.core.clipboard
 
 import android.content.ClipData
 import android.content.Context
-import androidx.ui.text.AnnotatedString
+import androidx.compose.ui.text.AnnotatedString
 
 private const val PLAIN_TEXT_LABEL = "plain text"
 

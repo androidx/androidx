@@ -24,9 +24,9 @@ import androidx.ui.core.keyinput.KeyEvent2
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.graphics.Canvas
-import androidx.ui.input.TextInputService
+import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry
-import androidx.ui.text.font.Font
+import androidx.compose.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntOffset
 

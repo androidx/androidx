@@ -21,11 +21,11 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.DesktopPath
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.toAndroidX
-import androidx.ui.text.Paragraph
-import androidx.ui.text.ParagraphConstraints
-import androidx.ui.text.ParagraphIntrinsics
-import androidx.ui.text.TextRange
-import androidx.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.text.Paragraph
+import androidx.compose.ui.text.ParagraphConstraints
+import androidx.compose.ui.text.ParagraphIntrinsics
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.style.ResolvedTextDirection
 import org.jetbrains.skija.paragraph.LineMetrics
 import org.jetbrains.skija.paragraph.RectHeightMode
 import org.jetbrains.skija.paragraph.RectWidthMode

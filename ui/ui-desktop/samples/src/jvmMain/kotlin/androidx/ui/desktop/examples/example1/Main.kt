@@ -39,11 +39,11 @@ import androidx.ui.material.FilledTextField
 import androidx.ui.material.Scaffold
 import androidx.ui.material.Slider
 import androidx.ui.material.TopAppBar
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.SpanStyle
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
-import androidx.ui.text.font.fontFamily
+import androidx.compose.ui.text.font.fontFamily
 import androidx.ui.desktop.font
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.background

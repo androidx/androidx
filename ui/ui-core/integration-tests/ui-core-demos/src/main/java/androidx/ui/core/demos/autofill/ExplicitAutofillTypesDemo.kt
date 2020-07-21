@@ -32,9 +32,9 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Text
 import androidx.ui.geometry.Offset
-import androidx.ui.input.ImeAction
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.TextFieldValue
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.preferredHeight

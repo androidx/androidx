@@ -19,12 +19,12 @@ package androidx.compose.foundation.layout
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
-import androidx.ui.input.TextFieldValue
-import androidx.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.foundation.text.CoreText
 import androidx.compose.foundation.text.CoreTextField
-import androidx.ui.text.TextStyle
-import androidx.ui.text.style.TextOverflow
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

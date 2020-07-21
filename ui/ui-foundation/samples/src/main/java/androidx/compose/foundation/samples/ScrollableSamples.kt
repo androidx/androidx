@@ -28,7 +28,7 @@ import androidx.compose.foundation.gestures.rememberScrollableController
 import androidx.compose.foundation.gestures.scrollable
 import androidx.ui.graphics.Color
 import androidx.compose.foundation.layout.preferredSize
-import androidx.ui.text.TextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import kotlin.math.roundToInt

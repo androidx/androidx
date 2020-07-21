@@ -34,7 +34,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
 import androidx.ui.test.getBoundsInRoot
-import androidx.ui.text.TextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
