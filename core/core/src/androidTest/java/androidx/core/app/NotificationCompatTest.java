@@ -28,6 +28,7 @@ import static androidx.core.app.NotificationCompat.GROUP_KEY_SILENT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -47,6 +48,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.BaseInstrumentationTestCase;
+import android.widget.RemoteViews;
 
 import androidx.collection.ArraySet;
 import androidx.core.R;
@@ -197,6 +199,166 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
             if (Build.VERSION.SDK_INT >= 19) {
                 assertFalse(n.extras.getBoolean(NotificationCompat.EXTRA_SHOW_WHEN));
             }
+        }
+    }
+
+    @Test
+    public void testNotificationBuilder_createContentView() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "channelId");
+        assertNull(builder.getContentView());
+
+        // Expect the standard notification template
+        RemoteViews standardView = builder.createContentView();
+        assertNotNull(standardView);
+        String layoutName = mContext.getResources().getResourceName(standardView.getLayoutId());
+        if (Build.VERSION.SDK_INT >= 21) {
+            assertEquals("android:layout/notification_template_material_base", layoutName);
+        } else {
+            assertEquals("android:layout/notification_template_base", layoutName);
+        }
+
+        // If we set a custom view, it should be returned if there's no style
+        RemoteViews customRemoteViews = new RemoteViews(mContext.getPackageName(),
+                R.layout.notification_action);
+        builder.setCustomContentView(customRemoteViews);
+
+        assertSame(customRemoteViews, builder.getContentView());
+        assertSame(customRemoteViews, builder.createContentView());
+
+        // The custom view we set should be returned with this style
+        builder.setStyle(new NotificationCompat.BigPictureStyle());
+
+        assertSame(customRemoteViews, builder.getContentView());
+        assertSame(customRemoteViews, builder.createContentView());
+
+        // The custom view we set should be WRAPPED with decorated style
+        builder.setStyle(new NotificationCompat.DecoratedCustomViewStyle());
+
+        assertSame(customRemoteViews, builder.getContentView());
+        RemoteViews decoratedCustomView = builder.createContentView();
+        assertNotNull(decoratedCustomView);
+        assertNotSame(customRemoteViews, decoratedCustomView);
+        layoutName = mContext.getResources().getResourceName(decoratedCustomView.getLayoutId());
+        if (Build.VERSION.SDK_INT >= 24) {
+            assertEquals("android:layout/notification_template_material_base", layoutName);
+        } else {
+            // AndroidX is providing a decorated style not available on these platforms natively
+            // NOTE: this is the 'big' one because androidx has only one template, but hides
+            // actions in this view.
+            String packageName = mContext.getPackageName();
+            assertEquals(packageName + ":layout/notification_template_custom_big", layoutName);
+        }
+    }
+
+    @Test
+    public void testNotificationBuilder_createBigContentView() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "channelId");
+        assertNull(builder.getBigContentView());
+
+        // The view will be null if there are no actions
+        assertNull(builder.createBigContentView());
+
+        // Add an action so that we start getting the view
+        builder.addAction(new NotificationCompat.Action(null, "action", null));
+
+        // Before Jellybean, there was no big view; expect null
+        if (Build.VERSION.SDK_INT < 16) {
+            assertNull(builder.createHeadsUpContentView());
+            return;
+        }
+
+        // Expect the standard big notification template
+        RemoteViews standardView = builder.createBigContentView();
+        assertNotNull(standardView);
+        String layoutName = mContext.getResources().getResourceName(standardView.getLayoutId());
+        if (Build.VERSION.SDK_INT >= 21) {
+            assertEquals("android:layout/notification_template_material_big_base", layoutName);
+        } else {
+            assertEquals("android:layout/notification_template_big_base", layoutName);
+        }
+
+        // If we set a custom view, it should be returned if there's no style
+        RemoteViews customRemoteViews = new RemoteViews(mContext.getPackageName(),
+                R.layout.notification_action);
+        builder.setCustomBigContentView(customRemoteViews);
+
+        assertSame(customRemoteViews, builder.getBigContentView());
+        assertSame(customRemoteViews, builder.createBigContentView());
+
+        // The custom view we set should be returned with this style
+        builder.setStyle(new NotificationCompat.BigPictureStyle());
+
+        assertSame(customRemoteViews, builder.getBigContentView());
+        assertSame(customRemoteViews, builder.createBigContentView());
+
+        // The custom view we set should be WRAPPED with decorated style
+        builder.setStyle(new NotificationCompat.DecoratedCustomViewStyle());
+
+        assertSame(customRemoteViews, builder.getBigContentView());
+        RemoteViews decoratedCustomView = builder.createBigContentView();
+        assertNotNull(decoratedCustomView);
+        assertNotSame(customRemoteViews, decoratedCustomView);
+        layoutName = mContext.getResources().getResourceName(decoratedCustomView.getLayoutId());
+        if (Build.VERSION.SDK_INT >= 24) {
+            assertEquals("android:layout/notification_template_material_big_base", layoutName);
+        } else {
+            // AndroidX is providing a decorated style not available on these platforms natively
+            String packageName = mContext.getPackageName();
+            assertEquals(packageName + ":layout/notification_template_custom_big", layoutName);
+        }
+    }
+
+    @Test
+    public void testNotificationBuilder_createHeadsUpContentView() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "channelId");
+        assertNull(builder.getHeadsUpContentView());
+
+        // The view will be null if there are no actions
+        assertNull(builder.createHeadsUpContentView());
+
+        // Add an action so that we start getting the view
+        builder.addAction(new NotificationCompat.Action(null, "action", null));
+
+        // Before Lollipop, there was no heads up view; expect null
+        if (Build.VERSION.SDK_INT < 21) {
+            assertNull(builder.createHeadsUpContentView());
+            return;
+        }
+
+        // Expect the standard big notification template (yes, heads up defaults to big template)
+        RemoteViews standardView = builder.createHeadsUpContentView();
+        assertNotNull(standardView);
+        String layoutName = mContext.getResources().getResourceName(standardView.getLayoutId());
+        assertEquals("android:layout/notification_template_material_big_base", layoutName);
+
+        // If we set a custom view, it should be returned if there's no style
+        RemoteViews customRemoteViews = new RemoteViews(mContext.getPackageName(),
+                R.layout.notification_action);
+        builder.setCustomHeadsUpContentView(customRemoteViews);
+
+        assertSame(customRemoteViews, builder.getHeadsUpContentView());
+        assertSame(customRemoteViews, builder.createHeadsUpContentView());
+
+        // The custom view we set should be returned with this style
+        builder.setStyle(new NotificationCompat.BigPictureStyle());
+
+        assertSame(customRemoteViews, builder.getHeadsUpContentView());
+        assertSame(customRemoteViews, builder.createHeadsUpContentView());
+
+        // The custom view we set should be WRAPPED with decorated style
+        builder.setStyle(new NotificationCompat.DecoratedCustomViewStyle());
+
+        assertSame(customRemoteViews, builder.getHeadsUpContentView());
+        RemoteViews decoratedCustomView = builder.createHeadsUpContentView();
+        assertNotNull(decoratedCustomView);
+        assertNotSame(customRemoteViews, decoratedCustomView);
+        layoutName = mContext.getResources().getResourceName(decoratedCustomView.getLayoutId());
+        if (Build.VERSION.SDK_INT >= 24) {
+            assertEquals("android:layout/notification_template_material_big_base", layoutName);
+        } else {
+            // AndroidX is providing a decorated style not available on these platforms natively
+            String packageName = mContext.getPackageName();
+            assertEquals(packageName + ":layout/notification_template_custom_big", layoutName);
         }
     }
 

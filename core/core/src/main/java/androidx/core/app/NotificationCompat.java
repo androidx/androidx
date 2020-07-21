@@ -1755,6 +1755,113 @@ public class NotificationCompat {
         }
 
         /**
+         * @return whether the builder's createContentView() and peer methods should use the
+         * user-supplied RemoteViews.  This will be true unless the style is a 'decorated' style,
+         * because those styles are defined to wrap that RemoteViews object.
+         */
+        private boolean useExistingRemoteView() {
+            return mStyle == null || !mStyle.displayCustomViewInline();
+        }
+
+        /**
+         * Construct a RemoteViews for the final notification layout.
+         */
+        @SuppressLint("BuilderSetStyle")  // This API is copied from Notification.Builder
+        public @Nullable RemoteViews createContentView() {
+            // If the user setCustomContentView(), return it if appropriate for the style.
+            if (mContentView != null && useExistingRemoteView()) {
+                return mContentView;
+            }
+            // If there's a NotificationCompat.Style, and that Style produces a content view,
+            // then that content view is a backport of the Style's appearance to an old platform
+            // version, and it should be returned.
+            NotificationCompatBuilder compatBuilder = new NotificationCompatBuilder(this);
+            if (mStyle != null) {
+                RemoteViews styleView = mStyle.makeContentView(compatBuilder);
+                if (styleView != null) {
+                    return styleView;
+                }
+            }
+            Notification notification = compatBuilder.build();
+            if (Build.VERSION.SDK_INT >= 24) {
+                // On N and newer, do some magic and delegate to the Platform's implementation
+                return Notification.Builder.recoverBuilder(mContext, notification)
+                        .createContentView();
+            } else {
+                // Before N, delegate to the deprecated field on the built notification
+                return notification.contentView;
+            }
+        }
+
+        /**
+         * Construct a RemoteViews for the final big notification layout.
+         */
+        @SuppressLint("BuilderSetStyle")  // This API is copied from Notification.Builder
+        public @Nullable RemoteViews createBigContentView() {
+            // Before Jellybean, there was no "big" notification view
+            if (Build.VERSION.SDK_INT < 16) {
+                return null;
+            }
+            // If the user setCustomBigContentView(), return it if appropriate for the style.
+            if (mBigContentView != null && useExistingRemoteView()) {
+                return mBigContentView;
+            }
+            // If there's a NotificationCompat.Style, and that Style produces a content view,
+            // then that content view is a backport of the Style's appearance to an old platform
+            // version, and it should be returned.
+            NotificationCompatBuilder compatBuilder = new NotificationCompatBuilder(this);
+            if (mStyle != null) {
+                RemoteViews styleView = mStyle.makeBigContentView(compatBuilder);
+                if (styleView != null) {
+                    return styleView;
+                }
+            }
+            Notification notification = compatBuilder.build();
+            if (Build.VERSION.SDK_INT >= 24) {
+                // On N and newer, do some magic and delegate to the Platform's implementation
+                return Notification.Builder.recoverBuilder(mContext, notification)
+                        .createBigContentView();
+            } else {
+                // Before N, delegate to the deprecated field on the built notification
+                return notification.bigContentView;
+            }
+        }
+
+        /**
+         * Construct a RemoteViews for the final heads-up notification layout.
+         */
+        @SuppressLint("BuilderSetStyle")  // This API is copied from Notification.Builder
+        public @Nullable RemoteViews createHeadsUpContentView() {
+            // Before Lollipop, there was no "heads up" notification view
+            if (Build.VERSION.SDK_INT < 21) {
+                return null;
+            }
+            // If the user setCustomHeadsUpContentView(), return it if appropriate for the style.
+            if (mHeadsUpContentView != null && useExistingRemoteView()) {
+                return mHeadsUpContentView;
+            }
+            // If there's a NotificationCompat.Style, and that Style produces a content view,
+            // then that content view is a backport of the Style's appearance to an old platform
+            // version, and it should be returned.
+            NotificationCompatBuilder compatBuilder = new NotificationCompatBuilder(this);
+            if (mStyle != null) {
+                RemoteViews styleView = mStyle.makeHeadsUpContentView(compatBuilder);
+                if (styleView != null) {
+                    return styleView;
+                }
+            }
+            Notification notification = compatBuilder.build();
+            if (Build.VERSION.SDK_INT >= 24) {
+                // On N and newer, do some magic and delegate to the Platform's implementation
+                return Notification.Builder.recoverBuilder(mContext, notification)
+                        .createHeadsUpContentView();
+            } else {
+                // Before N, delegate to the deprecated field on the built notification
+                return notification.headsUpContentView;
+            }
+        }
+
+        /**
          * Supply custom RemoteViews to use instead of the platform template.
          *
          * This will override the layout that would otherwise be constructed by this Builder
@@ -2099,6 +2206,15 @@ public class NotificationCompat {
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         // TODO: implement for all styles
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
+        }
+
+        /**
+         * @hide
+         * @return Whether custom content views are displayed inline in the style
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        public boolean displayCustomViewInline() {
+            return false;
         }
 
         /**
@@ -3422,6 +3538,15 @@ public class NotificationCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
+        public boolean displayCustomViewInline() {
+            return true;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 24) {
                 builder.getBuilder().setStyle(new Notification.DecoratedCustomViewStyle());
@@ -3531,9 +3656,12 @@ public class NotificationCompat {
             RemoteViews button = new RemoteViews(mBuilder.mContext.getPackageName(),
                     tombstone ? R.layout.notification_action_tombstone
                             : R.layout.notification_action);
-            button.setImageViewBitmap(R.id.action_image,
-                    createColoredBitmap(action.getIconCompat(), mBuilder.mContext.getResources()
-                            .getColor(R.color.notification_action_color_filter)));
+            IconCompat icon = action.getIconCompat();
+            if (icon != null) {
+                button.setImageViewBitmap(R.id.action_image,
+                        createColoredBitmap(icon, mBuilder.mContext.getResources()
+                                .getColor(R.color.notification_action_color_filter)));
+            }
             button.setTextViewText(R.id.action_text, action.title);
             if (!tombstone) {
                 button.setOnClickPendingIntent(R.id.action_container, action.actionIntent);
