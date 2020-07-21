@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalMaterialApi::class)
 
 package androidx.ui.material.ripple
 
@@ -22,6 +23,7 @@ import androidx.compose.foundation.Interaction
 import androidx.compose.foundation.contentColor
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.luminance
+import androidx.ui.material.ExperimentalMaterialApi
 import androidx.ui.material.MaterialTheme
 
 /**
@@ -29,6 +31,7 @@ import androidx.ui.material.MaterialTheme
  *
  * You can define a new theme and apply it via [RippleThemeAmbient].
  */
+@ExperimentalMaterialApi
 interface RippleTheme {
     /**
      * @return the default [RippleIndication] color at the call site's position in the hierarchy.
@@ -50,6 +53,7 @@ interface RippleTheme {
 /**
  * RippleOpacity defines the opacity of the ripple / state layer for a given [Interaction].
  */
+@ExperimentalMaterialApi
 interface RippleOpacity {
     /**
      * @return the opacity of the ripple for the given [interaction]. Return `0f` if this
@@ -61,6 +65,7 @@ interface RippleOpacity {
 /**
  * Ambient used for providing [RippleTheme] down the tree.
  */
+@ExperimentalMaterialApi
 val RippleThemeAmbient = staticAmbientOf<RippleTheme> { DefaultRippleTheme }
 
 private object DefaultRippleTheme : RippleTheme {
