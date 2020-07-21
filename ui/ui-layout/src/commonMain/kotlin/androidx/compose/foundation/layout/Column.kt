@@ -19,7 +19,10 @@ package androidx.compose.foundation.layout
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.Stable
+import androidx.compose.remember
 import androidx.ui.core.Alignment
+import androidx.ui.core.ExperimentalLayoutNodeApi
+import androidx.ui.core.Layout
 import androidx.ui.core.Measured
 import androidx.ui.core.Modifier
 import androidx.ui.core.VerticalAlignmentLine
@@ -60,22 +63,49 @@ import androidx.ui.util.annotation.FloatRange
  * @see Column
  */
 @Composable
-fun Column(
+@OptIn(ExperimentalLayoutNodeApi::class)
+inline fun Column(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalGravity: Alignment.Horizontal = Alignment.Start,
     children: @Composable ColumnScope.() -> Unit
 ) {
-    RowColumnImpl(
-        orientation = LayoutOrientation.Vertical,
-        modifier = modifier,
-        arrangement = { totalSize, size, _ ->
-            verticalArrangement.arrange(totalSize, size)
-        },
-        crossAxisAlignment = CrossAxisAlignment.horizontal(horizontalGravity),
-        crossAxisSize = SizeMode.Wrap,
-        children = { ColumnScope.children() }
+    val measureBlocks = columnMeasureBlocks(verticalArrangement, horizontalGravity)
+    Layout(
+        children = { ColumnScope.children() },
+        measureBlocks = measureBlocks,
+        modifier = modifier
     )
+}
+
+@PublishedApi
+internal val DefaultColumnMeasureBlocks = rowColumnMeasureBlocks(
+    orientation = LayoutOrientation.Vertical,
+    arrangement = { totalSize, size, _ ->
+        Arrangement.Top.arrange(totalSize, size)
+    },
+    crossAxisAlignment = CrossAxisAlignment.horizontal(Alignment.Start),
+    crossAxisSize = SizeMode.Wrap
+)
+
+@PublishedApi
+@Composable
+internal fun columnMeasureBlocks(
+    verticalArrangement: Arrangement.Vertical,
+    horizontalGravity: Alignment.Horizontal
+) = remember(verticalArrangement, horizontalGravity) {
+    if (verticalArrangement == Arrangement.Top && horizontalGravity == Alignment.Start) {
+        DefaultColumnMeasureBlocks
+    } else {
+        rowColumnMeasureBlocks(
+            orientation = LayoutOrientation.Vertical,
+            arrangement = { totalSize, size, _ ->
+                verticalArrangement.arrange(totalSize, size)
+            },
+            crossAxisAlignment = CrossAxisAlignment.horizontal(horizontalGravity),
+            crossAxisSize = SizeMode.Wrap
+        )
+    }
 }
 
 /**
