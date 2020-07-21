@@ -16,7 +16,7 @@
 package androidx.ui.desktop
 
 import androidx.compose.animation.core.AnimationClockObserver
-import androidx.compose.dispatch.DesktopUiDispatcher
+import androidx.compose.runtime.dispatch.DesktopUiDispatcher
 import androidx.ui.text.platform.paragraphActualFactory
 import androidx.ui.text.platform.paragraphIntrinsicsActualFactory
 import com.jogamp.opengl.GL
