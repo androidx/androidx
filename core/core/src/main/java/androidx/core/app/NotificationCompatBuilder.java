@@ -134,7 +134,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 final List<String> people = combineLists(getPeople(b.mPersonList), b.mPeople);
                 if (people != null && !people.isEmpty()) {
                     mExtras.putStringArray(Notification.EXTRA_PEOPLE,
-                            b.mPeople.toArray(new String[b.mPeople.size()]));
+                            people.toArray(new String[people.size()]));
                 }
             }
         }
@@ -176,6 +176,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 if (carExtenderBundle == null) {
                     carExtenderBundle = new Bundle();
                 }
+                Bundle extenderBundleCopy = new Bundle(carExtenderBundle);
                 Bundle listBundle = new Bundle();
                 for (int i = 0; i < b.mInvisibleActions.size(); i++) {
                     listBundle.putBundle(
@@ -185,10 +186,12 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 }
                 carExtenderBundle.putBundle(
                         NotificationCompat.CarExtender.EXTRA_INVISIBLE_ACTIONS, listBundle);
+                extenderBundleCopy.putBundle(
+                        NotificationCompat.CarExtender.EXTRA_INVISIBLE_ACTIONS, listBundle);
                 b.getExtras().putBundle(
                         NotificationCompat.CarExtender.EXTRA_CAR_EXTENDER, carExtenderBundle);
                 mExtras.putBundle(
-                        NotificationCompat.CarExtender.EXTRA_CAR_EXTENDER, carExtenderBundle);
+                        NotificationCompat.CarExtender.EXTRA_CAR_EXTENDER, extenderBundleCopy);
             }
         }
         if (Build.VERSION.SDK_INT >= 23) {

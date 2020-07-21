@@ -26,6 +26,7 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.LocusId;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -69,6 +70,7 @@ import androidx.core.view.GravityCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Constructor;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -413,6 +415,13 @@ public class NotificationCompat {
     public static final String EXTRA_CHRONOMETER_COUNT_DOWN = "android.chronometerCountDown";
 
     /**
+     * {@link #getExtras extras} key: whether the notification should be colorized as
+     * supplied to {@link Builder#setColorized(boolean)}.
+     */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
+    public static final String EXTRA_COLORIZED = "android.colorized";
+
+    /**
      * {@link #getExtras extras} key: whether the when field set using {@link Builder#setWhen}
      * should be shown, as supplied to {@link Builder#setShowWhen(boolean)}.
      */
@@ -443,12 +452,29 @@ public class NotificationCompat {
     public static final String EXTRA_TEMPLATE = "android.template";
 
     /**
+     * {@link #getExtras extras} key: A string representing the name of the specific
+     * {@link NotificationCompat.Style} used to create this notification.
+     */
+    public static final String EXTRA_COMPAT_TEMPLATE = "androidx.core.app.extra.COMPAT_TEMPLATE";
+
+    /**
      * {@link #getExtras extras} key: A String array containing the people that this
      * notification relates to, each of which was supplied to
      * {@link Builder#addPerson(String)}.
+     *
+     * @deprecated the actual objects are now in {@link #EXTRA_PEOPLE_LIST}
      */
     @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
+    @Deprecated
     public static final String EXTRA_PEOPLE = "android.people";
+
+    /**
+     * {@link #getExtras extras} key: : An arrayList of {@link Person} objects containing the
+     * people that this notification relates to, each of which was supplied to
+     * {@link Builder#addPerson(Person)}.
+     */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
+    public static final String EXTRA_PEOPLE_LIST = "android.people.list";
 
     /**
      * {@link #getExtras extras} key: A
@@ -850,6 +876,168 @@ public class NotificationCompat {
          */
         @Deprecated
         public ArrayList<String> mPeople;
+
+        /**
+         * Creates a NotificationCompat.Builder which can be used to build a notification that is
+         * equivalent to the given one, such that updates can be made to an existing notification
+         * with the NotitifactionCompat.Builder API.
+         */
+        @NonNull
+        @RequiresApi(19)
+        @SuppressLint("BuilderSetStyle")  // This API is copied from Notification.Builder
+        public static Builder recoverBuilder(@NonNull Context context,
+                @NonNull Notification notification) {
+            final Bundle extras = notification.extras;
+            final Style style = Style.extractStyleFromNotification(notification);
+            final Builder builder = new Builder(context, getChannelId(notification))
+                    .setContentTitle(NotificationCompat.getContentTitle(notification))
+                    .setContentText(NotificationCompat.getContentText(notification))
+                    .setContentInfo(NotificationCompat.getContentInfo(notification))
+                    .setSubText(NotificationCompat.getSubText(notification))
+                    .setSettingsText(NotificationCompat.getSettingsText(notification))
+                    .setStyle(style)
+                    .setContentIntent(notification.contentIntent)
+                    .setGroup(NotificationCompat.getGroup(notification))
+                    .setGroupSummary(NotificationCompat.isGroupSummary(notification))
+                    .setLocusId(NotificationCompat.getLocusId(notification))
+                    .setWhen(notification.when)
+                    .setShowWhen(NotificationCompat.getShowWhen(notification))
+                    .setUsesChronometer(NotificationCompat.getUsesChronometer(notification))
+                    .setAutoCancel(NotificationCompat.getAutoCancel(notification))
+                    .setOnlyAlertOnce(NotificationCompat.getOnlyAlertOnce(notification))
+                    .setOngoing(NotificationCompat.getOngoing(notification))
+                    .setLocalOnly(NotificationCompat.getLocalOnly(notification))
+                    .setLargeIcon(notification.largeIcon)
+                    .setBadgeIconType(NotificationCompat.getBadgeIconType(notification))
+                    .setCategory(NotificationCompat.getCategory(notification))
+                    .setBubbleMetadata(NotificationCompat.getBubbleMetadata(notification))
+                    .setNumber(notification.number)
+                    .setTicker(notification.tickerText)
+                    .setContentIntent(notification.contentIntent)
+                    .setDeleteIntent(notification.deleteIntent)
+                    .setFullScreenIntent(notification.fullScreenIntent,
+                            NotificationCompat.getHighPriority(notification))
+                    .setSound(notification.sound, notification.audioStreamType)
+                    .setVibrate(notification.vibrate)
+                    .setLights(notification.ledARGB, notification.ledOnMS, notification.ledOffMS)
+                    .setDefaults(notification.defaults)
+                    .setPriority(notification.priority)
+                    .setColor(NotificationCompat.getColor(notification))
+                    .setVisibility(NotificationCompat.getVisibility(notification))
+                    .setPublicVersion(NotificationCompat.getPublicVersion(notification))
+                    .setSortKey(NotificationCompat.getSortKey(notification))
+                    .setTimeoutAfter(getTimeoutAfter(notification))
+                    .setShortcutId(getShortcutId(notification))
+                    .setProgress(extras.getInt(EXTRA_PROGRESS_MAX), extras.getInt(EXTRA_PROGRESS),
+                            extras.getBoolean(EXTRA_PROGRESS_INDETERMINATE))
+                    .setAllowSystemGeneratedContextualActions(NotificationCompat
+                            .getAllowSystemGeneratedContextualActions(notification))
+                    .setSmallIcon(notification.icon, notification.iconLevel)
+                    .addExtras(getExtrasWithoutDuplicateData(notification, style));
+
+            // TODO: Copy custom RemoteViews from the Notification.
+
+            // Avoid the setter which requires wrapping/unwrapping IconCompat and extra null checks
+            if (Build.VERSION.SDK_INT >= 23) {
+                builder.mSmallIcon = notification.getSmallIcon();
+            }
+
+            // Add actions from the notification.
+            if (notification.actions != null && notification.actions.length != 0) {
+                for (Notification.Action action : notification.actions) {
+                    builder.addAction(Action.Builder.fromAndroidAction(action).build());
+                }
+            }
+            // Add invisible actions from the notification.
+            if (Build.VERSION.SDK_INT >= 21) {
+                List<Action> invisibleActions =
+                        NotificationCompat.getInvisibleActions(notification);
+                if (!invisibleActions.isEmpty()) {
+                    for (Action invisibleAction : invisibleActions) {
+                        builder.addInvisibleAction(invisibleAction);
+                    }
+                }
+            }
+
+            // Add legacy people.  On 28+ this would be empty unless the app used addPerson(String).
+            String[] people = notification.extras.getStringArray(EXTRA_PEOPLE);
+            if (people != null && people.length != 0) {
+                for (String person : people) {
+                    builder.addPerson(person);
+                }
+            }
+            // Add modern Person list
+            if (Build.VERSION.SDK_INT >= 28) {
+                ArrayList<android.app.Person> peopleList =
+                        notification.extras.getParcelableArrayList(EXTRA_PEOPLE_LIST);
+                if (peopleList != null && !peopleList.isEmpty()) {
+                    for (android.app.Person person : peopleList) {
+                        builder.addPerson(Person.fromAndroidPerson(person));
+                    }
+                }
+            }
+
+            // These setters have side effects even when the default value is set, so they should
+            // only be called if there is a value in the notification extras to be set
+            if (Build.VERSION.SDK_INT >= 24) {
+                if (extras.containsKey(EXTRA_CHRONOMETER_COUNT_DOWN)) {
+                    builder.setChronometerCountDown(
+                            extras.getBoolean(EXTRA_CHRONOMETER_COUNT_DOWN));
+                }
+            }
+            if (Build.VERSION.SDK_INT >= 26) {
+                if (extras.containsKey(EXTRA_COLORIZED)) {
+                    builder.setColorized(extras.getBoolean(EXTRA_COLORIZED));
+                }
+            }
+            return builder;
+        }
+
+        /** Remove all extras which have been parsed by the rest of the copy process */
+        @Nullable
+        @RequiresApi(19)
+        private static Bundle getExtrasWithoutDuplicateData(
+                @NonNull Notification notification, @Nullable Style style) {
+            if (notification.extras == null) {
+                return null;
+            }
+            Bundle newExtras = new Bundle(notification.extras);
+
+            // Remove keys which are elsewhere copied from the notification to the builder
+            newExtras.remove(EXTRA_TITLE);
+            newExtras.remove(EXTRA_TEXT);
+            newExtras.remove(EXTRA_INFO_TEXT);
+            newExtras.remove(EXTRA_SUB_TEXT);
+            newExtras.remove(EXTRA_CHANNEL_ID);
+            newExtras.remove(EXTRA_CHANNEL_GROUP_ID);
+            newExtras.remove(EXTRA_SHOW_WHEN);
+            newExtras.remove(EXTRA_PROGRESS);
+            newExtras.remove(EXTRA_PROGRESS_MAX);
+            newExtras.remove(EXTRA_PROGRESS_INDETERMINATE);
+            newExtras.remove(EXTRA_CHRONOMETER_COUNT_DOWN);
+            newExtras.remove(EXTRA_COLORIZED);
+            newExtras.remove(EXTRA_PEOPLE_LIST);
+            newExtras.remove(EXTRA_PEOPLE);
+            newExtras.remove(NotificationCompatExtras.EXTRA_SORT_KEY);
+            newExtras.remove(NotificationCompatExtras.EXTRA_GROUP_KEY);
+            newExtras.remove(NotificationCompatExtras.EXTRA_GROUP_SUMMARY);
+            newExtras.remove(NotificationCompatExtras.EXTRA_LOCAL_ONLY);
+            newExtras.remove(NotificationCompatExtras.EXTRA_ACTION_EXTRAS);
+
+            // Remove the nested EXTRA_INVISIBLE_ACTIONS from the EXTRA_CAR_EXTENDER
+            Bundle carExtenderExtras = newExtras.getBundle(CarExtender.EXTRA_CAR_EXTENDER);
+            if (carExtenderExtras != null) {
+                carExtenderExtras = new Bundle(carExtenderExtras);
+                carExtenderExtras.remove(CarExtender.EXTRA_INVISIBLE_ACTIONS);
+                newExtras.putBundle(CarExtender.EXTRA_CAR_EXTENDER, carExtenderExtras);
+            }
+
+            // Remove keys used by the style which was successfully extracted from the notification
+            if (style != null) {
+                style.clearCompatExtraKeys(newExtras);
+            }
+            return newExtras;
+        }
 
         /**
          * Constructor.
@@ -1500,8 +1688,10 @@ public class NotificationCompat {
          * @deprecated use {@link #addPerson(Person)}
          */
         @Deprecated
-        public @NonNull Builder addPerson(@NonNull String uri) {
-            mPeople.add(uri);
+        public @NonNull Builder addPerson(@Nullable String uri) {
+            if (uri != null && !uri.isEmpty()) {
+                mPeople.add(uri);
+            }
             return this;
         }
 
@@ -1523,10 +1713,22 @@ public class NotificationCompat {
          * </P>
          *
          * @param person the person to add.
-         * @see Notification#EXTRA_PEOPLE_LIST
+         * @see #EXTRA_PEOPLE_LIST
          */
-        public @NonNull Builder addPerson(@NonNull final Person person) {
-            mPersonList.add(person);
+        public @NonNull Builder addPerson(@Nullable final Person person) {
+            if (person != null) {
+                mPersonList.add(person);
+            }
+            return this;
+        }
+
+        /**
+         * Clear any people added via either {@link #addPerson(Person)} or
+         * {@link #addPerson(String)}
+         */
+        public @NonNull Builder clearPeople() {
+            mPersonList.clear();
+            mPeople.clear();
             return this;
         }
 
@@ -1663,8 +1865,18 @@ public class NotificationCompat {
          *
          * @param action The action to add.
          */
-        public @NonNull Builder addAction(@NonNull Action action) {
-            mActions.add(action);
+        public @NonNull Builder addAction(@Nullable Action action) {
+            if (action != null) {
+                mActions.add(action);
+            }
+            return this;
+        }
+
+        /**
+         * Clear any actions added via {@link #addAction}
+         */
+        public @NonNull Builder clearActions() {
+            mActions.clear();
             return this;
         }
 
@@ -1682,7 +1894,8 @@ public class NotificationCompat {
         @NonNull
         public Builder addInvisibleAction(int icon, @Nullable CharSequence title,
                 @Nullable PendingIntent intent) {
-            return addInvisibleAction(new Action(icon, title, intent));
+            mInvisibleActions.add(new Action(icon, title, intent));
+            return this;
         }
 
         /**
@@ -1694,8 +1907,26 @@ public class NotificationCompat {
          * @param action The action to add.
          */
         @RequiresApi(21)
-        public @NonNull Builder addInvisibleAction(@NonNull Action action) {
-            mInvisibleActions.add(action);
+        public @NonNull Builder addInvisibleAction(@Nullable Action action) {
+            if (action != null) {
+                mInvisibleActions.add(action);
+            }
+            return this;
+        }
+
+        /**
+         * Clear any invisible actions added via {@link #addInvisibleAction}
+         */
+        public @NonNull Builder clearInvisibleActions() {
+            mInvisibleActions.clear();
+            // NOTE: Building a notification actually mutates the extras on the builder, so we
+            //  have to clear out those changes in order for the function to really work.
+            Bundle carExtenderBundle = mExtras.getBundle(CarExtender.EXTRA_CAR_EXTENDER);
+            if (carExtenderBundle != null) {
+                carExtenderBundle = new Bundle(carExtenderBundle);
+                carExtenderBundle.remove(CarExtender.EXTRA_INVISIBLE_ACTIONS);
+                mExtras.putBundle(CarExtender.EXTRA_CAR_EXTENDER, carExtenderBundle);
+            }
             return this;
         }
 
@@ -1853,8 +2084,9 @@ public class NotificationCompat {
             Notification notification = compatBuilder.build();
             if (Build.VERSION.SDK_INT >= 24) {
                 // On N and newer, do some magic and delegate to the Platform's implementation
-                return Notification.Builder.recoverBuilder(mContext, notification)
-                        .createHeadsUpContentView();
+                Notification.Builder platformBuilder =
+                        Notification.Builder.recoverBuilder(mContext, notification);
+                return platformBuilder.createHeadsUpContentView();
             } else {
                 // Before N, delegate to the deprecated field on the built notification
                 return notification.headsUpContentView;
@@ -2245,16 +2477,124 @@ public class NotificationCompat {
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
-        // TODO: implement for all styles
         public void addCompatExtras(Bundle extras) {
+            if (mSummaryTextSet) {
+                extras.putCharSequence(EXTRA_SUMMARY_TEXT, mSummaryText);
+            }
+            if (mBigContentTitle != null) {
+                extras.putCharSequence(EXTRA_TITLE_BIG, mBigContentTitle);
+            }
+            extras.putString(EXTRA_COMPAT_TEMPLATE, getClass().getName());
         }
 
         /**
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
-        // TODO: implement for all styles
-        protected void restoreFromCompatExtras(Bundle extras) {
+        protected void restoreFromCompatExtras(@NonNull Bundle extras) {
+            if (extras.containsKey(EXTRA_SUMMARY_TEXT)) {
+                mSummaryText = extras.getCharSequence(EXTRA_SUMMARY_TEXT);
+                mSummaryTextSet = true;
+            }
+            mBigContentTitle = extras.getCharSequence(EXTRA_TITLE_BIG);
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        protected void clearCompatExtraKeys(@NonNull Bundle extras) {
+            extras.remove(EXTRA_SUMMARY_TEXT);
+            extras.remove(EXTRA_TITLE_BIG);
+            extras.remove(EXTRA_COMPAT_TEMPLATE);
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Nullable
+        public static Style extractStyleFromNotification(@NonNull Notification notification) {
+            Bundle extras = NotificationCompat.getExtras(notification);
+            if (extras == null) {
+                return null;
+            }
+            return constructStyleForExtras(extras);
+        }
+
+        private static @Nullable String getCompatStyleName(@Nullable String platformTemplateClass) {
+            if (platformTemplateClass == null) {
+                return null;
+            }
+            if (Build.VERSION.SDK_INT >= 16) {
+                if (platformTemplateClass.equals(Notification.BigPictureStyle.class.getName())) {
+                    return BigPictureStyle.class.getName();
+                }
+                if (platformTemplateClass.equals(Notification.BigTextStyle.class.getName())) {
+                    return BigTextStyle.class.getName();
+                }
+                if (platformTemplateClass.equals(Notification.InboxStyle.class.getName())) {
+                    return InboxStyle.class.getName();
+                }
+                if (Build.VERSION.SDK_INT >= 24) {
+                    if (platformTemplateClass.equals(Notification.MessagingStyle.class.getName())) {
+                        return MessagingStyle.class.getName();
+                    }
+                    if (platformTemplateClass.equals(
+                            Notification.DecoratedCustomViewStyle.class.getName())) {
+                        return DecoratedCustomViewStyle.class.getName();
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Nullable
+        private static Class<? extends Style> getCompatStyleClass(@NonNull String templateClass) {
+            @SuppressWarnings("unchecked")  // type safety would apparently require a Collection
+            Class<? extends Style>[] classes = new Class[]{
+                    BigTextStyle.class, BigPictureStyle.class, InboxStyle.class,
+                    DecoratedCustomViewStyle.class, MessagingStyle.class};
+            for (Class<? extends Style> innerClass : classes) {
+                if (templateClass.equals(innerClass.getName())) {
+                    return innerClass;
+                }
+            }
+            return null;
+        }
+
+        private static @Nullable Style constructStyleForExtras(@NonNull Bundle extras) {
+            String compatTemplateClass = extras.getString(EXTRA_COMPAT_TEMPLATE);
+            if (compatTemplateClass == null) {
+                compatTemplateClass = getCompatStyleName(extras.getString(EXTRA_TEMPLATE));
+            }
+            if (compatTemplateClass == null) {
+                if (extras.containsKey(EXTRA_PICTURE)) {
+                    compatTemplateClass = BigPictureStyle.class.getName();
+                } else if (extras.containsKey(EXTRA_BIG_TEXT)) {
+                    compatTemplateClass = BigTextStyle.class.getName();
+                } else if (extras.containsKey(EXTRA_SELF_DISPLAY_NAME)
+                        || extras.containsKey(EXTRA_MESSAGING_STYLE_USER)) {
+                    compatTemplateClass = MessagingStyle.class.getName();
+                } else if (extras.containsKey(EXTRA_TEXT_LINES)) {
+                    compatTemplateClass = InboxStyle.class.getName();
+                } else {
+                    return null;
+                }
+            }
+            final Class<? extends Style> styleClass = getCompatStyleClass(compatTemplateClass);
+            if (styleClass == null) {
+                return null;
+            }
+            try {
+                final Constructor<? extends Style> ctor = styleClass.getDeclaredConstructor();
+                ctor.setAccessible(true);
+                final Style style = ctor.newInstance();
+                style.restoreFromCompatExtras(extras);
+                return style;
+            } catch (Exception t) {
+                return null;
+            }
         }
 
         /**
@@ -2527,6 +2867,7 @@ public class NotificationCompat {
      * @see Notification#bigContentView
      */
     public static class BigPictureStyle extends Style {
+
         private Bitmap mPicture;
         private Bitmap mBigLargeIcon;
         private boolean mBigLargeIconSet;
@@ -2592,6 +2933,46 @@ public class NotificationCompat {
                 }
             }
         }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        public void addCompatExtras(Bundle extras) {
+            super.addCompatExtras(extras);
+
+            if (mBigLargeIconSet) {
+                extras.putParcelable(EXTRA_LARGE_ICON_BIG, mBigLargeIcon);
+            }
+            extras.putParcelable(EXTRA_PICTURE, mPicture);
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        protected void restoreFromCompatExtras(@NonNull Bundle extras) {
+            super.restoreFromCompatExtras(extras);
+
+            if (extras.containsKey(EXTRA_LARGE_ICON_BIG)) {
+                mBigLargeIcon = extras.getParcelable(EXTRA_LARGE_ICON_BIG);
+                mBigLargeIconSet = true;
+            }
+            mPicture = extras.getParcelable(EXTRA_PICTURE);
+        }
+
+        /**
+         * @hide
+         */
+        @Override
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        protected void clearCompatExtraKeys(@NonNull Bundle extras) {
+            super.clearCompatExtraKeys(extras);
+            extras.remove(EXTRA_LARGE_ICON_BIG);
+            extras.remove(EXTRA_PICTURE);
+        }
     }
 
     /**
@@ -2616,6 +2997,7 @@ public class NotificationCompat {
      * @see Notification#bigContentView
      */
     public static class BigTextStyle extends Style {
+
         private CharSequence mBigText;
 
         public BigTextStyle() {
@@ -2667,6 +3049,38 @@ public class NotificationCompat {
                     style.setSummaryText(mSummaryText);
                 }
             }
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        public void addCompatExtras(Bundle extras) {
+            super.addCompatExtras(extras);
+
+            extras.putCharSequence(EXTRA_BIG_TEXT, mBigText);
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        protected void restoreFromCompatExtras(@NonNull Bundle extras) {
+            super.restoreFromCompatExtras(extras);
+
+            mBigText = extras.getCharSequence(EXTRA_BIG_TEXT);
+        }
+
+        /**
+         * @hide
+         */
+        @Override
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        protected void clearCompatExtraKeys(@NonNull Bundle extras) {
+            super.clearCompatExtraKeys(extras);
+            extras.remove(EXTRA_BIG_TEXT);
         }
     }
 
@@ -2840,10 +3254,12 @@ public class NotificationCompat {
          *
          * @return this object for method chaining
          */
-        public @NonNull MessagingStyle addMessage(@NonNull Message message) {
-            mMessages.add(message);
-            if (mMessages.size() > MAXIMUM_RETAINED_MESSAGES) {
-                mMessages.remove(0);
+        public @NonNull MessagingStyle addMessage(@Nullable Message message) {
+            if (message != null) {
+                mMessages.add(message);
+                if (mMessages.size() > MAXIMUM_RETAINED_MESSAGES) {
+                    mMessages.remove(0);
+                }
             }
             return this;
         }
@@ -2861,10 +3277,12 @@ public class NotificationCompat {
          * @param message The historic {@link Message} to be added
          * @return this object for method chaining
          */
-        public @NonNull MessagingStyle addHistoricMessage(@NonNull Message message) {
-            mHistoricMessages.add(message);
-            if (mHistoricMessages.size() > MAXIMUM_RETAINED_MESSAGES) {
-                mHistoricMessages.remove(0);
+        public @NonNull MessagingStyle addHistoricMessage(@Nullable Message message) {
+            if (message != null) {
+                mHistoricMessages.add(message);
+                if (mHistoricMessages.size() > MAXIMUM_RETAINED_MESSAGES) {
+                    mHistoricMessages.remove(0);
+                }
             }
             return this;
         }
@@ -2935,20 +3353,11 @@ public class NotificationCompat {
         @Nullable
         public static MessagingStyle extractMessagingStyleFromNotification(
                 @NonNull Notification notification) {
-            Bundle extras = NotificationCompat.getExtras(notification);
-            if (extras != null
-                    && !extras.containsKey(EXTRA_SELF_DISPLAY_NAME)
-                    && !extras.containsKey(EXTRA_MESSAGING_STYLE_USER)) {
-                return null;
+            Style style = NotificationCompat.Style.extractStyleFromNotification(notification);
+            if (style instanceof MessagingStyle) {
+                return (MessagingStyle) style;
             }
-
-            try {
-                MessagingStyle style = new MessagingStyle();
-                style.restoreFromCompatExtras(extras);
-                return style;
-            } catch (ClassCastException e) {
-                return null;
-            }
+            return null;
         }
 
         /**
@@ -3122,6 +3531,7 @@ public class NotificationCompat {
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
         protected void restoreFromCompatExtras(@NonNull Bundle extras) {
+            super.restoreFromCompatExtras(extras);
             mMessages.clear();
             // Call to #restore requires that there either be a display name OR a user.
             if (extras.containsKey(EXTRA_MESSAGING_STYLE_USER)) {
@@ -3149,6 +3559,22 @@ public class NotificationCompat {
             if (extras.containsKey(EXTRA_IS_GROUP_CONVERSATION)) {
                 mIsGroupConversation = extras.getBoolean(EXTRA_IS_GROUP_CONVERSATION);
             }
+        }
+
+        /**
+         * @hide
+         */
+        @Override
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        protected void clearCompatExtraKeys(@NonNull Bundle extras) {
+            super.clearCompatExtraKeys(extras);
+            extras.remove(EXTRA_MESSAGING_STYLE_USER);
+            extras.remove(EXTRA_SELF_DISPLAY_NAME);
+            extras.remove(EXTRA_CONVERSATION_TITLE);
+            extras.remove(EXTRA_HIDDEN_CONVERSATION_TITLE);
+            extras.remove(EXTRA_MESSAGES);
+            extras.remove(EXTRA_HISTORIC_MESSAGES);
+            extras.remove(EXTRA_IS_GROUP_CONVERSATION);
         }
 
         public static final class Message {
@@ -3443,6 +3869,7 @@ public class NotificationCompat {
      * @see Notification#bigContentView
      */
     public static class InboxStyle extends Style {
+
         private ArrayList<CharSequence> mTexts = new ArrayList<>();
 
         public InboxStyle() {
@@ -3473,8 +3900,10 @@ public class NotificationCompat {
         /**
          * Append a line to the digest section of the Inbox notification.
          */
-        public @NonNull InboxStyle addLine(@NonNull CharSequence cs) {
-            mTexts.add(Builder.limitCharSequenceLength(cs));
+        public @NonNull InboxStyle addLine(@Nullable CharSequence cs) {
+            if (cs != null) {
+                mTexts.add(Builder.limitCharSequenceLength(cs));
+            }
             return this;
         }
 
@@ -3495,6 +3924,42 @@ public class NotificationCompat {
                     style.addLine(text);
                 }
             }
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        public void addCompatExtras(Bundle extras) {
+            super.addCompatExtras(extras);
+
+            CharSequence[] arr = new CharSequence[mTexts.size()];
+            extras.putCharSequenceArray(EXTRA_TEXT_LINES, mTexts.toArray(arr));
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        protected void restoreFromCompatExtras(@NonNull Bundle extras) {
+            super.restoreFromCompatExtras(extras);
+            mTexts.clear();
+
+            if (extras.containsKey(EXTRA_TEXT_LINES)) {
+                Collections.addAll(mTexts, extras.getCharSequenceArray(EXTRA_TEXT_LINES));
+            }
+        }
+
+        /**
+         * @hide
+         */
+        @Override
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        protected void clearCompatExtraKeys(@NonNull Bundle extras) {
+            super.clearCompatExtraKeys(extras);
+            extras.remove(EXTRA_TEXT_LINES);
         }
     }
 
@@ -3942,6 +4407,44 @@ public class NotificationCompat {
             private boolean mIsContextual;
 
             /**
+             * Creates a {@link Builder} from an {@link android.app.Notification.Action}.
+             *
+             * @hide
+             */
+            @RestrictTo(LIBRARY_GROUP_PREFIX)
+            @RequiresApi(19)
+            @NonNull
+            public static Builder fromAndroidAction(@NonNull Notification.Action action) {
+                final Builder builder;
+                if (Build.VERSION.SDK_INT >= 23 && action.getIcon() != null) {
+                    IconCompat iconCompat = IconCompat.createFromIcon(action.getIcon());
+                    builder = new NotificationCompat.Action.Builder(iconCompat, action.title,
+                            action.actionIntent);
+                } else {
+                    builder = new NotificationCompat.Action.Builder(action.icon, action.title,
+                            action.actionIntent);
+                }
+                if (Build.VERSION.SDK_INT >= 20) {
+                    android.app.RemoteInput[] remoteInputs = action.getRemoteInputs();
+                    if (remoteInputs != null && remoteInputs.length != 0) {
+                        for (android.app.RemoteInput remoteInput : remoteInputs) {
+                            builder.addRemoteInput(RemoteInput.fromPlatform(remoteInput));
+                        }
+                    }
+                }
+                if (Build.VERSION.SDK_INT >= 24) {
+                    builder.mAllowGeneratedReplies = action.getAllowGeneratedReplies();
+                }
+                if (Build.VERSION.SDK_INT >= 28) {
+                    builder.setSemanticAction(action.getSemanticAction());
+                }
+                if (Build.VERSION.SDK_INT >= 29) {
+                    builder.setContextual(action.isContextual());
+                }
+                return builder;
+            }
+
+            /**
              * Construct a new builder for {@link Action} object.
              *
              * <p><strong>Note:</strong> For devices running an Android version strictly lower than
@@ -4033,11 +4536,13 @@ public class NotificationCompat {
              * @param remoteInput a {@link RemoteInput} to add to the action
              * @return this object for method chaining
              */
-            public @NonNull Builder addRemoteInput(@NonNull RemoteInput remoteInput) {
+            public @NonNull Builder addRemoteInput(@Nullable RemoteInput remoteInput) {
                 if (mRemoteInputs == null) {
                     mRemoteInputs = new ArrayList<>();
                 }
-                mRemoteInputs.add(remoteInput);
+                if (remoteInput != null) {
+                    mRemoteInputs.add(remoteInput);
+                }
                 return this;
             }
 
@@ -5806,8 +6311,10 @@ public class NotificationCompat {
                  * @param message The text of the new unread message.
                  * @return This object for method chaining.
                  */
-                public @NonNull Builder addMessage(@NonNull String message) {
-                    mMessages.add(message);
+                public @NonNull Builder addMessage(@Nullable String message) {
+                    if (message != null) {
+                        mMessages.add(message);
+                    }
                     return this;
                 }
 
@@ -6394,26 +6901,72 @@ public class NotificationCompat {
     @RequiresApi(21)
     public static @NonNull List<Action> getInvisibleActions(@NonNull Notification notification) {
         ArrayList<Action> result = new ArrayList<>();
+        if (Build.VERSION.SDK_INT >= 19) {
+            Bundle carExtenderBundle =
+                    notification.extras.getBundle(CarExtender.EXTRA_CAR_EXTENDER);
+            if (carExtenderBundle == null) {
+                return result;
+            }
 
-        Bundle carExtenderBundle = notification.extras.getBundle(CarExtender.EXTRA_CAR_EXTENDER);
-        if (carExtenderBundle == null) {
-            return result;
-        }
-
-        Bundle listBundle = carExtenderBundle.getBundle(CarExtender.EXTRA_INVISIBLE_ACTIONS);
-        if (listBundle != null) {
-            for (int i = 0; i < listBundle.size(); i++) {
-                result.add(NotificationCompatJellybean.getActionFromBundle(
-                        listBundle.getBundle(Integer.toString(i))));
+            Bundle listBundle = carExtenderBundle.getBundle(CarExtender.EXTRA_INVISIBLE_ACTIONS);
+            if (listBundle != null) {
+                for (int i = 0; i < listBundle.size(); i++) {
+                    result.add(NotificationCompatJellybean.getActionFromBundle(
+                            listBundle.getBundle(Integer.toString(i))));
+                }
             }
         }
         return result;
     }
 
-    /** Returns the content title of a {@link Notification}. **/
+    /**
+     * Returns the people in the notification.
+     * On platforms which do not have the {@link android.app.Person} class, the
+     * {@link Person} objects will contain only the URI from {@link Builder#addPerson(String)}.
+     */
+    public static @NonNull List<Person> getPeople(@NonNull Notification notification) {
+        ArrayList<Person> result = new ArrayList<>();
+        if (Build.VERSION.SDK_INT >= 28) {
+            final ArrayList<android.app.Person> peopleList =
+                    notification.extras.getParcelableArrayList(EXTRA_PEOPLE_LIST);
+            if (peopleList != null && !peopleList.isEmpty()) {
+                for (android.app.Person person : peopleList) {
+                    result.add(Person.fromAndroidPerson(person));
+                }
+            }
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            final String[] peopleArray = notification.extras.getStringArray(EXTRA_PEOPLE);
+            if (peopleArray != null && peopleArray.length != 0) {
+                for (String personUri : peopleArray) {
+                    result.add(new Person.Builder().setUri(personUri).build());
+                }
+            }
+        }
+        return result;
+    }
+
+    /** Returns the content title provided to {@link Builder#setContentTitle(CharSequence)}. */
     @RequiresApi(19)
     public static @Nullable CharSequence getContentTitle(@NonNull Notification notification) {
-        return notification.extras.getCharSequence(Notification.EXTRA_TITLE);
+        return notification.extras.getCharSequence(EXTRA_TITLE);
+    }
+
+    /** Returns the content text provided to {@link Builder#setContentText(CharSequence)}. */
+    @RequiresApi(19)
+    public static @Nullable CharSequence getContentText(@NonNull Notification notification) {
+        return notification.extras.getCharSequence(EXTRA_TEXT);
+    }
+
+    /** Returns the content info provided to {@link Builder#setContentInfo(CharSequence)}. */
+    @RequiresApi(19)
+    public static @Nullable CharSequence getContentInfo(@NonNull Notification notification) {
+        return notification.extras.getCharSequence(EXTRA_INFO_TEXT);
+    }
+
+    /** Returns the sub text provided to {@link Builder#setSubText(CharSequence)}. */
+    @RequiresApi(19)
+    public static @Nullable CharSequence getSubText(@NonNull Notification notification) {
+        return notification.extras.getCharSequence(EXTRA_SUB_TEXT);
     }
 
     /**
@@ -6463,6 +7016,70 @@ public class NotificationCompat {
         } else {
             return null;
         }
+    }
+
+    /** Get the value provided to {@link Builder#setShowWhen(boolean)} */
+    @RequiresApi(19)
+    public static boolean getShowWhen(@NonNull Notification notification) {
+        // NOTE: This field can be set since API 17, but is impossible to extract from the
+        // constructed Notification until API 19 when it was moved to the extras.
+        return notification.extras.getBoolean(EXTRA_SHOW_WHEN);
+    }
+
+    /** Get the value provided to {@link Builder#setUsesChronometer(boolean)} */
+    @RequiresApi(19)
+    public static boolean getUsesChronometer(@NonNull Notification notification) {
+        // NOTE: This field can be set since API 16, but is impossible to extract from the
+        // constructed Notification until API 19 when it was moved to the extras.
+        return notification.extras.getBoolean(EXTRA_SHOW_CHRONOMETER);
+    }
+
+    /** Get the value provided to {@link Builder#setOnlyAlertOnce(boolean)} */
+    public static boolean getOnlyAlertOnce(@NonNull Notification notification) {
+        return (notification.flags & Notification.FLAG_ONLY_ALERT_ONCE) != 0;
+    }
+
+    /** Get the value provided to {@link Builder#setAutoCancel(boolean)} */
+    public static boolean getAutoCancel(@NonNull Notification notification) {
+        return (notification.flags & Notification.FLAG_AUTO_CANCEL) != 0;
+    }
+
+    /** Get the value provided to {@link Builder#setOngoing(boolean)} */
+    public static boolean getOngoing(@NonNull Notification notification) {
+        return (notification.flags & Notification.FLAG_ONGOING_EVENT) != 0;
+    }
+
+    /** Get the value provided to {@link Builder#setColor(int)} */
+    public static int getColor(@NonNull Notification notification) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            return notification.color;
+        } else {
+            return COLOR_DEFAULT;
+        }
+    }
+
+    /** Get the value provided to {@link Builder#setVisibility(int)} */
+    public static @NotificationVisibility int getVisibility(@NonNull Notification notification) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            return notification.visibility;
+        } else {
+            return VISIBILITY_PRIVATE;
+        }
+    }
+
+    /** Get the value provided to {@link Builder#setVisibility(int)} */
+    public static @Nullable Notification getPublicVersion(@NonNull Notification notification) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            return notification.publicVersion;
+        } else {
+            return null;
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    static boolean getHighPriority(@NonNull Notification notification) {
+        return (notification.flags & Notification.FLAG_HIGH_PRIORITY) != 0;
     }
 
     /**
@@ -6578,7 +7195,8 @@ public class NotificationCompat {
     @Nullable
     public static LocusIdCompat getLocusId(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 29) {
-            return LocusIdCompat.toLocusIdCompat(notification.getLocusId());
+            LocusId locusId = notification.getLocusId();
+            return locusId == null ? null : LocusIdCompat.toLocusIdCompat(locusId);
         } else {
             return null;
         }

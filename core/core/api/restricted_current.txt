@@ -274,10 +274,14 @@ package androidx.core.app {
     method public static androidx.core.app.NotificationCompat.Action? getAction(android.app.Notification, int);
     method public static int getActionCount(android.app.Notification);
     method public static boolean getAllowSystemGeneratedContextualActions(android.app.Notification);
+    method public static boolean getAutoCancel(android.app.Notification);
     method public static int getBadgeIconType(android.app.Notification);
     method public static androidx.core.app.NotificationCompat.BubbleMetadata? getBubbleMetadata(android.app.Notification);
     method public static String? getCategory(android.app.Notification);
     method public static String? getChannelId(android.app.Notification);
+    method public static int getColor(android.app.Notification);
+    method @RequiresApi(19) public static CharSequence? getContentInfo(android.app.Notification);
+    method @RequiresApi(19) public static CharSequence? getContentText(android.app.Notification);
     method @RequiresApi(19) public static CharSequence? getContentTitle(android.app.Notification);
     method public static android.os.Bundle? getExtras(android.app.Notification);
     method public static String? getGroup(android.app.Notification);
@@ -285,10 +289,18 @@ package androidx.core.app {
     method @RequiresApi(21) public static java.util.List<androidx.core.app.NotificationCompat.Action!> getInvisibleActions(android.app.Notification);
     method public static boolean getLocalOnly(android.app.Notification);
     method public static androidx.core.content.LocusIdCompat? getLocusId(android.app.Notification);
+    method public static boolean getOngoing(android.app.Notification);
+    method public static boolean getOnlyAlertOnce(android.app.Notification);
+    method public static java.util.List<androidx.core.app.Person!> getPeople(android.app.Notification);
+    method public static android.app.Notification? getPublicVersion(android.app.Notification);
     method public static CharSequence? getSettingsText(android.app.Notification);
     method public static String? getShortcutId(android.app.Notification);
+    method @RequiresApi(19) public static boolean getShowWhen(android.app.Notification);
     method public static String? getSortKey(android.app.Notification);
+    method @RequiresApi(19) public static CharSequence? getSubText(android.app.Notification);
     method public static long getTimeoutAfter(android.app.Notification);
+    method @RequiresApi(19) public static boolean getUsesChronometer(android.app.Notification);
+    method @androidx.core.app.NotificationCompat.NotificationVisibility public static int getVisibility(android.app.Notification);
     method public static boolean isGroupSummary(android.app.Notification);
     field public static final int BADGE_ICON_LARGE = 2; // 0x2
     field public static final int BADGE_ICON_NONE = 0; // 0x0
@@ -320,7 +332,9 @@ package androidx.core.app {
     field public static final String EXTRA_CHANNEL_GROUP_ID = "android.intent.extra.CHANNEL_GROUP_ID";
     field public static final String EXTRA_CHANNEL_ID = "android.intent.extra.CHANNEL_ID";
     field public static final String EXTRA_CHRONOMETER_COUNT_DOWN = "android.chronometerCountDown";
+    field public static final String EXTRA_COLORIZED = "android.colorized";
     field public static final String EXTRA_COMPACT_ACTIONS = "android.compactActions";
+    field public static final String EXTRA_COMPAT_TEMPLATE = "androidx.core.app.extra.COMPAT_TEMPLATE";
     field public static final String EXTRA_CONVERSATION_TITLE = "android.conversationTitle";
     field public static final String EXTRA_HIDDEN_CONVERSATION_TITLE = "android.hiddenConversationTitle";
     field public static final String EXTRA_HISTORIC_MESSAGES = "android.messages.historic";
@@ -333,7 +347,8 @@ package androidx.core.app {
     field public static final String EXTRA_MESSAGING_STYLE_USER = "android.messagingStyleUser";
     field public static final String EXTRA_NOTIFICATION_ID = "android.intent.extra.NOTIFICATION_ID";
     field public static final String EXTRA_NOTIFICATION_TAG = "android.intent.extra.NOTIFICATION_TAG";
-    field public static final String EXTRA_PEOPLE = "android.people";
+    field @Deprecated public static final String EXTRA_PEOPLE = "android.people";
+    field public static final String EXTRA_PEOPLE_LIST = "android.people.list";
     field public static final String EXTRA_PICTURE = "android.picture";
     field public static final String EXTRA_PROGRESS = "android.progress";
     field public static final String EXTRA_PROGRESS_INDETERMINATE = "android.progressIndeterminate";
@@ -412,9 +427,10 @@ package androidx.core.app {
     ctor public NotificationCompat.Action.Builder(int, CharSequence?, android.app.PendingIntent?);
     ctor public NotificationCompat.Action.Builder(androidx.core.app.NotificationCompat.Action);
     method public androidx.core.app.NotificationCompat.Action.Builder addExtras(android.os.Bundle?);
-    method public androidx.core.app.NotificationCompat.Action.Builder addRemoteInput(androidx.core.app.RemoteInput);
+    method public androidx.core.app.NotificationCompat.Action.Builder addRemoteInput(androidx.core.app.RemoteInput?);
     method public androidx.core.app.NotificationCompat.Action build();
     method public androidx.core.app.NotificationCompat.Action.Builder extend(androidx.core.app.NotificationCompat.Action.Extender);
+    method @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.NotificationCompat.Action.Builder fromAndroidAction(android.app.Notification.Action);
     method public android.os.Bundle getExtras();
     method public androidx.core.app.NotificationCompat.Action.Builder setAllowGeneratedReplies(boolean);
     method public androidx.core.app.NotificationCompat.Action.Builder setContextual(boolean);
@@ -496,13 +512,16 @@ package androidx.core.app {
     ctor public NotificationCompat.Builder(android.content.Context, String);
     ctor @Deprecated public NotificationCompat.Builder(android.content.Context);
     method public androidx.core.app.NotificationCompat.Builder addAction(int, CharSequence?, android.app.PendingIntent?);
-    method public androidx.core.app.NotificationCompat.Builder addAction(androidx.core.app.NotificationCompat.Action);
+    method public androidx.core.app.NotificationCompat.Builder addAction(androidx.core.app.NotificationCompat.Action?);
     method public androidx.core.app.NotificationCompat.Builder addExtras(android.os.Bundle?);
     method @RequiresApi(21) public androidx.core.app.NotificationCompat.Builder addInvisibleAction(int, CharSequence?, android.app.PendingIntent?);
-    method @RequiresApi(21) public androidx.core.app.NotificationCompat.Builder addInvisibleAction(androidx.core.app.NotificationCompat.Action);
-    method @Deprecated public androidx.core.app.NotificationCompat.Builder addPerson(String);
-    method public androidx.core.app.NotificationCompat.Builder addPerson(androidx.core.app.Person);
+    method @RequiresApi(21) public androidx.core.app.NotificationCompat.Builder addInvisibleAction(androidx.core.app.NotificationCompat.Action?);
+    method @Deprecated public androidx.core.app.NotificationCompat.Builder addPerson(String?);
+    method public androidx.core.app.NotificationCompat.Builder addPerson(androidx.core.app.Person?);
     method public android.app.Notification build();
+    method public androidx.core.app.NotificationCompat.Builder clearActions();
+    method public androidx.core.app.NotificationCompat.Builder clearInvisibleActions();
+    method public androidx.core.app.NotificationCompat.Builder clearPeople();
     method public android.widget.RemoteViews? createBigContentView();
     method public android.widget.RemoteViews? createContentView();
     method public android.widget.RemoteViews? createHeadsUpContentView();
@@ -517,6 +536,7 @@ package androidx.core.app {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getPriority();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public long getWhenIfShowing();
     method protected static CharSequence? limitCharSequenceLength(CharSequence?);
+    method @RequiresApi(19) public static androidx.core.app.NotificationCompat.Builder recoverBuilder(android.content.Context, android.app.Notification);
     method public androidx.core.app.NotificationCompat.Builder setAllowSystemGeneratedContextualActions(boolean);
     method public androidx.core.app.NotificationCompat.Builder setAutoCancel(boolean);
     method public androidx.core.app.NotificationCompat.Builder setBadgeIconType(@androidx.core.app.NotificationCompat.BadgeIconType int);
@@ -602,7 +622,7 @@ package androidx.core.app {
 
   @Deprecated public static class NotificationCompat.CarExtender.UnreadConversation.Builder {
     ctor @Deprecated public NotificationCompat.CarExtender.UnreadConversation.Builder(String);
-    method @Deprecated public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder addMessage(String);
+    method @Deprecated public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder addMessage(String?);
     method @Deprecated public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation build();
     method @Deprecated public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder setLatestTimestamp(long);
     method @Deprecated public androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder setReadPendingIntent(android.app.PendingIntent?);
@@ -623,7 +643,7 @@ package androidx.core.app {
   public static class NotificationCompat.InboxStyle extends androidx.core.app.NotificationCompat.Style {
     ctor public NotificationCompat.InboxStyle();
     ctor public NotificationCompat.InboxStyle(androidx.core.app.NotificationCompat.Builder?);
-    method public androidx.core.app.NotificationCompat.InboxStyle addLine(CharSequence);
+    method public androidx.core.app.NotificationCompat.InboxStyle addLine(CharSequence?);
     method public androidx.core.app.NotificationCompat.InboxStyle setBigContentTitle(CharSequence?);
     method public androidx.core.app.NotificationCompat.InboxStyle setSummaryText(CharSequence?);
   }
@@ -631,10 +651,10 @@ package androidx.core.app {
   public static class NotificationCompat.MessagingStyle extends androidx.core.app.NotificationCompat.Style {
     ctor @Deprecated public NotificationCompat.MessagingStyle(CharSequence);
     ctor public NotificationCompat.MessagingStyle(androidx.core.app.Person);
-    method public androidx.core.app.NotificationCompat.MessagingStyle addHistoricMessage(androidx.core.app.NotificationCompat.MessagingStyle.Message);
+    method public androidx.core.app.NotificationCompat.MessagingStyle addHistoricMessage(androidx.core.app.NotificationCompat.MessagingStyle.Message?);
     method @Deprecated public androidx.core.app.NotificationCompat.MessagingStyle addMessage(CharSequence?, long, CharSequence?);
     method public androidx.core.app.NotificationCompat.MessagingStyle addMessage(CharSequence?, long, androidx.core.app.Person?);
-    method public androidx.core.app.NotificationCompat.MessagingStyle addMessage(androidx.core.app.NotificationCompat.MessagingStyle.Message);
+    method public androidx.core.app.NotificationCompat.MessagingStyle addMessage(androidx.core.app.NotificationCompat.MessagingStyle.Message?);
     method public static androidx.core.app.NotificationCompat.MessagingStyle? extractMessagingStyleFromNotification(android.app.Notification);
     method public CharSequence? getConversationTitle();
     method public java.util.List<androidx.core.app.NotificationCompat.MessagingStyle.Message!> getHistoricMessages();
@@ -673,12 +693,14 @@ package androidx.core.app {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews applyStandardTemplate(boolean, int, boolean);
     method public android.app.Notification? build();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void buildIntoRemoteViews(android.widget.RemoteViews!, android.widget.RemoteViews!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void clearCompatExtraKeys(android.os.Bundle);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.Bitmap! createColoredBitmap(int, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean displayCustomViewInline();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.NotificationCompat.Style? extractStyleFromNotification(android.app.Notification);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! makeBigContentView(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! makeContentView(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! makeHeadsUpContentView(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void restoreFromCompatExtras(android.os.Bundle!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void restoreFromCompatExtras(android.os.Bundle);
     method public void setBuilder(androidx.core.app.NotificationCompat.Builder?);
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected androidx.core.app.NotificationCompat.Builder! mBuilder;
   }
