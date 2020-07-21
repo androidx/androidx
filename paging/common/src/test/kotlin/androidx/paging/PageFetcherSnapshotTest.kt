@@ -34,12 +34,15 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
@@ -2115,6 +2118,23 @@ class PageFetcherSnapshotTest {
 
             job.cancel()
         }
+    }
+
+    @Test
+    fun pageEventSentAfterChannelClosed() {
+        val pager = PageFetcherSnapshot(
+            initialKey = 50,
+            pagingSource = TestPagingSource(loadDelay = 100),
+            config = config,
+            retryFlow = retryCh.asFlow()
+        )
+
+        val deferred = GlobalScope.async {
+            pager.pageEventFlow.collect { }
+        }
+        pager.close()
+
+        runBlocking { deferred.await() }
     }
 }
 

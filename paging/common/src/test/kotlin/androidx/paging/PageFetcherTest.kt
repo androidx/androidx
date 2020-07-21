@@ -26,7 +26,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.ClosedSendChannelException
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.onCompletion
@@ -195,7 +195,12 @@ class PageFetcherTest {
         advanceUntilIdle()
 
         assertEquals(3, pagingDatas.size)
-        assertFailsWith<ClosedSendChannelException> { pagingDatas[1].flow.collect { } }
+        pauseDispatcher {
+            // This should complete immediately without advanceUntilIdle().
+            val deferred = async { pagingDatas[1].flow.collect { } }
+            deferred.await()
+        }
+
         assertEquals(listOf(true, false), didFinish)
         job.cancel()
     }
