@@ -19,10 +19,10 @@ package androidx.ui.core.pointerinput
 import androidx.ui.core.CustomEvent
 import androidx.ui.core.CustomEventDispatcher
 import androidx.ui.core.InternalPointerEvent
+import androidx.ui.core.PointerEvent
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerEvent
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.plus
@@ -539,7 +539,8 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
         pass: PointerEventPass,
         size: IntSize
     ) {
-        filter.onPointerEvent(toPointerEvent(), pass, size).forEach {
+        val pointerEvent = PointerEvent(this.changes.values.toList(), this)
+        filter.onPointerEvent(pointerEvent, pass, size).forEach {
             this.changes[it.id] = it
         }
     }
@@ -561,8 +562,6 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
     private fun InternalPointerEvent.subtractOffset(position: IntOffset) {
         addOffset(-position)
     }
-
-    private fun InternalPointerEvent.toPointerEvent() = PointerEvent(changes.values.toList())
 
     private inline fun <K, V> MutableMap<K, V>.replaceEverything(f: (V) -> V) {
         for (entry in this) {

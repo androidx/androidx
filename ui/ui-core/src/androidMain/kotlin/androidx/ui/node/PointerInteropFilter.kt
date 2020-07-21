@@ -18,6 +18,7 @@ package androidx.ui.node
 
 import android.os.SystemClock
 import androidx.ui.core.Modifier
+import androidx.ui.core.PointerEvent
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.anyChangeConsumed
@@ -26,7 +27,7 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeAllChanges
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
-import androidx.ui.unit.IntOffset
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.milliseconds
 import androidx.ui.util.fastAny
@@ -79,9 +80,6 @@ internal class PointerInteropFilter(
     val view: AndroidViewHolder
 ) : PointerInputModifier {
 
-    // Reusable to avoid extra allocations.
-    private val reusableLocationInWindow by lazy { IntArray(2) }
-
     /**
      * The 3 possible states
      */
@@ -122,8 +120,18 @@ internal class PointerInteropFilter(
                 pass: PointerEventPass,
                 bounds: IntSize
             ): List<PointerInputChange> {
+                // No implementation as onPointerEvent is overridden.
+                // The super method will eventually be removed so this is just temporary.
+                throw NotImplementedError("This method is temporary and should never be called")
+            }
+
+            override fun onPointerEvent(
+                pointerEvent: PointerEvent,
+                pass: PointerEventPass,
+                bounds: IntSize
+            ): List<PointerInputChange> {
                 @Suppress("NAME_SHADOWING")
-                var changes = changes
+                var changes = pointerEvent.changes
 
                 // If we were told to disallow intercept, or if the event was a down or up event,
                 // we dispatch to Android as early as possible.  If the event is a move event and
@@ -136,10 +144,10 @@ internal class PointerInteropFilter(
 
                 if (state !== DispatchToViewState.NotDispatching) {
                     if (pass == PointerEventPass.InitialDown && dispatchDuringInitialTunnel) {
-                        changes = dispatchToView(changes)
+                        changes = dispatchToView(pointerEvent)
                     }
                     if (pass == PointerEventPass.PostDown && !dispatchDuringInitialTunnel) {
-                        changes = dispatchToView(changes)
+                        changes = dispatchToView(pointerEvent)
                     }
                 }
                 if (pass == PointerEventPass.PostDown) {
@@ -176,42 +184,33 @@ internal class PointerInteropFilter(
             /**
              * Dispatches to the Android View.
              *
-             * Also consumes aspects of [changes] and updates our [state] accordingly.
+             * Also consumes aspects of [pointerEvent] and updates our [state] accordingly.
              *
-             * Will dispatch ACTION_CANCEL if any aspect of [changes] has been consumed and
+             * Will dispatch ACTION_CANCEL if any aspect of [pointerEvent] has been consumed and
              * update our [state] accordingly.
              *
-             * @param changes The changes to dispatch.
+             * @param pointerEvent The change to dispatch.
              * @return The resulting changes (fully consumed or untouched).
              */
-            private fun dispatchToView(changes: List<PointerInputChange>):
+            private fun dispatchToView(pointerEvent: PointerEvent):
                     List<PointerInputChange> {
 
-                @Suppress("NAME_SHADOWING")
-                var changes = changes
-
-                // TODO(b/158034713): This should likely not be the view's location in window, but
-                //  instead should take the global position of this PointerInteropFilter.
-                //  Depending on future work, this may or may not be the case.
-                val globalToLocalOffset =
-                    reusableLocationInWindow.run {
-                        view.getLocationInWindow(this)
-                        IntOffset(this[0], this[1])
-                    }
+                var changes = pointerEvent.changes
 
                 if (changes.fastAny { it.anyChangeConsumed() }) {
                     // We should no longer dispatch to the Android View.
                     if (state === DispatchToViewState.Dispatching) {
-                        // If we were dipatching, send ACTION_CANCEL.
-                        changes.toCancelMotionEventScope(globalToLocalOffset) { motionEvent ->
+                        // If we were dispatching, send ACTION_CANCEL.
+                        pointerEvent.toCancelMotionEventScope(
+                            Offset(view.x, view.y)
+                        ) { motionEvent ->
                             view.dispatchTouchEvent(motionEvent)
                         }
                     }
                     state = DispatchToViewState.NotDispatching
                 } else {
                     // Dispatch and update our state with the result.
-
-                    changes.toMotionEventScope(globalToLocalOffset) { motionEvent ->
+                    pointerEvent.toMotionEventScope(Offset(view.x, view.y)) { motionEvent ->
                         state = if (view.dispatchTouchEvent(motionEvent)) {
                             DispatchToViewState.Dispatching
                         } else {

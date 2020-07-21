@@ -36,8 +36,12 @@ internal class MotionEventAdapter {
 
     private var nextId = 0L
 
+    /**
+     * Whenever a new MotionEvent pointer is added, we create a new PointerId that is associated
+     * with it. This holds that association.
+     */
     @VisibleForTesting
-    internal val intIdToPointerIdMap: MutableMap<Int, PointerId> = mutableMapOf()
+    internal val motionEventToComposePointerIdMap: MutableMap<Int, PointerId> = mutableMapOf()
 
     /**
      * Converts a single [MotionEvent] from an Android event stream into a [PointerInputEvent], or
@@ -53,7 +57,7 @@ internal class MotionEventAdapter {
     internal fun convertToPointerInputEvent(motionEvent: MotionEvent): PointerInputEvent? {
 
         if (motionEvent.actionMasked == ACTION_CANCEL) {
-            intIdToPointerIdMap.clear()
+            motionEventToComposePointerIdMap.clear()
             return null
         }
 
@@ -69,8 +73,11 @@ internal class MotionEventAdapter {
             else -> null
         }
 
+        // TODO(shepshapard): Avoid allocating for every event.
         val pointers: MutableList<PointerInputEventData> = mutableListOf()
 
+        // This converts the MotionEvent into a list of PointerInputEventData, and updates
+        // internal record keeping.
         @Suppress("NAME_SHADOWING")
         motionEvent.asOffsetToScreen { motionEvent ->
             for (i in 0 until motionEvent.pointerCount) {
@@ -80,18 +87,9 @@ internal class MotionEventAdapter {
 
         return PointerInputEvent(
             Uptime(motionEvent.eventTime * NanosecondsPerMillisecond),
-            pointers
+            pointers,
+            motionEvent
         )
-    }
-
-    private inline fun MotionEvent.asOffsetToScreen(block: (MotionEvent) -> Unit) {
-        // Mutate the motion event to be relative to the screen. This is required to create a
-        // valid PointerInputEvent.
-        val offsetX = rawX - x
-        val offsetY = rawY - y
-        offsetLocation(offsetX, offsetY)
-        block(this)
-        offsetLocation(-offsetX, -offsetY)
     }
 
     /**
@@ -104,18 +102,18 @@ internal class MotionEventAdapter {
         upIndex: Int?
     ): PointerInputEventData {
 
-        val pointerIdInt = motionEvent.getPointerId(index)
+        val motionEventPointerId = motionEvent.getPointerId(index)
 
         val pointerId =
             when (index) {
                 downIndex ->
                     PointerId(nextId++).also {
-                        intIdToPointerIdMap[pointerIdInt] = it
+                        motionEventToComposePointerIdMap[motionEventPointerId] = it
                     }
                 upIndex ->
-                    intIdToPointerIdMap.remove(pointerIdInt)
+                    motionEventToComposePointerIdMap.remove(motionEventPointerId)
                 else ->
-                    intIdToPointerIdMap[pointerIdInt]
+                    motionEventToComposePointerIdMap[motionEventPointerId]
             } ?: throw IllegalStateException(
                 "Compose assumes that all pointer ids in MotionEvents are first provided " +
                         "alongside ACTION_DOWN or ACTION_POINTER_DOWN.  This appears not " +
@@ -132,24 +130,37 @@ internal class MotionEventAdapter {
             )
         )
     }
+}
 
-    /**
-     * Creates a new PointerInputData.
-     */
-    private fun createPointerInputData(
-        timestamp: Uptime,
-        motionEvent: MotionEvent,
-        index: Int,
-        upIndex: Int?
-    ): PointerInputData {
-        val pointerCoords = MotionEvent.PointerCoords()
-        motionEvent.getPointerCoords(index, pointerCoords)
-        val offset = Offset(pointerCoords.x, pointerCoords.y)
+/**
+ * Creates a new PointerInputData.
+ */
+private fun createPointerInputData(
+    timestamp: Uptime,
+    motionEvent: MotionEvent,
+    index: Int,
+    upIndex: Int?
+): PointerInputData {
+    val pointerCoords = MotionEvent.PointerCoords()
+    motionEvent.getPointerCoords(index, pointerCoords)
+    val offset = Offset(pointerCoords.x, pointerCoords.y)
 
-        return PointerInputData(
-            timestamp,
-            offset,
-            index != upIndex
-        )
-    }
+    return PointerInputData(
+        timestamp,
+        offset,
+        index != upIndex
+    )
+}
+
+/**
+ * Mutates the MotionEvent to be relative to the screen.
+ *
+ * This is required to create a valid PointerInputEvent.
+ */
+private inline fun MotionEvent.asOffsetToScreen(block: (MotionEvent) -> Unit) {
+    val offsetX = rawX - x
+    val offsetY = rawY - y
+    offsetLocation(offsetX, offsetY)
+    block(this)
+    offsetLocation(-offsetX, -offsetY)
 }

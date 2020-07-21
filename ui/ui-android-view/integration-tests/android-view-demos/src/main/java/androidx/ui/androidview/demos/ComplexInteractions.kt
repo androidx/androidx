@@ -16,51 +16,102 @@
 
 package androidx.ui.androidview.demos
 
-import android.content.Context
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
+import android.widget.RelativeLayout
 import androidx.compose.Composable
 import androidx.compose.Recomposer
+import androidx.compose.foundation.Box
+import androidx.compose.state
+import androidx.ui.core.Alignment
 import androidx.ui.core.ContextAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
 import androidx.compose.foundation.Text
+import androidx.compose.foundation.background
+import androidx.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.material.Button
+import androidx.ui.unit.dp
 import androidx.ui.viewinterop.AndroidView
 
 // TODO(b/158099918): Add this demo to AndroidViewDemos.kt once b/158099918 has been resolved.
 @Suppress("unused")
 val ComplexTouchInterop = DemoCategory("Complex Touch Interop", listOf(
-    ComposableDemo("ReproOffsetIssue") { ComposeInAndroidInComposeEtcTargetingDemo() }
+    ComposableDemo("Compose in Android in Compose in Android") {
+        ComposeInAndroidInComposeEtcTargetingDemo() }
 ))
 
 @Composable
 fun ComposeInAndroidInComposeEtcTargetingDemo() {
     val context = ContextAmbient.current
     Column {
-        Text("In this demo, there is a compose button inside Android, which is inside Compose, " +
-                "which inside Android... and on so on for a few times.  The conversions of " +
-                "pointer input events at every level still work.")
-        AndroidWithCompose(context) {
-            AndroidWithCompose(context) {
-                AndroidWithCompose(context) {
-                    Button(onClick = { }) {
-                        Text("Click me")
-                    }
+        Text(
+            "In this demo, from the inside out, we have a Compose Button, wrapped in 2 Android " +
+                    "FrameLayouts, wrapped in a Compose Box, wrapped in a Column (which also has " +
+                    "this Text) which is then in the root AndroidComposeView."
+        )
+        Text(
+            "Each node in our tree affects the position of the button and the pointer input " +
+                    "events translate from Android to compose a couple of times and everything " +
+                    "still works."
+        )
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(color = Color(0xFF777777))
+                .padding(48.dp)
+        ) {
+
+            AndroidView(
+                modifier = Modifier.weight(1f),
+                view =
+                FrameLayout(context).apply {
+                    setPadding(100, 100, 100, 100)
+                    setBackgroundColor(0xFF888888.toInt())
+                    layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                    addView(
+                        FrameLayout(context).apply {
+                            setPadding(100, 100, 100, 100)
+                            setBackgroundColor(0xFF999999.toInt())
+                            layoutParams =
+                                RelativeLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
+                                    addRule(RelativeLayout.CENTER_IN_PARENT)
+                                }
+                            setContent(Recomposer.current()) {
+                                Box(
+                                    Modifier
+                                        .background(color = Color(0xFFAAAAAA))
+                                        .fillMaxSize()
+                                        .wrapContentSize(Alignment.Center)
+                                ) {
+                                    colorButton()
+                                }
+                            }
+                        }
+                    )
                 }
-            }
+            )
         }
     }
 }
 
 @Composable
-fun AndroidWithCompose(context: Context, children: @Composable () -> Unit) {
-    val anotherLayout = FrameLayout(context).also { view ->
-        view.setContent(Recomposer.current()) {
-            children()
+fun colorButton() {
+    val state = state { false }
+    val color =
+        if (state.value) {
+            Color.Red
+        } else {
+            Color.Blue
         }
-        view.setPadding(50, 50, 50, 50)
+    Button(onClick = { state.value = !state.value }, backgroundColor = color) {
+        Text("Click me")
     }
-    AndroidView(anotherLayout)
 }

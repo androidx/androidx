@@ -42,6 +42,5 @@
             android:name=".ComposeScrollInAndroidScrollDifferentOrientation"
             android:configChanges="orientation|screenSize"
             android:label="ComposeScrollInAndroidScrollDifferentOrientation Activity" />
-
     </application>
 </manifest>
