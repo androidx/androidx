@@ -35,7 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertPositionInRootIsEqualTo
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.getBoundsInRoot
+import androidx.ui.test.getUnclippedBoundsInRoot
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.waitForIdle
@@ -181,7 +181,7 @@ class LazyRowForTest {
         }
 
         var itemBounds = onNodeWithTag(itemTag)
-            .getBoundsInRoot()
+            .getUnclippedBoundsInRoot()
 
         Truth.assertThat(itemBounds.left.toIntPx()).isWithin1PixelFrom(50.dp.toIntPx())
         Truth.assertThat(itemBounds.right.toIntPx()).isWithin1PixelFrom(100.dp.toIntPx())
@@ -193,7 +193,7 @@ class LazyRowForTest {
             .scrollBy(x = 51.dp, density = composeTestRule.density)
 
         itemBounds = onNodeWithTag(itemTag)
-            .getBoundsInRoot()
+            .getUnclippedBoundsInRoot()
 
         Truth.assertThat(itemBounds.left.toIntPx()).isWithin1PixelFrom(0)
         Truth.assertThat(itemBounds.right.toIntPx()).isWithin1PixelFrom(50.dp.toIntPx())
@@ -228,7 +228,7 @@ class LazyRowForTest {
             .assertIsDisplayed()
 
         var lazyRowBounds = onNodeWithTag(LazyRowForTag)
-            .getBoundsInRoot()
+            .getUnclippedBoundsInRoot()
 
         Truth.assertThat(lazyRowBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
         Truth.assertThat(lazyRowBounds.right.toIntPx()).isWithin1PixelFrom(100.dp.toIntPx())
@@ -248,7 +248,7 @@ class LazyRowForTest {
             .assertIsDisplayed()
 
         lazyRowBounds = onNodeWithTag(LazyRowForTag)
-            .getBoundsInRoot()
+            .getUnclippedBoundsInRoot()
 
         Truth.assertThat(lazyRowBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
         Truth.assertThat(lazyRowBounds.right.toIntPx()).isWithin1PixelFrom(120.dp.toIntPx())
@@ -281,7 +281,7 @@ class LazyRowForTest {
             .assertIsDisplayed()
 
         val lazyColumnBounds = onNodeWithTag(LazyRowForTag)
-            .getBoundsInRoot()
+            .getUnclippedBoundsInRoot()
 
         with(composeTestRule.density) {
             // Verify the height of the row

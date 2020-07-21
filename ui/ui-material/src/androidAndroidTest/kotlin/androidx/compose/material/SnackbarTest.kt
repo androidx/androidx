@@ -41,7 +41,7 @@ import androidx.ui.test.performClick
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
 import androidx.ui.test.getAlignmentLinePosition
-import androidx.ui.test.getBoundsInRoot
+import androidx.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.foundation.text.FirstBaseline
 import androidx.compose.foundation.text.LastBaseline
 import androidx.compose.ui.unit.dp
@@ -107,8 +107,8 @@ class SnackbarTest {
         firstBaseLine.assertIsNotEqualTo(0.dp, "first baseline")
         firstBaseLine.assertIsEqualTo(lastBaseLine, "first baseline")
 
-        val snackBounds = snackbar.getBoundsInRoot()
-        val textBounds = onNodeWithText("Message").getBoundsInRoot()
+        val snackBounds = snackbar.getUnclippedBoundsInRoot()
+        val textBounds = onNodeWithText("Message").getUnclippedBoundsInRoot()
 
         val textTopOffset = textBounds.top - snackBounds.top
         val textBottomOffset = textBounds.top - snackBounds.top
@@ -134,8 +134,8 @@ class SnackbarTest {
         firstBaseLine.assertIsNotEqualTo(0.dp, "first baseline")
         firstBaseLine.assertIsEqualTo(lastBaseLine, "first baseline")
 
-        val snackBounds = snackbar.getBoundsInRoot()
-        val textBounds = onNodeWithText("Message").getBoundsInRoot()
+        val snackBounds = snackbar.getUnclippedBoundsInRoot()
+        val textBounds = onNodeWithText("Message").getUnclippedBoundsInRoot()
 
         val textTopOffset = textBounds.top - snackBounds.top
         val textBottomOffset = textBounds.top - snackBounds.top
@@ -170,9 +170,9 @@ class SnackbarTest {
         textBaseLine.assertIsNotEqualTo(0.dp, "text baseline")
         buttonBaseLine.assertIsNotEqualTo(0.dp, "button baseline")
 
-        val snackBounds = snackbar.getBoundsInRoot()
-        val textBounds = onNodeWithText("Message").getBoundsInRoot()
-        val buttonBounds = onNodeWithText("Undo").getBoundsInRoot()
+        val snackBounds = snackbar.getUnclippedBoundsInRoot()
+        val textBounds = onNodeWithText("Message").getUnclippedBoundsInRoot()
+        val buttonBounds = onNodeWithText("Undo").getUnclippedBoundsInRoot()
 
         val buttonTopOffset = buttonBounds.top - snackBounds.top
         val textTopOffset = textBounds.top - snackBounds.top
@@ -208,9 +208,9 @@ class SnackbarTest {
         textBaseLine.assertIsNotEqualTo(0.dp, "text baseline")
         buttonBaseLine.assertIsNotEqualTo(0.dp, "button baseline")
 
-        val snackBounds = snackbar.getBoundsInRoot()
-        val textBounds = onNodeWithText("Message").getBoundsInRoot()
-        val buttonBounds = onNodeWithText("Undo").getBoundsInRoot()
+        val snackBounds = snackbar.getUnclippedBoundsInRoot()
+        val textBounds = onNodeWithText("Message").getUnclippedBoundsInRoot()
+        val buttonBounds = onNodeWithText("Undo").getUnclippedBoundsInRoot()
 
         val buttonTopOffset = buttonBounds.top - snackBounds.top
         val textTopOffset = textBounds.top - snackBounds.top
@@ -241,8 +241,8 @@ class SnackbarTest {
         lastBaseline.assertIsNotEqualTo(0.dp, "last baseline")
         firstBaseline.assertIsNotEqualTo(lastBaseline, "first baseline")
 
-        val snackBounds = snackbar.getBoundsInRoot()
-        val textBounds = onNodeWithTag("text").getBoundsInRoot()
+        val snackBounds = snackbar.getUnclippedBoundsInRoot()
+        val textBounds = onNodeWithTag("text").getUnclippedBoundsInRoot()
 
         val textTopOffset = textBounds.top - snackBounds.top
         val textBottomOffset = textBounds.top - snackBounds.top
@@ -282,8 +282,8 @@ class SnackbarTest {
         onNodeWithTag("text")
             .assertTopPositionInRootIsEqualTo(30.dp - textFirstBaseLine)
 
-        val buttonBounds = onNodeWithTag("button").getBoundsInRoot()
-        val snackBounds = snackbar.getBoundsInRoot()
+        val buttonBounds = onNodeWithTag("button").getUnclippedBoundsInRoot()
+        val snackBounds = snackbar.getUnclippedBoundsInRoot()
 
         val buttonCenter = buttonBounds.top + (buttonBounds.height / 2)
         buttonCenter.assertIsEqualTo(snackBounds.height / 2, "button center")
@@ -312,8 +312,8 @@ class SnackbarTest {
 
         val textFirstBaseLine = onNodeWithText("Message").getFirstBaselinePosition()
         val textLastBaseLine = onNodeWithText("Message").getLastBaselinePosition()
-        val textBounds = onNodeWithText("Message").getBoundsInRoot()
-        val buttonBounds = onNodeWithTag("button").getBoundsInRoot()
+        val textBounds = onNodeWithText("Message").getUnclippedBoundsInRoot()
+        val buttonBounds = onNodeWithTag("button").getUnclippedBoundsInRoot()
 
         onNodeWithText("Message")
             .assertTopPositionInRootIsEqualTo(30.dp - textFirstBaseLine)

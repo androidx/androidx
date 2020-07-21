@@ -43,7 +43,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
 import androidx.ui.test.onAllNodes
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.getBoundsInRoot
+import androidx.ui.test.getUnclippedBoundsInRoot
 import androidx.ui.test.isInMutuallyExclusiveGroup
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
@@ -134,7 +134,7 @@ class TabTest {
             }
         }
 
-        val tabRowBounds = onNodeWithTag("tabRow").getBoundsInRoot()
+        val tabRowBounds = onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
 
         onNodeWithTag("indicator")
             .assertPositionInRootIsEqualTo(
@@ -181,8 +181,8 @@ class TabTest {
         val indicatorHeight = 2.dp
         val expectedBaselineDistance = expectedBaseline + indicatorHeight
 
-        val tabRowBounds = onNodeWithTag("tabRow").getBoundsInRoot()
-        val textBounds = onNodeWithTag("text").getBoundsInRoot()
+        val tabRowBounds = onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
+        val textBounds = onNodeWithTag("text").getUnclippedBoundsInRoot()
         val textBaselinePos = onNodeWithTag("text").getLastBaselinePosition()
 
         val baselinePositionY = textBounds.top + textBaselinePos
@@ -218,8 +218,8 @@ class TabTest {
         val indicatorHeight = 2.dp
         val expectedBaselineDistance = expectedBaseline + indicatorHeight
 
-        val tabRowBounds = onNodeWithTag("tabRow").getBoundsInRoot()
-        val textBounds = onNodeWithTag("text").getBoundsInRoot()
+        val tabRowBounds = onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
+        val textBounds = onNodeWithTag("text").getUnclippedBoundsInRoot()
         val textBaselinePos = onNodeWithTag("text").getLastBaselinePosition()
 
         val baselinePositionY = textBounds.top + textBaselinePos
@@ -253,8 +253,8 @@ class TabTest {
         val expectedBaseline = 10.dp
         val indicatorHeight = 2.dp
 
-        val tabRowBounds = onNodeWithTag("tabRow").getBoundsInRoot()
-        val textBounds = onNodeWithTag("text").getBoundsInRoot()
+        val tabRowBounds = onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
+        val textBounds = onNodeWithTag("text").getUnclippedBoundsInRoot()
         val textBaselinePos = onNodeWithTag("text").getLastBaselinePosition()
 
         val expectedBaselineDistance = expectedBaseline + indicatorHeight
@@ -303,7 +303,7 @@ class TabTest {
             }
         }
 
-        val tabRowBounds = onNodeWithTag("tabRow").getBoundsInRoot()
+        val tabRowBounds = onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
 
         // Indicator should be placed in the bottom left of the first tab
         onNodeWithTag("indicator")
