@@ -16,19 +16,19 @@
 
 package androidx.ui.benchmark.test
 
-import androidx.animation.AnimationVector1D
-import androidx.animation.AnimationVector2D
-import androidx.animation.AnimationVector3D
-import androidx.animation.AnimationVector4D
-import androidx.animation.FastOutSlowInEasing
-import androidx.animation.LinearEasing
-import androidx.animation.LinearOutSlowInEasing
-import androidx.animation.Spring
-import androidx.animation.VectorizedKeyframesSpec
-import androidx.animation.VectorizedSnapSpec
-import androidx.animation.VectorizedSpringSpec
-import androidx.animation.VectorizedTweenSpec
-import androidx.animation.createAnimation
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.AnimationVector3D
+import androidx.compose.animation.core.AnimationVector4D
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VectorizedKeyframesSpec
+import androidx.compose.animation.core.VectorizedSnapSpec
+import androidx.compose.animation.core.VectorizedSpringSpec
+import androidx.compose.animation.core.VectorizedTweenSpec
+import androidx.compose.animation.core.createAnimation
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest

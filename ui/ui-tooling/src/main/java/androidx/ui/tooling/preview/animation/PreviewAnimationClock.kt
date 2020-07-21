@@ -17,16 +17,16 @@
 package androidx.ui.tooling.preview.animation
 
 import android.util.Log
-import androidx.animation.AnimationClockObservable
-import androidx.animation.AnimationClockObserver
-import androidx.animation.InternalAnimationApi
-import androidx.animation.ManualAnimationClock
-import androidx.animation.SeekableAnimation
-import androidx.animation.TransitionAnimation
-import androidx.animation.createSeekableAnimation
+import androidx.compose.animation.core.AnimationClockObservable
+import androidx.compose.animation.core.AnimationClockObserver
+import androidx.compose.animation.core.InternalAnimationApi
+import androidx.compose.animation.core.ManualAnimationClock
+import androidx.compose.animation.core.SeekableAnimation
+import androidx.compose.animation.core.TransitionAnimation
+import androidx.compose.animation.core.createSeekableAnimation
 import androidx.annotation.VisibleForTesting
-import androidx.ui.animation.tooling.ComposeAnimation
-import androidx.ui.animation.tooling.ComposeAnimationType
+import androidx.compose.animation.tooling.ComposeAnimation
+import androidx.compose.animation.tooling.ComposeAnimationType
 
 /**
  * [AnimationClockObservable] used to control animations in the context of Compose Previews. This

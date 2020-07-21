@@ -16,10 +16,10 @@
 
 package androidx.ui.material
 
-import androidx.animation.FastOutSlowInEasing
-import androidx.animation.LinearEasing
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.Providers
@@ -28,9 +28,9 @@ import androidx.compose.getValue
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.DpPropKey
-import androidx.ui.animation.transition
+import androidx.compose.animation.ColorPropKey
+import androidx.compose.animation.DpPropKey
+import androidx.compose.animation.transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityAmbient

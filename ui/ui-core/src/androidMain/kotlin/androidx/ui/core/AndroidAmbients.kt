@@ -19,7 +19,7 @@ package androidx.ui.core
 import android.content.Context
 import android.content.res.Configuration
 import android.view.View
-import androidx.animation.rootAnimationClockFactory
+import androidx.compose.animation.core.rootAnimationClockFactory
 import androidx.compose.Composable
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Providers
@@ -108,7 +108,7 @@ internal fun ProvideAndroidAmbients(owner: AndroidOwner, content: @Composable ()
 
 // TODO(igotti): move back to Ambients.kt once Owner will be commonized.
 @Composable
-@OptIn(androidx.animation.InternalAnimationApi::class)
+@OptIn(androidx.compose.animation.core.InternalAnimationApi::class)
 internal fun ProvideCommonAmbients(
     owner: Owner,
     uriHandler: UriHandler,

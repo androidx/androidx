@@ -17,8 +17,8 @@ package androidx.ui.desktop.test
 
 import android.content.Context
 import android.view.ViewGroup
-import androidx.animation.ManualAnimationClock
-import androidx.animation.rootAnimationClockFactory
+import androidx.compose.animation.core.ManualAnimationClock
+import androidx.compose.animation.core.rootAnimationClockFactory
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.Recomposer
@@ -59,7 +59,7 @@ class TestSkiaWindow(
     }
 
     @Suppress("WrongCall")
-    @OptIn(androidx.animation.InternalAnimationApi::class)
+    @OptIn(androidx.compose.animation.core.InternalAnimationApi::class)
     fun setContent(content: @Composable () -> Unit) {
         val clocks = mutableListOf<ManualAnimationClock>()
         rootAnimationClockFactory = {

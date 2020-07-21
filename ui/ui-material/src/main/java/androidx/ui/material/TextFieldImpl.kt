@@ -19,10 +19,10 @@
 
 package androidx.ui.material
 
-import androidx.animation.FloatPropKey
-import androidx.animation.TransitionSpec
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
+import androidx.compose.animation.core.FloatPropKey
+import androidx.compose.animation.core.TransitionSpec
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
 import androidx.annotation.VisibleForTesting
 import androidx.compose.Composable
 import androidx.compose.Providers
@@ -33,9 +33,9 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.stateFor
 import androidx.compose.structuralEqualityPolicy
-import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.DpPropKey
-import androidx.ui.animation.transition
+import androidx.compose.animation.ColorPropKey
+import androidx.compose.animation.DpPropKey
+import androidx.compose.animation.transition
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection

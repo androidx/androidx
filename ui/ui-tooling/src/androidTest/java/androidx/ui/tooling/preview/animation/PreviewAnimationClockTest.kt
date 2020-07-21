@@ -16,16 +16,16 @@
 
 package androidx.ui.tooling.preview.animation
 
-import androidx.animation.AnimationClockObserver
-import androidx.animation.FloatPropKey
-import androidx.animation.InternalAnimationApi
-import androidx.animation.LinearEasing
-import androidx.animation.TransitionAnimation
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
-import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.tooling.ComposeAnimation
-import androidx.ui.animation.tooling.ComposeAnimationType
+import androidx.compose.animation.core.AnimationClockObserver
+import androidx.compose.animation.core.FloatPropKey
+import androidx.compose.animation.core.InternalAnimationApi
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.TransitionAnimation
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.ColorPropKey
+import androidx.compose.animation.tooling.ComposeAnimation
+import androidx.compose.animation.tooling.ComposeAnimationType
 import androidx.ui.graphics.Color
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

@@ -23,7 +23,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.Composable
 import androidx.compose.Recomposer
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import androidx.ui.animation.transitionsEnabled
+import androidx.compose.animation.transitionsEnabled
 import androidx.ui.core.setContent
 import androidx.compose.foundation.InternalFoundationApi
 import androidx.compose.foundation.blinkingCursorEnabled

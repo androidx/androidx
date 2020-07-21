@@ -17,17 +17,17 @@
 package androidx.ui.material.demos
 
 import android.graphics.SweepGradient
-import androidx.animation.FloatPropKey
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
+import androidx.compose.animation.core.FloatPropKey
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
 import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.compose.getValue
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.animation.DpPropKey
-import androidx.ui.animation.transition
+import androidx.compose.animation.DpPropKey
+import androidx.compose.animation.transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints

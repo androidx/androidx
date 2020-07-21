@@ -16,14 +16,14 @@
 
 package androidx.compose.foundation.animation
 
-import androidx.animation.AnimatedFloat
-import androidx.animation.AnimationSpec
-import androidx.animation.ExponentialDecay
-import androidx.animation.FloatDecayAnimationSpec
-import androidx.animation.OnAnimationEnd
-import androidx.animation.SpringSpec
-import androidx.animation.TargetAnimation
-import androidx.animation.fling
+import androidx.compose.animation.core.AnimatedFloat
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.ExponentialDecay
+import androidx.compose.animation.core.FloatDecayAnimationSpec
+import androidx.compose.animation.core.OnAnimationEnd
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.TargetAnimation
+import androidx.compose.animation.core.fling
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import kotlin.math.abs

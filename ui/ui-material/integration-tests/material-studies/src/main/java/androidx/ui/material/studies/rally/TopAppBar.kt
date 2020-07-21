@@ -16,13 +16,13 @@
 
 package androidx.ui.material.studies.rally
 
-import androidx.animation.LinearEasing
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.transition
+import androidx.compose.animation.ColorPropKey
+import androidx.compose.animation.transition
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.selection.selectable

@@ -1,17 +1,17 @@
 // Signature format: 3.0
-package androidx.ui.animation.tooling {
+package androidx.compose.animation.tooling {
 
   public interface ComposeAnimation {
     method public Object getAnimation();
     method public default java.util.Set<java.lang.Object> getStates();
-    method public androidx.ui.animation.tooling.ComposeAnimationType getType();
+    method public androidx.compose.animation.tooling.ComposeAnimationType getType();
   }
 
   public enum ComposeAnimationType {
-    method public static androidx.ui.animation.tooling.ComposeAnimationType valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.ui.animation.tooling.ComposeAnimationType[] values();
-    enum_constant public static final androidx.ui.animation.tooling.ComposeAnimationType ANIMATED_VALUE;
-    enum_constant public static final androidx.ui.animation.tooling.ComposeAnimationType TRANSITION_ANIMATION;
+    method public static androidx.compose.animation.tooling.ComposeAnimationType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.compose.animation.tooling.ComposeAnimationType[] values();
+    enum_constant public static final androidx.compose.animation.tooling.ComposeAnimationType ANIMATED_VALUE;
+    enum_constant public static final androidx.compose.animation.tooling.ComposeAnimationType TRANSITION_ANIMATION;
   }
 
 }
