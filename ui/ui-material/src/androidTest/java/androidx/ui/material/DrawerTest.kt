@@ -36,11 +36,12 @@ import androidx.ui.test.assertIsEqualTo
 import androidx.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.ui.test.assertWidthIsEqualTo
+import androidx.ui.test.bottomCenter
 import androidx.ui.test.center
+import androidx.ui.test.centerLeft
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.globalBounds
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.click
@@ -225,9 +226,7 @@ class DrawerTest {
 
         // Click on the left-center pixel of the drawer
         onNodeWithTag("Drawer").performGesture {
-            val left = 1.0f
-            val centerY = (globalBounds.height / 2)
-            click(Offset(left, centerY))
+            click(centerLeft)
         }
 
         runOnIdle {
@@ -323,10 +322,7 @@ class DrawerTest {
 
         // Click on the bottom-center pixel of the drawer
         onNodeWithTag("Drawer").performGesture {
-            val bounds = globalBounds
-            val centerX = bounds.width / 2
-            val bottom = bounds.height - 1.0f
-            click(Offset(centerX, bottom))
+            click(bottomCenter)
         }
 
         assertThat(drawerClicks).isEqualTo(1)
