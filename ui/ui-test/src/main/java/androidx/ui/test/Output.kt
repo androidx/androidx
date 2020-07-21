@@ -23,6 +23,7 @@ import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.text.AnnotatedString
 import androidx.ui.unit.PxBounds
+import androidx.ui.unit.toSize
 
 /**
  * Prints all the semantics nodes information it holds into string.
@@ -154,7 +155,7 @@ private fun SemanticsNode.printToStringInner(
         sb.append("$nestingIndent |-")
     }
     sb.append("Node #$id at ")
-    sb.append(pxBoundsToShortString(globalBounds))
+    sb.append(pxBoundsToShortString(unclippedGlobalBounds))
 
     if (config.contains(SemanticsProperties.TestTag)) {
         sb.append(", Tag: '")
@@ -200,6 +201,11 @@ private fun SemanticsNode.printToStringInner(
         child.printToStringInner(sb, maxDepth, childrenLevel, newIndent, hasSibling)
     }
 }
+
+private val SemanticsNode.unclippedGlobalBounds: PxBounds
+    get() {
+        return PxBounds(globalPosition, size.toSize())
+    }
 
 private fun pxBoundsToShortString(bounds: PxBounds): String {
     return "(${bounds.left}, ${bounds.top}, ${bounds.right}, ${bounds.bottom})px"

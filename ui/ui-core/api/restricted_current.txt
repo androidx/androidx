@@ -2033,6 +2033,7 @@ package androidx.ui.core.semantics {
     method public int getId();
     method public boolean getMergingEnabled();
     method public androidx.ui.core.semantics.SemanticsNode? getParent();
+    method public androidx.ui.geometry.Offset getPositionInRoot();
     method public androidx.ui.unit.IntSize getSize();
     method public boolean isRoot();
     property public final androidx.ui.unit.PxBounds boundsInRoot;
@@ -2044,6 +2045,7 @@ package androidx.ui.core.semantics {
     property public final int id;
     property public final boolean isRoot;
     property public final androidx.ui.core.semantics.SemanticsNode? parent;
+    property public final androidx.ui.geometry.Offset positionInRoot;
     property public final androidx.ui.unit.IntSize size;
   }
 

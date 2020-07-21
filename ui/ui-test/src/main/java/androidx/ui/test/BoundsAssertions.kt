@@ -25,6 +25,7 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.height
+import androidx.ui.unit.toSize
 import androidx.ui.unit.width
 import kotlin.math.absoluteValue
 
@@ -205,6 +206,11 @@ fun Dp.assertIsNotEqualTo(unexpected: Dp, subject: String = "", tolerance: Dp = 
     }
 }
 
+private val SemanticsNode.unclippedBoundsInRoot: PxBounds
+    get() {
+        return PxBounds(positionInRoot, size.toSize())
+    }
+
 private fun <R> SemanticsNodeInteraction.withDensity(
     operation: Density.(SemanticsNode) -> R
 ): R {
@@ -221,7 +227,7 @@ private fun SemanticsNodeInteraction.withBoundsInRoot(
     @OptIn(ExperimentalLayoutNodeApi::class)
     val density = (node.componentNode.owner as AndroidOwner).density
 
-    assertion.invoke(density, node.boundsInRoot)
+    assertion.invoke(density, node.unclippedBoundsInRoot)
     return this
 }
 
