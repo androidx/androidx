@@ -26,7 +26,6 @@ import androidx.ui.geometry.lerp
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
 import androidx.ui.unit.Duration
 import androidx.ui.unit.IntSize
-import androidx.ui.unit.PxBounds
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import androidx.ui.util.lerp
@@ -230,19 +229,14 @@ fun BaseGestureScope.percentOffset(
 }
 
 /**
- * Returns the global bounds of the node we're interacting with
- */
-val BaseGestureScope.globalBounds: PxBounds
-    get() = semanticsNode.globalBounds
-
-/**
- * Transforms the [position] to global coordinates, as defined by [globalBounds]
+ * Transforms the [position] to global coordinates, as defined by
+ * [LayoutCoordinates.localToGlobal][androidx.ui.core.LayoutCoordinates.localToGlobal]
  *
  * @param position A position in local coordinates
  */
 fun BaseGestureScope.localToGlobal(position: Offset): Offset {
-    val bounds = globalBounds
-    return position + Offset(bounds.left, bounds.top)
+    @OptIn(ExperimentalLayoutNodeApi::class)
+    return semanticsNode.componentNode.coordinates.localToGlobal(position)
 }
 
 /**
@@ -466,7 +460,7 @@ fun GestureScope.swipeDown() {
  * the right side of the node and ends at the left side.
  */
 fun GestureScope.swipeLeft() {
-    val x0 = (size.width * (1 - edgeFuzzFactor)).toFloat()
+    val x0 = (size.width * (1 - edgeFuzzFactor)).roundToInt().toFloat()
     val x1 = 0.0f
     val y = center.y
     val start = Offset(x0, y)
