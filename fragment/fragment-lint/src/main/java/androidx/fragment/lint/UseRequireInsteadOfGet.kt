@@ -148,7 +148,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                 }
             }
 
-            /** Called only when we know we're looking at a whitelisted method call type. */
+            /** Called only when we know we're looking at an exempted method call type. */
             private fun checkForIssue(
                 node: UExpression,
                 targetMethodName: String,
