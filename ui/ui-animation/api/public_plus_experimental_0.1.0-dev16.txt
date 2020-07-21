@@ -21,6 +21,10 @@ package androidx.ui.animation {
     property public T! value;
   }
 
+  public final class AnimationModifierKt {
+    method public static androidx.ui.core.Modifier animateContentSize(androidx.ui.core.Modifier, androidx.animation.AnimationSpec<androidx.ui.unit.IntSize> animSpec = spring(), boolean clip = true);
+  }
+
   public final class ColorPropKey implements androidx.animation.PropKey<androidx.ui.graphics.Color,androidx.animation.AnimationVector4D> {
     ctor public ColorPropKey(androidx.ui.graphics.colorspace.ColorSpace colorSpace, String label);
     ctor public ColorPropKey();
