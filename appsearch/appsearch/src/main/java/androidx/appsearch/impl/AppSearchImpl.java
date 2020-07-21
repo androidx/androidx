@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -56,6 +57,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 /**
@@ -84,10 +87,10 @@ import java.util.Set;
  *
  * <p>Methods in this class belong to two groups, the query group and the mutate group.
  * <ul>
- *     <li>All methods relative to modify data in Icing should be executed in the single mutate
- *     thread to keep thread safety.
- *     <li>All methods relative to query data from Icing should be executed in multiple query
- *     threads to improve query performance.
+ *     <li>All methods are going to modify global parameters and data in Icing should be executed
+ *     under WRITE lock to keep thread safety.
+ *     <li>All methods are going to access global parameters or query data from Icing
+ *     should be executed under READ lock to improve query performance.
  * </ul>
  * @hide
  */
@@ -108,7 +111,9 @@ public final class AppSearchImpl {
     // TODO(b/158350212) Remove SharedPreferences once getAllNamespace() is ready in Icing lib.
     // SharedPreferences is discouraged to be used in go/sharedpreferences.
     private final SharedPreferences mSharedPreferences;
-    private IcingSearchEngine mIcingSearchEngine;
+    private final ReentrantReadWriteLock mReadWriteLock = new ReentrantReadWriteLock();
+    private final CountDownLatch mInitCompleteLatch = new CountDownLatch(1);
+    private volatile IcingSearchEngine mIcingSearchEngine;
     private volatile boolean mInitialized = false;
 
     /**
@@ -138,7 +143,7 @@ public final class AppSearchImpl {
     /**
      * Initializes the underlying IcingSearchEngine.
      *
-     * <p>This method should be called in mutate thread.
+     * <p>This method belongs to mutate group.
      *
      * @throws IOException        on error opening directory.
      * @throws AppSearchException on IcingSearchEngine error.
@@ -147,10 +152,11 @@ public final class AppSearchImpl {
         if (isInitialized()) {
             return;
         }
-
+        boolean isReset = false;
+        mReadWriteLock.writeLock().lock();
+        try {
         // We synchronize here because we don't want to call IcingSearchEngine.initialize() more
         // than once. It's unnecessary and can be a costly operation.
-        synchronized (AppSearchImpl.class) {
             if (isInitialized()) {
                 return;
             }
@@ -160,7 +166,6 @@ public final class AppSearchImpl {
             mIcingSearchEngine = new IcingSearchEngine(options);
 
             InitializeResultProto initializeResultProto = mIcingSearchEngine.initialize();
-            boolean isReset = false;
             try {
                 checkSuccess(initializeResultProto.getStatus());
             } catch (AppSearchException e) {
@@ -169,9 +174,12 @@ public final class AppSearchImpl {
                 isReset = true;
             }
             mInitialized = true;
+            mInitCompleteLatch.countDown();
             if (!isReset) {
                 checkForOptimize(/* force= */ true);
             }
+        } finally {
+            mReadWriteLock.writeLock().unlock();
         }
     }
 
@@ -183,16 +191,17 @@ public final class AppSearchImpl {
     /**
      * Updates the AppSearch schema for this app.
      *
-     * <p>This method should be called in mutate thread.
+     * <p>This method belongs to mutate group.
      *
      * @param databaseName  The name of the database where this schema lives.
      * @param origSchema    The schema to set for this app.
      * @param forceOverride Whether to force-apply the schema even if it is incompatible. Documents
      *                      which do not comply with the new schema will be deleted.
      * @throws AppSearchException on IcingSearchEngine error.
+     * @throws InterruptedException if the current thread was interrupted during execution.
      */
     public void setSchema(@NonNull String databaseName, @NonNull SchemaProto origSchema,
-            boolean forceOverride) throws AppSearchException {
+            boolean forceOverride) throws AppSearchException, InterruptedException {
         checkInitialized();
 
         GetSchemaResultProto getSchemaResultProto = mIcingSearchEngine.getSchema();
@@ -202,64 +211,83 @@ public final class AppSearchImpl {
         // database's new schema. Modifies the existingSchemaBuilder.
         rewriteSchema(existingSchemaBuilder, getDatabasePrefix(databaseName), origSchema);
 
-        SetSchemaResultProto setSchemaResultProto = mIcingSearchEngine.setSchema(
-                existingSchemaBuilder.build(), forceOverride);
+        SetSchemaResultProto setSchemaResultProto;
+        mReadWriteLock.writeLock().lock();
+        try {
+            setSchemaResultProto = mIcingSearchEngine.setSchema(existingSchemaBuilder.build(),
+                    forceOverride);
+            for (SchemaTypeConfigProto typeConfig : origSchema.getTypesList()) {
+                addToSharedSet(databaseName, SCHEMA_TYPE_SET_NAME, typeConfig.getSchemaType());
+            }
+            if (setSchemaResultProto.getDeletedSchemaTypesCount() > 0
+                    || (setSchemaResultProto.getIncompatibleSchemaTypesCount() > 0
+                    && forceOverride)) {
+                // Any existing schemas which is not in origSchema will be deleted, and all
+                // documents of these types were also deleted. And so well if we force override
+                // incompatible schemas.
+                checkForOptimize(/* force= */true);
+            }
+        } finally {
+            mReadWriteLock.writeLock().unlock();
+        }
         checkSuccess(setSchemaResultProto.getStatus());
-
-        for (SchemaTypeConfigProto typeConfig : origSchema.getTypesList()) {
-            addToSharedSet(databaseName, SCHEMA_TYPE_SET_NAME, typeConfig.getSchemaType());
-        }
-        if (setSchemaResultProto.getDeletedSchemaTypesCount() > 0
-                || (setSchemaResultProto.getIncompatibleSchemaTypesCount() > 0 && forceOverride)) {
-            // Any existing schemas which is not in origSchema will be deleted, and all documents of
-            // these types were also deleted. And so well if we force override incompatible schemas.
-            checkForOptimize(/* force= */true);
-        }
     }
 
     /**
      * Adds a document to the AppSearch index.
      *
-     * <p>This method should be called in mutate thread.
+     * <p>This method belongs to mutate group.
      *
      * @param databaseName The databaseName this document resides in.
      * @param document     The document to index.
      * @throws AppSearchException on IcingSearchEngine error.
+     * @throws InterruptedException if the current thread was interrupted during execution.
      */
     public void putDocument(@NonNull String databaseName, @NonNull DocumentProto document)
-            throws AppSearchException {
+            throws AppSearchException, InterruptedException {
         checkInitialized();
 
         DocumentProto.Builder documentBuilder = document.toBuilder();
         rewriteDocumentTypes(getDatabasePrefix(databaseName), documentBuilder, /*add=*/ true);
 
-        PutResultProto putResultProto = mIcingSearchEngine.put(documentBuilder.build());
+        PutResultProto putResultProto;
+        mReadWriteLock.writeLock().lock();
+        try {
+            putResultProto = mIcingSearchEngine.put(documentBuilder.build());
+            addToSharedSet(databaseName, NAMESPACE_SET_NAME, document.getNamespace());
+            // The existing documents with same URI will be deleted, so there maybe some resources
+            // could be released after optimize().
+            checkForOptimize(/* force= */false);
+        } finally {
+            mReadWriteLock.writeLock().unlock();
+        }
         checkSuccess(putResultProto.getStatus());
-
-        addToSharedSet(databaseName, NAMESPACE_SET_NAME, document.getNamespace());
-        // The existing documents with same URI will be deleted, so there maybe some resources
-        // could be released after optimize().
-        checkForOptimize(/* force= */false);
     }
 
     /**
      * Retrieves a document from the AppSearch index by URI.
      *
-     * <p>This method should be called in query thread.
+     * <p>This method belongs to query group.
      *
      * @param databaseName The databaseName this document resides in.
      * @param namespace    The namespace this document resides in.
      * @param uri          The URI of the document to get.
      * @return The Document contents, or {@code null} if no such URI exists in the system.
      * @throws AppSearchException on IcingSearchEngine error.
+     * @throws InterruptedException if the current thread was interrupted during execution.
      */
     @Nullable
     public DocumentProto getDocument(@NonNull String databaseName, @NonNull String namespace,
-            @NonNull String uri) throws AppSearchException {
+            @NonNull String uri) throws AppSearchException, InterruptedException {
         checkInitialized();
-
-        GetResultProto getResultProto = mIcingSearchEngine.get(
-                getDatabasePrefix(databaseName) + namespace, uri);
+        GetResultProto getResultProto;
+        mReadWriteLock.readLock().lock();
+        try {
+            getResultProto = mIcingSearchEngine.get(
+                    getDatabasePrefix(databaseName) + namespace, uri);
+        } finally {
+            mReadWriteLock.readLock().unlock();
+        }
         checkSuccess(getResultProto.getStatus());
 
         DocumentProto.Builder documentBuilder = getResultProto.getDocument().toBuilder();
@@ -270,7 +298,7 @@ public final class AppSearchImpl {
     /**
      * Executes a query against the AppSearch index and returns results.
      *
-     * <p>This method should be called in query thread.
+     * <p>This method belongs to query group.
      *
      * @param databaseName The databaseName this query for.
      * @param searchSpec   Defines what and how to search
@@ -279,51 +307,57 @@ public final class AppSearchImpl {
      * @return The results of performing this search  The proto might have no {@code results} if no
      * documents matched the query.
      * @throws AppSearchException on IcingSearchEngine error.
+     * @throws InterruptedException if the current thread was interrupted during execution.
      */
+    // TODO(b/161838267) support getNextPage for query, under the read lock.
     @NonNull
     public SearchResultProto query(
             @NonNull String databaseName,
             @NonNull SearchSpecProto searchSpec,
             @NonNull ResultSpecProto resultSpec,
-            @NonNull ScoringSpecProto scoringSpec) throws AppSearchException {
+            @NonNull ScoringSpecProto scoringSpec) throws AppSearchException, InterruptedException {
         checkInitialized();
 
         SearchSpecProto.Builder searchSpecBuilder = searchSpec.toBuilder();
+        SearchResultProto searchResultProto;
+        mReadWriteLock.readLock().lock();
+        try {
+            // Rewrite any schema types specified in the searchSpec, or add schema types to limit
+            // the search to this database instance.
+            if (searchSpecBuilder.getSchemaTypeFiltersCount() > 0) {
+                for (int i = 0; i < searchSpecBuilder.getSchemaTypeFiltersCount(); i++) {
+                    String qualifiedType = getDatabasePrefix(databaseName)
+                            + searchSpecBuilder.getSchemaTypeFilters(i);
+                    searchSpecBuilder.setSchemaTypeFilters(i, qualifiedType);
+                }
+            } else {
+                Set<String> schemaTypeSet = getSharedSet(databaseName, SCHEMA_TYPE_SET_NAME);
+                for (String schemaType : schemaTypeSet) {
+                    String qualifiedType = getDatabasePrefix(databaseName) + schemaType;
+                    searchSpecBuilder.addSchemaTypeFilters(qualifiedType);
+                }
+            }
 
-        // Rewrite any schema types specified in the searchSpec, or add schema types to limit the
-        // search to this database instance.
-        if (searchSpecBuilder.getSchemaTypeFiltersCount() > 0) {
-            for (int i = 0; i < searchSpecBuilder.getSchemaTypeFiltersCount(); i++) {
-                String qualifiedType = getDatabasePrefix(databaseName)
-                        + searchSpecBuilder.getSchemaTypeFilters(i);
-                searchSpecBuilder.setSchemaTypeFilters(i, qualifiedType);
+            // Rewrite any namespaces specified in the searchSpec, or add namespaces to limit the
+            // search to this database instance.
+            if (searchSpecBuilder.getNamespaceFiltersCount() > 0) {
+                for (int i = 0; i < searchSpecBuilder.getNamespaceFiltersCount(); i++) {
+                    String qualifiedNamespace = getDatabasePrefix(databaseName)
+                            + searchSpecBuilder.getNamespaceFilters(i);
+                    searchSpecBuilder.setNamespaceFilters(i, qualifiedNamespace);
+                }
+            } else {
+                Set<String> namespaceSet = getSharedSet(databaseName, NAMESPACE_SET_NAME);
+                for (String namespace : namespaceSet) {
+                    String qualifiedNamespace = getDatabasePrefix(databaseName) + namespace;
+                    searchSpecBuilder.addNamespaceFilters(qualifiedNamespace);
+                }
             }
-        } else {
-            Set<String> schemaTypeSet = getSharedSet(databaseName, SCHEMA_TYPE_SET_NAME);
-            for (String schemaType : schemaTypeSet) {
-                String qualifiedType = getDatabasePrefix(databaseName) + schemaType;
-                searchSpecBuilder.addSchemaTypeFilters(qualifiedType);
-            }
+            searchResultProto = mIcingSearchEngine.search(
+                    searchSpecBuilder.build(), scoringSpec, resultSpec);
+        } finally {
+            mReadWriteLock.readLock().unlock();
         }
-
-        // Rewrite any namespaces specified in the searchSpec, or add namespaces to limit the search
-        // to this database instance.
-        if (searchSpecBuilder.getNamespaceFiltersCount() > 0) {
-            for (int i = 0; i < searchSpecBuilder.getNamespaceFiltersCount(); i++) {
-                String qualifiedNamespace = getDatabasePrefix(databaseName)
-                        + searchSpecBuilder.getNamespaceFilters(i);
-                searchSpecBuilder.setNamespaceFilters(i, qualifiedNamespace);
-            }
-        } else {
-            Set<String> namespaceSet = getSharedSet(databaseName, NAMESPACE_SET_NAME);
-            for (String namespace : namespaceSet) {
-                String qualifiedNamespace = getDatabasePrefix(databaseName) + namespace;
-                searchSpecBuilder.addNamespaceFilters(qualifiedNamespace);
-            }
-        }
-
-        SearchResultProto searchResultProto = mIcingSearchEngine.search(searchSpecBuilder.build(),
-                scoringSpec, resultSpec);
         if (searchResultProto.getResultsCount() == 0) {
             return searchResultProto;
         }
@@ -347,99 +381,132 @@ public final class AppSearchImpl {
     /**
      * Removes the given document by URI.
      *
-     * <p>This method should be called in mutate thread.
+     * <p>This method belongs to mutate group.
      *
      * @param databaseName The databaseName the document is in.
      * @param namespace    Namespace of the document to remove.
      * @param uri          URI of the document to remove.
      * @throws AppSearchException on IcingSearchEngine error.
+     * @throws InterruptedException if the current thread was interrupted during execution.
      */
     public void remove(@NonNull String databaseName, @NonNull String namespace,
-            @NonNull String uri) throws AppSearchException {
+            @NonNull String uri) throws AppSearchException, InterruptedException {
         checkInitialized();
 
         String qualifiedNamespace = getDatabasePrefix(databaseName) + namespace;
-        DeleteResultProto deleteResultProto = mIcingSearchEngine.delete(qualifiedNamespace, uri);
+        DeleteResultProto deleteResultProto;
+        mReadWriteLock.writeLock().lock();
+        try {
+            deleteResultProto = mIcingSearchEngine.delete(qualifiedNamespace, uri);
+            checkForOptimize(/* force= */false);
+        } finally {
+            mReadWriteLock.writeLock().unlock();
+        }
         checkSuccess(deleteResultProto.getStatus());
-        checkForOptimize(/* force= */false);
     }
 
     /**
      * Removes all documents having the given {@code schemaType} in given database.
      *
-     * <p>This method should be called in mutate thread.
+     * <p>This method belongs to mutate group.
      *
      * @param databaseName The databaseName that contains documents of schemaType.
      * @param schemaType   The schemaType of documents to remove.
      * @throws AppSearchException on IcingSearchEngine error.
+     * @throws InterruptedException if the current thread was interrupted during execution.
      */
     public void removeByType(@NonNull String databaseName, @NonNull String schemaType)
-            throws AppSearchException {
+            throws AppSearchException, InterruptedException {
         checkInitialized();
 
         String qualifiedType = getDatabasePrefix(databaseName) + schemaType;
-        DeleteBySchemaTypeResultProto deleteBySchemaTypeResultProto =
-                mIcingSearchEngine.deleteBySchemaType(qualifiedType);
+        DeleteBySchemaTypeResultProto deleteBySchemaTypeResultProto;
+        mReadWriteLock.writeLock().lock();
+        try {
+            deleteBySchemaTypeResultProto = mIcingSearchEngine.deleteBySchemaType(qualifiedType);
+            checkForOptimize(/* force= */true);
+        } finally {
+            mReadWriteLock.writeLock().unlock();
+        }
         checkSuccess(deleteBySchemaTypeResultProto.getStatus());
-        checkForOptimize(/* force= */true);
     }
 
     /**
      * Removes all documents having the given {@code namespace} in given database.
      *
-     * <p>This method should be called in mutate thread.
+     * <p>This method belongs to mutate group.
      *
      * @param databaseName The databaseName that contains documents of namespace.
      * @param namespace    The namespace of documents to remove.
      * @throws AppSearchException on IcingSearchEngine error.
+     * @throws InterruptedException if the current thread was interrupted during execution.
      */
     public void removeByNamespace(@NonNull String databaseName, @NonNull String namespace)
-            throws AppSearchException {
+            throws AppSearchException, InterruptedException {
         checkInitialized();
 
         String qualifiedNamespace = getDatabasePrefix(databaseName) + namespace;
-        DeleteByNamespaceResultProto deleteByNamespaceResultProto =
-                mIcingSearchEngine.deleteByNamespace(qualifiedNamespace);
+        DeleteByNamespaceResultProto deleteByNamespaceResultProto;
+        mReadWriteLock.writeLock().lock();
+        try {
+            deleteByNamespaceResultProto = mIcingSearchEngine.deleteByNamespace(qualifiedNamespace);
+            checkForOptimize(/* force= */true);
+        } finally {
+            mReadWriteLock.writeLock().unlock();
+        }
         checkSuccess(deleteByNamespaceResultProto.getStatus());
-        checkForOptimize(/* force= */true);
     }
 
     /**
      * Removes all documents in given database.
      *
-     * <p>This method should be called in mutate thread.
+     * <p>This method belongs to mutate group.
      *
      * @param databaseName The databaseName to remove all documents from.
      * @throws AppSearchException on IcingSearchEngine error.
+     * @throws InterruptedException if the current thread was interrupted during execution.
      */
-    public void removeAll(@NonNull String databaseName) throws AppSearchException {
+    public void removeAll(@NonNull String databaseName)
+            throws AppSearchException, InterruptedException {
         checkInitialized();
 
-        for (String namespace : getSharedSet(databaseName, NAMESPACE_SET_NAME)) {
-            DeleteByNamespaceResultProto deleteByNamespaceResultProto =
-                    mIcingSearchEngine.deleteByNamespace(
-                            getDatabasePrefix(databaseName) + namespace);
-            checkSuccess(deleteByNamespaceResultProto.getStatus());
+        mReadWriteLock.writeLock().lock();
+        try {
+            for (String namespace : getSharedSet(databaseName, NAMESPACE_SET_NAME)) {
+                DeleteByNamespaceResultProto deleteByNamespaceResultProto =
+                        mIcingSearchEngine.deleteByNamespace(
+                                getDatabasePrefix(databaseName) + namespace);
+                checkSuccess(deleteByNamespaceResultProto.getStatus());
+            }
+            checkForOptimize(/* force= */true);
+        } finally {
+            mReadWriteLock.writeLock().unlock();
         }
-        checkForOptimize(/* force= */true);
     }
 
     /**
      * Clears documents and schema across all databaseNames.
      *
-     * <p>This method should be called in mutate thread.
+     * <p>This method belongs to mutate group.
      *
      * @throws AppSearchException on IcingSearchEngine error.
      */
     @VisibleForTesting
     public void reset() throws AppSearchException {
         // Clear data from IcingSearchEngine.
-        ResetResultProto resetResultProto = mIcingSearchEngine.reset();
-        checkSuccess(resetResultProto.getStatus());
-        mOptimizeIntervalCount = 0;
 
-        // Clear data from SharedPreferences.
-        mSharedPreferences.edit().clear().commit();
+        ResetResultProto resetResultProto;
+        mReadWriteLock.writeLock().lock();
+        try {
+            resetResultProto = mIcingSearchEngine.reset();
+            mOptimizeIntervalCount = 0;
+
+            // Clear data from SharedPreferences.
+            mSharedPreferences.edit().clear().commit();
+        } finally {
+            mReadWriteLock.writeLock().unlock();
+        }
+        checkSuccess(resetResultProto.getStatus());
     }
 
     /**
@@ -578,8 +645,10 @@ public final class AppSearchImpl {
      * Ensure the instance is intialized.
      *
      * @throws AppSearchException if not.
+     * @throws InterruptedException if the current thread was interrupted during execution.
      */
-    private void checkInitialized() throws AppSearchException {
+    private void checkInitialized() throws AppSearchException, InterruptedException {
+        mInitCompleteLatch.await();
         if (!isInitialized()) {
             throw new AppSearchException(AppSearchResult.RESULT_INTERNAL_ERROR,
                     "Accessing an uninitialized AppSearchImpl");
@@ -610,14 +679,16 @@ public final class AppSearchImpl {
     /**
      * Checks whether {@link IcingSearchEngine#optimize()} should be called to release resources.
      *
-     * <p>This method should be only called in mutate thread to keep thread safety.
+     * <p>This method should be only called in mutate methods and get the write lock to keep thread
+     * safety.
      * <p>{@link IcingSearchEngine#optimize()} should be called only if
      * {@link GetOptimizeInfoResultProto} shows there is enough resources could be released.
      * <p>{@link IcingSearchEngine#getOptimizeInfo()} should be called once per
      * {@link #CHECK_OPTIMIZE_INTERVAL} of remove executions.
      *
-     * @param force whether we should directly call {@link IcingSearchEngine#getOptimizeInfo()}
+     * @param force whether we should directly call {@link IcingSearchEngine#getOptimizeInfo()}.
      */
+    @GuardedBy("mReadWriteLock")
     private void checkForOptimize(boolean force) throws AppSearchException {
         ++mOptimizeIntervalCount;
         if (force || mOptimizeIntervalCount >= CHECK_OPTIMIZE_INTERVAL) {
@@ -626,15 +697,15 @@ public final class AppSearchImpl {
             checkSuccess(optimizeInfo.getStatus());
             // Second threshold, decide when to call optimize().
             if (optimizeInfo.getOptimizableDocs() >= OPTIMIZE_THRESHOLD_DOC_COUNT
-                    || optimizeInfo.getEstimatedOptimizableBytes() >= OPTIMIZE_THRESHOLD_BYTES) {
-
+                    || optimizeInfo.getEstimatedOptimizableBytes()
+                    >= OPTIMIZE_THRESHOLD_BYTES) {
                 // TODO(b/155939114): call optimize in the same thread will slow down api calls
                 //  significantly. Move this call to background.
                 OptimizeResultProto optimizeResultProto = mIcingSearchEngine.optimize();
                 checkSuccess(optimizeResultProto.getStatus());
             }
-            // TODO(b/147699081): Return OptimizeResultProto & log lost data detail once we add a
-            //  field to indicate lost_schema and lost_documents in OptimizeResultProto.
+            // TODO(b/147699081): Return OptimizeResultProto & log lost data detail once we add
+            //  a field to indicate lost_schema and lost_documents in OptimizeResultProto.
             //  go/icing-library-apis.
         }
     }

@@ -51,6 +51,8 @@ import java.util.concurrent.Executors;
  * <p>Apps can index structured text documents with AppSearch, which can then be retrieved through
  * the query API.
  *
+ * <p>AppSearch support multi-thread execute for query but we should use single thread for mutate
+ * requests(put, delete, etc..) to avoid data manipulation conflict.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -58,16 +60,14 @@ import java.util.concurrent.Executors;
 // TODO(b/149787478): Rename this class to AppSearch.
 public class AppSearchManager {
 
-    // Never call Executor.shutdownNow(), it will cancel the futures it's returned. And since
-    // execute() won't return anything, we will hang forever waiting for the execution.
-    // AppSearch support multi-thread execute for query but we should use single thread for mutate
-    // requests(put, delete, etc..) to avoid data manipulation conflict.
-    private static final ExecutorService QUERY_EXECUTOR = Executors.newCachedThreadPool();
-    private static final ExecutorService MUTATE_EXECUTOR = Executors.newFixedThreadPool(1);
-
     private final String mInstanceName;
     private final Context mContext;
     private final AppSearchImpl mAppSearchImpl;
+    // Never call Executor.shutdownNow(), it will cancel the futures it's returned. And since
+    // execute() won't return anything, we will hang forever waiting for the execution.
+    // AppSearch multi-thread execution is guarded by Read & Write Lock in AppSearchImpl, all
+    // mutate requests will need to gain write lock and query requests need to gain read lock.
+    private final ExecutorService mExecutorService = Executors.newCachedThreadPool();
 
     /** Gets the an instance of {@link AppSearchManager} */
     @NonNull
@@ -99,7 +99,7 @@ public class AppSearchManager {
             return resolvableFuture;
         }
 
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             try {
                 mAppSearchImpl.initialize(mContext);
                 return AppSearchResult.newSuccessfulResult(this);
@@ -255,7 +255,7 @@ public class AppSearchManager {
     @NonNull
     public ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             SchemaProto.Builder schemaProtoBuilder = SchemaProto.newBuilder();
             for (AppSearchSchema schema : request.mSchemas) {
                 schemaProtoBuilder.addTypes(schema.getProto());
@@ -370,7 +370,7 @@ public class AppSearchManager {
         // TODO(b/146386470): Transmit these documents as a RemoteStream instead of sending them in
         // one big list.
         Preconditions.checkNotNull(request);
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < request.mDocuments.size(); i++) {
@@ -461,7 +461,7 @@ public class AppSearchManager {
         // TODO(b/146386470): Transmit the result documents as a RemoteStream instead of sending
         //     them in one big list.
         Preconditions.checkNotNull(request);
-        return execute(QUERY_EXECUTOR, () -> {
+        return execute(() -> {
             AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (String uri : request.mUris) {
@@ -532,7 +532,7 @@ public class AppSearchManager {
         //     them in one big list.
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
-        return execute(QUERY_EXECUTOR, () -> {
+        return execute(() -> {
             try {
                 SearchSpecProto searchSpecProto = searchSpec.getSearchSpecProto();
                 searchSpecProto = searchSpecProto.toBuilder().setQuery(queryExpression).build();
@@ -621,7 +621,7 @@ public class AppSearchManager {
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeDocuments(
             @NonNull RemoveDocumentsRequest request) {
         Preconditions.checkNotNull(request);
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (String uri : request.mUris) {
@@ -667,7 +667,7 @@ public class AppSearchManager {
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
             @NonNull List<String> schemaTypes) {
         Preconditions.checkNotNull(schemaTypes);
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < schemaTypes.size(); i++) {
@@ -714,7 +714,7 @@ public class AppSearchManager {
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
             @NonNull List<String> namespaces) {
         Preconditions.checkNotNull(namespaces);
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < namespaces.size(); i++) {
@@ -737,7 +737,7 @@ public class AppSearchManager {
      */
     @NonNull
     public ListenableFuture<AppSearchResult<Void>> removeAll() {
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             try {
                 mAppSearchImpl.removeAll(mInstanceName);
                 return AppSearchResult.newSuccessfulResult(null);
@@ -749,7 +749,7 @@ public class AppSearchManager {
 
     @VisibleForTesting
     ListenableFuture<AppSearchResult<Void>> resetAllInstances() {
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             try {
                 mAppSearchImpl.reset();
                 return AppSearchResult.newSuccessfulResult(null);
@@ -759,10 +759,10 @@ public class AppSearchManager {
         });
     }
 
-    /** Executes the callable task on the given executor. */
-    private <T> ListenableFuture<T> execute(ExecutorService executor, Callable<T> callable) {
+    /** Executes the callable task and set result to ListenableFuture. */
+    private <T> ListenableFuture<T> execute(Callable<T> callable) {
         ResolvableFuture<T> future = ResolvableFuture.create();
-        executor.execute(() -> {
+        mExecutorService.execute(() -> {
             if (!future.isCancelled()) {
                 try {
                     future.set(callable.call());
