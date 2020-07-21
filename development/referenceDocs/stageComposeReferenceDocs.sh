@@ -29,7 +29,7 @@ printf "=================================================================== \n"
 
 repo sync -j64
 git reset --hard $tipOfTreeSha
-git fetch "https://android.googlesource.com/platform/frameworks/support" refs/changes/23/1215823/4 && git cherry-pick FETCH_HEAD
+git fetch "https://android.googlesource.com/platform/frameworks/support" refs/changes/23/1215823/8 && git cherry-pick FETCH_HEAD
 ./gradlew distTipOfTreeDokkaDocs
 
 printf "============================ STEP 3 =============================== \n"
