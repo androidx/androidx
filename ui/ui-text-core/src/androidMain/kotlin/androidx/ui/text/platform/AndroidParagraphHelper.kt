@@ -17,6 +17,7 @@
 package androidx.ui.text.platform
 
 import android.text.SpannableString
+import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Placeholder
 import androidx.ui.text.SpanStyle

@@ -16,6 +16,8 @@
 
 package androidx.ui.text.platform
 
+import androidx.compose.ui.text.android.InternalPlatformTextApi
+import androidx.compose.ui.text.android.LayoutCompat
 import androidx.test.filters.SmallTest
 import androidx.ui.intl.LocaleList
 import androidx.ui.text.style.TextDirection
