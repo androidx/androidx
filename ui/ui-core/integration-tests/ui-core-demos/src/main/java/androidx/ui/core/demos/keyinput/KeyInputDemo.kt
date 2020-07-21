@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// TODO(b/160821157): Replace FocusState with FocusState2.isFocused
-@file:Suppress("DEPRECATION")
-
 package androidx.ui.core.demos.keyinput
 
 import androidx.compose.Composable
 import androidx.compose.MutableState
+import androidx.compose.getValue
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.core.Modifier
-import androidx.ui.core.focus.FocusModifier
-import androidx.ui.core.focus.FocusState.Focused
-import androidx.ui.core.focus.FocusState.NotFocusable
-import androidx.ui.core.focus.FocusState.NotFocused
-import androidx.ui.core.focus.focusState
+import androidx.ui.core.focus.ExperimentalFocus
+import androidx.ui.core.focus.FocusRequester
+import androidx.ui.core.focus.focus
+import androidx.ui.core.focus.focusObserver
+import androidx.ui.core.focus.focusRequester
+import androidx.ui.core.focus.isFocused
 import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.core.keyinput.ExperimentalKeyInput
 import androidx.ui.core.keyinput.Key
@@ -64,21 +63,23 @@ fun KeyInputDemo() {
     }
 }
 
-@Suppress("DEPRECATION")
 @Composable
-@OptIn(ExperimentalKeyInput::class)
+@OptIn(
+    ExperimentalFocus::class,
+    ExperimentalKeyInput::class
+)
 private fun FocusableText(text: MutableState<String>) {
-    val focusModifier = FocusModifier()
+    var color by state { Color.Black }
+    val focusRequester = FocusRequester()
     Text(
-        modifier = focusModifier
-            .tapGestureFilter { focusModifier.requestFocus() }
+        modifier = Modifier
+            .focusRequester(focusRequester)
+            .focusObserver { color = if (it.isFocused) Color.Green else Color.Black }
+            .focus()
+            .tapGestureFilter { focusRequester.requestFocus() }
             .keyInputFilter { it.value?.let { text.value += it; true } ?: false },
         text = text.value,
-        color = when (focusModifier.focusState) {
-            Focused -> Color.Green
-            NotFocused -> Color.Black
-            NotFocusable -> Color.Gray
-        }
+        color = color
     )
 }
 
