@@ -32,7 +32,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.Composition
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Recomposer
-import androidx.compose.dispatch.MonotonicFrameClock
+import androidx.compose.runtime.dispatch.MonotonicFrameClock
 import androidx.compose.snapshots.Snapshot
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.setContent
