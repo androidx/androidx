@@ -16,6 +16,10 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
@@ -23,12 +27,15 @@ import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.layout.size
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.getBoundsInRoot
 import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.runOnIdle
+import androidx.ui.test.waitForIdle
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Rule
@@ -188,5 +195,64 @@ class LazyRowItemsTest {
 
         Truth.assertThat(itemBounds.left.toIntPx()).isWithin1PixelFrom(0)
         Truth.assertThat(itemBounds.right.toIntPx()).isWithin1PixelFrom(50.dp.toIntPx())
+    }
+
+    @Test
+    fun lazyRowWrapsContent() = with(composeTestRule.density) {
+        val itemInsideLazyRow = "itemInsideLazyRow"
+        val itemOutsideLazyRow = "itemOutsideLazyRow"
+        var sameSizeItems by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            Column {
+                LazyRowItems(
+                    items = listOf(1, 2),
+                    modifier = Modifier.testTag(LazyRowItemsTag)
+                ) {
+                    if (it == 1) {
+                        Spacer(Modifier.preferredSize(50.dp).testTag(itemInsideLazyRow))
+                    } else {
+                        Spacer(Modifier.preferredSize(if (sameSizeItems) 50.dp else 70.dp))
+                    }
+                }
+                Spacer(Modifier.preferredSize(50.dp).testTag(itemOutsideLazyRow))
+            }
+        }
+
+        onNodeWithTag(itemInsideLazyRow)
+            .assertIsDisplayed()
+
+        onNodeWithTag(itemOutsideLazyRow)
+            .assertIsDisplayed()
+
+        var lazyRowBounds = onNodeWithTag(LazyRowItemsTag)
+            .getBoundsInRoot()
+
+        Truth.assertThat(lazyRowBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
+        // TODO: wrap-content on the main-axis must be implemented
+//        Truth.assertThat(lazyRowBounds.right.toIntPx()).isWithin1PixelFrom(100.dp.toIntPx())
+        Truth.assertThat(lazyRowBounds.top.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
+        Truth.assertThat(lazyRowBounds.bottom.toIntPx()).isWithin1PixelFrom(50.dp.toIntPx())
+
+        runOnIdle {
+            sameSizeItems = false
+        }
+
+        waitForIdle()
+
+        onNodeWithTag(itemInsideLazyRow)
+            .assertIsDisplayed()
+
+        onNodeWithTag(itemOutsideLazyRow)
+            .assertIsDisplayed()
+
+        lazyRowBounds = onNodeWithTag(LazyRowItemsTag)
+            .getBoundsInRoot()
+
+        Truth.assertThat(lazyRowBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
+        // TODO: wrap-content on the main-axis must be implemented
+//        Truth.assertThat(lazyRowBounds.right.toIntPx()).isWithin1PixelFrom(120.dp.toIntPx())
+        Truth.assertThat(lazyRowBounds.top.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
+        Truth.assertThat(lazyRowBounds.bottom.toIntPx()).isWithin1PixelFrom(70.dp.toIntPx())
     }
 }

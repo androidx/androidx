@@ -29,11 +29,13 @@ import androidx.ui.geometry.Offset
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.size
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.assertCountEquals
@@ -55,6 +57,7 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import com.google.common.collect.Range
 import com.google.common.truth.IntegerSubject
+import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
@@ -361,6 +364,65 @@ class LazyColumnItemsTest {
 
         assertThat(itemBounds.top.toIntPx()).isWithin1PixelFrom(0)
         assertThat(itemBounds.bottom.toIntPx()).isWithin1PixelFrom(50.dp.toIntPx())
+    }
+
+    @Test
+    fun lazyColumnWrapsContent() = with(composeTestRule.density) {
+        val itemInsideLazyColumn = "itemInsideLazyColumn"
+        val itemOutsideLazyColumn = "itemOutsideLazyColumn"
+        var sameSizeItems by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            Row {
+                LazyColumnItems(
+                    items = listOf(1, 2),
+                    modifier = Modifier.testTag(LazyColumnItemsTag)
+                ) {
+                    if (it == 1) {
+                        Spacer(Modifier.preferredSize(50.dp).testTag(itemInsideLazyColumn))
+                    } else {
+                        Spacer(Modifier.preferredSize(if (sameSizeItems) 50.dp else 70.dp))
+                    }
+                }
+                Spacer(Modifier.preferredSize(50.dp).testTag(itemOutsideLazyColumn))
+            }
+        }
+
+        onNodeWithTag(itemInsideLazyColumn)
+            .assertIsDisplayed()
+
+        onNodeWithTag(itemOutsideLazyColumn)
+            .assertIsDisplayed()
+
+        var lazyColumnBounds = onNodeWithTag(LazyColumnItemsTag)
+            .getBoundsInRoot()
+
+        Truth.assertThat(lazyColumnBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
+        Truth.assertThat(lazyColumnBounds.right.toIntPx()).isWithin1PixelFrom(50.dp.toIntPx())
+        Truth.assertThat(lazyColumnBounds.top.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
+        // TODO: wrap-content on the main-axis must be implemented
+//        Truth.assertThat(itemInsideBounds.bottom.toIntPx()).isWithin1PixelFrom(100.dp.toIntPx())
+
+        runOnIdle {
+            sameSizeItems = false
+        }
+
+        waitForIdle()
+
+        onNodeWithTag(itemInsideLazyColumn)
+            .assertIsDisplayed()
+
+        onNodeWithTag(itemOutsideLazyColumn)
+            .assertIsDisplayed()
+
+        lazyColumnBounds = onNodeWithTag(LazyColumnItemsTag)
+            .getBoundsInRoot()
+
+        Truth.assertThat(lazyColumnBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
+        Truth.assertThat(lazyColumnBounds.right.toIntPx()).isWithin1PixelFrom(70.dp.toIntPx())
+        Truth.assertThat(lazyColumnBounds.top.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
+        // TODO: wrap-content on the main-axis must be implemented
+//        Truth.assertThat(itemInsideBounds.bottom.toIntPx()).isWithin1PixelFrom(120.dp.toIntPx())
     }
 }
 

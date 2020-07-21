@@ -33,8 +33,11 @@ import androidx.ui.core.Placeable
 import androidx.ui.core.Ref
 import androidx.ui.core.Remeasurement
 import androidx.ui.core.RemeasurementModifier
+import androidx.ui.core.constrainHeight
+import androidx.ui.core.constrainWidth
 import androidx.ui.core.subcomposeInto
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 private inline class ScrollDirection(val isForward: Boolean)
@@ -302,6 +305,7 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
             }
 
             var mainAxisUsed = (-firstItemScrollOffset).roundToInt()
+            var maxCrossAxis = 0
 
             // The index of the first item that should be displayed, regardless of what is
             // currently displayed.  Will be moved forward as we determine what's offscreen
@@ -317,6 +321,8 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
                 }
                 val childMainAxisSize = placeable.mainAxisSize
                 mainAxisUsed += childMainAxisSize
+
+                maxCrossAxis = max(maxCrossAxis, placeable.crossAxisSize)
 
                 if (mainAxisUsed < 0f) {
                     // this item is offscreen, remove it and the offset it took up
@@ -357,7 +363,19 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
                 )
             }
 
-            return measureScope.layout(constraints.maxWidth, constraints.maxHeight) {
+            // Wrap the content of the children on the cross axis
+            val layoutWidth = if (isVertical) {
+                constraints.constrainWidth(maxCrossAxis)
+            } else {
+                constraints.maxWidth
+            }
+            val layoutHeight = if (!isVertical) {
+                constraints.constrainHeight(maxCrossAxis)
+            } else {
+                constraints.maxHeight
+            }
+
+            return measureScope.layout(layoutWidth, layoutHeight) {
                 val currentMainAxis = (-firstItemScrollOffset).roundToInt()
                 var x = if (isVertical) 0 else currentMainAxis
                 var y = if (!isVertical) 0 else currentMainAxis
