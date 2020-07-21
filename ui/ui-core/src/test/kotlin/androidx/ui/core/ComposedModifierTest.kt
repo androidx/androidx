@@ -24,7 +24,7 @@ import androidx.compose.InternalComposeApi
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.currentComposer
-import androidx.compose.dispatch.MonotonicFrameClock
+import androidx.compose.runtime.dispatch.MonotonicFrameClock
 import androidx.compose.invalidate
 import androidx.compose.remember
 import androidx.compose.withRunningRecomposer

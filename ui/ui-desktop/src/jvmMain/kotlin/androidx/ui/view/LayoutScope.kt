@@ -22,7 +22,7 @@ import android.view.ViewGroup
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.Recomposer
-import androidx.compose.dispatch.DesktopUiDispatcher
+import androidx.compose.runtime.dispatch.DesktopUiDispatcher
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
