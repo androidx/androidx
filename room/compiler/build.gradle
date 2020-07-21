@@ -256,6 +256,5 @@ androidx {
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room annotation processor"
-    url = AndroidXExtension.ARCHITECTURE_URL
     compilationTarget = CompilationTarget.HOST
 }
