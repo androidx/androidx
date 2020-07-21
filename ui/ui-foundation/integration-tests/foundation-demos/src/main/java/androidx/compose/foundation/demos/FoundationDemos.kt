@@ -24,7 +24,7 @@ import androidx.compose.foundation.samples.InteractionStateSample
 import androidx.compose.foundation.samples.ScrollableColumnSample
 
 val FoundationDemos = DemoCategory("Foundation", listOf(
-    ComposableDemo("Draggable and Scrollable") { HighLevelGesturesDemo() },
+    ComposableDemo("Draggable, Scrollable, Zoomable") { HighLevelGesturesDemo() },
     ComposableDemo("Scrollable Column") { ScrollableColumnSample() },
     ComposableDemo("Controlled Scrollable Row") { ControlledScrollableRowSample() },
     ComposableDemo("Dialog") { DialogSample() },

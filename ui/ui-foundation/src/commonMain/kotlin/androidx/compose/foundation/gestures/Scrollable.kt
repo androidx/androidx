@@ -157,7 +157,7 @@ class ScrollableController(
  * @param controller [ScrollableController] object that is responsible for redirecting scroll
  * deltas to [ScrollableController.consumeScrollDelta] callback and provides smooth scrolling
  * capabilities
- * @param enabled whether of not scrolling in enabled
+ * @param enabled whether or not scrolling in enabled
  * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will
  * behave like bottom to top and left to right will behave like right to left.
  * @param canScroll callback to indicate whether or not scroll is allowed for given [Direction]
