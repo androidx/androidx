@@ -18,6 +18,7 @@ package androidx.ui.core
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
+import androidx.ui.core.pointerinput.PointerInputEvent
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.Uptime
@@ -29,20 +30,30 @@ import androidx.ui.unit.Uptime
  * it is efficient to split the changes between those that are relevant to the sub tree and those
  * that are not.
  */
-internal data class InternalPointerEvent(
+internal expect class InternalPointerEvent(
+    changes: MutableMap<PointerId, PointerInputChange>,
+    pointerInputEvent: PointerInputEvent
+) {
     var changes: MutableMap<PointerId, PointerInputChange>
-)
+}
 
 /**
  * Describes a pointer input change event that has occurred at a particular point in time.
- *
- * Right now this just contains a list of [PointerInputChange]s but as refactoring continues,
- * will contain more data that is global to the change, such as the current [Uptime] and the
- * [Uptime] of the previous [PointerEvent].
  */
-data class PointerEvent(
+expect class PointerEvent internal constructor(
+    changes: List<PointerInputChange>,
+    internalPointerEvent: InternalPointerEvent?
+) {
+    /**
+     * @param changes The changes.
+     */
+    constructor(changes: List<PointerInputChange>)
+
+    /**
+     * The changes.
+     */
     val changes: List<PointerInputChange>
-)
+}
 
 /**
  * Describes a change that has occurred for a particular pointer, as well as how much of the change

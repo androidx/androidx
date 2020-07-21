@@ -17,9 +17,14 @@
 package androidx.ui.core.pointerinput
 
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Constraints
 import androidx.ui.core.ConsumedData
 import androidx.ui.core.ExperimentalLayoutNodeApi
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutNode
+import androidx.ui.core.LayoutNodeWrapper
+import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Owner
 import androidx.ui.core.PointerEventPass
@@ -32,12 +37,15 @@ import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.Uptime
-import androidx.ui.unit.minus
 import androidx.ui.unit.milliseconds
+import androidx.ui.unit.minus
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doAnswer
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.inOrder
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.spy
@@ -2650,13 +2658,15 @@ class PointerInputEventProcessorTest {
 }
 
 abstract class TestOwner : Owner {
-    var position = IntOffset.Origin
+    var position: IntOffset? = null
 
     @ExperimentalLayoutNodeApi
     override val root: LayoutNode
         get() = LayoutNode()
 
-    override fun calculatePosition() = position
+    override fun calculatePosition(): IntOffset {
+        return position ?: IntOffset.Origin
+    }
 }
 
 open class TestPointerInputFilter(
@@ -2676,3 +2686,44 @@ open class TestPointerInputFilter(
 
 private class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
     PointerInputModifier
+
+@OptIn(ExperimentalLayoutNodeApi::class)
+private fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Modifier) =
+    LayoutNode().apply {
+        this.modifier = modifier
+        measureBlocks = object : LayoutNode.NoIntrinsicsMeasureBlocks("not supported") {
+            override fun measure(
+                measureScope: MeasureScope,
+                measurables: List<Measurable>,
+                constraints: Constraints,
+                layoutDirection: LayoutDirection
+            ): MeasureScope.MeasureResult =
+                measureScope.layout(x2 - x, y2 - y) {}
+        }
+        attach(mockOwner())
+        remeasure(Constraints(), layoutDirection)
+        var wrapper: LayoutNodeWrapper? = outerLayoutNodeWrapper
+        while (wrapper != null) {
+            wrapper.measureResult = innerLayoutNodeWrapper.measureResult
+            wrapper = (wrapper as? LayoutNodeWrapper)?.wrapped
+        }
+        place(x, y)
+        detach()
+    }
+
+@ExperimentalLayoutNodeApi
+private fun mockOwner(
+    position: IntOffset = IntOffset.Origin,
+    targetRoot: LayoutNode = LayoutNode()
+): Owner =
+    @Suppress("UNCHECKED_CAST")
+    mock {
+        on { calculatePosition() } doReturn position
+        on { root } doReturn targetRoot
+        on { observeMeasureModelReads(any(), any()) } doAnswer {
+            (it.arguments[1] as () -> Unit).invoke()
+        }
+        on { observeLayoutModelReads(any(), any()) } doAnswer {
+            (it.arguments[1] as () -> Unit).invoke()
+        }
+    }

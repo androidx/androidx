@@ -21,7 +21,6 @@ import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.CustomEvent
 import androidx.ui.core.CustomEventDispatcher
-import androidx.ui.core.InternalPointerEvent
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerId
@@ -30,11 +29,11 @@ import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.consumePositionChange
 import androidx.ui.core.positionChange
+import androidx.ui.geometry.Offset
 import androidx.ui.testutils.down
 import androidx.ui.testutils.moveTo
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.PxBounds
-import androidx.ui.geometry.Offset
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -208,7 +207,7 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_noNodes_doesNotCrash() {
-        hitPathTracker.dispatchChanges(pointerEventOf(down(0)))
+        hitPathTracker.dispatchChanges(internalPointerEventOf(down(0)))
     }
 
     @Test
@@ -216,7 +215,7 @@ class HitPathTrackerTest {
         val pif: PointerInputFilter = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
 
-        hitPathTracker.dispatchChanges(pointerEventOf(down(13)))
+        hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
 
         // Verify call count
         verify(pif, times(5)).onPointerEvent(any(), any(), any())
@@ -237,7 +236,7 @@ class HitPathTrackerTest {
         val pif3: PointerInputFilter = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(13), listOf(pif1, pif2, pif3))
 
-        hitPathTracker.dispatchChanges(pointerEventOf(down(13)))
+        hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
 
         // Verify call count
         verify(pif1, times(5)).onPointerEvent(any(), any(), any())
@@ -270,7 +269,7 @@ class HitPathTrackerTest {
         val pif3: PointerInputFilter = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(13), listOf(pif1, pif2, pif3))
 
-        hitPathTracker.dispatchChanges(pointerEventOf(down(13)))
+        hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
 
         // Verify call count
         verify(pif1, times(5)).onPointerEvent(any(), any(), any())
@@ -323,7 +322,7 @@ class HitPathTrackerTest {
         val event2 = down(5).moveTo(10.milliseconds, 7f, 9f)
 
         hitPathTracker.dispatchChanges(
-            pointerEventOf(event1, event2)
+            internalPointerEventOf(event1, event2)
         )
 
         // Verify call count
@@ -389,7 +388,7 @@ class HitPathTrackerTest {
         val event2 = down(5).moveTo(10.milliseconds, 7f, 9f)
 
         hitPathTracker.dispatchChanges(
-            pointerEventOf(event1, event2)
+            internalPointerEventOf(event1, event2)
         )
 
         // Verify call count
@@ -462,7 +461,7 @@ class HitPathTrackerTest {
         val event2 = down(5).moveTo(10.milliseconds, 7f, 9f)
 
         hitPathTracker.dispatchChanges(
-            pointerEventOf(event1, event2)
+            internalPointerEventOf(event1, event2)
         )
 
         // Verify call count
@@ -538,9 +537,9 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_noNodes_nothingChanges() {
-        val (result, _) = hitPathTracker.dispatchChanges(pointerEventOf(down(5)))
+        val (result, _) = hitPathTracker.dispatchChanges(internalPointerEventOf(down(5)))
 
-        assertThat(result).isEqualTo(pointerEventOf(down(5)))
+        assertThat(result.changes.values.first()).isEqualTo(down(5))
     }
 
     @Test
@@ -553,9 +552,9 @@ class HitPathTrackerTest {
         )
         hitPathTracker.addHitPath(PointerId(13), listOf(pif1))
 
-        val (result, _) = hitPathTracker.dispatchChanges(pointerEventOf(down(13)))
+        val (result, _) = hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
 
-        assertThat(result).isEqualTo(pointerEventOf(down(13).consumeDownChange()))
+        assertThat(result.changes.values.first()).isEqualTo(down(13).consumeDownChange())
     }
 
     @Test
@@ -605,7 +604,7 @@ class HitPathTrackerTest {
         hitPathTracker.addHitPath(PointerId(13), listOf(pif1, pif2, pif3))
         val change = down(13).moveTo(10.milliseconds, 0f, 130f)
 
-        val (result, _) = hitPathTracker.dispatchChanges(pointerEventOf(change))
+        val (result, _) = hitPathTracker.dispatchChanges(internalPointerEventOf(change))
 
         verify(pif1).onPointerInput(
             eq(listOf(change)), eq(PointerEventPass.InitialDown), any()
@@ -635,15 +634,8 @@ class HitPathTrackerTest {
             eq(PointerEventPass.PreUp),
             any()
         )
-        assertThat(result)
-            .isEqualTo(
-                pointerEventOf(
-                    change.consumePositionChange(
-                        0f,
-                        126f
-                    )
-                )
-            ) // 2 + 4 + 8 + 16 + 32 + 64
+        assertThat(result.changes.values.first())
+            .isEqualTo(change.consumePositionChange(0f, 126f)) // 2 + 4 + 8 + 16 + 32 + 64
     }
 
     @Test
@@ -710,7 +702,7 @@ class HitPathTrackerTest {
         val event2 = down(5).moveTo(10.milliseconds, 0f, -24f)
 
         val (result, _) = hitPathTracker.dispatchChanges(
-            pointerEventOf(event1, event2)
+            internalPointerEventOf(event1, event2)
         )
 
         verify(pif1).onPointerInput(
@@ -819,7 +811,7 @@ class HitPathTrackerTest {
         val event2 = down(5).moveTo(10.milliseconds, 0f, -1000f)
 
         val (result, _) = hitPathTracker.dispatchChanges(
-            pointerEventOf(event1, event2)
+            internalPointerEventOf(event1, event2)
         )
 
         verify(parent).onPointerInput(
@@ -905,7 +897,7 @@ class HitPathTrackerTest {
         val event2 = down(5).moveTo(10.milliseconds, 0f, -1000f)
 
         val (result, _) = hitPathTracker.dispatchChanges(
-            pointerEventOf(event1, event2)
+            internalPointerEventOf(event1, event2)
         )
 
         verify(child1).onPointerInput(
@@ -2669,7 +2661,7 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_noNodes_reportsWasDispatchedToNothing() {
-        val (_, hitSomething) = hitPathTracker.dispatchChanges(pointerEventOf(down(0)))
+        val (_, hitSomething) = hitPathTracker.dispatchChanges(internalPointerEventOf(down(0)))
         assertThat(hitSomething).isFalse()
     }
 
@@ -2678,7 +2670,7 @@ class HitPathTrackerTest {
         val pif: PointerInputFilter = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
 
-        val (_, hitSomething) = hitPathTracker.dispatchChanges(pointerEventOf(down(13)))
+        val (_, hitSomething) = hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
 
         assertThat(hitSomething).isTrue()
     }
@@ -2688,7 +2680,7 @@ class HitPathTrackerTest {
         val pif: PointerInputFilter = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
 
-        val (_, hitSomething) = hitPathTracker.dispatchChanges(pointerEventOf(down(69)))
+        val (_, hitSomething) = hitPathTracker.dispatchChanges(internalPointerEventOf(down(69)))
 
         assertThat(hitSomething).isFalse()
     }
@@ -2965,7 +2957,7 @@ class HitPathTrackerTest {
         )
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
 
-        hitPathTracker.dispatchChanges(pointerEventOf(down(13)))
+        hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
 
         var passedRemovalPass = false
         PointerEventPass.values().forEach {
@@ -3031,7 +3023,7 @@ class HitPathTrackerTest {
         )
         hitPathTracker.addHitPath(PointerId(13), listOf(parentPif, childPif))
 
-        hitPathTracker.dispatchChanges(pointerEventOf(down(13)))
+        hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
 
         val removalPassIsDown =
             when (removalPass) {
@@ -3105,7 +3097,7 @@ class HitPathTrackerTest {
         )
         hitPathTracker.addHitPath(PointerId(13), listOf(parentPif, childPif))
 
-        hitPathTracker.dispatchChanges(pointerEventOf(down(13)))
+        hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
 
         val removalPassIsDown =
             when (removalPass) {
@@ -3472,6 +3464,3 @@ class LayoutCoordinatesStub(
         TODO("not implemented")
     }
 }
-
-private fun pointerEventOf(vararg changes: PointerInputChange) =
-        InternalPointerEvent(changes.toList().associateBy { it.id }.toMutableMap())

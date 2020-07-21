@@ -33,6 +33,7 @@ import androidx.compose.foundation.Text
 import androidx.ui.geometry.Offset
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
@@ -50,6 +51,9 @@ val AndroidInComposeDemos = DemoCategory("Android In Compose Interop", listOf(
     },
     ComposableDemo("Android scroll in Compose scroll (same orientation)") {
         AndroidScrollInComposeScrollSameOrientation()
+    },
+    ComposableDemo("2 ScrollViews as separate children of Compose") {
+        TwoAndroidScrollViewsInCompose()
     }
 ))
 
@@ -108,10 +112,10 @@ private fun AndroidTapInComposeTap() {
         )
         Box(
             Modifier
-                .tapGestureFilter(onTap)
                 .fillMaxSize()
                 .wrapContentSize(Alignment.Center)
                 .preferredSize(240.dp)
+                .tapGestureFilter(onTap)
         ) {
             AndroidView(R.layout.android_tap_in_compose_tap) { view ->
                 theView = view
@@ -210,6 +214,21 @@ private fun AndroidScrollInComposeScrollSameOrientation() {
             ) {
                 AndroidView(R.layout.android_scroll_in_compose_scroll_same_orientation)
             }
+        }
+    }
+}
+
+@Composable
+private fun TwoAndroidScrollViewsInCompose() {
+    Column {
+        Text(
+            "Below are two Android Scrollviews that are nested in two different children of " +
+                    "Compose. The user should be able to scroll each independently at the same " +
+                    "time, but given that we currently don't split motion, this is not work."
+        )
+        Row {
+            AndroidView(R.layout.android_scrollview, Modifier.weight(2f))
+            AndroidView(R.layout.android_scrollview, Modifier.weight(1f))
         }
     }
 }

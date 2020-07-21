@@ -26,17 +26,17 @@ import androidx.ui.unit.Uptime
  *
  * All pointer locations are relative to the device screen.
  */
-internal data class PointerInputEvent(
-    val uptime: Uptime,
+internal expect class PointerInputEvent {
+    val uptime: Uptime
     val pointers: List<PointerInputEventData>
-)
+}
 
 /**
  * Data that describes a particular pointer
  *
  * All pointer locations are relative to the device screen.
  */
-data class PointerInputEventData(
+internal data class PointerInputEventData(
     val id: PointerId,
     val pointerInputData: PointerInputData
 )
