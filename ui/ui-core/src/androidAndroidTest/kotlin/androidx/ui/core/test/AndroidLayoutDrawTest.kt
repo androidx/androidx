@@ -27,6 +27,8 @@ import android.view.PixelCopy
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.compose.FrameManager
@@ -2605,6 +2607,52 @@ class AndroidLayoutDrawTest {
         drawLatch = CountDownLatch(1)
         zIndex = 1f
         validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
+    }
+
+    @Test
+    fun makingItemLarger() {
+        var height by mutableStateOf(30)
+        var actualHeight = 0
+        var latch = CountDownLatch(1)
+        activityTestRule.runOnUiThread {
+            val linearLayout = LinearLayout(activity)
+            linearLayout.orientation = LinearLayout.VERTICAL
+            val child = FrameLayout(activity)
+            activity.setContentView(linearLayout)
+            linearLayout.addView(child, LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                1f
+            ))
+            linearLayout.addView(View(activity), LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                0,
+                10000f
+            ))
+            child.viewTreeObserver.addOnPreDrawListener {
+                actualHeight = child.measuredHeight
+                latch.countDown()
+                true
+            }
+            child.setContent {
+                Layout({}) { _, constraints ->
+                    layout(constraints.maxWidth, height.coerceAtMost(constraints.maxHeight)) {}
+                }
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        latch = CountDownLatch(1)
+
+        activityTestRule.runOnUiThread {
+            assertEquals(height, actualHeight)
+            height = 60
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        activityTestRule.runOnUiThread {
+            assertEquals(height, actualHeight)
+        }
     }
 
     private fun composeSquares(model: SquareModel) {

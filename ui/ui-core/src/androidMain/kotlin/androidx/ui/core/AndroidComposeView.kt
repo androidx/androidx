@@ -84,6 +84,7 @@ import androidx.ui.graphics.CanvasHolder
 import androidx.ui.input.TextInputServiceAndroid
 import androidx.ui.input.textInputServiceFactory
 import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry
+import androidx.ui.core.LayoutNode.UsageByParent
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntOffset
@@ -307,6 +308,14 @@ internal class AndroidComposeView constructor(
 
     // [ Layout block start ]
 
+    // The constraints being used by the last onMeasure. It is set to null in onLayout. It allows
+    // us to detect the case when the View was measured twice with different constraints within
+    // the same measure pass.
+    private var onMeasureConstraints: Constraints? = null
+    // Will be set to true when we were measured twice with different constraints during the last
+    // measure pass.
+    private var wasMeasuredWithMultipleConstraints = false
+
     private val measureAndLayoutDelegate = MeasureAndLayoutDelegate(root)
 
     private var measureAndLayoutScheduled = false
@@ -318,10 +327,26 @@ internal class AndroidComposeView constructor(
             true
         }
 
-    private fun scheduleMeasureAndLayout() {
-        if (!isLayoutRequested && !measureAndLayoutScheduled) {
-            measureAndLayoutScheduled = true
-            measureAndLayoutHandler.sendEmptyMessage(0)
+    private fun scheduleMeasureAndLayout(nodeToRemeasure: LayoutNode? = null) {
+        if (!isLayoutRequested) {
+            if (wasMeasuredWithMultipleConstraints && nodeToRemeasure != null) {
+                // if nodeToRemeasure can potentially resize the root and the view was measured
+                // twice with different constraints last time it means the constraints we have could
+                // be not the final constraints and in fact our parent ViewGroup can remeasure us
+                // with larger constraints if we call requestLayout()
+                var node = nodeToRemeasure
+                while (node != null && node.measuredByParent == UsageByParent.InMeasureBlock) {
+                    node = node.parent
+                }
+                if (node === root) {
+                    requestLayout()
+                    return
+                }
+            }
+            if (!measureAndLayoutScheduled) {
+                measureAndLayoutScheduled = true
+                measureAndLayoutHandler.sendEmptyMessage(0)
+            }
         }
     }
 
@@ -337,7 +362,7 @@ internal class AndroidComposeView constructor(
 
     override fun onRequestMeasure(layoutNode: LayoutNode) {
         if (measureAndLayoutDelegate.requestRemeasure(layoutNode)) {
-            scheduleMeasureAndLayout()
+            scheduleMeasureAndLayout(layoutNode)
         }
     }
 
@@ -353,8 +378,17 @@ internal class AndroidComposeView constructor(
             val (minWidth, maxWidth) = convertMeasureSpec(widthMeasureSpec)
             val (minHeight, maxHeight) = convertMeasureSpec(heightMeasureSpec)
 
+            val constraints = Constraints(minWidth, maxWidth, minHeight, maxHeight)
+            if (onMeasureConstraints == null) {
+                // first onMeasure after last onLayout
+                onMeasureConstraints = constraints
+                wasMeasuredWithMultipleConstraints = false
+            } else if (onMeasureConstraints != constraints) {
+                // we were remeasured twice with different constraints after last onLayout
+                wasMeasuredWithMultipleConstraints = true
+            }
             measureAndLayoutDelegate.updateRootParams(
-                Constraints(minWidth, maxWidth, minHeight, maxHeight),
+                constraints,
                 resources.configuration.localeLayoutDirection
             )
             measureAndLayoutDelegate.measureAndLayout()
@@ -374,6 +408,7 @@ internal class AndroidComposeView constructor(
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        onMeasureConstraints = null
         // we postpone onPositioned callbacks until onLayout as LayoutCoordinates
         // are currently wrong if you try to get the global(activity) coordinates -
         // View is not yet laid out.
