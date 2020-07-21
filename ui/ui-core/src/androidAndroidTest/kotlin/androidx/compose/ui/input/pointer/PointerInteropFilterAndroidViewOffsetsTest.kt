@@ -27,10 +27,10 @@ import androidx.compose.foundation.Box
 import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.platform.setContent
-import androidx.test.filters.MediumTest
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.test.filters.MediumTest
 import androidx.ui.test.android.createAndroidComposeRule
 import com.nhaarman.mockitokotlin2.clearInvocations
 import com.nhaarman.mockitokotlin2.mock
@@ -47,7 +47,7 @@ import org.junit.runners.JUnit4
 // Compose and back into Android and each layer offsets the pointer during dispatch.
 @MediumTest
 @RunWith(JUnit4::class)
-class PointerInteropFilterIntegrationTest {
+class PointerInteropFilterAndroidViewOffsetsTest {
 
     private lateinit var five: View
     private val theHitListener: () -> Unit = mock()

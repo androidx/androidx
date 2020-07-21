@@ -1489,15 +1489,6 @@ class MotionEventAdapterTest {
 
 // Private helper functions
 
-private fun PointerProperties(id: Int) =
-    MotionEvent.PointerProperties().apply { this.id = id }
-
-private fun PointerCoords(x: Float, y: Float) =
-    MotionEvent.PointerCoords().apply {
-        this.x = x
-        this.y = y
-    }
-
 private fun MotionEvent(
     eventTime: Int,
     action: Int,

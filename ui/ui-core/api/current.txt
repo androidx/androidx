@@ -1549,9 +1549,15 @@ package androidx.compose.ui.input.pointer {
   }
 
   public final class PointerInteropFilterKt {
+    method public static androidx.compose.ui.Modifier pointerInteropFilter(androidx.compose.ui.Modifier, androidx.compose.ui.input.pointer.RequestDisallowInterceptTouchEvent? requestDisallowInterceptTouchEvent = null, kotlin.jvm.functions.Function1<? super android.view.MotionEvent,java.lang.Boolean> onTouchEvent);
   }
 
   public final class PointerInteropUtilsKt {
+  }
+
+  public final class RequestDisallowInterceptTouchEvent implements kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit> {
+    ctor public RequestDisallowInterceptTouchEvent();
+    method public void invoke(boolean disallowIntercept);
   }
 
 }

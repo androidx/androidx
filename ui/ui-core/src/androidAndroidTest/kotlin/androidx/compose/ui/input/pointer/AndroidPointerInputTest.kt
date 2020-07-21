@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.milliseconds
 import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.gesture.PointerCoords
+import androidx.compose.ui.gesture.PointerProperties
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.PointerEventPass
@@ -481,14 +483,3 @@ private fun MotionEvent(
     0,
     0
 )
-
-@Suppress("SameParameterValue", "TestFunctionName")
-private fun PointerProperties(id: Int) =
-    MotionEvent.PointerProperties().apply { this.id = id }
-
-@Suppress("SameParameterValue", "TestFunctionName")
-private fun PointerCoords(x: Float, y: Float) =
-    MotionEvent.PointerCoords().apply {
-        this.x = x
-        this.y = y
-    }
