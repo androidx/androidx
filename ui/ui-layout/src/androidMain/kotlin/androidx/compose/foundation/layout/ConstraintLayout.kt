@@ -688,7 +688,7 @@ class ConstrainScope internal constructor(internal val id: Any) {
                     val index1 = verticalAnchorIndexToFunctionIndex(index, layoutDirection)
                     val index2 = verticalAnchorIndexToFunctionIndex(anchor.index, layoutDirection)
                     verticalAnchorFunctions[index1][index2]
-                        .invoke(this, anchor.id)
+                        .invoke(this, anchor.id, state.layoutDirection)
                         .margin(margin)
                 }
             }
@@ -837,16 +837,35 @@ class ConstrainScope internal constructor(internal val id: Any) {
 
     internal companion object {
         val verticalAnchorFunctions:
-                Array<Array<ConstraintReference.(Any) -> ConstraintReference>> = arrayOf(
+                Array<Array<ConstraintReference.(Any, LayoutDirection) -> ConstraintReference>> =
             arrayOf(
-                { other -> leftToLeft(other) },
-                { other -> leftToRight(other) }
-            ),
-            arrayOf(
-                { other -> rightToLeft(other) },
-                { other -> rightToRight(other) }
+                arrayOf(
+                    { other, layoutDirection -> clearLeft(layoutDirection); leftToLeft(other) },
+                    { other, layoutDirection -> clearLeft(layoutDirection); leftToRight(other) }
+                ),
+                arrayOf(
+                    { other, layoutDirection -> clearRight(layoutDirection); rightToLeft(other) },
+                    { other, layoutDirection -> clearRight(layoutDirection); rightToRight(other) }
+                )
             )
-        )
+
+        private fun ConstraintReference.clearLeft(layoutDirection: LayoutDirection) {
+            leftToLeft(null)
+            leftToRight(null)
+            when (layoutDirection) {
+                LayoutDirection.Ltr -> { startToStart(null); startToEnd(null) }
+                LayoutDirection.Rtl -> { endToStart(null); endToEnd(null) }
+            }
+        }
+
+        private fun ConstraintReference.clearRight(layoutDirection: LayoutDirection) {
+            rightToLeft(null)
+            rightToRight(null)
+            when (layoutDirection) {
+                LayoutDirection.Ltr -> { endToStart(null); endToEnd(null) }
+                LayoutDirection.Rtl -> { startToStart(null); startToEnd(null) }
+            }
+        }
 
         /**
          * Converts the index (-2 -> start, -1 -> end, 0 -> left, 1 -> right) to an index in
@@ -863,16 +882,22 @@ class ConstrainScope internal constructor(internal val id: Any) {
         val horizontalAnchorFunctions:
                 Array<Array<ConstraintReference.(Any) -> ConstraintReference>> = arrayOf(
             arrayOf(
-                { other -> topToTop(other) },
-                { other -> topToBottom(other) }
+                { other -> topToBottom(null); baselineToBaseline(null); topToTop(other) },
+                { other -> topToTop(null); baselineToBaseline(null); topToBottom(other) }
             ),
             arrayOf(
-                { other -> bottomToTop(other) },
-                { other -> bottomToBottom(other) }
+                { other -> bottomToBottom(null); baselineToBaseline(null); bottomToTop(other) },
+                { other -> bottomToTop(null); baselineToBaseline(null); bottomToBottom(other) }
             )
         )
         val baselineAnchorFunction: ConstraintReference.(Any) -> ConstraintReference =
-            { other -> baselineToBaseline(other) }
+            { other ->
+                topToTop(null)
+                topToBottom(null)
+                bottomToTop(null)
+                bottomToBottom(null)
+                baselineToBaseline(other)
+            }
     }
 }
 
