@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.Recomposer
+import androidx.compose.dispatch.DesktopUiDispatcher
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -38,6 +39,7 @@ import androidx.ui.desktop.FontLoader
 import androidx.ui.desktop.LayoutScopeGlobal
 import androidx.ui.input.TextInputService
 import androidx.ui.unit.IntOffset
+import com.jogamp.opengl.awt.GLCanvas
 import org.jetbrains.skija.Canvas
 
 class LayoutScope {
@@ -52,9 +54,26 @@ class LayoutScope {
     val width: Int get() = layout.right - layout.left
     val height: Int get() = layout.bottom - layout.top
 
-    constructor() {
+    // Optimization: we don't need more than one redrawing per tick
+    var redrawingScheduled = false
+
+    constructor(glCanvas: GLCanvas) {
         context = object : Context() {}
-        layout = object : ViewGroup(context) {}
+        layout = object : ViewGroup(context) {
+            override fun onInvalidate() {
+                if (!redrawingScheduled) {
+                    DesktopUiDispatcher.Dispatcher.scheduleAfterCallback {
+                        redrawingScheduled = false
+                        if (Recomposer.current().hasPendingChanges()) {
+                            onInvalidate()
+                        } else {
+                            redraw(glCanvas)
+                        }
+                    }
+                    redrawingScheduled = true
+                }
+            }
+        }
     }
 
     constructor(composeView: View, context: Context) {
@@ -65,6 +84,10 @@ class LayoutScope {
 
     internal lateinit var platformInputService: DesktopPlatformInput
         private set
+
+    private fun redraw(glCanvas: GLCanvas) {
+        glCanvas.display()
+    }
 
     fun setContent(content: @Composable () -> Unit) {
         platformInputService = DesktopPlatformInput()

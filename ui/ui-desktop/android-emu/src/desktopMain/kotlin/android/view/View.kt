@@ -73,7 +73,9 @@ open class View(val context: Context) {
         return false
     }
 
-    open fun invalidate() {}
+    open fun invalidate() {
+        onInvalidate()
+    }
 
     open fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {}
 
@@ -199,10 +201,21 @@ open class View(val context: Context) {
         }
     }
 
+    open fun offsetLeftAndRight(offset: Int) {
+        if (offset != 0) {
+            left += offset
+            right += offset
+        }
+    }
+
     open fun onAttachedToWindow() {
         isAttachedToWindow = true
         attachListeners.forEach {
             it.onViewAttachedToWindow(this)
         }
+    }
+
+    open fun onInvalidate() {
+        if (parent is View) (parent as View).onInvalidate()
     }
 }

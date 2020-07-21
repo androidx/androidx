@@ -18,7 +18,9 @@
 
 package androidx.ui.desktop
 
+import androidx.animation.rootAnimationClockFactory
 import androidx.compose.InternalComposeApi
+import androidx.compose.dispatch.DesktopUiDispatcher
 import androidx.ui.graphics.DesktopCanvas
 import androidx.ui.graphics.DesktopImageShader
 import androidx.ui.graphics.DesktopInternalCanvasHolder
@@ -69,5 +71,11 @@ private object ComposeInit {
         GraphicsFactory.Shader.image = ::DesktopImageShader
         paragraphIntrinsicsActualFactory = ::DesktopParagraphIntrinsics
         paragraphActualFactory = ::DesktopParagraph
+        @OptIn(androidx.animation.InternalAnimationApi::class)
+        rootAnimationClockFactory = {
+            // TODO: detect actual display refresh rate? what to do with displays with
+            //  different refresh rates?
+            DesktopAnimationClock(60, DesktopUiDispatcher.Dispatcher)
+        }
     }
 }
