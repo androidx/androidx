@@ -334,21 +334,17 @@ public class BiometricFragment extends Fragment {
         }
 
         if (isAdded()) {
-            final boolean shouldHideFingerprintDialog =
-                    DeviceUtils.shouldHideFingerprintDialog(context, Build.MODEL);
-            if (mViewModel.isFingerprintDialogDismissedInstantly() != shouldHideFingerprintDialog) {
+            mViewModel.setFingerprintDialogDismissedInstantly(true);
+            if (!DeviceUtils.shouldHideFingerprintDialog(context, Build.MODEL)) {
                 mHandler.postDelayed(
                         new Runnable() {
                             @Override
                             public void run() {
-                                mViewModel.setFingerprintDialogDismissedInstantly(
-                                        shouldHideFingerprintDialog);
+                                mViewModel.setFingerprintDialogDismissedInstantly(false);
                             }
                         },
                         DISMISS_INSTANTLY_DELAY_MS);
-            }
 
-            if (!shouldHideFingerprintDialog) {
                 final FingerprintDialogFragment dialog = FingerprintDialogFragment.newInstance();
                 dialog.show(getParentFragmentManager(), FINGERPRINT_DIALOG_FRAGMENT_TAG);
             }
