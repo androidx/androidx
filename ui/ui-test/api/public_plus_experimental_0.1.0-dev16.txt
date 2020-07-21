@@ -240,7 +240,6 @@ package androidx.ui.test {
     method public static androidx.ui.geometry.Offset getCenterRight(androidx.ui.test.BaseGestureScope);
     method public static inline float getCenterX(androidx.ui.test.BaseGestureScope);
     method public static inline float getCenterY(androidx.ui.test.BaseGestureScope);
-    method public static androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.test.BaseGestureScope);
     method public static inline int getHeight(androidx.ui.test.BaseGestureScope);
     method public static inline float getLeft(androidx.ui.test.BaseGestureScope);
     method public static inline float getRight(androidx.ui.test.BaseGestureScope);
