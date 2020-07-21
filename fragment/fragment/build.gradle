@@ -42,6 +42,7 @@ dependencies {
     api(project(":lifecycle:lifecycle-viewmodel"))
     api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
     api("androidx.savedstate:savedstate:1.1.0-alpha01")
+    api("androidx.annotation:annotation-experimental:1.0.0")
 
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0", {
         exclude group: 'androidx.fragment', module: 'fragment'
