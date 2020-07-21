@@ -48,4 +48,5 @@ androidx {
     mavenGroup = LibraryGroups.WORK
     inceptionYear = "2020"
     description = "Android WorkManager RxJava3 interoperatibility library"
+    url = AndroidXExtension.ARCHITECTURE_URL
 }

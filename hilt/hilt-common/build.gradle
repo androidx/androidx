@@ -49,4 +49,5 @@ androidx {
     mavenGroup = LibraryGroups.HILT
     inceptionYear = "2020"
     description = "AndroidX Hilt Extension Annotations"
+    url = AndroidXExtension.ARCHITECTURE_URL
 }

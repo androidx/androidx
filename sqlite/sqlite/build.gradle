@@ -48,4 +48,5 @@ androidx {
     mavenGroup = LibraryGroups.SQLITE
     inceptionYear = "2017"
     description = "Android DB"
+    url = AndroidXExtension.ARCHITECTURE_URL
 }
