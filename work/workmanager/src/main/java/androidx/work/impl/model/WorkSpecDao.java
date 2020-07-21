@@ -275,6 +275,12 @@ public interface WorkSpecDao {
     int markWorkSpecScheduled(@NonNull String id, long startTime);
 
     /**
+     * @return The time at which the {@link WorkSpec} was scheduled.
+     */
+    @Query("SELECT schedule_requested_at FROM workspec WHERE id=:id")
+    LiveData<Long> getScheduleRequestedAtLiveData(@NonNull String id);
+
+    /**
      * Resets the scheduled state on the {@link WorkSpec}s that are not in a a completed state.
      * @return The number of rows that were updated
      */
