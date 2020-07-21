@@ -24,7 +24,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performPartialGesture
+import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.down
@@ -83,7 +83,7 @@ class IndicationTest {
         assertThat(countDownLatch.count).isEqualTo(2)
         onNodeWithTag(testTag)
             .assertExists()
-            .performPartialGesture {
+            .performGesture {
                 down(center)
             }
         runOnIdle {
@@ -91,7 +91,7 @@ class IndicationTest {
         }
         onNodeWithTag(testTag)
             .assertExists()
-            .performPartialGesture {
+            .performGesture {
                 up()
             }
         assertThat(countDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
@@ -139,7 +139,7 @@ class IndicationTest {
         var position1: Offset? = null
         onNodeWithTag(testTag)
             .assertExists()
-            .performPartialGesture {
+            .performGesture {
                 position1 = Offset(center.x, center.y + 20f)
                 // pointer 1, when we have multitouch
                 down(position1!!)
@@ -149,7 +149,7 @@ class IndicationTest {
         }
         onNodeWithTag(testTag)
             .assertExists()
-            .performPartialGesture {
+            .performGesture {
                 val position2 = Offset(center.x + 20f, center.y)
                 // pointer 2, when we have multitouch
                 down(position2)
@@ -160,7 +160,7 @@ class IndicationTest {
         }
         onNodeWithTag(testTag)
             .assertExists()
-            .performPartialGesture {
+            .performGesture {
                 // pointer 1, when we have multitouch
                 up()
             }
@@ -169,7 +169,7 @@ class IndicationTest {
         }
         onNodeWithTag(testTag)
             .assertExists()
-            .performPartialGesture {
+            .performGesture {
                 // pointer 2, when we have multitouch
                 up()
             }

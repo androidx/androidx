@@ -31,7 +31,7 @@ import androidx.ui.test.assertIsNotSelected
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
-import androidx.ui.test.performPartialGesture
+import androidx.ui.test.performGesture
 import androidx.ui.test.onNode
 import androidx.ui.test.onAllNodes
 import androidx.ui.test.onNodeWithText
@@ -129,14 +129,14 @@ class SelectableTest {
         }
 
         onNodeWithText("SelectableText")
-            .performPartialGesture { down(center) }
+            .performGesture { down(center) }
 
         runOnIdle {
             Truth.assertThat(interactionState.value).contains(Interaction.Pressed)
         }
 
         onNodeWithText("SelectableText")
-            .performPartialGesture { up() }
+            .performGesture { up() }
 
         runOnIdle {
             Truth.assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
@@ -167,7 +167,7 @@ class SelectableTest {
         }
 
         onNodeWithText("SelectableText")
-            .performPartialGesture { down(center) }
+            .performGesture { down(center) }
 
         runOnIdle {
             Truth.assertThat(interactionState.value).contains(Interaction.Pressed)

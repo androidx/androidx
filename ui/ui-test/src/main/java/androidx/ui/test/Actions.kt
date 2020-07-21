@@ -78,14 +78,26 @@ fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
 }
 
 /**
- * Executes the gestures specified in the given block.
+ * Executes the (partial) gesture specified in the given [block]. The gesture doesn't need to be
+ * complete and can be resumed in a later invocation of [performGesture]. It is the
+ * responsibility of the caller to make sure partial gestures don't leave the test in an
+ * inconsistent state.
+ *
+ * This method must not be called from the main thread. The block will be executed on the same
+ * thread as the caller.
  *
  * Example usage:
  * ```
  * onNodeWithTag("myWidget")
- *    .doGesture {
- *        sendSwipeUp()
- *    }
+ *     .performGesture { swipeUp() }
+ *
+ * onNodeWithTag("myWidget")
+ *     .performGesture { click(center) }
+ *
+ * onNodeWithTag("myWidget")
+ *     .performGesture { down(topLeft) }
+ *     .assertHasClickAction()
+ *     .performGesture { up(topLeft) }
  * ```
  */
 fun SemanticsNodeInteraction.performGesture(
@@ -93,37 +105,6 @@ fun SemanticsNodeInteraction.performGesture(
 ): SemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to perform a gesture.")
     with(GestureScope(node)) {
-        try {
-            block()
-        } finally {
-            dispose()
-        }
-    }
-    return this
-}
-
-/**
- * Executes the (partial) gesture specified in the given block. The gesture doesn't need to be
- * complete and can be resumed later. It is the responsibility of the caller to make sure partial
- * gestures don't leave the test in an inconsistent state.
- *
- * When [sending the down event][down], a token is returned which needs to be used in all
- * subsequent events of this gesture.
- *
- * Example usage:
- * ```
- * val position = Offset(10f, 10f)
- * onNodeWithTag("myWidget")
- *    .performPartialGesture { sendDown(position) }
- *    .assertHasClickAction()
- *    .performPartialGesture { sendUp(position) }
- * ```
- */
-fun SemanticsNodeInteraction.performPartialGesture(
-    block: PartialGestureScope.() -> Unit
-): SemanticsNodeInteraction {
-    val node = fetchSemanticsNode("Failed to perform a partial gesture.")
-    with(PartialGestureScope(node)) {
         try {
             block()
         } finally {
@@ -244,8 +225,8 @@ fun SemanticsNodeInteraction.doGesture(
 @Deprecated("Renamed to performPartialGesture",
     replaceWith = ReplaceWith("performPartialGesture(block)"))
 fun SemanticsNodeInteraction.doPartialGesture(
-    block: PartialGestureScope.() -> Unit
-): SemanticsNodeInteraction = performPartialGesture(block)
+    block: GestureScope.() -> Unit
+): SemanticsNodeInteraction = performGesture(block)
 
 /**
  * Provides support to call custom semantics actions on this node.
@@ -287,3 +268,26 @@ fun <T : Function<Boolean>> SemanticsNodeInteraction.callSemanticsAction(
 fun SemanticsNodeInteraction.callSemanticsAction(
     key: SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>
 ) = performSemanticsAction(key)
+
+/**
+ * Executes the (partial) gesture specified in the given block. The gesture doesn't need to be
+ * complete and can be resumed later. It is the responsibility of the caller to make sure partial
+ * gestures don't leave the test in an inconsistent state.
+ *
+ * Example usage:
+ * ```
+ * onNodeWithTag("myWidget")
+ *    .performPartialGesture { down(topLeft) }
+ *    .assertHasClickAction()
+ *    .performPartialGesture { up(topLeft) }
+ * ```
+ */
+@Deprecated(
+    message = "performGesture and performPartialGesture have been merged",
+    replaceWith = ReplaceWith("performGesture(block)")
+)
+fun SemanticsNodeInteraction.performPartialGesture(
+    block: GestureScope.() -> Unit
+): SemanticsNodeInteraction {
+    return performGesture(block)
+}

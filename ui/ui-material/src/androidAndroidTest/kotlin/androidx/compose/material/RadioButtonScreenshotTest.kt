@@ -31,7 +31,7 @@ import androidx.ui.test.captureToBitmap
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
-import androidx.ui.test.performPartialGesture
+import androidx.ui.test.performGesture
 import androidx.ui.test.onNode
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.isInMutuallyExclusiveGroup
@@ -86,7 +86,7 @@ class RadioButtonScreenshotTest {
                 RadioButton(selected = false, onClick = {})
             }
         }
-        onNodeWithTag(wrapperTestTag).performPartialGesture {
+        onNodeWithTag(wrapperTestTag).performGesture {
             down(center)
         }
         assertSelectableAgainstGolden("radioButton_pressed")

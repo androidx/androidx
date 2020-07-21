@@ -364,7 +364,7 @@ internal abstract class InputDispatcher {
      * screen. A gesture is finished when [up][up] lifts the last remaining finger from the
      * screen, or when a single [cancel][cancel] event is sent.
      *
-     * Partial gestures don't have to be defined all in the same [performPartialGesture] block, but
+     * Partial gestures don't have to be defined all in the same [performGesture] block, but
      * keep in mind that while the gesture is not complete, all code you execute in between
      * blocks that progress the gesture, will be executed while imaginary fingers are actively
      * touching the screen.
@@ -592,8 +592,8 @@ internal abstract class InputDispatcher {
 }
 
 /**
- * The state of an [InputDispatcher], saved when the [BaseGestureScope] is disposed and restored
- * when the [BaseGestureScope] is recreated.
+ * The state of an [InputDispatcher], saved when the [GestureScope] is disposed and restored
+ * when the [GestureScope] is recreated.
  *
  * @param nextDownTime The downTime of the start of the next gesture, when chaining gestures.
  * This property will only be restored if an incomplete gesture was in progress when the state of
