@@ -23,6 +23,7 @@ val AnimationDemos = DemoCategory("Animation", listOf(
     ComposableDemo("Animate multi-dimensional prop") { MultiDimensionalAnimationDemo() },
     ComposableDemo("Animate") { SingleValueAnimationDemo() },
     ComposableDemo("Animated scrolling") { FancyScrollingDemo() },
+    ComposableDemo("Animate Size Change") { AnimateContentSizeDemo() },
     ComposableDemo("Crossfade") { CrossfadeDemo() },
     ComposableDemo("Gesture based animation") { GestureBasedAnimationDemo() },
     ComposableDemo("Manual animation clock") { AnimatableSeekBarDemo() },
