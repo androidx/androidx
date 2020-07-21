@@ -39,4 +39,5 @@ androidx {
     inceptionYear = "2019"
     description = "This library is the runtime component for ContentAccess, a Jetpack library for" +
             " simplifying ContentProvider usage."
+    url = AndroidXExtension.ARCHITECTURE_URL
 }

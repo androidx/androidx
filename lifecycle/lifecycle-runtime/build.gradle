@@ -42,4 +42,5 @@ androidx {
     mavenGroup LibraryGroups.LIFECYCLE
     inceptionYear '2017'
     description "Android Lifecycle Runtime"
+    url AndroidXExtension.ARCHITECTURE_URL
 }

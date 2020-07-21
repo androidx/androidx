@@ -49,5 +49,6 @@ androidx {
     mavenGroup = LibraryGroups.WORK
     inceptionYear = "2019"
     description = "Android WorkManager Runtime Lint Checks"
+    url = AndroidXExtension.ARCHITECTURE_URL
     compilationTarget = CompilationTarget.HOST
 }
