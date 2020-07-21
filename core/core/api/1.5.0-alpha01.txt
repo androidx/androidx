@@ -455,6 +455,9 @@ package androidx.core.app {
     method @Deprecated public androidx.core.app.NotificationCompat.Builder addPerson(String);
     method public androidx.core.app.NotificationCompat.Builder addPerson(androidx.core.app.Person);
     method public android.app.Notification build();
+    method public android.widget.RemoteViews? createBigContentView();
+    method public android.widget.RemoteViews? createContentView();
+    method public android.widget.RemoteViews? createHeadsUpContentView();
     method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Extender);
     method public android.os.Bundle getExtras();
     method @Deprecated public android.app.Notification getNotification();

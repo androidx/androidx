@@ -503,6 +503,9 @@ package androidx.core.app {
     method @Deprecated public androidx.core.app.NotificationCompat.Builder addPerson(String);
     method public androidx.core.app.NotificationCompat.Builder addPerson(androidx.core.app.Person);
     method public android.app.Notification build();
+    method public android.widget.RemoteViews? createBigContentView();
+    method public android.widget.RemoteViews? createContentView();
+    method public android.widget.RemoteViews? createHeadsUpContentView();
     method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Extender);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getBigContentView();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.core.app.NotificationCompat.BubbleMetadata? getBubbleMetadata();
@@ -671,6 +674,7 @@ package androidx.core.app {
     method public android.app.Notification? build();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void buildIntoRemoteViews(android.widget.RemoteViews!, android.widget.RemoteViews!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.Bitmap! createColoredBitmap(int, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean displayCustomViewInline();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! makeBigContentView(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! makeContentView(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! makeHeadsUpContentView(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
