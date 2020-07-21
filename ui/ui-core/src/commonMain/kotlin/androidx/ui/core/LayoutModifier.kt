@@ -253,3 +253,30 @@ private object MeasuringIntrinsics {
     private enum class IntrinsicMinMax { Min, Max }
     private enum class IntrinsicWidthHeight { Width, Height }
 }
+
+/**
+ * Creates a [LayoutModifier] that allows changing how the wrapped element is measured and laid out.
+ *
+ * This is a convenience API of creating a custom [LayoutModifier] modifier, without having to
+ * create a class or an object that implements the [LayoutModifier] interface. The intrinsic
+ * measurements follow the default logic provided by the [LayoutModifier].
+ *
+ * Example usage:
+ *
+ * @sample androidx.ui.core.samples.ConvenienceLayoutModifierSample
+ *
+ * @see androidx.ui.core.LayoutModifier
+ */
+fun Modifier.layout(
+    measure: MeasureScope.(Measurable, Constraints) -> MeasureScope.MeasureResult
+) = this.then(LayoutModifierImpl(measure))
+
+private data class LayoutModifierImpl(
+    val measure: MeasureScope.(Measurable, Constraints) -> MeasureScope.MeasureResult
+) : LayoutModifier {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ) = measure(measurable, constraints)
+}

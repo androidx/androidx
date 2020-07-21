@@ -90,6 +90,10 @@ import androidx.compose.foundation.layout.rtl
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.layout
+import androidx.ui.core.onPositioned
+import androidx.ui.core.positionInRoot
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -355,7 +359,8 @@ class AndroidLayoutDrawTest {
                             this@draw.drawContent()
 
                             // Fill bottom half with innerColor -- should be clipped
-                            drawRect(model.innerColor,
+                            drawRect(
+                                model.innerColor,
                                 topLeft = Offset(0f, size.height / 2f),
                                 size = Size(size.width, size.height / 2f)
                             )
@@ -1508,27 +1513,30 @@ class AndroidLayoutDrawTest {
 
                 layout(Modifier.assertLines(10, 20))
                 layout(Modifier.assertLines(30, 30).offset(20.toDp(), 10.toDp()))
-                layout(Modifier
-                    .assertLines(30, 30)
-                    .drawLayer()
-                    .offset(20.toDp(), 10.toDp())
+                layout(
+                    Modifier
+                        .assertLines(30, 30)
+                        .drawLayer()
+                        .offset(20.toDp(), 10.toDp())
                 )
-                layout(Modifier
-                    .assertLines(30, 30)
-                    .background(Color.Blue)
-                    .drawLayer()
-                    .offset(20.toDp(), 10.toDp())
-                    .drawLayer()
-                    .background(Color.Blue)
+                layout(
+                    Modifier
+                        .assertLines(30, 30)
+                        .background(Color.Blue)
+                        .drawLayer()
+                        .offset(20.toDp(), 10.toDp())
+                        .drawLayer()
+                        .background(Color.Blue)
                 )
-                layout(Modifier
-                    .background(Color.Blue)
-                    .assertLines(30, 30)
-                    .background(Color.Blue)
-                    .drawLayer()
-                    .offset(20.toDp(), 10.toDp())
-                    .drawLayer()
-                    .background(Color.Blue)
+                layout(
+                    Modifier
+                        .background(Color.Blue)
+                        .assertLines(30, 30)
+                        .background(Color.Blue)
+                        .drawLayer()
+                        .offset(20.toDp(), 10.toDp())
+                        .drawLayer()
+                        .background(Color.Blue)
                 )
                 Wrap(
                     Modifier
@@ -2074,6 +2082,98 @@ class AndroidLayoutDrawTest {
             offset = -5,
             totalSize = 30
         )
+    }
+
+    @Test
+    fun layoutModifier_convenienceApi() {
+        val size = 100
+        val offset = 15f
+        val latch = CountDownLatch(1)
+        var resultCoordinates: LayoutCoordinates? = null
+
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                FixedSize(
+                    size = size,
+                    modifier = Modifier
+                        .layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                placeable.place(Offset(offset, offset))
+                            }
+                        }.onPositioned {
+                            resultCoordinates = it
+                            latch.countDown()
+                        }
+                )
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        activity.runOnUiThread {
+            assertEquals(size, resultCoordinates?.size?.height)
+            assertEquals(size, resultCoordinates?.size?.width)
+            assertEquals(Offset(offset, offset), resultCoordinates?.positionInRoot)
+        }
+    }
+
+    @Test
+    fun layoutModifier_convenienceApi_equivalent() {
+        val size = 100
+        val offset = 15f
+        val latch = CountDownLatch(2)
+
+        var convenienceCoordinates: LayoutCoordinates? = null
+        var coordinates: LayoutCoordinates? = null
+
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                FixedSize(
+                    size = size,
+                    modifier = Modifier
+                        .layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                placeable.place(Offset(offset, offset))
+                            }
+                        }.onPositioned {
+                            convenienceCoordinates = it
+                            latch.countDown()
+                        }
+                )
+
+                val layoutModifier = object : LayoutModifier {
+                    override fun MeasureScope.measure(
+                        measurable: Measurable,
+                        constraints: Constraints,
+                        layoutDirection: LayoutDirection
+                    ): MeasureScope.MeasureResult {
+                        val placeable = measurable.measure(constraints)
+                        return layout(placeable.width, placeable.height) {
+                            placeable.place(Offset(offset, offset))
+                        }
+                    }
+                }
+                FixedSize(
+                    size = size,
+                    modifier = layoutModifier.plus(
+                        onPositioned {
+                            coordinates = it
+                            latch.countDown()
+                        }
+                    )
+                )
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        activity.runOnUiThread {
+            assertEquals(coordinates?.size?.height, convenienceCoordinates?.size?.height)
+            assertEquals(coordinates?.size?.width, convenienceCoordinates?.size?.width)
+            assertEquals(coordinates?.positionInRoot, convenienceCoordinates?.positionInRoot)
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -2623,16 +2723,20 @@ class AndroidLayoutDrawTest {
             linearLayout.orientation = LinearLayout.VERTICAL
             val child = FrameLayout(activity)
             activity.setContentView(linearLayout)
-            linearLayout.addView(child, LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                1f
-            ))
-            linearLayout.addView(View(activity), LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                0,
-                10000f
-            ))
+            linearLayout.addView(
+                child, LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    1f
+                )
+            )
+            linearLayout.addView(
+                View(activity), LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    0,
+                    10000f
+                )
+            )
             child.viewTreeObserver.addOnPreDrawListener {
                 actualHeight = child.measuredHeight
                 latch.countDown()
