@@ -344,13 +344,6 @@ package androidx.ui.core {
     method @androidx.compose.Stable public static androidx.ui.core.Modifier drawShadow-xWKVMPI(androidx.ui.core.Modifier, float elevation, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, boolean clip = elevation > 0.dp, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
   }
 
-  public enum DropDownAlignment {
-    method public static androidx.ui.core.DropDownAlignment valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.ui.core.DropDownAlignment[] values();
-    enum_constant public static final androidx.ui.core.DropDownAlignment End;
-    enum_constant public static final androidx.ui.core.DropDownAlignment Start;
-  }
-
   @kotlin.RequiresOptIn(level=RequiresOptIn.Level.ERROR, message="This is an experimental API for Compose UI LayoutNode and is likely to change " + "before becoming stable.") @kotlin.annotation.Target(allowedTargets={AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY}) public @interface ExperimentalLayoutNodeApi {
   }
 
@@ -825,7 +818,6 @@ package androidx.ui.core {
   }
 
   public final class PopupKt {
-    method @androidx.compose.Composable public static void DropdownPopup(androidx.ui.core.DropDownAlignment dropDownAlignment = androidx.ui.core.DropDownAlignment.Start, androidx.ui.unit.IntOffset offset = IntOffset(0, 0), boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method @androidx.compose.Composable public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopStart, androidx.ui.unit.IntOffset offset = IntOffset(0, 0), boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method @androidx.compose.Composable public static void Popup(androidx.ui.core.PopupPositionProvider popupPositionProvider, boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
