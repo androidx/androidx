@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.assertIsInMutuallyExclusiveGroup
 import androidx.ui.test.assertIsSelected
-import androidx.ui.test.assertIsUnselected
+import androidx.ui.test.assertIsNotSelected
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
@@ -54,7 +54,7 @@ class RadioButtonTest {
 
     private fun SemanticsNodeInteraction.assertHasUnSelectedSemantics(): SemanticsNodeInteraction =
         assertIsInMutuallyExclusiveGroup()
-            .assertIsUnselected()
+            .assertIsNotSelected()
             .assertValueEquals(Strings.NotSelected)
 
     private val options = listOf(itemOne, itemTwo, itemThree)

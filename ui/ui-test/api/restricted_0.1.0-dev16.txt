@@ -42,12 +42,12 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsNotDisplayed(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsNotEnabled(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsNotHidden(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsNotSelected(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsOff(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsOn(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsSelectable(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsSelected(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsToggleable(androidx.ui.test.SemanticsNodeInteraction);
-    method public static androidx.ui.test.SemanticsNodeInteraction assertIsUnselected(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertLabelEquals(androidx.ui.test.SemanticsNodeInteraction, String value);
     method public static androidx.ui.test.SemanticsNodeInteraction assertRangeInfoEquals(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.semantics.AccessibilityRangeInfo value);
     method public static androidx.ui.test.SemanticsNodeInteraction assertTextEquals(androidx.ui.test.SemanticsNodeInteraction, String value);
@@ -185,10 +185,13 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsMatcher hasValue(String value);
     method public static androidx.ui.test.SemanticsMatcher isDialog();
     method public static androidx.ui.test.SemanticsMatcher isEnabled();
+    method public static androidx.ui.test.SemanticsMatcher isFocused();
     method public static androidx.ui.test.SemanticsMatcher isHidden();
     method public static androidx.ui.test.SemanticsMatcher isInMutuallyExclusiveGroup();
     method public static androidx.ui.test.SemanticsMatcher isNotEnabled();
+    method public static androidx.ui.test.SemanticsMatcher isNotFocused();
     method public static androidx.ui.test.SemanticsMatcher isNotHidden();
+    method public static androidx.ui.test.SemanticsMatcher isNotSelected();
     method public static androidx.ui.test.SemanticsMatcher isOff();
     method public static androidx.ui.test.SemanticsMatcher isOn();
     method public static androidx.ui.test.SemanticsMatcher isPopup();
@@ -196,7 +199,6 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsMatcher isSelectable();
     method public static androidx.ui.test.SemanticsMatcher isSelected();
     method public static androidx.ui.test.SemanticsMatcher isToggleable();
-    method public static androidx.ui.test.SemanticsMatcher isUnselected();
   }
 
   public final class FindersKt {

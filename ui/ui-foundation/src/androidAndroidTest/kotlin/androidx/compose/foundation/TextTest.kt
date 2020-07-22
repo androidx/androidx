@@ -16,17 +16,20 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.graphics.Color
+import androidx.ui.semantics.SemanticsActions
 import androidx.ui.test.assertTextEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.performSemanticsAction
 import androidx.ui.test.runOnIdle
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.em
 import androidx.ui.unit.sp
@@ -232,6 +235,10 @@ class TextTest {
             }
         }
 
-        onNodeWithTag("text").assertTextEquals(TestText)
+        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        onNodeWithTag("text")
+            .assertTextEquals(TestText)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(textLayoutResults) }
+        assert(textLayoutResults.size == 1) { "TextLayoutResult is null" }
     }
 }
