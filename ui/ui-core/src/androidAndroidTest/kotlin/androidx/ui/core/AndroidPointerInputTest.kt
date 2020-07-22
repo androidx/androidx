@@ -33,8 +33,8 @@ import androidx.compose.snapshots.Snapshot
 import androidx.test.filters.SmallTest
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
-import androidx.ui.testutils.down
 import androidx.ui.geometry.Offset
+import androidx.ui.testutils.down
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.milliseconds
 import androidx.ui.viewinterop.AndroidView
@@ -347,6 +347,7 @@ class AndroidPointerInputTest {
     }
 }
 
+@Suppress("TestFunctionName")
 @Composable
 fun AndroidWithCompose(context: Context, androidPadding: Int, children: @Composable () -> Unit) {
     val anotherLayout = FrameLayout(context).also { view ->
@@ -431,17 +432,54 @@ private class LogEventsGestureFilter(val log: MutableList<List<PointerInputChang
     override fun onCancel() {}
 }
 
+@Suppress("TestFunctionName")
 @Composable
-fun FillLayout(modifier: Modifier = Modifier) {
+private fun FillLayout(modifier: Modifier = Modifier) {
     Layout(emptyContent(), modifier) { _, constraints ->
         layout(constraints.maxWidth, constraints.maxHeight) {}
     }
 }
 
-fun countDown(block: (CountDownLatch) -> Unit) {
+private fun countDown(block: (CountDownLatch) -> Unit) {
     val countDownLatch = CountDownLatch(1)
     block(countDownLatch)
     assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue()
 }
 
 class AndroidPointerInputTestActivity : ComponentActivity()
+
+@Suppress("SameParameterValue", "TestFunctionName")
+private fun MotionEvent(
+    eventTime: Int,
+    action: Int,
+    numPointers: Int,
+    actionIndex: Int,
+    pointerProperties: Array<MotionEvent.PointerProperties>,
+    pointerCoords: Array<MotionEvent.PointerCoords>
+) = MotionEvent.obtain(
+    0,
+    eventTime.toLong(),
+    action + (actionIndex shl MotionEvent.ACTION_POINTER_INDEX_SHIFT),
+    numPointers,
+    pointerProperties,
+    pointerCoords,
+    0,
+    0,
+    0f,
+    0f,
+    0,
+    0,
+    0,
+    0
+)
+
+@Suppress("SameParameterValue", "TestFunctionName")
+private fun PointerProperties(id: Int) =
+    MotionEvent.PointerProperties().apply { this.id = id }
+
+@Suppress("SameParameterValue", "TestFunctionName")
+private fun PointerCoords(x: Float, y: Float) =
+    MotionEvent.PointerCoords().apply {
+        this.x = x
+        this.y = y
+    }
