@@ -122,7 +122,7 @@ internal class SpringSimulation(var finalPosition: Float) {
     }
 
     /**
-     * Initialize the string by doing the necessary pre-calculation as well as some sanity check
+     * Initialize the string by doing the necessary pre-calculation as well as some validity check
      * on the setup.
      *
      * @throws IllegalStateException if the final position is not yet set by the time the spring

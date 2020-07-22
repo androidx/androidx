@@ -199,7 +199,7 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
 
     internal fun startAnimation(anim: Animation<T, V>) {
         this.anim = anim
-        // Quick sanity check before officially starting
+        // Quick check before officially starting
         if (anim.isFinished(0)) {
             // If the animation value & velocity is already meeting the finished condition before
             // the animation even starts, end it now.

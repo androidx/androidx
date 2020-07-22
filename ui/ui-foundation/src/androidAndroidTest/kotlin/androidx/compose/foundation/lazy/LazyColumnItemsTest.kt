@@ -111,7 +111,7 @@ class LazyColumnItemsTest {
         assertWithMessage("Compositions were disposed before we did any scrolling")
             .that(disposed).isFalse()
 
-        // Mostly a sanity check, this is not part of the behavior under test
+        // Mostly a validity check, this is not part of the behavior under test
         assertWithMessage("Additional composition occurred for no apparent reason")
             .that(composed).isFalse()
 

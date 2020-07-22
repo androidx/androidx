@@ -406,7 +406,7 @@ internal fun AnnotatedString.normalizedParagraphStyles(
         result.add(Range(defaultParagraphStyle, lastOffset, length))
     }
     // This is a corner case where annotatedString is an empty string without any ParagraphStyle.
-    // In this case, a dummy ParagraphStyle is created.
+    // In this case, an empty ParagraphStyle is created.
     if (result.isEmpty()) {
         result.add(Range(defaultParagraphStyle, 0, 0))
     }
