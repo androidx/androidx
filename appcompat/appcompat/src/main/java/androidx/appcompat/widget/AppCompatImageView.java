@@ -24,7 +24,6 @@ import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -149,9 +148,6 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return;
-        }
         if (mBackgroundTintHelper != null) {
             mBackgroundTintHelper.setSupportBackgroundTintList(tint);
         }
@@ -180,9 +176,6 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return;
-        }
         if (mBackgroundTintHelper != null) {
             mBackgroundTintHelper.setSupportBackgroundTintMode(tintMode);
         }
@@ -211,9 +204,6 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportImageTintList(@Nullable ColorStateList tint) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return;
-        }
         if (mImageHelper != null) {
             mImageHelper.setSupportImageTintList(tint);
         }
@@ -242,9 +232,6 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportImageTintMode(@Nullable PorterDuff.Mode tintMode) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return;
-        }
         if (mImageHelper != null) {
             mImageHelper.setSupportImageTintMode(tintMode);
         }
