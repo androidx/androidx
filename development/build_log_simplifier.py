@@ -79,7 +79,16 @@ def remove_known_uninteresting_lines(lines):
       "Note: Some input files use or override a deprecated API.",
       "Note: Recompile with -Xlint:deprecation for details.",
       "Note: Some input files use unchecked or unsafe operations.",
-      "Note: Recompile with -Xlint:unchecked for details."
+      "Note: Recompile with -Xlint:unchecked for details.",
+
+      "w: ATTENTION!",
+      "This build uses unsafe internal compiler arguments:",
+      "-XXLanguage:+NonParenthesizedAnnotationsOnFunctionalTypes",
+      "-XXLanguage:-NewInference",
+      "-XXLanguage:+InlineClasses",
+      "This mode is not recommended for production use,",
+      "as no stability/compatibility guarantees are given on",
+      "compiler or generated code. Use it at your own risk!"
   }
   skipPrefixes = [
       "See the profiling report at:",
