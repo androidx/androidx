@@ -35,7 +35,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
-import androidx.compose.foundation.shape.corner.CircleShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier

@@ -30,8 +30,8 @@ import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.corner.CircleShape
-import androidx.compose.foundation.shape.corner.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.toArgb

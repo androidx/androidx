@@ -28,7 +28,7 @@ import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
-import androidx.compose.foundation.shape.corner.CutCornerShape
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

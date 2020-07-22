@@ -25,7 +25,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.currentTextStyle
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.corner.RoundedCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
@@ -42,7 +42,9 @@ fun AnimateContent() {
     val longText = "Very long text\nthat spans across\nmultiple lines"
     var short by remember { mutableStateOf(true) }
     Box(modifier = Modifier
-        .background(Color.Blue, RoundedCornerShape(15.dp))
+        .background(Color.Blue,
+            RoundedCornerShape(15.dp)
+        )
         .clickable { short = !short }
         .padding(20.dp)
         .wrapContentSize()
