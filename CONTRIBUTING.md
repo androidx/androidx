@@ -128,7 +128,7 @@ AndroidX is primarily developed in [AOSP](https://android.googlesource.com/platf
 
 Here is what a typical pull request workflow looks like:
 
-1.  Create a GitHub pull request from **your forked repository **to the androidx-master-dev branch on GitHub.
+1.  Create a GitHub pull request from **your forked repository** to the androidx-master-dev branch on GitHub.
 2.  Sign the Contributor’s License Agreement at https://cla.developers.google.com/ to get @googlebot to give you the `cla: yes` label.
 3.  Your PR will be reviewed using the GitHub pull request flow. You can address the comments / suggestions in your forked repository and update the pull request as normal.
 4.  Once the changes look good, a Googler will Approve your pull request on GitHub.
