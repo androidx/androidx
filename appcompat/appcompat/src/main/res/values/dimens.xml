@@ -115,4 +115,9 @@
     <dimen name="tooltip_precise_anchor_threshold">96dp</dimen>
     <!-- Extra tooltip offset used when anchoring to the mouse/touch position -->
     <dimen name="tooltip_precise_anchor_extra_offset">8dp</dimen>
+
+    <!-- Dimensions for rating bar stars -->
+    <dimen name="abc_star_big">48dp</dimen>
+    <dimen name="abc_star_medium">36dp</dimen>
+    <dimen name="abc_star_small">16dp</dimen>
 </resources>

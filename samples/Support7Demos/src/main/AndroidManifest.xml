@@ -269,8 +269,17 @@
         </activity>
 
         <activity android:name=".app.AppCompatWidgetsButtons"
-                  android:label="@string/appcompat_widgets_buttons"
-                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            android:label="@string/appcompat_widgets_buttons"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.AppCompatWidgetsRatingBars"
+            android:label="@string/appcompat_widgets_ratingbars"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
