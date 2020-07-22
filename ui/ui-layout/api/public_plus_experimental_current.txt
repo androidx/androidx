@@ -111,7 +111,7 @@ package androidx.compose.foundation.layout {
   }
 
   public final class ColumnKt {
-    method @androidx.compose.Composable public static inline void Column(androidx.ui.core.Modifier modifier = Modifier, androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement = Arrangement.Top, androidx.ui.core.Alignment.Horizontal horizontalGravity = Alignment.Start, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Column(androidx.ui.core.Modifier modifier = Modifier, androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement = Arrangement.Top, androidx.ui.core.Alignment.Horizontal horizontalGravity = Alignment.Start, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> children);
   }
 
   @androidx.compose.Immutable @androidx.compose.foundation.layout.LayoutScopeMarker public final class ColumnScope {
@@ -638,7 +638,7 @@ package androidx.compose.foundation.layout {
   }
 
   public final class RowKt {
-    method @androidx.compose.Composable public static inline void Row(androidx.ui.core.Modifier modifier = Modifier, androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement = Arrangement.Start, androidx.ui.core.Alignment.Vertical verticalGravity = Alignment.Top, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Row(androidx.ui.core.Modifier modifier = Modifier, androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement = Arrangement.Start, androidx.ui.core.Alignment.Vertical verticalGravity = Alignment.Top, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> children);
   }
 
   @androidx.compose.Immutable @androidx.compose.foundation.layout.LayoutScopeMarker public final class RowScope {
