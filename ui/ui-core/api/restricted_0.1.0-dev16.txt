@@ -26,16 +26,16 @@ package androidx.ui.autofill {
   }
 
   public final class AutofillNode {
-    ctor public AutofillNode(java.util.List<? extends androidx.ui.autofill.AutofillType> autofillTypes, androidx.ui.geometry.Rect? boundingBox, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit>? onFill);
+    ctor public AutofillNode(java.util.List<? extends androidx.ui.autofill.AutofillType> autofillTypes, androidx.compose.ui.geometry.Rect? boundingBox, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit>? onFill);
     method public java.util.List<androidx.ui.autofill.AutofillType> component1();
-    method public androidx.ui.geometry.Rect? component2();
+    method public androidx.compose.ui.geometry.Rect? component2();
     method public kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit>? component3();
-    method public androidx.ui.autofill.AutofillNode copy(java.util.List<? extends androidx.ui.autofill.AutofillType> autofillTypes, androidx.ui.geometry.Rect? boundingBox, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit>? onFill);
+    method public androidx.ui.autofill.AutofillNode copy(java.util.List<? extends androidx.ui.autofill.AutofillType> autofillTypes, androidx.compose.ui.geometry.Rect? boundingBox, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit>? onFill);
     method public java.util.List<androidx.ui.autofill.AutofillType> getAutofillTypes();
-    method public androidx.ui.geometry.Rect? getBoundingBox();
+    method public androidx.compose.ui.geometry.Rect? getBoundingBox();
     method public int getId();
     method public kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit>? getOnFill();
-    method public void setBoundingBox(androidx.ui.geometry.Rect? p);
+    method public void setBoundingBox(androidx.compose.ui.geometry.Rect? p);
     property public final int id;
   }
 
@@ -278,13 +278,13 @@ package androidx.ui.core {
   }
 
   @androidx.compose.Immutable public final class ConsumedData {
-    ctor public ConsumedData(androidx.ui.geometry.Offset positionChange, boolean downChange);
+    ctor public ConsumedData(androidx.compose.ui.geometry.Offset positionChange, boolean downChange);
     ctor public ConsumedData();
-    method public androidx.ui.geometry.Offset component1();
+    method public androidx.compose.ui.geometry.Offset component1();
     method public boolean component2();
-    method @androidx.compose.Immutable public androidx.ui.core.ConsumedData copy(androidx.ui.geometry.Offset positionChange, boolean downChange);
+    method @androidx.compose.Immutable public androidx.ui.core.ConsumedData copy(androidx.compose.ui.geometry.Offset positionChange, boolean downChange);
     method public boolean getDownChange();
-    method public androidx.ui.geometry.Offset getPositionChange();
+    method public androidx.compose.ui.geometry.Offset getPositionChange();
   }
 
   public abstract class ContentDrawScope extends androidx.ui.graphics.drawscope.DrawScope {
@@ -293,7 +293,7 @@ package androidx.ui.core {
   }
 
   @androidx.compose.Stable public interface ContentScale {
-    method public float scale-8JNMT64(long srcSize, long dstSize);
+    method public float scale-AhF4CD4(long srcSize, long dstSize);
     field public static final androidx.ui.core.ContentScale.Companion Companion;
   }
 
@@ -406,7 +406,7 @@ package androidx.ui.core {
     method public float component1();
     method @androidx.compose.Immutable public androidx.ui.core.FixedScale copy(float value);
     method public float getValue();
-    method public float scale-8JNMT64(long srcSize, long dstSize);
+    method public float scale-AhF4CD4(long srcSize, long dstSize);
   }
 
   public final class HorizontalAlignmentLine extends androidx.ui.core.AlignmentLine {
@@ -473,7 +473,7 @@ package androidx.ui.core {
     method @androidx.compose.Stable public int toIntPx-vVlMl6k(long);
     method @androidx.compose.Stable public float toPx-ipo6vVg(float);
     method @androidx.compose.Stable public float toPx-vVlMl6k(long);
-    method @androidx.compose.Stable public androidx.ui.geometry.Rect toRect(androidx.ui.unit.Bounds);
+    method @androidx.compose.Stable public androidx.compose.ui.geometry.Rect toRect(androidx.ui.unit.Bounds);
     method @androidx.compose.Stable public long toSp(float);
     method @androidx.compose.Stable public long toSp(int);
     method @androidx.compose.Stable public long toSp-ipo6vVg(float);
@@ -481,15 +481,15 @@ package androidx.ui.core {
 
   public interface LayoutCoordinates {
     method public androidx.ui.unit.PxBounds childBoundingBox(androidx.ui.core.LayoutCoordinates child);
-    method public androidx.ui.geometry.Offset childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.ui.geometry.Offset childLocal);
+    method public androidx.compose.ui.geometry.Offset childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.compose.ui.geometry.Offset childLocal);
     method public operator int get(androidx.ui.core.AlignmentLine line);
     method public androidx.ui.core.LayoutCoordinates? getParentCoordinates();
     method public java.util.Set<androidx.ui.core.AlignmentLine> getProvidedAlignmentLines();
     method public androidx.ui.unit.IntSize getSize();
-    method public androidx.ui.geometry.Offset globalToLocal(androidx.ui.geometry.Offset global);
+    method public androidx.compose.ui.geometry.Offset globalToLocal(androidx.compose.ui.geometry.Offset global);
     method public boolean isAttached();
-    method public androidx.ui.geometry.Offset localToGlobal(androidx.ui.geometry.Offset local);
-    method public androidx.ui.geometry.Offset localToRoot(androidx.ui.geometry.Offset local);
+    method public androidx.compose.ui.geometry.Offset localToGlobal(androidx.compose.ui.geometry.Offset local);
+    method public androidx.compose.ui.geometry.Offset localToRoot(androidx.compose.ui.geometry.Offset local);
     property public abstract boolean isAttached;
     property public abstract androidx.ui.core.LayoutCoordinates? parentCoordinates;
     property public abstract java.util.Set<androidx.ui.core.AlignmentLine> providedAlignmentLines;
@@ -500,9 +500,9 @@ package androidx.ui.core {
     method public static androidx.ui.unit.PxBounds getBoundsInParent(androidx.ui.core.LayoutCoordinates);
     method public static androidx.ui.unit.PxBounds getBoundsInRoot(androidx.ui.core.LayoutCoordinates);
     method public static androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.core.LayoutCoordinates);
-    method public static inline androidx.ui.geometry.Offset getGlobalPosition(androidx.ui.core.LayoutCoordinates);
-    method public static androidx.ui.geometry.Offset getPositionInParent(androidx.ui.core.LayoutCoordinates);
-    method public static inline androidx.ui.geometry.Offset getPositionInRoot(androidx.ui.core.LayoutCoordinates);
+    method public static inline androidx.compose.ui.geometry.Offset getGlobalPosition(androidx.ui.core.LayoutCoordinates);
+    method public static androidx.compose.ui.geometry.Offset getPositionInParent(androidx.ui.core.LayoutCoordinates);
+    method public static inline androidx.compose.ui.geometry.Offset getPositionInRoot(androidx.ui.core.LayoutCoordinates);
   }
 
   @kotlin.PublishedApi internal final class LayoutEmitHelper {
@@ -571,7 +571,7 @@ package androidx.ui.core {
     method public androidx.ui.core.LayoutNode? getParent();
     method public Object? getParentData();
     method public int getWidth();
-    method public void hitTest(androidx.ui.geometry.Offset pointerPositionRelativeToScreen, java.util.List<androidx.ui.core.pointerinput.PointerInputFilter> hitPointerInputFilters);
+    method public void hitTest(androidx.compose.ui.geometry.Offset pointerPositionRelativeToScreen, java.util.List<androidx.ui.core.pointerinput.PointerInputFilter> hitPointerInputFilters);
     method public void ignoreModelReads(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void insertAt(int index, androidx.ui.core.LayoutNode instance);
     method public boolean isPlaced();
@@ -837,9 +837,9 @@ package androidx.ui.core {
     method public abstract androidx.ui.core.LayoutDirection getParentLayoutDirection();
     method public abstract int getParentWidth();
     method public final void place(androidx.ui.core.Placeable, androidx.ui.unit.IntOffset position);
-    method public final void place(androidx.ui.core.Placeable, androidx.ui.geometry.Offset position);
+    method public final void place(androidx.ui.core.Placeable, androidx.compose.ui.geometry.Offset position);
     method public final void place(androidx.ui.core.Placeable, int x, int y);
-    method public final void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.geometry.Offset position);
+    method public final void placeAbsolute(androidx.ui.core.Placeable, androidx.compose.ui.geometry.Offset position);
     method public final void placeAbsolute(androidx.ui.core.Placeable, int x, int y);
     method public final void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.IntOffset position);
     property public abstract androidx.ui.core.LayoutDirection parentLayoutDirection;
@@ -884,14 +884,14 @@ package androidx.ui.core {
   }
 
   @androidx.compose.Immutable public final class PointerInputData {
-    ctor public PointerInputData(androidx.ui.unit.Uptime? uptime, androidx.ui.geometry.Offset? position, boolean down);
+    ctor public PointerInputData(androidx.ui.unit.Uptime? uptime, androidx.compose.ui.geometry.Offset? position, boolean down);
     ctor public PointerInputData();
     method public androidx.ui.unit.Uptime? component1();
-    method public androidx.ui.geometry.Offset? component2();
+    method public androidx.compose.ui.geometry.Offset? component2();
     method public boolean component3();
-    method @androidx.compose.Immutable public androidx.ui.core.PointerInputData copy(androidx.ui.unit.Uptime? uptime, androidx.ui.geometry.Offset? position, boolean down);
+    method @androidx.compose.Immutable public androidx.ui.core.PointerInputData copy(androidx.ui.unit.Uptime? uptime, androidx.compose.ui.geometry.Offset? position, boolean down);
     method public boolean getDown();
-    method public androidx.ui.geometry.Offset? getPosition();
+    method public androidx.compose.ui.geometry.Offset? getPosition();
     method public androidx.ui.unit.Uptime? getUptime();
   }
 
@@ -905,8 +905,8 @@ package androidx.ui.core {
     method public static androidx.ui.core.PointerInputChange consumeAllChanges(androidx.ui.core.PointerInputChange);
     method public static androidx.ui.core.PointerInputChange consumeDownChange(androidx.ui.core.PointerInputChange);
     method public static androidx.ui.core.PointerInputChange consumePositionChange(androidx.ui.core.PointerInputChange, float consumedDx, float consumedDy);
-    method public static androidx.ui.geometry.Offset positionChange(androidx.ui.core.PointerInputChange);
-    method public static androidx.ui.geometry.Offset positionChangeIgnoreConsumed(androidx.ui.core.PointerInputChange);
+    method public static androidx.compose.ui.geometry.Offset positionChange(androidx.ui.core.PointerInputChange);
+    method public static androidx.compose.ui.geometry.Offset positionChangeIgnoreConsumed(androidx.ui.core.PointerInputChange);
     method public static boolean positionChanged(androidx.ui.core.PointerInputChange);
     method public static boolean positionChangedIgnoreConsumed(androidx.ui.core.PointerInputChange);
   }
@@ -1135,7 +1135,7 @@ package androidx.ui.core.gesture {
   }
 
   public final class DoubleTapGestureFilterKt {
-    method public static androidx.ui.core.Modifier doubleTapGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit> onDoubleTap);
+    method public static androidx.ui.core.Modifier doubleTapGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onDoubleTap);
   }
 
   public final class DragGestureFilterKt {
@@ -1144,9 +1144,9 @@ package androidx.ui.core.gesture {
 
   public interface DragObserver {
     method public default void onCancel();
-    method public default androidx.ui.geometry.Offset onDrag(androidx.ui.geometry.Offset dragDistance);
-    method public default void onStart(androidx.ui.geometry.Offset downPosition);
-    method public default void onStop(androidx.ui.geometry.Offset velocity);
+    method public default androidx.compose.ui.geometry.Offset onDrag(androidx.compose.ui.geometry.Offset dragDistance);
+    method public default void onStart(androidx.compose.ui.geometry.Offset downPosition);
+    method public default void onStop(androidx.compose.ui.geometry.Offset velocity);
   }
 
   public final class DragSlopExceededGestureFilterKt {
@@ -1166,18 +1166,18 @@ package androidx.ui.core.gesture {
 
   public interface LongPressDragObserver {
     method public default void onCancel();
-    method public default androidx.ui.geometry.Offset onDrag(androidx.ui.geometry.Offset dragDistance);
+    method public default androidx.compose.ui.geometry.Offset onDrag(androidx.compose.ui.geometry.Offset dragDistance);
     method public default void onDragStart();
-    method public default void onLongPress(androidx.ui.geometry.Offset pxPosition);
-    method public default void onStop(androidx.ui.geometry.Offset velocity);
+    method public default void onLongPress(androidx.compose.ui.geometry.Offset pxPosition);
+    method public default void onStop(androidx.compose.ui.geometry.Offset velocity);
   }
 
   public final class LongPressGestureFilterKt {
-    method public static androidx.ui.core.Modifier longPressGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit> onLongPress);
+    method public static androidx.ui.core.Modifier longPressGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onLongPress);
   }
 
   public final class PressIndicatorGestureFilterKt {
-    method public static androidx.ui.core.Modifier pressIndicatorGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit>? onStart = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onStop = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, boolean enabled = true);
+    method public static androidx.ui.core.Modifier pressIndicatorGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? onStart = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onStop = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, boolean enabled = true);
   }
 
   public final class RawDragGestureFilterKt {
@@ -1185,7 +1185,7 @@ package androidx.ui.core.gesture {
   }
 
   public final class RawPressStartGestureFilterKt {
-    method public static androidx.ui.core.Modifier rawPressStartGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit> onPressStart, boolean enabled = false, androidx.ui.core.PointerEventPass executionPass = androidx.ui.core.PointerEventPass.PostUp);
+    method public static androidx.ui.core.Modifier rawPressStartGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onPressStart, boolean enabled = false, androidx.ui.core.PointerEventPass executionPass = androidx.ui.core.PointerEventPass.PostUp);
   }
 
   public final class RawScaleGestureFilterKt {
@@ -1220,7 +1220,7 @@ package androidx.ui.core.gesture {
   public interface ScrollCallback {
     method public default void onCancel();
     method public default float onScroll(float scrollDistance);
-    method public default void onStart(androidx.ui.geometry.Offset downPosition);
+    method public default void onStart(androidx.compose.ui.geometry.Offset downPosition);
     method public default void onStop(float velocity);
   }
 
@@ -1229,7 +1229,7 @@ package androidx.ui.core.gesture {
   }
 
   public final class TapGestureFilterKt {
-    method public static androidx.ui.core.Modifier tapGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit> onTap);
+    method public static androidx.ui.core.Modifier tapGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onTap);
   }
 
 }
@@ -1288,7 +1288,7 @@ package androidx.ui.core.gesture.util {
 
   public final class VelocityTracker {
     ctor public VelocityTracker();
-    method public void addPosition(androidx.ui.unit.Uptime uptime, androidx.ui.geometry.Offset position);
+    method public void addPosition(androidx.ui.unit.Uptime uptime, androidx.compose.ui.geometry.Offset position);
     method public androidx.ui.unit.Velocity calculateVelocity();
     method public void resetTracking();
   }
@@ -1987,10 +1987,10 @@ package androidx.ui.core.pointerinput {
 package androidx.ui.core.selection {
 
   public interface Selectable {
-    method public androidx.ui.geometry.Rect getBoundingBox(int offset);
-    method public androidx.ui.geometry.Offset getHandlePosition(androidx.ui.core.selection.Selection selection, boolean isStartHandle);
+    method public androidx.compose.ui.geometry.Rect getBoundingBox(int offset);
+    method public androidx.compose.ui.geometry.Offset getHandlePosition(androidx.ui.core.selection.Selection selection, boolean isStartHandle);
     method public androidx.ui.core.LayoutCoordinates? getLayoutCoordinates();
-    method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.geometry.Offset startPosition, androidx.ui.geometry.Offset endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, boolean longPress, androidx.ui.core.selection.Selection? previousSelection = null, boolean isStartHandle = true);
+    method public androidx.ui.core.selection.Selection? getSelection(androidx.compose.ui.geometry.Offset startPosition, androidx.compose.ui.geometry.Offset endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, boolean longPress, androidx.ui.core.selection.Selection? previousSelection = null, boolean isStartHandle = true);
     method public androidx.compose.ui.text.AnnotatedString getText();
   }
 
@@ -2083,11 +2083,11 @@ package androidx.ui.core.semantics {
     method public androidx.ui.core.LayoutNode getComponentNode();
     method public androidx.ui.core.semantics.SemanticsConfiguration getConfig();
     method public androidx.ui.unit.PxBounds getGlobalBounds();
-    method public androidx.ui.geometry.Offset getGlobalPosition();
+    method public androidx.compose.ui.geometry.Offset getGlobalPosition();
     method public int getId();
     method public boolean getMergingEnabled();
     method public androidx.ui.core.semantics.SemanticsNode? getParent();
-    method public androidx.ui.geometry.Offset getPositionInRoot();
+    method public androidx.compose.ui.geometry.Offset getPositionInRoot();
     method public androidx.ui.unit.IntSize getSize();
     method public boolean isRoot();
     property public final androidx.ui.unit.PxBounds boundsInRoot;
@@ -2095,11 +2095,11 @@ package androidx.ui.core.semantics {
     property public final androidx.ui.core.LayoutNode componentNode;
     property public final androidx.ui.core.semantics.SemanticsConfiguration config;
     property public final androidx.ui.unit.PxBounds globalBounds;
-    property public final androidx.ui.geometry.Offset globalPosition;
+    property public final androidx.compose.ui.geometry.Offset globalPosition;
     property public final int id;
     property public final boolean isRoot;
     property public final androidx.ui.core.semantics.SemanticsNode? parent;
-    property public final androidx.ui.geometry.Offset positionInRoot;
+    property public final androidx.compose.ui.geometry.Offset positionInRoot;
     property public final androidx.ui.unit.IntSize size;
   }
 
@@ -2127,7 +2127,7 @@ package androidx.ui.core.texttoolbar {
   public interface TextToolbar {
     method public androidx.ui.core.texttoolbar.TextToolbarStatus getStatus();
     method public void hide();
-    method public void showMenu(androidx.ui.geometry.Rect rect, kotlin.jvm.functions.Function0<kotlin.Unit>? onCopyRequested = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onPasteRequested = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCutRequested = null);
+    method public void showMenu(androidx.compose.ui.geometry.Rect rect, kotlin.jvm.functions.Function0<kotlin.Unit>? onCopyRequested = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onPasteRequested = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCutRequested = null);
     property public abstract androidx.ui.core.texttoolbar.TextToolbarStatus status;
   }
 

@@ -21,8 +21,8 @@ import androidx.ui.core.Alignment
 import androidx.compose.foundation.Border
 import androidx.compose.foundation.shape.corner.CornerBasedShape
 import androidx.compose.foundation.shape.corner.CornerSize
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow

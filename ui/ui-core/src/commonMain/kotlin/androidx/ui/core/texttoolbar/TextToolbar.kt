@@ -16,7 +16,7 @@
 
 package androidx.ui.core.texttoolbar
 
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 
 internal typealias ActionCallback = () -> Unit
 /**

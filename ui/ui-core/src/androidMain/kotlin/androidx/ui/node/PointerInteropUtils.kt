@@ -21,7 +21,7 @@ import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import androidx.ui.core.PointerEvent
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.unit.Duration
 import androidx.ui.unit.NanosecondsPerMillisecond
 import androidx.ui.unit.milliseconds

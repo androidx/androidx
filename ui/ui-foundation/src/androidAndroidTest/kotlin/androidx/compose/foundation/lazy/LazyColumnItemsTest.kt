@@ -25,7 +25,7 @@ import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.TouchSlop
 import androidx.ui.core.testTag
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.InnerPadding

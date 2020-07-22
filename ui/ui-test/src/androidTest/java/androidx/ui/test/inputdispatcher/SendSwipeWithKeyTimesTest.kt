@@ -55,7 +55,7 @@ class SendSwipeWithKeyTimesTest(private val config: TestConfig) {
 
     companion object {
         private val curve = { t: Long ->
-            androidx.ui.geometry.Offset(t.toFloat(), (-t).toFloat())
+            androidx.compose.ui.geometry.Offset(t.toFloat(), (-t).toFloat())
         }
 
         @JvmStatic

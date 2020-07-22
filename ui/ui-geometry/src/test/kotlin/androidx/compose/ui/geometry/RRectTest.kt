@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.ui.engine.geometry
+package androidx.compose.ui.geometry
 
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.RRect
-import androidx.ui.geometry.Radius
-import androidx.ui.geometry.Rect
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test

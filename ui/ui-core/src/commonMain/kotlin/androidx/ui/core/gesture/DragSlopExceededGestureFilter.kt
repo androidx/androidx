@@ -32,7 +32,7 @@ import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.gesture.scrollorientationlocking.ScrollOrientationLocker
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.positionChange
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.unit.IntSize
 import kotlin.math.abs
 

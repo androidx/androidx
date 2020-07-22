@@ -19,7 +19,7 @@ package androidx.ui.unit
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.ui.core.Constraints
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import kotlin.math.roundToInt
 
 /**

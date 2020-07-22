@@ -17,7 +17,7 @@
 package androidx.ui.graphics
 
 import androidx.ui.TestResources.testImageAsset
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import org.junit.Assert.assertEquals

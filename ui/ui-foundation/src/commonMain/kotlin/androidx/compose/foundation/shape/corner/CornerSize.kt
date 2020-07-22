@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.shape.corner
 
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Size
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.ui.unit.Density

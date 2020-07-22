@@ -19,7 +19,7 @@ import android.text.Spanned
 import android.text.TextPaint
 import android.text.TextUtils
 import androidx.compose.ui.text.android.InternalPlatformTextApi
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.asComposePath
@@ -47,7 +47,7 @@ import androidx.compose.ui.text.android.style.PlaceholderSpan
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.ui.unit.Density
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.util.annotation.VisibleForTesting
 import java.util.Locale as JavaLocale
 

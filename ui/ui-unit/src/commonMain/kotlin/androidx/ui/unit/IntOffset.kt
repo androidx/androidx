@@ -20,7 +20,7 @@ package androidx.ui.unit
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.util.lerp
 import androidx.ui.util.packInts
 import androidx.ui.util.unpackInt1

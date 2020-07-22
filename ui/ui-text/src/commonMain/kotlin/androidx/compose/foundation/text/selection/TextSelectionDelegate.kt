@@ -16,10 +16,10 @@
 
 package androidx.compose.foundation.text.selection
 
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import kotlin.math.max
 
 /**

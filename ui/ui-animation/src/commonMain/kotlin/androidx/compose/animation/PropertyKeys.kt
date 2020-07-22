@@ -22,8 +22,8 @@ import androidx.compose.animation.core.AnimationVector4D
 import androidx.compose.animation.core.FloatToVectorConverter
 import androidx.compose.animation.core.PropKey
 import androidx.compose.animation.core.TwoWayConverter
-import androidx.ui.geometry.Rect
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.colorspace.ColorSpace
 import androidx.ui.graphics.colorspace.ColorSpaces
@@ -33,7 +33,7 @@ import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.Position
 import androidx.ui.unit.PxBounds
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.unit.dp
 import kotlin.math.roundToInt
 

@@ -20,7 +20,7 @@ import android.annotation.TargetApi
 import android.graphics.Picture
 import android.graphics.RenderNode
 import android.os.Build
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow

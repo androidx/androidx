@@ -17,8 +17,8 @@
 package androidx.ui.graphics.painter
 
 import androidx.test.filters.SmallTest
-import androidx.ui.geometry.Rect
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color

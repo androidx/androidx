@@ -21,7 +21,7 @@ import androidx.compose.animation.core.ManualAnimationClock
 import androidx.compose.animation.core.createAnimation
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

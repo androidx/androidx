@@ -16,7 +16,7 @@
 
 package androidx.ui.graphics
 
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import org.jetbrains.skija.FilterTileMode
 import org.jetbrains.skija.GradientStyle
 

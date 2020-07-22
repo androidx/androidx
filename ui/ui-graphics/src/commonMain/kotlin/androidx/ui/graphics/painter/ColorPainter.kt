@@ -16,7 +16,7 @@
 
 package androidx.ui.graphics.painter
 
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.drawscope.DrawScope

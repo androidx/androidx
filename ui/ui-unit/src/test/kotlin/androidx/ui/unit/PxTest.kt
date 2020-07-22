@@ -16,9 +16,9 @@
 
 package androidx.ui.unit
 
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Size
-import androidx.ui.geometry.lerp
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.lerp
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

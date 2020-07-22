@@ -27,7 +27,7 @@ import androidx.ui.core.gesture.scrollGestureFilter
 import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.compose.foundation.Interaction
 import androidx.compose.foundation.InteractionState
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.unit.Density
 
 /**

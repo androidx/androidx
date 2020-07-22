@@ -16,7 +16,7 @@
 
 package androidx.ui.graphics
 
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 
 /**
  * Class that represents the corresponding Shader implementation on a platform. This maps

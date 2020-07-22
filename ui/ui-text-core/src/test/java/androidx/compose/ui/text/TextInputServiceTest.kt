@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.text
 
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.KeyboardType

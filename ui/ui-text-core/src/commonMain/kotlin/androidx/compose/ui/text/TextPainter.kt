@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.text
 
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.compose.ui.text.style.TextOverflow
 

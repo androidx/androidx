@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.ui.engine.geometry
+package androidx.compose.ui.geometry
 
-import androidx.ui.geometry.Rect
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

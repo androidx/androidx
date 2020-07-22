@@ -18,7 +18,7 @@ package androidx.ui.test.inputdispatcher
 
 import android.view.MotionEvent
 import androidx.test.filters.SmallTest
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder

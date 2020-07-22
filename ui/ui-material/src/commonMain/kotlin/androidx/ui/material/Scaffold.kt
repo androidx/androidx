@@ -44,7 +44,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.ui.material.Scaffold.FabPosition
 import androidx.ui.unit.Dp
 import androidx.ui.unit.PxBounds
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Size
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
 import androidx.ui.unit.toSize

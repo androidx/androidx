@@ -23,7 +23,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.compose.foundation.gestures.zoomable
 import androidx.compose.foundation.gestures.ZoomableController
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.center

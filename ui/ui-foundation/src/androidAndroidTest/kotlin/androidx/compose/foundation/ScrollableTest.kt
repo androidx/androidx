@@ -41,7 +41,7 @@ import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.swipe
 import androidx.ui.test.swipeWithVelocity
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth

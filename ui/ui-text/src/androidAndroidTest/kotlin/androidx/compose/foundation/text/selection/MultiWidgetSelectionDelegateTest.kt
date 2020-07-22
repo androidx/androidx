@@ -42,7 +42,7 @@ import androidx.compose.ui.text.font.font
 import androidx.compose.ui.text.font.test.R
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.ui.unit.Density
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.InternalTextApi
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.sp

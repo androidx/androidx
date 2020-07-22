@@ -22,8 +22,8 @@ import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path

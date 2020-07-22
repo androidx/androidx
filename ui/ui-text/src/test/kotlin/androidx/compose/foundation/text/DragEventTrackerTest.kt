@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.text
 
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

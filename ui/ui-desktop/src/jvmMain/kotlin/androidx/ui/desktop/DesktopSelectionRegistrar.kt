@@ -17,7 +17,7 @@
 package androidx.ui.desktop
 
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.core.selection.SelectionRegistrar
 import androidx.ui.core.selection.Selectable
 

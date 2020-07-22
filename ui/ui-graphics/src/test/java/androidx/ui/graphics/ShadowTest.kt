@@ -16,8 +16,8 @@
 
 package androidx.ui.painting
 
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.lerp
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.lerp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.graphics.lerp

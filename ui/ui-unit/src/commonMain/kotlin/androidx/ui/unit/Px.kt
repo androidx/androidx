@@ -19,9 +19,9 @@ package androidx.ui.unit
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Rect
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import kotlin.math.roundToInt
 
 /**

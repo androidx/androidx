@@ -19,7 +19,7 @@ package androidx.ui.core.selection
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.compose.ui.text.style.ResolvedTextDirection
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn

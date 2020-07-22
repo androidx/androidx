@@ -16,7 +16,7 @@
 
 package androidx.ui.graphics
 
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 
 /**  A set of vertex data used by [Canvas.drawVertices]. */
 class Vertices(

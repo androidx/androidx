@@ -16,7 +16,7 @@
 
 package androidx.ui.unit
 
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith

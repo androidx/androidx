@@ -24,7 +24,7 @@ expect class AtomicInt(value_: Int) {
     fun compareAndSet(expected: Int, new: Int): Boolean
 }
 
-// TODO(b/160140398): rewrite depending code using androidx.ui.geometry.Rect and androidx.ui.vectormath64.Matrix3.
+// TODO(b/160140398): rewrite depending code using androidx.compose.ui.geometry.Rect and androidx.ui.vectormath64.Matrix3.
 expect class NativeRectF() {
     var left: Float
     var right: Float

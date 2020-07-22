@@ -38,7 +38,7 @@ import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.compose.foundation.animation.FlingConfig
 import androidx.compose.foundation.animation.defaultFlingConfig
 import androidx.compose.foundation.animation.fling
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 
 /**
  * Create and remember [ScrollableController] for [scrollable] with default [FlingConfig] and

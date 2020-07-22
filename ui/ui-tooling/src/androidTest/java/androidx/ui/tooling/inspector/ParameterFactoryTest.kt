@@ -24,7 +24,7 @@ import androidx.compose.foundation.shape.corner.CornerSize
 import androidx.compose.foundation.shape.corner.CutCornerShape
 import androidx.compose.foundation.shape.corner.RoundedCornerShape
 import androidx.compose.foundation.shape.corner.ZeroCornerSize
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.LinearGradient
 import androidx.ui.graphics.RectangleShape

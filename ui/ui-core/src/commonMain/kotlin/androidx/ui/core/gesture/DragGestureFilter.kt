@@ -21,7 +21,7 @@ import androidx.ui.core.Direction
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.composed
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 
 // TODO(b/146133703): Likely rename to PanGestureDetector as per b/146133703
 /**

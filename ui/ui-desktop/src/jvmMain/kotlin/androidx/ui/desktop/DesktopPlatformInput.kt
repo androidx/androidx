@@ -23,7 +23,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.MoveCursorEditOp
 import androidx.compose.ui.text.input.PlatformTextInputService
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 
 import java.awt.event.KeyEvent
 

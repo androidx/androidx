@@ -37,7 +37,7 @@ import androidx.compose.remember
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.ui.core.semantics.semantics
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.semantics.popup
 import androidx.ui.unit.IntBounds
 import androidx.ui.unit.round

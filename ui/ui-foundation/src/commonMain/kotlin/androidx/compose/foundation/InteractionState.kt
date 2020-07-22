@@ -21,7 +21,7 @@ import androidx.compose.State
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 
 /**
  * InteractionState represents a [Set] of [Interaction]s present on a given component. This

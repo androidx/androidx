@@ -17,7 +17,7 @@
 package androidx.ui.graphics.samples
 
 import androidx.annotation.Sampled
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset

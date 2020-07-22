@@ -20,7 +20,7 @@ package androidx.ui.unit
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 
 /**
  * A four dimensional bounds holder defined by integer pixels.

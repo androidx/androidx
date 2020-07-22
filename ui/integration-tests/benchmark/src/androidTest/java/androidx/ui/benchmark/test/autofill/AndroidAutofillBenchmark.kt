@@ -29,7 +29,7 @@ import androidx.ui.autofill.AutofillTree
 import androidx.ui.autofill.AutofillType
 import androidx.ui.core.AutofillTreeAmbient
 import androidx.ui.core.ViewAmbient
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import androidx.ui.test.createComposeRule
 import org.junit.Before
 import org.junit.Rule

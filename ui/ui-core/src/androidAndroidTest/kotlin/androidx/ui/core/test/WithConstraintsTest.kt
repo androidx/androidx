@@ -47,7 +47,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.paint
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.vector.VectorPainter
 import androidx.compose.foundation.layout.Constraints

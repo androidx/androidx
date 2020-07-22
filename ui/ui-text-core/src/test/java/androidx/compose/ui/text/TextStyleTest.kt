@@ -17,7 +17,7 @@
 package androidx.compose.ui.text
 
 import androidx.compose.ui.text.intl.LocaleList
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.graphics.lerp
