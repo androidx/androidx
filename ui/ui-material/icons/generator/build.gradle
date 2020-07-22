@@ -30,6 +30,7 @@ dependencies {
 
     implementation(AGP_STABLE)
     implementation(GUAVA)
+    implementation(KOTLIN_GRADLE_PLUGIN)
     implementation(KOTLIN_STDLIB)
     implementation(KOTLINPOET)
     implementation(XMLPULL)

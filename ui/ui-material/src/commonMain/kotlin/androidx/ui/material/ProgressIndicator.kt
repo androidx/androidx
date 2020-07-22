@@ -25,7 +25,6 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.repeatable
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.compose.animation.transition
 import androidx.ui.core.DensityAmbient
@@ -47,6 +46,7 @@ import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
+import androidx.ui.util.annotation.FloatRange
 import kotlin.math.abs
 import kotlin.math.max
 

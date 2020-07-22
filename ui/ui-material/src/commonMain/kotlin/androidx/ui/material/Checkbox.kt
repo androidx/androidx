@@ -16,7 +16,6 @@
 
 package androidx.ui.material
 
-import android.graphics.PathMeasure
 import androidx.compose.animation.core.FloatPropKey
 import androidx.compose.animation.core.TransitionSpec
 import androidx.compose.animation.core.keyframes
@@ -38,8 +37,8 @@ import androidx.ui.geometry.Radius
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
+import androidx.ui.graphics.PathMeasure
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.asAndroidPath
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.Fill
 import androidx.ui.graphics.drawscope.Stroke
@@ -251,10 +250,10 @@ private fun DrawScope.drawCheck(
         checkPath.lineTo(width * gravitatedCrossX, width * gravitatedCrossY)
         checkPath.lineTo(width * rightX, width * gravitatedRightY)
         // TODO: replace with proper declarative non-android alternative when ready (b/158188351)
-        pathMeasure.setPath(checkPath.asAndroidPath(), false)
+        pathMeasure.setPath(checkPath, false)
         pathToDraw.reset()
         pathMeasure.getSegment(
-            0f, pathMeasure.length * checkFraction, pathToDraw.asAndroidPath(), true
+            0f, pathMeasure.length * checkFraction, pathToDraw, true
         )
     }
     drawPath(drawingCache.pathToDraw, checkColor, style = stroke)
@@ -279,7 +278,7 @@ private val BoxOutDuration = 100
 private val CheckAnimationDuration = 100
 
 private fun generateTransitionDefinition(color: Color, unselectedColor: Color) =
-    transitionDefinition {
+    transitionDefinition<ToggleableState> {
         state(ToggleableState.On) {
             this[CheckDrawFraction] = 1f
             this[BoxOpacityFraction] = 1f

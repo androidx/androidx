@@ -58,13 +58,15 @@ open class IconTestingGenerationTask : IconGenerationTask() {
         fun register(project: Project, variant: BaseVariant) {
             val task = project.createGenerationTask(
                 "generateTestFiles",
-                variant,
-                IconTestingGenerationTask::class.java
+                IconTestingGenerationTask::class.java,
+                variant
             )
             variant.registerGeneratedResFolders(
                 project.files(task.generatedResourceDirectory).builtBy(task)
             )
-            variant.registerJavaGeneratingTask(task, task.generatedSrcAndroidTestDirectory)
+            val sourceSet = project.getMultiplatformSourceSet("androidAndroidTest")
+            sourceSet.kotlin
+                .srcDir(project.files(task.generatedSrcAndroidTestDirectory).builtBy(task))
         }
     }
 }
