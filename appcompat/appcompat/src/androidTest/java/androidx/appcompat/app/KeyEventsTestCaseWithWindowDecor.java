@@ -46,7 +46,7 @@ public class KeyEventsTestCaseWithWindowDecor extends BaseKeyEventsTestCase<Wind
         final HandlerView mockView2 = new HandlerView(mActivityTestRule.getActivity());
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
 
-        // Sanity check: should work before any unhandled stuff is used. This just needs to run
+        // Validity check: should work before any unhandled stuff is used. This just needs to run
         // without causing a crash
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override

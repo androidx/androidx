@@ -798,7 +798,7 @@ public class LinearLayoutCompat extends ViewGroup {
 
                 float childExtra = lp.weight;
                 if (childExtra > 0) {
-                    // Child said it could absorb extra space -- give him his share
+                    // Child said it could absorb extra space -- give them their share
                     int share = (int) (childExtra * delta / weightSum);
                     weightSum -= childExtra;
                     delta -= share;
@@ -1186,7 +1186,7 @@ public class LinearLayoutCompat extends ViewGroup {
 
                 float childExtra = lp.weight;
                 if (childExtra > 0) {
-                    // Child said it could absorb extra space -- give him his share
+                    // Child said it could absorb extra space -- give them their share
                     int share = (int) (childExtra * delta / weightSum);
                     weightSum -= childExtra;
                     delta -= share;
