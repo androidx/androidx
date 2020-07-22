@@ -55,7 +55,7 @@ object MethodSpecHelper {
      * preserve method names from kotlin metadata.
      */
     fun overridingWithFinalParams(
-        elm: XExecutableElement,
+        elm: XMethodElement,
         owner: XDeclaredType
     ): MethodSpec.Builder {
         return overridingWithFinalParams(
@@ -65,8 +65,8 @@ object MethodSpecHelper {
     }
 
     private fun overridingWithFinalParams(
-        executableElement: XExecutableElement,
-        resolvedType: XExecutableType = executableElement.executableType
+        executableElement: XMethodElement,
+        resolvedType: XMethodType = executableElement.executableType
     ): MethodSpec.Builder {
         return MethodSpec.methodBuilder(executableElement.name).apply {
             addTypeVariables(

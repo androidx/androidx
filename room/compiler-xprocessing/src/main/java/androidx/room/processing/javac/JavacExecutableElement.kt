@@ -16,21 +16,13 @@
 
 package androidx.room.processing.javac
 
-import androidx.room.processing.XDeclaredType
 import androidx.room.processing.XExecutableElement
-import androidx.room.processing.XExecutableType
 import androidx.room.processing.XTypeElement
-import androidx.room.processing.XVariableElement
 import androidx.room.processing.javac.kotlin.KotlinMetadataElement
 import androidx.room.processing.javac.kotlin.descriptor
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
-import javax.lang.model.element.TypeElement
 
-internal class JavacExecutableElement(
+internal abstract class JavacExecutableElement(
     env: JavacProcessingEnv,
     val containing: JavacTypeElement,
     override val element: ExecutableElement
@@ -38,16 +30,12 @@ internal class JavacExecutableElement(
     env,
     element
 ), XExecutableElement {
-    private val kotlinMetadata by lazy {
+    protected val kotlinMetadata by lazy {
         KotlinMetadataElement.createFor(element)
     }
 
     val descriptor by lazy {
         element.descriptor()
-    }
-
-    private val isSuspend by lazy {
-        kotlinMetadata?.isSuspendFunction(element) == true
     }
 
     override val enclosingElement: XTypeElement
@@ -65,82 +53,12 @@ internal class JavacExecutableElement(
         }
     }
 
-    override val returnType: JavacType by lazy {
-        val asMember = env.typeUtils.asMemberOf(containing.type.typeMirror, element)
-        val asExec = MoreTypes.asExecutable(asMember)
-        env.wrap<JavacType>(asExec.returnType)
-    }
-
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(element, containing)
     }
 
-    @Suppress("UnstableApiUsage")
-    private val kotlinDefaultImplClass by lazy {
-        val parent = element.enclosingElement as? TypeElement
-        val defaultImplElement = parent?.enclosedElements?.find {
-            MoreElements.isType(it) && it.simpleName.contentEquals(DEFAULT_IMPLS_CLASS_NAME)
-        } as? TypeElement
-        defaultImplElement?.let {
-            env.wrapTypeElement(it)
-        }
-    }
-
-    override fun findKotlinDefaultImpl(): XExecutableElement? {
-        fun paramsMatch(
-            ourParams: List<XVariableElement>,
-            theirParams: List<XVariableElement>
-        ): Boolean {
-            if (ourParams.size != theirParams.size - 1) {
-                return false
-            }
-            ourParams.forEachIndexed { i, variableElement ->
-                // Plus 1 to their index because their first param is a self object.
-                if (!theirParams[i + 1].type.isSameType(
-                        variableElement.type
-                    )
-                ) {
-                    return false
-                }
-            }
-            return true
-        }
-        return kotlinDefaultImplClass?.getDeclaredMethods()?.find {
-            it.name == this.name && paramsMatch(parameters, it.parameters)
-        }
-    }
-
-    override fun isSuspendFunction() = isSuspend
-
-    override val executableType: JavacExecutableType by lazy {
-        val asMemberOf = env.typeUtils.asMemberOf(containing.type.typeMirror, element)
-        JavacExecutableType(
-            env = env,
-            executableType = MoreTypes.asExecutable(asMemberOf)
-        )
-    }
-
-    override fun isJavaDefault() = element.modifiers.contains(Modifier.DEFAULT)
-
     override fun isVarArgs(): Boolean {
         return element.isVarArgs
-    }
-
-    override fun asMemberOf(other: XDeclaredType): XExecutableType {
-        return if (containing.type.isSameType(other)) {
-            executableType
-        } else {
-            check(other is JavacDeclaredType)
-            val asMemberOf = env.typeUtils.asMemberOf(other.typeMirror, element)
-            JavacExecutableType(
-                env = env,
-                executableType = MoreTypes.asExecutable(asMemberOf)
-            )
-        }
-    }
-
-    override fun isConstructor(): Boolean {
-        return element.kind == ElementKind.CONSTRUCTOR
     }
 
     companion object {

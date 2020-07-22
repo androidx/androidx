@@ -16,8 +16,19 @@
 
 package androidx.room.processing
 
-interface XExecutableElement : XElement {
-    override val enclosingElement: XElement
-    val parameters: List<XVariableElement>
-    fun isVarArgs(): Boolean
+import com.squareup.javapoet.TypeVariableName
+
+/**
+ * Represents a type information for an executable.
+ *
+ * It is not an XType as it does not represent a class or primitive.
+ */
+interface XMethodType {
+    val returnType: XType
+
+    val parameterTypes: List<XType>
+
+    val typeVariableNames: List<TypeVariableName>
+
+    fun getSuspendFunctionReturnType(): XType
 }
