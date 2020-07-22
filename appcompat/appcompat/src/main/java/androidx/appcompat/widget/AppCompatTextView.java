@@ -138,9 +138,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return;
-        }
         if (mBackgroundTintHelper != null) {
             mBackgroundTintHelper.setSupportBackgroundTintList(tint);
         }
@@ -169,9 +166,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return;
-        }
         if (mBackgroundTintHelper != null) {
             mBackgroundTintHelper.setSupportBackgroundTintMode(tintMode);
         }
