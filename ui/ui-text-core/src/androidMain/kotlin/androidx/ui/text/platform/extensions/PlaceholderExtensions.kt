@@ -20,8 +20,8 @@ import android.text.Spannable
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Placeholder
 import androidx.ui.text.PlaceholderVerticalAlign
-import androidx.ui.text.platform.InternalPlatformTextApi
-import androidx.ui.text.platform.style.PlaceholderSpan
+import androidx.compose.ui.text.android.InternalPlatformTextApi
+import androidx.compose.ui.text.android.style.PlaceholderSpan
 import androidx.ui.unit.Density
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.TextUnitType

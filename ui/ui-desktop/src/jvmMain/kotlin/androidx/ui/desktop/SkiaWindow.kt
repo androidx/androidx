@@ -103,7 +103,7 @@ class Window : JFrame, SkiaFrame {
 }
 
 class Dialog : JDialog, SkiaFrame {
-    @OptIn(androidx.ui.text.platform.InternalPlatformTextApi::class)
+    @OptIn(androidx.compose.ui.text.android.InternalPlatformTextApi::class)
     companion object {
         init {
             Library.load("/", "skija")
