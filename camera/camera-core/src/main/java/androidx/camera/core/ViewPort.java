@@ -29,6 +29,7 @@ import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.concurrent.Executor;
 
 /**
  * The field of view of one or many {@link UseCase}s.
@@ -38,6 +39,13 @@ import java.lang.annotation.RetentionPolicy;
  * crop rect will be mapped to the same camera sensor area. Usually {@link ViewPort} is
  * configured to optimize for {@link Preview} so that {@link ImageAnalysis} and
  * {@link ImageCapture} produce the same crop rect in a WYSIWYG way.
+ *
+ * <p> If the {@link ViewPort} is used with a {@link ImageCapture} and
+ * {@link ImageCapture#takePicture(
+ * ImageCapture.OutputFileOptions, Executor, ImageCapture.OnImageSavedCallback)} is called,
+ * the image may be cropped before saving to disk which introduces an additional
+ * latency. To avoid the latency and get the uncropped image, please use the in-memory method
+ * {@link ImageCapture#takePicture(Executor, ImageCapture.OnImageCapturedCallback)}.
  *
  * <p> For {@link ImageAnalysis} and in-memory {@link ImageCapture}, the output crop rect is
  * {@link ImageProxy#getCropRect()}; for on-disk {@link ImageCapture}, the image is cropped before
