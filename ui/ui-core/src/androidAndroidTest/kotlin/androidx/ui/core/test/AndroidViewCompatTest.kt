@@ -77,7 +77,7 @@ import androidx.ui.geometry.Offset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
@@ -111,7 +111,7 @@ import kotlin.math.roundToInt
 @RunWith(JUnit4::class)
 class AndroidViewCompatTest {
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<TestActivity>()
+    val composeTestRule = createAndroidComposeRule<TestActivity>()
 
     @Test
     fun simpleLayoutTest() {

@@ -41,7 +41,7 @@ internal interface IdlingResourceWithDiagnostics {
  *
  * This makes sure that Espresso is able to wait for any pending changes in Compose. This
  * resource is automatically registered when any compose testing APIs are used including
- * [AndroidComposeTestRule]. If you for some reasons want to only use Espresso but still have it
+ * [createAndroidComposeRule]. If you for some reasons want to only use Espresso but still have it
  * wait for Compose being idle you can use this function.
  */
 fun registerComposeWithEspresso() {
@@ -76,7 +76,7 @@ fun unregisterTestClock(clock: TestAnimationClock) {
  *
  * This makes sure that Espresso is able to wait for any pending changes in Compose. This
  * resource is automatically registered when any compose testing APIs are used including
- * [AndroidComposeTestRule]. If you for some reasons want to only use Espresso but still have it
+ * [createAndroidComposeRule]. If you for some reasons want to only use Espresso but still have it
  * wait for Compose being idle you can register this yourself via [registerSelfIntoEspresso].
  */
 internal object ComposeIdlingResource : BaseIdlingResource(), IdlingResourceWithDiagnostics {

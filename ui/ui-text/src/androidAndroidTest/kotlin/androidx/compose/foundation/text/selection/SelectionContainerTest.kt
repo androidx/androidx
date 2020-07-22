@@ -31,7 +31,7 @@ import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.foundation.text.CoreText
@@ -59,7 +59,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class SelectionContainerTest {
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     private lateinit var view: View
 

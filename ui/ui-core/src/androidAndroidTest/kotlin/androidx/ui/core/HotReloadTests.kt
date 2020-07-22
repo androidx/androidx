@@ -31,7 +31,7 @@ import androidx.compose.foundation.Box
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.node.UiApplier
 import androidx.ui.semantics.accessibilityLabel
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.assertLabelEquals
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnUiThread
@@ -55,7 +55,7 @@ class HotReloadTests {
     }
 
     @get:Rule
-    val rule = AndroidComposeTestRule<TestActivity>()
+    val rule = createAndroidComposeRule<TestActivity>()
 
     @Test
     fun composeView() {

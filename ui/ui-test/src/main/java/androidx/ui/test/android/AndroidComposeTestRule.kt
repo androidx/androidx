@@ -34,6 +34,7 @@ import androidx.ui.test.ComposeTestCaseSetup
 import androidx.ui.test.ComposeTestRule
 import androidx.ui.test.ExperimentalTesting
 import androidx.ui.test.TextInputServiceForTests
+import androidx.ui.test.createComposeRule
 import androidx.ui.test.isOnUiThread
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.waitForIdle
@@ -42,17 +43,16 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * Factory method to provide implementation of [AndroidComposeTestRule].
+ * Factory method to provide android specific implementation of [createComposeRule].
  *
  * This method is useful for tests that require a custom Activity. This is usually the case for
  * app tests. Make sure that you add the provided activity into your app's manifest file (usually
  * in main/AndroidManifest.xml).
  *
  * If you don't care about specific activity and just want to test composables in general, see
- * [AndroidComposeTestRule].
+ * [createComposeRule].
  */
-inline fun <reified T : ComponentActivity> AndroidComposeTestRule(
-    recomposer: Recomposer? = null,
+inline fun <reified T : ComponentActivity> createAndroidComposeRule(
     disableTransitions: Boolean = false,
     disableBlinkingCursor: Boolean = true
 ): AndroidComposeTestRule<T> {
@@ -61,24 +61,37 @@ inline fun <reified T : ComponentActivity> AndroidComposeTestRule(
     // to set it again via our API. In such case we won't be able to dispose the old composition.
     // Other option would be to provide a smaller interface that does not expose these methods.
     return AndroidComposeTestRule(
-        ActivityScenarioRule(T::class.java),
-        recomposer,
-        disableTransitions,
-        disableBlinkingCursor
+        activityRule = ActivityScenarioRule(T::class.java),
+        disableTransitions = disableTransitions,
+        disableBlinkingCursor = disableBlinkingCursor
     )
 }
 
 /**
- * Android specific implementation of [ComposeTestRule].
+ * Factory method to provide android specific implementation of [createComposeRule].
  *
- * If [recomposer] is `null` the thread-specific [Recomposer.current] will be used when
- * [setContent] is called.
+ * This method is useful for tests that require a custom Activity. This is usually the case for
+ * app tests. Make sure that you add the provided activity into your app's manifest file (usually
+ * in main/AndroidManifest.xml).
+ *
+ * If you don't care about specific activity and just want to test composables in general, see
+ * [createComposeRule].
+ */
+@Deprecated("Renamed to createAndroidComposeRule",
+    replaceWith = ReplaceWith("createAndroidComposeRule(disableTransitions, " +
+            "disableBlinkingCursor)"))
+inline fun <reified T : ComponentActivity> AndroidComposeTestRule(
+    disableTransitions: Boolean = false,
+    disableBlinkingCursor: Boolean = true
+): AndroidComposeTestRule<T> = createAndroidComposeRule(disableTransitions, disableBlinkingCursor)
+
+/**
+ * Android specific implementation of [ComposeTestRule].
  */
 class AndroidComposeTestRule<T : ComponentActivity>(
     // TODO(b/153623653): Remove activityRule from arguments when AndroidComposeTestRule can
     //  work with any kind of Activity launcher.
     val activityRule: ActivityScenarioRule<T>,
-    val recomposer: Recomposer? = null,
     private val disableTransitions: Boolean = false,
     private val disableBlinkingCursor: Boolean = true
 ) : ComposeTestRule {
@@ -123,7 +136,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
 
         runOnUiThread {
             val composition = activity.setContent(
-                recomposer ?: Recomposer.current(),
+                Recomposer.current(),
                 composable
             )
             val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)

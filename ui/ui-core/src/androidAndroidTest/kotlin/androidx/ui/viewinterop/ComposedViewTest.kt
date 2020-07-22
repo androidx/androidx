@@ -42,7 +42,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
 import androidx.compose.foundation.layout.size
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.onNodeWithTag
@@ -65,7 +65,7 @@ import kotlin.math.roundToInt
 @RunWith(JUnit4::class)
 class ComposedViewTest {
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun androidViewWithResourceTest() {

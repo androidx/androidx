@@ -24,7 +24,7 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Stack
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,14 +48,14 @@ class CustomActivity : ComponentActivity() {
 }
 
 /**
- * Tests that we can launch custom activities via [AndroidComposeTestRule].
+ * Tests that we can launch custom activities via [createAndroidComposeRule].
  */
 @MediumTest
 @RunWith(JUnit4::class)
 class CustomActivityTest {
 
     @get:Rule
-    val testRule = AndroidComposeTestRule<CustomActivity>()
+    val testRule = createAndroidComposeRule<CustomActivity>()
 
     @Test
     fun launchCustomActivity() {
