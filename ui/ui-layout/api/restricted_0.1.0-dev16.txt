@@ -111,7 +111,7 @@ package androidx.compose.foundation.layout {
   }
 
   public final class ColumnKt {
-    method @androidx.compose.Composable public static inline void Column(androidx.ui.core.Modifier modifier = Modifier, androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement = Arrangement.Top, androidx.ui.core.Alignment.Horizontal horizontalGravity = Alignment.Start, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Column(androidx.ui.core.Modifier modifier = Modifier, androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement = Arrangement.Top, androidx.ui.core.Alignment.Horizontal horizontalGravity = Alignment.Start, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> children);
     method @androidx.compose.Composable @kotlin.PublishedApi internal static androidx.ui.core.LayoutNode.MeasureBlocks columnMeasureBlocks(androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, androidx.ui.core.Alignment.Horizontal horizontalGravity);
     field @kotlin.PublishedApi internal static final androidx.ui.core.LayoutNode.MeasureBlocks DefaultColumnMeasureBlocks;
   }
@@ -641,7 +641,7 @@ package androidx.compose.foundation.layout {
   }
 
   public final class RowKt {
-    method @androidx.compose.Composable public static inline void Row(androidx.ui.core.Modifier modifier = Modifier, androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement = Arrangement.Start, androidx.ui.core.Alignment.Vertical verticalGravity = Alignment.Top, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Row(androidx.ui.core.Modifier modifier = Modifier, androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement = Arrangement.Start, androidx.ui.core.Alignment.Vertical verticalGravity = Alignment.Top, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> children);
     method @androidx.compose.Composable @kotlin.PublishedApi internal static androidx.ui.core.LayoutNode.MeasureBlocks rowMeasureBlocks(androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, androidx.ui.core.Alignment.Vertical verticalGravity);
     field @kotlin.PublishedApi internal static final androidx.ui.core.LayoutNode.MeasureBlocks DefaultRowMeasureBlocks;
   }
