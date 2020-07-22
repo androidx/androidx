@@ -43,6 +43,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArrayMap;
 import androidx.core.app.ActivityManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.hardware.display.DisplayManagerCompat;
@@ -942,9 +943,8 @@ public final class MediaRouter {
         private IntentSender mSettingsIntent;
         MediaRouteDescriptor mDescriptor;
 
-        DynamicRouteDescriptor mDynamicDescriptor;
-        private DynamicGroupState mDynamicGroupState;
         private List<RouteInfo> mMemberRoutes = new ArrayList<>();
+        private Map<String, DynamicRouteDescriptor> mDynamicGroupDescriptors;
 
         @IntDef({CONNECTION_STATE_DISCONNECTED, CONNECTION_STATE_CONNECTING,
                 CONNECTION_STATE_CONNECTED})
@@ -1598,16 +1598,17 @@ public final class MediaRouter {
         }
 
         /**
-         * Gets dynamic group state of the route
+         * Gets the dynamic group state of the given route.
          * @hide
          */
-        @Nullable
         @RestrictTo(LIBRARY)
-        public DynamicGroupState getDynamicGroupState() {
-            if (mDynamicGroupState == null && mDynamicDescriptor != null) {
-                mDynamicGroupState = new DynamicGroupState();
+        @Nullable
+        public DynamicGroupState getDynamicGroupState(RouteInfo route) {
+            if (mDynamicGroupDescriptors != null
+                    && mDynamicGroupDescriptors.containsKey(route.mUniqueId)) {
+                return new DynamicGroupState(mDynamicGroupDescriptors.get(route.mUniqueId));
             }
-            return mDynamicGroupState;
+            return null;
         }
 
         /**
@@ -1839,14 +1840,18 @@ public final class MediaRouter {
 
         void updateDynamicDescriptors(Collection<DynamicRouteDescriptor> dynamicDescriptors) {
             mMemberRoutes.clear();
+            if (mDynamicGroupDescriptors == null) {
+                mDynamicGroupDescriptors = new ArrayMap<>();
+            }
+            mDynamicGroupDescriptors.clear();
 
-            for (DynamicRouteDescriptor dynamicDescriptor :
-                    dynamicDescriptors) {
+            for (DynamicRouteDescriptor dynamicDescriptor : dynamicDescriptors) {
                 RouteInfo route = findRouteByDynamicRouteDescriptor(dynamicDescriptor);
                 if (route == null) {
                     continue;
                 }
-                route.mDynamicDescriptor = dynamicDescriptor;
+                mDynamicGroupDescriptors.put(route.mUniqueId, dynamicDescriptor);
+
                 if ((dynamicDescriptor.getSelectionState() == DynamicRouteDescriptor.SELECTING)
                         || (dynamicDescriptor.getSelectionState()
                         == DynamicRouteDescriptor.SELECTED)) {
@@ -1867,7 +1872,12 @@ public final class MediaRouter {
          * @hide
          */
         @RestrictTo(LIBRARY)
-        public class DynamicGroupState {
+        public static final class DynamicGroupState {
+            final DynamicRouteDescriptor mDynamicDescriptor;
+
+            DynamicGroupState(DynamicRouteDescriptor descriptor) {
+                mDynamicDescriptor = descriptor;
+            }
             /**
              * Gets the selection state of the route when the {@link MediaRouteProvider} of the
              * route supports
@@ -2247,6 +2257,7 @@ public final class MediaRouter {
          * @param data Error data, or null if none.
          * Contents depend on the {@link MediaControlIntent media control action}.
          */
+        @SuppressLint("UnknownNullness")
         public void onError(String error, Bundle data) {
         }
     }
@@ -2511,12 +2522,17 @@ public final class MediaRouter {
             return mSelectedRoute;
         }
 
+        @Nullable
+        RouteInfo.DynamicGroupState getDynamicGroupState(RouteInfo route) {
+            return mSelectedRoute.getDynamicGroupState(route);
+        }
+
         void addMemberToDynamicGroup(@NonNull RouteInfo route) {
             if (!(mSelectedRouteController instanceof DynamicGroupRouteController)) {
                 throw new IllegalStateException("There is no currently selected "
                         + "dynamic group route.");
             }
-            RouteInfo.DynamicGroupState state = route.getDynamicGroupState();
+            RouteInfo.DynamicGroupState state = getDynamicGroupState(route);
             if (mSelectedRoute.getMemberRoutes().contains(route)
                     || state == null || !state.isGroupable()) {
                 Log.w(TAG, "Ignoring attemp to add a non-groupable route to dynamic group : "
@@ -2532,7 +2548,7 @@ public final class MediaRouter {
                 throw new IllegalStateException("There is no currently selected "
                         + "dynamic group route.");
             }
-            RouteInfo.DynamicGroupState state = route.getDynamicGroupState();
+            RouteInfo.DynamicGroupState state = getDynamicGroupState(route);
             if (!mSelectedRoute.getMemberRoutes().contains(route)
                     || state == null || !state.isUnselectable()) {
                 Log.w(TAG, "Ignoring attempt to remove a non-unselectable member route : "
@@ -2552,7 +2568,7 @@ public final class MediaRouter {
                 throw new IllegalStateException("There is no currently selected dynamic group "
                         + "route.");
             }
-            RouteInfo.DynamicGroupState state = route.getDynamicGroupState();
+            RouteInfo.DynamicGroupState state = getDynamicGroupState(route);
             if (state == null || !state.isTransferable()) {
                 Log.w(TAG, "Ignoring attempt to transfer to a non-transferable route.");
                 return;

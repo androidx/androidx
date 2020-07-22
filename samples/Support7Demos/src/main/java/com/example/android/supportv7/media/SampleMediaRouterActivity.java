@@ -221,12 +221,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         // Get the media router service.
         mMediaRouter = MediaRouter.getInstance(this);
 
-        MediaRouterParams params = new MediaRouterParams.Builder()
-                .setDialogType(MediaRouterParams.DIALOG_TYPE_DEFAULT)
-                .setOutputSwitcherEnabled(true) // Output switcher will be shown from Android R+.
-                .setTransferToLocalEnabled(true) // Phone speaker will be shown when casting.
-                .build();
-        mMediaRouter.setRouterParams(params);
+        mMediaRouter.setRouterParams(getRouterParams());
 
         // Create a route selector for the type of routes that we care about.
         mSelector = new MediaRouteSelector.Builder()
@@ -623,6 +618,13 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         return null;
     }
 
+    public MediaRouterParams getRouterParams() {
+        return new MediaRouterParams.Builder()
+                .setDialogType(MediaRouterParams.DIALOG_TYPE_DEFAULT)
+                .setTransferToLocalEnabled(true) // Phone speaker will be shown when casting.
+                .build();
+    }
+
     /**
      * Media route discovery fragment.
      */
@@ -749,6 +751,30 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
      * same activity using a light theme with dark action bar instead of the dark theme.
      */
     public static class LightWithDarkActionBar extends SampleMediaRouterActivity {
+    }
+
+    /**
+     * This will show dynamic group dialog when ther user clicks the media route button.
+     */
+    public static class DynamicGroupActivity extends SampleMediaRouterActivity {
+        @Override
+        public MediaRouterParams getRouterParams() {
+            return new MediaRouterParams.Builder(super.getRouterParams())
+                    .setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP)
+                    .build();
+        }
+    }
+
+    /**
+     * This pops up the output switcher if run on Android R+
+     */
+    public static class OutputSwitcherActivity extends SampleMediaRouterActivity {
+        @Override
+        public MediaRouterParams getRouterParams() {
+            return new MediaRouterParams.Builder(super.getRouterParams())
+                    .setOutputSwitcherEnabled(true)
+                    .build();
+        }
     }
 
     public static class ControllerDialogFragment extends MediaRouteControllerDialogFragment {
