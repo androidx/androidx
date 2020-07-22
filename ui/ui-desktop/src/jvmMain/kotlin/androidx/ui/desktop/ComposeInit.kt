@@ -53,7 +53,7 @@ fun initCompose() {
     ComposeInit
 }
 
-@OptIn(androidx.ui.text.platform.InternalPlatformTextApi::class, InternalComposeApi::class)
+@OptIn(androidx.compose.ui.text.android.InternalPlatformTextApi::class, InternalComposeApi::class)
 private object ComposeInit {
     init {
         Library.load("/", "skija")

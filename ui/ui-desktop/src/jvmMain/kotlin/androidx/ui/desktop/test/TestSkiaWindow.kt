@@ -51,7 +51,7 @@ class TestSkiaWindow(
         androidCanvas = android.graphics.Canvas(canvas)
     }
 
-    @OptIn(androidx.ui.text.platform.InternalPlatformTextApi::class)
+    @OptIn(androidx.compose.ui.text.android.InternalPlatformTextApi::class)
     companion object {
         init {
             initCompose()

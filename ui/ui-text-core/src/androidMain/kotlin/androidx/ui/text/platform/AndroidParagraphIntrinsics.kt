@@ -18,6 +18,9 @@ package androidx.ui.text.platform
 
 import android.graphics.Paint
 import android.text.TextPaint
+import androidx.compose.ui.text.android.InternalPlatformTextApi
+import androidx.compose.ui.text.android.LayoutCompat
+import androidx.compose.ui.text.android.LayoutIntrinsics
 import androidx.core.text.TextUtilsCompat
 import androidx.core.view.ViewCompat
 import androidx.ui.intl.AndroidLocale

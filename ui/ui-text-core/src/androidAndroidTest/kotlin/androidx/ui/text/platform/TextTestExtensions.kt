@@ -21,6 +21,8 @@ import android.graphics.Canvas
 import android.graphics.Typeface
 import android.text.Layout
 import android.text.TextPaint
+import androidx.compose.ui.text.android.InternalPlatformTextApi
+import androidx.compose.ui.text.android.TextLayout
 import kotlin.math.ceil
 
 internal fun AndroidParagraph.bitmap(): Bitmap {
