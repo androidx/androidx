@@ -16,7 +16,6 @@
 
 package androidx.ui.material
 
-import androidx.annotation.FloatRange
 import androidx.compose.Ambient
 import androidx.compose.Composable
 import androidx.compose.Immutable
@@ -26,6 +25,7 @@ import androidx.compose.foundation.ContentColorAmbient
 import androidx.compose.foundation.contentColor
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.luminance
+import androidx.ui.util.annotation.FloatRange
 
 /**
  * Emphasis allows certain parts of a component to be accentuated, or shown with lower contrast

@@ -45,6 +45,7 @@ import androidx.ui.material.ExperimentalMaterialApi
 import androidx.ui.material.MaterialTheme
 import androidx.ui.unit.Dp
 import androidx.ui.util.fastForEach
+import androidx.ui.util.nativeClass
 
 /**
  * Material implementation of [IndicationInstance] that expresses indication via ripples. This
@@ -118,7 +119,7 @@ class RippleIndication internal constructor(
     // making this class to be "data class"
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (this.nativeClass() != other?.nativeClass()) return false
 
         other as RippleIndication
 

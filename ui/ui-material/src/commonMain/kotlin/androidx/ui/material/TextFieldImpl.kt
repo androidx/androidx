@@ -23,7 +23,6 @@ import androidx.compose.animation.core.FloatPropKey
 import androidx.compose.animation.core.TransitionSpec
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.annotation.VisibleForTesting
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.Stable
@@ -75,6 +74,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.lerp
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
+import androidx.ui.util.annotation.VisibleForTesting
 import kotlin.math.min
 import kotlin.math.roundToInt
 
