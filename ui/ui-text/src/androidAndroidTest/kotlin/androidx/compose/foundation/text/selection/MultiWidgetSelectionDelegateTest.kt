@@ -27,7 +27,7 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.Selection
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextDelegate
@@ -65,7 +65,7 @@ val BASIC_MEASURE_FONT = font(
 @SmallTest
 class MultiWidgetSelectionDelegateTest {
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     private val fontFamily = BASIC_MEASURE_FONT.asFontFamily()
     private val context = InstrumentationRegistry.getInstrumentation().context

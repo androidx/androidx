@@ -28,7 +28,7 @@ import androidx.ui.demos.common.DemoCategory
 import androidx.ui.demos.common.allDemos
 import androidx.ui.demos.common.allLaunchableDemos
 import androidx.ui.test.SemanticsNodeInteractionCollection
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.assertTextEquals
 import androidx.ui.test.performClick
 import androidx.ui.test.performScrollTo
@@ -50,7 +50,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class DemoTest {
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<DemoActivity>(disableTransitions = true).also {
+    val composeTestRule = createAndroidComposeRule<DemoActivity>(disableTransitions = true).also {
         it.clockTestRule.pauseClock()
     }
 

@@ -28,7 +28,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
 import androidx.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -37,7 +37,7 @@ import org.junit.Test
 class FirstDrawTest {
 
     @get:Rule
-    val testRule = AndroidComposeTestRule<ComponentActivity>()
+    val testRule = createAndroidComposeRule<ComponentActivity>()
 
     /**
      * Tests that the compose tree has been drawn at least once when [onIdle] finishes.

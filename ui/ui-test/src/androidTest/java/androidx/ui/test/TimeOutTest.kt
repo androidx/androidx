@@ -31,7 +31,7 @@ import androidx.ui.core.onPositioned
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Stack
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.android.ComposeNotIdleException
 import androidx.ui.test.util.expectError
 import org.junit.After
@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit
 class TimeOutTest {
 
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     private var idlingResourcePolicy: IdlingPolicy? = null
     private var masterPolicy: IdlingPolicy? = null

@@ -19,18 +19,17 @@ package androidx.ui.test
 import android.util.DisplayMetrics
 import androidx.activity.ComponentActivity
 import androidx.compose.Composable
-import androidx.compose.Recomposer
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.unit.Density
 import org.junit.rules.TestRule
 
 /**
  * Enables to run tests of individual composables without having to do manual setup. For Android
- * tests see [AndroidComposeTestRule]. Normally this rule is obtained by using [createComposeRule]
+ * tests see [createAndroidComposeRule]. Normally this rule is obtained by using [createComposeRule]
  * factory that provides proper implementation (depending if running host side or Android side).
  *
  * However if you really need Android specific dependencies and don't want your test to be abstract
- * you can still create [AndroidComposeTestRule] directly and access its underlying ActivityTestRule
+ * you can still create [createAndroidComposeRule] directly and access its underlying Activity.
  */
 interface ComposeTestRule : TestRule {
     /**
@@ -81,18 +80,16 @@ interface ComposeTestCaseSetup {
  * Factory method to provide implementation of [ComposeTestRule].
  *
  * This method is useful for tests in compose libraries where no custom Activity is usually
- * needed. For app tests or launching custom activities, see [AndroidComposeTestRule].
+ * needed. For app tests or launching custom activities, see [createAndroidComposeRule].
  *
  * For Android this will use the default Activity (android.app.Activity). You need to add a
  * reference to this activity into the manifest file of the corresponding tests (usually in
  * androidTest/AndroidManifest.xml).
  */
 fun createComposeRule(
-    recomposer: Recomposer? = null,
     disableTransitions: Boolean = false,
     disableBlinkingCursor: Boolean = true
-): ComposeTestRule = AndroidComposeTestRule<ComponentActivity>(
-    recomposer,
+): ComposeTestRule = createAndroidComposeRule<ComponentActivity>(
     disableTransitions,
     disableBlinkingCursor
 )

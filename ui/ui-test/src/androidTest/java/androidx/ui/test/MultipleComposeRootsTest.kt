@@ -35,7 +35,7 @@ import androidx.compose.foundation.selection.ToggleableState
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.material.TriStateCheckbox
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,7 +59,7 @@ fun MutableState<ToggleableState>.toggle() {
 class MultipleComposeRootsTest {
 
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     @get:Rule
     val disableTransitions = DisableTransitions()

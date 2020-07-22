@@ -146,7 +146,7 @@ package androidx.ui.test {
   }
 
   public final class ComposeTestRuleKt {
-    method public static androidx.ui.test.ComposeTestRule createComposeRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false, boolean disableBlinkingCursor = true);
+    method public static androidx.ui.test.ComposeTestRule createComposeRule(boolean disableTransitions = false, boolean disableBlinkingCursor = true);
   }
 
   public final class DisableTransitions implements org.junit.rules.TestRule {
@@ -410,14 +410,13 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRule<T extends androidx.activity.ComponentActivity> implements androidx.ui.test.ComposeTestRule {
-    ctor public AndroidComposeTestRule(androidx.test.ext.junit.rules.ActivityScenarioRule<T> activityRule, androidx.compose.Recomposer? recomposer, boolean disableTransitions, boolean disableBlinkingCursor);
+    ctor public AndroidComposeTestRule(androidx.test.ext.junit.rules.ActivityScenarioRule<T> activityRule, boolean disableTransitions, boolean disableBlinkingCursor);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
     method @androidx.ui.test.ExperimentalTesting public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
     method public androidx.test.ext.junit.rules.ActivityScenarioRule<T> getActivityRule();
     method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
     method public androidx.ui.unit.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
-    method public androidx.compose.Recomposer? getRecomposer();
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     property public androidx.ui.test.AnimationClockTestRule clockTestRule;
     property public androidx.ui.unit.Density density;
@@ -430,7 +429,8 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRuleKt {
-    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T>! AndroidComposeTestRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false, boolean disableBlinkingCursor = true);
+    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T>! AndroidComposeTestRule(boolean disableTransitions = false, boolean disableBlinkingCursor = true);
+    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T>! createAndroidComposeRule(boolean disableTransitions = false, boolean disableBlinkingCursor = true);
   }
 
   public final class ComposeIdlingResourceKt {
