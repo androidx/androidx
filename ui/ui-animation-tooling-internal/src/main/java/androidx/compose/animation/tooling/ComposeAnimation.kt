@@ -33,28 +33,30 @@ enum class ComposeAnimationType {
 interface ComposeAnimation {
 
     /**
-     * Returns the animation type. Ideally, the type should be checked before calling methods
-     * specific to a certain type, e.g. [getStates].
+     * The animation type. Ideally, the type should be checked before accessing properties
+     * specific to a certain type, e.g. [states].
      */
-    fun getType(): ComposeAnimationType
+    val type: ComposeAnimationType
 
     /**
-     * Returns the actual animation object.
+     * The actual animation object.
      */
-    fun getAnimation(): Any
+    val animationObject: Any
 
     /**
-     * Returns all the available states of a `TransitionAnimation`.
+     * All the available states of a `TransitionAnimation`.
      *
-     * @throws UnsupportedOperationException if [getType] does not return `TRANSITION_ANIMATION`.
+     * @throws UnsupportedOperationException if [type] does not return `TRANSITION_ANIMATION`.
      */
-    fun getStates(): Set<Any> {
-        throw UnsupportedOperationException("Only available when getType() is TRANSITION_ANIMATION")
-    }
+    val states: Set<Any> get() =
+        throw UnsupportedOperationException(
+            "Only available when getType() is TRANSITION_ANIMATION"
+        )
 
     /**
-     * Returns the animation label, which can be used to represent it as text in Android Studio.
+     * A label which can be used to represent the animation as text in Android Studio.
      * Null if the label is not set or if it can't be inferred from the animation states.
      */
-    fun getLabel(): String?
+    val label: String?
+        get() = null
 }

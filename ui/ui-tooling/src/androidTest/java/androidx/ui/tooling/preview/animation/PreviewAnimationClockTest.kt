@@ -68,11 +68,11 @@ class PreviewAnimationClockTest {
         assertEquals(subscribedAnimation, testClock.unsubscribedAnimation)
 
         // Check the animation is a non-monotonic TransitionAnimation
-        assertEquals(ComposeAnimationType.TRANSITION_ANIMATION, subscribedAnimation.getType())
-        val animation = subscribedAnimation.getAnimation() as TransitionAnimation<*>
+        assertEquals(ComposeAnimationType.TRANSITION_ANIMATION, subscribedAnimation.type)
+        val animation = subscribedAnimation.animationObject as TransitionAnimation<*>
         assertEquals(anim, animation)
         assertFalse(animation.monotonic)
-        val states = subscribedAnimation.getStates()
+        val states = subscribedAnimation.states
         assertEquals(2, states.size)
         assertTrue(states.contains(Offset.O1))
         assertTrue(states.contains(Offset.O2))
@@ -149,8 +149,8 @@ class PreviewAnimationClockTest {
     @Test
     fun updateAnimationStatesUpdatesAllTransitionAnimations() {
         val rotationAnimation =
-            setUpRotationColorScenario().getAnimation() as TransitionAnimation<RotationColor>
-        val offsetAnimation = setUpOffsetScenario().getAnimation() as TransitionAnimation<Offset>
+            setUpRotationColorScenario().animationObject as TransitionAnimation<RotationColor>
+        val offsetAnimation = setUpOffsetScenario().animationObject as TransitionAnimation<Offset>
 
         testClock.updateAnimationStates()
 
@@ -171,21 +171,21 @@ class PreviewAnimationClockTest {
         testClock.setClockTime(200)
         var animatedProperties = testClock.getAnimatedProperties(rotationAnimation)
 
-        val color = animatedProperties.single { it.first == "borderColor" }
+        val color = animatedProperties.single { it.label == "borderColor" }
         // We're animating from RC1 (Red) to RC3 (Green). Since there is no transition defined
         // for the color property, we snap to the end state.
-        assertEquals(Color.Green, color.second)
+        assertEquals(Color.Green, color.value)
 
-        val rotation = animatedProperties.single { it.first == "myRotation" }
+        val rotation = animatedProperties.single { it.label == "myRotation" }
         // We're animating from RC1 (0 degrees) to RC3 (360 degrees). There is a transition of
         // 1000ms defined for the rotation, and we set the clock to 20% of this time.
-        assertEquals(72f, rotation.second as Float, eps)
+        assertEquals(72f, rotation.value as Float, eps)
 
         animatedProperties = testClock.getAnimatedProperties(offsetAnimation)
         val offset = animatedProperties.single()
         // We're animating from O1 (0) to O2 (100). There is a transition of 800ms defined for
         // the offset, and we set the clock to 25% of this time.
-        assertEquals(25f, offset.second as Float, eps)
+        assertEquals(25f, offset.value as Float, eps)
     }
 
     @Test
@@ -202,21 +202,21 @@ class PreviewAnimationClockTest {
     fun animationLabelIsSetExplicitlyOrImplicitly() {
         TransitionAnimation(rotationColorDef, testClock, label = "MyRot").toState(RotationColor.RC2)
         val rotationAnimation = testClock.observersToAnimations.values.single {
-            it.getStates().contains(RotationColor.RC1)
+            it.states.contains(RotationColor.RC1)
         }
         // Label explicitly set
-        assertEquals("MyRot", rotationAnimation.getLabel())
+        assertEquals("MyRot", rotationAnimation.label)
 
         val offsetAnimation = setUpOffsetScenario()
         // Label is not explicitly set, but inferred from the state type
-        assertEquals("Offset", offsetAnimation.getLabel())
+        assertEquals("Offset", offsetAnimation.label)
     }
 
     // Sets up a transition animation scenario, going from RotationColor.RC1 to RotationColor.RC3.
     private fun setUpRotationColorScenario(): ComposeAnimation {
         TransitionAnimation(rotationColorDef, testClock).toState(RotationColor.RC2)
         val composeAnimation = testClock.observersToAnimations.values.single {
-            it.getStates().contains(RotationColor.RC1)
+            it.states.contains(RotationColor.RC1)
         }
         testClock.updateSeekableAnimation(composeAnimation, RotationColor.RC1, RotationColor.RC3)
         return composeAnimation
@@ -226,7 +226,7 @@ class PreviewAnimationClockTest {
     private fun setUpOffsetScenario(): ComposeAnimation {
         TransitionAnimation(offsetDef, testClock).toState(Offset.O2)
         val composeAnimation = testClock.observersToAnimations.values.single {
-            it.getStates().contains(Offset.O1)
+            it.states.contains(Offset.O1)
         }
         testClock.updateSeekableAnimation(composeAnimation, Offset.O1, Offset.O2)
         return composeAnimation
