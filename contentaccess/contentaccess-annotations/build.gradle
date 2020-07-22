@@ -36,5 +36,4 @@ androidx {
     mavenGroup = LibraryGroups.CONTENTACCESS
     inceptionYear = "2020"
     description = "AndroidX ContentAccess Annotations"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

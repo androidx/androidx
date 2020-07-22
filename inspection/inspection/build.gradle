@@ -40,7 +40,6 @@ androidx {
     mavenGroup = LibraryGroups.INSPECTION
     inceptionYear = "2019"
     description = "Experimental AndroidX Inspection Project"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }
 
 android {

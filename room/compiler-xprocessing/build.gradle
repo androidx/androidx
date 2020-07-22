@@ -54,6 +54,5 @@ androidx {
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2020"
     description = "Processing Environment Abstraction for AndroidX Room"
-    url = AndroidXExtension.ARCHITECTURE_URL
     compilationTarget = CompilationTarget.HOST
 }
