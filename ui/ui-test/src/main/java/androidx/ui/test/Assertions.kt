@@ -120,12 +120,12 @@ fun SemanticsNodeInteraction.assertIsOff(): SemanticsNodeInteraction = assert(is
 fun SemanticsNodeInteraction.assertIsSelected(): SemanticsNodeInteraction = assert(isSelected())
 
 /**
- * Asserts that the current semantics node is unselected.
+ * Asserts that the current semantics node is not selected.
  *
  * Throws [AssertionError] if the node is selected or not selectable.
  */
-fun SemanticsNodeInteraction.assertIsUnselected(): SemanticsNodeInteraction =
-    assert(isUnselected())
+fun SemanticsNodeInteraction.assertIsNotSelected(): SemanticsNodeInteraction =
+    assert(isNotSelected())
 
 /**
  * Asserts that the current semantics node is toggleable.

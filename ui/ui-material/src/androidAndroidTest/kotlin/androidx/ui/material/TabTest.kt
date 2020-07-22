@@ -37,7 +37,7 @@ import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsEqualTo
 import androidx.ui.test.assertIsSelected
-import androidx.ui.test.assertIsUnselected
+import androidx.ui.test.assertIsNotSelected
 import androidx.ui.test.assertPositionInRootIsEqualTo
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
@@ -337,8 +337,8 @@ class TabTest {
             .assertCountEquals(3)
             .apply {
                 get(0).assertIsSelected()
-                get(1).assertIsUnselected()
-                get(2).assertIsUnselected()
+                get(1).assertIsNotSelected()
+                get(2).assertIsNotSelected()
             }
     }
 
@@ -354,8 +354,8 @@ class TabTest {
             .assertCountEquals(3)
             .apply {
                 get(0).assertIsSelected()
-                get(1).assertIsUnselected()
-                get(2).assertIsUnselected()
+                get(1).assertIsNotSelected()
+                get(2).assertIsNotSelected()
             }
 
         // Click the last tab
@@ -365,8 +365,8 @@ class TabTest {
         onAllNodes(isInMutuallyExclusiveGroup())
             .assertCountEquals(3)
             .apply {
-                get(0).assertIsUnselected()
-                get(1).assertIsUnselected()
+                get(0).assertIsNotSelected()
+                get(1).assertIsNotSelected()
                 get(2).assertIsSelected()
             }
     }
@@ -384,7 +384,7 @@ class TabTest {
             .apply {
                 get(0).assertIsSelected()
                 (1..9).forEach {
-                    get(it).assertIsUnselected()
+                    get(it).assertIsNotSelected()
                 }
             }
     }
@@ -402,7 +402,7 @@ class TabTest {
             .apply {
                 get(0).assertIsSelected()
                 (1..9).forEach {
-                    get(it).assertIsUnselected()
+                    get(it).assertIsNotSelected()
                 }
             }
 
@@ -413,10 +413,10 @@ class TabTest {
         onAllNodes(isInMutuallyExclusiveGroup())
             .assertCountEquals(10)
             .apply {
-                get(0).assertIsUnselected()
+                get(0).assertIsNotSelected()
                 get(1).assertIsSelected()
                 (2..9).forEach {
-                    get(it).assertIsUnselected()
+                    get(it).assertIsNotSelected()
                 }
             }
     }

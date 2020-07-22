@@ -23,7 +23,15 @@ import android.os.Build
 import androidx.compose.Composable
 import androidx.compose.MutableState
 import androidx.compose.Providers
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.getValue
+import androidx.compose.setValue
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.state
+import androidx.compose.ui.text.AnnotatedString
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
@@ -35,18 +43,23 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.testTag
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.CommitTextEditOp
 import androidx.compose.ui.text.input.EditOperation
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TextFieldValue.Companion.Saver
 import androidx.compose.ui.text.input.TextInputService
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.preferredSize
-import androidx.compose.foundation.layout.preferredWidth
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.ui.text.length
+import androidx.ui.semantics.SemanticsActions
+import androidx.ui.semantics.SemanticsProperties
+import androidx.ui.test.SemanticsMatcher
 import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.assert
+import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertShape
+import androidx.ui.test.assertTextEquals
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
@@ -54,11 +67,10 @@ import androidx.ui.test.onNode
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasImeAction
 import androidx.ui.test.hasInputMethodsSupport
+import androidx.ui.test.isFocused
+import androidx.ui.test.isNotFocused
+import androidx.ui.test.performSemanticsAction
 import androidx.ui.test.runOnIdle
-import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.TextFieldValue.Companion.Saver
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -451,8 +463,66 @@ class TextFieldTest {
         }
 
         onNodeWithTag("textField")
+            .assertTextEquals("")
+            .assertHasClickAction()
             .assert(hasInputMethodsSupport())
             .assert(hasImeAction(ImeAction.Unspecified))
+            .assert(isNotFocused())
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.TextSelectionRange,
+                TextRange.Zero))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.SetSelection))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.GetTextLayoutResult))
+
+        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        onNodeWithTag("textField")
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(textLayoutResults) }
+        assert(textLayoutResults.size == 1) { "TextLayoutResult is null" }
+    }
+
+    @Test
+    fun semantics_clickAction() {
+        composeTestRule.setContent {
+            var value by state { TextFieldValue() }
+            BaseTextField(
+                modifier = Modifier.testTag("textField"),
+                value = value,
+                onValueChange = { value = it }
+            )
+        }
+
+        onNodeWithTag("textField")
+            .assert(isNotFocused())
+            .performSemanticsAction(SemanticsActions.OnClick)
+        onNodeWithTag("textField")
+            .assert(isFocused())
+    }
+
+    @Test
+    fun semantics_setTextSetSelectionActions() {
+        composeTestRule.setContent {
+            var value by state { TextFieldValue() }
+            BaseTextField(
+                modifier = Modifier.testTag("textField"),
+                value = value,
+                onValueChange = { value = it }
+            )
+        }
+
+        val hello = AnnotatedString("Hello")
+        onNodeWithTag("textField")
+            .assertTextEquals("")
+            .performSemanticsAction(SemanticsActions.SetText) { it(hello) }
+        onNodeWithTag("textField")
+            .assertTextEquals(hello.text)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.TextSelectionRange,
+                TextRange(hello.length)))
+
+        onNodeWithTag("textField")
+            .performSemanticsAction(SemanticsActions.SetSelection) { it(1, 3, true) }
+        onNodeWithTag("textField")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.TextSelectionRange,
+                TextRange(1, 3)))
     }
 
     @Test
