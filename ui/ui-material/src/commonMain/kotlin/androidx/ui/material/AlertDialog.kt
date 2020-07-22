@@ -23,7 +23,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Dialog
 import androidx.compose.foundation.ProvideTextStyle
-import androidx.ui.graphics.Shape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

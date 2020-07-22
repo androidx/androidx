@@ -79,8 +79,8 @@ import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.text.AndroidFontResourceLoader
 import androidx.ui.core.texttoolbar.AndroidTextToolbar
 import androidx.ui.core.texttoolbar.TextToolbar
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.CanvasHolder
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.text.input.TextInputServiceAndroid
 import androidx.compose.ui.text.input.textInputServiceFactory
 import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry

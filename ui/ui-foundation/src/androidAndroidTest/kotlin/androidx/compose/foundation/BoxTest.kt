@@ -28,8 +28,8 @@ import androidx.ui.core.positionInRoot
 import androidx.ui.core.onPositioned
 import androidx.ui.core.testTag
 import androidx.compose.foundation.shape.corner.CircleShape
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize

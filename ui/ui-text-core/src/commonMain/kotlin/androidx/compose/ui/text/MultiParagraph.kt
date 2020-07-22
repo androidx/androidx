@@ -17,8 +17,8 @@
 package androidx.compose.ui.text
 
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Path
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.ui.unit.Density

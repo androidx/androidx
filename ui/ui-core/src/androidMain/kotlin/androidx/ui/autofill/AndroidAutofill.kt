@@ -24,7 +24,7 @@ import android.view.ViewStructure
 import android.view.autofill.AutofillManager
 import android.view.autofill.AutofillValue
 import androidx.annotation.RequiresApi
-import androidx.ui.core.toAndroidRect
+import androidx.compose.ui.graphics.toAndroidRect
 
 /**
  * Autofill implementation for Android.

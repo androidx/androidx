@@ -24,9 +24,9 @@ import androidx.compose.animation.core.PropKey
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.colorspace.ColorSpace
-import androidx.ui.graphics.colorspace.ColorSpaces
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.colorspace.ColorSpace
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.ui.unit.Bounds
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntOffset

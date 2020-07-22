@@ -33,9 +33,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.contentColor
 import androidx.compose.foundation.currentTextStyle
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.RectangleShape
-import androidx.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation

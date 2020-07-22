@@ -22,13 +22,13 @@ import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.paint
 import androidx.compose.ui.geometry.Size
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.painter.ImagePainter
-import androidx.ui.graphics.painter.Painter
-import androidx.ui.graphics.vector.VectorAsset
-import androidx.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ImageAsset
+import androidx.compose.ui.graphics.painter.ImagePainter
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.VectorAsset
+import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.unit.dp
 

@@ -18,7 +18,7 @@ package androidx.ui.material
 
 import androidx.test.filters.MediumTest
 import androidx.compose.foundation.contentColor
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule

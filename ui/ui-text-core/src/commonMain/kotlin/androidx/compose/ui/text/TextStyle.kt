@@ -19,9 +19,9 @@ package androidx.compose.ui.text
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.ui.core.LayoutDirection
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Shadow
-import androidx.ui.graphics.useOrElse
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.useOrElse
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle

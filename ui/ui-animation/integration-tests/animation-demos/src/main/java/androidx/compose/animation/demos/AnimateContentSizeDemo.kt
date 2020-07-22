@@ -39,7 +39,7 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.animation.animateContentSize
 import androidx.ui.core.Modifier
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.ui.material.Button
 import androidx.ui.unit.dp
 

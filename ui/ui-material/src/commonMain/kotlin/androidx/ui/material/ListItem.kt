@@ -28,7 +28,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.ProvideTextStyle
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
-import androidx.ui.graphics.ImageAsset
+import androidx.compose.ui.graphics.ImageAsset
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeightIn

@@ -33,7 +33,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.currentTextStyle
 import androidx.compose.foundation.lazy.LazyRowItems
 import androidx.compose.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight

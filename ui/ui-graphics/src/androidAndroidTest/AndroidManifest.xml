@@ -14,10 +14,10 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.ui.graphics.test">
-    <application android:process="androidx.ui.graphics">
+    package="androidx.compose.ui.graphics">
+    <application>
         <activity
-            android:name="androidx.ui.graphics.TestActivity"
+            android:name="androidx.compose.ui.graphics.TestActivity"
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
     </application>
 </manifest>

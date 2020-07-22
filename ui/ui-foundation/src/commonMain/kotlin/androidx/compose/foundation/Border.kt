@@ -18,9 +18,9 @@ package androidx.compose.foundation
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.graphics.Brush
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.ui.unit.Dp
 
 /**

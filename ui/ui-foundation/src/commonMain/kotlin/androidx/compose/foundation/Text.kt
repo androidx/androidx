@@ -23,8 +23,8 @@ import androidx.compose.ambientOf
 import androidx.compose.structuralEqualityPolicy
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.useOrElse
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.useOrElse
 import androidx.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.foundation.text.CoreText

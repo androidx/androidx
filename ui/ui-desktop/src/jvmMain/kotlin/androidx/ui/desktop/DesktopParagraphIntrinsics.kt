@@ -15,8 +15,8 @@
 */
 package androidx.ui.desktop
 
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.Placeholder

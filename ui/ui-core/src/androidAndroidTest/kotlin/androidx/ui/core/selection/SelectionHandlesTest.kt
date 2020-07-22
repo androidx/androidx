@@ -24,8 +24,8 @@ import androidx.ui.core.setContent
 import androidx.ui.core.test.runOnUiThreadIR
 import androidx.ui.core.test.waitAndScreenShot
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import com.google.common.truth.Truth.assertThat

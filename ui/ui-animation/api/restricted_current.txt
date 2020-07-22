@@ -9,7 +9,7 @@ package androidx.compose.animation {
   }
 
   public final class AnimatedValueEffectsKt {
-    method @androidx.compose.Composable public static androidx.compose.animation.core.AnimatedValue<androidx.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D> animatedColor-0k0NMIM(long initVal, androidx.compose.animation.core.AnimationClockObservable clock = AnimationClockAmbient.current);
+    method @androidx.compose.Composable public static androidx.compose.animation.core.AnimatedValue<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D> animatedColor-IQsfJ5c(long initVal, androidx.compose.animation.core.AnimationClockObservable clock = AnimationClockAmbient.current);
     method @androidx.compose.Composable public static androidx.compose.animation.core.AnimatedFloat animatedFloat(float initVal, float visibilityThreshold = 0.01f, androidx.compose.animation.core.AnimationClockObservable clock = AnimationClockAmbient.current);
     method @androidx.compose.Composable public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.AnimatedValue<T,V> animatedValue(T? initVal, androidx.compose.animation.core.TwoWayConverter<T,V> converter, T? visibilityThreshold = null, androidx.compose.animation.core.AnimationClockObservable clock = AnimationClockAmbient.current);
   }
@@ -25,12 +25,12 @@ package androidx.compose.animation {
     method public static androidx.ui.core.Modifier animateContentSize(androidx.ui.core.Modifier, androidx.compose.animation.core.AnimationSpec<androidx.ui.unit.IntSize> animSpec = spring(), boolean clip = true);
   }
 
-  public final class ColorPropKey implements androidx.compose.animation.core.PropKey<androidx.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D> {
-    ctor public ColorPropKey(androidx.ui.graphics.colorspace.ColorSpace colorSpace, String label);
+  public final class ColorPropKey implements androidx.compose.animation.core.PropKey<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D> {
+    ctor public ColorPropKey(androidx.compose.ui.graphics.colorspace.ColorSpace colorSpace, String label);
     ctor public ColorPropKey();
     method public String getLabel();
-    method public androidx.compose.animation.core.TwoWayConverter<androidx.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D> getTypeConverter();
-    property public androidx.compose.animation.core.TwoWayConverter<androidx.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D> typeConverter;
+    method public androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D> getTypeConverter();
+    property public androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D> typeConverter;
   }
 
   public final class CrossfadeKt {
@@ -72,7 +72,7 @@ package androidx.compose.animation {
 
   public final class PropertyKeysKt {
     method public static androidx.compose.animation.core.TwoWayConverter<androidx.ui.unit.Bounds,androidx.compose.animation.core.AnimationVector4D> getBoundsToVectorConverter();
-    method public static kotlin.jvm.functions.Function1<androidx.ui.graphics.colorspace.ColorSpace,androidx.compose.animation.core.TwoWayConverter<androidx.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D>> getColorToVectorConverter();
+    method public static kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.colorspace.ColorSpace,androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D>> getColorToVectorConverter();
     method public static androidx.compose.animation.core.TwoWayConverter<androidx.ui.unit.Dp,androidx.compose.animation.core.AnimationVector1D> getDpToVectorConverter();
     method public static androidx.compose.animation.core.TwoWayConverter<androidx.ui.unit.IntOffset,androidx.compose.animation.core.AnimationVector2D> getIntPxPositionToVectorConverter();
     method public static androidx.compose.animation.core.TwoWayConverter<androidx.ui.unit.IntSize,androidx.compose.animation.core.AnimationVector2D> getIntSizeToVectorConverter();
@@ -131,9 +131,9 @@ package androidx.compose.animation {
     method @androidx.compose.Composable public static float animate-U78yQB0(float target, androidx.compose.animation.core.AnimationSpec<androidx.ui.unit.Dp> animSpec = remember({ 
     return <init>(DpVisibilityThreshold.dp)
 }), kotlin.jvm.functions.Function1<? super androidx.ui.unit.Dp,kotlin.Unit>? endListener = null);
-    method @androidx.compose.Composable public static long animate-Xol1pig(long target, androidx.compose.animation.core.AnimationSpec<androidx.ui.graphics.Color> animSpec = remember({ 
+    method @androidx.compose.Composable public static long animate-m3E411Q(long target, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.graphics.Color> animSpec = remember({ 
     return <init>()
-}), kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,kotlin.Unit>? endListener = null);
+}), kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Color,kotlin.Unit>? endListener = null);
     method @androidx.compose.Composable public static long animate-rlPqr8Y(long target, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Size> animSpec = remember({ 
     return <init>(Size(PxVisibilityThreshold, PxVisibilityThreshold))
 }), kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Size,kotlin.Unit>? endListener = null);

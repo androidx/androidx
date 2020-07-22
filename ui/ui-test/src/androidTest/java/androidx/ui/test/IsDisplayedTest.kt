@@ -38,7 +38,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ScrollableColumn
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxHeight

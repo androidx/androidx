@@ -24,8 +24,8 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.currentTextStyle
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertLeftPositionInRootIsEqualTo

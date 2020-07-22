@@ -24,9 +24,9 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.drawBorder
 import androidx.compose.foundation.shape.corner.CircleShape
 import androidx.compose.foundation.shape.corner.CutCornerShape
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.HorizontalGradient
-import androidx.ui.graphics.TileMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.HorizontalGradient
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.foundation.layout.padding
 import androidx.ui.unit.dp
 

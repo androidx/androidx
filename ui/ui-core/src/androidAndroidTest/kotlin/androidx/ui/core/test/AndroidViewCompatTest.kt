@@ -67,8 +67,8 @@ import androidx.ui.core.globalPosition
 import androidx.ui.core.isAttached
 import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.drawBackground

@@ -20,7 +20,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.Path
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextOverflow

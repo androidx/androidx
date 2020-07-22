@@ -21,9 +21,9 @@ import androidx.compose.emptyContent
 import androidx.ui.core.Alignment
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.RectangleShape
-import androidx.ui.graphics.Shape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding

@@ -17,7 +17,7 @@
 package androidx.compose.ui.text.samples
 
 import androidx.annotation.Sampled
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle

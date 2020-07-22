@@ -20,7 +20,7 @@ import androidx.compose.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.test.assertRangeInfoEquals

@@ -37,8 +37,8 @@ import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.shape.corner.RoundedCornerShape
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight

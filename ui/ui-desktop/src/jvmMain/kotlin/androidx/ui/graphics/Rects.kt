@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.graphics
+package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Rect
 

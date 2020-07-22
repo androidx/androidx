@@ -19,7 +19,7 @@ package androidx.compose.ui.text.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.foundation.Text
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle

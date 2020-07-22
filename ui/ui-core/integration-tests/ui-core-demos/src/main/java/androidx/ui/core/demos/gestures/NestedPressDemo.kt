@@ -26,7 +26,7 @@ import androidx.ui.core.gesture.tapGestureFilter
 import androidx.compose.foundation.Border
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
-import androidx.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding

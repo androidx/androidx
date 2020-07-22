@@ -22,7 +22,7 @@ import androidx.compose.animation.animate
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.clickable
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
 
 @Composable

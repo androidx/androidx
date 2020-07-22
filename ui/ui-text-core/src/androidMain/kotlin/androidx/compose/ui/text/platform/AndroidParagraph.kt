@@ -20,9 +20,9 @@ import android.text.TextPaint
 import android.text.TextUtils
 import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Path
-import androidx.ui.graphics.asComposePath
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphConstraints

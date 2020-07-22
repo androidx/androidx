@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics.canvas
+package androidx.compose.ui.graphics.canvas
 
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.DesktopGraphicsTest
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.PointMode
-import androidx.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.DesktopGraphicsTest
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.PointMode
+import androidx.compose.ui.graphics.StrokeCap
 import org.junit.Test
 
 class DesktopCanvasPointsTest : DesktopGraphicsTest() {

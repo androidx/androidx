@@ -21,8 +21,8 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.LayoutDirection
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.CommitTextEditOp
 import androidx.compose.ui.text.input.EditOperation
 import androidx.compose.ui.text.input.EditProcessor

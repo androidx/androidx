@@ -33,8 +33,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.boundsInParent
 import androidx.ui.core.onPositioned
 import androidx.ui.core.zIndex
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Shape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Stack

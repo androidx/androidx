@@ -19,7 +19,7 @@ package androidx.ui.core
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
-import androidx.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Canvas
 
 /**
  * The container we will use for [ViewLayer]s.

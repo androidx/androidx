@@ -36,11 +36,11 @@ import androidx.compose.foundation.Strings
 import androidx.compose.foundation.determinateProgressIndicator
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.graphics.drawscope.Stroke
-import androidx.ui.graphics.vectormath.degrees
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vectormath.degrees
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.semantics.accessibilityValue

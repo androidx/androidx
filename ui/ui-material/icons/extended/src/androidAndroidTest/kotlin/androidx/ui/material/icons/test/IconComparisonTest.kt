@@ -32,10 +32,10 @@ import androidx.ui.core.paint
 import androidx.ui.core.setContent
 import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.vector.VectorAsset
-import androidx.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.VectorAsset
+import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.preferredSize

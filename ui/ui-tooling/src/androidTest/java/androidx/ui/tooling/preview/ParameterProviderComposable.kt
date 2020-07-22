@@ -18,7 +18,7 @@ package androidx.ui.tooling.preview
 
 import androidx.compose.Composable
 import androidx.compose.foundation.Text
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.ui.material.Button
 import androidx.ui.material.ColorPalette
 import androidx.ui.material.MaterialTheme

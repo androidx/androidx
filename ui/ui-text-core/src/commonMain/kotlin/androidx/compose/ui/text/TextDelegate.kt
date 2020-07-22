@@ -19,8 +19,8 @@ package androidx.compose.ui.text
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.constrain
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Paint
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.text.TextDelegate.Companion.paint
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.style.TextAlign

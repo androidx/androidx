@@ -25,7 +25,7 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.samples.SimpleCircleBox
 import androidx.compose.foundation.shape.corner.CutCornerShape
 import androidx.compose.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize

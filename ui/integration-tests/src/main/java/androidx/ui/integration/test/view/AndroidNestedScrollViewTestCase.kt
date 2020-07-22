@@ -20,8 +20,8 @@ import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.HorizontalScrollView
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.benchmark.android.AndroidTestCase
 import androidx.ui.integration.test.foundation.NestedScrollerTestCase

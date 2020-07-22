@@ -33,7 +33,7 @@ import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.DpConstraints
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Stack

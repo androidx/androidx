@@ -28,7 +28,7 @@ import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.preferredHeight

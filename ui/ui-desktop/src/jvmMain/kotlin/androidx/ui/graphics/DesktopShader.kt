@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics
+package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Offset
 import org.jetbrains.skija.FilterTileMode

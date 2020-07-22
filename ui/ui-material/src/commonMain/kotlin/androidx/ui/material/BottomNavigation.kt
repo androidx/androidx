@@ -37,8 +37,8 @@ import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.ProvideTextStyle
 import androidx.compose.foundation.contentColor
 import androidx.compose.foundation.selection.selectable
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.lerp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope

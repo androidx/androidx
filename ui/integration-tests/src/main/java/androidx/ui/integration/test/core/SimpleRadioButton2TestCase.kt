@@ -26,10 +26,10 @@ import androidx.compose.foundation.shape.corner.CircleShape
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.shift
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Outline
-import androidx.ui.graphics.Path
-import androidx.ui.graphics.Shape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp

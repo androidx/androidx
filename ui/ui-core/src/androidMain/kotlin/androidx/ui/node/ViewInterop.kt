@@ -30,7 +30,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInRoot
-import androidx.ui.graphics.drawscope.drawCanvas
+import androidx.compose.ui.graphics.drawscope.drawCanvas
 import androidx.ui.util.fastFirstOrNull
 import androidx.ui.util.fastForEach
 import androidx.ui.viewinterop.AndroidViewHolder

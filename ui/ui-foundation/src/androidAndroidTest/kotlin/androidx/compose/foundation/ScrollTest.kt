@@ -27,7 +27,7 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.compose.foundation.animation.FlingConfig
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize

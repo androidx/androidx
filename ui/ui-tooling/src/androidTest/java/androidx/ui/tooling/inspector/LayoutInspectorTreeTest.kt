@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.resetSourceInfo
 import androidx.test.filters.SmallTest
 import androidx.ui.core.OwnedLayer
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.ui.material.Button
 import androidx.ui.material.Surface
 import androidx.ui.tooling.Group

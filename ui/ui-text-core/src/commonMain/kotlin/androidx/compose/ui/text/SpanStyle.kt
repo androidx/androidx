@@ -19,10 +19,10 @@ package androidx.compose.ui.text
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.compose.ui.text.intl.LocaleList
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Shadow
-import androidx.ui.graphics.lerp
-import androidx.ui.graphics.useOrElse
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.useOrElse
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis

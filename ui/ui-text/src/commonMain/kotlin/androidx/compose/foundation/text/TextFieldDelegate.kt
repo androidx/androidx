@@ -22,9 +22,9 @@ import androidx.ui.core.LayoutDirection
 import androidx.ui.core.constrainHeight
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.text.input.EditOperation
 import androidx.compose.ui.text.input.EditProcessor
 import androidx.compose.ui.text.input.TextFieldValue

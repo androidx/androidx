@@ -25,7 +25,7 @@ import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.shape.corner.CutCornerShape
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.assertShape

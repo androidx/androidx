@@ -20,17 +20,17 @@ import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.Modifier
 import androidx.compose.ui.geometry.Size
-import androidx.ui.graphics.BlendMode
-import androidx.ui.graphics.Brush
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.Outline
-import androidx.ui.graphics.RectangleShape
-import androidx.ui.graphics.Shape
-import androidx.ui.graphics.drawOutline
-import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.graphics.drawscope.DrawStyle
-import androidx.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.ui.util.annotation.FloatRange
 
 /**

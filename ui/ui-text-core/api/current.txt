@@ -101,11 +101,11 @@ package androidx.compose.ui.text {
     method public float getMinIntrinsicWidth();
     method public int getOffsetForPosition(androidx.compose.ui.geometry.Offset position);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
-    method public androidx.ui.graphics.Path getPathForRange(int start, int end);
+    method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.compose.ui.geometry.Rect> getPlaceholderRects();
     method public float getWidth();
     method public androidx.compose.ui.text.TextRange getWordBoundary(int offset);
-    method public void paint(androidx.ui.graphics.Canvas canvas);
+    method public void paint(androidx.compose.ui.graphics.Canvas canvas);
     property public final boolean didExceedMaxLines;
     property public final float firstBaseline;
     property public final float height;
@@ -159,11 +159,11 @@ package androidx.compose.ui.text {
     method public float getMinIntrinsicWidth();
     method public int getOffsetForPosition(androidx.compose.ui.geometry.Offset position);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
-    method public androidx.ui.graphics.Path getPathForRange(int start, int end);
+    method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.compose.ui.geometry.Rect> getPlaceholderRects();
     method public float getWidth();
     method public androidx.compose.ui.text.TextRange getWordBoundary(int offset);
-    method public void paint(androidx.ui.graphics.Canvas canvas);
+    method public void paint(androidx.compose.ui.graphics.Canvas canvas);
     property public abstract boolean didExceedMaxLines;
     property public abstract float firstBaseline;
     property public abstract float height;
@@ -251,7 +251,7 @@ package androidx.compose.ui.text {
     method public androidx.compose.ui.text.intl.LocaleList? component11();
     method public long component12();
     method public androidx.compose.ui.text.style.TextDecoration? component13();
-    method public androidx.ui.graphics.Shadow? component14();
+    method public androidx.compose.ui.graphics.Shadow? component14();
     method public long component2();
     method public androidx.compose.ui.text.font.FontWeight? component3();
     method public androidx.compose.ui.text.font.FontStyle? component4();
@@ -260,7 +260,7 @@ package androidx.compose.ui.text {
     method public String? component7();
     method public long component8();
     method public androidx.compose.ui.text.style.BaselineShift? component9();
-    method @androidx.compose.Immutable public androidx.compose.ui.text.SpanStyle copy-3JaCuMk(long color, long fontSize, androidx.compose.ui.text.font.FontWeight? fontWeight, androidx.compose.ui.text.font.FontStyle? fontStyle, androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, androidx.compose.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, long letterSpacing, androidx.compose.ui.text.style.BaselineShift? baselineShift, androidx.compose.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.compose.ui.text.intl.LocaleList? localeList, long background, androidx.compose.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow);
+    method @androidx.compose.Immutable public androidx.compose.ui.text.SpanStyle copy-JWzHW74(long color, long fontSize, androidx.compose.ui.text.font.FontWeight? fontWeight, androidx.compose.ui.text.font.FontStyle? fontStyle, androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, androidx.compose.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, long letterSpacing, androidx.compose.ui.text.style.BaselineShift? baselineShift, androidx.compose.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.compose.ui.text.intl.LocaleList? localeList, long background, androidx.compose.ui.text.style.TextDecoration? textDecoration, androidx.compose.ui.graphics.Shadow? shadow);
     method public long getBackground();
     method public androidx.compose.ui.text.style.BaselineShift? getBaselineShift();
     method public long getColor();
@@ -272,7 +272,7 @@ package androidx.compose.ui.text {
     method public androidx.compose.ui.text.font.FontWeight? getFontWeight();
     method public long getLetterSpacing();
     method public androidx.compose.ui.text.intl.LocaleList? getLocaleList();
-    method public androidx.ui.graphics.Shadow? getShadow();
+    method public androidx.compose.ui.graphics.Shadow? getShadow();
     method public androidx.compose.ui.text.style.TextDecoration? getTextDecoration();
     method public androidx.compose.ui.text.style.TextGeometricTransform? getTextGeometricTransform();
     method @androidx.compose.Stable public androidx.compose.ui.text.SpanStyle merge(androidx.compose.ui.text.SpanStyle? other = null);
@@ -347,7 +347,7 @@ package androidx.compose.ui.text {
     method public float getLineTop(int lineIndex);
     method public int getOffsetForPosition(androidx.compose.ui.geometry.Offset position);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
-    method public androidx.ui.graphics.Path getPathForRange(int start, int end);
+    method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.compose.ui.geometry.Rect> getPlaceholderRects();
     method public androidx.ui.unit.IntSize getSize();
     method public androidx.compose.ui.text.TextRange getWordBoundary(int offset);
@@ -361,7 +361,7 @@ package androidx.compose.ui.text {
   }
 
   public final class TextPainter {
-    method public void paint(androidx.ui.graphics.Canvas canvas, androidx.compose.ui.text.TextLayoutResult textLayoutResult);
+    method public void paint(androidx.compose.ui.graphics.Canvas canvas, androidx.compose.ui.text.TextLayoutResult textLayoutResult);
     field public static final androidx.compose.ui.text.TextPainter INSTANCE;
   }
 
@@ -404,7 +404,7 @@ package androidx.compose.ui.text {
     method public androidx.compose.ui.text.intl.LocaleList? component11();
     method public long component12();
     method public androidx.compose.ui.text.style.TextDecoration? component13();
-    method public androidx.ui.graphics.Shadow? component14();
+    method public androidx.compose.ui.graphics.Shadow? component14();
     method public androidx.compose.ui.text.style.TextAlign? component15();
     method public androidx.compose.ui.text.style.TextDirection? component16();
     method public long component17();
@@ -417,7 +417,7 @@ package androidx.compose.ui.text {
     method public String? component7();
     method public long component8();
     method public androidx.compose.ui.text.style.BaselineShift? component9();
-    method @androidx.compose.Immutable public androidx.compose.ui.text.TextStyle copy-7Y_OIKU(long color, long fontSize, androidx.compose.ui.text.font.FontWeight? fontWeight, androidx.compose.ui.text.font.FontStyle? fontStyle, androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, androidx.compose.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, long letterSpacing, androidx.compose.ui.text.style.BaselineShift? baselineShift, androidx.compose.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.compose.ui.text.intl.LocaleList? localeList, long background, androidx.compose.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow, androidx.compose.ui.text.style.TextAlign? textAlign, androidx.compose.ui.text.style.TextDirection? textDirection, long lineHeight, androidx.compose.ui.text.style.TextIndent? textIndent);
+    method @androidx.compose.Immutable public androidx.compose.ui.text.TextStyle copy-Ph_hb9A(long color, long fontSize, androidx.compose.ui.text.font.FontWeight? fontWeight, androidx.compose.ui.text.font.FontStyle? fontStyle, androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, androidx.compose.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, long letterSpacing, androidx.compose.ui.text.style.BaselineShift? baselineShift, androidx.compose.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.compose.ui.text.intl.LocaleList? localeList, long background, androidx.compose.ui.text.style.TextDecoration? textDecoration, androidx.compose.ui.graphics.Shadow? shadow, androidx.compose.ui.text.style.TextAlign? textAlign, androidx.compose.ui.text.style.TextDirection? textDirection, long lineHeight, androidx.compose.ui.text.style.TextIndent? textIndent);
     method public long getBackground();
     method public androidx.compose.ui.text.style.BaselineShift? getBaselineShift();
     method public long getColor();
@@ -430,7 +430,7 @@ package androidx.compose.ui.text {
     method public long getLetterSpacing();
     method public long getLineHeight();
     method public androidx.compose.ui.text.intl.LocaleList? getLocaleList();
-    method public androidx.ui.graphics.Shadow? getShadow();
+    method public androidx.compose.ui.graphics.Shadow? getShadow();
     method public androidx.compose.ui.text.style.TextAlign? getTextAlign();
     method public androidx.compose.ui.text.style.TextDecoration? getTextDecoration();
     method public androidx.compose.ui.text.style.TextDirection? getTextDirection();

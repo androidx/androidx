@@ -19,10 +19,10 @@ package androidx.compose.ui.text.platform.extensions
 import android.graphics.Typeface
 import android.os.Build
 import android.text.TextPaint
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Shadow
-import androidx.ui.graphics.isSet
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.isSet
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.SpanStyle

@@ -30,8 +30,8 @@ import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.compose.foundation.Box
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.lerp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.waitForIdle

@@ -41,9 +41,9 @@ import androidx.ui.core.semantics.SemanticsWrapper
 import androidx.ui.core.semantics.outerSemantics
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.graphics.drawscope.drawCanvas
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.drawCanvas
 import androidx.ui.unit.Density
 import androidx.ui.util.deleteAt
 import androidx.ui.util.nativeClass

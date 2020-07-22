@@ -26,7 +26,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.tooling.ComposeAnimation
 import androidx.compose.animation.tooling.ComposeAnimationType
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

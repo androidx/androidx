@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics
+package androidx.compose.ui.graphics
 
 import androidx.compose.InternalComposeApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.vectormath.Matrix4
-import androidx.ui.graphics.vectormath.isIdentity
+import androidx.compose.ui.graphics.vectormath.Matrix4
+import androidx.compose.ui.graphics.vectormath.isIdentity
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import androidx.ui.util.fastForEach

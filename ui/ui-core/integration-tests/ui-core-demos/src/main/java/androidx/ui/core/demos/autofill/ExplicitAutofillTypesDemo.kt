@@ -27,7 +27,7 @@ import androidx.ui.core.AutofillTreeAmbient
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.onChildPositioned
-import androidx.ui.core.toComposeRect
+import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Text

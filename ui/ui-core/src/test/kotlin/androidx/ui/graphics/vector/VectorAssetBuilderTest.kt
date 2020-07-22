@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics.vector
+package androidx.compose.ui.graphics.vector
 
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth

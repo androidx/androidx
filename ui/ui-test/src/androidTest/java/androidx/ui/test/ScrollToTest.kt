@@ -22,7 +22,7 @@ import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.semantics.scrollBy

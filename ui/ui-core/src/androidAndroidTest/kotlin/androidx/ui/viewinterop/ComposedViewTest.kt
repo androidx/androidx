@@ -40,7 +40,7 @@ import androidx.ui.core.test.R
 import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.size
 import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.assertPixels

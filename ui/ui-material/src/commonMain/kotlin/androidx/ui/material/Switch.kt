@@ -34,10 +34,10 @@ import androidx.compose.foundation.indication
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.corner.CircleShape
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.compositeOver
-import androidx.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.StackScope
 import androidx.compose.foundation.layout.offsetPx

@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Box
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding

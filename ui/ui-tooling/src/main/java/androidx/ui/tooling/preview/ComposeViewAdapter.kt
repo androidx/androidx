@@ -39,9 +39,9 @@ import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.setContent
-import androidx.ui.core.toAndroidRect
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toAndroidRect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.SlotTableRecord

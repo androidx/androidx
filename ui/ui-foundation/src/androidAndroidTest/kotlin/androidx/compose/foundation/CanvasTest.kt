@@ -24,9 +24,9 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.shape.corner.CircleShape
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.RectangleShape
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.test.assertHeightIsEqualTo

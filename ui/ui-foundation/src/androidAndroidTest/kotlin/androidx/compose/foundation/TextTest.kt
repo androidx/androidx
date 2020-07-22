@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.test.assertTextEquals
 import androidx.ui.test.createComposeRule

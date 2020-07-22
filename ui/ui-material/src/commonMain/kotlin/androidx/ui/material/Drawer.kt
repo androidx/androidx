@@ -28,7 +28,7 @@ import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.gesture.tapGestureFilter
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
-import androidx.ui.graphics.Shape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.layout.DpConstraints
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize

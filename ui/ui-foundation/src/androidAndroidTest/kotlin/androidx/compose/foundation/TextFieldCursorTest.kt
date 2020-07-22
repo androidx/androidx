@@ -21,8 +21,8 @@ import android.os.Build
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize

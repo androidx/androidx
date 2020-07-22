@@ -32,7 +32,7 @@ import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding

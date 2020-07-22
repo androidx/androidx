@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.text
 
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString.Range
 import androidx.compose.ui.text.style.TextAlign
 import androidx.ui.unit.sp

@@ -25,9 +25,9 @@ import androidx.ui.core.id
 import androidx.ui.core.layoutId
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ProvideTextStyle
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Shape
-import androidx.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

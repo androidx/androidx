@@ -31,9 +31,9 @@ import androidx.compose.setValue
 import androidx.compose.animation.OffsetPropKey
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.ui.unit.Density
 import androidx.ui.unit.dp
 import androidx.ui.unit.inMilliseconds

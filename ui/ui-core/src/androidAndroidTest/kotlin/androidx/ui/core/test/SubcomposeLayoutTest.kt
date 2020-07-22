@@ -30,7 +30,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.SubcomposeLayout
 import androidx.ui.core.testTag
 import androidx.ui.core.zIndex
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertPositionInRootIsEqualTo

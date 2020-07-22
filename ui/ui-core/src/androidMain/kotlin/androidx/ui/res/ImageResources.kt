@@ -21,8 +21,8 @@ import androidx.annotation.DrawableRes
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.ContextAmbient
-import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.imageFromResource
+import androidx.compose.ui.graphics.ImageAsset
+import androidx.compose.ui.graphics.imageFromResource
 import androidx.ui.util.trace
 
 /**

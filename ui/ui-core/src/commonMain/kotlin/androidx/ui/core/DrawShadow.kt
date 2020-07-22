@@ -17,8 +17,8 @@
 package androidx.ui.core
 
 import androidx.compose.Stable
-import androidx.ui.graphics.RectangleShape
-import androidx.ui.graphics.Shape
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import androidx.ui.util.annotation.FloatRange

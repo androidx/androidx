@@ -17,7 +17,7 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Typography
 import androidx.ui.material.darkColorPalette

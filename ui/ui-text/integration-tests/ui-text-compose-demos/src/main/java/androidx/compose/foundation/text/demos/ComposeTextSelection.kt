@@ -23,7 +23,7 @@ import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

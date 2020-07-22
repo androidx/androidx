@@ -29,9 +29,9 @@ import androidx.compose.foundation.ProvideTextStyle
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Shape
-import androidx.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Row

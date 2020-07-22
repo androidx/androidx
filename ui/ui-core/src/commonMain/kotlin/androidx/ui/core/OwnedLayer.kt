@@ -16,7 +16,7 @@
 
 package androidx.ui.core
 
-import androidx.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Canvas
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 

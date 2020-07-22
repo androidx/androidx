@@ -30,10 +30,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.HorizontalGradient
-import androidx.ui.graphics.TileMode
-import androidx.ui.graphics.VerticalGradient
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.HorizontalGradient
+import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.VerticalGradient
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth

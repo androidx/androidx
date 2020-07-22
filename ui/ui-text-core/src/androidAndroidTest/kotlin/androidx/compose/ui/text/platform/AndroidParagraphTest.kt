@@ -14,9 +14,9 @@ import android.text.style.UnderlineSpan
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Shadow
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT

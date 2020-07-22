@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics.canvas
+package androidx.compose.ui.graphics.canvas
 
 import androidx.ui.TestResources.testImageAsset
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.BlendMode
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.ClipOp
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.DesktopGraphicsTest
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.vectormath.Matrix4
-import androidx.ui.graphics.withSave
-import androidx.ui.graphics.withSaveLayer
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.ClipOp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.DesktopGraphicsTest
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.vectormath.Matrix4
+import androidx.compose.ui.graphics.withSave
+import androidx.compose.ui.graphics.withSaveLayer
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import org.junit.Test

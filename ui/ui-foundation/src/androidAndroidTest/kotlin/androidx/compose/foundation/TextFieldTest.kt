@@ -41,8 +41,8 @@ import androidx.ui.core.focus.FocusState
 import androidx.ui.core.focus.focusState
 import androidx.ui.core.onPositioned
 import androidx.ui.core.testTag
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.CommitTextEditOp

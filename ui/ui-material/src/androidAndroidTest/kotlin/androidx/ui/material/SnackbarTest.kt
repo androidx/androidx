@@ -25,8 +25,8 @@ import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.shape.corner.CutCornerShape
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.foundation.layout.DpConstraints
 import androidx.compose.foundation.layout.Stack
 import androidx.ui.test.assertHeightIsEqualTo

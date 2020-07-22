@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics
+package androidx.compose.ui.graphics
 
 import androidx.ui.TestResources.testImageAsset
 import androidx.compose.ui.geometry.Offset

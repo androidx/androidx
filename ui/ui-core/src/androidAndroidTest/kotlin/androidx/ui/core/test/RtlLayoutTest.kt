@@ -35,7 +35,7 @@ import androidx.ui.core.offset
 import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.ltr
 import androidx.compose.foundation.layout.padding

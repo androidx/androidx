@@ -46,9 +46,9 @@ import androidx.compose.foundation.indication
 import androidx.compose.foundation.shape.corner.CircleShape
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.PointMode
-import androidx.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PointMode
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize

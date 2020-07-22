@@ -20,10 +20,10 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.paint
 import androidx.compose.foundation.Box
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.vector.VectorAsset
-import androidx.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.VectorAsset
+import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.lazyMaterialIcon

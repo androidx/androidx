@@ -20,9 +20,9 @@ import android.annotation.TargetApi
 import android.graphics.Matrix
 import android.graphics.RenderNode
 import androidx.compose.ui.geometry.Size
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.CanvasHolder
-import androidx.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.CanvasHolder
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 

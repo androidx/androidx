@@ -18,11 +18,11 @@ package androidx.ui.material
 import androidx.test.filters.LargeTest
 import androidx.ui.core.DensityAmbient
 import androidx.compose.foundation.Icon
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.painter.ColorPainter
-import androidx.ui.graphics.painter.ImagePainter
-import androidx.ui.graphics.vector.VectorAssetBuilder
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageAsset
+import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.graphics.painter.ImagePainter
+import androidx.compose.ui.graphics.vector.VectorAssetBuilder
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Menu
 import androidx.ui.test.assertHeightIsEqualTo

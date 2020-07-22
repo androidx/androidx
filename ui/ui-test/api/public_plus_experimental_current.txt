@@ -58,13 +58,13 @@ package androidx.ui.test {
   }
 
   public final class BitmapHelpersKt {
-    method public static void assertPixelColor-9bBi3KA(android.graphics.Bitmap, long expected, int x, int y, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,java.lang.String> error = { color -> return "Pixel(" + x + ", " + y + ") expected to be " + expected + ", but was " + color });
-    method public static void assertPixels(android.graphics.Bitmap, androidx.ui.unit.IntSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.ui.unit.IntOffset,androidx.ui.graphics.Color> expectedColorProvider);
-    method public static void assertShape--mmofgM(android.graphics.Bitmap, androidx.ui.unit.Density density, float horizontalPadding, float verticalPadding, long backgroundColor, long shapeColor, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, float shapeOverlapPixelCount = 1.0f);
-    method public static void assertShape-t2RoSCg(android.graphics.Bitmap, androidx.ui.unit.Density density, androidx.ui.graphics.Shape shape, long shapeColor, long backgroundColor, androidx.ui.graphics.Shape backgroundShape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, float sizeX = width.toFloat(), float sizeY = height.toFloat(), float shapeSizeX = sizeX, float shapeSizeY = sizeY, float centerX = width / 2.0, float centerY = height / 2.0, float shapeOverlapPixelCount = 1.0f);
+    method public static void assertPixelColor-eWrXCG0(android.graphics.Bitmap, long expected, int x, int y, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Color,java.lang.String> error = { color -> return "Pixel(" + x + ", " + y + ") expected to be " + expected + ", but was " + color });
+    method public static void assertPixels(android.graphics.Bitmap, androidx.ui.unit.IntSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.ui.unit.IntOffset,androidx.compose.ui.graphics.Color> expectedColorProvider);
+    method public static void assertShape-ozjeA3I(android.graphics.Bitmap, androidx.ui.unit.Density density, float horizontalPadding, float verticalPadding, long backgroundColor, long shapeColor, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, float shapeOverlapPixelCount = 1.0f);
+    method public static void assertShape-xgsQ8N8(android.graphics.Bitmap, androidx.ui.unit.Density density, androidx.compose.ui.graphics.Shape shape, long shapeColor, long backgroundColor, androidx.compose.ui.graphics.Shape backgroundShape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, float sizeX = width.toFloat(), float sizeY = height.toFloat(), float shapeSizeX = sizeX, float shapeSizeY = sizeY, float centerX = width / 2.0, float centerY = height / 2.0, float shapeOverlapPixelCount = 1.0f);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(androidx.ui.test.SemanticsNodeInteraction);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(android.view.View);
-    method public static boolean contains(androidx.ui.graphics.Path, androidx.compose.ui.geometry.Offset offset);
+    method public static boolean contains(androidx.compose.ui.graphics.Path, androidx.compose.ui.geometry.Offset offset);
   }
 
   public final class BoundsAssertionsKt {

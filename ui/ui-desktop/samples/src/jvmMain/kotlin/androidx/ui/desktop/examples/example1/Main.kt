@@ -24,9 +24,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.desktop.AppWindow
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.asImageAsset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageAsset
+import androidx.compose.ui.graphics.asImageAsset
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

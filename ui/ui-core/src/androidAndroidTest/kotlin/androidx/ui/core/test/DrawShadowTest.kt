@@ -31,10 +31,10 @@ import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Outline
-import androidx.ui.graphics.Shape
-import androidx.ui.graphics.luminance
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.luminance
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp

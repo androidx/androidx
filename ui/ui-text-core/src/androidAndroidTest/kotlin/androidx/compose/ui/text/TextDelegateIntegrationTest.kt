@@ -22,9 +22,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.compose.ui.text.font.asFontFamily
 import androidx.compose.ui.text.matchers.assertThat

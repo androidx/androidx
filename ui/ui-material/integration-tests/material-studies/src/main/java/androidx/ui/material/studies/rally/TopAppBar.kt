@@ -26,8 +26,8 @@ import androidx.compose.animation.transition
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.selection.selectable
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.vector.VectorAsset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.VectorAsset
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth

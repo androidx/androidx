@@ -20,7 +20,7 @@ import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.RRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
-import androidx.ui.graphics.Outline
+import androidx.compose.ui.graphics.Outline
 import androidx.ui.unit.Density
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
