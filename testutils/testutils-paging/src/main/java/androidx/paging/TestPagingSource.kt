@@ -28,7 +28,8 @@ import kotlinx.coroutines.delay
 class TestPagingSource(
     counted: Boolean = true,
     override val jumpingSupported: Boolean = true,
-    val items: List<Int> = ITEMS
+    val items: List<Int> = ITEMS,
+    private val loadDelay: Long = 1000
 ) : PagingSource<Int, Int>() {
     var errorNextLoad = false
     var nextLoadResult: LoadResult<Int, Int>? = null
@@ -54,7 +55,7 @@ class TestPagingSource(
 
         // This delay allows tests running withing DelayController APIs to control the order of
         // execution of events.
-        delay(1000)
+        delay(loadDelay)
 
         if (errorNextLoad) {
             errorNextLoad = false
