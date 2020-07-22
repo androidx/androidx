@@ -16,7 +16,6 @@
 package androidx.tvprovider.media.tv;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -47,7 +46,7 @@ public abstract class BaseProgram {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final String[] PROJECTION = getProjection();
 
     private static final long INVALID_LONG_VALUE = -1;
@@ -62,7 +61,7 @@ public abstract class BaseProgram {
             ProgramColumns.REVIEW_RATING_STYLE_PERCENTAGE,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @interface ReviewRatingStyle {}
 
     /**
@@ -71,7 +70,7 @@ public abstract class BaseProgram {
     private static final int REVIEW_RATING_STYLE_UNKNOWN = -1;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     protected ContentValues mValues;
 
     /* package-private */
@@ -93,7 +92,7 @@ public abstract class BaseProgram {
      * @see androidx.tvprovider.media.tv.TvContractCompat.BaseTvColumns#COLUMN_PACKAGE_NAME
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public String getPackageName() {
         return mValues.getAsString(BaseTvColumns.COLUMN_PACKAGE_NAME);
     }
@@ -542,7 +541,7 @@ public abstract class BaseProgram {
      */
     public abstract static class Builder<T extends Builder> {
         /** @hide */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         protected ContentValues mValues;
 
         /**
@@ -580,7 +579,7 @@ public abstract class BaseProgram {
          * @see androidx.tvprovider.media.tv.TvContractCompat.BaseTvColumns#COLUMN_PACKAGE_NAME
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         public T setPackageName(String packageName) {
             mValues.put(BaseTvColumns.COLUMN_PACKAGE_NAME, packageName);
             return (T) this;

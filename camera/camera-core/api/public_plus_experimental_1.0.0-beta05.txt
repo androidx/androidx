@@ -22,10 +22,6 @@ package androidx.camera.core {
   public static final class CameraControl.OperationCanceledException extends java.lang.Exception {
   }
 
-  @androidx.camera.core.ExperimentalCameraFilter public interface CameraFilter {
-    method public void filter(java.util.LinkedHashSet<androidx.camera.core.Camera!>);
-  }
-
   public interface CameraInfo {
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);
@@ -46,9 +42,8 @@ package androidx.camera.core {
 
   public static final class CameraSelector.Builder {
     ctor public CameraSelector.Builder();
-    method @androidx.camera.core.ExperimentalCameraFilter public androidx.camera.core.CameraSelector.Builder addCameraFilter(androidx.camera.core.CameraFilter);
     method public androidx.camera.core.CameraSelector build();
-    method @experimental.UseExperimental(markerClass=ExperimentalCameraFilter.class) public androidx.camera.core.CameraSelector.Builder requireLensFacing(int);
+    method public androidx.camera.core.CameraSelector.Builder requireLensFacing(int);
   }
 
   public class CameraUnavailableException extends java.lang.Exception {
@@ -82,9 +77,6 @@ package androidx.camera.core {
 
   public final class DisplayOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
     ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraSelector, float, float);
-  }
-
-  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCameraFilter {
   }
 
   @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCustomizableThreads {
