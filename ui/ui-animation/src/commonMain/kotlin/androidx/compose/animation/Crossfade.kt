@@ -28,7 +28,7 @@ import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawOpacity
 import androidx.compose.foundation.layout.Stack
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 /**
  * [Crossfade] allows to switch between two layouts with a crossfade animation.

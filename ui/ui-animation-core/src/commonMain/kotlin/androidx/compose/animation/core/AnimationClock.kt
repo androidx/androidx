@@ -16,7 +16,7 @@
 
 package androidx.compose.animation.core
 
-import androidx.ui.util.annotation.CallSuper
+import androidx.compose.ui.util.annotation.CallSuper
 
 expect class DefaultAnimationClock() : BaseAnimationClock
 

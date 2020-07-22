@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.graphics.colorspace
 
-import androidx.ui.util.annotation.IntRange
-import androidx.ui.util.annotation.Size
+import androidx.compose.ui.util.annotation.IntRange
+import androidx.compose.ui.util.annotation.Size
 import kotlin.math.pow
 
 /**

@@ -57,7 +57,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Layout that positions its children according to the constraints between them.

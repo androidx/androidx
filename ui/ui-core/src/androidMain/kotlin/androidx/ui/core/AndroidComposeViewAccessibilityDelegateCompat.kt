@@ -52,7 +52,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.length
 import androidx.compose.ui.unit.toRect
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidComposeView) :
     AccessibilityDelegateCompat() {

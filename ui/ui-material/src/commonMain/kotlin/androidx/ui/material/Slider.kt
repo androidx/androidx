@@ -64,9 +64,9 @@ import androidx.ui.semantics.scrollBackward
 import androidx.ui.semantics.scrollForward
 import androidx.ui.semantics.setProgress
 import androidx.compose.ui.unit.dp
-import androidx.ui.util.format
-import androidx.ui.util.lerp
-import androidx.ui.util.annotation.IntRange
+import androidx.compose.ui.util.format
+import androidx.compose.ui.util.lerp
+import androidx.compose.ui.util.annotation.IntRange
 import kotlin.math.abs
 import kotlin.math.roundToInt
 

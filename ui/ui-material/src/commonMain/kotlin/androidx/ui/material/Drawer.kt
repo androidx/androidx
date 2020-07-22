@@ -39,7 +39,7 @@ import androidx.ui.material.internal.fixedThresholds
 import androidx.ui.material.internal.stateDraggable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.ui.util.lerp
+import androidx.compose.ui.util.lerp
 
 /**
  * Possible states of the [ModalDrawerLayout]

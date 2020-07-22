@@ -27,7 +27,7 @@ import androidx.ui.core.focus.FocusDetailedState.ActiveParent
 import androidx.ui.core.focus.FocusDetailedState.Captured
 import androidx.ui.core.focus.FocusDetailedState.Disabled
 import androidx.ui.core.focus.FocusDetailedState.Inactive
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 @OptIn(ExperimentalLayoutNodeApi::class)
 internal class ModifiedFocusNode(

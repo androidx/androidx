@@ -30,7 +30,7 @@ import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.milliseconds
-import androidx.ui.util.fastAny
+import androidx.compose.ui.util.fastAny
 import androidx.ui.viewinterop.AndroidViewHolder
 
 internal fun Modifier.pointerInteropModifier(view: AndroidViewHolder): Modifier {

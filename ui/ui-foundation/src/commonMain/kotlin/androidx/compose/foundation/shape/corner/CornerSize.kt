@@ -21,8 +21,8 @@ import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.ui.util.annotation.FloatRange
-import androidx.ui.util.annotation.IntRange
+import androidx.compose.ui.util.annotation.FloatRange
+import androidx.compose.ui.util.annotation.IntRange
 
 /**
  * Defines size of a corner in pixels. For example for rounded shape it can be a corner radius.

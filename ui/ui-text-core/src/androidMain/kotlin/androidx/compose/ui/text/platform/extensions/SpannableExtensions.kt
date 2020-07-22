@@ -61,7 +61,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.sp
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 

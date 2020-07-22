@@ -21,9 +21,9 @@ package androidx.compose.ui.unit
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.compose.ui.geometry.Size
-import androidx.ui.util.packInts
-import androidx.ui.util.unpackInt1
-import androidx.ui.util.unpackInt2
+import androidx.compose.ui.util.packInts
+import androidx.compose.ui.util.unpackInt1
+import androidx.compose.ui.util.unpackInt2
 
 /**
  * A two-dimensional size class used for measuring in [Int] pixels.

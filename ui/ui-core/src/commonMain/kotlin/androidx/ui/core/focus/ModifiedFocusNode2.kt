@@ -24,7 +24,7 @@ import androidx.ui.core.focus.FocusState2.ActiveParent
 import androidx.ui.core.focus.FocusState2.Captured
 import androidx.ui.core.focus.FocusState2.Disabled
 import androidx.ui.core.focus.FocusState2.Inactive
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 @OptIn(
     ExperimentalFocus::class,

@@ -35,7 +35,7 @@ import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
-import androidx.ui.util.annotation.VisibleForTesting
+import androidx.compose.ui.util.annotation.VisibleForTesting
 
 /** The default font size if none is specified. */
 private val DefaultFontSize = 14.sp

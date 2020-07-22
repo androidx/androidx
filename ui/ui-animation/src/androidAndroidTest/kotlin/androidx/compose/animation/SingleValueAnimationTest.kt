@@ -37,7 +37,7 @@ import androidx.ui.test.runOnIdle
 import androidx.ui.test.waitForIdle
 import androidx.compose.ui.unit.Bounds
 import androidx.compose.ui.unit.dp
-import androidx.ui.util.lerp
+import androidx.compose.ui.util.lerp
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

@@ -44,8 +44,8 @@ import androidx.compose.ui.graphics.useOrElse
 import androidx.ui.material.ExperimentalMaterialApi
 import androidx.ui.material.MaterialTheme
 import androidx.compose.ui.unit.Dp
-import androidx.ui.util.fastForEach
-import androidx.ui.util.nativeClass
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.nativeClass
 
 /**
  * Material implementation of [IndicationInstance] that expresses indication via ripples. This

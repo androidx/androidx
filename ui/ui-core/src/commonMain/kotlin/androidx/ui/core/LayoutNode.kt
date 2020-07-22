@@ -47,8 +47,8 @@ import androidx.compose.ui.graphics.drawscope.drawCanvas
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.util.deleteAt
-import androidx.ui.util.nativeClass
+import androidx.compose.ui.util.deleteAt
+import androidx.compose.ui.util.nativeClass
 import kotlin.math.roundToInt
 import kotlin.math.sign
 

@@ -326,7 +326,7 @@ internal abstract class InputDispatcher {
         var tPrev = t0
         while (step++ < steps) {
             val progress = step / steps.toFloat()
-            val t = androidx.ui.util.lerp(t0, tN, progress)
+            val t = androidx.compose.ui.util.lerp(t0, tN, progress)
             fs.forEachIndexed { i, f ->
                 movePointer(i, f(t))
             }

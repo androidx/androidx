@@ -16,8 +16,8 @@
 
 package androidx.ui.core
 
-import androidx.ui.util.identityHashCode
-import androidx.ui.util.TreeSet
+import androidx.compose.ui.util.identityHashCode
+import androidx.compose.ui.util.TreeSet
 
 /**
  * The set of [LayoutNode]s which orders items by their [LayoutNode.depth] and

@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.geometry
 
-import androidx.ui.util.lerp
-import androidx.ui.util.toStringAsFixed
+import androidx.compose.ui.util.lerp
+import androidx.compose.ui.util.toStringAsFixed
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min

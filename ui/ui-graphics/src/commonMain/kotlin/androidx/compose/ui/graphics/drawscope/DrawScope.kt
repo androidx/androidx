@@ -39,7 +39,7 @@ import androidx.compose.ui.graphics.vectormath.degrees
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.ui.util.annotation.FloatRange
+import androidx.compose.ui.util.annotation.FloatRange
 
 /**
  * Simultaneously translate the [DrawScope] coordinate space by [left] and [top] as well as modify

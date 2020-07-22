@@ -33,7 +33,7 @@ import androidx.ui.core.measureBlocksOf
 import androidx.compose.foundation.layout.LayoutOrientation.Horizontal
 import androidx.compose.foundation.layout.LayoutOrientation.Vertical
 import androidx.compose.ui.unit.Density
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sign

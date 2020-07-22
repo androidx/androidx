@@ -18,7 +18,7 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
-import androidx.ui.util.lerp
+import androidx.compose.ui.util.lerp
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
 import org.junit.Test

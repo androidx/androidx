@@ -28,7 +28,7 @@ import androidx.ui.core.consumeDownChange
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
-import androidx.ui.util.fastAny
+import androidx.compose.ui.util.fastAny
 
 /**
  * This gesture detector has callbacks for when a press gesture starts and ends for the purposes of

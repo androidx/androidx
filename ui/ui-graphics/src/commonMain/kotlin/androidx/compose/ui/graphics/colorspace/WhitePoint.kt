@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics.colorspace
 
-import androidx.ui.util.annotation.Size
+import androidx.compose.ui.util.annotation.Size
 
 /**
  * Class for constructing white points used in [RGB][Rgb] color space. The value is

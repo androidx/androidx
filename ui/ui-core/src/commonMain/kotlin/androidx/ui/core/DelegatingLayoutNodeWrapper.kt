@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.util.nativeClass
+import androidx.compose.ui.util.nativeClass
 
 /**
  * [LayoutNodeWrapper] with default implementations for methods.

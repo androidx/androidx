@@ -18,7 +18,7 @@ package androidx.ui.core.semantics
 
 import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Owns [SemanticsNode] objects and notifies listeners of changes to the

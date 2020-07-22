@@ -46,7 +46,7 @@ import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.semantics.accessibilityValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.ui.util.annotation.FloatRange
+import androidx.compose.ui.util.annotation.FloatRange
 import kotlin.math.abs
 import kotlin.math.max
 

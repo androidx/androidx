@@ -42,7 +42,7 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.ui.util.nativeClass
+import androidx.compose.ui.util.nativeClass
 
 /**
  * Returns a [Modifier] that adds border with appearance specified with a [border] and a [shape]

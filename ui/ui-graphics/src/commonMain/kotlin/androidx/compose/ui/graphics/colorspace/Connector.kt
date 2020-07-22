@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics.colorspace
 
-import androidx.ui.util.annotation.Size
+import androidx.compose.ui.util.annotation.Size
 
 /**
  * A connector transforms colors from a source color space to a destination

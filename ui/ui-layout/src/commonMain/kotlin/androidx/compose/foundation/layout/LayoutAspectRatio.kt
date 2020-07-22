@@ -27,7 +27,7 @@ import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.compose.ui.unit.satisfiedBy
 import androidx.compose.ui.unit.IntSize
-import androidx.ui.util.annotation.FloatRange
+import androidx.compose.ui.util.annotation.FloatRange
 import kotlin.math.roundToInt
 
 /**

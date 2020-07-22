@@ -30,7 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 /**
  * A convenience composable that combines common layout and draw logic.

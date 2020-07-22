@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.util.fastAny
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastForEach
 
 @OptIn(ExperimentalLayoutNodeApi::class)
 internal class InnerPlaceable(

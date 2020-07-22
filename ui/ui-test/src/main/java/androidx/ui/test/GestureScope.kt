@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.inMilliseconds
 import androidx.compose.ui.unit.milliseconds
-import androidx.ui.util.lerp
+import androidx.compose.ui.util.lerp
 import kotlin.math.atan2
 import kotlin.math.ceil
 import kotlin.math.cos

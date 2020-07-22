@@ -22,7 +22,7 @@ import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.inMilliseconds
-import androidx.ui.util.fastAny
+import androidx.compose.ui.util.fastAny
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch

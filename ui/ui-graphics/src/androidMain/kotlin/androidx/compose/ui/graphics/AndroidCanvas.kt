@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.vectormath.Matrix4
 import androidx.compose.ui.graphics.vectormath.isIdentity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 actual typealias NativeCanvas = android.graphics.Canvas
 

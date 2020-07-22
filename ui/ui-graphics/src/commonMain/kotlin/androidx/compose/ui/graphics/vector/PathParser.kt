@@ -46,7 +46,7 @@ import androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveCurveTo
 import androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveQuadTo
 import androidx.compose.ui.graphics.vector.PathNode.RelativeVerticalTo
 import androidx.compose.ui.graphics.vector.PathNode.VerticalTo
-import androidx.ui.util.toRadians
+import androidx.compose.ui.util.toRadians
 
 class PathParser {
 

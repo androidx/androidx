@@ -31,7 +31,7 @@ import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.ui.util.annotation.FloatRange
+import androidx.compose.ui.util.annotation.FloatRange
 
 /**
  * Draws [shape] with a solid [color] behind the content.

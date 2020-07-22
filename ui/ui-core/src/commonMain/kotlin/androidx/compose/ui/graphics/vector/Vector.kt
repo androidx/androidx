@@ -29,8 +29,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.vectormath.Matrix4
 import androidx.compose.ui.unit.IntSize
-import androidx.ui.util.fastForEach
-import androidx.ui.util.toRadians
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.toRadians
 import kotlin.math.ceil
 
 const val DefaultGroupName = ""

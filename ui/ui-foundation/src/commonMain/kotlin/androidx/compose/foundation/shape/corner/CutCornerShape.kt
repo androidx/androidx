@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.ui.util.annotation.IntRange
+import androidx.compose.ui.util.annotation.IntRange
 
 /**
  * A shape describing the rectangle with cut corners.

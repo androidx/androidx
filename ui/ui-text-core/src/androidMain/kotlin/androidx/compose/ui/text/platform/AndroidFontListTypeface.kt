@@ -29,7 +29,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.ResourceFont
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 /**
  * An implementation of [AndroidTypeface] for [FontListFontFamily]

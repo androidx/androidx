@@ -19,7 +19,7 @@ package androidx.compose.ui.unit
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.util.lerp
+import androidx.compose.ui.util.lerp
 
 /**
  * We encode the unit information and float value into the single 64-bit long integer.

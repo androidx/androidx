@@ -34,7 +34,7 @@ import androidx.ui.core.gesture.customevents.LongPressFiredEvent
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
-import androidx.ui.util.fastAny
+import androidx.compose.ui.util.fastAny
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
 

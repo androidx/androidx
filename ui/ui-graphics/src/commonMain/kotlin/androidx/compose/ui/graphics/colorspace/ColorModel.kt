@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics.colorspace
 
-import androidx.ui.util.annotation.IntRange
+import androidx.compose.ui.util.annotation.IntRange
 
 /**
  * A color model is required by a [ColorSpace] to describe the

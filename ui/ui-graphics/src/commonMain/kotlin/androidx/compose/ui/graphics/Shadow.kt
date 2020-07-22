@@ -20,7 +20,7 @@ import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
-import androidx.ui.util.lerp
+import androidx.compose.ui.util.lerp
 
 /**
  * A single shadow.

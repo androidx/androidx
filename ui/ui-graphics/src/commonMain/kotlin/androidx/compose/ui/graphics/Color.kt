@@ -17,10 +17,10 @@
 
 package androidx.compose.ui.graphics
 
-import androidx.ui.util.annotation.ColorInt
-import androidx.ui.util.annotation.FloatRange
-import androidx.ui.util.annotation.IntRange
-import androidx.ui.util.annotation.Size
+import androidx.compose.ui.util.annotation.ColorInt
+import androidx.compose.ui.util.annotation.FloatRange
+import androidx.compose.ui.util.annotation.IntRange
+import androidx.compose.ui.util.annotation.Size
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.compose.ui.graphics.colorspace.ColorModel
@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.colorspace.ColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.colorspace.Rgb
 import androidx.compose.ui.graphics.colorspace.connect
-import androidx.ui.util.lerp
+import androidx.compose.ui.util.lerp
 import kotlin.math.max
 import kotlin.math.min
 

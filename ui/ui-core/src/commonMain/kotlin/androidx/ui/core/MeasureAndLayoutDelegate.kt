@@ -27,7 +27,7 @@ import androidx.ui.core.LayoutNode.LayoutState.Ready
 import androidx.ui.core.LayoutNode.UsageByParent.InLayoutBlock
 import androidx.ui.core.LayoutNode.UsageByParent.InMeasureBlock
 import androidx.ui.core.LayoutNode.UsageByParent.NotUsed
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Keeps track of [LayoutNode]s which needs to be remeasured or relaid out.

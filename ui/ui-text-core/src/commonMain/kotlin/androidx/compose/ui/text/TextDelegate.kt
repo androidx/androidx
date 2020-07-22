@@ -27,7 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
-import androidx.ui.util.annotation.VisibleForTesting
+import androidx.compose.ui.util.annotation.VisibleForTesting
 import kotlin.math.ceil
 
 /**

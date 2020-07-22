@@ -22,7 +22,7 @@ import androidx.compose.ObserverMap
 import androidx.compose.frames.FrameCommitObserver
 import androidx.compose.frames.FrameReadObserver
 import androidx.compose.frames.observeAllReads
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Allows for easy model read observation. To begin observe a change, you must pass a

@@ -47,7 +47,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.material.ripple.RippleIndication
 import androidx.compose.ui.unit.dp
-import androidx.ui.util.lerp
+import androidx.compose.ui.util.lerp
 
 /**
  * A component that represents two states (checked / unchecked).

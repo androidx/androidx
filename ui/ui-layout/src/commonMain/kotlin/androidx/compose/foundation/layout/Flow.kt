@@ -24,7 +24,7 @@ import androidx.ui.core.Placeable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.max
 
 /**

@@ -21,7 +21,7 @@ import androidx.compose.Stable
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.AnnotatedString.Builder
 import androidx.compose.ui.text.AnnotatedString.Range
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 /**
  * The class changes the character level style of the specified range.

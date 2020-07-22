@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics
 
-import androidx.ui.util.annotation.IntRange
+import androidx.compose.ui.util.annotation.IntRange
 
 /**
  * Result of a pixel read operation. This contains the [ImageAsset] pixel information represented

@@ -30,8 +30,8 @@ package androidx.compose.foundation {
 
   public final class BoxKt {
     method @androidx.compose.Composable public static void Box-DoyBz0g(androidx.ui.core.Modifier modifier = Modifier, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, long backgroundColor = Color.Transparent, androidx.compose.foundation.Border? border = null, float padding = elvis {
-    var var41192a01: androidx.compose.ui.unit.Dp = border?.size
-    if (var41192a01 != null) var41192a01 else 0.dp
+    var var41192b49: androidx.compose.ui.unit.Dp = border?.size
+    if (var41192b49 != null) var41192b49 else 0.dp
 }, float paddingStart = Dp.Unspecified, float paddingTop = Dp.Unspecified, float paddingEnd = Dp.Unspecified, float paddingBottom = Dp.Unspecified, androidx.ui.core.Alignment gravity = ContentGravity.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children = emptyContent());
   }
 

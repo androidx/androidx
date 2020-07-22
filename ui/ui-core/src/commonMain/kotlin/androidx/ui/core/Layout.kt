@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.util.fastForEach
-import androidx.ui.util.fastMap
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import kotlin.math.max
 
 /**

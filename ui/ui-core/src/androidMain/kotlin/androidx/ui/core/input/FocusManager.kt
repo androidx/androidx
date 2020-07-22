@@ -16,7 +16,7 @@
 
 package androidx.ui.core.input
 
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 /**
  * An object for focusable object.

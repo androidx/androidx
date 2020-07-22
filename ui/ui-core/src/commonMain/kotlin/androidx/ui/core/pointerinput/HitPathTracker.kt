@@ -26,7 +26,7 @@ import androidx.ui.core.PointerInputChange
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.plus
-import androidx.ui.util.annotation.VisibleForTesting
+import androidx.compose.ui.util.annotation.VisibleForTesting
 
 /**
  * Organizes pointers and the [PointerInputFilter]s that they hit into a hierarchy such that

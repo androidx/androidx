@@ -74,7 +74,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.lerp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.ui.util.annotation.VisibleForTesting
+import androidx.compose.ui.util.annotation.VisibleForTesting
 import kotlin.math.min
 import kotlin.math.roundToInt
 

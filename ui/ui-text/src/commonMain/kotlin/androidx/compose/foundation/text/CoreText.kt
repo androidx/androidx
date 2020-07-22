@@ -56,7 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.subSequence
 import androidx.compose.ui.unit.Density
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min

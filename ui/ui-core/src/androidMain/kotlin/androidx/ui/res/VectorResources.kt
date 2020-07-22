@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.vector.compat.createVectorImageBuilder
 import androidx.compose.ui.graphics.vector.compat.isAtEnd
 import androidx.compose.ui.graphics.vector.compat.parseCurrentVectorNode
 import androidx.compose.ui.graphics.vector.compat.seekToStartTag
-import androidx.ui.util.trace
+import androidx.compose.ui.util.trace
 import org.xmlpull.v1.XmlPullParserException
 
 /**

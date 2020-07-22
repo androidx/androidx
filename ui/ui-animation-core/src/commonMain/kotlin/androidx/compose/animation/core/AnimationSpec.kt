@@ -17,7 +17,7 @@
 package androidx.compose.animation.core
 
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
-import androidx.ui.util.annotation.IntRange
+import androidx.compose.ui.util.annotation.IntRange
 
 object AnimationConstants {
     /**

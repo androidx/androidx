@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics
 
-import androidx.ui.util.annotation.FloatRange
+import androidx.compose.ui.util.annotation.FloatRange
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.RRect
 import androidx.compose.ui.geometry.Radius

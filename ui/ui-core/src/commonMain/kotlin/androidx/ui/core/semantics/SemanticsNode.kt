@@ -28,7 +28,7 @@ import androidx.ui.core.positionInRoot
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.PxBounds
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Signature for a function that is called for each [SemanticsNode].

@@ -21,10 +21,10 @@ package androidx.compose.ui.unit
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.util.lerp
-import androidx.ui.util.packInts
-import androidx.ui.util.unpackInt1
-import androidx.ui.util.unpackInt2
+import androidx.compose.ui.util.lerp
+import androidx.compose.ui.util.packInts
+import androidx.compose.ui.util.unpackInt1
+import androidx.compose.ui.util.unpackInt2
 
 /**
  * A two-dimensional position using [Int] pixels for units
