@@ -36,6 +36,7 @@ import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
+import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
@@ -97,7 +98,17 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
         // Start collection on pageEventCh, which the rest of this class uses to send PageEvents
         // to this flow.
-        launch { pageEventCh.consumeAsFlow().collect { send(it) } }
+        launch {
+            pageEventCh.consumeAsFlow().collect {
+                // Protect against races where a subsequent call to submitData invoked close(),
+                // but a pageEvent arrives after closing causing ClosedSendChannelException.
+                try {
+                    send(it)
+                } catch (e: ClosedSendChannelException) {
+                    // Safe to drop PageEvent here, since collection has been cancelled.
+                }
+            }
+        }
 
         // Wrap collection behind a RendezvousChannel to prevent the RetryChannel from buffering
         // retry signals.
