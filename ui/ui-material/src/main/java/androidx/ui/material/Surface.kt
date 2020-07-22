@@ -34,7 +34,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
-import androidx.ui.text.TextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import kotlin.math.ln

@@ -17,13 +17,13 @@ package androidx.ui.desktop
 
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.ParagraphIntrinsics
-import androidx.ui.text.Placeholder
-import androidx.ui.text.SpanStyle
-import androidx.ui.text.SpanStyleRange
-import androidx.ui.text.TextStyle
-import androidx.ui.text.font.Font
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ParagraphIntrinsics
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.SpanStyleRange
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.TextUnit
 import kotlin.math.ceil

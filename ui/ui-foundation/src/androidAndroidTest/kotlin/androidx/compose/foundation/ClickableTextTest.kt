@@ -23,7 +23,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdle
-import androidx.ui.text.AnnotatedString
+import androidx.compose.ui.text.AnnotatedString
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times

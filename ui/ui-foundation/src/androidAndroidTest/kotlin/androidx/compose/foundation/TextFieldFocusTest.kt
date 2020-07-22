@@ -22,7 +22,7 @@ import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.focus.FocusModifier
-import androidx.ui.input.TextFieldValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.width
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle

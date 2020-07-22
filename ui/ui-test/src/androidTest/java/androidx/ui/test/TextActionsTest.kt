@@ -23,8 +23,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.ui.input.ImeAction
-import androidx.ui.input.TextFieldValue
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.expectErrorMessageStartsWith

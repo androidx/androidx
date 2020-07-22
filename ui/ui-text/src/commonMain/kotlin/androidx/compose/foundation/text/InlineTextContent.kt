@@ -17,8 +17,8 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.Composable
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.Placeholder
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.Placeholder
 
 /** The annotation tag used by inline content. */
 internal const val INLINE_CONTENT_TAG = "androidx.compose.foundation.text.inlineContent"

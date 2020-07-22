@@ -36,11 +36,11 @@ import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.compositeOver
-import androidx.ui.input.ImeAction
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.PasswordVisualTransformation
-import androidx.ui.input.TextFieldValue
-import androidx.ui.input.TextInputService
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.height
@@ -63,7 +63,7 @@ import androidx.ui.test.click
 import androidx.ui.test.performImeAction
 import androidx.ui.test.waitForIdle
 import androidx.compose.foundation.text.FirstBaseline
-import androidx.ui.text.SoftwareKeyboardController
+import androidx.compose.ui.text.SoftwareKeyboardController
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp

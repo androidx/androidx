@@ -35,10 +35,10 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.testTag
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
-import androidx.ui.input.CommitTextEditOp
-import androidx.ui.input.EditOperation
-import androidx.ui.input.ImeAction
-import androidx.ui.input.TextInputService
+import androidx.compose.ui.text.input.CommitTextEditOp
+import androidx.compose.ui.text.input.EditOperation
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
@@ -55,8 +55,10 @@ import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasImeAction
 import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.runOnIdle
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextRange
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TextFieldValue.Companion.Saver
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -89,7 +91,7 @@ class TextFieldTest {
 
         lateinit var focusModifier: FocusModifier
         composeTestRule.setContent {
-            val state = state { androidx.ui.input.TextFieldValue("") }
+            val state = state { TextFieldValue("") }
             Providers(
                 TextInputServiceAmbient provides inputService
             ) {
@@ -112,7 +114,7 @@ class TextFieldTest {
 
     @Composable
     private fun TextFieldApp() {
-        val state = state { androidx.ui.input.TextFieldValue("") }
+        val state = state { TextFieldValue("") }
         BaseTextField(
             value = state.value,
             modifier = Modifier.fillMaxSize(),
@@ -171,7 +173,7 @@ class TextFieldTest {
         }
 
         runOnIdle {
-            val stateCaptor = argumentCaptor<androidx.ui.input.TextFieldValue>()
+            val stateCaptor = argumentCaptor<TextFieldValue>()
             verify(textInputService, atLeastOnce())
                 .onStateUpdated(eq(inputSessionToken), stateCaptor.capture())
 
@@ -182,7 +184,7 @@ class TextFieldTest {
 
     @Composable
     private fun OnlyDigitsApp() {
-        val state = state { androidx.ui.input.TextFieldValue("") }
+        val state = state { TextFieldValue("") }
         BaseTextField(
             value = state.value,
             modifier = Modifier.fillMaxSize(),
@@ -243,7 +245,7 @@ class TextFieldTest {
         }
 
         runOnIdle {
-            val stateCaptor = argumentCaptor<androidx.ui.input.TextFieldValue>()
+            val stateCaptor = argumentCaptor<TextFieldValue>()
             verify(textInputService, atLeastOnce())
                 .onStateUpdated(eq(inputSessionToken), stateCaptor.capture())
 
@@ -266,7 +268,7 @@ class TextFieldTest {
             Providers(
                 TextInputServiceAmbient provides textInputService
             ) {
-                val state = state { androidx.ui.input.TextFieldValue("") }
+                val state = state { TextFieldValue("") }
                 BaseTextField(
                     value = state.value,
                     modifier = Modifier.fillMaxSize(),
@@ -323,7 +325,7 @@ class TextFieldTest {
         composeTestRule.setContent {
             Box {
                 BaseTextField(
-                    value = androidx.ui.input.TextFieldValue(),
+                    value = TextFieldValue(),
                     onValueChange = {},
                     modifier = Modifier.onPositioned {
                         size = it.size.width
@@ -344,7 +346,7 @@ class TextFieldTest {
         composeTestRule.setContent {
             Box {
                 BaseTextField(
-                    value = androidx.ui.input.TextFieldValue(),
+                    value = TextFieldValue(),
                     onValueChange = {},
                     modifier = Modifier
                         .preferredWidth(textFieldWidth)
@@ -369,7 +371,7 @@ class TextFieldTest {
             Box(Modifier.preferredSize(parentSize)) {
                 Row {
                     BaseTextField(
-                        value = androidx.ui.input.TextFieldValue(),
+                        value = TextFieldValue(),
                         onValueChange = {},
                         modifier = Modifier
                             .weight(1f)
@@ -389,17 +391,17 @@ class TextFieldTest {
 
     @Test
     fun textFieldValue_saverRestoresState() {
-        var state: MutableState<androidx.ui.input.TextFieldValue>? = null
+        var state: MutableState<TextFieldValue>? = null
 
         val restorationTester = StateRestorationTester(composeTestRule)
         restorationTester.setContent {
-            state = savedInstanceState(saver = androidx.ui.input.TextFieldValue.Saver) {
-                androidx.ui.input.TextFieldValue()
+            state = savedInstanceState(saver = Saver) {
+                TextFieldValue()
             }
         }
 
         runOnIdle {
-            state!!.value = androidx.ui.input.TextFieldValue("test", TextRange(1, 2))
+            state!!.value = TextFieldValue("test", TextRange(1, 2))
 
             // we null it to ensure recomposition happened
             state = null
@@ -409,7 +411,7 @@ class TextFieldTest {
 
         runOnIdle {
             assertThat(state!!.value).isEqualTo(
-                androidx.ui.input.TextFieldValue("test", TextRange(1, 2))
+                TextFieldValue("test", TextRange(1, 2))
             )
         }
     }
@@ -419,7 +421,7 @@ class TextFieldTest {
     fun textFieldNotFocused_cursorNotRendered() {
         composeTestRule.setContent {
             BaseTextField(
-                value = androidx.ui.input.TextFieldValue(),
+                value = TextFieldValue(),
                 onValueChange = {},
                 textColor = Color.White,
                 modifier = Modifier.preferredSize(10.dp, 20.dp).background(color = Color.White),
@@ -443,7 +445,7 @@ class TextFieldTest {
         composeTestRule.setContent {
             BaseTextField(
                 modifier = Modifier.testTag("textField"),
-                value = androidx.ui.input.TextFieldValue(),
+                value = TextFieldValue(),
                 onValueChange = {}
             )
         }
@@ -457,7 +459,7 @@ class TextFieldTest {
     fun setImeAction_isReflectedInSemantics() {
         composeTestRule.setContent {
             BaseTextField(
-                value = androidx.ui.input.TextFieldValue(),
+                value = TextFieldValue(),
                 imeAction = ImeAction.Search,
                 onValueChange = {}
             )

@@ -46,15 +46,15 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.drawscope.Stroke
-import androidx.ui.input.ImeAction
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.TextFieldValue
-import androidx.ui.input.VisualTransformation
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.foundation.layout.padding
-import androidx.ui.text.InternalTextApi
-import androidx.ui.text.SoftwareKeyboardController
-import androidx.ui.text.TextStyle
-import androidx.ui.text.constrain
+import androidx.compose.ui.text.InternalTextApi
+import androidx.compose.ui.text.SoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.constrain
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import kotlin.math.max
@@ -89,7 +89,7 @@ import kotlin.math.roundToInt
  * @param isErrorValue indicates if the text field's current value is in error. If set to true, the
  * label, bottom indicator and trailing icon will be displayed in [errorColor] color
  * @param visualTransformation transforms the visual representation of the input [value].
- * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
+ * For example, you can use [androidx.compose.ui.text.input.PasswordVisualTransformation] to create a password
  * text field. By default no visual transformation is applied
  * @param keyboardType the keyboard type to be used with the text field.
  * Note that the input type is not guaranteed. For example, an IME may send a non-ASCII character
@@ -205,7 +205,7 @@ fun OutlinedTextField(
  * @param isErrorValue indicates if the text field's current value is in error state. If set to
  * true, the label, bottom indicator and trailing icon will be displayed in [errorColor] color
  * @param visualTransformation transforms the visual representation of the input [value].
- * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
+ * For example, you can use [androidx.compose.ui.text.input.PasswordVisualTransformation] to create a password
  * text field. By default no visual transformation is applied
  * @param keyboardType the keyboard type to be used with the text field.
  * Note that the input type is not guaranteed. For example, an IME may send a non-ASCII character

@@ -81,11 +81,11 @@ import androidx.ui.core.texttoolbar.AndroidTextToolbar
 import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.CanvasHolder
-import androidx.ui.input.TextInputServiceAndroid
-import androidx.ui.input.textInputServiceFactory
+import androidx.compose.ui.text.input.TextInputServiceAndroid
+import androidx.compose.ui.text.input.textInputServiceFactory
 import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry
 import androidx.ui.core.LayoutNode.UsageByParent
-import androidx.ui.text.font.Font
+import androidx.compose.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntOffset
 import androidx.ui.util.fastForEach

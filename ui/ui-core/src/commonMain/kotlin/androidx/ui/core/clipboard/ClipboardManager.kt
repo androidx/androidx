@@ -16,7 +16,7 @@
 
 package androidx.ui.core.clipboard
 
-import androidx.ui.text.AnnotatedString
+import androidx.compose.ui.text.AnnotatedString
 
 /**
  * Interface for managing the Clipboard.

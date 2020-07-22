@@ -34,7 +34,7 @@ import androidx.ui.core.setContent
 import androidx.ui.desktop.DesktopPlatformInput
 import androidx.ui.desktop.FontLoader
 import androidx.ui.desktop.initCompose
-import androidx.ui.input.TextInputService
+import androidx.compose.ui.text.input.TextInputService
 import org.jetbrains.skija.Canvas
 import org.jetbrains.skija.Surface
 

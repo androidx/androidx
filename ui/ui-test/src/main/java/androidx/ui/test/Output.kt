@@ -21,7 +21,7 @@ import androidx.annotation.IntRange
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.semantics.SemanticsProperties
-import androidx.ui.text.AnnotatedString
+import androidx.compose.ui.text.AnnotatedString
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.toSize
 

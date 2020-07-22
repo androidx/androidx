@@ -25,9 +25,9 @@ import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.InlineTextContent
-import androidx.ui.text.Placeholder
-import androidx.ui.text.PlaceholderVerticalAlign
-import androidx.ui.text.annotatedString
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.annotatedString
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.ui.unit.em
 

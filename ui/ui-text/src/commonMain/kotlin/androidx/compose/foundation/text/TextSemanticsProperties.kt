@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.text
 
-import androidx.ui.input.ImeAction
+import androidx.compose.ui.text.input.ImeAction
 import androidx.ui.semantics.SemanticsPropertyKey
 import androidx.ui.semantics.SemanticsPropertyReceiver
 

@@ -16,9 +16,9 @@
 
 package androidx.ui.semantics
 
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextRange
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
 import kotlin.reflect.KProperty
 
 /**

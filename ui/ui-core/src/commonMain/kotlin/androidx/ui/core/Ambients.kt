@@ -24,9 +24,9 @@ import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.texttoolbar.TextToolbar
-import androidx.ui.input.TextInputService
+import androidx.compose.ui.text.input.TextInputService
 import androidx.ui.platform.UriHandler
-import androidx.ui.text.font.Font
+import androidx.compose.ui.text.font.Font
 import androidx.ui.unit.Density
 import kotlin.coroutines.CoroutineContext
 

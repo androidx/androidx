@@ -24,10 +24,10 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.longPressGestureFilter
 import androidx.compose.foundation.ClickableText
 import androidx.compose.foundation.Text
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextStyle
-import androidx.ui.text.style.TextOverflow
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 
 @Sampled
 @Composable

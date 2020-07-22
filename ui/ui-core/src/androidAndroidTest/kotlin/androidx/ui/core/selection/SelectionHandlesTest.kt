@@ -26,8 +26,8 @@ import androidx.ui.core.test.waitAndScreenShot
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
-import androidx.ui.text.InternalTextApi
-import androidx.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.text.InternalTextApi
+import androidx.compose.ui.text.style.ResolvedTextDirection
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before

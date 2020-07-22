@@ -38,19 +38,19 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.useOrElse
-import androidx.ui.input.ImeAction
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.TextFieldValue
-import androidx.ui.input.VisualTransformation
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.foundation.layout.defaultMinSizeConstraints
-import androidx.ui.text.AnnotatedString
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.foundation.text.CoreTextField
-import androidx.ui.text.InternalTextApi
-import androidx.ui.text.SoftwareKeyboardController
+import androidx.compose.ui.text.InternalTextApi
+import androidx.compose.ui.text.SoftwareKeyboardController
 import androidx.compose.foundation.text.TextFieldDelegate
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextStyle
-import androidx.ui.text.constrain
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.constrain
 import androidx.ui.unit.dp
 
 // TODO(b/151940543): Remove this variable when we have a solution for idling animations

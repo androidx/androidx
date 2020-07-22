@@ -48,9 +48,9 @@ import androidx.ui.semantics.CustomAccessibilityAction
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsActions.CustomActions
 import androidx.ui.semantics.SemanticsProperties
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.length
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.length
 import androidx.ui.unit.toRect
 import androidx.ui.util.fastForEach
 

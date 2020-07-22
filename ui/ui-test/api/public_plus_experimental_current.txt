@@ -171,7 +171,7 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsMatcher hasAnyDescendant(androidx.ui.test.SemanticsMatcher matcher);
     method public static androidx.ui.test.SemanticsMatcher hasAnySibling(androidx.ui.test.SemanticsMatcher matcher);
     method public static androidx.ui.test.SemanticsMatcher hasClickAction();
-    method public static androidx.ui.test.SemanticsMatcher hasImeAction(androidx.ui.input.ImeAction actionType);
+    method public static androidx.ui.test.SemanticsMatcher hasImeAction(androidx.compose.ui.text.input.ImeAction actionType);
     method public static androidx.ui.test.SemanticsMatcher hasInputMethodsSupport();
     method public static androidx.ui.test.SemanticsMatcher hasLabel(String label, boolean ignoreCase = false);
     method public static androidx.ui.test.SemanticsMatcher hasNoClickAction();

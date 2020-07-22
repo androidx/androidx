@@ -70,7 +70,7 @@ class PrintToStringTest {
                 "Node #X at (X, X, X, X)px\n" +
                 "Text = 'Hello'\n" +
                 "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<java" +
-                ".util.List<androidx.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
+                ".util.List<androidx.compose.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
                 "Has 1 sibling")
     }
 
@@ -88,12 +88,12 @@ class PrintToStringTest {
                 "1) Node #X at (X, X, X, X)px\n" +
                 "Text = 'Hello'\n" +
                 "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<java" +
-                ".util.List<androidx.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
+                ".util.List<androidx.compose.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
                 "Has 1 sibling\n" +
                 "2) Node #X at (X, X, X, X)px\n" +
                 "Text = 'World'\n" +
                 "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<java" +
-                ".util.List<androidx.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
+                ".util.List<androidx.compose.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
                 "Has 1 sibling")
     }
 
@@ -124,13 +124,15 @@ class PrintToStringTest {
                 "<java.lang.Boolean>)'\n" +
                 "    |    Text = 'Button'\n" +
                 "    |    GetTextLayoutResult = 'AccessibilityAction(label=null, " +
-                "action=Function1<java.util.List<androidx.ui.text.TextLayoutResult>, java.lang" +
+                "action=Function1<java.util.List<androidx.compose.ui.text.TextLayoutResult>," +
+                " java.lang" +
                 ".Boolean>)'\n" +
                 "    |    MergeDescendants = 'true'\n" +
                 "    |-Node #X at (X, X, X, X)px\n" +
                 "      Text = 'Hello'\n" +
                 "      GetTextLayoutResult = 'AccessibilityAction(label=null, " +
-                "action=Function1<java.util.List<androidx.ui.text.TextLayoutResult>, java.lang" +
+                "action=Function1<java.util.List<androidx.compose.ui.text.TextLayoutResult>," +
+                " java.lang" +
                 ".Boolean>)'")
     }
 

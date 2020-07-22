@@ -37,7 +37,7 @@ import androidx.ui.desktop.DesktopPlatformInput
 import androidx.ui.desktop.DesktopSelectionContainer
 import androidx.ui.desktop.FontLoader
 import androidx.ui.desktop.LayoutScopeGlobal
-import androidx.ui.input.TextInputService
+import androidx.compose.ui.text.input.TextInputService
 import androidx.ui.unit.IntOffset
 import com.jogamp.opengl.awt.GLCanvas
 import org.jetbrains.skija.Canvas
