@@ -156,6 +156,11 @@ internal class DesktopParagraph(
         lineMetricsForOffset(offset)?.run { lineNumber.toInt() }
             ?: 0
 
+    override fun getLineForVerticalPosition(vertical: Float): Int {
+        println("Paragraph.getLineForVerticalPosition $vertical")
+        return 0
+    }
+
     override fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float {
         val metrics = lineMetricsForOffset(offset)
 

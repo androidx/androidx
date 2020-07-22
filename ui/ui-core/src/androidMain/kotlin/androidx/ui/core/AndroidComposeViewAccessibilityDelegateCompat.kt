@@ -263,7 +263,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             )
         }
         val text = getIterableTextForAccessibility(semanticsNode)
-        if (text != null && text.isNotEmpty()) {
+        if (!text.isNullOrEmpty()) {
             info.setTextSelection(
                 getAccessibilitySelectionStart(semanticsNode),
                 getAccessibilitySelectionEnd(semanticsNode)
@@ -276,6 +276,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_CHARACTER or
                         AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_WORD or
                         AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_PARAGRAPH
+            // We only traverse the text when accessibilityLabel is not set.
+            if (info.contentDescription.isNullOrEmpty() &&
+                semanticsNode.config.contains(SemanticsActions.GetTextLayoutResult)) {
+                info.movementGranularities = info.movementGranularities or
+                        AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_LINE or
+                        AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_PAGE
+            }
         }
         if (Build.VERSION.SDK_INT >= 26 && !info.text.isNullOrEmpty() &&
             semanticsNode.config.contains(SemanticsActions.GetTextLayoutResult)) {
@@ -884,9 +891,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     SemanticsProperties.Text -> {
                         // TODO(b/160184953) Add test for SemanticsProperty Text change event
                         if (newNode.config.contains(SemanticsActions.SetText)) {
-                            var oldText = (oldNode.config.getOrElse(
+                            val oldText = (oldNode.config.getOrElse(
                                 SemanticsProperties.Text) { AnnotatedString("") }).text
-                            var newText = (newNode.config.getOrElse(
+                            val newText = (newNode.config.getOrElse(
                                 SemanticsProperties.Text) { AnnotatedString("") }).text
                             var startCount = 0
                             // endCount records how many characters are the same from the end.
@@ -1111,22 +1118,52 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             return null
         }
         // TODO(b/160190186) Make sure locale is right in AccessibilityIterators.
+        val iterator: AccessibilityIterators.AbstractTextSegmentIterator
         @Suppress("DEPRECATION")
-        val iterator = when (granularity) {
-            AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_CHARACTER ->
-                AccessibilityIterators.CharacterTextSegmentIterator.getInstance(
+        when (granularity) {
+            AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_CHARACTER -> {
+                iterator = AccessibilityIterators.CharacterTextSegmentIterator.getInstance(
                     view.context.resources.configuration.locale
                 )
-            AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_WORD ->
-                AccessibilityIterators.WordTextSegmentIterator.getInstance(
+                iterator.initialize(text)
+            }
+            AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_WORD -> {
+                iterator = AccessibilityIterators.WordTextSegmentIterator.getInstance(
                     view.context.resources.configuration.locale
                 )
-            AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_PARAGRAPH ->
-                AccessibilityIterators.ParagraphTextSegmentIterator.getInstance()
-            else ->
-                return null
+                iterator.initialize(text)
+            }
+            AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_PARAGRAPH -> {
+                iterator = AccessibilityIterators.ParagraphTextSegmentIterator.getInstance()
+                iterator.initialize(text)
+            }
+            AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_LINE,
+            AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_PAGE -> {
+                // Line and page granularity are only for static text or text field.
+                if (node == null || !node.config.contains(SemanticsProperties.Text) ||
+                    !node.config.contains(SemanticsActions.GetTextLayoutResult)) {
+                    return null
+                }
+                // TODO(b/157474582): Note now it only works for single Text/TextField until we
+                //  fix the merging issue.
+                val textLayoutResults = mutableListOf<TextLayoutResult>()
+                val textLayoutResult: TextLayoutResult
+                if (node.config[SemanticsActions.GetTextLayoutResult].action(textLayoutResults)) {
+                    textLayoutResult = textLayoutResults[0]
+                } else {
+                    return null
+                }
+                if (granularity == AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_LINE) {
+                    iterator = AccessibilityIterators.LineTextSegmentIterator.getInstance()
+                    iterator.initialize(text, textLayoutResult)
+                } else {
+                    iterator = AccessibilityIterators.PageTextSegmentIterator.getInstance()
+                    // TODO: the node should be text/textfield node instead of the current node.
+                    iterator.initialize(text, textLayoutResult, node)
+                }
+            }
+            else -> return null
         }
-        iterator.initialize(text)
         return iterator
     }
 

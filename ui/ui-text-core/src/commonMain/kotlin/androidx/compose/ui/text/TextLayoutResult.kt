@@ -212,6 +212,18 @@ data class TextLayoutResult internal constructor(
     fun getLineForOffset(offset: Int): Int = multiParagraph.getLineForOffset(offset)
 
     /**
+     * Returns line number closest to the given graphical vertical position.
+     *
+     * If you ask for a vertical position before 0, you get 0; if you ask for a vertical position
+     * beyond the last line, you get the last line.
+     *
+     * @param vertical the vertical position
+     * @return the 0 origin line number.
+     */
+    fun getLineForVerticalPosition(vertical: Float): Int =
+        multiParagraph.getLineForVerticalPosition(vertical)
+
+    /**
      * Get the horizontal position for the specified text [offset].
      *
      * Returns the relative distance from the text starting offset. For example, if the paragraph
