@@ -30,7 +30,7 @@ import androidx.ui.test.runOnIdle
 import androidx.ui.test.down
 import androidx.ui.test.up
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
 import org.junit.Rule

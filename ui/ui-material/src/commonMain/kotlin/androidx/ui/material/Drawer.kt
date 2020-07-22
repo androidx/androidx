@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.state
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.scrollorientationlocking.Orientation
@@ -37,8 +37,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.ui.material.internal.fixedThresholds
 import androidx.ui.material.internal.stateDraggable
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.ui.util.lerp
 
 /**

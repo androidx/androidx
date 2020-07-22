@@ -19,14 +19,14 @@ package androidx.compose.foundation.layout
 import androidx.compose.Stable
 import androidx.compose.State
 import androidx.compose.mutableStateOf
-import androidx.ui.core.Constraints
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 /**

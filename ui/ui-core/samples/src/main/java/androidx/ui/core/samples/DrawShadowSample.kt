@@ -23,7 +23,7 @@ import androidx.ui.core.drawShadow
 import androidx.compose.foundation.Box
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.layout.preferredSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable

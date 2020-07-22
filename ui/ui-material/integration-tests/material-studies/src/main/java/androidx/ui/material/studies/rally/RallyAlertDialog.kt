@@ -28,7 +28,7 @@ import androidx.ui.material.AlertDialog
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TextButton
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun RallyAlertDialog(

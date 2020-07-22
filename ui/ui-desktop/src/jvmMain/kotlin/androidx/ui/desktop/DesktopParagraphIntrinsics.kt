@@ -24,8 +24,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.SpanStyleRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
-import androidx.ui.unit.Density
-import androidx.ui.unit.TextUnit
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.TextUnit
 import kotlin.math.ceil
 import org.jetbrains.skija.paragraph.Paragraph
 import org.jetbrains.skija.paragraph.ParagraphBuilder

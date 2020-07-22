@@ -24,7 +24,7 @@ import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.TextStyle
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun InputFieldTrickyUseCase() {

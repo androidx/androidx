@@ -19,7 +19,7 @@ package androidx.compose.foundation.layout.demos
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.compose.foundation.Text
@@ -33,8 +33,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ltr
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.rtl
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 @Composable
 fun RtlDemo() {
     Column(verticalArrangement = Arrangement.SpaceEvenly) {

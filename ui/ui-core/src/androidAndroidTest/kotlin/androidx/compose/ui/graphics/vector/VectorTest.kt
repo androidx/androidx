@@ -39,7 +39,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.onRoot
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.waitForIdle
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Rule

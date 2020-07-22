@@ -16,9 +16,9 @@
 
 package androidx.ui.core.gesture
 
-import androidx.ui.unit.Duration
-import androidx.ui.unit.dp
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.Duration
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.milliseconds
 
 /**
  * Modeled after Android's ViewConfiguration:

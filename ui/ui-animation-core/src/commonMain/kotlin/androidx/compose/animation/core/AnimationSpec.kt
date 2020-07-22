@@ -37,12 +37,12 @@ object AnimationConstants {
  *
  * Any type [T] can be animated by the system as long as a [TwoWayConverter] is supplied to convert
  * the data type [T] from and to an [AnimationVector]. There are a number of converters
- * available out of the box. For example, to animate [androidx.ui.unit.Position] the system uses
- * [androidx.compose.animation.PositionToVectorConverter] to convert the object to [AnimationVector2D],
- * so that both x and y dimensions are animated independently with separate velocity tracking.
- * This enables multidimensional objects to be animated in a true multi-dimensional way. It is
- * particularly useful for smoothly handling animation interruptions (such as when the target
- * changes during the animation).
+ * available out of the box. For example, to animate [androidx.compose.ui.unit.Position] the system
+ * uses [androidx.compose.animation.PositionToVectorConverter] to convert the object to
+ * [AnimationVector2D], so that both x and y dimensions are animated independently with separate
+ * velocity tracking. This enables multidimensional objects to be animated in a true
+ * multi-dimensional way. It is particularly useful for smoothly handling animation interruptions
+ * (such as when the target changes during the animation).
  */
 interface AnimationSpec<T> {
     /**

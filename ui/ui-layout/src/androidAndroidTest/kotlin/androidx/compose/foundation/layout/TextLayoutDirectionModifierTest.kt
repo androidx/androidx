@@ -17,7 +17,7 @@
 package androidx.compose.foundation.layout
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.AnnotatedString

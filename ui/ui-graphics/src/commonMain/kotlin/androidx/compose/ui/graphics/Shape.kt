@@ -18,7 +18,7 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Size
 import androidx.compose.Immutable
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 
 /**
  * Defines a generic shape.

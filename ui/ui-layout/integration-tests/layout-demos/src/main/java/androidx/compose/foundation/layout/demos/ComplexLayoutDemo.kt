@@ -26,7 +26,7 @@ import androidx.compose.foundation.layout.ltr
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.rtl
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun ComplexLayoutDemo() {

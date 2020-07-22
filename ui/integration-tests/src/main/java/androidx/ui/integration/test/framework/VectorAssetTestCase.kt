@@ -32,7 +32,7 @@ import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.res.vectorResource
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 /**
  * Generic test case for drawing a [VectorAsset].

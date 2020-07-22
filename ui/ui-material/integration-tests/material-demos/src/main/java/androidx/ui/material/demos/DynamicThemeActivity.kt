@@ -46,7 +46,7 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Scaffold
 import androidx.ui.material.TopAppBar
 import androidx.ui.material.lightColorPalette
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import kotlin.math.round
 
 /**

@@ -30,9 +30,9 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.performSemanticsAction
 import androidx.ui.test.runOnIdle
-import androidx.ui.unit.TextUnit
-import androidx.ui.unit.em
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test

@@ -42,7 +42,7 @@ import androidx.ui.material.icons.filled.Close
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.annotatedString
 import androidx.compose.ui.text.withStyle
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 /**
  * A scrollable list of [launchableDemos], filtered by [filterText].

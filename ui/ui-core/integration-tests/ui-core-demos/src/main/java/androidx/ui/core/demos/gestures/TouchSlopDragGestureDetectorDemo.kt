@@ -33,7 +33,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 /**
  * Simple [dragGestureFilter] demo.

@@ -39,7 +39,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import androidx.ui.viewinterop.AndroidView
 
 val AndroidInComposeDemos = DemoCategory("Android In Compose Interop", listOf(

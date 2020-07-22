@@ -25,7 +25,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.shape.corner.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.preferredSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable

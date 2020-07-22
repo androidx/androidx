@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics.vector
 
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
@@ -25,9 +25,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageAsset
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.ui.unit.Density
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.toSize
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toSize
 
 /**
  * Creates a drawing environment that directs its drawing commands to an [ImageAsset]

@@ -35,7 +35,7 @@ import androidx.ui.material.samples.ScrollingFancyIndicatorContainerTabs
 import androidx.ui.material.samples.ScrollingTextTabs
 import androidx.ui.material.samples.TextAndIconTabs
 import androidx.ui.material.samples.TextTabs
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun TabDemo() {

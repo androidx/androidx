@@ -42,7 +42,7 @@ import androidx.compose.ui.text.font.ResourceFont
 import androidx.compose.ui.text.font.asFontFamily
 import androidx.compose.ui.text.font.test.R
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times

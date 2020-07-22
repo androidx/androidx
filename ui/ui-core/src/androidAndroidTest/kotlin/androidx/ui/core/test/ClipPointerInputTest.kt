@@ -37,7 +37,7 @@ import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.layout.offset
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntSize
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule

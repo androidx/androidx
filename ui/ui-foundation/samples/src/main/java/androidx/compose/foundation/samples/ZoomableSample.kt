@@ -35,8 +35,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.drawLayer
 import androidx.compose.ui.graphics.Color
-import androidx.ui.unit.dp
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Sampled
 @Composable

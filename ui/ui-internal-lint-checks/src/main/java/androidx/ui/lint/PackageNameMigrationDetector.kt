@@ -72,7 +72,8 @@ class PackageNameMigrationDetector : Detector(), SourceCodeScanner {
             "androidx.ui.input" to "androidx.compose.ui.text.input",
             "androidx.ui.intl" to "androidx.compose.ui.text.intl",
             "androidx.ui.geometry" to "androidx.compose.ui.geometry",
-            "androidx.ui.graphics" to "androidx.compose.ui.graphics"
+            "androidx.ui.graphics" to "androidx.compose.ui.graphics",
+            "androidx.ui.unit" to "androidx.compose.ui.unit"
         )
 
         val ISSUE = Issue.create(

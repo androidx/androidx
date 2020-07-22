@@ -30,7 +30,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.ui.unit.Dp
+import androidx.compose.ui.unit.Dp
 
 /**
  * Default identifier for the root group if a Vector graphic

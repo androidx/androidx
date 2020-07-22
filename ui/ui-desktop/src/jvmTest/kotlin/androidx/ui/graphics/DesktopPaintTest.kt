@@ -18,8 +18,8 @@ package androidx.compose.ui.graphics
 
 import androidx.ui.TestResources.testImageAsset
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

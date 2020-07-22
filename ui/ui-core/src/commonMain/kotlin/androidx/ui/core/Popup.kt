@@ -21,11 +21,12 @@ import androidx.compose.Immutable
 import androidx.compose.Providers
 import androidx.compose.ambientOf
 import androidx.compose.remember
-import androidx.ui.unit.IntBounds
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.height
-import androidx.ui.unit.width
+import androidx.compose.ui.unit.IntBounds
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.width
 
 /**
  * Opens a popup with the given content.

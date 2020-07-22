@@ -20,8 +20,8 @@ import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.hasFixedHeight
-import androidx.ui.core.hasFixedWidth
+import androidx.compose.ui.unit.hasFixedHeight
+import androidx.compose.ui.unit.hasFixedWidth
 
 /**
  * Component that represents an empty space layout, whose size can be defined using the [LayoutWidth],

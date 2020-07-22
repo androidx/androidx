@@ -55,7 +55,7 @@ import androidx.ui.material.samples.SimpleOutlinedTextFieldSample
 import androidx.ui.material.samples.TextFieldWithHelperMessage
 import androidx.ui.material.samples.TextFieldWithHideKeyboardOnImeAction
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun TextFieldsDemo() {

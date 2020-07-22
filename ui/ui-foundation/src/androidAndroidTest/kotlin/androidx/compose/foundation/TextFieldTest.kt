@@ -71,7 +71,7 @@ import androidx.ui.test.isFocused
 import androidx.ui.test.isNotFocused
 import androidx.ui.test.performSemanticsAction
 import androidx.ui.test.runOnIdle
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor

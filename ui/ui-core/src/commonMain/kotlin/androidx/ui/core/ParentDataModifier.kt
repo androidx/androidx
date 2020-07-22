@@ -16,7 +16,7 @@
 
 package androidx.ui.core
 
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 
 /**
  * A [Modifier] that provides data to the parent [Layout]. This can be read from within the

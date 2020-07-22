@@ -17,8 +17,8 @@
 package androidx.ui.core
 
 import androidx.compose.ui.graphics.Canvas
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 
 /**
  * A layer returned by [Owner.createLayer] to separate drawn content. An `OwnedLayer` has

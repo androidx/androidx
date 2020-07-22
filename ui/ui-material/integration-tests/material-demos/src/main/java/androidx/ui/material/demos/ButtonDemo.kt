@@ -44,7 +44,7 @@ import androidx.ui.material.samples.SimpleExtendedFabNoIcon
 import androidx.ui.material.samples.SimpleExtendedFabWithIcon
 import androidx.ui.material.samples.SimpleFab
 import androidx.ui.material.samples.TextButtonSample
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 private val DefaultSpace = 20.dp
 

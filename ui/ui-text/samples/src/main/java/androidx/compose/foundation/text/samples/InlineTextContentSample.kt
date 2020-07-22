@@ -29,7 +29,7 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.annotatedString
 import androidx.compose.foundation.text.appendInlineContent
-import androidx.ui.unit.em
+import androidx.compose.ui.unit.em
 
 @Sampled
 @Composable

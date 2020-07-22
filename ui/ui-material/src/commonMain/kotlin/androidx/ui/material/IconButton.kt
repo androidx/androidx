@@ -24,7 +24,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.material.ripple.RippleIndication
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 /**
  * IconButton is a clickable icon, used to represent actions. An IconButton has an overall minimum

@@ -28,8 +28,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.ui.integration.test.RandomTextGenerator
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.unit.Dp
-import androidx.ui.unit.TextUnit
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 
 class TextToggleTextTestCase(
     private val textGenerator: RandomTextGenerator,

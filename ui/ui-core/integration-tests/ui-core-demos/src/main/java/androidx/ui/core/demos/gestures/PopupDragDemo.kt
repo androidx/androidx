@@ -34,8 +34,8 @@ import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.dp
-import androidx.ui.unit.round
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 
 @Composable
 fun PopupDragDemo() {

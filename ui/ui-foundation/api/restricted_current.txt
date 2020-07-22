@@ -19,19 +19,19 @@ package androidx.compose.foundation {
   @androidx.compose.Immutable public final class Border {
     method public float component1();
     method public androidx.compose.ui.graphics.Brush component2();
-    method @androidx.compose.Immutable public androidx.compose.foundation.Border copy-AFCpbbc(float size, androidx.compose.ui.graphics.Brush brush);
+    method @androidx.compose.Immutable public androidx.compose.foundation.Border copy-v_fYJzc(float size, androidx.compose.ui.graphics.Brush brush);
     method public androidx.compose.ui.graphics.Brush getBrush();
     method public float getSize();
   }
 
   public final class BorderKt {
-    method @androidx.compose.Stable public static androidx.compose.foundation.Border Border-J38HW4w(float size, long color);
+    method @androidx.compose.Stable public static androidx.compose.foundation.Border Border-Qek64HU(float size, long color);
   }
 
   public final class BoxKt {
-    method @androidx.compose.Composable public static void Box-P9R6ZIA(androidx.ui.core.Modifier modifier = Modifier, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, long backgroundColor = Color.Transparent, androidx.compose.foundation.Border? border = null, float padding = elvis {
-    var var411924e1: androidx.ui.unit.Dp = border?.size
-    if (var411924e1 != null) var411924e1 else 0.dp
+    method @androidx.compose.Composable public static void Box-DoyBz0g(androidx.ui.core.Modifier modifier = Modifier, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, long backgroundColor = Color.Transparent, androidx.compose.foundation.Border? border = null, float padding = elvis {
+    var var41192a01: androidx.compose.ui.unit.Dp = border?.size
+    if (var41192a01 != null) var41192a01 else 0.dp
 }, float paddingStart = Dp.Unspecified, float paddingTop = Dp.Unspecified, float paddingEnd = Dp.Unspecified, float paddingBottom = Dp.Unspecified, androidx.ui.core.Alignment gravity = ContentGravity.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children = emptyContent());
   }
 
@@ -68,11 +68,11 @@ package androidx.compose.foundation {
 
   public final class DrawBorderKt {
     method @Deprecated @androidx.compose.Composable public static androidx.ui.core.Modifier DrawBorder(androidx.compose.foundation.Border border, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
-    method @Deprecated @androidx.compose.Composable public static androidx.compose.foundation.DrawBorder DrawBorder-5e76lqs(float size, androidx.compose.ui.graphics.Brush brush, androidx.compose.ui.graphics.Shape shape);
-    method @Deprecated @androidx.compose.Composable public static androidx.ui.core.Modifier DrawBorder-hoekokM(float size, long color, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
+    method @Deprecated @androidx.compose.Composable public static androidx.ui.core.Modifier DrawBorder-P9kTT0c(float size, long color, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
+    method @Deprecated @androidx.compose.Composable public static androidx.compose.foundation.DrawBorder DrawBorder-TpnEqK8(float size, androidx.compose.ui.graphics.Brush brush, androidx.compose.ui.graphics.Shape shape);
     method public static androidx.ui.core.Modifier drawBorder(androidx.ui.core.Modifier, androidx.compose.foundation.Border border, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
-    method public static androidx.ui.core.Modifier drawBorder--qa9Gvs(androidx.ui.core.Modifier, float size, long color, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
-    method public static androidx.ui.core.Modifier drawBorder-9JauuOk(androidx.ui.core.Modifier, float size, androidx.compose.ui.graphics.Brush brush, androidx.compose.ui.graphics.Shape shape);
+    method public static androidx.ui.core.Modifier drawBorder-D25cWHo(androidx.ui.core.Modifier, float size, androidx.compose.ui.graphics.Brush brush, androidx.compose.ui.graphics.Shape shape);
+    method public static androidx.ui.core.Modifier drawBorder-XW3HxwY(androidx.ui.core.Modifier, float size, long color, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
   }
 
   @kotlin.RequiresOptIn(message="This foundation API is experimental and is likely to change or be removed in the " + "future.") public @interface ExperimentalFoundationApi {
@@ -198,8 +198,8 @@ package androidx.compose.foundation {
 
   public final class TextKt {
     method @androidx.compose.Composable public static void ProvideTextStyle(androidx.compose.ui.text.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method @androidx.compose.Composable public static void Text-B9ZxLYc(String text, androidx.ui.core.Modifier modifier = Modifier, long color = Color.Unset, long fontSize = TextUnit.Inherit, androidx.compose.ui.text.font.FontStyle? fontStyle = null, androidx.compose.ui.text.font.FontWeight? fontWeight = null, androidx.compose.ui.text.font.FontFamily? fontFamily = null, long letterSpacing = TextUnit.Inherit, androidx.compose.ui.text.style.TextDecoration? textDecoration = null, androidx.compose.ui.text.style.TextAlign? textAlign = null, long lineHeight = TextUnit.Inherit, androidx.compose.ui.text.style.TextOverflow overflow = TextOverflow.Clip, boolean softWrap = true, int maxLines = 2147483647, java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent = mapOf(), kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, androidx.compose.ui.text.TextStyle style = currentTextStyle());
-    method @androidx.compose.Composable public static void Text-k_des18(androidx.compose.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier, long color = Color.Unset, long fontSize = TextUnit.Inherit, androidx.compose.ui.text.font.FontStyle? fontStyle = null, androidx.compose.ui.text.font.FontWeight? fontWeight = null, androidx.compose.ui.text.font.FontFamily? fontFamily = null, long letterSpacing = TextUnit.Inherit, androidx.compose.ui.text.style.TextDecoration? textDecoration = null, androidx.compose.ui.text.style.TextAlign? textAlign = null, long lineHeight = TextUnit.Inherit, androidx.compose.ui.text.style.TextOverflow overflow = TextOverflow.Clip, boolean softWrap = true, int maxLines = 2147483647, java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent = mapOf(), kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, androidx.compose.ui.text.TextStyle style = currentTextStyle());
+    method @androidx.compose.Composable public static void Text-OwS078w(androidx.compose.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier, long color = Color.Unset, long fontSize = TextUnit.Inherit, androidx.compose.ui.text.font.FontStyle? fontStyle = null, androidx.compose.ui.text.font.FontWeight? fontWeight = null, androidx.compose.ui.text.font.FontFamily? fontFamily = null, long letterSpacing = TextUnit.Inherit, androidx.compose.ui.text.style.TextDecoration? textDecoration = null, androidx.compose.ui.text.style.TextAlign? textAlign = null, long lineHeight = TextUnit.Inherit, androidx.compose.ui.text.style.TextOverflow overflow = TextOverflow.Clip, boolean softWrap = true, int maxLines = 2147483647, java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent = mapOf(), kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, androidx.compose.ui.text.TextStyle style = currentTextStyle());
+    method @androidx.compose.Composable public static void Text-xPlIdmA(String text, androidx.ui.core.Modifier modifier = Modifier, long color = Color.Unset, long fontSize = TextUnit.Inherit, androidx.compose.ui.text.font.FontStyle? fontStyle = null, androidx.compose.ui.text.font.FontWeight? fontWeight = null, androidx.compose.ui.text.font.FontFamily? fontFamily = null, long letterSpacing = TextUnit.Inherit, androidx.compose.ui.text.style.TextDecoration? textDecoration = null, androidx.compose.ui.text.style.TextAlign? textAlign = null, long lineHeight = TextUnit.Inherit, androidx.compose.ui.text.style.TextOverflow overflow = TextOverflow.Clip, boolean softWrap = true, int maxLines = 2147483647, java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent = mapOf(), kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, androidx.compose.ui.text.TextStyle style = currentTextStyle());
     method @androidx.compose.Composable public static androidx.compose.ui.text.TextStyle currentTextStyle();
   }
 
@@ -214,7 +214,7 @@ package androidx.compose.foundation.animation {
   }
 
   public final class AndroidFlingDecaySpec implements androidx.compose.animation.core.FloatDecayAnimationSpec {
-    ctor public AndroidFlingDecaySpec(androidx.ui.unit.Density density);
+    ctor public AndroidFlingDecaySpec(androidx.compose.ui.unit.Density density);
     method public float getAbsVelocityThreshold();
     method public long getDurationMillis(float start, float startVelocity);
     method public float getTarget(float start, float startVelocity);
@@ -246,7 +246,7 @@ package androidx.compose.foundation.animation {
 package androidx.compose.foundation.gestures {
 
   public final class DraggableKt {
-    method public static androidx.ui.core.Modifier draggable(androidx.ui.core.Modifier, androidx.ui.core.gesture.scrollorientationlocking.Orientation orientation, boolean enabled = true, boolean reverseDirection = false, androidx.compose.foundation.InteractionState? interactionState = null, boolean startDragImmediately = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean> canDrag = { return enabled }, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, kotlin.jvm.functions.Function2<? super androidx.ui.unit.Density,? super java.lang.Float,kotlin.Unit> onDrag);
+    method public static androidx.ui.core.Modifier draggable(androidx.ui.core.Modifier, androidx.ui.core.gesture.scrollorientationlocking.Orientation orientation, boolean enabled = true, boolean reverseDirection = false, androidx.compose.foundation.InteractionState? interactionState = null, boolean startDragImmediately = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean> canDrag = { return enabled }, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super java.lang.Float,kotlin.Unit> onDrag);
   }
 
   public final class ScrollableController {
@@ -347,7 +347,7 @@ package androidx.compose.foundation.shape {
   public final class GenericShape implements androidx.compose.ui.graphics.Shape {
     ctor public GenericShape(kotlin.jvm.functions.Function2<? super androidx.compose.ui.graphics.Path,? super androidx.compose.ui.geometry.Size,kotlin.Unit> builder);
     method public androidx.compose.foundation.shape.GenericShape copy(kotlin.jvm.functions.Function2<? super androidx.compose.ui.graphics.Path,? super androidx.compose.ui.geometry.Size,kotlin.Unit> builder);
-    method public androidx.compose.ui.graphics.Outline createOutline-6PvjmT0(long size, androidx.ui.unit.Density density);
+    method public androidx.compose.ui.graphics.Outline createOutline-lwCvPpU(long size, androidx.compose.ui.unit.Density density);
   }
 
 }
@@ -358,8 +358,8 @@ package androidx.compose.foundation.shape.corner {
     ctor public CornerBasedShape(androidx.compose.foundation.shape.corner.CornerSize topLeft, androidx.compose.foundation.shape.corner.CornerSize topRight, androidx.compose.foundation.shape.corner.CornerSize bottomRight, androidx.compose.foundation.shape.corner.CornerSize bottomLeft);
     method public abstract androidx.compose.foundation.shape.corner.CornerBasedShape copy(androidx.compose.foundation.shape.corner.CornerSize topLeft = topLeft, androidx.compose.foundation.shape.corner.CornerSize topRight = topRight, androidx.compose.foundation.shape.corner.CornerSize bottomRight = bottomRight, androidx.compose.foundation.shape.corner.CornerSize bottomLeft = bottomLeft);
     method public final androidx.compose.foundation.shape.corner.CornerBasedShape copy(androidx.compose.foundation.shape.corner.CornerSize all);
-    method public final androidx.compose.ui.graphics.Outline createOutline-6PvjmT0(long size, androidx.ui.unit.Density density);
     method public abstract androidx.compose.ui.graphics.Outline createOutline-hMawgr0(long size, float topLeft, float topRight, float bottomRight, float bottomLeft);
+    method public final androidx.compose.ui.graphics.Outline createOutline-lwCvPpU(long size, androidx.compose.ui.unit.Density density);
     method public final androidx.compose.foundation.shape.corner.CornerSize getBottomLeft();
     method public final androidx.compose.foundation.shape.corner.CornerSize getBottomRight();
     method public final androidx.compose.foundation.shape.corner.CornerSize getTopLeft();
@@ -367,13 +367,13 @@ package androidx.compose.foundation.shape.corner {
   }
 
   @androidx.compose.Immutable public interface CornerSize {
-    method public float toPx-6PvjmT0(long shapeSize, androidx.ui.unit.Density density);
+    method public float toPx-lwCvPpU(long shapeSize, androidx.compose.ui.unit.Density density);
   }
 
   public final class CornerSizeKt {
     method @androidx.compose.Stable public static androidx.compose.foundation.shape.corner.CornerSize CornerSize(float size);
     method @androidx.compose.Stable public static androidx.compose.foundation.shape.corner.CornerSize CornerSize(@IntRange(from=0, to=100) int percent);
-    method @androidx.compose.Stable public static androidx.compose.foundation.shape.corner.CornerSize CornerSize-ipo6vVg(float size);
+    method @androidx.compose.Stable public static androidx.compose.foundation.shape.corner.CornerSize CornerSize-0680j_4(float size);
     method public static androidx.compose.foundation.shape.corner.CornerSize getZeroCornerSize();
   }
 
@@ -389,8 +389,8 @@ package androidx.compose.foundation.shape.corner {
     method public static androidx.compose.foundation.shape.corner.CutCornerShape CutCornerShape(int percent);
     method public static androidx.compose.foundation.shape.corner.CutCornerShape CutCornerShape(float topLeft = 0.0f, float topRight = 0.0f, float bottomRight = 0.0f, float bottomLeft = 0.0f);
     method public static androidx.compose.foundation.shape.corner.CutCornerShape CutCornerShape(@IntRange(from=0, to=100) int topLeftPercent = 0, @IntRange(from=0, to=100) int topRightPercent = 0, @IntRange(from=0, to=100) int bottomRightPercent = 0, @IntRange(from=0, to=100) int bottomLeftPercent = 0);
-    method public static androidx.compose.foundation.shape.corner.CutCornerShape CutCornerShape-ipo6vVg(float size);
-    method public static androidx.compose.foundation.shape.corner.CutCornerShape CutCornerShape-rIHlIKc(float topLeft = 0.dp, float topRight = 0.dp, float bottomRight = 0.dp, float bottomLeft = 0.dp);
+    method public static androidx.compose.foundation.shape.corner.CutCornerShape CutCornerShape-0680j_4(float size);
+    method public static androidx.compose.foundation.shape.corner.CutCornerShape CutCornerShape-ZmiikuI(float topLeft = 0.dp, float topRight = 0.dp, float bottomRight = 0.dp, float bottomLeft = 0.dp);
   }
 
   public final class RoundedCornerShape extends androidx.compose.foundation.shape.corner.CornerBasedShape {
@@ -405,8 +405,8 @@ package androidx.compose.foundation.shape.corner {
     method public static androidx.compose.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(int percent);
     method public static androidx.compose.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(float topLeft = 0.0f, float topRight = 0.0f, float bottomRight = 0.0f, float bottomLeft = 0.0f);
     method public static androidx.compose.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(@IntRange(from=0, to=100) int topLeftPercent = 0, @IntRange(from=0, to=100) int topRightPercent = 0, @IntRange(from=0, to=100) int bottomRightPercent = 0, @IntRange(from=0, to=100) int bottomLeftPercent = 0);
-    method public static androidx.compose.foundation.shape.corner.RoundedCornerShape RoundedCornerShape-ipo6vVg(float size);
-    method public static androidx.compose.foundation.shape.corner.RoundedCornerShape RoundedCornerShape-rIHlIKc(float topLeft = 0.dp, float topRight = 0.dp, float bottomRight = 0.dp, float bottomLeft = 0.dp);
+    method public static androidx.compose.foundation.shape.corner.RoundedCornerShape RoundedCornerShape-0680j_4(float size);
+    method public static androidx.compose.foundation.shape.corner.RoundedCornerShape RoundedCornerShape-ZmiikuI(float topLeft = 0.dp, float topRight = 0.dp, float bottomRight = 0.dp, float bottomLeft = 0.dp);
     method public static androidx.compose.foundation.shape.corner.RoundedCornerShape getCircleShape();
   }
 

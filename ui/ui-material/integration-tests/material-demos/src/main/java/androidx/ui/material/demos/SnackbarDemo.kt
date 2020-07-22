@@ -27,7 +27,7 @@ import androidx.ui.material.Snackbar
 import androidx.ui.material.TextButton
 import androidx.ui.material.samples.SimpleSnackbar
 import androidx.ui.material.snackbarPrimaryColorFor
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun SnackbarDemo() {

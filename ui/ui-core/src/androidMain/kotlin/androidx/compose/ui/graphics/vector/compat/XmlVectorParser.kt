@@ -37,7 +37,7 @@ import androidx.compose.ui.graphics.vector.EmptyPath
 import androidx.compose.ui.graphics.vector.PathNode
 import androidx.compose.ui.graphics.vector.VectorAssetBuilder
 import androidx.compose.ui.graphics.vector.addPathNodes
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 

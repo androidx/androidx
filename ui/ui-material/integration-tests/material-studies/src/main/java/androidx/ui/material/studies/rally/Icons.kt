@@ -28,8 +28,8 @@ import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.lazyMaterialIcon
 import androidx.ui.material.icons.materialPath
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 /**
  * 24x24dp icon from a resource id.

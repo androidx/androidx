@@ -35,8 +35,8 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.compose.ui.geometry.Offset
 import androidx.ui.testutils.down
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.milliseconds
 import androidx.ui.viewinterop.AndroidView
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any

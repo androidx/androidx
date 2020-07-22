@@ -35,10 +35,11 @@ enum class TextDirection {
     /**
      * This value indicates that the text direction depends on the first strong directional
      * character in the text according to the Unicode Bidirectional Algorithm.
-     * * If no strong directional character is present, then [androidx.ui.core.LayoutDirection]
-     * is used to resolve the final TextDirection.
+     * If no strong directional character is present, then
+     * [androidx.compose.ui.unit.LayoutDirection] is used to resolve the final TextDirection.
      * * if used while creating a Paragraph object, [androidx.compose.ui.text.intl.LocaleList] will
-     * be used to resolve the direction as a fallback instead of [androidx.ui.core.LayoutDirection].
+     * be used to resolve the direction as a fallback instead of
+     * [androidx.compose.ui.unit.LayoutDirection].
      */
     Content,
 

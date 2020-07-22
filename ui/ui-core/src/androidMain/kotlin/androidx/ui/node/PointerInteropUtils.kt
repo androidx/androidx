@@ -22,9 +22,9 @@ import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import androidx.ui.core.PointerEvent
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.Duration
-import androidx.ui.unit.NanosecondsPerMillisecond
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.Duration
+import androidx.compose.ui.unit.NanosecondsPerMillisecond
+import androidx.compose.ui.unit.milliseconds
 
 /**
  * Converts to a [MotionEvent] and runs [block] with it.

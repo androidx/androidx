@@ -24,9 +24,9 @@ import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
@@ -34,7 +34,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.waitForIdle
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import junit.framework.TestCase.assertEquals
 import org.junit.Rule
 import org.junit.Test

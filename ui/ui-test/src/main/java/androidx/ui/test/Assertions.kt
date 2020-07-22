@@ -26,9 +26,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.SemanticsProperties
-import androidx.ui.unit.height
-import androidx.ui.unit.toRect
-import androidx.ui.unit.width
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.toRect
+import androidx.compose.ui.unit.width
 
 /**
  * Asserts that the current semantics node has hidden property set to true.

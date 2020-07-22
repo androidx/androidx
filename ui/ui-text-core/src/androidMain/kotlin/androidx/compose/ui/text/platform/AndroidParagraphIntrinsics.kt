@@ -33,7 +33,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.platform.extensions.applySpanStyle
 import androidx.compose.ui.text.style.TextDirection
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 import java.util.Locale
 
 @OptIn(InternalPlatformTextApi::class)

@@ -27,8 +27,8 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.test.ComposeTestCase
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.ui.unit.Dp
-import androidx.ui.unit.TextUnit
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 
 /**
  * The benchmark test case for [Text], where the input is an [AnnotatedString] with [TextStyle]s

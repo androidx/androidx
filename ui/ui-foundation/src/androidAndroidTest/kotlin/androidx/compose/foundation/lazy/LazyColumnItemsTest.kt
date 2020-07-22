@@ -55,9 +55,9 @@ import androidx.ui.test.runOnIdle
 import androidx.ui.test.swipeUp
 import androidx.ui.test.swipeWithVelocity
 import androidx.ui.test.waitForIdle
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.google.common.collect.Range
 import com.google.common.truth.IntegerSubject
 import com.google.common.truth.Truth

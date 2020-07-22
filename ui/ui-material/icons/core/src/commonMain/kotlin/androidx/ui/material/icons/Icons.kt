@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.vector.PathBuilder
 import androidx.compose.ui.graphics.vector.VectorAsset
 import androidx.compose.ui.graphics.vector.VectorAssetBuilder
 import androidx.compose.ui.graphics.vector.path
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 /**
  * Entry point for using [Material Icons](https://material.io/resources/icons) in Compose.

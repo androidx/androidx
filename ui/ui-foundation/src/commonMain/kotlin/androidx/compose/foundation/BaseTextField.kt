@@ -51,7 +51,7 @@ import androidx.compose.foundation.text.TextFieldDelegate
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.constrain
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 // TODO(b/151940543): Remove this variable when we have a solution for idling animations
 /** @suppress */

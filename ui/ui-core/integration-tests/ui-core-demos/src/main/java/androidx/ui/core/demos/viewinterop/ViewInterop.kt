@@ -42,7 +42,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.ui.material.Button
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import androidx.ui.viewinterop.AndroidView
 import androidx.ui.viewinterop.emitView
 

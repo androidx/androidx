@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.foundation.text.FirstBaseline
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Layout
@@ -32,9 +32,9 @@ import androidx.ui.core.WithConstraints
 import androidx.ui.core.positionInRoot
 import androidx.ui.core.onPositioned
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.Dp
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue

@@ -16,6 +16,9 @@
 
 package androidx.ui.core
 
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
+
 /**
  * A part of the composition that can be measured. This represents a layout.
  * The instance should never be stored.

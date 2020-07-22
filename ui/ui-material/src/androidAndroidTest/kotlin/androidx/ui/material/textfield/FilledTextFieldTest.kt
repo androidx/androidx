@@ -64,9 +64,9 @@ import androidx.ui.test.performImeAction
 import androidx.ui.test.waitForIdle
 import androidx.compose.foundation.text.FirstBaseline
 import androidx.compose.ui.text.SoftwareKeyboardController
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.dp
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce

@@ -28,8 +28,8 @@ import androidx.ui.core.consumeAllChanges
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.milliseconds
 import androidx.ui.util.fastAny
 import androidx.ui.viewinterop.AndroidViewHolder
 

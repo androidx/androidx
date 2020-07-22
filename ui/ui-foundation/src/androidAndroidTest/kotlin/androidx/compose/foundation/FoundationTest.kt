@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.ui.test.ComposeTestRule
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 /**
  * Constant to emulate very big but finite constraints

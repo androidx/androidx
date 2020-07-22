@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics.vector
 
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith

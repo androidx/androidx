@@ -39,7 +39,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.material.MaterialTheme
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 @OptIn(ExperimentalFoundationApi::class)

@@ -23,9 +23,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.android.AndroidOwnerRegistry
-import androidx.ui.unit.Duration
-import androidx.ui.unit.inMilliseconds
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.Duration
+import androidx.compose.ui.unit.inMilliseconds
+import androidx.compose.ui.unit.milliseconds
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement

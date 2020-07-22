@@ -30,13 +30,13 @@ import androidx.ui.core.AnimationClockAmbient
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.ui.unit.Bounds
-import androidx.ui.unit.Dp
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.Position
-import androidx.ui.unit.PxBounds
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Bounds
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Position
+import androidx.compose.ui.unit.PxBounds
+import androidx.compose.ui.unit.dp
 
 internal const val DpVisibilityThreshold = 0.1f
 internal const val PxVisibilityThreshold = 0.5f

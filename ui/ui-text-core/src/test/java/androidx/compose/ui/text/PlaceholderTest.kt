@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.text
 
-import androidx.ui.unit.TextUnit
-import androidx.ui.unit.em
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.em
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

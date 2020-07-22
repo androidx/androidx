@@ -19,7 +19,7 @@ package androidx.compose.ui.graphics.vector
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
-import androidx.ui.unit.Dp
+import androidx.compose.ui.unit.Dp
 
 private inline class Stack<T>(private val backing: ArrayList<T> = ArrayList<T>()) {
     val size: Int get() = backing.size

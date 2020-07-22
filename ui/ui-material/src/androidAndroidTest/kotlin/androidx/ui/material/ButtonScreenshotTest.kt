@@ -31,7 +31,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.performPartialGesture
 import androidx.ui.test.onNode
 import androidx.ui.test.onNodeWithText
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import androidx.ui.test.hasClickAction
 import androidx.ui.test.down
 import androidx.ui.test.onRoot

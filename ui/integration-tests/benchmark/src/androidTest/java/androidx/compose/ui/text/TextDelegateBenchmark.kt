@@ -23,8 +23,8 @@ import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.benchmark.measureRepeatedRecordingCanvas
-import androidx.ui.core.Constraints
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageAsset
@@ -33,8 +33,8 @@ import androidx.ui.integration.test.RandomTextGenerator
 import androidx.ui.integration.test.TextBenchmarkTestRule
 import androidx.ui.integration.test.cartesian
 import androidx.compose.ui.text.font.Font
-import androidx.ui.unit.Density
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.sp
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

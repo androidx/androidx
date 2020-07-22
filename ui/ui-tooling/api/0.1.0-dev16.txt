@@ -2,11 +2,11 @@
 package androidx.ui.tooling {
 
   public final class CallGroup extends androidx.ui.tooling.Group {
-    ctor public CallGroup(Object? key, String? name, androidx.ui.unit.IntBounds box, androidx.ui.tooling.SourceLocation? location, java.util.List<androidx.ui.tooling.ParameterInformation> parameters, java.util.Collection<?> data, java.util.Collection<? extends androidx.ui.tooling.Group> children);
+    ctor public CallGroup(Object? key, String? name, androidx.compose.ui.unit.IntBounds box, androidx.ui.tooling.SourceLocation? location, java.util.List<androidx.ui.tooling.ParameterInformation> parameters, java.util.Collection<?> data, java.util.Collection<? extends androidx.ui.tooling.Group> children);
   }
 
   public abstract sealed class Group {
-    method public final androidx.ui.unit.IntBounds getBox();
+    method public final androidx.compose.ui.unit.IntBounds getBox();
     method public final java.util.Collection<androidx.ui.tooling.Group> getChildren();
     method public final java.util.Collection<java.lang.Object> getData();
     method public final Object? getKey();
@@ -32,7 +32,7 @@ package androidx.ui.tooling {
   }
 
   public final class NodeGroup extends androidx.ui.tooling.Group {
-    ctor public NodeGroup(Object? key, Object node, androidx.ui.unit.IntBounds box, java.util.Collection<?> data, java.util.List<androidx.ui.core.ModifierInfo> modifierInfo, java.util.Collection<? extends androidx.ui.tooling.Group> children);
+    ctor public NodeGroup(Object? key, Object node, androidx.compose.ui.unit.IntBounds box, java.util.Collection<?> data, java.util.List<androidx.ui.core.ModifierInfo> modifierInfo, java.util.Collection<? extends androidx.ui.tooling.Group> children);
     method public Object getNode();
   }
 

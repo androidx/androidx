@@ -18,7 +18,7 @@ package androidx.ui.core.pointerinput
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.AlignmentLine
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.CustomEvent
 import androidx.ui.core.CustomEventDispatcher
 import androidx.ui.core.LayoutCoordinates
@@ -32,9 +32,9 @@ import androidx.ui.core.positionChange
 import androidx.compose.ui.geometry.Offset
 import androidx.ui.testutils.down
 import androidx.ui.testutils.moveTo
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.PxBounds
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.PxBounds
+import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq

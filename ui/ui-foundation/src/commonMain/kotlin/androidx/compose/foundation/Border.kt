@@ -21,7 +21,7 @@ import androidx.compose.Stable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.ui.unit.Dp
+import androidx.compose.ui.unit.Dp
 
 /**
  * Class to specify border appearance.

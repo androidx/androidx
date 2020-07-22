@@ -28,7 +28,7 @@ import androidx.ui.core.Placeable
 import androidx.ui.core.drawBehind
 import androidx.ui.core.id
 import androidx.ui.core.layoutId
-import androidx.ui.core.offset
+import androidx.compose.ui.unit.offset
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
@@ -47,9 +47,9 @@ import androidx.compose.foundation.text.LastBaseline
 import androidx.compose.ui.text.SoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.constrain
-import androidx.ui.unit.Dp
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlin.math.roundToInt
 

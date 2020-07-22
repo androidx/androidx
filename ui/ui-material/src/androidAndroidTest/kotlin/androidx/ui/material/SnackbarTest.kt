@@ -44,10 +44,10 @@ import androidx.ui.test.getAlignmentLinePosition
 import androidx.ui.test.getBoundsInRoot
 import androidx.compose.foundation.text.FirstBaseline
 import androidx.compose.foundation.text.LastBaseline
-import androidx.ui.unit.dp
-import androidx.ui.unit.height
-import androidx.ui.unit.sp
-import androidx.ui.unit.width
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

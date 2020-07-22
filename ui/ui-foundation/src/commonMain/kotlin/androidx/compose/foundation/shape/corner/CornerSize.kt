@@ -19,8 +19,8 @@ package androidx.compose.foundation.shape.corner
 import androidx.compose.ui.geometry.Size
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.ui.util.annotation.FloatRange
 import androidx.ui.util.annotation.IntRange
 

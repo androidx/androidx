@@ -25,8 +25,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.ui.unit.em
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 
 @Sampled
 @Composable

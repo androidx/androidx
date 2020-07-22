@@ -23,7 +23,7 @@ import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.structuralEqualityPolicy
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.HorizontalAlignmentLine
@@ -55,7 +55,7 @@ import androidx.compose.ui.text.length
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.subSequence
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 import androidx.ui.util.fastForEach
 import kotlin.math.floor
 import kotlin.math.max

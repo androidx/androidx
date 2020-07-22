@@ -25,7 +25,7 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.test.ComposeTestCase
 import androidx.compose.ui.text.TextStyle
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.sp
 
 /**
  * Test case that puts the given amount of rectangles into a column layout and makes changes by

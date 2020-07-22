@@ -33,7 +33,7 @@ import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.icons.Icons
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import java.text.DecimalFormat
 
 /**

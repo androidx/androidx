@@ -27,7 +27,7 @@ import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.compose.ui.text.input.TextInputService
 import androidx.ui.platform.UriHandler
 import androidx.compose.ui.text.font.Font
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -62,9 +62,9 @@ val CoroutineContextAmbient = ambientOf<CoroutineContext>()
 
 /**
  * Provides the [Density] to be used to transform between [density-independent pixel
- * units (DP)][androidx.ui.unit.Dp] and [pixel units][androidx.ui.unit.Px] or
- * [scale-independent pixel units (SP)][androidx.ui.unit.TextUnit] and
- * [pixel units][androidx.ui.unit.Px]. This is typically used when a [DP][androidx.ui.unit.Dp]
+ * units (DP)][androidx.compose.ui.unit.Dp] and [pixel units][androidx.compose.ui.unit.Px] or
+ * [scale-independent pixel units (SP)][androidx.compose.ui.unit.TextUnit] and
+ * [pixel units][androidx.compose.ui.unit.Px]. This is typically used when a [DP][androidx.compose.ui.unit.Dp]
  * is provided and it must be converted in the body of [Layout] or [DrawModifier].
  */
 val DensityAmbient = staticAmbientOf<Density>()

@@ -28,7 +28,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.Composable
 import androidx.compose.animation.transition
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
 import androidx.compose.foundation.Canvas
@@ -44,8 +44,8 @@ import androidx.compose.ui.graphics.vectormath.degrees
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.semantics.accessibilityValue
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.ui.util.annotation.FloatRange
 import kotlin.math.abs
 import kotlin.math.max

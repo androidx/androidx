@@ -48,7 +48,7 @@ import androidx.ui.test.runOnUiThread
 import androidx.ui.test.down
 import androidx.ui.test.moveBy
 import androidx.ui.test.up
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals

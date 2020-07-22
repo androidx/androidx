@@ -18,7 +18,7 @@ package androidx.compose.ui.text
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.useOrElse
@@ -33,8 +33,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
-import androidx.ui.unit.TextUnit
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import androidx.ui.util.annotation.VisibleForTesting
 
 /** The default font size if none is specified. */

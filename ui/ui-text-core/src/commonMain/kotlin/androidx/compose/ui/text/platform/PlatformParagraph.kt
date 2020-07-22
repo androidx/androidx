@@ -23,7 +23,7 @@ import androidx.compose.ui.text.ParagraphConstraints
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 
 // TODO(b/157854677): remove after fixing.
 internal expect fun ActualParagraph(

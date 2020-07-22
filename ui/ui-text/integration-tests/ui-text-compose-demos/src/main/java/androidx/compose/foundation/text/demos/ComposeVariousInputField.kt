@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.state
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.id

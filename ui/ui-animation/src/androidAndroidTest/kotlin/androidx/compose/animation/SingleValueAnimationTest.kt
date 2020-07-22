@@ -35,8 +35,8 @@ import androidx.compose.ui.graphics.lerp
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.waitForIdle
-import androidx.ui.unit.Bounds
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Bounds
+import androidx.compose.ui.unit.dp
 import androidx.ui.util.lerp
 import org.junit.Assert.assertEquals
 import org.junit.Rule

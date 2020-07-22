@@ -47,8 +47,8 @@ import androidx.compose.ui.text.samples.TextDecorationUnderlineSample
 import androidx.compose.ui.text.samples.TextStyleSample
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.ui.unit.em
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 
 const val displayText = "Text Demo"
 const val displayTextChinese = "文本演示"

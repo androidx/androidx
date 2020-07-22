@@ -52,10 +52,10 @@ import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.swipeLeft
 import androidx.ui.test.swipeRight
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.dp
-import androidx.ui.unit.toSize
-import androidx.ui.unit.width
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
 import org.junit.Rule

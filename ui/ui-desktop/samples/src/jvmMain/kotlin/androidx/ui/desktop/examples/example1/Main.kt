@@ -42,14 +42,14 @@ import androidx.ui.material.Slider
 import androidx.ui.material.TopAppBar
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import androidx.ui.unit.dp
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.fontFamily
 import androidx.ui.desktop.font
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntSize
 
 private const val title = "Desktop Compose Elements"
 

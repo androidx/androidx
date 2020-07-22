@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics.drawscope
 
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Radius
 import androidx.compose.ui.geometry.Size
@@ -36,9 +36,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vectormath.Matrix4
 import androidx.compose.ui.graphics.vectormath.degrees
-import androidx.ui.unit.Density
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.ui.util.annotation.FloatRange
 
 /**

@@ -21,7 +21,7 @@ import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
 import androidx.ui.core.ConfigurationAmbient
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.localeLayoutDirection

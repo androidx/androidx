@@ -23,7 +23,7 @@ import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.emptyContent
 import androidx.compose.animation.animate
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
@@ -46,8 +46,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.text.LastBaseline
 import androidx.compose.ui.text.style.TextAlign
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.ui.util.annotation.FloatRange
 import kotlin.math.max
 import kotlin.math.roundToInt

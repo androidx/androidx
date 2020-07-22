@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.TextStyle
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun TextFieldFocusTransition() {

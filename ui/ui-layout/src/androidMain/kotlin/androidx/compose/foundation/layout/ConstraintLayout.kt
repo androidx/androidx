@@ -37,8 +37,8 @@ import androidx.constraintlayout.core.widgets.ConstraintWidgetContainer
 import androidx.constraintlayout.core.widgets.Optimizer
 import androidx.constraintlayout.core.widgets.analyzer.BasicMeasure
 import androidx.compose.Immutable
-import androidx.ui.core.Constraints
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.foundation.text.FirstBaseline
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
@@ -46,17 +46,17 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.MultiMeasureLayout
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
-import androidx.ui.core.hasFixedHeight
-import androidx.ui.core.hasFixedWidth
+import androidx.compose.ui.unit.hasFixedHeight
+import androidx.compose.ui.unit.hasFixedWidth
 import androidx.ui.core.id
 import androidx.compose.foundation.layout.ConstraintSetBuilderScope.Companion.baselineAnchorFunction
 import androidx.compose.foundation.layout.ConstraintSetBuilderScope.Companion.horizontalAnchorFunctions
 import androidx.compose.foundation.layout.ConstraintSetBuilderScope.Companion.verticalAnchorFunctions
 import androidx.compose.foundation.layout.ConstraintSetBuilderScope.Companion.verticalAnchorIndexToFunctionIndex
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.ui.util.fastForEach
 
 /**

@@ -18,7 +18,7 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.platform.ActualParagraphIntrinsics
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 
 /**
  * Calculates and presents the intrinsic width and height of text.

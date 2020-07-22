@@ -20,7 +20,7 @@ import androidx.compose.Providers
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import androidx.ui.core.test.R
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat

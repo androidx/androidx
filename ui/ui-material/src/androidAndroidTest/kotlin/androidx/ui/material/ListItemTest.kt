@@ -29,9 +29,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageAsset
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.createComposeRule
-import androidx.ui.unit.Dp
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

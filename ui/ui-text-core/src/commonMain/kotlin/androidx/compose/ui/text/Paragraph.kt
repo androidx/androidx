@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.platform.ActualParagraph
 import androidx.compose.ui.text.style.ResolvedTextDirection
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.geometry.Offset
 
 internal const val DefaultMaxLines = Int.MAX_VALUE

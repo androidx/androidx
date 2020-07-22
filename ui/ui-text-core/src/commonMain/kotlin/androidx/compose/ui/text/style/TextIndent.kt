@@ -18,8 +18,8 @@ package androidx.compose.ui.text.style
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.unit.TextUnit
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.lerpTextUnitInheritable
 
 /**

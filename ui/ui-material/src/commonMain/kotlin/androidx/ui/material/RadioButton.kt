@@ -42,8 +42,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.material.ripple.RippleIndication
 import androidx.compose.ui.text.TextStyle
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 /**
  * Components for creating mutually exclusive set of [RadioButton]s.
@@ -123,7 +123,7 @@ fun RadioGroup(content: @Composable RadioGroupScope.() -> Unit) {
         "androidx.compose.foundation.layout.Column",
         "androidx.compose.foundation.layout.fillMaxWidth",
         "androidx.ui.core.Modifier",
-        "androidx.ui.unit.dp",
+        "androidx.compose.ui.unit.dp",
         "androidx.compose.foundation.selection.selectable"
     )
 )

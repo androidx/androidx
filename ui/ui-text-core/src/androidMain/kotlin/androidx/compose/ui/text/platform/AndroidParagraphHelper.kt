@@ -26,8 +26,8 @@ import androidx.compose.ui.text.platform.extensions.setPlaceholders
 import androidx.compose.ui.text.platform.extensions.setSpanStyles
 import androidx.compose.ui.text.platform.extensions.setTextIndent
 import androidx.compose.ui.text.style.TextIndent
-import androidx.ui.unit.Density
-import androidx.ui.unit.TextUnit
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.TextUnit
 
 @OptIn(InternalPlatformTextApi::class)
 internal fun createCharSequence(

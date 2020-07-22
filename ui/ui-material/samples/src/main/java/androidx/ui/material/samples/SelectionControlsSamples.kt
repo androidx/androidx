@@ -38,7 +38,7 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.RadioButton
 import androidx.ui.material.Switch
 import androidx.ui.material.TriStateCheckbox
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable

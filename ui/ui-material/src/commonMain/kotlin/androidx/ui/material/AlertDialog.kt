@@ -34,7 +34,7 @@ import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.material.AlertDialogButtonLayout.SideBySide
 import androidx.ui.material.AlertDialogButtonLayout.Stacked
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 /**
  * Alert dialog is a [Dialog] which interrupts the user with urgent information, details or actions.

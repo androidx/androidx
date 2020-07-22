@@ -30,7 +30,7 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.test.android.createAndroidComposeRule
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import androidx.ui.viewinterop.AndroidView
 import com.nhaarman.mockitokotlin2.clearInvocations
 import com.nhaarman.mockitokotlin2.mock

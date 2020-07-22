@@ -19,7 +19,7 @@ package androidx.compose.ui.graphics
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.Stable
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 
 /**
  * A shape describing the rectangle.

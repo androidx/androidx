@@ -26,7 +26,7 @@ import androidx.compose.emptyContent
 import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier

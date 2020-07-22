@@ -37,7 +37,7 @@ import androidx.ui.core.positionInParent
 import androidx.ui.core.positionInRoot
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.unit.PxBounds
+import androidx.compose.ui.unit.PxBounds
 import androidx.compose.ui.geometry.Offset
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

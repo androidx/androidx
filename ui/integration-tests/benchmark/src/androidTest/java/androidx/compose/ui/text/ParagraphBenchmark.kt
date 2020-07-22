@@ -22,8 +22,8 @@ import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.unit.Density
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageAsset
 import androidx.ui.integration.test.Alphabet

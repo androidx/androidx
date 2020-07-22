@@ -40,8 +40,8 @@ import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.ui.util.nativeClass
 
 /**

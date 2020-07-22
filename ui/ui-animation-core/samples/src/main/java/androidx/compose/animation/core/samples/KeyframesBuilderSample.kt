@@ -22,8 +22,8 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.keyframes
 import androidx.annotation.Sampled
-import androidx.ui.unit.Position
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Position
+import androidx.compose.ui.unit.dp
 
 @Sampled
 fun FloatKeyframesBuilder() {

@@ -23,15 +23,15 @@ import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.spring
 import androidx.compose.remember
 import androidx.ui.core.AnimationClockAmbient
-import androidx.ui.core.Constraints
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.composed
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntSize
 
 /**
  * This modifier animates its own size when its child modifier (or the child composable if it

@@ -19,7 +19,7 @@ package androidx.compose.foundation.shape.corner
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 import androidx.ui.util.nativeClass
 import kotlin.math.min
 

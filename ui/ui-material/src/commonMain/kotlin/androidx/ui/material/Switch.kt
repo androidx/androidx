@@ -23,7 +23,7 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.scrollorientationlocking.Orientation
@@ -51,7 +51,7 @@ import androidx.ui.material.SwitchDefaults.uncheckedThumbColor
 import androidx.ui.material.SwitchDefaults.uncheckedTrackColor
 import androidx.ui.material.internal.stateDraggable
 import androidx.ui.material.ripple.RippleIndication
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 /**
  * A Switch is a two state toggleable component that provides on/off like options

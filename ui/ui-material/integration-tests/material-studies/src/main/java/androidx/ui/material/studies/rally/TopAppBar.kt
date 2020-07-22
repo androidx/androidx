@@ -37,7 +37,7 @@ import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.material.ripple.RippleIndication
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import java.util.Locale
 
 @Composable

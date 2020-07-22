@@ -29,7 +29,7 @@ import androidx.compose.state
 import androidx.compose.animation.transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawLayerModifier
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.Popup
 import androidx.ui.core.PopupPositionProvider
@@ -47,14 +47,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.material.ripple.RippleIndication
-import androidx.ui.unit.Density
-import androidx.ui.unit.IntBounds
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.Position
-import androidx.ui.unit.dp
-import androidx.ui.unit.height
-import androidx.ui.unit.width
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntBounds
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Position
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.width
 import kotlin.math.max
 import kotlin.math.min
 

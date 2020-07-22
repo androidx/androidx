@@ -50,9 +50,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ltr
 import androidx.compose.foundation.layout.rtl
 import androidx.compose.foundation.layout.width
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap

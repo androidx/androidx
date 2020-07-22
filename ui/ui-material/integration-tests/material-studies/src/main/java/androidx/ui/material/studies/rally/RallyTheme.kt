@@ -24,8 +24,8 @@ import androidx.ui.material.darkColorPalette
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.ui.unit.em
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 
 val rallyGreen = Color(0xFF1EB980)
 

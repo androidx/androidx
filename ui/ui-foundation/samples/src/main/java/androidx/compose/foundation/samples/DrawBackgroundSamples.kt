@@ -25,7 +25,7 @@ import androidx.compose.foundation.shape.corner.CutCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.HorizontalGradient
 import androidx.compose.foundation.layout.padding
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 @Sampled

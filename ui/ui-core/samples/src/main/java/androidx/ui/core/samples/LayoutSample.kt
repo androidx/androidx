@@ -18,7 +18,7 @@ package androidx.ui.core.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier

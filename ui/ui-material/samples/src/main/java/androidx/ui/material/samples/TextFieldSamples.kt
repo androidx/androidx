@@ -38,7 +38,7 @@ import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.icons.filled.Info
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.text.TextRange
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable

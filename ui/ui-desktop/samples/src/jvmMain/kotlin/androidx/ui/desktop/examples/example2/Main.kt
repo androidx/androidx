@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntSize
 import androidx.ui.desktop.AppWindow
 
 private const val title = "Desktop Compose Canvas"

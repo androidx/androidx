@@ -30,8 +30,8 @@ import androidx.ui.test.util.relativeEventTimes
 import androidx.ui.test.util.relativeTime
 import androidx.ui.test.util.splitsDurationEquallyInto
 import androidx.ui.test.util.verify
-import androidx.ui.unit.Duration
-import androidx.ui.unit.inMilliseconds
+import androidx.compose.ui.unit.Duration
+import androidx.compose.ui.unit.inMilliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before

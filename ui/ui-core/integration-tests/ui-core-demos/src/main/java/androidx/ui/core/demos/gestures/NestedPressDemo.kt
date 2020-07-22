@@ -31,7 +31,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 /**
  * Demonstration of how various press/tap gesture interact together in a nested fashion.

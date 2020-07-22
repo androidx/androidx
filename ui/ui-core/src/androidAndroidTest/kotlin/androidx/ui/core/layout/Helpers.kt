@@ -16,10 +16,10 @@
 
 package androidx.ui.core.layout
 
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.HorizontalAlignmentLine
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Measurable

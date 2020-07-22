@@ -16,6 +16,9 @@
 
 package androidx.ui.core
 
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
+
 /**
  * The receiver scope of a layout's measure lambda. The return value of the
  * measure lambda is [MeasureResult], which should be returned by [layout]

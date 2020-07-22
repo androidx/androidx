@@ -32,8 +32,8 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.lerp
-import androidx.ui.unit.TextUnit
-import androidx.ui.unit.lerp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.lerp
 
 /**
  * Styling configuration for a text span. This configuration only allows character level styling,

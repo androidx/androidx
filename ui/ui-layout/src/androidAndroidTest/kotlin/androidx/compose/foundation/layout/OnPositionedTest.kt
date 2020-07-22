@@ -32,9 +32,9 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInParent
 import androidx.ui.core.positionInRoot
 import androidx.ui.core.setContent
-import androidx.ui.unit.Dp
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Assert.assertTrue

@@ -27,9 +27,9 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.core.Alignment
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.drawBehind
@@ -38,7 +38,7 @@ import androidx.ui.core.focus.FocusState
 import androidx.ui.core.focus.focusState
 import androidx.ui.core.id
 import androidx.ui.core.layoutId
-import androidx.ui.core.offset
+import androidx.compose.ui.unit.offset
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.currentTextStyle
@@ -55,8 +55,8 @@ import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.SoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.constrain
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlin.math.roundToInt
 

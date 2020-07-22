@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun DeclarativeGraphicsDemo() {

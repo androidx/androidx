@@ -27,7 +27,7 @@ import androidx.compose.animation.asDisposableClock
 import androidx.ui.core.Alignment
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
@@ -63,7 +63,7 @@ import androidx.ui.semantics.accessibilityValueRange
 import androidx.ui.semantics.scrollBackward
 import androidx.ui.semantics.scrollForward
 import androidx.ui.semantics.setProgress
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import androidx.ui.util.format
 import androidx.ui.util.lerp
 import androidx.ui.util.annotation.IntRange

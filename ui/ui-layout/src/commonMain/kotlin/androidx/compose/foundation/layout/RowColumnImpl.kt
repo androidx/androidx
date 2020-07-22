@@ -20,11 +20,11 @@ import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureBlock2
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Measured
 import androidx.ui.core.ParentDataModifier
@@ -32,7 +32,7 @@ import androidx.ui.core.Placeable
 import androidx.ui.core.measureBlocksOf
 import androidx.compose.foundation.layout.LayoutOrientation.Horizontal
 import androidx.compose.foundation.layout.LayoutOrientation.Vertical
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 import androidx.ui.util.fastForEach
 import kotlin.math.max
 import kotlin.math.roundToInt
