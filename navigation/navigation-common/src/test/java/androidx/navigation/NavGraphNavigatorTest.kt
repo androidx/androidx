@@ -67,7 +67,11 @@ class NavGraphNavigatorTest {
     @Test(expected = IllegalStateException::class)
     fun navigateWithoutStartDestination() {
         val destination = createFirstDestination()
-        val graph = createGraphWithDestination(destination, startId = 0)
+        val graph = navGraphNavigator.createDestination().apply {
+            addDestination(destination)
+            id = 2 // can't match id of first destination or the start destination
+            startDestination = 0
+        }
         navGraphNavigator.navigate(graph, null, null, null)
     }
 
