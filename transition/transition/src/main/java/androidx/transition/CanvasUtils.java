@@ -47,7 +47,7 @@ class CanvasUtils {
                 canvas.disableZ();
             }
         } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
-            // not on P's greylist, can't use reflection
+            // not on P non-SDK API list, can't use reflection
             throw new IllegalStateException("This method doesn't work on Pie!");
         } else {
             if (!sOrderMethodsFetched) {
