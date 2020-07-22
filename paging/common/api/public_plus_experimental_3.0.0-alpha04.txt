@@ -275,6 +275,7 @@ package androidx.paging {
     method public static <T> androidx.paging.PagingData<T> empty();
     method @CheckResult public androidx.paging.PagingData<T> filter(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method @CheckResult public <R> androidx.paging.PagingData<R> flatMap(kotlin.jvm.functions.Function1<? super T,? extends java.lang.Iterable<? extends R>> transform);
+    method public static <T> androidx.paging.PagingData<T> from(java.util.List<? extends T> data);
     method @CheckResult public androidx.paging.PagingData<T> insertFooterItem(T item);
     method @CheckResult public androidx.paging.PagingData<T> insertHeaderItem(T item);
     method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T> pagingData, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
@@ -284,6 +285,7 @@ package androidx.paging {
 
   public static final class PagingData.Companion {
     method public <T> androidx.paging.PagingData<T> empty();
+    method public <T> androidx.paging.PagingData<T> from(java.util.List<? extends T> data);
     method @CheckResult public <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T> pagingData, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
   }
 
