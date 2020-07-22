@@ -24,7 +24,7 @@ import android.text.style.ScaleXSpan
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.text.font.test.R
+import androidx.compose.ui.text.font.test.R
 import androidx.compose.ui.text.android.style.BaselineShiftSpan
 import androidx.compose.ui.text.android.style.SkewXSpan
 import com.google.common.truth.Truth.assertThat

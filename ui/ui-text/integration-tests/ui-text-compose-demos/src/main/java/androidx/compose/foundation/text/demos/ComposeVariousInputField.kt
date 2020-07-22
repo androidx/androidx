@@ -32,20 +32,20 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
-import androidx.ui.input.ImeAction
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.OffsetMap
-import androidx.ui.input.PasswordVisualTransformation
-import androidx.ui.input.TextFieldValue
-import androidx.ui.input.TransformedText
-import androidx.ui.input.VisualTransformation
-import androidx.ui.intl.LocaleList
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMap
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextRange
-import androidx.ui.text.TextStyle
-import androidx.ui.text.toUpperCase
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.toUpperCase
 import kotlin.math.roundToInt
 
 /**

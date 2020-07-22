@@ -18,7 +18,7 @@ package androidx.ui.core.selection
 
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.geometry.Rect
-import androidx.ui.text.AnnotatedString
+import androidx.compose.ui.text.AnnotatedString
 import androidx.ui.geometry.Offset
 
 /**

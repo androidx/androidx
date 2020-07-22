@@ -15,14 +15,14 @@
  */
 package androidx.ui.desktop
 
-import androidx.ui.input.BackspaceKeyEditOp
-import androidx.ui.input.CommitTextEditOp
-import androidx.ui.input.EditOperation
-import androidx.ui.input.TextFieldValue
-import androidx.ui.input.ImeAction
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.MoveCursorEditOp
-import androidx.ui.input.PlatformTextInputService
+import androidx.compose.ui.text.input.BackspaceKeyEditOp
+import androidx.compose.ui.text.input.CommitTextEditOp
+import androidx.compose.ui.text.input.EditOperation
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.MoveCursorEditOp
+import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.ui.geometry.Rect
 
 import java.awt.event.KeyEvent

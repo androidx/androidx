@@ -23,10 +23,10 @@ import androidx.compose.setValue
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
-import androidx.ui.input.ImeAction
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.PasswordVisualTransformation
-import androidx.ui.input.TextFieldValue
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.ui.material.EmphasisAmbient
@@ -37,7 +37,7 @@ import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.icons.filled.Info
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.ui.text.TextRange
+import androidx.compose.ui.text.TextRange
 import androidx.ui.unit.dp
 
 @Sampled

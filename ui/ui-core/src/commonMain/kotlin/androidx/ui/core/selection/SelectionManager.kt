@@ -30,11 +30,11 @@ import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.core.texttoolbar.TextToolbarStatus
 import androidx.ui.geometry.Rect
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.length
-import androidx.ui.text.subSequence
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.length
+import androidx.compose.ui.text.subSequence
 import androidx.ui.geometry.Offset
-import androidx.ui.text.InternalTextApi
+import androidx.compose.ui.text.InternalTextApi
 import kotlin.math.max
 import kotlin.math.min
 

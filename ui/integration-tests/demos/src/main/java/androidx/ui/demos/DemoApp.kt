@@ -33,7 +33,7 @@ import androidx.ui.demos.common.allLaunchableDemos
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
-import androidx.ui.input.TextFieldValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight

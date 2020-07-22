@@ -1,4 +1,14 @@
 // Signature format: 3.0
+package androidx.compose.ui.text.input {
+
+  public final class InputStateKt {
+  }
+
+  public final class RecordingInputConnectionKt {
+  }
+
+}
+
 package androidx.ui.autofill {
 
   public final class AndroidAutofillDebugUtilsKt {
@@ -178,7 +188,7 @@ package androidx.ui.core {
     method public static androidx.compose.ProvidableAmbient<androidx.ui.core.clipboard.ClipboardManager> getClipboardManagerAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.unit.Density> getDensityAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.core.hapticfeedback.HapticFeedback> getHapticFeedBackAmbient();
-    method public static androidx.compose.ProvidableAmbient<androidx.ui.input.TextInputService> getTextInputServiceAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.compose.ui.text.input.TextInputService> getTextInputServiceAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.core.texttoolbar.TextToolbar> getTextToolbarAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.platform.UriHandler> getUriHandlerAmbient();
   }
@@ -658,14 +668,14 @@ package androidx.ui.core {
     method public androidx.ui.autofill.AutofillTree getAutofillTree();
     method public androidx.ui.core.clipboard.ClipboardManager getClipboardManager();
     method public androidx.ui.unit.Density getDensity();
-    method public androidx.ui.text.font.Font.ResourceLoader getFontLoader();
+    method public androidx.compose.ui.text.font.Font.ResourceLoader getFontLoader();
     method public androidx.ui.core.hapticfeedback.HapticFeedback getHapticFeedBack();
     method public long getMeasureIteration();
     method public androidx.ui.core.LayoutNode getRoot();
     method public androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry? getSavedStateRegistry();
     method public androidx.ui.core.semantics.SemanticsOwner getSemanticsOwner();
     method public boolean getShowLayoutBounds();
-    method public androidx.ui.input.TextInputService getTextInputService();
+    method public androidx.compose.ui.text.input.TextInputService getTextInputService();
     method public androidx.ui.core.texttoolbar.TextToolbar getTextToolbar();
     method public void measureAndLayout();
     method public void observeLayoutModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
@@ -685,14 +695,14 @@ package androidx.ui.core {
     property public abstract androidx.ui.autofill.AutofillTree autofillTree;
     property public abstract androidx.ui.core.clipboard.ClipboardManager clipboardManager;
     property public abstract androidx.ui.unit.Density density;
-    property public abstract androidx.ui.text.font.Font.ResourceLoader fontLoader;
+    property public abstract androidx.compose.ui.text.font.Font.ResourceLoader fontLoader;
     property public abstract androidx.ui.core.hapticfeedback.HapticFeedback hapticFeedBack;
     property public abstract long measureIteration;
     property public abstract androidx.ui.core.LayoutNode root;
     property public abstract androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry? savedStateRegistry;
     property public abstract androidx.ui.core.semantics.SemanticsOwner semanticsOwner;
     property public abstract boolean showLayoutBounds;
-    property public abstract androidx.ui.input.TextInputService textInputService;
+    property public abstract androidx.compose.ui.text.input.TextInputService textInputService;
     property public abstract androidx.ui.core.texttoolbar.TextToolbar textToolbar;
     field public static final androidx.ui.core.Owner.Companion Companion;
   }
@@ -924,8 +934,8 @@ package androidx.ui.core.clipboard {
   }
 
   public interface ClipboardManager {
-    method public androidx.ui.text.AnnotatedString? getText();
-    method public void setText(androidx.ui.text.AnnotatedString annotatedString);
+    method public androidx.compose.ui.text.AnnotatedString? getText();
+    method public void setText(androidx.compose.ui.text.AnnotatedString annotatedString);
   }
 
 }
@@ -1897,7 +1907,7 @@ package androidx.ui.core.selection {
     method public androidx.ui.geometry.Offset getHandlePosition(androidx.ui.core.selection.Selection selection, boolean isStartHandle);
     method public androidx.ui.core.LayoutCoordinates? getLayoutCoordinates();
     method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.geometry.Offset startPosition, androidx.ui.geometry.Offset endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, boolean longPress, androidx.ui.core.selection.Selection? previousSelection = null, boolean isStartHandle = true);
-    method public androidx.ui.text.AnnotatedString getText();
+    method public androidx.compose.ui.text.AnnotatedString getText();
   }
 
   @androidx.compose.Immutable public final class Selection {
@@ -1910,16 +1920,16 @@ package androidx.ui.core.selection {
     method public boolean getHandlesCrossed();
     method public androidx.ui.core.selection.Selection.AnchorInfo getStart();
     method public androidx.ui.core.selection.Selection merge(androidx.ui.core.selection.Selection? other);
-    method public androidx.ui.text.TextRange toTextRange();
+    method public androidx.compose.ui.text.TextRange toTextRange();
   }
 
   @androidx.compose.Immutable public static final class Selection.AnchorInfo {
-    ctor public Selection.AnchorInfo(androidx.ui.text.style.ResolvedTextDirection direction, int offset, androidx.ui.core.selection.Selectable selectable);
-    method public androidx.ui.text.style.ResolvedTextDirection component1();
+    ctor public Selection.AnchorInfo(androidx.compose.ui.text.style.ResolvedTextDirection direction, int offset, androidx.ui.core.selection.Selectable selectable);
+    method public androidx.compose.ui.text.style.ResolvedTextDirection component1();
     method public int component2();
     method public androidx.ui.core.selection.Selectable component3();
-    method @androidx.compose.Immutable public androidx.ui.core.selection.Selection.AnchorInfo copy(androidx.ui.text.style.ResolvedTextDirection direction, int offset, androidx.ui.core.selection.Selectable selectable);
-    method public androidx.ui.text.style.ResolvedTextDirection getDirection();
+    method @androidx.compose.Immutable public androidx.ui.core.selection.Selection.AnchorInfo copy(androidx.compose.ui.text.style.ResolvedTextDirection direction, int offset, androidx.ui.core.selection.Selectable selectable);
+    method public androidx.compose.ui.text.style.ResolvedTextDirection getDirection();
     method public int getOffset();
     method public androidx.ui.core.selection.Selectable getSelectable();
   }
@@ -2197,16 +2207,6 @@ package androidx.ui.graphics.vector.compat {
 
 }
 
-package androidx.ui.input {
-
-  public final class InputStateKt {
-  }
-
-  public final class RecordingInputConnectionKt {
-  }
-
-}
-
 package androidx.ui.node {
 
   public final class PointerInteropFilterKt {
@@ -2262,9 +2262,9 @@ package androidx.ui.res {
   }
 
   public final class FontResourcesKt {
-    method @androidx.compose.Composable public static androidx.ui.text.Typeface fontResource(androidx.ui.text.font.FontFamily fontFamily);
-    method @androidx.compose.Composable public static androidx.ui.res.DeferredResource<androidx.ui.text.Typeface> loadFontResource(androidx.ui.text.font.FontFamily fontFamily, androidx.ui.text.font.FontFamily? pendingFontFamily = null, androidx.ui.text.font.FontFamily? failedFontFamily = null);
-    method @androidx.compose.Composable public static androidx.ui.res.DeferredResource<androidx.ui.text.Typeface> loadFontResource(androidx.ui.text.font.FontFamily fontFamily, androidx.ui.text.Typeface? pendingTypeface = null, androidx.ui.text.Typeface? failedTypeface = null);
+    method @androidx.compose.Composable public static androidx.compose.ui.text.Typeface fontResource(androidx.compose.ui.text.font.FontFamily fontFamily);
+    method @androidx.compose.Composable public static androidx.ui.res.DeferredResource<androidx.compose.ui.text.Typeface> loadFontResource(androidx.compose.ui.text.font.FontFamily fontFamily, androidx.compose.ui.text.font.FontFamily? pendingFontFamily = null, androidx.compose.ui.text.font.FontFamily? failedFontFamily = null);
+    method @androidx.compose.Composable public static androidx.ui.res.DeferredResource<androidx.compose.ui.text.Typeface> loadFontResource(androidx.compose.ui.text.font.FontFamily fontFamily, androidx.compose.ui.text.Typeface? pendingTypeface = null, androidx.compose.ui.text.Typeface? failedTypeface = null);
   }
 
   public final class ImageResourcesKt {
@@ -2338,23 +2338,23 @@ package androidx.ui.semantics {
 
   public final class SemanticsActions {
     method public androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.CustomAccessibilityAction>> getCustomActions();
-    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.util.List<androidx.ui.text.TextLayoutResult>,java.lang.Boolean>>> getGetTextLayoutResult();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.util.List<androidx.compose.ui.text.TextLayoutResult>,java.lang.Boolean>>> getGetTextLayoutResult();
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> getOnClick();
     method @Deprecated public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> getScrollBackward();
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,java.lang.Boolean>>> getScrollBy();
     method @Deprecated public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> getScrollForward();
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Boolean>>> getSetProgress();
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function3<java.lang.Integer,java.lang.Integer,java.lang.Boolean,java.lang.Boolean>>> getSetSelection();
-    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.ui.text.AnnotatedString,java.lang.Boolean>>> getSetText();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>>> getSetText();
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.CustomAccessibilityAction>> CustomActions;
-    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.util.List<androidx.ui.text.TextLayoutResult>,java.lang.Boolean>>> GetTextLayoutResult;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.util.List<androidx.compose.ui.text.TextLayoutResult>,java.lang.Boolean>>> GetTextLayoutResult;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> OnClick;
     property @Deprecated public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> ScrollBackward;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,java.lang.Boolean>>> ScrollBy;
     property @Deprecated public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> ScrollForward;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Boolean>>> SetProgress;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function3<java.lang.Integer,java.lang.Integer,java.lang.Boolean,java.lang.Boolean>>> SetSelection;
-    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.ui.text.AnnotatedString,java.lang.Boolean>>> SetText;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>>> SetText;
     field public static final androidx.ui.semantics.SemanticsActions INSTANCE;
   }
 
@@ -2367,8 +2367,8 @@ package androidx.ui.semantics {
     method public androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getHidden();
     method public androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getIsPopup();
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getTestTag();
-    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.AnnotatedString> getText();
-    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.TextRange> getTextSelectionRange();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.text.AnnotatedString> getText();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.text.TextRange> getTextSelectionRange();
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityLabel;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityRangeInfo> AccessibilityRangeInfo;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityValue;
@@ -2377,8 +2377,8 @@ package androidx.ui.semantics {
     property public final androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> Hidden;
     property public final androidx.ui.semantics.SemanticsPropertyKey<kotlin.Unit> IsPopup;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> TestTag;
-    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.AnnotatedString> Text;
-    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.TextRange> TextSelectionRange;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.text.AnnotatedString> Text;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.text.TextRange> TextSelectionRange;
     field public static final androidx.ui.semantics.SemanticsProperties INSTANCE;
   }
 
@@ -2390,9 +2390,9 @@ package androidx.ui.semantics {
     method public static java.util.List<androidx.ui.semantics.CustomAccessibilityAction> getCustomActions(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static boolean getFocused(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static String getTestTag(androidx.ui.semantics.SemanticsPropertyReceiver);
-    method public static androidx.ui.text.AnnotatedString getText(androidx.ui.semantics.SemanticsPropertyReceiver);
-    method public static void getTextLayoutResult(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function1<? super java.util.List<androidx.ui.text.TextLayoutResult>,java.lang.Boolean> action);
-    method public static androidx.ui.text.TextRange getTextSelectionRange(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static androidx.compose.ui.text.AnnotatedString getText(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static void getTextLayoutResult(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.ui.text.TextLayoutResult>,java.lang.Boolean> action);
+    method public static androidx.compose.ui.text.TextRange getTextSelectionRange(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static void hidden(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static void onClick(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function0<java.lang.Boolean> action);
     method public static void popup(androidx.ui.semantics.SemanticsPropertyReceiver);
@@ -2407,9 +2407,9 @@ package androidx.ui.semantics {
     method public static void setProgress(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> action);
     method public static void setSelection(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Boolean,java.lang.Boolean> action);
     method public static void setTestTag(androidx.ui.semantics.SemanticsPropertyReceiver, String p);
-    method public static void setText(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.text.AnnotatedString p);
-    method public static void setText(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString,java.lang.Boolean> action);
-    method public static void setTextSelectionRange(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.text.TextRange p);
+    method public static void setText(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.text.AnnotatedString p);
+    method public static void setText(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString,java.lang.Boolean> action);
+    method public static void setTextSelectionRange(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.text.TextRange p);
   }
 
   public final class SemanticsPropertyKey<T> {

@@ -41,10 +41,10 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.Popup
 import androidx.ui.graphics.Color
-import androidx.ui.input.ImeAction
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.TextFieldValue
-import androidx.ui.text.style.TextAlign
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 

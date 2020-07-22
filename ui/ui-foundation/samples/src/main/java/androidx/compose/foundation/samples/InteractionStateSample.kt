@@ -33,7 +33,7 @@ import androidx.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextAlign
 import androidx.ui.unit.dp
 
 @Sampled

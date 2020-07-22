@@ -31,8 +31,8 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Typography
 import androidx.ui.material.darkColorPalette
 import androidx.ui.material.lightColorPalette
-import androidx.ui.text.TextStyle
-import androidx.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.ui.unit.sp
 
 @Sampled

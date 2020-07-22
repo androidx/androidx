@@ -18,10 +18,10 @@ package androidx.ui.test
 
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.input.CommitTextEditOp
-import androidx.ui.input.DeleteAllEditOp
-import androidx.ui.input.EditOperation
-import androidx.ui.input.ImeAction
+import androidx.compose.ui.text.input.CommitTextEditOp
+import androidx.compose.ui.text.input.DeleteAllEditOp
+import androidx.compose.ui.text.input.EditOperation
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.text.TextSemanticsProperties
 
 /**

@@ -67,7 +67,7 @@ import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.material.Surface
 import androidx.ui.material.TopAppBar
-import androidx.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import java.util.Locale

@@ -17,8 +17,8 @@
 package androidx.ui.core.selection
 
 import androidx.compose.Immutable
-import androidx.ui.text.TextRange
-import androidx.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.style.ResolvedTextDirection
 
 /**
  * Information about the current Selection.

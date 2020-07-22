@@ -27,7 +27,7 @@ import androidx.compose.animation.transitionsEnabled
 import androidx.ui.core.setContent
 import androidx.compose.foundation.InternalFoundationApi
 import androidx.compose.foundation.blinkingCursorEnabled
-import androidx.ui.input.textInputServiceFactory
+import androidx.compose.ui.text.input.textInputServiceFactory
 import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ComposeTestCaseSetup

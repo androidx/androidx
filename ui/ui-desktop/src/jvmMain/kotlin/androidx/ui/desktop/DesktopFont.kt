@@ -15,11 +15,11 @@
 */
 package androidx.ui.desktop
 
-import androidx.ui.text.font.Font as uiFont
-import androidx.ui.text.font.FontWeight
-import androidx.ui.text.font.FontStyle
-import androidx.ui.text.font.FontFamily
-import androidx.ui.text.font.FontListFontFamily
+import androidx.compose.ui.text.font.Font as uiFont
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontListFontFamily
 import org.jetbrains.skija.FontMgr
 import org.jetbrains.skija.Typeface
 import org.jetbrains.skija.paragraph.FontCollection

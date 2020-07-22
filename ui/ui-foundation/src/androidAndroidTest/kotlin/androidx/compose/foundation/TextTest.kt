@@ -24,9 +24,9 @@ import androidx.ui.test.assertTextEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdle
-import androidx.ui.text.TextStyle
-import androidx.ui.text.font.FontStyle
-import androidx.ui.text.style.TextAlign
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.em
 import androidx.ui.unit.sp

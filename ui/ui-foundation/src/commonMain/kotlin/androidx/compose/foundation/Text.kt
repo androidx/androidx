@@ -26,18 +26,18 @@ import androidx.ui.core.semantics.semantics
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.useOrElse
 import androidx.ui.semantics.text
-import androidx.ui.text.AnnotatedString
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.foundation.text.CoreText
 import androidx.compose.foundation.text.InlineTextContent
-import androidx.ui.text.Paragraph
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextStyle
-import androidx.ui.text.font.FontFamily
-import androidx.ui.text.font.FontStyle
-import androidx.ui.text.font.FontWeight
-import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextDecoration
-import androidx.ui.text.style.TextOverflow
+import androidx.compose.ui.text.Paragraph
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.ui.unit.TextUnit
 
 /**

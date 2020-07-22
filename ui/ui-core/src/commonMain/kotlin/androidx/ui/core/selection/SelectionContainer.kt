@@ -28,7 +28,7 @@ import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.core.gesture.longPressDragGestureFilter
 import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.core.onPositioned
-import androidx.ui.text.InternalTextApi
+import androidx.compose.ui.text.InternalTextApi
 
 /**
  * Default SelectionContainer to be used in order to make composables selectable by default.

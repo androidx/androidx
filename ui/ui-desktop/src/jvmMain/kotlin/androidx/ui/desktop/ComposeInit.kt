@@ -29,8 +29,8 @@ import androidx.ui.graphics.DesktopPaint
 import androidx.ui.graphics.DesktopPath
 import androidx.ui.graphics.DesktopRadialGradientShader
 import androidx.ui.graphics.GraphicsFactory
-import androidx.ui.text.platform.paragraphActualFactory
-import androidx.ui.text.platform.paragraphIntrinsicsActualFactory
+import androidx.compose.ui.text.platform.paragraphActualFactory
+import androidx.compose.ui.text.platform.paragraphIntrinsicsActualFactory
 import org.jetbrains.skija.Library
 
 /**

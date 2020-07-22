@@ -55,7 +55,8 @@ class ErrorMessagesTest {
                 "Disabled = 'kotlin.Unit'\n" +
                 "Text = 'Toggle'\n" +
                 "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<" +
-                "java.util.List<androidx.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
+                "java.util.List<androidx.compose.ui.text.TextLayoutResult>, " +
+                "java.lang.Boolean>)'\n" +
                 "MergeDescendants = 'true'\n" +
                 "Has 1 sibling\n" +
                 "Selector used: (TestTag = 'MyButton')"
@@ -232,7 +233,8 @@ class ErrorMessagesTest {
                 "Node #X at (X, X, X, X)px\n" +
                 "Text = 'Hello'\n" +
                 "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<" +
-                "java.util.List<androidx.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
+                "java.util.List<androidx.compose.ui.text.TextLayoutResult>," +
+                " java.lang.Boolean>)'\n" +
                 "Has 1 sibling\n" +
                 "Original selector: Text = 'Hello' (ignoreCase: false)"
         ) {
@@ -259,7 +261,8 @@ class ErrorMessagesTest {
                 "Node #X at (X, X, X, X)px\n" +
                 "Text = 'Hello'\n" +
                 "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<" +
-                "java.util.List<androidx.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
+                "java.util.List<androidx.compose.ui.text.TextLayoutResult>," +
+                " java.lang.Boolean>)'\n" +
                 "Has 1 sibling\n" +
                 "Original selector: Text = 'Hello' (ignoreCase: false)"
         ) {
@@ -286,7 +289,8 @@ class ErrorMessagesTest {
                 "Node #X at (X, X, X, X)px\n" +
                 "Text = 'Hello'\n" +
                 "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<" +
-                "java.util.List<androidx.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
+                "java.util.List<androidx.compose.ui.text.TextLayoutResult>," +
+                " java.lang.Boolean>)'\n" +
                 "Has 1 sibling\n" +
                 "Original selector: Text = 'Hello' (ignoreCase: false)"
         ) {

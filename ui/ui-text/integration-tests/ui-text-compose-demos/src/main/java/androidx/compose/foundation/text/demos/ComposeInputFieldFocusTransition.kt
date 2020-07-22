@@ -24,9 +24,9 @@ import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.state
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.graphics.Color
-import androidx.ui.input.ImeAction
-import androidx.ui.input.TextFieldValue
-import androidx.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextStyle
 import androidx.ui.unit.sp
 
 @Composable

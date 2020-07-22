@@ -26,8 +26,8 @@ import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.text.InternalTextApi
-import androidx.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.text.InternalTextApi
+import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp

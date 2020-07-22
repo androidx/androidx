@@ -22,7 +22,7 @@ import android.text.TextPaint
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.text.font.test.R
+import androidx.compose.ui.text.font.test.R
 import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.android.LayoutHelper
 import androidx.compose.ui.text.android.StaticLayoutFactory

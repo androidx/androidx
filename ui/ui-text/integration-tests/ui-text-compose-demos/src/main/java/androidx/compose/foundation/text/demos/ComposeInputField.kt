@@ -23,11 +23,11 @@ import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.key
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.state
-import androidx.ui.input.ImeAction
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.TextFieldValue
-import androidx.ui.text.SoftwareKeyboardController
-import androidx.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.SoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 
 private val KEYBOARD_TYPES = listOf(
     Pair(KeyboardType.Text, "Text"),

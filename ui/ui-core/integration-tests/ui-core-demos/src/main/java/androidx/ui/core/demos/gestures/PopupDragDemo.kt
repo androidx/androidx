@@ -32,7 +32,7 @@ import androidx.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.preferredSize
-import androidx.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextAlign
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.round

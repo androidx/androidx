@@ -26,7 +26,7 @@ import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.ui.graphics.Color
-import androidx.ui.input.TextFieldValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.material.TextFieldScroller

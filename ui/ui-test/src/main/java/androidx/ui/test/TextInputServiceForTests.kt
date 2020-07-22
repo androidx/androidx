@@ -16,13 +16,13 @@
 
 package androidx.ui.test
 
-import androidx.ui.input.EditOperation
-import androidx.ui.input.TextFieldValue
-import androidx.ui.input.ImeAction
-import androidx.ui.input.InputSessionToken
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.PlatformTextInputService
-import androidx.ui.input.TextInputService
+import androidx.compose.ui.text.input.EditOperation
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.InputSessionToken
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PlatformTextInputService
+import androidx.compose.ui.text.input.TextInputService
 
 /**
  * Extra layer that serves as an observer between the text input service and text fields.
