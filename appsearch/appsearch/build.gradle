@@ -31,10 +31,12 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
     buildTypes.all {
-        minifyEnabled true
-        proguardFiles getDefaultProguardFile(
-                'proguard-android-optimize.txt'),
-                'proguard-rules.pro'
+        // TODO(b/161836669): Minifiation is currently disabled because if it is on, the aar gets
+        //   desugared twice in some workflows, which fails. Decide how to handle this (e.g.
+        //   splitting targets, continuing with the consumerProguardFiles solution here, fixing the
+        //   flows that perform duplicate desugaring, or something else).
+        minifyEnabled false
+        consumerProguardFiles 'proguard-rules.pro'
     }
     // TODO(b/161205849): We've had to move libicing.so compilation into appsearch:appsearch to get
     //  it included into the exported aar. Find a proper solution for bundling libicing.so into
