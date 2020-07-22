@@ -64,8 +64,7 @@ import androidx.ui.util.annotation.FloatRange
  */
 @Composable
 @OptIn(ExperimentalLayoutNodeApi::class)
-// TODO Make inline after fixing b/161892016
-/*inline*/ fun Column(
+inline fun Column(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalGravity: Alignment.Horizontal = Alignment.Start,
