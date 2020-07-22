@@ -22,6 +22,7 @@ import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Recomposer
+import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutDirection
@@ -131,6 +132,16 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
             this@LazyItemsState.remeasurement = remeasurement
         }
     }
+
+    /**
+     * The horizontal alignment used by [LazyColumnItems].
+     */
+    var horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally
+
+    /**
+     * The vertical alignment used by [LazyRowItems].
+     */
+    var verticalAlignment: Alignment.Vertical = Alignment.CenterVertically
 
     private val Placeable.mainAxisSize get() = if (isVertical) height else width
     private val Placeable.crossAxisSize get() = if (!isVertical) height else width
@@ -363,28 +374,29 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
                 )
             }
 
-            // Wrap the content of the children on the cross axis
-            val layoutWidth = if (isVertical) {
-                constraints.constrainWidth(maxCrossAxis)
-            } else {
-                constraints.maxWidth
-            }
-            val layoutHeight = if (!isVertical) {
-                constraints.constrainHeight(maxCrossAxis)
-            } else {
-                constraints.maxHeight
-            }
+            // Wrap the content of the children
+            val layoutWidth = constraints.constrainWidth(
+                if (isVertical) maxCrossAxis else mainAxisUsed
+            )
+            val layoutHeight = constraints.constrainHeight(
+                if (!isVertical) maxCrossAxis else mainAxisUsed
+            )
 
             return measureScope.layout(layoutWidth, layoutHeight) {
-                val currentMainAxis = (-firstItemScrollOffset).roundToInt()
-                var x = if (isVertical) 0 else currentMainAxis
-                var y = if (!isVertical) 0 else currentMainAxis
+                var currentMainAxis = (-firstItemScrollOffset).roundToInt()
+                var currentCrossAxis: Int
+
                 rootNode.children.forEach {
-                    it.place(x = x, y = y)
                     if (isVertical) {
-                        y += it.height
+                        currentCrossAxis = horizontalAlignment
+                            .align(layoutWidth - it.width, layoutDirection)
+                        // TODO(b/160139359): use placeAbsolute once RTL is fixed
+                        it.place(currentCrossAxis, currentMainAxis)
+                        currentMainAxis += it.height
                     } else {
-                        x += it.width
+                        currentCrossAxis = verticalAlignment.align(layoutHeight - it.height)
+                        it.place(currentMainAxis, currentCrossAxis)
+                        currentMainAxis += it.width
                     }
                 }
             }

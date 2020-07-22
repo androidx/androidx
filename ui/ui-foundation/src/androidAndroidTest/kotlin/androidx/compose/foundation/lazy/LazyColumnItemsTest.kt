@@ -37,10 +37,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.ui.core.Alignment
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertIsNotDisplayed
+import androidx.ui.test.assertPositionInRootIsEqualTo
 import androidx.ui.test.center
 import androidx.ui.test.onChildren
 import androidx.ui.test.createComposeRule
@@ -400,8 +403,7 @@ class LazyColumnItemsTest {
         Truth.assertThat(lazyColumnBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
         Truth.assertThat(lazyColumnBounds.right.toIntPx()).isWithin1PixelFrom(50.dp.toIntPx())
         Truth.assertThat(lazyColumnBounds.top.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
-        // TODO: wrap-content on the main-axis must be implemented
-//        Truth.assertThat(itemInsideBounds.bottom.toIntPx()).isWithin1PixelFrom(100.dp.toIntPx())
+        Truth.assertThat(lazyColumnBounds.bottom.toIntPx()).isWithin1PixelFrom(100.dp.toIntPx())
 
         runOnIdle {
             sameSizeItems = false
@@ -421,8 +423,74 @@ class LazyColumnItemsTest {
         Truth.assertThat(lazyColumnBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
         Truth.assertThat(lazyColumnBounds.right.toIntPx()).isWithin1PixelFrom(70.dp.toIntPx())
         Truth.assertThat(lazyColumnBounds.top.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
-        // TODO: wrap-content on the main-axis must be implemented
-//        Truth.assertThat(itemInsideBounds.bottom.toIntPx()).isWithin1PixelFrom(120.dp.toIntPx())
+        Truth.assertThat(lazyColumnBounds.bottom.toIntPx()).isWithin1PixelFrom(120.dp.toIntPx())
+    }
+
+    private val firstItemTag = "firstItemTag"
+    private val secondItemTag = "secondItemTag"
+
+    private fun prepareLazyColumnsItemsAlignment(horizontalGravity: Alignment.Horizontal) {
+        composeTestRule.setContent {
+            LazyColumnItems(
+                items = listOf(1, 2),
+                modifier = Modifier.testTag(LazyColumnItemsTag).width(100.dp),
+                horizontalGravity = horizontalGravity
+            ) {
+                if (it == 1) {
+                    Spacer(Modifier.preferredSize(50.dp).testTag(firstItemTag))
+                } else {
+                    Spacer(Modifier.preferredSize(70.dp).testTag(secondItemTag))
+                }
+            }
+        }
+
+        onNodeWithTag(firstItemTag)
+            .assertIsDisplayed()
+
+        onNodeWithTag(secondItemTag)
+            .assertIsDisplayed()
+
+        val lazyColumnBounds = onNodeWithTag(LazyColumnItemsTag)
+            .getBoundsInRoot()
+
+        with(composeTestRule.density) {
+            // Verify the width of the column
+            Truth.assertThat(lazyColumnBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
+            Truth.assertThat(lazyColumnBounds.right.toIntPx()).isWithin1PixelFrom(100.dp.toIntPx())
+        }
+    }
+
+    @Test
+    fun lazyColumnAlignmentCenterHorizontally() {
+        prepareLazyColumnsItemsAlignment(Alignment.CenterHorizontally)
+
+        onNodeWithTag(firstItemTag)
+            .assertPositionInRootIsEqualTo(25.dp, 0.dp)
+
+        onNodeWithTag(secondItemTag)
+            .assertPositionInRootIsEqualTo(15.dp, 50.dp)
+    }
+
+    @Test
+    fun lazyColumnAlignmentStart() {
+        prepareLazyColumnsItemsAlignment(Alignment.Start)
+
+        onNodeWithTag(firstItemTag)
+            .assertPositionInRootIsEqualTo(0.dp, 0.dp)
+
+        onNodeWithTag(secondItemTag)
+            .assertPositionInRootIsEqualTo(0.dp, 50.dp)
+    }
+
+    @Test
+    fun lazyColumnAlignmentEnd() {
+        prepareLazyColumnsItemsAlignment(Alignment.End)
+
+        onNodeWithTag(firstItemTag)
+            .assertPositionInRootIsEqualTo(50.dp, 0.dp)
+
+        onNodeWithTag(secondItemTag)
+            .assertPositionInRootIsEqualTo(30.dp, 50.dp)
     }
 }
 

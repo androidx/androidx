@@ -27,10 +27,13 @@ import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.layout.size
+import androidx.ui.core.Alignment
 import androidx.ui.test.assertIsDisplayed
+import androidx.ui.test.assertPositionInRootIsEqualTo
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.getBoundsInRoot
 import androidx.ui.test.onNodeWithTag
@@ -46,7 +49,6 @@ import org.junit.runners.JUnit4
 @MediumTest
 @RunWith(JUnit4::class)
 class LazyRowItemsTest {
-
     private val LazyRowItemsTag = "LazyRowItemsTag"
 
     @get:Rule
@@ -229,8 +231,7 @@ class LazyRowItemsTest {
             .getBoundsInRoot()
 
         Truth.assertThat(lazyRowBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
-        // TODO: wrap-content on the main-axis must be implemented
-//        Truth.assertThat(lazyRowBounds.right.toIntPx()).isWithin1PixelFrom(100.dp.toIntPx())
+        Truth.assertThat(lazyRowBounds.right.toIntPx()).isWithin1PixelFrom(100.dp.toIntPx())
         Truth.assertThat(lazyRowBounds.top.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
         Truth.assertThat(lazyRowBounds.bottom.toIntPx()).isWithin1PixelFrom(50.dp.toIntPx())
 
@@ -250,9 +251,75 @@ class LazyRowItemsTest {
             .getBoundsInRoot()
 
         Truth.assertThat(lazyRowBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
-        // TODO: wrap-content on the main-axis must be implemented
-//        Truth.assertThat(lazyRowBounds.right.toIntPx()).isWithin1PixelFrom(120.dp.toIntPx())
+        Truth.assertThat(lazyRowBounds.right.toIntPx()).isWithin1PixelFrom(120.dp.toIntPx())
         Truth.assertThat(lazyRowBounds.top.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
         Truth.assertThat(lazyRowBounds.bottom.toIntPx()).isWithin1PixelFrom(70.dp.toIntPx())
+    }
+
+    private val firstItemTag = "firstItemTag"
+    private val secondItemTag = "secondItemTag"
+
+    private fun prepareLazyRowItemsAlignment(verticalGravity: Alignment.Vertical) {
+        composeTestRule.setContent {
+            LazyRowItems(
+                items = listOf(1, 2),
+                modifier = Modifier.testTag(LazyRowItemsTag).height(100.dp),
+                verticalGravity = verticalGravity
+            ) {
+                if (it == 1) {
+                    Spacer(Modifier.preferredSize(50.dp).testTag(firstItemTag))
+                } else {
+                    Spacer(Modifier.preferredSize(70.dp).testTag(secondItemTag))
+                }
+            }
+        }
+
+        onNodeWithTag(firstItemTag)
+            .assertIsDisplayed()
+
+        onNodeWithTag(secondItemTag)
+            .assertIsDisplayed()
+
+        val lazyColumnBounds = onNodeWithTag(LazyRowItemsTag)
+            .getBoundsInRoot()
+
+        with(composeTestRule.density) {
+            // Verify the height of the row
+            Truth.assertThat(lazyColumnBounds.top.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
+            Truth.assertThat(lazyColumnBounds.bottom.toIntPx()).isWithin1PixelFrom(100.dp.toIntPx())
+        }
+    }
+
+    @Test
+    fun lazyRowAlignmentCenterVertically() {
+        prepareLazyRowItemsAlignment(Alignment.CenterVertically)
+
+        onNodeWithTag(firstItemTag)
+            .assertPositionInRootIsEqualTo(0.dp, 25.dp)
+
+        onNodeWithTag(secondItemTag)
+            .assertPositionInRootIsEqualTo(50.dp, 15.dp)
+    }
+
+    @Test
+    fun lazyRowAlignmentTop() {
+        prepareLazyRowItemsAlignment(Alignment.Top)
+
+        onNodeWithTag(firstItemTag)
+            .assertPositionInRootIsEqualTo(0.dp, 0.dp)
+
+        onNodeWithTag(secondItemTag)
+            .assertPositionInRootIsEqualTo(50.dp, 0.dp)
+    }
+
+    @Test
+    fun lazyRowAlignmentBottom() {
+        prepareLazyRowItemsAlignment(Alignment.Bottom)
+
+        onNodeWithTag(firstItemTag)
+            .assertPositionInRootIsEqualTo(0.dp, 50.dp)
+
+        onNodeWithTag(secondItemTag)
+            .assertPositionInRootIsEqualTo(50.dp, 30.dp)
     }
 }
