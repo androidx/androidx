@@ -43,7 +43,7 @@ package androidx.camera.core {
   public static final class CameraSelector.Builder {
     ctor public CameraSelector.Builder();
     method public androidx.camera.core.CameraSelector build();
-    method @experimental.UseExperimental(markerClass=ExperimentalCameraFilter.class) public androidx.camera.core.CameraSelector.Builder requireLensFacing(int);
+    method public androidx.camera.core.CameraSelector.Builder requireLensFacing(int);
   }
 
   public class CameraUnavailableException extends java.lang.Exception {

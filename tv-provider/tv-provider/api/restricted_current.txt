@@ -197,7 +197,6 @@ package androidx.tvprovider.media.tv {
     method public android.net.Uri! getLogoUri();
     method public String! getLongDescription();
     method public String! getOfferPrice();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String! getPackageName();
     method public int getPosterArtAspectRatio();
     method public android.net.Uri! getPosterArtUri();
     method public android.net.Uri! getPreviewAudioUri();
@@ -311,7 +310,6 @@ package androidx.tvprovider.media.tv {
     method public Long! getInternalProviderFlag3();
     method public Long! getInternalProviderFlag4();
     method public String! getLongDescription();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String! getPackageName();
     method public android.net.Uri! getPosterArtUri();
     method public String! getReviewRating();
     method public int getReviewRatingStyle();
@@ -802,7 +800,6 @@ package androidx.tvprovider.media.tv {
     method public android.net.Uri! getLogoUri();
     method public String! getLongDescription();
     method public String! getOfferPrice();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String! getPackageName();
     method public int getPosterArtAspectRatio();
     method public android.net.Uri! getPosterArtUri();
     method public android.net.Uri! getPreviewAudioUri();
