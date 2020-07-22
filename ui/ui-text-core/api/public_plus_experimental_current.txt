@@ -618,8 +618,11 @@ package androidx.ui.text {
     method public float getLastBaseline();
     method public androidx.ui.text.TextLayoutInput getLayoutInput();
     method public float getLineBottom(int lineIndex);
+    method public int getLineCount();
     method public int getLineEnd(int lineIndex);
     method public int getLineForOffset(int offset);
+    method public float getLineLeft(int lineIndex);
+    method public float getLineRight(int lineIndex);
     method public int getLineStart(int lineIndex);
     method public float getLineTop(int lineIndex);
     method public int getOffsetForPosition(androidx.ui.geometry.Offset position);
@@ -633,6 +636,7 @@ package androidx.ui.text {
     property public final float firstBaseline;
     property public final boolean hasVisualOverflow;
     property public final float lastBaseline;
+    property public final int lineCount;
     property public final java.util.List<androidx.ui.geometry.Rect> placeholderRects;
   }
 

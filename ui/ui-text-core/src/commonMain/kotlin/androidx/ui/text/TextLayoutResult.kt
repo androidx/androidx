@@ -148,6 +148,11 @@ data class TextLayoutResult internal constructor(
     val placeholderRects: List<Rect?> = multiParagraph.placeholderRects
 
     /**
+     * Returns a number of lines of this text layout
+     */
+    val lineCount: Int get() = multiParagraph.lineCount
+
+    /**
      * Returns the end offset of the given line, inclusive.
      *
      * @param lineIndex the line number
@@ -178,6 +183,22 @@ data class TextLayoutResult internal constructor(
      * @return the line bottom y coordinate
      */
     fun getLineBottom(lineIndex: Int): Float = multiParagraph.getLineBottom(lineIndex)
+
+    /**
+     * Returns the left x coordinate of the given line.
+     *
+     * @param lineIndex the line number
+     * @return the line left x coordinate
+     */
+    fun getLineLeft(lineIndex: Int): Float = multiParagraph.getLineLeft(lineIndex)
+
+    /**
+     * Returns the right x coordinate of the given line.
+     *
+     * @param lineIndex the line number
+     * @return the line right x coordinate
+     */
+    fun getLineRight(lineIndex: Int): Float = multiParagraph.getLineRight(lineIndex)
 
     /**
      * Returns the line number on which the specified text offset appears.
