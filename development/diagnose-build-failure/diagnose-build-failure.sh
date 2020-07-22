@@ -5,14 +5,24 @@ set -u
 scriptName="$(basename $0)"
 
 function usage() {
-  echo "usage: $0 <tasks>"
-  echo "Attempts to diagnose why "'`'"./gradlew <tasks>"'`'" fails"
+  echo "NAME"
+  echo "  diagnose-build-failure.sh"
   echo
-  echo "For example:"
+  echo "SYNOPSIS"
+  echo "  ./development/diagnose-build-failure/diagnose-build-failure.sh [--message <message>] '<tasks>'"
   echo
+  echo "DESCRIPTION"
+  echo "  Attempts to identify why "'`'"./gradlew <tasks>"'`'" fails"
+  echo
+  echo "OPTIONS"
+  echo "--message <message>"
+  echo "  Replaces the requirement for "'`'"./gradlew <tasks>"'`'" to fail with the requirement that it produces the given message"
+  echo
+  echo "SAMPLE USAGE"
   echo "  $0 assembleDebug # or any other arguments you would normally give to ./gradlew"
   echo
-  echo "These are the types of diagnoses that $scriptName can make:"
+  echo "OUTPUT"
+  echo "  diagnose-build-failure will conclude one of the following:"
   echo
   echo "  A) Some state saved in memory by the Gradle daemon is triggering an error"
   echo "  B) Your source files have been changed"
@@ -23,9 +33,28 @@ function usage() {
   exit 1
 }
 
-gradleArgs="$*"
+expectedMessage=""
+while true; do
+  if [ "$#" -lt 1 ]; then
+    usage
+  fi
+  arg="$1"
+  shift
+  if [ "$arg" == "--message" ]; then
+    expectedMessage="$1"
+    shift
+    continue
+  fi
+  gradleArgs="$arg"
+  break
+done
 if [ "$gradleArgs" == "" ]; then
   usage
+fi
+
+if [ "$#" -gt 0 ]; then
+  echo "Unrecognized argument: $1"
+  exit 1
 fi
 
 workingDir="$(pwd)"
@@ -64,19 +93,28 @@ function checkStatus() {
 }
 
 function runBuild() {
-  echo -e "$COLOR_GREEN"
-  args="$*"
+  if [ "$expectedMessage" == "" ]; then
+    echo -e "$COLOR_GREEN"
+    testCommand="$*"
+    returnOnSuccess=0
+    returnOnFailure=1
+  else
+    testCommand="$* 2>&1 | grep '$expectedMessage'"
+    # invert the return value because the presence of this message indicates a problem in the build
+    returnOnSuccess=1
+    returnOnFailure=0
+  fi
   cd "$workingDir"
-  if eval $args; then
+  if eval $testCommand; then
     echo -e "$COLOR_WHITE"
     echo
-    echo '`'$args'`' succeeded
-    return 0
+    echo '`'$testCommand'`' succeeded
+    return $returnOnSuccess
   else
     echo -e "$COLOR_WHITE"
     echo
-    echo '`'$args'`' failed
-    return 1
+    echo '`'$testCommand'`' failed
+    return $returnOnFailure
   fi
 }
 
@@ -146,8 +184,8 @@ if runBuild ./gradlew --no-daemon $gradleArgs; then
   backupState "$tempDir/clean"
 else
   echo
-  echo "The clean build also failed."
-  echo "This may mean that the build is failing for everyone"
+  echo "The clean build also reproduced the issue."
+  echo "This may mean that everyone is observing this issue"
   echo "This may mean that something about your checkout is different from others'"
   echo "You may be interested in running development/simplify-build-failure/simplify-build-failure.sh to identify the minimal set of source files required to reproduce this error"
   echo "Checking the status of your checkout:"
