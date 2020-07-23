@@ -429,6 +429,7 @@ private fun sourceInformationContextOf(
         }
         require(mr != currentResult) { "regex didn't advance" }
     }
+
     return SourceInformationContext(
         name = name,
         sourceFile = sourceFile ?: parent?.sourceFile,
@@ -447,10 +448,9 @@ private fun sourceInformationContextOf(
 private fun SlotReader.getGroup(parentContext: SourceInformationContext?): Group {
     val key = convertKey(groupKey)
     val groupData = groupData
-    val myContext = if (groupData != null && groupData is String) {
+    val context = if (groupData != null && groupData is String) {
         sourceInformationContextOf(groupData, parentContext)
     } else null
-    val context = myContext ?: parentContext
     val nodeGroup = isNode
     val end = current + groupSize
     val node = if (nodeGroup) groupNode else null
@@ -493,14 +493,14 @@ private fun SlotReader.getGroup(parentContext: SourceInformationContext?): Group
     ) else
         CallGroup(
             key,
-            myContext?.name,
+            context?.name,
             box,
-            if (myContext != null && myContext.isCall) {
+            if (context != null && context.isCall) {
                 parentContext?.nextSourceLocation()
             } else {
                 null
             },
-            extractParameterInfo(data, myContext),
+            extractParameterInfo(data, context),
             data,
             children
         )
