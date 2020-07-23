@@ -2524,6 +2524,18 @@ package androidx.compose.ui.text.input {
 
 package androidx.compose.ui.viewinterop {
 
+  @androidx.compose.ui.viewinterop.InternalInteropApi public abstract class AndroidViewHolder extends android.view.ViewGroup {
+    ctor public AndroidViewHolder(android.content.Context context);
+    method public final androidx.compose.ui.Modifier getModifier();
+    method public final kotlin.jvm.functions.Function0<kotlin.Unit> getUpdate();
+    method public final android.view.View? getView();
+    method public final void setModifier(androidx.compose.ui.Modifier value);
+    method protected final void setUpdate(kotlin.jvm.functions.Function0<kotlin.Unit> value);
+    property public final androidx.compose.ui.Modifier modifier;
+    property public final kotlin.jvm.functions.Function0<kotlin.Unit> update;
+    property public final android.view.View? view;
+  }
+
   public final class AndroidViewKt {
     method @androidx.compose.runtime.Composable public static <T extends android.view.View> void AndroidView(kotlin.jvm.functions.Function1<? super android.content.Context,? extends T> viewBlock, androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> update = NoOpUpdate);
     method @Deprecated @androidx.compose.runtime.Composable public static void AndroidView(@LayoutRes int resId, androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> postInflationCallback = { _ ->  });
@@ -2534,6 +2546,9 @@ package androidx.compose.ui.viewinterop {
   public final class EmitViewKt {
     method @androidx.compose.runtime.Composable public static <T extends android.view.View> void emitView(kotlin.jvm.functions.Function1<? super android.content.Context,? extends T> ctor, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> update);
     method @androidx.compose.runtime.Composable public static <T extends android.view.ViewGroup> void emitView(kotlin.jvm.functions.Function1<? super android.content.Context,? extends T> ctor, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> update, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  @kotlin.RequiresOptIn(level=RequiresOptIn.Level.ERROR, message="This is an experimental API for Compose UI LayoutNode and is likely to change " + "before becoming stable.") @kotlin.annotation.Target(allowedTargets={AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY}) public @interface InternalInteropApi {
   }
 
   public final class ViewModelKt {

@@ -23,6 +23,8 @@ import androidx.compose.runtime.Applier
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.viewinterop.AndroidViewHolder
+import androidx.compose.ui.viewinterop.InternalInteropApi
+import androidx.compose.ui.viewinterop.ViewBlockHolder
 
 // TODO: evaluate if this class is necessary or not
 private class Stack<T> {
@@ -92,11 +94,12 @@ class UiApplier(
                             is View -> {
                                 // Wrap the instance in an AndroidViewHolder, unless the instance
                                 // itself is already one.
+                                @OptIn(InternalInteropApi::class)
                                 val androidViewHolder =
-                                    if (instance is AndroidViewHolder<*>) {
+                                    if (instance is AndroidViewHolder) {
                                         instance
                                     } else {
-                                        AndroidViewHolder<View>(instance.context).apply {
+                                        ViewBlockHolder<View>(instance.context).apply {
                                             view = instance
                                         }
                                     }
