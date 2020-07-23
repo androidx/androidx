@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.shape.corner
+package androidx.compose.foundation.shape
 
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
@@ -25,6 +24,7 @@ import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Test
@@ -62,7 +62,12 @@ class CutCornerShapeTest {
         val size2 = 22f
         val size3 = 32f
         val size4 = 42f
-        val cut = CutCornerShape(size1, size2, size3, size4)
+        val cut = CutCornerShape(
+            size1,
+            size2,
+            size3,
+            size4
+        )
 
         val outline = cut.toOutline() as Outline.Generic
         assertPathsEquals(outline.path, Path().apply {
@@ -80,7 +85,12 @@ class CutCornerShapeTest {
 
     @Test
     fun createsRectangleOutlineForZeroSizedCorners() {
-        val rounded = CutCornerShape(0.0f, 0.0f, 0.0f, 0.0f)
+        val rounded = CutCornerShape(
+            0.0f,
+            0.0f,
+            0.0f,
+            0.0f
+        )
 
         assertThat(rounded.toOutline())
             .isEqualTo(Outline.Rectangle(size.toRect()))
@@ -94,21 +104,29 @@ class CutCornerShapeTest {
 
     @Test
     fun cutCornerUpdateAllCornerSize() {
-        assertThat(CutCornerShape(10.0f).copy(CornerSize(5.0f)))
+        assertThat(
+            CutCornerShape(10.0f).copy(
+            CornerSize(
+                5.0f
+            )
+        ))
             .isEqualTo(CutCornerShape(5.0f))
     }
 
     @Test
     fun cutCornerUpdateTwoCornerSizes() {
-        assertThat(CutCornerShape(10.0f).copy(
+        assertThat(
+            CutCornerShape(10.0f).copy(
             topRight = CornerSize(3.dp),
             bottomLeft = CornerSize(50)
-        )).isEqualTo(CutCornerShape(
-            topLeft = CornerSize(10.0f),
-            topRight = CornerSize(3.dp),
-            bottomRight = CornerSize(10.0f),
-            bottomLeft = CornerSize(50)
-        ))
+        )).isEqualTo(
+            CutCornerShape(
+                topLeft = CornerSize(10.0f),
+                topRight = CornerSize(3.dp),
+                bottomRight = CornerSize(10.0f),
+                bottomLeft = CornerSize(50)
+            )
+        )
     }
 
     private fun Shape.toOutline() = createOutline(size, density)
