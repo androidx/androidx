@@ -236,7 +236,15 @@ class TextLayout constructor(
 
     fun getLineStart(lineIndex: Int): Int = layout.getLineStart(lineIndex)
 
-    fun getLineEnd(lineIndex: Int): Int = layout.getLineEnd(lineIndex)
+    fun getLineEnd(lineIndex: Int): Int =
+        if (layout.getEllipsisStart(lineIndex) == 0) { // no ellipsis
+            layout.getLineEnd(lineIndex)
+        } else {
+            // Layout#getLineEnd usually gets the end of text for the last line even if ellipsis
+            // happens. However, if LF character is included in the ellipsized region, getLineEnd
+            // returns LF character offset. So, use end of text for line end here.
+            layout.text.length
+        }
 
     fun getLineEllipsisOffset(lineIndex: Int): Int = layout.getEllipsisStart(lineIndex)
 

@@ -2499,6 +2499,9 @@ class ParagraphIntegrationTest {
         }
         // It returns 0 since the paragraph actually has 1 line
         assertThat(paragraph.getLineForOffset(text.length + 1)).isEqualTo(0)
+
+        assertThat(paragraph.getLineStart(0)).isEqualTo(0)
+        assertThat(paragraph.getLineEnd(0)).isEqualTo(text.length)
     }
 
     @Test
@@ -2620,25 +2623,6 @@ class ParagraphIntegrationTest {
         assertThat(paragraph.lineCount).isEqualTo(2)
         assertThat(paragraph.getLineEllipsisOffset(0)).isEqualTo(0)
         assertThat(paragraph.getLineEllipsisOffset(1)).isGreaterThan(0)
-    }
-
-    @Test
-    fun getLineEllipsisCount() {
-        val text = "aaa\nbbb\nccc"
-
-        val paragraph = simpleParagraph(
-            text = text,
-            maxLines = 2,
-            ellipsis = true,
-            constraints = ParagraphConstraints(Float.MAX_VALUE)
-        )
-
-        assertThat(paragraph.lineCount).isEqualTo(2)
-        assertThat(paragraph.getLineEllipsisCount(0)).isEqualTo(0)
-        assertThat(paragraph.getLineEllipsisCount(1)).isGreaterThan(0)
-        // Ellipsis offset plus ellipsis count equals to length of the line.
-        assertThat(paragraph.getLineEllipsisCount(1) + paragraph.getLineEllipsisOffset(1))
-            .isEqualTo(paragraph.getLineEnd(1) - paragraph.getLineStart(1))
     }
 
     @Test
