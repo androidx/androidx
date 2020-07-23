@@ -20,6 +20,7 @@ import androidx.contentaccess.compiler.processor.PojoProcessor
 import androidx.contentaccess.compiler.processor.warn
 import androidx.contentaccess.compiler.vo.ContentColumnVO
 import androidx.contentaccess.compiler.vo.ContentQueryVO
+import androidx.contentaccess.ext.getAllConstructorParamsOrPublicFields
 import androidx.contentaccess.ext.hasNonEmptyNonPrivateNonIgnoredConstructor
 import asTypeElement
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -236,10 +237,11 @@ class ContentQueryMethodWriter(
         val pojoColumnsToFieldNames = pojo.pojoFields.map { it.columnName to it.name }.toMap()
         if (realReturnType.asTypeElement().hasNonEmptyNonPrivateNonIgnoredConstructor()) {
             val constructorParams = ArrayList<String>()
+            val constructorFieldNames = realReturnType.asTypeElement()
+                .getAllConstructorParamsOrPublicFields().map { it.simpleName.toString() }
 
-            val columnNamesBeingSelected = columns.map { it.columnName }
-            val unPopulatedPojoFields = pojo.pojoFields.filter { it.columnName !in
-                    columnNamesBeingSelected }.map { it.name }
+            val fieldNameValueMap = mutableMapOf<String, String>()
+
             for ((currIndex, column) in columns.withIndex()) {
                 if (column.isNullable) {
                     methodBuilder.beginControlFlow("val _${pojoColumnsToFieldNames
@@ -261,12 +263,17 @@ class ContentQueryMethodWriter(
                             ".${column.type.getCursorMethod()}($currIndex)")
                     methodBuilder.endControlFlow()
                 }
-                constructorParams.add("${pojoColumnsToFieldNames.get(column.columnName)}" +
-                        " = _${pojoColumnsToFieldNames.get(column.columnName)}_value")
+                fieldNameValueMap.put(pojoColumnsToFieldNames.get(column.columnName)!!,
+                    "_${pojoColumnsToFieldNames.get(column.columnName)!!}_value")
             }
-            for (unPopoulatedPojoField in unPopulatedPojoFields) {
-                constructorParams.add("$unPopoulatedPojoField = null")
+            for (field in constructorFieldNames) {
+                if (field in fieldNameValueMap) {
+                    constructorParams.add(fieldNameValueMap.get(field)!!)
+                } else {
+                    constructorParams.add("null")
+                }
             }
+
             methodBuilder.addStatement("val $RETURN_OBJECT_NAME = %T(%L)", realReturnType,
                 constructorParams.joinToString(","))
         } else {

@@ -31,6 +31,7 @@ android {
             shrinkResources true
         }
     }
+
 }
 
 dependencies {
@@ -39,5 +40,10 @@ dependencies {
     implementation(project(":contentaccess:contentaccess-runtime"))
     kapt(project(":contentaccess:contentaccess-compiler"))
     implementation(KOTLIN_STDLIB)
-    api(RX_JAVA)
+    androidTestImplementation(TRUTH)
+    kaptAndroidTest(project(":contentaccess:contentaccess-compiler"))
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
 }

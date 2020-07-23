@@ -34,8 +34,10 @@ class ContentAccessObjectWriter(
 ) {
     @KotlinPoetMetadataPreview
     fun generateFile() {
+        // We do this instead of getting the simple name of the class in case of nested classes.
         val generatedClassName =
-            "_${ClassName.bestGuess(contentAccessObject.interfaceName).simpleName}Impl"
+            "${contentAccessObject.interfaceName.removePrefix(contentAccessObject.packageName)
+                .replace(".", "_")}Impl"
         val fileSpecBuilder = FileSpec.builder(contentAccessObject.packageName, generatedClassName)
         val contentResolverTypePlaceholder = ClassName("android.content", "ContentResolver")
         val coroutineDispatcherTypePlaceholder = ClassName("kotlinx.coroutines",

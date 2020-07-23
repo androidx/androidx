@@ -137,7 +137,7 @@ fun pojoFieldNotInEntity(
 fun constructorFieldNotIncludedInProjectionNotNullable(fieldName: String, returnType: String):
         String {
     return "Field $fieldName in return object constructor $returnType is not included in the" +
-            "supplied projection and is not nullable. Constructor fields that are not" +
+            " supplied projection and is not nullable. Constructor fields that are not" +
             " included in a query projection should all be nullable."
 }
 
