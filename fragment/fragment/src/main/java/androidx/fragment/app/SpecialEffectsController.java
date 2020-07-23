@@ -299,7 +299,18 @@ abstract class SpecialEffectsController {
              */
             @NonNull
             static State from(@NonNull View view) {
-                switch (view.getVisibility()) {
+                return from(view.getVisibility());
+            }
+
+            /**
+             * Create a new State from the visibility of a View.
+             *
+             * @param visibility The visibility constant to translate into a State.
+             * @return A new State from the visibility.
+             */
+            @NonNull
+            static State from(int visibility) {
+                switch (visibility) {
                     case View.VISIBLE:
                         return VISIBLE;
                     case View.INVISIBLE:
@@ -307,8 +318,7 @@ abstract class SpecialEffectsController {
                     case View.GONE:
                         return GONE;
                     default:
-                        throw new IllegalArgumentException("Unknown visibility "
-                                + view.getVisibility() + " for " + view);
+                        throw new IllegalArgumentException("Unknown visibility " + visibility);
                 }
             }
 

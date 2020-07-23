@@ -287,10 +287,9 @@ class FragmentStateManager {
                                     mHiddenAnimationCancellationSignal.cancel();
                                 }
                                 mEnterAnimationCancellationSignal = new CancellationSignal();
+                                int visibility = mFragment.getPostOnViewCreatedVisibility();
                                 SpecialEffectsController.Operation.State finalState =
-                                        mFragment.mView.getVisibility() == View.GONE
-                                                ? SpecialEffectsController.Operation.State.GONE
-                                                : SpecialEffectsController.Operation.State.VISIBLE;
+                                        SpecialEffectsController.Operation.State.from(visibility);
                                 controller.enqueueAdd(finalState, this,
                                         mEnterAnimationCancellationSignal);
                             }
@@ -538,9 +537,6 @@ class FragmentStateManager {
                 // same container
                 int index = mFragmentStore.findFragmentIndexInContainer(mFragment);
                 container.addView(mFragment.mView, index);
-                if (FragmentManager.USE_STATE_MANAGER) {
-                    mFragment.mView.setVisibility(View.INVISIBLE);
-                }
             }
             if (mFragment.mHidden) {
                 mFragment.mView.setVisibility(View.GONE);
@@ -566,10 +562,19 @@ class FragmentStateManager {
             mFragment.performViewCreated();
             mDispatcher.dispatchOnFragmentViewCreated(
                     mFragment, mFragment.mView, mFragment.mSavedFragmentState, false);
-            // Only animate the view if it is visible. This is done after
-            // dispatchOnFragmentViewCreated in case visibility is changed
-            mFragment.mIsNewlyAdded = (mFragment.mView.getVisibility() == View.VISIBLE)
-                    && mFragment.mContainer != null;
+            int postOnViewCreatedVisibility = mFragment.mView.getVisibility();
+            if (FragmentManager.USE_STATE_MANAGER) {
+                mFragment.setPostOnViewCreatedVisibility(postOnViewCreatedVisibility);
+                if (mFragment.mContainer != null && postOnViewCreatedVisibility == View.VISIBLE) {
+                    // Set the view to INVISIBLE to allow for postponed animations
+                    mFragment.mView.setVisibility(View.INVISIBLE);
+                }
+            } else {
+                // Only animate the view if it is visible. This is done after
+                // dispatchOnFragmentViewCreated in case visibility is changed
+                mFragment.mIsNewlyAdded = (postOnViewCreatedVisibility == View.VISIBLE)
+                        && mFragment.mContainer != null;
+            }
         }
         mFragment.mState = Fragment.VIEW_CREATED;
     }
