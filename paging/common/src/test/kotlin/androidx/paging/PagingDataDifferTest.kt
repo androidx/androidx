@@ -220,7 +220,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun get_loadHintResentWhenUnfulfilled() = testScope.runBlockingTest {
+    fun fetch_loadHintResentWhenUnfulfilled() = testScope.runBlockingTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
@@ -327,7 +327,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun get_loadHintResentUnlessPageDropped() = testScope.runBlockingTest {
+    fun fetch_loadHintResentUnlessPageDropped() = testScope.runBlockingTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
@@ -396,6 +396,53 @@ class PagingDataDifferTest {
                 ViewportHint(-2, -2, false)
             )
         )
+
+        job.cancel()
+    }
+
+    @Test
+    fun peek() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
+        pageEventCh.offer(
+            Refresh(
+                pages = listOf(TransformablePage(0, listOf(0, 1))),
+                placeholdersBefore = 4,
+                placeholdersAfter = 4,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+        pageEventCh.offer(
+            Prepend(
+                pages = listOf(TransformablePage(-1, listOf(-1, -2))),
+                placeholdersBefore = 2,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+        pageEventCh.offer(
+            Append(
+                pages = listOf(TransformablePage(1, listOf(2, 3))),
+                placeholdersAfter = 2,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+
+        val receiver = UiReceiverFake()
+        val job = launch {
+            differ.collectFrom(
+                // Filter the original list of 10 items to 5, removing even numbers.
+                PagingData(pageEventCh.consumeAsFlow(), receiver)
+            )
+        }
+
+        // Check that peek fetches the correct placeholder
+        assertThat(differ.peek(4)).isEqualTo(0)
+
+        // Check that peek fetches the correct placeholder
+        assertNull(differ.peek(0))
+
+        // Check that peek does not trigger page fetch.
+        assertThat(receiver.hints).isEqualTo(listOf<ViewportHint>())
 
         job.cancel()
     }

@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
@@ -197,11 +198,29 @@ abstract class PagingDataDiffer<T : Any>(
         }
     }
 
-    operator fun get(index: Int): T? {
+    /**
+     * Returns the presented item at the specified position, notifying Paging of the item access to
+     * trigger any loads necessary to fulfill [prefetchDistance][PagingConfig.prefetchDistance].
+     *
+     * @param index Index of the presented item to return, including placeholders.
+     * @return The presented item at position [index], `null` if it is a placeholder.
+     */
+    operator fun get(@IntRange(from = 0) index: Int): T? {
         lastAccessedIndexUnfulfilled = true
         lastAccessedIndex = index
 
         receiver?.addHint(presenter.indexToHint(index))
+        return presenter.get(index)
+    }
+
+    /**
+     * Returns the presented item at the specified position, without notifying Paging of the item
+     * access that would normally trigger page loads.
+     *
+     * @param index Index of the presented item to return, including placeholders.
+     * @return The presented item at position [index], `null` if it is a placeholder
+     */
+    fun peek(@IntRange(from = 0) index: Int): T? {
         return presenter.get(index)
     }
 
