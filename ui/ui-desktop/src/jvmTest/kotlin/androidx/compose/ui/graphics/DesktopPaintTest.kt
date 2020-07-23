@@ -31,13 +31,13 @@ class DesktopPaintTest : DesktopGraphicsTest() {
 
         assertEquals(Color.Black, paint.color)
         assertEquals(1f, paint.alpha)
-        assertEquals(PaintingStyle.fill, paint.style)
+        assertEquals(PaintingStyle.Fill, paint.style)
         assertEquals(0f, paint.strokeWidth)
-        assertEquals(StrokeCap.butt, paint.strokeCap)
+        assertEquals(StrokeCap.Butt, paint.strokeCap)
         assertEquals(0f, paint.strokeMiterLimit)
-        assertEquals(StrokeJoin.round, paint.strokeJoin)
+        assertEquals(StrokeJoin.Round, paint.strokeJoin)
         assertEquals(true, paint.isAntiAlias)
-        assertEquals(FilterQuality.none, paint.filterQuality)
+        assertEquals(FilterQuality.None, paint.filterQuality)
         assertEquals(BlendMode.SrcOver, paint.blendMode)
         assertEquals(null, paint.colorFilter)
         assertEquals(null, paint.shader)
@@ -97,7 +97,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             dstOffset = IntOffset(4, 4),
             dstSize = IntSize(4, 12),
             paint = redPaint.apply {
-                filterQuality = FilterQuality.low
+                filterQuality = FilterQuality.Low
             }
         )
         canvas.drawImageRect(
@@ -107,7 +107,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             dstOffset = IntOffset(8, 4),
             dstSize = IntSize(4, 12),
             paint = redPaint.apply {
-                filterQuality = FilterQuality.high
+                filterQuality = FilterQuality.High
             }
         )
 

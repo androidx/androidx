@@ -16,15 +16,12 @@
 
 package androidx.compose.ui.graphics
 
-import androidx.compose.runtime.InternalComposeApi
 import android.graphics.PorterDuffXfermode
 import android.os.Build
 
 actual typealias NativePaint = android.graphics.Paint
 
-@Suppress("DEPRECATION_ERROR")
-@OptIn(InternalComposeApi::class)
-actual fun Paint(): Paint = GraphicsFactory.paint()
+actual fun Paint(): Paint = AndroidPaint()
 
 class AndroidPaint : Paint {
 

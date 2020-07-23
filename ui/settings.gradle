@@ -78,7 +78,6 @@ includeProject(":compose:ui:ui:samples", "ui-core/samples")
 if (!startParameter.projectProperties.containsKey('compose.desktop.disable')) {
     includeProject(":compose:desktop", "../compose/desktop")
     includeProject(":compose:desktop:desktop", "ui-desktop")
-    includeProject(":compose:desktop:desktop:android-emu", "ui-desktop/android-emu")
     includeProject(":compose:desktop:desktop:samples", "ui-desktop/samples")
 }
 includeProject(":compose:foundation", "../compose/foundation")

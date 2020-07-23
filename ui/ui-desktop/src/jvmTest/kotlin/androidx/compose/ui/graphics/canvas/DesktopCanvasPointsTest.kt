@@ -31,7 +31,7 @@ class DesktopCanvasPointsTest : DesktopGraphicsTest() {
     @Test
     fun drawLines() {
         canvas.drawPoints(
-            pointMode = PointMode.lines,
+            pointMode = PointMode.Lines,
             points = listOf(
                 Offset(0f, 8f),
                 Offset(8f, 0f),
@@ -46,7 +46,7 @@ class DesktopCanvasPointsTest : DesktopGraphicsTest() {
 
         canvas.translate(6f, 6f)
         canvas.drawPoints(
-            pointMode = PointMode.lines,
+            pointMode = PointMode.Lines,
             points = listOf(
                 Offset(0f, 8f),
                 Offset(8f, 0f),
@@ -56,7 +56,7 @@ class DesktopCanvasPointsTest : DesktopGraphicsTest() {
             paint = Paint().apply {
                 color = Color.Green
                 strokeWidth = 2f
-                strokeCap = StrokeCap.round
+                strokeCap = StrokeCap.Round
             }
         )
 
@@ -66,7 +66,7 @@ class DesktopCanvasPointsTest : DesktopGraphicsTest() {
     @Test
     fun drawPoints() {
         canvas.drawPoints(
-            pointMode = PointMode.points,
+            pointMode = PointMode.Points,
             points = listOf(
                 Offset(0f, 2f),
                 Offset(2f, 0f)
@@ -74,11 +74,11 @@ class DesktopCanvasPointsTest : DesktopGraphicsTest() {
             paint = Paint().apply {
                 color = Color.Red
                 strokeWidth = 2f
-                strokeCap = StrokeCap.butt
+                strokeCap = StrokeCap.Butt
             }
         )
         canvas.drawRawPoints(
-            pointMode = PointMode.points,
+            pointMode = PointMode.Points,
             points = floatArrayOf(
                 4f, 4f,
                 8f, 8f
@@ -86,18 +86,18 @@ class DesktopCanvasPointsTest : DesktopGraphicsTest() {
             paint = Paint().apply {
                 color = Color.Blue
                 strokeWidth = 4f
-                strokeCap = StrokeCap.round
+                strokeCap = StrokeCap.Round
             }
         )
         canvas.drawPoints(
-            pointMode = PointMode.points,
+            pointMode = PointMode.Points,
             points = listOf(
                 Offset(4f, 0f)
             ),
             paint = Paint().apply {
                 color = Color.Green
                 strokeWidth = 2f
-                strokeCap = StrokeCap.square
+                strokeCap = StrokeCap.Square
             }
         )
 
@@ -107,7 +107,7 @@ class DesktopCanvasPointsTest : DesktopGraphicsTest() {
     @Test
     fun drawPolygons() {
         canvas.drawPoints(
-            pointMode = PointMode.polygon,
+            pointMode = PointMode.Polygon,
             points = listOf(
                 Offset(0f, 8f),
                 Offset(8f, 0f),
@@ -122,7 +122,7 @@ class DesktopCanvasPointsTest : DesktopGraphicsTest() {
 
         canvas.translate(6f, 6f)
         canvas.drawPoints(
-            pointMode = PointMode.polygon,
+            pointMode = PointMode.Polygon,
             points = listOf(
                 Offset(0f, 8f),
                 Offset(8f, 0f),
@@ -132,7 +132,7 @@ class DesktopCanvasPointsTest : DesktopGraphicsTest() {
             paint = Paint().apply {
                 color = Color.Green
                 strokeWidth = 2f
-                strokeCap = StrokeCap.round
+                strokeCap = StrokeCap.Round
             }
         )
 
