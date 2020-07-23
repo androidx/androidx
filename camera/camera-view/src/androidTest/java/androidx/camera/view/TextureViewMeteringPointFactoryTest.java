@@ -95,6 +95,8 @@ public class TextureViewMeteringPointFactoryTest {
 
     private static final int WAIT_FRAMECOUNT = 3;
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+
     private CountDownLatch mLatchForFrameReady;
     private Display mDisplay;
     private TextureView mTextureView;
@@ -107,14 +109,13 @@ public class TextureViewMeteringPointFactoryTest {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
 
-        Context context = ApplicationProvider.getApplicationContext();
         WindowManager windowManager =
-                ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE));
+                ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE));
         mDisplay = windowManager.getDefaultDisplay();
         CameraXConfig config = Camera2Config.defaultConfig();
-        CameraX.initialize(context, config);
+        CameraX.initialize(mContext, config);
         mLatchForFrameReady = new CountDownLatch(1);
-        mTextureView = new TextureView(context);
+        mTextureView = new TextureView(mContext);
         setContentView(mTextureView);
     }
 
@@ -252,7 +253,7 @@ public class TextureViewMeteringPointFactoryTest {
                     new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 
             CameraUseCaseAdapter cameraUseCaseAdapter =
-                    CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+                    CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
             // SurfaceTexture#getTransformMatrix is initialized properly when camera starts
             // to output.
             try {
