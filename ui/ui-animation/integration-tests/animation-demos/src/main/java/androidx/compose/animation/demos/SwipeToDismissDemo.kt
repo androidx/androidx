@@ -79,7 +79,7 @@ private fun SwipeToDismiss() {
             itemBottom.snapTo(height)
             index.value--
             if (index.value < 0) {
-                index.value += colors.size
+                index.value += pastelColors.size
             }
         }
 
@@ -147,12 +147,12 @@ private fun DrawScope.drawLeftItems(
 ) {
     val offset = Offset(center.x - width * 1.5f + horizontalOffset + padding, size.height - height)
     val rectSize = Size(width - (2 * padding), height)
-    drawRect(colors[index % colors.size], offset, rectSize)
+    drawRect(pastelColors[index % pastelColors.size], offset, rectSize)
 
     if (offset.x >= 0) {
         // draw another item
         drawRect(
-            colors[(index - 1 + colors.size) % colors.size],
+            pastelColors[(index - 1 + pastelColors.size) % pastelColors.size],
             offset - Offset(width, 0.0f),
             rectSize
         )
@@ -166,13 +166,13 @@ private fun DrawScope.drawDismissingItem(
     index: Int,
     alpha: Float
 ) = drawRect(
-    colors[index % colors.size],
+    pastelColors[index % pastelColors.size],
     topLeft = Offset(center.x - width / 2 + padding, bottom - height),
     size = Size(width - (2 * padding), height),
     alpha = alpha
 )
 
-private val colors = listOf(
+internal val pastelColors = listOf(
     Color(0xFFffd7d7),
     Color(0xFFffe9d6),
     Color(0xFFfffbd0),
