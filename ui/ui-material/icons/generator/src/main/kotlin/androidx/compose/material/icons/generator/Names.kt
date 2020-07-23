@@ -39,8 +39,7 @@ object ClassNames {
  * [MemberName]s used for icon generation.
  */
 object MemberNames {
-    val LazyMaterialIcon =
-        MemberName(PackageNames.MaterialIconsPackage.packageName, "lazyMaterialIcon")
+    val MaterialIcon = MemberName(PackageNames.MaterialIconsPackage.packageName, "materialIcon")
     val MaterialPath = MemberName(PackageNames.MaterialIconsPackage.packageName, "materialPath")
 
     val Group = MemberName(PackageNames.VectorPackage.packageName, "group")

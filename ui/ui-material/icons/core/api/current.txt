@@ -28,8 +28,8 @@ package androidx.compose.material.icons {
   }
 
   public final class IconsKt {
-    method public static kotlin.Lazy<androidx.compose.ui.graphics.vector.VectorAsset> lazyMaterialIcon(kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.vector.VectorAssetBuilder,androidx.compose.ui.graphics.vector.VectorAssetBuilder> block);
-    method public static androidx.compose.ui.graphics.vector.VectorAssetBuilder materialPath(androidx.compose.ui.graphics.vector.VectorAssetBuilder, float fillAlpha = 1f, float strokeAlpha = 1f, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.vector.PathBuilder,kotlin.Unit> pathBuilder);
+    method public static inline androidx.compose.ui.graphics.vector.VectorAsset materialIcon(kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.vector.VectorAssetBuilder,androidx.compose.ui.graphics.vector.VectorAssetBuilder> block);
+    method public static inline androidx.compose.ui.graphics.vector.VectorAssetBuilder materialPath(androidx.compose.ui.graphics.vector.VectorAssetBuilder, float fillAlpha = 1f, float strokeAlpha = 1f, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.vector.PathBuilder,kotlin.Unit> pathBuilder);
   }
 
 }

@@ -230,7 +230,7 @@ class VectorAssetBuilder(
  * @param strokeLineMiter specifies the miter limit for a stroked path
  * @param pathBuilder [PathBuilder] lambda for adding [PathNode]s to this path.
  */
-fun VectorAssetBuilder.path(
+inline fun VectorAssetBuilder.path(
     name: String = DefaultPathName,
     fill: Brush? = null,
     fillAlpha: Float = 1.0f,
@@ -270,7 +270,7 @@ fun VectorAssetBuilder.path(
  * @param clipPathData the path information used to clip the content within the group
  * @param block builder lambda to add children to this group
  */
-fun VectorAssetBuilder.group(
+inline fun VectorAssetBuilder.group(
     name: String = DefaultGroupName,
     rotate: Float = DefaultRotation,
     pivotX: Float = DefaultPivotX,
