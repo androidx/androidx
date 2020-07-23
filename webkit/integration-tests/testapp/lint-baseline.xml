@@ -216,7 +216,7 @@
         errorLine1="    android:background=&quot;@color/colorBackground&quot;>"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/activity_whitelist.xml"
+            file="src/main/res/layout/activity_allowlist.xml"
             line="26"
             column="5"/>
     </issue>
