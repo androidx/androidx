@@ -19,7 +19,7 @@ package androidx.ui.benchmark.test
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
-import androidx.ui.material.ColorPalette
+import androidx.compose.material.ColorPalette
 import androidx.ui.integration.test.material.ImmutableColorPaletteTestCase
 import androidx.ui.integration.test.material.ObservableColorPaletteTestCase
 import org.junit.Rule

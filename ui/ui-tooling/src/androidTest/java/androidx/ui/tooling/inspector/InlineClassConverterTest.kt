@@ -19,8 +19,8 @@ package androidx.ui.tooling.inspector
 import androidx.test.filters.SmallTest
 import androidx.compose.foundation.Text
 import androidx.compose.ui.graphics.Color
-import androidx.ui.material.Button
-import androidx.ui.material.Surface
+import androidx.compose.material.Button
+import androidx.compose.material.Surface
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.SlotTableRecord

@@ -21,8 +21,8 @@ import androidx.compose.mutableStateOf
 import androidx.compose.foundation.Text
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.compose.foundation.layout.Column
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.Surface
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.ui.test.ComposeTestCase
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp

@@ -23,8 +23,8 @@ import androidx.ui.core.semantics.semantics
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
-import androidx.ui.material.Button
-import androidx.ui.material.MaterialTheme
+import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
 import androidx.ui.semantics.disabled
 import androidx.ui.semantics.testTag
 import androidx.ui.test.util.BoundaryNode

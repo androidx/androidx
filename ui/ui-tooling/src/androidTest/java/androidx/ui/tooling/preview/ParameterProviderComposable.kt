@@ -19,10 +19,10 @@ package androidx.ui.tooling.preview
 import androidx.compose.Composable
 import androidx.compose.foundation.Text
 import androidx.compose.ui.graphics.Color
-import androidx.ui.material.Button
-import androidx.ui.material.ColorPalette
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.Surface
+import androidx.compose.material.Button
+import androidx.compose.material.ColorPalette
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 
 @Preview
 @Composable

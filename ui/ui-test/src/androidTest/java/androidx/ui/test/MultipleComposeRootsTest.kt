@@ -32,9 +32,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.core.testTag
 import androidx.compose.foundation.selection.ToggleableState
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.Surface
-import androidx.ui.material.TriStateCheckbox
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.TriStateCheckbox
 import androidx.ui.test.android.createAndroidComposeRule
 import org.junit.Rule
 import org.junit.Test

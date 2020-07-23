@@ -23,9 +23,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
-import androidx.ui.material.Button
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.Surface
+import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.ui.test.util.expectAssertionError
 import org.junit.Rule
 import org.junit.Test

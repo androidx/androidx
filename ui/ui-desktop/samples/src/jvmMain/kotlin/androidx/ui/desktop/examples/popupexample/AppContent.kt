@@ -39,8 +39,8 @@ import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.layout.width
-import androidx.ui.material.Button
-import androidx.ui.material.Surface
+import androidx.compose.material.Button
+import androidx.compose.material.Surface
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
