@@ -18,31 +18,28 @@ package androidx.ui.core.demos.viewinterop
 
 import android.content.Context
 import android.graphics.Canvas
-import android.view.ContextThemeWrapper
-import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.compose.Composable
-import androidx.compose.Providers
+import androidx.compose.getValue
+import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.core.ContextAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
-import androidx.ui.core.demos.R
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
-import androidx.ui.material.Button
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
+import androidx.ui.material.Button
 import androidx.ui.viewinterop.AndroidView
 import androidx.ui.viewinterop.emitView
 
@@ -52,34 +49,29 @@ fun ViewInteropDemo() {
         // This is a collection of multiple ways to include Android Views in Compose UI hierarchies
         // and Compose in Android ViewGroups. Note that these APIs are subject to change.
 
-        // Include Android View.
+        // Compose Android View.
+        AndroidView({ context -> TextView(context).apply { text = "This is a TextView" } })
+
+        // Compose Android View and update its size based on state. The AndroidView takes modifiers.
+        var size by state { 20 }
+        AndroidView(::View, Modifier.clickable { size += 20 }.background(Color.Blue)) { view ->
+            view.layoutParams = ViewGroup.LayoutParams(size, size)
+        }
+
         emitView(::TextView) {
             it.text = "This is a text in a TextView"
         }
-        val ref = Ref<View>()
-        emitView(::FrameLayout, { it.setRef(ref) }) {
+        emitView(::FrameLayout, { it.layoutParams = ViewGroup.LayoutParams(100, WRAP_CONTENT) }) {
             emitView(::TextView) {
                 it.text = "This is a very long very long text"
             }
         }
         Text("This is a second text")
-        ref.value!!.layoutParams = ViewGroup.LayoutParams(100, WRAP_CONTENT)
 
         // Include an Android ViewGroup and add Compose to it.
         emitView(::LinearLayout, { it.orientation = LinearLayout.VERTICAL }) {
             Box(Modifier.size(50.dp).background(Color.Blue))
             Box(Modifier.size(50.dp).background(Color.Gray))
-        }
-
-        // Inflate AndroidView from XML.
-        AndroidView(R.layout.test_layout)
-
-        // Inflate AndroidView from XML with style set.
-        val context = ContextAmbient.current
-        Providers(
-            ContextAmbient provides ContextThemeWrapper(context, R.style.TestLayoutStyle)
-        ) {
-            AndroidView(R.layout.test_layout)
         }
 
         // Compose custom Android View and do remeasurements and invalidates.
@@ -102,14 +94,6 @@ fun ViewInteropDemo() {
             )[colorIndex.value]
         }) {
             Text("Change color of Android view")
-        }
-
-        // Inflate AndroidView from XML and change it in callback post inflation.
-        AndroidView(R.layout.test_layout) { view ->
-            view as RelativeLayout
-            view.setVerticalGravity(Gravity.BOTTOM)
-            view.layoutParams.width = 700
-            view.setBackgroundColor(android.graphics.Color.BLUE)
         }
     }
 }

@@ -71,31 +71,32 @@ fun ComposeInAndroidInComposeEtcTargetingDemo() {
 
             AndroidView(
                 modifier = Modifier.weight(1f),
-                view =
-                FrameLayout(context).apply {
-                    setPadding(100, 100, 100, 100)
-                    setBackgroundColor(0xFF888888.toInt())
-                    layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                    addView(
-                        FrameLayout(context).apply {
-                            setPadding(100, 100, 100, 100)
-                            setBackgroundColor(0xFF999999.toInt())
-                            layoutParams =
-                                RelativeLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
-                                    addRule(RelativeLayout.CENTER_IN_PARENT)
-                                }
-                            setContent(Recomposer.current()) {
-                                Box(
-                                    Modifier
-                                        .background(color = Color(0xFFAAAAAA))
-                                        .fillMaxSize()
-                                        .wrapContentSize(Alignment.Center)
-                                ) {
-                                    colorButton()
+                viewBlock = {
+                    FrameLayout(context).apply {
+                        setPadding(100, 100, 100, 100)
+                        setBackgroundColor(0xFF888888.toInt())
+                        layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                        addView(
+                            FrameLayout(context).apply {
+                                setPadding(100, 100, 100, 100)
+                                setBackgroundColor(0xFF999999.toInt())
+                                layoutParams =
+                                    RelativeLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
+                                        addRule(RelativeLayout.CENTER_IN_PARENT)
+                                    }
+                                setContent(Recomposer.current()) {
+                                    Box(
+                                        Modifier
+                                            .background(color = Color(0xFFAAAAAA))
+                                            .fillMaxSize()
+                                            .wrapContentSize(Alignment.Center)
+                                    ) {
+                                        colorButton()
+                                    }
                                 }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             )
         }

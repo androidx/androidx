@@ -25,6 +25,7 @@ import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
 import android.view.MotionEvent.TOOL_TYPE_UNKNOWN
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.test.filters.SmallTest
 import androidx.ui.core.PointerEvent
@@ -4369,7 +4370,7 @@ class PointerInteropFilterTest {
     }
 }
 
-internal class MockViewGroup(context: Context) : AndroidViewHolder(context) {
+internal class MockViewGroup(context: Context) : AndroidViewHolder<View>(context) {
     var dispatchedMotionEvents = mutableListOf<MotionEvent>()
     var returnValue = true
 
