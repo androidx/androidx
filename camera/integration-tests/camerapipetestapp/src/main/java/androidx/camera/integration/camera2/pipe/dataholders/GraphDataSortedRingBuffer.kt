@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.camera2.pipe.visualization_data.graph
+package androidx.camera.integration.camera2.pipe.dataholders
 
 import java.util.LinkedList
 import java.util.concurrent.ConcurrentSkipListSet

@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.camera2.pipe.mappings
+package androidx.camera.integration.camera2.pipe.dataholders
 
-enum class CameraMetadataKey {
-    LENS_FOCUS_DISTANCE,
-    LENS_FOCAL_LENGTH,
-    CONTROL_AE_MODE,
-    STATISTICS_FACES
+/**
+ * Data source for 1D graph visualizations. Implemented for both graphing state over time and
+ * graphing value over time
+ */
+class KeyValueDataHolder {
+
+    var value: String? = null
+
+    fun updateValue(newValue: String?) {
+        value = newValue
+    }
 }

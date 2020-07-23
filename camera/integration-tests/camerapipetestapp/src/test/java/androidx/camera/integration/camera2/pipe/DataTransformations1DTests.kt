@@ -16,11 +16,11 @@
 
 package androidx.camera.integration.camera2.pipe
 
-import androidx.camera.integration.camera2.pipe.mappings.CameraMetadataKey.CONTROL_AE_MODE
-import androidx.camera.integration.camera2.pipe.mappings.CameraMetadataKey.LENS_FOCAL_LENGTH
-import androidx.camera.integration.camera2.pipe.mappings.CameraMetadataKey.LENS_FOCUS_DISTANCE
-import androidx.camera.integration.camera2.pipe.mappings.CameraMetadataKey.STATISTICS_FACES
-import androidx.camera.integration.camera2.pipe.mappings.DataTransformations1D
+import androidx.camera.integration.camera2.pipe.CameraMetadataKey.CONTROL_AE_MODE
+import androidx.camera.integration.camera2.pipe.CameraMetadataKey.LENS_FOCAL_LENGTH
+import androidx.camera.integration.camera2.pipe.CameraMetadataKey.LENS_FOCUS_DISTANCE
+import androidx.camera.integration.camera2.pipe.CameraMetadataKey.STATISTICS_FACES
+import androidx.camera.integration.camera2.pipe.transformations.DataTransformations1D
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 

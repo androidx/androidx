@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.camera2.pipe.visualization_data.graph
+package androidx.camera.integration.camera2.pipe.dataholders
 
-import androidx.camera.integration.camera2.pipe.utils.compareTo
-import androidx.camera.integration.camera2.pipe.utils.minus
+import androidx.camera.integration.camera2.pipe.extensions.compareTo
+import androidx.camera.integration.camera2.pipe.extensions.minus
 
 /** Data source for continuous value graph visualizations. */
 data class GraphDataHolderValueImpl(

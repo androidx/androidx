@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.camera2.pipe.visualization_data.graph
+package androidx.camera.integration.camera2.pipe.dataholders
 
 /** Data source for state (discrete value) graph visualizations. */
 data class GraphDataHolderStateImpl(
     /** Maps integer representing state to its string description */
-    private val stateMap: HashMap<Int, String>,
+    private val stateMap: Map<Int, String>,
     override var graphData: GraphDataSortedRingBuffer
 ) : GraphDataHolder {
 
     init {
-        if (stateMap.size == 0) throw IllegalArgumentException("Must have at least 1 state")
+        if (stateMap.isEmpty()) throw IllegalArgumentException("Must have at least 1 state")
         stateMap.forEach {
             if (it.value == "") throw IllegalArgumentException("State description must not be" +
                     " empty string")
