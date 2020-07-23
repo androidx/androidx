@@ -276,6 +276,47 @@ public final class ImageAnalysisTest {
                 expectedTargetAspectRatioCustom)).isTrue();
     }
 
+    // TODO(b/162298517): change the test to be deterministic instead of depend upon timing.
+    @Test
+    public void analyzerSetMultipleTimesInKeepOnlyLatestMode() throws Exception {
+        ImageAnalysis useCase = new ImageAnalysis.Builder().setBackpressureStrategy(
+                ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build();
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
+
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
+        mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS);
+
+        Analyzer slowAnalyzer = image -> {
+            try {
+                Thread.sleep(200);
+                image.close();
+            } catch (Exception e) {
+            }
+        };
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), slowAnalyzer);
+
+        Thread.sleep(100);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), slowAnalyzer);
+
+        Thread.sleep(100);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), slowAnalyzer);
+
+        Thread.sleep(100);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), slowAnalyzer);
+
+        Thread.sleep(100);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), slowAnalyzer);
+
+        Thread.sleep(100);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
+
+        mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS);
+
+        synchronized (mAnalysisResultLock) {
+            assertThat(mAnalysisResults).isNotEmpty();
+        }
+    }
+
     private static class ImageProperties {
         final Size mResolution;
         final int mFormat;
