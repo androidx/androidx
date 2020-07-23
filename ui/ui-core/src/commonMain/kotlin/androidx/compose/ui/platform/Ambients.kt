@@ -17,13 +17,20 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.animation.core.AnimationClockObservable
+import androidx.compose.animation.core.InternalAnimationApi
+import androidx.compose.animation.core.rootAnimationClockFactory
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
 import androidx.compose.runtime.ambientOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistryAmbient
 import androidx.compose.runtime.staticAmbientOf
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.hapticfeedback.HapticFeedback
-import androidx.compose.ui.text.input.TextInputService
+import androidx.compose.ui.node.Owner
 import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.coroutines.CoroutineContext
@@ -99,3 +106,32 @@ val UriHandlerAmbient = staticAmbientOf<UriHandler>()
  * The ambient to provide the layout direction.
  */
 val LayoutDirectionAmbient = staticAmbientOf<LayoutDirection>()
+
+@Composable
+@OptIn(InternalAnimationApi::class)
+internal fun ProvideCommonAmbients(
+    owner: Owner,
+    uriHandler: UriHandler,
+    coroutineContext: CoroutineContext,
+    content: @Composable () -> Unit
+) {
+    val rootAnimationClock = remember { rootAnimationClockFactory() }
+
+    Providers(
+        AnimationClockAmbient provides rootAnimationClock,
+        AutofillAmbient provides owner.autofill,
+        AutofillTreeAmbient provides owner.autofillTree,
+        ClipboardManagerAmbient provides owner.clipboardManager,
+        @Suppress("DEPRECATION")
+        CoroutineContextAmbient provides coroutineContext,
+        DensityAmbient provides owner.density,
+        FontLoaderAmbient provides owner.fontLoader,
+        HapticFeedBackAmbient provides owner.hapticFeedBack,
+        TextInputServiceAmbient provides owner.textInputService,
+        TextToolbarAmbient provides owner.textToolbar,
+        UiSavedStateRegistryAmbient provides owner.savedStateRegistry,
+        UriHandlerAmbient provides uriHandler,
+        LayoutDirectionAmbient provides owner.layoutDirection,
+        children = content
+    )
+}

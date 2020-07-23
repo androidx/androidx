@@ -19,7 +19,6 @@ package androidx.compose.ui.platform
 import android.content.Context
 import android.content.res.Configuration
 import android.view.View
-import androidx.compose.animation.core.rootAnimationClockFactory
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.Providers
@@ -32,9 +31,6 @@ import androidx.compose.runtime.state
 import androidx.compose.runtime.staticAmbientOf
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistryAmbient
-import androidx.compose.ui.node.Owner
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 
 /**
@@ -103,34 +99,4 @@ internal fun ProvideAndroidAmbients(owner: AndroidOwner, content: @Composable ()
             content = content
         )
     }
-}
-
-// TODO(igotti): move back to Ambients.kt once Owner will be commonized.
-@Composable
-@OptIn(androidx.compose.animation.core.InternalAnimationApi::class)
-internal fun ProvideCommonAmbients(
-    owner: Owner,
-    uriHandler: UriHandler,
-    coroutineContext: CoroutineContext,
-    content: @Composable () -> Unit
-) {
-    val rootAnimationClock = remember { rootAnimationClockFactory() }
-
-    Providers(
-        AnimationClockAmbient provides rootAnimationClock,
-        AutofillAmbient provides owner.autofill,
-        AutofillTreeAmbient provides owner.autofillTree,
-        ClipboardManagerAmbient provides owner.clipboardManager,
-        @Suppress("DEPRECATION")
-        CoroutineContextAmbient provides coroutineContext,
-        DensityAmbient provides owner.density,
-        FontLoaderAmbient provides owner.fontLoader,
-        HapticFeedBackAmbient provides owner.hapticFeedBack,
-        TextInputServiceAmbient provides owner.textInputService,
-        TextToolbarAmbient provides owner.textToolbar,
-        UiSavedStateRegistryAmbient provides owner.savedStateRegistry,
-        UriHandlerAmbient provides uriHandler,
-        LayoutDirectionAmbient provides owner.layoutDirection,
-        children = content
-    )
 }

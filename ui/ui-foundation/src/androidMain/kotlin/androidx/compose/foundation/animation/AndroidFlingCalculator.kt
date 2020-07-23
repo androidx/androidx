@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.animation
 
-import android.view.ViewConfiguration
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.Density
 import kotlin.math.exp
@@ -36,12 +35,6 @@ private const val InchesPerMeter = 39.37f
 private val DecelerationRate = (ln(0.78) / ln(0.9)).toFloat()
 
 /**
- * The published system default scroll friction.
- */
-// TODO break the framework dependency on ViewConfiguration here
-private val FlingFriction = ViewConfiguration.getScrollFriction()
-
-/**
  * Compute the rate of deceleration based on pixel density, physical gravity
  * and a [coefficient of friction][friction].
  */
@@ -51,9 +44,11 @@ private fun computeDeceleration(friction: Float, density: Float): Float =
 /**
  * Configuration for Android-feel flinging motion at the given density.
  *
+ * @param friction scroll friction.
  * @param density density of the screen. Use [DensityAmbient] to get current density in composition.
  */
 internal class AndroidFlingCalculator(
+    private val friction: Float,
     val density: Density
 ) {
 
@@ -71,7 +66,7 @@ internal class AndroidFlingCalculator(
 
     private fun getSplineDeceleration(velocity: Float): Double = AndroidFlingSpline.deceleration(
         velocity,
-        FlingFriction * magicPhysicalCoefficient
+        friction * magicPhysicalCoefficient
     )
 
     /**
@@ -89,7 +84,7 @@ internal class AndroidFlingCalculator(
     fun flingDistance(velocity: Float): Float {
         val l = getSplineDeceleration(velocity)
         val decelMinusOne = DecelerationRate - 1.0
-        return (FlingFriction * magicPhysicalCoefficient
+        return (friction * magicPhysicalCoefficient
                 * exp(DecelerationRate / decelMinusOne * l)).toFloat()
     }
 
@@ -101,7 +96,7 @@ internal class AndroidFlingCalculator(
         val decelMinusOne = DecelerationRate - 1.0
         return FlingInfo(
             initialVelocity = velocity,
-            distance = (FlingFriction * magicPhysicalCoefficient
+            distance = (friction * magicPhysicalCoefficient
                     * exp(DecelerationRate / decelMinusOne * l)).toFloat(),
             duration = (1000.0 * exp(l / decelMinusOne)).toLong()
         )

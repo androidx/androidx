@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,5 +16,14 @@
 
 package androidx.compose.ui.platform
 
-internal actual typealias NativeRectF = android.graphics.RectF
-internal actual typealias NativeMatrix = android.graphics.Matrix
+internal actual typealias AtomicInt = java.util.concurrent.atomic.AtomicInteger
+
+internal actual fun simpleIdentityToString(obj: Any, name: String?): String {
+    val className = name ?: if (obj::class.java.isAnonymousClass) {
+        obj::class.java.name
+    } else {
+        obj::class.java.simpleName
+    }
+
+    return className + "@" + String.format("%07x", System.identityHashCode(obj))
+}
