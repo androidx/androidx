@@ -18,6 +18,7 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.RRect
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.vectormath.Matrix4
 import androidx.compose.ui.graphics.vectormath.isIdentity
@@ -32,8 +33,7 @@ import org.jetbrains.skija.Rect as SkijaRect
 
 @Suppress("UNUSED_PARAMETER")
 fun DesktopCanvas(image: ImageAsset): Canvas {
-    println("Canvas(image: ImageAsset) isn't implemented yet")
-    return DesktopCanvas(android.graphics.Canvas())
+    TODO("Canvas(image: ImageAsset) isn't implemented yet")
 }
 
 @OptIn(InternalComposeApi::class)
@@ -97,7 +97,8 @@ class DesktopCanvas(override var nativeCanvas: NativeCanvas) : Canvas {
                 matrix4[2, 1] != 0f ||
                 matrix4[2, 2] != 1f ||
                 matrix4[2, 3] != 0f ||
-                matrix4[3, 2] != 0f) {
+                matrix4[3, 2] != 0f
+            ) {
                 throw IllegalStateException("Desktop does not support arbitrary transforms")
             }
             skija.concat(
@@ -118,6 +119,10 @@ class DesktopCanvas(override var nativeCanvas: NativeCanvas) : Canvas {
 
     override fun clipRect(left: Float, top: Float, right: Float, bottom: Float, clipOp: ClipOp) {
         skija.clipRect(SkijaRect.makeLTRB(left, top, right, bottom), clipOp.toSkija())
+    }
+
+    fun clipRoundRect(rect: RRect, clipOp: ClipOp = ClipOp.intersect) {
+        skija.clipRRect(rect.toSkijaRRect(), clipOp.toSkija())
     }
 
     override fun clipPath(path: Path, clipOp: ClipOp) {
@@ -190,7 +195,7 @@ class DesktopCanvas(override var nativeCanvas: NativeCanvas) : Canvas {
 
     override fun drawImage(image: ImageAsset, topLeftOffset: Offset, paint: Paint) {
         skija.drawImageRect(
-            image.asAndroidBitmap().skiaImage,
+            image.asDesktopImage(),
             SkijaIRect.makeXYWH(
                 0,
                 0,
@@ -216,7 +221,7 @@ class DesktopCanvas(override var nativeCanvas: NativeCanvas) : Canvas {
         paint: Paint
     ) {
         skija.drawImageRect(
-            image.asAndroidBitmap().skiaImage,
+            image.asDesktopImage(),
             SkijaIRect.makeXYWH(
                 srcOffset.x,
                 srcOffset.y,
@@ -347,6 +352,7 @@ class DesktopCanvas(override var nativeCanvas: NativeCanvas) : Canvas {
     }
 
     override fun drawVertices(vertices: Vertices, blendMode: BlendMode, paint: Paint) {
+        // TODO(demin): implement drawVertices
         println("Canvas.drawVertices not implemented yet")
     }
 

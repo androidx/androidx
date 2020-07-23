@@ -16,21 +16,21 @@
 
 package androidx.compose.ui.graphics.canvas
 
-import androidx.ui.TestResources.testImageAsset
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.DesktopGraphicsTest
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.imageFromResource
 import androidx.compose.ui.graphics.vectormath.Matrix4
 import androidx.compose.ui.graphics.withSave
 import androidx.compose.ui.graphics.withSaveLayer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.graphics.DesktopGraphicsTest
 import org.junit.Test
 
 class DesktopCanvasTest : DesktopGraphicsTest() {
@@ -92,12 +92,12 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
     @Test
     fun drawImage() {
         canvas.drawImage(
-            image = testImageAsset("androidx/ui/desktop/test.png"),
+            image = imageFromResource("androidx/ui/desktop/test.png"),
             topLeftOffset = Offset(2f, 4f),
             paint = redPaint
         )
         canvas.drawImage(
-            image = testImageAsset("androidx/ui/desktop/test.png"),
+            image = imageFromResource("androidx/ui/desktop/test.png"),
             topLeftOffset = Offset(-2f, 0f),
             paint = redPaint
         )
@@ -108,7 +108,7 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
     @Test
     fun drawImageRect() {
         canvas.drawImageRect(
-            image = testImageAsset("androidx/ui/desktop/test.png"),
+            image = imageFromResource("androidx/ui/desktop/test.png"),
             srcOffset = IntOffset(0, 2),
             srcSize = IntSize(2, 4),
             dstOffset = IntOffset(0, 4),

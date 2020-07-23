@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.desktop
+package androidx.compose.ui.platform
 
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.Layout
-import androidx.compose.ui.gesture.DragObserver
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.onPositioned
-import androidx.compose.ui.geometry.Offset
-import kotlin.math.max
+import androidx.compose.runtime.Providers
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.state
-import androidx.compose.ui.selection.Selection
-import androidx.compose.ui.selection.SelectionRegistrarAmbient
-import androidx.compose.runtime.Providers
-import androidx.compose.ui.input.pointer.PointerInputModifier
-import androidx.compose.ui.input.pointer.PointerInputFilter
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.gesture.DragObserver
 import androidx.compose.ui.gesture.rawDragGestureFilter
 import androidx.compose.ui.gesture.rawPressStartGestureFilter
+import androidx.compose.ui.input.pointer.PointerInputFilter
+import androidx.compose.ui.input.pointer.PointerInputModifier
+import androidx.compose.ui.onPositioned
+import androidx.compose.ui.selection.Selection
+import androidx.compose.ui.selection.SelectionRegistrarAmbient
+import kotlin.math.max
 
 @Composable
 private fun Wrap(modifier: Modifier = Modifier, children: @Composable () -> Unit) {

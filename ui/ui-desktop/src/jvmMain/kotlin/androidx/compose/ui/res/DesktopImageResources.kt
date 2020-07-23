@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.ui
+package androidx.compose.ui.res
 
-import android.graphics.Bitmap
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageAsset
-import androidx.compose.ui.graphics.asImageAsset
+import androidx.compose.ui.graphics.imageFromResource
 
-internal object TestResources {
-    fun testImageAsset(path: String): ImageAsset {
-        return Bitmap(
-            javaClass.classLoader.getResource(path)!!
-                .openStream().buffered().readBytes()
-        ).asImageAsset()
-    }
+/**
+ * Synchronously load an image file stored in resources for the application.
+ *
+ * Note: This API is transient and will be likely removed for encouraging async resource loading.
+ *
+ * @param path path to the image file
+ * @return the decoded image data associated with the resource
+ */
+@Composable
+fun imageResource(path: String): ImageAsset {
+    return remember(path) { imageFromResource(path) }
 }

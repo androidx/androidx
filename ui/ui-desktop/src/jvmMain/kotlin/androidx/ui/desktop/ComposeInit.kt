@@ -19,16 +19,18 @@
 package androidx.ui.desktop
 
 import androidx.compose.animation.core.rootAnimationClockFactory
+import androidx.compose.animation.core.DesktopAnimationClock
 import androidx.compose.runtime.InternalComposeApi
-import androidx.compose.runtime.dispatch.DesktopUiDispatcher
 import androidx.compose.ui.graphics.DesktopCanvas
 import androidx.compose.ui.graphics.DesktopImageShader
 import androidx.compose.ui.graphics.DesktopInternalCanvasHolder
+import androidx.compose.ui.graphics.DesktopPath
 import androidx.compose.ui.graphics.DesktopLinearGradientShader
 import androidx.compose.ui.graphics.DesktopPaint
-import androidx.compose.ui.graphics.DesktopPath
 import androidx.compose.ui.graphics.DesktopRadialGradientShader
 import androidx.compose.ui.graphics.GraphicsFactory
+import androidx.compose.ui.text.platform.DesktopParagraph
+import androidx.compose.ui.text.platform.DesktopParagraphIntrinsics
 import androidx.compose.ui.text.platform.paragraphActualFactory
 import androidx.compose.ui.text.platform.paragraphIntrinsicsActualFactory
 import org.jetbrains.skija.Library
@@ -72,10 +74,6 @@ private object ComposeInit {
         paragraphIntrinsicsActualFactory = ::DesktopParagraphIntrinsics
         paragraphActualFactory = ::DesktopParagraph
         @OptIn(androidx.compose.animation.core.InternalAnimationApi::class)
-        rootAnimationClockFactory = {
-            // TODO: detect actual display refresh rate? what to do with displays with
-            //  different refresh rates?
-            DesktopAnimationClock(60, DesktopUiDispatcher.Dispatcher)
-        }
+        rootAnimationClockFactory = ::DesktopAnimationClock
     }
 }
