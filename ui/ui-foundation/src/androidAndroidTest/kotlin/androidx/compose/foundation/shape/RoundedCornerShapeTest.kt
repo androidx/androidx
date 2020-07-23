@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.shape.corner
+package androidx.compose.foundation.shape
 
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.RRect
 import androidx.compose.ui.geometry.Radius
 import androidx.compose.ui.geometry.Size
@@ -25,6 +24,7 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -57,7 +57,12 @@ class RoundedCornerShapeTest {
         val radius2 = 22f
         val radius3 = 32f
         val radius4 = 42f
-        val rounded = RoundedCornerShape(radius1, radius2, radius3, radius4)
+        val rounded = RoundedCornerShape(
+            radius1,
+            radius2,
+            radius3,
+            radius4
+        )
 
         val outline = rounded.toOutline() as Outline.Rounded
         assertThat(outline.rrect).isEqualTo(
@@ -73,7 +78,12 @@ class RoundedCornerShapeTest {
 
     @Test
     fun createsRectangleOutlineForZeroSizedCorners() {
-        val rounded = RoundedCornerShape(0.0f, 0.0f, 0.0f, 0.0f)
+        val rounded = RoundedCornerShape(
+            0.0f,
+            0.0f,
+            0.0f,
+            0.0f
+        )
 
         assertThat(rounded.toOutline())
             .isEqualTo(Outline.Rectangle(size.toRect()))
@@ -87,13 +97,19 @@ class RoundedCornerShapeTest {
 
     @Test
     fun roundedCornerUpdateAllCornerSize() {
-        assertThat(RoundedCornerShape(10.0f).copy(CornerSize(5.dp)))
+        assertThat(
+            RoundedCornerShape(10.0f).copy(
+            CornerSize(
+                5.dp
+            )
+        ))
             .isEqualTo(RoundedCornerShape(5.dp))
     }
 
     @Test
     fun roundedCornerUpdateTwoCornerSizes() {
-        val original = RoundedCornerShape(10.0f).copy(
+        val original = RoundedCornerShape(10.0f)
+            .copy(
             topLeft = CornerSize(3.dp),
             bottomLeft = CornerSize(50)
         )
@@ -102,15 +118,18 @@ class RoundedCornerShapeTest {
         assertEquals(CornerSize(10.0f), original.topRight)
         assertEquals(CornerSize(10.0f), original.bottomRight)
         assertEquals(CornerSize(50), original.bottomLeft)
-        assertThat(RoundedCornerShape(10.0f).copy(
+        assertThat(
+            RoundedCornerShape(10.0f).copy(
             topLeft = CornerSize(3.dp),
             bottomLeft = CornerSize(50)
-        )).isEqualTo(RoundedCornerShape(
-            topLeft = CornerSize(3.dp),
-            topRight = CornerSize(10.0f),
-            bottomRight = CornerSize(10.0f),
-            bottomLeft = CornerSize(50)
-        ))
+        )).isEqualTo(
+            RoundedCornerShape(
+                topLeft = CornerSize(3.dp),
+                topRight = CornerSize(10.0f),
+                bottomRight = CornerSize(10.0f),
+                bottomLeft = CornerSize(50)
+            )
+        )
     }
 
     private fun Shape.toOutline() = createOutline(size, density)

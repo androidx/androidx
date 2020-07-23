@@ -27,7 +27,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.positionInRoot
 import androidx.ui.core.onPositioned
 import androidx.ui.core.testTag
-import androidx.compose.foundation.shape.corner.CircleShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.layout.Stack

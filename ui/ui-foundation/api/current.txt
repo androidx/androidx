@@ -344,26 +344,16 @@ package androidx.compose.foundation.semantics {
 
 package androidx.compose.foundation.shape {
 
-  public final class GenericShape implements androidx.compose.ui.graphics.Shape {
-    ctor public GenericShape(kotlin.jvm.functions.Function2<? super androidx.compose.ui.graphics.Path,? super androidx.compose.ui.geometry.Size,kotlin.Unit> builder);
-    method public androidx.compose.foundation.shape.GenericShape copy(kotlin.jvm.functions.Function2<? super androidx.compose.ui.graphics.Path,? super androidx.compose.ui.geometry.Size,kotlin.Unit> builder);
-    method public androidx.compose.ui.graphics.Outline createOutline-lwCvPpU(long size, androidx.compose.ui.unit.Density density);
-  }
-
-}
-
-package androidx.compose.foundation.shape.corner {
-
   public abstract class CornerBasedShape implements androidx.compose.ui.graphics.Shape {
-    ctor public CornerBasedShape(androidx.compose.foundation.shape.corner.CornerSize topLeft, androidx.compose.foundation.shape.corner.CornerSize topRight, androidx.compose.foundation.shape.corner.CornerSize bottomRight, androidx.compose.foundation.shape.corner.CornerSize bottomLeft);
-    method public abstract androidx.compose.foundation.shape.corner.CornerBasedShape copy(androidx.compose.foundation.shape.corner.CornerSize topLeft = topLeft, androidx.compose.foundation.shape.corner.CornerSize topRight = topRight, androidx.compose.foundation.shape.corner.CornerSize bottomRight = bottomRight, androidx.compose.foundation.shape.corner.CornerSize bottomLeft = bottomLeft);
-    method public final androidx.compose.foundation.shape.corner.CornerBasedShape copy(androidx.compose.foundation.shape.corner.CornerSize all);
+    ctor public CornerBasedShape(androidx.compose.foundation.shape.CornerSize topLeft, androidx.compose.foundation.shape.CornerSize topRight, androidx.compose.foundation.shape.CornerSize bottomRight, androidx.compose.foundation.shape.CornerSize bottomLeft);
+    method public abstract androidx.compose.foundation.shape.CornerBasedShape copy(androidx.compose.foundation.shape.CornerSize topLeft = topLeft, androidx.compose.foundation.shape.CornerSize topRight = topRight, androidx.compose.foundation.shape.CornerSize bottomRight = bottomRight, androidx.compose.foundation.shape.CornerSize bottomLeft = bottomLeft);
+    method public final androidx.compose.foundation.shape.CornerBasedShape copy(androidx.compose.foundation.shape.CornerSize all);
     method public abstract androidx.compose.ui.graphics.Outline createOutline-hMawgr0(long size, float topLeft, float topRight, float bottomRight, float bottomLeft);
     method public final androidx.compose.ui.graphics.Outline createOutline-lwCvPpU(long size, androidx.compose.ui.unit.Density density);
-    method public final androidx.compose.foundation.shape.corner.CornerSize getBottomLeft();
-    method public final androidx.compose.foundation.shape.corner.CornerSize getBottomRight();
-    method public final androidx.compose.foundation.shape.corner.CornerSize getTopLeft();
-    method public final androidx.compose.foundation.shape.corner.CornerSize getTopRight();
+    method public final androidx.compose.foundation.shape.CornerSize getBottomLeft();
+    method public final androidx.compose.foundation.shape.CornerSize getBottomRight();
+    method public final androidx.compose.foundation.shape.CornerSize getTopLeft();
+    method public final androidx.compose.foundation.shape.CornerSize getTopRight();
   }
 
   @androidx.compose.Immutable public interface CornerSize {
@@ -371,43 +361,49 @@ package androidx.compose.foundation.shape.corner {
   }
 
   public final class CornerSizeKt {
-    method @androidx.compose.Stable public static androidx.compose.foundation.shape.corner.CornerSize CornerSize(float size);
-    method @androidx.compose.Stable public static androidx.compose.foundation.shape.corner.CornerSize CornerSize(@IntRange(from=0, to=100) int percent);
-    method @androidx.compose.Stable public static androidx.compose.foundation.shape.corner.CornerSize CornerSize-0680j_4(float size);
-    method public static androidx.compose.foundation.shape.corner.CornerSize getZeroCornerSize();
+    method @androidx.compose.Stable public static androidx.compose.foundation.shape.CornerSize CornerSize(float size);
+    method @androidx.compose.Stable public static androidx.compose.foundation.shape.CornerSize CornerSize(@IntRange(from=0, to=100) int percent);
+    method @androidx.compose.Stable public static androidx.compose.foundation.shape.CornerSize CornerSize-0680j_4(float size);
+    method public static androidx.compose.foundation.shape.CornerSize getZeroCornerSize();
   }
 
-  public final class CutCornerShape extends androidx.compose.foundation.shape.corner.CornerBasedShape {
-    ctor public CutCornerShape(androidx.compose.foundation.shape.corner.CornerSize topLeft, androidx.compose.foundation.shape.corner.CornerSize topRight, androidx.compose.foundation.shape.corner.CornerSize bottomRight, androidx.compose.foundation.shape.corner.CornerSize bottomLeft);
-    method public androidx.compose.foundation.shape.corner.CutCornerShape copy(androidx.compose.foundation.shape.corner.CornerSize topLeft, androidx.compose.foundation.shape.corner.CornerSize topRight, androidx.compose.foundation.shape.corner.CornerSize bottomRight, androidx.compose.foundation.shape.corner.CornerSize bottomLeft);
+  public final class CutCornerShape extends androidx.compose.foundation.shape.CornerBasedShape {
+    ctor public CutCornerShape(androidx.compose.foundation.shape.CornerSize topLeft, androidx.compose.foundation.shape.CornerSize topRight, androidx.compose.foundation.shape.CornerSize bottomRight, androidx.compose.foundation.shape.CornerSize bottomLeft);
+    method public androidx.compose.foundation.shape.CutCornerShape copy(androidx.compose.foundation.shape.CornerSize topLeft, androidx.compose.foundation.shape.CornerSize topRight, androidx.compose.foundation.shape.CornerSize bottomRight, androidx.compose.foundation.shape.CornerSize bottomLeft);
     method public androidx.compose.ui.graphics.Outline createOutline-hMawgr0(long size, float topLeft, float topRight, float bottomRight, float bottomLeft);
   }
 
   public final class CutCornerShapeKt {
-    method public static androidx.compose.foundation.shape.corner.CutCornerShape CutCornerShape(androidx.compose.foundation.shape.corner.CornerSize corner);
-    method public static androidx.compose.foundation.shape.corner.CutCornerShape CutCornerShape(float size);
-    method public static androidx.compose.foundation.shape.corner.CutCornerShape CutCornerShape(int percent);
-    method public static androidx.compose.foundation.shape.corner.CutCornerShape CutCornerShape(float topLeft = 0.0f, float topRight = 0.0f, float bottomRight = 0.0f, float bottomLeft = 0.0f);
-    method public static androidx.compose.foundation.shape.corner.CutCornerShape CutCornerShape(@IntRange(from=0, to=100) int topLeftPercent = 0, @IntRange(from=0, to=100) int topRightPercent = 0, @IntRange(from=0, to=100) int bottomRightPercent = 0, @IntRange(from=0, to=100) int bottomLeftPercent = 0);
-    method public static androidx.compose.foundation.shape.corner.CutCornerShape CutCornerShape-0680j_4(float size);
-    method public static androidx.compose.foundation.shape.corner.CutCornerShape CutCornerShape-ZmiikuI(float topLeft = 0.dp, float topRight = 0.dp, float bottomRight = 0.dp, float bottomLeft = 0.dp);
+    method public static androidx.compose.foundation.shape.CutCornerShape CutCornerShape(androidx.compose.foundation.shape.CornerSize corner);
+    method public static androidx.compose.foundation.shape.CutCornerShape CutCornerShape(float size);
+    method public static androidx.compose.foundation.shape.CutCornerShape CutCornerShape(int percent);
+    method public static androidx.compose.foundation.shape.CutCornerShape CutCornerShape(float topLeft = 0.0f, float topRight = 0.0f, float bottomRight = 0.0f, float bottomLeft = 0.0f);
+    method public static androidx.compose.foundation.shape.CutCornerShape CutCornerShape(@IntRange(from=0, to=100) int topLeftPercent = 0, @IntRange(from=0, to=100) int topRightPercent = 0, @IntRange(from=0, to=100) int bottomRightPercent = 0, @IntRange(from=0, to=100) int bottomLeftPercent = 0);
+    method public static androidx.compose.foundation.shape.CutCornerShape CutCornerShape-0680j_4(float size);
+    method public static androidx.compose.foundation.shape.CutCornerShape CutCornerShape-ZmiikuI(float topLeft = 0.dp, float topRight = 0.dp, float bottomRight = 0.dp, float bottomLeft = 0.dp);
   }
 
-  public final class RoundedCornerShape extends androidx.compose.foundation.shape.corner.CornerBasedShape {
-    ctor public RoundedCornerShape(androidx.compose.foundation.shape.corner.CornerSize topLeft, androidx.compose.foundation.shape.corner.CornerSize topRight, androidx.compose.foundation.shape.corner.CornerSize bottomRight, androidx.compose.foundation.shape.corner.CornerSize bottomLeft);
-    method public androidx.compose.foundation.shape.corner.RoundedCornerShape copy(androidx.compose.foundation.shape.corner.CornerSize topLeft, androidx.compose.foundation.shape.corner.CornerSize topRight, androidx.compose.foundation.shape.corner.CornerSize bottomRight, androidx.compose.foundation.shape.corner.CornerSize bottomLeft);
+  public final class GenericShape implements androidx.compose.ui.graphics.Shape {
+    ctor public GenericShape(kotlin.jvm.functions.Function2<? super androidx.compose.ui.graphics.Path,? super androidx.compose.ui.geometry.Size,kotlin.Unit> builder);
+    method public androidx.compose.foundation.shape.GenericShape copy(kotlin.jvm.functions.Function2<? super androidx.compose.ui.graphics.Path,? super androidx.compose.ui.geometry.Size,kotlin.Unit> builder);
+    method public androidx.compose.ui.graphics.Outline createOutline-lwCvPpU(long size, androidx.compose.ui.unit.Density density);
+  }
+
+  public final class RoundedCornerShape extends androidx.compose.foundation.shape.CornerBasedShape {
+    ctor public RoundedCornerShape(androidx.compose.foundation.shape.CornerSize topLeft, androidx.compose.foundation.shape.CornerSize topRight, androidx.compose.foundation.shape.CornerSize bottomRight, androidx.compose.foundation.shape.CornerSize bottomLeft);
+    method public androidx.compose.foundation.shape.RoundedCornerShape copy(androidx.compose.foundation.shape.CornerSize topLeft, androidx.compose.foundation.shape.CornerSize topRight, androidx.compose.foundation.shape.CornerSize bottomRight, androidx.compose.foundation.shape.CornerSize bottomLeft);
     method public androidx.compose.ui.graphics.Outline createOutline-hMawgr0(long size, float topLeft, float topRight, float bottomRight, float bottomLeft);
   }
 
   public final class RoundedCornerShapeKt {
-    method public static androidx.compose.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(androidx.compose.foundation.shape.corner.CornerSize corner);
-    method public static androidx.compose.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(float size);
-    method public static androidx.compose.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(int percent);
-    method public static androidx.compose.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(float topLeft = 0.0f, float topRight = 0.0f, float bottomRight = 0.0f, float bottomLeft = 0.0f);
-    method public static androidx.compose.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(@IntRange(from=0, to=100) int topLeftPercent = 0, @IntRange(from=0, to=100) int topRightPercent = 0, @IntRange(from=0, to=100) int bottomRightPercent = 0, @IntRange(from=0, to=100) int bottomLeftPercent = 0);
-    method public static androidx.compose.foundation.shape.corner.RoundedCornerShape RoundedCornerShape-0680j_4(float size);
-    method public static androidx.compose.foundation.shape.corner.RoundedCornerShape RoundedCornerShape-ZmiikuI(float topLeft = 0.dp, float topRight = 0.dp, float bottomRight = 0.dp, float bottomLeft = 0.dp);
-    method public static androidx.compose.foundation.shape.corner.RoundedCornerShape getCircleShape();
+    method public static androidx.compose.foundation.shape.RoundedCornerShape RoundedCornerShape(androidx.compose.foundation.shape.CornerSize corner);
+    method public static androidx.compose.foundation.shape.RoundedCornerShape RoundedCornerShape(float size);
+    method public static androidx.compose.foundation.shape.RoundedCornerShape RoundedCornerShape(int percent);
+    method public static androidx.compose.foundation.shape.RoundedCornerShape RoundedCornerShape(float topLeft = 0.0f, float topRight = 0.0f, float bottomRight = 0.0f, float bottomLeft = 0.0f);
+    method public static androidx.compose.foundation.shape.RoundedCornerShape RoundedCornerShape(@IntRange(from=0, to=100) int topLeftPercent = 0, @IntRange(from=0, to=100) int topRightPercent = 0, @IntRange(from=0, to=100) int bottomRightPercent = 0, @IntRange(from=0, to=100) int bottomLeftPercent = 0);
+    method public static androidx.compose.foundation.shape.RoundedCornerShape RoundedCornerShape-0680j_4(float size);
+    method public static androidx.compose.foundation.shape.RoundedCornerShape RoundedCornerShape-ZmiikuI(float topLeft = 0.dp, float topRight = 0.dp, float bottomRight = 0.dp, float bottomLeft = 0.dp);
+    method public static androidx.compose.foundation.shape.RoundedCornerShape getCircleShape();
   }
 
 }

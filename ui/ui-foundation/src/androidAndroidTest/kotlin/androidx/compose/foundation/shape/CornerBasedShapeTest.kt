@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.shape.corner
+package androidx.compose.foundation.shape
 
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.RRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -211,7 +211,10 @@ class CornerBasedShapeTest {
             bottomLeft = CornerSize(50)
         )
         assertThat(impl)
-            .isEqualTo(impl.copy(bottomRight = CornerSize(3.dp)))
+            .isEqualTo(impl.copy(bottomRight = CornerSize(
+                3.dp
+            )
+            ))
     }
 }
 

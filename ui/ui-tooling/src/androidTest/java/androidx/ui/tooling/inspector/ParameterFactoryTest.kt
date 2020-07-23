@@ -20,10 +20,10 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.AbsoluteAlignment
 import androidx.ui.core.Alignment
 import androidx.compose.foundation.Border
-import androidx.compose.foundation.shape.corner.CornerSize
-import androidx.compose.foundation.shape.corner.CutCornerShape
-import androidx.compose.foundation.shape.corner.RoundedCornerShape
-import androidx.compose.foundation.shape.corner.ZeroCornerSize
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.LinearGradient

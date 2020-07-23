@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.shape.corner
+package androidx.compose.foundation.shape
 
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,11 +58,15 @@ class CornerSizeTest {
 
     @Test
     fun pxCornersAreEquals() {
-        assertThat(CornerSize(24.0f)).isEqualTo(CornerSize(24.0f))
+        assertThat(CornerSize(24.0f)).isEqualTo(
+            CornerSize(24.0f)
+        )
     }
 
     @Test
     fun dpCornersAreEquals() {
-        assertThat(CornerSize(8.dp)).isEqualTo(CornerSize(8.dp))
+        assertThat(CornerSize(8.dp)).isEqualTo(
+            CornerSize(8.dp)
+        )
     }
 }

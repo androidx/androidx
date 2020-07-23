@@ -22,7 +22,7 @@ import androidx.compose.foundation.Border
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.compose.foundation.drawBorder
-import androidx.compose.foundation.shape.corner.CircleShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize

@@ -250,15 +250,15 @@ package androidx.ui.material {
   }
 
   public final class Shapes {
-    ctor public Shapes(androidx.compose.foundation.shape.corner.CornerBasedShape small, androidx.compose.foundation.shape.corner.CornerBasedShape medium, androidx.compose.foundation.shape.corner.CornerBasedShape large);
+    ctor public Shapes(androidx.compose.foundation.shape.CornerBasedShape small, androidx.compose.foundation.shape.CornerBasedShape medium, androidx.compose.foundation.shape.CornerBasedShape large);
     ctor public Shapes();
-    method public androidx.compose.foundation.shape.corner.CornerBasedShape component1();
-    method public androidx.compose.foundation.shape.corner.CornerBasedShape component2();
-    method public androidx.compose.foundation.shape.corner.CornerBasedShape component3();
-    method public androidx.ui.material.Shapes copy(androidx.compose.foundation.shape.corner.CornerBasedShape small, androidx.compose.foundation.shape.corner.CornerBasedShape medium, androidx.compose.foundation.shape.corner.CornerBasedShape large);
-    method public androidx.compose.foundation.shape.corner.CornerBasedShape getLarge();
-    method public androidx.compose.foundation.shape.corner.CornerBasedShape getMedium();
-    method public androidx.compose.foundation.shape.corner.CornerBasedShape getSmall();
+    method public androidx.compose.foundation.shape.CornerBasedShape component1();
+    method public androidx.compose.foundation.shape.CornerBasedShape component2();
+    method public androidx.compose.foundation.shape.CornerBasedShape component3();
+    method public androidx.ui.material.Shapes copy(androidx.compose.foundation.shape.CornerBasedShape small, androidx.compose.foundation.shape.CornerBasedShape medium, androidx.compose.foundation.shape.CornerBasedShape large);
+    method public androidx.compose.foundation.shape.CornerBasedShape getLarge();
+    method public androidx.compose.foundation.shape.CornerBasedShape getMedium();
+    method public androidx.compose.foundation.shape.CornerBasedShape getSmall();
   }
 
   public final class ShapesKt {
