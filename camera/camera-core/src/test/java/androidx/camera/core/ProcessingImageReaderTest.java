@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import android.graphics.ImageFormat;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
@@ -33,6 +34,7 @@ import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.camera.core.impl.ImageReaderProxy;
+import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCaptureStage;
 import androidx.camera.testing.fakes.FakeImageReaderProxy;
@@ -90,10 +92,12 @@ public final class ProcessingImageReaderTest {
     private final CaptureStage mCaptureStage3 = new FakeCaptureStage(CAPTURE_ID_3, null);
     private final FakeImageReaderProxy mImageReaderProxy = new FakeImageReaderProxy(8);
     private CaptureBundle mCaptureBundle;
+    private String mTagBundleKey;
 
     @Before
     public void setUp() {
         mCaptureBundle = CaptureBundles.createCaptureBundle(mCaptureStage0, mCaptureStage1);
+        mTagBundleKey = Integer.toString(mCaptureBundle.hashCode());
     }
 
     @Test
@@ -110,11 +114,19 @@ public final class ProcessingImageReaderTest {
         Map<Integer, Long> resultMap = new HashMap<>();
         resultMap.put(CAPTURE_ID_0, TIMESTAMP_0);
         resultMap.put(CAPTURE_ID_1, TIMESTAMP_1);
+
+        // Cache current CaptureBundle as the TagBundle key for generate the fake image
+        mTagBundleKey = processingImageReader.getTagBundleKey();
         triggerAndVerify(captureProcessor, resultMap);
         Mockito.reset(captureProcessor);
 
-        processingImageReader.setCaptureBundle(CaptureBundles.createCaptureBundle(mCaptureStage2,
-                mCaptureStage3));
+        CaptureBundle captureBundle = CaptureBundles.createCaptureBundle(mCaptureStage2,
+                mCaptureStage3);
+        processingImageReader.setCaptureBundle(captureBundle);
+
+        // Reset the key for TagBundle because the CaptureBundle is renewed
+        mTagBundleKey = processingImageReader.getTagBundleKey();
+
         Map<Integer, Long> resultMap1 = new HashMap<>();
         resultMap1.put(CAPTURE_ID_2, TIMESTAMP_2);
         resultMap1.put(CAPTURE_ID_3, TIMESTAMP_3);
@@ -171,7 +183,8 @@ public final class ProcessingImageReaderTest {
     }
 
     private void triggerImageAvailable(int captureId, long timestamp) throws InterruptedException {
-        mImageReaderProxy.triggerImageAvailable(captureId, timestamp);
+        mImageReaderProxy.triggerImageAvailable(TagBundle.create(new Pair<>(mTagBundleKey,
+                captureId)), timestamp);
     }
 
 }

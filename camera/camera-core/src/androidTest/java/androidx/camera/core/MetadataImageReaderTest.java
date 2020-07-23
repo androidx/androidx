@@ -20,9 +20,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.ImageReaderProxy;
+import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.HandlerUtil;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
@@ -279,7 +281,8 @@ public final class MetadataImageReaderTest {
                 };
         mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundExecutor);
         // Feeds the second Image.
-        assertThat(mImageReader.triggerImageAvailable(null, TIMESTAMP_1, 50,
+        TagBundle tagBundle = TagBundle.create(new Pair<>("FakeCaptureStageId", 0));
+        assertThat(mImageReader.triggerImageAvailable(tagBundle, TIMESTAMP_1, 50,
                 TimeUnit.MILLISECONDS)).isFalse();
 
         HandlerUtil.waitForLooperToIdle(mBackgroundHandler);
@@ -321,7 +324,8 @@ public final class MetadataImageReaderTest {
     }
 
     private void triggerImageAvailable(long timestamp) throws InterruptedException {
-        mImageReader.triggerImageAvailable(null, timestamp);
+        mImageReader.triggerImageAvailable(TagBundle.create(new Pair<>("FakeCaptureStageId",
+                        null)), timestamp);
     }
 
     private void triggerImageInfoAvailable(long timestamp) {

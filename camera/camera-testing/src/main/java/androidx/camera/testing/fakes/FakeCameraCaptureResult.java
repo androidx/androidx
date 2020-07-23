@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraCaptureMetaData;
 import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.TagBundle;
 
 /**
  * A fake implementation of {@link CameraCaptureResult} where the values are settable.
@@ -36,7 +37,7 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
     private CameraCaptureMetaData.AwbState mAwbState = CameraCaptureMetaData.AwbState.UNKNOWN;
     private CameraCaptureMetaData.FlashState mFlashState = CameraCaptureMetaData.FlashState.UNKNOWN;
     private long mTimestamp = -1L;
-    private Object mTag = null;
+    private TagBundle mTag = TagBundle.emptyBundle();
 
     public void setAfMode(CameraCaptureMetaData.AfMode mode) {
         mAfMode = mode;
@@ -62,7 +63,7 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
         mTimestamp = timestamp;
     }
 
-    public void setTag(Object tag) {
+    public void setTag(TagBundle tag) {
         mTag = tag;
     }
 
@@ -101,8 +102,9 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
         return mTimestamp;
     }
 
+    @NonNull
     @Override
-    public Object getTag() {
+    public TagBundle getTagBundle() {
         return mTag;
     }
 
@@ -120,7 +122,7 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
         private CameraCaptureMetaData.FlashState mFlashState =
                 CameraCaptureMetaData.FlashState.UNKNOWN;
         private long mTimestamp = -1L;
-        private Object mTag = null;
+        private TagBundle mTag = TagBundle.emptyBundle();
 
         /** Construct and return a new instance of a {@link FakeCameraCaptureResult}. */
         @NonNull public FakeCameraCaptureResult build() {
@@ -180,7 +182,7 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
 
         /** Set the tag. */
         @NonNull
-        public Builder setTag(@Nullable Object tag) {
+        public Builder setTag(@NonNull TagBundle tag) {
             mTag = tag;
             return this;
         }

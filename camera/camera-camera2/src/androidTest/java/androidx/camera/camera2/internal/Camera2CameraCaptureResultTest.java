@@ -27,6 +27,7 @@ import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureMetaData.FlashState;
+import androidx.camera.core.impl.TagBundle;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -41,7 +42,7 @@ public final class Camera2CameraCaptureResultTest {
 
     private CaptureResult mCaptureResult;
     private Camera2CameraCaptureResult mCamera2CameraCaptureResult;
-    private Object mTag = null;
+    private TagBundle mTag = TagBundle.emptyBundle();
 
     @Before
     public void setUp() {

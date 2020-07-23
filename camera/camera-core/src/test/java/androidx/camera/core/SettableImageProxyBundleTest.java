@@ -53,23 +53,21 @@ public class SettableImageProxyBundleTest {
     private ImageProxy mImageProxy1;
     private List<Integer> mCaptureIdList;
     private SettableImageProxyBundle mImageProxyBundle;
-
+    private String mTagBundleKey = "fakeTagBundleKey";
     @Before
     public void setup() {
         ((FakeImageInfo) mImageInfo0).setTimestamp(TIMESTAMP_0);
         ((FakeImageInfo) mImageInfo1).setTimestamp(TIMESTAMP_1);
-        ((FakeImageInfo) mImageInfo0).setTag(CAPTURE_ID_0);
-        ((FakeImageInfo) mImageInfo1).setTag(CAPTURE_ID_1);
+        ((FakeImageInfo) mImageInfo0).setTag(mTagBundleKey, CAPTURE_ID_0);
+        ((FakeImageInfo) mImageInfo1).setTag(mTagBundleKey, CAPTURE_ID_1);
         mImageProxy0 = new FakeImageProxy(mImageInfo0);
         mImageProxy1 = new FakeImageProxy(mImageInfo1);
-        ((FakeImageProxy) mImageProxy0).setImageInfo(mImageInfo0);
-        ((FakeImageProxy) mImageProxy1).setImageInfo(mImageInfo1);
 
         mCaptureIdList = new ArrayList<>();
         mCaptureIdList.add(CAPTURE_ID_0);
         mCaptureIdList.add(CAPTURE_ID_1);
 
-        mImageProxyBundle = new SettableImageProxyBundle(mCaptureIdList);
+        mImageProxyBundle = new SettableImageProxyBundle(mCaptureIdList, mTagBundleKey);
     }
 
     @Test
@@ -91,13 +89,43 @@ public class SettableImageProxyBundleTest {
         assertThat(result1).isSameInstanceAs(mImageProxy1);
     }
 
+    @Test
+    public void canInvokeMatchedImageProxyFutureWithMultiTag() throws InterruptedException,
+            ExecutionException, TimeoutException {
+        FakeImageInfo imageInfo0 = new FakeImageInfo();
+        imageInfo0.setTimestamp(TIMESTAMP_0);
+        FakeImageInfo imageInfo1 = new FakeImageInfo();
+        imageInfo1.setTimestamp(TIMESTAMP_1);
+
+        imageInfo0.setTag(mTagBundleKey, CAPTURE_ID_0);
+        imageInfo1.setTag(mTagBundleKey, CAPTURE_ID_1);
+
+        ImageProxy imageProxy0;
+        imageProxy0 = new FakeImageProxy(imageInfo0);
+        ImageProxy imageProxy1;
+        imageProxy1 = new FakeImageProxy(imageInfo1);
+
+        mImageProxyBundle.addImageProxy(imageProxy0);
+        mImageProxyBundle.addImageProxy(imageProxy1);
+
+        // Tries to get the Images for the ListenableFutures got from SettableImageProxyBundle.
+        ImageProxy result0 = mImageProxyBundle.getImageProxy(CAPTURE_ID_0).get(0, TimeUnit.SECONDS);
+        ImageProxy result1 = mImageProxyBundle.getImageProxy(CAPTURE_ID_1).get(0, TimeUnit.SECONDS);
+
+        // Checks if the results match what was input.
+        assertThat(result0.getImageInfo()).isSameInstanceAs(imageInfo0);
+        assertThat(result0).isSameInstanceAs(imageProxy0);
+        assertThat(result1.getImageInfo()).isSameInstanceAs(imageInfo1);
+        assertThat(result1).isSameInstanceAs(imageProxy1);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void exceptionWhenAddingImageWithInvalidCaptureId() {
         ImageInfo imageInfo = new FakeImageInfo();
         ImageProxy imageProxy = new FakeImageProxy(imageInfo);
 
         // Adds an ImageProxy with a capture id which doesn't exist in the initial list.
-        ((FakeImageInfo) imageInfo).setTag(CAPTURE_ID_NONEXISTANT);
+        ((FakeImageInfo) imageInfo).setTag(mTagBundleKey, CAPTURE_ID_NONEXISTANT);
         ((FakeImageProxy) imageProxy).setImageInfo(imageInfo);
 
         // Expects to throw exception while adding ImageProxy.
@@ -110,5 +138,19 @@ public class SettableImageProxyBundleTest {
         // Tries to get a ImageProxy with non-existed capture id. Expects to throw exception
         // while getting ImageProxy.
         mImageProxyBundle.getImageProxy(CAPTURE_ID_NONEXISTANT).get(0, TimeUnit.SECONDS);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void exceptionWhenAddingImageWithInvalidCaptureIdInMultiTagCase() {
+        ImageInfo imageInfo = new FakeImageInfo();
+        ImageProxy imageProxy = new FakeImageProxy(imageInfo);
+
+        // Adds an ImageProxy with a capture id which doesn't exist in the initial list.
+        ((FakeImageInfo) imageInfo).setTag(mTagBundleKey,
+                CAPTURE_ID_NONEXISTANT);
+        ((FakeImageProxy) imageProxy).setImageInfo(imageInfo);
+
+        // Expects to throw exception while adding ImageProxy.
+        mImageProxyBundle.addImageProxy(imageProxy);
     }
 }

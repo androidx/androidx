@@ -48,6 +48,8 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
     private final List<ImageProxy> mOwnedImageProxies = new ArrayList<>();
 
     private final List<Integer> mCaptureIdList;
+    private String mTagBundleKey = null;
+
     // Whether or not the bundle has been closed or not
     @GuardedBy("mLock")
     private boolean mClosed = false;
@@ -55,10 +57,12 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
     /**
      * Create a {@link ImageProxyBundle} for captures with the given ids.
      *
-     * @param captureIds The set of captureIds contained by the ImageProxyBundle
+     * @param captureIds    The set of captureIds contained by the ImageProxyBundle
+     * @param tagBundleKey `The key for checking desired image from TagBundle
      */
-    SettableImageProxyBundle(List<Integer> captureIds) {
+    SettableImageProxyBundle(List<Integer> captureIds, String tagBundleKey) {
         mCaptureIdList = captureIds;
+        mTagBundleKey = tagBundleKey;
         setup();
     }
 
@@ -96,7 +100,7 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
                 return;
             }
 
-            Integer captureId = (Integer) imageProxy.getImageInfo().getTag();
+            Integer captureId = imageProxy.getImageInfo().getTagBundle().getTag(mTagBundleKey);
             if (captureId == null) {
                 throw new IllegalArgumentException("CaptureId is null.");
             }

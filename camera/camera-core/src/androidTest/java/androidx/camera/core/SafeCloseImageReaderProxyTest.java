@@ -24,7 +24,10 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
+import android.util.Pair;
+
 import androidx.camera.core.impl.ImageReaderProxy;
+import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeImageReaderProxy;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -39,6 +42,8 @@ import org.junit.runner.RunWith;
 public class SafeCloseImageReaderProxyTest {
     private FakeImageReaderProxy mFakeImageReaderProxy;
     private SafeCloseImageReaderProxy mSafeCloseImageReaderProxy;
+    private String mTagBundleKey = "FakeTagBundleKey";
+    private int mTag = 0;
 
     @Before
     public void setup() {
@@ -48,7 +53,8 @@ public class SafeCloseImageReaderProxyTest {
 
     @Test
     public void imageReaderNotClosed_ifOutstandingImages() throws InterruptedException {
-        mFakeImageReaderProxy.triggerImageAvailable(new Object(), 1);
+        mFakeImageReaderProxy.triggerImageAvailable(TagBundle.create(new Pair<>(mTagBundleKey,
+                mTag)), 1);
         mSafeCloseImageReaderProxy.acquireLatestImage();
 
         // Close safely instead of using normal ImageReaderProxy.close()
@@ -61,7 +67,8 @@ public class SafeCloseImageReaderProxyTest {
 
     @Test
     public void imageReaderClosed_onceAllOutstandingImagesClosed() throws InterruptedException {
-        mFakeImageReaderProxy.triggerImageAvailable(new Object(), 1);
+        mFakeImageReaderProxy.triggerImageAvailable(TagBundle.create(new Pair<>(mTagBundleKey,
+                mTag)), 1);
         ImageProxy imageProxy = mSafeCloseImageReaderProxy.acquireLatestImage();
 
         // Close safely instead of using normal ImageReaderProxy.close()
@@ -82,7 +89,8 @@ public class SafeCloseImageReaderProxyTest {
                 CameraXExecutors.directExecutor());
 
         // Act
-        mFakeImageReaderProxy.triggerImageAvailable(new Object(), 1);
+        mFakeImageReaderProxy.triggerImageAvailable(TagBundle.create(new Pair<>(mTagBundleKey,
+                mTag)), 1);
 
         // Assert
         verify(onImageAvailableListener).onImageAvailable(any(ImageReaderProxy.class));
@@ -99,7 +107,8 @@ public class SafeCloseImageReaderProxyTest {
         // Act
         // Close safely instead of using normal ImageReaderProxy.close()
         mSafeCloseImageReaderProxy.safeClose();
-        mFakeImageReaderProxy.triggerImageAvailable(new Object(), 1);
+        mFakeImageReaderProxy.triggerImageAvailable(TagBundle.create(new Pair<>(mTagBundleKey,
+                mTag)), 1);
 
         // Assert
         verifyZeroInteractions(onImageAvailableListener);
@@ -114,7 +123,8 @@ public class SafeCloseImageReaderProxyTest {
         mSafeCloseImageReaderProxy.setOnImageAvailableListener(onImageAvailableListener,
                 CameraXExecutors.directExecutor());
 
-        mFakeImageReaderProxy.triggerImageAvailable(new Object(), 1);
+        mFakeImageReaderProxy.triggerImageAvailable(TagBundle.create(new Pair<>(mTagBundleKey,
+                mTag)), 1);
         mSafeCloseImageReaderProxy.acquireNextImage();
 
         reset(onImageAvailableListener);
@@ -122,7 +132,8 @@ public class SafeCloseImageReaderProxyTest {
         // Act
         // Close safely instead of using normal ImageReaderProxy.close()
         mSafeCloseImageReaderProxy.safeClose();
-        mFakeImageReaderProxy.triggerImageAvailable(new Object(), 1);
+        mFakeImageReaderProxy.triggerImageAvailable(TagBundle.create(new Pair<>(mTagBundleKey,
+                mTag)), 1);
 
         // Assert
         verifyZeroInteractions(onImageAvailableListener);
