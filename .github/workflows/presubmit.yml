@@ -20,7 +20,7 @@ jobs:
         uses: 'tikurahul/check-pr-format-action@master'
         with:
           # Enforces a `Test: <stanza>` in the pull request
-          checks: '["(.*)?Test\:(.*)?"]'
+          checks: '["(.*)?Test:(.*)?"]'
       # https://github.com/tikurahul/github-workflow-webhook-action
       - name: Start WebHook
         uses: tikurahul/github-workflow-webhook-action@master
