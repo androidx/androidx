@@ -17,6 +17,7 @@
 package androidx.compose.foundation
 
 import androidx.compose.Composable
+import androidx.compose.ComposableContract
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Providers
 import androidx.compose.ambientOf
@@ -246,4 +247,5 @@ fun ProvideTextStyle(value: TextStyle, children: @Composable () -> Unit) {
  * styled explicitly.
  */
 @Composable
+@ComposableContract(readonly = true)
 fun currentTextStyle(): TextStyle = TextStyleAmbient.current

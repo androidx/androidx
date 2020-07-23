@@ -21,6 +21,7 @@ import androidx.compose.animation.core.AnimationConstants.Infinite
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.repeatable
 import androidx.compose.Composable
+import androidx.compose.Stable
 import androidx.compose.State
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
@@ -207,6 +208,7 @@ fun BaseTextField(
     )
 }
 
+@Stable
 private class CursorState {
     var focused by mutableStateOf(false)
     var layoutResult by mutableStateOf<TextLayoutResult?>(null)
