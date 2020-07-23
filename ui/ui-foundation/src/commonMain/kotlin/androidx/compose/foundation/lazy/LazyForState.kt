@@ -47,7 +47,7 @@ internal inline class DataIndex(val value: Int) {
 }
 
 @OptIn(ExperimentalSubcomposeLayoutApi::class)
-internal class LazyForState<T>(val isVertical: Boolean) {
+internal class LazyForState(val isVertical: Boolean) {
     /**
      * The index of the first item that is composed into the layout tree
      */
@@ -122,8 +122,8 @@ internal class LazyForState<T>(val isVertical: Boolean) {
 
     private fun SubcomposeMeasureScope<DataIndex>.consumePendingScroll(
         childConstraints: Constraints,
-        items: List<T>,
-        itemContent: @Composable (T) -> Unit
+        itemsCount: Int,
+        itemContentFactory: (Int) -> @Composable () -> Unit
     ) {
         val scrollDirection = ScrollDirection(isForward = scrollToBeConsumed < 0f)
 
@@ -140,8 +140,8 @@ internal class LazyForState<T>(val isVertical: Boolean) {
                 if (!composeAndMeasureNextItem(
                         childConstraints,
                         scrollDirection,
-                        items,
-                        itemContent
+                        itemsCount,
+                        itemContentFactory
                     )
                 ) {
                     // Nope. Break out and return the rest of the drag
@@ -200,11 +200,11 @@ internal class LazyForState<T>(val isVertical: Boolean) {
     private fun SubcomposeMeasureScope<DataIndex>.composeAndMeasureNextItem(
         childConstraints: Constraints,
         scrollDirection: ScrollDirection,
-        items: List<T>,
-        itemContent: @Composable (T) -> Unit
+        itemsCount: Int,
+        itemContentFactory: (Int) -> @Composable () -> Unit
     ): Boolean {
         val nextItemIndex = if (scrollDirection.isForward) {
-            if (items.size > lastComposedItem.value + 1) {
+            if (itemsCount > lastComposedItem.value + 1) {
                 ++lastComposedItem
             } else {
                 return false
@@ -217,7 +217,7 @@ internal class LazyForState<T>(val isVertical: Boolean) {
             }
         }
 
-        val nextItems = composeChildForDataIndex(nextItemIndex, items, itemContent).map {
+        val nextItems = composeChildForDataIndex(nextItemIndex, itemContentFactory).map {
             it.measure(childConstraints, layoutDirection)
         }
 
@@ -247,15 +247,15 @@ internal class LazyForState<T>(val isVertical: Boolean) {
     }
 
     /**
-     * Measures and positions currently visible [items] using [itemContent] for subcomposing.
+     * Measures and positions currently visible items using [itemContentFactory] for subcomposing.
      */
     fun measure(
         scope: SubcomposeMeasureScope<DataIndex>,
         constraints: Constraints,
-        items: List<T>,
-        itemContent: @Composable (T) -> Unit,
         horizontalAlignment: Alignment.Horizontal,
-        verticalAlignment: Alignment.Vertical
+        verticalAlignment: Alignment.Vertical,
+        itemsCount: Int,
+        itemContentFactory: (Int) -> @Composable () -> Unit
     ): MeasureScope.MeasureResult = with(scope) {
         measuredThisPass.clear()
         val maxMainAxis = if (isVertical) constraints.maxHeight else constraints.maxWidth
@@ -271,7 +271,7 @@ internal class LazyForState<T>(val isVertical: Boolean) {
             // discard anything off the start of the viewport, because we know we can fill
             // it, assuming nothing has shrunken on us (which has to be handled separately
             // anyway)
-            consumePendingScroll(childConstraints, items, itemContent)
+            consumePendingScroll(childConstraints, itemsCount, itemContentFactory)
         }
 
         var mainAxisUsed = (-firstItemScrollOffset).roundToInt()
@@ -284,9 +284,9 @@ internal class LazyForState<T>(val isVertical: Boolean) {
         // TODO: handle the case where we can't fill the viewport due to children shrinking,
         //  but there are more items at the start that we could fill with
         val allPlaceables = mutableListOf<Placeable>()
-        while (mainAxisUsed <= maxMainAxis && index.value < items.size) {
+        while (mainAxisUsed <= maxMainAxis && index.value < itemsCount) {
             val placeables = measuredThisPass.getOrPut(index) {
-                composeChildForDataIndex(index, items, itemContent).fastMap {
+                composeChildForDataIndex(index, itemContentFactory).fastMap {
                     it.measure(childConstraints)
                 }
             }
@@ -345,12 +345,6 @@ internal class LazyForState<T>(val isVertical: Boolean) {
 
     private fun SubcomposeMeasureScope<DataIndex>.composeChildForDataIndex(
         dataIndex: DataIndex,
-        items: List<T>,
-        itemContent: @Composable (T) -> Unit
-    ): List<Measurable> {
-        val item = items[dataIndex.value]
-        return subcompose(dataIndex) {
-            itemContent(item)
-        }
-    }
+        itemContentFactory: (Int) -> @Composable () -> Unit
+    ): List<Measurable> = subcompose(dataIndex, itemContentFactory(dataIndex.value))
 }
