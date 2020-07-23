@@ -40,10 +40,10 @@ import androidx.ui.demos.common.Demo
 import androidx.ui.demos.common.DemoCategory
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.ui.material.ColorPalette
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.darkColorPalette
-import androidx.ui.material.lightColorPalette
+import androidx.compose.material.ColorPalette
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.darkColorPalette
+import androidx.compose.material.lightColorPalette
 import androidx.compose.runtime.savedinstancestate.Saver
 import androidx.compose.runtime.savedinstancestate.listSaver
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState

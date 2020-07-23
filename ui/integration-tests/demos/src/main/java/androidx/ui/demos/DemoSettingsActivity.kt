@@ -28,9 +28,9 @@ import androidx.preference.PreferenceManager
 import androidx.preference.plusAssign
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.ui.material.ColorPalette
-import androidx.ui.material.darkColorPalette
-import androidx.ui.material.lightColorPalette
+import androidx.compose.material.ColorPalette
+import androidx.compose.material.darkColorPalette
+import androidx.compose.material.lightColorPalette
 import kotlin.reflect.full.memberProperties
 
 /**

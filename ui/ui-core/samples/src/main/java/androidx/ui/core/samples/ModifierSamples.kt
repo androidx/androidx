@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.ui.material.Button
+import androidx.compose.material.Button
 import androidx.compose.ui.unit.dp
 
 @Sampled

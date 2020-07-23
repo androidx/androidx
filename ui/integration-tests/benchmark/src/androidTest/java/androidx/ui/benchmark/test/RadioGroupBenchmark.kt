@@ -36,8 +36,8 @@ import androidx.compose.foundation.selection.selectable
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.RadioButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.RadioButton
 import androidx.ui.test.ComposeTestCase
 import org.junit.Rule
 import org.junit.Test

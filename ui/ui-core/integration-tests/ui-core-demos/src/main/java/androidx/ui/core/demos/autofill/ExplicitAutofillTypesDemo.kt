@@ -38,7 +38,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.preferredHeight
-import androidx.ui.material.MaterialTheme
+import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.unit.dp
 
 @Composable

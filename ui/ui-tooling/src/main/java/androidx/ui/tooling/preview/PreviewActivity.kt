@@ -24,8 +24,8 @@ import androidx.compose.currentComposer
 import androidx.compose.state
 import androidx.ui.core.setContent
 import androidx.compose.foundation.Text
-import androidx.ui.material.ExtendedFloatingActionButton
-import androidx.ui.material.Scaffold
+import androidx.compose.material.ExtendedFloatingActionButton
+import androidx.compose.material.Scaffold
 
 /**
  * Activity used to run `@Composable` previews from Android Studio.

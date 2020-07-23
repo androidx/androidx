@@ -24,7 +24,7 @@ import androidx.compose.foundation.background
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
-import androidx.ui.material.MaterialTheme
+import androidx.compose.material.MaterialTheme
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.compose.foundation.layout.preferredSize

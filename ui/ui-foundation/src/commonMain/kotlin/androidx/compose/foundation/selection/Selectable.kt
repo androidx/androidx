@@ -34,7 +34,7 @@ import androidx.ui.semantics.accessibilityValue
 /**
  * Configure component to be selectable, usually as a part of a mutually exclusive group, where
  * only one item can be selected at any point in time. A typical example of mutually exclusive set
- * is [androidx.ui.material.RadioGroup]
+ * is [androidx.compose.material.RadioGroup]
  *
  * If you want to make an item support on/off capabilities without being part of a set, consider
  * using [Modifier.toggleable]

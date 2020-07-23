@@ -26,9 +26,9 @@ import androidx.ui.integration.test.ToggleableTestCase
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.ui.material.Checkbox
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.Surface
+import androidx.compose.material.Checkbox
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.ui.test.ComposeTestCase
 
 /**
