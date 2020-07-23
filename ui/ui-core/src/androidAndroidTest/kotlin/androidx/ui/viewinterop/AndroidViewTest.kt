@@ -19,10 +19,13 @@ package androidx.ui.viewinterop
 import android.os.Build
 import android.util.DisplayMetrics
 import android.util.TypedValue
+import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.compose.Recomposer
 import androidx.compose.getValue
@@ -35,6 +38,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withClassName
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
+import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.core.test.R
 import androidx.ui.core.testTag
@@ -63,14 +67,24 @@ import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(JUnit4::class)
-class ComposedViewTest {
+class AndroidViewTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
+    fun androidViewWithConstructor() {
+        composeTestRule.setContent {
+            AndroidView({ TextView(it).apply { text = "Test" } })
+        }
+        Espresso
+            .onView(instanceOf(TextView::class.java))
+            .check(matches(isDisplayed()))
+    }
+
+    @Test
     fun androidViewWithResourceTest() {
         composeTestRule.setContent {
-            AndroidView(R.layout.test_layout)
+            AndroidView({ LayoutInflater.from(it).inflate(R.layout.test_layout, null) })
         }
         Espresso
             .onView(instanceOf(RelativeLayout::class.java))
@@ -86,7 +100,7 @@ class ComposedViewTest {
             }
         }
         composeTestRule.setContent {
-            AndroidView(frameLayout)
+            AndroidView({ frameLayout })
         }
         Espresso
             .onView(equalTo(frameLayout))
@@ -96,7 +110,9 @@ class ComposedViewTest {
     @Test
     fun androidViewWithResourceTest_preservesLayoutParams() {
         composeTestRule.setContent {
-            AndroidView(R.layout.test_layout)
+            AndroidView({
+                LayoutInflater.from(it).inflate(R.layout.test_layout, FrameLayout(it), false)
+            })
         }
         Espresso
             .onView(withClassName(endsWith("RelativeLayout")))
@@ -122,7 +138,7 @@ class ComposedViewTest {
         var emit by mutableStateOf(true)
         composeTestRule.setContent {
             if (emit) {
-                AndroidView(frameLayout)
+                AndroidView({ frameLayout })
             }
         }
 
@@ -140,7 +156,10 @@ class ComposedViewTest {
     fun androidViewWithResource_modifierIsApplied() {
         val size = 20.dp
         composeTestRule.setContent {
-            AndroidView(R.layout.test_layout, Modifier.size(size))
+            AndroidView(
+                { LayoutInflater.from(it).inflate(R.layout.test_layout, null) },
+                Modifier.size(size)
+            )
         }
         Espresso
             .onView(instanceOf(RelativeLayout::class.java))
@@ -161,7 +180,7 @@ class ComposedViewTest {
             frameLayout = FrameLayout(activity)
         }
         composeTestRule.setContent {
-            AndroidView(frameLayout, Modifier.size(size))
+            AndroidView({ frameLayout }, Modifier.size(size))
         }
 
         Espresso
@@ -186,7 +205,7 @@ class ComposedViewTest {
             }
         }
         composeTestRule.setContent {
-            AndroidView(frameLayout, Modifier.testTag("view").background(color = Color.Blue))
+            AndroidView({ frameLayout }, Modifier.testTag("view").background(color = Color.Blue))
         }
 
         onNodeWithTag("view").captureToBitmap().assertPixels(IntSize(size, size)) {
@@ -198,7 +217,10 @@ class ComposedViewTest {
     fun androidViewWithResource_modifierIsCorrectlyChanged() {
         val size = mutableStateOf(20.dp)
         composeTestRule.setContent {
-            AndroidView(R.layout.test_layout, Modifier.size(size.value))
+            AndroidView(
+                { LayoutInflater.from(it).inflate(R.layout.test_layout, null) },
+                Modifier.size(size.value)
+            )
         }
         Espresso
             .onView(instanceOf(RelativeLayout::class.java))
@@ -232,6 +254,26 @@ class ComposedViewTest {
                     }
                 }
             }
+        }
+    }
+
+    @Test
+    fun androidView_updateObservesStateChanges() {
+        var size by mutableStateOf(20)
+        lateinit var obtainedSize: IntSize
+        composeTestRule.setContent {
+            Box {
+                AndroidView(::View, Modifier.onPositioned { obtainedSize = it.size }) { view ->
+                    view.layoutParams = ViewGroup.LayoutParams(size, size)
+                }
+            }
+        }
+        runOnIdle {
+            assertThat(obtainedSize).isEqualTo(IntSize(size, size))
+            size = 40
+        }
+        runOnIdle {
+            assertThat(obtainedSize).isEqualTo(IntSize(size, size))
         }
     }
 

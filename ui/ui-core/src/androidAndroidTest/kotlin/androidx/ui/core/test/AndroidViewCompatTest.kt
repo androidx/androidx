@@ -420,7 +420,7 @@ class AndroidViewCompatTest {
             Box(Modifier.drawLayer().fillMaxSize()) {
                 val context = ContextAmbient.current
                 val view = remember { View(context) }
-                AndroidView(view, Modifier.testTag("view"))
+                AndroidView({ view }, Modifier.testTag("view"))
                 view.layoutParams = ViewGroup.LayoutParams(size, size)
                 view.setBackgroundColor(android.graphics.Color.BLUE)
             }

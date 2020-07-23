@@ -356,7 +356,7 @@ fun AndroidWithCompose(context: Context, androidPadding: Int, children: @Composa
         }
         view.setPadding(androidPadding, androidPadding, androidPadding, androidPadding)
     }
-    AndroidView(anotherLayout)
+    AndroidView({ anotherLayout })
 }
 
 fun Modifier.consumeMovementGestureFilter(consumeMovement: Boolean = false): Modifier = composed {

@@ -17,6 +17,7 @@
 package androidx.ui.node
 
 import android.os.SystemClock
+import android.view.View
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEvent
 import androidx.ui.core.PointerEventPass
@@ -33,7 +34,7 @@ import androidx.compose.ui.unit.milliseconds
 import androidx.compose.ui.util.fastAny
 import androidx.ui.viewinterop.AndroidViewHolder
 
-internal fun Modifier.pointerInteropModifier(view: AndroidViewHolder): Modifier {
+internal fun Modifier.pointerInteropModifier(view: AndroidViewHolder<out View>): Modifier {
     return this.then(PointerInteropFilter(view))
 }
 
@@ -77,7 +78,7 @@ internal class PointerInteropFilter(
     /**
      * The [AndroidViewHolder] that contains the Android View we are dispatching to.
      */
-    val view: AndroidViewHolder
+    val view: AndroidViewHolder<out View>
 ) : PointerInputModifier {
 
     /**
