@@ -19,7 +19,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_whitelist"
+    android:id="@+id/activity_allowlist"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -29,17 +29,17 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="90"
-        android:id="@+id/whitelist_webview"/>
+        android:id="@+id/allowlist_webview"/>
 
     <androidx.appcompat.widget.SwitchCompat
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="10"
-        android:text="@string/whitelist_switch_text"
+        android:text="@string/allowlist_switch_text"
         android:textSize="15sp"
         android:theme="@style/WebkitSwitch"
         android:background="@color/colorTextBox"
         android:padding="10dp"
-        android:id="@+id/whitelist_switch" />
+        android:id="@+id/allowlist_switch" />
 
 </LinearLayout>
