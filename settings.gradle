@@ -51,6 +51,18 @@ def includeProject(name) {
     includeProject(name, null)
 }
 
+def getPlatform() {
+    def osName = System.getProperty("os.name").toLowerCase(Locale.US)
+    def isMacOsX = osName.contains("mac os x") ||
+            osName.contains("darwin") ||
+            osName.contains("osx")
+    return isMacOsX ? "darwin" : "linux"
+}
+
+// Certain projects cannot build on Darwin due to missing NDK
+def includeAppSearchNdkDeps = (getPlatform() != "darwin")
+def includeCameraNdkDeps = (getPlatform() != "darwin")
+
 /////////////////////////////
 //
 // Libraries
@@ -77,8 +89,12 @@ includeProject(":appcompat:appcompat", "appcompat/appcompat")
 includeProject(":appcompat:appcompat-benchmark", "appcompat/appcompat-benchmark")
 includeProject(":appcompat:appcompat-lint", "appcompat/appcompat-lint")
 includeProject(":appcompat:appcompat-resources", "appcompat/appcompat-resources")
-includeProject(":appsearch:appsearch-annotation", "appsearch/annotation")
-includeProject(":appsearch:appsearch", "appsearch/appsearch")
+
+if (includeAppSearchNdkDeps) {
+    includeProject(":appsearch:appsearch-annotation", "appsearch/annotation")
+    includeProject(":appsearch:appsearch", "appsearch/appsearch")
+}
+
 includeProject(":arch:core-common", "arch/core-common")
 includeProject(":arch:core-testing", "arch/core-testing")
 includeProject(":arch:core-runtime", "arch/core-runtime")
@@ -109,12 +125,16 @@ includeProject(":camera:camera-lifecycle", "camera/camera-lifecycle")
 includeProject(":camera:camera-testing", "camera/camera-testing")
 includeProject(":camera:camera-view", "camera/camera-view")
 includeProject(":camera:integration-tests:camera-testapp-camera2-pipe", "camera/integration-tests/camerapipetestapp")
-includeProject(":camera:integration-tests:camera-testapp-core", "camera/integration-tests/coretestapp")
 includeProject(":camera:integration-tests:camera-testapp-extensions", "camera/integration-tests/extensionstestapp")
 includeProject(":camera:integration-tests:camera-testapp-timing", "camera/integration-tests/timingtestapp")
 includeProject(":camera:integration-tests:camera-testapp-uiwidgets", "camera/integration-tests/uiwidgetstestapp")
 includeProject(":camera:integration-tests:camera-testapp-view", "camera/integration-tests/viewtestapp")
 includeProject(":camera:integration-tests:camera-testlib-extensions", "camera/integration-tests/extensionstestlib")
+
+if (includeCameraNdkDeps) {
+    includeProject(":camera:integration-tests:camera-testapp-core", "camera/integration-tests/coretestapp")
+}
+
 includeProject(":cardview:cardview", "cardview/cardview")
 includeProject(":collection:collection", "collection/collection")
 includeProject(":collection:collection-benchmark", "collection/collection-benchmark")
@@ -420,8 +440,11 @@ includeProject(":support-media2-test-common", "media2/session/version-compat-tes
 apply(from: "include-composite-deps.gradle")
 File externalRoot = new File(rootDir, "../../external")
 
-includeProject(":icing", new File(externalRoot, "icing"))
-includeProject(":icing:nativeLib", new File(externalRoot, "icing/nativeLib"))
+if (includeAppSearchNdkDeps) {
+    includeProject(":icing", new File(externalRoot, "icing"))
+    includeProject(":icing:nativeLib", new File(externalRoot, "icing/nativeLib"))
+}
+
 includeProject(":noto-emoji-compat", new File(externalRoot, "noto-fonts/emoji-compat"))
 
 // fake project which is used for docs generation from prebuilts
