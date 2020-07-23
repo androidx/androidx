@@ -85,7 +85,7 @@ public class ExtensionTest {
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name = "effect = {0}, facing = {1}")
     public static Collection<Object[]> getParameters() {
         return ExtensionsTestUtil.getAllEffectLensFacingCombinations();
     }
