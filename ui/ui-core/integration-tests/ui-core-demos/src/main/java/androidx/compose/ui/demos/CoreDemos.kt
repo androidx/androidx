@@ -18,6 +18,7 @@ package androidx.compose.ui.demos
 
 import androidx.compose.ui.demos.autofill.ExplicitAutofillTypesDemo
 import androidx.compose.ui.demos.focus.FocusableDemo
+import androidx.compose.ui.demos.focus.ReuseFocusRequester
 import androidx.compose.ui.demos.gestures.DoubleTapGestureFilterDemo
 import androidx.compose.ui.demos.gestures.DoubleTapInTapDemo
 import androidx.compose.ui.demos.gestures.DragAndScaleGestureFilterDemo
@@ -76,6 +77,11 @@ private val GestureDemos = DemoCategory("Gestures", listOf(
         ))
 ))
 
+private val FocusDemos = DemoCategory("Focus", listOf(
+    ComposableDemo("Focusable Siblings") { FocusableDemo() },
+    ComposableDemo("Reuse Focus Requester") { ReuseFocusRequester() }
+    ))
+
 private val GraphicsDemos = DemoCategory("Graphics", listOf(
     ComposableDemo("VectorGraphicsDemo") { VectorGraphicsDemo() },
     ComposableDemo("DeclarativeGraphicsDemo") { DeclarativeGraphicsDemo() }
@@ -83,7 +89,7 @@ private val GraphicsDemos = DemoCategory("Graphics", listOf(
 
 val CoreDemos = DemoCategory("Framework", listOf(
     ComposableDemo("Explicit autofill types") { ExplicitAutofillTypesDemo() },
-    ComposableDemo("Focus") { FocusableDemo() },
+    FocusDemos,
     ComposableDemo("KeyInput") { KeyInputDemo() },
     ComposableDemo("Multiple collects measure") { MultipleCollectTest() },
     ComposableDemo("Popup") { PopupDemo() },
