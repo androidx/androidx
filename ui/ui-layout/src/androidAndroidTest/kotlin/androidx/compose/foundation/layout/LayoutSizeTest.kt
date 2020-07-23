@@ -18,27 +18,31 @@ package androidx.compose.foundation.layout
 
 import android.content.res.Resources
 import androidx.compose.Composable
+import androidx.compose.foundation.Box
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
-import androidx.compose.ui.unit.Constraints
+import androidx.ui.core.InspectableParameter
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
+import androidx.ui.core.ParameterElement
 import androidx.ui.core.Ref
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.onPositioned
-import androidx.compose.foundation.Box
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.math.min
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.min
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -991,6 +995,108 @@ class LayoutSizeTest : LayoutTest() {
             assertEquals(55, minIntrinsicHeight(55))
             assertEquals(50, minIntrinsicHeight(Constraints.Infinity))
         }
+    }
+
+    @Test
+    fun testInspectableParameter() {
+        checkModifier(
+            Modifier.width(200.0.dp), "width", 200.0.dp,
+            listOf(ParameterElement("width", 200.0.dp))
+        )
+        checkModifier(
+            Modifier.height(300.0.dp), "height", 300.0.dp,
+            listOf(ParameterElement("height", 300.0.dp))
+        )
+        checkModifier(
+            Modifier.size(400.0.dp), "size", 400.0.dp,
+            listOf(ParameterElement("size", 400.0.dp))
+        )
+        checkModifier(
+            Modifier.size(100.0.dp, 200.0.dp), "size", null,
+            listOf(ParameterElement("width", 100.0.dp), ParameterElement("height", 200.0.dp))
+        )
+        checkModifier(
+            Modifier.widthIn(100.0.dp, 200.0.dp), "widthIn", null,
+            listOf(ParameterElement("minWidth", 100.0.dp), ParameterElement("maxWidth", 200.0.dp))
+        )
+        checkModifier(
+            Modifier.heightIn(10.0.dp, 200.0.dp), "heightIn", null,
+            listOf(ParameterElement("minHeight", 10.0.dp), ParameterElement("maxHeight", 200.0.dp))
+        )
+        checkModifier(
+            Modifier.sizeIn(10.dp, 20.dp, 30.dp, 40.dp), "sizeIn", null,
+            listOf(
+                ParameterElement("minWidth", 10.dp), ParameterElement("minHeight", 20.dp),
+                ParameterElement("maxWidth", 30.dp), ParameterElement("maxHeight", 40.dp)
+            )
+        )
+        checkModifier(
+            Modifier.preferredWidth(200.0.dp), "preferredWidth", 200.0.dp,
+            listOf(ParameterElement("width", 200.0.dp))
+        )
+        checkModifier(
+            Modifier.preferredHeight(300.0.dp), "preferredHeight", 300.0.dp,
+            listOf(ParameterElement("height", 300.0.dp))
+        )
+        checkModifier(
+            Modifier.preferredSize(400.0.dp), "preferredSize", 400.0.dp,
+            listOf(ParameterElement("size", 400.0.dp))
+        )
+        checkModifier(
+            Modifier.preferredSize(100.0.dp, 200.0.dp), "preferredSize", null,
+            listOf(ParameterElement("width", 100.0.dp), ParameterElement("height", 200.0.dp))
+        )
+        checkModifier(
+            Modifier.preferredWidthIn(100.0.dp, 200.0.dp), "preferredWidthIn", null,
+            listOf(ParameterElement("minWidth", 100.0.dp), ParameterElement("maxWidth", 200.0.dp))
+        )
+        checkModifier(
+            Modifier.preferredHeightIn(10.0.dp, 200.0.dp), "preferredHeightIn", null,
+            listOf(ParameterElement("minHeight", 10.0.dp), ParameterElement("maxHeight", 200.0.dp))
+        )
+        checkModifier(
+            Modifier.preferredSizeIn(10.dp, 20.dp, 30.dp, 40.dp), "preferredSizeIn", null,
+            listOf(
+                ParameterElement("minWidth", 10.dp), ParameterElement("minHeight", 20.dp),
+                ParameterElement("maxWidth", 30.dp), ParameterElement("maxHeight", 40.dp)
+            )
+        )
+
+        checkModifier(Modifier.fillMaxWidth(), "fillMaxWidth", null, listOf())
+        checkModifier(Modifier.fillMaxHeight(), "fillMaxHeight", null, listOf())
+        checkModifier(Modifier.fillMaxSize(), "fillMaxSize", null, listOf())
+
+        checkModifier(
+            Modifier.wrapContentWidth(), "wrapContentWidth", null,
+            listOf(ParameterElement("alignment", Alignment.CenterHorizontally))
+        )
+        checkModifier(
+            Modifier.wrapContentHeight(), "wrapContentHeight", null,
+            listOf(ParameterElement("alignment", Alignment.CenterVertically))
+        )
+        checkModifier(
+            Modifier.wrapContentSize(), "wrapContentSize", null,
+            listOf(ParameterElement("alignment", Alignment.Center))
+        )
+
+        checkModifier(
+            Modifier.defaultMinSizeConstraints(10.0.dp, 20.0.dp),
+            "defaultMinSizeConstraints", null,
+            listOf(ParameterElement("minWidth", 10.dp), ParameterElement("minHeight", 20.dp))
+        )
+    }
+
+    private fun checkModifier(
+        modifier: Modifier,
+        expectedName: String,
+        expectedValue: Any?,
+        expectedElements: List<ParameterElement>
+    ) {
+        assertThat(modifier).isInstanceOf(InspectableParameter::class.java)
+        val parameter = modifier as InspectableParameter
+        assertThat(parameter.nameFallback).isEqualTo(expectedName)
+        assertThat(parameter.valueOverride).isEqualTo(expectedValue)
+        assertThat(parameter.inspectableElements.toList()).isEqualTo(expectedElements)
     }
 
     private fun getSize(modifier: Modifier = Modifier): IntSize = with(density) {
