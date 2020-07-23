@@ -23,9 +23,9 @@ import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.ui.material.ColorPalette
-import androidx.ui.material.darkColorPalette
-import androidx.ui.material.lightColorPalette
+import androidx.compose.material.ColorPalette
+import androidx.compose.material.darkColorPalette
+import androidx.compose.material.lightColorPalette
 
 /**
  * Wrapper class that contains a light and dark [ColorPalette], to allow saving and

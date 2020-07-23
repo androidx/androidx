@@ -16,9 +16,9 @@
 
 package androidx.ui.tooling.preview
 
-import androidx.ui.material.ColorPalette
-import androidx.ui.material.darkColorPalette
-import androidx.ui.material.lightColorPalette
+import androidx.compose.material.ColorPalette
+import androidx.compose.material.darkColorPalette
+import androidx.compose.material.lightColorPalette
 import androidx.ui.tooling.ComposeViewAdapterTest
 import androidx.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.ui.tooling.preview.datasource.LoremIpsum

@@ -21,8 +21,8 @@ import androidx.compose.foundation.Text
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.ui.material.Button
-import androidx.ui.material.Surface
+import androidx.compose.material.Button
+import androidx.compose.material.Surface
 import androidx.ui.tooling.preview.Preview
 
 /**

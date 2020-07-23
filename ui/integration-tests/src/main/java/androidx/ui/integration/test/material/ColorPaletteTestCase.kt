@@ -21,9 +21,9 @@ import androidx.compose.Immutable
 import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.compose.ui.graphics.Color
-import androidx.ui.material.ColorPalette
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.lightColorPalette
+import androidx.compose.material.ColorPalette
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.lightColorPalette
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
 

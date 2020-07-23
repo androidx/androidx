@@ -111,7 +111,7 @@ class ComposeViewAdapterTest {
                     .sorted()
                     .toTypedArray())
             // Verify that all calls generate the correct offset information
-            assertArrayEquals(arrayOf(1203, 1240, 1261, 1389, 1437, 1459, 1476, 1499, 1516),
+            assertArrayEquals(arrayOf(1213, 1250, 1271, 1399, 1447, 1469, 1486, 1509, 1526),
                 viewInfos
                     .map { it.location?.offset ?: -1 }
                     .sorted()

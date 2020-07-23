@@ -26,7 +26,7 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.ui.material.Button
+import androidx.compose.material.Button
 import androidx.ui.viewmodel.viewModel
 
 @Composable

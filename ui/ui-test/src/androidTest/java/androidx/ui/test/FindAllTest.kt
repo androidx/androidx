@@ -19,9 +19,9 @@ package androidx.ui.test
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.compose.foundation.layout.Column
-import androidx.ui.material.Checkbox
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.Surface
+import androidx.compose.material.Checkbox
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

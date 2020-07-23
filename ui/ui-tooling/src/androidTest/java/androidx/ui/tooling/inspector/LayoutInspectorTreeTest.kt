@@ -25,8 +25,8 @@ import androidx.compose.resetSourceInfo
 import androidx.test.filters.SmallTest
 import androidx.ui.core.OwnedLayer
 import androidx.compose.ui.graphics.Color
-import androidx.ui.material.Button
-import androidx.ui.material.Surface
+import androidx.compose.material.Button
+import androidx.compose.material.Surface
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.R
