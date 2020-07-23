@@ -16,6 +16,8 @@
 
 package androidx.enterprise.feedback;
 
+import static android.os.Looper.getMainLooper;
+
 import static androidx.enterprise.feedback.BufferedServiceConnection.MAX_BUFFER_SIZE;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -164,6 +166,8 @@ public class BufferedServiceConnectionTest {
 
         mBufferedServiceConnection.send(buildTestMessage());
 
+        shadowOf(getMainLooper()).idle();
+
         // The test message is rebuilt as it is cleared after being sent
         assertMessagesEqual(buildTestMessage(), mTestHandler.latestMessage());
     }
@@ -213,6 +217,8 @@ public class BufferedServiceConnectionTest {
 
         mBufferedServiceConnection.bindService();
 
+        shadowOf(getMainLooper()).idle();
+
         assertThat(mBufferedServiceConnection.isDead()).isTrue();
     }
 
@@ -223,6 +229,8 @@ public class BufferedServiceConnectionTest {
         mBufferedServiceConnection.send(buildTestMessage());
 
         mBufferedServiceConnection.bindService();
+
+        shadowOf(getMainLooper()).idle();
 
         // The test message is rebuilt as it is cleared after being sent.
         assertMessagesEqual(buildTestMessage(), mTestHandler.latestMessage());
@@ -236,6 +244,8 @@ public class BufferedServiceConnectionTest {
 
         mBufferedServiceConnection.bindService();
 
+        shadowOf(getMainLooper()).idle();
+
         // The test message is rebuilt as it is cleared after being sent.
         assertMessagesEqual(buildTestMessage(), mTestHandler.latestMessage());
     }
@@ -247,6 +257,8 @@ public class BufferedServiceConnectionTest {
         mBufferedServiceConnection.send(buildTestMessage());
 
         mBufferedServiceConnection.bindService();
+
+        shadowOf(getMainLooper()).idle();
 
         // The test message is rebuilt as it is cleared after being sent.
         assertMessagesEqual(buildTestMessage(), mTestHandler.latestMessage());
@@ -261,6 +273,8 @@ public class BufferedServiceConnectionTest {
 
         mBufferedServiceConnection.bindService();
 
+        shadowOf(getMainLooper()).idle();
+
         assertThat(mTestHandler.messageCount()).isEqualTo(MAX_BUFFER_SIZE);
     }
 
@@ -272,6 +286,8 @@ public class BufferedServiceConnectionTest {
         }
 
         mBufferedServiceConnection.bindService();
+
+        shadowOf(getMainLooper()).idle();
 
         assertThat(mTestHandler.messageCount()).isEqualTo(MAX_BUFFER_SIZE);
     }
