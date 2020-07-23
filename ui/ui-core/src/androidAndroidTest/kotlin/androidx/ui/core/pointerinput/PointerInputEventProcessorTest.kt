@@ -1382,8 +1382,8 @@ class PointerInputEventProcessorTest {
         val pointerInputFilter2: PointerInputFilter = spy()
         val pointerInputFilter3: PointerInputFilter = spy()
 
-        val modifier = PointerInputModifierImpl(pointerInputFilter1) +
-                PointerInputModifierImpl(pointerInputFilter2) +
+        val modifier = PointerInputModifierImpl(pointerInputFilter1) then
+                PointerInputModifierImpl(pointerInputFilter2) then
                 PointerInputModifierImpl(pointerInputFilter3)
 
         val layoutNode = LayoutNode(
@@ -1526,11 +1526,8 @@ class PointerInputEventProcessorTest {
 
         val layoutNode1 = LayoutNode(
             1, 6, 500, 500,
-            PointerInputModifierImpl(
-                pointerInputFilter1
-            ) + PointerInputModifierImpl(
-                pointerInputFilter2
-            )
+            PointerInputModifierImpl(pointerInputFilter1)
+                    then PointerInputModifierImpl(pointerInputFilter2)
         )
         val layoutNode2: LayoutNode = LayoutNode(2, 7, 500, 500).apply {
             insertAt(0, layoutNode1)
@@ -1538,8 +1535,8 @@ class PointerInputEventProcessorTest {
         val layoutNode3 =
             LayoutNode(
                 3, 8, 500, 500,
-                PointerInputModifierImpl(pointerInputFilter3) +
-                        PointerInputModifierImpl(pointerInputFilter4)
+                PointerInputModifierImpl(pointerInputFilter3)
+                        then PointerInputModifierImpl(pointerInputFilter4)
             ).apply {
                 insertAt(0, layoutNode2)
             }

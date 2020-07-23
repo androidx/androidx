@@ -117,11 +117,10 @@ class OnPositionedTest : LayoutTest() {
         val positionedLatch = CountDownLatch(2)
         show {
             Container(
-                Modifier.padding(start = firstPaddingPx.toDp()) +
-                    Modifier.onPositioned {
-                        gpCoordinates = it
-                        positionedLatch.countDown()
-                    }
+                Modifier.padding(start = firstPaddingPx.toDp()).then(Modifier.onPositioned {
+                    gpCoordinates = it
+                    positionedLatch.countDown()
+                })
             ) {
                 Container(Modifier.padding(start = secondPaddingPx.toDp())) {
                     Container(

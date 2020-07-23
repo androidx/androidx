@@ -27,12 +27,12 @@ import androidx.ui.core.Modifier
 /**
  * [Modifier] that changes the [LayoutDirection] of the wrapped layout to [LayoutDirection.Ltr].
  */
-val Modifier.ltr: Modifier get() = this + LtrModifier
+val Modifier.ltr: Modifier get() = this.then(LtrModifier)
 
 /**
  * [Modifier] that changes the [LayoutDirection] of the wrapped layout to [LayoutDirection.Rtl].
  */
-val Modifier.rtl: Modifier get() = this + RtlModifier
+val Modifier.rtl: Modifier get() = this.then(RtlModifier)
 
 private val LtrModifier = LayoutDirectionModifier(LayoutDirection.Ltr)
 

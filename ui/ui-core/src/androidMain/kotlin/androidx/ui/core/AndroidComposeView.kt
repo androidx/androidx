@@ -147,7 +147,8 @@ internal class AndroidComposeView constructor(
     override val root = LayoutNode().also {
         it.measureBlocks = RootMeasureBlocks
         it.modifier = Modifier
-            .drawLayer() + semanticsModifier + focusModifier + focusModifier2 + keyInputModifier
+            .drawLayer().then(semanticsModifier).then(focusModifier).then(focusModifier2)
+            .then(keyInputModifier)
     }
 
     override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)

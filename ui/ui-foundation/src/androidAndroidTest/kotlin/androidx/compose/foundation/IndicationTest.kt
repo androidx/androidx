@@ -109,7 +109,7 @@ class IndicationTest {
         composeTestRule.setContent {
             val switchableIndication =
                 if (switchState.value) Modifier.indication(state, indication) else Modifier
-            Box(Modifier.testTag(testTag).preferredSize(100.dp).plus(switchableIndication))
+            Box(Modifier.testTag(testTag).preferredSize(100.dp).then(switchableIndication))
         }
         assertThat(countDownLatch.count).isEqualTo(1)
         runOnIdle {

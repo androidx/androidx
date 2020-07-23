@@ -34,7 +34,7 @@ import androidx.compose.ui.util.fastAny
 import androidx.ui.viewinterop.AndroidViewHolder
 
 internal fun Modifier.pointerInteropModifier(view: AndroidViewHolder): Modifier {
-    return this + PointerInteropFilter(view)
+    return this.then(PointerInteropFilter(view))
 }
 
 /**

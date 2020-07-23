@@ -406,7 +406,7 @@ class RtlLayoutTest {
         }
     }
 
-    private fun Modifier.queryIntrinsics() = this + object : LayoutModifier {
+    private fun Modifier.queryIntrinsics() = this.then(object : LayoutModifier {
         override fun MeasureScope.measure(
             measurable: Measurable,
             constraints: Constraints,
@@ -425,7 +425,7 @@ class RtlLayoutTest {
                 placeable.place(0, 0)
             }
         }
-    }
+    })
 
     @Composable
     private fun saveLayoutInfo(
@@ -438,7 +438,7 @@ class RtlLayoutTest {
 }
 
 private fun Modifier.assertLayoutDirection(expectedLayoutDirection: LayoutDirection): Modifier =
-    this + object : LayoutModifier {
+    this.then(object : LayoutModifier {
         override fun MeasureScope.measure(
             measurable: Measurable,
             constraints: Constraints,
@@ -490,4 +490,4 @@ private fun Modifier.assertLayoutDirection(expectedLayoutDirection: LayoutDirect
             measurable.maxIntrinsicHeight(width)
             return measurable.maxIntrinsicHeight(width, layoutDirection)
         }
-    }
+    })

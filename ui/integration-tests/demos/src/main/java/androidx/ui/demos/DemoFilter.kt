@@ -109,7 +109,7 @@ private fun FilterField(
     val focusModifier = FocusModifier()
     // TODO: replace with Material text field when available
     BaseTextField(
-        modifier = modifier + focusModifier,
+        modifier = modifier.then(focusModifier),
         value = filterText,
         onValueChange = onFilter
     )

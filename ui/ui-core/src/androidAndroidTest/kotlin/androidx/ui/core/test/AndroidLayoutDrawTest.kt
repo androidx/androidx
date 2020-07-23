@@ -371,7 +371,7 @@ class AndroidLayoutDrawTest {
                         size = Size(size.width, size.height / 2f)
                     )
                 }
-                Padding(size = (model.size * 3), modifier = contentDrawing + paddingContent) {
+                Padding(size = (model.size * 3), modifier = contentDrawing.then(paddingContent)) {
                 }
             }
         }
@@ -628,7 +628,7 @@ class AndroidLayoutDrawTest {
                         AtLeastSize(size = 10) {
                             AtLeastSize(
                                 size = 10,
-                                modifier = Modifier.drawLayer() + fillColor(Color.Cyan)
+                                modifier = Modifier.drawLayer().then(fillColor(Color.Cyan))
                             ) {
                             }
                         }
@@ -1414,7 +1414,7 @@ class AndroidLayoutDrawTest {
         val testHorizontalLine = HorizontalAlignmentLine(::max)
 
         val assertLines: Modifier.(Int, Int) -> Modifier = { vertical, horizontal ->
-            this + object : LayoutModifier {
+            this.then(object : LayoutModifier {
                 override fun MeasureScope.measure(
                     measurable: Measurable,
                     constraints: Constraints,
@@ -1427,7 +1427,7 @@ class AndroidLayoutDrawTest {
                         placeable.place(0, 0)
                     }
                 }
-            }
+            })
         }
 
         testAlignmentLinesReads(testVerticalLine, testHorizontalLine, assertLines)
@@ -1439,7 +1439,7 @@ class AndroidLayoutDrawTest {
         val testHorizontalLine = HorizontalAlignmentLine(::max)
 
         val assertLines: Modifier.(Int, Int) -> Modifier = { vertical, horizontal ->
-            this + object : LayoutModifier {
+            this.then(object : LayoutModifier {
                 override fun MeasureScope.measure(
                     measurable: Measurable,
                     constraints: Constraints,
@@ -1452,7 +1452,7 @@ class AndroidLayoutDrawTest {
                         placeable.place(0, 0)
                     }
                 }
-            }
+            })
         }
 
         testAlignmentLinesReads(testVerticalLine, testHorizontalLine, assertLines)
@@ -1464,7 +1464,7 @@ class AndroidLayoutDrawTest {
         val testHorizontalLine = HorizontalAlignmentLine(::max)
 
         val assertLines: Modifier.(Int, Int) -> Modifier = { vertical, horizontal ->
-            this + object : LayoutModifier {
+            this.then(object : LayoutModifier {
                 override fun MeasureScope.measure(
                     measurable: Measurable,
                     constraints: Constraints,
@@ -1477,7 +1477,7 @@ class AndroidLayoutDrawTest {
                         assertEquals(horizontal, placeable[testHorizontalLine])
                     }
                 }
-            }
+            })
         }
 
         testAlignmentLinesReads(testVerticalLine, testHorizontalLine, assertLines)
@@ -1724,7 +1724,7 @@ class AndroidLayoutDrawTest {
                     assertEquals(100.0f, size.height)
                     latch.countDown()
                 }
-                AtLeastSize(100, PaddingModifier(10) + drawnContent) {
+                AtLeastSize(100, PaddingModifier(10).then(drawnContent)) {
                 }
             }
         }
@@ -1936,7 +1936,7 @@ class AndroidLayoutDrawTest {
                     FixedSize(
                         10,
                         Modifier.drawLayer()
-                            .plus(PaddingModifier(10))
+                            .then(PaddingModifier(10))
                             .background(model, true)
                             .drawLatchModifier()
                     )
@@ -2101,7 +2101,7 @@ class AndroidLayoutDrawTest {
                     FixedSize(
                         size = 10,
                         modifier = PaddingModifier(5)
-                            .plus(PaddingModifier(5))
+                            .then(PaddingModifier(5))
                             .drawLatchModifier()
                     )
                 }
@@ -2172,7 +2172,7 @@ class AndroidLayoutDrawTest {
                     FixedSize(
                         size = 20,
                         modifier = AlignTopLeft
-                            .plus(PaddingModifier(5))
+                            .then(PaddingModifier(5))
                             .scale(0.5f)
                             .background(Color.Red)
                             .latch(drawLatch)
@@ -2200,7 +2200,7 @@ class AndroidLayoutDrawTest {
                     FixedSize(
                         size = 10,
                         modifier = PaddingModifier(10)
-                            .plus(layerModifier)
+                            .then(layerModifier)
                             .background(Color.Red)
                             .latch(drawLatch)
                     ) {}
@@ -2269,7 +2269,7 @@ class AndroidLayoutDrawTest {
                         FixedSize(
                             size = 10,
                             modifier = Modifier.drawLayer()
-                                .plus(PaddingModifier(10))
+                                .then(PaddingModifier(10))
                                 .background(innerColor.value)
                                 .latch(drawLatch)
                         ) {}
@@ -2409,7 +2409,7 @@ class AndroidLayoutDrawTest {
                 FixedSize(30, Modifier.background(Color.Red).drawLatchModifier()) {
                     FixedSize(
                         10,
-                        PaddingModifier(10).plus(
+                        PaddingModifier(10).then(
                             object : DrawLayerModifier {
                                 override val translationX: Float
                                     get() {
@@ -2417,7 +2417,7 @@ class AndroidLayoutDrawTest {
                                         return offset.value
                                     }
                                 override val translationY: Float
-                                        get() = offset.value
+                                    get() = offset.value
                             }
                         ).background(Color.Yellow)
                     ) {
@@ -2524,8 +2524,11 @@ class AndroidLayoutDrawTest {
         }
         activityTestRule.runOnUiThread {
             activity.setContent {
-                FixedSize(30, layoutCaptureModifier +
-                        SpecialModifier(drawLatch, layerLatch).background(color)) {}
+                FixedSize(30,
+                    layoutCaptureModifier
+                        .then(SpecialModifier(drawLatch, layerLatch))
+                        .background(color)
+                ) {}
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -2556,10 +2559,11 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 FixedSize(
                     size = 10,
-                    modifier = Modifier.drawBackground(color = color).drawLatchModifier() +
-                            PaddingModifier(10)
-                                .drawLayer()
-                                .drawBackground(Color.White)
+                    modifier = Modifier.drawBackground(color = color).drawLatchModifier().then(
+                        PaddingModifier(10)
+                            .drawLayer()
+                            .drawBackground(Color.White)
+                    )
                 )
             }
         }
@@ -2679,7 +2683,7 @@ class AndroidLayoutDrawTest {
                 ) {
                     AtLeastSize(
                         size = model.size,
-                        modifier = Modifier.drawLayer() + fillColor(model, isInner = true)
+                        modifier = Modifier.drawLayer().then(fillColor(model, isInner = true))
                     ) {
                     }
                 }
@@ -2697,7 +2701,7 @@ class AndroidLayoutDrawTest {
                 ) {
                     AtLeastSize(
                         size = model.size,
-                        modifier = Modifier.drawLayer() + fillColor(model, isInner = true)
+                        modifier = Modifier.drawLayer().then(fillColor(model, isInner = true))
                     ) {
                     }
                 }
@@ -3338,7 +3342,7 @@ class CombinedModifier(val color: Color) : LayoutModifier, DrawModifier {
     }
 }
 
-fun Modifier.scale(scale: Float) = plus(LayoutScale(scale))
+fun Modifier.scale(scale: Float) = then(LayoutScale(scale))
     .drawLayer(scaleX = scale, scaleY = scale)
 
 class LayoutScale(val scale: Float) : LayoutModifier {

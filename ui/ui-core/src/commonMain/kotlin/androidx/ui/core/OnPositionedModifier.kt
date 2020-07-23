@@ -26,11 +26,11 @@ package androidx.ui.core
 // TODO inline me!
 fun Modifier.onPositioned(
     onPositioned: (LayoutCoordinates) -> Unit
-) = this + object : OnPositionedModifier {
+) = this.then(object : OnPositionedModifier {
     override fun onPositioned(coordinates: LayoutCoordinates) {
         onPositioned(coordinates)
     }
-}
+})
 
 /**
  * Invoke [onChildPositioned] with the [LayoutCoordinates] of each child element after each one
@@ -43,11 +43,11 @@ fun Modifier.onPositioned(
 // TODO inline me!
 fun Modifier.onChildPositioned(
     onChildPositioned: (LayoutCoordinates) -> Unit
-) = this + object : OnChildPositionedModifier {
+) = this.then(object : OnChildPositionedModifier {
     override fun onChildPositioned(coordinates: LayoutCoordinates) {
         onChildPositioned(coordinates)
     }
-}
+})
 
 /**
  * A modifier whose [onPositioned] is called with the final LayoutCoordinates of the Layout

@@ -88,7 +88,7 @@ class SendLongClickTest(private val config: TestConfig) {
         val recorder = SinglePointerInputRecorder()
         composeTestRule.setContent {
             Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
-                ClickableTestBox(Modifier.longPressGestureFilter(::recordLongPress) + recorder)
+                ClickableTestBox(Modifier.longPressGestureFilter(::recordLongPress).then(recorder))
             }
         }
 

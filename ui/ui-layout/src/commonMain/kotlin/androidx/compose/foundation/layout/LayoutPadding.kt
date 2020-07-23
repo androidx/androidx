@@ -47,12 +47,14 @@ fun Modifier.padding(
     top: Dp = 0.dp,
     end: Dp = 0.dp,
     bottom: Dp = 0.dp
-) = this + PaddingModifier(
-    start = start,
-    top = top,
-    end = end,
-    bottom = bottom,
-    rtlAware = true
+) = this.then(
+    PaddingModifier(
+        start = start,
+        top = top,
+        end = end,
+        bottom = bottom,
+        rtlAware = true
+    )
 )
 
 /**
@@ -70,12 +72,14 @@ fun Modifier.padding(
 fun Modifier.padding(
     horizontal: Dp = 0.dp,
     vertical: Dp = 0.dp
-) = this + PaddingModifier(
-    start = horizontal,
-    top = vertical,
-    end = horizontal,
-    bottom = vertical,
-    rtlAware = true
+) = this.then(
+    PaddingModifier(
+        start = horizontal,
+        top = vertical,
+        end = horizontal,
+        bottom = vertical,
+        rtlAware = true
+    )
 )
 
 /**
@@ -90,7 +94,7 @@ fun Modifier.padding(
  */
 @Stable
 fun Modifier.padding(all: Dp) =
-    this + PaddingModifier(start = all, top = all, end = all, bottom = all, rtlAware = true)
+    this.then(PaddingModifier(start = all, top = all, end = all, bottom = all, rtlAware = true))
 
 /**
  * Apply [InnerPadding] to the component as additional space along each edge of the content's left,
@@ -103,12 +107,14 @@ fun Modifier.padding(all: Dp) =
  * @sample androidx.compose.foundation.layout.samples.PaddingInnerPaddingModifier
  */
 fun Modifier.padding(padding: InnerPadding) =
-    this + PaddingModifier(
-        start = padding.start,
-        top = padding.top,
-        end = padding.end,
-        bottom = padding.bottom,
-        rtlAware = true
+    this.then(
+        PaddingModifier(
+            start = padding.start,
+            top = padding.top,
+            end = padding.end,
+            bottom = padding.bottom,
+            rtlAware = true
+        )
     )
 
 /**
@@ -128,12 +134,14 @@ fun Modifier.absolutePadding(
     top: Dp = 0.dp,
     right: Dp = 0.dp,
     bottom: Dp = 0.dp
-) = this + PaddingModifier(
-    start = left,
-    top = top,
-    end = right,
-    bottom = bottom,
-    rtlAware = false
+) = this.then(
+    PaddingModifier(
+        start = left,
+        top = top,
+        end = right,
+        bottom = bottom,
+        rtlAware = false
+    )
 )
 
 private data class PaddingModifier(

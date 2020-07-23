@@ -230,10 +230,10 @@ class ClipPointerInputTest {
                 with(DensityAmbient.current) {
 
                     val children = @Composable {
-                        child(Modifier.offset((-1f).toDp(), (-1f).toDp()).plus(loggingPim1))
-                        child(Modifier.offset(2f.toDp(), (-1f).toDp()).plus(loggingPim2))
-                        child(Modifier.offset((-1f).toDp(), 2f.toDp()).plus(loggingPim3))
-                        child(Modifier.offset(2f.toDp(), 2f.toDp()).plus(loggingPim4))
+                        child(Modifier.offset((-1f).toDp(), (-1f).toDp()).then(loggingPim1))
+                        child(Modifier.offset(2f.toDp(), (-1f).toDp()).then(loggingPim2))
+                        child(Modifier.offset((-1f).toDp(), 2f.toDp()).then(loggingPim3))
+                        child(Modifier.offset(2f.toDp(), 2f.toDp()).then(loggingPim4))
                     }
 
                     val middle = @Composable {

@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
-import androidx.ui.core.Modifier
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.waitForIdle
@@ -63,13 +62,9 @@ class AnimationModifierTest {
         composeTestRule.clockTestRule.pauseClock()
         composeTestRule.setContent {
             Box(
-                testModifier + Modifier.animateContentSize(
-                    tween(
-                        200, easing = LinearOutSlowInEasing
-                    )
-                ).size(
-                    width.dp, height.dp
-                )
+                testModifier
+                    .animateContentSize(tween(200, easing = LinearOutSlowInEasing))
+                    .size(width.dp, height.dp)
             )
             density = DensityAmbient.current.density
         }

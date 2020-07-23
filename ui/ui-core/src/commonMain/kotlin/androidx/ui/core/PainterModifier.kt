@@ -50,13 +50,15 @@ fun Modifier.paint(
     contentScale: ContentScale = ContentScale.Inside,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null
-) = this + PainterModifier(
-    painter = painter,
-    sizeToIntrinsics = sizeToIntrinsics,
-    alignment = alignment,
-    contentScale = contentScale,
-    alpha = alpha,
-    colorFilter = colorFilter
+) = this.then(
+    PainterModifier(
+        painter = painter,
+        sizeToIntrinsics = sizeToIntrinsics,
+        alignment = alignment,
+        contentScale = contentScale,
+        alpha = alpha,
+        colorFilter = colorFilter
+    )
 )
 
 /**

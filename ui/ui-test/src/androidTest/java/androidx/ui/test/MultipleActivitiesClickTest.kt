@@ -71,7 +71,7 @@ class MultipleActivitiesClickTest {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             setContent {
-                Box(modifier = Modifier.testTag(tag).fillMaxSize().plus(recorder))
+                Box(modifier = Modifier.testTag(tag).fillMaxSize().then(recorder))
             }
         }
 

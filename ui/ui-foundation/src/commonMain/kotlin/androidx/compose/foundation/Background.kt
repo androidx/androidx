@@ -44,7 +44,7 @@ import androidx.compose.ui.util.annotation.FloatRange
 fun Modifier.background(
     color: Color,
     shape: Shape = RectangleShape
-) = this + Background(
+) = this.then(Background(
     shape,
     {
         drawRect(color)
@@ -52,7 +52,7 @@ fun Modifier.background(
     { outline ->
         drawOutline(outline, color)
     }
-)
+))
 
 /**
  * Draws [shape] with [brush] behind the content.
@@ -67,7 +67,7 @@ fun Modifier.background(
     brush: Brush,
     shape: Shape = RectangleShape,
     @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f
-) = this + Background(
+) = this.then(Background(
     shape,
     {
         drawRect(brush = brush, alpha = alpha)
@@ -75,7 +75,7 @@ fun Modifier.background(
     { outline ->
         drawOutline(outline, brush, alpha = alpha)
     }
-)
+))
 
 /**
  * Draws [shape] with a solid [color] behind the content.

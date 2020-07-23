@@ -96,11 +96,13 @@ fun Icon(
 }
 
 private fun Modifier.defaultSizeFor(painter: Painter) =
-    this + if (painter.intrinsicSize == Size.UnspecifiedSize) {
-        DefaultIconSizeModifier
-    } else {
-        Modifier
-    }
+    this.then(
+        if (painter.intrinsicSize == Size.UnspecifiedSize) {
+            DefaultIconSizeModifier
+        } else {
+            Modifier
+        }
+    )
 
 // Default icon size, for icons with no intrinsic size information
 private val DefaultIconSizeModifier = Modifier.preferredSize(24.dp)

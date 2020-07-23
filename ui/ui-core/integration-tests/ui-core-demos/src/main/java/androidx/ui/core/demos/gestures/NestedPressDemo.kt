@@ -102,7 +102,7 @@ private fun PressableContainer(
             .doubleTapGestureFilter(onDoubleTap)
             .longPressGestureFilter(onLongPress)
     Box(
-        modifier + gestureDetectors,
+        modifier.then(gestureDetectors),
         backgroundColor = color, border = Border(2.dp, BorderColor),
         children = children
     )

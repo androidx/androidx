@@ -266,7 +266,7 @@ class DrawReorderingTest {
                 get() = state.value
         }
         val modifier1 = PaddingModifier(10)
-            .plus(zIndex)
+            .then(zIndex)
             .background(Color.White)
         val modifier2 = Modifier.background(Color.Red)
             .drawLatchModifier()
@@ -337,7 +337,7 @@ class DrawReorderingTest {
                     FixedSize(30) {
                         FixedSize(
                             10,
-                            PaddingModifier(10).plus(elevation).background(Color.Black)
+                            PaddingModifier(10).then(elevation).background(Color.Black)
                         )
                     }
                     FixedSize(
@@ -510,7 +510,7 @@ class DrawReorderingTest {
         val modifier = Modifier.drawLayer()
             .background(underColor)
             .drawLatchModifier()
-            .plus(object : DrawLayerModifier {
+            .then(object : DrawLayerModifier {
                 override val shadowElevation: Float
                     get() {
                         return elevation.value

@@ -147,7 +147,7 @@ fun Modifier.preferredSizeIn(
     minHeight: Dp = Dp.Unspecified,
     maxWidth: Dp = Dp.Unspecified,
     maxHeight: Dp = Dp.Unspecified
-) = this + SizeModifier(minWidth, minHeight, maxWidth, maxHeight, true)
+) = this.then(SizeModifier(minWidth, minHeight, maxWidth, maxHeight, true))
 
 /**
  * Declare the width of the content to be exactly [width]dp. The incoming measurement
@@ -281,7 +281,7 @@ fun Modifier.sizeIn(
     minHeight: Dp = Dp.Unspecified,
     maxWidth: Dp = Dp.Unspecified,
     maxHeight: Dp = Dp.Unspecified
-) = this + SizeModifier(minWidth, minHeight, maxWidth, maxHeight, false)
+) = this.then(SizeModifier(minWidth, minHeight, maxWidth, maxHeight, false))
 
 /**
  * Have the content fill the [Constraints.maxWidth] of the incoming measurement constraints
@@ -293,7 +293,7 @@ fun Modifier.sizeIn(
  * @sample androidx.compose.foundation.layout.samples.SimpleFillWidthModifier
  */
 @Stable
-fun Modifier.fillMaxWidth() = this + FillModifier(Direction.Horizontal)
+fun Modifier.fillMaxWidth() = this.then(FillModifier(Direction.Horizontal))
 
 /**
  * Have the content fill the [Constraints.maxHeight] of the incoming measurement constraints
@@ -305,7 +305,7 @@ fun Modifier.fillMaxWidth() = this + FillModifier(Direction.Horizontal)
  * @sample androidx.compose.foundation.layout.samples.SimpleFillHeightModifier
  */
 @Stable
-fun Modifier.fillMaxHeight() = this + FillModifier(Direction.Vertical)
+fun Modifier.fillMaxHeight() = this.then(FillModifier(Direction.Vertical))
 
 /**
  * Have the content fill the [Constraints.maxWidth] and [Constraints.maxHeight] of the incoming
@@ -318,7 +318,7 @@ fun Modifier.fillMaxHeight() = this + FillModifier(Direction.Vertical)
  * @sample androidx.compose.foundation.layout.samples.SimpleFillModifier
  */
 @Stable
-fun Modifier.fillMaxSize() = this + FillModifier(Direction.Both)
+fun Modifier.fillMaxSize() = this.then(FillModifier(Direction.Both))
 
 /**
  * Allow the content to measure at its desired width without regard for the incoming measurement
@@ -330,10 +330,10 @@ fun Modifier.fillMaxSize() = this + FillModifier(Direction.Both)
  */
 @Stable
 // TODO(popam): avoid recreating modifier for common align
-fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHorizontally) = this +
-        AlignmentModifier(Direction.Horizontal) { size, layoutDirection ->
-            IntOffset(align.align(size.width, layoutDirection), 0)
-        }
+fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHorizontally) =
+    this.then(AlignmentModifier(Direction.Horizontal) { size, layoutDirection ->
+        IntOffset(align.align(size.width, layoutDirection), 0)
+    })
 
 /**
  * Allow the content to measure at its desired height without regard for the incoming measurement
@@ -346,9 +346,9 @@ fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHori
 // TODO(popam): avoid recreating modifier for common align
 @Stable
 fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVertically) =
-    this + AlignmentModifier(Direction.Vertical) { size, _ ->
+    this.then(AlignmentModifier(Direction.Vertical) { size, _ ->
         IntOffset(0, align.align(size.height))
-    }
+    })
 
 /**
  * Allow the content to measure at its desired size without regard for the incoming measurement
@@ -361,9 +361,9 @@ fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVerti
  */
 @Stable
 fun Modifier.wrapContentSize(align: Alignment = Alignment.Center) =
-    this + AlignmentModifier(Direction.Both) { size, layoutDirection ->
+    this.then(AlignmentModifier(Direction.Both) { size, layoutDirection ->
         align.align(size, layoutDirection)
-    }
+    })
 
 /**
  * Constrain the size of the wrapped layout only when it would be otherwise unconstrained:
@@ -379,7 +379,7 @@ fun Modifier.wrapContentSize(align: Alignment = Alignment.Center) =
 fun Modifier.defaultMinSizeConstraints(
     minWidth: Dp = Dp.Unspecified,
     minHeight: Dp = Dp.Unspecified
-) = this + UnspecifiedConstraintsModifier(minWidth, minHeight)
+) = this.then(UnspecifiedConstraintsModifier(minWidth, minHeight))
 
 private data class FillModifier(private val direction: Direction) : LayoutModifier {
     override fun MeasureScope.measure(

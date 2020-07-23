@@ -357,11 +357,11 @@ fun CoreTextField(
 
         SelectionLayout(
             modifier
-                .plus(observer)
-                .plus(focusModifier)
-                .plus(drawModifier)
-                .plus(onPositionedModifier)
-                .plus(semanticsModifier)
+                .then(observer)
+                .then(focusModifier)
+                .then(drawModifier)
+                .then(onPositionedModifier)
+                .then(semanticsModifier)
         ) {
             Layout(
                 emptyContent(),

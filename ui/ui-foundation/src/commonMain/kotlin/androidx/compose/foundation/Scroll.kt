@@ -379,7 +379,7 @@ private fun Modifier.scroll(
         controller = state.scrollableController
     )
     val layout = ScrollingLayoutModifier(state, reverseScrolling, isVertical)
-    semantics.plus(scrolling).clipToBounds().plus(layout)
+    semantics.then(scrolling).clipToBounds().then(layout)
 }
 
 private data class ScrollingLayoutModifier(

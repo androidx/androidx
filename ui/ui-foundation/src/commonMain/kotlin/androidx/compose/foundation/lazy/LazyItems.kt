@@ -132,7 +132,7 @@ private fun <T> LazyItems(
             )
             .clipToBounds()
             .padding(contentPadding)
-            .plus(state.remeasurementModifier)
+            .then(state.remeasurementModifier)
     )
     @OptIn(ExperimentalComposeApi::class)
     emit<LayoutNode, Applier<Any>>(

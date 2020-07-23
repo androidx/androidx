@@ -45,7 +45,7 @@ import kotlin.math.roundToInt
 fun Modifier.aspectRatio(
     @FloatRange(from = 0.0, to = 3.4e38 /* POSITIVE_INFINITY */, fromInclusive = false)
     ratio: Float
-) = this + AspectRatioModifier(ratio)
+) = this.then(AspectRatioModifier(ratio))
 
 private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier {
     init {

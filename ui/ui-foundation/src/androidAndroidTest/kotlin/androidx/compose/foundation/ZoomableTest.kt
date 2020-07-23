@@ -307,7 +307,7 @@ class ZoomableTest {
 
     private fun setZoomableContent(getModifier: @Composable () -> Modifier) {
         composeTestRule.setContent {
-            Box(Modifier.preferredSize(600.dp).testTag(TEST_TAG) + getModifier())
+            Box(Modifier.preferredSize(600.dp).testTag(TEST_TAG).then(getModifier()))
         }
     }
 }

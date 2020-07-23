@@ -160,8 +160,9 @@ class LayoutSizeTest : LayoutTest() {
                     ) {
                     }
                     Container(
-                        Modifier.preferredHeight(sizeDp) + Modifier.preferredWidth(sizeDp) +
-                                Modifier.saveLayoutInfo(size[5], position[5], positionedLatch)
+                        Modifier.preferredHeight(sizeDp).then(Modifier.preferredWidth(sizeDp)).then(
+                            Modifier.saveLayoutInfo(size[5], position[5], positionedLatch)
+                        )
                     ) {
                     }
                 }
@@ -1002,7 +1003,7 @@ class LayoutSizeTest : LayoutTest() {
         show {
             Layout(@Composable {
                 Stack {
-                    Container(modifier + Modifier.saveLayoutInfo(size, position, positionedLatch)) {
+                    Container(modifier.saveLayoutInfo(size, position, positionedLatch)) {
                         Container(width = width, height = height) { }
                     }
                 }
@@ -1045,7 +1046,7 @@ class LayoutSizeTest : LayoutTest() {
         // intrinsic measurements do not change with the ExpandedModifier
         testIntrinsics(@Composable {
             Container(
-                expandedModifier + Modifier.aspectRatio(2f),
+                expandedModifier.then(Modifier.aspectRatio(2f)),
                 width = 30.toDp(), height = 40.toDp()) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Width

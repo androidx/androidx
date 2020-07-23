@@ -171,7 +171,7 @@ private fun Pressable(
 
     val pressOverlay =
         if (showPressed.value) Modifier.background(color = pressedColor) else Modifier
-    Box(gestureDetectors.plus(layout).background(color = color.value).plus(pressOverlay))
+    Box(gestureDetectors.then(layout).background(color = color.value).then(pressOverlay))
 }
 
 /**

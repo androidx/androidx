@@ -133,8 +133,8 @@ fun Modifier.triStateToggleable(
     }
     semantics
         .indication(interactionState, indication)
-        .plus(interactionUpdate)
-        .plus(click)
+        .then(interactionUpdate)
+        .then(click)
 }
 
 /**

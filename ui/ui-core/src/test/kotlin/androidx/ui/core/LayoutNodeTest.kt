@@ -1345,9 +1345,9 @@ class LayoutNodeTest {
         val modifier =
             PointerInputModifierImpl(
                 pointerInputFilter1
-            ) + PointerInputModifierImpl(
+            ) then PointerInputModifierImpl(
                 pointerInputFilter2
-            ) + PointerInputModifierImpl(
+            ) then PointerInputModifierImpl(
                 pointerInputFilter3
             )
 
@@ -1429,7 +1429,7 @@ class LayoutNodeTest {
             1, 6, 500, 500,
             PointerInputModifierImpl(
                 pointerInputFilter1
-            ) + PointerInputModifierImpl(
+            ) then PointerInputModifierImpl(
                 pointerInputFilter2
             )
         )
@@ -1441,7 +1441,7 @@ class LayoutNodeTest {
                 3, 8, 500, 500,
                 PointerInputModifierImpl(
                     pointerInputFilter3
-                ) + PointerInputModifierImpl(
+                ) then PointerInputModifierImpl(
                     pointerInputFilter4
                 )
             ).apply {

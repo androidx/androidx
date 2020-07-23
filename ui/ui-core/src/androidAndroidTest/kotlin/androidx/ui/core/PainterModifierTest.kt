@@ -245,16 +245,19 @@ class PainterModifierTest {
         val containerSize = containerWidth.roundToInt() / 2
         rule.setContent {
             NoIntrinsicSizeContainer(
-                Modifier.background(Color.White) +
-                        FixedSizeModifier(containerWidth.roundToInt())
+                Modifier
+                    .background(Color.White)
+                    .then(FixedSizeModifier(containerWidth.roundToInt()))
             ) {
                 NoIntrinsicSizeContainer(
-                    AlignTopLeft + FixedSizeModifier(containerSize).paint(
-                        TestPainter(
-                            containerWidth,
-                            containerHeight
-                        ),
-                        alignment = Alignment.TopStart
+                    AlignTopLeft.then(
+                        FixedSizeModifier(containerSize).paint(
+                            TestPainter(
+                                containerWidth,
+                                containerHeight
+                            ),
+                            alignment = Alignment.TopStart
+                        )
                     )
                 ) {
                     // Intentionally empty
@@ -288,8 +291,7 @@ class PainterModifierTest {
         val containerSize = containerWidth.roundToInt() / 2
         rule.setContent {
             NoIntrinsicSizeContainer(
-                Modifier.background(Color.White) +
-                        FixedSizeModifier(containerSize)
+                Modifier.background(Color.White).then(FixedSizeModifier(containerSize))
             ) {
                 NoIntrinsicSizeContainer(
                     FixedSizeModifier(containerSize).paint(
@@ -443,7 +445,7 @@ class PainterModifierTest {
                 override fun DrawScope.onDraw() { /* no-op */ }
             }
             Box(modifier =
-                Modifier.plus(modifier)
+                Modifier.then(modifier)
                 .paint(painter, contentScale = contentScale)
             )
         }
@@ -559,7 +561,7 @@ class PainterModifierTest {
         val p = TestPainter(containerWidth, containerHeight)
         AtLeastSize(
             modifier = Modifier.background(Color.White)
-                .plus(if (rtl) Modifier.rtl else Modifier.ltr)
+                .then(if (rtl) Modifier.rtl else Modifier.ltr)
                 .paint(p, alpha = alpha, colorFilter = colorFilter),
             size = containerWidth.roundToInt()
         ) {

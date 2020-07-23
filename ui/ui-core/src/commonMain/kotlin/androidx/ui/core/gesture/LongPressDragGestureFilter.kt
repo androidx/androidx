@@ -124,7 +124,7 @@ fun Modifier.longPressDragGestureFilter(
     glue.longPressDragObserver = longPressDragObserver
 
     rawDragGestureFilter(glue.dragObserver, glue::dragEnabled)
-        .plus(PointerInputModifierImpl(glue))
+        .then(PointerInputModifierImpl(glue))
         .longPressGestureFilter(glue.onLongPress)
 }
 
