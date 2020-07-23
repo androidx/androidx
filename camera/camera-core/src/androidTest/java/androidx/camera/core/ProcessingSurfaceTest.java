@@ -23,6 +23,7 @@ import android.media.Image;
 import android.media.ImageWriter;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
@@ -35,6 +36,7 @@ import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.ImmediateSurface;
+import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
@@ -211,9 +213,9 @@ public final class ProcessingSurfaceTest {
 
         FakeCameraCaptureResult cameraCaptureResult = new FakeCameraCaptureResult();
         cameraCaptureResult.setTimestamp(timestamp);
-        cameraCaptureResult.setTag(mCaptureStage.getId());
+        cameraCaptureResult.setTag(TagBundle.create(
+                new Pair<>(Integer.toString(mCaptureStage.hashCode()), mCaptureStage.getId())));
         callback.onCaptureCompleted(cameraCaptureResult);
-
     }
 
     private ProcessingSurface createProcessingSurface(
@@ -225,7 +227,7 @@ public final class ProcessingSurfaceTest {
                 mBackgroundHandler,
                 mCaptureStage,
                 mCaptureProcessor,
-                deferrableSurface);
+                deferrableSurface, Integer.toString(mCaptureStage.hashCode()));
         mProcessingSurfaces.add(processingSurface);
         return processingSurface;
     }

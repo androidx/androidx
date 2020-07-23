@@ -140,7 +140,7 @@ class Camera2CaptureRequestBuilder {
             builder.addTarget(surface);
         }
 
-        builder.setTag(captureConfig.getTag());
+        builder.setTag(captureConfig.getTagBundle());
 
         return builder.build();
     }

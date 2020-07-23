@@ -17,7 +17,6 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
@@ -57,9 +56,9 @@ public interface CameraCaptureResult {
      */
     long getTimestamp();
 
-    /** Returns the tag associated with the capture request. */
-    @Nullable
-    Object getTag();
+    /** Returns the TagBundle object associated with the capture request. */
+    @NonNull
+    TagBundle getTagBundle();
 
     /** An implementation of CameraCaptureResult which always return default results. */
     final class EmptyCameraCaptureResult implements CameraCaptureResult {
@@ -105,8 +104,8 @@ public interface CameraCaptureResult {
         }
 
         @Override
-        @Nullable
-        public Object getTag() {
+        @NonNull
+        public TagBundle getTagBundle() {
             return null;
         }
     }

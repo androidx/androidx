@@ -18,6 +18,7 @@ package androidx.camera.core
 
 import android.graphics.ImageFormat
 import android.media.ImageWriter
+import android.util.Pair
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.impl.CameraCaptureCallback
@@ -25,6 +26,7 @@ import androidx.camera.core.impl.CaptureBundle
 import androidx.camera.core.impl.CaptureProcessor
 import androidx.camera.core.impl.ImageProxyBundle
 import androidx.camera.core.impl.ImageReaderProxy
+import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.fakes.FakeCaptureStage
@@ -125,7 +127,9 @@ class ProcessingImageReaderDeviceTest {
         imageWriter.queueInputImage(image)
         val fakeCameraCaptureResult = FakeCameraCaptureResult()
         fakeCameraCaptureResult.timestamp = timestamp
-        fakeCameraCaptureResult.tag = captureId
+        val tagBundle = TagBundle.create(Pair(mCaptureBundle.hashCode().toString(),
+            captureId))
+        fakeCameraCaptureResult.setTag(tagBundle)
         callback.onCaptureCompleted(fakeCameraCaptureResult)
     }
 }

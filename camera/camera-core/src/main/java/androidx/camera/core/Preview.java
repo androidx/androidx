@@ -201,6 +201,8 @@ public final class Preview extends UseCase {
                 mProcessingPreviewHandler = new Handler(mProcessingPreviewThread.getLooper());
             }
 
+            String tagBundleKey = Integer.toString(captureStage.hashCode());
+
             ProcessingSurface processingSurface = new ProcessingSurface(
                     resolution.getWidth(),
                     resolution.getHeight(),
@@ -208,13 +210,16 @@ public final class Preview extends UseCase {
                     mProcessingPreviewHandler,
                     captureStage,
                     captureProcessor,
-                    surfaceRequest.getDeferrableSurface());
+                    surfaceRequest.getDeferrableSurface(),
+                    tagBundleKey);
 
             sessionConfigBuilder.addCameraCaptureCallback(
                     processingSurface.getCameraCaptureCallback());
 
             mSessionDeferrableSurface = processingSurface;
-            sessionConfigBuilder.setTag(captureStage.getId());
+
+            // Use CaptureStage object as the key for TagBundle
+            sessionConfigBuilder.addTag(tagBundleKey, captureStage.getId());
         } else {
             final ImageInfoProcessor processor = config.getImageInfoProcessor(null);
 

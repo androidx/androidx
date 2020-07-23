@@ -17,6 +17,7 @@
 package androidx.camera.core.impl;
 
 import android.util.ArrayMap;
+import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,6 +46,18 @@ public class TagBundle {
     @NonNull
     public static TagBundle emptyBundle() {
         return EMPTY_TAGBUNDLE;
+    }
+
+    /**
+     * Creates a TagBundle with one entry.
+     *
+     * @return a TagBundle containing one tag.
+     */
+    @NonNull
+    public static TagBundle create(@NonNull Pair<String, Integer> source) {
+        Map<String, Integer> map = new ArrayMap<>();
+        map.put(source.first, source.second);
+        return new TagBundle(map);
     }
 
     /**

@@ -573,4 +573,32 @@ public class SessionConfigTest {
         assertThat(sessionConfig.getErrorListeners()).containsExactly(errorListener0,
                 errorListener1);
     }
+
+    @Test
+    public void combineTwoSessionsTagsValid() {
+        SessionConfig session0 = createSessionConfigWithTag("TEST00", 0);
+        SessionConfig session1 = createSessionConfigWithTag("TEST01", 1);
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+        validatingBuilder.add(session0);
+        validatingBuilder.add(session1);
+
+        SessionConfig sessionCombined = validatingBuilder.build();
+
+        assertThat(validatingBuilder.isValid()).isTrue();
+
+        TagBundle tag = sessionCombined.getRepeatingCaptureConfig().getTagBundle();
+
+        assertThat(tag.getTag("TEST00")).isEqualTo(0);
+        assertThat(tag.getTag("TEST01")).isEqualTo(1);
+    }
+
+    private SessionConfig createSessionConfigWithTag(String key, int tagValue) {
+        SessionConfig.Builder builder1 = new SessionConfig.Builder();
+        builder1.addSurface(mMockSurface1);
+        builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        builder1.addTag(key, tagValue);
+
+        return builder1.build();
+    }
 }

@@ -22,6 +22,7 @@ import android.media.Image;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.impl.TagBundle;
 
 import java.nio.ByteBuffer;
 
@@ -54,7 +55,7 @@ final class AndroidImageProxy implements ImageProxy {
             mPlanes = new PlaneProxy[0];
         }
 
-        mImageInfo = ImmutableImageInfo.create(null, image.getTimestamp(), 0);
+        mImageInfo = ImmutableImageInfo.create(TagBundle.emptyBundle(), image.getTimestamp(), 0);
     }
 
     @Override

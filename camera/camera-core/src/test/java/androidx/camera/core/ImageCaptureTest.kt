@@ -22,6 +22,7 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
+import android.util.Pair
 import android.util.Rational
 import android.view.Surface
 import androidx.camera.core.ImageCapture.ImageCaptureRequest
@@ -30,6 +31,7 @@ import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor.ImageCapto
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.Futures
@@ -135,7 +137,7 @@ class ImageCaptureTest {
         // Act
         imageCapture.takePicture(executor, onImageCapturedCallback)
         // Send fake image.
-        fakeImageReaderProxy?.triggerImageAvailable("tag", 0)
+        fakeImageReaderProxy?.triggerImageAvailable(TagBundle.create(Pair("TagBundleKey", 0)), 0)
         flushHandler(callbackHandler)
 
         // Assert.
@@ -160,7 +162,7 @@ class ImageCaptureTest {
         // Act
         imageCapture.takePicture(executor, onImageCapturedCallback)
         // Send fake image.
-        fakeImageReaderProxy?.triggerImageAvailable("tag", 0)
+        fakeImageReaderProxy?.triggerImageAvailable(TagBundle.create(Pair("TagBundleKey", 0)), 0)
         flushHandler(callbackHandler)
         cameraUseCaseAdapter.removeUseCases(
             Collections.singleton(imageCapture) as Collection<UseCase>)
@@ -179,7 +181,7 @@ class ImageCaptureTest {
         // Act
         imageCapture.takePicture(executor, onImageCapturedCallback)
         // Send fake image.
-        fakeImageReaderProxy?.triggerImageAvailable("tag", 0)
+        fakeImageReaderProxy?.triggerImageAvailable(TagBundle.create(Pair("TagBundleKey", 0)), 0)
         flushHandler(callbackHandler)
 
         // Assert.

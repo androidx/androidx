@@ -24,6 +24,8 @@ import android.hardware.camera2.TotalCaptureResult;
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureFailure;
+import androidx.camera.core.impl.TagBundle;
+import androidx.core.util.Preconditions;
 
 /**
  * An adapter that passes {@link CameraCaptureSession.CaptureCallback} to {@link
@@ -47,8 +49,21 @@ final class CaptureCallbackAdapter extends CameraCaptureSession.CaptureCallback 
             @NonNull TotalCaptureResult result) {
         super.onCaptureCompleted(session, request, result);
 
+        Object captureRequestTag = request.getTag();
+        TagBundle tagBundle;
+
+        // Inside the CameraX, the CaptureResult's tag should be issued from CameraX, that means
+        // it will be a TagBundle object.
+        if (captureRequestTag != null) {
+            Preconditions.checkArgument(captureRequestTag instanceof TagBundle, "The "
+                    + "tagBundle object from the CaptureResult is not a TagBundle object.");
+
+            tagBundle = (TagBundle) captureRequestTag;
+        } else {
+            tagBundle = TagBundle.emptyBundle();
+        }
         mCameraCaptureCallback.onCaptureCompleted(
-                new Camera2CameraCaptureResult(request.getTag(), result));
+                new Camera2CameraCaptureResult(tagBundle, result));
     }
 
     @Override
