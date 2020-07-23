@@ -123,6 +123,19 @@ package androidx.ui.core {
     method @androidx.compose.Immutable public androidx.ui.core.AbsoluteAlignment.Horizontal copy(float bias);
   }
 
+  public abstract class AbstractComposeView extends android.view.ViewGroup {
+    ctor public AbstractComposeView(android.content.Context context, android.util.AttributeSet? attrs, int defStyleAttr);
+    ctor public AbstractComposeView(android.content.Context context, android.util.AttributeSet? attrs);
+    ctor public AbstractComposeView(android.content.Context context);
+    method @androidx.compose.Composable public abstract void Content();
+    method public final void createComposition();
+    method public final void disposeComposition();
+    method public final boolean isDisposed();
+    method protected final void onLayout(boolean changed, int left, int top, int right, int bottom);
+    method protected final void onMeasure(int widthMeasureSpec, int heightMeasureSpec);
+    property public final boolean isDisposed;
+  }
+
   @androidx.compose.Immutable public interface Alignment {
     method public androidx.ui.unit.IntOffset align(androidx.ui.unit.IntSize size, androidx.ui.core.LayoutDirection layoutDirection = LayoutDirection.Ltr);
     field public static final androidx.ui.core.Alignment.Companion Companion;
@@ -249,6 +262,14 @@ package androidx.ui.core {
     method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
+  }
+
+  public final class ComposeView extends androidx.ui.core.AbstractComposeView {
+    ctor public ComposeView(android.content.Context context, android.util.AttributeSet? attrs, int defStyleAttr);
+    ctor public ComposeView(android.content.Context context, android.util.AttributeSet? attrs);
+    ctor public ComposeView(android.content.Context context);
+    method @androidx.compose.Composable public void Content();
+    method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   public final class ComposedModifierKt {
