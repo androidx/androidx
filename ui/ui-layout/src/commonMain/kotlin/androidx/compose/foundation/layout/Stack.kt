@@ -20,14 +20,14 @@ import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.ui.core.Alignment
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Measurable
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
-import androidx.ui.unit.Density
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import kotlin.math.max
 
 /**

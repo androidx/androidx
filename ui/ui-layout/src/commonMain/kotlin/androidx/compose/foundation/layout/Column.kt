@@ -28,7 +28,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.compose.foundation.layout.ColumnScope.alignWithSiblings
 import androidx.compose.foundation.layout.RowScope.alignWithSiblings
-import androidx.ui.util.annotation.FloatRange
+import androidx.compose.ui.util.annotation.FloatRange
 
 /**
  * A layout composable that places its children in a vertical sequence. For a layout composable

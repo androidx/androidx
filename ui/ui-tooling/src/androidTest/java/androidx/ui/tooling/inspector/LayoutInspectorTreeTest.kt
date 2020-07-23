@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.resetSourceInfo
 import androidx.test.filters.SmallTest
 import androidx.ui.core.OwnedLayer
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.ui.material.Button
 import androidx.ui.material.Surface
 import androidx.ui.tooling.Group
@@ -34,9 +34,9 @@ import androidx.ui.tooling.SlotTableRecord
 import androidx.ui.tooling.ToolingTest
 import androidx.ui.tooling.asTree
 import androidx.ui.tooling.position
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Ignore

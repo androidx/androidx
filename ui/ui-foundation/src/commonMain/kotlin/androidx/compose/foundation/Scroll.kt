@@ -31,8 +31,8 @@ import androidx.compose.structuralEqualityPolicy
 import androidx.compose.animation.asDisposableClock
 import androidx.ui.core.Alignment
 import androidx.ui.core.AnimationClockAmbient
-import androidx.ui.core.Constraints
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
@@ -56,7 +56,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.savedinstancestate.Saver
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.ui.semantics.scrollBy
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 /**

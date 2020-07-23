@@ -33,7 +33,7 @@ import androidx.ui.material.BottomDrawerState
 import androidx.ui.material.Button
 import androidx.ui.material.DrawerState
 import androidx.ui.material.ModalDrawerLayout
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable

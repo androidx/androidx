@@ -37,15 +37,15 @@ import androidx.compose.foundation.Interaction
 import androidx.compose.foundation.InteractionState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.graphics.drawscope.clipRect
-import androidx.ui.graphics.useOrElse
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.useOrElse
 import androidx.ui.material.ExperimentalMaterialApi
 import androidx.ui.material.MaterialTheme
-import androidx.ui.unit.Dp
-import androidx.ui.util.fastForEach
-import androidx.ui.util.nativeClass
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.nativeClass
 
 /**
  * Material implementation of [IndicationInstance] that expresses indication via ripples. This

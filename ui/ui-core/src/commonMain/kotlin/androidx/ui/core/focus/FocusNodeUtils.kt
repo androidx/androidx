@@ -18,7 +18,7 @@ package androidx.ui.core.focus
 
 import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 internal val FOCUS_TAG = "Compose Focus"
 

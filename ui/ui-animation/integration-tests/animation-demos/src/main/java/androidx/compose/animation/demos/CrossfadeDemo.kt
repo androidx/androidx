@@ -26,12 +26,12 @@ import androidx.compose.animation.Crossfade
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.tapGestureFilter
 import androidx.compose.foundation.Box
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredHeight
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 
 @Composable

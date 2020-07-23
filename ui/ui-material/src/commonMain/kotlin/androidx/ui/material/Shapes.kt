@@ -19,7 +19,7 @@ package androidx.ui.material
 import androidx.compose.staticAmbientOf
 import androidx.compose.foundation.shape.corner.CornerBasedShape
 import androidx.compose.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 /**
  * Components are grouped into shape categories based on their size. These categories provide a

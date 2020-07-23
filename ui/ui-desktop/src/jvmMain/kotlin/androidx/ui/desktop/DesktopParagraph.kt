@@ -17,10 +17,10 @@ package androidx.ui.desktop
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.DesktopPath
-import androidx.ui.graphics.Path
-import androidx.ui.graphics.toAndroidX
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.DesktopPath
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.toAndroidX
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphConstraints
 import androidx.compose.ui.text.ParagraphIntrinsics

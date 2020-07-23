@@ -25,8 +25,8 @@ import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.gesture.ExperimentalPointerInput
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.util.annotation.VisibleForTesting
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.annotation.VisibleForTesting
+import androidx.compose.ui.util.fastForEach
 
 // TODO(shepshapard): This should be in a more generic place.
 enum class Orientation {

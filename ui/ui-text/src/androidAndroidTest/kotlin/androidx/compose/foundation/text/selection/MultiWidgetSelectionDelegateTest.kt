@@ -22,9 +22,9 @@ import androidx.activity.ComponentActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.Selection
 import androidx.ui.test.android.createAndroidComposeRule
@@ -41,11 +41,11 @@ import androidx.compose.ui.text.font.asFontFamily
 import androidx.compose.ui.text.font.font
 import androidx.compose.ui.text.font.test.R
 import androidx.compose.ui.text.style.ResolvedTextDirection
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.InternalTextApi
-import androidx.ui.unit.TextUnit
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever

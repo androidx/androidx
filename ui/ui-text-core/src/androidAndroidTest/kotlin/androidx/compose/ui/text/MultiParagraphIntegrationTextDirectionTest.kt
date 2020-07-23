@@ -22,9 +22,9 @@ import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.font.asFontFamily
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDirection
-import androidx.ui.unit.Density
-import androidx.ui.unit.TextUnit
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before

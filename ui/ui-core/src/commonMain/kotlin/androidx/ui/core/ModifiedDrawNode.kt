@@ -17,7 +17,7 @@
 package androidx.ui.core
 
 import androidx.compose.ui.geometry.Size
-import androidx.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Canvas
 
 @OptIn(ExperimentalLayoutNodeApi::class)
 internal class ModifiedDrawNode(

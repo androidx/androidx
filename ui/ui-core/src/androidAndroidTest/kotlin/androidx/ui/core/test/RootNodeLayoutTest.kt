@@ -20,7 +20,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.Recomposer
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
@@ -29,7 +29,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.ui.unit.PxBounds
+import androidx.compose.ui.unit.PxBounds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull

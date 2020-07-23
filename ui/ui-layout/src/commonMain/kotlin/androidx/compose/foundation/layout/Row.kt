@@ -26,7 +26,7 @@ import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Layout
 import androidx.ui.core.Measured
 import androidx.ui.core.Modifier
-import androidx.ui.util.annotation.FloatRange
+import androidx.compose.ui.util.annotation.FloatRange
 
 /**
  * A layout composable that places its children in a horizontal sequence. For a layout composable

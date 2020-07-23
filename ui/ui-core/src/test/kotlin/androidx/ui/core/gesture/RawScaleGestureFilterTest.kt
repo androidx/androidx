@@ -27,7 +27,7 @@ import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test

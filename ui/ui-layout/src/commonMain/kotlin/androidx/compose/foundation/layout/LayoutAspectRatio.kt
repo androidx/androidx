@@ -17,17 +17,17 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.Stable
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureScope
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
-import androidx.ui.core.satisfiedBy
-import androidx.ui.unit.IntSize
-import androidx.ui.util.annotation.FloatRange
+import androidx.compose.ui.unit.satisfiedBy
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.annotation.FloatRange
 import kotlin.math.roundToInt
 
 /**

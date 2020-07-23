@@ -35,9 +35,9 @@ import androidx.compose.structuralEqualityPolicy
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.transition
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
@@ -45,12 +45,12 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.Ref
 import androidx.ui.core.clipToBounds
-import androidx.ui.core.constrainWidth
+import androidx.compose.ui.unit.constrainWidth
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.focus.FocusState
 import androidx.ui.core.focus.focusState
 import androidx.ui.core.gesture.scrollorientationlocking.Orientation
-import androidx.ui.core.offset
+import androidx.compose.ui.unit.offset
 import androidx.compose.foundation.ContentColorAmbient
 import androidx.compose.foundation.ProvideTextStyle
 import androidx.compose.foundation.BaseTextField
@@ -58,8 +58,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberScrollableController
 import androidx.compose.foundation.gestures.scrollable
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Shape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -72,9 +72,9 @@ import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.ui.text.SoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.lerp
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
-import androidx.ui.util.annotation.VisibleForTesting
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.annotation.VisibleForTesting
 import kotlin.math.min
 import kotlin.math.roundToInt
 

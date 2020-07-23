@@ -19,7 +19,7 @@ package androidx.ui.material
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.createComposeRule
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

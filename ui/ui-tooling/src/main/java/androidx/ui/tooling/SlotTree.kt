@@ -28,7 +28,7 @@ import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.ModifierInfo
 import androidx.ui.core.globalPosition
-import androidx.ui.unit.IntBounds
+import androidx.compose.ui.unit.IntBounds
 import java.lang.Exception
 import java.lang.reflect.Field
 import kotlin.math.max

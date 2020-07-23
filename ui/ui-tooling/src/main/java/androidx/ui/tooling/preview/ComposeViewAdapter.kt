@@ -39,18 +39,18 @@ import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.setContent
-import androidx.ui.core.toAndroidRect
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toAndroidRect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.SlotTableRecord
 import androidx.ui.tooling.SourceLocation
 import androidx.ui.tooling.asTree
 import androidx.ui.tooling.preview.animation.PreviewAnimationClock
-import androidx.ui.unit.IntBounds
-import androidx.ui.unit.PxBounds
-import androidx.ui.unit.toRect
+import androidx.compose.ui.unit.IntBounds
+import androidx.compose.ui.unit.PxBounds
+import androidx.compose.ui.unit.toRect
 import kotlin.reflect.KClass
 
 const val TOOLS_NS_URI = "http://schemas.android.com/tools"

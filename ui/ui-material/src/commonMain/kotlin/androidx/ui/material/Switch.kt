@@ -23,7 +23,7 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.scrollorientationlocking.Orientation
@@ -34,10 +34,10 @@ import androidx.compose.foundation.indication
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.corner.CircleShape
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.compositeOver
-import androidx.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.StackScope
 import androidx.compose.foundation.layout.offsetPx
@@ -51,7 +51,7 @@ import androidx.ui.material.SwitchDefaults.uncheckedThumbColor
 import androidx.ui.material.SwitchDefaults.uncheckedTrackColor
 import androidx.ui.material.internal.stateDraggable
 import androidx.ui.material.ripple.RippleIndication
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 /**
  * A Switch is a two state toggleable component that provides on/off like options

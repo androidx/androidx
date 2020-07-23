@@ -20,7 +20,7 @@ import android.os.Build
 import androidx.annotation.ColorRes
 import androidx.compose.Composable
 import androidx.ui.core.ContextAmbient
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 
 /**
  * Load a color resource.

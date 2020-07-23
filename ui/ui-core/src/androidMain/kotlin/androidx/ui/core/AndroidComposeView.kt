@@ -79,17 +79,19 @@ import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.text.AndroidFontResourceLoader
 import androidx.ui.core.texttoolbar.AndroidTextToolbar
 import androidx.ui.core.texttoolbar.TextToolbar
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.CanvasHolder
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.text.input.TextInputServiceAndroid
 import androidx.compose.ui.text.input.textInputServiceFactory
 import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry
 import androidx.ui.core.LayoutNode.UsageByParent
 import androidx.compose.ui.text.font.Font
-import androidx.ui.unit.Density
-import androidx.ui.unit.IntOffset
-import androidx.ui.util.fastForEach
-import androidx.ui.util.trace
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.trace
 import java.lang.reflect.Method
 import kotlin.math.max
 import android.view.KeyEvent as AndroidKeyEvent

@@ -17,11 +17,17 @@
 package androidx.ui.core
 
 import androidx.compose.ui.geometry.Size
-import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.DefaultAlpha
-import androidx.ui.graphics.drawscope.translate
-import androidx.ui.graphics.painter.Painter
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.DefaultAlpha
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.unit.hasFixedHeight
+import androidx.compose.ui.unit.hasFixedWidth
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.roundToInt

@@ -35,7 +35,7 @@ import androidx.compose.foundation.layout.width
 import androidx.ui.material.RadioButton
 import androidx.ui.material.samples.BottomNavigationSample
 import androidx.ui.material.samples.BottomNavigationWithOnlySelectedLabelsSample
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun BottomNavigationDemo() {

@@ -17,8 +17,8 @@
 package androidx.ui.core
 
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.PxBounds
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.PxBounds
 
 /**
  * A holder of the measured bounds for the layout (MeasureBox).

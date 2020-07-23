@@ -25,9 +25,9 @@ import android.view.MotionEvent.ACTION_UP
 import androidx.annotation.VisibleForTesting
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputData
-import androidx.ui.unit.NanosecondsPerMillisecond
+import androidx.compose.ui.unit.NanosecondsPerMillisecond
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.Uptime
+import androidx.compose.ui.unit.Uptime
 
 /**
  * Converts Android framework [MotionEvent]s into Compose [PointerInputEvent]s.

@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.lerp
-import androidx.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnit
 
 /**
  * Paragraph styling configuration for a paragraph. The difference between [SpanStyle] and

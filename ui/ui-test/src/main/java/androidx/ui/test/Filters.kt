@@ -25,7 +25,7 @@ import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsProperties
 import androidx.compose.foundation.text.TextSemanticsProperties
-import androidx.ui.util.fastAny
+import androidx.compose.ui.util.fastAny
 
 /**
  * Returns whether the node is enabled.

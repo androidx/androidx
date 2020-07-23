@@ -34,8 +34,8 @@ import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.pinch
 import androidx.ui.test.size
-import androidx.ui.unit.dp
-import androidx.ui.unit.toSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule

@@ -18,11 +18,11 @@ package androidx.compose.ui.geometry
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.util.lerp
-import androidx.ui.util.packFloats
-import androidx.ui.util.toStringAsFixed
-import androidx.ui.util.unpackFloat1
-import androidx.ui.util.unpackFloat2
+import androidx.compose.ui.util.lerp
+import androidx.compose.ui.util.packFloats
+import androidx.compose.ui.util.toStringAsFixed
+import androidx.compose.ui.util.unpackFloat1
+import androidx.compose.ui.util.unpackFloat2
 import kotlin.math.sqrt
 
 /**

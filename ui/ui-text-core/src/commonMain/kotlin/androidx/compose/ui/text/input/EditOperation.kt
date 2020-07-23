@@ -16,9 +16,9 @@
 
 package androidx.compose.ui.text.input
 
-import androidx.ui.util.isSurrogatePair
-import androidx.ui.util.findFollowingBreak
-import androidx.ui.util.findPrecedingBreak
+import androidx.compose.ui.util.isSurrogatePair
+import androidx.compose.ui.util.findFollowingBreak
+import androidx.compose.ui.util.findPrecedingBreak
 
 /**
  * A base class of all EditOperations

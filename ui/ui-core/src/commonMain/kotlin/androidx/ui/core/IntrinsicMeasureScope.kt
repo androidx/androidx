@@ -16,7 +16,9 @@
 
 package androidx.ui.core
 
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+
 /**
  * The receiver scope of a layout's intrinsic measurements lambdas.
  */

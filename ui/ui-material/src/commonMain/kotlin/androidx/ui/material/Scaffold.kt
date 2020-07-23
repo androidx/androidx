@@ -33,8 +33,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.boundsInParent
 import androidx.ui.core.onPositioned
 import androidx.ui.core.zIndex
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Shape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Stack
@@ -42,12 +42,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.ui.material.Scaffold.FabPosition
-import androidx.ui.unit.Dp
-import androidx.ui.unit.PxBounds
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.PxBounds
 import androidx.compose.ui.geometry.Size
-import androidx.ui.unit.dp
-import androidx.ui.unit.height
-import androidx.ui.unit.toSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.toSize
 
 /**
  * State for [Scaffold] composable component.

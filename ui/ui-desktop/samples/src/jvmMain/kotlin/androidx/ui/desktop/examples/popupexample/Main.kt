@@ -17,7 +17,7 @@ package androidx.ui.desktop.examples.popupexample
 
 import androidx.ui.desktop.AppWindow
 import androidx.ui.desktop.AppManager
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntSize
 
 fun main() {
     AppManager.onWindowsEmptyAction = onCloseAppEvent

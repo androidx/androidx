@@ -22,8 +22,8 @@ import androidx.ui.core.semantics.semantics
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.semantics.accessibilityValueRange
-import androidx.ui.util.annotation.FloatRange
-import androidx.ui.util.format
+import androidx.compose.ui.util.annotation.FloatRange
+import androidx.compose.ui.util.format
 import kotlin.math.roundToInt
 
 /**

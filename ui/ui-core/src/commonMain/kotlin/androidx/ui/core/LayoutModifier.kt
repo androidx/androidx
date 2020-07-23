@@ -16,9 +16,11 @@
 
 package androidx.ui.core
 
-import androidx.ui.unit.Density
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * A [Modifier.Element] that changes how its wrapped content is measured and laid out.

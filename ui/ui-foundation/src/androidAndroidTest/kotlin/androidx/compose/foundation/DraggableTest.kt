@@ -40,8 +40,8 @@ import androidx.ui.test.swipe
 import androidx.ui.test.swipeWithVelocity
 import androidx.ui.test.up
 import androidx.ui.test.size
-import androidx.ui.unit.dp
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

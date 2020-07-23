@@ -29,7 +29,7 @@ import androidx.ui.integration.test.ToggleableTestCase
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

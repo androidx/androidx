@@ -31,8 +31,8 @@ import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.MultiPointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.test.util.isMonotonicBetween
-import androidx.ui.unit.inMilliseconds
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.inMilliseconds
+import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

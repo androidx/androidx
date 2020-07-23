@@ -41,7 +41,7 @@ import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.foundation.text.TextFieldState
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.style.ResolvedTextDirection
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlin.math.min
 

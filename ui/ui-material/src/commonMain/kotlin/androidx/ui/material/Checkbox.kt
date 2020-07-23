@@ -35,19 +35,19 @@ import androidx.compose.foundation.selection.triStateToggleable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Radius
 import androidx.compose.ui.geometry.Size
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Path
-import androidx.ui.graphics.PathMeasure
-import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.graphics.drawscope.Fill
-import androidx.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathMeasure
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.material.ripple.RippleIndication
-import androidx.ui.unit.dp
-import androidx.ui.util.lerp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.lerp
 
 /**
  * A component that represents two states (checked / unchecked).

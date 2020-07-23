@@ -16,7 +16,7 @@
 
 package androidx.ui.core.demos.gestures
 
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import kotlin.random.Random
 
 internal val DefaultBackgroundColor = Color(0xffffffff)

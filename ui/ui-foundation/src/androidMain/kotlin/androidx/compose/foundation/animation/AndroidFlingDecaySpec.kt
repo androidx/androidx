@@ -17,7 +17,7 @@
 package androidx.compose.foundation.animation
 
 import androidx.compose.animation.core.FloatDecayAnimationSpec
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 import kotlin.math.sign
 
 /**

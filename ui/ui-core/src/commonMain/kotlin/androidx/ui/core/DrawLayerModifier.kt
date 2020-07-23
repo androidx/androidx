@@ -18,12 +18,12 @@ package androidx.ui.core
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.graphics.RectangleShape
-import androidx.ui.graphics.Shape
-import androidx.ui.util.annotation.FloatRange
-import androidx.ui.util.packFloats
-import androidx.ui.util.unpackFloat1
-import androidx.ui.util.unpackFloat2
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.util.annotation.FloatRange
+import androidx.compose.ui.util.packFloats
+import androidx.compose.ui.util.unpackFloat1
+import androidx.compose.ui.util.unpackFloat2
 
 /**
  * Constructs a [TransformOrigin] from the given fractional values from the Layer's

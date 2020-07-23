@@ -32,9 +32,9 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.corner.CircleShape
 import androidx.compose.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.lerp
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -46,7 +46,7 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Scaffold
 import androidx.ui.material.TopAppBar
 import androidx.ui.material.lightColorPalette
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import kotlin.math.round
 
 /**

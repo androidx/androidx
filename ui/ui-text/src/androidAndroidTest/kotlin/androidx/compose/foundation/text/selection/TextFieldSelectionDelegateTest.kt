@@ -19,8 +19,8 @@ package androidx.compose.foundation.text.selection
 import androidx.activity.ComponentActivity
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.core.Constraints
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.test.android.createAndroidComposeRule
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.InternalTextApi
@@ -30,9 +30,9 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.asFontFamily
-import androidx.ui.unit.Density
-import androidx.ui.unit.TextUnit
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test

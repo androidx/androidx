@@ -16,7 +16,7 @@
 
 package androidx.compose.animation.core
 
-import androidx.ui.util.annotation.FloatRange
+import androidx.compose.ui.util.annotation.FloatRange
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.ln

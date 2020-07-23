@@ -29,7 +29,7 @@ import androidx.compose.setValue
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.ScrollableColumn
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth

@@ -16,15 +16,15 @@
 
 package androidx.compose.foundation.text
 
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.LayoutDirection
-import androidx.ui.core.constrainHeight
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.text.input.EditOperation
 import androidx.compose.ui.text.input.EditProcessor
 import androidx.compose.ui.text.input.TextFieldValue
@@ -49,7 +49,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 import kotlin.jvm.JvmStatic
 import kotlin.math.ceil
 import kotlin.math.roundToInt

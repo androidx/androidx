@@ -26,8 +26,8 @@ import androidx.compose.setValue
 import androidx.compose.staticAmbientOf
 import androidx.compose.structuralEqualityPolicy
 import androidx.compose.foundation.contentColor
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.useOrElse
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.useOrElse
 
 /**
  * Collection of colors in the

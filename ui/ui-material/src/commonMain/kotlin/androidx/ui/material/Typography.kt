@@ -21,7 +21,7 @@ import androidx.compose.staticAmbientOf
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.sp
 
 /**
  * Class holding typography definitions as defined by the [Material typography specification](https://material.io/design/typography/the-type-system.html#type-scale).

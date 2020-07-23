@@ -19,13 +19,13 @@
 package androidx.ui.core.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.id
 import androidx.ui.core.layoutId
 import androidx.compose.foundation.Box
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
 
 @Composable

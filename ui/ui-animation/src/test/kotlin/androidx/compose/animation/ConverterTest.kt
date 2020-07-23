@@ -20,10 +20,10 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.AnimationVector4D
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.colorspace.ColorSpaces
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -28,7 +28,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import androidx.compose.foundation.text.CoreTextField
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

@@ -33,8 +33,8 @@ import androidx.ui.testutils.invokeOverPasses
 import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
-import androidx.ui.unit.Duration
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.Duration
+import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics
+package androidx.compose.ui.graphics
 
 import androidx.ui.desktop.initCompose
 import androidx.ui.desktop.test.DesktopScreenshotTestRule

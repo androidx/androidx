@@ -18,8 +18,8 @@ package androidx.ui.core
 
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.Uptime
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.Uptime
+import androidx.compose.ui.unit.milliseconds
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.core.IsEqual.equalTo
 import org.junit.Assert.assertThat

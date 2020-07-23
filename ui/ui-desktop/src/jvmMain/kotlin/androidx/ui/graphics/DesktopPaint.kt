@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics
+package androidx.compose.ui.graphics
 
 import kotlin.math.round
 import org.jetbrains.skija.BlendMode as SkijaBlendMode

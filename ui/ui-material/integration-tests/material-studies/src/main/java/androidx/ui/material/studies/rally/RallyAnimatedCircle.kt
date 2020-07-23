@@ -28,9 +28,9 @@ import androidx.ui.core.Modifier
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.drawscope.Stroke
-import androidx.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.dp
 
 private const val DividerLengthInDegrees = 1.8f
 private val AngleOffset = FloatPropKey()

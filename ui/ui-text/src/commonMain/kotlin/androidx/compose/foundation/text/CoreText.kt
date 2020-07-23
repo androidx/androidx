@@ -23,7 +23,7 @@ import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.structuralEqualityPolicy
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.HorizontalAlignmentLine
@@ -38,9 +38,9 @@ import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.core.semantics.semantics
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.drawscope.drawCanvas
-import androidx.ui.graphics.Paint
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.drawCanvas
+import androidx.compose.ui.graphics.Paint
 import androidx.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.text.font.Font
 import androidx.compose.foundation.text.selection.MultiWidgetSelectionDelegate
@@ -55,8 +55,8 @@ import androidx.compose.ui.text.length
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.subSequence
-import androidx.ui.unit.Density
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min

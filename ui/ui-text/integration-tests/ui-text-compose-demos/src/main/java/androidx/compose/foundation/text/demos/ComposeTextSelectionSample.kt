@@ -24,7 +24,7 @@ import androidx.ui.core.selection.SelectionContainer
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -33,8 +33,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.annotatedString
 import androidx.compose.ui.text.withStyle
-import androidx.ui.unit.dp
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 val commonStyle = TextStyle(fontSize = 16.sp, color = Color(0xFF9e9e9e), lineHeight = 22.sp)
 val header = TextStyle(fontSize = 22.sp, color = Color(0xFF707070), lineHeight = 36.sp)

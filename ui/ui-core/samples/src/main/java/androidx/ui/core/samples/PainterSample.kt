@@ -23,11 +23,11 @@ import androidx.ui.core.paint
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.compose.ui.geometry.Size
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.Painter
-import androidx.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.foundation.layout.padding
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable

@@ -20,7 +20,7 @@ import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Recomposer
-import androidx.ui.util.annotation.MainThread
+import androidx.compose.ui.util.annotation.MainThread
 
 @OptIn(ExperimentalLayoutNodeApi::class)
 internal expect fun actualSubcomposeInto(

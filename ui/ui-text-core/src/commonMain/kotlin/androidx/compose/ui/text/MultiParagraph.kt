@@ -17,13 +17,13 @@
 package androidx.compose.ui.text
 
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Path
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.style.ResolvedTextDirection
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.max
 
 /**

@@ -24,10 +24,10 @@ import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInRoot
 import androidx.compose.foundation.Box
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.preferredSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable

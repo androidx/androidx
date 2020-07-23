@@ -26,8 +26,8 @@ import androidx.ui.desktop.view.LayoutScope
 import androidx.ui.core.gesture.tapGestureFilter
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun Popup(

@@ -25,7 +25,7 @@ import androidx.ui.core.testTag
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.preferredSize
@@ -41,8 +41,8 @@ import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.swipeDown
 import androidx.ui.test.swipeUp
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

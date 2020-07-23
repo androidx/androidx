@@ -32,8 +32,8 @@ import androidx.ui.test.util.ClickableTestBox.defaultTag
 import androidx.ui.test.util.SinglePointerInputRecorder
 import androidx.ui.test.util.recordedDuration
 import androidx.ui.test.waitForIdle
-import androidx.ui.unit.Duration
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.Duration
+import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

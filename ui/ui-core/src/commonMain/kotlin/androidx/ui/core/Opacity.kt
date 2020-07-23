@@ -17,7 +17,7 @@
 package androidx.ui.core
 
 import androidx.compose.Stable
-import androidx.ui.util.annotation.FloatRange
+import androidx.compose.ui.util.annotation.FloatRange
 
 /**
  * Draw content with modified opacity (alpha) that may be less than 1.

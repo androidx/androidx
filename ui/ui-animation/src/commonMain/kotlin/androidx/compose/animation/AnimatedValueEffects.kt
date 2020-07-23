@@ -31,7 +31,7 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.structuralEqualityPolicy
 import androidx.ui.core.AnimationClockAmbient
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 
 /**
  * The animatedValue effect creates an [AnimatedValue] and positionally memoizes it. When the

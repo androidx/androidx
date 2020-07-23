@@ -17,8 +17,8 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Constraints
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
@@ -34,7 +34,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.isNull

@@ -26,7 +26,7 @@ import androidx.ui.core.drawBehind
 import androidx.ui.core.layoutId
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue

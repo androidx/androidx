@@ -21,8 +21,8 @@ import android.os.Build
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize
@@ -35,10 +35,10 @@ import androidx.ui.test.onNode
 import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.waitForIdle
 import androidx.compose.ui.text.TextStyle
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.CountDownLatch

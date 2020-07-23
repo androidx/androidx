@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.ConstraintLayout
 import androidx.compose.foundation.layout.ConstraintSet2
 import androidx.compose.foundation.layout.Dimension
 import androidx.compose.foundation.layout.atMost
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable

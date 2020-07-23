@@ -22,9 +22,9 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.test.R
-import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.asAndroidBitmap
-import androidx.ui.graphics.imageFromResource
+import androidx.compose.ui.graphics.ImageAsset
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.imageFromResource
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat

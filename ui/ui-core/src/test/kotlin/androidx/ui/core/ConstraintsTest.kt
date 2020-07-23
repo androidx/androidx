@@ -16,7 +16,15 @@
 
 package androidx.ui.core
 
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.constrain
+import androidx.compose.ui.unit.enforce
+import androidx.compose.ui.unit.hasFixedHeight
+import androidx.compose.ui.unit.hasFixedWidth
+import androidx.compose.ui.unit.isZero
+import androidx.compose.ui.unit.offset
+import androidx.compose.ui.unit.satisfiedBy
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

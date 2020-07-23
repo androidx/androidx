@@ -22,8 +22,8 @@ import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.semantics.SemanticsProperties
 import androidx.compose.ui.text.AnnotatedString
-import androidx.ui.unit.PxBounds
-import androidx.ui.unit.toSize
+import androidx.compose.ui.unit.PxBounds
+import androidx.compose.ui.unit.toSize
 
 /**
  * Prints all the semantics nodes information it holds into string.

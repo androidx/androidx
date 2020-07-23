@@ -19,10 +19,10 @@ package androidx.ui.integration.test.core
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Canvas
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.foundation.layout.preferredSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 class SimpleRadioButton3TestCase : BaseSimpleRadioButtonTestCase() {
 

@@ -19,15 +19,15 @@ import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Canvas
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.drawscope.inset
-import androidx.ui.graphics.drawscope.rotate
-import androidx.ui.graphics.drawscope.scale
-import androidx.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.inset
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun DeclarativeGraphicsDemo() {

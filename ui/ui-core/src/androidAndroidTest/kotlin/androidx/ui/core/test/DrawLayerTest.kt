@@ -28,10 +28,10 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInRoot
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.unit.PxBounds
+import androidx.compose.ui.unit.PxBounds
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.height
-import androidx.ui.unit.width
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.width
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before

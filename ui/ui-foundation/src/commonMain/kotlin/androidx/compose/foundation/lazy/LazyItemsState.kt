@@ -23,9 +23,9 @@ import androidx.compose.CompositionReference
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Recomposer
 import androidx.ui.core.Alignment
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
@@ -34,8 +34,8 @@ import androidx.ui.core.Placeable
 import androidx.ui.core.Ref
 import androidx.ui.core.Remeasurement
 import androidx.ui.core.RemeasurementModifier
-import androidx.ui.core.constrainHeight
-import androidx.ui.core.constrainWidth
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
 import androidx.ui.core.subcomposeInto
 import kotlin.math.abs
 import kotlin.math.max

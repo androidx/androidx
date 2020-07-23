@@ -29,7 +29,7 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.shape.corner.CircleShape
 import androidx.compose.foundation.shape.corner.CutCornerShape
 import androidx.compose.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.material.BottomAppBar
@@ -41,7 +41,7 @@ import androidx.ui.material.ScaffoldState
 import androidx.ui.material.TopAppBar
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Menu
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlin.math.roundToInt
 

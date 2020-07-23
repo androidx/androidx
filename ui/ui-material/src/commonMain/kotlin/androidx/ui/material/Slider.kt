@@ -27,7 +27,7 @@ import androidx.compose.animation.asDisposableClock
 import androidx.ui.core.Alignment
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
@@ -46,9 +46,9 @@ import androidx.compose.foundation.indication
 import androidx.compose.foundation.shape.corner.CircleShape
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.PointMode
-import androidx.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PointMode
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
@@ -63,10 +63,10 @@ import androidx.ui.semantics.accessibilityValueRange
 import androidx.ui.semantics.scrollBackward
 import androidx.ui.semantics.scrollForward
 import androidx.ui.semantics.setProgress
-import androidx.ui.unit.dp
-import androidx.ui.util.format
-import androidx.ui.util.lerp
-import androidx.ui.util.annotation.IntRange
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.format
+import androidx.compose.ui.util.lerp
+import androidx.compose.ui.util.annotation.IntRange
 import kotlin.math.abs
 import kotlin.math.roundToInt
 

@@ -23,7 +23,7 @@ import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.test.assertNoPendingChanges
 import androidx.ui.benchmark.android.AndroidTestCase
-import androidx.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Canvas
 import androidx.ui.integration.test.DrawCapture
 import androidx.ui.test.doFramesUntilNoChangesPending
 import androidx.ui.test.recomposeAssertHadChanges

@@ -18,13 +18,13 @@ package androidx.compose.foundation.layout
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.core.Constraints
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
-import androidx.ui.unit.coerceAtLeast
-import androidx.ui.unit.coerceIn
-import androidx.ui.unit.dp
-import androidx.ui.unit.isFinite
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.coerceAtLeast
+import androidx.compose.ui.unit.coerceIn
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isFinite
 
 /**
  * Similar to [Constraints], but with constraint values expressed in [Dp].

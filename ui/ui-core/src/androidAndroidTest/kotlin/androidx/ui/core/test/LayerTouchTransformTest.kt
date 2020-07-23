@@ -31,8 +31,8 @@ import androidx.ui.core.drawLayer
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.preferredSize
@@ -42,7 +42,7 @@ import androidx.ui.test.performPartialGesture
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.down
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test

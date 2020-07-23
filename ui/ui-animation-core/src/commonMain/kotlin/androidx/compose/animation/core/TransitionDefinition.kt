@@ -18,7 +18,7 @@ package androidx.compose.animation.core
 
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.AnimationConstants.Infinite
-import androidx.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.experimental.ExperimentalTypeInference
 
 /**

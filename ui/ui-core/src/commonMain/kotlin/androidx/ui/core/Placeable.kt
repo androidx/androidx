@@ -17,9 +17,11 @@
 package androidx.ui.core
 
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.round
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.round
 
 /**
  * A [Placeable] corresponds to a child layout that can be positioned by its

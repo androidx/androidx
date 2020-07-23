@@ -64,8 +64,8 @@ class VectorAssetGeneratorTest {
 private val ExpectedFile = """
     package androidx.ui.material.icons.filled
 
-    import androidx.ui.graphics.vector.VectorAsset
-    import androidx.ui.graphics.vector.group
+    import androidx.compose.ui.graphics.vector.VectorAsset
+    import androidx.compose.ui.graphics.vector.group
     import androidx.ui.material.icons.Icons
     import androidx.ui.material.icons.lazyMaterialIcon
     import androidx.ui.material.icons.materialPath

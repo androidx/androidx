@@ -25,7 +25,7 @@ import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 
 /**
  * Generic interface to define visual effects when certain interaction happens. Examples might

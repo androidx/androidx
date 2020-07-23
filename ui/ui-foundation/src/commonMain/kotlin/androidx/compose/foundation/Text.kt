@@ -23,8 +23,8 @@ import androidx.compose.ambientOf
 import androidx.compose.structuralEqualityPolicy
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.useOrElse
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.useOrElse
 import androidx.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.foundation.text.CoreText
@@ -38,7 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnit
 
 /**
  * High level element that displays text and provides semantics / accessibility information.

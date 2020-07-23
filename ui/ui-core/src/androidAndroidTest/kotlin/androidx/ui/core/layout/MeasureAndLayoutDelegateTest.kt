@@ -17,9 +17,9 @@
 package androidx.ui.core.layout
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.LayoutNode.LayoutState
 import androidx.ui.core.test.AndroidOwnerExtraAssertionsRule
 import com.google.common.truth.Truth.assertThat

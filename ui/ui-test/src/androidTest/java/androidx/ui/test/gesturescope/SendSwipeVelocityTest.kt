@@ -37,8 +37,8 @@ import androidx.ui.test.util.downEvents
 import androidx.ui.test.util.isAlmostEqualTo
 import androidx.ui.test.util.isMonotonicBetween
 import androidx.ui.test.util.recordedDuration
-import androidx.ui.unit.Duration
-import androidx.ui.unit.inMilliseconds
+import androidx.compose.ui.unit.Duration
+import androidx.compose.ui.unit.inMilliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

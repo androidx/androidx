@@ -29,7 +29,7 @@ import androidx.compose.foundation.Box
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdle
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import org.junit.Assert
 import org.junit.Assume
 import org.junit.Before

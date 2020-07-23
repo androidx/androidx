@@ -28,21 +28,21 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSimple
 import androidx.compose.ui.geometry.outerRect
-import androidx.ui.graphics.Brush
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Outline
-import androidx.ui.graphics.Path
-import androidx.ui.graphics.PathOperation
-import androidx.ui.graphics.RectangleShape
-import androidx.ui.graphics.Shape
-import androidx.ui.graphics.SolidColor
-import androidx.ui.graphics.addOutline
-import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.graphics.drawscope.Fill
-import androidx.ui.graphics.drawscope.Stroke
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
-import androidx.ui.util.nativeClass
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.addOutline
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.util.nativeClass
 
 /**
  * Returns a [Modifier] that adds border with appearance specified with a [border] and a [shape]

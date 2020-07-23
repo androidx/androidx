@@ -53,7 +53,7 @@ fun AnnotatedString.Builder.appendInlineContent(
  * space. In this [placeholder], the size of the content and how it will be aligned within the
  * text line is defined. When the children composable is measured, its size given in
  * [Placeholder.width] and [Placeholder.height] will be converted into
- * [androidx.ui.core.Constraints] and passed through [androidx.ui.core.Layout].
+ * [androidx.compose.ui.unit.Constraints] and passed through [androidx.ui.core.Layout].
  *
  * @sample androidx.compose.foundation.text.samples.InlineTextContentSample
  * @see CoreText

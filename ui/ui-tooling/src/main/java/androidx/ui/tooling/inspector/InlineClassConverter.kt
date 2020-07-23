@@ -21,7 +21,7 @@ import java.lang.Exception
 /**
  * Converter for casting a parameter represented by its primitive value to its inline class type.
  *
- * For example: an androidx.ui.graphics.Color instance is often represented by a long
+ * For example: an androidx.compose.ui.graphics.Color instance is often represented by a long
  */
 internal class InlineClassConverter {
     // Map from inline type name to inline class and conversion lambda

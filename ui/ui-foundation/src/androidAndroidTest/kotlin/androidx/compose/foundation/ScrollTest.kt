@@ -27,7 +27,7 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.compose.foundation.animation.FlingConfig
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
@@ -50,9 +50,9 @@ import androidx.ui.test.swipeDown
 import androidx.ui.test.swipeLeft
 import androidx.ui.test.swipeRight
 import androidx.ui.test.swipeUp
-import androidx.ui.unit.Dp
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.assertEquals

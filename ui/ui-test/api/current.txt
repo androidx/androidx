@@ -58,27 +58,27 @@ package androidx.ui.test {
   }
 
   public final class BitmapHelpersKt {
-    method public static void assertPixelColor-9bBi3KA(android.graphics.Bitmap, long expected, int x, int y, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,java.lang.String> error = { color -> return "Pixel(" + x + ", " + y + ") expected to be " + expected + ", but was " + color });
-    method public static void assertPixels(android.graphics.Bitmap, androidx.ui.unit.IntSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.ui.unit.IntOffset,androidx.ui.graphics.Color> expectedColorProvider);
-    method public static void assertShape--mmofgM(android.graphics.Bitmap, androidx.ui.unit.Density density, float horizontalPadding, float verticalPadding, long backgroundColor, long shapeColor, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, float shapeOverlapPixelCount = 1.0f);
-    method public static void assertShape-t2RoSCg(android.graphics.Bitmap, androidx.ui.unit.Density density, androidx.ui.graphics.Shape shape, long shapeColor, long backgroundColor, androidx.ui.graphics.Shape backgroundShape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, float sizeX = width.toFloat(), float sizeY = height.toFloat(), float shapeSizeX = sizeX, float shapeSizeY = sizeY, float centerX = width / 2.0, float centerY = height / 2.0, float shapeOverlapPixelCount = 1.0f);
+    method public static void assertPixelColor-eWrXCG0(android.graphics.Bitmap, long expected, int x, int y, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Color,java.lang.String> error = { color -> return "Pixel(" + x + ", " + y + ") expected to be " + expected + ", but was " + color });
+    method public static void assertPixels(android.graphics.Bitmap, androidx.compose.ui.unit.IntSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.IntOffset,androidx.compose.ui.graphics.Color> expectedColorProvider);
+    method public static void assertShape-LBqplUo(android.graphics.Bitmap, androidx.compose.ui.unit.Density density, androidx.compose.ui.graphics.Shape shape, long shapeColor, long backgroundColor, androidx.compose.ui.graphics.Shape backgroundShape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, float sizeX = width.toFloat(), float sizeY = height.toFloat(), float shapeSizeX = sizeX, float shapeSizeY = sizeY, float centerX = width / 2.0, float centerY = height / 2.0, float shapeOverlapPixelCount = 1.0f);
+    method public static void assertShape-WOPiG5A(android.graphics.Bitmap, androidx.compose.ui.unit.Density density, float horizontalPadding, float verticalPadding, long backgroundColor, long shapeColor, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, float shapeOverlapPixelCount = 1.0f);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(androidx.ui.test.SemanticsNodeInteraction);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(android.view.View);
-    method public static boolean contains(androidx.ui.graphics.Path, androidx.compose.ui.geometry.Offset offset);
+    method public static boolean contains(androidx.compose.ui.graphics.Path, androidx.compose.ui.geometry.Offset offset);
   }
 
   public final class BoundsAssertionsKt {
-    method public static androidx.ui.test.SemanticsNodeInteraction assertHeightIsAtLeast-Gf70O4E(androidx.ui.test.SemanticsNodeInteraction, float expectedMinHeight);
-    method public static androidx.ui.test.SemanticsNodeInteraction assertHeightIsEqualTo-Gf70O4E(androidx.ui.test.SemanticsNodeInteraction, float expectedHeight);
-    method public static void assertIsEqualTo-552lcfo(float, float expected, String subject = "", float tolerance = null(0.5));
-    method public static void assertIsNotEqualTo-552lcfo(float, float unexpected, String subject = "", float tolerance = null(0.5));
-    method public static androidx.ui.test.SemanticsNodeInteraction assertLeftPositionInRootIsEqualTo-Gf70O4E(androidx.ui.test.SemanticsNodeInteraction, float expectedTop);
-    method public static androidx.ui.test.SemanticsNodeInteraction assertPositionInRootIsEqualTo-jINh5Q8(androidx.ui.test.SemanticsNodeInteraction, float expectedLeft, float expectedTop);
-    method public static androidx.ui.test.SemanticsNodeInteraction assertTopPositionInRootIsEqualTo-Gf70O4E(androidx.ui.test.SemanticsNodeInteraction, float expectedTop);
-    method public static androidx.ui.test.SemanticsNodeInteraction assertWidthIsAtLeast-Gf70O4E(androidx.ui.test.SemanticsNodeInteraction, float expectedMinWidth);
-    method public static androidx.ui.test.SemanticsNodeInteraction assertWidthIsEqualTo-Gf70O4E(androidx.ui.test.SemanticsNodeInteraction, float expectedWidth);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertHeightIsAtLeast-7iZCdLk(androidx.ui.test.SemanticsNodeInteraction, float expectedMinHeight);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertHeightIsEqualTo-7iZCdLk(androidx.ui.test.SemanticsNodeInteraction, float expectedHeight);
+    method public static void assertIsEqualTo-nR2IGDg(float, float expected, String subject = "", float tolerance = null(0.5));
+    method public static void assertIsNotEqualTo-nR2IGDg(float, float unexpected, String subject = "", float tolerance = null(0.5));
+    method public static androidx.ui.test.SemanticsNodeInteraction assertLeftPositionInRootIsEqualTo-7iZCdLk(androidx.ui.test.SemanticsNodeInteraction, float expectedTop);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertPositionInRootIsEqualTo-cUvJKr8(androidx.ui.test.SemanticsNodeInteraction, float expectedLeft, float expectedTop);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertTopPositionInRootIsEqualTo-7iZCdLk(androidx.ui.test.SemanticsNodeInteraction, float expectedTop);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertWidthIsAtLeast-7iZCdLk(androidx.ui.test.SemanticsNodeInteraction, float expectedMinWidth);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertWidthIsEqualTo-7iZCdLk(androidx.ui.test.SemanticsNodeInteraction, float expectedWidth);
     method public static float getAlignmentLinePosition(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.core.AlignmentLine line);
-    method public static androidx.ui.unit.Bounds getBoundsInRoot(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.unit.Bounds getBoundsInRoot(androidx.ui.test.SemanticsNodeInteraction);
   }
 
   public interface ComposeBenchmarkScope<T> extends androidx.ui.test.ComposeExecutionControl {
@@ -137,11 +137,11 @@ package androidx.ui.test {
   public interface ComposeTestRule extends org.junit.rules.TestRule {
     method @androidx.ui.test.ExperimentalTesting public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
     method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
-    method public androidx.ui.unit.Density getDensity();
+    method public androidx.compose.ui.unit.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     property public abstract androidx.ui.test.AnimationClockTestRule clockTestRule;
-    property public abstract androidx.ui.unit.Density density;
+    property public abstract androidx.compose.ui.unit.Density density;
     property public abstract android.util.DisplayMetrics displayMetrics;
   }
 
@@ -230,7 +230,7 @@ package androidx.ui.test {
   public final class GestureScopeKt {
     method public static void cancel(androidx.ui.test.PartialGestureScope);
     method public static void click(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position = center);
-    method public static void doubleClick(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position = center, androidx.ui.unit.Duration delay = androidx.ui.test.GestureScopeKt.doubleClickDelay);
+    method public static void doubleClick(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position = center, androidx.compose.ui.unit.Duration delay = androidx.ui.test.GestureScopeKt.doubleClickDelay);
     method public static void down(androidx.ui.test.PartialGestureScope, int pointerId, androidx.compose.ui.geometry.Offset position);
     method public static void down(androidx.ui.test.PartialGestureScope, androidx.compose.ui.geometry.Offset position);
     method public static inline float getBottom(androidx.ui.test.BaseGestureScope);
@@ -245,14 +245,14 @@ package androidx.ui.test {
     method public static inline int getHeight(androidx.ui.test.BaseGestureScope);
     method public static inline float getLeft(androidx.ui.test.BaseGestureScope);
     method public static inline float getRight(androidx.ui.test.BaseGestureScope);
-    method public static androidx.ui.unit.IntSize getSize(androidx.ui.test.BaseGestureScope);
+    method public static androidx.compose.ui.unit.IntSize getSize(androidx.ui.test.BaseGestureScope);
     method public static inline float getTop(androidx.ui.test.BaseGestureScope);
     method public static androidx.compose.ui.geometry.Offset getTopCenter(androidx.ui.test.BaseGestureScope);
     method public static androidx.compose.ui.geometry.Offset getTopLeft(androidx.ui.test.BaseGestureScope);
     method public static androidx.compose.ui.geometry.Offset getTopRight(androidx.ui.test.BaseGestureScope);
     method public static inline int getWidth(androidx.ui.test.BaseGestureScope);
     method public static androidx.compose.ui.geometry.Offset localToGlobal(androidx.ui.test.BaseGestureScope, androidx.compose.ui.geometry.Offset position);
-    method public static void longClick(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position = center, androidx.ui.unit.Duration duration = androidx.ui.core.gesture.ConstantsKt.LongPressTimeout + 100.milliseconds);
+    method public static void longClick(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position = center, androidx.compose.ui.unit.Duration duration = androidx.ui.core.gesture.ConstantsKt.LongPressTimeout + 100.milliseconds);
     method public static void move(androidx.ui.test.PartialGestureScope);
     method public static void moveBy(androidx.ui.test.PartialGestureScope, int pointerId, androidx.compose.ui.geometry.Offset delta);
     method public static void moveBy(androidx.ui.test.PartialGestureScope, androidx.compose.ui.geometry.Offset delta);
@@ -261,32 +261,32 @@ package androidx.ui.test {
     method public static void moveTo(androidx.ui.test.PartialGestureScope, int pointerId, androidx.compose.ui.geometry.Offset position);
     method public static void moveTo(androidx.ui.test.PartialGestureScope, androidx.compose.ui.geometry.Offset position);
     method public static androidx.compose.ui.geometry.Offset percentOffset(androidx.ui.test.BaseGestureScope, @FloatRange(from=-1.0, to=1.0) float x = 0f, @FloatRange(from=-1.0, to=1.0) float y = 0f);
-    method public static void pinch(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start0, androidx.compose.ui.geometry.Offset end0, androidx.compose.ui.geometry.Offset start1, androidx.compose.ui.geometry.Offset end1, androidx.ui.unit.Duration duration = 400.milliseconds);
+    method public static void pinch(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start0, androidx.compose.ui.geometry.Offset end0, androidx.compose.ui.geometry.Offset start1, androidx.compose.ui.geometry.Offset end1, androidx.compose.ui.unit.Duration duration = 400.milliseconds);
     method @Deprecated public static void sendCancel(androidx.ui.test.PartialGestureScope);
     method @Deprecated public static void sendClick(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position = center);
-    method @Deprecated public static void sendDoubleClick(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position = center, androidx.ui.unit.Duration delay = androidx.ui.test.GestureScopeKt.doubleClickDelay);
+    method @Deprecated public static void sendDoubleClick(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position = center, androidx.compose.ui.unit.Duration delay = androidx.ui.test.GestureScopeKt.doubleClickDelay);
     method @Deprecated public static void sendDown(androidx.ui.test.PartialGestureScope, int pointerId, androidx.compose.ui.geometry.Offset position);
     method @Deprecated public static void sendDown(androidx.ui.test.PartialGestureScope, androidx.compose.ui.geometry.Offset position);
-    method @Deprecated public static void sendLongClick(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position = center, androidx.ui.unit.Duration duration = androidx.ui.core.gesture.ConstantsKt.LongPressTimeout + 100.milliseconds);
+    method @Deprecated public static void sendLongClick(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position = center, androidx.compose.ui.unit.Duration duration = androidx.ui.core.gesture.ConstantsKt.LongPressTimeout + 100.milliseconds);
     method @Deprecated public static void sendMove(androidx.ui.test.PartialGestureScope);
     method @Deprecated public static void sendMoveBy(androidx.ui.test.PartialGestureScope, int pointerId, androidx.compose.ui.geometry.Offset delta);
     method @Deprecated public static void sendMoveBy(androidx.ui.test.PartialGestureScope, androidx.compose.ui.geometry.Offset delta);
     method @Deprecated public static void sendMoveTo(androidx.ui.test.PartialGestureScope, int pointerId, androidx.compose.ui.geometry.Offset position);
     method @Deprecated public static void sendMoveTo(androidx.ui.test.PartialGestureScope, androidx.compose.ui.geometry.Offset position);
-    method @Deprecated public static void sendPinch(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start0, androidx.compose.ui.geometry.Offset end0, androidx.compose.ui.geometry.Offset start1, androidx.compose.ui.geometry.Offset end1, androidx.ui.unit.Duration duration = 400.milliseconds);
-    method @Deprecated public static void sendSwipe(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, androidx.ui.unit.Duration duration = 200.milliseconds);
+    method @Deprecated public static void sendPinch(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start0, androidx.compose.ui.geometry.Offset end0, androidx.compose.ui.geometry.Offset start1, androidx.compose.ui.geometry.Offset end1, androidx.compose.ui.unit.Duration duration = 400.milliseconds);
+    method @Deprecated public static void sendSwipe(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, androidx.compose.ui.unit.Duration duration = 200.milliseconds);
     method @Deprecated public static void sendSwipeDown(androidx.ui.test.GestureScope);
     method @Deprecated public static void sendSwipeLeft(androidx.ui.test.GestureScope);
     method @Deprecated public static void sendSwipeRight(androidx.ui.test.GestureScope);
     method @Deprecated public static void sendSwipeUp(androidx.ui.test.GestureScope);
-    method @Deprecated public static void sendSwipeWithVelocity(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, @FloatRange(from=0.0) float endVelocity, androidx.ui.unit.Duration duration = 200.milliseconds);
+    method @Deprecated public static void sendSwipeWithVelocity(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, @FloatRange(from=0.0) float endVelocity, androidx.compose.ui.unit.Duration duration = 200.milliseconds);
     method @Deprecated public static void sendUp(androidx.ui.test.PartialGestureScope, int pointerId = 0);
-    method public static void swipe(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, androidx.ui.unit.Duration duration = 200.milliseconds);
+    method public static void swipe(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, androidx.compose.ui.unit.Duration duration = 200.milliseconds);
     method public static void swipeDown(androidx.ui.test.GestureScope);
     method public static void swipeLeft(androidx.ui.test.GestureScope);
     method public static void swipeRight(androidx.ui.test.GestureScope);
     method public static void swipeUp(androidx.ui.test.GestureScope);
-    method public static void swipeWithVelocity(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, @FloatRange(from=0.0) float endVelocity, androidx.ui.unit.Duration duration = 200.milliseconds);
+    method public static void swipeWithVelocity(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, @FloatRange(from=0.0) float endVelocity, androidx.compose.ui.unit.Duration duration = 200.milliseconds);
     method public static void up(androidx.ui.test.PartialGestureScope, int pointerId = 0);
   }
 
@@ -415,11 +415,11 @@ package androidx.ui.test.android {
     method @androidx.ui.test.ExperimentalTesting public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
     method public androidx.test.ext.junit.rules.ActivityScenarioRule<T> getActivityRule();
     method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
-    method public androidx.ui.unit.Density getDensity();
+    method public androidx.compose.ui.unit.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     property public androidx.ui.test.AnimationClockTestRule clockTestRule;
-    property public androidx.ui.unit.Density density;
+    property public androidx.compose.ui.unit.Density density;
     property public android.util.DisplayMetrics displayMetrics;
   }
 

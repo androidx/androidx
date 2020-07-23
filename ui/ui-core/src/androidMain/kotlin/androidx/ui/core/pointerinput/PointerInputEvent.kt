@@ -17,7 +17,7 @@
 package androidx.ui.core.pointerinput
 
 import android.view.MotionEvent
-import androidx.ui.unit.Uptime
+import androidx.compose.ui.unit.Uptime
 
 internal actual class PointerInputEvent(
     actual val uptime: Uptime,

@@ -26,8 +26,8 @@ import androidx.ui.testutils.invokeOverPasses
 import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.milliseconds
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.mock

@@ -22,12 +22,12 @@ import androidx.compose.ui.geometry.RRect
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSimple
-import androidx.ui.graphics.asAndroidPath
-import androidx.ui.graphics.Outline
-import androidx.ui.graphics.Path
-import androidx.ui.graphics.RectangleShape
-import androidx.ui.graphics.Shape
-import androidx.ui.unit.Density
+import androidx.compose.ui.graphics.asAndroidPath
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Density
 import kotlin.math.roundToInt
 
 /**

@@ -21,18 +21,18 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.core.paint
 import androidx.compose.foundation.Box
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.SolidColor
-import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.StrokeJoin
-import androidx.ui.graphics.vector.PathData
-import androidx.ui.graphics.vector.VectorAsset
-import androidx.ui.graphics.vector.VectorAssetBuilder
-import androidx.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.vector.PathData
+import androidx.compose.ui.graphics.vector.VectorAsset
+import androidx.compose.ui.graphics.vector.VectorAssetBuilder
+import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.res.vectorResource
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 /**
  * Generic test case for drawing a [VectorAsset].

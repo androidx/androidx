@@ -20,9 +20,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RestrictTo
 import androidx.ui.core.AndroidOwner
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
@@ -30,9 +30,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInRoot
-import androidx.ui.graphics.drawscope.drawCanvas
-import androidx.ui.util.fastFirstOrNull
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.graphics.drawscope.drawCanvas
+import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastForEach
 import androidx.ui.viewinterop.AndroidViewHolder
 import kotlin.math.roundToInt
 

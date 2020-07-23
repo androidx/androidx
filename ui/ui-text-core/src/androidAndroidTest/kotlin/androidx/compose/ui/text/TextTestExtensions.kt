@@ -31,7 +31,7 @@ fun Paragraph.bitmap(): Bitmap {
         height.toIntPx(),
         Bitmap.Config.ARGB_8888
     )
-    this.paint(androidx.ui.graphics.Canvas(Canvas(bitmap)))
+    this.paint(androidx.compose.ui.graphics.Canvas(Canvas(bitmap)))
     return bitmap
 }
 

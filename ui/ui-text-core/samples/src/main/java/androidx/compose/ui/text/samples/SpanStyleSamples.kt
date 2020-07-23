@@ -19,11 +19,11 @@ package androidx.compose.ui.text.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.foundation.Text
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.annotatedString
 import androidx.compose.ui.text.withStyle
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.sp
 
 @Sampled
 @Composable

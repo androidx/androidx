@@ -24,9 +24,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.desktop.AppWindow
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.asImageAsset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageAsset
+import androidx.compose.ui.graphics.asImageAsset
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,14 +42,14 @@ import androidx.ui.material.Slider
 import androidx.ui.material.TopAppBar
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import androidx.ui.unit.dp
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.fontFamily
 import androidx.ui.desktop.font
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntSize
 
 private const val title = "Desktop Compose Elements"
 

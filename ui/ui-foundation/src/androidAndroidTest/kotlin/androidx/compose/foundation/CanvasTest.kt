@@ -24,9 +24,9 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.shape.corner.CircleShape
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.RectangleShape
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.test.assertHeightIsEqualTo
@@ -35,7 +35,7 @@ import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onRoot
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
