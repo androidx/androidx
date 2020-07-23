@@ -472,7 +472,7 @@ class DragSlopExceededGestureFilterTest {
             0f,
             beyondSlop
         )
-        // Sanity check that onTouchSlopExceeded has not been called.
+        // Validity check that onTouchSlopExceeded has not been called.
         assertThat(onDragSlopExceededCallCount).isEqualTo(0)
 
         canDragReturn = true

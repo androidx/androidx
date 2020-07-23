@@ -53,7 +53,7 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
         )
     }
 
-    // dummy object required to construct Paragraph
+    // A fake resource loader required to construct Paragraph
     private val resourceLoader = object : Font.ResourceLoader {
         override fun load(font: Font): Any {
             return false
