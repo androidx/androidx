@@ -38,6 +38,8 @@ import android.view.Window;
 import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
+import androidx.activity.contextaware.ContextAware;
+import androidx.activity.contextaware.OnContextAvailableListener;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultRegistry;
 import androidx.activity.result.ActivityResultRegistryOwner;
@@ -99,6 +101,7 @@ public class FragmentActivity extends ComponentActivity implements
      */
     public FragmentActivity() {
         super();
+        init();
     }
 
     /**
@@ -114,6 +117,22 @@ public class FragmentActivity extends ComponentActivity implements
     @ContentView
     public FragmentActivity(@LayoutRes int contentLayoutId) {
         super(contentLayoutId);
+        init();
+    }
+
+    private void init() {
+        addOnContextAvailableListener(new OnContextAvailableListener() {
+            @Override
+            public void onContextAvailable(@NonNull ContextAware contextAware,
+                    @NonNull Context context, @Nullable Bundle savedInstanceState) {
+                mFragments.attachHost(null /*parent*/);
+
+                if (savedInstanceState != null) {
+                    Parcelable p = savedInstanceState.getParcelable(FRAGMENTS_TAG);
+                    mFragments.restoreSaveState(p);
+                }
+            }
+        });
     }
 
     // ------------------------------------------------------------------------
@@ -230,13 +249,6 @@ public class FragmentActivity extends ComponentActivity implements
      */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        mFragments.attachHost(null /*parent*/);
-
-        if (savedInstanceState != null) {
-            Parcelable p = savedInstanceState.getParcelable(FRAGMENTS_TAG);
-            mFragments.restoreSaveState(p);
-        }
-
         super.onCreate(savedInstanceState);
 
         mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);

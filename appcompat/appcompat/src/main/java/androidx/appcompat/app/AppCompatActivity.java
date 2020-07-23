@@ -30,6 +30,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
+import androidx.activity.contextaware.ContextAware;
+import androidx.activity.contextaware.OnContextAvailableListener;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.IdRes;
@@ -88,6 +90,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      */
     public AppCompatActivity() {
         super();
+        initDelegate();
     }
 
     /**
@@ -103,19 +106,24 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     @ContentView
     public AppCompatActivity(@LayoutRes int contentLayoutId) {
         super(contentLayoutId);
+        initDelegate();
+    }
+
+    private void initDelegate() {
+        addOnContextAvailableListener(new OnContextAvailableListener() {
+            @Override
+            public void onContextAvailable(@NonNull ContextAware contextAware,
+                    @NonNull Context context, @Nullable Bundle savedInstanceState) {
+                final AppCompatDelegate delegate = getDelegate();
+                delegate.installViewFactory();
+                delegate.onCreate(savedInstanceState);
+            }
+        });
     }
 
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(getDelegate().attachBaseContext2(newBase));
-    }
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        final AppCompatDelegate delegate = getDelegate();
-        delegate.installViewFactory();
-        delegate.onCreate(savedInstanceState);
-        super.onCreate(savedInstanceState);
     }
 
     @Override
