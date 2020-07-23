@@ -17,26 +17,20 @@
 package androidx.contentaccess.integration.testapp;
 
 import androidx.annotation.Nullable;
-import androidx.contentaccess.ContentColumn;
 import androidx.contentaccess.IgnoreConstructor;
 
-/**
- * Java Pojo to test that we properly transition between considering constructor fields and
- * public fields when the constructor is empty. Also for testing nullability when using java.
- */
-public class EventIdStartTime {
-    @ContentColumn(columnName = "_id")
-    public long eventId;
+public class JavaPojoWithIgnoredConstructor {
 
-    @ContentColumn(columnName = "dtstart")
-    @Nullable
-    public Long startTime;
 
-    @Nullable
-    public String randomNonColumnField;
+    public String mTitle;
+
+    public String mDescription;
+
+    public JavaPojoWithIgnoredConstructor(@Nullable String title, @Nullable String description) {
+        mTitle = title;
+        mDescription = description;
+    }
 
     @IgnoreConstructor
-    public EventIdStartTime(int randomParameter) {}
-
-    public EventIdStartTime() {}
+    public JavaPojoWithIgnoredConstructor(String title) {}
 }
