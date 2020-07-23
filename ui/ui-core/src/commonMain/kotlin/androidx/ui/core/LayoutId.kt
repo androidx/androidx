@@ -45,10 +45,16 @@ fun Modifier.tag(tag: Any) = this.then(LayoutId(tag))
  * composable children to [Measurable]s when doing layout, as shown below.
  */
 @Immutable
-private data class LayoutId(override val id: Any) : ParentDataModifier, LayoutIdParentData {
+private data class LayoutId(
+    override val id: Any
+) : ParentDataModifier, LayoutIdParentData, InspectableParameter {
     override fun Density.modifyParentData(parentData: Any?): Any? {
         return this@LayoutId
     }
+
+    override val nameFallback = "layoutId"
+    override val inspectableElements: Sequence<ParameterElement>
+        get() = sequenceOf(ParameterElement("id", id))
 }
 
 /**
