@@ -36,14 +36,14 @@ package androidx.compose.ui.text {
     property public final int length;
   }
 
-  public static final class AnnotatedString.Range<T> {
+  @androidx.compose.Immutable public static final class AnnotatedString.Range<T> {
     ctor public AnnotatedString.Range(T! item, int start, int end, String tag);
     ctor public AnnotatedString.Range(T! item, int start, int end);
     method public T! component1();
     method public int component2();
     method public int component3();
     method public String component4();
-    method public androidx.compose.ui.text.AnnotatedString.Range<T> copy(T! item, int start, int end, String tag);
+    method @androidx.compose.Immutable public androidx.compose.ui.text.AnnotatedString.Range<T> copy(T! item, int start, int end, String tag);
     method public int getEnd();
     method public T! getItem();
     method public int getStart();

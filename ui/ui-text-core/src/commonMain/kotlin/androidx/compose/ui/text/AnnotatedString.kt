@@ -138,6 +138,7 @@ data class AnnotatedString internal constructor(
      * @param tag The tag used to distinguish the different ranges. It is useful to store custom
      * data. And [Range]s with same tag can be queried with functions such as [getStringAnnotations].
      */
+    @Immutable
     data class Range<T>(val item: T, val start: Int, val end: Int, val tag: String) {
         constructor(item: T, start: Int, end: Int) : this(item, start, end, "")
         init {
