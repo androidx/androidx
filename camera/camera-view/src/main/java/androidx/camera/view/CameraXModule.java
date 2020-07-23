@@ -292,9 +292,8 @@ final class CameraXModule {
             throw new IllegalArgumentException("OnImageSavedCallback should not be empty");
         }
 
-        ImageCapture.Metadata metadata = new ImageCapture.Metadata();
-        metadata.setReversedHorizontal(
-                mCameraLensFacing != null && mCameraLensFacing == CameraSelector.LENS_FACING_FRONT);
+        outputFileOptions.getMetadata().setReversedHorizontal(mCameraLensFacing != null
+                && mCameraLensFacing == CameraSelector.LENS_FACING_FRONT);
         mImageCapture.takePicture(outputFileOptions, executor, callback);
     }
 

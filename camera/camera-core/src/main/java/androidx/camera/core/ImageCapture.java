@@ -1548,8 +1548,16 @@ public final class ImageCapture extends UseCase {
             return mOutputStream;
         }
 
+        /**
+         * Exposed internally so that CameraView can overwrite the flip horizontal flag for front
+         * camera. External core API users shouldn't need this be cause they are the one who
+         * created the {@link Metadata}.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        Metadata getMetadata() {
+        public Metadata getMetadata() {
             return mMetadata;
         }
 
@@ -1679,6 +1687,7 @@ public final class ImageCapture extends UseCase {
          * degrees, to generate the corresponding EXIF orientation value.
          */
         private boolean mIsReversedHorizontal;
+
         /**
          * Indicates an upside down mirroring, equivalent to a horizontal mirroring (reflection)
          * followed by a 180 degree rotation.
