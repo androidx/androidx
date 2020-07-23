@@ -15,3 +15,5 @@ WorkManager allows observation of work status and the ability to create complex 
 [Existing open bugs](https://b.corp.google.com/issues?q=componentid:409906%20status:open)
 
 [File a new bug](https://issuetracker.google.com/issues/new?component=409906)
+
+[Contributing from GitHub](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/CONTRIBUTING.md)
