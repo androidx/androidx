@@ -201,16 +201,16 @@ class FragmentStateManager {
         if (!mFragment.mAdded) {
             maxState = Math.min(maxState, Fragment.CREATED);
         }
-        SpecialEffectsController.Operation.Type awaitingEffect = null;
+        SpecialEffectsController.Operation.LifecycleImpact awaitingEffect = null;
         if (FragmentManager.USE_STATE_MANAGER && mFragment.mContainer != null) {
             SpecialEffectsController controller = SpecialEffectsController.getOrCreateController(
                     mFragment.mContainer, mFragment.getParentFragmentManager());
-            awaitingEffect = controller.getAwaitingCompletionType(this);
+            awaitingEffect = controller.getAwaitingCompletionLifecycleImpact(this);
         }
-        if (awaitingEffect == SpecialEffectsController.Operation.Type.ADD) {
+        if (awaitingEffect == SpecialEffectsController.Operation.LifecycleImpact.ADDING) {
             // Fragments awaiting their enter effects cannot proceed beyond that state
             maxState = Math.min(maxState, Fragment.AWAITING_ENTER_EFFECTS);
-        } else if (awaitingEffect == SpecialEffectsController.Operation.Type.REMOVE) {
+        } else if (awaitingEffect == SpecialEffectsController.Operation.LifecycleImpact.REMOVING) {
             // Fragments that are in the process of being removed shouldn't go below that state
             maxState = Math.max(maxState, Fragment.AWAITING_EXIT_EFFECTS);
         } else if (mFragment.mRemoving) {
@@ -287,7 +287,11 @@ class FragmentStateManager {
                                     mHiddenAnimationCancellationSignal.cancel();
                                 }
                                 mEnterAnimationCancellationSignal = new CancellationSignal();
-                                controller.enqueueAdd(this,
+                                SpecialEffectsController.Operation.State finalState =
+                                        mFragment.mView.getVisibility() == View.GONE
+                                                ? SpecialEffectsController.Operation.State.GONE
+                                                : SpecialEffectsController.Operation.State.VISIBLE;
+                                controller.enqueueAdd(finalState, this,
                                         mEnterAnimationCancellationSignal);
                             }
                             mFragment.mState = Fragment.ACTIVITY_CREATED;
