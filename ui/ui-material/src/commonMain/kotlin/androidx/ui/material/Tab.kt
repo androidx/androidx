@@ -24,20 +24,16 @@ import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.Providers
 import androidx.compose.emptyContent
-import androidx.compose.getValue
 import androidx.compose.remember
-import androidx.compose.setValue
-import androidx.compose.state
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.transition
-import androidx.ui.core.Alignment
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.DensityAmbient
+import androidx.ui.core.ExperimentalSubcomposeLayoutApi
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
-import androidx.ui.core.WithConstraints
+import androidx.ui.core.SubcomposeLayout
 import androidx.ui.core.id
 import androidx.ui.core.layoutId
 import androidx.compose.foundation.Box
@@ -52,13 +48,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredWidth
-import androidx.ui.material.TabRow.IndicatorTransition
 import androidx.ui.material.TabRow.TabPosition
 import androidx.compose.foundation.text.FirstBaseline
 import androidx.compose.foundation.text.LastBaseline
@@ -67,9 +61,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastMap
 import kotlin.math.max
 
 /**
@@ -180,6 +174,7 @@ fun <T> TabRow(
     }
 }
 
+@OptIn(ExperimentalSubcomposeLayoutApi::class)
 @Composable
 private fun FixedTabRow(
     tabCount: Int,
@@ -187,29 +182,37 @@ private fun FixedTabRow(
     indicatorContainer: @Composable (tabPositions: List<TabPosition>) -> Unit,
     divider: @Composable () -> Unit
 ) {
-    Stack(Modifier.fillMaxWidth()) {
-        Row {
-            tabs(Modifier.weight(1f))
-        }
-        Box(Modifier.gravity(Alignment.BottomCenter).fillMaxWidth(), children = divider)
-        WithConstraints(Modifier.matchParentSize()) {
-            val width = constraints.maxWidth
-            val tabWidth = width / tabCount
-            val density = DensityAmbient.current
-
-            val tabPositions = remember(tabCount, tabWidth) {
-                with(density) {
-                    (0 until tabCount).map { index ->
-                        val left = (tabWidth * index)
-                        TabPosition(left.toDp(), tabWidth.toDp())
-                    }
-                }
+    SubcomposeLayout<TabSlots>(Modifier.fillMaxWidth()) { constraints ->
+        val tabsPlaceable = subcompose(TabSlots.Tabs) {
+            Row {
+                tabs(Modifier.weight(1f))
             }
-            indicatorContainer(tabPositions)
+        }.first().measure(constraints)
+
+        val tabWidth = (tabsPlaceable.width / tabCount).toDp()
+        val tabPositions = List(tabCount) { index ->
+            TabPosition(tabWidth * index, tabWidth)
+        }
+
+        layout(tabsPlaceable.width, tabsPlaceable.height) {
+            tabsPlaceable.place(0, 0)
+
+            subcompose(TabSlots.Divider, divider).fastForEach {
+                val placeable = it.measure(constraints)
+                placeable.place(0, tabsPlaceable.height - placeable.height)
+            }
+
+            subcompose(TabSlots.Indicator) {
+                indicatorContainer(tabPositions)
+            }.fastForEach {
+                it.measure(Constraints.fixed(tabsPlaceable.width, tabsPlaceable.height))
+                    .place(0, 0)
+            }
         }
     }
 }
 
+@OptIn(ExperimentalSubcomposeLayoutApi::class)
 @Composable
 private fun ScrollableTabRow(
     selectedIndex: Int,
@@ -224,84 +227,53 @@ private fun ScrollableTabRow(
             selectedTab = selectedIndex
         )
     }
-
-    // TODO: unfortunate 1f lag as we need to first calculate tab positions before drawing the
-    // indicator container
-    var tabPositions by state { listOf<TabPosition>() }
-
-    val indicator = @Composable {
-        // Delay indicator composition until we know tab positions
-        if (tabPositions.isNotEmpty()) {
-            indicatorContainer(tabPositions)
-        }
-    }
-
-    val indicatorTag = "indicator"
-    val dividerTag = "divider"
-    ScrollableRow(modifier = Modifier.fillMaxWidth(), scrollState = scrollState) {
-        Layout(
-            children = {
-                tabs()
-                Box(Modifier.layoutId(indicatorTag), children = indicator)
-                Box(Modifier.layoutId(dividerTag), children = divider)
-            }
-        ) { measurables, constraints ->
-            val tabPlaceables = mutableListOf<Pair<Placeable, Int>>()
+    ScrollableRow(scrollState = scrollState, modifier = Modifier.fillMaxWidth()) {
+        SubcomposeLayout<TabSlots> { constraints ->
             val minTabWidth = ScrollableTabRowMinimumTabWidth.toIntPx()
             val edgeOffset = ScrollableTabRowEdgeOffset.toIntPx()
-
-            var layoutHeight = 0
-
             val tabConstraints = constraints.copy(minWidth = minTabWidth)
 
-            val newTabPositions = mutableListOf<TabPosition>()
+            val tabPlaceables = subcompose(TabSlots.Tabs, tabs)
+                .fastMap { it.measure(tabConstraints) }
 
-            val layoutWidth = measurables
-                // to avoid wrapping each tab with the Box only to pass the LayoutTag
-                .filter { it.id == null }
-                .fold(edgeOffset) { sum, measurable ->
-                    val placeable = measurable.measure(tabConstraints)
-
-                    if (placeable.height > layoutHeight) {
-                        layoutHeight = placeable.height
-                    }
-
-                    // Position each tab at the end of the previous one
-                    tabPlaceables.add(placeable to sum)
-                    newTabPositions.add(
-                        TabPosition(
-                            left = sum.toDp(),
-                            width = placeable.width.toDp()
-                        )
-                    )
-                    sum + placeable.width
-                } + edgeOffset
-
-            if (tabPositions != newTabPositions) {
-                tabPositions = newTabPositions
+            var layoutWidth = edgeOffset * 2
+            var layoutHeight = 0
+            tabPlaceables.fastForEach {
+                layoutWidth += it.width
+                layoutHeight = maxOf(layoutHeight, it.height)
             }
 
             // Position the children.
             layout(layoutWidth, layoutHeight) {
                 // Place the tabs
-                tabPlaceables.fastForEach { (placeable, left) ->
-                    placeable.place(left, 0)
+                val tabPositions = mutableListOf<TabPosition>()
+                var left = edgeOffset
+                tabPlaceables.fastForEach {
+                    it.place(left, 0)
+                    tabPositions.add(TabPosition(left = left.toDp(), width = it.width.toDp()))
+                    left += it.width
                 }
 
                 // The divider is measured with its own height, and width equal to the total width
                 // of the tab row, and then placed on top of the tabs.
-                measurables.fastFirstOrNull { it.id == dividerTag }
-                    ?.measure(constraints.copy(minWidth = layoutWidth, maxWidth = layoutWidth))
-                    ?.run { place(0, layoutHeight - height) }
+                subcompose(TabSlots.Divider, divider).fastForEach {
+                    val placeable = it.measure(
+                        constraints.copy(minWidth = layoutWidth, maxWidth = layoutWidth)
+                    )
+                    placeable.place(0, layoutHeight - placeable.height)
+                }
 
                 // The indicator container is measured to fill the entire space occupied by the tab
                 // row, and then placed on top of the divider.
-                measurables.fastFirstOrNull { it.id == indicatorTag }
-                    ?.measure(Constraints.fixed(layoutWidth, layoutHeight))
-                    ?.place(0, 0)
+                subcompose(TabSlots.Indicator) {
+                    indicatorContainer(tabPositions)
+                }.fastForEach {
+                    it.measure(Constraints.fixed(layoutWidth, layoutHeight))
+                        .place(0, 0)
+                }
 
                 scrollableTabData.onLaidOut(
-                    density = this@Layout,
+                    density = this@SubcomposeLayout,
                     edgeOffset = edgeOffset,
                     tabPositions = tabPositions,
                     selectedTab = selectedIndex
@@ -309,6 +281,12 @@ private fun ScrollableTabRow(
             }
         }
     }
+}
+
+private enum class TabSlots {
+    Tabs,
+    Divider,
+    Indicator
 }
 
 /**
