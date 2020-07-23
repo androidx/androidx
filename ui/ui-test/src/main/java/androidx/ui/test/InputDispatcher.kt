@@ -19,8 +19,8 @@ package androidx.ui.test
 import androidx.collection.SparseArrayCompat
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.Owner
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.lerp
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.lerp
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.android.AndroidOwnerRegistry
 import androidx.ui.unit.Duration

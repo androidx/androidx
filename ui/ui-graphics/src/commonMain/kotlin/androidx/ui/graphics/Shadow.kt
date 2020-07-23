@@ -18,8 +18,8 @@ package androidx.ui.graphics
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.lerp
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.lerp
 import androidx.ui.util.lerp
 
 /**

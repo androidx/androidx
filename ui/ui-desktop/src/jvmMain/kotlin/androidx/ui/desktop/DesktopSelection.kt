@@ -20,7 +20,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.gesture.DragObserver
 import androidx.compose.Composable
 import androidx.ui.core.onPositioned
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import kotlin.math.max
 import androidx.compose.remember
 import androidx.compose.state

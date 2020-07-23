@@ -44,8 +44,8 @@ import androidx.compose.foundation.animation.defaultFlingConfig
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.shape.corner.CircleShape
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.lerp
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.lerp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.StrokeCap

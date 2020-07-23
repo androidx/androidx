@@ -26,7 +26,7 @@ import androidx.ui.core.Ref
 import androidx.ui.core.constrainHeight
 import androidx.ui.core.constrainWidth
 import androidx.ui.core.onChildPositioned
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp

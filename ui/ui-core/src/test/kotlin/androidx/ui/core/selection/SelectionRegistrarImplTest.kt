@@ -18,7 +18,7 @@ package androidx.ui.core.selection
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever

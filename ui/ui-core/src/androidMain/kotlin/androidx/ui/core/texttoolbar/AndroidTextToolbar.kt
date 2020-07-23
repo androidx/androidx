@@ -22,7 +22,7 @@ import android.view.View
 import androidx.ui.core.texttoolbar.actionmodecallback.FloatingTextActionModeCallback
 import androidx.ui.core.texttoolbar.actionmodecallback.PrimaryTextActionModeCallback
 import androidx.ui.core.texttoolbar.actionmodecallback.TextActionModeCallback
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 
 /**
  * Android implementation for [TextToolbar].

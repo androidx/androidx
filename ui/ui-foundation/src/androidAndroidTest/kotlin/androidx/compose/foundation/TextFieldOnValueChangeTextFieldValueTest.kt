@@ -20,7 +20,7 @@ import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.SmallTest
 import androidx.ui.core.TextInputServiceAmbient
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.input.CommitTextEditOp
 import androidx.compose.ui.text.input.DeleteSurroundingTextEditOp
 import androidx.compose.ui.text.input.EditOperation

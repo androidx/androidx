@@ -23,7 +23,7 @@ import androidx.ui.core.PointerInputData
 import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.unit.Duration
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.Uptime

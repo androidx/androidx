@@ -27,7 +27,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import androidx.ui.test.captureToBitmap
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals

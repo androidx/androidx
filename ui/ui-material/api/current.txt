@@ -235,18 +235,18 @@ package androidx.ui.material {
   @androidx.compose.Stable public final class ScaffoldState {
     ctor public ScaffoldState(androidx.ui.material.DrawerState drawerState, boolean isDrawerGesturesEnabled);
     ctor public ScaffoldState();
-    method public androidx.ui.geometry.Size? getBottomBarSize();
+    method public androidx.compose.ui.geometry.Size? getBottomBarSize();
     method public androidx.ui.material.DrawerState getDrawerState();
-    method public androidx.ui.geometry.Size? getFloatingActionButtonSize();
-    method public androidx.ui.geometry.Size? getTopBarSize();
+    method public androidx.compose.ui.geometry.Size? getFloatingActionButtonSize();
+    method public androidx.compose.ui.geometry.Size? getTopBarSize();
     method public boolean isDrawerGesturesEnabled();
     method public void setDrawerGesturesEnabled(boolean p);
     method public void setDrawerState(androidx.ui.material.DrawerState p);
-    property public final androidx.ui.geometry.Size? bottomBarSize;
+    property public final androidx.compose.ui.geometry.Size? bottomBarSize;
     property public final androidx.ui.material.DrawerState drawerState;
-    property public final androidx.ui.geometry.Size? floatingActionButtonSize;
+    property public final androidx.compose.ui.geometry.Size? floatingActionButtonSize;
     property public final boolean isDrawerGesturesEnabled;
-    property public final androidx.ui.geometry.Size? topBarSize;
+    property public final androidx.compose.ui.geometry.Size? topBarSize;
   }
 
   public final class Shapes {

@@ -26,7 +26,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputData
 import androidx.ui.unit.NanosecondsPerMillisecond
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.unit.Uptime
 
 /**

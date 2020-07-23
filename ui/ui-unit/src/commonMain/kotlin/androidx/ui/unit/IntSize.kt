@@ -20,7 +20,7 @@ package androidx.ui.unit
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Size
 import androidx.ui.util.packInts
 import androidx.ui.util.unpackInt1
 import androidx.ui.util.unpackInt2

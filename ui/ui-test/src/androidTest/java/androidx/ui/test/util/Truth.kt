@@ -16,7 +16,7 @@
 
 package androidx.ui.test.util
 
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import com.google.common.collect.Ordering
 import com.google.common.truth.FloatSubject
 import com.google.common.truth.Truth.assertThat

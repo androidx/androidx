@@ -25,7 +25,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.testTag
 import androidx.compose.foundation.gestures.draggable
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.center

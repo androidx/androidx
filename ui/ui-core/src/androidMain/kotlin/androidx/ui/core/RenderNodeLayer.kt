@@ -19,7 +19,7 @@ package androidx.ui.core
 import android.annotation.TargetApi
 import android.graphics.Matrix
 import android.graphics.RenderNode
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.CanvasHolder
 import androidx.ui.graphics.RectangleShape

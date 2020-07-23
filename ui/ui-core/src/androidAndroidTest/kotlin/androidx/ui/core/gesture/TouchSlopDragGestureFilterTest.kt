@@ -23,7 +23,7 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.framework.test.TestActivity
 import androidx.compose.foundation.layout.Stack
 import com.nhaarman.mockitokotlin2.any

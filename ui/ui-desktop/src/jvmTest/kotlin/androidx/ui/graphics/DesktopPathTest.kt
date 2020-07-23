@@ -16,8 +16,8 @@
 
 package androidx.ui.graphics
 
-import androidx.ui.geometry.RRect
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.RRect
+import androidx.compose.ui.geometry.Rect
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

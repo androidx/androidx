@@ -29,8 +29,8 @@ import androidx.ui.core.selection.SelectionHandleLayout
 import androidx.ui.core.selection.getAdjustedCoordinates
 import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.core.texttoolbar.TextToolbarStatus
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.input.OffsetMap
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.getSelectedText

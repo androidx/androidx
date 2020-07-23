@@ -43,7 +43,7 @@ import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.findChildById
 import androidx.ui.core.semantics.getAllSemanticsNodesToMap
 import androidx.ui.core.semantics.getOrNull
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import androidx.ui.semantics.CustomAccessibilityAction
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsActions.CustomActions

@@ -33,7 +33,7 @@ import androidx.compose.snapshots.Snapshot
 import androidx.test.filters.SmallTest
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.testutils.down
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.milliseconds

@@ -22,7 +22,7 @@ import android.view.View
 import android.view.autofill.AutofillValue
 import androidx.test.filters.SmallTest
 import androidx.ui.ComposeUiRobolectricTestRunner
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.Test

@@ -17,8 +17,8 @@
 package androidx.ui.graphics
 
 import androidx.test.filters.SmallTest
-import androidx.ui.geometry.Size
-import androidx.ui.geometry.toRect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.toRect
 import androidx.ui.unit.Density
 import org.junit.Assert.assertEquals
 import org.junit.Test

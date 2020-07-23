@@ -17,8 +17,8 @@
 package androidx.ui.core
 
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.geometry.Rect
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.IntOffset
 

@@ -17,7 +17,7 @@
 package androidx.ui.unit
 
 import androidx.compose.Immutable
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 
 /** A velocity in two dimensions. */
 @Immutable

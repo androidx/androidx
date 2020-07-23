@@ -19,7 +19,7 @@ package androidx.ui.core
 import android.os.Build
 import android.view.View
 import android.view.ViewOutlineProvider
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.CanvasHolder
 import androidx.ui.graphics.Path

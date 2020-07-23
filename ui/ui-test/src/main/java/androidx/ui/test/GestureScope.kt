@@ -21,8 +21,8 @@ import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.gesture.DoubleTapTimeout
 import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.lerp
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.lerp
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
 import androidx.ui.unit.Duration
 import androidx.ui.unit.IntSize

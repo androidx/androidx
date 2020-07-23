@@ -17,7 +17,7 @@
 package androidx.ui.core.selection
 
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 
 internal class SelectionRegistrarImpl : SelectionRegistrar {
     /**

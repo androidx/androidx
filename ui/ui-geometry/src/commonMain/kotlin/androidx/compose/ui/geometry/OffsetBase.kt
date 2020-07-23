@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.geometry
+package androidx.compose.ui.geometry
 
 /**
  * Base class for [Size] and [Offset], which are both ways to describe

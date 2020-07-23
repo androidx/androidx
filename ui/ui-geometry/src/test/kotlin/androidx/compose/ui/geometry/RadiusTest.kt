@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.geometry
+package androidx.compose.ui.geometry
 
 import org.junit.Assert
 import org.junit.Test
@@ -22,25 +22,26 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class OffsetTest {
+class RadiusTest {
+
     @Test
-    fun testOffsetCopy() {
-        val offset = Offset(100f, 200f)
-        Assert.assertEquals(offset, offset.copy())
+    fun testRadiusCopy() {
+        val radius = Radius(100f, 200f)
+        Assert.assertEquals(radius, radius.copy())
     }
 
     @Test
-    fun testOffsetCopyOverwriteX() {
-        val offset = Offset(100f, 200f)
-        val copy = offset.copy(x = 50f)
+    fun testRadiusCopyOverwriteX() {
+        val radius = Radius(100f, 200f)
+        val copy = radius.copy(x = 50f)
         Assert.assertEquals(50f, copy.x)
         Assert.assertEquals(200f, copy.y)
     }
 
     @Test
-    fun testOffsetCopyOverwriteY() {
-        val offset = Offset(100f, 200f)
-        val copy = offset.copy(y = 300f)
+    fun testRadiusCopyOverwriteY() {
+        val radius = Radius(100f, 200f)
+        val copy = radius.copy(y = 300f)
         Assert.assertEquals(100f, copy.x)
         Assert.assertEquals(300f, copy.y)
     }

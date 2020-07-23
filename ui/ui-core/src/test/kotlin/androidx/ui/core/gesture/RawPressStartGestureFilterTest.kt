@@ -18,7 +18,7 @@ package androidx.ui.core.gesture
 
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.consumeDownChange
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
 import androidx.ui.testutils.invokeOverPasses

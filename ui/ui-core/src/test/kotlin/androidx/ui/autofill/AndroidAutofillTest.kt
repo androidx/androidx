@@ -23,7 +23,7 @@ import android.view.autofill.AutofillManager
 import androidx.test.filters.SmallTest
 import androidx.ui.ComposeUiRobolectricTestRunner
 import androidx.ui.core.toComposeRect
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule

@@ -32,9 +32,9 @@ import androidx.ui.core.Modifier
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.selection.ToggleableState
 import androidx.compose.foundation.selection.triStateToggleable
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Radius
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Radius
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathMeasure

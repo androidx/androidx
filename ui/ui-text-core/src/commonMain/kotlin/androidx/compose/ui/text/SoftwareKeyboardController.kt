@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.text
 
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.input.InputSessionToken
 import androidx.compose.ui.text.input.TextInputService
 

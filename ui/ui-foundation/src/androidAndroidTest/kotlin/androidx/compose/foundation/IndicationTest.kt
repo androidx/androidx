@@ -29,7 +29,7 @@ import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.down
 import androidx.ui.test.up
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore

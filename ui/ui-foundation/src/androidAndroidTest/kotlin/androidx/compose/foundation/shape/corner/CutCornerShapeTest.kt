@@ -17,8 +17,8 @@
 package androidx.compose.foundation.shape.corner
 
 import androidx.test.filters.SmallTest
-import androidx.ui.geometry.Size
-import androidx.ui.geometry.toRect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.toRect
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation

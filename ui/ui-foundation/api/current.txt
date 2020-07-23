@@ -117,10 +117,10 @@ package androidx.compose.foundation {
 
   @androidx.compose.Stable public final class InteractionState implements androidx.compose.State<java.util.Set<? extends androidx.compose.foundation.Interaction>> {
     ctor public InteractionState();
-    method public void addInteraction(androidx.compose.foundation.Interaction interaction, androidx.ui.geometry.Offset? position = null);
+    method public void addInteraction(androidx.compose.foundation.Interaction interaction, androidx.compose.ui.geometry.Offset? position = null);
     method public operator boolean contains(androidx.compose.foundation.Interaction interaction);
     method public java.util.Set<androidx.compose.foundation.Interaction> getValue();
-    method public androidx.ui.geometry.Offset? interactionPositionFor(androidx.compose.foundation.Interaction interaction);
+    method public androidx.compose.ui.geometry.Offset? interactionPositionFor(androidx.compose.foundation.Interaction interaction);
     method public void removeInteraction(androidx.compose.foundation.Interaction interaction);
     property public java.util.Set<androidx.compose.foundation.Interaction> value;
   }
@@ -246,7 +246,7 @@ package androidx.compose.foundation.animation {
 package androidx.compose.foundation.gestures {
 
   public final class DraggableKt {
-    method public static androidx.ui.core.Modifier draggable(androidx.ui.core.Modifier, androidx.ui.core.gesture.scrollorientationlocking.Orientation orientation, boolean enabled = true, boolean reverseDirection = false, androidx.compose.foundation.InteractionState? interactionState = null, boolean startDragImmediately = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean> canDrag = { return enabled }, kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, kotlin.jvm.functions.Function2<? super androidx.ui.unit.Density,? super java.lang.Float,kotlin.Unit> onDrag);
+    method public static androidx.ui.core.Modifier draggable(androidx.ui.core.Modifier, androidx.ui.core.gesture.scrollorientationlocking.Orientation orientation, boolean enabled = true, boolean reverseDirection = false, androidx.compose.foundation.InteractionState? interactionState = null, boolean startDragImmediately = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean> canDrag = { return enabled }, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, kotlin.jvm.functions.Function2<? super androidx.ui.unit.Density,? super java.lang.Float,kotlin.Unit> onDrag);
   }
 
   public final class ScrollableController {
@@ -261,7 +261,7 @@ package androidx.compose.foundation.gestures {
 
   public final class ScrollableKt {
     method @androidx.compose.Composable public static androidx.compose.foundation.gestures.ScrollableController rememberScrollableController(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> consumeScrollDelta);
-    method public static androidx.ui.core.Modifier scrollable(androidx.ui.core.Modifier, androidx.ui.core.gesture.scrollorientationlocking.Orientation orientation, androidx.compose.foundation.gestures.ScrollableController controller, boolean enabled = true, boolean reverseDirection = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean> canScroll = { return enabled }, kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit> onScrollStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onScrollStopped = {});
+    method public static androidx.ui.core.Modifier scrollable(androidx.ui.core.Modifier, androidx.ui.core.gesture.scrollorientationlocking.Orientation orientation, androidx.compose.foundation.gestures.ScrollableController controller, boolean enabled = true, boolean reverseDirection = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean> canScroll = { return enabled }, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onScrollStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onScrollStopped = {});
   }
 
   public final class ZoomableController {
@@ -345,9 +345,9 @@ package androidx.compose.foundation.semantics {
 package androidx.compose.foundation.shape {
 
   public final class GenericShape implements androidx.ui.graphics.Shape {
-    ctor public GenericShape(kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Path,? super androidx.ui.geometry.Size,kotlin.Unit> builder);
-    method public androidx.compose.foundation.shape.GenericShape copy(kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Path,? super androidx.ui.geometry.Size,kotlin.Unit> builder);
-    method public androidx.ui.graphics.Outline createOutline-SwJi8iY(long size, androidx.ui.unit.Density density);
+    ctor public GenericShape(kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Path,? super androidx.compose.ui.geometry.Size,kotlin.Unit> builder);
+    method public androidx.compose.foundation.shape.GenericShape copy(kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Path,? super androidx.compose.ui.geometry.Size,kotlin.Unit> builder);
+    method public androidx.ui.graphics.Outline createOutline-6PvjmT0(long size, androidx.ui.unit.Density density);
   }
 
 }
@@ -358,8 +358,8 @@ package androidx.compose.foundation.shape.corner {
     ctor public CornerBasedShape(androidx.compose.foundation.shape.corner.CornerSize topLeft, androidx.compose.foundation.shape.corner.CornerSize topRight, androidx.compose.foundation.shape.corner.CornerSize bottomRight, androidx.compose.foundation.shape.corner.CornerSize bottomLeft);
     method public abstract androidx.compose.foundation.shape.corner.CornerBasedShape copy(androidx.compose.foundation.shape.corner.CornerSize topLeft = topLeft, androidx.compose.foundation.shape.corner.CornerSize topRight = topRight, androidx.compose.foundation.shape.corner.CornerSize bottomRight = bottomRight, androidx.compose.foundation.shape.corner.CornerSize bottomLeft = bottomLeft);
     method public final androidx.compose.foundation.shape.corner.CornerBasedShape copy(androidx.compose.foundation.shape.corner.CornerSize all);
-    method public abstract androidx.ui.graphics.Outline createOutline-0bCqP4M(long size, float topLeft, float topRight, float bottomRight, float bottomLeft);
-    method public final androidx.ui.graphics.Outline createOutline-SwJi8iY(long size, androidx.ui.unit.Density density);
+    method public final androidx.ui.graphics.Outline createOutline-6PvjmT0(long size, androidx.ui.unit.Density density);
+    method public abstract androidx.ui.graphics.Outline createOutline-hMawgr0(long size, float topLeft, float topRight, float bottomRight, float bottomLeft);
     method public final androidx.compose.foundation.shape.corner.CornerSize getBottomLeft();
     method public final androidx.compose.foundation.shape.corner.CornerSize getBottomRight();
     method public final androidx.compose.foundation.shape.corner.CornerSize getTopLeft();
@@ -367,7 +367,7 @@ package androidx.compose.foundation.shape.corner {
   }
 
   @androidx.compose.Immutable public interface CornerSize {
-    method public float toPx-SwJi8iY(long shapeSize, androidx.ui.unit.Density density);
+    method public float toPx-6PvjmT0(long shapeSize, androidx.ui.unit.Density density);
   }
 
   public final class CornerSizeKt {
@@ -380,7 +380,7 @@ package androidx.compose.foundation.shape.corner {
   public final class CutCornerShape extends androidx.compose.foundation.shape.corner.CornerBasedShape {
     ctor public CutCornerShape(androidx.compose.foundation.shape.corner.CornerSize topLeft, androidx.compose.foundation.shape.corner.CornerSize topRight, androidx.compose.foundation.shape.corner.CornerSize bottomRight, androidx.compose.foundation.shape.corner.CornerSize bottomLeft);
     method public androidx.compose.foundation.shape.corner.CutCornerShape copy(androidx.compose.foundation.shape.corner.CornerSize topLeft, androidx.compose.foundation.shape.corner.CornerSize topRight, androidx.compose.foundation.shape.corner.CornerSize bottomRight, androidx.compose.foundation.shape.corner.CornerSize bottomLeft);
-    method public androidx.ui.graphics.Outline createOutline-0bCqP4M(long size, float topLeft, float topRight, float bottomRight, float bottomLeft);
+    method public androidx.ui.graphics.Outline createOutline-hMawgr0(long size, float topLeft, float topRight, float bottomRight, float bottomLeft);
   }
 
   public final class CutCornerShapeKt {
@@ -396,7 +396,7 @@ package androidx.compose.foundation.shape.corner {
   public final class RoundedCornerShape extends androidx.compose.foundation.shape.corner.CornerBasedShape {
     ctor public RoundedCornerShape(androidx.compose.foundation.shape.corner.CornerSize topLeft, androidx.compose.foundation.shape.corner.CornerSize topRight, androidx.compose.foundation.shape.corner.CornerSize bottomRight, androidx.compose.foundation.shape.corner.CornerSize bottomLeft);
     method public androidx.compose.foundation.shape.corner.RoundedCornerShape copy(androidx.compose.foundation.shape.corner.CornerSize topLeft, androidx.compose.foundation.shape.corner.CornerSize topRight, androidx.compose.foundation.shape.corner.CornerSize bottomRight, androidx.compose.foundation.shape.corner.CornerSize bottomLeft);
-    method public androidx.ui.graphics.Outline createOutline-0bCqP4M(long size, float topLeft, float topRight, float bottomRight, float bottomLeft);
+    method public androidx.ui.graphics.Outline createOutline-hMawgr0(long size, float topLeft, float topRight, float bottomRight, float bottomLeft);
   }
 
   public final class RoundedCornerShapeKt {

@@ -17,7 +17,7 @@
 package androidx.ui.test.util
 
 import android.view.MotionEvent
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 

@@ -30,7 +30,7 @@ import androidx.ui.core.Popup
 import androidx.ui.core.enforce
 import androidx.ui.core.hasFixedHeight
 import androidx.ui.core.hasFixedWidth
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.ui.unit.Dp

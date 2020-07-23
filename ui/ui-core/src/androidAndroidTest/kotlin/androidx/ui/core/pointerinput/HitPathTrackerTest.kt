@@ -29,7 +29,7 @@ import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.consumePositionChange
 import androidx.ui.core.positionChange
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.testutils.down
 import androidx.ui.testutils.moveTo
 import androidx.ui.unit.IntSize

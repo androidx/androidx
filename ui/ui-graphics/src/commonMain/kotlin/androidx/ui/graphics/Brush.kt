@@ -16,7 +16,7 @@
 
 package androidx.ui.graphics
 
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 
 sealed class Brush {
     abstract fun applyTo(p: Paint, alpha: Float)

@@ -42,9 +42,9 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.currentTextStyle
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.corner.CircleShape
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.RRect
-import androidx.ui.geometry.Radius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.RRect
+import androidx.compose.ui.geometry.Radius
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset

@@ -34,8 +34,8 @@ import androidx.ui.core.DrawModifier
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.core.focus.FocusModifier
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.useOrElse
 import androidx.compose.ui.text.input.ImeAction
