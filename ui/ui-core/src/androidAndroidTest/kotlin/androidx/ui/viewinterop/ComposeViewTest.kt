@@ -34,7 +34,7 @@ import androidx.ui.core.AbstractComposeView
 import androidx.ui.core.ComposeView
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.assertTextEquals
 import androidx.ui.test.onNodeWithTag
 import org.hamcrest.CoreMatchers.instanceOf
@@ -49,7 +49,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ComposeViewTest {
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun composeViewComposedContent() {
