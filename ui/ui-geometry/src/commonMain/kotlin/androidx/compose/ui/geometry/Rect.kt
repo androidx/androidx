@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.geometry
+package androidx.compose.ui.geometry
 
 import androidx.compose.Immutable
 import androidx.compose.Stable

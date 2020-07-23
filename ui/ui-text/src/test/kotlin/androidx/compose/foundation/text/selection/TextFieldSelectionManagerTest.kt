@@ -23,8 +23,8 @@ import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.core.texttoolbar.TextToolbar
-import androidx.ui.geometry.Rect
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.input.OffsetMap
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.AnnotatedString

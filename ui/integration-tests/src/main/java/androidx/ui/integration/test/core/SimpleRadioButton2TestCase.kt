@@ -23,9 +23,9 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.compose.foundation.drawBorder
 import androidx.compose.foundation.shape.corner.CircleShape
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Size
-import androidx.ui.geometry.shift
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.shift
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path

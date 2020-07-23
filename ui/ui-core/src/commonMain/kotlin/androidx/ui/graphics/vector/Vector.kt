@@ -16,7 +16,7 @@
 
 package androidx.ui.graphics.vector
 
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color

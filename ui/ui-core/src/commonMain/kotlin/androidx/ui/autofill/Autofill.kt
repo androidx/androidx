@@ -16,7 +16,7 @@
 
 package androidx.ui.autofill
 
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import androidx.ui.util.annotation.GuardedBy
 
 /**

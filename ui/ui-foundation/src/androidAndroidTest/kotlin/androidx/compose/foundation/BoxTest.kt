@@ -40,7 +40,7 @@ import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp

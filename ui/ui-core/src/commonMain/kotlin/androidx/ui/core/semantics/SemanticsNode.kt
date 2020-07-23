@@ -25,7 +25,7 @@ import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.globalBounds
 import androidx.ui.core.globalPosition
 import androidx.ui.core.positionInRoot
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.util.fastForEach

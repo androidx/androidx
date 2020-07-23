@@ -25,7 +25,7 @@ import androidx.ui.core.onPositioned
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.createComposeRule

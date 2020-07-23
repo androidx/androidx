@@ -17,7 +17,7 @@
 package androidx.ui.test.gesturescope
 
 import androidx.test.filters.MediumTest
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.test.percentOffset
 import androidx.ui.test.bottom
 import androidx.ui.test.bottomCenter

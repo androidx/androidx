@@ -28,7 +28,7 @@ import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillNode
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.autofill.AutofillType
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import androidx.ui.test.android.fake.FakeViewStructure
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat

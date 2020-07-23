@@ -16,7 +16,7 @@
 
 package androidx.ui.core
 
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 
 @OptIn(ExperimentalLayoutNodeApi::class)

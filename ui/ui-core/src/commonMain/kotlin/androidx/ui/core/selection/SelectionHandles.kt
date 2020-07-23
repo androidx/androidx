@@ -22,7 +22,7 @@ import androidx.compose.remember
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.drawscope.DrawScope

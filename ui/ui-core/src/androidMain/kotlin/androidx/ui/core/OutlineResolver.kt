@@ -18,10 +18,10 @@ package androidx.ui.core
 
 import android.graphics.Outline as AndroidOutline
 import android.os.Build
-import androidx.ui.geometry.RRect
-import androidx.ui.geometry.Rect
-import androidx.ui.geometry.Size
-import androidx.ui.geometry.isSimple
+import androidx.compose.ui.geometry.RRect
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isSimple
 import androidx.ui.graphics.asAndroidPath
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path

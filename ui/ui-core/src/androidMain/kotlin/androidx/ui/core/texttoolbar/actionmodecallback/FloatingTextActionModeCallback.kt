@@ -29,7 +29,7 @@ import android.view.View
 internal class FloatingTextActionModeCallback(
     private val callback: ActionMode.Callback
 ) : ActionMode.Callback2() {
-    private var rect: androidx.ui.geometry.Rect = androidx.ui.geometry.Rect.zero
+    private var rect: androidx.compose.ui.geometry.Rect = androidx.compose.ui.geometry.Rect.zero
 
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
         return callback.onActionItemClicked(mode, item)
@@ -60,7 +60,7 @@ internal class FloatingTextActionModeCallback(
         )
     }
 
-    internal fun setRect(regionOfInterest: androidx.ui.geometry.Rect) {
+    internal fun setRect(regionOfInterest: androidx.compose.ui.geometry.Rect) {
         this.rect = regionOfInterest
     }
 }

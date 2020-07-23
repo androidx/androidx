@@ -23,7 +23,7 @@ import androidx.ui.core.focus.ModifiedFocusNode
 import androidx.ui.core.focus.ModifiedFocusNode2
 import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint

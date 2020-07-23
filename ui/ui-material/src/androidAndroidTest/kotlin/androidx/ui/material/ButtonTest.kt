@@ -37,7 +37,7 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.contentColor
 import androidx.compose.foundation.currentTextStyle
 import androidx.compose.foundation.shape.corner.CutCornerShape
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.compositeOver

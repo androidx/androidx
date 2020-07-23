@@ -15,7 +15,7 @@
  */
 package androidx.ui.material.ripple
 
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Size
 import androidx.ui.unit.Density
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat

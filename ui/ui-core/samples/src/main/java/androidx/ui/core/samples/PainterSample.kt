@@ -22,7 +22,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.paint
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.drawscope.DrawScope

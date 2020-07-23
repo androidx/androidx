@@ -22,7 +22,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
 import org.junit.Assert.assertEquals

@@ -77,7 +77,7 @@ package androidx.ui.unit {
     method @androidx.compose.Stable public default int toIntPx-vVlMl6k(long);
     method @androidx.compose.Stable public default float toPx-ipo6vVg(float);
     method @androidx.compose.Stable public default float toPx-vVlMl6k(long);
-    method @androidx.compose.Stable public default androidx.ui.geometry.Rect toRect(androidx.ui.unit.Bounds);
+    method @androidx.compose.Stable public default androidx.compose.ui.geometry.Rect toRect(androidx.ui.unit.Bounds);
     method @androidx.compose.Stable public default long toSp(int);
     method @androidx.compose.Stable public default long toSp(float);
     method @androidx.compose.Stable public default long toSp-ipo6vVg(float);
@@ -278,7 +278,7 @@ package androidx.ui.unit {
     method public static inline int getHeight(androidx.ui.unit.IntBounds);
     method public static inline int getWidth(androidx.ui.unit.IntBounds);
     method @androidx.compose.Stable public static androidx.ui.unit.IntBounds toBounds(androidx.ui.unit.IntSize);
-    method @androidx.compose.Stable public static androidx.ui.geometry.Rect toRect(androidx.ui.unit.IntBounds);
+    method @androidx.compose.Stable public static androidx.compose.ui.geometry.Rect toRect(androidx.ui.unit.IntBounds);
     method @androidx.compose.Stable public static androidx.ui.unit.IntSize toSize(androidx.ui.unit.IntBounds);
   }
 
@@ -304,11 +304,11 @@ package androidx.ui.unit {
   public final class IntOffsetKt {
     method @androidx.compose.Stable public static inline androidx.ui.unit.IntOffset IntOffset(int x, int y);
     method @androidx.compose.Stable public static androidx.ui.unit.IntOffset lerp(androidx.ui.unit.IntOffset start, androidx.ui.unit.IntOffset stop, float fraction);
-    method @androidx.compose.Stable public static operator androidx.ui.geometry.Offset minus(androidx.ui.geometry.Offset, androidx.ui.unit.IntOffset offset);
-    method @androidx.compose.Stable public static operator androidx.ui.geometry.Offset minus(androidx.ui.unit.IntOffset, androidx.ui.geometry.Offset offset);
-    method @androidx.compose.Stable public static operator androidx.ui.geometry.Offset plus(androidx.ui.geometry.Offset, androidx.ui.unit.IntOffset offset);
-    method @androidx.compose.Stable public static operator androidx.ui.geometry.Offset plus(androidx.ui.unit.IntOffset, androidx.ui.geometry.Offset offset);
-    method @androidx.compose.Stable public static inline androidx.ui.geometry.Offset toOffset(androidx.ui.unit.IntOffset);
+    method @androidx.compose.Stable public static operator androidx.compose.ui.geometry.Offset minus(androidx.compose.ui.geometry.Offset, androidx.ui.unit.IntOffset offset);
+    method @androidx.compose.Stable public static operator androidx.compose.ui.geometry.Offset minus(androidx.ui.unit.IntOffset, androidx.compose.ui.geometry.Offset offset);
+    method @androidx.compose.Stable public static operator androidx.compose.ui.geometry.Offset plus(androidx.compose.ui.geometry.Offset, androidx.ui.unit.IntOffset offset);
+    method @androidx.compose.Stable public static operator androidx.compose.ui.geometry.Offset plus(androidx.ui.unit.IntOffset, androidx.compose.ui.geometry.Offset offset);
+    method @androidx.compose.Stable public static inline androidx.compose.ui.geometry.Offset toOffset(androidx.ui.unit.IntOffset);
   }
 
   @androidx.compose.Immutable public final class IntSize {
@@ -398,14 +398,14 @@ package androidx.ui.unit {
   }
 
   public final class PxKt {
-    method @androidx.compose.Stable public static inline androidx.ui.unit.PxBounds PxBounds-oHQNTA4(androidx.ui.geometry.Offset topLeft, long size);
-    method @androidx.compose.Stable public static inline androidx.ui.geometry.Offset center(androidx.ui.unit.PxBounds);
-    method @androidx.compose.Stable public static androidx.ui.geometry.Offset center-b2zCL34(long);
+    method @androidx.compose.Stable public static inline androidx.ui.unit.PxBounds PxBounds-MrV732k(androidx.compose.ui.geometry.Offset topLeft, long size);
+    method @androidx.compose.Stable public static inline androidx.compose.ui.geometry.Offset center(androidx.ui.unit.PxBounds);
+    method @androidx.compose.Stable public static androidx.compose.ui.geometry.Offset center-uvyYCjk(long);
     method public static inline float getHeight(androidx.ui.unit.PxBounds);
     method public static inline float getWidth(androidx.ui.unit.PxBounds);
-    method @androidx.compose.Stable public static inline androidx.ui.unit.IntOffset round(androidx.ui.geometry.Offset);
-    method @androidx.compose.Stable public static androidx.ui.unit.PxBounds toBounds-b2zCL34(long);
-    method @androidx.compose.Stable public static androidx.ui.geometry.Rect toRect(androidx.ui.unit.PxBounds);
+    method @androidx.compose.Stable public static inline androidx.ui.unit.IntOffset round(androidx.compose.ui.geometry.Offset);
+    method @androidx.compose.Stable public static androidx.ui.unit.PxBounds toBounds-uvyYCjk(long);
+    method @androidx.compose.Stable public static androidx.compose.ui.geometry.Rect toRect(androidx.ui.unit.PxBounds);
     method @androidx.compose.Stable public static long toSize(androidx.ui.unit.PxBounds);
   }
 
@@ -513,10 +513,10 @@ package androidx.ui.unit {
   }
 
   @androidx.compose.Immutable public final class Velocity {
-    ctor public Velocity(androidx.ui.geometry.Offset pixelsPerSecond);
-    method public androidx.ui.geometry.Offset component1();
-    method @androidx.compose.Immutable public androidx.ui.unit.Velocity copy(androidx.ui.geometry.Offset pixelsPerSecond);
-    method public androidx.ui.geometry.Offset getPixelsPerSecond();
+    ctor public Velocity(androidx.compose.ui.geometry.Offset pixelsPerSecond);
+    method public androidx.compose.ui.geometry.Offset component1();
+    method @androidx.compose.Immutable public androidx.ui.unit.Velocity copy(androidx.compose.ui.geometry.Offset pixelsPerSecond);
+    method public androidx.compose.ui.geometry.Offset getPixelsPerSecond();
     method public operator androidx.ui.unit.Velocity unaryMinus();
     field public static final androidx.ui.unit.Velocity.Companion Companion;
   }

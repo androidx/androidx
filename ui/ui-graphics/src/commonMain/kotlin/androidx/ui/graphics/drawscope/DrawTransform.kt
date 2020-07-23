@@ -16,8 +16,8 @@
 
 package androidx.ui.graphics.drawscope
 
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.ClipOp
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.vectormath.Matrix4

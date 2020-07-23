@@ -26,8 +26,8 @@ import androidx.compose.animation.transition
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.compose.foundation.Canvas
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
 

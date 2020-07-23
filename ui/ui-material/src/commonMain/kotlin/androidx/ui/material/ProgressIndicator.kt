@@ -34,8 +34,8 @@ import androidx.ui.core.semantics.semantics
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Strings
 import androidx.compose.foundation.determinateProgressIndicator
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.drawscope.DrawScope

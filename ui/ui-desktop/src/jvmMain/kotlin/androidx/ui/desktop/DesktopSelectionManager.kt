@@ -21,7 +21,7 @@ import androidx.compose.setValue
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.Selectable
 

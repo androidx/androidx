@@ -20,7 +20,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.test.filters.SmallTest
 import androidx.ui.core.PointerEvent
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.testutils.down
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up

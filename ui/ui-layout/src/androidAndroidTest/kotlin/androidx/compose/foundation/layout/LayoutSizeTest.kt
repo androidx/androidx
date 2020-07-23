@@ -28,7 +28,7 @@ import androidx.ui.core.Ref
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.onPositioned
 import androidx.compose.foundation.Box
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntSize
 import org.junit.Assert.assertEquals

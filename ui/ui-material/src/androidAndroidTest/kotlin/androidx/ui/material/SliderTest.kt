@@ -24,7 +24,7 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.compose.foundation.background
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.toArgb

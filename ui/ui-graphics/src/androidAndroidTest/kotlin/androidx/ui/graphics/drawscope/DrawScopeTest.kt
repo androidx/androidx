@@ -17,9 +17,9 @@
 package androidx.ui.graphics.drawscope
 
 import androidx.test.filters.SmallTest
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Rect
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset

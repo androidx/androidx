@@ -26,7 +26,7 @@ import androidx.compose.onPreCommit
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.ui.core.DensityAmbient
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.drawscope.DrawScope

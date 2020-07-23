@@ -16,9 +16,9 @@
 
 package androidx.ui.graphics
 
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.RRect
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.RRect
+import androidx.compose.ui.geometry.Rect
 import androidx.ui.graphics.vectormath.degrees
 
 expect fun Path(): Path

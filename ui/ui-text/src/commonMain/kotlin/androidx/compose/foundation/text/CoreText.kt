@@ -37,7 +37,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.core.semantics.semantics
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.graphics.Paint

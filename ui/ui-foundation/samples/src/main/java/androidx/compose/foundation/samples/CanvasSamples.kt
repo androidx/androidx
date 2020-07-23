@@ -20,7 +20,7 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Canvas
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.inset
 import androidx.compose.foundation.layout.preferredSize

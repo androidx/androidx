@@ -16,7 +16,7 @@
 
 package androidx.ui.graphics.canvas
 
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.DesktopGraphicsTest

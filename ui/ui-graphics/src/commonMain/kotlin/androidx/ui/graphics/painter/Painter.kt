@@ -16,8 +16,8 @@
 package androidx.ui.graphics.painter
 
 import androidx.ui.core.LayoutDirection
-import androidx.ui.geometry.Rect
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.Paint

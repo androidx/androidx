@@ -18,7 +18,7 @@ package androidx.ui.core
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Size
 import kotlin.math.max
 import kotlin.math.min
 

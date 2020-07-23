@@ -23,7 +23,7 @@ import androidx.ui.core.consumePositionChange
 import androidx.ui.core.gesture.scrollorientationlocking.InternalScrollOrientationLocker
 import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.core.gesture.scrollorientationlocking.ShareScrollOrientationLockerEvent
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses

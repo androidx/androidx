@@ -17,9 +17,9 @@
 package androidx.ui.core.selection
 
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.AnnotatedString
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 
 /**
  * Provides [Selection] information for a composable to SelectionContainer. Composables who can

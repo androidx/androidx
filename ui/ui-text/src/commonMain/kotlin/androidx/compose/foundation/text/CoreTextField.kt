@@ -48,7 +48,7 @@ import androidx.ui.core.gesture.longPressDragGestureFilter
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.selection.SelectionLayout
 import androidx.ui.core.semantics.semantics
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.compose.ui.text.input.EditProcessor
 import androidx.compose.ui.text.input.TextFieldValue

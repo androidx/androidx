@@ -27,7 +27,7 @@ import androidx.ui.core.gesture.scrollGestureFilter
 import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize

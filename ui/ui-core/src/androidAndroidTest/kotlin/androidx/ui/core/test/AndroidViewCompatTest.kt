@@ -73,7 +73,7 @@ import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.drawBackground
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size

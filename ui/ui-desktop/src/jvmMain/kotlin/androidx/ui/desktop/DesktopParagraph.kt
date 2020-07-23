@@ -15,8 +15,8 @@
  */
 package androidx.ui.desktop
 
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.DesktopPath
 import androidx.ui.graphics.Path

@@ -29,8 +29,8 @@ import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.compose.animation.OffsetPropKey
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.clipRect

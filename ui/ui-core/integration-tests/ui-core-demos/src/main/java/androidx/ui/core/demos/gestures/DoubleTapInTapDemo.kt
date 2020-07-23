@@ -26,7 +26,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.drawBorder
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.graphics.RectangleShape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize

@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.shape
 
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape

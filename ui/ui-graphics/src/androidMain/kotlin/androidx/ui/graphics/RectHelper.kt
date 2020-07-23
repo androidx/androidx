@@ -15,7 +15,7 @@
  */
 package androidx.ui.core
 
-import androidx.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect
 
 /**
  * Creates a new instance of [android.graphics.Rect] with the same bounds
@@ -44,11 +44,11 @@ fun Rect.toAndroidRectF(): android.graphics.RectF {
 }
 
 /**
- * Creates a new instance of [androidx.ui.geometry.Rect] with the same bounds
+ * Creates a new instance of [androidx.compose.ui.geometry.Rect] with the same bounds
  * specified in the given [android.graphics.Rect]
  */
-fun android.graphics.Rect.toComposeRect(): androidx.ui.geometry.Rect =
-    androidx.ui.geometry.Rect(
+fun android.graphics.Rect.toComposeRect(): androidx.compose.ui.geometry.Rect =
+    androidx.compose.ui.geometry.Rect(
         this.left.toFloat(),
         this.top.toFloat(),
         this.right.toFloat(),

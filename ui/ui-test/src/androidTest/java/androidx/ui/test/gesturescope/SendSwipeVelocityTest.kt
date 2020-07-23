@@ -19,7 +19,7 @@ package androidx.ui.test.gesturescope
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize

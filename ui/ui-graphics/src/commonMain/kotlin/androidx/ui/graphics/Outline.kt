@@ -17,11 +17,11 @@
 package androidx.ui.graphics
 
 import androidx.ui.util.annotation.FloatRange
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.RRect
-import androidx.ui.geometry.Radius
-import androidx.ui.geometry.Rect
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.RRect
+import androidx.compose.ui.geometry.Radius
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.DrawStyle
 import androidx.ui.graphics.drawscope.Fill

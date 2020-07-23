@@ -17,7 +17,7 @@
 package androidx.ui.core
 
 import androidx.test.filters.SmallTest
-import androidx.ui.geometry.Size
+import androidx.compose.ui.geometry.Size
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

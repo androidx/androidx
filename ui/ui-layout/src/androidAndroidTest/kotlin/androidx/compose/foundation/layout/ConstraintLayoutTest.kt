@@ -25,7 +25,7 @@ import androidx.ui.core.layoutId
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInParent
 import androidx.compose.foundation.Box
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.ui.unit.IntSize

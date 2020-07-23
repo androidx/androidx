@@ -33,7 +33,7 @@ import androidx.ui.core.positionInParent
 import androidx.ui.core.positionInRoot
 import androidx.ui.core.setContent
 import androidx.ui.unit.Dp
-import androidx.ui.geometry.Offset
+import androidx.compose.ui.geometry.Offset
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
