@@ -152,7 +152,7 @@ fun LayoutTagChildrenUsage(header: @Composable () -> Unit, footer: @Composable (
     }) { measurables, constraints ->
         val placeables = measurables.map { measurable ->
             when (measurable.id) {
-                // You should use appropriate constraints. Here we measure with dummy constraints.
+                // You should use appropriate constraints. Here we measure fake constraints.
                 "header" -> measurable.measure(Constraints.fixed(100, 100))
                 "footer" -> measurable.measure(constraints)
                 else -> error("Unexpected tag")

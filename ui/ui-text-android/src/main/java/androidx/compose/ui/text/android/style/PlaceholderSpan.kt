@@ -172,7 +172,7 @@ class PlaceholderSpan(
         return widthPx
     }
 
-    /* Dummy implementation, left empty */
+    /* Empty implementation, not used. */
     override fun draw(
         canvas: Canvas,
         text: CharSequence?,
