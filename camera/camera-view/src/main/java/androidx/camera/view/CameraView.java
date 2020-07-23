@@ -448,6 +448,10 @@ public final class CameraView extends FrameLayout {
      * Takes a picture and calls
      * {@link OnImageSavedCallback#onImageSaved(ImageCapture.OutputFileResults)} when done.
      *
+     * <p> The value of {@link ImageCapture.Metadata#isReversedHorizontal()} in the
+     * {@link ImageCapture.OutputFileOptions} will be overwritten based on camera direction. For
+     * front camera, it will be set to true; for back camera, it will be set to false.
+     *
      * @param outputFileOptions Options to store the newly captured image.
      * @param executor          The executor in which the callback methods will be run.
      * @param callback          Callback which will receive success or failure.
