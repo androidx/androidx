@@ -126,6 +126,7 @@ class TextFieldSelectionManagerTest {
         manager.longPressDragObserver.onLongPress(dragBeginPosition)
 
         assertThat(state.selectionIsOn).isTrue()
+        assertThat(state.updatingSelection).isFalse()
         assertThat(value.selection).isEqualTo(fakeTextRange)
         verify(
             hapticFeedback,
@@ -139,6 +140,7 @@ class TextFieldSelectionManagerTest {
         manager.longPressDragObserver.onDrag(dragDistance)
 
         assertThat(value.selection).isEqualTo(TextRange(0, text.length))
+        assertThat(state.updatingSelection).isTrue()
         verify(
             hapticFeedback,
             times(2)
@@ -146,10 +148,21 @@ class TextFieldSelectionManagerTest {
     }
 
     @Test
+    fun TextFieldSelectionManager_longPressDragObserver_onStop() {
+        manager.longPressDragObserver.onLongPress(dragBeginPosition)
+        manager.longPressDragObserver.onDrag(dragDistance)
+
+        manager.longPressDragObserver.onStop(Offset.Zero)
+
+        assertThat(state.updatingSelection).isFalse()
+    }
+
+    @Test
     fun TextFieldSelectionManager_handleDragObserver_onStart_startHandle() {
         manager.handleDragObserver(isStartHandle = true).onStart(Offset.Zero)
 
         assertThat(state.draggingHandle).isTrue()
+        assertThat(state.updatingSelection).isFalse()
         verify(spyLambda, times(0)).invoke(any())
         verify(
             hapticFeedback,
@@ -162,6 +175,7 @@ class TextFieldSelectionManagerTest {
         manager.handleDragObserver(isStartHandle = false).onStart(Offset.Zero)
 
         assertThat(state.draggingHandle).isTrue()
+        assertThat(state.updatingSelection).isFalse()
         verify(spyLambda, times(0)).invoke(any())
         verify(
             hapticFeedback,
@@ -176,6 +190,7 @@ class TextFieldSelectionManagerTest {
         val result = manager.handleDragObserver(isStartHandle = true).onDrag(dragDistance)
 
         assertThat(result).isEqualTo(dragDistance)
+        assertThat(state.updatingSelection).isTrue()
         assertThat(value.selection).isEqualTo(TextRange(dragOffset, "Hello".length))
         verify(
             hapticFeedback,
@@ -190,6 +205,7 @@ class TextFieldSelectionManagerTest {
         val result = manager.handleDragObserver(isStartHandle = false).onDrag(dragDistance)
 
         assertThat(result).isEqualTo(dragDistance)
+        assertThat(state.updatingSelection).isTrue()
         assertThat(value.selection).isEqualTo(TextRange(0, dragOffset))
         verify(
             hapticFeedback,
@@ -205,6 +221,7 @@ class TextFieldSelectionManagerTest {
         manager.handleDragObserver(false).onStop(Offset.Zero)
 
         assertThat(state.draggingHandle).isFalse()
+        assertThat(state.updatingSelection).isFalse()
         verify(
             hapticFeedback,
             times(0)
