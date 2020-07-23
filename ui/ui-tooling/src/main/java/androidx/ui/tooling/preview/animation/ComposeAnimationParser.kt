@@ -34,13 +34,16 @@ internal fun TransitionAnimation<*>.TransitionAnimationClockObserver.parse(): Co
     animation.monotonic = false
     val states = animation.getStates().filterNotNull().toSet()
     return object : ComposeAnimation {
-        override fun getType() = ComposeAnimationType.TRANSITION_ANIMATION
+        override val type: ComposeAnimationType
+            get() = ComposeAnimationType.TRANSITION_ANIMATION
 
-        override fun getAnimation() = animation
+        override val animationObject: Any
+            get() = animation
 
-        override fun getStates() = states
+        override val states: Set<Any>
+            get() = states
 
-        override fun getLabel() =
-            animation.label ?: states.firstOrNull()?.let { it::class.simpleName }
+        override val label: String?
+            get() = animation.label ?: states.firstOrNull()?.let { it::class.simpleName }
     }
 }
