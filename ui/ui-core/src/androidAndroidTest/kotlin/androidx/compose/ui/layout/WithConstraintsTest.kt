@@ -33,10 +33,9 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.Layout
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.Measurable
-import androidx.compose.ui.MeasureBlock2
+import androidx.compose.ui.MeasureBlock
 import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.WithConstraints
@@ -48,8 +47,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.foundation.layout.Constraints
 import androidx.compose.foundation.layout.DpConstraints
-import androidx.compose.foundation.layout.ltr
-import androidx.compose.foundation.layout.rtl
 import androidx.compose.ui.Padding
 import androidx.compose.ui.Scroller
 import androidx.compose.ui.SquareModel
@@ -318,34 +315,6 @@ class WithConstraintsTest {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(Constraints.fixed(100, 100), actualConstraints)
-    }
-
-    @Test
-    fun updateLayoutDirectionRecomposingWithConstraints() {
-        val direction = mutableStateOf(LayoutDirection.Rtl)
-        var latch = CountDownLatch(1)
-        var actualDirection: LayoutDirection? = null
-
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                ChangingLayoutDirectionLayout(direction) {
-                    WithConstraints {
-                        actualDirection = layoutDirection
-                        assertEquals(1, latch.count)
-                        latch.countDown()
-                        Container(width = 100, height = 100, children = emptyContent())
-                    }
-                }
-            }
-        }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(LayoutDirection.Rtl, actualDirection)
-
-        latch = CountDownLatch(1)
-        rule.runOnUiThread { direction.value = LayoutDirection.Ltr }
-
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(LayoutDirection.Ltr, actualDirection)
     }
 
     @Test
@@ -638,63 +607,6 @@ class WithConstraintsTest {
     }
 
     @Test
-    fun withConstraints_getsCorrectLayoutDirection() {
-        var latch = CountDownLatch(1)
-        var resultLayoutDirection: LayoutDirection? = null
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                Layout(
-                    children = @Composable {
-                        WithConstraints {
-                            resultLayoutDirection = layoutDirection
-                        }
-                    },
-                    modifier = layoutDirectionModifier(LayoutDirection.Rtl)
-                ) { m, c ->
-                    val p = m.first().measure(c)
-                    layout(0, 0) {
-                        p.place(Offset.Zero)
-                        latch.countDown()
-                    }
-                }
-            }
-        }
-
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(LayoutDirection.Rtl, resultLayoutDirection)
-    }
-
-    @Test
-    fun withConstraints_layoutDirectionSetByModifier() {
-        var latch = CountDownLatch(1)
-        var resultLayoutDirection: LayoutDirection? = null
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                Layout(
-                    children = @Composable {
-                        WithConstraints(
-                            modifier = layoutDirectionModifier(LayoutDirection.Rtl)
-                        ) {
-                            resultLayoutDirection = layoutDirection
-                            latch.countDown()
-                        }
-                    },
-                    modifier = layoutDirectionModifier(LayoutDirection.Ltr)
-                ) { m, c ->
-                    val p = m.first().measure(c)
-                    layout(0, 0) {
-                        p.place(Offset.Zero)
-                        latch.countDown()
-                    }
-                }
-            }
-        }
-
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(LayoutDirection.Rtl, resultLayoutDirection)
-    }
-
-    @Test
     fun withConstraintsChildIsMeasuredEvenWithDefaultConstraints() {
         val compositionLatch = CountDownLatch(1)
         val childMeasureLatch = CountDownLatch(1)
@@ -809,11 +721,6 @@ class WithConstraintsTest {
             drawRect(color)
             drawLatch.countDown()
         }
-
-    private fun layoutDirectionModifier(ld: LayoutDirection) = when (ld) {
-        LayoutDirection.Ltr -> Modifier.ltr
-        LayoutDirection.Rtl -> Modifier.rtl
-    }
 }
 
 @Composable
@@ -852,7 +759,7 @@ fun Container(
     Layout(
         children = children,
         modifier = modifier,
-        measureBlock = remember<MeasureBlock2>(width, height) {
+        measureBlock = remember<MeasureBlock>(width, height) {
             { measurables, _ ->
                 val constraint = Constraints(maxWidth = width, maxHeight = height)
                 layout(width, height) {
@@ -875,7 +782,7 @@ fun ContainerChildrenAffectsParentSize(
     height: Int,
     children: @Composable () -> Unit
 ) {
-    Layout(children = children, measureBlock = remember<MeasureBlock2>(width, height) {
+    Layout(children = children, measureBlock = remember<MeasureBlock>(width, height) {
         { measurables, _ ->
             val constraint = Constraints(maxWidth = width, maxHeight = height)
             val placeables = measurables.map { it.measure(constraint) }
@@ -898,19 +805,6 @@ private fun ChangingConstraintsLayout(size: State<Int>, children: @Composable ()
     }
 }
 
-@Composable
-private fun ChangingLayoutDirectionLayout(
-    direction: State<LayoutDirection>,
-    children: @Composable () -> Unit
-) {
-    Layout(children) { measurables, _ ->
-        layout(100, 100) {
-            val constraints = Constraints.fixed(100, 100)
-            measurables.first().measure(constraints, direction.value).place(0, 0)
-        }
-    }
-}
-
 fun backgroundModifier(color: Color) = Modifier.drawBehind {
     drawRect(color)
 }
@@ -918,8 +812,7 @@ fun backgroundModifier(color: Color) = Modifier.drawBehind {
 val infiniteConstraints = object : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(Constraints())
         return layout(constraints.maxWidth, constraints.maxHeight) {

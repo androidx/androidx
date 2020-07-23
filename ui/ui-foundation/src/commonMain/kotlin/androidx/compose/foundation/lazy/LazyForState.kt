@@ -218,7 +218,7 @@ internal class LazyForState(val isVertical: Boolean) {
         }
 
         val nextItems = composeChildForDataIndex(nextItemIndex, itemContentFactory).map {
-            it.measure(childConstraints, layoutDirection)
+            it.measure(childConstraints)
         }
 
         measuredThisPass[nextItemIndex] = nextItems

@@ -18,7 +18,6 @@ package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.Measurable
 import androidx.compose.ui.MeasureScope
@@ -54,8 +53,7 @@ private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier 
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
         val size = constraints.findSizeWith(aspectRatio)
         val wrappedConstraints = if (size != null) {
@@ -71,8 +69,7 @@ private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier 
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int,
-        layoutDirection: LayoutDirection
+        height: Int
     ) = if (height != Constraints.Infinity) {
         (height * aspectRatio).roundToInt()
     } else {
@@ -81,8 +78,7 @@ private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier 
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int,
-        layoutDirection: LayoutDirection
+        height: Int
     ) = if (height != Constraints.Infinity) {
         (height * aspectRatio).roundToInt()
     } else {
@@ -91,8 +87,7 @@ private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier 
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int,
-        layoutDirection: LayoutDirection
+        width: Int
     ) = if (width != Constraints.Infinity) {
         (width / aspectRatio).roundToInt()
     } else {
@@ -101,8 +96,7 @@ private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier 
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int,
-        layoutDirection: LayoutDirection
+        width: Int
     ) = if (width != Constraints.Infinity) {
         (width / aspectRatio).roundToInt()
     } else {

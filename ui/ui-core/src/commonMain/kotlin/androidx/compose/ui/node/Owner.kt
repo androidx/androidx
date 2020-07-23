@@ -30,6 +30,7 @@ import androidx.compose.ui.DrawLayerModifier
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Owner implements the connection to the underlying view system. On Android, this connects
@@ -90,6 +91,8 @@ interface Owner {
     val textInputService: TextInputService
 
     val fontLoader: Font.ResourceLoader
+
+    val layoutDirection: LayoutDirection
 
     /**
      * `true` when layout should draw debug bounds.

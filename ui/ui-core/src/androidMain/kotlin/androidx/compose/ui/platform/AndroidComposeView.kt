@@ -396,10 +396,7 @@ internal class AndroidComposeView constructor(
                 // we were remeasured twice with different constraints after last onLayout
                 wasMeasuredWithMultipleConstraints = true
             }
-            measureAndLayoutDelegate.updateRootParams(
-                constraints,
-                resources.configuration.localeLayoutDirection
-            )
+            measureAndLayoutDelegate.updateRootConstraints(constraints)
             measureAndLayoutDelegate.measureAndLayout()
             setMeasuredDimension(root.width, root.height)
         }
@@ -618,6 +615,9 @@ internal class AndroidComposeView constructor(
 
     override val fontLoader: Font.ResourceLoader = AndroidFontResourceLoader(context)
 
+    override var layoutDirection = context.resources.configuration.localeLayoutDirection
+        private set
+
     /**
      * Provide haptic feedback to the user. Use the Android version of haptic feedback.
      */
@@ -645,6 +645,7 @@ internal class AndroidComposeView constructor(
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
         density = Density(context)
+        layoutDirection = context.resources.configuration.localeLayoutDirection
         configurationChangeObserver()
     }
 
@@ -714,20 +715,19 @@ internal class AndroidComposeView constructor(
             override fun measure(
                 measureScope: MeasureScope,
                 measurables: List<Measurable>,
-                constraints: Constraints,
-                layoutDirection: LayoutDirection
+                constraints: Constraints
             ): MeasureScope.MeasureResult {
                 return when {
                     measurables.isEmpty() -> measureScope.layout(0, 0) {}
                     measurables.size == 1 -> {
-                        val placeable = measurables[0].measure(constraints, layoutDirection)
+                        val placeable = measurables[0].measure(constraints)
                         measureScope.layout(placeable.width, placeable.height) {
                             placeable.place(0, 0)
                         }
                     }
                     else -> {
                         val placeables = measurables.map {
-                            it.measure(constraints, layoutDirection)
+                            it.measure(constraints)
                         }
                         var maxWidth = 0
                         var maxHeight = 0
@@ -747,29 +747,25 @@ internal class AndroidComposeView constructor(
             override fun minIntrinsicWidth(
                 intrinsicMeasureScope: IntrinsicMeasureScope,
                 measurables: List<IntrinsicMeasurable>,
-                h: Int,
-                layoutDirection: LayoutDirection
+                h: Int
             ) = error("Undefined intrinsics block and it is required")
 
             override fun minIntrinsicHeight(
                 intrinsicMeasureScope: IntrinsicMeasureScope,
                 measurables: List<IntrinsicMeasurable>,
-                w: Int,
-                layoutDirection: LayoutDirection
+                w: Int
             ) = error("Undefined intrinsics block and it is required")
 
             override fun maxIntrinsicWidth(
                 intrinsicMeasureScope: IntrinsicMeasureScope,
                 measurables: List<IntrinsicMeasurable>,
-                h: Int,
-                layoutDirection: LayoutDirection
+                h: Int
             ) = error("Undefined intrinsics block and it is required")
 
             override fun maxIntrinsicHeight(
                 intrinsicMeasureScope: IntrinsicMeasureScope,
                 measurables: List<IntrinsicMeasurable>,
-                w: Int,
-                layoutDirection: LayoutDirection
+                w: Int
             ) = error("Undefined intrinsics block and it is required")
         }
     }
@@ -781,11 +777,15 @@ internal class AndroidComposeView constructor(
  * A convenience getter that translates [Configuration.getLayoutDirection] result into
  * [LayoutDirection] instance.
  */
-val Configuration.localeLayoutDirection: LayoutDirection
+internal val Configuration.localeLayoutDirection: LayoutDirection
+    // We don't use the attached View's layout direction here since that layout direction may not
+    // be resolved since the composables may be composed without attaching to the RootViewImpl.
+    // In Jetpack Compose, use the locale layout direction (i.e. layoutDirection came from
+    // configuration) as a default layout direction.
     get() = when (layoutDirection) {
         android.util.LayoutDirection.LTR -> LayoutDirection.Ltr
         android.util.LayoutDirection.RTL -> LayoutDirection.Rtl
-        // API doc says Configuration#getLayoutDirection only returns LTR or RTL.
-        // Fallback to LTR for unexpected return value.
+        // Configuration#getLayoutDirection should only return a resolved layout direction, LTR
+        // or RTL. Fallback to LTR for unexpected return value.
         else -> LayoutDirection.Ltr
     }

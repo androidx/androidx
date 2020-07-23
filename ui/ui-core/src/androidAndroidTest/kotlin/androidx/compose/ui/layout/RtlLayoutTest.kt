@@ -16,38 +16,22 @@
 
 package androidx.compose.ui.layout
 
-import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.Layout
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.LayoutModifier
-import androidx.compose.ui.Measurable
-import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.offset
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.Stack
-import androidx.compose.foundation.layout.ltr
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.rtl
-import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Providers
 import androidx.compose.ui.FixedSize
-import androidx.compose.ui.assertRect
-import androidx.compose.ui.background
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.runOnUiThreadIR
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.waitAndScreenShot
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -191,10 +175,11 @@ class RtlLayoutTest {
                         layout(100, 100) {}
                     }
                 }
-                Layout(children) { measurables, constraints ->
-                    layout(100, 100) {
-                        measurables.first().measure(constraints, direction.value)
-                            .place(0, 0)
+                Providers(LayoutDirectionAmbient provides direction.value) {
+                    Layout(children) { measurables, constraints ->
+                        layout(100, 100) {
+                            measurables.first().measure(constraints).place(0, 0)
+                        }
                     }
                 }
             }
@@ -209,226 +194,41 @@ class RtlLayoutTest {
         assertEquals(LayoutDirection.Ltr, actualDirection)
     }
 
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun measurement_subsequentChanges() = with(density) {
-        // The layout is a 100.dp white square, wrapped by 10.dp blue padding, wrapped by
-        // 10.dp green padding, wrapped by 10.dp gray padding, wrapped by 10.dp magenta padding.
-        // The test is asserting layout direction changes using modifiers and Layouts, and also
-        // the propagation of layout direction across modifiers and layouts that are not changing
-        // it. Padding is also added to the start, but the obtained padding is visually symmetrical
-        // due to the layout direction changes.
-        activityTestRule.runOnUiThreadIR {
-            activity.setContent {
-                Stack(
-                    Modifier
-                        // White space padding.
-                        .padding(10.dp)
-                        // Magenta 10.dp padding.
-                        .rtl
-                        .background(Color.Magenta)
-                        .padding(top = 10.dp, bottom = 10.dp)
-                        .padding(start = 10.dp)
-                        .ltr
-                        .padding(start = 10.dp)
-                ) {
-                    Stack(Modifier.rtl) {
-                        Stack(
-                            Modifier
-                                // Gray 10.dp padding.
-                                .background(Color.Gray)
-                                .padding(top = 10.dp, bottom = 10.dp)
-                                .padding(start = 10.dp)
-                                .ltr
-                                .padding(start = 10.dp)
-                        ) {
-                            UpdateLayoutDirection(LayoutDirection.Rtl) {
-                                // Green 10.dp padding.
-                                Stack(
-                                    Modifier
-                                        .background(Color.Green)
-                                        .padding(top = 10.dp, bottom = 10.dp)
-                                        .padding(start = 10.dp)
-                                        .ltr
-                                        .padding(start = 10.dp)
-                                        .rtl
-                                ) {
-                                    // Blue 10.dp padding.
-                                    Stack(Modifier.background(Color.Blue)) {
-                                        Padding(
-                                            start = 10.dp,
-                                            top = 10.dp,
-                                            end = 0.dp,
-                                            bottom = 10.dp
-                                        ) {
-                                            UpdateLayoutDirection(LayoutDirection.Ltr) {
-                                                Padding(
-                                                    start = 10.dp,
-                                                    top = 0.dp,
-                                                    end = 0.dp,
-                                                    bottom = 0.dp
-                                                ) {
-                                                    Stack(Modifier
-                                                        .background(Color.White)
-                                                        .size(100.dp)) {}
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        activityTestRule.waitAndScreenShot().apply {
-            val center = 200.dp.toIntPx() / 2
-            assertRect(
-                Color.Magenta, 161.dp.toIntPx(), 179.dp.toIntPx(), center, center
-            )
-            assertRect(Color.Gray, 141.dp.toIntPx(), 159.dp.toIntPx(), center, center)
-            assertRect(Color.Green, 121.dp.toIntPx(), 139.dp.toIntPx(), center, center)
-            assertRect(Color.Blue, 101.dp.toIntPx(), 119.dp.toIntPx(), center, center)
-        }
-        Unit
-    }
-
-    @Test
-    fun intrinsics_subsequentChanges() {
-        val latch = CountDownLatch(1)
-        activityTestRule.runOnUiThreadIR {
-            activity.setContent {
-                Stack(Modifier
-                    .queryIntrinsics()
-                    .rtl
-                    .assertLayoutDirection(LayoutDirection.Rtl)
-                    .ltr
-                    .assertLayoutDirection(LayoutDirection.Ltr)
-                    .rtl
-                ) {
-                    Layout(
-                        children = {},
-                        minIntrinsicWidthMeasureBlock = { _, _ ->
-                            assertEquals(LayoutDirection.Rtl, layoutDirection)
-                            0
-                        },
-                        minIntrinsicHeightMeasureBlock = { _, _ ->
-                            assertEquals(LayoutDirection.Rtl, layoutDirection)
-                            0
-                        },
-                        maxIntrinsicWidthMeasureBlock = { _, _ ->
-                            assertEquals(LayoutDirection.Rtl, layoutDirection)
-                            0
-                        },
-                        maxIntrinsicHeightMeasureBlock = { _, _ ->
-                            assertEquals(LayoutDirection.Rtl, layoutDirection)
-                            0
-                        }
-                    ) { _, _ ->
-                        assertEquals(LayoutDirection.Rtl, layoutDirection)
-                        latch.countDown()
-                        layout(0, 0) {}
-                    }
-                }
-            }
-        }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-    }
-
     @Composable
     private fun CustomLayout(
         absolutePositioning: Boolean,
         testLayoutDirection: LayoutDirection
     ) {
-        val modifier = when (testLayoutDirection) {
-            LayoutDirection.Ltr -> Modifier.ltr
-            LayoutDirection.Rtl -> Modifier.rtl
-        }
-        Layout(
-            children = @Composable {
-                FixedSize(size, modifier = saveLayoutInfo(position[0], countDownLatch)) {
-                }
-                FixedSize(size, modifier = saveLayoutInfo(position[1], countDownLatch)) {
-                }
-                FixedSize(size, modifier = saveLayoutInfo(position[2], countDownLatch)) {
-                }
-            },
-            modifier = modifier
-        ) { measurables, constraints ->
-            val placeables = measurables.map { it.measure(constraints) }
-            val width = placeables.fold(0) { sum, p -> sum + p.width }
-            val height = placeables.fold(0) { sum, p -> sum + p.height }
-            layout(width, height) {
-                var x = 0f
-                var y = 0f
-                for (placeable in placeables) {
-                    if (absolutePositioning) {
-                        placeable.placeAbsolute(Offset(x, y))
-                    } else {
-                        placeable.place(Offset(x, y))
+        Providers(LayoutDirectionAmbient provides testLayoutDirection) {
+            Layout(
+                children = @Composable {
+                    FixedSize(size, modifier = saveLayoutInfo(position[0], countDownLatch)) {
                     }
-                    x += placeable.width.toFloat()
-                    y += placeable.height.toFloat()
+                    FixedSize(size, modifier = saveLayoutInfo(position[1], countDownLatch)) {
+                    }
+                    FixedSize(size, modifier = saveLayoutInfo(position[2], countDownLatch)) {
+                    }
+                }
+            ) { measurables, constraints ->
+                val placeables = measurables.map { it.measure(constraints) }
+                val width = placeables.fold(0) { sum, p -> sum + p.width }
+                val height = placeables.fold(0) { sum, p -> sum + p.height }
+                layout(width, height) {
+                    var x = 0f
+                    var y = 0f
+                    for (placeable in placeables) {
+                        if (absolutePositioning) {
+                            placeable.placeAbsolute(Offset(x, y))
+                        } else {
+                            placeable.place(Offset(x, y))
+                        }
+                        x += placeable.width.toFloat()
+                        y += placeable.height.toFloat()
+                    }
                 }
             }
         }
     }
-
-    @Composable
-    private fun UpdateLayoutDirection(ld: LayoutDirection, children: @Composable () -> Unit) {
-        Layout(children) { measurables, constraints ->
-            val placeable = measurables[0].measure(constraints, ld)
-            layout(placeable.width, placeable.height) {
-                placeable.place(0, 0)
-            }
-        }
-    }
-
-    @Composable
-    private fun Padding(
-        start: Dp,
-        top: Dp,
-        end: Dp,
-        bottom: Dp,
-        children: @Composable () -> Unit
-    ) {
-        Layout(children) { measurables, constraints ->
-            val childConstraints = constraints.offset(
-                -start.toIntPx() - end.toIntPx(),
-                -top.toIntPx() - bottom.toIntPx()
-            )
-            val placeable = measurables[0].measure(childConstraints)
-            layout(
-                placeable.width + start.toIntPx() + end.toIntPx(),
-                placeable.height + top.toIntPx() + bottom.toIntPx()
-            ) {
-                placeable.place(start.toIntPx(), top.toIntPx())
-            }
-        }
-    }
-
-    private fun Modifier.queryIntrinsics() = this.then(object : LayoutModifier {
-        override fun MeasureScope.measure(
-            measurable: Measurable,
-            constraints: Constraints,
-            layoutDirection: LayoutDirection
-        ): MeasureScope.MeasureResult {
-            measurable.minIntrinsicWidth(0, layoutDirection)
-            measurable.minIntrinsicHeight(0, layoutDirection)
-            measurable.maxIntrinsicWidth(0, layoutDirection)
-            measurable.maxIntrinsicHeight(0, layoutDirection)
-            measurable.minIntrinsicWidth(0)
-            measurable.minIntrinsicHeight(0)
-            measurable.maxIntrinsicWidth(0)
-            measurable.maxIntrinsicHeight(0)
-            val placeable = measurable.measure(constraints)
-            return layout(placeable.width, placeable.height) {
-                placeable.place(0, 0)
-            }
-        }
-    })
 
     @Composable
     private fun saveLayoutInfo(
@@ -439,58 +239,3 @@ class RtlLayoutTest {
         countDownLatch.countDown()
     }
 }
-
-private fun Modifier.assertLayoutDirection(expectedLayoutDirection: LayoutDirection): Modifier =
-    this.then(object : LayoutModifier {
-        override fun MeasureScope.measure(
-            measurable: Measurable,
-            constraints: Constraints,
-            layoutDirection: LayoutDirection
-        ): MeasureScope.MeasureResult {
-            assertEquals(expectedLayoutDirection, layoutDirection)
-            val placeable = measurable.measure(constraints)
-            return layout(placeable.width, placeable.height) {
-                placeable.place(0, 0)
-            }
-        }
-
-        override fun IntrinsicMeasureScope.minIntrinsicWidth(
-            measurable: IntrinsicMeasurable,
-            height: Int,
-            layoutDirection: LayoutDirection
-        ): Int {
-            assertEquals(expectedLayoutDirection, layoutDirection)
-            measurable.minIntrinsicWidth(height)
-            return measurable.minIntrinsicWidth(height, layoutDirection)
-        }
-
-        override fun IntrinsicMeasureScope.minIntrinsicHeight(
-            measurable: IntrinsicMeasurable,
-            width: Int,
-            layoutDirection: LayoutDirection
-        ): Int {
-            assertEquals(expectedLayoutDirection, layoutDirection)
-            measurable.minIntrinsicHeight(width)
-            return measurable.minIntrinsicHeight(width, layoutDirection)
-        }
-
-        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-            measurable: IntrinsicMeasurable,
-            height: Int,
-            layoutDirection: LayoutDirection
-        ): Int {
-            assertEquals(expectedLayoutDirection, layoutDirection)
-            measurable.maxIntrinsicWidth(height)
-            return measurable.maxIntrinsicWidth(height, layoutDirection)
-        }
-
-        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-            measurable: IntrinsicMeasurable,
-            width: Int,
-            layoutDirection: LayoutDirection
-        ): Int {
-            assertEquals(expectedLayoutDirection, layoutDirection)
-            measurable.maxIntrinsicHeight(width)
-            return measurable.maxIntrinsicHeight(width, layoutDirection)
-        }
-    })

@@ -19,14 +19,12 @@ package androidx.compose.ui.node
 import androidx.compose.ui.AlignmentLine
 import androidx.compose.ui.HorizontalAlignmentLine
 import androidx.compose.ui.LayoutModifier
-import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Placeable
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.LayoutDirection
 
 @OptIn(ExperimentalLayoutNodeApi::class)
 internal class ModifiedLayoutNode(
@@ -34,39 +32,29 @@ internal class ModifiedLayoutNode(
     modifier: LayoutModifier
 ) : DelegatingLayoutNodeWrapper<LayoutModifier>(wrapped, modifier) {
 
-    override val measureScope = ModifierMeasureScope()
-
-    override fun performMeasure(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
-    ): Placeable = with(modifier) {
-        measureScope.layoutDirection = layoutDirection
-        measureResult = measureScope.measure(wrapped, constraints, layoutDirection)
+    override fun performMeasure(constraints: Constraints): Placeable = with(modifier) {
+        measureResult = measureScope.measure(wrapped, constraints)
         this@ModifiedLayoutNode
     }
 
-    override fun minIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int =
+    override fun minIntrinsicWidth(height: Int): Int =
         with(modifier) {
-            measureScope.layoutDirection = layoutDirection
-            measureScope.minIntrinsicWidth(wrapped, height, layoutDirection)
+            measureScope.minIntrinsicWidth(wrapped, height)
         }
 
-    override fun maxIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int =
+    override fun maxIntrinsicWidth(height: Int): Int =
         with(modifier) {
-            measureScope.layoutDirection = layoutDirection
-            measureScope.maxIntrinsicWidth(wrapped, height, layoutDirection)
+            measureScope.maxIntrinsicWidth(wrapped, height)
         }
 
-    override fun minIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
+    override fun minIntrinsicHeight(width: Int): Int =
         with(modifier) {
-            measureScope.layoutDirection = layoutDirection
-            measureScope.minIntrinsicHeight(wrapped, width, layoutDirection)
+            measureScope.minIntrinsicHeight(wrapped, width)
         }
 
-    override fun maxIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
+    override fun maxIntrinsicHeight(width: Int): Int =
         with(modifier) {
-            measureScope.layoutDirection = layoutDirection
-            measureScope.maxIntrinsicHeight(wrapped, width, layoutDirection)
+            measureScope.maxIntrinsicHeight(wrapped, width)
         }
 
     override operator fun get(line: AlignmentLine): Int {
@@ -103,13 +91,5 @@ internal class ModifiedLayoutNode(
             paint.strokeWidth = 1f
             paint.style = PaintingStyle.stroke
         }
-    }
-
-    inner class ModifierMeasureScope : MeasureScope() {
-        override var layoutDirection: LayoutDirection = LayoutDirection.Ltr
-        override val density: Float
-            get() = layoutNode.measureScope.density
-        override val fontScale: Float
-            get() = layoutNode.measureScope.fontScale
     }
 }

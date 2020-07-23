@@ -18,7 +18,6 @@ package androidx.compose.ui
 
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * A part of the composition that can be measured. This represents a layout.
@@ -26,9 +25,8 @@ import androidx.compose.ui.unit.LayoutDirection
  */
 interface Measurable : IntrinsicMeasurable {
     /**
-     * Measures the layout with [constraints] and a [layoutDirection],
-     * returning a [Placeable] layout that has its new size. A [Measurable]
-     * can only be measured once inside a layout pass.
+     * Measures the layout with [constraints], returning a [Placeable] layout that has its new
+     * size. A [Measurable] can only be measured once inside a layout pass.
      */
-    fun measure(constraints: Constraints, layoutDirection: LayoutDirection): Placeable
+    fun measure(constraints: Constraints): Placeable
 }

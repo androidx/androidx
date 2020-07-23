@@ -24,37 +24,8 @@ import androidx.compose.ui.unit.LayoutDirection
  */
 abstract class IntrinsicMeasureScope : Density {
     /**
-     * The [LayoutDirection] of the `Layout` or `LayoutModifier2` using the measure scope
+     * The [LayoutDirection] of the `Layout` or `LayoutModifier` using the measure scope
      * to measure their children.
      */
-    // TODO(popam): Try to make this protected after the modules structure is updated.
     abstract val layoutDirection: LayoutDirection
-
-    /**
-     * Calculates the minimum width that the layout can be such that
-     * the content of the layout will be painted correctly.
-     */
-    fun IntrinsicMeasurable.minIntrinsicWidth(height: Int) =
-        minIntrinsicWidth(height, layoutDirection)
-
-    /**
-     * Calculates the smallest width beyond which increasing the width never
-     * decreases the height.
-     */
-    fun IntrinsicMeasurable.maxIntrinsicWidth(height: Int) =
-        maxIntrinsicWidth(height, layoutDirection)
-
-    /**
-     * Calculates the minimum height that the layout can be such that
-     * the content of the layout will be painted correctly.
-     */
-    fun IntrinsicMeasurable.minIntrinsicHeight(width: Int) =
-        minIntrinsicHeight(width, layoutDirection)
-
-    /**
-     * Calculates the smallest height beyond which increasing the height never
-     * decreases the width.
-     */
-    fun IntrinsicMeasurable.maxIntrinsicHeight(width: Int) =
-        maxIntrinsicHeight(width, layoutDirection)
 }

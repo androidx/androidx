@@ -189,23 +189,20 @@ package androidx.compose.ui {
 
   public final class LayoutKt {
     method @androidx.compose.runtime.Composable public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.compose.ui.layout.IntrinsicMeasureScope,? super java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable>,? super java.lang.Integer,java.lang.Integer> minIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.compose.ui.layout.IntrinsicMeasureScope,? super java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable>,? super java.lang.Integer,java.lang.Integer> minIntrinsicHeightMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.compose.ui.layout.IntrinsicMeasureScope,? super java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable>,? super java.lang.Integer,java.lang.Integer> maxIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.compose.ui.layout.IntrinsicMeasureScope,? super java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable>,? super java.lang.Integer,java.lang.Integer> maxIntrinsicHeightMeasureBlock, androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function3<? super androidx.compose.ui.MeasureScope,? super java.util.List<? extends androidx.compose.ui.Measurable>,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.MeasureScope.MeasureResult> measureBlock);
-    method @Deprecated @androidx.compose.runtime.Composable public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function4<? super androidx.compose.ui.layout.IntrinsicMeasureScope,? super java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable>,? super java.lang.Integer,? super androidx.compose.ui.unit.LayoutDirection,java.lang.Integer> minIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function4<? super androidx.compose.ui.layout.IntrinsicMeasureScope,? super java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable>,? super java.lang.Integer,? super androidx.compose.ui.unit.LayoutDirection,java.lang.Integer> minIntrinsicHeightMeasureBlock, kotlin.jvm.functions.Function4<? super androidx.compose.ui.layout.IntrinsicMeasureScope,? super java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable>,? super java.lang.Integer,? super androidx.compose.ui.unit.LayoutDirection,java.lang.Integer> maxIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function4<? super androidx.compose.ui.layout.IntrinsicMeasureScope,? super java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable>,? super java.lang.Integer,? super androidx.compose.ui.unit.LayoutDirection,java.lang.Integer> maxIntrinsicHeightMeasureBlock, androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function4<? super androidx.compose.ui.MeasureScope,? super java.util.List<? extends androidx.compose.ui.Measurable>,? super androidx.compose.ui.unit.Constraints,? super androidx.compose.ui.unit.LayoutDirection,? extends androidx.compose.ui.MeasureScope.MeasureResult> measureBlock);
     method @androidx.compose.runtime.Composable public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function3<? super androidx.compose.ui.MeasureScope,? super java.util.List<? extends androidx.compose.ui.Measurable>,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.MeasureScope.MeasureResult> measureBlock);
-    method @Deprecated @androidx.compose.runtime.Composable public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function4<? super androidx.compose.ui.MeasureScope,? super java.util.List<? extends androidx.compose.ui.Measurable>,? super androidx.compose.ui.unit.Constraints,? super androidx.compose.ui.unit.LayoutDirection,? extends androidx.compose.ui.MeasureScope.MeasureResult> measureBlock);
     method @androidx.compose.runtime.Composable @androidx.compose.ui.node.ExperimentalLayoutNodeApi public static inline void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, androidx.compose.ui.node.LayoutNode.MeasureBlocks measureBlocks, androidx.compose.ui.Modifier modifier = Modifier);
     method public static androidx.compose.ui.node.LayoutNode.MeasureBlocks MeasuringIntrinsicsMeasureBlocks(kotlin.jvm.functions.Function3<? super androidx.compose.ui.MeasureScope,? super java.util.List<? extends androidx.compose.ui.Measurable>,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.MeasureScope.MeasureResult> measureBlock);
-    method @Deprecated public static androidx.compose.ui.node.LayoutNode.MeasureBlocks MeasuringIntrinsicsMeasureBlocks(kotlin.jvm.functions.Function4<? super androidx.compose.ui.MeasureScope,? super java.util.List<? extends androidx.compose.ui.Measurable>,? super androidx.compose.ui.unit.Constraints,? super androidx.compose.ui.unit.LayoutDirection,? extends androidx.compose.ui.MeasureScope.MeasureResult> measureBlock);
     method @Deprecated @androidx.compose.runtime.Composable public static void MultiMeasureLayout(androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.compose.ui.MeasureScope,? super java.util.List<? extends androidx.compose.ui.Measurable>,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.MeasureScope.MeasureResult> measureBlock);
     method @androidx.compose.runtime.Composable public static void WithConstraints(androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.WithConstraintsScope,kotlin.Unit> children);
     method @androidx.compose.ui.node.ExperimentalLayoutNodeApi public static androidx.compose.ui.node.LayoutNode.MeasureBlocks measureBlocksOf(kotlin.jvm.functions.Function3<? super androidx.compose.ui.layout.IntrinsicMeasureScope,? super java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable>,? super java.lang.Integer,java.lang.Integer> minIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.compose.ui.layout.IntrinsicMeasureScope,? super java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable>,? super java.lang.Integer,java.lang.Integer> minIntrinsicHeightMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.compose.ui.layout.IntrinsicMeasureScope,? super java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable>,? super java.lang.Integer,java.lang.Integer> maxIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.compose.ui.layout.IntrinsicMeasureScope,? super java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable>,? super java.lang.Integer,java.lang.Integer> maxIntrinsicHeightMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.compose.ui.MeasureScope,? super java.util.List<? extends androidx.compose.ui.Measurable>,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.MeasureScope.MeasureResult> measureBlock);
   }
 
   public interface LayoutModifier extends androidx.compose.ui.Modifier.Element {
-    method public default int maxIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int width, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public default int maxIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int height, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public androidx.compose.ui.MeasureScope.MeasureResult measure(androidx.compose.ui.MeasureScope, androidx.compose.ui.Measurable measurable, androidx.compose.ui.unit.Constraints constraints, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public default int minIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int width, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public default int minIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int height, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public default int maxIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int width);
+    method public default int maxIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int height);
+    method public androidx.compose.ui.MeasureScope.MeasureResult measure(androidx.compose.ui.MeasureScope, androidx.compose.ui.Measurable measurable, androidx.compose.ui.unit.Constraints constraints);
+    method public default int minIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int width);
+    method public default int minIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int height);
   }
 
   public final class LayoutModifierKt {
@@ -213,20 +210,19 @@ package androidx.compose.ui {
   }
 
   public interface Measurable extends androidx.compose.ui.layout.IntrinsicMeasurable {
-    method public androidx.compose.ui.Placeable measure(androidx.compose.ui.unit.Constraints constraints, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public androidx.compose.ui.Placeable measure(androidx.compose.ui.unit.Constraints constraints);
   }
 
   public abstract class MeasureScope extends androidx.compose.ui.layout.IntrinsicMeasureScope {
     ctor public MeasureScope();
     method public final androidx.compose.ui.MeasureScope.MeasureResult layout(int width, int height, java.util.Map<androidx.compose.ui.AlignmentLine,java.lang.Integer> alignmentLines = emptyMap(), kotlin.jvm.functions.Function1<? super androidx.compose.ui.Placeable.PlacementScope,kotlin.Unit> placementBlock);
-    method public final androidx.compose.ui.Placeable measure(androidx.compose.ui.Measurable, androidx.compose.ui.unit.Constraints constraints);
   }
 
   public static interface MeasureScope.MeasureResult {
     method public java.util.Map<androidx.compose.ui.AlignmentLine,java.lang.Integer> getAlignmentLines();
     method public int getHeight();
     method public int getWidth();
-    method public void placeChildren(androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public void placeChildren();
     property public abstract java.util.Map<androidx.compose.ui.AlignmentLine,java.lang.Integer> alignmentLines;
     property public abstract int height;
     property public abstract int width;
@@ -344,13 +340,11 @@ package androidx.compose.ui {
 
   @androidx.compose.runtime.Stable public interface WithConstraintsScope {
     method public androidx.compose.ui.unit.Constraints getConstraints();
-    method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method public float getMaxHeight();
     method public float getMaxWidth();
     method public float getMinHeight();
     method public float getMinWidth();
     property public abstract androidx.compose.ui.unit.Constraints constraints;
-    property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
     property public abstract float maxHeight;
     property public abstract float maxWidth;
     property public abstract float minHeight;
@@ -1594,10 +1588,10 @@ package androidx.compose.ui.layout {
 
   public interface IntrinsicMeasurable {
     method public Object? getParentData();
-    method public int maxIntrinsicHeight(int width, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public int maxIntrinsicWidth(int height, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public int minIntrinsicHeight(int width, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public int minIntrinsicWidth(int height, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public int maxIntrinsicHeight(int width);
+    method public int maxIntrinsicWidth(int height);
+    method public int minIntrinsicHeight(int width);
+    method public int minIntrinsicWidth(int height);
     property public abstract Object? parentData;
   }
 
@@ -1607,10 +1601,6 @@ package androidx.compose.ui.layout {
   public abstract class IntrinsicMeasureScope implements androidx.compose.ui.unit.Density {
     ctor public IntrinsicMeasureScope();
     method public abstract androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
-    method public final int maxIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasurable, int width);
-    method public final int maxIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasurable, int height);
-    method public final int minIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasurable, int width);
-    method public final int minIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasurable, int height);
     property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
   }
 
@@ -1714,11 +1704,11 @@ package androidx.compose.ui.node {
     method public void ignoreModelReads(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void insertAt(int index, androidx.compose.ui.node.LayoutNode instance);
     method public boolean isPlaced();
-    method public int maxIntrinsicHeight(int width, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public int maxIntrinsicWidth(int height, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public androidx.compose.ui.Placeable measure(androidx.compose.ui.unit.Constraints constraints, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public int minIntrinsicHeight(int width, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public int minIntrinsicWidth(int height, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public int maxIntrinsicHeight(int width);
+    method public int maxIntrinsicWidth(int height);
+    method public androidx.compose.ui.Placeable measure(androidx.compose.ui.unit.Constraints constraints);
+    method public int minIntrinsicHeight(int width);
+    method public int minIntrinsicWidth(int height);
     method public void move(int from, int to, int count);
     method public void onInvalidate();
     method public void place(int x, int y);
@@ -1750,19 +1740,19 @@ package androidx.compose.ui.node {
   }
 
   public static interface LayoutNode.MeasureBlocks {
-    method public int maxIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int w, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public int maxIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int h, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public androidx.compose.ui.MeasureScope.MeasureResult measure(androidx.compose.ui.MeasureScope measureScope, java.util.List<? extends androidx.compose.ui.Measurable> measurables, androidx.compose.ui.unit.Constraints constraints, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public int minIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int w, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public int minIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int h, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public int maxIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int w);
+    method public int maxIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int h);
+    method public androidx.compose.ui.MeasureScope.MeasureResult measure(androidx.compose.ui.MeasureScope measureScope, java.util.List<? extends androidx.compose.ui.Measurable> measurables, androidx.compose.ui.unit.Constraints constraints);
+    method public int minIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int w);
+    method public int minIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int h);
   }
 
   public abstract static class LayoutNode.NoIntrinsicsMeasureBlocks implements androidx.compose.ui.node.LayoutNode.MeasureBlocks {
     ctor public LayoutNode.NoIntrinsicsMeasureBlocks(String error);
-    method public Void maxIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int w, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public Void maxIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int h, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public Void minIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int w, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public Void minIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int h, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public Void maxIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int w);
+    method public Void maxIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int h);
+    method public Void minIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int w);
+    method public Void minIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int h);
   }
 
   public final class LayoutNodeKt {
@@ -1809,6 +1799,7 @@ package androidx.compose.ui.node {
     method public androidx.compose.ui.unit.Density getDensity();
     method public androidx.compose.ui.text.font.Font.ResourceLoader getFontLoader();
     method public androidx.compose.ui.hapticfeedback.HapticFeedback getHapticFeedBack();
+    method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method public long getMeasureIteration();
     method public androidx.compose.ui.node.LayoutNode getRoot();
     method public androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry? getSavedStateRegistry();
@@ -1836,6 +1827,7 @@ package androidx.compose.ui.node {
     property public abstract androidx.compose.ui.unit.Density density;
     property public abstract androidx.compose.ui.text.font.Font.ResourceLoader fontLoader;
     property public abstract androidx.compose.ui.hapticfeedback.HapticFeedback hapticFeedBack;
+    property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
     property public abstract long measureIteration;
     property public abstract androidx.compose.ui.node.LayoutNode root;
     property public abstract androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry? savedStateRegistry;
@@ -1898,6 +1890,7 @@ package androidx.compose.ui.platform {
     method public static androidx.compose.runtime.ProvidableAmbient<androidx.compose.ui.platform.ClipboardManager> getClipboardManagerAmbient();
     method public static androidx.compose.runtime.ProvidableAmbient<androidx.compose.ui.unit.Density> getDensityAmbient();
     method public static androidx.compose.runtime.ProvidableAmbient<androidx.compose.ui.hapticfeedback.HapticFeedback> getHapticFeedBackAmbient();
+    method public static androidx.compose.runtime.ProvidableAmbient<androidx.compose.ui.unit.LayoutDirection> getLayoutDirectionAmbient();
     method public static androidx.compose.runtime.ProvidableAmbient<androidx.compose.ui.text.input.TextInputService> getTextInputServiceAmbient();
     method public static androidx.compose.runtime.ProvidableAmbient<androidx.compose.ui.platform.TextToolbar> getTextToolbarAmbient();
     method public static androidx.compose.runtime.ProvidableAmbient<androidx.compose.ui.platform.UriHandler> getUriHandlerAmbient();
@@ -1919,7 +1912,6 @@ package androidx.compose.ui.platform {
 
   public final class AndroidComposeViewKt {
     method public static androidx.compose.ui.platform.AndroidOwner AndroidOwner(android.content.Context context, androidx.lifecycle.LifecycleOwner? lifecycleOwner = null, androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner = null);
-    method public static androidx.compose.ui.unit.LayoutDirection getLocaleLayoutDirection(android.content.res.Configuration);
   }
 
   public interface AndroidOwner extends androidx.compose.ui.node.Owner {

@@ -22,17 +22,17 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
+import androidx.compose.runtime.Providers
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.node.Ref
-import androidx.compose.ui.onChildPositioned
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.InspectableParameter
+import androidx.compose.ui.platform.LayoutDirectionAmbient
+import androidx.compose.ui.unit.LayoutDirection
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -227,7 +227,7 @@ class LayoutPaddingTest : LayoutTest() {
     }
 
     @Test
-    fun testRtlSupport() = with(density) {
+    fun testPadding_rtl() = with(density) {
         val sizeDp = 100.toDp()
         val size = sizeDp.toIntPx()
         val padding1Dp = 5.dp
@@ -244,38 +244,40 @@ class LayoutPaddingTest : LayoutTest() {
         // ltr: P1 S P2 | S P3 | P1 S
         // rtl:    S P1 | P3 S | P2 S P1
         show {
-            Row(Modifier.fillMaxSize().rtl) {
-                Stack(
-                    Modifier.padding(start = padding1Dp, end = padding2Dp)
-                        .preferredSize(sizeDp, sizeDp)
-                        .onPositioned { coordinates: LayoutCoordinates ->
-                            childSize[0] = coordinates.size
-                            childPosition[0] = coordinates.positionInRoot
-                            drawLatch.countDown()
-                        }
-                ) {
-                }
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Row(Modifier.fillMaxSize()) {
+                    Stack(
+                        Modifier.padding(start = padding1Dp, end = padding2Dp)
+                            .preferredSize(sizeDp, sizeDp)
+                            .onPositioned { coordinates: LayoutCoordinates ->
+                                childSize[0] = coordinates.size
+                                childPosition[0] = coordinates.positionInRoot
+                                drawLatch.countDown()
+                            }
+                    ) {
+                    }
 
-                Stack(
-                    Modifier.padding(end = padding3Dp)
-                        .preferredSize(sizeDp, sizeDp)
-                        .onPositioned { coordinates: LayoutCoordinates ->
-                            childSize[1] = coordinates.size
-                            childPosition[1] = coordinates.positionInRoot
-                            drawLatch.countDown()
-                        }
-                ) {
-                }
+                    Stack(
+                        Modifier.padding(end = padding3Dp)
+                            .preferredSize(sizeDp, sizeDp)
+                            .onPositioned { coordinates: LayoutCoordinates ->
+                                childSize[1] = coordinates.size
+                                childPosition[1] = coordinates.positionInRoot
+                                drawLatch.countDown()
+                            }
+                    ) {
+                    }
 
-                Stack(
-                    Modifier.padding(start = padding1Dp)
-                        .preferredSize(sizeDp, sizeDp)
-                        .onPositioned { coordinates: LayoutCoordinates ->
-                            childSize[2] = coordinates.size
-                            childPosition[2] = coordinates.positionInRoot
-                            drawLatch.countDown()
-                        }
-                ) {
+                    Stack(
+                        Modifier.padding(start = padding1Dp)
+                            .preferredSize(sizeDp, sizeDp)
+                            .onPositioned { coordinates: LayoutCoordinates ->
+                                childSize[2] = coordinates.size
+                                childPosition[2] = coordinates.positionInRoot
+                                drawLatch.countDown()
+                            }
+                    ) {
+                    }
                 }
             }
         }
@@ -302,44 +304,56 @@ class LayoutPaddingTest : LayoutTest() {
     }
 
     @Test
-    fun testPaddingRtl_whenBetweenLayoutDirectionModifiers() = with(density) {
-        val padding = 50
-        val size = 300
-        val paddingDp = padding.toDp()
-        val latch = CountDownLatch(1)
-        val resultPosition = Ref<Offset>()
-        val resultSize = Ref<IntSize>()
+    fun testAbsolutePadding_rtl() = with(density) {
+        val sizeDp = 100.toDp()
+        val size = sizeDp.toIntPx()
+        val padding1Dp = 5.dp
+        val padding2Dp = 10.dp
+        val padding3Dp = 15.dp
+        val padding1 = padding1Dp.toIntPx()
+        val padding2 = padding2Dp.toIntPx()
+        val padding3 = padding3Dp.toIntPx()
 
+        val drawLatch = CountDownLatch(2)
+        val childPosition = Array(2) { Offset(0f, 0f) }
+
+        // ltr: P1 S P2 | S P3
+        // rtl:    S P3 | P1 S P2
         show {
-            Column(Modifier.fillMaxSize().rtl) {
-                Stack(Modifier
-                    .preferredSize(size.toDp())
-                    .ltr
-                    .padding(start = paddingDp)
-                    .rtl
-                    .onChildPositioned {
-                        resultPosition.value = it.positionInRoot
-                        resultSize.value = it.size
-                        latch.countDown()
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Row(Modifier.fillMaxSize()) {
+                    Stack(
+                        Modifier.absolutePadding(left = padding1Dp, right = padding2Dp)
+                            .preferredSize(sizeDp, sizeDp)
+                            .onPositioned { coordinates: LayoutCoordinates ->
+                                childPosition[0] = coordinates.positionInRoot
+                                drawLatch.countDown()
+                            }
+                    ) {
                     }
-                ) {
-                    Stack(Modifier.fillMaxSize()) {}
+                    Stack(
+                        Modifier.absolutePadding(right = padding3Dp)
+                            .preferredSize(sizeDp, sizeDp)
+                            .onPositioned { coordinates: LayoutCoordinates ->
+                                childPosition[1] = coordinates.positionInRoot
+                                drawLatch.countDown()
+                            }
+                    ) {
+                    }
                 }
             }
         }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
         val root = findOwnerView()
         waitForDraw(root)
         val rootWidth = root.width
 
+        assertEquals(Offset((rootWidth - padding2 - size).toFloat(), 0f), childPosition[0])
+
         assertEquals(
-            IntSize(size - padding, size).toSize(),
-            resultSize.value?.toSize()
-        )
-        assertEquals(
-            Offset((rootWidth - size + padding).toFloat(), 0f),
-            resultPosition.value
+            Offset((rootWidth - size * 2 - padding1 - padding2 - padding3).toFloat(), 0f),
+            childPosition[1]
         )
     }
 

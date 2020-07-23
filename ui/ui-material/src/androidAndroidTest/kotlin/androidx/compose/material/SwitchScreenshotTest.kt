@@ -27,8 +27,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.rtl
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Providers
+import androidx.compose.ui.platform.LayoutDirectionAmbient
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
@@ -76,8 +78,10 @@ class SwitchScreenshotTest {
     @Test
     fun switchTest_checked_rtl() {
         composeTestRule.setMaterialContent {
-            Box(wrapperModifier.rtl) {
-                Switch(checked = true, onCheckedChange = { })
+            Box(wrapperModifier) {
+                Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                    Switch(checked = true, onCheckedChange = { })
+                }
             }
         }
         assertToggeableAgainstGolden("switch_checked_rtl")
@@ -106,8 +110,10 @@ class SwitchScreenshotTest {
     @Test
     fun switchTest_unchecked_rtl() {
         composeTestRule.setMaterialContent {
-            Box(wrapperModifier.rtl) {
-                Switch(checked = false, onCheckedChange = { })
+            Box(wrapperModifier) {
+                Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                    Switch(checked = false, onCheckedChange = { })
+                }
             }
         }
         assertToggeableAgainstGolden("switch_unchecked_rtl")

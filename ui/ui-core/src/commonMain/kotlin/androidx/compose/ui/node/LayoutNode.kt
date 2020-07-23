@@ -402,8 +402,7 @@ class LayoutNode : Measurable, Remeasurement {
         fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
-            constraints: Constraints,
-            layoutDirection: LayoutDirection
+            constraints: Constraints
         ): MeasureScope.MeasureResult
 
         /**
@@ -412,8 +411,7 @@ class LayoutNode : Measurable, Remeasurement {
         fun minIntrinsicWidth(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            h: Int,
-            layoutDirection: LayoutDirection
+            h: Int
         ): Int
 
         /**
@@ -422,8 +420,7 @@ class LayoutNode : Measurable, Remeasurement {
         fun minIntrinsicHeight(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            w: Int,
-            layoutDirection: LayoutDirection
+            w: Int
         ): Int
 
         /**
@@ -432,8 +429,7 @@ class LayoutNode : Measurable, Remeasurement {
         fun maxIntrinsicWidth(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            h: Int,
-            layoutDirection: LayoutDirection
+            h: Int
         ): Int
 
         /**
@@ -442,8 +438,7 @@ class LayoutNode : Measurable, Remeasurement {
         fun maxIntrinsicHeight(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            w: Int,
-            layoutDirection: LayoutDirection
+            w: Int
         ): Int
     }
 
@@ -451,29 +446,25 @@ class LayoutNode : Measurable, Remeasurement {
         override fun minIntrinsicWidth(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            h: Int,
-            layoutDirection: LayoutDirection
+            h: Int
         ) = error(error)
 
         override fun minIntrinsicHeight(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            w: Int,
-            layoutDirection: LayoutDirection
+            w: Int
         ) = error(error)
 
         override fun maxIntrinsicWidth(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            h: Int,
-            layoutDirection: LayoutDirection
+            h: Int
         ) = error(error)
 
         override fun maxIntrinsicHeight(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            w: Int,
-            layoutDirection: LayoutDirection
+            w: Int
         ) = error(error)
     }
 
@@ -489,7 +480,7 @@ class LayoutNode : Measurable, Remeasurement {
         }
 
     /**
-     * The scope used to run the [MeasureBlocks.measure] [MeasureBlock2].
+     * The scope used to run the [MeasureBlocks.measure] [MeasureBlock].
      */
     val measureScope: MeasureScope = object : MeasureScope(), Density {
         private val ownerDensity: Density
@@ -505,6 +496,12 @@ class LayoutNode : Measurable, Remeasurement {
      * The layout direction of the layout node.
      */
     internal var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+        set(value) {
+            if (field != value) {
+                field = value
+                requestRemeasure()
+            }
+        }
 
     /**
      * The measured width of this layout and all of its [modifier]s. Shortcut for `size.width`.
@@ -774,11 +771,11 @@ class LayoutNode : Measurable, Remeasurement {
 
     fun place(x: Int, y: Int) {
         with(InnerPlacementScope) {
-            this.parentLayoutDirection = layoutDirection
             val previousParentWidth = parentWidth
-            this.parentWidth = outerMeasurablePlaceable.measuredWidth
+            val previousLayoutDirection = parentLayoutDirection
+            updateValuesForRtlMirroring(layoutDirection, outerMeasurablePlaceable.measuredWidth)
             outerMeasurablePlaceable.place(x, y)
-            this.parentWidth = previousParentWidth
+            updateValuesForRtlMirroring(previousLayoutDirection, previousParentWidth)
         }
     }
 
@@ -867,7 +864,7 @@ class LayoutNode : Measurable, Remeasurement {
                     }
                     child.alignmentLinesQueriedSinceLastLayout = false
                 }
-                innerLayoutNodeWrapper.measureResult.placeChildren(layoutDirection)
+                innerLayoutNodeWrapper.measureResult.placeChildren()
                 _children.forEach { child ->
                     child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
                 }
@@ -1114,30 +1111,29 @@ class LayoutNode : Measurable, Remeasurement {
     }
 
     // Delegation from Measurable to measurableAndPlaceable
-    override fun measure(constraints: Constraints, layoutDirection: LayoutDirection) =
-        outerMeasurablePlaceable.measure(constraints, layoutDirection)
+    override fun measure(constraints: Constraints) =
+        outerMeasurablePlaceable.measure(constraints)
 
     /**
      * Return true if the measured size has been changed
      */
     internal fun remeasure(
-        constraints: Constraints = outerMeasurablePlaceable.lastConstraints!!,
-        layoutDirection: LayoutDirection = outerMeasurablePlaceable.lastLayoutDirection!!
-    ) = outerMeasurablePlaceable.remeasure(constraints, layoutDirection)
+        constraints: Constraints = outerMeasurablePlaceable.lastConstraints!!
+    ) = outerMeasurablePlaceable.remeasure(constraints)
 
     override val parentData: Any? get() = outerMeasurablePlaceable.parentData
 
-    override fun minIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int =
-        outerMeasurablePlaceable.minIntrinsicWidth(height, layoutDirection)
+    override fun minIntrinsicWidth(height: Int): Int =
+        outerMeasurablePlaceable.minIntrinsicWidth(height)
 
-    override fun maxIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int =
-        outerMeasurablePlaceable.maxIntrinsicWidth(height, layoutDirection)
+    override fun maxIntrinsicWidth(height: Int): Int =
+        outerMeasurablePlaceable.maxIntrinsicWidth(height)
 
-    override fun minIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
-        outerMeasurablePlaceable.minIntrinsicHeight(width, layoutDirection)
+    override fun minIntrinsicHeight(width: Int): Int =
+        outerMeasurablePlaceable.minIntrinsicHeight(width)
 
-    override fun maxIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
-        outerMeasurablePlaceable.maxIntrinsicHeight(width, layoutDirection)
+    override fun maxIntrinsicHeight(width: Int): Int =
+        outerMeasurablePlaceable.maxIntrinsicHeight(width)
 
     override fun forceRemeasure() {
         requestRemeasure()
@@ -1178,8 +1174,7 @@ class LayoutNode : Measurable, Remeasurement {
                 override fun measure(
                     measureScope: MeasureScope,
                     measurables: List<Measurable>,
-                    constraints: Constraints,
-                    layoutDirection: LayoutDirection
+                    constraints: Constraints
                 ) = error("Undefined measure and it is required")
             }
     }
@@ -1229,6 +1224,7 @@ internal object LayoutEmitHelper {
     val setMeasureBlocks: LayoutNode.(LayoutNode.MeasureBlocks) -> Unit =
         { this.measureBlocks = it }
     val setRef: LayoutNode.(Ref<LayoutNode>) -> Unit = { it.value = this }
+    val setLayoutDirection: LayoutNode.(LayoutDirection) -> Unit = { this.layoutDirection = it }
 }
 
 /**

@@ -21,7 +21,6 @@ import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.ContentDrawScope
 import androidx.compose.ui.DrawLayerModifier
 import androidx.compose.ui.DrawModifier
@@ -1669,13 +1668,13 @@ internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = M
             override fun measure(
                 measureScope: MeasureScope,
                 measurables: List<Measurable>,
-                constraints: Constraints,
-                layoutDirection: LayoutDirection
+                constraints: Constraints
             ): MeasureScope.MeasureResult =
                 measureScope.layout(x2 - x, y2 - y) {}
         }
         attach(mockOwner())
-        remeasure(Constraints(), layoutDirection)
+        layoutState = LayoutNode.LayoutState.NeedsRemeasure
+        remeasure(Constraints())
         var wrapper: LayoutNodeWrapper? = outerLayoutNodeWrapper
         while (wrapper != null) {
             wrapper.measureResult = innerLayoutNodeWrapper.measureResult

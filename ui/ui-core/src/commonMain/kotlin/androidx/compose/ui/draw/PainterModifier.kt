@@ -35,7 +35,6 @@ import androidx.compose.ui.platform.InspectableParameter
 import androidx.compose.ui.platform.ParameterElement
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.hasFixedHeight
@@ -87,8 +86,7 @@ private data class PainterModifier(
 ) : LayoutModifier, DrawModifier, InspectableParameter {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(modifyConstraints(constraints))
         return layout(placeable.width, placeable.height) {
@@ -98,8 +96,7 @@ private data class PainterModifier(
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int,
-        layoutDirection: LayoutDirection
+        height: Int
     ): Int {
         return if (sizeToIntrinsics) {
             val constraints = Constraints(maxHeight = height)
@@ -114,8 +111,7 @@ private data class PainterModifier(
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int,
-        layoutDirection: LayoutDirection
+        height: Int
     ): Int {
         return if (sizeToIntrinsics) {
             val constraints = Constraints(maxHeight = height)
@@ -130,8 +126,7 @@ private data class PainterModifier(
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int,
-        layoutDirection: LayoutDirection
+        width: Int
     ): Int {
         return if (sizeToIntrinsics) {
             val constraints = Constraints(maxWidth = width)
@@ -146,8 +141,7 @@ private data class PainterModifier(
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int,
-        layoutDirection: LayoutDirection
+        width: Int
     ): Int {
         return if (sizeToIntrinsics) {
             val constraints = Constraints(maxWidth = width)
