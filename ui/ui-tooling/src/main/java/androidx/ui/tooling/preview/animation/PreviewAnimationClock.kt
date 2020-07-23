@@ -25,6 +25,7 @@ import androidx.compose.animation.core.SeekableAnimation
 import androidx.compose.animation.core.TransitionAnimation
 import androidx.compose.animation.core.createSeekableAnimation
 import androidx.annotation.VisibleForTesting
+import androidx.compose.animation.tooling.ComposeAnimatedProperty
 import androidx.compose.animation.tooling.ComposeAnimation
 import androidx.compose.animation.tooling.ComposeAnimationType
 
@@ -133,9 +134,9 @@ internal open class PreviewAnimationClock(private val initialTimeMs: Long = 0L) 
      * with the given `from` and `to` states/
      */
     fun updateSeekableAnimation(composeAnimation: ComposeAnimation, fromState: Any, toState: Any) {
-        if (composeAnimation.getType() != ComposeAnimationType.TRANSITION_ANIMATION) return
+        if (composeAnimation.type != ComposeAnimationType.TRANSITION_ANIMATION) return
         @Suppress("UNCHECKED_CAST")
-        val animation = composeAnimation.getAnimation() as TransitionAnimation<Any>
+        val animation = composeAnimation.animationObject as TransitionAnimation<Any>
         seekableAnimations[composeAnimation] = animation.createSeekableAnimation(fromState, toState)
     }
 
@@ -153,7 +154,7 @@ internal open class PreviewAnimationClock(private val initialTimeMs: Long = 0L) 
                     pendingObservers.add(observer)
                 }
                 @Suppress("UNCHECKED_CAST")
-                val animation = composeAnimation.getAnimation() as TransitionAnimation<Any>
+                val animation = composeAnimation.animationObject as TransitionAnimation<Any>
                 animation.snapToState(seekableAnimation.fromState!!)
                 animation.toState(seekableAnimation.toState!!)
             }
@@ -179,11 +180,13 @@ internal open class PreviewAnimationClock(private val initialTimeMs: Long = 0L) 
      *  Returns a list of the given [TransitionAnimation]'s animated properties. The properties
      *  are wrapped into a [Pair] of property label and the corresponding value at the current time.
      */
-    fun getAnimatedProperties(animation: ComposeAnimation): List<Pair<String, Any>> {
-        if (animation.getType() != ComposeAnimationType.TRANSITION_ANIMATION) return emptyList()
+    fun getAnimatedProperties(animation: ComposeAnimation): List<ComposeAnimatedProperty> {
+        if (animation.type != ComposeAnimationType.TRANSITION_ANIMATION) return emptyList()
         seekableAnimations[animation]?.let { seekableAnimation ->
             val time = clock.clockTimeMillis - initialTimeMs
-            return seekableAnimation.getAnimValuesAt(time).entries.map { it.key.label to it.value }
+            return seekableAnimation.getAnimValuesAt(time).entries.map {
+                ComposeAnimatedProperty(it.key.label, it.value)
+            }
         }
         return emptyList()
     }
