@@ -16,9 +16,6 @@
 
 package androidx.compose.foundation
 
-import androidx.ui.core.ContentDrawScope
-import androidx.ui.core.DrawModifier
-import androidx.ui.core.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
@@ -32,6 +29,11 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.util.annotation.FloatRange
+import androidx.ui.core.ContentDrawScope
+import androidx.ui.core.DrawModifier
+import androidx.ui.core.InspectableParameter
+import androidx.ui.core.Modifier
+import androidx.ui.core.ParameterElement
 
 /**
  * Draws [shape] with a solid [color] behind the content.
@@ -45,13 +47,8 @@ fun Modifier.background(
     color: Color,
     shape: Shape = RectangleShape
 ) = this.then(Background(
-    shape,
-    {
-        drawRect(color)
-    },
-    { outline ->
-        drawOutline(outline, color)
-    }
+    color = color,
+    shape = shape
 ))
 
 /**
@@ -68,13 +65,9 @@ fun Modifier.background(
     shape: Shape = RectangleShape,
     @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f
 ) = this.then(Background(
-    shape,
-    {
-        drawRect(brush = brush, alpha = alpha)
-    },
-    { outline ->
-        drawOutline(outline, brush, alpha = alpha)
-    }
+    brush = brush,
+    alpha = alpha,
+    shape = shape
 ))
 
 /**
@@ -126,10 +119,11 @@ fun Modifier.drawBackground(
 ) = background(brush, shape, alpha)
 
 private data class Background internal constructor(
-    private val shape: Shape,
-    private val drawRect: ContentDrawScope.() -> Unit,
-    private val drawOutline: ContentDrawScope.(outline: Outline) -> Unit
-) : DrawModifier {
+    private val color: Color? = null,
+    private val brush: Brush? = null,
+    private val alpha: Float = 1.0f,
+    private val shape: Shape
+) : DrawModifier, InspectableParameter {
 
     // naive cache outline calculation if size is the same
     private var lastSize: Size? = null
@@ -140,16 +134,39 @@ private data class Background internal constructor(
             // shortcut to avoid Outline calculation and allocation
             drawRect()
         } else {
-            val localOutline =
-                if (size == lastSize) {
-                    lastOutline!!
-                } else {
-                    shape.createOutline(size, this)
-                }
-            drawOutline(localOutline)
-            lastOutline = localOutline
-            lastSize = size
+            drawOutline()
         }
         drawContent()
     }
+
+    private fun ContentDrawScope.drawRect() {
+        color?.let { drawRect(color = it) }
+        brush?.let { drawRect(brush = it, alpha = alpha) }
+    }
+
+    private fun ContentDrawScope.drawOutline() {
+        val outline =
+            if (size == lastSize) {
+                lastOutline!!
+            } else {
+                shape.createOutline(size, this)
+            }
+        color?.let { drawOutline(outline, color = color) }
+        brush?.let { drawOutline(outline, brush = brush, alpha = alpha) }
+        lastOutline = outline
+        lastSize = size
+    }
+
+    override val nameFallback = "background"
+
+    override val valueOverride: Any?
+        get() = color ?: brush
+
+    override val inspectableElements: Sequence<ParameterElement>
+        get() = sequenceOf(
+            ParameterElement("color", color),
+            ParameterElement("brush", brush),
+            ParameterElement("alpha", alpha),
+            ParameterElement("shape", shape)
+        )
 }
