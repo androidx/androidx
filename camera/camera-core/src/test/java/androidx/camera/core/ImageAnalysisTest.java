@@ -18,6 +18,8 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.robolectric.Shadows.shadowOf;
+
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
@@ -48,8 +50,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
-import org.robolectric.shadow.api.Shadow;
-import org.robolectric.shadows.ShadowLooper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -88,10 +88,14 @@ public class ImageAnalysisTest {
     public void setUp() throws ExecutionException, InterruptedException {
         mCallbackThread = new HandlerThread("Callback");
         mCallbackThread.start();
+        // Explicitly pause callback thread since we will control execution manually in tests
+        shadowOf(mCallbackThread.getLooper()).pause();
         mCallbackHandler = new Handler(mCallbackThread.getLooper());
 
         mBackgroundThread = new HandlerThread("Background");
         mBackgroundThread.start();
+        // Explicitly pause background thread since we will control execution manually in tests
+        shadowOf(mBackgroundThread.getLooper()).pause();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
         mBackgroundExecutor = CameraXExecutors.newHandlerExecutor(mBackgroundHandler);
 
@@ -327,6 +331,6 @@ public class ImageAnalysisTest {
      * @param handler the {@link Handler} to flush.
      */
     private static void flushHandler(Handler handler) {
-        ((ShadowLooper) Shadow.extract(handler.getLooper())).idle();
+        shadowOf(handler.getLooper()).idle();
     }
 }
