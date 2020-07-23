@@ -47,6 +47,8 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Extensions {
+    private static final String TAG = "Extensions";
+
     /** Normal mode without any specific effect applied. */
     public static final int EXTENSION_MODE_NONE = 0;
     /** Bokeh mode that is often applied as portrait mode for people pictures. */
@@ -89,9 +91,7 @@ public class Extensions {
     public @interface ExtensionMode {
     }
 
-    @NonNull
-    Extensions init(@NonNull Context context) {
-        return new Extensions();
+    Extensions(@NonNull Context context) {
     }
 
     /**
@@ -149,9 +149,5 @@ public class Extensions {
             @NonNull List<UseCase> useCases,
             @ExtensionMode int mode) {
         throw new UnsupportedOperationException("not yet implemented");
-    }
-
-    // Private to prevent instantiation
-    private Extensions() {
     }
 }

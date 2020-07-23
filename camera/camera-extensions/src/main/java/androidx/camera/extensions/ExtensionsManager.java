@@ -23,6 +23,7 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
@@ -32,6 +33,8 @@ import androidx.camera.extensions.impl.InitializerImpl;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * Provides interfaces for third party app developers to get capabilities info of extension
@@ -98,7 +101,13 @@ public final class ExtensionsManager {
     private static final Object EXTENSIONS_LOCK = new Object();
 
     @GuardedBy("EXTENSIONS_LOCK")
+    static boolean sInitialized = false;
+
+    @GuardedBy("EXTENSIONS_LOCK")
     private static ListenableFuture<ExtensionsAvailability> sAvailabilityFuture;
+
+    @GuardedBy("EXTENSIONS_LOCK")
+    private static ListenableFuture<Void> sDeinitFuture;
 
     /**
      * Initialize the extensions asynchronously.
@@ -109,6 +118,11 @@ public final class ExtensionsManager {
     @NonNull
     public static ListenableFuture<ExtensionsAvailability> init(@NonNull Context context) {
         synchronized (EXTENSIONS_LOCK) {
+            if (sDeinitFuture != null && !sDeinitFuture.isDone()) {
+                throw new IllegalStateException("Not yet done deinitializing extensions");
+            }
+            sDeinitFuture = null;
+
             if (ExtensionVersion.getRuntimeVersion() == null) {
                 return Futures.immediateFuture(ExtensionsAvailability.NONE);
             }
@@ -127,9 +141,10 @@ public final class ExtensionsManager {
                                 @Override
                                 public void onSuccess() {
                                     Log.d(TAG, "Successfully initialized extensions");
+                                    setInitialized(true);
                                     completer.set(
                                         ExtensionsAvailability.LIBRARY_AVAILABLE);
-                                    }
+                                }
 
                                 @Override
                                 public void onFailure(int error) {
@@ -149,6 +164,109 @@ public final class ExtensionsManager {
             }
 
             return sAvailabilityFuture;
+        }
+    }
+
+    // protected method so that EXTENSIONS_LOCK can be kept private
+    static void setInitialized(boolean initialized) {
+        synchronized (EXTENSIONS_LOCK) {
+            sInitialized = initialized;
+        }
+    }
+
+    /**
+     * Deinitialize the extensions.
+     *
+     * <p> For the moment only used for testing to deinitialize the extensions. Immediately after
+     * this has been called then extensions will be deinitialized and
+     * {@link #getExtensions(Context)} will throw an exception. However, tests should wait until
+     * the returned future is complete.
+     *
+     * @hide
+     */
+    // TODO: Will need to be rewritten to be threadsafe with use in conjunction with
+    //  ExtensionsManager.init(...) if this is to be released for use outside of testing.
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    @NonNull
+    public static ListenableFuture<Void> deinit() {
+        synchronized (EXTENSIONS_LOCK) {
+            setInitialized(false);
+            if (ExtensionVersion.getRuntimeVersion() == null) {
+                return Futures.immediateFuture(null);
+            }
+
+            // If initialization not yet attempted then deinit should succeed immediately.
+            if (sAvailabilityFuture == null) {
+                return Futures.immediateFuture(null);
+            }
+
+            // If already in progress of deinit then return the future
+            if (sDeinitFuture != null) {
+                return sDeinitFuture;
+            }
+
+            // Wait for the extension to be initialized before deinitializing. Block since
+            // this is only used for testing.
+            ExtensionsAvailability availability;
+            try {
+                availability = sAvailabilityFuture.get();
+            } catch (ExecutionException | InterruptedException e) {
+                sDeinitFuture = Futures.immediateFailedFuture(e);
+                return sDeinitFuture;
+            }
+
+            sAvailabilityFuture = null;
+
+            // Once extension has been initialized start the deinit call
+            if (availability == ExtensionsAvailability.LIBRARY_AVAILABLE) {
+                sDeinitFuture = CallbackToFutureAdapter.getFuture(completer -> {
+                    try {
+                        InitializerImpl.deinit(
+                                new InitializerImpl.OnExtensionsDeinitializedCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        completer.set(null);
+                                    }
+
+                                    @Override
+                                    public void onFailure(int error) {
+                                        completer.setException(new Exception("Failed to "
+                                                + "deinitialize extensions."));
+                                    }
+                                },
+                                CameraXExecutors.mainThreadExecutor());
+                    } catch (NoSuchMethodError | NoClassDefFoundError e) {
+                        completer.setException(e);
+                    }
+                    return null;
+                });
+            } else {
+                sDeinitFuture = Futures.immediateFuture(null);
+            }
+            return sDeinitFuture;
+
+        }
+    }
+
+    /**
+     * Gets a new {@link Extensions} instance.
+     *
+     * <p> An instance can be retrieved only valid after {@link #init(Context)} has successfully
+     * returned with {@code ExtensionsAvailability.LIBRARY_AVAILABLE}.
+     *
+     * @throws IllegalStateException if extensions not initialized
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public static Extensions getExtensions(@NonNull Context context) {
+        synchronized (EXTENSIONS_LOCK) {
+            if (!sInitialized) {
+                throw new IllegalStateException("Extensions not yet initialized");
+            }
+
+            return new Extensions(context);
         }
     }
 
