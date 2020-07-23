@@ -23,14 +23,14 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import org.junit.Rule
 import org.junit.Test
 
 class MultipleActivitiesFindTest {
 
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<Activity1>(disableTransitions = true)
+    val composeTestRule = createAndroidComposeRule<Activity1>(disableTransitions = true)
 
     @Test
     fun test() {

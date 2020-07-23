@@ -21,7 +21,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.SpanStyle
@@ -44,7 +44,7 @@ import org.junit.runners.JUnit4
 @SmallTest
 class TextFieldSelectionDelegateTest {
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     private val fontFamily = BASIC_MEASURE_FONT.asFontFamily()
     private val context = InstrumentationRegistry.getInstrumentation().context

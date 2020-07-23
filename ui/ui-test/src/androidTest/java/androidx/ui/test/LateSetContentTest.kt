@@ -22,7 +22,7 @@ import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.test.filters.LargeTest
 import androidx.ui.core.setContent
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.util.BoundaryNode
 import org.junit.Rule
 import org.junit.Test
@@ -30,7 +30,7 @@ import org.junit.Test
 @LargeTest
 class LateSetContentTest {
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<Activity>()
+    val composeTestRule = createAndroidComposeRule<Activity>()
 
     @Test
     fun test() {

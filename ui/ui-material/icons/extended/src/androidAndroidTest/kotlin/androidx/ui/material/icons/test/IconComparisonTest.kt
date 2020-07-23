@@ -40,7 +40,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.res.vectorResource
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnUiThread
@@ -92,7 +92,7 @@ class IconComparisonTest(
     }
 
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     private val matcher = MSSIMMatcher(threshold = 0.99)
 

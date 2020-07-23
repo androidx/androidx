@@ -29,7 +29,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.unit.dp
 import androidx.ui.viewinterop.AndroidView
 import com.nhaarman.mockitokotlin2.clearInvocations
@@ -53,7 +53,7 @@ class PointerInteropFilterIntegrationTest {
     private val theHitListener: () -> Unit = mock()
 
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<TestActivity>()
+    val composeTestRule = createAndroidComposeRule<TestActivity>()
 
     @Before
     fun setup() {

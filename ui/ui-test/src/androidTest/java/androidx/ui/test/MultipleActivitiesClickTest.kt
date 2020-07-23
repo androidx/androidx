@@ -27,7 +27,7 @@ import androidx.ui.core.setContent
 import androidx.ui.core.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.util.SinglePointerInputRecorder
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -36,7 +36,7 @@ import org.junit.Test
 class MultipleActivitiesClickTest {
 
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<Activity1>(disableTransitions = true)
+    val composeTestRule = createAndroidComposeRule<Activity1>(disableTransitions = true)
 
     @Test
     fun test() {

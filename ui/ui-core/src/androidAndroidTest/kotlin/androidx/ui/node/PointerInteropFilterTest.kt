@@ -32,7 +32,7 @@ import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.consumeAllChanges
 import androidx.ui.core.consumeDownChange
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.moveBy
@@ -52,7 +52,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class PointerInteropFilterTest {
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     private lateinit var mockViewGroup: MockViewGroup
     private lateinit var pointerInteropFilter: PointerInteropFilter

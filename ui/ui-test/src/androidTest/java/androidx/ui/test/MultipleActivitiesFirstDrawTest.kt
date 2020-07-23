@@ -24,7 +24,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.compose.foundation.Box
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import org.junit.Rule
 import org.junit.Test
 
@@ -32,7 +32,7 @@ import org.junit.Test
 class MultipleActivitiesFirstDrawTest {
 
     @get:Rule
-    val testRule = AndroidComposeTestRule<Activity1>()
+    val testRule = createAndroidComposeRule<Activity1>()
 
     @Test
     fun test() {
