@@ -23,7 +23,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.ui.material.ExtendedFloatingActionButton
@@ -33,7 +33,7 @@ import androidx.ui.material.darkColorPalette
 import androidx.ui.material.lightColorPalette
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.sp
 
 @Sampled
 @Composable

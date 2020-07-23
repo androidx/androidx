@@ -17,7 +17,7 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
-import androidx.ui.graphics.vector.VectorAsset
+import androidx.compose.ui.graphics.vector.VectorAsset
 import androidx.ui.material.icons.Icons
 
 enum class RallyScreenState(

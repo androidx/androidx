@@ -26,7 +26,7 @@ import androidx.ui.core.PointerInputData
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 /**
  * The core element that receives [PointerInputEvent]s and process them in Compose UI.

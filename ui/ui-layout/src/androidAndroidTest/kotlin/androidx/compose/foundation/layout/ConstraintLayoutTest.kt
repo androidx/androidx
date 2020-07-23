@@ -28,9 +28,9 @@ import androidx.compose.foundation.Box
 import androidx.compose.ui.geometry.Offset
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntSize
 import androidx.ui.test.waitForIdle
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test

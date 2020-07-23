@@ -24,7 +24,7 @@ import androidx.ui.core.changedToUp
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.ui.test.ActivityWithActionBar
 import androidx.ui.test.android.AndroidComposeTestRule

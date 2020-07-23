@@ -18,13 +18,13 @@ package androidx.compose.foundation.layout
 
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Placeable
-import androidx.ui.unit.Dp
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.dp
-import androidx.ui.util.fastForEachIndexed
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.max
 
 /**

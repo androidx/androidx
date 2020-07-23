@@ -16,9 +16,9 @@
 
 package androidx.compose.animation.core
 
-import androidx.ui.util.packFloats
-import androidx.ui.util.unpackFloat1
-import androidx.ui.util.unpackFloat2
+import androidx.compose.ui.util.packFloats
+import androidx.compose.ui.util.unpackFloat1
+import androidx.compose.ui.util.unpackFloat2
 
 import kotlin.math.cos
 import kotlin.math.exp

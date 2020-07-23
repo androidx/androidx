@@ -25,8 +25,8 @@ import androidx.ui.integration.test.TextBenchmarkTestRule
 import androidx.ui.integration.test.TextType
 import androidx.ui.integration.test.cartesian
 import androidx.compose.ui.text.font.Font
-import androidx.ui.unit.Density
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.sp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

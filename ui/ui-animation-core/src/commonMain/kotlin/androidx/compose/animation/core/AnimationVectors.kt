@@ -16,7 +16,7 @@
 
 package androidx.compose.animation.core
 
-import androidx.ui.util.identityHashCode
+import androidx.compose.ui.util.identityHashCode
 
 /**
  * [AnimationVector] class that is the base class of [AnimationVector1D], [AnimationVector2D],

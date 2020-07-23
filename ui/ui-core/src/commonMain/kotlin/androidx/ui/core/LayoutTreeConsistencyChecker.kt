@@ -17,7 +17,7 @@
 package androidx.ui.core
 
 import androidx.ui.core.LayoutNode.LayoutState
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 /**
  * There are some contracts between the tree of LayoutNodes and the state of AndroidComposeView

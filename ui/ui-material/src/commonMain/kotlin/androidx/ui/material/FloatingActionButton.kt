@@ -29,16 +29,16 @@ import androidx.compose.foundation.ProvideTextStyle
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.shape.corner.CornerSize
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Shape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSizeConstraints
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.compose.foundation.layout.preferredWidth
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 /**
  * A floating action button (FAB) is a button that represents the primary action of a screen.

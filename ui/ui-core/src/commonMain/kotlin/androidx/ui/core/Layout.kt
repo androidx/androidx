@@ -23,12 +23,14 @@ import androidx.compose.Stable
 import androidx.compose.currentComposer
 import androidx.compose.emit
 import androidx.compose.remember
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
-import androidx.ui.util.fastForEach
-import androidx.ui.util.fastMap
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import kotlin.math.max
 
 /**

@@ -28,8 +28,8 @@ import androidx.ui.core.positionInRoot
 import androidx.ui.core.onPositioned
 import androidx.ui.core.testTag
 import androidx.compose.foundation.shape.corner.CircleShape
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
@@ -41,9 +41,9 @@ import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.Density
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test

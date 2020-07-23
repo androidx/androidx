@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.lifecycle.Lifecycle
 import androidx.ui.core.LifecycleOwnerAmbient
 import androidx.compose.foundation.Text
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.ui.material.Surface
 import androidx.ui.tooling.preview.Preview
 

@@ -21,7 +21,7 @@ import androidx.compose.Stable
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.AnnotatedString.Builder
 import androidx.compose.ui.text.AnnotatedString.Range
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 /**
  * The class changes the character level style of the specified range.
@@ -60,7 +60,7 @@ data class AnnotatedString internal constructor(
      * @param spanStyles a list of [Range]s that specifies [SpanStyle]s on certain portion of the
      * text. These styles will be applied in the order of the list. And the [SpanStyle]s applied
      * later can override the former styles. Notice that [SpanStyle] attributes which are null or
-     * [androidx.ui.unit.TextUnit.Inherit] won't change the current ones.
+     * [androidx.compose.ui.unit.TextUnit.Inherit] won't change the current ones.
      * @param paragraphStyles a list of [Range]s that specifies [ParagraphStyle]s on certain
      * portion of the text. Each [ParagraphStyle] with a [Range] defines a paragraph of text.
      * It's required that [Range]s of paragraphs don't overlap with each other. If there are gaps

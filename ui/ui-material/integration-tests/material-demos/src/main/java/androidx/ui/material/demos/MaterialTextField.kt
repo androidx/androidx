@@ -26,7 +26,7 @@ import androidx.compose.foundation.Icon
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.selection.selectable
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope.gravity
 import androidx.compose.foundation.layout.InnerPadding
@@ -55,7 +55,7 @@ import androidx.ui.material.samples.SimpleOutlinedTextFieldSample
 import androidx.ui.material.samples.TextFieldWithHelperMessage
 import androidx.ui.material.samples.TextFieldWithHideKeyboardOnImeAction
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun TextFieldsDemo() {

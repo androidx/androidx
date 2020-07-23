@@ -19,8 +19,10 @@ package androidx.ui.core
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Canvas
-import androidx.ui.unit.IntOffset
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 
 internal class LayerWrapper(
     wrapped: LayoutNodeWrapper,

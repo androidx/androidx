@@ -21,10 +21,10 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.compose.foundation.Box
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.preferredSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable

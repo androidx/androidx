@@ -22,15 +22,15 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.paint
-import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.DefaultAlpha
-import androidx.ui.graphics.ImageAsset
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.DefaultAlpha
+import androidx.compose.ui.graphics.ImageAsset
 import androidx.ui.core.ContentScale
-import androidx.ui.graphics.painter.ColorPainter
-import androidx.ui.graphics.painter.ImagePainter
-import androidx.ui.graphics.painter.Painter
-import androidx.ui.graphics.vector.VectorAsset
-import androidx.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.graphics.painter.ImagePainter
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.VectorAsset
+import androidx.compose.ui.graphics.vector.VectorPainter
 
 /**
  * A composable that lays out and draws a given [ImageAsset]. This will attempt to

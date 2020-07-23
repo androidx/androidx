@@ -18,7 +18,7 @@ package androidx.ui.core
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 
 /**
  * Tag the element with [id] to identify the element within its parent.

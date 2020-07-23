@@ -24,7 +24,7 @@ import androidx.ui.core.PointerInputChange
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.composed
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntSize
 import kotlin.math.absoluteValue
 
 // TODO(b/143877464): Implement a "can scale in / can scale out" check so that scale slop is only

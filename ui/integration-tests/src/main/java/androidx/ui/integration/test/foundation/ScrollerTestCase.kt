@@ -22,13 +22,13 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 /**
  * Test case that puts a large number of boxes in a column in a vertical scroller to force scrolling.

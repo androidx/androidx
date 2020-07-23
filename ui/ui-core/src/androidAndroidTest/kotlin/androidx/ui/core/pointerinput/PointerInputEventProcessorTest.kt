@@ -17,10 +17,10 @@
 package androidx.ui.core.pointerinput
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.ConsumedData
 import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.LayoutNodeWrapper
 import androidx.ui.core.Measurable
@@ -34,11 +34,11 @@ import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.consumePositionChange
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.Uptime
-import androidx.ui.unit.milliseconds
-import androidx.ui.unit.minus
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Uptime
+import androidx.compose.ui.unit.milliseconds
+import androidx.compose.ui.unit.minus
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doAnswer

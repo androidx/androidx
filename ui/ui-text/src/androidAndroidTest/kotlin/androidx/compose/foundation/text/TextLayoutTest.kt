@@ -20,7 +20,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
@@ -35,8 +35,8 @@ import androidx.compose.ui.text.font.asFontFamily
 import androidx.compose.ui.text.font.font
 import androidx.compose.ui.text.font.test.R
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.ui.unit.Density
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock

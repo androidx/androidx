@@ -20,12 +20,12 @@ import android.os.Build
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.compose.ui.geometry.Size
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.CanvasHolder
-import androidx.ui.graphics.Path
-import androidx.ui.graphics.RectangleShape
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.CanvasHolder
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 

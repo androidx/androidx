@@ -27,12 +27,12 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.drawBorder
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun DoubleTapInTapDemo() {

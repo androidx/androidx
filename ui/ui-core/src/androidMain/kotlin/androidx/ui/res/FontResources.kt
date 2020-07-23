@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.LoadedFontFamily
 import androidx.compose.ui.text.font.ResourceFont
 import androidx.compose.ui.text.font.SystemFontFamily
 import androidx.compose.ui.text.platform.typefaceFromFontFamily
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 private val cacheLock = Object()
 

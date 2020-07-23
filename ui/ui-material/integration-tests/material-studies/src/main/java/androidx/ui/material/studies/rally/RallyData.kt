@@ -16,7 +16,7 @@
 
 package androidx.ui.material.studies.rally
 
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 
 data class Account(
     val name: String,

@@ -25,14 +25,14 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.samples.SimpleCircleBox
 import androidx.compose.foundation.shape.corner.CutCornerShape
 import androidx.compose.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun BoxDemo() {

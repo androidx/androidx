@@ -39,7 +39,7 @@ import androidx.ui.material.IconButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TextButton
 import androidx.ui.material.icons.Icons
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import java.util.Locale
 
 @Composable

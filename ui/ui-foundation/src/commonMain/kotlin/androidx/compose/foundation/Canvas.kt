@@ -19,7 +19,7 @@ package androidx.compose.foundation
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
-import androidx.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 

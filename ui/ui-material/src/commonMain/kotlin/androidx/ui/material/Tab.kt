@@ -32,7 +32,7 @@ import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.transition
 import androidx.ui.core.Alignment
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
@@ -50,7 +50,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.contentColor
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
@@ -63,13 +63,13 @@ import androidx.ui.material.TabRow.TabPosition
 import androidx.compose.foundation.text.FirstBaseline
 import androidx.compose.foundation.text.LastBaseline
 import androidx.compose.ui.text.style.TextAlign
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
-import androidx.ui.unit.sp
-import androidx.ui.util.fastFirstOrNull
-import androidx.ui.util.fastForEach
-import androidx.ui.util.fastForEachIndexed
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.max
 
 /**

@@ -24,7 +24,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 @OptIn(ExperimentalFoundationApi::class)

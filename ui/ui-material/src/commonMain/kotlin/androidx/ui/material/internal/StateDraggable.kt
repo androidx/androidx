@@ -36,9 +36,9 @@ import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.animation.FlingConfig
 import androidx.compose.foundation.animation.fling
 import androidx.compose.foundation.gestures.draggable
-import androidx.ui.util.fastFirstOrNull
-import androidx.ui.util.lerp
-import androidx.ui.util.annotation.FloatRange
+import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.lerp
+import androidx.compose.ui.util.annotation.FloatRange
 import kotlin.math.sign
 
 /**

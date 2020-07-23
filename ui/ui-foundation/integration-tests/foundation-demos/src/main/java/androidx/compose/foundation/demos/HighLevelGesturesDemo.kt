@@ -24,7 +24,7 @@ import androidx.compose.foundation.samples.ZoomableSample
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.preferredHeight
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun HighLevelGesturesDemo() {

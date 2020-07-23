@@ -18,8 +18,8 @@ package androidx.compose.foundation.shape.corner
 
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Size
-import androidx.ui.unit.Density
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

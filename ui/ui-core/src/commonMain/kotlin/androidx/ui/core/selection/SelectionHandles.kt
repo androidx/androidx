@@ -23,14 +23,14 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Path
-import androidx.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.style.ResolvedTextDirection
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 internal val HANDLE_WIDTH = 25.dp
 internal val HANDLE_HEIGHT = 25.dp

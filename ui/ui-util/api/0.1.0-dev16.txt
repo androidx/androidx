@@ -1,5 +1,5 @@
 // Signature format: 3.0
-package androidx.ui.util {
+package androidx.compose.ui.util {
 
   public final class AndroidTraceKt {
     method public static inline <T> T! trace(String sectionName, kotlin.jvm.functions.Function0<? extends T> block);
@@ -60,7 +60,7 @@ package androidx.ui.util {
 
 }
 
-package androidx.ui.util.annotation {
+package androidx.compose.ui.util.annotation {
 
   public final class AndroidAnnotationKt {
   }

@@ -30,7 +30,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.SubcomposeLayout
 import androidx.ui.core.testTag
 import androidx.ui.core.zIndex
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertPositionInRootIsEqualTo
@@ -40,7 +40,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.waitForIdle
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Rule

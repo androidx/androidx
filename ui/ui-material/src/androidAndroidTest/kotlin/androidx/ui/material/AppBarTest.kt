@@ -24,8 +24,8 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.currentTextStyle
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertLeftPositionInRootIsEqualTo
@@ -35,10 +35,10 @@ import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
 import androidx.ui.test.getBoundsInRoot
 import androidx.compose.ui.text.TextStyle
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
-import androidx.ui.unit.height
-import androidx.ui.unit.width
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

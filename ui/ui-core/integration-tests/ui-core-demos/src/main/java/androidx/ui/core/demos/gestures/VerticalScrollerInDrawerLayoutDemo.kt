@@ -19,7 +19,7 @@ package androidx.ui.core.demos.gestures
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Alignment
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Direction
@@ -38,8 +38,8 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.drawBorder
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -51,8 +51,8 @@ import androidx.compose.foundation.layout.offsetPx
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 /**

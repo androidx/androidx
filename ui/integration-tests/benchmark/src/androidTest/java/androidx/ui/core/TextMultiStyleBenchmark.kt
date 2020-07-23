@@ -27,8 +27,8 @@ import androidx.ui.benchmark.benchmarkLayoutPerf
 import androidx.ui.integration.test.core.text.TextMultiStyleTestCase
 import androidx.ui.integration.test.TextBenchmarkTestRule
 import androidx.ui.integration.test.cartesian
-import androidx.ui.unit.dp
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

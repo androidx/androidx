@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.state
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.id
@@ -31,7 +31,7 @@ import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMap

@@ -28,14 +28,14 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.shape.corner.CircleShape
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.dp
-import androidx.ui.unit.round
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 
 @Composable
 fun PopupDragDemo() {

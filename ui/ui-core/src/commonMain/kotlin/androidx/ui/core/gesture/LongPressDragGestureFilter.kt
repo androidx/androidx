@@ -25,7 +25,7 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.composed
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntSize
 
 interface LongPressDragObserver {
 

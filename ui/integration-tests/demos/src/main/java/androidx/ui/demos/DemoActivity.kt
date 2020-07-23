@@ -38,8 +38,8 @@ import androidx.ui.core.setContent
 import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.Demo
 import androidx.ui.demos.common.DemoCategory
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.ui.material.ColorPalette
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.darkColorPalette

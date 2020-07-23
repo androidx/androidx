@@ -24,9 +24,9 @@ import androidx.ui.test.InputDispatcher
 import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
-import androidx.ui.unit.Duration
-import androidx.ui.unit.inMilliseconds
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.Duration
+import androidx.compose.ui.unit.inMilliseconds
+import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Rule

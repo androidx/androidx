@@ -22,10 +22,10 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.android.style.PlaceholderSpan
-import androidx.ui.unit.Density
-import androidx.ui.unit.TextUnit
-import androidx.ui.unit.TextUnitType
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.ui.util.fastForEach
 
 internal fun Spannable.setPlaceholders(
     placeholders: List<AnnotatedString.Range<Placeholder>>,

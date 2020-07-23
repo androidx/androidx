@@ -16,6 +16,9 @@
 
 package androidx.ui.core
 
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.isZero
 import androidx.ui.core.LayoutNode.LayoutState.LayingOut
 import androidx.ui.core.LayoutNode.LayoutState.Measuring
 import androidx.ui.core.LayoutNode.LayoutState.NeedsRelayout
@@ -24,7 +27,7 @@ import androidx.ui.core.LayoutNode.LayoutState.Ready
 import androidx.ui.core.LayoutNode.UsageByParent.InLayoutBlock
 import androidx.ui.core.LayoutNode.UsageByParent.InMeasureBlock
 import androidx.ui.core.LayoutNode.UsageByParent.NotUsed
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Keeps track of [LayoutNode]s which needs to be remeasured or relaid out.

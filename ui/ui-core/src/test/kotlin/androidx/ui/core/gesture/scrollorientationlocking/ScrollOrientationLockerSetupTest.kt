@@ -26,7 +26,7 @@ import androidx.ui.core.gesture.ExperimentalPointerInput
 import androidx.ui.testutils.down
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor

@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.MutableState
 import androidx.compose.state
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.ui.material.ColorPalette
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.lightColorPalette

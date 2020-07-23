@@ -22,7 +22,7 @@ import androidx.compose.foundation.Border
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.shape.GenericShape
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Row
@@ -44,7 +44,7 @@ import androidx.ui.material.samples.SimpleExtendedFabNoIcon
 import androidx.ui.material.samples.SimpleExtendedFabWithIcon
 import androidx.ui.material.samples.SimpleFab
 import androidx.ui.material.samples.TextButtonSample
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 private val DefaultSpace = 20.dp
 

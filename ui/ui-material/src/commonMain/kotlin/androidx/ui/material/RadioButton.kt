@@ -30,10 +30,10 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.selection.selectable
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.graphics.drawscope.Fill
-import androidx.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,8 +42,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.material.ripple.RippleIndication
 import androidx.compose.ui.text.TextStyle
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 /**
  * Components for creating mutually exclusive set of [RadioButton]s.
@@ -123,7 +123,7 @@ fun RadioGroup(content: @Composable RadioGroupScope.() -> Unit) {
         "androidx.compose.foundation.layout.Column",
         "androidx.compose.foundation.layout.fillMaxWidth",
         "androidx.ui.core.Modifier",
-        "androidx.ui.unit.dp",
+        "androidx.compose.ui.unit.dp",
         "androidx.compose.foundation.selection.selectable"
     )
 )

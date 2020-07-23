@@ -17,8 +17,8 @@
 package androidx.compose.ui.text
 
 import androidx.compose.ui.text.intl.LocaleList
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.lerp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
@@ -28,9 +28,9 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.lerp
-import androidx.ui.unit.TextUnit
-import androidx.ui.unit.em
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

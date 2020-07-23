@@ -39,7 +39,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import androidx.ui.viewinterop.AndroidView
 
 val AndroidInComposeDemos = DemoCategory("Android In Compose Interop", listOf(
@@ -182,8 +182,9 @@ private fun AndroidScrollInComposeScrollDifferentOrientation() {
                     "Android is nested inside something scrollable in Compose."
         )
         Text("You should only be able to scroll in one orientation at a time.")
-        ScrollableRow(modifier = Modifier.background(androidx.ui.graphics.Color.Blue)) {
-            Box(modifier = Modifier.padding(96.dp).background(androidx.ui.graphics.Color.Red)) {
+        ScrollableRow(modifier = Modifier.background(androidx.compose.ui.graphics.Color.Blue)) {
+            Box(modifier = Modifier.padding(96.dp)
+                .background(androidx.compose.ui.graphics.Color.Red)) {
                 AndroidView(R.layout.android_scroll_in_compose_scroll_different_orientation)
             }
         }
@@ -205,11 +206,11 @@ private fun AndroidScrollInComposeScrollSameOrientation() {
                     "that for Compose, and thus the child scrolls and prevents the parent from " +
                     "intercepting. "
         )
-        ScrollableColumn(modifier = Modifier.background(androidx.ui.graphics.Color.Blue)) {
+        ScrollableColumn(modifier = Modifier.background(androidx.compose.ui.graphics.Color.Blue)) {
             Box(
                 modifier = Modifier
                     .padding(96.dp)
-                    .background(color = androidx.ui.graphics.Color.Red)
+                    .background(color = androidx.compose.ui.graphics.Color.Red)
                     .preferredHeight(750.dp)
             ) {
                 AndroidView(R.layout.android_scroll_in_compose_scroll_same_orientation)

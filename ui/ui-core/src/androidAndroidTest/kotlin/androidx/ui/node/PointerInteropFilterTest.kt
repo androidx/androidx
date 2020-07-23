@@ -38,8 +38,8 @@ import androidx.ui.testutils.down
 import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.milliseconds
 import androidx.ui.viewinterop.AndroidViewHolder
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before

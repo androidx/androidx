@@ -16,11 +16,13 @@
 
 package androidx.ui.core
 
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.LayoutNode.LayoutState
 import androidx.ui.core.LayoutNode.MeasureBlocks
 import androidx.ui.core.LayoutNode.UsageByParent
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 
 @OptIn(ExperimentalLayoutNodeApi::class)
 internal class OuterMeasurablePlaceable(

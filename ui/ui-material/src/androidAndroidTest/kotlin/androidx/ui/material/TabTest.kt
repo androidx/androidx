@@ -26,7 +26,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.ui.material.icons.Icons
@@ -45,9 +45,9 @@ import androidx.ui.test.onAllNodes
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.getBoundsInRoot
 import androidx.ui.test.isInMutuallyExclusiveGroup
-import androidx.ui.unit.dp
-import androidx.ui.unit.height
-import androidx.ui.unit.width
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.width
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

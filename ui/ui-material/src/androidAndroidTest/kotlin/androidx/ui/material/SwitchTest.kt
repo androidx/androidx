@@ -39,7 +39,7 @@ import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.swipeLeft
 import androidx.ui.test.swipeRight
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test

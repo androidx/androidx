@@ -30,8 +30,8 @@ import androidx.ui.benchmark.toggleStateBenchmarkMeasure
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
 import androidx.ui.integration.test.core.text.TextBasicTestCase
 import androidx.ui.integration.test.TextBenchmarkTestRule
-import androidx.ui.unit.dp
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

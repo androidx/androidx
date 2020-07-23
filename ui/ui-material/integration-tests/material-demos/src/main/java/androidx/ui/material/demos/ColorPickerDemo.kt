@@ -45,14 +45,14 @@ import androidx.compose.foundation.shape.corner.CircleShape
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.RRect
 import androidx.compose.ui.geometry.Radius
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.SolidColor
-import androidx.ui.graphics.isSet
-import androidx.ui.graphics.toArgb
-import androidx.ui.graphics.toPixelMap
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageAsset
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.isSet
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -68,8 +68,8 @@ import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.material.Surface
 import androidx.ui.material.TopAppBar
 import androidx.compose.ui.text.style.TextAlign
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import java.util.Locale
 
 /**

@@ -35,10 +35,10 @@ import androidx.ui.test.getAlignmentLinePosition
 import androidx.ui.test.runOnIdle
 import androidx.compose.foundation.text.FirstBaseline
 import androidx.compose.foundation.text.LastBaseline
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
-import androidx.ui.unit.width
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.width
 
 fun ComposeTestRule.setMaterialContent(
     modifier: Modifier = Modifier,

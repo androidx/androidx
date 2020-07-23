@@ -28,7 +28,7 @@ import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.compose.foundation.Interaction
 import androidx.compose.foundation.InteractionState
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 
 /**
  * Configure touch dragging for the UI element in a single [Orientation]. The drag distance is

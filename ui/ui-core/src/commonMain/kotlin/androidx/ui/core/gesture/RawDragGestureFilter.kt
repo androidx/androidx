@@ -37,10 +37,10 @@ import androidx.ui.core.gesture.scrollorientationlocking.ScrollOrientationLocker
 import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.positionChange
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.util.fastAny
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Defines the callbacks associated with dragging.

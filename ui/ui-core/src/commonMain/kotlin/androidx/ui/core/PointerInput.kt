@@ -20,8 +20,8 @@ import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.ui.core.pointerinput.PointerInputEvent
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.Uptime
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Uptime
 
 /**
  * Represents a pointer input event internally.

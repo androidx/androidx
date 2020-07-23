@@ -17,7 +17,7 @@
 package androidx.compose.ui.text
 
 import androidx.compose.Immutable
-import androidx.ui.util.annotation.IntRange
+import androidx.compose.ui.util.annotation.IntRange
 
 fun CharSequence.substring(range: TextRange): String = this.substring(range.min, range.max)
 

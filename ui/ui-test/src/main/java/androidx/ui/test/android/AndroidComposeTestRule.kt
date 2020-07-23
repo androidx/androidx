@@ -38,7 +38,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.isOnUiThread
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.waitForIdle
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 

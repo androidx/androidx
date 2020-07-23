@@ -23,9 +23,9 @@ import androidx.compose.Providers
 import androidx.compose.staticAmbientOf
 import androidx.compose.foundation.ContentColorAmbient
 import androidx.compose.foundation.contentColor
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.luminance
-import androidx.ui.util.annotation.FloatRange
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.util.annotation.FloatRange
 
 /**
  * Emphasis allows certain parts of a component to be accentuated, or shown with lower contrast

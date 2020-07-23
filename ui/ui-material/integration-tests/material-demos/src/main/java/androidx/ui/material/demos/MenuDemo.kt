@@ -26,7 +26,7 @@ import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.ltr
 import androidx.ui.material.DropdownMenu
@@ -34,10 +34,10 @@ import androidx.ui.material.DropdownMenuItem
 import androidx.ui.material.IconButton
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.MoreVert
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.Position
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Position
+import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 @Composable

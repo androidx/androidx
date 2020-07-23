@@ -26,7 +26,7 @@ import androidx.ui.core.composed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.testutils.consume
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntSize
 
 /**
  * Observes various events sent by [rawScaleGestureFilter].  Implement and pass into

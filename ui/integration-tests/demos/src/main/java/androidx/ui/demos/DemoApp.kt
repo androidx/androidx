@@ -21,7 +21,7 @@ import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.animation.Crossfade
 import androidx.ui.core.Alignment
-import androidx.ui.core.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.testTag
@@ -50,7 +50,7 @@ import androidx.ui.material.icons.filled.ArrowForward
 import androidx.ui.material.icons.filled.Search
 import androidx.ui.material.icons.filled.Settings
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun DemoApp(

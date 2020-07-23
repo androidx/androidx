@@ -17,7 +17,7 @@ package androidx.compose.ui.text.font
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.util.lerp
+import androidx.compose.ui.util.lerp
 
 /**
  * The thickness of the glyphs, in a range of [1, 1000].

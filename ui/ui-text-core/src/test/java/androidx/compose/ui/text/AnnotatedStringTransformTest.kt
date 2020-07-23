@@ -17,7 +17,7 @@
 package androidx.compose.ui.text
 
 import androidx.compose.ui.text.intl.LocaleList
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.sp
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

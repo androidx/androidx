@@ -21,9 +21,9 @@ import android.graphics.Picture
 import android.graphics.RenderNode
 import android.os.Build
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Shadow
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.SpanStyle
@@ -33,8 +33,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextGeometricTransform
-import androidx.ui.unit.em
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import kotlin.math.ceil
 import kotlin.random.Random
 

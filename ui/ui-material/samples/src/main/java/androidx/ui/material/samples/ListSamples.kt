@@ -25,9 +25,9 @@ import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.contentColor
-import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.vector.VectorAsset
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ImageAsset
+import androidx.compose.ui.graphics.vector.VectorAsset
 import androidx.compose.foundation.layout.Column
 import androidx.ui.material.Checkbox
 import androidx.ui.material.Divider

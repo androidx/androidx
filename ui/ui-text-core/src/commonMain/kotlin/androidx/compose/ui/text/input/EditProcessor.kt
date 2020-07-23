@@ -17,7 +17,7 @@
 package androidx.compose.ui.text.input
 
 import androidx.compose.ui.text.InternalTextApi
-import androidx.ui.util.annotation.VisibleForTesting
+import androidx.compose.ui.util.annotation.VisibleForTesting
 import androidx.compose.ui.text.TextRange
 
 /**

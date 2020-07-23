@@ -27,7 +27,7 @@ import androidx.ui.test.util.isMonotonicBetween
 import androidx.ui.test.util.moveEvents
 import androidx.ui.test.util.splitsDurationEquallyInto
 import androidx.ui.test.util.verify
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Rule

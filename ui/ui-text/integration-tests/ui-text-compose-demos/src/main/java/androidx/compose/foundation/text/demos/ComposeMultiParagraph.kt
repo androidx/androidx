@@ -26,7 +26,7 @@ import androidx.compose.ui.text.annotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.withStyle
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.sp
 
 val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas fermentum non" +
         " diam sed pretium."

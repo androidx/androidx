@@ -17,7 +17,7 @@
 package androidx.ui.core
 
 import androidx.compose.Stable
-import androidx.ui.graphics.Shape
+import androidx.compose.ui.graphics.Shape
 
 /**
  * Clip the content to the bounds of a layer defined at this modifier.

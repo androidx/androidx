@@ -37,12 +37,12 @@ import androidx.ui.core.demos.R
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.ui.material.Button
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import androidx.ui.viewinterop.AndroidView
 import androidx.ui.viewinterop.emitView
 

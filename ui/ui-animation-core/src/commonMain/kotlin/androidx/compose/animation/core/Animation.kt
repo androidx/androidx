@@ -16,7 +16,7 @@
 
 package androidx.compose.animation.core
 
-import androidx.ui.util.annotation.VisibleForTesting
+import androidx.compose.ui.util.annotation.VisibleForTesting
 import kotlin.math.sign
 
 /**

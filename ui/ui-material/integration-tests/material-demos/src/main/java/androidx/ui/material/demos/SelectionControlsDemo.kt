@@ -29,7 +29,7 @@ import androidx.ui.material.samples.RadioButtonSample
 import androidx.ui.material.samples.RadioGroupSample
 import androidx.ui.material.samples.SwitchSample
 import androidx.ui.material.samples.TriStateCheckboxSample
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun SelectionControlsDemo() {

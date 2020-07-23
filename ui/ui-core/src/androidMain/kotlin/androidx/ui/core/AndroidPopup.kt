@@ -39,8 +39,8 @@ import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.ui.core.semantics.semantics
 import androidx.compose.ui.geometry.Offset
 import androidx.ui.semantics.popup
-import androidx.ui.unit.IntBounds
-import androidx.ui.unit.round
+import androidx.compose.ui.unit.IntBounds
+import androidx.compose.ui.unit.round
 import org.jetbrains.annotations.TestOnly
 
 /**

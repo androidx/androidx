@@ -20,7 +20,7 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.ExperimentalSubcomposeLayoutApi
 import androidx.ui.core.SubcomposeLayout
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntSize
 
 @Sampled
 @Composable

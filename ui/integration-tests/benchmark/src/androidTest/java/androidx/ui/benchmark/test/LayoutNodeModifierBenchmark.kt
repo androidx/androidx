@@ -38,7 +38,7 @@ import androidx.ui.core.zIndex
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.padding
 import androidx.ui.test.DisableTransitions
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

@@ -18,7 +18,7 @@ package androidx.ui.core.pointerinput
 
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputData
-import androidx.ui.unit.Uptime
+import androidx.compose.ui.unit.Uptime
 
 /**
  * The normalized data structure for pointer input event information that is taken in processed by

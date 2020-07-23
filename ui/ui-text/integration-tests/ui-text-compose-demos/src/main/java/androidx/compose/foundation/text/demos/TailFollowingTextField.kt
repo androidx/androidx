@@ -25,15 +25,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.ui.core.Constraints
+import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
-import androidx.ui.core.constrainWidth
-import androidx.ui.graphics.Color
+import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.TextStyle
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import kotlin.math.min
 
 @Composable

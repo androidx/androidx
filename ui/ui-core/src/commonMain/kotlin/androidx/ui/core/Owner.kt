@@ -23,12 +23,12 @@ import androidx.ui.core.keyinput.ExperimentalKeyInput
 import androidx.ui.core.keyinput.KeyEvent2
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.texttoolbar.TextToolbar
-import androidx.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry
 import androidx.compose.ui.text.font.Font
-import androidx.ui.unit.Density
-import androidx.ui.unit.IntOffset
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
 
 /**
  * Owner implements the connection to the underlying view system. On Android, this connects

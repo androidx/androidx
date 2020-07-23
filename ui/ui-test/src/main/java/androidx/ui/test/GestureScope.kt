@@ -24,11 +24,11 @@ import androidx.ui.core.semantics.SemanticsNode
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
-import androidx.ui.unit.Duration
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.inMilliseconds
-import androidx.ui.unit.milliseconds
-import androidx.ui.util.lerp
+import androidx.compose.ui.unit.Duration
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.inMilliseconds
+import androidx.compose.ui.unit.milliseconds
+import androidx.compose.ui.util.lerp
 import kotlin.math.atan2
 import kotlin.math.ceil
 import kotlin.math.cos

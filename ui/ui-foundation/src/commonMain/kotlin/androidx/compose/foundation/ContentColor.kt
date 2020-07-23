@@ -18,7 +18,7 @@ package androidx.compose.foundation
 
 import androidx.compose.Composable
 import androidx.compose.ambientOf
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 
 /**
  * Returns the preferred content color at the call site's position in the hierarchy.

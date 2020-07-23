@@ -30,10 +30,10 @@ import android.text.style.RelativeSizeSpan
 import android.text.style.ScaleXSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Shadow
-import androidx.ui.graphics.isSet
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.isSet
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.AnnotatedString
@@ -57,11 +57,11 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
-import androidx.ui.unit.Density
-import androidx.ui.unit.TextUnit
-import androidx.ui.unit.TextUnitType
-import androidx.ui.unit.sp
-import androidx.ui.util.fastForEach
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 

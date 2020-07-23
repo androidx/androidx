@@ -20,11 +20,11 @@ import androidx.compose.ui.geometry.RRect
 import androidx.compose.ui.geometry.Radius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
-import androidx.ui.graphics.Outline
-import androidx.ui.graphics.Shape
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
-import androidx.ui.util.annotation.IntRange
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.annotation.IntRange
 
 /**
  * A shape describing the rectangle with rounded corners.

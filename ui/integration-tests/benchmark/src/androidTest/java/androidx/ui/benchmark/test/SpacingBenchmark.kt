@@ -33,13 +33,13 @@ import androidx.ui.benchmark.toggleStateBenchmarkMeasure
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.offset
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.padding
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

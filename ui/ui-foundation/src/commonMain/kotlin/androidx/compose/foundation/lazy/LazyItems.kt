@@ -37,7 +37,7 @@ import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.ui.core.Alignment
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 /**
  * A vertically scrolling list that only composes and lays out the currently visible items.

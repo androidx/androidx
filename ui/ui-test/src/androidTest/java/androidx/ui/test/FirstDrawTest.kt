@@ -26,7 +26,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.ui.test.android.createAndroidComposeRule
 import com.google.common.truth.Truth.assertThat

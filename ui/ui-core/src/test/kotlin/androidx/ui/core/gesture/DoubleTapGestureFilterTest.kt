@@ -27,8 +27,8 @@ import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.milliseconds
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock

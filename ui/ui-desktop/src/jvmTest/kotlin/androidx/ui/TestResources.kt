@@ -17,8 +17,8 @@
 package androidx.ui
 
 import android.graphics.Bitmap
-import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.asImageAsset
+import androidx.compose.ui.graphics.ImageAsset
+import androidx.compose.ui.graphics.asImageAsset
 
 internal object TestResources {
     fun testImageAsset(path: String): ImageAsset {

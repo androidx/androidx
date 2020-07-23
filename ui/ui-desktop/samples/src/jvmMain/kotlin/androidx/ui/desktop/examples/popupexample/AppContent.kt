@@ -28,7 +28,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope.gravity
 import androidx.compose.foundation.layout.Row
@@ -41,9 +41,9 @@ import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.layout.width
 import androidx.ui.material.Button
 import androidx.ui.material.Surface
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun content() {

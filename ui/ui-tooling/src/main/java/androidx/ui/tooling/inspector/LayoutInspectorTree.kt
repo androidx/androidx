@@ -23,7 +23,7 @@ import androidx.ui.tooling.Group
 import androidx.ui.tooling.ParameterInformation
 import androidx.ui.tooling.R
 import androidx.ui.tooling.asTree
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 import java.util.ArrayDeque
 import kotlin.math.absoluteValue
 

@@ -21,7 +21,7 @@ import androidx.ui.core.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.size
 import androidx.ui.test.ComposeTestRule
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Suppress("DEPRECATION")
 internal val FocusModifier.focusNode

@@ -19,14 +19,14 @@ package androidx.compose.foundation.layout.demos
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.background
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ltr
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.rtl
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun ComplexLayoutDemo() {

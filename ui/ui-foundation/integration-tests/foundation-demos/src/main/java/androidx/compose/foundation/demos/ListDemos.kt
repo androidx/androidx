@@ -33,14 +33,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.currentTextStyle
 import androidx.compose.foundation.lazy.LazyRowItems
 import androidx.compose.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredWidth
-import androidx.ui.unit.dp
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlin.random.Random
 
 val LazyListDemos = listOf(

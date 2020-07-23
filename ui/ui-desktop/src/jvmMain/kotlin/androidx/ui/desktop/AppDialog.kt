@@ -18,8 +18,8 @@ package androidx.ui.desktop
 import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.compose.remember
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import java.awt.Dimension
 import java.awt.Toolkit
 import java.awt.event.WindowAdapter

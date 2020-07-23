@@ -20,13 +20,13 @@ import androidx.ui.core.AlignmentLine
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.unit.Bounds
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
-import androidx.ui.unit.PxBounds
-import androidx.ui.unit.height
-import androidx.ui.unit.toSize
-import androidx.ui.unit.width
+import androidx.compose.ui.unit.Bounds
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.PxBounds
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.unit.width
 import kotlin.math.absoluteValue
 
 private const val floatTolerance = 0.5f

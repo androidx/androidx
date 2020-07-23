@@ -28,7 +28,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.rtl
 import androidx.ui.test.GestureScope
@@ -50,9 +50,9 @@ import androidx.ui.test.swipeDown
 import androidx.ui.test.swipeLeft
 import androidx.ui.test.swipeRight
 import androidx.ui.test.swipeUp
-import androidx.ui.unit.dp
-import androidx.ui.unit.height
-import androidx.ui.unit.width
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
 import org.junit.Rule

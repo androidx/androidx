@@ -16,11 +16,11 @@
 
 package androidx.ui.core.gesture.util
 
-import androidx.ui.unit.Duration
+import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.Uptime
-import androidx.ui.unit.Velocity
-import androidx.ui.unit.inMilliseconds
+import androidx.compose.ui.unit.Uptime
+import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.inMilliseconds
 import kotlin.math.absoluteValue
 
 private const val AssumePointerMoveStoppedMilliseconds: Int = 40

@@ -21,8 +21,8 @@ import androidx.ui.core.Modifier
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -47,8 +47,8 @@ import androidx.compose.ui.text.samples.TextDecorationUnderlineSample
 import androidx.compose.ui.text.samples.TextStyleSample
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.ui.unit.em
-import androidx.ui.unit.sp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 
 const val displayText = "Text Demo"
 const val displayTextChinese = "文本演示"

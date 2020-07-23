@@ -26,8 +26,8 @@ import androidx.ui.core.WithConstraints
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInRoot
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith

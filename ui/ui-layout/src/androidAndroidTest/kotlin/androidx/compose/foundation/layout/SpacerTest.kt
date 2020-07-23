@@ -20,8 +20,8 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Assert.assertTrue
 import org.junit.Test

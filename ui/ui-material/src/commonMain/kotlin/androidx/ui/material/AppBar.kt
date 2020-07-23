@@ -23,13 +23,13 @@ import androidx.compose.foundation.shape.corner.CircleShape
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Outline
-import androidx.ui.graphics.Path
-import androidx.ui.graphics.PathOperation
-import androidx.ui.graphics.RectangleShape
-import androidx.ui.graphics.Shape
-import androidx.ui.graphics.addOutline
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.addOutline
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -40,12 +40,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredWidth
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
-import androidx.ui.unit.PxBounds
-import androidx.ui.unit.dp
-import androidx.ui.unit.height
-import androidx.ui.unit.width
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.PxBounds
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.width
 import kotlin.math.sqrt
 
 /**

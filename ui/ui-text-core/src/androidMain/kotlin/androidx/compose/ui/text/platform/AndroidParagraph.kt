@@ -20,9 +20,9 @@ import android.text.TextPaint
 import android.text.TextUtils
 import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Path
-import androidx.ui.graphics.asComposePath
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphConstraints
@@ -46,9 +46,9 @@ import androidx.compose.ui.text.android.selection.WordBoundary
 import androidx.compose.ui.text.android.style.PlaceholderSpan
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.ResolvedTextDirection
-import androidx.ui.unit.Density
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.util.annotation.VisibleForTesting
+import androidx.compose.ui.util.annotation.VisibleForTesting
 import java.util.Locale as JavaLocale
 
 /**

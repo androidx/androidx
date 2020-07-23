@@ -25,9 +25,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.compose.foundation.background
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.compositeOver
-import androidx.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.layout.DpConstraints
 import androidx.compose.foundation.layout.ltr
 import androidx.compose.foundation.layout.rtl
@@ -48,7 +48,7 @@ import androidx.ui.test.runOnUiThread
 import androidx.ui.test.down
 import androidx.ui.test.moveBy
 import androidx.ui.test.up
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals

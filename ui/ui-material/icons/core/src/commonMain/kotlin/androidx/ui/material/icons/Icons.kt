@@ -16,15 +16,15 @@
 
 package androidx.ui.material.icons
 
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.SolidColor
-import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.StrokeJoin
-import androidx.ui.graphics.vector.PathBuilder
-import androidx.ui.graphics.vector.VectorAsset
-import androidx.ui.graphics.vector.VectorAssetBuilder
-import androidx.ui.graphics.vector.path
-import androidx.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.vector.PathBuilder
+import androidx.compose.ui.graphics.vector.VectorAsset
+import androidx.compose.ui.graphics.vector.VectorAssetBuilder
+import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.unit.dp
 
 /**
  * Entry point for using [Material Icons](https://material.io/resources/icons) in Compose.

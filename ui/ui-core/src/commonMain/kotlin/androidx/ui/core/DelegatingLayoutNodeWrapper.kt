@@ -23,9 +23,11 @@ import androidx.ui.core.focus.ModifiedFocusNode2
 import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.graphics.Canvas
-import androidx.ui.unit.IntOffset
-import androidx.ui.util.nativeClass
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.nativeClass
 
 /**
  * [LayoutNodeWrapper] with default implementations for methods.

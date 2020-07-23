@@ -29,7 +29,7 @@ import androidx.ui.material.AlertDialog
 import androidx.ui.material.AlertDialogButtonLayout
 import androidx.ui.material.Button
 import androidx.ui.material.TextButton
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable

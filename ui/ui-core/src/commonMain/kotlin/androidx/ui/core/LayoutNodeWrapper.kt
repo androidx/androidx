@@ -26,14 +26,16 @@ import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Paint
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.PxBounds
-import androidx.ui.unit.minus
-import androidx.ui.unit.plus
-import androidx.ui.unit.toOffset
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.PxBounds
+import androidx.compose.ui.unit.minus
+import androidx.compose.ui.unit.plus
+import androidx.compose.ui.unit.toOffset
 
 /**
  * Measurable and Placeable type that has a position.

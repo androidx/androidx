@@ -24,9 +24,9 @@ import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.unit.Duration
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.Uptime
+import androidx.compose.ui.unit.Duration
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Uptime
 import com.google.common.truth.Truth.assertThat
 
 data class DataPoint(val id: PointerId, val data: PointerInputData) {
