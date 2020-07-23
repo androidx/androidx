@@ -18,22 +18,24 @@ package androidx.compose.foundation
 
 import android.os.Build
 import androidx.compose.Composable
-import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.foundation.layout.Stack
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.ui.unit.Density
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
+import androidx.ui.core.DensityAmbient
+import androidx.ui.core.InspectableParameter
+import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
-import androidx.compose.ui.unit.Density
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -141,6 +143,18 @@ class BackgroundTest {
             shapeColor = Color.White,
             shapeOverlapPixelCount = 2.0f
         )
+    }
+
+    @Test
+    fun testInspectableParameter() {
+        val exclusions = listOf("nameFallback", "lastSize", "lastOutline")
+        val modifier = Modifier.background(Color.Magenta) as InspectableParameter
+        assertThat(modifier.nameFallback).isEqualTo("background")
+        assertThat(modifier.valueOverride).isEqualTo(Color.Magenta)
+        assertThat(modifier.inspectableElements.map { it.name }.toList())
+            .containsExactlyElementsIn(modifier.javaClass.declaredFields
+                .filter { !it.isSynthetic && !exclusions.contains(it.name) }
+                .map { it.name })
     }
 
     @Composable

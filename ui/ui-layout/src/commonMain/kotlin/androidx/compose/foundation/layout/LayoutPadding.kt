@@ -19,16 +19,18 @@ package androidx.compose.foundation.layout
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.core.Modifier
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
+import androidx.ui.core.InspectableParameter
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
-import androidx.compose.ui.unit.constrainHeight
-import androidx.compose.ui.unit.constrainWidth
-import androidx.compose.ui.unit.offset
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import androidx.ui.core.Modifier
+import androidx.ui.core.ParameterElement
 
 /**
  * Apply additional space along each edge of the content in [Dp]: [start], [top], [end] and
@@ -150,7 +152,7 @@ private data class PaddingModifier(
     val end: Dp = 0.dp,
     val bottom: Dp = 0.dp,
     val rtlAware: Boolean
-) : LayoutModifier {
+) : LayoutModifier, InspectableParameter {
     init {
         require(start.value >= 0f && top.value >= 0f && end.value >= 0f && bottom.value >= 0f) {
             "Padding must be non-negative"
@@ -177,6 +179,19 @@ private data class PaddingModifier(
             }
         }
     }
+
+    override val nameFallback = if (rtlAware) "padding" else "absolutePadding"
+
+    override val valueOverride: Any?
+        get() = if (start == top && top == end && end == bottom) start else null
+
+    override val inspectableElements: Sequence<ParameterElement>
+        get() = sequenceOf(
+            ParameterElement(if (rtlAware) "start" else "left", start),
+            ParameterElement("top", top),
+            ParameterElement(if (rtlAware) "end" else "right", end),
+            ParameterElement("bottom", bottom)
+        )
 }
 
 /**
