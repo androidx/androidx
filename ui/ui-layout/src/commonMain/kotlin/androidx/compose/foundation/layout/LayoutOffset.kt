@@ -36,7 +36,7 @@ import kotlin.math.roundToInt
  * @sample androidx.compose.foundation.layout.samples.LayoutOffsetModifier
  */
 @Stable
-fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) = this + OffsetModifier(x, y)
+fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) = this.then(OffsetModifier(x, y))
 
 /**
  * Offset the content by ([x] px, [y]px). The offsets can be positive as well as non positive.
@@ -48,7 +48,7 @@ fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) = this + OffsetModifier(x, y)
 fun Modifier.offsetPx(
     x: State<Float> = mutableStateOf(0f),
     y: State<Float> = mutableStateOf(0f)
-) = this + OffsetPxModifier(x, y)
+) = this.then(OffsetPxModifier(x, y))
 
 private data class OffsetModifier(val x: Dp, val y: Dp) : LayoutModifier {
     override fun MeasureScope.measure(

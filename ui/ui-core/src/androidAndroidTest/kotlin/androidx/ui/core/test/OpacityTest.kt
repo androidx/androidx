@@ -71,7 +71,7 @@ class OpacityTest {
                     modifier = Modifier.background(Color.White)
                         .drawOpacity(1f)
                         .background(color)
-                        .plus(unlatch)
+                        .then(unlatch)
                 ) {
                 }
             }
@@ -93,7 +93,7 @@ class OpacityTest {
                     modifier = Modifier.background(Color.White)
                         .drawOpacity(0f)
                         .background(color)
-                        .plus(unlatch)
+                        .then(unlatch)
                 ) {
                 }
             }
@@ -115,7 +115,7 @@ class OpacityTest {
                         modifier = Modifier.background(Color.White)
                             .drawOpacity(0.5f)
                             .background(color)
-                            .plus(unlatch)
+                            .then(unlatch)
                     ) {
                     }
                     AtLeastSize(
@@ -144,7 +144,7 @@ class OpacityTest {
                     size = 10,
                     modifier = Modifier.background(Color.White)
                         .drawOpacity(opacity.value)
-                        .plus(unlatch)
+                        .then(unlatch)
                         .background(color)
                 ) {
                 }
@@ -174,7 +174,7 @@ class OpacityTest {
                     modifier = Modifier.background(Color.White)
                         .drawOpacity(1f)
                         .drawOpacity(opacity)
-                        .plus(unlatch)
+                        .then(unlatch)
                         .background(color)
                 ) {
                 }
@@ -204,7 +204,7 @@ class OpacityTest {
                         .run {
                             if (model.value) drawOpacity(0f).background(Color.Green) else this
                         }
-                        .plus(unlatch)
+                        .then(unlatch)
                 ) {
                 }
             }

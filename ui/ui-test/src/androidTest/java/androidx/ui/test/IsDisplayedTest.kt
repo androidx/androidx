@@ -84,8 +84,9 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
     private fun Item(i: Int, width: Dp? = null, height: Dp? = null) {
         BoundaryNode("item$i") {
             Box(
-                modifier = with(Modifier) { width?.let { width(it) } ?: fillMaxWidth() } +
-                        with(Modifier) { height?.let { height(it) } ?: fillMaxHeight() },
+                modifier =
+                with(Modifier) { width?.let { width(it) } ?: fillMaxWidth() }
+                    .then(with(Modifier) { height?.let { height(it) } ?: fillMaxHeight() }),
                 backgroundColor = colors[i % colors.size]
             )
         }

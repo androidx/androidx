@@ -214,7 +214,7 @@ internal fun TextFieldImpl(
                             minWidth = TextFieldMinWidth,
                             minHeight = TextFieldMinHeight
                         )
-                        .plus(textFieldModifier),
+                        .then(textFieldModifier),
                     decoratedTextField = decoratedTextField,
                     decoratedPlaceholder = decoratedPlaceholder,
                     decoratedLabel = decoratedLabel,
@@ -236,7 +236,7 @@ internal fun TextFieldImpl(
                             minWidth = TextFieldMinWidth,
                             minHeight = TextFieldMinHeight + OutlinedTextFieldTopPadding
                         )
-                        .plus(textFieldModifier)
+                        .then(textFieldModifier)
                         .padding(top = OutlinedTextFieldTopPadding),
                     decoratedTextField = decoratedTextField,
                     decoratedPlaceholder = decoratedPlaceholder,
@@ -356,7 +356,7 @@ internal fun heightOrZero(placeable: Placeable?) = placeable?.height ?: 0
  * A modifier that applies padding only if the size of the element is not zero
  */
 internal fun Modifier.iconPadding(start: Dp = 0.dp, end: Dp = 0.dp) =
-    this + object : LayoutModifier {
+    this.then(object : LayoutModifier {
         override fun MeasureScope.measure(
             measurable: Measurable,
             constraints: Constraints,
@@ -373,7 +373,7 @@ internal fun Modifier.iconPadding(start: Dp = 0.dp, end: Dp = 0.dp) =
                 placeable.place(start.toIntPx(), 0)
             }
         }
-    }
+    })
 
 private object TextFieldTransitionScope {
     private val LabelColorProp = ColorPropKey()

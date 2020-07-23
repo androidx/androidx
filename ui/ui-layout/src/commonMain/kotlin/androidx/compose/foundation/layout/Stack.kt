@@ -102,7 +102,7 @@ class StackScope {
      * Pull the content element to a specific [Alignment] within the [Stack].
      */
     @Stable
-    fun Modifier.gravity(align: Alignment) = this + StackGravityModifier(align)
+    fun Modifier.gravity(align: Alignment) = this.then(StackGravityModifier(align))
 
     /**
      * Size the element to match the size of the [Stack] after all other content elements have
@@ -117,7 +117,7 @@ class StackScope {
      * available space.
      */
     @Stable
-    fun Modifier.matchParentSize() = this + StretchGravityModifier
+    fun Modifier.matchParentSize() = this.then(StretchGravityModifier)
 
     internal companion object {
         @Stable

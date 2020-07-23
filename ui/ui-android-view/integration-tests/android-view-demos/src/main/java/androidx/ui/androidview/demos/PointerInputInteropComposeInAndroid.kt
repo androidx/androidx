@@ -160,7 +160,7 @@ open class ComposeTapInAndroidTap : ComponentActivity() {
 
             Column {
                 Box(
-                    tap + Modifier.background(color = currentColor.value).fillMaxSize()
+                    tap.then(Modifier.background(color = currentColor.value).fillMaxSize())
                 )
             }
         }

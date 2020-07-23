@@ -71,7 +71,7 @@ class DrawLayerTest {
     fun testLayerBoundsPosition() {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                FixedSize(30, PaddingModifier(10).drawLayer() + positioner) {
+                FixedSize(30, PaddingModifier(10).drawLayer().then(positioner)) {
                 }
             }
         }
@@ -97,7 +97,7 @@ class DrawLayerTest {
                 Padding(10) {
                     FixedSize(
                         10,
-                        Modifier.drawLayer(scaleX = 2f, scaleY = 3f) + positioner
+                        Modifier.drawLayer(scaleX = 2f, scaleY = 3f).then(positioner)
                     ) {
                     }
                 }
@@ -119,7 +119,7 @@ class DrawLayerTest {
                 Padding(10) {
                     FixedSize(
                         10,
-                        Modifier.drawLayer(scaleY = 3f, rotationZ = 90f) + positioner
+                        Modifier.drawLayer(scaleY = 3f, rotationZ = 90f).then(positioner)
                     ) {
                     }
                 }
@@ -143,7 +143,7 @@ class DrawLayerTest {
                         Modifier.drawLayer(
                             rotationZ = 90f,
                             transformOrigin = TransformOrigin(1.0f, 1.0f)
-                        ) + positioner
+                        ).then(positioner)
                     )
                 }
             }
@@ -166,7 +166,7 @@ class DrawLayerTest {
                         Modifier.drawLayer(
                             translationX = 5.0f,
                             translationY = 8.0f
-                        ) + positioner
+                        ).then(positioner)
                     )
                 }
             }
@@ -188,7 +188,7 @@ class DrawLayerTest {
                     FixedSize(10, Modifier.drawLayer(clip = true)) {
                         FixedSize(
                             10,
-                            Modifier.drawLayer(scaleX = 2f) + positioner
+                            Modifier.drawLayer(scaleX = 2f).then(positioner)
                         ) {
                         }
                     }
@@ -213,8 +213,7 @@ class DrawLayerTest {
                     FixedSize(10, Modifier.drawLayer(clip = true)) {
                         FixedSize(
                             10,
-                            PaddingModifier(20) +
-                                    positioner
+                            PaddingModifier(20).then(positioner)
                         ) {
                         }
                     }

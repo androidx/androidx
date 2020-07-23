@@ -57,7 +57,7 @@ fun IconButton(
                 onClick = onClick,
                 indication = RippleIndication(bounded = false, radius = RippleRadius)
             )
-            .plus(IconButtonSizeModifier),
+            .then(IconButtonSizeModifier),
         gravity = ContentGravity.Center,
         children = icon
     )
@@ -91,7 +91,7 @@ fun IconToggleButton(
             onValueChange = onCheckedChange,
             enabled = enabled,
             indication = RippleIndication(bounded = false, radius = RippleRadius)
-        ).plus(IconButtonSizeModifier),
+        ).then(IconButtonSizeModifier),
         gravity = ContentGravity.Center,
         children = icon
     )

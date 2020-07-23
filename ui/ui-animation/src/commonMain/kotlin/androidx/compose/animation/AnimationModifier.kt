@@ -56,9 +56,9 @@ fun Modifier.animateContentSize(
         SizeAnimationModifier(animSpec, clock)
     }
     if (clip) {
-        this + Modifier.clipToBounds() + animModifier
+        this.clipToBounds().then(animModifier)
     } else {
-        this + animModifier
+        this.then(animModifier)
     }
 }
 

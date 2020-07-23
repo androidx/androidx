@@ -92,8 +92,9 @@ class LayoutAspectRatioTest : LayoutTest() {
         show {
             Layout(@Composable {
                 Container(
-                    Modifier.aspectRatio(aspectRatio) +
-                        Modifier.saveLayoutInfo(size, position, positionedLatch)
+                    Modifier
+                        .aspectRatio(aspectRatio)
+                        .then(Modifier.saveLayoutInfo(size, position, positionedLatch))
                 ) {
                 }
             }) { measurables, incomingConstraints ->

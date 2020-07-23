@@ -531,10 +531,10 @@ class ConstraintLayoutScope internal constructor() : ConstraintLayoutBaseScope()
         constrainBlock: ConstrainScope.() -> Unit
     ): Modifier {
         // TODO(popam, b/157782492): make equals comparable modifiers here.
-        return this + object : ParentDataModifier {
+        return this.then(object : ParentDataModifier {
             override fun Density.modifyParentData(parentData: Any?) =
                 ConstraintLayoutParentData(ref, constrainBlock)
-        }
+        })
     }
 }
 

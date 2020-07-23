@@ -31,7 +31,7 @@ import androidx.compose.Composer
  */
 fun Modifier.composed(
     factory: @Composable Modifier.() -> Modifier
-): Modifier = this + ComposedModifier(factory)
+): Modifier = this.then(ComposedModifier(factory))
 
 private data class ComposedModifier(
     val factory: @Composable Modifier.() -> Modifier
@@ -55,12 +55,14 @@ fun Composer<*>.materialize(modifier: Modifier): Modifier {
     startReplaceableGroup(0x48ae8da7)
 
     val result = modifier.foldIn<Modifier>(Modifier) { acc, element ->
-        acc + if (element is ComposedModifier) {
-            @kotlin.Suppress("UNCHECKED_CAST")
-            val factory = element.factory as Modifier.(Composer<*>, Int, Int) -> Modifier
-            val composedMod = factory(Modifier, this, 0, 0)
-            materialize(composedMod)
-        } else element
+        acc.then(
+            if (element is ComposedModifier) {
+                @kotlin.Suppress("UNCHECKED_CAST")
+                val factory = element.factory as Modifier.(Composer<*>, Int, Int) -> Modifier
+                val composedMod = factory(Modifier, this, 0, 0)
+                materialize(composedMod)
+            } else element
+        )
     }
 
     endReplaceableGroup()

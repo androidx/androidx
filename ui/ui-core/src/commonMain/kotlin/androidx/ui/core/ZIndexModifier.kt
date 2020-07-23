@@ -45,6 +45,6 @@ interface ZIndexModifier : Modifier.Element {
  * @sample androidx.ui.core.samples.ZIndexModifierSample
  */
 @Stable
-fun Modifier.zIndex(zIndex: Float): Modifier = this + SimpleZIndexModifier(zIndex)
+fun Modifier.zIndex(zIndex: Float): Modifier = this.then(SimpleZIndexModifier(zIndex))
 
 private data class SimpleZIndexModifier(override val zIndex: Float) : ZIndexModifier

@@ -125,7 +125,7 @@ object RowScope {
      * @sample androidx.compose.foundation.layout.samples.SimpleGravityInRow
      */
     @Stable
-    fun Modifier.gravity(align: Alignment.Vertical) = this + VerticalGravityModifier(align)
+    fun Modifier.gravity(align: Alignment.Vertical) = this.then(VerticalGravityModifier(align))
 
     /**
      * Position the element vertically such that its [alignmentLine] aligns with sibling elements
@@ -147,7 +147,7 @@ object RowScope {
      */
     @Stable
     fun Modifier.alignWithSiblings(alignmentLine: HorizontalAlignmentLine) =
-        this + SiblingsAlignedModifier.WithAlignmentLine(alignmentLine)
+        this.then(SiblingsAlignedModifier.WithAlignmentLine(alignmentLine))
 
     /**
      * Size the element's width proportional to its [weight] relative to other weighted sibling
@@ -164,7 +164,7 @@ object RowScope {
         fill: Boolean = true
     ): Modifier {
         require(weight > 0.0) { "invalid weight $weight; must be greater than zero" }
-        return this + LayoutWeightImpl(weight, fill)
+        return this.then(LayoutWeightImpl(weight, fill))
     }
 
     /**
@@ -187,5 +187,5 @@ object RowScope {
     @Stable
     fun Modifier.alignWithSiblings(
         alignmentLineBlock: (Measured) -> Int
-    ) = this + SiblingsAlignedModifier.WithAlignmentLineBlock(alignmentLineBlock)
+    ) = this.then(SiblingsAlignedModifier.WithAlignmentLineBlock(alignmentLineBlock))
 }

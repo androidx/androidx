@@ -96,7 +96,7 @@ fun DragAndScaleGestureFilterDemo() {
                 .wrapContentSize(Alignment.Center)
                 .offset(offsetX, offsetY)
                 .preferredSize(size.value)
-                .plus(gestures),
+                .then(gestures),
             backgroundColor = color
         )
     }

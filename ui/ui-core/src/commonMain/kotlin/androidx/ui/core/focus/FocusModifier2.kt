@@ -50,4 +50,4 @@ internal class FocusModifier2(
  */
 @ExperimentalFocus
 @Composable
-fun Modifier.focus(): Modifier = this + remember { FocusModifier2(FocusState2.Inactive) }
+fun Modifier.focus(): Modifier = this.then(remember { FocusModifier2(FocusState2.Inactive) })

@@ -64,7 +64,7 @@ fun InteractionStateSample() {
             Modifier
                 .fillMaxSize()
                 .clickable(interactionState = interactionState) { /* do nothing */ }
-                .plus(draggable),
+                .then(draggable),
             border = Border(3.dp, color)
         ) {
             Text(

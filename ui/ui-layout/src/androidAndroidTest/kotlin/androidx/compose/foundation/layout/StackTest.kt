@@ -342,10 +342,11 @@ class StackTest : LayoutTest() {
                     Modifier.preferredSize(
                         sizeDp,
                         sizeDp
-                    ) + Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                    stackSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
+                    ).then(Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                        stackSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    })
+                ) {
                     Stack {
                         Container(
                             Modifier.fillMaxSize()

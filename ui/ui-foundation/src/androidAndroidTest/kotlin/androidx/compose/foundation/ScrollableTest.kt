@@ -576,8 +576,7 @@ class ScrollableTest {
                 Box(
                     modifier = Modifier
                         .testTag(scrollableBoxTag)
-                        .preferredSize(100.dp) +
-                            scrollable
+                        .preferredSize(100.dp).then(scrollable)
                 )
             }
         }

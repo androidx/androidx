@@ -87,7 +87,7 @@ class LayoutNodeModifierBenchmark(
         ).subList(0, numberOfModifiers)
 
         combinedModifier = modifiers.fold<Modifier, Modifier>(Modifier) { acc, modifier ->
-            acc + modifier
+            acc.then(modifier)
         }
 
         rule.activityTestRule.runOnUiThread {
@@ -116,7 +116,7 @@ class LayoutNodeModifierBenchmark(
     @Test
     fun smallModifierChange() {
         rule.activityTestRule.runOnUiThread {
-            val altModifier = Modifier.padding(10.dp) + combinedModifier
+            val altModifier = Modifier.padding(10.dp).then(combinedModifier)
             layoutNode.modifier = altModifier
 
             rule.benchmarkRule.measureRepeated {

@@ -46,7 +46,7 @@ fun ModifierUsageSample() {
 fun ModifierFactorySample() {
     class FancyModifier(val level: Float) : Modifier.Element
 
-    fun Modifier.fancy(level: Float) = this + FancyModifier(level)
+    fun Modifier.fancy(level: Float) = this.then(FancyModifier(level))
 
     Row(Modifier.fancy(1f).padding(10.dp)) {
         // content

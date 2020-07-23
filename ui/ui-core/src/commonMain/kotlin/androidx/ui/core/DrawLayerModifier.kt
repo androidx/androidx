@@ -100,7 +100,8 @@ interface DrawLayerModifier : Modifier.Element {
      * cause it to be fully invisible.
      */
     @get:FloatRange(from = 0.0, to = 1.0)
-    val alpha: Float get() = 1f
+    val alpha: Float
+        get() = 1f
 
     /**
      * Horizontal pixel offset of the layer relative to its left bound
@@ -117,25 +118,29 @@ interface DrawLayerModifier : Modifier.Element {
      * [shape] set, a shadow is produced.
      */
     @get:FloatRange(from = 0.0, to = 3.4e38 /* POSITIVE_INFINITY */)
-    val shadowElevation: Float get() = 0f
+    val shadowElevation: Float
+        get() = 0f
 
     /**
      * The rotation of the contents around the horizontal axis in degrees.
      */
     @get:FloatRange(from = 0.0, to = 360.0)
-    val rotationX: Float get() = 0f
+    val rotationX: Float
+        get() = 0f
 
     /**
      * The rotation of the contents around the vertical axis in degrees.
      */
     @get:FloatRange(from = 0.0, to = 360.0)
-    val rotationY: Float get() = 0f
+    val rotationY: Float
+        get() = 0f
 
     /**
      * The rotation of the contents around the Z axis in degrees.
      */
     @get:FloatRange(from = 0.0, to = 360.0)
-    val rotationZ: Float get() = 0f
+    val rotationZ: Float
+        get() = 0f
 
     /**
      * Offset percentage along the x and y axis for which contents are rotated and scaled.
@@ -200,17 +205,19 @@ fun Modifier.drawLayer(
     transformOrigin: TransformOrigin = TransformOrigin.Center,
     shape: Shape = RectangleShape,
     clip: Boolean = false
-) = this + SimpleDrawLayerModifier(
-    scaleX = scaleX,
-    scaleY = scaleY,
-    alpha = alpha,
-    translationX = translationX,
-    translationY = translationY,
-    shadowElevation = shadowElevation,
-    rotationX = rotationX,
-    rotationY = rotationY,
-    rotationZ = rotationZ,
-    transformOrigin = transformOrigin,
-    shape = shape,
-    clip = clip
+) = this.then(
+    SimpleDrawLayerModifier(
+        scaleX = scaleX,
+        scaleY = scaleY,
+        alpha = alpha,
+        translationX = translationX,
+        translationY = translationY,
+        shadowElevation = shadowElevation,
+        rotationX = rotationX,
+        rotationY = rotationY,
+        rotationZ = rotationZ,
+        transformOrigin = transformOrigin,
+        shape = shape,
+        clip = clip
+    )
 )

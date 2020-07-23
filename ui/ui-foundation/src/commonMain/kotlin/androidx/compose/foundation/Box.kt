@@ -102,7 +102,7 @@ fun Box(
     val columnArrangement = gravity.toColumnArrangement()
     val columnGravity = gravity.toColumnGravity()
     Column(
-        modifier = modifier + backgroundModifier + borderModifier + paddingModifier,
+        modifier = modifier.then(backgroundModifier).then(borderModifier).then(paddingModifier),
         verticalArrangement = columnArrangement,
         horizontalGravity = columnGravity
     ) {

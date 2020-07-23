@@ -74,7 +74,7 @@ private class DeepHierarchyOnPositionedTestCase :
             } else {
                 Modifier
             }
-            Box(Modifier.preferredSize(100.dp) + modifier, gravity = ContentGravity.Center) {
+            Box(Modifier.preferredSize(100.dp).then(modifier), gravity = ContentGravity.Center) {
                 StaticChildren(count - 1)
             }
         }

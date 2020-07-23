@@ -2867,11 +2867,12 @@ class RowColumnTest : LayoutTest() {
                 ) {
                     Column {
                         Spacer(
-                            Modifier.preferredSize(width = childSizeDp, height = childSizeDp) +
-                                    Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                                        containerSize.value = coordinates.size
-                                        layoutLatch.countDown()
-                                    })
+                            Modifier.preferredSize(width = childSizeDp, height = childSizeDp).then(
+                                Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                                    containerSize.value = coordinates.size
+                                    layoutLatch.countDown()
+                                })
+                        )
                     }
                 }
             }
@@ -3395,14 +3396,14 @@ class RowColumnTest : LayoutTest() {
             Column(verticalArrangement = Arrangement.SpaceBetween) {
                 ConstrainedBox(DpConstraints.fixed(30.toDp(), 20.toDp()), Modifier.weight(3f)) { }
                 ConstrainedBox(DpConstraints.fixed(40.toDp(), 30.toDp()), Modifier.weight(2f)) { }
-                Container(Modifier.aspectRatio(0.5f) + Modifier.weight(2f)) { }
+                Container(Modifier.aspectRatio(0.5f).then(Modifier.weight(2f))) { }
                 ConstrainedBox(DpConstraints.fixed(30.toDp(), 20.toDp())) { }
             }
         }, @Composable {
             Column(verticalArrangement = Arrangement.SpaceEvenly) {
                 ConstrainedBox(DpConstraints.fixed(30.toDp(), 20.toDp()), Modifier.weight(3f)) { }
                 ConstrainedBox(DpConstraints.fixed(40.toDp(), 30.toDp()), Modifier.weight(2f)) { }
-                Container(Modifier.aspectRatio(0.5f) + Modifier.weight(2f)) { }
+                Container(Modifier.aspectRatio(0.5f).then(Modifier.weight(2f))) { }
                 ConstrainedBox(DpConstraints.fixed(30.toDp(), 20.toDp())) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->

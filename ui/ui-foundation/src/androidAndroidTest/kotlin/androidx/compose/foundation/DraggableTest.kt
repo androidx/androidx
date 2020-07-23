@@ -393,7 +393,7 @@ class DraggableTest {
                     modifier = Modifier
                         .testTag(draggableBoxTag)
                         .preferredSize(100.dp)
-                        .plus(draggable)
+                        .then(draggable)
                 )
             }
         }
