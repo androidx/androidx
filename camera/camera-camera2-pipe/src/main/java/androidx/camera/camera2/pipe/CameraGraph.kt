@@ -16,13 +16,27 @@
 
 package androidx.camera.camera2.pipe
 
+import android.view.Surface
 import java.io.Closeable
 
 /**
  * A CameraGraph represents the combined configuration and state of a camera.
  */
-interface CameraGraph {
+interface CameraGraph : Closeable {
+
+    /**
+     * This will cause the CameraGraph to start opening the camera and configuring the Camera2
+     * CaptureSession. While the CameraGraph is started it will attempt to keep the camera alive,
+     * active, and in a configured running state.
+     */
     fun start()
+
+    /**
+     * This will cause the CameraGraph to stop executing requests and close the current Camera2
+     * CaptureSession (if one is active). The current repeating request is preserved, and any
+     * call to submit a request to a session will be enqueued. To prevent requests from being
+     * enqueued, close the CameraGraph.
+     */
     fun stop()
 
     /**
@@ -36,11 +50,33 @@ interface CameraGraph {
      */
     fun acquireSessionOrNull(): Session?
 
+    /**
+     * This configures the camera graph to use a specific Surface for the given stream.
+     *
+     * Changing a surface may cause the camera to stall and/or reconfigure.
+     */
+    fun setSurface(stream: StreamId, surface: Surface?)
+
+    /**
+     * This defines the configuration, flags, and pre-defined behavior of a CameraGraph instance.
+     */
     data class Config(
         val camera: CameraId,
         val streams: List<StreamConfig>,
-        val defaultTemplate: Int,
-        val metadataTransform: MetadataTransform = MetadataTransform()
+        val defaultTemplate: RequestTemplate,
+        val listeners: List<Request.Listener> = listOf(),
+        val metadataTransform: MetadataTransform = MetadataTransform(),
+        val flags: Flags = Flags()
+    )
+
+    /**
+     * Flags define boolean values that are used to adjust the behavior and interactions with
+     * camera2. These flags should default to the ideal behavior and should be overridden on
+     * specific devices to be faster or to work around bad behavior.
+     */
+    data class Flags(
+        val configureBlankSessionOnStop: Boolean = false,
+        val abortCapturesOnStop: Boolean = false
     )
 
     /**
@@ -52,5 +88,11 @@ interface CameraGraph {
         fun submit(request: Request)
         fun submit(requests: List<Request>)
         fun setRepeating(request: Request)
+
+        /**
+         * Abort in-flight requests. This will abort *all* requests in the current
+         * CameraCaptureSession as well as any requests that are currently enqueued.
+         */
+        fun abort()
     }
 }

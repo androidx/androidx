@@ -21,6 +21,7 @@ import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
@@ -57,7 +58,7 @@ class CameraPipeComponentTest {
         val config = CameraGraph.Config(
             camera = cameraId,
             streams = listOf(),
-            defaultTemplate = 0
+            defaultTemplate = RequestTemplate(0)
         )
         val module = CameraGraphModule(config)
         val builder = component.cameraGraphComponentBuilder()
@@ -79,7 +80,7 @@ class CameraPipeComponentTest {
                     CameraGraph.Config(
                         camera = CameraId("0"),
                         streams = listOf(),
-                        defaultTemplate = 0
+                        defaultTemplate = RequestTemplate(0)
                     )
                 )
             )

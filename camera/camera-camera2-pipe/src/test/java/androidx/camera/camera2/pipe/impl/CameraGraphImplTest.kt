@@ -20,7 +20,10 @@ import android.content.Context
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
+import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -36,6 +39,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraGraphImplTest {
+    private val graphProcessor = FakeGraphProcessor()
     private lateinit var impl: CameraGraphImpl
 
     @Before
@@ -43,10 +47,10 @@ class CameraGraphImplTest {
         val config = CameraGraph.Config(
             camera = CameraId("0"),
             streams = listOf(),
-            defaultTemplate = 0
+            defaultTemplate = RequestTemplate(0)
         )
         val context = ApplicationProvider.getApplicationContext() as Context
-        impl = CameraGraphImpl(context, config)
+        impl = CameraGraphImpl(context, config, graphProcessor, StreamMap())
     }
 
     @Test
@@ -55,7 +59,7 @@ class CameraGraphImplTest {
     }
 
     @Test
-    fun testAcquireSession() = runBlocking<Unit> {
+    fun testAcquireSession() = runBlocking {
         val session = impl.acquireSession()
         assertThat(session).isNotNull()
     }
@@ -67,7 +71,7 @@ class CameraGraphImplTest {
     }
 
     @Test
-    fun testAcquireSessionOrNullAfterAcquireSession() = runBlocking<Unit> {
+    fun testAcquireSessionOrNullAfterAcquireSession() = runBlocking {
         val session = impl.acquireSession()
         assertThat(session).isNotNull()
 
@@ -80,5 +84,61 @@ class CameraGraphImplTest {
 
         val session2 = impl.acquireSessionOrNull()
         assertThat(session2).isNotNull()
+    }
+
+    @Test
+    fun sessionSubmitsRequestsToGraphProcessor() {
+        val session = checkNotNull(impl.acquireSessionOrNull())
+        val request = Request(listOf())
+        session.submit(request)
+
+        assertThat(graphProcessor.requestQueue).contains(listOf(request))
+    }
+
+    @Test
+    fun sessionSetsRepeatingRequestOnGraphProcessor() {
+        val session = checkNotNull(impl.acquireSessionOrNull())
+        val request = Request(listOf())
+        session.setRepeating(request)
+
+        assertThat(graphProcessor.repeatingRequest).isSameInstanceAs(request)
+    }
+
+    @Test
+    fun sessionAbortsRequestOnGraphProcessor() {
+        val session = checkNotNull(impl.acquireSessionOrNull())
+        val request = Request(listOf())
+        session.submit(request)
+        session.abort()
+
+        assertThat(graphProcessor.requestQueue).isEmpty()
+    }
+
+    @Test
+    fun closingSessionDoesNotCloseGraphProcessor() {
+        val session = impl.acquireSessionOrNull()
+        checkNotNull(session).close()
+
+        assertThat(graphProcessor.closed).isFalse()
+    }
+
+    @Test
+    fun closingCameraGraphClosesGraphProcessor() {
+        impl.close()
+        assertThat(graphProcessor.closed).isTrue()
+    }
+
+    @Test
+    fun stoppingCameraGraphStopsGraphProcessor() {
+        assertThat(graphProcessor.active).isFalse()
+        impl.start()
+        assertThat(graphProcessor.active).isTrue()
+        impl.stop()
+        assertThat(graphProcessor.active).isFalse()
+        impl.start()
+        assertThat(graphProcessor.active).isTrue()
+        impl.close()
+        assertThat(graphProcessor.closed).isTrue()
+        assertThat(graphProcessor.active).isFalse()
     }
 }
