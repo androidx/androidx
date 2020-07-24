@@ -16,20 +16,19 @@
 
 package androidx.compose.ui.gesture
 
-import androidx.ui.core.CustomEventDispatcher
-import androidx.ui.core.PointerId
-import androidx.ui.core.consumeDownChange
-import androidx.ui.core.gesture.customevents.DelayUpEvent
-import androidx.ui.core.gesture.customevents.DelayUpMessage
+import androidx.compose.ui.platform.CustomEventDispatcher
+import androidx.compose.ui.platform.PointerId
+import androidx.compose.ui.platform.consumeDownChange
+import androidx.compose.ui.gesture.customevents.DelayUpEvent
+import androidx.compose.ui.gesture.customevents.DelayUpMessage
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.testutils.consume
-import androidx.ui.testutils.down
-import androidx.ui.testutils.invokeOverAllPasses
-import androidx.ui.testutils.moveTo
-import androidx.ui.testutils.up
+import androidx.compose.ui.input.pointer.consume
+import androidx.compose.ui.input.pointer.down
+import androidx.compose.ui.input.pointer.invokeOverAllPasses
+import androidx.compose.ui.input.pointer.moveTo
+import androidx.compose.ui.input.pointer.up
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.milliseconds
-import androidx.ui.core.gesture.DoubleTapGestureFilter
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock

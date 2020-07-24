@@ -18,8 +18,8 @@ package androidx.ui.desktop.examples.popupexample
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.state
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.ui.desktop.AppManager
 import androidx.ui.desktop.AppWindow
 import androidx.ui.desktop.Dialog

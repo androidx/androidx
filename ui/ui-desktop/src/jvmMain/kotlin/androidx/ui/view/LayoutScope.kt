@@ -29,10 +29,10 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
-import androidx.ui.core.Alignment
-import androidx.ui.core.FontLoaderAmbient
-import androidx.ui.core.TextInputServiceAmbient
-import androidx.ui.core.setContent
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.FontLoaderAmbient
+import androidx.compose.ui.platform.TextInputServiceAmbient
+import androidx.compose.ui.platform.setContent
 import androidx.ui.desktop.DesktopPlatformInput
 import androidx.ui.desktop.DesktopSelectionContainer
 import androidx.ui.desktop.FontLoader

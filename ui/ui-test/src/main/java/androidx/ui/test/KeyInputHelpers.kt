@@ -16,9 +16,9 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.keyinput.ExperimentalKeyInput
-import androidx.ui.core.keyinput.KeyEvent2
+import androidx.compose.ui.input.key.ExperimentalKeyInput
+import androidx.compose.ui.input.key.KeyEvent2
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 
 /**
  * Send the specified [KeyEvent][KeyEvent2] to the focused component.

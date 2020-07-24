@@ -31,7 +31,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.MediumTest
 import androidx.compose.animation.transition
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background

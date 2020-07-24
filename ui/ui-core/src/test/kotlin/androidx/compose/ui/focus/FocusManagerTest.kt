@@ -16,9 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.ui.core.input.FocusManagerImpl
-import androidx.ui.core.input.FocusNode
-import androidx.ui.core.input.FocusTransitionObserver
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock

@@ -17,8 +17,8 @@
 package androidx.compose.foundation
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
 import androidx.ui.test.onNodeWithTag

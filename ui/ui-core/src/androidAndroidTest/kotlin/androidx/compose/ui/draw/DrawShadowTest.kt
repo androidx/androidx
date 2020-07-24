@@ -24,11 +24,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.AtLeastSize
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.drawBehind
-import androidx.ui.core.drawLayer
-import androidx.ui.core.drawShadow
-import androidx.ui.core.setContent
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.drawBehind
+import androidx.compose.ui.drawLayer
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
@@ -36,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.runOnUiThreadIR
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp

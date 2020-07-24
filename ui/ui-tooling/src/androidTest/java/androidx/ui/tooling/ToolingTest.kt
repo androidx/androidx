@@ -19,9 +19,9 @@ package androidx.ui.tooling
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.runtime.Composable
-import androidx.ui.core.Modifier
-import androidx.ui.core.onPositioned
-import androidx.ui.core.setContent
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.onPositioned
+import androidx.compose.ui.platform.setContent
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import org.junit.Before

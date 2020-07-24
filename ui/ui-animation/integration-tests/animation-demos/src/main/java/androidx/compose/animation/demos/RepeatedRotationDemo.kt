@@ -24,9 +24,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.state
 import androidx.compose.animation.transition
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.tapGestureFilter
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Text
 import androidx.compose.ui.graphics.Color

@@ -24,10 +24,10 @@ import androidx.compose.runtime.isJoinedKey
 import androidx.compose.runtime.joinedKeyLeft
 import androidx.compose.runtime.joinedKeyRight
 import androidx.compose.runtime.keySourceInfoOf
-import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.LayoutNode
-import androidx.ui.core.ModifierInfo
-import androidx.ui.core.globalPosition
+import androidx.compose.ui.layout.globalPosition
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
+import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.ModifierInfo
 import androidx.compose.ui.unit.IntBounds
 import java.lang.Exception
 import java.lang.reflect.Field

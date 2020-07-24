@@ -30,10 +30,10 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.filters.SmallTest
-import androidx.ui.core.AbstractComposeView
-import androidx.ui.core.ComposeView
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.AbstractComposeView
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.testTag
 import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.assertTextEquals
 import androidx.ui.test.onNodeWithTag

@@ -19,8 +19,6 @@ package androidx.compose.ui.hapticfeedback
 import android.view.HapticFeedbackConstants
 import android.view.View
 import androidx.test.filters.SmallTest
-import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
-import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times

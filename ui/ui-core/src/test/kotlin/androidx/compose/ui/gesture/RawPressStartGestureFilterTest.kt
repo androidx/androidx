@@ -16,18 +16,17 @@
 
 package androidx.compose.ui.gesture
 
-import androidx.ui.core.PointerEventPass
-import androidx.ui.core.consumeDownChange
+import androidx.compose.ui.platform.PointerEventPass
+import androidx.compose.ui.platform.consumeDownChange
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.testutils.down
-import androidx.ui.testutils.invokeOverAllPasses
-import androidx.ui.testutils.invokeOverPasses
-import androidx.ui.testutils.moveBy
-import androidx.ui.testutils.moveTo
-import androidx.ui.testutils.up
+import androidx.compose.ui.input.pointer.down
+import androidx.compose.ui.input.pointer.invokeOverAllPasses
+import androidx.compose.ui.input.pointer.invokeOverPasses
+import androidx.compose.ui.input.pointer.moveBy
+import androidx.compose.ui.input.pointer.moveTo
+import androidx.compose.ui.input.pointer.up
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.milliseconds
-import androidx.ui.core.gesture.RawPressStartGestureFilter
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never

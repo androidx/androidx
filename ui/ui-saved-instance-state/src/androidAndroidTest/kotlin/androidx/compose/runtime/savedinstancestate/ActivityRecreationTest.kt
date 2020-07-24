@@ -26,7 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.MediumTest
-import androidx.ui.core.setContent
+import androidx.compose.ui.platform.setContent
 import androidx.compose.runtime.savedinstancestate.test.R
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

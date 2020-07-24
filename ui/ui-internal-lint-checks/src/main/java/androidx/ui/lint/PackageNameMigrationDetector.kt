@@ -76,7 +76,15 @@ class PackageNameMigrationDetector : Detector(), SourceCodeScanner {
             "androidx.ui.unit" to "androidx.compose.ui.unit",
             "androidx.ui.util" to "androidx.compose.ui.util",
             "androidx.ui.material" to "androidx.compose.material",
-            "androidx.compose.plugins" to "androidx.compose.compiler.plugins"
+            "androidx.compose.plugins" to "androidx.compose.compiler.plugins",
+            "androidx.ui.autofill" to "androidx.compose.ui.autofill",
+            "androidx.ui.res" to "androidx.compose.ui.res",
+            "androidx.ui.platform" to "androidx.compose.ui.platform",
+            "androidx.ui.semantics" to "androidx.compose.ui.semantics",
+            "androidx.ui.testutils" to "no replacement package",
+            "androidx.ui.viewinterop" to "androidx.compose.ui.viewinterop",
+            "androidx.ui.viewmodel" to "androidx.compose.ui.viewinterop",
+            "androidx.ui.core" to "androidx.compose.ui"
         )
 
         val ISSUE = Issue.create(

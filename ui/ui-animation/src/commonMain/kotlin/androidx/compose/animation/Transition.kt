@@ -29,7 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.onPreCommit
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.ui.core.AnimationClockAmbient
+import androidx.compose.ui.platform.AnimationClockAmbient
 
 /**
  * [transition] composable creates a state-based transition using the animation configuration

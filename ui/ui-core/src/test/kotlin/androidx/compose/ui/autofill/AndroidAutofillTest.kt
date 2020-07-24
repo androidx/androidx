@@ -24,9 +24,6 @@ import androidx.test.filters.SmallTest
 import androidx.compose.ui.test.ComposeUiRobolectricTestRunner
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.autofill.AndroidAutofill
-import androidx.ui.autofill.AutofillNode
-import androidx.ui.autofill.AutofillTree
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule

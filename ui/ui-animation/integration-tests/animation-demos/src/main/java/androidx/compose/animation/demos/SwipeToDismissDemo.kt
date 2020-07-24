@@ -25,11 +25,11 @@ import androidx.compose.animation.core.fling
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.state
 import androidx.compose.animation.animatedFloat
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.rawDragGestureFilter
-import androidx.ui.core.onPositioned
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.DragObserver
+import androidx.compose.ui.gesture.rawDragGestureFilter
+import androidx.compose.ui.onPositioned
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Text
 import androidx.compose.ui.geometry.Offset

@@ -24,9 +24,7 @@ import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
 import androidx.test.filters.SmallTest
-import androidx.ui.core.PointerId
-import androidx.ui.core.pointerinput.MotionEventAdapter
-import androidx.ui.core.pointerinput.PointerInputEventData
+import androidx.compose.ui.platform.PointerId
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test

@@ -17,7 +17,6 @@
 package androidx.compose.ui.autofill
 
 import androidx.test.filters.SmallTest
-import androidx.ui.autofill.AutofillNode
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

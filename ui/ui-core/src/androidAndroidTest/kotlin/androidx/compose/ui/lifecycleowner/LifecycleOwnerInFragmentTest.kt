@@ -21,13 +21,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.runtime.Recomposer
+import androidx.compose.ui.platform.LifecycleOwnerAmbient
+import androidx.compose.ui.platform.setContent
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.LifecycleOwner
 import androidx.test.filters.SmallTest
-import androidx.ui.core.LifecycleOwnerAmbient
-import androidx.ui.core.setContent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before

@@ -20,9 +20,9 @@ import android.os.Build
 import androidx.compose.runtime.Providers
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.ui.graphics.Color

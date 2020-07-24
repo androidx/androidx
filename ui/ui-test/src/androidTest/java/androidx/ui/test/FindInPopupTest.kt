@@ -17,11 +17,11 @@
 package androidx.ui.test
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.core.Popup
-import androidx.ui.core.testTag
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
+import androidx.compose.ui.platform.Popup
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

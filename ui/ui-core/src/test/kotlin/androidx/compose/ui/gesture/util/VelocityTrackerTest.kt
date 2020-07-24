@@ -16,12 +16,11 @@
 
 package androidx.compose.ui.gesture.util
 
-import androidx.ui.core.PointerInputData
+import androidx.compose.ui.platform.PointerInputData
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Uptime
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.milliseconds
-import androidx.ui.core.gesture.util.VelocityTracker
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

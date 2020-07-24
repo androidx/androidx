@@ -16,17 +16,17 @@
 package androidx.compose.material
 
 import androidx.test.filters.LargeTest
-import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.Modifier
-import androidx.ui.core.globalPosition
-import androidx.ui.core.onPositioned
-import androidx.ui.core.testTag
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.onPositioned
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.samples.BottomNavigationSample
+import androidx.compose.ui.layout.globalPosition
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsEqualTo

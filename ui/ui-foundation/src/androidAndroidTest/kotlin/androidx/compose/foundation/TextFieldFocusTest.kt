@@ -20,14 +20,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.state
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.focus.FocusModifier
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.width
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import androidx.compose.foundation.text.CoreTextField
+import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule

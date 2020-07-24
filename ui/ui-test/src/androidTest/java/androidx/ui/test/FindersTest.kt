@@ -18,13 +18,13 @@ package androidx.ui.test
 
 import androidx.compose.runtime.Composable
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Column
-import androidx.ui.semantics.SemanticsPropertyReceiver
-import androidx.ui.semantics.accessibilityLabel
-import androidx.ui.semantics.testTag
-import androidx.ui.semantics.text
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.accessibilityLabel
+import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.semantics.text
 import androidx.ui.test.util.expectError
 import androidx.compose.ui.text.AnnotatedString
 import org.junit.Rule

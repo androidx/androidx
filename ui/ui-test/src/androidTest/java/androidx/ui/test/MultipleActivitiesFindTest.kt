@@ -19,9 +19,9 @@ package androidx.ui.test
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.ui.core.Modifier
-import androidx.ui.core.setContent
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.ui.test.android.createAndroidComposeRule
 import org.junit.Rule

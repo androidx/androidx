@@ -23,10 +23,10 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.resetSourceInfo
 import androidx.test.filters.SmallTest
-import androidx.ui.core.OwnedLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material.Button
 import androidx.compose.material.Surface
+import androidx.compose.ui.node.OwnedLayer
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.R

@@ -19,8 +19,8 @@ package androidx.ui.test
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.state
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.text.input.ImeAction

@@ -18,9 +18,9 @@ package androidx.ui.test
 
 import android.util.Log
 import androidx.annotation.IntRange
-import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.SemanticsConfiguration
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.PxBounds
 import androidx.compose.ui.unit.toSize

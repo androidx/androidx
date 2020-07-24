@@ -20,7 +20,7 @@ package androidx.compose.material
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.IndicationAmbient

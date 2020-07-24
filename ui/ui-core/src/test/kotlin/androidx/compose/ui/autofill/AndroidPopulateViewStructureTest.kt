@@ -23,11 +23,6 @@ import androidx.autofill.HintConstants.AUTOFILL_HINT_PERSON_NAME
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.test.ComposeUiRobolectricTestRunner
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.autofill.AndroidAutofill
-import androidx.ui.autofill.AutofillNode
-import androidx.ui.autofill.AutofillTree
-import androidx.ui.autofill.AutofillType
-import androidx.ui.autofill.populateViewStructure
 import androidx.ui.test.android.fake.FakeViewStructure
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before

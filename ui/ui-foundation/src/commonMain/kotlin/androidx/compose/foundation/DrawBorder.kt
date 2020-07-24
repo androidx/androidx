@@ -18,10 +18,10 @@ package androidx.compose.foundation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.ui.core.ContentDrawScope
-import androidx.ui.core.DrawModifier
-import androidx.ui.core.Modifier
-import androidx.ui.core.composed
+import androidx.compose.ui.ContentDrawScope
+import androidx.compose.ui.DrawModifier
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Radius
 import androidx.compose.ui.geometry.Rect
@@ -56,7 +56,7 @@ import androidx.compose.ui.util.nativeClass
     "Use Modifier.drawBorder",
     replaceWith = ReplaceWith(
         "Modifier.drawBorder(border, shape)",
-        "androidx.ui.core.Modifier",
+        "androidx.compose.ui.Modifier",
         "androidx.compose.foundation.drawBorder",
         "androidx.compose.foundation.shape.RectangleShape",
         "androidx.compose.foundation.Border"
@@ -80,7 +80,7 @@ fun DrawBorder(border: Border, shape: Shape = RectangleShape): Modifier =
     "Use Modifier.drawBorder",
     replaceWith = ReplaceWith(
         "Modifier.drawBorder(size, color, shape)",
-        "androidx.ui.core.Modifier",
+        "androidx.compose.ui.Modifier",
         "androidx.compose.foundation.drawBorder",
         "androidx.compose.foundation.shape.RectangleShape"
     )
@@ -103,7 +103,7 @@ fun DrawBorder(size: Dp, color: Color, shape: Shape = RectangleShape): Modifier 
     "Use Modifier.drawBorder",
     replaceWith = ReplaceWith(
         "Modifier.drawBorder(size, brush, shape)",
-        "androidx.ui.core.Modifier",
+        "androidx.compose.ui.Modifier",
         "androidx.compose.foundation.drawBorder",
         "androidx.compose.foundation.shape.RectangleShape"
     )

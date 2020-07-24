@@ -19,8 +19,8 @@ package androidx.ui.integration.test.material
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.state
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Text
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.compose.foundation.layout.Column

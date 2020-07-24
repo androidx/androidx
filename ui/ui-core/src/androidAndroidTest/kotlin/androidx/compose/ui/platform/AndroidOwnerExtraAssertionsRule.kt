@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.platform
 
-import androidx.ui.core.Owner
+import androidx.compose.ui.node.Owner
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement

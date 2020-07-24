@@ -16,7 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsNode
 
 internal val SemanticsNode.siblings: List<SemanticsNode>
     get() {

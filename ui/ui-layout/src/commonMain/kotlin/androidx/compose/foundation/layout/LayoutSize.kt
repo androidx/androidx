@@ -26,15 +26,15 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.enforce
-import androidx.ui.core.Alignment
-import androidx.ui.core.InspectableParameter
-import androidx.ui.core.IntrinsicMeasurable
-import androidx.ui.core.IntrinsicMeasureScope
-import androidx.ui.core.LayoutModifier
-import androidx.ui.core.Measurable
-import androidx.ui.core.MeasureScope
-import androidx.ui.core.Modifier
-import androidx.ui.core.ParameterElement
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.LayoutModifier
+import androidx.compose.ui.Measurable
+import androidx.compose.ui.MeasureScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.platform.InspectableParameter
+import androidx.compose.ui.platform.ParameterElement
 import kotlin.math.max
 
 /**

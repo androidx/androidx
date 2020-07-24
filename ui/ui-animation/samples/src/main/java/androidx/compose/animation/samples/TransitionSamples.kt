@@ -22,7 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.transition
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color

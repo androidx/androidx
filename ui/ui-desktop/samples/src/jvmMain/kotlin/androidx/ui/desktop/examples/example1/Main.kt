@@ -19,8 +19,8 @@ import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.state
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.ui.desktop.AppWindow
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text

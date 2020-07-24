@@ -19,10 +19,9 @@ package androidx.compose.material
 import android.os.Build
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
-import androidx.ui.core.testTag
-import androidx.ui.core.zIndex
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color
@@ -35,6 +34,7 @@ import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

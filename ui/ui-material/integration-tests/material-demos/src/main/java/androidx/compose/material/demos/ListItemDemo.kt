@@ -26,7 +26,7 @@ import androidx.compose.material.samples.ThreeLineListItems
 import androidx.compose.material.samples.ThreeLineRtlLtrListItems
 import androidx.compose.material.samples.TwoLineListItems
 import androidx.compose.material.samples.TwoLineRtlLtrListItems
-import androidx.ui.res.imageResource
+import androidx.compose.ui.res.imageResource
 
 @Composable
 fun ListItemDemo() {

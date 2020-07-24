@@ -17,7 +17,6 @@
 package androidx.compose.ui
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.TransformOrigin
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

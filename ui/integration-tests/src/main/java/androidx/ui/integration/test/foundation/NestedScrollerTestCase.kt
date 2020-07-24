@@ -19,9 +19,9 @@ package androidx.ui.integration.test.foundation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
-import androidx.ui.core.Alignment
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.ScrollableColumn

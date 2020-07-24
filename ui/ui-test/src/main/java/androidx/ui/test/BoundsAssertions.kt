@@ -16,10 +16,10 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.AlignmentLine
-import androidx.ui.core.AndroidOwner
-import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.semantics.SemanticsNode
+import androidx.compose.ui.AlignmentLine
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
+import androidx.compose.ui.platform.AndroidOwner
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.unit.Bounds
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp

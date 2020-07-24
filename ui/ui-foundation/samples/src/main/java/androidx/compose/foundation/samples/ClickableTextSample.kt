@@ -20,8 +20,8 @@ import android.util.Log
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.state
-import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.longPressGestureFilter
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.longPressGestureFilter
 import androidx.compose.foundation.ClickableText
 import androidx.compose.foundation.Text
 import androidx.compose.ui.text.AnnotatedString

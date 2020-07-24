@@ -28,9 +28,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.state
 import androidx.compose.animation.transition
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.pressIndicatorGestureFilter
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.pressIndicatorGestureFilter
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset

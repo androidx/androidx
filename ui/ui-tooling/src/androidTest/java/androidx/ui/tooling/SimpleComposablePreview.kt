@@ -18,10 +18,10 @@ package androidx.ui.tooling
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.Lifecycle
-import androidx.ui.core.LifecycleOwnerAmbient
 import androidx.compose.foundation.Text
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material.Surface
+import androidx.compose.ui.platform.LifecycleOwnerAmbient
 import androidx.ui.tooling.preview.Preview
 
 @Preview

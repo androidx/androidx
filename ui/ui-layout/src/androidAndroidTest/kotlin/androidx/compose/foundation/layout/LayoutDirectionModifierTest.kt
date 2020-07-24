@@ -19,12 +19,12 @@ package androidx.compose.foundation.layout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.emptyContent
 import androidx.test.filters.SmallTest
-import androidx.ui.core.ConfigurationAmbient
-import androidx.ui.core.Layout
+import androidx.compose.ui.Layout
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.core.Modifier
-import androidx.ui.core.Ref
-import androidx.ui.core.localeLayoutDirection
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.ConfigurationAmbient
+import androidx.compose.ui.platform.localeLayoutDirection
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue

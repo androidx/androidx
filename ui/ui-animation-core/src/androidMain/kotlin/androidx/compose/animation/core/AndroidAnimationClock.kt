@@ -25,8 +25,8 @@ import java.util.concurrent.CountDownLatch
 /**
  * Default Choreographer based clock that pushes a new frame to all subscribers on each
  * Choreographer tick, until all subscribers have unsubscribed. An instance of this clock will be
- * provided through [AnimationClockAmbient][androidx.ui.core.AnimationClockAmbient] at the root
- * of the composition tree.
+ * provided through [AnimationClockAmbient][androidx.compose.ui.platform.AnimationClockAmbient] at
+ * the root of the composition tree.
  *
  * If initialized from any other thread but the main thread, part of the initialization is done
  * synchronously on the main thread. If this poses a problem, consider initializing this clock on

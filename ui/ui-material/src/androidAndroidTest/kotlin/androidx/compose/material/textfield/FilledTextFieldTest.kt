@@ -21,12 +21,10 @@ import androidx.compose.runtime.Providers
 import androidx.compose.runtime.state
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.Modifier
-import androidx.ui.core.Ref
-import androidx.ui.core.TextInputServiceAmbient
-import androidx.ui.core.onPositioned
-import androidx.ui.core.positionInRoot
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.Ref
+import androidx.compose.ui.onPositioned
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
@@ -63,6 +61,8 @@ import androidx.ui.test.click
 import androidx.ui.test.performImeAction
 import androidx.ui.test.waitForIdle
 import androidx.compose.foundation.text.FirstBaseline
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.TextInputServiceAmbient
 import androidx.compose.ui.text.SoftwareKeyboardController
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp

@@ -28,10 +28,10 @@ import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.state
 import androidx.compose.animation.asDisposableClock
-import androidx.ui.core.AnimationClockAmbient
-import androidx.ui.core.Modifier
-import androidx.ui.core.composed
-import androidx.ui.core.gesture.scrollorientationlocking.Orientation
+import androidx.compose.ui.platform.AnimationClockAmbient
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.animation.FlingConfig
 import androidx.compose.foundation.animation.fling

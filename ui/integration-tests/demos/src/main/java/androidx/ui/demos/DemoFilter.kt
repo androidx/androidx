@@ -19,9 +19,8 @@ package androidx.ui.demos
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.onCommit
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.core.focus.FocusModifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.ui.demos.common.Demo
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.ScrollableColumn
@@ -39,6 +38,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.annotatedString
 import androidx.compose.ui.text.withStyle

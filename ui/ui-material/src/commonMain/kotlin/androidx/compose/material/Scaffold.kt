@@ -26,13 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticAmbientOf
 import androidx.compose.runtime.structuralEqualityPolicy
-import androidx.ui.core.Alignment
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
-import androidx.ui.core.boundsInParent
-import androidx.ui.core.onPositioned
-import androidx.ui.core.zIndex
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.boundsInParent
+import androidx.compose.ui.onPositioned
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.layout.Column
@@ -48,6 +47,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.zIndex
 
 /**
  * State for [Scaffold] composable component.

@@ -24,8 +24,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.transition
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Text
@@ -122,7 +122,7 @@ fun RadioGroup(content: @Composable RadioGroupScope.() -> Unit) {
         "androidx.compose.foundation.layout.Row",
         "androidx.compose.foundation.layout.Column",
         "androidx.compose.foundation.layout.fillMaxWidth",
-        "androidx.ui.core.Modifier",
+        "androidx.compose.ui.Modifier",
         "androidx.compose.ui.unit.dp",
         "androidx.compose.foundation.selection.selectable"
     )

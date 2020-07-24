@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.ui.ContentDrawScope
+import androidx.compose.ui.DrawModifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
@@ -29,11 +31,9 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.util.annotation.FloatRange
-import androidx.ui.core.ContentDrawScope
-import androidx.ui.core.DrawModifier
-import androidx.ui.core.InspectableParameter
-import androidx.ui.core.Modifier
-import androidx.ui.core.ParameterElement
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.InspectableParameter
+import androidx.compose.ui.platform.ParameterElement
 
 /**
  * Draws [shape] with a solid [color] behind the content.

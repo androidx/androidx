@@ -22,9 +22,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import androidx.ui.androidview.adapters.setOnClick
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.tapGestureFilter
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
 import androidx.compose.foundation.Box
@@ -41,7 +41,7 @@ import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.unit.dp
-import androidx.ui.viewinterop.AndroidView
+import androidx.compose.ui.viewinterop.AndroidView
 
 val AndroidInComposeDemos = DemoCategory("Android In Compose Interop", listOf(
     ComposableDemo("4 Android tap in Compose") { FourAndroidTapInCompose() },

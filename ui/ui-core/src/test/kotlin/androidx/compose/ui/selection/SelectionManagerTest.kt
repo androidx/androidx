@@ -17,21 +17,17 @@
 package androidx.compose.ui.selection
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.clipboard.ClipboardManager
-import androidx.ui.core.hapticfeedback.HapticFeedback
-import androidx.ui.core.hapticfeedback.HapticFeedbackType
-import androidx.ui.core.texttoolbar.TextToolbar
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.length
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.subSequence
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.core.selection.Selectable
-import androidx.ui.core.selection.Selection
-import androidx.ui.core.selection.SelectionManager
-import androidx.ui.core.selection.SelectionRegistrarImpl
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn

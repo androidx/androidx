@@ -26,8 +26,8 @@ import androidx.compose.runtime.onActive
 import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Arrangement

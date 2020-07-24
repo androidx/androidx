@@ -23,8 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.resetSourceInfo
 import androidx.compose.runtime.setValue
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.WithConstraints
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.WithConstraints
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column

@@ -27,8 +27,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.transition
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.selection.ToggleableState
 import androidx.compose.foundation.selection.triStateToggleable

@@ -18,8 +18,8 @@ package androidx.ui.androidview.adapters
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.ui.node.ViewAdapter
-import androidx.ui.node.getOrAddAdapter
+import androidx.compose.ui.node.ViewAdapter
+import androidx.compose.ui.node.getOrAddAdapter
 
 private val LayoutBuilderId = tagKey("LayoutBuilder")
 private val intHandlers = HashMap<Int, ViewGroup.LayoutParams.(Int) -> Unit>()

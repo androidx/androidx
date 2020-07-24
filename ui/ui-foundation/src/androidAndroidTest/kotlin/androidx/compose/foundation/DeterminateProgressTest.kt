@@ -18,11 +18,11 @@ package androidx.compose.foundation
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.preferredSize
-import androidx.ui.semantics.AccessibilityRangeInfo
+import androidx.compose.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.test.assertRangeInfoEquals
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule

@@ -22,9 +22,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
-import androidx.ui.core.Modifier
-import androidx.ui.core.setContent
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.ui.test.android.createAndroidComposeRule

@@ -16,13 +16,12 @@
 
 package androidx.compose.ui.gesture
 
-import androidx.ui.testutils.down
-import androidx.ui.testutils.invokeOverAllPasses
-import androidx.ui.testutils.moveBy
-import androidx.ui.testutils.moveTo
+import androidx.compose.ui.input.pointer.down
+import androidx.compose.ui.input.pointer.invokeOverAllPasses
+import androidx.compose.ui.input.pointer.moveBy
+import androidx.compose.ui.input.pointer.moveTo
 import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.unit.milliseconds
-import androidx.ui.core.gesture.ScaleSlopExceededGestureFilter
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test

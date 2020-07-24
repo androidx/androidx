@@ -30,11 +30,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.state
 import androidx.compose.animation.animatedColor
-import androidx.ui.core.ContentDrawScope
-import androidx.ui.core.DrawModifier
-import androidx.ui.core.Modifier
-import androidx.ui.core.composed
-import androidx.ui.core.focus.FocusModifier
+import androidx.compose.ui.ContentDrawScope
+import androidx.compose.ui.DrawModifier
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color

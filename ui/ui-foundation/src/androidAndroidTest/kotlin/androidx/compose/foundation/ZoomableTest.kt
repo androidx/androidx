@@ -19,8 +19,8 @@ package androidx.compose.foundation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.gestures.zoomable
 import androidx.compose.foundation.gestures.ZoomableController
 import androidx.compose.ui.geometry.Offset

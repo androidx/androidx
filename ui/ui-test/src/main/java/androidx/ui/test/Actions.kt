@@ -16,12 +16,12 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.semantics.findClosestParentNode
+import androidx.compose.ui.semantics.findClosestParentNode
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.semantics.AccessibilityAction
-import androidx.ui.semantics.SemanticsActions
-import androidx.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
+import androidx.compose.ui.semantics.AccessibilityAction
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsPropertyKey
 
 /**
  * Performs a click action on the element represented by the given semantics node.

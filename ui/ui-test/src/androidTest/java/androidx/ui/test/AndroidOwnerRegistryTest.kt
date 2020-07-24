@@ -20,7 +20,7 @@ import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.LargeTest
-import androidx.ui.core.AndroidOwner
+import androidx.compose.ui.platform.AndroidOwner
 import androidx.ui.test.android.AndroidOwnerRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.After

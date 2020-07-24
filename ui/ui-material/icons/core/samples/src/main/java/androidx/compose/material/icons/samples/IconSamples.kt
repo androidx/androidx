@@ -18,8 +18,8 @@ package androidx.compose.material.icons.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
-import androidx.ui.core.Modifier
-import androidx.ui.core.paint
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.ui.graphics.vector.VectorAsset

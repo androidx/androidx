@@ -16,8 +16,8 @@
 
 package androidx.ui.desktop
 
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.ui.desktop.test.DesktopScreenshotTestRule
 import androidx.ui.desktop.test.TestSkiaWindow
 import androidx.compose.foundation.Text

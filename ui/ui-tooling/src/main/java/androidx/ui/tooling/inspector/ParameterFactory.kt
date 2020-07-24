@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.CrossAxisAlignment
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -47,10 +48,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
-import androidx.ui.core.AbsoluteAlignment
-import androidx.ui.core.Alignment
-import androidx.ui.core.InspectableParameter
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.InspectableParameter
 import androidx.ui.tooling.inspector.ParameterType.DimensionDp
 import kotlin.math.abs
 

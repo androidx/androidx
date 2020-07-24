@@ -17,10 +17,10 @@ package androidx.compose.material
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.LargeTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Strings
-import androidx.ui.semantics.AccessibilityRangeInfo
+import androidx.compose.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertRangeInfoEquals

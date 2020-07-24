@@ -17,10 +17,8 @@
 package androidx.compose.material
 
 import androidx.compose.runtime.Composable
-import androidx.ui.core.AndroidOwner
-import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.layout.DpConstraints
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.preferredSizeIn
@@ -35,6 +33,8 @@ import androidx.ui.test.getAlignmentLinePosition
 import androidx.ui.test.runOnIdle
 import androidx.compose.foundation.text.FirstBaseline
 import androidx.compose.foundation.text.LastBaseline
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
+import androidx.compose.ui.platform.AndroidOwner
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
