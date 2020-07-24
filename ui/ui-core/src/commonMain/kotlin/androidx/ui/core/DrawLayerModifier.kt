@@ -174,7 +174,24 @@ private data class SimpleDrawLayerModifier(
     override val transformOrigin: TransformOrigin,
     override val shape: Shape,
     override val clip: Boolean
-) : DrawLayerModifier
+) : DrawLayerModifier, InspectableParameter {
+    override val nameFallback: String = "drawLayer"
+    override val inspectableElements: Sequence<ParameterElement>
+        get() = sequenceOf(
+            ParameterElement("scaleX", scaleX),
+            ParameterElement("scaleY", scaleY),
+            ParameterElement("alpha", alpha),
+            ParameterElement("translationX", translationX),
+            ParameterElement("translationY", translationY),
+            ParameterElement("shadowElevation", shadowElevation),
+            ParameterElement("rotationX", rotationX),
+            ParameterElement("rotationY", rotationY),
+            ParameterElement("rotationZ", rotationZ),
+            ParameterElement("transformOrigin", transformOrigin),
+            ParameterElement("shape", shape),
+            ParameterElement("clip", clip)
+        )
+}
 
 /**
  * Draw the content into a layer. This permits applying special effects and transformations:
