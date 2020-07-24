@@ -91,6 +91,7 @@ public class ExtensionTest {
     }
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     private EffectMode mEffectMode;
     @CameraSelector.LensFacing
@@ -105,9 +106,8 @@ public class ExtensionTest {
     public void setUp() throws Exception {
         assumeTrue(CameraUtil.deviceHasCamera());
 
-        Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
-        CameraX.initialize(context, cameraXConfig).get();
+        CameraX.initialize(mContext, cameraXConfig).get();
 
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
         assumeTrue(ExtensionsTestUtil.initExtensions());
@@ -133,7 +133,7 @@ public class ExtensionTest {
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(
                 () -> {
                     // To set the update listener and Preview will change to active state.

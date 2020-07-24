@@ -85,6 +85,7 @@ import java.util.concurrent.TimeoutException;
 public class PreviewExtenderTest {
     private static final String EXTENSION_AVAILABLE_CAMERA_ID = "0";
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     private static final SurfaceTextureProvider.SurfaceTextureCallback
             NO_OP_SURFACE_TEXTURE_CALLBACK =
@@ -111,8 +112,7 @@ public class PreviewExtenderTest {
         assumeTrue(CameraUtil.deviceHasCamera());
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
 
-        Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, Camera2Config.defaultConfig());
+        CameraX.initialize(mContext, Camera2Config.defaultConfig());
 
         assumeTrue(ExtensionsTestUtil.initExtensions());
     }
@@ -145,7 +145,7 @@ public class PreviewExtenderTest {
         Preview useCase = configBuilder.build();
 
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(() -> {
             // To set the update listener and Preview will change to active state.
             useCase.setSurfaceProvider(
@@ -223,7 +223,7 @@ public class PreviewExtenderTest {
 
         Preview preview = configBuilder.build();
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(() -> {
             // To set the update listener and Preview will change to active state.
             preview.setSurfaceProvider(
@@ -279,7 +279,7 @@ public class PreviewExtenderTest {
         Preview preview = configBuilder.build();
 
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(() -> {
             // To set the update listener and Preview will change to active state.
             preview.setSurfaceProvider(

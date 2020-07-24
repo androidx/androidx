@@ -83,13 +83,13 @@ public class ImageCaptureExtenderTest {
             Manifest.permission.CAMERA);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         assumeTrue(CameraUtil.deviceHasCamera());
 
-        Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, Camera2Config.defaultConfig());
+        CameraX.initialize(mContext, Camera2Config.defaultConfig());
 
         assumeTrue(ExtensionsTestUtil.initExtensions());
     }
@@ -101,8 +101,7 @@ public class ImageCaptureExtenderTest {
 
     @Test
     @MediumTest
-    public void extenderLifeCycleTest_noMoreGetCaptureStagesBeforeAndAfterInitDeInit()
-            throws CameraInfoUnavailableException {
+    public void extenderLifeCycleTest_noMoreGetCaptureStagesBeforeAndAfterInitDeInit() {
         ImageCaptureExtenderImpl mockImageCaptureExtenderImpl = mock(
                 ImageCaptureExtenderImpl.class);
         ArrayList<CaptureStageImpl> captureStages = new ArrayList<>();
@@ -124,7 +123,7 @@ public class ImageCaptureExtenderTest {
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(lensFacing).build();
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(() -> {
             try {
                 cameraUseCaseAdapter.addUseCases(Collections.singleton(useCase));
@@ -179,7 +178,7 @@ public class ImageCaptureExtenderTest {
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(lensFacing).build();
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(() -> {
             try {
                 cameraUseCaseAdapter.addUseCases(Collections.singleton(useCase));
