@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 package androidx.room.processing
 
-interface XExecutableElement : XElement {
-    override val enclosingElement: XElement
-    val parameters: List<XVariableElement>
-    fun isVarArgs(): Boolean
-}
+/**
+ * Represents a constructor of a class.
+ *
+ * @see XMethodElement
+ */
+interface XConstructorElement : XExecutableElement

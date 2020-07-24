@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,20 @@
 
 package androidx.room.processing
 
-import com.squareup.javapoet.TypeVariableName
-
 /**
- * Represents a type information for an executable.
+ * Represents a method in a class / interface.
  *
- * It is not an XType as it does not represent a class or primitive.
+ * @see XConstructorElement
  */
-interface XExecutableType {
+interface XMethodElement : XExecutableElement {
     val returnType: XType
+    val executableType: XMethodType
 
-    val parameterTypes: List<XType>
-
-    val typeVariableNames: List<TypeVariableName>
-
-    fun getSuspendFunctionReturnType(): XType
+    fun isJavaDefault(): Boolean
+    fun findKotlinDefaultImpl(): XMethodElement?
+    fun isSuspendFunction(): Boolean
+    fun asMemberOf(other: XDeclaredType): XMethodType
+    fun isOverrideableIgnoringContainer(): Boolean {
+        return !isFinal() && !isPrivate() && !isStatic()
+    }
 }

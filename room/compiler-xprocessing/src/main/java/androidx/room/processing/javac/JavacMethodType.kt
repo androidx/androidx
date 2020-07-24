@@ -16,16 +16,16 @@
 
 package androidx.room.processing.javac
 
-import androidx.room.processing.XExecutableType
+import androidx.room.processing.XMethodType
 import androidx.room.processing.XType
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeVariableName
 import javax.lang.model.type.ExecutableType
 
-internal class JavacExecutableType(
+internal class JavacMethodType(
     val env: JavacProcessingEnv,
     val executableType: ExecutableType
-) : XExecutableType {
+) : XMethodType {
     override val returnType: JavacType by lazy {
         env.wrap<JavacType>(executableType.returnType)
     }
@@ -43,7 +43,7 @@ internal class JavacExecutableType(
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is JavacExecutableType) return false
+        if (other !is JavacMethodType) return false
         return executableType == other.executableType
     }
 
