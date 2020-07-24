@@ -65,27 +65,33 @@ private val ExpectedFile = """
     package androidx.compose.material.icons.filled
 
     import androidx.compose.material.icons.Icons
-    import androidx.compose.material.icons.lazyMaterialIcon
+    import androidx.compose.material.icons.materialIcon
     import androidx.compose.material.icons.materialPath
     import androidx.compose.ui.graphics.vector.VectorAsset
     import androidx.compose.ui.graphics.vector.group
 
-    val Icons.Filled.TestVector: VectorAsset by lazyMaterialIcon {
-        materialPath(fillAlpha = 0.8f) {
-            moveTo(20.0f, 10.0f)
-            lineToRelative(0.0f, 10.0f)
-            lineToRelative(-10.0f, 0.0f)
-            close()
-        }
-        group {
-            materialPath {
-                moveTo(0.0f, 10.0f)
-                lineToRelative(-10.0f, 0.0f)
-                close()
+    val Icons.Filled.TestVector: VectorAsset
+        get() {
+            if (icon != null) return icon!!
+            icon = materialIcon {
+                materialPath(fillAlpha = 0.8f) {
+                    moveTo(20.0f, 10.0f)
+                    lineToRelative(0.0f, 10.0f)
+                    lineToRelative(-10.0f, 0.0f)
+                    close()
+                }
+                group {
+                    materialPath {
+                        moveTo(0.0f, 10.0f)
+                        lineToRelative(-10.0f, 0.0f)
+                        close()
+                    }
+                }
             }
+            return icon!!
         }
-    }
 
+    private var icon: VectorAsset? = null
 
 """.trimIndent()
 
