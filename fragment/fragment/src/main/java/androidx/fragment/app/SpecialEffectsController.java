@@ -225,9 +225,11 @@ abstract class SpecialEffectsController {
             return;
         }
         synchronized (mPendingOperations) {
-            executeOperations(new ArrayList<>(mPendingOperations), mOperationDirectionIsPop);
-            mPendingOperations.clear();
-            mOperationDirectionIsPop = false;
+            if (!mPendingOperations.isEmpty()) {
+                executeOperations(new ArrayList<>(mPendingOperations), mOperationDirectionIsPop);
+                mPendingOperations.clear();
+                mOperationDirectionIsPop = false;
+            }
         }
     }
 

@@ -99,6 +99,15 @@ class SpecialEffectsControllerTest {
             .isEqualTo(2)
     }
 
+    @Test
+    fun noExecuteIfEmpty() {
+        val container = FrameLayout(InstrumentationRegistry.getInstrumentation().context)
+        val controller = InstantSpecialEffectsController(container)
+        controller.executePendingOperations()
+
+        assertThat(controller.executeOperationsCallCount).isEqualTo(0)
+    }
+
     @MediumTest
     @Test
     fun enqueueAddAndExecute() {
@@ -455,7 +464,10 @@ internal class TestSpecialEffectsController(
 internal class InstantSpecialEffectsController(
     container: ViewGroup
 ) : SpecialEffectsController(container) {
+    var executeOperationsCallCount = 0
+
     override fun executeOperations(operations: MutableList<Operation>, isPop: Boolean) {
+        executeOperationsCallCount++
         operations.forEach(Operation::complete)
     }
 }
