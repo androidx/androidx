@@ -58,4 +58,5 @@
     <public type="attr" name="iconSize" />
     <public type="attr" name="imageSize" />
     <public type="attr" name="disableRecyclerViewItemAnimator" />
+    <public type="attr" name="expandToAvailableHeight" />
 </resources>
