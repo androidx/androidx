@@ -16,7 +16,6 @@
 
 package androidx.room.processing.javac
 
-import androidx.room.processing.XExecutableElement
 import androidx.room.processing.XTypeElement
 import androidx.room.processing.XVariableElement
 import androidx.room.processing.javac.kotlin.KotlinMetadataElement
@@ -64,16 +63,16 @@ internal class JavacTypeElement(
 
     override fun isKotlinObject() = kotlinMetadata?.isObject() == true
 
-    override fun findPrimaryConstructor(): XExecutableElement? {
+    override fun findPrimaryConstructor(): JavacConstructorElement? {
         val primarySignature = kotlinMetadata?.findPrimaryConstructorSignature() ?: return null
         return getConstructors().firstOrNull {
             primarySignature == it.descriptor
         }
     }
 
-    override fun getDeclaredMethods(): List<JavacExecutableElement> {
+    override fun getDeclaredMethods(): List<JavacMethodElement> {
         return ElementFilter.methodsIn(element.enclosedElements).map {
-            JavacExecutableElement(
+            JavacMethodElement(
                 env = env,
                 containing = this,
                 element = it
@@ -81,9 +80,9 @@ internal class JavacTypeElement(
         }
     }
 
-    override fun getAllMethods(): List<JavacExecutableElement> {
+    override fun getAllMethods(): List<JavacMethodElement> {
         return ElementFilter.methodsIn(env.elementUtils.getAllMembers(element)).map {
-            JavacExecutableElement(
+            JavacMethodElement(
                 env = env,
                 containing = this,
                 element = it
@@ -91,13 +90,13 @@ internal class JavacTypeElement(
         }
     }
 
-    override fun getAllNonPrivateInstanceMethods(): List<JavacExecutableElement> {
+    override fun getAllNonPrivateInstanceMethods(): List<JavacMethodElement> {
         return MoreElements.getLocalAndInheritedMethods(
             element,
             env.typeUtils,
             env.elementUtils
         ).map {
-            JavacExecutableElement(
+            JavacMethodElement(
                 env = env,
                 containing = this,
                 element = it
@@ -105,9 +104,9 @@ internal class JavacTypeElement(
         }
     }
 
-    override fun getConstructors(): List<JavacExecutableElement> {
+    override fun getConstructors(): List<JavacConstructorElement> {
         return ElementFilter.constructorsIn(element.enclosedElements).map {
-            JavacExecutableElement(
+            JavacConstructorElement(
                 env = env,
                 containing = this,
                 element = it

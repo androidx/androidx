@@ -38,29 +38,29 @@ interface XTypeElement : XElement {
     fun getAllFieldsIncludingPrivateSupers(): List<XVariableElement>
 
     // only in kotlin
-    fun findPrimaryConstructor(): XExecutableElement?
+    fun findPrimaryConstructor(): XConstructorElement?
 
     /**
      * methods declared in this type
      *  includes all instance/static methods in this
      */
-    fun getDeclaredMethods(): List<XExecutableElement>
+    fun getDeclaredMethods(): List<XMethodElement>
 
     /**
      * Methods declared in this type and its parents
      *  includes all instance/static methods in this
-     *  includes all instance/static methods in parent CLASS if they are accessible from this (e.g. not
-     *  private).
+     *  includes all instance/static methods in parent CLASS if they are accessible from this (e.g.
+     *  not private).
      *  does not include static methods in parent interfaces
      */
-    fun getAllMethods(): List<XExecutableElement>
+    fun getAllMethods(): List<XMethodElement>
 
     /**
      * Instance methods declared in this and supers
      *  include non private instance methods
      *  also includes non-private instance methods from supers
      */
-    fun getAllNonPrivateInstanceMethods(): List<XExecutableElement>
+    fun getAllNonPrivateInstanceMethods(): List<XMethodElement>
 
-    fun getConstructors(): List<XExecutableElement>
+    fun getConstructors(): List<XConstructorElement>
 }
