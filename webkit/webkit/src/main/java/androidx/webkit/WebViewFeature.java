@@ -429,7 +429,7 @@ public class WebViewFeature {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers {@link WebViewCompat#addDocumentStartJavascript(android.webkit.WebView,
+     * This feature covers {@link WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView,
      * String, Set)}.
      *
      * TODO(ctzsm): unhide when ready.
