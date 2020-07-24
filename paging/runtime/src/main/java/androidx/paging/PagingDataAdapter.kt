@@ -119,6 +119,9 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
      * Retry any failed load requests that would result in a [LoadState.Error] update to this
      * [PagingDataAdapter].
      *
+     * Unlike [refresh], this does not invalidate [PagingSource], it only retries failed loads
+     * within the same generation of [PagingData].
+     *
      * [LoadState.Error] can be generated from two types of load requests:
      *  * [PagingSource.load] returning [PagingSource.LoadResult.Error]
      *  * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
