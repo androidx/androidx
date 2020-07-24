@@ -55,6 +55,9 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @RunWith(ParameterizedRobolectricTestRunner.class)
 @DoNotInstrument
@@ -124,8 +127,8 @@ public class PreviewViewMeteringPointFactoryTest {
     }
 
     @After
-    public void tearDown() throws Exception {
-        CameraX.shutdown().get();
+    public void tearDown() throws InterruptedException, ExecutionException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test

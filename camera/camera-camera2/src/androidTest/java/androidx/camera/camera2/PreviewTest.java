@@ -66,6 +66,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 @LargeTest
@@ -99,9 +100,9 @@ public final class PreviewTest {
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
         // Ensure all cameras are released for the next test
-        CameraX.shutdown().get();
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test

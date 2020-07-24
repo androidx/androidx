@@ -79,6 +79,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
@@ -118,8 +119,8 @@ public class PreviewExtenderTest {
     }
 
     @After
-    public void cleanUp() throws ExecutionException, InterruptedException {
-        CameraX.shutdown().get();
+    public void cleanUp() throws ExecutionException, InterruptedException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test
