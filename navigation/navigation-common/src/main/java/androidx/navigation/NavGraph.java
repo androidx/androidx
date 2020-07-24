@@ -96,11 +96,16 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      * @param node destination to add
      */
     public final void addDestination(@NonNull NavDestination node) {
-        if (node.getId() == 0) {
+        int id = node.getId();
+        if (id == 0) {
             throw new IllegalArgumentException("Destinations must have an id."
                     + " Call setId() or include an android:id in your navigation XML.");
         }
-        NavDestination existingDestination = mNodes.get(node.getId());
+        if (id == getId()) {
+            throw new IllegalArgumentException("Destination " + node + " cannot have the same id "
+                    + "as graph " + this);
+        }
+        NavDestination existingDestination = mNodes.get(id);
         if (existingDestination == node) {
             return;
         }
@@ -277,6 +282,10 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      * @param startDestId The id of the destination to be shown when navigating to this NavGraph.
      */
     public final void setStartDestination(@IdRes int startDestId) {
+        if (startDestId == getId()) {
+            throw new IllegalArgumentException("Start destination " + startDestId + " cannot use "
+                    + "the same id as the graph " + this);
+        }
         mStartDestId = startDestId;
         mStartDestIdName = null;
     }
