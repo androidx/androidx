@@ -274,7 +274,7 @@ class SpecialEffectsControllerTest {
 
     @MediumTest
     @Test
-    fun enqueueAddAndCancelAllPending() {
+    fun enqueueAddAndForceCompleteAllPending() {
         with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
@@ -304,8 +304,8 @@ class SpecialEffectsControllerTest {
             assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
                 .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
 
-            // Now cancel all the operations
-            controller.cancelAllOperations()
+            // Now force all operations to immediately complete
+            controller.forceCompleteAllOperations()
 
             assertThat(controller.operationsToExecute)
                 .isEmpty()
@@ -316,7 +316,7 @@ class SpecialEffectsControllerTest {
 
     @MediumTest
     @Test
-    fun enqueueAddAndCancelAllExecuting() {
+    fun enqueueAddAndForceCompleteAllExecuting() {
         with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
@@ -353,8 +353,8 @@ class SpecialEffectsControllerTest {
             assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
                 .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
 
-            // Now cancel all the operations
-            controller.cancelAllOperations()
+            // Now force all operations to immediately complete
+            controller.forceCompleteAllOperations()
 
             assertThat(firstOperation.cancellationSignal.isCanceled)
                 .isTrue()
