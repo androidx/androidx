@@ -89,21 +89,19 @@ object Icons {
 }
 
 /**
- * Utility delegate to construct a lazily initialized Material icon with default size information.
+ * Utility delegate to construct a Material icon with default size information.
  * This is used by generated icons, and should not be used manually.
  *
  * @param block builder lambda to add paths to this vector asset
  */
-fun lazyMaterialIcon(
+inline fun materialIcon(
     block: VectorAssetBuilder.() -> VectorAssetBuilder
-): Lazy<VectorAsset> = lazy(LazyThreadSafetyMode.NONE) {
-    VectorAssetBuilder(
-        defaultWidth = MaterialIconDimension.dp,
-        defaultHeight = MaterialIconDimension.dp,
-        viewportWidth = MaterialIconDimension,
-        viewportHeight = MaterialIconDimension
-    ).block().build()
-}
+): VectorAsset = VectorAssetBuilder(
+    defaultWidth = MaterialIconDimension.dp,
+    defaultHeight = MaterialIconDimension.dp,
+    viewportWidth = MaterialIconDimension,
+    viewportHeight = MaterialIconDimension
+).block().build()
 
 /**
  * Adds a vector path to this icon with sane Material defaults.
@@ -112,7 +110,7 @@ fun lazyMaterialIcon(
  * @param strokeAlpha stroke alpha for this path
  * @param pathBuilder builder lambda to add commands to this path
  */
-fun VectorAssetBuilder.materialPath(
+inline fun VectorAssetBuilder.materialPath(
     fillAlpha: Float = 1f,
     strokeAlpha: Float = 1f,
     pathBuilder: PathBuilder.() -> Unit
@@ -133,4 +131,5 @@ fun VectorAssetBuilder.materialPath(
     )
 
 // All Material icons (currently) are 24dp by 24dp, with a viewport size of 24 by 24.
-private const val MaterialIconDimension = 24f
+@PublishedApi
+internal const val MaterialIconDimension = 24f

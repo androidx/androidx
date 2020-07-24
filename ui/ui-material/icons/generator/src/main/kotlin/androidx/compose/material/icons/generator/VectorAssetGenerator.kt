@@ -20,6 +20,8 @@ import androidx.compose.material.icons.generator.vector.Vector
 import androidx.compose.material.icons.generator.vector.VectorNode
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.buildCodeBlock
@@ -51,26 +53,50 @@ class VectorAssetGenerator(
         val iconsPackage = PackageNames.MaterialIconsPackage.packageName
         val themePackage = iconTheme.themePackageName
         val combinedPackageName = "$iconsPackage.$themePackage"
+        val backingProperty = backingProperty()
         return FileSpec.builder(
             packageName = combinedPackageName,
             fileName = iconName
         ).addProperty(
             PropertySpec.builder(name = iconName, type = ClassNames.VectorAsset)
                 .receiver(iconTheme.className)
-                .delegate(materialIconDelegate())
+                .getter(iconGetter(backingProperty))
                 .build()
+        ).addProperty(
+            backingProperty
         ).setIndent().build()
     }
 
     /**
-     * @return The delegate block containing the whole vector definition.
+     * @return the body of the getter for the icon property. This getter returns the backing
+     * property if it is not null, otherwise creates the icon and 'caches' it in the backing
+     * property, and then returns the backing property.
      */
-    private fun materialIconDelegate(): CodeBlock {
-        return buildCodeBlock {
-            addFunctionWithLambda(MemberNames.LazyMaterialIcon) {
-                vector.nodes.forEach { node -> addRecursively(node) }
-            }
-        }
+    private fun iconGetter(backingProperty: PropertySpec): FunSpec {
+        return FunSpec.getterBuilder()
+            .addStatement("if (%N != null) return %N!!", backingProperty, backingProperty)
+            .addCode(
+                buildCodeBlock {
+                    beginControlFlow("%N = %M", backingProperty, MemberNames.MaterialIcon)
+                    vector.nodes.forEach { node -> addRecursively(node) }
+                    endControlFlow()
+                }
+            )
+            .addStatement("return %N!!", backingProperty)
+            .build()
+    }
+
+    /**
+     * @return The private backing property that is used to cache the VectorAsset for a given
+     * icon once created.
+     */
+    private fun backingProperty(): PropertySpec {
+        val nullableVectorAsset = ClassNames.VectorAsset.copy(nullable = true)
+        return PropertySpec.builder(name = "icon", type = nullableVectorAsset)
+            .mutable()
+            .addModifiers(KModifier.PRIVATE)
+            .initializer("null")
+            .build()
     }
 }
 
