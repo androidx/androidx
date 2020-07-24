@@ -67,10 +67,24 @@ class ToolingGlueTest {
         assertTrue(states.contains("start"))
         assertTrue(states.contains("end"))
     }
+
+    @Test
+    fun testMaxDurationPerIteration() {
+        val anim = def2.createAnimation(ManualAnimationClock(0L)).createSeekableAnimation(
+            "end", "start"
+        )
+        assertEquals(1200L, anim.maxDurationPerIteration)
+
+        val anim2 = def2.createAnimation(ManualAnimationClock(0L)).createSeekableAnimation(
+            "start", "end"
+        )
+        assertEquals(2000L, anim2.maxDurationPerIteration)
+    }
 }
 
 private val scale = FloatPropKey("Scale")
 private val alpha = FloatPropKey("Alpha")
+private val test = FloatPropKey()
 
 private val def = transitionDefinition<String> {
     state("start") {
@@ -97,5 +111,52 @@ private val def = transitionDefinition<String> {
         alpha using tween(
             durationMillis = 600
         )
+    }
+}
+
+private val def2 = transitionDefinition<String> {
+    state("start") {
+        this[scale] = 0f
+        this[alpha] = 1f
+        this[test] = 10f
+    }
+
+    state("end") {
+        this[scale] = 100f
+        this[alpha] = 0.5f
+        this[test] = 0f
+    }
+
+    transition("start" to "end") {
+        alpha using repeatable(100,
+            tween(
+                easing = LinearEasing,
+                durationMillis = 200
+            )
+        )
+        scale using repeatable(18,
+            tween(
+                easing = LinearEasing,
+                durationMillis = 1000
+            )
+        )
+        test using tween(durationMillis = 2000)
+    }
+
+    transition("end" to "start") {
+        alpha using repeatable(100,
+            tween(
+                easing = LinearEasing,
+                durationMillis = 200
+            )
+        )
+        scale using repeatable(18,
+            tween(
+                easing = LinearEasing,
+                durationMillis = 1000,
+                delayMillis = 200
+            )
+        )
+        test using tween(durationMillis = 200)
     }
 }

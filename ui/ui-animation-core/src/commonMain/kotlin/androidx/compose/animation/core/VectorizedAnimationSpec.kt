@@ -285,7 +285,7 @@ class VectorizedRepeatableSpec<V : AnimationVector>(
         }
     }
 
-    private val duration: Int = animation.delayMillis + animation.durationMillis
+    internal val duration: Int = animation.delayMillis + animation.durationMillis
 
     private fun repetitionPlayTime(playTime: Long): Long {
         val repeatsCount = min(playTime / duration, iterations - 1L)
