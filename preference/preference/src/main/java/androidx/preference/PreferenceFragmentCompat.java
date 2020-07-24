@@ -61,7 +61,7 @@ import androidx.recyclerview.widget.RecyclerView;
  *
  * <p>To build a hierarchy from code, use
  * {@link PreferenceManager#createPreferenceScreen(Context)} to create the root
- * {@link PreferenceScreen}. Once you have added other {@link Preference}s to this root scree
+ * {@link PreferenceScreen}. Once you have added other {@link Preference}s to this root screen
  * with {@link PreferenceScreen#addPreference(Preference)}, you then need to set the screen as
  * the root screen in your hierarchy with {@link #setPreferenceScreen(PreferenceScreen)}.
  *
