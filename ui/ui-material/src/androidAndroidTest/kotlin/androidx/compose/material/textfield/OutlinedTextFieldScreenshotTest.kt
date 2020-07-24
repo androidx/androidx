@@ -17,6 +17,12 @@
 package androidx.compose.material.textfield
 
 import android.os.Build
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.rtl
+import androidx.compose.material.GOLDEN_MATERIAL
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.setMaterialContent
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
@@ -24,12 +30,6 @@ import androidx.test.screenshot.assertAgainstGolden
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
-import androidx.compose.foundation.Box
-import androidx.compose.foundation.Text
-import androidx.compose.foundation.layout.rtl
-import androidx.compose.material.GOLDEN_MATERIAL
-import androidx.compose.material.TextField
-import androidx.compose.material.setMaterialContent
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
@@ -42,8 +42,8 @@ import org.junit.runners.JUnit4
 @LargeTest
 @RunWith(JUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class TextFieldScreenshotTest {
-    private val TextFieldTag = "TextField"
+class OutlinedTextFieldScreenshotTest {
+    private val TextFieldTag = "OutlinedTextField"
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -52,38 +52,41 @@ class TextFieldScreenshotTest {
     val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
 
     @Test
-    fun filledTextField_withInput() {
+    fun outlinedTextField_withInput() {
         composeTestRule.setMaterialContent {
             Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
-                TextField(value = "Text",
+                OutlinedTextField(
+                    value = "Text",
                     onValueChange = {},
                     label = { Text("Label") }
                 )
             }
         }
 
-        assertAgainstGolden("filled_textField_withInput")
+        assertAgainstGolden("outlined_textField_withInput")
     }
 
     @Test
-    fun filledTextField_notFocused() {
+    fun outlinedTextField_notFocused() {
         composeTestRule.setMaterialContent {
             Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
-                TextField(value = "",
+                OutlinedTextField(
+                    value = "",
                     onValueChange = {},
                     label = { Text("Label") }
                 )
             }
         }
 
-        assertAgainstGolden("filled_textField_not_focused")
+        assertAgainstGolden("outlined_textField_not_focused")
     }
 
     @Test
-    fun filledTextField_focused() {
+    fun outlinedTextField_focused() {
         composeTestRule.setMaterialContent {
             Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
-                TextField(value = "",
+                OutlinedTextField(
+                    value = "",
                     onValueChange = {},
                     label = { Text("Label") }
                 )
@@ -93,14 +96,15 @@ class TextFieldScreenshotTest {
         onNodeWithTag(TextFieldTag)
             .performClick()
 
-        assertAgainstGolden("filled_textField_focused")
+        assertAgainstGolden("outlined_textField_focused")
     }
 
     @Test
-    fun filledTextField_focused_rtl() {
+    fun outlinedTextField_focused_rtl() {
         composeTestRule.setMaterialContent {
             Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag).rtl) {
-                TextField(value = "",
+                OutlinedTextField(
+                    value = "",
                     onValueChange = {},
                     label = { Text("Label") }
                 )
@@ -110,7 +114,7 @@ class TextFieldScreenshotTest {
         onNodeWithTag(TextFieldTag)
             .performClick()
 
-        assertAgainstGolden("filled_textField_focused_rtl")
+        assertAgainstGolden("outlined_textField_focused_rtl")
     }
 
     private fun assertAgainstGolden(goldenIdentifier: String) {
