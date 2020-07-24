@@ -54,7 +54,7 @@ class FindParentKeyInputNodeTest {
 
         // Act.
         val parent = runOnIdle {
-            modifier3.keyInputNode!!.findParentKeyInputNode()
+            modifier3.keyInputNode.findParentKeyInputNode()
         }
 
         // Assert.
@@ -84,7 +84,7 @@ class FindParentKeyInputNodeTest {
 
         // Act.
         val parent = runOnIdle {
-            modifier3.keyInputNode!!.findParentKeyInputNode()
+            modifier3.keyInputNode.findParentKeyInputNode()
         }
 
         // Assert.
@@ -113,7 +113,7 @@ class FindParentKeyInputNodeTest {
 
         // Act.
         val parent = runOnIdle {
-            keyInputModifier.keyInputNode!!.findParentKeyInputNode()
+            keyInputModifier.keyInputNode.findParentKeyInputNode()
         }
 
         // Assert.
@@ -146,7 +146,7 @@ class FindParentKeyInputNodeTest {
 
         // Act.
         val parent = runOnIdle {
-            keyInputModifier.keyInputNode!!.findParentKeyInputNode()
+            keyInputModifier.keyInputNode.findParentKeyInputNode()
         }
 
         // Assert.
@@ -177,7 +177,7 @@ class FindParentKeyInputNodeTest {
 
         // Act.
         val parent = runOnIdle {
-            keyInputModifier.keyInputNode!!.findParentKeyInputNode()
+            keyInputModifier.keyInputNode.findParentKeyInputNode()
         }
 
         // Assert.
