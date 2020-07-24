@@ -16,27 +16,30 @@
 
 package androidx.ui.tooling.inspector
 
-import androidx.test.filters.SmallTest
-import androidx.ui.core.AbsoluteAlignment
-import androidx.ui.core.Alignment
 import androidx.compose.foundation.Border
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.CrossAxisAlignment
+import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.LinearGradient
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.colorspace.ColorModel
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.intl.LocaleList
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.CrossAxisAlignment
-import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -44,16 +47,24 @@ import androidx.compose.ui.text.font.FontListFontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.ResourceFont
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.test.filters.SmallTest
+import androidx.ui.core.AbsoluteAlignment
+import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
+import androidx.ui.core.paint
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
@@ -331,6 +342,59 @@ class ParameterFactoryTest {
     }
 
     @Test
+    fun testModifier() {
+        validate(factory.create(node, "modifier",
+            Modifier
+                .background(Color.Blue)
+                .padding(2.0.dp)
+                .fillMaxWidth()
+                .wrapContentHeight(Alignment.Bottom)
+                .preferredWidth(30.0.dp)
+                .paint(TestPainter(10f, 20f)))!!) {
+            parameter("modifier", ParameterType.String, "") {
+                parameter("background", ParameterType.Color, Color.Blue.toArgb()) {
+                    parameter("color", ParameterType.Color, Color.Blue.toArgb())
+                    parameter("alpha", ParameterType.Float, 1.0f)
+                    parameter("shape", ParameterType.String, "Shape")
+                }
+                parameter("padding", ParameterType.DimensionDp, 2.0f) {
+                    parameter("start", ParameterType.DimensionDp, 2.0f)
+                    parameter("top", ParameterType.DimensionDp, 2.0f)
+                    parameter("end", ParameterType.DimensionDp, 2.0f)
+                    parameter("bottom", ParameterType.DimensionDp, 2.0f)
+                }
+                parameter("fillMaxWidth", ParameterType.String, "")
+                parameter("wrapContentHeight", ParameterType.String, "") {
+                    parameter("alignment", ParameterType.String, "Bottom")
+                }
+                parameter("preferredWidth", ParameterType.DimensionDp, 30.0f) {
+                    parameter("width", ParameterType.DimensionDp, 30.0f)
+                }
+                // TODO: Map Painter, ContentScale, ColorFilter
+                parameter("paint", ParameterType.String, "") {
+                    parameter("sizeToIntrinsics", ParameterType.Boolean, true)
+                    parameter("alignment", ParameterType.String, "Center")
+                    parameter("alpha", ParameterType.Float, 1.0f)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testSingleModifier() {
+        validate(factory.create(node, "modifier", Modifier.padding(2.0.dp))!!) {
+            parameter("modifier", ParameterType.String, "") {
+                parameter("padding", ParameterType.DimensionDp, 2.0f) {
+                    parameter("start", ParameterType.DimensionDp, 2.0f)
+                    parameter("top", ParameterType.DimensionDp, 2.0f)
+                    parameter("end", ParameterType.DimensionDp, 2.0f)
+                    parameter("bottom", ParameterType.DimensionDp, 2.0f)
+                }
+            }
+        }
+    }
+
+    @Test
     fun testOffset() {
         validate(factory.create(node, "offset", Offset(1.0f, 5.0f))!!) {
             parameter("offset", ParameterType.String, Offset::class.java.simpleName) {
@@ -462,6 +526,26 @@ class ParameterFactoryTest {
     }
 }
 
+private class TestPainter(
+    val width: Float,
+    val height: Float
+) : Painter() {
+
+    var color = Color.Red
+
+    override val intrinsicSize: Size
+        get() = Size(width, height)
+
+    override fun applyLayoutDirection(layoutDirection: LayoutDirection): Boolean {
+        color = if (layoutDirection == LayoutDirection.Rtl) Color.Blue else Color.Red
+        return true
+    }
+
+    override fun DrawScope.onDraw() {
+        drawRect(color = color)
+    }
+}
+
 class ParameterValidationReceiver(val parameterIterator: Iterator<NodeParameter>) {
     fun parameter(
         name: String,
@@ -469,14 +553,17 @@ class ParameterValidationReceiver(val parameterIterator: Iterator<NodeParameter>
         value: Any?,
         children: ParameterValidationReceiver.() -> Unit = {}
     ) {
-        assertWithMessage(name).that(parameterIterator.hasNext()).isTrue()
+        assertWithMessage("No such element found: $name").that(parameterIterator.hasNext()).isTrue()
         val parameter = parameterIterator.next()
         assertThat(parameter.name).isEqualTo(name)
         assertWithMessage(name).that(parameter.type).isEqualTo(type)
         assertWithMessage(name).that(parameter.value).isEqualTo(value)
         val elements = ParameterValidationReceiver(parameter.elements.listIterator())
         elements.children()
-        assertWithMessage("$name: has more elements")
-            .that(elements.parameterIterator.hasNext()).isFalse()
+        if (elements.parameterIterator.hasNext()) {
+            val elementNames = mutableListOf<String>()
+            elements.parameterIterator.forEachRemaining { elementNames.add(it.name) }
+            error("$name: has more elements like: ${elementNames.joinToString()}")
+        }
     }
 }
