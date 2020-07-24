@@ -6,7 +6,7 @@
 
 ## Testing
 
-Test: Describe how you tested your changes
+Test: Describe how you tested your changes. Note that this line (with `Test:`) is required, your PR will not build without it!
 
 ## Issues Fixed
 
