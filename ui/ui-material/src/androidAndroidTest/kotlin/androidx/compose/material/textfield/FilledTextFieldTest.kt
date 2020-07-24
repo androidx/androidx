@@ -97,7 +97,7 @@ class FilledTextFieldTest {
     val testRule = createComposeRule()
 
     @Test
-    fun testFilledTextField_minimumHeight() {
+    fun testTextField_minimumHeight() {
         testRule.setMaterialContentForSizeAssertions {
             TextField(
                 value = "input",
@@ -110,7 +110,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextFields_singleFocus() {
+    fun testTextFields_singleFocus() {
         var textField1Focused = false
         val textField1Tag = "TextField1"
 
@@ -152,7 +152,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_getFocus_whenClickedOnSurfaceArea() {
+    fun testTextField_getFocus_whenClickedOnSurfaceArea() {
         var focused = false
         testRule.setMaterialContent {
             Box {
@@ -177,7 +177,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_labelPosition_initial_withDefaultHeight() {
+    fun testTextField_labelPosition_initial_withDefaultHeight() {
         val labelSize = Ref<IntSize>()
         val labelPosition = Ref<Offset>()
         testRule.setMaterialContent {
@@ -218,7 +218,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_labelPosition_initial_withCustomHeight() {
+    fun testTextField_labelPosition_initial_withCustomHeight() {
         val height = 80.dp
         val labelSize = Ref<IntSize>()
         val labelPosition = Ref<Offset>()
@@ -254,7 +254,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_labelPosition_whenFocused() {
+    fun testTextField_labelPosition_whenFocused() {
         val labelSize = Ref<IntSize>()
         val labelPosition = Ref<Offset>()
         val baseline = Ref<Float>()
@@ -294,7 +294,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_labelPosition_whenInput() {
+    fun testTextField_labelPosition_whenInput() {
         val labelSize = Ref<IntSize>()
         val labelPosition = Ref<Offset>()
         val baseline = Ref<Float>()
@@ -331,7 +331,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_placeholderPosition_withLabel() {
+    fun testTextField_placeholderPosition_withLabel() {
         val placeholderSize = Ref<IntSize>()
         val placeholderPosition = Ref<Offset>()
         testRule.setMaterialContent {
@@ -373,7 +373,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_placeholderPosition_whenNoLabel() {
+    fun testTextField_placeholderPosition_whenNoLabel() {
         val placeholderSize = Ref<IntSize>()
         val placeholderPosition = Ref<Offset>()
         val height = 60.dp
@@ -414,7 +414,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_noPlaceholder_whenInputNotEmpty() {
+    fun testTextField_noPlaceholder_whenInputNotEmpty() {
         val placeholderSize = Ref<IntSize>()
         val placeholderPosition = Ref<Offset>()
         testRule.setMaterialContent {
@@ -444,7 +444,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_placeholderColorAndTextStyle() {
+    fun testTextField_placeholderColorAndTextStyle() {
         testRule.setMaterialContent {
             TextField(
                 modifier = Modifier.testTag(TextfieldTag),
@@ -469,7 +469,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_trailingAndLeading_sizeAndPosition() {
+    fun testTextField_trailingAndLeading_sizeAndPosition() {
         val textFieldHeight = 60.dp
         val textFieldWidth = 300.dp
         val size = 30.dp
@@ -522,7 +522,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_labelPositionX_initial_withTrailingAndLeading() {
+    fun testTextField_labelPositionX_initial_withTrailingAndLeading() {
         val height = 60.dp
         val iconSize = 30.dp
         val labelPosition = Ref<Offset>()
@@ -552,7 +552,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_labelPositionX_initial_withEmptyTrailingAndLeading() {
+    fun testTextField_labelPositionX_initial_withEmptyTrailingAndLeading() {
         val height = 60.dp
         val labelPosition = Ref<Offset>()
         testRule.setMaterialContent {
@@ -580,7 +580,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_colorInLeadingTrailing_whenValidInput() {
+    fun testTextField_colorInLeadingTrailing_whenValidInput() {
         testRule.setMaterialContent {
             TextField(
                 value = "",
@@ -608,7 +608,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_colorInLeadingTrailing_whenInvalidInput() {
+    fun testTextField_colorInLeadingTrailing_whenInvalidInput() {
         testRule.setMaterialContent {
             TextField(
                 value = "",
@@ -631,7 +631,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_imeActionAndKeyboardTypePropagatedDownstream() {
+    fun testTextField_imeActionAndKeyboardTypePropagatedDownstream() {
         val textInputService = mock<TextInputService>()
         testRule.setContent {
             Providers(
@@ -664,7 +664,7 @@ class FilledTextFieldTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testFilledTextField_visualTransformationPropagated() {
+    fun testTextField_visualTransformationPropagated() {
         testRule.setMaterialContent {
             TextField(
                 modifier = Modifier.testTag(TextfieldTag),
@@ -691,7 +691,7 @@ class FilledTextFieldTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testFilledTextField_alphaNotSet_toBackgroundColorAndTransparentColors() {
+    fun testTextField_alphaNotSet_toBackgroundColorAndTransparentColors() {
         val latch = CountDownLatch(1)
 
         testRule.setMaterialContent {
@@ -741,7 +741,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_onTextInputStartedCallback() {
+    fun testTextField_onTextInputStartedCallback() {
         var controller: SoftwareKeyboardController? = null
 
         testRule.setMaterialContent {
@@ -766,7 +766,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testFilledTextField_imeActionCallback_withSoftwareKeyboardController() {
+    fun testTextField_imeActionCallback_withSoftwareKeyboardController() {
         var controller: SoftwareKeyboardController? = null
 
         testRule.setMaterialContent {
