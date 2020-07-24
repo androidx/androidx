@@ -57,7 +57,18 @@ class SeekableAnimation<T>(
      * transition, this will be the duration of the longest running animation.
      */
     val duration: Long =
-            currentAnimWrappers.asSequence().map { it.value.durationMillis }.maxOrNull()!!
+        currentAnimWrappers.asSequence().map { it.value.durationMillis }.maxOrNull()!!
+
+    /**
+     * Max duration for a single iteration (including delay) of all animations in the list.
+     * Non-repeatable animations are factored in as animations with one iteration.
+     */
+    val maxDurationPerIteration: Long =
+        currentAnimWrappers.asSequence().map {
+            ((it.value as? TargetBasedAnimation)?.animationSpec as? VectorizedRepeatableSpec)
+                ?.duration?.toLong()
+                ?: it.value.durationMillis
+        }.maxOrNull()!!
 
     /**
      * Returns the animation values at the given playtime. This time could be any time between 0

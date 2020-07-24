@@ -175,7 +175,7 @@ internal fun <T, V : AnimationVector> TargetBasedAnimation(
  */
 @VisibleForTesting(otherwise = 3 /*PACKAGE_PRIVATE*/)
 class TargetBasedAnimation<T, V : AnimationVector>(
-    private val animationSpec: VectorizedAnimationSpec<V>,
+    internal val animationSpec: VectorizedAnimationSpec<V>,
     startValue: T,
     val endValue: T,
     private val startVelocityVector: V,

@@ -171,9 +171,17 @@ internal open class PreviewAnimationClock(private val initialTimeMs: Long = 0L) 
      */
     fun getMaxDuration(): Long {
         // TODO(b/160126628): support other animation types, e.g. AnimatedValue
-        val maxTransitionAnimation = seekableAnimations
-            .maxByOrNull { it.value.duration }?.value?.duration
-        return maxTransitionAnimation ?: -1
+        return seekableAnimations.map { it.value.duration }.maxOrNull() ?: -1
+    }
+
+    /**
+     * Returns the longest duration per iteration among the animations being tracked. This can be
+     * different from [getMaxDuration], for instance, when there is one or more repeatable
+     * animations with multiple iterations.
+     */
+    fun getMaxDurationPerIteration(): Long {
+        // TODO(b/160126628): support other animation types, e.g. AnimatedValue
+        return seekableAnimations.map { it.value.maxDurationPerIteration }.maxOrNull() ?: -1
     }
 
     /**
