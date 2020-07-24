@@ -101,7 +101,6 @@ public class TextureViewImplementationTest {
 
         final Surface surface = surfaceListenableFuture.get();
         assertThat(surface).isNotNull();
-        assertThat(mImplementation.mSurfaceRequest).isNull();
     }
 
     @Test
