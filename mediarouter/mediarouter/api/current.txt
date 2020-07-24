@@ -357,7 +357,7 @@ package androidx.mediarouter.media {
     method public void selectRoute(androidx.mediarouter.media.MediaRouter.RouteInfo);
     method public void setMediaSession(Object!);
     method public void setMediaSessionCompat(android.support.v4.media.session.MediaSessionCompat!);
-    method public void setOnPrepareTransferListener(androidx.mediarouter.media.MediaRouter.OnPrepareTransferListener?);
+    method @MainThread public void setOnPrepareTransferListener(androidx.mediarouter.media.MediaRouter.OnPrepareTransferListener?);
     method public void setRouterParams(androidx.mediarouter.media.MediaRouterParams?);
     method public void unselect(int);
     method public androidx.mediarouter.media.MediaRouter.RouteInfo updateSelectedRoute(androidx.mediarouter.media.MediaRouteSelector);
@@ -397,7 +397,7 @@ package androidx.mediarouter.media {
   }
 
   public static interface MediaRouter.OnPrepareTransferListener {
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!>? onPrepareTransfer(androidx.mediarouter.media.MediaRouter.RouteInfo, androidx.mediarouter.media.MediaRouter.RouteInfo);
+    method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!>? onPrepareTransfer(androidx.mediarouter.media.MediaRouter.RouteInfo, androidx.mediarouter.media.MediaRouter.RouteInfo);
   }
 
   public static final class MediaRouter.ProviderInfo {
