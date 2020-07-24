@@ -484,10 +484,19 @@ public final class AppSearchImpl {
             newTypesToProto.put(newSchemaType, typeConfigBuilder.build());
         }
 
-        // Add the newly rewritten types to the existing schema.
-        for (String newType : newTypesToProto.keySet()) {
-            existingSchema.addTypes(newTypesToProto.get(newType));
+        // Update the existing schema with new types.
+        // TODO(b/162093169): This prevents us from ever removing types from the schema.
+        for (int i = 0; i < existingSchema.getTypesCount(); i++) {
+            String schemaType = existingSchema.getTypes(i).getSchemaType();
+            SchemaTypeConfigProto newProto = newTypesToProto.remove(schemaType);
+            if (newProto != null) {
+                // Replacement
+                existingSchema.setTypes(i, newProto);
+            }
         }
+        // We've been removing existing types from newTypesToProto, so everything that remains is
+        // new.
+        existingSchema.addAllTypes(newTypesToProto.values());
     }
 
     /**

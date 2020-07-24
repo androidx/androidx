@@ -29,17 +29,16 @@ import androidx.test.core.app.ApplicationProvider;
 
 import junit.framework.AssertionFailedError;
 
-import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
-
 public class AppSearchManagerTest {
-    @After
-    public void tearDown() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         // Remove all documents from any instances that may have been created in the tests.
         Future<AppSearchResult<AppSearchManager>> appSearchManagerFuture =
                 AppSearchManager.getInstance(/*instanceName=*/ "",
@@ -92,10 +91,10 @@ public class AppSearchManagerTest {
 
     @Test
     public void testPutDocuments() throws Exception {
-        Future<AppSearchResult<AppSearchManager>> appSearchManagerFuture =
-                AppSearchManager.getInstance("instance1",
-                        ApplicationProvider.getApplicationContext());
-        AppSearchManager appSearchManager = checkIsResultSuccess(appSearchManagerFuture);
+        AppSearchManager appSearchManager = checkIsResultSuccess(
+                AppSearchManager.getInstance(
+                        "instance1",
+                        ApplicationProvider.getApplicationContext()));
 
         // Schema registration
         checkIsResultSuccess(appSearchManager.setSchema(
@@ -138,6 +137,79 @@ public class AppSearchManagerTest {
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(future);
         assertThat(result.getSuccesses()).containsExactly("uri1", null);
         assertThat(result.getFailures()).isEmpty();
+    }
+
+    @Test
+    public void testUpdateSchema() throws Exception {
+        Future<AppSearchResult<AppSearchManager>> appSearchManagerFuture =
+                AppSearchManager.getInstance("instance1",
+                        ApplicationProvider.getApplicationContext());
+        AppSearchManager appSearchManager = checkIsResultSuccess(appSearchManagerFuture);
+
+        // Schema registration
+        AppSearchSchema oldEmailSchema = new AppSearchSchema.Builder(AppSearchEmail.SCHEMA_TYPE)
+                .addProperty(new AppSearchSchema.PropertyConfig.Builder("subject")
+                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+        AppSearchSchema newEmailSchema = new AppSearchSchema.Builder(AppSearchEmail.SCHEMA_TYPE)
+                .addProperty(new AppSearchSchema.PropertyConfig.Builder("subject")
+                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new AppSearchSchema.PropertyConfig.Builder("body")
+                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+        AppSearchSchema giftSchema = new AppSearchSchema.Builder("Gift")
+                .addProperty(new AppSearchSchema.PropertyConfig.Builder("price")
+                        .setDataType(PropertyConfig.DATA_TYPE_INT64)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+        checkIsResultSuccess(
+                appSearchManager.setSchema(
+                        new SetSchemaRequest.Builder().addSchema(oldEmailSchema).build()));
+
+        // Try to index a gift. This should fail as it's not in the schema.
+        GenericDocument gift =
+                new GenericDocument.Builder<>("gift1", "Gift").setProperty("price", 5).build();
+        AppSearchBatchResult<String, Void> result =
+                appSearchManager.putDocuments(
+                        new PutDocumentsRequest.Builder().addGenericDocument(gift).build()).get();
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.getFailures().get("gift1").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+
+        // Update the schema to include the gift and update email with a new field
+        checkIsResultSuccess(
+                appSearchManager.setSchema(
+                        new SetSchemaRequest.Builder()
+                                .addSchema(newEmailSchema, giftSchema).build()));
+
+        // Try to index the document again, which should now work
+        checkIsBatchResultSuccess(
+                appSearchManager.putDocuments(
+                        new PutDocumentsRequest.Builder().addGenericDocument(gift).build()));
+
+        // Indexing an email with a body should also work
+        AppSearchEmail email = new AppSearchEmail.Builder("email1")
+                .setSubject("testPut example")
+                .setBody("This is the body of the testPut email")
+                .build();
+        checkIsBatchResultSuccess(
+                appSearchManager.putDocuments(
+                        new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
     }
 
     @Test
