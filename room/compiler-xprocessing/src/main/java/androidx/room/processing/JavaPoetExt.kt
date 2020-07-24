@@ -43,16 +43,27 @@ internal fun TypeMirror.safeTypeName(): TypeName = if (kind == TypeKind.NONE) {
     TypeName.get(this)
 }
 
+/**
+ * Adds the given element as the originating element for compilation.
+ * see [TypeSpec.Builder.addOriginatingElement].
+ */
 fun TypeSpec.Builder.addOriginatingElement(element: XElement) {
     if (element is JavacElement) {
         this.addOriginatingElement(element.element)
     }
 }
 
+/**
+ * Helper class to create overrides for XExecutableElements with final parameters and correct
+ * parameter names read from Kotlin Metadata.
+ */
 object MethodSpecHelper {
     /**
-     * Custom override where we mark parameters as final, overidden method as public and also
-     * preserve method names from kotlin metadata.
+     * Creates an overriding [MethodSpec] for the given [XExecutableElement] where:
+     * * all parameters are marked as final
+     * * parameter names are copied from KotlinMetadata when available
+     * * [Override] annotation is added and other annotations are dropped
+     * * thrown types are copied if the backing element is from java
      */
     fun overridingWithFinalParams(
         elm: XMethodElement,

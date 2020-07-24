@@ -19,16 +19,30 @@ package androidx.room.processing
 import com.squareup.javapoet.TypeVariableName
 
 /**
- * Represents a type information for an executable.
+ * Represents a type information for a method.
  *
  * It is not an XType as it does not represent a class or primitive.
  */
 interface XMethodType {
+    /**
+     * The return type of the method
+     */
     val returnType: XType
 
+    /**
+     * Parameter types of the method.
+     */
     val parameterTypes: List<XType>
 
+    /**
+     * Returns the names of [TypeVariableName]s for this executable.
+     */
     val typeVariableNames: List<TypeVariableName>
 
+    /**
+     * If this is a suspend function, returns the real return type as seen by Kotlin.
+     *
+     * Calling this function in a method that is not a suspend method is an error.
+     */
     fun getSuspendFunctionReturnType(): XType
 }

@@ -19,16 +19,34 @@ package androidx.room.processing
 import com.squareup.javapoet.ClassName
 
 interface XTypeElement : XElement {
+    /**
+     * The qualified name of the Class/Interface.
+     */
     val qualifiedName: String
 
+    /**
+     * The type represented by this [XTypeElement].
+     */
     val type: XDeclaredType
 
+    /**
+     * The super type of this element if it represents a class.
+     */
     val superType: XType?
 
+    /**
+     * Javapoet [ClassName] of the type.
+     */
     val className: ClassName
 
+    /**
+     * Returns `true` if this [XTypeElement] represents an interface
+     */
     fun isInterface(): Boolean
 
+    /**
+     * Returns `true` if this [XTypeElement] is declared as a Kotlin `object`
+     */
     fun isKotlinObject(): Boolean
 
     /**
@@ -37,7 +55,11 @@ interface XTypeElement : XElement {
      */
     fun getAllFieldsIncludingPrivateSupers(): List<XVariableElement>
 
-    // only in kotlin
+    /**
+     * Returns the primary constructor for the type, if it exists.
+     *
+     * Note that this only exists for classes declared in Kotlin.
+     */
     fun findPrimaryConstructor(): XConstructorElement?
 
     /**
@@ -62,5 +84,8 @@ interface XTypeElement : XElement {
      */
     fun getAllNonPrivateInstanceMethods(): List<XMethodElement>
 
+    /**
+     * Returns the list of constructors in this type element
+     */
     fun getConstructors(): List<XConstructorElement>
 }

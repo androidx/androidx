@@ -19,12 +19,32 @@ package androidx.room.processing
 import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
+/**
+ * Represents an element declared in code.
+ *
+ * @see [javax.lang.model.element.Element]
+ * @see XExecutableElement
+ * @see XVariableElement
+ * @see XTypeElement
+ */
 interface XElement {
+    /**
+     * SimpleName of the element converted to a String.
+     *
+     * @see [javax.lang.model.element.Element.getSimpleName]
+     */
     val name: String
 
+    /**
+     * The qualified name of the package that contains this element.
+     */
     val packageName: String
 
     /**
+     * Nullability of an Element as declared in code via its type or annotations (e.g.
+     * [androidx.annotation.Nullable].
+     * This will be moved into [XType].
+     *
      * TODO:
      *  Nullability is normally a property of Type not Element but currently Room relies on
      *  Annotations to resolve nullability which exists only on Elements, not Types.
@@ -34,46 +54,121 @@ interface XElement {
      */
     val nullability: XNullability
 
+    /**
+     * The [XElement] that contains this element.
+     *
+     * For inner classes, this will be another [XTypeElement].
+     * For top level classes, it will be null as x-processing does not model packages or modules.
+     *
+     * For [XExecutableElement], it will be the [XTypeElement] where the method is declared.
+     */
     val enclosingElement: XElement?
 
+    /**
+     * Returns `true` if this element is public (has public modifier in Java or not marked as
+     * private / internal in Kotlin).
+     */
     fun isPublic(): Boolean
 
+    /**
+     * Returns `true` if this element has protected modifier.
+     */
     fun isProtected(): Boolean
 
+    /**
+     * Returns `true` if this element is declared as abstract.
+     */
     fun isAbstract(): Boolean
 
+    /**
+     * Returns `true` if this element has private modifier.
+     */
     fun isPrivate(): Boolean
 
+    /**
+     * Returns `true` if this element has static modifier.
+     */
     fun isStatic(): Boolean
 
+    /**
+     * Returns `true` if this element has transient modifier.
+     */
     fun isTransient(): Boolean
 
+    /**
+     * Returns `true` if this element is final and cannot be overridden.
+     */
     fun isFinal(): Boolean
 
+    /**
+     * Returns the string representation of the Element's kind.
+     */
     fun kindName(): String
 
+    /**
+     * If the current element has an annotation with the given [annotation] class, a boxed instance
+     * of it will be returned where fields can be read. Otherwise, `null` value is returned.
+     *
+     * @see [hasAnnotation]
+     * @see [hasAnnotationInPackage]
+     */
     fun <T : Annotation> toAnnotationBox(annotation: KClass<T>): XAnnotationBox<T>?
 
+    /**
+     * Returns `true` if this element has an annotation that is declared in the given package.
+     */
     // a very sad method but helps avoid abstraction annotation
     fun hasAnnotationInPackage(pkg: String): Boolean
 
+    /**
+     * Returns `true` if this element is annotated with the given [annotation].
+     *
+     * @see [toAnnotationBox]
+     * @see [hasAnyOf]
+     */
     fun hasAnnotation(annotation: KClass<out Annotation>): Boolean
 
+    /**
+     * Returns `true` if this element has one of the [annotations].
+     */
     fun hasAnyOf(vararg annotations: KClass<out Annotation>) = annotations.any(this::hasAnnotation)
 
+    /**
+     * Returns `true` if and only if this element can never be null.
+     * For Java source code, this means the element is either primitive or annotated with one of
+     * the non-nullability annotations.
+     * For Kotlin source code, this means element's type is specified as non-null.
+     */
     fun isNonNull() = nullability == XNullability.NONNULL
 
+    /**
+     * Casts current element to [XTypeElement].
+     */
     fun asTypeElement() = this as XTypeElement
 
+    /**
+     * Casts current element to [XVariableElement].
+     */
     fun asVariableElement() = this as XVariableElement
 
+    /**
+     * Casts current element to [XMethodElement].
+     */
     fun asMethodElement() = this as XMethodElement
 
+    /**
+     * Returns the [XDeclaredType] type of the current element, assuming it is an [XTypeElement].
+     * It is a shortcut for `asTypeElement().type`.
+     */
     fun asDeclaredType(): XDeclaredType {
         return asTypeElement().type
     }
 }
 
+/**
+ * Checks whether this element represents an [XTypeElement].
+ * @see [XElement.asTypeElement]
+ */
 // we keep these as extension methods to be able to use contracts
 fun XElement.isType(): Boolean {
     contract {
@@ -82,13 +177,21 @@ fun XElement.isType(): Boolean {
     return this is XTypeElement
 }
 
-fun XElement.isField(): Boolean {
+/**
+ * Checks whether this element represents an [XVariableElement].
+ * @see [XElement.asVariableElement]
+ */
+fun XElement.isVariableElement(): Boolean {
     contract {
-        returns(true) implies (this@isField is XVariableElement)
+        returns(true) implies (this@isVariableElement is XVariableElement)
     }
     return this is XVariableElement
 }
 
+/**
+ * Checks whether this element represents an [XMethodElement].
+ * @see [XElement.asMethodElement]
+ */
 fun XElement.isMethod(): Boolean {
     contract {
         returns(true) implies (this@isMethod is XMethodElement)

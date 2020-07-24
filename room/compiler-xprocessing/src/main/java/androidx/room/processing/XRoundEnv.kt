@@ -21,15 +21,27 @@ import androidx.room.processing.javac.JavacProcessingEnv
 import androidx.room.processing.javac.JavacRoundEnv
 import javax.annotation.processing.RoundEnvironment
 
-// only used in tests of Room
+/**
+ * Representation of an annotation processing round.
+ *
+ * @see javax.annotation.processing.RoundEnvironment
+ */
 @VisibleForTesting
 interface XRoundEnv {
-
+    /**
+     * The root elements in the round.
+     */
     val rootElements: Set<XElement>
 
+    /**
+     * Returns the set of [XElement]s that are annotated with the given [klass].
+     */
     fun getElementsAnnotatedWith(klass: Class<out Annotation>): Set<XElement>
 
     companion object {
+        /**
+         * Creates an [XRoundEnv] from the given Java processing parameters.
+         */
         fun create(
             processingEnv: XProcessingEnv,
             roundEnvironment: RoundEnvironment

@@ -16,6 +16,17 @@
 
 package androidx.room.processing
 
+/**
+ * Represents a Declared type that is either an interface or class.
+ *
+ * @see [javax.lang.model.type.DeclaredType]
+ */
 interface XDeclaredType : XType {
+    /**
+     * Type arguments for the element. Note that they might be either placeholders or real
+     * resolvable types depending on the usage.
+     *
+     * @see [javax.lang.model.type.DeclaredType.getTypeArguments]
+     */
     val typeArguments: List<XType>
 }

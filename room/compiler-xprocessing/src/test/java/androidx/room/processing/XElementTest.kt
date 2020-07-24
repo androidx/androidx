@@ -281,13 +281,13 @@ class XElementTest {
             element.getField("field").let { field ->
                 assertThat(field.isType()).isFalse()
                 assertThat(field.isAbstract()).isFalse()
-                assertThat(field.isField()).isTrue()
+                assertThat(field.isVariableElement()).isTrue()
                 assertThat(field.isMethod()).isFalse()
             }
             element.getMethod("method").let { method ->
                 assertThat(method.isType()).isFalse()
                 assertThat(method.isAbstract()).isFalse()
-                assertThat(method.isField()).isFalse()
+                assertThat(method.isVariableElement()).isFalse()
                 assertThat(method.isMethod()).isTrue()
             }
         }
