@@ -86,6 +86,16 @@ package androidx.paging {
     field @Deprecated public final int requestedLoadSize;
   }
 
+  public final class ItemSnapshotList<T> extends kotlin.collections.AbstractList<T> {
+    ctor public ItemSnapshotList(@IntRange(from=null) int placeholdersBefore, @IntRange(from=null) int placeholdersAfter, java.util.List<? extends T> items);
+    method public T? get(int index);
+    method public java.util.List<T> getItems();
+    method public int getPlaceholdersAfter();
+    method public int getPlaceholdersBefore();
+    method public int getSize();
+    property public int size;
+  }
+
   public abstract sealed class LoadState {
     method public final boolean getEndOfPaginationReached();
   }

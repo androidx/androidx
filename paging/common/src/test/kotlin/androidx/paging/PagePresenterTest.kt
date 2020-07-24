@@ -16,11 +16,11 @@
 
 package androidx.paging
 
-import androidx.paging.PagePresenter.ProcessPageEventCallback
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
+import androidx.paging.PagePresenter.ProcessPageEventCallback
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -550,6 +550,34 @@ class PagePresenterTest {
         assertEquals(ViewportHint(1, 0), pagePresenter.indexToHint(4))
         assertEquals(ViewportHint(1, 1), pagePresenter.indexToHint(5))
         assertEquals(ViewportHint(1, 2), pagePresenter.indexToHint(6))
+    }
+
+    @Test
+    fun snapshot_uncounted() {
+        val pagePresenter = PagePresenter(
+            PageEvent.Insert.Refresh(
+                pages = listOf(TransformablePage(listOf('a'))),
+                placeholdersBefore = 0,
+                placeholdersAfter = 0,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+
+        assertEquals<List<Char?>>(listOf('a'), pagePresenter.snapshot())
+    }
+
+    @Test
+    fun snapshot_counted() {
+        val pagePresenter = PagePresenter(
+            PageEvent.Insert.Refresh(
+                pages = listOf(TransformablePage(listOf('a'))),
+                placeholdersBefore = 1,
+                placeholdersAfter = 3,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+
+        assertEquals(listOf(null, 'a', null, null, null), pagePresenter.snapshot())
     }
 
     companion object {

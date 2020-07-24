@@ -169,6 +169,12 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
      */
     fun peek(@IntRange(from = 0) index: Int) = differ.peek(index)
 
+    /**
+     * Returns a new [ItemSnapshotList] representing the currently presented items, including any
+     * placeholders if they are enabled.
+     */
+    fun snapshot(): ItemSnapshotList<T> = differ.snapshot()
+
     override fun getItemCount() = differ.itemCount
 
     /**

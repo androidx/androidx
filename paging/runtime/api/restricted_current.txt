@@ -38,6 +38,7 @@ package androidx.paging {
     method @androidx.paging.ExperimentalPagingApi public void removeDataRefreshListener(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> listener);
     method public void removeLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
     method public void retry();
+    method public androidx.paging.ItemSnapshotList<T> snapshot();
     method public suspend Object? submitData(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public void submitData(androidx.lifecycle.Lifecycle lifecycle, androidx.paging.PagingData<T> pagingData);
     property public final kotlinx.coroutines.flow.Flow<java.lang.Boolean> dataRefreshFlow;
@@ -116,6 +117,7 @@ package androidx.paging {
     method @androidx.paging.ExperimentalPagingApi public final void removeDataRefreshListener(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> listener);
     method public final void removeLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
     method public final void retry();
+    method public final androidx.paging.ItemSnapshotList<T> snapshot();
     method public final suspend Object? submitData(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public final void submitData(androidx.lifecycle.Lifecycle lifecycle, androidx.paging.PagingData<T> pagingData);
     method public final androidx.recyclerview.widget.ConcatAdapter withLoadStateFooter(androidx.paging.LoadStateAdapter<?> footer);
