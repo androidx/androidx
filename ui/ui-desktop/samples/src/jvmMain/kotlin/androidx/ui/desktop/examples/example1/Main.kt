@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExtendedFloatingActionButton
-import androidx.compose.material.FilledTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Slider
 import androidx.compose.material.TopAppBar
@@ -47,8 +46,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.fontFamily
 import androidx.ui.desktop.font
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
+import androidx.compose.material.TextField
 import androidx.compose.ui.unit.IntSize
 
 private const val title = "Desktop Compose Elements"
@@ -74,7 +73,7 @@ fun main() {
             bodyContent = {
                 val amount = state { 0 }
                 val animation = state { true }
-                val text = state { "Hello" }
+                val text = state { "Hello \uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0\nПривет" }
                 Column(Modifier.fillMaxSize(), Arrangement.SpaceEvenly) {
                     Text(
                         text = "Привет! 你好! Desktop Compose ${amount.value}",
@@ -147,12 +146,12 @@ fun main() {
 
                     Slider(value = amount.value.toFloat() / 100f,
                         onValueChange = { amount.value = (it * 100).toInt() })
-                    FilledTextField(
+                    TextField(
                         value = amount.value.toString(),
                         onValueChange = { amount.value = it.toIntOrNull() ?: 42 },
                         label = { Text(text = "Input1") }
                     )
-                    FilledTextField(
+                    TextField(
                         value = text.value,
                         onValueChange = { text.value = it },
                         label = { Text(text = "Input2") }

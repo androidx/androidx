@@ -74,7 +74,7 @@ internal class DesktopPlatformInput : PlatformTextInputService {
                 }
                 KeyEvent.VK_ENTER -> {
                     if (imeAction == ImeAction.Unspecified) {
-                        it.invoke(listOf(CommitTextEditOp("", 1)))
+                        it.invoke(listOf(CommitTextEditOp("\n", 1)))
                     } else
                         onImeActionPerformed?.invoke(imeAction!!)
                 }
