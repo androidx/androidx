@@ -2073,14 +2073,6 @@ package androidx.ui.core.keyinput {
     property public final int ZoomOut;
   }
 
-  @Deprecated public final class KeyEvent {
-    method @Deprecated public int component1();
-    method @Deprecated public androidx.ui.core.keyinput.KeyEventType component2();
-    method @Deprecated public androidx.ui.core.keyinput.KeyEvent copy-x3VrOOY(int key, androidx.ui.core.keyinput.KeyEventType type);
-    method @Deprecated public int getKey();
-    method @Deprecated public androidx.ui.core.keyinput.KeyEventType getType();
-  }
-
   @androidx.ui.core.keyinput.ExperimentalKeyInput public interface KeyEvent2 {
     method public int getKey();
     method public androidx.ui.core.keyinput.KeyEventType getType();
