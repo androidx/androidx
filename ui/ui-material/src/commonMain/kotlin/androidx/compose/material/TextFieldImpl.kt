@@ -66,7 +66,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSizeIn
-import androidx.compose.material.ripple.RippleIndication
 import androidx.compose.runtime.savedinstancestate.Saver
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.ui.text.SoftwareKeyboardController
@@ -171,7 +170,7 @@ internal fun TextFieldImpl(
     }
 
     val textFieldModifier = modifier
-        .clickable(indication = RippleIndication(bounded = false)) {
+        .clickable(indication = null) {
             focusModifier.requestFocus()
             keyboardController.value?.showSoftwareKeyboard()
         }

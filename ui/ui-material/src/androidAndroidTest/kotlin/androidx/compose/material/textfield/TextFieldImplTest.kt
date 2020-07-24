@@ -52,7 +52,7 @@ import org.junit.runners.JUnit4
 @MediumTest
 @RunWith(JUnit4::class)
 @OptIn(ExperimentalFoundationApi::class)
-class TextFieldTest {
+class TextFieldImplTest {
 
     private val TextfieldTag = "textField"
 
