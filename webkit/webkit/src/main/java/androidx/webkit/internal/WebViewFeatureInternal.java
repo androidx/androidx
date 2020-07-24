@@ -358,8 +358,8 @@ public enum WebViewFeatureInternal {
     /**
      * This feature covers
      * {@link
-     * androidx.webkit.WebViewCompat#addDocumentStartJavascript(android.webkit.WebView, String,
-     * List)}
+     * androidx.webkit.WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView, String,
+     * Set)}
      */
     DOCUMENT_START_SCRIPT(WebViewFeature.DOCUMENT_START_SCRIPT, Features.DOCUMENT_START_SCRIPT),
 
