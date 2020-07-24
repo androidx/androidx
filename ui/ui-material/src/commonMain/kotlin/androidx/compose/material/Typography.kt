@@ -16,8 +16,8 @@
 
 package androidx.compose.material
 
-import androidx.compose.Immutable
-import androidx.compose.staticAmbientOf
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticAmbientOf
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight

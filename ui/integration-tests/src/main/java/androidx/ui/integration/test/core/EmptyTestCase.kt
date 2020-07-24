@@ -16,7 +16,7 @@
 
 package androidx.ui.integration.test.core
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.test.ComposeTestCase
 
 class EmptyTestCase : ComposeTestCase {

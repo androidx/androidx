@@ -20,8 +20,8 @@ import android.os.Bundle
 import android.view.Gravity
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
-import androidx.compose.Composable
-import androidx.compose.Recomposer
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Recomposer
 import androidx.ui.core.setContent
 
 // The presence of an ActionBar follows from the theme set in AndroidManifest.xml

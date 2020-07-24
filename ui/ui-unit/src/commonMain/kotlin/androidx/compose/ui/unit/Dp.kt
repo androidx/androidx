@@ -17,8 +17,8 @@
 
 package androidx.compose.ui.unit
 
-import androidx.compose.Immutable
-import androidx.compose.Stable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Dp.Companion.Hairline
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.util.packFloats

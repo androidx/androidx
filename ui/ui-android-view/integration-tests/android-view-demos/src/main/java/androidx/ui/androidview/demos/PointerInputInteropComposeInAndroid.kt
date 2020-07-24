@@ -22,9 +22,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.compose.Composition
-import androidx.compose.Recomposer
-import androidx.compose.state
+import androidx.compose.runtime.Composition
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.state
 import androidx.ui.androidview.adapters.setOnClick
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.tapGestureFilter

@@ -18,10 +18,10 @@ package androidx.compose.material.studies.rally
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.compose.Composable
-import androidx.compose.getValue
-import androidx.compose.setValue
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.state
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.compose.foundation.Box

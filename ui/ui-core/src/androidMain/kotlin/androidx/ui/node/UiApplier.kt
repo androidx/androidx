@@ -19,8 +19,8 @@ package androidx.ui.node
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.Applier
-import androidx.compose.ExperimentalComposeApi
+import androidx.compose.runtime.Applier
+import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode

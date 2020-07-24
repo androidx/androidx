@@ -16,7 +16,7 @@
 
 package androidx.ui.core.gesture
 
-import androidx.compose.remember
+import androidx.compose.runtime.remember
 import androidx.ui.core.CoroutineContextAmbient
 import androidx.ui.core.CustomEvent
 import androidx.ui.core.CustomEventDispatcher

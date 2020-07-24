@@ -25,9 +25,9 @@ import androidx.compose.animation.core.TransitionAnimation
 import androidx.compose.animation.core.createAnimation
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.animation.OffsetPropKey
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size

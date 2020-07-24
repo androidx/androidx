@@ -15,11 +15,11 @@
  */
 package androidx.ui.core.demos.keyinput
 
-import androidx.compose.Composable
-import androidx.compose.MutableState
-import androidx.compose.getValue
-import androidx.compose.setValue
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.state
 import androidx.ui.core.Modifier
 import androidx.ui.core.focus.ExperimentalFocus
 import androidx.ui.core.focus.FocusRequester

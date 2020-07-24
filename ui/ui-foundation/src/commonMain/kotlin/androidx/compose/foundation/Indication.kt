@@ -16,11 +16,11 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.Composable
-import androidx.compose.CompositionLifecycleObserver
-import androidx.compose.Stable
-import androidx.compose.remember
-import androidx.compose.staticAmbientOf
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLifecycleObserver
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticAmbientOf
 import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.Modifier

@@ -16,9 +16,9 @@
 
 package androidx.compose.material
 
-import androidx.compose.Composable
-import androidx.compose.Providers
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.remember
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationAmbient
 import androidx.compose.foundation.ProvideTextStyle

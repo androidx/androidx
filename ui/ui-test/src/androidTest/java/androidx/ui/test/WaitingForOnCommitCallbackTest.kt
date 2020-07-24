@@ -16,10 +16,10 @@
 
 package androidx.ui.test
 
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.onCommit
-import androidx.compose.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.setValue
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat

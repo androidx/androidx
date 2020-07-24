@@ -16,10 +16,10 @@
 
 package androidx.ui.core.selection
 
-import androidx.compose.Composable
-import androidx.compose.Providers
-import androidx.compose.remember
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.state
 import androidx.ui.core.ClipboardManagerAmbient
 import androidx.ui.core.HapticFeedBackAmbient
 import androidx.ui.core.Modifier

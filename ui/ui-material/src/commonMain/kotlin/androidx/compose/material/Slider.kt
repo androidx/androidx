@@ -21,8 +21,8 @@ import androidx.compose.animation.core.AnimationClockObservable
 import androidx.compose.animation.core.AnimationEndReason
 import androidx.compose.animation.core.TargetAnimation
 import androidx.compose.animation.core.TweenSpec
-import androidx.compose.Composable
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.animation.asDisposableClock
 import androidx.ui.core.Alignment
 import androidx.ui.core.AnimationClockAmbient

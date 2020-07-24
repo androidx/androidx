@@ -19,8 +19,8 @@ package androidx.compose.material.studies.rally
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.Composable
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.transition
 import androidx.ui.core.Modifier

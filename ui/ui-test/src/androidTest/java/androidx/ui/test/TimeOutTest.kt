@@ -17,9 +17,9 @@
 package androidx.ui.test
 
 import androidx.activity.ComponentActivity
-import androidx.compose.Composable
-import androidx.compose.mutableStateOf
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.state
 import androidx.test.espresso.AppNotIdleException
 import androidx.test.espresso.IdlingPolicies
 import androidx.test.espresso.IdlingPolicy

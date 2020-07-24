@@ -15,9 +15,9 @@
  */
 package androidx.ui.core
 
-import androidx.compose.collection.ExperimentalCollectionApi
-import androidx.compose.collection.MutableVector
-import androidx.compose.collection.mutableVectorOf
+import androidx.compose.runtime.collection.ExperimentalCollectionApi
+import androidx.compose.runtime.collection.MutableVector
+import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.ui.core.LayoutNode.LayoutState.Measuring
 import androidx.ui.core.LayoutNode.LayoutState.NeedsRelayout
 import androidx.ui.core.LayoutNode.LayoutState.NeedsRemeasure

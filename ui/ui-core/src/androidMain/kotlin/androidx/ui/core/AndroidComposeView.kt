@@ -40,8 +40,8 @@ import android.view.ViewTreeObserver
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
-import androidx.compose.ExperimentalComposeApi
-import androidx.compose.snapshots.SnapshotStateObserver
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.core.os.HandlerCompat
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.LifecycleOwner

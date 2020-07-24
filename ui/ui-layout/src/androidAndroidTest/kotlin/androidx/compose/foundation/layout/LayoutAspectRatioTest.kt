@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.layout
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout

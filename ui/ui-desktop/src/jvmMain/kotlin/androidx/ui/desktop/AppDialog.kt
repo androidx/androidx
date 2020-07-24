@@ -15,9 +15,9 @@
  */
 package androidx.ui.desktop
 
-import androidx.compose.Composable
-import androidx.compose.emptyContent
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import java.awt.Dimension
@@ -26,8 +26,8 @@ import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import javax.swing.JFrame
 import javax.swing.WindowConstants
-import androidx.compose.onActive
-import androidx.compose.onDispose
+import androidx.compose.runtime.onActive
+import androidx.compose.runtime.onDispose
 
 @Composable
 fun Dialog(

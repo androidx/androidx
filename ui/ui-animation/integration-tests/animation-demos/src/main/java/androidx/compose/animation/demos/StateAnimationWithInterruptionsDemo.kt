@@ -23,10 +23,10 @@ import androidx.compose.animation.core.TransitionState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.Composable
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.setValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.transition
 import androidx.ui.core.Modifier

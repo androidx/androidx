@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.layout.demos
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 
 /**
  * Simple ConstraintLayout demo

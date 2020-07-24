@@ -16,7 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 
 /**
  * To be implemented to provide a test case that is then executed by [ComposeTestRule] or can be

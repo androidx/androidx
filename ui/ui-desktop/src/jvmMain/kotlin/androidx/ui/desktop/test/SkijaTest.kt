@@ -1,8 +1,8 @@
 package androidx.ui.desktop.test
 
-import androidx.compose.ChoreographerFrameCallback
-import androidx.compose.EmbeddingContext
-import androidx.compose.EmbeddingContextFactory
+import androidx.compose.runtime.ChoreographerFrameCallback
+import androidx.compose.runtime.EmbeddingContext
+import androidx.compose.runtime.EmbeddingContextFactory
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.skija.Surface
 import java.io.File

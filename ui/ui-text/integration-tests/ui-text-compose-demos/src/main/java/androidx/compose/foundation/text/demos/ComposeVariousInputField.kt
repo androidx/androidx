@@ -16,10 +16,10 @@
 
 package androidx.compose.foundation.text.demos
 
-import androidx.compose.Composable
-import androidx.compose.emptyContent
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emptyContent
 import androidx.compose.foundation.BaseTextField
-import androidx.compose.state
+import androidx.compose.runtime.state
 import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier

@@ -16,7 +16,7 @@
 
 package androidx.ui.tooling
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.Lifecycle
 import androidx.ui.core.LifecycleOwnerAmbient
 import androidx.compose.foundation.Text

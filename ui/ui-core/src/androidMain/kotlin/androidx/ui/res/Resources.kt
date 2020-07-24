@@ -20,12 +20,12 @@ import android.os.Handler
 import android.os.Looper
 import android.util.LruCache
 import androidx.annotation.GuardedBy
-import androidx.compose.Composable
-import androidx.compose.Stable
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.remember
-import androidx.compose.setValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 

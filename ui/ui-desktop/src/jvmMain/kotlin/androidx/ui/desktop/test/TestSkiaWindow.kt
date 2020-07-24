@@ -19,9 +19,9 @@ import android.content.Context
 import android.view.ViewGroup
 import androidx.compose.animation.core.ManualAnimationClock
 import androidx.compose.animation.core.rootAnimationClockFactory
-import androidx.compose.Composable
-import androidx.compose.Providers
-import androidx.compose.Recomposer
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.Recomposer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry

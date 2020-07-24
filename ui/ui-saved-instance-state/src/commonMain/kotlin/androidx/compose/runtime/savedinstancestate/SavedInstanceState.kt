@@ -16,12 +16,12 @@
 
 package androidx.compose.runtime.savedinstancestate
 
-import androidx.compose.Composable
-import androidx.compose.MutableState
-import androidx.compose.SnapshotMutationPolicy
-import androidx.compose.mutableStateOf
-import androidx.compose.referentialEqualityPolicy
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SnapshotMutationPolicy
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.referentialEqualityPolicy
+import androidx.compose.runtime.state
 
 /**
  * Used to introduce a state value of type [T] into a composition.

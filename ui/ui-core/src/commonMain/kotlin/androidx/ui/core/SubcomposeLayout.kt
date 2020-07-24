@@ -16,18 +16,18 @@
 
 package androidx.ui.core
 
-import androidx.compose.Applier
-import androidx.compose.Composable
-import androidx.compose.ComposeCompilerApi
-import androidx.compose.Composition
-import androidx.compose.CompositionLifecycleObserver
-import androidx.compose.CompositionReference
-import androidx.compose.ExperimentalComposeApi
-import androidx.compose.Recomposer
-import androidx.compose.compositionReference
-import androidx.compose.currentComposer
-import androidx.compose.emit
-import androidx.compose.remember
+import androidx.compose.runtime.Applier
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposeCompilerApi
+import androidx.compose.runtime.Composition
+import androidx.compose.runtime.CompositionLifecycleObserver
+import androidx.compose.runtime.CompositionReference
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.compositionReference
+import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.emit
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.LayoutNode.LayoutState.LayingOut

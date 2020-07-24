@@ -17,8 +17,8 @@
 package androidx.compose.foundation.shape
 
 import androidx.compose.ui.geometry.Size
-import androidx.compose.Immutable
-import androidx.compose.Stable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.util.annotation.FloatRange

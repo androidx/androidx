@@ -16,9 +16,9 @@
 
 package androidx.compose.foundation.layout
 
-import androidx.compose.Stable
-import androidx.compose.State
-import androidx.compose.mutableStateOf
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.LayoutModifier

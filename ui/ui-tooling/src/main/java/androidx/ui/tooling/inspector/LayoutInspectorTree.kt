@@ -17,7 +17,7 @@
 package androidx.ui.tooling.inspector
 
 import android.view.View
-import androidx.compose.SlotTable
+import androidx.compose.runtime.SlotTable
 import androidx.ui.core.OwnedLayer
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.ParameterInformation
@@ -30,7 +30,7 @@ import kotlin.math.absoluteValue
 private val unwantedPackages = setOf(
     -1,
     packageNameHash("androidx.ui.core"),
-    packageNameHash("androidx.compose"),
+    packageNameHash("androidx.compose.runtime"),
     packageNameHash("androidx.ui.tooling"),
     packageNameHash("androidx.ui.core.selection"),
     packageNameHash("androidx.ui.semantics")

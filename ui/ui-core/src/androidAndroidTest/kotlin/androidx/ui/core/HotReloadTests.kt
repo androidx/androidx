@@ -20,11 +20,11 @@ package androidx.ui.core
 
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.compose.clearRoots
-import androidx.compose.Composable
-import androidx.compose.emit
-import androidx.compose.onCommit
-import androidx.compose.simulateHotReload
+import androidx.compose.runtime.clearRoots
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emit
+import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.simulateHotReload
 import androidx.test.filters.MediumTest
 import androidx.ui.core.semantics.semantics
 import androidx.compose.foundation.Box

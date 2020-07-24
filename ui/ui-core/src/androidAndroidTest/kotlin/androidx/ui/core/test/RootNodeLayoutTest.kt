@@ -18,7 +18,7 @@ package androidx.ui.core.test
 
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.compose.Recomposer
+import androidx.compose.runtime.Recomposer
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout

@@ -19,7 +19,7 @@ package androidx.compose.ui.graphics
 import android.graphics.BitmapShader
 import android.graphics.LinearGradient
 import android.graphics.RadialGradient
-import androidx.compose.InternalComposeApi
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.ui.geometry.Offset
 
 actual typealias Shader = android.graphics.Shader

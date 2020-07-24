@@ -16,8 +16,8 @@
 
 package androidx.compose.animation.demos
 
-import androidx.compose.Composable
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.state
 import androidx.compose.animation.animate
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Box

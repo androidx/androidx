@@ -16,7 +16,7 @@
 
 package androidx.compose.runtime.savedinstancestate
 
-import androidx.compose.mutableStateListOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

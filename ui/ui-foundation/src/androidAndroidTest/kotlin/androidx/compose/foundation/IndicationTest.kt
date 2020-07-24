@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.mutableStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.Modifier

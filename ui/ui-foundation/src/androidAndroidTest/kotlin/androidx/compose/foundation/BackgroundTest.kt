@@ -17,7 +17,7 @@
 package androidx.compose.foundation
 
 import android.os.Build
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.shape.CircleShape

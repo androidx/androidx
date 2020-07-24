@@ -17,8 +17,8 @@
 package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.Composable
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.compose.foundation.Border

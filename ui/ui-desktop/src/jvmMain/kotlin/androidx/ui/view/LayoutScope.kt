@@ -19,9 +19,9 @@ import android.content.Context
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.Composable
-import androidx.compose.Providers
-import androidx.compose.Recomposer
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.dispatch.DesktopUiDispatcher
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner

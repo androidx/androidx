@@ -16,11 +16,11 @@
 
 package androidx.compose.foundation.lazy
 
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.onCommit
-import androidx.compose.onDispose
-import androidx.compose.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.onDispose
+import androidx.compose.runtime.setValue
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.TouchSlop

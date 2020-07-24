@@ -20,8 +20,8 @@ import android.os.Looper
 import androidx.compose.animation.core.ExponentialDecay
 import androidx.compose.animation.core.ManualAnimationClock
 import androidx.annotation.RequiresApi
-import androidx.compose.Composable
-import androidx.compose.mutableStateOf
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier

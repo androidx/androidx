@@ -17,7 +17,7 @@
 package androidx.ui.test.gesturescope
 
 import androidx.activity.ComponentActivity
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.MediumTest
 import androidx.ui.core.changedToUp

@@ -19,10 +19,10 @@ package androidx.compose.animation.demos
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.Composable
-import androidx.compose.remember
-import androidx.compose.state
-import androidx.compose.structuralEqualityPolicy
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.state
+import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.RectPropKey
 import androidx.compose.animation.transition

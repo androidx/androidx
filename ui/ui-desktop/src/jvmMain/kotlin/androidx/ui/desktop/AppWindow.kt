@@ -15,10 +15,10 @@
  */
 package androidx.ui.desktop
 
-import androidx.compose.ambientOf
-import androidx.compose.Composable
-import androidx.compose.emptyContent
-import androidx.compose.Providers
+import androidx.compose.runtime.ambientOf
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.Providers
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import java.awt.Dimension

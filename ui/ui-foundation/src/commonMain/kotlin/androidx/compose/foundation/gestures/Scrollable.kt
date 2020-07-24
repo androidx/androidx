@@ -23,10 +23,10 @@ import androidx.compose.animation.core.AnimationEndReason
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
-import androidx.compose.Composable
-import androidx.compose.mutableStateOf
-import androidx.compose.onDispose
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.onDispose
+import androidx.compose.runtime.remember
 import androidx.compose.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Direction

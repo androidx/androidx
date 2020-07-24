@@ -22,9 +22,9 @@ import androidx.compose.animation.core.ManualAnimationClock
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.Composable
-import androidx.compose.Providers
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.remember
 import androidx.compose.animation.transition
 import androidx.compose.animation.animatedFloat
 import androidx.ui.core.AnimationClockAmbient

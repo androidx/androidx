@@ -18,8 +18,8 @@ package androidx.ui.res
 
 import android.util.TypedValue
 import androidx.annotation.DrawableRes
-import androidx.compose.Composable
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.ui.core.ContextAmbient
 import androidx.compose.ui.graphics.ImageAsset
 import androidx.compose.ui.graphics.imageFromResource

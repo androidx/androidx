@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.onDispose
+import androidx.compose.runtime.onDispose
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Direction
 import androidx.ui.core.Modifier

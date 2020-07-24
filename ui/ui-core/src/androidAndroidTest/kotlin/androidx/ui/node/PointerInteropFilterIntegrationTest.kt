@@ -23,7 +23,7 @@ import android.view.MotionEvent.ACTION_UP
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.compose.Recomposer
+import androidx.compose.runtime.Recomposer
 import androidx.compose.foundation.Box
 import androidx.test.filters.MediumTest
 import androidx.ui.core.DensityAmbient

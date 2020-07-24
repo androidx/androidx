@@ -16,15 +16,15 @@
 
 package androidx.compose.ui.graphics.vector
 
-import androidx.compose.Composable
-import androidx.compose.ExperimentalComposeApi
-import androidx.compose.compositionReference
-import androidx.compose.currentComposer
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.onPreCommit
-import androidx.compose.remember
-import androidx.compose.setValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.compositionReference
+import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.onPreCommit
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.ui.core.DensityAmbient
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ColorFilter

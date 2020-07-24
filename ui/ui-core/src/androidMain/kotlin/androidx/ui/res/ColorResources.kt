@@ -18,7 +18,7 @@ package androidx.ui.res
 
 import android.os.Build
 import androidx.annotation.ColorRes
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.ContextAmbient
 import androidx.compose.ui.graphics.Color
 

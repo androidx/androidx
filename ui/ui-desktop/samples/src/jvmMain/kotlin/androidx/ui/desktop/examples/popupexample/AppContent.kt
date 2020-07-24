@@ -15,9 +15,9 @@
  */
 package androidx.ui.desktop.examples.popupexample
 
-import androidx.compose.Composable
-import androidx.compose.MutableState
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.desktop.AppManager

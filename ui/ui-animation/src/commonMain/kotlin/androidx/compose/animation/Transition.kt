@@ -22,13 +22,13 @@ import androidx.compose.animation.core.PropKey
 import androidx.compose.animation.core.TransitionAnimation
 import androidx.compose.animation.core.TransitionDefinition
 import androidx.compose.animation.core.TransitionState
-import androidx.compose.Composable
-import androidx.compose.Stable
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.onPreCommit
-import androidx.compose.remember
-import androidx.compose.setValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.onPreCommit
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.ui.core.AnimationClockAmbient
 
 /**

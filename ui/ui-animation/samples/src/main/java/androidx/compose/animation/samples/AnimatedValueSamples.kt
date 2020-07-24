@@ -19,8 +19,8 @@ package androidx.compose.animation.samples
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.annotation.Sampled
-import androidx.compose.Composable
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.animation.animate
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawOpacity

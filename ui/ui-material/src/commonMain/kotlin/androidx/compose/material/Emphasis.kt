@@ -16,11 +16,11 @@
 
 package androidx.compose.material
 
-import androidx.compose.Ambient
-import androidx.compose.Composable
-import androidx.compose.Immutable
-import androidx.compose.Providers
-import androidx.compose.staticAmbientOf
+import androidx.compose.runtime.Ambient
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.staticAmbientOf
 import androidx.compose.foundation.ContentColorAmbient
 import androidx.compose.foundation.contentColor
 import androidx.compose.ui.graphics.Color

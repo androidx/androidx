@@ -19,9 +19,9 @@ package androidx.compose.animation
 import androidx.compose.animation.core.AnimationClockObservable
 import androidx.compose.animation.core.TransitionDefinition
 import androidx.compose.animation.core.TransitionState
-import androidx.compose.Composable
-import androidx.compose.getValue
-import androidx.compose.setValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.ui.core.AnimationClockAmbient
 
 /**

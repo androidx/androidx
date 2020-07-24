@@ -17,9 +17,9 @@
 package androidx.compose.material
 
 import androidx.compose.animation.core.SpringSpec
-import androidx.compose.Composable
-import androidx.compose.State
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.state
 import androidx.ui.core.DensityAmbient
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.Modifier

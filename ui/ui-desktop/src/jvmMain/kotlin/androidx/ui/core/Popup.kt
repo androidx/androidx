@@ -15,10 +15,10 @@
  */
 package androidx.ui.desktop.core
 
-import androidx.compose.Composable
-import androidx.compose.emptyContent
-import androidx.compose.onDispose
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.onDispose
+import androidx.compose.runtime.remember
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.ViewAmbient

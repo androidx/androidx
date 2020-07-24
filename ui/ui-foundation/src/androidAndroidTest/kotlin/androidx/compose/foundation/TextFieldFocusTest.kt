@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.Composable
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.state
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier

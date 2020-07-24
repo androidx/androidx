@@ -17,11 +17,11 @@ package androidx.compose.animation
 
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.TweenSpec
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.onDispose
-import androidx.compose.setValue
-import androidx.compose.state
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.onDispose
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.state
 import androidx.test.filters.MediumTest
 import androidx.compose.foundation.Text
 import androidx.ui.test.createComposeRule

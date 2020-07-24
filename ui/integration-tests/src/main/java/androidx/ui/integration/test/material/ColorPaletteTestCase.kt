@@ -16,10 +16,10 @@
 
 package androidx.ui.integration.test.material
 
-import androidx.compose.Composable
-import androidx.compose.Immutable
-import androidx.compose.MutableState
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.state
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material.ColorPalette
 import androidx.compose.material.MaterialTheme

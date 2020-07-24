@@ -18,7 +18,7 @@ package androidx.ui.core.lifecycleowner
 
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
-import androidx.compose.Recomposer
+import androidx.compose.runtime.Recomposer
 import androidx.lifecycle.LifecycleOwner
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LifecycleOwnerAmbient

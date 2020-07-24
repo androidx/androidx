@@ -21,8 +21,8 @@ import androidx.compose.ui.util.annotation.ColorInt
 import androidx.compose.ui.util.annotation.FloatRange
 import androidx.compose.ui.util.annotation.IntRange
 import androidx.compose.ui.util.annotation.Size
-import androidx.compose.Immutable
-import androidx.compose.Stable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.colorspace.ColorModel
 import androidx.compose.ui.graphics.colorspace.ColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpaces

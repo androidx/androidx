@@ -10,11 +10,11 @@ package androidx.compose.runtime.savedinstancestate {
   }
 
   public final class RememberSavedInstanceStateKt {
-    method @androidx.compose.Composable public static <T> T rememberSavedInstanceState(Object![]? inputs, androidx.compose.runtime.savedinstancestate.Saver<T,?> saver = autoSaver(), String? key = null, kotlin.jvm.functions.Function0<? extends T> init);
+    method @androidx.compose.runtime.Composable public static <T> T rememberSavedInstanceState(Object![]? inputs, androidx.compose.runtime.savedinstancestate.Saver<T,?> saver = autoSaver(), String? key = null, kotlin.jvm.functions.Function0<? extends T> init);
   }
 
   public final class SavedInstanceStateKt {
-    method @androidx.compose.Composable public static <T> androidx.compose.MutableState<T> savedInstanceState(Object![]? inputs, androidx.compose.runtime.savedinstancestate.Saver<T,?> saver = autoSaver(), String? key = null, androidx.compose.SnapshotMutationPolicy<T> policy = referentialEqualityPolicy(), kotlin.jvm.functions.Function0<? extends T> init);
+    method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.MutableState<T> savedInstanceState(Object![]? inputs, androidx.compose.runtime.savedinstancestate.Saver<T,?> saver = autoSaver(), String? key = null, androidx.compose.runtime.SnapshotMutationPolicy<T> policy = referentialEqualityPolicy(), kotlin.jvm.functions.Function0<? extends T> init);
   }
 
   public interface Saver<Original, Saveable> {
@@ -41,7 +41,7 @@ package androidx.compose.runtime.savedinstancestate {
 
   public final class UiSavedStateRegistryKt {
     method public static androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry UiSavedStateRegistry(java.util.Map<java.lang.String,?>? restoredValues, kotlin.jvm.functions.Function1<java.lang.Object,java.lang.Boolean> canBeSaved);
-    method public static androidx.compose.ProvidableAmbient<androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry> getUiSavedStateRegistryAmbient();
+    method public static androidx.compose.runtime.ProvidableAmbient<androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry> getUiSavedStateRegistryAmbient();
   }
 
 }

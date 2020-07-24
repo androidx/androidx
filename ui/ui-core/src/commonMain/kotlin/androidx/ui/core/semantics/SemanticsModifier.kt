@@ -16,7 +16,7 @@
 
 package androidx.ui.core.semantics
 
-import androidx.compose.remember
+import androidx.compose.runtime.remember
 import androidx.ui.core.AtomicInt
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed

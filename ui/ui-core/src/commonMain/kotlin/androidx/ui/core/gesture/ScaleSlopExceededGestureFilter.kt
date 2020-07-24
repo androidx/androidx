@@ -16,7 +16,7 @@
 
 package androidx.ui.core.gesture
 
-import androidx.compose.remember
+import androidx.compose.runtime.remember
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
