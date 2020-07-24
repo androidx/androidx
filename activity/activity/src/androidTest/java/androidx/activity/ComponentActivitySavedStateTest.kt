@@ -73,10 +73,20 @@ class ComponentActivitySavedStateTest {
 
     @Test
     @Throws(Throwable::class)
-    fun savedStateEarlyRegister() {
+    fun savedStateEarlyRegisterOnCreate() {
         with(ActivityScenario.launch(SavedStateActivity::class.java)) {
             initializeSavedState()
             SavedStateActivity.checkEnabledInOnCreate = true
+            recreate()
+        }
+    }
+
+    @Test
+    @Throws(Throwable::class)
+    fun savedStateEarlyRegisterOnContextAvailable() {
+        with(ActivityScenario.launch(SavedStateActivity::class.java)) {
+            initializeSavedState()
+            SavedStateActivity.checkEnabledInOnContextAvailable = true
             recreate()
         }
     }
@@ -98,6 +108,15 @@ private fun checkDefaultSavedState(store: SavedStateRegistry) {
 
 class SavedStateActivity : ComponentActivity() {
 
+    init {
+        addOnContextAvailableListener { _, _, _ ->
+            if (checkEnabledInOnContextAvailable) {
+                checkDefaultSavedState(savedStateRegistry)
+                checkEnabledInOnContextAvailable = false
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (checkEnabledInOnCreate) {
@@ -108,5 +127,6 @@ class SavedStateActivity : ComponentActivity() {
 
     companion object {
         internal var checkEnabledInOnCreate = false
+        internal var checkEnabledInOnContextAvailable = false
     }
 }

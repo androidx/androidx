@@ -31,6 +31,7 @@ import static androidx.activity.result.contract.ActivityResultContracts.StartInt
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -106,7 +107,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     private final ContextAwareHelper mContextAwareHelper = new ContextAwareHelper(this);
     private final LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
-    private final SavedStateRegistryController mSavedStateRegistryController =
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final SavedStateRegistryController mSavedStateRegistryController =
             SavedStateRegistryController.create(this);
 
     // Lazily recreated from NonConfigurationInstances by getViewModelStore()
@@ -258,6 +260,14 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         if (19 <= SDK_INT && SDK_INT <= 23) {
             getLifecycle().addObserver(new ImmLeaksCleaner(this));
         }
+
+        addOnContextAvailableListener(new OnContextAvailableListener() {
+            @Override
+            public void onContextAvailable(@NonNull ContextAware contextAware,
+                    @NonNull Context context, @Nullable Bundle savedInstanceState) {
+                mSavedStateRegistryController.performRestore(savedInstanceState);
+            }
+        });
     }
 
     /**
@@ -286,7 +296,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         mContextAwareHelper.dispatchOnContextAvailable(this, savedInstanceState);
         super.onCreate(savedInstanceState);
-        mSavedStateRegistryController.performRestore(savedInstanceState);
         mActivityResultRegistry.onRestoreInstanceState(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
         if (mContentLayoutId != 0) {
