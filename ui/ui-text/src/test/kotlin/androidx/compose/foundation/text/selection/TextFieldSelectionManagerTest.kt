@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.OffsetMap
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.foundation.text.TextFieldState
+import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -50,6 +51,7 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
+@OptIn(InternalTextApi::class)
 class TextFieldSelectionManagerTest {
     private val text = "Hello World"
     private val density = Density(density = 1f)
@@ -83,6 +85,8 @@ class TextFieldSelectionManagerTest {
         manager.hapticFeedBack = hapticFeedback
 
         state.layoutResult = mock()
+        state.textDelegate = mock()
+        whenever(state.textDelegate.density).thenReturn(density)
         whenever(state.layoutResult!!.layoutInput).thenReturn(
             TextLayoutInput(
                 text = AnnotatedString(text),

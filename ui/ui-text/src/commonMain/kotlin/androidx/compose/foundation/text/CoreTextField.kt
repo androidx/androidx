@@ -335,6 +335,7 @@ fun CoreTextField(
         val onPositionedModifier = Modifier.onPositioned {
             if (textInputService != null) {
                 state.layoutCoordinates = it
+                if (state.selectionIsOn) manager.showSelectionToolbar()
                 state.layoutResult?.let { layoutResult ->
                     TextFieldDelegate.notifyFocusedRect(
                         value,
