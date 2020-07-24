@@ -2470,7 +2470,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (USE_STATE_MANAGER) {
             Set<SpecialEffectsController> controllers = collectAllSpecialEffectsController();
             for (SpecialEffectsController controller : controllers) {
-                controller.cancelAllOperations();
+                controller.forceCompleteAllOperations();
             }
         } else {
             if (!mExitAnimationCancellationSignals.isEmpty()) {
@@ -3094,7 +3094,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
             if (USE_STATE_MANAGER) {
                 Set<SpecialEffectsController> controllers = collectAllSpecialEffectsController();
                 for (SpecialEffectsController controller : controllers) {
-                    controller.executePendingOperations();
+                    controller.forceCompleteAllOperations();
                 }
             }
         } finally {

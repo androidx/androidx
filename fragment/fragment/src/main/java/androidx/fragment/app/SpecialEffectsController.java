@@ -182,7 +182,9 @@ abstract class SpecialEffectsController {
             operation.addCompletionListener(new Runnable() {
                 @Override
                 public void run() {
-                    mAwaitingCompletionOperations.remove(operation.getFragment());
+                    if (!operation.getCancellationSignal().isCanceled()) {
+                        mAwaitingCompletionOperations.remove(operation.getFragment());
+                    }
                 }
             });
         }
@@ -233,10 +235,12 @@ abstract class SpecialEffectsController {
         }
     }
 
-    void cancelAllOperations() {
+    void forceCompleteAllOperations() {
         synchronized (mPendingOperations) {
             for (Operation operation : mAwaitingCompletionOperations.values()) {
                 operation.getCancellationSignal().cancel();
+                operation.getFinalState().applyState(operation.getFragment().mView);
+                operation.complete();
             }
             mAwaitingCompletionOperations.clear();
             // mPendingOperations is a subset of mAwaitingCompletionOperations
