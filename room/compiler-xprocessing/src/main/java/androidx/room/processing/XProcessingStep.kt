@@ -21,6 +21,7 @@ import androidx.room.processing.javac.JavacProcessingEnv
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.common.MoreElements
 import com.google.common.collect.SetMultimap
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.tools.Diagnostic
 import kotlin.reflect.KClass
@@ -55,10 +56,10 @@ interface XProcessingStep {
      * [BasicAnnotationProcessor.ProcessingStep].
      */
     fun asAutoCommonProcessor(
-        env: XProcessingEnv
+        env: ProcessingEnvironment
     ): BasicAnnotationProcessor.ProcessingStep {
         return JavacProcessingStepDelegate(
-            env = env as JavacProcessingEnv,
+            env = env,
             delegate = this
         )
     }
@@ -66,19 +67,22 @@ interface XProcessingStep {
 
 @Suppress("UnstableApiUsage")
 internal class JavacProcessingStepDelegate(
-    val env: JavacProcessingEnv,
+    val env: ProcessingEnvironment,
     val delegate: XProcessingStep
 ) : BasicAnnotationProcessor.ProcessingStep {
     override fun process(
         elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>
     ): Set<Element> {
         val converted = mutableMapOf<KClass<out Annotation>, List<XTypeElement>>()
+        // create a new x processing environment for each step to ensure it can freely cache
+        // whatever it wants and we don't keep elements references across rounds.
+        val xEnv = JavacProcessingEnv(env)
         annotations().forEach { annotation ->
             val elements = elementsByAnnotation[annotation].mapNotNull { element ->
                 if (MoreElements.isType(element)) {
-                    env.wrapTypeElement(MoreElements.asType(element))
+                    xEnv.wrapTypeElement(MoreElements.asType(element))
                 } else {
-                    env.delegate.messager.printMessage(
+                    xEnv.delegate.messager.printMessage(
                         Diagnostic.Kind.ERROR,
                         "Unsupported element type: ${element.kind}",
                         element
@@ -88,7 +92,7 @@ internal class JavacProcessingStepDelegate(
             }
             converted[annotation.kotlin] = elements
         }
-        val result = delegate.process(env, converted)
+        val result = delegate.process(xEnv, converted)
         return result.map {
             (it as JavacElement).element
         }.toSet()
