@@ -1911,6 +1911,8 @@ public class NotificationCompat {
         /**
          * Specifies the time at which this notification should be canceled, if it is not already
          * canceled.
+         *
+         * No-op on versions prior to {@link android.os.Build.VERSION_CODES#O}.
          */
         public @NonNull Builder setTimeoutAfter(long durationMs) {
             mTimeout = durationMs;
