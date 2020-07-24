@@ -1688,19 +1688,12 @@ package androidx.compose.ui.layout {
 
   public final class LayoutIdKt {
     method public static Object? getId(androidx.compose.ui.Measurable);
-    method @Deprecated public static Object? getTag(androidx.compose.ui.Measurable);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier layoutId(androidx.compose.ui.Modifier, Object id);
-    method @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier tag(androidx.compose.ui.Modifier, Object tag);
   }
 
   public interface LayoutIdParentData {
     method public Object getId();
     property public abstract Object id;
-  }
-
-  @Deprecated public interface LayoutTagParentData {
-    method @Deprecated public Object getTag();
-    property public abstract Object tag;
   }
 
   public final inline class Measured {
