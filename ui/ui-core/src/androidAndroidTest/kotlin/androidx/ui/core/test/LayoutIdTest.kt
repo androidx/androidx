@@ -25,6 +25,8 @@ import androidx.ui.core.id
 import androidx.ui.core.layoutId
 import androidx.ui.framework.test.TestActivity
 import androidx.compose.foundation.layout.Stack
+import androidx.ui.core.InspectableParameter
+import com.google.common.truth.Truth
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -37,7 +39,7 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
-class LayoutTagTest {
+class LayoutIdTest {
     @Suppress("DEPRECATION")
     @get:Rule
     val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
@@ -77,5 +79,16 @@ class LayoutTagTest {
             }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun testInspectable() {
+        val modifier = Modifier.layoutId("box") as InspectableParameter
+        Truth.assertThat(modifier.nameFallback).isEqualTo("layoutId")
+        Truth.assertThat(modifier.valueOverride).isNull()
+        Truth.assertThat(modifier.inspectableElements.map { it.name }.toList())
+            .containsExactlyElementsIn(modifier.javaClass.declaredFields
+                .filter { !it.isSynthetic && it.name != "nameFallback" }
+                .map { it.name })
     }
 }
