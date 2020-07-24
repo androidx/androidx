@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.Recomposer
+import androidx.compose.emptyContent
 import androidx.compose.mutableStateOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -219,8 +220,12 @@ class ComposeView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
 
+    // Note: the call to emptyContent() below instead of a literal {} works around
+    // https://youtrack.jetbrains.com/issue/KT-17467, which causes the compiler to emit classes
+    // named `content` and `Content` (from the Content method's composable update scope)
+    // which causes compilation problems on case-insensitive filesystems.
     @Suppress("RemoveExplicitTypeArguments")
-    private val content = mutableStateOf<@Composable () -> Unit>({})
+    private val content = mutableStateOf<@Composable () -> Unit>(emptyContent())
 
     @Composable
     override fun Content() {
