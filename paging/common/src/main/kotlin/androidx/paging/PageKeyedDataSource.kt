@@ -222,19 +222,23 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
 
     private suspend fun loadBefore(params: LoadParams<Key>) =
         suspendCancellableCoroutine<BaseResult<Value>> { cont ->
-            loadBefore(params, cont.asCallback(false))
+            loadBefore(params, continuationAsCallback(cont, false))
         }
 
     private suspend fun loadAfter(params: LoadParams<Key>) =
         suspendCancellableCoroutine<BaseResult<Value>> { cont ->
-            loadAfter(params, cont.asCallback(true))
+            loadAfter(params, continuationAsCallback(cont, true))
         }
 
-    @Suppress("DEPRECATION")
-    private fun CancellableContinuation<BaseResult<Value>>.asCallback(isAppend: Boolean) =
-        object : PageKeyedDataSource.LoadCallback<Key, Value>() {
+    // Possible workaround for b/161464680; issue was reported when built with Kotlin 1.3.71
+    @Suppress("RemoveRedundantQualifierName")
+    private fun continuationAsCallback(
+        continuation: CancellableContinuation<BaseResult<Value>>,
+        isAppend: Boolean
+    ): LoadCallback<Key, Value> {
+        return object : LoadCallback<Key, Value>() {
             override fun onResult(data: List<Value>, adjacentPageKey: Key?) {
-                resume(
+                continuation.resume(
                     BaseResult(
                         data = data,
                         prevKey = if (isAppend) null else adjacentPageKey,
@@ -243,6 +247,7 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
                 )
             }
         }
+    }
 
     /**
      * Load initial data.
