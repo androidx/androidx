@@ -41,10 +41,32 @@ import androidx.compose.ui.unit.dp
  * param. Note that it is *not* a padding applied for each item's content
  * @param horizontalGravity the horizontal gravity applied to the items
  * @param itemContent emits the UI for an item from [items] list. May emit any number of components,
- * which will be stacked vertically. Note that [LazyColumnItems] can start scrolling incorrectly
+ * which will be stacked vertically. Note that [LazyColumnFor] can start scrolling incorrectly
  * if you emit nothing and then lazily recompose with the real content, so even if you load the
  * content asynchronously please reserve some space for the item, for example using [Spacer].
  */
+@Composable
+fun <T> LazyColumnFor(
+    items: List<T>,
+    modifier: Modifier = Modifier,
+    contentPadding: InnerPadding = InnerPadding(0.dp),
+    horizontalGravity: Alignment.Horizontal = Alignment.Start,
+    itemContent: @Composable (T) -> Unit
+) {
+    LazyFor(
+        items = items,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        horizontalGravity = horizontalGravity,
+        itemContent = itemContent,
+        isVertical = true
+    )
+}
+
+@Deprecated(
+    "LazyColumnItems was renamed to LazyColumnFor",
+    ReplaceWith("LazyColumnFor(items, modifier, contentPadding, horizontalGravity, itemContent)")
+)
 @Composable
 fun <T> LazyColumnItems(
     items: List<T>,
@@ -53,13 +75,12 @@ fun <T> LazyColumnItems(
     horizontalGravity: Alignment.Horizontal = Alignment.Start,
     itemContent: @Composable (T) -> Unit
 ) {
-    LazyItems(
+    LazyColumnFor(
         items = items,
         modifier = modifier,
         contentPadding = contentPadding,
         horizontalGravity = horizontalGravity,
-        itemContent = itemContent,
-        isVertical = true
+        itemContent = itemContent
     )
 }
 
@@ -73,19 +94,19 @@ fun <T> LazyColumnItems(
  * param. Note that it is *not* a padding applied for each item's content
  * @param verticalGravity the vertical gravity applied to the items
  * @param itemContent emits the UI for an item from [items] list. May emit any number of components,
- * which will be stacked horizontally. Note that [LazyRowItems] can start scrolling incorrectly
+ * which will be stacked horizontally. Note that [LazyRowFor] can start scrolling incorrectly
  * if you emit nothing and then lazily recompose with the real content, so even if you load the
  * content asynchronously please reserve some space for the item, for example using [Spacer].
  */
 @Composable
-fun <T> LazyRowItems(
+fun <T> LazyRowFor(
     items: List<T>,
     modifier: Modifier = Modifier,
     contentPadding: InnerPadding = InnerPadding(0.dp),
     verticalGravity: Alignment.Vertical = Alignment.Top,
     itemContent: @Composable (T) -> Unit
 ) {
-    LazyItems(
+    LazyFor(
         items = items,
         modifier = modifier,
         contentPadding = contentPadding,
@@ -95,9 +116,30 @@ fun <T> LazyRowItems(
     )
 }
 
+@Deprecated(
+    "LazyRowItems was renamed to LazyRowFor",
+    ReplaceWith("LazyRowFor(items, modifier, contentPadding, horizontalGravity, itemContent)")
+)
+@Composable
+fun <T> LazyRowItems(
+    items: List<T>,
+    modifier: Modifier = Modifier,
+    contentPadding: InnerPadding = InnerPadding(0.dp),
+    verticalGravity: Alignment.Vertical = Alignment.Top,
+    itemContent: @Composable (T) -> Unit
+) {
+    LazyRowFor(
+        items = items,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        itemContent = itemContent,
+        verticalGravity = verticalGravity
+    )
+}
+
 @Composable
 @OptIn(ExperimentalSubcomposeLayoutApi::class)
-private fun <T> LazyItems(
+private fun <T> LazyFor(
     items: List<T>,
     modifier: Modifier = Modifier,
     contentPadding: InnerPadding,
@@ -106,7 +148,7 @@ private fun <T> LazyItems(
     verticalGravity: Alignment.Vertical = Alignment.Top,
     isVertical: Boolean
 ) {
-    val state = remember { LazyItemsState<T>(isVertical = isVertical) }
+    val state = remember { LazyForState<T>(isVertical = isVertical) }
     SubcomposeLayout<DataIndex>(
         modifier
             .scrollable(

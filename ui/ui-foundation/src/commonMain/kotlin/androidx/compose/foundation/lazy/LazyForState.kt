@@ -47,7 +47,7 @@ internal inline class DataIndex(val value: Int) {
 }
 
 @OptIn(ExperimentalSubcomposeLayoutApi::class)
-internal class LazyItemsState<T>(val isVertical: Boolean) {
+internal class LazyForState<T>(val isVertical: Boolean) {
     /**
      * The index of the first item that is composed into the layout tree
      */
@@ -92,7 +92,7 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
      */
     val remeasurementModifier = object : RemeasurementModifier {
         override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
-            this@LazyItemsState.remeasurement = remeasurement
+            this@LazyForState.remeasurement = remeasurement
         }
     }
 

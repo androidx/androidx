@@ -71,8 +71,8 @@ import java.util.concurrent.CountDownLatch
 
 @LargeTest
 @RunWith(JUnit4::class)
-class LazyColumnItemsTest {
-    private val LazyColumnItemsTag = "TestLazyColumnItems"
+class LazyColumnForTest {
+    private val LazyColumnForTag = "TestLazyColumnFor"
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -88,8 +88,8 @@ class LazyColumnItemsTest {
 
         composeTestRule.setContent {
             // Fixed height to eliminate device size as a factor
-            Box(Modifier.testTag(LazyColumnItemsTag).preferredHeight(300.dp)) {
-                LazyColumnItems(items = data, modifier = Modifier.fillMaxSize()) {
+            Box(Modifier.testTag(LazyColumnForTag).preferredHeight(300.dp)) {
+                LazyColumnFor(items = data, modifier = Modifier.fillMaxSize()) {
                     onCommit {
                         composed = true
                         // Signal when everything is done composing
@@ -115,7 +115,7 @@ class LazyColumnItemsTest {
         assertWithMessage("Additional composition occurred for no apparent reason")
             .that(composed).isFalse()
 
-        onNodeWithTag(LazyColumnItemsTag)
+        onNodeWithTag(LazyColumnForTag)
             .performGesture { swipeUp() }
 
         waitForIdle()
@@ -141,9 +141,9 @@ class LazyColumnItemsTest {
         var part2 by mutableStateOf(false)
 
         composeTestRule.setContent {
-            LazyColumnItems(
+            LazyColumnFor(
                 items = if (!part2) data1 else data2,
-                modifier = Modifier.testTag(LazyColumnItemsTag).fillMaxSize()
+                modifier = Modifier.testTag(LazyColumnForTag).fillMaxSize()
             ) {
                 onCommit {
                     composed = true
@@ -188,7 +188,7 @@ class LazyColumnItemsTest {
 
         composeTestRule.setContent {
             if (emitAdapterList) {
-                LazyColumnItems(
+                LazyColumnFor(
                     items = listOf(0, 1),
                     modifier = Modifier.fillMaxSize()
                 ) {
@@ -227,7 +227,7 @@ class LazyColumnItemsTest {
         var numItemsModel by mutableStateOf(numItems)
         val tag = "List"
         composeTestRule.setContent {
-            LazyColumnItems((1..numItemsModel).toList(), modifier = Modifier.testTag(tag)) {
+            LazyColumnFor((1..numItemsModel).toList(), modifier = Modifier.testTag(tag)) {
                 Text("$it")
             }
         }
@@ -266,7 +266,7 @@ class LazyColumnItemsTest {
         var dataModel by mutableStateOf(dataLists[0])
         val tag = "List"
         composeTestRule.setContent {
-            LazyColumnItems(dataModel, modifier = Modifier.testTag(tag)) {
+            LazyColumnFor(dataModel, modifier = Modifier.testTag(tag)) {
                 Text("$it")
             }
         }
@@ -294,11 +294,11 @@ class LazyColumnItemsTest {
         var thirdHasSize by mutableStateOf(false)
 
         composeTestRule.setContent {
-            LazyColumnItems(
+            LazyColumnFor(
                 items = items,
                 modifier = Modifier.fillMaxWidth()
                     .preferredHeight(100.dp)
-                    .testTag(LazyColumnItemsTag)
+                    .testTag(LazyColumnForTag)
             ) {
                 if (it == 3) {
                     Spacer(Modifier.testTag(thirdTag)
@@ -310,7 +310,7 @@ class LazyColumnItemsTest {
             }
         }
 
-        onNodeWithTag(LazyColumnItemsTag)
+        onNodeWithTag(LazyColumnForTag)
             .scrollBy(y = 21.dp, density = composeTestRule.density)
 
         onNodeWithTag(thirdTag)
@@ -323,7 +323,7 @@ class LazyColumnItemsTest {
 
         waitForIdle()
 
-        onNodeWithTag(LazyColumnItemsTag)
+        onNodeWithTag(LazyColumnForTag)
             .scrollBy(y = 10.dp, density = composeTestRule.density)
 
         onNodeWithTag(thirdTag)
@@ -335,10 +335,10 @@ class LazyColumnItemsTest {
         val itemTag = "item"
 
         composeTestRule.setContent {
-            LazyColumnItems(
+            LazyColumnFor(
                 items = listOf(1),
                 modifier = Modifier.size(100.dp)
-                    .testTag(LazyColumnItemsTag),
+                    .testTag(LazyColumnForTag),
                 contentPadding = InnerPadding(
                     start = 10.dp,
                     top = 50.dp,
@@ -359,7 +359,7 @@ class LazyColumnItemsTest {
         assertThat(itemBounds.right.toIntPx())
             .isWithin1PixelFrom(100.dp.toIntPx() - 10.dp.toIntPx())
 
-        onNodeWithTag(LazyColumnItemsTag)
+        onNodeWithTag(LazyColumnForTag)
             .scrollBy(y = 51.dp, density = composeTestRule.density)
 
         itemBounds = onNodeWithTag(itemTag)
@@ -377,9 +377,9 @@ class LazyColumnItemsTest {
 
         composeTestRule.setContent {
             Row {
-                LazyColumnItems(
+                LazyColumnFor(
                     items = listOf(1, 2),
-                    modifier = Modifier.testTag(LazyColumnItemsTag)
+                    modifier = Modifier.testTag(LazyColumnForTag)
                 ) {
                     if (it == 1) {
                         Spacer(Modifier.preferredSize(50.dp).testTag(itemInsideLazyColumn))
@@ -397,7 +397,7 @@ class LazyColumnItemsTest {
         onNodeWithTag(itemOutsideLazyColumn)
             .assertIsDisplayed()
 
-        var lazyColumnBounds = onNodeWithTag(LazyColumnItemsTag)
+        var lazyColumnBounds = onNodeWithTag(LazyColumnForTag)
             .getBoundsInRoot()
 
         Truth.assertThat(lazyColumnBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
@@ -417,7 +417,7 @@ class LazyColumnItemsTest {
         onNodeWithTag(itemOutsideLazyColumn)
             .assertIsDisplayed()
 
-        lazyColumnBounds = onNodeWithTag(LazyColumnItemsTag)
+        lazyColumnBounds = onNodeWithTag(LazyColumnForTag)
             .getBoundsInRoot()
 
         Truth.assertThat(lazyColumnBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
@@ -431,9 +431,9 @@ class LazyColumnItemsTest {
 
     private fun prepareLazyColumnsItemsAlignment(horizontalGravity: Alignment.Horizontal) {
         composeTestRule.setContent {
-            LazyColumnItems(
+            LazyColumnFor(
                 items = listOf(1, 2),
-                modifier = Modifier.testTag(LazyColumnItemsTag).width(100.dp),
+                modifier = Modifier.testTag(LazyColumnForTag).width(100.dp),
                 horizontalGravity = horizontalGravity
             ) {
                 if (it == 1) {
@@ -450,7 +450,7 @@ class LazyColumnItemsTest {
         onNodeWithTag(secondItemTag)
             .assertIsDisplayed()
 
-        val lazyColumnBounds = onNodeWithTag(LazyColumnItemsTag)
+        val lazyColumnBounds = onNodeWithTag(LazyColumnForTag)
             .getBoundsInRoot()
 
         with(composeTestRule.density) {

@@ -27,11 +27,9 @@ import androidx.ui.demos.common.ComposableDemo
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentColorAmbient
 import androidx.compose.foundation.ContentGravity
-import androidx.compose.foundation.lazy.LazyColumnItems
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.currentTextStyle
-import androidx.compose.foundation.lazy.LazyRowItems
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
@@ -39,6 +37,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.lazy.LazyColumnFor
+import androidx.compose.foundation.lazy.LazyRowFor
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.random.Random
@@ -51,7 +51,7 @@ val LazyListDemos = listOf(
 
 @Composable
 private fun LazyColumnDemo() {
-    LazyColumnItems(
+    LazyColumnFor(
         items = listOf(
             "Hello,", "World:", "It works!", "",
             "this one is really long and spans a few lines for scrolling purposes",
@@ -78,7 +78,7 @@ private fun ListAddRemoveItemsDemo() {
             Button(modifier = buttonModifier, onClick = { offset++ }) { Text("Offset") }
         }
         Column {
-            LazyColumnItems((1..numItems).map { it + offset }.toList()) {
+            LazyColumnFor((1..numItems).map { it + offset }.toList()) {
                 Text("$it", style = currentTextStyle().copy(fontSize = 20.sp))
             }
         }
@@ -104,7 +104,7 @@ fun Button(modifier: Modifier, onClick: () -> Unit, children: @Composable () -> 
 
 @Composable
 private fun LazyRowItemsDemo() {
-    LazyRowItems(items = (1..1000).toList()) {
+    LazyRowFor(items = (1..1000).toList()) {
         Square(it)
     }
 }

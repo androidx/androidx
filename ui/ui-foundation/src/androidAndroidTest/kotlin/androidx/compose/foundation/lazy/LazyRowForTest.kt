@@ -48,8 +48,8 @@ import org.junit.runners.JUnit4
 
 @MediumTest
 @RunWith(JUnit4::class)
-class LazyRowItemsTest {
-    private val LazyRowItemsTag = "LazyRowItemsTag"
+class LazyRowForTest {
+    private val LazyRowForTag = "LazyRowForTag"
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -60,7 +60,7 @@ class LazyRowItemsTest {
 
         composeTestRule.setContent {
             Stack(Modifier.preferredWidth(200.dp)) {
-                LazyRowItems(items) {
+                LazyRowFor(items) {
                     Spacer(Modifier.preferredWidth(101.dp).fillMaxHeight().testTag(it))
                 }
             }
@@ -85,13 +85,13 @@ class LazyRowItemsTest {
 
         composeTestRule.setContent {
             Stack(Modifier.preferredWidth(200.dp)) {
-                LazyRowItems(items, Modifier.testTag(LazyRowItemsTag)) {
+                LazyRowFor(items, Modifier.testTag(LazyRowForTag)) {
                     Spacer(Modifier.preferredWidth(101.dp).fillMaxHeight().testTag(it))
                 }
             }
         }
 
-        onNodeWithTag(LazyRowItemsTag)
+        onNodeWithTag(LazyRowForTag)
             .scrollBy(x = 50.dp, density = composeTestRule.density)
 
         onNodeWithTag("1")
@@ -113,13 +113,13 @@ class LazyRowItemsTest {
 
         composeTestRule.setContent {
             Stack(Modifier.preferredWidth(200.dp)) {
-                LazyRowItems(items, Modifier.testTag(LazyRowItemsTag)) {
+                LazyRowFor(items, Modifier.testTag(LazyRowForTag)) {
                     Spacer(Modifier.preferredWidth(101.dp).fillMaxHeight().testTag(it))
                 }
             }
         }
 
-        onNodeWithTag(LazyRowItemsTag)
+        onNodeWithTag(LazyRowForTag)
             .scrollBy(x = 102.dp, density = composeTestRule.density)
 
         onNodeWithTag("1")
@@ -138,13 +138,13 @@ class LazyRowItemsTest {
 
         composeTestRule.setContent {
             Stack(Modifier.preferredWidth(200.dp)) {
-                LazyRowItems(items, Modifier.testTag(LazyRowItemsTag)) {
+                LazyRowFor(items, Modifier.testTag(LazyRowForTag)) {
                     Spacer(Modifier.preferredWidth(101.dp).fillMaxHeight().testTag(it))
                 }
             }
         }
 
-        onNodeWithTag(LazyRowItemsTag)
+        onNodeWithTag(LazyRowForTag)
             .scrollBy(x = 150.dp, density = composeTestRule.density)
 
         onNodeWithTag("1")
@@ -165,10 +165,10 @@ class LazyRowItemsTest {
         val itemTag = "item"
 
         composeTestRule.setContent {
-            LazyRowItems(
+            LazyRowFor(
                 items = listOf(1),
                 modifier = Modifier.size(100.dp)
-                    .testTag(LazyRowItemsTag),
+                    .testTag(LazyRowForTag),
                 contentPadding = InnerPadding(
                     start = 50.dp,
                     top = 10.dp,
@@ -189,7 +189,7 @@ class LazyRowItemsTest {
         Truth.assertThat(itemBounds.bottom.toIntPx())
             .isWithin1PixelFrom(100.dp.toIntPx() - 10.dp.toIntPx())
 
-        onNodeWithTag(LazyRowItemsTag)
+        onNodeWithTag(LazyRowForTag)
             .scrollBy(x = 51.dp, density = composeTestRule.density)
 
         itemBounds = onNodeWithTag(itemTag)
@@ -207,9 +207,9 @@ class LazyRowItemsTest {
 
         composeTestRule.setContent {
             Column {
-                LazyRowItems(
+                LazyRowFor(
                     items = listOf(1, 2),
-                    modifier = Modifier.testTag(LazyRowItemsTag)
+                    modifier = Modifier.testTag(LazyRowForTag)
                 ) {
                     if (it == 1) {
                         Spacer(Modifier.preferredSize(50.dp).testTag(itemInsideLazyRow))
@@ -227,7 +227,7 @@ class LazyRowItemsTest {
         onNodeWithTag(itemOutsideLazyRow)
             .assertIsDisplayed()
 
-        var lazyRowBounds = onNodeWithTag(LazyRowItemsTag)
+        var lazyRowBounds = onNodeWithTag(LazyRowForTag)
             .getBoundsInRoot()
 
         Truth.assertThat(lazyRowBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
@@ -247,7 +247,7 @@ class LazyRowItemsTest {
         onNodeWithTag(itemOutsideLazyRow)
             .assertIsDisplayed()
 
-        lazyRowBounds = onNodeWithTag(LazyRowItemsTag)
+        lazyRowBounds = onNodeWithTag(LazyRowForTag)
             .getBoundsInRoot()
 
         Truth.assertThat(lazyRowBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
@@ -259,11 +259,11 @@ class LazyRowItemsTest {
     private val firstItemTag = "firstItemTag"
     private val secondItemTag = "secondItemTag"
 
-    private fun prepareLazyRowItemsAlignment(verticalGravity: Alignment.Vertical) {
+    private fun prepareLazyRowForAlignment(verticalGravity: Alignment.Vertical) {
         composeTestRule.setContent {
-            LazyRowItems(
+            LazyRowFor(
                 items = listOf(1, 2),
-                modifier = Modifier.testTag(LazyRowItemsTag).height(100.dp),
+                modifier = Modifier.testTag(LazyRowForTag).height(100.dp),
                 verticalGravity = verticalGravity
             ) {
                 if (it == 1) {
@@ -280,7 +280,7 @@ class LazyRowItemsTest {
         onNodeWithTag(secondItemTag)
             .assertIsDisplayed()
 
-        val lazyColumnBounds = onNodeWithTag(LazyRowItemsTag)
+        val lazyColumnBounds = onNodeWithTag(LazyRowForTag)
             .getBoundsInRoot()
 
         with(composeTestRule.density) {
@@ -292,7 +292,7 @@ class LazyRowItemsTest {
 
     @Test
     fun lazyRowAlignmentCenterVertically() {
-        prepareLazyRowItemsAlignment(Alignment.CenterVertically)
+        prepareLazyRowForAlignment(Alignment.CenterVertically)
 
         onNodeWithTag(firstItemTag)
             .assertPositionInRootIsEqualTo(0.dp, 25.dp)
@@ -303,7 +303,7 @@ class LazyRowItemsTest {
 
     @Test
     fun lazyRowAlignmentTop() {
-        prepareLazyRowItemsAlignment(Alignment.Top)
+        prepareLazyRowForAlignment(Alignment.Top)
 
         onNodeWithTag(firstItemTag)
             .assertPositionInRootIsEqualTo(0.dp, 0.dp)
@@ -314,7 +314,7 @@ class LazyRowItemsTest {
 
     @Test
     fun lazyRowAlignmentBottom() {
-        prepareLazyRowItemsAlignment(Alignment.Bottom)
+        prepareLazyRowForAlignment(Alignment.Bottom)
 
         onNodeWithTag(firstItemTag)
             .assertPositionInRootIsEqualTo(0.dp, 50.dp)
