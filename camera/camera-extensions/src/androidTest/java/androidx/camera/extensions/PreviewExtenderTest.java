@@ -115,7 +115,7 @@ public class PreviewExtenderTest {
 
         CameraX.initialize(mContext, Camera2Config.defaultConfig());
 
-        assumeTrue(ExtensionsTestUtil.initExtensions());
+        assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
     }
 
     @After
