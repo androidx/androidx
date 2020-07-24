@@ -52,7 +52,7 @@ class TextFieldScreenshotTest {
     val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
 
     @Test
-    fun filledTextField_withInput() {
+    fun textField_withInput() {
         composeTestRule.setMaterialContent {
             Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
                 TextField(value = "Text",
@@ -66,7 +66,7 @@ class TextFieldScreenshotTest {
     }
 
     @Test
-    fun filledTextField_notFocused() {
+    fun textField_notFocused() {
         composeTestRule.setMaterialContent {
             Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
                 TextField(value = "",
@@ -80,7 +80,7 @@ class TextFieldScreenshotTest {
     }
 
     @Test
-    fun filledTextField_focused() {
+    fun textField_focused() {
         composeTestRule.setMaterialContent {
             Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
                 TextField(value = "",
@@ -97,7 +97,7 @@ class TextFieldScreenshotTest {
     }
 
     @Test
-    fun filledTextField_focused_rtl() {
+    fun textField_focused_rtl() {
         composeTestRule.setMaterialContent {
             Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag).rtl) {
                 TextField(value = "",

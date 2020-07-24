@@ -83,7 +83,7 @@ import kotlin.math.roundToInt
 
 @MediumTest
 @RunWith(JUnit4::class)
-class FilledTextFieldTest {
+class TextFieldTest {
 
     private val ExpectedMinimumTextFieldHeight = 56.dp
     private val ExpectedPadding = 16.dp
