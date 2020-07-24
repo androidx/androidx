@@ -14,30 +14,25 @@
  * limitations under the License.
  */
 
-// TODO(b/160821157): Replace FocusDetailedState with FocusState2
-@file:Suppress("DEPRECATION")
-
 package androidx.ui.core.focus
 
-import androidx.test.filters.SmallTest
-import androidx.ui.core.focus.FocusDetailedState.Active
-import androidx.ui.core.focus.FocusDetailedState.ActiveParent
-import androidx.ui.core.focus.FocusDetailedState.Captured
-import androidx.ui.core.focus.FocusDetailedState.Disabled
-import androidx.ui.core.focus.FocusDetailedState.Inactive
 import androidx.compose.foundation.Box
+import androidx.test.filters.SmallTest
+import androidx.ui.core.focus.FocusState2.Active
+import androidx.ui.core.focus.FocusState2.ActiveParent
+import androidx.ui.core.focus.FocusState2.Captured
+import androidx.ui.core.focus.FocusState2.Disabled
+import androidx.ui.core.focus.FocusState2.Inactive
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
-
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-// TODO(b/161299807): Migrate this test to use the new focus API.
-@Suppress("DEPRECATION")
 @SmallTest
+@OptIn(ExperimentalFocus::class)
 @RunWith(Parameterized::class)
 class RequestFocusTest(val propagateFocus: Boolean) {
     @get:Rule
@@ -52,9 +47,8 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun active_isUnchanged() {
         // Arrange.
-        lateinit var focusModifier: FocusModifier
+        val focusModifier = FocusModifier2(Active)
         composeTestRule.setFocusableContent {
-            focusModifier = FocusModifierImpl(Active)
             Box(modifier = focusModifier)
         }
 
@@ -65,7 +59,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
         // Assert.
         runOnIdle {
-            assertThat(focusModifier.focusDetailedState).isEqualTo(Active)
+            assertThat(focusModifier.focusState).isEqualTo(Active)
         }
     }
 
@@ -73,9 +67,8 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     fun captured_isUnchanged() {
 
         // Arrange.
-        lateinit var focusModifier: FocusModifier
+        val focusModifier = FocusModifier2(Captured)
         composeTestRule.setFocusableContent {
-            focusModifier = FocusModifierImpl(Captured)
             Box(modifier = focusModifier)
         }
 
@@ -86,16 +79,15 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
         // Assert.
         runOnIdle {
-            assertThat(focusModifier.focusDetailedState).isEqualTo(Captured)
+            assertThat(focusModifier.focusState).isEqualTo(Captured)
         }
     }
 
     @Test
     fun disabled_isUnchanged() {
         // Arrange.
-        lateinit var focusModifier: FocusModifier
+        val focusModifier = FocusModifier2(Disabled)
         composeTestRule.setFocusableContent {
-            focusModifier = FocusModifierImpl(Disabled)
             Box(modifier = focusModifier)
         }
 
@@ -106,16 +98,15 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
         // Assert.
         runOnIdle {
-            assertThat(focusModifier.focusDetailedState).isEqualTo(Disabled)
+            assertThat(focusModifier.focusState).isEqualTo(Disabled)
         }
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun activeParent_withNoFocusedChild_throwsException() {
         // Arrange.
-        lateinit var focusModifier: FocusModifier
+        val focusModifier = FocusModifier2(ActiveParent)
         composeTestRule.setFocusableContent {
-            focusModifier = FocusModifierImpl(ActiveParent)
             Box(modifier = focusModifier)
         }
 
@@ -128,12 +119,9 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun activeParent_propagateFocus() {
         // Arrange.
-        lateinit var focusModifier: FocusModifier
-        lateinit var childFocusModifier: FocusModifier
-
+        val focusModifier = FocusModifier2(ActiveParent)
+        val childFocusModifier = FocusModifier2(Active)
         composeTestRule.setFocusableContent {
-            focusModifier = FocusModifierImpl(ActiveParent)
-            childFocusModifier = FocusModifierImpl(Active)
             Box(modifier = focusModifier) {
                 Box(modifier = childFocusModifier)
             }
@@ -152,13 +140,13 @@ class RequestFocusTest(val propagateFocus: Boolean) {
             when (propagateFocus) {
                 true -> {
                     // Unchanged.
-                    assertThat(focusModifier.focusDetailedState).isEqualTo(ActiveParent)
-                    assertThat(childFocusModifier.focusDetailedState).isEqualTo(Active)
+                    assertThat(focusModifier.focusState).isEqualTo(ActiveParent)
+                    assertThat(childFocusModifier.focusState).isEqualTo(Active)
                 }
                 false -> {
-                    assertThat(focusModifier.focusDetailedState).isEqualTo(Active)
+                    assertThat(focusModifier.focusState).isEqualTo(Active)
                     assertThat(focusModifier.focusedChild).isNull()
-                    assertThat(childFocusModifier.focusDetailedState).isEqualTo(Inactive)
+                    assertThat(childFocusModifier.focusState).isEqualTo(Inactive)
                 }
             }
         }
@@ -167,9 +155,8 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun inactiveRoot_propagateFocusSendsRequestToOwner_systemCanGrantFocus() {
         // Arrange.
-        lateinit var rootFocusModifier: FocusModifier
+        val rootFocusModifier = FocusModifier2(Inactive)
         composeTestRule.setFocusableContent {
-            rootFocusModifier = FocusModifierImpl(Inactive)
             Box(modifier = rootFocusModifier)
         }
 
@@ -180,18 +167,16 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
         // Assert.
         runOnIdle {
-            assertThat(rootFocusModifier.focusDetailedState).isEqualTo(Active)
+            assertThat(rootFocusModifier.focusState).isEqualTo(Active)
         }
     }
 
     @Test
     fun inactiveRootWithChildren_propagateFocusSendsRequestToOwner_systemCanGrantFocus() {
         // Arrange.
-        lateinit var rootFocusModifier: FocusModifier
-        lateinit var childFocusModifier: FocusModifier
+        val rootFocusModifier = FocusModifier2(Inactive)
+        val childFocusModifier = FocusModifier2(Inactive)
         composeTestRule.setFocusableContent {
-            rootFocusModifier = FocusModifierImpl(Inactive)
-            childFocusModifier = FocusModifierImpl(Inactive)
             Box(modifier = rootFocusModifier) {
                 Box(modifier = childFocusModifier)
             }
@@ -207,12 +192,12 @@ class RequestFocusTest(val propagateFocus: Boolean) {
             when (propagateFocus) {
                 true -> {
                     // Unchanged.
-                    assertThat(rootFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
-                    assertThat(childFocusModifier.focusDetailedState).isEqualTo(Active)
+                    assertThat(rootFocusModifier.focusState).isEqualTo(ActiveParent)
+                    assertThat(childFocusModifier.focusState).isEqualTo(Active)
                 }
                 false -> {
-                    assertThat(rootFocusModifier.focusDetailedState).isEqualTo(Active)
-                    assertThat(childFocusModifier.focusDetailedState).isEqualTo(Inactive)
+                    assertThat(rootFocusModifier.focusState).isEqualTo(Active)
+                    assertThat(childFocusModifier.focusState).isEqualTo(Inactive)
                 }
             }
         }
@@ -221,13 +206,10 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun inactiveNonRootWithChilcren() {
         // Arrange.
-        lateinit var parentFocusModifier: FocusModifier
-        lateinit var focusModifier: FocusModifier
-        lateinit var childFocusModifier: FocusModifier
+        val parentFocusModifier = FocusModifier2(Active)
+        val focusModifier = FocusModifier2(Inactive)
+        val childFocusModifier = FocusModifier2(Inactive)
         composeTestRule.setFocusableContent {
-            parentFocusModifier = FocusModifierImpl(Active)
-            focusModifier = FocusModifierImpl(Inactive)
-            childFocusModifier = FocusModifierImpl(Inactive)
             Box(modifier = parentFocusModifier) {
                 Box(modifier = focusModifier) {
                     Box(modifier = childFocusModifier)
@@ -244,14 +226,14 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         runOnIdle {
             when (propagateFocus) {
                 true -> {
-                    assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
-                    assertThat(focusModifier.focusDetailedState).isEqualTo(ActiveParent)
-                    assertThat(childFocusModifier.focusDetailedState).isEqualTo(Active)
+                    assertThat(parentFocusModifier.focusState).isEqualTo(ActiveParent)
+                    assertThat(focusModifier.focusState).isEqualTo(ActiveParent)
+                    assertThat(childFocusModifier.focusState).isEqualTo(Active)
                 }
                 false -> {
-                    assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
-                    assertThat(focusModifier.focusDetailedState).isEqualTo(Active)
-                    assertThat(childFocusModifier.focusDetailedState).isEqualTo(Inactive)
+                    assertThat(parentFocusModifier.focusState).isEqualTo(ActiveParent)
+                    assertThat(focusModifier.focusState).isEqualTo(Active)
+                    assertThat(childFocusModifier.focusState).isEqualTo(Inactive)
                 }
             }
         }
@@ -260,9 +242,8 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun rootNode() {
         // Arrange.
-        lateinit var rootFocusModifier: FocusModifier
+        val rootFocusModifier = FocusModifier2(Inactive)
         composeTestRule.setFocusableContent {
-            rootFocusModifier = FocusModifierImpl(Inactive)
             Box(modifier = rootFocusModifier)
         }
 
@@ -273,18 +254,16 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
         // Assert.
         runOnIdle {
-            assertThat(rootFocusModifier.focusDetailedState).isEqualTo(Active)
+            assertThat(rootFocusModifier.focusState).isEqualTo(Active)
         }
     }
 
     @Test
     fun rootNodeWithChildren() {
         // Arrange.
-        lateinit var rootFocusModifier: FocusModifier
-        lateinit var childFocusModifier: FocusModifier
+        val rootFocusModifier = FocusModifier2(Inactive)
+        val childFocusModifier = FocusModifier2(Inactive)
         composeTestRule.setFocusableContent {
-            rootFocusModifier = FocusModifierImpl(Inactive)
-            childFocusModifier = FocusModifierImpl(Inactive)
             Box(modifier = rootFocusModifier) {
                 Box(modifier = childFocusModifier)
             }
@@ -298,8 +277,8 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         // Assert.
         runOnIdle {
             when (propagateFocus) {
-                true -> assertThat(rootFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
-                false -> assertThat(rootFocusModifier.focusDetailedState).isEqualTo(Active)
+                true -> assertThat(rootFocusModifier.focusState).isEqualTo(ActiveParent)
+                false -> assertThat(rootFocusModifier.focusState).isEqualTo(Active)
             }
         }
     }
@@ -307,13 +286,10 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun parentNodeWithNoFocusedAncestor() {
         // Arrange.
-        lateinit var grandParentFocusModifier: FocusModifier
-        lateinit var parentFocusModifier: FocusModifier
-        lateinit var childFocusModifier: FocusModifier
+        val grandParentFocusModifier = FocusModifier2(Inactive)
+        val parentFocusModifier = FocusModifier2(Inactive)
+        val childFocusModifier = FocusModifier2(Inactive)
         composeTestRule.setFocusableContent {
-            grandParentFocusModifier = FocusModifierImpl(Inactive)
-            parentFocusModifier = FocusModifierImpl(Inactive)
-            childFocusModifier = FocusModifierImpl(Inactive)
             Box(modifier = grandParentFocusModifier) {
                 Box(modifier = parentFocusModifier) {
                     Box(modifier = childFocusModifier)
@@ -329,8 +305,8 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         // Assert.
         runOnIdle {
             when (propagateFocus) {
-                true -> assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
-                false -> assertThat(parentFocusModifier.focusDetailedState).isEqualTo(Active)
+                true -> assertThat(parentFocusModifier.focusState).isEqualTo(ActiveParent)
+                false -> assertThat(parentFocusModifier.focusState).isEqualTo(Active)
             }
         }
     }
@@ -338,13 +314,10 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun parentNodeWithNoFocusedAncestor_childRequestsFocus() {
         // Arrange.
-        lateinit var grandParentFocusModifier: FocusModifier
-        lateinit var parentFocusModifier: FocusModifier
-        lateinit var childFocusModifier: FocusModifier
+        val grandParentFocusModifier = FocusModifier2(Inactive)
+        val parentFocusModifier = FocusModifier2(Inactive)
+        val childFocusModifier = FocusModifier2(Inactive)
         composeTestRule.setFocusableContent {
-            grandParentFocusModifier = FocusModifierImpl(Inactive)
-            parentFocusModifier = FocusModifierImpl(Inactive)
-            childFocusModifier = FocusModifierImpl(Inactive)
             Box(modifier = grandParentFocusModifier) {
                 Box(modifier = parentFocusModifier) {
                     Box(modifier = childFocusModifier)
@@ -358,20 +331,17 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         }
         // Assert.
         runOnIdle {
-            assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
+            assertThat(parentFocusModifier.focusState).isEqualTo(ActiveParent)
         }
     }
 
     @Test
     fun childNodeWithNoFocusedAncestor() {
         // Arrange.
-        lateinit var grandParentFocusModifier: FocusModifier
-        lateinit var parentFocusModifier: FocusModifier
-        lateinit var childFocusModifier: FocusModifier
+        val grandParentFocusModifier = FocusModifier2(Inactive)
+        val parentFocusModifier = FocusModifier2(Inactive)
+        val childFocusModifier = FocusModifier2(Inactive)
         composeTestRule.setFocusableContent {
-            grandParentFocusModifier = FocusModifierImpl(Inactive)
-            parentFocusModifier = FocusModifierImpl(Inactive)
-            childFocusModifier = FocusModifierImpl(Inactive)
             Box(modifier = grandParentFocusModifier) {
                 Box(modifier = parentFocusModifier) {
                     Box(modifier = childFocusModifier)
@@ -386,18 +356,16 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
         // Assert.
         runOnIdle {
-            assertThat(childFocusModifier.focusDetailedState).isEqualTo(Active)
+            assertThat(childFocusModifier.focusState).isEqualTo(Active)
         }
     }
 
     @Test
     fun requestFocus_parentIsFocused() {
         // Arrange.
-        lateinit var parentFocusModifier: FocusModifier
-        lateinit var focusModifier: FocusModifier
+        val parentFocusModifier = FocusModifier2(Active)
+        val focusModifier = FocusModifier2(Inactive)
         composeTestRule.setFocusableContent {
-            parentFocusModifier = FocusModifierImpl(Active)
-            focusModifier = FocusModifierImpl(Inactive)
             Box(modifier = parentFocusModifier) {
                 Box(modifier = focusModifier)
             }
@@ -410,19 +378,17 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
         // Assert.
         runOnIdle {
-            assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
-            assertThat(focusModifier.focusDetailedState).isEqualTo(Active)
+            assertThat(parentFocusModifier.focusState).isEqualTo(ActiveParent)
+            assertThat(focusModifier.focusState).isEqualTo(Active)
         }
     }
 
     @Test
     fun requestFocus_childIsFocused() {
         // Arrange.
-        lateinit var parentFocusModifier: FocusModifier
-        lateinit var focusModifier: FocusModifier
+        val parentFocusModifier = FocusModifier2(ActiveParent)
+        val focusModifier = FocusModifier2(Active)
         composeTestRule.setFocusableContent {
-            parentFocusModifier = FocusModifierImpl(ActiveParent)
-            focusModifier = FocusModifierImpl(Active)
             Box(modifier = parentFocusModifier) {
                 Box(modifier = focusModifier)
             }
@@ -440,12 +406,12 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         runOnIdle {
             when (propagateFocus) {
                 true -> {
-                    assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
-                    assertThat(focusModifier.focusDetailedState).isEqualTo(Active)
+                    assertThat(parentFocusModifier.focusState).isEqualTo(ActiveParent)
+                    assertThat(focusModifier.focusState).isEqualTo(Active)
                 }
                 false -> {
-                    assertThat(parentFocusModifier.focusDetailedState).isEqualTo(Active)
-                    assertThat(focusModifier.focusDetailedState).isEqualTo(Inactive)
+                    assertThat(parentFocusModifier.focusState).isEqualTo(Active)
+                    assertThat(focusModifier.focusState).isEqualTo(Inactive)
                 }
             }
         }
@@ -454,11 +420,9 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun requestFocus_childHasCapturedFocus() {
         // Arrange.
-        lateinit var parentFocusModifier: FocusModifier
-        lateinit var focusModifier: FocusModifier
+        val parentFocusModifier = FocusModifier2(ActiveParent)
+        val focusModifier = FocusModifier2(Captured)
         composeTestRule.setFocusableContent {
-            parentFocusModifier = FocusModifierImpl(ActiveParent)
-            focusModifier = FocusModifierImpl(Captured)
             Box(modifier = parentFocusModifier) {
                 Box(modifier = focusModifier)
             }
@@ -474,21 +438,18 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
         // Assert.
         runOnIdle {
-            assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
-            assertThat(focusModifier.focusDetailedState).isEqualTo(Captured)
+            assertThat(parentFocusModifier.focusState).isEqualTo(ActiveParent)
+            assertThat(focusModifier.focusState).isEqualTo(Captured)
         }
     }
 
     @Test
     fun requestFocus_siblingIsFocused() {
         // Arrange.
-        lateinit var parentFocusModifier: FocusModifier
-        lateinit var focusModifier: FocusModifier
-        lateinit var siblingModifier: FocusModifier
+        val parentFocusModifier = FocusModifier2(ActiveParent)
+        val focusModifier = FocusModifier2(Inactive)
+        val siblingModifier = FocusModifier2(Active)
         composeTestRule.setFocusableContent {
-            parentFocusModifier = FocusModifierImpl(ActiveParent)
-            focusModifier = FocusModifierImpl(Inactive)
-            siblingModifier = FocusModifierImpl(Active)
             Box(modifier = parentFocusModifier) {
                 Box(modifier = focusModifier)
                 Box(modifier = siblingModifier)
@@ -505,22 +466,19 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
         // Assert.
         runOnIdle {
-            assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
-            assertThat(focusModifier.focusDetailedState).isEqualTo(Active)
-            assertThat(siblingModifier.focusDetailedState).isEqualTo(Inactive)
+            assertThat(parentFocusModifier.focusState).isEqualTo(ActiveParent)
+            assertThat(focusModifier.focusState).isEqualTo(Active)
+            assertThat(siblingModifier.focusState).isEqualTo(Inactive)
         }
     }
 
     @Test
     fun requestFocus_siblingHasCapturedFocused() {
         // Arrange.
-        lateinit var parentFocusModifier: FocusModifier
-        lateinit var focusModifier: FocusModifier
-        lateinit var siblingModifier: FocusModifier
+        val parentFocusModifier = FocusModifier2(ActiveParent)
+        val focusModifier = FocusModifier2(Inactive)
+        val siblingModifier = FocusModifier2(Captured)
         composeTestRule.setFocusableContent {
-            parentFocusModifier = FocusModifierImpl(ActiveParent)
-            focusModifier = FocusModifierImpl(Inactive)
-            siblingModifier = FocusModifierImpl(Captured)
             Box(modifier = parentFocusModifier) {
                 Box(modifier = focusModifier)
                 Box(modifier = siblingModifier)
@@ -537,26 +495,21 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
         // Assert.
         runOnIdle {
-            assertThat(parentFocusModifier.focusDetailedState).isEqualTo(ActiveParent)
-            assertThat(focusModifier.focusDetailedState).isEqualTo(Inactive)
-            assertThat(siblingModifier.focusDetailedState).isEqualTo(Captured)
+            assertThat(parentFocusModifier.focusState).isEqualTo(ActiveParent)
+            assertThat(focusModifier.focusState).isEqualTo(Inactive)
+            assertThat(siblingModifier.focusState).isEqualTo(Captured)
         }
     }
 
     @Test
     fun requestFocus_cousinIsFocused() {
         // Arrange.
-        lateinit var grandParentModifier: FocusModifier
-        lateinit var parentModifier: FocusModifier
-        lateinit var focusModifier: FocusModifier
-        lateinit var auntModifier: FocusModifier
-        lateinit var cousinModifier: FocusModifier
+        val grandParentModifier = FocusModifier2(ActiveParent)
+        val parentModifier = FocusModifier2(Inactive)
+        val focusModifier = FocusModifier2(Inactive)
+        val auntModifier = FocusModifier2(ActiveParent)
+        val cousinModifier = FocusModifier2(Active)
         composeTestRule.setFocusableContent {
-            grandParentModifier = FocusModifierImpl(ActiveParent)
-            parentModifier = FocusModifierImpl(Inactive)
-            focusModifier = FocusModifierImpl(Inactive)
-            auntModifier = FocusModifierImpl(ActiveParent)
-            cousinModifier = FocusModifierImpl(Active)
             Box(modifier = grandParentModifier) {
                 Box(modifier = parentModifier) {
                     Box(modifier = focusModifier)
@@ -573,8 +526,8 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
         // Verify Setup.
         runOnIdle {
-            assertThat(cousinModifier.focusDetailedState).isEqualTo(Active)
-            assertThat(focusModifier.focusDetailedState).isEqualTo(Inactive)
+            assertThat(cousinModifier.focusState).isEqualTo(Active)
+            assertThat(focusModifier.focusState).isEqualTo(Inactive)
         }
 
         // Act.
@@ -584,21 +537,18 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
         // Assert.
         runOnIdle {
-            assertThat(cousinModifier.focusDetailedState).isEqualTo(Inactive)
-            assertThat(focusModifier.focusDetailedState).isEqualTo(Active)
+            assertThat(cousinModifier.focusState).isEqualTo(Inactive)
+            assertThat(focusModifier.focusState).isEqualTo(Active)
         }
     }
 
     @Test
     fun requestFocus_grandParentIsFocused() {
         // Arrange.
-        lateinit var grandParentModifier: FocusModifier
-        lateinit var parentModifier: FocusModifier
-        lateinit var focusModifier: FocusModifier
+        val grandParentModifier = FocusModifier2(Active)
+        val parentModifier = FocusModifier2(Inactive)
+        val focusModifier = FocusModifier2(Inactive)
         composeTestRule.setFocusableContent {
-            grandParentModifier = FocusModifierImpl(Active)
-            parentModifier = FocusModifierImpl(Inactive)
-            focusModifier = FocusModifierImpl(Inactive)
             Box(modifier = grandParentModifier) {
                 Box(modifier = parentModifier) {
                     Box(modifier = focusModifier)
@@ -613,9 +563,9 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
         // Assert.
         runOnIdle {
-            assertThat(grandParentModifier.focusDetailedState).isEqualTo(ActiveParent)
-            assertThat(parentModifier.focusDetailedState).isEqualTo(ActiveParent)
-            assertThat(focusModifier.focusDetailedState).isEqualTo(Active)
+            assertThat(grandParentModifier.focusState).isEqualTo(ActiveParent)
+            assertThat(parentModifier.focusState).isEqualTo(ActiveParent)
+            assertThat(focusModifier.focusState).isEqualTo(Active)
         }
     }
 }

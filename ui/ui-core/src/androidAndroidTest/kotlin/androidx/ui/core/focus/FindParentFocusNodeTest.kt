@@ -18,8 +18,8 @@ package androidx.ui.core.focus
 
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.test.filters.SmallTest
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat
@@ -28,9 +28,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-// TODO(b/161299807): Migrate this test to use the new focus API.
-@Suppress("DEPRECATION")
 @SmallTest
+@OptIn(ExperimentalFocus::class)
 @RunWith(JUnit4::class)
 class FindParentFocusNodeTest {
     @get:Rule
@@ -39,15 +38,14 @@ class FindParentFocusNodeTest {
     @Test
     fun noParentReturnsNull() {
         // Arrange.
-        lateinit var focusModifier: FocusModifier
+        val focusModifier = FocusModifier2(FocusState2.Inactive)
         composeTestRule.setFocusableContent {
-            focusModifier = FocusModifier()
             Box(modifier = focusModifier)
         }
 
         // Act.
         val rootFocusNode = runOnIdle {
-            focusModifier.focusNode.findParentFocusNode()!!.findParentFocusNode()
+            focusModifier.focusNode.findParentFocusNode2()!!.findParentFocusNode2()
         }
 
         // Assert.
@@ -60,23 +58,18 @@ class FindParentFocusNodeTest {
     fun returnsImmediateParentFromModifierChain() {
         // Arrange.
         // focusNode1--focusNode2--focusNode3--focusNode4--focusNode5
-        lateinit var modifier1: FocusModifier
-        lateinit var modifier2: FocusModifier
-        lateinit var modifier3: FocusModifier
-        lateinit var modifier4: FocusModifier
-        lateinit var modifier5: FocusModifier
+        val modifier1 = FocusModifier2(FocusState2.Inactive)
+        val modifier2 = FocusModifier2(FocusState2.Inactive)
+        val modifier3 = FocusModifier2(FocusState2.Inactive)
+        val modifier4 = FocusModifier2(FocusState2.Inactive)
+        val modifier5 = FocusModifier2(FocusState2.Inactive)
         composeTestRule.setFocusableContent {
-            modifier1 = FocusModifier()
-            modifier2 = FocusModifier()
-            modifier3 = FocusModifier()
-            modifier4 = FocusModifier()
-            modifier5 = FocusModifier()
             Box(modifier1.then(modifier2).then(modifier3).then(modifier4).then(modifier5)) {}
         }
 
         // Act.
         val parent = runOnIdle {
-            modifier3.focusNode.findParentFocusNode()
+            modifier3.focusNode.findParentFocusNode2()
         }
 
         // Assert.
@@ -89,13 +82,10 @@ class FindParentFocusNodeTest {
     fun returnsImmediateParentFromModifierChain_ignoresNonFocusModifiers() {
         // Arrange.
         // focusNode1--focusNode2--nonFocusNode--focusNode3
-        lateinit var modifier1: FocusModifier
-        lateinit var modifier2: FocusModifier
-        lateinit var modifier3: FocusModifier
+        val modifier1 = FocusModifier2(FocusState2.Inactive)
+        val modifier2 = FocusModifier2(FocusState2.Inactive)
+        val modifier3 = FocusModifier2(FocusState2.Inactive)
         composeTestRule.setFocusableContent {
-            modifier1 = FocusModifier()
-            modifier2 = FocusModifier()
-            modifier3 = FocusModifier()
             Box(
                 modifier = modifier1
                     .then(modifier2)
@@ -106,7 +96,7 @@ class FindParentFocusNodeTest {
 
         // Act.
         val parent = runOnIdle {
-            modifier3.focusNode.findParentFocusNode()
+            modifier3.focusNode.findParentFocusNode2()
         }
 
         // Assert.
@@ -121,13 +111,10 @@ class FindParentFocusNodeTest {
         // parentLayoutNode--parentFocusNode1--parentFocusNode2
         //       |
         // layoutNode--focusNode
-        lateinit var parentFocusModifier1: FocusModifier
-        lateinit var parentFocusModifier2: FocusModifier
-        lateinit var focusModifier: FocusModifier
+        val parentFocusModifier1 = FocusModifier2(FocusState2.Inactive)
+        val parentFocusModifier2 = FocusModifier2(FocusState2.Inactive)
+        val focusModifier = FocusModifier2(FocusState2.Inactive)
         composeTestRule.setFocusableContent {
-            parentFocusModifier1 = FocusModifier()
-            parentFocusModifier2 = FocusModifier()
-            focusModifier = FocusModifier()
             Box(modifier = parentFocusModifier1.then(parentFocusModifier2)) {
                 Box(modifier = focusModifier)
             }
@@ -135,7 +122,7 @@ class FindParentFocusNodeTest {
 
         // Act.
         val parent = runOnIdle {
-            focusModifier.focusNode.findParentFocusNode()
+            focusModifier.focusNode.findParentFocusNode2()
         }
 
         // Assert.
@@ -152,13 +139,10 @@ class FindParentFocusNodeTest {
         // parentLayoutNode--parentFocusNode
         //       |
         // layoutNode--focusNode
-        lateinit var grandparentFocusModifier: FocusModifier
-        lateinit var parentFocusModifier: FocusModifier
-        lateinit var focusModifier: FocusModifier
+        val grandparentFocusModifier = FocusModifier2(FocusState2.Inactive)
+        val parentFocusModifier = FocusModifier2(FocusState2.Inactive)
+        val focusModifier = FocusModifier2(FocusState2.Inactive)
         composeTestRule.setFocusableContent {
-            grandparentFocusModifier = FocusModifier()
-            parentFocusModifier = FocusModifier()
-            focusModifier = FocusModifier()
             Box(modifier = grandparentFocusModifier) {
                 Box(modifier = parentFocusModifier) {
                     Box(modifier = focusModifier)
@@ -168,7 +152,7 @@ class FindParentFocusNodeTest {
 
         // Act.
         val parent = runOnIdle {
-            focusModifier.focusNode.findParentFocusNode()
+            focusModifier.focusNode.findParentFocusNode2()
         }
 
         // Assert.
@@ -185,11 +169,9 @@ class FindParentFocusNodeTest {
         // parentLayoutNode
         //       |
         // layoutNode--focusNode
-        lateinit var grandparentFocusModifier: FocusModifier
-        lateinit var focusModifier: FocusModifier
+        val grandparentFocusModifier = FocusModifier2(FocusState2.Inactive)
+        val focusModifier = FocusModifier2(FocusState2.Inactive)
         composeTestRule.setFocusableContent {
-            grandparentFocusModifier = FocusModifier()
-            focusModifier = FocusModifier()
             Box(modifier = grandparentFocusModifier) {
                 Box {
                     Box(modifier = focusModifier)
@@ -199,7 +181,7 @@ class FindParentFocusNodeTest {
 
         // Act.
         val parent = runOnIdle {
-            focusModifier.focusNode.findParentFocusNode()
+            focusModifier.focusNode.findParentFocusNode2()
         }
 
         // Assert.
