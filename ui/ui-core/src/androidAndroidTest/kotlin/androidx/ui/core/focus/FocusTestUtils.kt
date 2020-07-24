@@ -17,22 +17,11 @@
 package androidx.ui.core.focus
 
 import androidx.compose.Composable
-import androidx.ui.core.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.size
-import androidx.ui.test.ComposeTestRule
 import androidx.compose.ui.unit.dp
-
-@Suppress("DEPRECATION")
-internal val FocusModifier.focusNode
-    get() = (this as FocusModifierImpl).focusNode!!
-
-@Suppress("DEPRECATION")
-internal var FocusModifier.focusedChild
-    get() = (this as FocusModifierImpl).focusedChild
-    set(value) {
-        (this as FocusModifierImpl).focusedChild = value
-    }
+import androidx.ui.core.Modifier
+import androidx.ui.test.ComposeTestRule
 
 /**
  * This function adds a parent composable which has size. [View.requestFocus()][android.view.View

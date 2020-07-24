@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-// TODO(b/160821157): Replace FocusDetailedState with FocusState2
-@file:Suppress("DEPRECATION")
-
 package androidx.ui.core.focus
 
-import androidx.test.filters.SmallTest
-import androidx.ui.core.focus.FocusDetailedState.Active
-import androidx.ui.core.focus.FocusDetailedState.ActiveParent
-import androidx.ui.core.focus.FocusDetailedState.Captured
-import androidx.ui.core.focus.FocusDetailedState.Disabled
-import androidx.ui.core.focus.FocusDetailedState.Inactive
 import androidx.compose.foundation.Box
+import androidx.test.filters.SmallTest
+import androidx.ui.core.Modifier
+import androidx.ui.core.focus.FocusState2.Active
+import androidx.ui.core.focus.FocusState2.ActiveParent
+import androidx.ui.core.focus.FocusState2.Captured
+import androidx.ui.core.focus.FocusState2.Disabled
+import androidx.ui.core.focus.FocusState2.Inactive
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth
@@ -35,6 +33,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @SmallTest
+@OptIn(ExperimentalFocus::class)
 @RunWith(JUnit4::class)
 class FreeFocusTest {
     @get:Rule
@@ -43,85 +42,120 @@ class FreeFocusTest {
     @Test
     fun active_freeFocus_retainFocusAsActive() {
         // Arrange.
-        val focusModifier = FocusModifierImpl(Active).also {
-            composeTestRule.setFocusableContent { Box(modifier = it) }
+        var focusState: FocusState2 = Active
+        val focusRequester = FocusRequester()
+        composeTestRule.setFocusableContent {
+            Box(
+                modifier = Modifier
+                    .focusObserver { focusState = it }
+                    .focusRequester(focusRequester)
+                    .then(FocusModifier2(focusState))
+            )
         }
 
         runOnIdle {
             // Act.
-            val success = focusModifier.freeFocus()
+            val success = focusRequester.freeFocus()
 
             // Assert.
-            Truth.assertThat(success).isFalse()
-            Truth.assertThat(focusModifier.focusDetailedState).isEqualTo(Active)
+            Truth.assertThat(success).isTrue()
+            Truth.assertThat(focusState).isEqualTo(Active)
         }
     }
 
     @Test
     fun activeParent_freeFocus_retainFocusAsActiveParent() {
         // Arrange.
-        val focusModifier = FocusModifierImpl(ActiveParent).also {
-            composeTestRule.setFocusableContent { Box(modifier = it) }
+        var focusState: FocusState2 = ActiveParent
+        val focusRequester = FocusRequester()
+        composeTestRule.setFocusableContent {
+            Box(
+                modifier = Modifier
+                    .focusObserver { focusState = it }
+                    .focusRequester(focusRequester)
+                    .then(FocusModifier2(focusState))
+            )
         }
 
         runOnIdle {
             // Act.
-            val success = focusModifier.freeFocus()
+            val success = focusRequester.freeFocus()
 
             // Assert.
             Truth.assertThat(success).isFalse()
-            Truth.assertThat(focusModifier.focusDetailedState).isEqualTo(ActiveParent)
+            Truth.assertThat(focusState).isEqualTo(ActiveParent)
         }
     }
 
     @Test
     fun captured_freeFocus_changesStateToActive() {
         // Arrange.
-        val focusModifier = FocusModifierImpl(Captured).also {
-            composeTestRule.setFocusableContent { Box(modifier = it) }
+        var focusState: FocusState2 = Captured
+        val focusRequester = FocusRequester()
+        composeTestRule.setFocusableContent {
+            Box(
+                modifier = Modifier
+                    .focusObserver { focusState = it }
+                    .focusRequester(focusRequester)
+                    .then(FocusModifier2(focusState))
+            )
         }
 
         runOnIdle {
             // Act.
-            val success = focusModifier.freeFocus()
+            val success = focusRequester.freeFocus()
 
             // Assert.
             Truth.assertThat(success).isTrue()
-            Truth.assertThat(focusModifier.focusDetailedState).isEqualTo(Active)
+            Truth.assertThat(focusState).isEqualTo(Active)
         }
     }
 
     @Test
     fun disabled_freeFocus_retainFocusAsDisabled() {
         // Arrange.
-        val focusModifier = FocusModifierImpl(Disabled).also {
-            composeTestRule.setFocusableContent { Box(modifier = it) }
+        var focusState: FocusState2 = Disabled
+        val focusRequester = FocusRequester()
+        composeTestRule.setFocusableContent {
+            Box(
+                modifier = Modifier
+                    .focusObserver { focusState = it }
+                    .focusRequester(focusRequester)
+                    .then(FocusModifier2(focusState))
+            )
         }
 
         runOnIdle {
             // Act.
-            val success = focusModifier.freeFocus()
+            val success = focusRequester.freeFocus()
 
             // Assert.
             Truth.assertThat(success).isFalse()
-            Truth.assertThat(focusModifier.focusDetailedState).isEqualTo(Disabled)
+            Truth.assertThat(focusState).isEqualTo(Disabled)
         }
     }
 
     @Test
     fun inactive_freeFocus_retainFocusAsInactive() {
         // Arrange.
-        val focusModifier = FocusModifierImpl(Inactive).also {
-            composeTestRule.setFocusableContent { Box(modifier = it) }
+        var focusState: FocusState2 = Inactive
+        val focusRequester = FocusRequester()
+        composeTestRule.setFocusableContent {
+            Box(
+                modifier = Modifier
+                    .focusObserver { focusState = it }
+                    .focusRequester(focusRequester)
+                    .then(FocusModifier2(focusState))
+            )
         }
 
         runOnIdle {
             // Act.
-            val success = focusModifier.freeFocus()
+            val success = focusRequester.freeFocus()
 
             // Assert.
             Truth.assertThat(success).isFalse()
-            Truth.assertThat(focusModifier.focusDetailedState).isEqualTo(Inactive)
+            Truth.assertThat(focusState).isEqualTo(Inactive)
         }
     }
 }
