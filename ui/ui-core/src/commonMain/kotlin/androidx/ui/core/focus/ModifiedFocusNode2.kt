@@ -16,6 +16,7 @@
 
 package androidx.ui.core.focus
 
+import androidx.compose.ui.util.fastForEach
 import androidx.ui.core.DelegatingLayoutNodeWrapper
 import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNodeWrapper
@@ -24,7 +25,6 @@ import androidx.ui.core.focus.FocusState2.ActiveParent
 import androidx.ui.core.focus.FocusState2.Captured
 import androidx.ui.core.focus.FocusState2.Disabled
 import androidx.ui.core.focus.FocusState2.Inactive
-import androidx.compose.ui.util.fastForEach
 
 @OptIn(
     ExperimentalFocus::class,
@@ -146,7 +146,7 @@ internal class ModifiedFocusNode2(
     internal fun clearFocus(forcedClear: Boolean = false): Boolean {
         return when (modifier.focusState) {
             Active -> {
-                findParentFocusNode()?.modifier?.focusedChild = null
+                findParentFocusNode2()?.modifier?.focusedChild = null
                 modifier.focusState = Inactive
                 true
             }
@@ -159,7 +159,7 @@ internal class ModifiedFocusNode2(
                 requireNotNull(focusedChild)
                 val success = focusedChild.clearFocus(forcedClear)
                 if (success) {
-                    findParentFocusNode()?.modifier?.focusedChild = null
+                    findParentFocusNode2()?.modifier?.focusedChild = null
                     modifier.focusState = Inactive
                 }
                 success
@@ -170,7 +170,7 @@ internal class ModifiedFocusNode2(
             Captured -> {
                 if (forcedClear) {
                     modifier.focusState = Inactive
-                    findParentFocusNode()?.modifier?.focusedChild = null
+                    findParentFocusNode2()?.modifier?.focusedChild = null
                 }
                 forcedClear
             }
