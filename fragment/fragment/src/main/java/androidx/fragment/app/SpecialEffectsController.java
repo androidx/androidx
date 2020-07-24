@@ -16,6 +16,7 @@
 
 package androidx.fragment.app;
 
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.CallSuper;
@@ -96,48 +97,55 @@ abstract class SpecialEffectsController {
     }
 
     /**
-     * Checks what {@link Operation.Type type} of special effect for the given
-     * FragmentStateManager is still awaiting completion (or cancellation).
+     * Checks what {@link Operation.LifecycleImpact lifecycle impact} of special effect for the
+     * given FragmentStateManager is still awaiting completion (or cancellation).
      * <p>
      * This could be because the Operation is still pending (and
      * {@link #executePendingOperations()} hasn't been called) or because the
      * controller hasn't called {@link Operation#complete()}.
      *
      * @param fragmentStateManager the FragmentStateManager to check for
-     * @return The {@link Operation.Type} of the awaiting Operation, or null if there is
+     * @return The {@link Operation.LifecycleImpact} of the awaiting Operation, or null if there is
      * no special effects still in progress.
      */
     @Nullable
-    Operation.Type getAwaitingCompletionType(@NonNull FragmentStateManager fragmentStateManager) {
+    Operation.LifecycleImpact getAwaitingCompletionLifecycleImpact(
+            @NonNull FragmentStateManager fragmentStateManager) {
         Operation operation = mAwaitingCompletionOperations.get(
                 fragmentStateManager.getFragment());
         if (operation != null) {
-            return operation.getType();
+            return operation.getLifecycleImpact();
         }
         return null;
     }
 
-    void enqueueAdd(@NonNull FragmentStateManager fragmentStateManager,
+    void enqueueAdd(@NonNull Operation.State finalState,
+            @NonNull FragmentStateManager fragmentStateManager,
             @NonNull CancellationSignal cancellationSignal) {
-        enqueue(Operation.Type.ADD, fragmentStateManager, cancellationSignal);
+        enqueue(finalState, Operation.LifecycleImpact.ADDING,
+                fragmentStateManager, cancellationSignal);
     }
 
     void enqueueShow(@NonNull FragmentStateManager fragmentStateManager,
             @NonNull CancellationSignal cancellationSignal) {
-        enqueue(Operation.Type.SHOW, fragmentStateManager, cancellationSignal);
+        enqueue(Operation.State.VISIBLE, Operation.LifecycleImpact.NONE,
+                fragmentStateManager, cancellationSignal);
     }
 
     void enqueueHide(@NonNull FragmentStateManager fragmentStateManager,
             @NonNull CancellationSignal cancellationSignal) {
-        enqueue(Operation.Type.HIDE, fragmentStateManager, cancellationSignal);
+        enqueue(Operation.State.GONE, Operation.LifecycleImpact.NONE,
+                fragmentStateManager, cancellationSignal);
     }
 
     void enqueueRemove(@NonNull FragmentStateManager fragmentStateManager,
             @NonNull CancellationSignal cancellationSignal) {
-        enqueue(Operation.Type.REMOVE, fragmentStateManager, cancellationSignal);
+        enqueue(Operation.State.REMOVED, Operation.LifecycleImpact.REMOVING,
+                fragmentStateManager, cancellationSignal);
     }
 
-    private void enqueue(@NonNull Operation.Type type,
+    private void enqueue(@NonNull Operation.State finalState,
+            @NonNull Operation.LifecycleImpact lifecycleImpact,
             @NonNull final FragmentStateManager fragmentStateManager,
             @NonNull CancellationSignal cancellationSignal) {
         if (cancellationSignal.isCanceled()) {
@@ -146,8 +154,16 @@ abstract class SpecialEffectsController {
         }
         synchronized (mPendingOperations) {
             final CancellationSignal signal = new CancellationSignal();
+            Operation existingOperation =
+                    mAwaitingCompletionOperations.get(fragmentStateManager.getFragment());
+            if (existingOperation != null) {
+                // Update the existing operation by merging in the new information
+                // rather than creating a new Operation entirely
+                existingOperation.mergeWith(finalState, lifecycleImpact, cancellationSignal);
+                return;
+            }
             final FragmentStateManagerOperation operation = new FragmentStateManagerOperation(
-                    type, fragmentStateManager, signal);
+                    finalState, lifecycleImpact, fragmentStateManager, signal);
             mPendingOperations.add(operation);
             mAwaitingCompletionOperations.put(operation.getFragment(), operation);
             // Ensure that pending operations are removed when cancelled
@@ -183,8 +199,9 @@ abstract class SpecialEffectsController {
             for (int index = mPendingOperations.size() - 1; index >= 0; index--) {
                 Operation operation = mPendingOperations.get(index);
                 // Only consider operations with entering transitions
-                if (operation.getType() == Operation.Type.ADD
-                        || operation.getType() == Operation.Type.SHOW) {
+                Operation.State currentState = Operation.State.from(operation.getFragment().mView);
+                if (operation.getFinalState() == Operation.State.VISIBLE
+                        && currentState != Operation.State.VISIBLE) {
                     Fragment fragment = operation.getFragment();
                     // The container is considered postponed if the Fragment
                     // associated with the last entering Operation is postponed
@@ -252,66 +269,155 @@ abstract class SpecialEffectsController {
     static class Operation {
 
         /**
-         * The type of operation
+         * The state that the fragment's View should be in after applying this operation.
+         *
+         * @see #applyState(View)
          */
-        enum Type {
+        enum State {
             /**
-             * An ADD operation indicates that the Fragment should be added to the
-             * {@link Operation#getContainer() container} and any "enter" special effects
-             * should be run before calling {@link #complete()}.
+             * The fragment's view should be completely removed from the container.
              */
-            ADD,
+            REMOVED,
             /**
-             * A REMOVE operation indicates that the Fragment should be removed from the
-             * {@link Operation#getContainer() container} and any "exit" special effects
-             * should be run before calling {@link #complete()}.
+             * The fragment's view should be made {@link View#VISIBLE}.
              */
-            REMOVE,
+            VISIBLE,
             /**
-             * An SHOW operation indicates that the Fragment should be made visible in the
-             * {@link Operation#getContainer() container} and any "enter" special effects
-             * should be run before calling {@link #complete()}.
+             * The fragment's view should be made {@link View#GONE}.
              */
-            SHOW,
+            GONE,
             /**
-             * A HIDE operation indicates that the Fragment should be hidden from the
-             * {@link Operation#getContainer() container} and any "exit" special effects
-             * should be run before calling {@link #complete()}.
+             * The fragment's view should be made {@link View#INVISIBLE}.
              */
-            HIDE
+            INVISIBLE;
+
+            /**
+             * Create a new State from the {@link View#getVisibility() view's visibility}.
+             *
+             * @param view The view to get the current visibility from.
+             * @return A new State from the view's visibility.
+             */
+            @NonNull
+            static State from(@NonNull View view) {
+                return from(view.getVisibility());
+            }
+
+            /**
+             * Create a new State from the visibility of a View.
+             *
+             * @param visibility The visibility constant to translate into a State.
+             * @return A new State from the visibility.
+             */
+            @NonNull
+            static State from(int visibility) {
+                switch (visibility) {
+                    case View.VISIBLE:
+                        return VISIBLE;
+                    case View.INVISIBLE:
+                        return INVISIBLE;
+                    case View.GONE:
+                        return GONE;
+                    default:
+                        throw new IllegalArgumentException("Unknown visibility " + visibility);
+                }
+            }
+
+            /**
+             * Applies this state to the given View.
+             *
+             * @param view The View to apply this state to.
+             */
+            void applyState(@NonNull View view) {
+                switch (this) {
+                    case REMOVED:
+                        ViewGroup parent = (ViewGroup) view.getParent();
+                        if (parent != null) {
+                            parent.removeView(view);
+                        }
+                        break;
+                    case VISIBLE:
+                        view.setVisibility(View.VISIBLE);
+                        break;
+                    case GONE:
+                        view.setVisibility(View.GONE);
+                        break;
+                    case INVISIBLE:
+                        view.setVisibility(View.INVISIBLE);
+                        break;
+                }
+            }
+        }
+
+        /**
+         * The impact that this operation has on the lifecycle of the fragment.
+         */
+        enum LifecycleImpact {
+            /**
+             * No impact on the fragment's lifecycle.
+             */
+            NONE,
+            /**
+             * This operation is associated with adding a fragment.
+             */
+            ADDING,
+            /**
+             * This operation is associated with removing a fragment.
+             */
+            REMOVING,
         }
 
         @NonNull
-        private final Type mType;
+        private State mFinalState;
+        @NonNull
+        private LifecycleImpact mLifecycleImpact;
         @NonNull
         private final Fragment mFragment;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
         @NonNull
-        private final CancellationSignal mCancellationSignal;
+        final CancellationSignal mCancellationSignal = new CancellationSignal();
         @NonNull
         private final List<Runnable> mCompletionListeners = new ArrayList<>();
 
         /**
          * Construct a new Operation.
          *
-         * @param type What type of operation this is.
-         * @param fragment The Fragment being added / removed.
+         * @param finalState What the final state after this operation should be.
+         * @param lifecycleImpact The impact on the fragment's lifecycle.
+         * @param fragment The Fragment being affected.
          * @param cancellationSignal A signal for handling cancellation
          */
-        Operation(@NonNull Type type, @NonNull Fragment fragment,
-                @NonNull CancellationSignal cancellationSignal) {
-            mType = type;
+        Operation(@NonNull State finalState, @NonNull LifecycleImpact lifecycleImpact,
+                @NonNull Fragment fragment, @NonNull CancellationSignal cancellationSignal) {
+            mFinalState = finalState;
+            mLifecycleImpact = lifecycleImpact;
             mFragment = fragment;
-            mCancellationSignal = cancellationSignal;
+            // Connect the CancellationSignal to our own
+            cancellationSignal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+                @Override
+                public void onCancel() {
+                    mCancellationSignal.cancel();
+                }
+            });
         }
 
         /**
-         * Returns what type of operation this is.
+         * Returns what the final state after this operation should be.
          *
-         * @return the type of operation
+         * @return The final state after this operation should be.
          */
         @NonNull
-        public final Type getType() {
-            return mType;
+        public State getFinalState() {
+            return mFinalState;
+        }
+
+        /**
+         * Returns how this Operation affects the lifecycle of the fragment.
+         *
+         * @return How this Operation affects the lifecycle of the fragment.
+         */
+        @NonNull
+        LifecycleImpact getLifecycleImpact() {
+            return mLifecycleImpact;
         }
 
         /**
@@ -334,6 +440,37 @@ abstract class SpecialEffectsController {
             return mCancellationSignal;
         }
 
+        final void mergeWith(@NonNull State finalState, @NonNull LifecycleImpact lifecycleImpact,
+                @NonNull CancellationSignal cancellationSignal) {
+            switch (lifecycleImpact) {
+                case ADDING:
+                    if (mFinalState == State.REMOVED) {
+                        // Applying an ADDING operation to a REMOVED fragment
+                        // moves it back to ADDING
+                        mFinalState = State.VISIBLE;
+                        mLifecycleImpact = LifecycleImpact.ADDING;
+                    }
+                    break;
+                case REMOVING:
+                    // Any REMOVING operation overrides whatever we had before
+                    mFinalState = State.REMOVED;
+                    mLifecycleImpact = LifecycleImpact.REMOVING;
+                    break;
+                case NONE:
+                    // This is a hide or show operation
+                    if (mFinalState != State.REMOVED) {
+                        mFinalState = finalState;
+                    }
+            }
+            // Connect the CancellationSignal to our own
+            cancellationSignal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+                @Override
+                public void onCancel() {
+                    mCancellationSignal.cancel();
+                }
+            });
+        }
+
         final void addCompletionListener(@NonNull Runnable listener) {
             mCompletionListeners.add(listener);
         }
@@ -354,10 +491,12 @@ abstract class SpecialEffectsController {
         @NonNull
         private final FragmentStateManager mFragmentStateManager;
 
-        FragmentStateManagerOperation(@NonNull Type type,
+        FragmentStateManagerOperation(@NonNull State finalState,
+                @NonNull LifecycleImpact lifecycleImpact,
                 @NonNull FragmentStateManager fragmentStateManager,
                 @NonNull CancellationSignal cancellationSignal) {
-            super(type, fragmentStateManager.getFragment(), cancellationSignal);
+            super(finalState, lifecycleImpact, fragmentStateManager.getFragment(),
+                    cancellationSignal);
             mFragmentStateManager = fragmentStateManager;
         }
 

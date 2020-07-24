@@ -3288,6 +3288,17 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo.mAnimator;
     }
 
+    void setPostOnViewCreatedVisibility(int visibility) {
+        ensureAnimationInfo().mPostOnViewCreatedVisibility = visibility;
+    }
+
+    int getPostOnViewCreatedVisibility() {
+        if (mAnimationInfo == null) {
+            return View.VISIBLE;
+        }
+        return mAnimationInfo.mPostOnViewCreatedVisibility;
+    }
+
     boolean isPostponed() {
         if (mAnimationInfo == null) {
             return false;
@@ -3444,6 +3455,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
         SharedElementCallback mEnterTransitionCallback = null;
         SharedElementCallback mExitTransitionCallback = null;
+
+        int mPostOnViewCreatedVisibility = View.VISIBLE;
 
         // True when postponeEnterTransition has been called and startPostponeEnterTransition
         // hasn't been called yet.

@@ -201,16 +201,16 @@ class FragmentStateManager {
         if (!mFragment.mAdded) {
             maxState = Math.min(maxState, Fragment.CREATED);
         }
-        SpecialEffectsController.Operation.Type awaitingEffect = null;
+        SpecialEffectsController.Operation.LifecycleImpact awaitingEffect = null;
         if (FragmentManager.USE_STATE_MANAGER && mFragment.mContainer != null) {
             SpecialEffectsController controller = SpecialEffectsController.getOrCreateController(
                     mFragment.mContainer, mFragment.getParentFragmentManager());
-            awaitingEffect = controller.getAwaitingCompletionType(this);
+            awaitingEffect = controller.getAwaitingCompletionLifecycleImpact(this);
         }
-        if (awaitingEffect == SpecialEffectsController.Operation.Type.ADD) {
+        if (awaitingEffect == SpecialEffectsController.Operation.LifecycleImpact.ADDING) {
             // Fragments awaiting their enter effects cannot proceed beyond that state
             maxState = Math.min(maxState, Fragment.AWAITING_ENTER_EFFECTS);
-        } else if (awaitingEffect == SpecialEffectsController.Operation.Type.REMOVE) {
+        } else if (awaitingEffect == SpecialEffectsController.Operation.LifecycleImpact.REMOVING) {
             // Fragments that are in the process of being removed shouldn't go below that state
             maxState = Math.max(maxState, Fragment.AWAITING_EXIT_EFFECTS);
         } else if (mFragment.mRemoving) {
@@ -287,7 +287,10 @@ class FragmentStateManager {
                                     mHiddenAnimationCancellationSignal.cancel();
                                 }
                                 mEnterAnimationCancellationSignal = new CancellationSignal();
-                                controller.enqueueAdd(this,
+                                int visibility = mFragment.getPostOnViewCreatedVisibility();
+                                SpecialEffectsController.Operation.State finalState =
+                                        SpecialEffectsController.Operation.State.from(visibility);
+                                controller.enqueueAdd(finalState, this,
                                         mEnterAnimationCancellationSignal);
                             }
                             mFragment.mState = Fragment.ACTIVITY_CREATED;
@@ -534,9 +537,6 @@ class FragmentStateManager {
                 // same container
                 int index = mFragmentStore.findFragmentIndexInContainer(mFragment);
                 container.addView(mFragment.mView, index);
-                if (FragmentManager.USE_STATE_MANAGER) {
-                    mFragment.mView.setVisibility(View.INVISIBLE);
-                }
             }
             if (mFragment.mHidden) {
                 mFragment.mView.setVisibility(View.GONE);
@@ -562,10 +562,19 @@ class FragmentStateManager {
             mFragment.performViewCreated();
             mDispatcher.dispatchOnFragmentViewCreated(
                     mFragment, mFragment.mView, mFragment.mSavedFragmentState, false);
-            // Only animate the view if it is visible. This is done after
-            // dispatchOnFragmentViewCreated in case visibility is changed
-            mFragment.mIsNewlyAdded = (mFragment.mView.getVisibility() == View.VISIBLE)
-                    && mFragment.mContainer != null;
+            int postOnViewCreatedVisibility = mFragment.mView.getVisibility();
+            if (FragmentManager.USE_STATE_MANAGER) {
+                mFragment.setPostOnViewCreatedVisibility(postOnViewCreatedVisibility);
+                if (mFragment.mContainer != null && postOnViewCreatedVisibility == View.VISIBLE) {
+                    // Set the view to INVISIBLE to allow for postponed animations
+                    mFragment.mView.setVisibility(View.INVISIBLE);
+                }
+            } else {
+                // Only animate the view if it is visible. This is done after
+                // dispatchOnFragmentViewCreated in case visibility is changed
+                mFragment.mIsNewlyAdded = (postOnViewCreatedVisibility == View.VISIBLE)
+                        && mFragment.mContainer != null;
+            }
         }
         mFragment.mState = Fragment.VIEW_CREATED;
     }

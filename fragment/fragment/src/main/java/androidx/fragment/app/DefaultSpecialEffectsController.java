@@ -98,17 +98,21 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         Operation firstOut = null;
         Operation lastIn = null;
         for (final Operation operation : operations) {
-            switch (operation.getType()) {
-                case HIDE:
-                case REMOVE:
-                    if (firstOut == null) {
+            Operation.State currentState = Operation.State.from(operation.getFragment().mView);
+            switch (operation.getFinalState()) {
+                case GONE:
+                case INVISIBLE:
+                case REMOVED:
+                    if (currentState == Operation.State.VISIBLE && firstOut == null) {
+                        // The firstOut Operation is the first Operation moving from VISIBLE
                         firstOut = operation;
                     }
                     break;
-                case SHOW:
-                case ADD:
-                    // The last SHOW/ADD is, by definition, the lastIn Operation
-                    lastIn = operation;
+                case VISIBLE:
+                    if (currentState != Operation.State.VISIBLE) {
+                        // The last Operation that moves to VISIBLE is the lastIn Operation
+                        lastIn = operation;
+                    }
                     break;
             }
         }
@@ -174,9 +178,16 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         final Context context = container.getContext();
         final Fragment fragment = operation.getFragment();
         final View viewToAnimate = fragment.mView;
+        Operation.State currentState = Operation.State.from(viewToAnimate);
+        Operation.State finalState = operation.getFinalState();
+        if (currentState == finalState || (currentState != Operation.State.VISIBLE
+                && finalState != Operation.State.VISIBLE)) {
+            // No change in visibility, so we can immediately remove the CancellationSignal
+            removeCancellationSignal(operation, signal);
+            return;
+        }
         FragmentAnim.AnimationOrAnimator anim = FragmentAnim.loadAnimation(context,
-                fragment, operation.getType() == Operation.Type.ADD
-                        || operation.getType() == Operation.Type.SHOW);
+                fragment, finalState == Operation.State.VISIBLE);
         if (anim == null) {
             // No animation, so we can immediately remove the CancellationSignal
             removeCancellationSignal(operation, signal);
@@ -186,8 +197,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         container.startViewTransition(viewToAnimate);
         // Kick off the respective type of animation
         if (anim.animation != null) {
-            final Animation animation = operation.getType() == Operation.Type.ADD
-                    || operation.getType() == Operation.Type.SHOW
+            final Animation animation = operation.getFinalState() == Operation.State.VISIBLE
                     ? new FragmentAnim.EnterViewTransitionAnimation(anim.animation)
                     : new FragmentAnim.EndViewTransitionAnimation(anim.animation, container,
                             viewToAnimate);
@@ -242,6 +252,10 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         // First verify that we can run all transitions together
         FragmentTransitionImpl transitionImpl = null;
         for (TransitionInfo transitionInfo : transitionInfos) {
+            if (transitionInfo.isVisibilityUnchanged()) {
+                // No change in visibility, so we can skip this TransitionInfo
+                continue;
+            }
             FragmentTransitionImpl handlingImpl = transitionInfo.getHandlingImpl();
             if (transitionImpl == null) {
                 transitionImpl = handlingImpl;
@@ -448,6 +462,12 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         Object mergedNonOverlappingTransition = null;
         // Now iterate through the set of transitions and merge them together
         for (final TransitionInfo transitionInfo : transitionInfos) {
+            if (transitionInfo.isVisibilityUnchanged()) {
+                // No change in visibility, so we can immediately remove the CancellationSignal
+                removeCancellationSignal(transitionInfo.getOperation(),
+                        transitionInfo.getSignal());
+                continue;
+            }
             Object transition = transitionImpl.cloneTransition(transitionInfo.getTransition());
             Operation operation = transitionInfo.getOperation();
             boolean involvedInSharedElementTransition = sharedElementTransition != null
@@ -479,7 +499,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 } else {
                     transitionImpl.addTargets(transition, transitioningViews);
                 }
-                if (transitionInfo.getOperation().getType().equals(Operation.Type.ADD)) {
+                if (transitionInfo.getOperation().getFinalState() == Operation.State.VISIBLE) {
                     enteringViews.addAll(transitioningViews);
                     if (hasLastInEpicenter) {
                         transitionImpl.setEpicenter(transition, lastInEpicenterRect);
@@ -508,6 +528,10 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         // Now set up our cancellation and completion signal on the completely
         // merged transition set
         for (final TransitionInfo transitionInfo : transitionInfos) {
+            if (transitionInfo.isVisibilityUnchanged()) {
+                // No change in visibility, so we've already removed the CancellationSignal
+                continue;
+            }
             Object transition = transitionInfo.getTransition();
             if (transition != null) {
                 transitionImpl.setListenerForTransitionEnd(
@@ -608,18 +632,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void applyContainerChanges(@NonNull Operation operation) {
         View view = operation.getFragment().mView;
-        switch (operation.getType()) {
-            case ADD:
-            case SHOW:
-                view.setVisibility(View.VISIBLE);
-                break;
-            case REMOVE:
-                getContainer().removeView(view);
-                break;
-            case HIDE:
-                view.setVisibility(View.GONE);
-                break;
-        }
+        operation.getFinalState().applyState(view);
     }
 
     private static class AnimationInfo {
@@ -660,8 +673,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 boolean providesSharedElementTransition) {
             mOperation = operation;
             mSignal = signal;
-            if (operation.getType() == Operation.Type.ADD
-                    || operation.getType() == Operation.Type.SHOW) {
+            if (operation.getFinalState() == Operation.State.VISIBLE) {
                 mTransition = isPop
                         ? operation.getFragment().getReenterTransition()
                         : operation.getFragment().getEnterTransition();
@@ -698,6 +710,13 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         @NonNull
         CancellationSignal getSignal() {
             return mSignal;
+        }
+
+        boolean isVisibilityUnchanged() {
+            Operation.State currentState = Operation.State.from(mOperation.getFragment().mView);
+            Operation.State finalState = mOperation.getFinalState();
+            return currentState == finalState || (currentState != Operation.State.VISIBLE
+                    && finalState != Operation.State.VISIBLE);
         }
 
         @Nullable
