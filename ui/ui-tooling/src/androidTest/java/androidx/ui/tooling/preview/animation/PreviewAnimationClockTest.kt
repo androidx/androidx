@@ -16,14 +16,15 @@
 
 package androidx.ui.tooling.preview.animation
 
+import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.core.AnimationClockObserver
 import androidx.compose.animation.core.FloatPropKey
 import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TransitionAnimation
+import androidx.compose.animation.core.repeatable
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.tooling.ComposeAnimation
 import androidx.compose.animation.tooling.ComposeAnimationType
 import androidx.compose.ui.graphics.Color
@@ -199,6 +200,21 @@ class PreviewAnimationClockTest {
     }
 
     @Test
+    fun maxDurationPerIterationReturnsLongestSingleIteration() {
+        TransitionAnimation(repeatablesDef, testClock).toState("state2")
+        val repeatableAnimation = testClock.observersToAnimations.values.single()
+        testClock.updateSeekableAnimation(repeatableAnimation, "state1", "state2")
+        assertEquals(300, testClock.getMaxDurationPerIteration()) // 300ms iteration
+        assertEquals(1500, testClock.getMaxDuration()) // 5 iterations of 300ms
+
+        setUpRotationColorScenario() // 1000ms
+        // the rotation animation takes longer than a single iteration of the repeatable animation
+        assertEquals(1000, testClock.getMaxDurationPerIteration())
+        // total duration is still the same, as the repeatable animation will take longer in total
+        assertEquals(1500, testClock.getMaxDuration())
+    }
+
+    @Test
     fun animationLabelIsSetExplicitlyOrImplicitly() {
         TransitionAnimation(rotationColorDef, testClock, label = "MyRot").toState(RotationColor.RC2)
         val rotationAnimation = testClock.observersToAnimations.values.single {
@@ -266,9 +282,27 @@ private enum class Offset { O1, O2 }
 
 private enum class RotationColor { RC1, RC2, RC3 }
 
+private const val eps = 0.00001f
+
 private val rotation = FloatPropKey(label = "myRotation")
 private val offset = FloatPropKey(label = "myOffset")
 private val color = ColorPropKey(label = "borderColor")
+private val floatProp = FloatPropKey()
+
+private val repeatablesDef = transitionDefinition {
+    state("state1") {
+        this[floatProp] = 0f
+    }
+    state("state2") {
+        this[floatProp] = 0f
+    }
+    transition {
+        floatProp using repeatable(
+            iterations = 5,
+            animation = tween(durationMillis = 300, easing = LinearEasing)
+        )
+    }
+}
 
 private val offsetDef = transitionDefinition {
     state(Offset.O1) {
@@ -282,8 +316,6 @@ private val offsetDef = transitionDefinition {
         offset using tween(durationMillis = 800, easing = LinearEasing)
     }
 }
-
-private const val eps = 0.00001f
 
 private val rotationColorDef = transitionDefinition {
     state(RotationColor.RC1) {
