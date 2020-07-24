@@ -26,11 +26,12 @@ import javax.lang.model.element.TypeElement
  * Javac processor implementation that provides access to the round environment.
  *
  * This is only used in tests, the main processor uses an API similar to the processing step
- * in Auto.
+ * in Auto Common.
  */
 @VisibleForTesting
 abstract class JavacTestProcessor : AbstractProcessor() {
     val xProcessingEnv by lazy {
+        // lazily create this as it is not available on construction time
         XProcessingEnv.create(super.processingEnv)
     }
 
