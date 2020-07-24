@@ -21,7 +21,11 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.emptyContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -38,10 +42,13 @@ import androidx.compose.ui.onPositioned
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.PxBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.runOnUiThreadIR
+import androidx.compose.ui.unit.Constraints
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -373,5 +380,65 @@ class OnPositionedTest {
         assertTrue("OnPositioned is not called when the container moved",
             positionedLatch.await(1, TimeUnit.SECONDS))
         assertEquals(startY - 100f, coordinates!!.globalPosition.y)
+    }
+
+    @Test
+    fun onPositionedCalledInDifferentPartsOfHierarchy() {
+        var positionedLatch = CountDownLatch(2)
+        var coordinates1: LayoutCoordinates? = null
+        var coordinates2: LayoutCoordinates? = null
+        var size by mutableStateOf(10f)
+
+        rule.runOnUiThread {
+            activity.setContent {
+                with(DensityAmbient.current) {
+                    DelayedMeasure(50) {
+                        Box(Modifier.size(25.toDp())) {
+                            Box(Modifier.size(size.toDp())
+                                .onPositioned {
+                                    coordinates1 = it
+                                    positionedLatch.countDown()
+                                })
+                        }
+                        Box(Modifier.size(25.toDp())) {
+                            Box(Modifier.size(size.toDp())
+                                .onPositioned {
+                                    coordinates2 = it
+                                    positionedLatch.countDown()
+                                })
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+        assertNotNull(coordinates1)
+        assertNotNull(coordinates2)
+        positionedLatch = CountDownLatch(2)
+
+        rule.runOnUiThread {
+            size = 15f
+        }
+
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+    }
+}
+
+@Composable
+fun DelayedMeasure(
+    size: Int,
+    modifier: Modifier = Modifier,
+    children: @Composable () -> Unit = emptyContent()
+) {
+    Layout(children = children, modifier = modifier) { measurables, _ ->
+        layout(size, size) {
+            val newConstraints = Constraints(maxWidth = size, maxHeight = size)
+            val placeables = measurables.map { m ->
+                m.measure(newConstraints)
+            }
+            placeables.forEach { child ->
+                child.place(0, 0)
+            }
+        }
     }
 }

@@ -16,28 +16,58 @@
 
 package androidx.compose.ui.node
 
+import androidx.compose.runtime.collection.ExperimentalCollectionApi
+import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.ui.util.identityHashCode
+
 /**
  * Tracks the nodes being positioned and dispatches OnPositioned callbacks when we finished
  * the measure/layout pass.
  */
-@OptIn(ExperimentalLayoutNodeApi::class)
+@OptIn(ExperimentalLayoutNodeApi::class, ExperimentalCollectionApi::class)
 internal class OnPositionedDispatcher {
-
-    private var topDepth = Int.MAX_VALUE
-    private var topNode: LayoutNode? = null
+    private val layoutNodes = mutableVectorOf<LayoutNode>()
 
     fun onNodePositioned(node: LayoutNode) {
-        if (node.depth < topDepth) {
-            topDepth = node.depth
-            topNode = node
-        }
+        layoutNodes += node
+        node.needsOnPositionedDispatch = true
+    }
+
+    fun onRootNodePositioned(rootNode: LayoutNode) {
+        layoutNodes.clear()
+        layoutNodes += rootNode
+        rootNode.needsOnPositionedDispatch = true
     }
 
     fun dispatch() {
-        topNode?.also {
-            it.dispatchOnPositionedCallbacks()
-            topNode = null
-            topDepth = Int.MAX_VALUE
+        // sort layoutNodes so that the root is at the end and leaves are at the front
+        layoutNodes.sortWith(DepthComparator)
+        layoutNodes.forEachReversed { layoutNode ->
+            if (layoutNode.needsOnPositionedDispatch) {
+                dispatchHierarchy(layoutNode)
+            }
+        }
+        layoutNodes.clear()
+    }
+
+    private fun dispatchHierarchy(layoutNode: LayoutNode) {
+        layoutNode.dispatchOnPositionedCallbacks()
+        layoutNode.needsOnPositionedDispatch = false
+
+        layoutNode._children.forEach { child ->
+            dispatchHierarchy(child)
+        }
+    }
+
+    internal companion object {
+        private object DepthComparator : Comparator<LayoutNode> {
+            override fun compare(a: LayoutNode, b: LayoutNode): Int {
+                val depthDiff = b.depth.compareTo(a.depth)
+                if (depthDiff != 0) {
+                    return depthDiff
+                }
+                return a.identityHashCode().compareTo(b.identityHashCode())
+            }
         }
     }
 }
