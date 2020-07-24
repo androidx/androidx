@@ -690,6 +690,10 @@ package androidx.ui.core {
     method public default int minIntrinsicWidth(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable measurable, int height, androidx.compose.ui.unit.LayoutDirection layoutDirection);
   }
 
+  public final class LayoutModifierKt {
+    method public static androidx.ui.core.Modifier layout(androidx.ui.core.Modifier, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super androidx.ui.core.Measurable,? super androidx.compose.ui.unit.Constraints,? extends androidx.ui.core.MeasureScope.MeasureResult> measure);
+  }
+
   @androidx.ui.core.ExperimentalLayoutNodeApi public final class LayoutNode implements androidx.ui.core.Measurable androidx.ui.core.Remeasurement {
     ctor public LayoutNode();
     method public void attach(androidx.ui.core.Owner owner);

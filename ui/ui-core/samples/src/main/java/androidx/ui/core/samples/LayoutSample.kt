@@ -25,6 +25,12 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.id
 import androidx.ui.core.layoutId
 import androidx.compose.foundation.Box
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.offset
+import androidx.ui.core.layout
 import androidx.ui.core.measureBlocksOf
 
 @Sampled
@@ -163,5 +169,24 @@ fun LayoutTagChildrenUsage(header: @Composable () -> Unit, footer: @Composable (
         layout(100, 100) {
             placeables.forEach { it.place(0, 0) }
         }
+    }
+}
+
+@Sampled
+@Composable
+fun ConvenienceLayoutModifierSample() {
+    Stack(
+        modifier = Modifier
+            .background(Color.Gray)
+            .layout { measurable, constraints ->
+            // an example modifier that adds 50 pixels of vertical padding
+            val padding = 50
+            val placeable = measurable.measure(constraints.offset(vertical = -padding))
+            this.layout(placeable.width, placeable.height + padding) {
+                placeable.place(0, padding)
+            }
+        }
+    ) {
+        Stack(Modifier.fillMaxSize().background(Color.DarkGray)) {}
     }
 }
