@@ -144,7 +144,10 @@ def generateAllReleaseNotes(releaseDate, include_all_commits, outputDir):
 		groupReleaseNotes, groupReleaseNotesSummary = generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir)
 		allReleaseNotes += "\n\n" + groupReleaseNotes
 		allReleaseNotesSummary += groupReleaseNotesSummary
-	formattedReleaseDate = str(MarkdownDate(releaseJsonObject["releaseDate"])) + "\n"
+	formattedReleaseDate = str(MarkdownHeader(
+			HeaderType.H3,
+			str(MarkdownDate(releaseJsonObject["releaseDate"])))
+		) + "\n"
 	allReleaseNotesSummary = formattedReleaseDate + allReleaseNotesSummary
 	allReleaseNotes = allReleaseNotesSummary + "\n" + allReleaseNotes
 	writeReleaseNotesToNewFile(outputDir, "all_androidx_release_notes.txt", allReleaseNotes)
