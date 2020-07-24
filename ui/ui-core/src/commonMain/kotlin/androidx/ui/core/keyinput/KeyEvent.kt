@@ -37,24 +37,6 @@ interface KeyEvent2 {
 }
 
 /**
- * When a user presses a key on a hardware keyboard, a [KeyEvent] is sent to the
- * [KeyInputModifier] that is currently active.
- *
- * @param key the key that was pressed.
- * @param type the [type][KeyEventType] of key event.
- */
-@Deprecated(
-    "use KeyEvent2 instead",
-    ReplaceWith(
-        "KeyEvent2",
-        "androidx.ui.core.keyinput.KeyEvent2"
-    ),
-    level = DeprecationLevel.ERROR
-)
-@OptIn(ExperimentalKeyInput::class)
-data class KeyEvent(val key: Key, val type: KeyEventType)
-
-/**
  * The type of Key Event.
  */
 @ExperimentalKeyInput
