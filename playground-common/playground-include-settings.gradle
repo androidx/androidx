@@ -108,7 +108,7 @@ if (jvmVersion != "11") {
     def guidance;
     if (startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
         guidance = "Make sure to set the gradle JDK to JDK 11 in the project settings." +
-                   "(File -> Project Structure)"
+                   "(File -> Other Settings -> Default Project Structure)"
     } else {
         guidance = "Make sure your JAVA_HOME environment variable points to Java 11 JDK."
     }
