@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Room
+    url: https://issuetracker.google.com/issues/new?component=413107&template=1096568
+    about: File a bug or feature request for Room
+  - name: WorkManager
+    url: https://issuetracker.google.com/issues/new?component=409906&template=1094197
+    about: File a bug or feature request for WorkManager
