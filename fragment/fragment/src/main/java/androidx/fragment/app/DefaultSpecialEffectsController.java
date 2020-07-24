@@ -498,6 +498,9 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     transitionImpl.addTarget(transition, nonExistentView);
                 } else {
                     transitionImpl.addTargets(transition, transitioningViews);
+                    transitionImpl.scheduleRemoveTargets(transition,
+                            transition, transitioningViews,
+                            null, null, null, null);
                 }
                 if (transitionInfo.getOperation().getFinalState() == Operation.State.VISIBLE) {
                     enteringViews.addAll(transitioningViews);
@@ -561,6 +564,9 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         FragmentTransition.setViewVisibility(enteringViews, View.VISIBLE);
         transitionImpl.swapSharedElementTargets(sharedElementTransition,
                 sharedElementFirstOutViews, sharedElementLastInViews);
+        transitionImpl.scheduleRemoveTargets(mergedTransition,
+                null, null, null, null,
+                sharedElementTransition, sharedElementLastInViews);
     }
 
     /**
