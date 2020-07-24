@@ -16,6 +16,7 @@
 
 package androidx.fragment.app
 
+import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.fragment.app.test.EmptyFragmentTestActivity
@@ -128,15 +129,15 @@ class SpecialEffectsControllerTest {
             // setFragmentManagerState() doesn't call moveToExpectedState() itself
             fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
             val controller = SpecialEffectsController.getOrCreateController(container, fm)
-            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
-                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
             onActivity {
                 // However, executePendingOperations(), since we're using our
                 // TestSpecialEffectsController, does immediately call complete()
                 // which in turn calls moveToExpectedState()
                 controller.executePendingOperations()
             }
-            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
                 .isNull()
             // Assert that we actually moved to the STARTED state
             assertThat(fragment.lifecycle.currentState)
@@ -229,12 +230,12 @@ class SpecialEffectsControllerTest {
             assertThat(operations)
                 .hasSize(1)
             val firstOperation = operations[0]
-            assertThat(firstOperation.type)
-                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
+            assertThat(firstOperation.lifecycleImpact)
+                .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
             assertThat(firstOperation.fragment)
                 .isSameInstanceAs(fragment)
-            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
-                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
             fragmentStateManager.setFragmentManagerState(Fragment.CREATED)
             onActivity {
                 // move the Fragment's state back down, which
@@ -248,14 +249,14 @@ class SpecialEffectsControllerTest {
                 .doesNotContain(firstOperation)
             assertThat(controller.operationsToExecute)
                 .hasSize(1)
-            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
-                .isEqualTo(SpecialEffectsController.Operation.Type.REMOVE)
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.REMOVING)
             onActivity {
                 controller.completeAllOperations()
             }
             assertThat(controller.operationsToExecute)
                 .isEmpty()
-            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
                 .isNull()
             assertThat(fragment.lifecycle.currentState)
                 .isEqualTo(Lifecycle.State.CREATED)
@@ -291,15 +292,15 @@ class SpecialEffectsControllerTest {
             }
             assertThat(controller.operationsToExecute)
                 .isEmpty()
-            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
-                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
 
             // Now cancel all the operations
             controller.cancelAllOperations()
 
             assertThat(controller.operationsToExecute)
                 .isEmpty()
-            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
                 .isNull()
         }
     }
@@ -336,12 +337,12 @@ class SpecialEffectsControllerTest {
             assertThat(operations)
                 .hasSize(1)
             val firstOperation = operations[0]
-            assertThat(firstOperation.type)
-                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
+            assertThat(firstOperation.lifecycleImpact)
+                .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
             assertThat(firstOperation.fragment)
                 .isSameInstanceAs(fragment)
-            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
-                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
 
             // Now cancel all the operations
             controller.cancelAllOperations()
@@ -350,7 +351,7 @@ class SpecialEffectsControllerTest {
                 .isTrue()
             assertThat(controller.operationsToExecute)
                 .isEmpty()
-            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
                 .isNull()
         }
     }
@@ -382,11 +383,16 @@ class SpecialEffectsControllerTest {
                 // This moves the Fragment up to STARTED,
                 // calling enqueueAdd() under the hood
                 fragmentStateManager.moveToExpectedState()
+                // Normally this would be done for us in the USE_STATE_MANAGER world
+                // but we need to do it manually if that isn't the case yet.
+                if (!FragmentManager.USE_STATE_MANAGER) {
+                    fragment.mView.visibility = View.INVISIBLE
+                }
             }
             assertThat(controller.operationsToExecute)
                 .isEmpty()
-            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
-                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
 
             // Mark the postponed state
             controller.markPostponedState()
@@ -396,8 +402,8 @@ class SpecialEffectsControllerTest {
             // anything since we are postponed
             assertThat(controller.operationsToExecute)
                 .isEmpty()
-            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
-                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
 
             onActivity {
                 fragment.startPostponedEnterTransition()
@@ -412,12 +418,12 @@ class SpecialEffectsControllerTest {
             // Verify that the operation was sent for execution
             assertThat(controller.operationsToExecute)
                 .hasSize(1)
-            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
-                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
 
             controller.completeAllOperations()
 
-            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
                 .isNull()
             // Assert that we actually moved to the STARTED state
             assertThat(fragment.lifecycle.currentState)
