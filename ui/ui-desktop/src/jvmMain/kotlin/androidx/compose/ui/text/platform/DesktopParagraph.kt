@@ -190,15 +190,10 @@ internal class DesktopParagraph(
 
     override fun getLineEnd(lineIndex: Int) = para.lineMetrics[lineIndex].endIndex.toInt()
 
-    override fun getLineEllipsisOffset(lineIndex: Int): Int {
-        println("Paragraph.getLineEllipsisOffset $lineIndex")
-        return 0
-    }
+    override fun getLineVisibleEnd(lineIndex: Int) =
+        para.lineMetrics[lineIndex].endExcludingWhitespaces.toInt()
 
-    override fun getLineEllipsisCount(lineIndex: Int): Int {
-        println("Paragraph.getLineEllipsisCount $lineIndex")
-        return 0
-    }
+    override fun isLineEllipsized(lineIndex: Int) = false
 
     override fun getLineForOffset(offset: Int) =
         lineMetricsForOffset(offset)?.run { lineNumber.toInt() }

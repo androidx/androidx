@@ -116,17 +116,38 @@ interface Paragraph {
     /** Returns the start offset of the given line, inclusive. */
     fun getLineStart(lineIndex: Int): Int
 
-    /** Returns the end offset of the given line, exclusive. */
+    /**
+     * Returns the end offset of the given line
+     *
+     * If ellipsis happens on the given line, this returns the end of text since ellipsized
+     * characters are counted into the same line.
+     *
+     * @param lineIndex the line number
+     * @return an exclusive end offset of the line.
+     * @see getLineVisibleEnd
+     */
     fun getLineEnd(lineIndex: Int): Int
 
     /**
-     *  Returns the offset where ellipsis is applied, regarding to the line start. It will return
-     *  0 if no ellipsis is applied in the given line.
+     * Returns the end of visible offset of the given line.
+     *
+     * If no ellipsis happens on the given line, this returns the line end offset with excluding
+     * trailing whitespaces.
+     * If ellipsis happens on the given line, this returns the offset that ellipsis started, i.e.
+     * the exclusive not ellipsized last character.
+     * @param lineIndex a 0 based line index
+     * @return an exclusive line end offset that is visible on the display
+     * @see getLineEnd
      */
-    fun getLineEllipsisOffset(lineIndex: Int): Int
+    fun getLineVisibleEnd(lineIndex: Int): Int
 
-    /** Returns the number of characters that is ellipsized in the line. */
-    fun getLineEllipsisCount(lineIndex: Int): Int
+    /**
+     * Returns true if ellipsis happens on the given line, otherwise returns false
+     *
+     * @param lineIndex a 0 based line index
+     * @return true if ellipsis happens on the given line, otherwise false
+     */
+    fun isLineEllipsized(lineIndex: Int): Boolean
 
     /**
      * Returns the line number on which the specified text offset appears.

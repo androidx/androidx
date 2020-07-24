@@ -2621,8 +2621,45 @@ class ParagraphIntegrationTest {
         )
 
         assertThat(paragraph.lineCount).isEqualTo(2)
-        assertThat(paragraph.getLineEllipsisOffset(0)).isEqualTo(0)
-        assertThat(paragraph.getLineEllipsisOffset(1)).isGreaterThan(0)
+        assertThat(paragraph.getLineEnd(0)).isEqualTo(4)
+        assertThat(paragraph.getLineVisibleEnd(0)).isEqualTo(3) // "\n" is excluded
+        assertThat(paragraph.isLineEllipsized(0)).isFalse()
+
+        assertThat(paragraph.getLineEnd(1)).isEqualTo(text.length)
+        assertThat(paragraph.getLineVisibleEnd(1)).isEqualTo(7) // "\n" is excluded
+        assertThat(paragraph.isLineEllipsized(1)).isTrue()
+    }
+
+    @Test
+    fun getLineEllipsisCount() {
+        with(Density(1f)) {
+            val text = "aaaaabbbbbccccc"
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(
+                    fontFamily = fontFamilyMeasureFont,
+                    fontSize = 10.sp
+                ),
+                maxLines = 2,
+                ellipsis = true,
+                constraints = ParagraphConstraints(50f)
+            )
+
+            // Prerequisite check for the this test.
+            assertThat(paragraph.lineCount).isEqualTo(2)
+
+            assertThat(paragraph.isLineEllipsized(0)).isFalse()
+            assertThat(paragraph.getLineStart(0)).isEqualTo(0)
+            assertThat(paragraph.getLineEnd(0)).isEqualTo(5)
+            assertThat(paragraph.getLineVisibleEnd(0)).isEqualTo(5)
+
+            assertThat(paragraph.isLineEllipsized(1)).isTrue()
+            assertThat(paragraph.getLineStart(1)).isEqualTo(5)
+            assertThat(paragraph.getLineEnd(1)).isEqualTo(text.length)
+            // The ellipsizer may reserve multiple characters for drawing HORIZONTAL ELLIPSIS
+            // character (U+2026). We can only expect the visible end is not the end of the line.
+            assertThat(paragraph.getLineVisibleEnd(1)).isNotEqualTo(text.length)
+        }
     }
 
     @Test

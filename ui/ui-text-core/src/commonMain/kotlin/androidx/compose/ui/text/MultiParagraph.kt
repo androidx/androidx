@@ -532,7 +532,16 @@ class MultiParagraph(
         }
     }
 
-    /** Returns the end offset of the given line, exclusive. */
+    /**
+     * Returns the end offset of the given line
+     *
+     * If ellipsis happens on the given line, this returns the end of text since ellipsized
+     * characters are counted into the same line.
+     *
+     * @param lineIndex the line number
+     * @return an exclusive end offset of the line.
+     * @see getLineVisibleEnd
+     */
     fun getLineEnd(lineIndex: Int): Int {
         requireLineIndexInRange(lineIndex)
 
@@ -543,25 +552,36 @@ class MultiParagraph(
         }
     }
 
-    /** Returns the offset where ellipsis is applied, regarding to the line start. */
-    fun getLineEllipsisOffset(lineIndex: Int): Int {
+    /**
+     * Returns the end of visible offset of the given line.
+     *
+     * If no ellipsis happens on the given line, this returns the line end offset with excluding
+     * trailing whitespaces.
+     * If ellipsis happens on the given line, this returns the offset that ellipsis started, i.e.
+     * the exclusive not ellipsized last character.
+     * @param lineIndex a 0 based line index
+     * @return an exclusive line end offset that is visible on the display
+     * @see getLineEnd
+     */
+    fun getLineVisibleEnd(lineIndex: Int): Int {
         requireLineIndexInRange(lineIndex)
-
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
-
         return with(paragraphInfoList[paragraphIndex]) {
-            paragraph.getLineEllipsisOffset(lineIndex.toLocalLineIndex())
+            paragraph.getLineEnd(lineIndex.toLocalLineIndex()).toGlobalIndex()
         }
     }
 
-    /** Returns the number of characters that is ellipsized in the line. */
-    fun getLineEllipsisCount(lineIndex: Int): Int {
+    /**
+     * Returns true if ellipsis happens on the given line, otherwise returns false
+     *
+     * @param lineIndex a 0 based line index
+     * @return true if ellipsis happens on the given line, otherwise false
+     */
+    fun isLineEllipsized(lineIndex: Int): Boolean {
         requireLineIndexInRange(lineIndex)
-
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
-
         return with(paragraphInfoList[paragraphIndex]) {
-            paragraph.getLineEllipsisCount(lineIndex.toLocalLineIndex())
+            paragraph.isLineEllipsized(lineIndex)
         }
     }
 
