@@ -14,12 +14,13 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.ui.core.test">
+    package="androidx.compose.ui">
     <application>
         <activity
-            android:name="androidx.ui.framework.test.TestActivity"
+            android:name="androidx.compose.ui.test.TestActivity"
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
-        <activity android:name="androidx.ui.core.AndroidPointerInputTestActivity" />
+        <activity
+            android:name="androidx.compose.ui.input.pointer.AndroidPointerInputTestActivity" />
         <activity android:name="androidx.appcompat.app.AppCompatActivity"
             android:theme="@style/Theme.AppCompat"/>
         <activity android:name="androidx.fragment.app.FragmentActivity"/>
