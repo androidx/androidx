@@ -16,8 +16,8 @@
 
 package androidx.compose.material
 
-import androidx.compose.Composable
-import androidx.compose.Providers
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier

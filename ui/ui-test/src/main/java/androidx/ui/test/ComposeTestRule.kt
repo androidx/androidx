@@ -18,7 +18,7 @@ package androidx.ui.test
 
 import android.util.DisplayMetrics
 import androidx.activity.ComponentActivity
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.test.android.createAndroidComposeRule
 import androidx.compose.ui.unit.Density
 import org.junit.rules.TestRule

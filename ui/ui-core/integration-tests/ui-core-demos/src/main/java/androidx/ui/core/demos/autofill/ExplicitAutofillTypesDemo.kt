@@ -17,9 +17,9 @@
 package androidx.ui.core.demos.autofill
 
 import android.graphics.Rect
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.BaseTextField
-import androidx.compose.state
+import androidx.compose.runtime.state
 import androidx.ui.autofill.AutofillNode
 import androidx.ui.autofill.AutofillType
 import androidx.ui.core.AutofillAmbient

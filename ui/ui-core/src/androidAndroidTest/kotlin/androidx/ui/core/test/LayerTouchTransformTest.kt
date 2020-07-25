@@ -17,9 +17,9 @@
 package androidx.ui.core.test
 
 import android.os.Build
-import androidx.compose.Composable
-import androidx.compose.emptyContent
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.state
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.DensityAmbient

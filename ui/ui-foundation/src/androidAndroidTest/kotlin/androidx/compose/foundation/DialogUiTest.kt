@@ -15,9 +15,9 @@
  */
 package androidx.compose.foundation
 
-import androidx.compose.Providers
-import androidx.compose.ambientOf
-import androidx.compose.state
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.ambientOf
+import androidx.compose.runtime.state
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation

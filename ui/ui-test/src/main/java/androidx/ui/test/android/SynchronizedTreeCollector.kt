@@ -17,7 +17,7 @@
 package androidx.ui.test.android
 
 import android.view.Choreographer
-import androidx.compose.onCommit
+import androidx.compose.runtime.onCommit
 import androidx.test.espresso.AppNotIdleException
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry

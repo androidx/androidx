@@ -20,8 +20,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
-import androidx.compose.Providers
-import androidx.compose.mutableStateOf
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.HapticFeedBackAmbient

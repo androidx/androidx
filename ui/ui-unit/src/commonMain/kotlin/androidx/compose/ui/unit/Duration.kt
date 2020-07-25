@@ -19,8 +19,8 @@
 
 package androidx.compose.ui.unit
 
-import androidx.compose.Immutable
-import androidx.compose.Stable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 
 /*
  * The following unit conversion factors are required to be public due to their use

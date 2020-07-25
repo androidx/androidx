@@ -17,13 +17,13 @@
 @file:OptIn(InternalComposeApi::class)
 package androidx.ui.tooling
 
-import androidx.compose.InternalComposeApi
-import androidx.compose.SlotReader
-import androidx.compose.SlotTable
-import androidx.compose.isJoinedKey
-import androidx.compose.joinedKeyLeft
-import androidx.compose.joinedKeyRight
-import androidx.compose.keySourceInfoOf
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.SlotReader
+import androidx.compose.runtime.SlotTable
+import androidx.compose.runtime.isJoinedKey
+import androidx.compose.runtime.joinedKeyLeft
+import androidx.compose.runtime.joinedKeyRight
+import androidx.compose.runtime.keySourceInfoOf
 import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.ModifierInfo

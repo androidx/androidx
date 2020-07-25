@@ -18,9 +18,9 @@ package androidx.compose.animation
 
 import androidx.compose.animation.core.AnimationClockObservable
 import androidx.compose.animation.core.AnimationClockObserver
-import androidx.compose.Composable
-import androidx.compose.onCommit
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.remember
 
 /**
  * Return a new [AnimationClockObservable] wrapping this one that will auto-unsubscribe all

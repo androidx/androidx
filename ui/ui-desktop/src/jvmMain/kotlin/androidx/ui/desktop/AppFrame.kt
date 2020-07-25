@@ -15,7 +15,7 @@
  */
 package androidx.ui.desktop
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 
 abstract class AppFrame {
 

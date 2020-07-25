@@ -19,7 +19,7 @@
 package androidx.ui.desktop
 
 import androidx.compose.animation.core.rootAnimationClockFactory
-import androidx.compose.InternalComposeApi
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.dispatch.DesktopUiDispatcher
 import androidx.compose.ui.graphics.DesktopCanvas
 import androidx.compose.ui.graphics.DesktopImageShader

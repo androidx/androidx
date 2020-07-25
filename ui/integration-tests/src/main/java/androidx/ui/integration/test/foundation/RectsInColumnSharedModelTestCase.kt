@@ -16,8 +16,8 @@
 
 package androidx.ui.integration.test.foundation
 
-import androidx.compose.Composable
-import androidx.compose.mutableStateOf
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background

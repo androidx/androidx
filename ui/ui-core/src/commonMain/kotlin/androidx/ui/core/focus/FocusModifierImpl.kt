@@ -16,9 +16,9 @@
 
 package androidx.ui.core.focus
 
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 @Suppress("DEPRECATION")
 internal class FocusModifierImpl(

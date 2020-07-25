@@ -20,12 +20,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.Sampled
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.getValue
-import androidx.compose.setValue
-import androidx.compose.state
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.state
 import androidx.compose.ui.graphics.Color
 import androidx.ui.core.Modifier
 import androidx.ui.viewinterop.AndroidView

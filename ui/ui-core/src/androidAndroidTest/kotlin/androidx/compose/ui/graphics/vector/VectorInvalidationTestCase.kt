@@ -16,9 +16,9 @@
 
 package androidx.compose.ui.graphics.vector
 
-import androidx.compose.Composable
-import androidx.compose.MutableState
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.state
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind

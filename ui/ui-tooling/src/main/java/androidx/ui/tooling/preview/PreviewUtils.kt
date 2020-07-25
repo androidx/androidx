@@ -17,7 +17,7 @@
 package androidx.ui.tooling.preview
 
 import android.util.Log
-import androidx.compose.Composer
+import androidx.compose.runtime.Composer
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import kotlin.math.ceil

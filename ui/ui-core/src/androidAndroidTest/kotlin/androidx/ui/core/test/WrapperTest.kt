@@ -16,16 +16,16 @@
 package androidx.ui.core.test
 
 import android.widget.FrameLayout
-import androidx.compose.Composable
-import androidx.compose.Composition
-import androidx.compose.Providers
-import androidx.compose.Recomposer
-import androidx.compose.ambientOf
-import androidx.compose.compositionReference
-import androidx.compose.invalidate
-import androidx.compose.onActive
-import androidx.compose.onCommit
-import androidx.compose.onDispose
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composition
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.ambientOf
+import androidx.compose.runtime.compositionReference
+import androidx.compose.runtime.invalidate
+import androidx.compose.runtime.onActive
+import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.onDispose
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry

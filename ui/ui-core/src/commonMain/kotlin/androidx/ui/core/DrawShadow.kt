@@ -16,7 +16,7 @@
 
 package androidx.ui.core
 
-import androidx.compose.Stable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp

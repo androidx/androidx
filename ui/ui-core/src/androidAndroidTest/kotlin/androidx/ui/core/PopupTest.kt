@@ -16,13 +16,13 @@
 package androidx.ui.core
 
 import android.view.View
-import androidx.compose.Composable
-import androidx.compose.Providers
-import androidx.compose.ambientOf
-import androidx.compose.emptyContent
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.setValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.ambientOf
+import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Root

@@ -19,7 +19,7 @@
 package androidx.ui.androidview.adapters
 
 import android.widget.AutoCompleteTextView
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 
 private val AutoCompleteTextView.composeAdapter: ArrayAdapter<Any>
     get() {

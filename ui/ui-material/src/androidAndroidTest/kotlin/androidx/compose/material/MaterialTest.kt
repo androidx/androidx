@@ -16,7 +16,7 @@
 
 package androidx.compose.material
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.Modifier

@@ -16,13 +16,13 @@
 @file:Suppress("DEPRECATION_ERROR")
 package androidx.compose.foundation.text
 
-import androidx.compose.Composable
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.onCommit
-import androidx.compose.remember
-import androidx.compose.setValue
-import androidx.compose.structuralEqualityPolicy
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.FontLoaderAmbient

@@ -127,7 +127,7 @@ package androidx.ui.test {
   }
 
   public interface ComposeTestCase {
-    method @androidx.compose.Composable public void emitContent();
+    method @androidx.compose.runtime.Composable public void emitContent();
   }
 
   public interface ComposeTestCaseSetup {

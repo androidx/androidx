@@ -18,7 +18,7 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
-import androidx.compose.Stable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Density
 
 /**

@@ -16,8 +16,8 @@
 
 package androidx.ui.benchmark.test
 
-import androidx.compose.Composable
-import androidx.compose.mutableStateOf
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule

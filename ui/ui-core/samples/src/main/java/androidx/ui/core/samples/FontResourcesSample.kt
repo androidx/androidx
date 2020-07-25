@@ -17,7 +17,7 @@
 package androidx.ui.core.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Text
 import androidx.ui.res.fontResource
 import androidx.ui.res.loadFontResource

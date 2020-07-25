@@ -15,8 +15,8 @@
  */
 package androidx.compose.ui.text.font
 
-import androidx.compose.Immutable
-import androidx.compose.Stable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.util.lerp
 
 /**

@@ -16,8 +16,8 @@
 
 package androidx.ui.integration.test.foundation
 
-import androidx.compose.Composable
-import androidx.compose.mutableStateOf
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.foundation.Text
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.compose.foundation.layout.Column

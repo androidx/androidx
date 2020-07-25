@@ -24,9 +24,9 @@ import androidx.compose.animation.core.TransitionState
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.Composable
-import androidx.compose.remember
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.state
 import androidx.compose.animation.transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier

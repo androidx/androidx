@@ -16,7 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.compose.state
+import androidx.compose.runtime.state
 import androidx.test.filters.MediumTest
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Checkbox

@@ -17,7 +17,7 @@
 package androidx.compose.material
 
 import android.os.Build
-import androidx.compose.state
+import androidx.compose.runtime.state
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule

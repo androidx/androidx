@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics
 
-import androidx.compose.InternalComposeApi
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.RRect
 import androidx.compose.ui.geometry.Rect

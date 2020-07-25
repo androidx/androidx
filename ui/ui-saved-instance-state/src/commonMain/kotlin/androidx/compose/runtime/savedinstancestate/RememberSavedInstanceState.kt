@@ -16,12 +16,12 @@
 
 package androidx.compose.runtime.savedinstancestate
 
-import androidx.compose.Composable
-import androidx.compose.CompositionLifecycleObserver
-import androidx.compose.ExperimentalComposeApi
-import androidx.compose.MutableState
-import androidx.compose.currentComposer
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLifecycleObserver
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.remember
 
 /**
  * Remember the value produced by [init].

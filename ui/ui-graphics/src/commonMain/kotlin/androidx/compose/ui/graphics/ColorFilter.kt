@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.graphics
 
-import androidx.compose.Immutable
-import androidx.compose.Stable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 
 /**
  * Creates a color filter that applies the blend mode given as the second

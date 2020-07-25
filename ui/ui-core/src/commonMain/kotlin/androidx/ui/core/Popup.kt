@@ -16,11 +16,11 @@
 
 package androidx.ui.core
 
-import androidx.compose.Composable
-import androidx.compose.Immutable
-import androidx.compose.Providers
-import androidx.compose.ambientOf
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.ambientOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.IntBounds
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize

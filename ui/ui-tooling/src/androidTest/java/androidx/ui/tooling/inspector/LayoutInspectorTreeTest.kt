@@ -18,10 +18,10 @@ package androidx.ui.tooling.inspector
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.InternalComposeApi
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
-import androidx.compose.resetSourceInfo
+import androidx.compose.runtime.resetSourceInfo
 import androidx.test.filters.SmallTest
 import androidx.ui.core.OwnedLayer
 import androidx.compose.ui.graphics.Color

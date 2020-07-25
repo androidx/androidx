@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.lazy
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.Alignment
 import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.ExperimentalSubcomposeLayoutApi

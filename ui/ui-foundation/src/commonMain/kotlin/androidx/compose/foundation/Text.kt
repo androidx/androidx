@@ -16,12 +16,12 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.Composable
-import androidx.compose.ComposableContract
-import androidx.compose.ExperimentalComposeApi
-import androidx.compose.Providers
-import androidx.compose.ambientOf
-import androidx.compose.structuralEqualityPolicy
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposableContract
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.ambientOf
+import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
 import androidx.compose.ui.graphics.Color

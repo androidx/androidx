@@ -15,11 +15,11 @@
  */
 package androidx.ui.core
 
-import androidx.compose.Composable
-import androidx.compose.Composition
-import androidx.compose.CompositionReference
-import androidx.compose.ExperimentalComposeApi
-import androidx.compose.Recomposer
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composition
+import androidx.compose.runtime.CompositionReference
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.util.annotation.MainThread
 
 @OptIn(ExperimentalLayoutNodeApi::class)

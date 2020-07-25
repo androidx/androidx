@@ -16,7 +16,7 @@
 
 package androidx.compose.material.studies.rally
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.paint
 import androidx.compose.foundation.Box

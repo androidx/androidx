@@ -17,7 +17,7 @@
 package androidx.compose.material.textfield
 
 import android.os.Build
-import androidx.compose.remember
+import androidx.compose.runtime.remember
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier

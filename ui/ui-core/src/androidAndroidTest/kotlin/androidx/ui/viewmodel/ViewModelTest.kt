@@ -16,7 +16,7 @@
 
 package androidx.ui.viewmodel
 
-import androidx.compose.Providers
+import androidx.compose.runtime.Providers
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.Composable
-import androidx.compose.ambientOf
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ambientOf
 import androidx.compose.ui.graphics.Color
 
 /**

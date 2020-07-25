@@ -19,7 +19,7 @@ package androidx.ui.tooling {
   }
 
   public final class InspectableKt {
-    method @androidx.compose.Composable public static void InInspectionModeOnly(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.runtime.Composable public static void InInspectionModeOnly(kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class JoinedKey {
@@ -54,7 +54,7 @@ package androidx.ui.tooling {
   }
 
   public final class SlotTreeKt {
-    method public static androidx.ui.tooling.Group asTree(androidx.compose.SlotTable);
+    method public static androidx.ui.tooling.Group asTree(androidx.compose.runtime.SlotTable);
     method public static String? getPosition(androidx.ui.tooling.Group);
   }
 

@@ -17,8 +17,8 @@
 package androidx.compose.material
 
 import android.os.SystemClock.sleep
-import androidx.compose.emptyContent
-import androidx.compose.mutableStateOf
+import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier

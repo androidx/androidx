@@ -17,10 +17,10 @@
 package androidx.compose.material.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.Composable
-import androidx.compose.getValue
-import androidx.compose.setValue
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.state
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
 import androidx.compose.material.BottomNavigation

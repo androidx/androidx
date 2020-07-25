@@ -16,9 +16,9 @@
 
 package androidx.ui.core.demos.gestures
 
-import androidx.compose.Composable
-import androidx.compose.emptyContent
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier

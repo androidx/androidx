@@ -16,7 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics

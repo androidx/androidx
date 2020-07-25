@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.Composable
-import androidx.compose.Immutable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 

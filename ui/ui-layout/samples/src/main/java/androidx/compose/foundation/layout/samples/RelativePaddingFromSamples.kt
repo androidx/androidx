@@ -17,7 +17,7 @@
 package androidx.compose.foundation.layout.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.relativePaddingFrom

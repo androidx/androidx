@@ -17,7 +17,7 @@
 package androidx.compose.foundation.layout
 
 import android.os.Build
-import androidx.compose.state
+import androidx.compose.runtime.state
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.LayoutCoordinates

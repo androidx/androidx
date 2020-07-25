@@ -16,7 +16,7 @@
 
 package androidx.ui.integration.test.core
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.graphics.Color

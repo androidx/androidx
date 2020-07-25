@@ -17,7 +17,7 @@
 package androidx.compose.ui.graphics
 
 import android.graphics.Matrix
-import androidx.compose.InternalComposeApi
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.vectormath.Matrix4

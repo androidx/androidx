@@ -21,8 +21,8 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
-import androidx.compose.Recomposer
-import androidx.compose.remember
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.remember
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.MediumTest

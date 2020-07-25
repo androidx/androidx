@@ -19,8 +19,8 @@ package androidx.compose.material.icons
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.activity.ComponentActivity
-import androidx.compose.Composable
-import androidx.compose.Composition
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composition
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.matchers.MSSIMMatcher

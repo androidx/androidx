@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.Providers
-import androidx.compose.state
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.state
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.TextInputServiceAmbient

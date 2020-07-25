@@ -16,12 +16,12 @@
 
 package androidx.compose.foundation.text.demos
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.compose.state
+import androidx.compose.runtime.state
 import androidx.ui.core.focus.FocusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction

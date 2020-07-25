@@ -20,9 +20,9 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.compose.MutableState
-import androidx.compose.Recomposer
-import androidx.compose.mutableStateOf
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.mutableStateOf
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed

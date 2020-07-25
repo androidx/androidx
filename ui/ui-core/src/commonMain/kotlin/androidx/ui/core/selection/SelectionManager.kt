@@ -16,11 +16,11 @@
 
 package androidx.ui.core.selection
 
-import androidx.compose.State
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.setValue
-import androidx.compose.structuralEqualityPolicy
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.gesture.DragObserver

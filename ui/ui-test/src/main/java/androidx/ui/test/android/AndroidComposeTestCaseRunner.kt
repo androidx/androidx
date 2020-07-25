@@ -29,11 +29,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
-import androidx.compose.Composition
-import androidx.compose.ExperimentalComposeApi
-import androidx.compose.Recomposer
+import androidx.compose.runtime.Composition
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.dispatch.MonotonicFrameClock
-import androidx.compose.snapshots.Snapshot
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.setContent
 import androidx.ui.test.ComposeBenchmarkScope

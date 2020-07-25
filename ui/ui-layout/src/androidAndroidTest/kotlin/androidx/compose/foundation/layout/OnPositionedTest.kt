@@ -17,11 +17,11 @@
 package androidx.compose.foundation.layout
 
 import android.widget.FrameLayout
-import androidx.compose.Composable
-import androidx.compose.Recomposer
-import androidx.compose.State
-import androidx.compose.emptyContent
-import androidx.compose.mutableStateOf
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.State
+import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates

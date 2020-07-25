@@ -20,10 +20,10 @@ import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import androidx.compose.Composable
-import androidx.compose.State
-import androidx.compose.emptyContent
-import androidx.compose.mutableStateOf
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.unit.Constraints

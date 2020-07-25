@@ -19,7 +19,7 @@ package androidx.ui.test
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
-import androidx.compose.Recomposer
+import androidx.compose.runtime.Recomposer
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier

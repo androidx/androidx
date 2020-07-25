@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.text.demos
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.ui.text.AnnotatedString

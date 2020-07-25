@@ -16,8 +16,8 @@
 
 package androidx.ui.core.focus
 
-import androidx.compose.Composable
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.ui.core.Modifier
 
 /**

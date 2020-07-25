@@ -17,7 +17,7 @@
 package androidx.compose.foundation.layout
 
 import android.content.res.Resources
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Box
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Constraints

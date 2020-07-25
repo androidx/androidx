@@ -16,7 +16,7 @@
 
 package androidx.ui.core
 
-import androidx.compose.Stable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.util.annotation.FloatRange
 
 /**

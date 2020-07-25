@@ -18,8 +18,8 @@ package androidx.compose.material.samples
 
 import androidx.compose.animation.core.TweenSpec
 import androidx.annotation.Sampled
-import androidx.compose.Composable
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.animation.animatedFloat
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Box

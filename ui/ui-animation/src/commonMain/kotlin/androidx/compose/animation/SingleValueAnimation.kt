@@ -23,9 +23,9 @@ import androidx.compose.animation.core.AnimationVector4D
 import androidx.compose.animation.core.IntToVectorConverter
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.TwoWayConverter
-import androidx.compose.Composable
-import androidx.compose.onCommit
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.remember
 import androidx.ui.core.AnimationClockAmbient
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size

@@ -16,10 +16,10 @@
 
 package androidx.ui.core.test
 
-import androidx.compose.ExperimentalComposeApi
-import androidx.compose.MutableState
-import androidx.compose.mutableStateOf
-import androidx.compose.snapshots.Snapshot
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier

@@ -16,7 +16,7 @@
 
 package androidx.ui.core
 
-import androidx.compose.Stable
+import androidx.compose.runtime.Stable
 
 /**
  * An ordered, immutable collection of [modifier elements][Modifier.Element] that decorate or add

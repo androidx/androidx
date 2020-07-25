@@ -16,9 +16,9 @@
 
 package androidx.ui.semantics
 
-import androidx.compose.Composable
-import androidx.compose.mutableStateOf
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier

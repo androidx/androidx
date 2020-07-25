@@ -15,8 +15,8 @@
  */
 package androidx.ui.core.test
 
-import androidx.compose.Composable
-import androidx.compose.emptyContent
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emptyContent
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutIdParentData

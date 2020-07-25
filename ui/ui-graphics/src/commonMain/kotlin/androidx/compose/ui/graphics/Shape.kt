@@ -17,7 +17,7 @@
 package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Size
-import androidx.compose.Immutable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Density
 
 /**

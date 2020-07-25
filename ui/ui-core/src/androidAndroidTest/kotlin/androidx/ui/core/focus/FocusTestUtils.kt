@@ -16,7 +16,7 @@
 
 package androidx.ui.core.focus
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.unit.dp

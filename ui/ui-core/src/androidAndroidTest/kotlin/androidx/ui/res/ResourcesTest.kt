@@ -17,7 +17,7 @@
 package androidx.ui.res
 
 import android.util.LruCache
-import androidx.compose.Providers
+import androidx.compose.runtime.Providers
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient

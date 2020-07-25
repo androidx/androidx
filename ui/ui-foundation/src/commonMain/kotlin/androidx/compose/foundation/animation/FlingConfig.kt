@@ -24,8 +24,8 @@ import androidx.compose.animation.core.OnAnimationEnd
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.TargetAnimation
 import androidx.compose.animation.core.fling
-import androidx.compose.Composable
-import androidx.compose.Immutable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import kotlin.math.abs
 
 /**

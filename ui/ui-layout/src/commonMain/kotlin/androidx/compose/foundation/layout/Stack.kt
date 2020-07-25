@@ -16,9 +16,9 @@
 
 package androidx.compose.foundation.layout
 
-import androidx.compose.Composable
-import androidx.compose.Immutable
-import androidx.compose.Stable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.ui.core.Alignment
 import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout

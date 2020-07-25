@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.text.intl
 
-import androidx.compose.Immutable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 

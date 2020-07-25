@@ -16,7 +16,7 @@
 
 package androidx.ui.core
 
-import androidx.compose.Stable
+import androidx.compose.runtime.Stable
 import androidx.ui.core.semantics.semantics
 import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.testTag

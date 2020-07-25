@@ -16,16 +16,16 @@
 
 package androidx.compose.material
 
-import androidx.compose.Composable
-import androidx.compose.Providers
-import androidx.compose.Stable
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.onDispose
-import androidx.compose.remember
-import androidx.compose.setValue
-import androidx.compose.staticAmbientOf
-import androidx.compose.structuralEqualityPolicy
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.onDispose
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticAmbientOf
+import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout

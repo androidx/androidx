@@ -18,7 +18,7 @@ package androidx.ui.core
 
 import android.graphics.Bitmap
 import android.os.Build
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn

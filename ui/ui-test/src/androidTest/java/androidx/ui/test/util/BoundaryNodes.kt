@@ -16,7 +16,7 @@
 
 package androidx.ui.test.util
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.compose.foundation.layout.Column

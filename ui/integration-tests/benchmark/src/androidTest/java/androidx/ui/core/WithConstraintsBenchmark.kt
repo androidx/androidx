@@ -16,10 +16,10 @@
 
 package androidx.ui.core
 
-import androidx.compose.Composable
-import androidx.compose.MutableState
-import androidx.compose.State
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.state
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.toggleStateBenchmarkComposeMeasureLayout
