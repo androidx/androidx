@@ -33,10 +33,10 @@ import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
+import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -53,6 +53,7 @@ import org.junit.runners.Parameterized;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -80,8 +81,8 @@ public class CameraControlDeviceTest {
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-    private FakeLifecycleOwner mLifecycleOwner;
     private CameraUseCaseAdapter mCamera;
+    private UseCase mBoundUseCase;
     private MeteringPoint mMeteringPoint1;
     private ImageAnalysis.Analyzer mAnalyzer = (image) -> {
         image.close();
@@ -96,14 +97,12 @@ public class CameraControlDeviceTest {
 
         assumeTrue(CameraX.hasCamera(mCameraSelector));
 
-        mLifecycleOwner = new FakeLifecycleOwner();
-
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1, 1);
         mMeteringPoint1 = factory.createPoint(0, 0);
 
         ImageAnalysis useCase = new ImageAnalysis.Builder().build();
         mCamera = CameraUtil.getCameraAndAttachUseCase(context, mCameraSelector,
-                useCase);
+                mBoundUseCase = useCase);
         useCase.setAnalyzer(CameraXExecutors.ioExecutor(), mAnalyzer);
     }
 
@@ -210,6 +209,44 @@ public class CameraControlDeviceTest {
                 new FocusMeteringAction.Builder(mMeteringPoint1).build();
         mCamera.getCameraControlInternal().startFocusAndMetering(action);
         ListenableFuture<Void> result = mCamera.getCameraControlInternal().cancelFocusAndMetering();
+
+        assertFutureCompletes(result);
+    }
+
+    @Test
+    public void rebindAndEnableTorch_futureCompletes() {
+        assumeTrue(CameraUtil.hasFlashUnitWithLensFacing(mCameraSelector.getLensFacing()));
+
+        mInstrumentation.runOnMainSync(() -> {
+            try {
+                mCamera.removeUseCases(Collections.singleton(mBoundUseCase));
+                ImageAnalysis useCase = new ImageAnalysis.Builder().build();
+                mCamera.addUseCases(Collections.singleton(mBoundUseCase = useCase));
+                useCase.setAnalyzer(CameraXExecutors.ioExecutor(), mAnalyzer);
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                new IllegalArgumentException(e);
+            }
+        });
+
+        ListenableFuture<Void> result = mCamera.getCameraControlInternal().enableTorch(true);
+
+        assertFutureCompletes(result);
+    }
+
+    @Test
+    public void rebindAndSetZoomRatio_futureCompletes() {
+        mInstrumentation.runOnMainSync(() -> {
+            try {
+                mCamera.removeUseCases(Collections.singleton(mBoundUseCase));
+                ImageAnalysis useCase = new ImageAnalysis.Builder().build();
+                mCamera.addUseCases(Collections.singleton(mBoundUseCase = useCase));
+                useCase.setAnalyzer(CameraXExecutors.ioExecutor(), mAnalyzer);
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                new IllegalArgumentException(e);
+            }
+        });
+
+        ListenableFuture<Void> result = mCamera.getCameraControlInternal().setZoomRatio(1.0f);
 
         assertFutureCompletes(result);
     }

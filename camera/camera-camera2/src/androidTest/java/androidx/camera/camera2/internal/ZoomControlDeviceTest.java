@@ -104,7 +104,8 @@ public final class ZoomControlDeviceTest {
         mCamera2CameraControl = new Camera2CameraControl(mCameraCharacteristics,
                 executorService, executorService, mControlUpdateCallback);
 
-        mZoomControl = new ZoomControl(mCamera2CameraControl, mCameraCharacteristics);
+        mZoomControl = new ZoomControl(mCamera2CameraControl, mCameraCharacteristics,
+                executorService);
         mZoomControl.setActive(true);
 
         // Await Camera2CameraControl updateSessionConfig to complete.

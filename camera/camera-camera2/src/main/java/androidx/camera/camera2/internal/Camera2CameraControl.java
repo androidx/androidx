@@ -31,10 +31,10 @@ import android.util.ArrayMap;
 import android.util.Log;
 import android.util.Rational;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.WorkerThread;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.FocusMeteringAction;
@@ -65,6 +65,31 @@ import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A Camera2 implementation for CameraControlInternal interface
+ *
+ * <p>There are 2 states in the control, use count and active boolean. Use count controls
+ * whether the user can submit new requests, it can be increased or decreased via
+ * {@link #incrementUseCount()} and {@link #decrementUseCount()}. Before sending the request to
+ * the control, it must increase use count, otherwise the request will be dropped. Active state
+ * controls whether the requests are sent to the camera. It can be set via
+ * {@link #setActive(boolean)}. The transition of active boolean from {@code true} to {@code
+ * false} may also reset state.
+ *
+ * <p>There are 4 possible state combinations when processing a request.
+ *
+ * <ul>
+ * <li>Use count >= 1 but active boolean == false: the control can accept new requests for
+ * changing parameters, but won't attempt to send them to the camera device yet. New requests can
+ * be either cached and replace old requests, or may end with {@code ImmediateFailedFuture}
+ * directly, depending on whether the type of request needs to be cached reasonably.</li>
+ * <li>Use count >= 1 and active boolean is true: the control now sends cached requests to the
+ * camera. Any new requests are also sent directly to the camera.</li>
+ * <li>Use count == 0 and active boolean is true: This state may not be possible or may be very
+ * short lived depending on how we want to use it. the control does not accept new requests;
+ * all requests end in {@code ImmediateFailedFuture}. Previously cached requests may continue
+ * processing.</li>
+ * <li>Use count == 0 and active boolean is false: the control does not accept new requests; all
+ * requests end in {@code ImmediateFailedFuture}. Any cached requests are dropped.</li>
+ * </ul>
  */
 final class Camera2CameraControl implements CameraControlInternal {
     private static final String TAG = "Camera2CameraControl";
@@ -73,6 +98,7 @@ final class Camera2CameraControl implements CameraControlInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @CameraExecutor
     final Executor mExecutor;
+    private final Object mLock = new Object();
     private final CameraCharacteristics mCameraCharacteristics;
     private final ControlUpdateCallback mControlUpdateCallback;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
@@ -82,6 +108,8 @@ final class Camera2CameraControl implements CameraControlInternal {
     private final ZoomControl mZoomControl;
     private final TorchControl mTorchControl;
     private final AeFpsRange mAeFpsRange;
+    @GuardedBy("mLock")
+    private int mUseCount = 0;
     // use volatile modifier to make these variables in sync in all threads.
     private volatile boolean mIsTorchOn = false;
     @ImageCapture.FlashMode
@@ -122,12 +150,48 @@ final class Camera2CameraControl implements CameraControlInternal {
         mSessionConfigBuilder.addRepeatingCameraCaptureCallback(mCameraCaptureCallbackSet);
 
         mFocusMeteringControl = new FocusMeteringControl(this, scheduler, mExecutor);
-        mZoomControl = new ZoomControl(this, mCameraCharacteristics);
-        mTorchControl = new TorchControl(this, mCameraCharacteristics);
+        mZoomControl = new ZoomControl(this, mCameraCharacteristics, mExecutor);
+        mTorchControl = new TorchControl(this, mCameraCharacteristics, mExecutor);
         mAeFpsRange = new AeFpsRange(mCameraCharacteristics);
 
         // Initialize the session config
         mExecutor.execute(this::updateSessionConfig);
+    }
+
+    /** Increments the use count of the control. */
+    void incrementUseCount() {
+        synchronized (mLock) {
+            mUseCount++;
+        }
+    }
+
+    /**
+     * Decrements the use count of the control.
+     *
+     * @throws IllegalStateException if try to decrement the use count to less than zero
+     */
+    void decrementUseCount() {
+        synchronized (mLock) {
+            if (mUseCount == 0) {
+                throw new IllegalStateException("Decrementing use count occurs more times than "
+                        + "incrementing");
+            }
+            mUseCount--;
+        }
+    }
+
+    /**
+     * Returns the use count of the control.
+     *
+     * <p>Use count can be increased and decreased via {@link #incrementUseCount()} and
+     * {@link #decrementUseCount()}. Camera control only accepts requests when the use count is
+     * greater than 0.
+     */
+    @VisibleForTesting
+    int getUseCount() {
+        synchronized (mLock) {
+            return mUseCount;
+        }
     }
 
     @NonNull
@@ -146,13 +210,14 @@ final class Camera2CameraControl implements CameraControlInternal {
      * <p>Most operations during inactive state do nothing. Some states are reset to default
      * once it is changed to inactive state.
      */
+    @ExecutedBy("mExecutor")
     void setActive(boolean isActive) {
         mFocusMeteringControl.setActive(isActive);
         mZoomControl.setActive(isActive);
         mTorchControl.setActive(isActive);
     }
 
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     public void setPreviewAspectRatio(@Nullable Rational previewAspectRatio) {
         mPreviewAspectRatio = previewAspectRatio;
     }
@@ -169,30 +234,50 @@ final class Camera2CameraControl implements CameraControlInternal {
     @Override
     public ListenableFuture<FocusMeteringResult> startFocusAndMetering(
             @NonNull FocusMeteringAction action) {
+        if (!isControlInUse()) {
+            return Futures.immediateFailedFuture(
+                    new OperationCanceledException("Camera is not active."));
+        }
         return mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio);
     }
 
     @NonNull
     @Override
     public ListenableFuture<Void> cancelFocusAndMetering() {
+        if (!isControlInUse()) {
+            return Futures.immediateFailedFuture(
+                    new OperationCanceledException("Camera is not active."));
+        }
         return mFocusMeteringControl.cancelFocusAndMetering();
     }
 
     @NonNull
     @Override
     public ListenableFuture<Void> setZoomRatio(float ratio) {
+        if (!isControlInUse()) {
+            return Futures.immediateFailedFuture(
+                    new OperationCanceledException("Camera is not active."));
+        }
         return mZoomControl.setZoomRatio(ratio);
     }
 
     @NonNull
     @Override
     public ListenableFuture<Void> setLinearZoom(float linearZoom) {
+        if (!isControlInUse()) {
+            return Futures.immediateFailedFuture(
+                    new OperationCanceledException("Camera is not active."));
+        }
         return mZoomControl.setLinearZoom(linearZoom);
     }
 
     /** {@inheritDoc} */
     @Override
     public void setCropRegion(@Nullable final Rect crop) {
+        if (!isControlInUse()) {
+            Log.w(TAG, "Camera is not active.");
+            return;
+        }
         mExecutor.execute(() -> setCropRegionInternal(crop));
     }
 
@@ -205,6 +290,10 @@ final class Camera2CameraControl implements CameraControlInternal {
     /** {@inheritDoc} */
     @Override
     public void setFlashMode(@ImageCapture.FlashMode int flashMode) {
+        if (!isControlInUse()) {
+            Log.w(TAG, "Camera is not active.");
+            return;
+        }
         // update mFlashMode immediately so that following getFlashMode() returns correct value.
         mFlashMode = flashMode;
 
@@ -215,6 +304,10 @@ final class Camera2CameraControl implements CameraControlInternal {
     @Override
     @NonNull
     public ListenableFuture<Void> enableTorch(final boolean torch) {
+        if (!isControlInUse()) {
+            return Futures.immediateFailedFuture(
+                    new OperationCanceledException("Camera is not active."));
+        }
         return mTorchControl.enableTorch(torch);
     }
 
@@ -227,6 +320,10 @@ final class Camera2CameraControl implements CameraControlInternal {
     @Override
     @NonNull
     public ListenableFuture<CameraCaptureResult> triggerAf() {
+        if (!isControlInUse()) {
+            return Futures.immediateFailedFuture(
+                    new OperationCanceledException("Camera is not active."));
+        }
         return Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(
                 completer -> {
                     mExecutor.execute(() -> mFocusMeteringControl.triggerAf(completer));
@@ -244,6 +341,10 @@ final class Camera2CameraControl implements CameraControlInternal {
     @Override
     @NonNull
     public ListenableFuture<CameraCaptureResult> triggerAePrecapture() {
+        if (!isControlInUse()) {
+            return Futures.immediateFailedFuture(
+                    new OperationCanceledException("Camera is not active."));
+        }
         return Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(
                 completer -> {
                     mExecutor.execute(() -> mFocusMeteringControl.triggerAePrecapture(completer));
@@ -259,6 +360,10 @@ final class Camera2CameraControl implements CameraControlInternal {
     @Override
     public void cancelAfAeTrigger(final boolean cancelAfTrigger,
             final boolean cancelAePrecaptureTrigger) {
+        if (!isControlInUse()) {
+            Log.w(TAG, "Camera is not active.");
+            return;
+        }
         mExecutor.execute(() -> mFocusMeteringControl.cancelAfAeTrigger(cancelAfTrigger,
                 cancelAePrecaptureTrigger));
     }
@@ -266,6 +371,10 @@ final class Camera2CameraControl implements CameraControlInternal {
     /** {@inheritDoc} */
     @Override
     public void submitCaptureRequests(@NonNull final List<CaptureConfig> captureConfigs) {
+        if (!isControlInUse()) {
+            Log.w(TAG, "Camera is not active.");
+            return;
+        }
         mExecutor.execute(() -> submitCaptureRequestsInternal(captureConfigs));
     }
 
@@ -273,20 +382,24 @@ final class Camera2CameraControl implements CameraControlInternal {
         return CameraDevice.TEMPLATE_PREVIEW;
     }
 
-    @WorkerThread
+    private boolean isControlInUse() {
+        return getUseCount() > 0;
+    }
+
+    @ExecutedBy("mExecutor")
     void updateSessionConfig() {
         mSessionConfigBuilder.setImplementationOptions(getSessionOptions());
         mControlUpdateCallback.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     void setCropRegionInternal(final Rect crop) {
         mCropRect = crop;
         updateSessionConfig();
     }
 
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     @NonNull
     Rect getCropSensorRegion() {
         Rect cropRect = mCropRect;
@@ -297,19 +410,19 @@ final class Camera2CameraControl implements CameraControlInternal {
     }
 
     @Override
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     @NonNull
     public Rect getSensorRect() {
         return Preconditions.checkNotNull(
                 mCameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE));
     }
 
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     void removeCaptureResultListener(@NonNull CaptureResultListener listener) {
         mSessionCallback.removeListener(listener);
     }
 
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     void addCaptureResultListener(@NonNull CaptureResultListener listener) {
         mSessionCallback.addListener(listener);
     }
@@ -330,29 +443,28 @@ final class Camera2CameraControl implements CameraControlInternal {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mExecutor")
     void enableTorchInternal(boolean torch) {
-        mExecutor.execute(() -> {
-            mIsTorchOn = torch;
-            if (!torch) {
-                // Send capture request with AE_MODE_ON + FLASH_MODE_OFF to turn off torch.
-                CaptureConfig.Builder singleRequestBuilder = new CaptureConfig.Builder();
-                singleRequestBuilder.setTemplateType(getDefaultTemplate());
-                singleRequestBuilder.setUseRepeatingSurface(true);
-                Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
-                configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
-                        getSupportedAeMode(CaptureRequest.CONTROL_AE_MODE_ON));
-                configBuilder.setCaptureRequestOption(CaptureRequest.FLASH_MODE,
-                        CaptureRequest.FLASH_MODE_OFF);
-                singleRequestBuilder.addImplementationOptions(configBuilder.build());
-                submitCaptureRequestsInternal(
-                        Collections.singletonList(singleRequestBuilder.build()));
-            }
-            updateSessionConfig();
-        });
+        mIsTorchOn = torch;
+        if (!torch) {
+            // Send capture request with AE_MODE_ON + FLASH_MODE_OFF to turn off torch.
+            CaptureConfig.Builder singleRequestBuilder = new CaptureConfig.Builder();
+            singleRequestBuilder.setTemplateType(getDefaultTemplate());
+            singleRequestBuilder.setUseRepeatingSurface(true);
+            Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
+            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
+                    getSupportedAeMode(CaptureRequest.CONTROL_AE_MODE_ON));
+            configBuilder.setCaptureRequestOption(CaptureRequest.FLASH_MODE,
+                    CaptureRequest.FLASH_MODE_OFF);
+            singleRequestBuilder.addImplementationOptions(configBuilder.build());
+            submitCaptureRequestsInternal(
+                    Collections.singletonList(singleRequestBuilder.build()));
+        }
+        updateSessionConfig();
     }
 
 
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     void submitCaptureRequestsInternal(final List<CaptureConfig> captureConfigs) {
         mControlUpdateCallback.onCameraControlCaptureRequests(captureConfigs);
     }
@@ -364,7 +476,7 @@ final class Camera2CameraControl implements CameraControlInternal {
      * area, etc... They should be appended to the repeat request.
      */
     @VisibleForTesting
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     Config getSessionOptions() {
         Camera2ImplConfig.Builder builder = new Camera2ImplConfig.Builder();
         builder.setCaptureRequestOption(
@@ -415,7 +527,7 @@ final class Camera2CameraControl implements CameraControlInternal {
      * 3) {@link CaptureRequest#CONTROL_AF_MODE_OFF}
      * </pre>
      */
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     int getSupportedAfMode(int preferredMode) {
         int[] modes = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES);
         if (modes == null) {
@@ -446,7 +558,7 @@ final class Camera2CameraControl implements CameraControlInternal {
      * 2) {@link CaptureRequest#CONTROL_AE_MODE_OFF)}
      * </pre>
      */
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     private int getSupportedAeMode(int preferredMode) {
         int[] modes = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES);
 
@@ -476,7 +588,7 @@ final class Camera2CameraControl implements CameraControlInternal {
      * 2) {@link CaptureRequest#CONTROL_AWB_MODE_OFF)}
      * </pre>
      */
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     private int getSupportedAwbMode(int preferredMode) {
         int[] modes = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES);
 
@@ -497,7 +609,7 @@ final class Camera2CameraControl implements CameraControlInternal {
         return CaptureRequest.CONTROL_AWB_MODE_OFF;
     }
 
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     private boolean isModeInList(int mode, int[] modeList) {
         for (int m : modeList) {
             if (mode == m) {
@@ -543,12 +655,12 @@ final class Camera2CameraControl implements CameraControlInternal {
             mExecutor = executor;
         }
 
-        @WorkerThread
+        @ExecutedBy("mExecutor")
         void addListener(@NonNull CaptureResultListener listener) {
             mResultListeners.add(listener);
         }
 
-        @WorkerThread
+        @ExecutedBy("mExecutor")
         void removeListener(@NonNull CaptureResultListener listener) {
             mResultListeners.remove(listener);
         }

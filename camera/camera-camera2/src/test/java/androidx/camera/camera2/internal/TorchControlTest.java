@@ -36,6 +36,7 @@ import android.os.Build;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.impl.CameraControlInternal;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -45,7 +46,6 @@ import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,9 +58,8 @@ import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.shadows.ShadowCameraManager;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import kotlinx.coroutines.test.TestCoroutineDispatcher;
 
@@ -72,7 +71,6 @@ public class TorchControlTest {
     private static final String CAMERA0_ID = "0";
     private static final String CAMERA1_ID = "1";
 
-    private ScheduledExecutorService mExecutor;
     private TorchControl mNoFlashUnitTorchControl;
     private TorchControl mTorchControl;
     private Camera2CameraControl.CaptureResultListener mCaptureResultListener;
@@ -84,7 +82,6 @@ public class TorchControlTest {
         CameraManager cameraManager =
                 (CameraManager) ApplicationProvider.getApplicationContext()
                         .getSystemService(Context.CAMERA_SERVICE);
-        mExecutor = Executors.newScheduledThreadPool(1);
 
         /* Prepare CameraControl 0 which flash is unavailable */
         CameraCharacteristics cameraCharacteristics0 =
@@ -92,8 +89,11 @@ public class TorchControlTest {
 
         Camera2CameraControl camera2CameraControl0 =
                 spy(new Camera2CameraControl(cameraCharacteristics0,
-                mExecutor, mExecutor, mock(CameraControlInternal.ControlUpdateCallback.class)));
-        mNoFlashUnitTorchControl = new TorchControl(camera2CameraControl0, cameraCharacteristics0);
+                        CameraXExecutors.mainThreadExecutor(),
+                        CameraXExecutors.mainThreadExecutor(),
+                        mock(CameraControlInternal.ControlUpdateCallback.class)));
+        mNoFlashUnitTorchControl = new TorchControl(camera2CameraControl0, cameraCharacteristics0,
+                CameraXExecutors.mainThreadExecutor());
         mNoFlashUnitTorchControl.setActive(true);
 
         /* Prepare CameraControl 1 which flash is available */
@@ -102,8 +102,11 @@ public class TorchControlTest {
 
         Camera2CameraControl camera2CameraControl1 =
                 spy(new Camera2CameraControl(cameraCharacteristics1,
-                mExecutor, mExecutor, mock(CameraControlInternal.ControlUpdateCallback.class)));
-        mTorchControl = new TorchControl(camera2CameraControl1, cameraCharacteristics1);
+                        CameraXExecutors.mainThreadExecutor(),
+                        CameraXExecutors.mainThreadExecutor(),
+                        mock(CameraControlInternal.ControlUpdateCallback.class)));
+        mTorchControl = new TorchControl(camera2CameraControl1, cameraCharacteristics1,
+                CameraXExecutors.mainThreadExecutor());
         mTorchControl.setActive(true);
 
         ArgumentCaptor<Camera2CameraControl.CaptureResultListener> argumentCaptor =
@@ -114,11 +117,6 @@ public class TorchControlTest {
         /* Prepare Lifecycle for test LiveData */
         mLifecycleOwner = new TestLifecycleOwner(Lifecycle.State.STARTED,
                 new TestCoroutineDispatcher());
-    }
-
-    @After
-    public void tearDown() {
-        mExecutor.shutdown();
     }
 
     @Test
@@ -245,7 +243,15 @@ public class TorchControlTest {
     public void enableDisableTorch_observeTorchStateLiveData() {
         Observer<Integer> observer = mock(Observer.class);
         LiveData<Integer> torchStateLiveData = mTorchControl.getTorchState();
-        torchStateLiveData.observe(mLifecycleOwner, observer);
+        torchStateLiveData.observe(mLifecycleOwner, new Observer<Integer>() {
+            private Integer mValue;
+            @Override
+            public void onChanged(Integer value) {
+                if (!Objects.equals(mValue, value)) {
+                    observer.onChanged(mValue = value);
+                }
+            }
+        });
 
         mTorchControl.enableTorch(true);
         mTorchControl.enableTorch(false);

@@ -21,17 +21,21 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.util.Log;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.CameraControl.OperationCanceledException;
 import androidx.camera.core.TorchState;
+import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.concurrent.Executor;
 
 /**
  * Implementation of torch control used within {@link Camera2CameraControl}.
@@ -45,19 +49,16 @@ final class TorchControl {
     private static final String TAG = "TorchControl";
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final Object mEnableTorchLock = new Object();
-    private final Object mActiveLock = new Object();
     private final Camera2CameraControl mCamera2CameraControl;
     private final MutableLiveData<Integer> mTorchState;
     private final boolean mHasFlashUnit;
+    @CameraExecutor
+    private final Executor mExecutor;
 
-    @GuardedBy("mActiveLock")
     private boolean mIsActive;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @GuardedBy("mEnableTorchLock")
     CallbackToFutureAdapter.Completer<Void> mEnableTorchCompleter;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @GuardedBy("mEnableTorchLock")
     boolean mTargetTorchEnabled;
 
     /**
@@ -65,10 +66,13 @@ final class TorchControl {
      *
      * @param camera2CameraControl the camera control this TorchControl belongs.
      * @param cameraCharacteristics the characteristics for the camera being controlled.
+     * @param executor the camera executor used to run camera task.
      */
     TorchControl(@NonNull Camera2CameraControl camera2CameraControl,
-            @NonNull CameraCharacteristics cameraCharacteristics) {
+            @NonNull CameraCharacteristics cameraCharacteristics,
+            @CameraExecutor @NonNull Executor executor) {
         mCamera2CameraControl = camera2CameraControl;
+        mExecutor = executor;
         Boolean hasFlashUnit =
                 cameraCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
         mHasFlashUnit = hasFlashUnit != null && hasFlashUnit.booleanValue();
@@ -81,36 +85,25 @@ final class TorchControl {
      *
      * @param isActive true to activate or false otherwise.
      */
+    @ExecutedBy("mExecutor")
     void setActive(boolean isActive) {
-        synchronized (mActiveLock) {
-            if (mIsActive == isActive) {
-                return;
-            }
+        if (mIsActive == isActive) {
+            return;
+        }
 
-            mIsActive = isActive;
+        mIsActive = isActive;
 
-            boolean shouldResetDefault = false;
-            CallbackToFutureAdapter.Completer<Void> completerToCancel = null;
-            synchronized (mEnableTorchLock) {
-                if (!isActive) {
-                    if (mEnableTorchCompleter != null) {
-                        completerToCancel = mEnableTorchCompleter;
-                        mEnableTorchCompleter = null;
-                    }
-                    if (mTargetTorchEnabled) {
-                        shouldResetDefault = true;
-                        mTargetTorchEnabled = false;
-                        mCamera2CameraControl.enableTorchInternal(false);
-                    }
-                }
-            }
-
-            if (shouldResetDefault) {
+        if (!isActive) {
+            if (mTargetTorchEnabled) {
+                mTargetTorchEnabled = false;
+                mCamera2CameraControl.enableTorchInternal(false);
                 setLiveDataValue(mTorchState, TorchState.OFF);
             }
-            if (completerToCancel != null) {
-                completerToCancel.setException(new OperationCanceledException(
-                        "Camera is not active."));
+
+            if (mEnableTorchCompleter != null) {
+                mEnableTorchCompleter.setException(
+                        new OperationCanceledException("Camera is not active."));
+                mEnableTorchCompleter = null;
             }
         }
     }
@@ -143,32 +136,13 @@ final class TorchControl {
             return Futures.immediateFailedFuture(new IllegalStateException("No flash unit"));
         }
 
-        synchronized (mActiveLock) {
-            if (!mIsActive) {
-                return Futures.immediateFailedFuture(new OperationCanceledException(
-                        "Camera is not active."));
-            }
+        setLiveDataValue(mTorchState, enabled ? TorchState.ON : TorchState.OFF);
 
-            ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(
-                    completer -> {
-                        CallbackToFutureAdapter.Completer<Void> completerToCancel = null;
-                        synchronized (mEnableTorchLock) {
-                            if (mEnableTorchCompleter != null) {
-                                completerToCancel = mEnableTorchCompleter;
-                            }
-                            mEnableTorchCompleter = completer;
-                            mTargetTorchEnabled = enabled;
-                            mCamera2CameraControl.enableTorchInternal(enabled);
-                        }
-                        setLiveDataValue(mTorchState, enabled ? TorchState.ON : TorchState.OFF);
-                        if (completerToCancel != null) {
-                            completerToCancel.setException(new OperationCanceledException(
-                                    "There is a new enableTorch being set"));
-                        }
-                        return "enableTorch: " + enabled;
-                    });
-            return future;
-        }
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            mExecutor.execute(
+                    () -> enableTorchInternal(completer, enabled));
+            return "enableTorch: " + enabled;
+        });
     }
 
     /**
@@ -184,6 +158,25 @@ final class TorchControl {
         return mTorchState;
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mExecutor")
+    void enableTorchInternal(@NonNull Completer<Void> completer, boolean enabled) {
+        if (!mIsActive) {
+            setLiveDataValue(mTorchState, TorchState.OFF);
+            completer.setException(new OperationCanceledException("Camera is not active."));
+            return;
+        }
+
+        mTargetTorchEnabled = enabled;
+        mCamera2CameraControl.enableTorchInternal(enabled);
+        setLiveDataValue(mTorchState, enabled ? TorchState.ON : TorchState.OFF);
+        if (mEnableTorchCompleter != null) {
+            mEnableTorchCompleter.setException(new OperationCanceledException(
+                    "There is a new enableTorch being set"));
+        }
+        mEnableTorchCompleter = completer;
+    }
+
     private <T> void setLiveDataValue(@NonNull MutableLiveData<T> liveData, T value) {
         if (Threads.isMainThread()) {
             liveData.setValue(value);
@@ -195,24 +188,19 @@ final class TorchControl {
     private final Camera2CameraControl.CaptureResultListener mCaptureResultListener =
             new Camera2CameraControl.CaptureResultListener() {
 
+        @ExecutedBy("mExecutor")
         @Override
         public boolean onCaptureResult(@NonNull TotalCaptureResult captureResult) {
-            CallbackToFutureAdapter.Completer<Void> completerToSet = null;
-            synchronized (mEnableTorchLock) {
-                if (mEnableTorchCompleter != null) {
-                    CaptureRequest captureRequest = captureResult.getRequest();
-                    Integer flashMode = captureRequest.get(CaptureRequest.FLASH_MODE);
-                    boolean torchEnabled =
-                            flashMode != null && flashMode == CaptureRequest.FLASH_MODE_TORCH;
+            if (mEnableTorchCompleter != null) {
+                CaptureRequest captureRequest = captureResult.getRequest();
+                Integer flashMode = captureRequest.get(CaptureRequest.FLASH_MODE);
+                boolean torchEnabled =
+                        flashMode != null && flashMode == CaptureRequest.FLASH_MODE_TORCH;
 
-                    if (torchEnabled == mTargetTorchEnabled) {
-                        completerToSet = mEnableTorchCompleter;
-                        mEnableTorchCompleter = null;
-                    }
+                if (torchEnabled == mTargetTorchEnabled) {
+                    mEnableTorchCompleter.set(null);
+                    mEnableTorchCompleter = null;
                 }
-            }
-            if (completerToSet != null) {
-                completerToSet.set(null);
             }
             // Return false to keep getting captureResult.
             return false;
