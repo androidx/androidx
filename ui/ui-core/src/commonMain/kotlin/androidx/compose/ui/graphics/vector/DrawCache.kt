@@ -114,7 +114,7 @@ internal class DrawCache {
          * DrawScope
          */
         fun clear() {
-            drawRect(color = Color.Black, blendMode = BlendMode.clear)
+            drawRect(color = Color.Black, blendMode = BlendMode.Clear)
         }
     }
 }

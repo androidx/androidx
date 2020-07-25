@@ -93,7 +93,7 @@ class PainterModifierTest {
     @Test
     fun testPainterModifierColorFilter() {
         rule.setContent {
-            testPainter(colorFilter = ColorFilter(Color.Cyan, BlendMode.srcIn))
+            testPainter(colorFilter = ColorFilter(Color.Cyan, BlendMode.SrcIn))
         }
 
         obtainScreenshotBitmap(
