@@ -19,7 +19,6 @@ package androidx.compose.animation.core
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.AnimationConstants.Infinite
 import androidx.compose.ui.util.fastFirstOrNull
-import kotlin.experimental.ExperimentalTypeInference
 
 /**
  * Static specification for the transition from one state to another.
@@ -334,8 +333,7 @@ fun <T> TransitionDefinition<T>.createAnimation(
  *
  * @param init Initialization function for the [TransitionDefinition]
  */
-@OptIn(ExperimentalTypeInference::class)
-fun <T> transitionDefinition(@BuilderInference init: TransitionDefinition<T>.() -> Unit) =
+fun <T> transitionDefinition(init: TransitionDefinition<T>.() -> Unit) =
     TransitionDefinition<T>().apply(init)
 
 enum class InterruptionHandling {

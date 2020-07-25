@@ -397,7 +397,7 @@ package androidx.compose.animation.core {
     method public static <T> androidx.compose.animation.core.AnimationSpec<T> repeatable(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, androidx.compose.animation.core.RepeatMode repeatMode = androidx.compose.animation.core.RepeatMode.Restart);
     method public static <T> androidx.compose.animation.core.AnimationSpec<T> snap(int delayMillis = 0);
     method public static <T> androidx.compose.animation.core.SpringSpec<T> spring(float dampingRatio = 1.0f, float stiffness = 1500.0f, T? visibilityThreshold = null);
-    method public static <T> androidx.compose.animation.core.TransitionDefinition<T> transitionDefinition(@kotlin.BuilderInference kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.TransitionDefinition<T>,kotlin.Unit> init);
+    method public static <T> androidx.compose.animation.core.TransitionDefinition<T> transitionDefinition(kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.TransitionDefinition<T>,kotlin.Unit> init);
     method public static <T> androidx.compose.animation.core.TweenSpec<T> tween(int durationMillis = 300, int delayMillis = 0, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> easing = FastOutSlowInEasing);
   }
 

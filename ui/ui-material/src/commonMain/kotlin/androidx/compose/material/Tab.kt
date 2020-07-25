@@ -396,7 +396,7 @@ object TabRow {
         indicator: @Composable (indicatorOffset: Dp) -> Unit
     ) {
         val transitionDefinition = remember(tabPositions) {
-            transitionDefinition {
+            transitionDefinition<Int> {
                 // TODO: currently the first state set is the 'default' state, so we want to define the
                 // state that is initially selected first, so we don't have any initial animations.
                 // When this is supported by transitionDefinition, we should fix this to just set a
@@ -511,7 +511,7 @@ private fun TabTransition(
     content: @Composable () -> Unit
 ) {
     val transitionDefinition = remember(activeColor, inactiveColor) {
-        transitionDefinition {
+        transitionDefinition<Boolean> {
             state(true) {
                 this[TabTintColor] = activeColor
             }

@@ -413,7 +413,7 @@ private object TextFieldTransitionScope {
         activeColor: Color,
         labelInactiveColor: Color,
         indicatorInactiveColor: Color
-    ) = transitionDefinition {
+    ) = transitionDefinition<InputPhase> {
         state(InputPhase.Focused) {
             this[LabelColorProp] = activeColor
             this[IndicatorColorProp] = activeColor

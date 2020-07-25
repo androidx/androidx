@@ -289,7 +289,7 @@ private val offset = FloatPropKey(label = "myOffset")
 private val color = ColorPropKey(label = "borderColor")
 private val floatProp = FloatPropKey()
 
-private val repeatablesDef = transitionDefinition {
+private val repeatablesDef = transitionDefinition<String> {
     state("state1") {
         this[floatProp] = 0f
     }
@@ -304,7 +304,7 @@ private val repeatablesDef = transitionDefinition {
     }
 }
 
-private val offsetDef = transitionDefinition {
+private val offsetDef = transitionDefinition<Offset> {
     state(Offset.O1) {
         this[offset] = 0f
     }
@@ -317,7 +317,7 @@ private val offsetDef = transitionDefinition {
     }
 }
 
-private val rotationColorDef = transitionDefinition {
+private val rotationColorDef = transitionDefinition<RotationColor> {
     state(RotationColor.RC1) {
         this[rotation] = 0f
         this[color] = Color.Red
