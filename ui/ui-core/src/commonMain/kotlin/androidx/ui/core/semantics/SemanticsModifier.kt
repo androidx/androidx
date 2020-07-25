@@ -56,6 +56,20 @@ internal class SemanticsModifierCore(
         private var lastIdentifier = AtomicInt(0)
         fun generateSemanticsId() = lastIdentifier.addAndGet(1)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SemanticsModifierCore) return false
+
+        if (id != other.id) return false
+        if (semanticsConfiguration != other.semanticsConfiguration) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return 31 * semanticsConfiguration.hashCode() + id.hashCode()
+    }
 }
 
 /**

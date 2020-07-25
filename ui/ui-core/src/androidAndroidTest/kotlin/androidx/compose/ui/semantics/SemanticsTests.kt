@@ -19,6 +19,7 @@ package androidx.compose.ui.semantics
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.Stable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
@@ -43,6 +44,7 @@ import androidx.ui.test.onNodeWithLabel
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,6 +68,22 @@ class SemanticsTests {
         }
 
         latch.await()
+    }
+
+    @Test
+    fun unchangedSemanticsDoesNotCauseRelayout() {
+        val layoutCounter = Counter(0)
+        val recomposeForcer = mutableStateOf(0)
+        composeTestRule.setContent {
+            recomposeForcer.value
+            CountingLayout(Modifier.semantics { accessibilityLabel = "label" }, layoutCounter)
+        }
+
+        runOnIdle { assertEquals(1, layoutCounter.count) }
+
+        runOnIdle { recomposeForcer.value++ }
+
+        runOnIdle { assertEquals(1, layoutCounter.count) }
     }
 
     @Test
@@ -320,6 +338,21 @@ class SemanticsTests {
 
 private fun SemanticsNodeInteraction.assertDoesNotHaveProperty(property: SemanticsPropertyKey<*>) {
     assert(SemanticsMatcher.keyNotDefined(property))
+}
+
+// Falsely mark the layout counter stable to avoid influencing recomposition behavior
+@Stable
+private class Counter(var count: Int)
+
+@Composable
+private fun CountingLayout(modifier: Modifier, counter: Counter) {
+    Layout(
+        modifier = modifier,
+        children = {}
+    ) { _, constraints ->
+        counter.count++
+        layout(constraints.minWidth, constraints.minHeight) {}
+    }
 }
 
 /**
