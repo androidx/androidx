@@ -27,7 +27,7 @@ We have tried to make contributing to androidx a lot easier with this new setup.
   ```bash
   # You could also add this to your .{bash|zsh}rc file.
   export JAVA_HOME="location of JDK 11 folder"
-  export ANDROID_SDK_HOME="location of the Android SDK folder"
+  export ANDROID_SDK_ROOT="location of the Android SDK folder"
   ```
 
 ### Checkout & Importing a Project
