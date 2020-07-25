@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.layout
 
-import androidx.compose.Composable
-import androidx.compose.emptyContent
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emptyContent
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.compose.ui.unit.hasFixedHeight

@@ -18,7 +18,7 @@ package androidx.ui.core.gesture
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.emptyContent
+import androidx.compose.runtime.emptyContent
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier

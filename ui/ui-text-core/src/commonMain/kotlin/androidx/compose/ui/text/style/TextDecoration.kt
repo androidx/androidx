@@ -15,8 +15,8 @@
  */
 package androidx.compose.ui.text.style
 
-import androidx.compose.Immutable
-import androidx.compose.Stable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 
 /**
  * Defines a horizontal line to be drawn on the text.

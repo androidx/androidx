@@ -22,9 +22,9 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.Composable
-import androidx.compose.Immutable
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.transition
 import androidx.ui.core.Alignment

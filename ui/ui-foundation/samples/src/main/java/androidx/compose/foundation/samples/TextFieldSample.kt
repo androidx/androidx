@@ -17,9 +17,9 @@
 package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.Composable
-import androidx.compose.getValue
-import androidx.compose.setValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Text

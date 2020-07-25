@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.text
 
-import androidx.compose.Immutable
-import androidx.compose.Stable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextIndent

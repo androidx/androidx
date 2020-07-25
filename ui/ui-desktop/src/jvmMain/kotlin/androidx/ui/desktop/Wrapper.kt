@@ -17,7 +17,7 @@ package androidx.ui.desktop
 
 import android.content.Context
 import android.view.MotionEvent
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.desktop.view.LayoutScope
 import javax.swing.SwingUtilities
 import org.jetbrains.skija.Canvas

@@ -16,7 +16,7 @@
 
 package androidx.ui.core
 
-import androidx.compose.Stable
+import androidx.compose.runtime.Stable
 
 /**
  * A [Modifier.Element] that controls the drawing order for the children of the same layout

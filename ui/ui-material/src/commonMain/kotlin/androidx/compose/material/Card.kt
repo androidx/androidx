@@ -16,7 +16,7 @@
 
 package androidx.compose.material
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Border
 import androidx.compose.ui.graphics.Color

@@ -22,8 +22,8 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.TargetAnimation
 import androidx.compose.animation.core.fling
-import androidx.compose.Composable
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.state
 import androidx.compose.animation.animatedFloat
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier

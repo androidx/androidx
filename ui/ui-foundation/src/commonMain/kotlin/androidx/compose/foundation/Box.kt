@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.Composable
-import androidx.compose.emptyContent
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emptyContent
 import androidx.ui.core.Alignment
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.core.Modifier

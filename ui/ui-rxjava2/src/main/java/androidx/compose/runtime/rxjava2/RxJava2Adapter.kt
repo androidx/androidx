@@ -16,10 +16,10 @@
 
 package androidx.compose.runtime.rxjava2
 
-import androidx.compose.Composable
-import androidx.compose.State
-import androidx.compose.onPreCommit
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.onPreCommit
+import androidx.compose.runtime.state
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe

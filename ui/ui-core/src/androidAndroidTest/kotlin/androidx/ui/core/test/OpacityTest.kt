@@ -18,10 +18,10 @@ package androidx.ui.core.test
 
 import android.graphics.Bitmap
 import android.os.Build
-import androidx.compose.Composable
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.setValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout

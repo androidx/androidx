@@ -19,7 +19,7 @@ package androidx.ui.res
 import android.content.Context
 import android.util.TypedValue
 import androidx.annotation.GuardedBy
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.ContextAmbient
 import androidx.compose.ui.text.Typeface
 import androidx.compose.ui.text.font.FontFamily

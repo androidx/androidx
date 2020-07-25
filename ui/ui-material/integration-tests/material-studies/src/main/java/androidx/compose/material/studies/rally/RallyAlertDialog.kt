@@ -16,7 +16,7 @@
 
 package androidx.compose.material.studies.rally
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.Text
 import androidx.compose.ui.graphics.RectangleShape

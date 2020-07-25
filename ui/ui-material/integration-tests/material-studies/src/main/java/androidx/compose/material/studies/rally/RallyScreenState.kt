@@ -16,7 +16,7 @@
 
 package androidx.compose.material.studies.rally
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.VectorAsset
 import androidx.compose.material.icons.Icons
 

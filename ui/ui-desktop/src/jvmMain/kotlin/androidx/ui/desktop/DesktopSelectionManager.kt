@@ -16,8 +16,8 @@
 
 package androidx.ui.desktop
 
-import androidx.compose.getValue
-import androidx.compose.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.gesture.DragObserver

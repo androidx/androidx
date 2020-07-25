@@ -20,8 +20,8 @@ import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.compose.currentComposer
-import androidx.compose.state
+import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.state
 import androidx.ui.core.setContent
 import androidx.compose.foundation.Text
 import androidx.compose.material.ExtendedFloatingActionButton

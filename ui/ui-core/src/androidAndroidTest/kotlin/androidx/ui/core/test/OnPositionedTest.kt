@@ -21,10 +21,10 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
-import androidx.compose.Recomposer
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.setValue
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates

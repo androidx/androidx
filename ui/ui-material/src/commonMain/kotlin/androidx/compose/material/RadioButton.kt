@@ -18,9 +18,9 @@ package androidx.compose.material
 
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.Composable
-import androidx.compose.Stable
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.transition

@@ -17,8 +17,8 @@
 package androidx.compose.foundation.animation
 
 import androidx.compose.animation.core.TargetAnimation
-import androidx.compose.Composable
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.ui.core.DensityAmbient
 
 @Composable

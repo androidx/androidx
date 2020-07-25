@@ -20,9 +20,9 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.test.filters.MediumTest
 import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.DensityAmbient

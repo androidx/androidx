@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.unit
 
-import androidx.compose.Immutable
+import androidx.compose.runtime.Immutable
 
 /**
  * A single point in time with a time base of the system's uptime [nanoseconds]. Compare to

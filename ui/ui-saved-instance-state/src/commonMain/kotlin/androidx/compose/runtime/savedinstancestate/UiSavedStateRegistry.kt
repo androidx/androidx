@@ -16,7 +16,7 @@
 
 package androidx.compose.runtime.savedinstancestate
 
-import androidx.compose.staticAmbientOf
+import androidx.compose.runtime.staticAmbientOf
 
 /**
  * Allows components to save and restore their state using the saved instance state mechanism.

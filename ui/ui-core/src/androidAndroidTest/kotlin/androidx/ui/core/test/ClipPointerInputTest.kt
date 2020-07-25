@@ -19,8 +19,8 @@ package androidx.ui.core.test
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.Composable
-import androidx.compose.emptyContent
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emptyContent
 import androidx.test.filters.SmallTest
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout

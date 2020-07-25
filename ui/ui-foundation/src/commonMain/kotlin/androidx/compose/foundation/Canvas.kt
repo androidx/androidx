@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
 import androidx.compose.ui.graphics.drawscope.DrawScope

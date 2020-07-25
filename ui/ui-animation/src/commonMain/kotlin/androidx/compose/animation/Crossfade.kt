@@ -20,11 +20,11 @@ import androidx.compose.animation.core.AnimatedFloat
 import androidx.compose.animation.core.AnimationEndReason
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
-import androidx.compose.Composable
-import androidx.compose.invalidate
-import androidx.compose.key
-import androidx.compose.onCommit
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.invalidate
+import androidx.compose.runtime.key
+import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawOpacity
 import androidx.compose.foundation.layout.Stack

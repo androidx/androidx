@@ -17,8 +17,8 @@
 package androidx.compose.runtime.livedata.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.Composable
-import androidx.compose.getValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.LiveData
 import androidx.compose.foundation.Text
 import androidx.compose.runtime.livedata.observeAsState

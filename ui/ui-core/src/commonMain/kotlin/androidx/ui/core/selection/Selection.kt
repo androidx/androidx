@@ -16,7 +16,7 @@
 
 package androidx.ui.core.selection
 
-import androidx.compose.Immutable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.style.ResolvedTextDirection
 

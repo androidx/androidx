@@ -17,7 +17,7 @@
 package androidx.compose.material
 
 import android.os.Build
-import androidx.compose.mutableStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.DensityAmbient

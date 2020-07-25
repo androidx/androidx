@@ -16,9 +16,9 @@
 
 package androidx.ui.demos
 
-import androidx.compose.Composable
-import androidx.compose.key
-import androidx.compose.onCommit
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
+import androidx.compose.runtime.onCommit
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.focus.FocusModifier

@@ -16,7 +16,7 @@
 
 package androidx.compose.material
 
-import androidx.compose.staticAmbientOf
+import androidx.compose.runtime.staticAmbientOf
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp

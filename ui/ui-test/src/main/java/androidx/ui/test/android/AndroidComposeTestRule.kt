@@ -20,8 +20,8 @@ import android.util.DisplayMetrics
 import android.util.SparseArray
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
-import androidx.compose.Composable
-import androidx.compose.Recomposer
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Recomposer
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.compose.animation.transitionsEnabled
 import androidx.ui.core.setContent

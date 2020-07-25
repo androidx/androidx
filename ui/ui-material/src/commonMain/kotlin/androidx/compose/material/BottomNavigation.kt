@@ -19,9 +19,9 @@ package androidx.compose.material
 import androidx.compose.animation.core.VectorizedAnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.TweenSpec
-import androidx.compose.Composable
-import androidx.compose.Providers
-import androidx.compose.emptyContent
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.emptyContent
 import androidx.compose.animation.animate
 import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout

@@ -16,8 +16,8 @@
 
 package androidx.ui.core.demos.gestures
 
-import androidx.compose.Composable
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.state
 import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.Direction

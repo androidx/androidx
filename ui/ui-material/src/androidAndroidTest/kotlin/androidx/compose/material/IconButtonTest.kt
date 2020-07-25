@@ -15,7 +15,7 @@
  */
 package androidx.compose.material
 
-import androidx.compose.emptyContent
+import androidx.compose.runtime.emptyContent
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag

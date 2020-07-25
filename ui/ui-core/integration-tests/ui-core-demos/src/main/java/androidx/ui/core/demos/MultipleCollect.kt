@@ -18,7 +18,7 @@
 
 package androidx.ui.core.demos
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier

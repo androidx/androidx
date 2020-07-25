@@ -18,7 +18,7 @@ package androidx.ui.res
 
 import androidx.annotation.ArrayRes
 import androidx.annotation.StringRes
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.ContextAmbient
 
 /**

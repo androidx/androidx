@@ -22,17 +22,17 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.annotation.MainThread
-import androidx.compose.Composable
-import androidx.compose.Composition
-import androidx.compose.CompositionReference
-import androidx.compose.ExperimentalComposeApi
-import androidx.compose.FrameManager
-import androidx.compose.InternalComposeApi
-import androidx.compose.Providers
-import androidx.compose.Recomposer
-import androidx.compose.SlotTable
-import androidx.compose.compositionFor
-import androidx.compose.currentComposer
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composition
+import androidx.compose.runtime.CompositionReference
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.FrameManager
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.SlotTable
+import androidx.compose.runtime.compositionFor
+import androidx.compose.runtime.currentComposer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -112,7 +112,7 @@ internal actual fun actualSubcomposeInto(
     "Specify Recomposer explicitly",
     ReplaceWith(
         "subcomposeInto(context, container, Recomposer.current(), parent, composable)",
-        "androidx.compose.Recomposer"
+        "androidx.compose.runtime.Recomposer"
     )
 )
 @MainThread
@@ -199,7 +199,7 @@ fun ViewGroup.setContent(
     "Specify Recomposer explicitly",
     ReplaceWith(
         "setContent(Recomposer.current(), content)",
-        "androidx.compose.Recomposer"
+        "androidx.compose.runtime.Recomposer"
     )
 )
 fun ViewGroup.setContent(

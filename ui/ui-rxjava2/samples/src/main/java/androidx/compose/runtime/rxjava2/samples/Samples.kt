@@ -17,8 +17,8 @@
 package androidx.compose.runtime.rxjava2.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.Composable
-import androidx.compose.getValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.foundation.Text
 import androidx.compose.runtime.rxjava2.subscribeAsState
 import io.reactivex.Completable

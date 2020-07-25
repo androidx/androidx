@@ -21,8 +21,8 @@ import android.content.res.Resources
 import android.util.TypedValue
 import android.util.Xml
 import androidx.annotation.DrawableRes
-import androidx.compose.Composable
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.ui.core.ContextAmbient
 import androidx.compose.ui.graphics.vector.VectorAsset
 import androidx.compose.ui.graphics.vector.compat.createVectorImageBuilder

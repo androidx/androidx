@@ -17,7 +17,7 @@
 package androidx.ui.core.focus
 
 import android.view.View
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Box
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier

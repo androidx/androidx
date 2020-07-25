@@ -17,7 +17,7 @@
 package androidx.compose.foundation
 
 import android.content.res.Configuration
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.ConfigurationAmbient
 
 /**

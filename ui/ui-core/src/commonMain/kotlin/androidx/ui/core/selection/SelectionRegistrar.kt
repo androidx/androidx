@@ -16,7 +16,7 @@
 
 package androidx.ui.core.selection
 
-import androidx.compose.ambientOf
+import androidx.compose.runtime.ambientOf
 
 /**
  *  An interface allowing a composable to subscribe and unsubscribe to selection changes.

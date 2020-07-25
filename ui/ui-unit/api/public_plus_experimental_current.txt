@@ -5,22 +5,22 @@ package androidx.compose.ui.unit {
     method public static androidx.compose.ui.unit.Density Density(android.content.Context context);
   }
 
-  @androidx.compose.Immutable public final class Bounds {
+  @androidx.compose.runtime.Immutable public final class Bounds {
     method public float component1();
     method public float component2();
     method public float component3();
     method public float component4();
-    method @androidx.compose.Immutable public androidx.compose.ui.unit.Bounds copy-ZmiikuI(float left, float top, float right, float bottom);
+    method @androidx.compose.runtime.Immutable public androidx.compose.ui.unit.Bounds copy-ZmiikuI(float left, float top, float right, float bottom);
     method public float getBottom();
     method public float getLeft();
     method public float getRight();
     method public float getTop();
   }
 
-  @androidx.compose.Immutable public final class Constraints {
+  @androidx.compose.runtime.Immutable public final class Constraints {
     ctor public Constraints(internal long value);
     method public androidx.compose.ui.unit.Constraints copy(int minWidth = this.minWidth, int maxWidth = this.maxWidth, int minHeight = this.minHeight, int maxHeight = this.maxHeight);
-    method @androidx.compose.Immutable public androidx.compose.ui.unit.Constraints copy(long value);
+    method @androidx.compose.runtime.Immutable public androidx.compose.ui.unit.Constraints copy(long value);
     method public boolean getHasBoundedHeight();
     method public boolean getHasBoundedWidth();
     method public int getMaxHeight();
@@ -38,67 +38,67 @@ package androidx.compose.ui.unit {
   }
 
   public static final class Constraints.Companion {
-    method @androidx.compose.Stable public androidx.compose.ui.unit.Constraints fixed(int width, int height);
-    method @androidx.compose.Stable public androidx.compose.ui.unit.Constraints fixedHeight(int height);
-    method @androidx.compose.Stable public androidx.compose.ui.unit.Constraints fixedWidth(int width);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.unit.Constraints fixed(int width, int height);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.unit.Constraints fixedHeight(int height);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.unit.Constraints fixedWidth(int width);
   }
 
   public final class ConstraintsKt {
-    method @androidx.compose.Stable public static androidx.compose.ui.unit.Constraints Constraints(int minWidth = 0, int maxWidth = 2147483647, int minHeight = 0, int maxHeight = 2147483647);
-    method @androidx.compose.Stable public static androidx.compose.ui.unit.IntSize constrain(androidx.compose.ui.unit.Constraints, androidx.compose.ui.unit.IntSize size);
-    method @androidx.compose.Stable public static int constrainHeight(androidx.compose.ui.unit.Constraints, int height);
-    method @androidx.compose.Stable public static int constrainWidth(androidx.compose.ui.unit.Constraints, int width);
-    method @androidx.compose.Stable public static androidx.compose.ui.unit.Constraints enforce(androidx.compose.ui.unit.Constraints, androidx.compose.ui.unit.Constraints otherConstraints);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints Constraints(int minWidth = 0, int maxWidth = 2147483647, int minHeight = 0, int maxHeight = 2147483647);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntSize constrain(androidx.compose.ui.unit.Constraints, androidx.compose.ui.unit.IntSize size);
+    method @androidx.compose.runtime.Stable public static int constrainHeight(androidx.compose.ui.unit.Constraints, int height);
+    method @androidx.compose.runtime.Stable public static int constrainWidth(androidx.compose.ui.unit.Constraints, int width);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints enforce(androidx.compose.ui.unit.Constraints, androidx.compose.ui.unit.Constraints otherConstraints);
     method public static boolean getHasFixedHeight(androidx.compose.ui.unit.Constraints);
     method public static boolean getHasFixedWidth(androidx.compose.ui.unit.Constraints);
     method public static boolean isZero(androidx.compose.ui.unit.Constraints);
-    method @androidx.compose.Stable public static androidx.compose.ui.unit.Constraints offset(androidx.compose.ui.unit.Constraints, int horizontal = 0, int vertical = 0);
-    method @androidx.compose.Stable public static boolean satisfiedBy(androidx.compose.ui.unit.Constraints, androidx.compose.ui.unit.IntSize size);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints offset(androidx.compose.ui.unit.Constraints, int horizontal = 0, int vertical = 0);
+    method @androidx.compose.runtime.Stable public static boolean satisfiedBy(androidx.compose.ui.unit.Constraints, androidx.compose.ui.unit.IntSize size);
   }
 
-  @androidx.compose.Immutable public interface Density {
+  @androidx.compose.runtime.Immutable public interface Density {
     method public float getDensity();
     method public float getFontScale();
-    method @androidx.compose.Stable public default float toDp(int);
-    method @androidx.compose.Stable public default float toDp(float);
-    method @androidx.compose.Stable public default float toDp--R2X_6o(long);
-    method @androidx.compose.Stable public default int toIntPx--R2X_6o(long);
-    method @androidx.compose.Stable public default int toIntPx-0680j_4(float);
-    method @androidx.compose.Stable public default float toPx--R2X_6o(long);
-    method @androidx.compose.Stable public default float toPx-0680j_4(float);
-    method @androidx.compose.Stable public default androidx.compose.ui.geometry.Rect toRect(androidx.compose.ui.unit.Bounds);
-    method @androidx.compose.Stable public default long toSp(int);
-    method @androidx.compose.Stable public default long toSp(float);
-    method @androidx.compose.Stable public default long toSp-0680j_4(float);
+    method @androidx.compose.runtime.Stable public default float toDp(int);
+    method @androidx.compose.runtime.Stable public default float toDp(float);
+    method @androidx.compose.runtime.Stable public default float toDp--R2X_6o(long);
+    method @androidx.compose.runtime.Stable public default int toIntPx--R2X_6o(long);
+    method @androidx.compose.runtime.Stable public default int toIntPx-0680j_4(float);
+    method @androidx.compose.runtime.Stable public default float toPx--R2X_6o(long);
+    method @androidx.compose.runtime.Stable public default float toPx-0680j_4(float);
+    method @androidx.compose.runtime.Stable public default androidx.compose.ui.geometry.Rect toRect(androidx.compose.ui.unit.Bounds);
+    method @androidx.compose.runtime.Stable public default long toSp(int);
+    method @androidx.compose.runtime.Stable public default long toSp(float);
+    method @androidx.compose.runtime.Stable public default long toSp-0680j_4(float);
     property public abstract float density;
     property public abstract float fontScale;
   }
 
   public final class DensityKt {
-    method @androidx.compose.Stable public static androidx.compose.ui.unit.Density Density(float density, float fontScale = 1f);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Density Density(float density, float fontScale = 1f);
   }
 
-  @androidx.compose.Immutable public final inline class Dp implements java.lang.Comparable<androidx.compose.ui.unit.Dp> {
+  @androidx.compose.runtime.Immutable public final inline class Dp implements java.lang.Comparable<androidx.compose.ui.unit.Dp> {
     ctor public Dp();
-    method @androidx.compose.Stable public operator int compareTo-0680j_4(float p);
-    method @androidx.compose.Stable public static operator int compareTo-0680j_4(float $this, float other);
+    method @androidx.compose.runtime.Stable public operator int compareTo-0680j_4(float p);
+    method @androidx.compose.runtime.Stable public static operator int compareTo-0680j_4(float $this, float other);
     method public static float constructor-impl(float value);
-    method @androidx.compose.Stable public static inline operator float div-0680j_4(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float div-_kMlNio(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float div-impl(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float div-impl(float $this, int other);
-    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.runtime.Stable public static inline operator float div-0680j_4(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float div-_kMlNio(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float div-impl(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float div-impl(float $this, int other);
+    method @androidx.compose.runtime.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
-    method @androidx.compose.Stable public static inline operator float minus-0680j_4(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float plus-0680j_4(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float times-0680j_4(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float times-_kMlNio(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float times-impl(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float times-impl(float $this, int other);
-    method @androidx.compose.Stable public static String toString-impl(float $this);
-    method @androidx.compose.Stable public static inline operator float unaryMinus-impl(float $this);
+    method @androidx.compose.runtime.Immutable public static inline int hashCode-impl(float p);
+    method @androidx.compose.runtime.Stable public static inline operator float minus-0680j_4(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float plus-0680j_4(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float times-0680j_4(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float times-_kMlNio(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float times-impl(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float times-impl(float $this, int other);
+    method @androidx.compose.runtime.Stable public static String toString-impl(float $this);
+    method @androidx.compose.runtime.Stable public static inline operator float unaryMinus-impl(float $this);
     field public static final androidx.compose.ui.unit.Dp.Companion Companion;
   }
 
@@ -111,100 +111,100 @@ package androidx.compose.ui.unit {
     property public final float Unspecified;
   }
 
-  @androidx.compose.Immutable public final inline class DpCubed implements java.lang.Comparable<androidx.compose.ui.unit.DpCubed> {
+  @androidx.compose.runtime.Immutable public final inline class DpCubed implements java.lang.Comparable<androidx.compose.ui.unit.DpCubed> {
     ctor public DpCubed();
-    method @androidx.compose.Stable public operator int compareTo-MZZJ3Fw(float p);
-    method @androidx.compose.Stable public static operator int compareTo-MZZJ3Fw(float $this, float other);
+    method @androidx.compose.runtime.Stable public operator int compareTo-MZZJ3Fw(float p);
+    method @androidx.compose.runtime.Stable public static operator int compareTo-MZZJ3Fw(float $this, float other);
     method public static float constructor-impl(float value);
-    method @androidx.compose.Stable public static inline operator float div-0680j_4(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float div-MZZJ3Fw(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float div-_kMlNio(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float div-impl(float $this, float other);
-    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.runtime.Stable public static inline operator float div-0680j_4(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float div-MZZJ3Fw(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float div-_kMlNio(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float div-impl(float $this, float other);
+    method @androidx.compose.runtime.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
-    method @androidx.compose.Stable public static inline operator float minus-MZZJ3Fw(float $this, float dimension);
-    method @androidx.compose.Stable public static inline operator float plus-MZZJ3Fw(float $this, float dimension);
-    method @androidx.compose.Stable public static inline operator float times-impl(float $this, float other);
-    method @androidx.compose.Stable public static String toString-impl(float $this);
+    method @androidx.compose.runtime.Immutable public static inline int hashCode-impl(float p);
+    method @androidx.compose.runtime.Stable public static inline operator float minus-MZZJ3Fw(float $this, float dimension);
+    method @androidx.compose.runtime.Stable public static inline operator float plus-MZZJ3Fw(float $this, float dimension);
+    method @androidx.compose.runtime.Stable public static inline operator float times-impl(float $this, float other);
+    method @androidx.compose.runtime.Stable public static String toString-impl(float $this);
   }
 
-  @androidx.compose.Immutable public final inline class DpInverse implements java.lang.Comparable<androidx.compose.ui.unit.DpInverse> {
+  @androidx.compose.runtime.Immutable public final inline class DpInverse implements java.lang.Comparable<androidx.compose.ui.unit.DpInverse> {
     ctor public DpInverse();
-    method @androidx.compose.Stable public operator int compareTo-NdYQkfI(float p);
-    method @androidx.compose.Stable public static operator int compareTo-NdYQkfI(float $this, float other);
+    method @androidx.compose.runtime.Stable public operator int compareTo-NdYQkfI(float p);
+    method @androidx.compose.runtime.Stable public static operator int compareTo-NdYQkfI(float $this, float other);
     method public static float constructor-impl(float value);
-    method @androidx.compose.Stable public static inline operator float div-impl(float $this, float other);
-    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.runtime.Stable public static inline operator float div-impl(float $this, float other);
+    method @androidx.compose.runtime.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
-    method @androidx.compose.Stable public static inline operator float minus-NdYQkfI(float $this, float dimension);
-    method @androidx.compose.Stable public static inline operator float plus-NdYQkfI(float $this, float dimension);
-    method @androidx.compose.Stable public static inline operator float times-0680j_4(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float times-MZZJ3Fw(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float times-_kMlNio(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float times-impl(float $this, float other);
-    method @androidx.compose.Stable public static String toString-impl(float $this);
+    method @androidx.compose.runtime.Immutable public static inline int hashCode-impl(float p);
+    method @androidx.compose.runtime.Stable public static inline operator float minus-NdYQkfI(float $this, float dimension);
+    method @androidx.compose.runtime.Stable public static inline operator float plus-NdYQkfI(float $this, float dimension);
+    method @androidx.compose.runtime.Stable public static inline operator float times-0680j_4(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float times-MZZJ3Fw(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float times-_kMlNio(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float times-impl(float $this, float other);
+    method @androidx.compose.runtime.Stable public static String toString-impl(float $this);
   }
 
   public final class DpKt {
-    method @androidx.compose.Stable public static inline long Position-ioHfwGI(float x, float y);
-    method @androidx.compose.Stable public static inline float coerceAtLeast-ioHfwGI(float, float minimumValue);
-    method @androidx.compose.Stable public static inline float coerceAtMost-ioHfwGI(float, float maximumValue);
-    method @androidx.compose.Stable public static inline float coerceIn-qYQSm_w(float, float minimumValue, float maximumValue);
-    method @androidx.compose.Stable public static inline operator float div-Cp9Wa6o(int, float other);
-    method @androidx.compose.Stable public static inline operator float div-NSq4UQk(double, float other);
-    method @androidx.compose.Stable public static inline operator float div-NnR5yEA(float, float other);
-    method @androidx.compose.Stable public static float getDistance-IsWn59c(long);
+    method @androidx.compose.runtime.Stable public static inline long Position-ioHfwGI(float x, float y);
+    method @androidx.compose.runtime.Stable public static inline float coerceAtLeast-ioHfwGI(float, float minimumValue);
+    method @androidx.compose.runtime.Stable public static inline float coerceAtMost-ioHfwGI(float, float maximumValue);
+    method @androidx.compose.runtime.Stable public static inline float coerceIn-qYQSm_w(float, float minimumValue, float maximumValue);
+    method @androidx.compose.runtime.Stable public static inline operator float div-Cp9Wa6o(int, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float div-NSq4UQk(double, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float div-NnR5yEA(float, float other);
+    method @androidx.compose.runtime.Stable public static float getDistance-IsWn59c(long);
     method public static inline float getDp(int);
     method public static inline float getDp(double);
     method public static inline float getDp(float);
     method public static inline float getHeight(androidx.compose.ui.unit.Bounds);
     method public static inline float getWidth(androidx.compose.ui.unit.Bounds);
-    method @androidx.compose.Stable public static inline boolean isFinite-0680j_4(float);
-    method @androidx.compose.Stable public static long lerp-2vlZtig(long start, long stop, float fraction);
-    method @androidx.compose.Stable public static float lerp-7oHWEOI(float start, float stop, float fraction);
-    method @androidx.compose.Stable public static inline float max-ioHfwGI(float a, float b);
-    method @androidx.compose.Stable public static inline float min-ioHfwGI(float a, float b);
-    method @androidx.compose.Stable public static inline operator float times-Cp9Wa6o(int, float other);
-    method @androidx.compose.Stable public static inline operator float times-NSq4UQk(double, float other);
-    method @androidx.compose.Stable public static inline operator float times-NnR5yEA(float, float other);
+    method @androidx.compose.runtime.Stable public static inline boolean isFinite-0680j_4(float);
+    method @androidx.compose.runtime.Stable public static long lerp-2vlZtig(long start, long stop, float fraction);
+    method @androidx.compose.runtime.Stable public static float lerp-7oHWEOI(float start, float stop, float fraction);
+    method @androidx.compose.runtime.Stable public static inline float max-ioHfwGI(float a, float b);
+    method @androidx.compose.runtime.Stable public static inline float min-ioHfwGI(float a, float b);
+    method @androidx.compose.runtime.Stable public static inline operator float times-Cp9Wa6o(int, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float times-NSq4UQk(double, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float times-NnR5yEA(float, float other);
   }
 
-  @androidx.compose.Immutable public final inline class DpSquared implements java.lang.Comparable<androidx.compose.ui.unit.DpSquared> {
+  @androidx.compose.runtime.Immutable public final inline class DpSquared implements java.lang.Comparable<androidx.compose.ui.unit.DpSquared> {
     ctor public DpSquared();
-    method @androidx.compose.Stable public operator int compareTo-_kMlNio(float p);
-    method @androidx.compose.Stable public static operator int compareTo-_kMlNio(float $this, float other);
+    method @androidx.compose.runtime.Stable public operator int compareTo-_kMlNio(float p);
+    method @androidx.compose.runtime.Stable public static operator int compareTo-_kMlNio(float $this, float other);
     method public static float constructor-impl(float value);
-    method @androidx.compose.Stable public static inline operator float div-0680j_4(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float div-MZZJ3Fw(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float div-_kMlNio(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float div-impl(float $this, float other);
-    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.runtime.Stable public static inline operator float div-0680j_4(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float div-MZZJ3Fw(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float div-_kMlNio(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float div-impl(float $this, float other);
+    method @androidx.compose.runtime.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
-    method @androidx.compose.Stable public static inline operator float minus-_kMlNio(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float plus-_kMlNio(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float times-0680j_4(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float times-impl(float $this, float other);
-    method @androidx.compose.Stable public static String toString-impl(float $this);
+    method @androidx.compose.runtime.Immutable public static inline int hashCode-impl(float p);
+    method @androidx.compose.runtime.Stable public static inline operator float minus-_kMlNio(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float plus-_kMlNio(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float times-0680j_4(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float times-impl(float $this, float other);
+    method @androidx.compose.runtime.Stable public static String toString-impl(float $this);
   }
 
-  @androidx.compose.Immutable public final class Duration implements java.lang.Comparable<androidx.compose.ui.unit.Duration> {
+  @androidx.compose.runtime.Immutable public final class Duration implements java.lang.Comparable<androidx.compose.ui.unit.Duration> {
     ctor public Duration(long nanoseconds);
-    method @androidx.compose.Stable public int compareTo(androidx.compose.ui.unit.Duration other);
+    method @androidx.compose.runtime.Stable public int compareTo(androidx.compose.ui.unit.Duration other);
     method public long component1();
-    method @androidx.compose.Immutable public androidx.compose.ui.unit.Duration copy(long nanoseconds);
-    method @androidx.compose.Stable public operator androidx.compose.ui.unit.Duration div(int quotient);
-    method @androidx.compose.Stable public operator androidx.compose.ui.unit.Duration div(double quotient);
+    method @androidx.compose.runtime.Immutable public androidx.compose.ui.unit.Duration copy(long nanoseconds);
+    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.Duration div(int quotient);
+    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.Duration div(double quotient);
     method public long getNanoseconds();
-    method @androidx.compose.Stable public operator androidx.compose.ui.unit.Duration minus(androidx.compose.ui.unit.Duration other);
-    method @androidx.compose.Stable public operator androidx.compose.ui.unit.Duration plus(androidx.compose.ui.unit.Duration other);
-    method @androidx.compose.Stable public operator androidx.compose.ui.unit.Duration times(int factor);
-    method @androidx.compose.Stable public operator androidx.compose.ui.unit.Duration times(double factor);
+    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.Duration minus(androidx.compose.ui.unit.Duration other);
+    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.Duration plus(androidx.compose.ui.unit.Duration other);
+    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.Duration times(int factor);
+    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.Duration times(double factor);
     field public static final androidx.compose.ui.unit.Duration.Companion Companion;
   }
 
@@ -248,13 +248,13 @@ package androidx.compose.ui.unit {
     field public static final long SecondsPerMinute = 60L; // 0x3cL
   }
 
-  @androidx.compose.Immutable public final class IntBounds {
+  @androidx.compose.runtime.Immutable public final class IntBounds {
     ctor public IntBounds(int left, int top, int right, int bottom);
     method public int component1();
     method public int component2();
     method public int component3();
     method public int component4();
-    method @androidx.compose.Immutable public androidx.compose.ui.unit.IntBounds copy(int left, int top, int right, int bottom);
+    method @androidx.compose.runtime.Immutable public androidx.compose.ui.unit.IntBounds copy(int left, int top, int right, int bottom);
     method public int getBottom();
     method public int getLeft();
     method public int getRight();
@@ -262,24 +262,24 @@ package androidx.compose.ui.unit {
   }
 
   public final class IntBoundsKt {
-    method @androidx.compose.Stable public static inline androidx.compose.ui.unit.IntBounds IntBounds(androidx.compose.ui.unit.IntOffset topLeft, androidx.compose.ui.unit.IntSize size);
-    method @androidx.compose.Stable public static inline androidx.compose.ui.unit.IntOffset center(androidx.compose.ui.unit.IntBounds);
+    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntBounds IntBounds(androidx.compose.ui.unit.IntOffset topLeft, androidx.compose.ui.unit.IntSize size);
+    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntOffset center(androidx.compose.ui.unit.IntBounds);
     method public static inline int getHeight(androidx.compose.ui.unit.IntBounds);
     method public static inline int getWidth(androidx.compose.ui.unit.IntBounds);
-    method @androidx.compose.Stable public static androidx.compose.ui.unit.IntBounds toBounds(androidx.compose.ui.unit.IntSize);
-    method @androidx.compose.Stable public static androidx.compose.ui.geometry.Rect toRect(androidx.compose.ui.unit.IntBounds);
-    method @androidx.compose.Stable public static androidx.compose.ui.unit.IntSize toSize(androidx.compose.ui.unit.IntBounds);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntBounds toBounds(androidx.compose.ui.unit.IntSize);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect toRect(androidx.compose.ui.unit.IntBounds);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntSize toSize(androidx.compose.ui.unit.IntBounds);
   }
 
-  @androidx.compose.Immutable public final class IntOffset {
+  @androidx.compose.runtime.Immutable public final class IntOffset {
     ctor public IntOffset(internal long value);
-    method @androidx.compose.Stable public inline operator int component1();
-    method @androidx.compose.Stable public inline operator int component2();
+    method @androidx.compose.runtime.Stable public inline operator int component1();
+    method @androidx.compose.runtime.Stable public inline operator int component2();
     method public int getX();
     method public int getY();
-    method @androidx.compose.Stable public inline operator androidx.compose.ui.unit.IntOffset minus(androidx.compose.ui.unit.IntOffset other);
-    method @androidx.compose.Stable public inline operator androidx.compose.ui.unit.IntOffset plus(androidx.compose.ui.unit.IntOffset other);
-    method @androidx.compose.Stable public inline operator androidx.compose.ui.unit.IntOffset unaryMinus();
+    method @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.IntOffset minus(androidx.compose.ui.unit.IntOffset other);
+    method @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.IntOffset plus(androidx.compose.ui.unit.IntOffset other);
+    method @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.IntOffset unaryMinus();
     property public final int x;
     property public final int y;
     field public static final androidx.compose.ui.unit.IntOffset.Companion Companion;
@@ -291,23 +291,23 @@ package androidx.compose.ui.unit {
   }
 
   public final class IntOffsetKt {
-    method @androidx.compose.Stable public static inline androidx.compose.ui.unit.IntOffset IntOffset(int x, int y);
-    method @androidx.compose.Stable public static androidx.compose.ui.unit.IntOffset lerp(androidx.compose.ui.unit.IntOffset start, androidx.compose.ui.unit.IntOffset stop, float fraction);
-    method @androidx.compose.Stable public static operator androidx.compose.ui.geometry.Offset minus(androidx.compose.ui.geometry.Offset, androidx.compose.ui.unit.IntOffset offset);
-    method @androidx.compose.Stable public static operator androidx.compose.ui.geometry.Offset minus(androidx.compose.ui.unit.IntOffset, androidx.compose.ui.geometry.Offset offset);
-    method @androidx.compose.Stable public static operator androidx.compose.ui.geometry.Offset plus(androidx.compose.ui.geometry.Offset, androidx.compose.ui.unit.IntOffset offset);
-    method @androidx.compose.Stable public static operator androidx.compose.ui.geometry.Offset plus(androidx.compose.ui.unit.IntOffset, androidx.compose.ui.geometry.Offset offset);
-    method @androidx.compose.Stable public static inline androidx.compose.ui.geometry.Offset toOffset(androidx.compose.ui.unit.IntOffset);
+    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntOffset IntOffset(int x, int y);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntOffset lerp(androidx.compose.ui.unit.IntOffset start, androidx.compose.ui.unit.IntOffset stop, float fraction);
+    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset minus(androidx.compose.ui.geometry.Offset, androidx.compose.ui.unit.IntOffset offset);
+    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset minus(androidx.compose.ui.unit.IntOffset, androidx.compose.ui.geometry.Offset offset);
+    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset plus(androidx.compose.ui.geometry.Offset, androidx.compose.ui.unit.IntOffset offset);
+    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset plus(androidx.compose.ui.unit.IntOffset, androidx.compose.ui.geometry.Offset offset);
+    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.geometry.Offset toOffset(androidx.compose.ui.unit.IntOffset);
   }
 
-  @androidx.compose.Immutable public final class IntSize {
+  @androidx.compose.runtime.Immutable public final class IntSize {
     ctor public IntSize(internal long packedValue);
-    method @androidx.compose.Stable public inline operator int component1();
-    method @androidx.compose.Stable public inline operator int component2();
-    method @androidx.compose.Stable public operator androidx.compose.ui.unit.IntSize div(int other);
+    method @androidx.compose.runtime.Stable public inline operator int component1();
+    method @androidx.compose.runtime.Stable public inline operator int component2();
+    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntSize div(int other);
     method public int getHeight();
     method public int getWidth();
-    method @androidx.compose.Stable public operator androidx.compose.ui.unit.IntSize times(int other);
+    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntSize times(int other);
     property public final int height;
     property public final int width;
     field public static final androidx.compose.ui.unit.IntSize.Companion Companion;
@@ -319,10 +319,10 @@ package androidx.compose.ui.unit {
   }
 
   public final class IntSizeKt {
-    method @androidx.compose.Stable public static androidx.compose.ui.unit.IntSize IntSize(int width, int height);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntSize IntSize(int width, int height);
     method public static androidx.compose.ui.unit.IntOffset getCenter(androidx.compose.ui.unit.IntSize);
-    method @androidx.compose.Stable public static operator androidx.compose.ui.unit.IntSize times(int, androidx.compose.ui.unit.IntSize size);
-    method @androidx.compose.Stable public static long toSize(androidx.compose.ui.unit.IntSize);
+    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.unit.IntSize times(int, androidx.compose.ui.unit.IntSize size);
+    method @androidx.compose.runtime.Stable public static long toSize(androidx.compose.ui.unit.IntSize);
   }
 
   public enum LayoutDirection {
@@ -332,98 +332,98 @@ package androidx.compose.ui.unit {
     enum_constant public static final androidx.compose.ui.unit.LayoutDirection Rtl;
   }
 
-  @androidx.compose.Immutable public final inline class Position {
+  @androidx.compose.runtime.Immutable public final inline class Position {
     ctor public Position();
     method public static long constructor-impl(internal long packedValue);
     method public static long copy-ioHfwGI(long $this, float x = this.x, float y = this.y);
-    method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
+    method @androidx.compose.runtime.Immutable public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public static float getX-impl(long $this);
     method public static float getY-impl(long $this);
-    method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
-    method @androidx.compose.Stable public static inline operator long minus-IsWn59c(long $this, long other);
-    method @androidx.compose.Stable public static inline operator long plus-IsWn59c(long $this, long other);
-    method @androidx.compose.Stable public static String toString-impl(long $this);
+    method @androidx.compose.runtime.Immutable public static inline int hashCode-impl(long p);
+    method @androidx.compose.runtime.Stable public static inline operator long minus-IsWn59c(long $this, long other);
+    method @androidx.compose.runtime.Stable public static inline operator long plus-IsWn59c(long $this, long other);
+    method @androidx.compose.runtime.Stable public static String toString-impl(long $this);
   }
 
-  @androidx.compose.Immutable public final class PxBounds {
+  @androidx.compose.runtime.Immutable public final class PxBounds {
     ctor public PxBounds(float left, float top, float right, float bottom);
     method public float component1();
     method public float component2();
     method public float component3();
     method public float component4();
-    method @androidx.compose.Immutable public androidx.compose.ui.unit.PxBounds copy(float left, float top, float right, float bottom);
+    method @androidx.compose.runtime.Immutable public androidx.compose.ui.unit.PxBounds copy(float left, float top, float right, float bottom);
     method public float getBottom();
     method public float getLeft();
     method public float getRight();
     method public float getTop();
   }
 
-  @androidx.compose.Immutable public final inline class PxCubed implements java.lang.Comparable<androidx.compose.ui.unit.PxCubed> {
+  @androidx.compose.runtime.Immutable public final inline class PxCubed implements java.lang.Comparable<androidx.compose.ui.unit.PxCubed> {
     ctor public PxCubed();
-    method @androidx.compose.Stable public operator int compareTo-830ceAw(float p);
-    method @androidx.compose.Stable public static operator int compareTo-830ceAw(float $this, float other);
+    method @androidx.compose.runtime.Stable public operator int compareTo-830ceAw(float p);
+    method @androidx.compose.runtime.Stable public static operator int compareTo-830ceAw(float $this, float other);
     method public static float constructor-impl(float value);
-    method @androidx.compose.Stable public static inline operator float div-830ceAw(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float div-impl(float $this, float other);
-    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.runtime.Stable public static inline operator float div-830ceAw(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float div-impl(float $this, float other);
+    method @androidx.compose.runtime.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
-    method @androidx.compose.Stable public static inline operator float minus-830ceAw(float $this, float dimension);
-    method @androidx.compose.Stable public static inline operator float plus-830ceAw(float $this, float dimension);
-    method @androidx.compose.Stable public static inline operator float times-impl(float $this, float other);
-    method @androidx.compose.Stable public static String toString-impl(float $this);
+    method @androidx.compose.runtime.Immutable public static inline int hashCode-impl(float p);
+    method @androidx.compose.runtime.Stable public static inline operator float minus-830ceAw(float $this, float dimension);
+    method @androidx.compose.runtime.Stable public static inline operator float plus-830ceAw(float $this, float dimension);
+    method @androidx.compose.runtime.Stable public static inline operator float times-impl(float $this, float other);
+    method @androidx.compose.runtime.Stable public static String toString-impl(float $this);
   }
 
-  @androidx.compose.Immutable public final inline class PxInverse implements java.lang.Comparable<androidx.compose.ui.unit.PxInverse> {
+  @androidx.compose.runtime.Immutable public final inline class PxInverse implements java.lang.Comparable<androidx.compose.ui.unit.PxInverse> {
     ctor public PxInverse();
-    method @androidx.compose.Stable public operator int compareTo-QHJUJtg(float p);
-    method @androidx.compose.Stable public static operator int compareTo-QHJUJtg(float $this, float other);
+    method @androidx.compose.runtime.Stable public operator int compareTo-QHJUJtg(float p);
+    method @androidx.compose.runtime.Stable public static operator int compareTo-QHJUJtg(float $this, float other);
     method public static float constructor-impl(float value);
-    method @androidx.compose.Stable public static inline operator float div-impl(float $this, float other);
-    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.runtime.Stable public static inline operator float div-impl(float $this, float other);
+    method @androidx.compose.runtime.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
-    method @androidx.compose.Stable public static inline operator float minus-QHJUJtg(float $this, float dimension);
-    method @androidx.compose.Stable public static inline operator float plus-QHJUJtg(float $this, float dimension);
-    method @androidx.compose.Stable public static inline operator float times-830ceAw(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float times-impl(float $this, float other);
-    method @androidx.compose.Stable public static String toString-impl(float $this);
+    method @androidx.compose.runtime.Immutable public static inline int hashCode-impl(float p);
+    method @androidx.compose.runtime.Stable public static inline operator float minus-QHJUJtg(float $this, float dimension);
+    method @androidx.compose.runtime.Stable public static inline operator float plus-QHJUJtg(float $this, float dimension);
+    method @androidx.compose.runtime.Stable public static inline operator float times-830ceAw(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float times-impl(float $this, float other);
+    method @androidx.compose.runtime.Stable public static String toString-impl(float $this);
   }
 
   public final class PxKt {
-    method @androidx.compose.Stable public static inline androidx.compose.ui.unit.PxBounds PxBounds-MrV732k(androidx.compose.ui.geometry.Offset topLeft, long size);
-    method @androidx.compose.Stable public static inline androidx.compose.ui.geometry.Offset center(androidx.compose.ui.unit.PxBounds);
-    method @androidx.compose.Stable public static androidx.compose.ui.geometry.Offset center-uvyYCjk(long);
+    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.PxBounds PxBounds-MrV732k(androidx.compose.ui.geometry.Offset topLeft, long size);
+    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.geometry.Offset center(androidx.compose.ui.unit.PxBounds);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Offset center-uvyYCjk(long);
     method public static inline float getHeight(androidx.compose.ui.unit.PxBounds);
     method public static inline float getWidth(androidx.compose.ui.unit.PxBounds);
-    method @androidx.compose.Stable public static inline androidx.compose.ui.unit.IntOffset round(androidx.compose.ui.geometry.Offset);
-    method @androidx.compose.Stable public static androidx.compose.ui.unit.PxBounds toBounds-uvyYCjk(long);
-    method @androidx.compose.Stable public static androidx.compose.ui.geometry.Rect toRect(androidx.compose.ui.unit.PxBounds);
-    method @androidx.compose.Stable public static long toSize(androidx.compose.ui.unit.PxBounds);
+    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntOffset round(androidx.compose.ui.geometry.Offset);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.PxBounds toBounds-uvyYCjk(long);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect toRect(androidx.compose.ui.unit.PxBounds);
+    method @androidx.compose.runtime.Stable public static long toSize(androidx.compose.ui.unit.PxBounds);
   }
 
-  @androidx.compose.Immutable public final inline class PxSquared implements java.lang.Comparable<androidx.compose.ui.unit.PxSquared> {
+  @androidx.compose.runtime.Immutable public final inline class PxSquared implements java.lang.Comparable<androidx.compose.ui.unit.PxSquared> {
     ctor public PxSquared();
-    method @androidx.compose.Stable public operator int compareTo-iBfx0ow(float p);
-    method @androidx.compose.Stable public static operator int compareTo-iBfx0ow(float $this, float other);
+    method @androidx.compose.runtime.Stable public operator int compareTo-iBfx0ow(float p);
+    method @androidx.compose.runtime.Stable public static operator int compareTo-iBfx0ow(float $this, float other);
     method public static float constructor-impl(float value);
-    method @androidx.compose.Stable public static inline operator float div-830ceAw(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float div-iBfx0ow(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float div-impl(float $this, float other);
-    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.runtime.Stable public static inline operator float div-830ceAw(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float div-iBfx0ow(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float div-impl(float $this, float other);
+    method @androidx.compose.runtime.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
-    method @androidx.compose.Stable public static inline operator float minus-iBfx0ow(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float plus-iBfx0ow(float $this, float other);
-    method @androidx.compose.Stable public static inline operator float times-impl(float $this, float other);
-    method @androidx.compose.Stable public static String toString-impl(float $this);
+    method @androidx.compose.runtime.Immutable public static inline int hashCode-impl(float p);
+    method @androidx.compose.runtime.Stable public static inline operator float minus-iBfx0ow(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float plus-iBfx0ow(float $this, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float times-impl(float $this, float other);
+    method @androidx.compose.runtime.Stable public static String toString-impl(float $this);
   }
 
-  @androidx.compose.Immutable public final inline class TextUnit {
+  @androidx.compose.runtime.Immutable public final inline class TextUnit {
     ctor public TextUnit();
     method public static inline operator int compareTo--R2X_6o(long $this, long other);
     method public static long constructor-impl(long packedValue);
@@ -431,12 +431,12 @@ package androidx.compose.ui.unit {
     method public static inline operator long div-impl(long $this, float other);
     method public static inline operator long div-impl(long $this, double other);
     method public static inline operator long div-impl(long $this, int other);
-    method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
+    method @androidx.compose.runtime.Immutable public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public long getPackedValue();
     method public static androidx.compose.ui.unit.TextUnitType getType-impl(long $this);
     method public static float getValue-impl(long $this);
-    method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
+    method @androidx.compose.runtime.Immutable public static inline int hashCode-impl(long p);
     method public static boolean isEm-impl(long $this);
     method public static boolean isInherit-impl(long $this);
     method public static boolean isSp-impl(long $this);
@@ -462,21 +462,21 @@ package androidx.compose.ui.unit {
   }
 
   public final class TextUnitKt {
-    method @androidx.compose.Stable public static inline long coerceAtLeast-8E83U4Q(long, long minimumValue);
-    method @androidx.compose.Stable public static inline long coerceAtMost-8E83U4Q(long, long maximumValue);
-    method @androidx.compose.Stable public static inline long coerceIn-HxQ2Pkc(long, long minimumValue, long maximumValue);
+    method @androidx.compose.runtime.Stable public static inline long coerceAtLeast-8E83U4Q(long, long minimumValue);
+    method @androidx.compose.runtime.Stable public static inline long coerceAtMost-8E83U4Q(long, long maximumValue);
+    method @androidx.compose.runtime.Stable public static inline long coerceIn-HxQ2Pkc(long, long minimumValue, long maximumValue);
     method public static long getEm(float);
     method public static long getEm(double);
     method public static long getEm(int);
     method public static long getSp(float);
     method public static long getSp(double);
     method public static long getSp(int);
-    method @androidx.compose.Stable public static long lerp-KeuwX78(long a, long b, float t);
-    method @androidx.compose.Stable public static inline long max-8E83U4Q(long a, long b);
-    method @androidx.compose.Stable public static inline long min-8E83U4Q(long a, long b);
-    method @androidx.compose.Stable public static inline operator long times-0PRCd3Q(double, long other);
-    method @androidx.compose.Stable public static inline operator long times-Ew26DjI(float, long other);
-    method @androidx.compose.Stable public static inline operator long times-VJWtCv4(int, long other);
+    method @androidx.compose.runtime.Stable public static long lerp-KeuwX78(long a, long b, float t);
+    method @androidx.compose.runtime.Stable public static inline long max-8E83U4Q(long a, long b);
+    method @androidx.compose.runtime.Stable public static inline long min-8E83U4Q(long a, long b);
+    method @androidx.compose.runtime.Stable public static inline operator long times-0PRCd3Q(double, long other);
+    method @androidx.compose.runtime.Stable public static inline operator long times-Ew26DjI(float, long other);
+    method @androidx.compose.runtime.Stable public static inline operator long times-VJWtCv4(int, long other);
   }
 
   public enum TextUnitType {
@@ -487,11 +487,11 @@ package androidx.compose.ui.unit {
     enum_constant public static final androidx.compose.ui.unit.TextUnitType Sp;
   }
 
-  @androidx.compose.Immutable public final class Uptime implements java.lang.Comparable<androidx.compose.ui.unit.Uptime> {
+  @androidx.compose.runtime.Immutable public final class Uptime implements java.lang.Comparable<androidx.compose.ui.unit.Uptime> {
     ctor public Uptime(long nanoseconds);
     method public int compareTo(androidx.compose.ui.unit.Uptime other);
     method public long component1();
-    method @androidx.compose.Immutable public androidx.compose.ui.unit.Uptime copy(long nanoseconds);
+    method @androidx.compose.runtime.Immutable public androidx.compose.ui.unit.Uptime copy(long nanoseconds);
     method public long getNanoseconds();
     method public operator androidx.compose.ui.unit.Uptime minus(androidx.compose.ui.unit.Duration duration);
     method public operator androidx.compose.ui.unit.Duration minus(androidx.compose.ui.unit.Uptime other);
@@ -508,10 +508,10 @@ package androidx.compose.ui.unit {
     method public static operator androidx.compose.ui.unit.Uptime plus(androidx.compose.ui.unit.Duration, androidx.compose.ui.unit.Uptime uptime);
   }
 
-  @androidx.compose.Immutable public final class Velocity {
+  @androidx.compose.runtime.Immutable public final class Velocity {
     ctor public Velocity(androidx.compose.ui.geometry.Offset pixelsPerSecond);
     method public androidx.compose.ui.geometry.Offset component1();
-    method @androidx.compose.Immutable public androidx.compose.ui.unit.Velocity copy(androidx.compose.ui.geometry.Offset pixelsPerSecond);
+    method @androidx.compose.runtime.Immutable public androidx.compose.ui.unit.Velocity copy(androidx.compose.ui.geometry.Offset pixelsPerSecond);
     method public androidx.compose.ui.geometry.Offset getPixelsPerSecond();
     method public operator androidx.compose.ui.unit.Velocity unaryMinus();
     field public static final androidx.compose.ui.unit.Velocity.Companion Companion;

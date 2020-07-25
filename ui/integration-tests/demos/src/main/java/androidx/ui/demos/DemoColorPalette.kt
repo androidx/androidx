@@ -17,11 +17,11 @@
 package androidx.ui.demos
 
 import android.content.SharedPreferences
-import androidx.compose.Composable
-import androidx.compose.Stable
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.setValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.ColorPalette
 import androidx.compose.material.darkColorPalette

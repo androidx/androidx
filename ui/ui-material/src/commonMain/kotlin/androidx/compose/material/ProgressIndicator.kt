@@ -25,7 +25,7 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.repeatable
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.animation.transition
 import androidx.ui.core.DensityAmbient
 import androidx.compose.ui.unit.LayoutDirection

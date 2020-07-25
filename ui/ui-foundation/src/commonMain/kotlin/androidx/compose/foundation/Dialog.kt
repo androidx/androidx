@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 
 /**
  * Opens a dialog with the given content.

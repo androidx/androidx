@@ -16,7 +16,7 @@
 
 package androidx.ui.test.gesturescope
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier

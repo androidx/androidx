@@ -20,7 +20,7 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Text
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner

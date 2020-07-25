@@ -18,7 +18,7 @@ package androidx.ui.core.samples
 
 import android.view.View
 import androidx.annotation.Sampled
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import android.widget.Button
 import android.widget.LinearLayout
 import androidx.ui.viewinterop.emitView

@@ -16,8 +16,8 @@
 
 package androidx.ui.core.demos
 
-import androidx.compose.Composable
-import androidx.compose.getValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

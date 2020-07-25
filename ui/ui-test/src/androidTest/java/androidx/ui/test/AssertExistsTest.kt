@@ -16,7 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.compose.state
+import androidx.compose.runtime.state
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier

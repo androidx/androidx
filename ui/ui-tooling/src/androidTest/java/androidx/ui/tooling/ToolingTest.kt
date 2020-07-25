@@ -18,7 +18,7 @@ package androidx.ui.tooling
 
 import android.os.Handler
 import android.os.Looper
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent

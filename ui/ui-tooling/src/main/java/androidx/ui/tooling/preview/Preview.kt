@@ -18,7 +18,7 @@ package androidx.ui.tooling.preview
 
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 
 /**
  * [Preview] can be applied to @[Composable] methods with no parameters to show them in the Android

@@ -20,7 +20,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.androidview.adapters.setOnClick
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier

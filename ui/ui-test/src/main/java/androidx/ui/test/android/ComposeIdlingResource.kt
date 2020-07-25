@@ -18,9 +18,9 @@ package androidx.ui.test.android
 
 import android.os.Handler
 import android.os.Looper
-import androidx.compose.ExperimentalComposeApi
-import androidx.compose.Recomposer
-import androidx.compose.snapshots.Snapshot
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
 import androidx.ui.test.TestAnimationClock

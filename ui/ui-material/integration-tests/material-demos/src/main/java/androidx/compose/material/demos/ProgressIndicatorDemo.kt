@@ -18,14 +18,14 @@ package androidx.compose.material.demos
 
 import android.os.Handler
 import android.os.Looper
-import androidx.compose.Composable
-import androidx.compose.Stable
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.onActive
-import androidx.compose.onDispose
-import androidx.compose.remember
-import androidx.compose.setValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.onActive
+import androidx.compose.runtime.onDispose
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.ScrollableColumn

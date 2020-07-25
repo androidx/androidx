@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.graphics
 
-import androidx.compose.Immutable
-import androidx.compose.Stable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.util.lerp

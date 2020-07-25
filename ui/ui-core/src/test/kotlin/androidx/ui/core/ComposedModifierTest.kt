@@ -16,18 +16,18 @@
 
 package androidx.ui.core
 
-import androidx.compose.Applier
-import androidx.compose.Composable
-import androidx.compose.Composer
-import androidx.compose.ExperimentalComposeApi
-import androidx.compose.InternalComposeApi
-import androidx.compose.Recomposer
-import androidx.compose.SlotTable
-import androidx.compose.currentComposer
+import androidx.compose.runtime.Applier
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composer
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.SlotTable
+import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.dispatch.MonotonicFrameClock
-import androidx.compose.invalidate
-import androidx.compose.remember
-import androidx.compose.withRunningRecomposer
+import androidx.compose.runtime.invalidate
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.withRunningRecomposer
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext

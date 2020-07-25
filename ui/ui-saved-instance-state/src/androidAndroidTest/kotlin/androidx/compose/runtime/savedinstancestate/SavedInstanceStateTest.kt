@@ -16,7 +16,7 @@
 
 package androidx.compose.runtime.savedinstancestate
 
-import androidx.compose.MutableState
+import androidx.compose.runtime.MutableState
 import androidx.test.filters.MediumTest
 import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.createComposeRule

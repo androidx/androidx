@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.Stable
+import androidx.compose.runtime.Stable
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
 import androidx.ui.semantics.AccessibilityRangeInfo

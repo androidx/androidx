@@ -16,7 +16,7 @@
 
 package androidx.ui.tooling
 
-import androidx.compose.staticAmbientOf
+import androidx.compose.runtime.staticAmbientOf
 
 /**
  * Inspectable mode ambient. True if the composition is composed inside a Inspectable component.

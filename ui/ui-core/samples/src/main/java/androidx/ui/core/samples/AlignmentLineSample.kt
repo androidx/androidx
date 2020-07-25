@@ -17,8 +17,8 @@
 package androidx.ui.core.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.Composable
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Layout
 import kotlin.math.min

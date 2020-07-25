@@ -20,7 +20,7 @@ import androidx.annotation.ArrayRes
 import androidx.annotation.BoolRes
 import androidx.annotation.DimenRes
 import androidx.annotation.IntegerRes
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.compose.ui.unit.Dp

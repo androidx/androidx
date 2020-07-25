@@ -17,7 +17,7 @@
 package androidx.compose.animation.demos
 
 import androidx.compose.animation.core.tween
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
@@ -33,10 +33,10 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.remember
-import androidx.compose.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.animation.animateContentSize
 import androidx.ui.core.Modifier
 import androidx.compose.ui.graphics.Color

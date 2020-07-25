@@ -19,8 +19,8 @@ package androidx.compose.animation.demos
 import androidx.compose.animation.core.FloatPropKey
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.transitionDefinition
-import androidx.compose.Composable
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.state
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.transition
 import androidx.ui.core.Modifier

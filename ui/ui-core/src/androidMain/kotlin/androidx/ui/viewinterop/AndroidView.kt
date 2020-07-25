@@ -24,13 +24,13 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
-import androidx.compose.Composable
-import androidx.compose.ExperimentalComposeApi
-import androidx.compose.currentComposer
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.currentComposer
 import androidx.ui.core.Modifier
 import androidx.ui.core.materialize
-import androidx.compose.emit
-import androidx.compose.snapshots.SnapshotStateObserver
+import androidx.compose.runtime.emit
+import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.ui.core.ContextAmbient
 import androidx.ui.node.UiApplier
 

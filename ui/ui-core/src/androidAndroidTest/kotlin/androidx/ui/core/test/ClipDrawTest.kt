@@ -18,7 +18,7 @@ package androidx.ui.core.test
 
 import android.graphics.Bitmap
 import android.os.Build
-import androidx.compose.mutableStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.DrawLayerModifier

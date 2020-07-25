@@ -17,7 +17,7 @@
 package androidx.ui.core.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.ExperimentalSubcomposeLayoutApi
 import androidx.ui.core.SubcomposeLayout
 import androidx.compose.ui.unit.IntSize

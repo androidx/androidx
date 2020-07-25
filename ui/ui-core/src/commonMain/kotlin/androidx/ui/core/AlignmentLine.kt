@@ -16,7 +16,7 @@
 
 package androidx.ui.core
 
-import androidx.compose.Immutable
+import androidx.compose.runtime.Immutable
 
 /**
  * Defines an offset line that can be used by parent layouts to align and position their children.

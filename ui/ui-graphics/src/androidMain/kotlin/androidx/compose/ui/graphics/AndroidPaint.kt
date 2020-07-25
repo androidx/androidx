@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics
 
-import androidx.compose.InternalComposeApi
+import androidx.compose.runtime.InternalComposeApi
 
 actual typealias NativePaint = android.graphics.Paint
 

@@ -19,8 +19,8 @@ package androidx.ui.viewinterop
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.Composable
-import androidx.compose.emit
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emit
 import androidx.ui.core.ContextAmbient
 import androidx.ui.node.UiApplier
 

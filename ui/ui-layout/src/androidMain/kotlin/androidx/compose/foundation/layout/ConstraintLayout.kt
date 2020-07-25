@@ -21,8 +21,8 @@ package androidx.compose.foundation.layout
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.FloatRange
-import androidx.compose.Composable
-import androidx.compose.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.constraintlayout.core.state.ConstraintReference
 import androidx.constraintlayout.core.state.Dimension.SPREAD_DIMENSION
 import androidx.constraintlayout.core.state.Dimension.WRAP_DIMENSION
@@ -36,7 +36,7 @@ import androidx.constraintlayout.core.widgets.ConstraintWidget.MATCH_CONSTRAINT_
 import androidx.constraintlayout.core.widgets.ConstraintWidgetContainer
 import androidx.constraintlayout.core.widgets.Optimizer
 import androidx.constraintlayout.core.widgets.analyzer.BasicMeasure
-import androidx.compose.Immutable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.foundation.text.FirstBaseline

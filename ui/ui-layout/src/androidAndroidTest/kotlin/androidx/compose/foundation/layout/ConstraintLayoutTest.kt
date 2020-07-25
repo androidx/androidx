@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.layout
 
-import androidx.compose.mutableStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref

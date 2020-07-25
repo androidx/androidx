@@ -16,7 +16,7 @@
 
 package androidx.ui.core.demos
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
@@ -36,7 +36,7 @@ import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.state
+import androidx.compose.runtime.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.Popup

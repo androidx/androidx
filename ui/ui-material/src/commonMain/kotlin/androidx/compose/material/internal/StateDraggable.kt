@@ -24,9 +24,9 @@ import androidx.compose.animation.core.ExponentialDecay
 import androidx.compose.animation.core.OnAnimationEnd
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.TargetAnimation
-import androidx.compose.onCommit
-import androidx.compose.remember
-import androidx.compose.state
+import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.state
 import androidx.compose.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Modifier

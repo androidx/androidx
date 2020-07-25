@@ -17,7 +17,7 @@
 package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Text
@@ -27,10 +27,10 @@ import androidx.compose.foundation.gestures.rememberZoomableController
 import androidx.compose.foundation.gestures.zoomable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
-import androidx.compose.getValue
-import androidx.compose.setValue
-import androidx.compose.state
-import androidx.compose.structuralEqualityPolicy
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.state
+import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.drawLayer

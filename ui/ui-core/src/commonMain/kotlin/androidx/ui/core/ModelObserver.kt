@@ -18,10 +18,10 @@
 
 package androidx.ui.core
 
-import androidx.compose.ObserverMap
-import androidx.compose.frames.FrameCommitObserver
-import androidx.compose.frames.FrameReadObserver
-import androidx.compose.frames.observeAllReads
+import androidx.compose.runtime.ObserverMap
+import androidx.compose.runtime.frames.FrameCommitObserver
+import androidx.compose.runtime.frames.FrameReadObserver
+import androidx.compose.runtime.frames.observeAllReads
 import androidx.compose.ui.util.fastForEach
 
 /**
@@ -42,7 +42,7 @@ import androidx.compose.ui.util.fastForEach
 @Deprecated("Frames have been replaced by snapshots",
     ReplaceWith(
         "SnapshotStateObserver",
-        "androidx.compose.snapshots"
+        "androidx.compose.runtime.snapshots"
     )
 )
 class ModelObserver(private val commitExecutor: (command: () -> Unit) -> Unit) {

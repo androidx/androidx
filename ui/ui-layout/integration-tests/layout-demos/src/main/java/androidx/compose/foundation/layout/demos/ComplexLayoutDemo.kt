@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.layout.demos
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.ui.core.Modifier
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color

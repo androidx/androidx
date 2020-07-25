@@ -18,7 +18,7 @@ package androidx.ui.viewmodel
 
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.Recomposer
+import androidx.compose.runtime.Recomposer
 import androidx.lifecycle.LifecycleOwner
 import androidx.test.filters.MediumTest
 import androidx.ui.core.LifecycleOwnerAmbient

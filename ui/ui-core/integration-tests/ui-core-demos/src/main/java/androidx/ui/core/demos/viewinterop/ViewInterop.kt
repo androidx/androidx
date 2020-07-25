@@ -24,10 +24,10 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.compose.Composable
-import androidx.compose.getValue
-import androidx.compose.setValue
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.state
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.compose.foundation.Box

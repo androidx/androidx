@@ -17,13 +17,13 @@
 package androidx.ui.core.test
 
 import android.graphics.Bitmap
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.size
-import androidx.compose.mutableStateOf
-import androidx.compose.onActive
-import androidx.compose.onDispose
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.onActive
+import androidx.compose.runtime.onDispose
 import androidx.test.filters.SmallTest
 import androidx.ui.core.ExperimentalSubcomposeLayoutApi
 import androidx.ui.core.Modifier

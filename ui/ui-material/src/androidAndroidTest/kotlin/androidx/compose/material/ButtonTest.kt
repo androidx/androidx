@@ -17,11 +17,11 @@
 package androidx.compose.material
 
 import android.os.Build
-import androidx.compose.Composable
-import androidx.compose.Providers
-import androidx.compose.getValue
-import androidx.compose.setValue
-import androidx.compose.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.state
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress

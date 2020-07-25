@@ -18,7 +18,7 @@ package androidx.compose.ui.graphics.vector
 
 import android.graphics.Bitmap
 import android.os.Build
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment

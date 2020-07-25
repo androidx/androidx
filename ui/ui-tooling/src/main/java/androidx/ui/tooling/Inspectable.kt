@@ -16,12 +16,12 @@
 
 package androidx.ui.tooling
 
-import androidx.compose.Composable
-import androidx.compose.InternalComposeApi
-import androidx.compose.Providers
-import androidx.compose.SlotTable
-import androidx.compose.currentComposer
-import androidx.compose.tooling.InspectionTables
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.SlotTable
+import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.tooling.InspectionTables
 import java.util.Collections
 import java.util.WeakHashMap
 

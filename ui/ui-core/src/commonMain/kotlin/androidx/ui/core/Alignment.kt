@@ -16,8 +16,8 @@
 
 package androidx.ui.core
 
-import androidx.compose.Immutable
-import androidx.compose.Stable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection

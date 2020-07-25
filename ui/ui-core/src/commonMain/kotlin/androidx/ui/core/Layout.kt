@@ -16,13 +16,13 @@
 
 package androidx.ui.core
 
-import androidx.compose.Applier
-import androidx.compose.Composable
-import androidx.compose.ExperimentalComposeApi
-import androidx.compose.Stable
-import androidx.compose.currentComposer
-import androidx.compose.emit
-import androidx.compose.remember
+import androidx.compose.runtime.Applier
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.emit
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp

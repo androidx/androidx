@@ -16,9 +16,9 @@
 
 package androidx.ui.core
 
-import androidx.compose.Composable
-import androidx.compose.ComposeCompilerApi
-import androidx.compose.Composer
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposeCompilerApi
+import androidx.compose.runtime.Composer
 
 /**
  * Declare a just-in-time composition of a [Modifier] that will be composed for each element it

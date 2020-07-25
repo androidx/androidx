@@ -20,11 +20,11 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.Composable
-import androidx.compose.Composition
-import androidx.compose.Recomposer
-import androidx.compose.emptyContent
-import androidx.compose.mutableStateOf
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composition
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewTreeLifecycleOwner

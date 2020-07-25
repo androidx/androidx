@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics
 
-import androidx.compose.InternalComposeApi
+import androidx.compose.runtime.InternalComposeApi
 
 // TODO(b/160916667): temporary workaround for ui-desktop. remove when full support of MPP will
 //  be in-place
