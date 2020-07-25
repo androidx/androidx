@@ -18,6 +18,7 @@ package androidx.core.os;
 
 
 import androidx.annotation.Nullable;
+import androidx.core.util.ObjectsCompat;
 
 /**
  * An exception type that is thrown when an operation in progress is canceled.
@@ -28,6 +29,7 @@ public class OperationCanceledException extends RuntimeException {
     }
 
     public OperationCanceledException(@Nullable String message) {
-        super(message != null ? message : "The operation has been canceled.");
+        // Use ObjectsCompat.toString() here instead of a ternary operator to avoid b/26641175
+        super(ObjectsCompat.toString(message, "The operation has been canceled."));
     }
 }
