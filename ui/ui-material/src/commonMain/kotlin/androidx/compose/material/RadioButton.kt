@@ -390,7 +390,7 @@ private val ColorProp = ColorPropKey()
 private const val RadioAnimationDuration = 100
 
 private fun generateTransitionDefinition(selectedColor: Color, unselectedColor: Color) =
-    transitionDefinition {
+    transitionDefinition<Boolean> {
         state(false) {
             this[DotRadiusProp] = 0.dp
             this[ColorProp] = unselectedColor

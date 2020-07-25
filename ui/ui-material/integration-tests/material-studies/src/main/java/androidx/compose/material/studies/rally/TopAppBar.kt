@@ -94,7 +94,7 @@ private fun TabTransition(
 ) {
     val color = MaterialTheme.colors.onSurface
     val transitionDefinition = remember {
-        transitionDefinition {
+        transitionDefinition<Boolean> {
             state(true) {
                 this[TabTintColorKey] = color
             }

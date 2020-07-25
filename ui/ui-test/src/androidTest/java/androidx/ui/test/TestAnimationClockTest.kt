@@ -207,7 +207,7 @@ class TestAnimationClockTest {
         To
     }
 
-    private val animationDefinition = transitionDefinition {
+    private val animationDefinition = transitionDefinition<AnimationStates> {
         state(AnimationStates.From) {
             this[x] = 0f
         }

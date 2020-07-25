@@ -149,7 +149,7 @@ private val offset1 = FloatPropKey()
 private val offset2 = FloatPropKey()
 private val offset3 = FloatPropKey()
 
-private val transDef = transitionDefinition {
+private val transDef = transitionDefinition<String> {
 
     state("start") {
         this[alphaKey] = 1f

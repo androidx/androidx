@@ -40,7 +40,7 @@ fun TransitionSample() {
     val widthKey = DpPropKey()
     val heightKey = DpPropKey()
 
-    val definition = transitionDefinition {
+    val definition = transitionDefinition<State> {
         state(State.First) {
             this[colorKey] = Color.Red
             this[widthKey] = 200.dp

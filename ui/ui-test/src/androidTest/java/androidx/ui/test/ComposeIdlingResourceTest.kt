@@ -200,7 +200,7 @@ class ComposeIdlingResourceTest {
         To
     }
 
-    private val animationDefinition = transitionDefinition {
+    private val animationDefinition = transitionDefinition<AnimationStates> {
         state(AnimationStates.From) {
             this[x] = animateFromX
         }

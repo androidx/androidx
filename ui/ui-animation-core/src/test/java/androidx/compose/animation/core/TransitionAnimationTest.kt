@@ -139,7 +139,7 @@ private enum class AnimState {
 private val prop1 = FloatPropKey()
 private val prop2 = FloatPropKey()
 
-private val def1 = transitionDefinition {
+private val def1 = transitionDefinition<AnimState> {
     state(AnimState.A) {
         this[prop1] = 0f
         this[prop2] = 100f
@@ -156,7 +156,7 @@ private val def1 = transitionDefinition {
     }
 }
 
-private val def2 = transitionDefinition {
+private val def2 = transitionDefinition<AnimState> {
     state(AnimState.A) {
         this[prop1] = 0f
         this[prop2] = 0f

@@ -294,7 +294,7 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
     val colors = listOf(Color.Yellow, Color.Red, Color.Green)
     val transitionDefinition =
         remember(tabPositions) {
-            transitionDefinition {
+            transitionDefinition<Int> {
                 tabPositions.forEachIndexed { index, position ->
                     state(index) {
                         this[indicatorStart] = position.left

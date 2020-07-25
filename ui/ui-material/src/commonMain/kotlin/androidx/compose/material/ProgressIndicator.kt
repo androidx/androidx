@@ -332,7 +332,7 @@ private val FirstLineTailEasing = CubicBezierEasing(0.4f, 0f, 1f, 1f)
 private val SecondLineHeadEasing = CubicBezierEasing(0f, 0f, 0.65f, 1f)
 private val SecondLineTailEasing = CubicBezierEasing(0.1f, 0f, 0.45f, 1f)
 
-private val LinearIndeterminateTransition = transitionDefinition {
+private val LinearIndeterminateTransition = transitionDefinition<Int> {
     state(0) {
         this[FirstLineHeadProp] = 0f
         this[FirstLineTailProp] = 0f
@@ -421,7 +421,7 @@ private val TailRotationProp = FloatPropKey()
 // The easing for the head and tail jump
 private val CircularEasing = CubicBezierEasing(0.4f, 0f, 0.2f, 1f)
 
-private val CircularIndeterminateTransition = transitionDefinition {
+private val CircularIndeterminateTransition = transitionDefinition<Int> {
     state(0) {
         this[IterationProp] = 0
         this[BaseRotationProp] = 0f

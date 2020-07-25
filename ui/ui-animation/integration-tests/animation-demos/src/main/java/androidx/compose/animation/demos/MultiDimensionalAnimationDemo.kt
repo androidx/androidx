@@ -82,7 +82,7 @@ private val background = ColorPropKey()
 private val bounds = RectPropKey()
 
 private fun createTransDef(width: Float, height: Float) =
-    transitionDefinition {
+    transitionDefinition<AnimState> {
         state(AnimState.Collapsed) {
             this[background] = Color.LightGray
             this[bounds] = Rect(600f, 600f, 900f, 900f)
