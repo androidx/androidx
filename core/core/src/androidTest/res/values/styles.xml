@@ -34,4 +34,8 @@
         <item name="theme_color_focused">@color/theme_color_lilac_focused</item>
         <item name="theme_color_pressed">@color/theme_color_lilac_pressed</item>
     </style>
+
+    <style name="ThemeOverlay.Core.ColorStateListInflaterCompat" parent="">
+        <item name="android:textColorPrimary">@color/text_color</item>
+    </style>
 </resources>

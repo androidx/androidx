@@ -137,6 +137,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.os.EnvironmentCompat;
 import androidx.core.os.ExecutorCompat;
 
@@ -502,15 +503,9 @@ public class ContextCompat {
      * @throws android.content.res.Resources.NotFoundException if the given ID
      *         does not exist.
      */
-    @SuppressWarnings("deprecation")
     @Nullable
-    public static ColorStateList getColorStateList(@NonNull Context context,
-            @ColorRes int id) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return context.getColorStateList(id);
-        } else {
-            return context.getResources().getColorStateList(id);
-        }
+    public static ColorStateList getColorStateList(@NonNull Context context, @ColorRes int id) {
+        return ResourcesCompat.getColorStateList(context.getResources(), id, context.getTheme());
     }
 
     /**
