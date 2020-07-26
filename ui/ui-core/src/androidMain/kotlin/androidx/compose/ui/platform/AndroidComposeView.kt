@@ -64,7 +64,7 @@ import androidx.compose.ui.focus.FocusState2.Inactive
 import androidx.compose.ui.hapticfeedback.AndroidHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.key.ExperimentalKeyInput
-import androidx.compose.ui.input.key.KeyEvent2
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventAndroid
 import androidx.compose.ui.input.key.KeyInputModifier
 import androidx.compose.ui.input.pointer.MotionEventAdapter
@@ -208,7 +208,7 @@ internal class AndroidComposeView constructor(
         }
     }
 
-    override fun sendKeyEvent(keyEvent: KeyEvent2): Boolean {
+    override fun sendKeyEvent(keyEvent: KeyEvent): Boolean {
         return keyInputModifier.processKeyInput(keyEvent)
     }
 

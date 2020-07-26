@@ -85,7 +85,7 @@ class ProcessKeyInputTest {
     fun onKeyEvent_triggered() {
         // Arrange.
         val focusRequester = FocusRequester()
-        lateinit var receivedKeyEvent: KeyEvent2
+        lateinit var receivedKeyEvent: KeyEvent
         composeTestRule.setFocusableContent {
             Box(
                 modifier = Modifier
@@ -115,7 +115,7 @@ class ProcessKeyInputTest {
     fun onPreviewKeyEvent_triggered() {
         // Arrange.
         val focusRequester = FocusRequester()
-        lateinit var receivedKeyEvent: KeyEvent2
+        lateinit var receivedKeyEvent: KeyEvent
         composeTestRule.setFocusableContent {
             Box(
                 modifier = Modifier
@@ -145,8 +145,8 @@ class ProcessKeyInputTest {
     fun onKeyEventNotTriggered_ifOnPreviewKeyEventConsumesEvent() {
         // Arrange.
         val focusRequester = FocusRequester()
-        lateinit var receivedPreviewKeyEvent: KeyEvent2
-        var receivedKeyEvent: KeyEvent2? = null
+        lateinit var receivedPreviewKeyEvent: KeyEvent
+        var receivedKeyEvent: KeyEvent? = null
         composeTestRule.setFocusableContent {
             Box(
                 modifier = Modifier

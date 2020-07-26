@@ -20,7 +20,7 @@ import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.key.ExperimentalKeyInput
-import androidx.compose.ui.input.key.KeyEvent2
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.graphics.Canvas
@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Owner implements the connection to the underlying view system. On Android, this connects
- * to Android [android.view.View]s and all layout, draw, input, and accessibility is hooked
+ * to Android [views][android.view.View] and all layout, draw, input, and accessibility is hooked
  * through them.
  */
 @OptIn(ExperimentalLayoutNodeApi::class)
@@ -147,12 +147,12 @@ interface Owner {
     fun requestFocus(): Boolean
 
     /**
-     * Send this [KeyEvent][KeyEvent2] to the focused component in this [Owner].
+     * Send this [KeyEvent] to the focused component in this [Owner].
      *
      * @return true if the event was consumed. False otherwise.
      */
     @ExperimentalKeyInput
-    fun sendKeyEvent(keyEvent: KeyEvent2): Boolean
+    fun sendKeyEvent(keyEvent: KeyEvent): Boolean
 
     /**
      * Observing the model reads are temporary disabled during the [block] execution.
