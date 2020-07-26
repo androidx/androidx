@@ -231,7 +231,9 @@ data class PxBounds(
     val top: Float,
     val right: Float,
     val bottom: Float
-)
+) {
+    companion object
+}
 
 @Stable
 inline fun PxBounds(topLeft: Offset, size: Size) =

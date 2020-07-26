@@ -23,21 +23,24 @@ import androidx.compose.animation.core.FloatSpringSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.foundation.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.test.filters.MediumTest
-import androidx.compose.foundation.Box
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.unit.Bounds
+import androidx.compose.ui.unit.Position
+import androidx.compose.ui.unit.PxBounds
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.lerp
+import androidx.test.filters.MediumTest
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.waitForIdle
-import androidx.compose.ui.unit.Bounds
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.lerp
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -107,9 +110,9 @@ class SingleValueAnimationTest {
         val endVal = AnimationVector(0f, 77f)
 
         var vectorValue = startVal
-        var positionValue = PositionToVectorConverter.convertFromVector(startVal)
-        var sizeValue = SizeToVectorConverter.convertFromVector(startVal)
-        var pxPositionValue = OffsetToVectorConverter.convertFromVector(startVal)
+        var positionValue = Position.VectorConverter.convertFromVector(startVal)
+        var sizeValue = Size.VectorConverter.convertFromVector(startVal)
+        var pxPositionValue = Offset.VectorConverter.convertFromVector(startVal)
 
         fun <V> tween(): TweenSpec<V> =
             TweenSpec(
@@ -125,25 +128,25 @@ class SingleValueAnimationTest {
 
             positionValue = animate(
                 if (enabled)
-                    PositionToVectorConverter.convertFromVector(endVal)
+                    Position.VectorConverter.convertFromVector(endVal)
                 else
-                    PositionToVectorConverter.convertFromVector(startVal),
+                    Position.VectorConverter.convertFromVector(startVal),
                 tween()
             )
 
             sizeValue = animate(
                 if (enabled)
-                    SizeToVectorConverter.convertFromVector(endVal)
+                    Size.VectorConverter.convertFromVector(endVal)
                 else
-                    SizeToVectorConverter.convertFromVector(startVal),
+                    Size.VectorConverter.convertFromVector(startVal),
                 tween()
             )
 
             pxPositionValue = animate(
                 if (enabled)
-                    OffsetToVectorConverter.convertFromVector(endVal)
+                    Offset.VectorConverter.convertFromVector(endVal)
                 else
-                    OffsetToVectorConverter.convertFromVector(startVal),
+                    Offset.VectorConverter.convertFromVector(startVal),
                 tween()
             )
         }
@@ -156,9 +159,9 @@ class SingleValueAnimationTest {
                 )
 
                 assertEquals(expect, vectorValue)
-                assertEquals(SizeToVectorConverter.convertFromVector(expect), sizeValue)
-                assertEquals(PositionToVectorConverter.convertFromVector(expect), positionValue)
-                assertEquals(OffsetToVectorConverter.convertFromVector(expect), pxPositionValue)
+                assertEquals(Size.VectorConverter.convertFromVector(expect), sizeValue)
+                assertEquals(Position.VectorConverter.convertFromVector(expect), positionValue)
+                assertEquals(Offset.VectorConverter.convertFromVector(expect), pxPositionValue)
                 composeTestRule.clockTestRule.advanceClock(50)
                 waitForIdle()
             }
@@ -173,8 +176,8 @@ class SingleValueAnimationTest {
         val endVal = AnimationVector(-42f, 89f, 77f, 100f)
 
         var vectorValue = startVal
-        var boundsValue = BoundsToVectorConverter.convertFromVector(startVal)
-        var pxBoundsValue = PxBoundsToVectorConverter.convertFromVector(startVal)
+        var boundsValue = Bounds.VectorConverter.convertFromVector(startVal)
+        var pxBoundsValue = PxBounds.VectorConverter.convertFromVector(startVal)
 
         fun <V> tween(): TweenSpec<V> =
             TweenSpec(
@@ -190,17 +193,17 @@ class SingleValueAnimationTest {
 
             boundsValue = animate(
                 if (enabled)
-                    BoundsToVectorConverter.convertFromVector(endVal)
+                    Bounds.VectorConverter.convertFromVector(endVal)
                 else
-                    BoundsToVectorConverter.convertFromVector(startVal),
+                    Bounds.VectorConverter.convertFromVector(startVal),
                 tween()
             )
 
             pxBoundsValue = animate(
                 if (enabled)
-                    PxBoundsToVectorConverter.convertFromVector(endVal)
+                    PxBounds.VectorConverter.convertFromVector(endVal)
                 else
-                    PxBoundsToVectorConverter.convertFromVector(startVal),
+                    PxBounds.VectorConverter.convertFromVector(startVal),
                 tween()
             )
         }
@@ -216,8 +219,8 @@ class SingleValueAnimationTest {
                 )
 
                 assertEquals(expect, vectorValue)
-                assertEquals(BoundsToVectorConverter.convertFromVector(expect), boundsValue)
-                assertEquals(PxBoundsToVectorConverter.convertFromVector(expect), pxBoundsValue)
+                assertEquals(Bounds.VectorConverter.convertFromVector(expect), boundsValue)
+                assertEquals(PxBounds.VectorConverter.convertFromVector(expect), pxBoundsValue)
                 composeTestRule.clockTestRule.advanceClock(50)
                 waitForIdle()
             }

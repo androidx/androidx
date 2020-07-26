@@ -29,20 +29,22 @@ class RepeatableAnimationTest {
 
     private val DelayedAnimation = VectorizedTweenSpec<AnimationVector1D>(
         delayMillis = DelayDuration,
-        durationMillis = Duration)
+        durationMillis = Duration
+    )
 
     @Test
     fun twoRepeatsValuesCalculation() {
         val repeat = VectorizedRepeatableSpec(
             iterations = 2,
-            animation = VectorizedTweenSpec<AnimationVector1D>(durationMillis = Duration))
+            animation = VectorizedTweenSpec<AnimationVector1D>(durationMillis = Duration)
+        )
 
         val animationWrapper = TargetBasedAnimation(
             repeat,
             0f,
             0f,
             AnimationVector(0f),
-            FloatToVectorConverter
+            Float.VectorConverter
         )
 
         assertThat(repeat.at(0)).isEqualTo(0f)
@@ -59,7 +61,8 @@ class RepeatableAnimationTest {
         val iters = 5
         val repeat = VectorizedRepeatableSpec<AnimationVector1D>(
             iterations = iters,
-            animation = DelayedAnimation)
+            animation = DelayedAnimation
+        )
 
         val duration = repeat.getDurationMillis(
             AnimationVector1D(0f),
@@ -75,7 +78,8 @@ class RepeatableAnimationTest {
         val repeat = repeatable(
             iterations = 9,
             animation = TweenSpec<Float>(
-                durationMillis = 100, easing = LinearEasing),
+                durationMillis = 100, easing = LinearEasing
+            ),
             repeatMode = RepeatMode.Reverse
         )
 
@@ -84,7 +88,7 @@ class RepeatableAnimationTest {
             0f,
             100f,
             AnimationVector(0f),
-            FloatToVectorConverter
+            Float.VectorConverter
         )
 
         for (playtime in 0..100L) {

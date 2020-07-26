@@ -96,7 +96,7 @@ internal fun lerp(start: Int, stop: Int, fraction: Float) =
 class FloatPropKey(
     override val label: String = "FloatPropKey"
 ) : PropKey<Float, AnimationVector1D> {
-    override val typeConverter = FloatToVectorConverter
+    override val typeConverter = Float.VectorConverter
 }
 
 /**
@@ -105,17 +105,37 @@ class FloatPropKey(
  * @param label Label for distinguishing different prop keys in Android Studio.
  */
 class IntPropKey(override val label: String = "IntPropKey") : PropKey<Int, AnimationVector1D> {
-    override val typeConverter = IntToVectorConverter
+    override val typeConverter = Int.VectorConverter
 }
 
 /**
  * A [TwoWayConverter] that converts [Float] from and to [AnimationVector1D]
  */
+@Deprecated("", ReplaceWith("Float.VectorConverter"))
 val FloatToVectorConverter: TwoWayConverter<Float, AnimationVector1D> =
-    TwoWayConverter({ AnimationVector1D(it) }, { it.value })
+    Float.VectorConverter
 
 /**
  * A [TwoWayConverter] that converts [Int] from and to [AnimationVector1D]
  */
+@Deprecated("", ReplaceWith("Int.VectorConverter"))
 val IntToVectorConverter: TwoWayConverter<Int, AnimationVector1D> =
+    Int.VectorConverter
+
+/**
+ * A [TwoWayConverter] that converts [Float] from and to [AnimationVector1D]
+ */
+val Float.Companion.VectorConverter: TwoWayConverter<Float, AnimationVector1D>
+    get() = FloatToVector
+
+/**
+ * A [TwoWayConverter] that converts [Int] from and to [AnimationVector1D]
+ */
+val Int.Companion.VectorConverter: TwoWayConverter<Int, AnimationVector1D>
+    get() = IntToVector
+
+private val FloatToVector: TwoWayConverter<Float, AnimationVector1D> =
+    TwoWayConverter({ AnimationVector1D(it) }, { it.value })
+
+private val IntToVector: TwoWayConverter<Int, AnimationVector1D> =
     TwoWayConverter({ AnimationVector1D(it.toFloat()) }, { it.value.toInt() })

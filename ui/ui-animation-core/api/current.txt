@@ -298,8 +298,10 @@ package androidx.compose.animation.core {
 
   public final class PropKeyKt {
     method public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.TwoWayConverter<T,V> TwoWayConverter(kotlin.jvm.functions.Function1<? super T,? extends V> convertToVector, kotlin.jvm.functions.Function1<? super V,? extends T> convertFromVector);
-    method public static androidx.compose.animation.core.TwoWayConverter<java.lang.Float,androidx.compose.animation.core.AnimationVector1D> getFloatToVectorConverter();
-    method public static androidx.compose.animation.core.TwoWayConverter<java.lang.Integer,androidx.compose.animation.core.AnimationVector1D> getIntToVectorConverter();
+    method @Deprecated public static androidx.compose.animation.core.TwoWayConverter<java.lang.Float,androidx.compose.animation.core.AnimationVector1D> getFloatToVectorConverter();
+    method @Deprecated public static androidx.compose.animation.core.TwoWayConverter<java.lang.Integer,androidx.compose.animation.core.AnimationVector1D> getIntToVectorConverter();
+    method public static androidx.compose.animation.core.TwoWayConverter<java.lang.Float,androidx.compose.animation.core.AnimationVector1D> getVectorConverter(kotlin.jvm.internal.FloatCompanionObject);
+    method public static androidx.compose.animation.core.TwoWayConverter<java.lang.Integer,androidx.compose.animation.core.AnimationVector1D> getVectorConverter(kotlin.jvm.internal.IntCompanionObject);
   }
 
   public enum RepeatMode {

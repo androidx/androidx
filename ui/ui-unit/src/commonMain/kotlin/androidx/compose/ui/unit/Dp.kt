@@ -523,6 +523,8 @@ inline class Position(@PublishedApi internal val packedValue: Long) {
 
     @Stable
     override fun toString(): String = "($x, $y)"
+
+    companion object
 }
 
 /**
@@ -568,7 +570,9 @@ data class Bounds(
     val right: Dp,
     @Stable
     val bottom: Dp
-)
+) {
+    companion object
+}
 
 /**
  * A width of this Bounds in [Dp].
