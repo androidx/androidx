@@ -18,9 +18,9 @@ package androidx.compose.foundation.text.demos
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.state
-import androidx.ui.core.Modifier
-import androidx.ui.core.selection.Selection
-import androidx.ui.core.selection.SelectionContainer
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.selection.Selection
+import androidx.compose.ui.selection.SelectionContainer
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.ui.graphics.Color

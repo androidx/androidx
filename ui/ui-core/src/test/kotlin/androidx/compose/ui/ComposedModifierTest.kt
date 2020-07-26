@@ -28,9 +28,6 @@ import androidx.compose.runtime.dispatch.MonotonicFrameClock
 import androidx.compose.runtime.invalidate
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withRunningRecomposer
-import androidx.ui.core.Modifier
-import androidx.ui.core.composed
-import androidx.ui.core.materialize
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext

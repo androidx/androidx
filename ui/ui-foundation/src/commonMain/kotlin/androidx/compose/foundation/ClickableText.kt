@@ -17,9 +17,9 @@ package androidx.compose.foundation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.state
-import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.pressIndicatorGestureFilter
-import androidx.ui.core.gesture.tapGestureFilter
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.pressIndicatorGestureFilter
+import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -39,7 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
  * @sample androidx.compose.foundation.samples.LongClickableText
  *
  * @see Text
- * @see androidx.ui.core.gesture.pressIndicatorGestureFilter
+ * @see androidx.compose.ui.gesture.pressIndicatorGestureFilter
  *
  * @param text The text to be displayed.
  * @param modifier Modifier to apply to this layout node.

@@ -20,12 +20,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.ui.core.Alignment
-import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.HorizontalAlignmentLine
-import androidx.ui.core.Layout
-import androidx.ui.core.Measured
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.HorizontalAlignmentLine
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Measured
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.util.annotation.FloatRange
 
 /**

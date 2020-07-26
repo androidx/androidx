@@ -17,15 +17,14 @@
 package androidx.compose.ui.viewinterop
 
 import androidx.compose.runtime.Providers
+import androidx.compose.ui.platform.ViewModelStoreOwnerAmbient
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.test.filters.MediumTest
-import androidx.ui.core.ViewModelStoreOwnerAmbient
 import androidx.ui.test.createComposeRule
-import androidx.ui.viewmodel.viewModel
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

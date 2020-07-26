@@ -21,7 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.state
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.Stack
 import androidx.ui.test.assertCountEquals

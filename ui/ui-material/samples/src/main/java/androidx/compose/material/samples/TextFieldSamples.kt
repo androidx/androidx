@@ -20,7 +20,7 @@ import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
 import androidx.compose.ui.text.input.ImeAction

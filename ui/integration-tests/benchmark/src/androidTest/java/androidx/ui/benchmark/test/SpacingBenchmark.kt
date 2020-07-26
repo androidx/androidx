@@ -31,8 +31,8 @@ import androidx.ui.benchmark.toggleStateBenchmarkDraw
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasure
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
-import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.padding

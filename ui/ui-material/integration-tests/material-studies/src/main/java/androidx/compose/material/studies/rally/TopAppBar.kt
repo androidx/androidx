@@ -23,7 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.transition
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.ui.graphics.Color

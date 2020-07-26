@@ -29,18 +29,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.animation.asDisposableClock
-import androidx.ui.core.Alignment
-import androidx.ui.core.AnimationClockAmbient
+import androidx.compose.ui.platform.AnimationClockAmbient
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.core.LayoutModifier
-import androidx.ui.core.Measurable
-import androidx.ui.core.MeasureScope
-import androidx.ui.core.Modifier
-import androidx.ui.core.clipToBounds
-import androidx.ui.core.composed
-import androidx.ui.core.gesture.scrollorientationlocking.Orientation
-import androidx.ui.core.semantics.semantics
+import androidx.compose.ui.LayoutModifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.MeasureScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.composed
+import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.animation.FlingConfig
 import androidx.compose.foundation.animation.defaultFlingConfig
 import androidx.compose.foundation.gestures.ScrollableController
@@ -55,7 +54,8 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.savedinstancestate.Saver
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
-import androidx.ui.semantics.scrollBy
+import androidx.compose.ui.Measurable
+import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 

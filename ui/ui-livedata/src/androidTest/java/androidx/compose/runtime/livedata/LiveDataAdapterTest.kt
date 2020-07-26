@@ -20,12 +20,12 @@ import androidx.compose.runtime.Providers
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LifecycleOwnerAmbient
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.MutableLiveData
 import androidx.test.filters.MediumTest
-import androidx.ui.core.LifecycleOwnerAmbient
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat

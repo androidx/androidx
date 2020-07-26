@@ -16,9 +16,9 @@
 
 package androidx.compose.foundation.text.selection
 
-import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.selection.Selectable
-import androidx.ui.core.selection.Selection
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.selection.Selectable
+import androidx.compose.ui.selection.Selection
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.AnnotatedString

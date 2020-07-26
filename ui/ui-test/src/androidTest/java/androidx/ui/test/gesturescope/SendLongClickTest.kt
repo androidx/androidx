@@ -17,9 +17,9 @@
 package androidx.ui.test.gesturescope
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.longPressGestureFilter
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.longPressGestureFilter
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize

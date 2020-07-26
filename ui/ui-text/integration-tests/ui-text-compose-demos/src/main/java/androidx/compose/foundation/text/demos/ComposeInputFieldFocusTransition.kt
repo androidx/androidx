@@ -22,7 +22,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.runtime.state
-import androidx.ui.core.focus.FocusModifier
+import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -34,7 +34,7 @@ fun TextFieldFocusTransition() {
     val focusModifiers = List(6) {
         // TODO(b/161297615): Replace FocusModifier with Modifier.focus()
         @Suppress("DEPRECATION")
-        FocusModifier()
+        (FocusModifier())
     }
 
     ScrollableColumn {

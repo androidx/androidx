@@ -17,7 +17,7 @@
 package androidx.compose.foundation.animation
 
 import android.view.ViewConfiguration
-import androidx.ui.core.DensityAmbient
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.Density
 import kotlin.math.exp
 import kotlin.math.ln

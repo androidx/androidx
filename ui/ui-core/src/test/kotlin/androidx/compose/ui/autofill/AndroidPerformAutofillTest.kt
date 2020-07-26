@@ -23,11 +23,6 @@ import android.view.autofill.AutofillValue
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.test.ComposeUiRobolectricTestRunner
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.autofill.AndroidAutofill
-import androidx.ui.autofill.AutofillNode
-import androidx.ui.autofill.AutofillTree
-import androidx.ui.autofill.AutofillType
-import androidx.ui.autofill.performAutofill
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.Test

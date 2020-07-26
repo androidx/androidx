@@ -18,14 +18,14 @@ package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.Ref
-import androidx.ui.core.positionInRoot
-import androidx.ui.core.layoutId
-import androidx.ui.core.onPositioned
-import androidx.ui.core.positionInParent
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.Ref
+import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.onPositioned
 import androidx.compose.foundation.Box
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.positionInRoot
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.compose.ui.unit.IntSize

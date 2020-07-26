@@ -18,7 +18,7 @@ package androidx.ui.tooling.inspector
 
 import android.view.View
 import androidx.compose.runtime.SlotTable
-import androidx.ui.core.OwnedLayer
+import androidx.compose.ui.node.OwnedLayer
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.ParameterInformation
 import androidx.ui.tooling.R
@@ -29,11 +29,11 @@ import kotlin.math.absoluteValue
 
 private val unwantedPackages = setOf(
     -1,
-    packageNameHash("androidx.ui.core"),
+    packageNameHash("androidx.compose.ui"),
     packageNameHash("androidx.compose.runtime"),
     packageNameHash("androidx.ui.tooling"),
-    packageNameHash("androidx.ui.core.selection"),
-    packageNameHash("androidx.ui.semantics")
+    packageNameHash("androidx.compose.ui.selection"),
+    packageNameHash("androidx.compose.ui.semantics")
 )
 
 private val unwantedCalls = setOf(

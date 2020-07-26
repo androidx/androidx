@@ -18,9 +18,9 @@ package androidx.compose.foundation
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.MediumTest
-import androidx.ui.core.ContentDrawScope
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
+import androidx.compose.ui.ContentDrawScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule

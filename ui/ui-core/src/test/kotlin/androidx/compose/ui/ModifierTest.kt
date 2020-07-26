@@ -16,7 +16,6 @@
 
 package androidx.compose.ui
 
-import androidx.ui.core.Modifier
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

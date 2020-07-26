@@ -19,8 +19,8 @@ package androidx.ui.tooling
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SlotTable
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.drawBehind
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.drawBehind
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color

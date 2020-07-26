@@ -28,9 +28,9 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.setContent
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.selection.ToggleableState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface

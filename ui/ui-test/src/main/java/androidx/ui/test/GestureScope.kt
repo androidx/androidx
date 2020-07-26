@@ -17,12 +17,12 @@
 package androidx.ui.test
 
 import androidx.annotation.FloatRange
-import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.gesture.DoubleTapTimeout
-import androidx.ui.core.gesture.LongPressTimeout
-import androidx.ui.core.semantics.SemanticsNode
+import androidx.compose.ui.gesture.DoubleTapTimeout
+import androidx.compose.ui.gesture.LongPressTimeout
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
 import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.unit.IntSize
@@ -230,7 +230,7 @@ fun BaseGestureScope.percentOffset(
 
 /**
  * Transforms the [position] to global coordinates, as defined by
- * [LayoutCoordinates.localToGlobal][androidx.ui.core.LayoutCoordinates.localToGlobal]
+ * [LayoutCoordinates.localToGlobal][androidx.compose.ui.layout.LayoutCoordinates.localToGlobal]
  *
  * @param position A position in local coordinates
  */

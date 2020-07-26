@@ -22,7 +22,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.state
-import androidx.ui.core.setContent
+import androidx.compose.ui.platform.setContent
 import androidx.compose.foundation.Text
 import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.Scaffold

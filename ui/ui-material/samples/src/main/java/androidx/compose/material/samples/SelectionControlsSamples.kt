@@ -22,8 +22,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.state
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.selection.ToggleableState
 import androidx.compose.foundation.selection.selectable

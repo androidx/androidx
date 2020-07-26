@@ -28,13 +28,12 @@ import androidx.compose.ui.assertRect
 import androidx.compose.ui.background
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
-import androidx.ui.core.drawBehind
-import androidx.ui.core.drawOpacity
-import androidx.ui.core.setContent
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.drawBehind
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.runOnUiThreadIR
 import androidx.compose.ui.waitAndScreenShot
 import org.junit.Assert.assertEquals

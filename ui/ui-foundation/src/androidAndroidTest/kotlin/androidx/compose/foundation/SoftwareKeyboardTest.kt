@@ -19,11 +19,11 @@ package androidx.compose.foundation
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.state
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.TextInputServiceAmbient
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.platform.TextInputServiceAmbient
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.onNode

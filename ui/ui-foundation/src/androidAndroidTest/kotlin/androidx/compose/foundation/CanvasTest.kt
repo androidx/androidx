@@ -19,9 +19,9 @@ package androidx.compose.foundation
 import android.os.Build
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.Alignment
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color

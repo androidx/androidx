@@ -19,8 +19,8 @@ package androidx.compose.foundation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.emptyContent
 import androidx.compose.runtime.remember
-import androidx.ui.core.Modifier
-import androidx.ui.core.paint
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter

@@ -18,11 +18,10 @@ package androidx.compose.ui.focus
 
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
+import androidx.compose.ui.FocusModifier2
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.test.filters.SmallTest
-import androidx.ui.core.focus.ExperimentalFocus
-import androidx.ui.core.focus.FocusModifier2
-import androidx.ui.core.focus.FocusState2.Inactive
+import androidx.compose.ui.focus.FocusState2.Inactive
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat

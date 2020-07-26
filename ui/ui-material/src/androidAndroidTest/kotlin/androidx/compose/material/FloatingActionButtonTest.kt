@@ -20,11 +20,11 @@ import android.os.Build
 import androidx.compose.runtime.Providers
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.Modifier
-import androidx.ui.core.boundsInRoot
-import androidx.ui.core.onPositioned
-import androidx.ui.core.testTag
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.onPositioned
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text

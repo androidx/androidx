@@ -17,11 +17,11 @@
 package androidx.compose.material
 
 import androidx.compose.runtime.Composable
-import androidx.ui.core.Alignment
-import androidx.ui.core.AlignmentLine
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.AlignmentLine
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Image

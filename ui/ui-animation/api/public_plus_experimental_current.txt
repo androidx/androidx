@@ -22,7 +22,7 @@ package androidx.compose.animation {
   }
 
   public final class AnimationModifierKt {
-    method public static androidx.ui.core.Modifier animateContentSize(androidx.ui.core.Modifier, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.unit.IntSize> animSpec = spring(), boolean clip = true);
+    method public static androidx.compose.ui.Modifier animateContentSize(androidx.compose.ui.Modifier, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.unit.IntSize> animSpec = spring(), boolean clip = true);
   }
 
   public final class ColorPropKey implements androidx.compose.animation.core.PropKey<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D> {
@@ -34,7 +34,7 @@ package androidx.compose.animation {
   }
 
   public final class CrossfadeKt {
-    method @androidx.compose.runtime.Composable public static <T> void Crossfade(T? current, androidx.ui.core.Modifier modifier = Modifier, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animation = tween(), kotlin.jvm.functions.Function1<? super T,kotlin.Unit> children);
+    method @androidx.compose.runtime.Composable public static <T> void Crossfade(T? current, androidx.compose.ui.Modifier modifier = Modifier, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animation = tween(), kotlin.jvm.functions.Function1<? super T,kotlin.Unit> children);
   }
 
   public final class DisposableAnimationClock implements androidx.compose.animation.core.AnimationClockObservable {

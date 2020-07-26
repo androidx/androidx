@@ -19,7 +19,7 @@ package androidx.ui.test
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.test.filters.MediumTest
-import androidx.ui.core.setContent
+import androidx.compose.ui.platform.setContent
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.material.Button

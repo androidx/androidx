@@ -16,11 +16,10 @@
 
 package androidx.compose.ui.gesture
 
-import androidx.ui.testutils.down
-import androidx.ui.testutils.up
+import androidx.compose.ui.input.pointer.down
+import androidx.compose.ui.input.pointer.up
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.milliseconds
-import androidx.ui.core.gesture.anyPointersInBounds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

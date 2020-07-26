@@ -26,7 +26,6 @@ import android.util.Size
 import android.util.SizeF
 import android.util.SparseArray
 import androidx.test.filters.SmallTest
-import androidx.ui.core.SavedStateDelegate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

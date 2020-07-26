@@ -16,11 +16,6 @@
 
 package androidx.compose.ui.input.key
 
-import androidx.ui.core.keyinput.ExperimentalKeyInput
-import androidx.ui.core.keyinput.Key
-import androidx.ui.core.keyinput.KeyEvent2
-import androidx.ui.core.keyinput.KeyEventAndroid
-import androidx.ui.core.keyinput.KeyEventType
 import com.google.common.truth.Truth
 import android.view.KeyEvent as AndroidKeyEvent
 

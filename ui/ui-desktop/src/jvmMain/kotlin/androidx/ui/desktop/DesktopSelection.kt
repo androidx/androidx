@@ -15,23 +15,23 @@
  */
 package androidx.ui.desktop
 
-import androidx.ui.core.Modifier
-import androidx.ui.core.Layout
-import androidx.ui.core.gesture.DragObserver
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.Layout
+import androidx.compose.ui.gesture.DragObserver
 import androidx.compose.runtime.Composable
-import androidx.ui.core.onPositioned
+import androidx.compose.ui.onPositioned
 import androidx.compose.ui.geometry.Offset
 import kotlin.math.max
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.state
-import androidx.ui.core.selection.Selection
-import androidx.ui.core.selection.SelectionRegistrarAmbient
+import androidx.compose.ui.selection.Selection
+import androidx.compose.ui.selection.SelectionRegistrarAmbient
 import androidx.compose.runtime.Providers
-import androidx.ui.core.pointerinput.PointerInputModifier
-import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.core.composed
-import androidx.ui.core.gesture.rawDragGestureFilter
-import androidx.ui.core.gesture.rawPressStartGestureFilter
+import androidx.compose.ui.input.pointer.PointerInputModifier
+import androidx.compose.ui.input.pointer.PointerInputFilter
+import androidx.compose.ui.composed
+import androidx.compose.ui.gesture.rawDragGestureFilter
+import androidx.compose.ui.gesture.rawPressStartGestureFilter
 
 @Composable
 private fun Wrap(modifier: Modifier = Modifier, children: @Composable () -> Unit) {

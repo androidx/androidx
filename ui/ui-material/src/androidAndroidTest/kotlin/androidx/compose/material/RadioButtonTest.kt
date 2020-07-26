@@ -18,8 +18,8 @@ package androidx.compose.material
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Strings
 import androidx.compose.foundation.layout.Column
 import androidx.ui.test.SemanticsNodeInteraction

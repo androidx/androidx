@@ -19,11 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.emptyContent
 import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.remember
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.core.ViewAmbient
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ViewAmbient
 import androidx.ui.desktop.view.LayoutScope
-import androidx.ui.core.gesture.tapGestureFilter
+import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.unit.IntOffset

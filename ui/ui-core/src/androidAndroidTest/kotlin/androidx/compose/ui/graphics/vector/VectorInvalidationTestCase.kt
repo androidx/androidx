@@ -20,13 +20,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.state
 import androidx.compose.ui.AtLeastSize
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Modifier
-import androidx.ui.core.drawBehind
-import androidx.ui.core.paint
-import androidx.ui.core.test.R
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.drawBehind
+import androidx.compose.ui.test.R
 import androidx.compose.ui.graphics.Color
-import androidx.ui.res.loadVectorResource
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.res.loadVectorResource
 import java.util.concurrent.CountDownLatch
 
 class VectorInvalidationTestCase(var latch: CountDownLatch) {

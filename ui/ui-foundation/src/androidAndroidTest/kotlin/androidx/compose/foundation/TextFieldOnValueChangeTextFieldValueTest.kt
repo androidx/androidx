@@ -19,8 +19,8 @@ package androidx.compose.foundation
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.state
 import androidx.test.filters.SmallTest
-import androidx.ui.core.TextInputServiceAmbient
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.TextInputServiceAmbient
 import androidx.compose.ui.text.input.CommitTextEditOp
 import androidx.compose.ui.text.input.DeleteSurroundingTextEditOp
 import androidx.compose.ui.text.input.EditOperation

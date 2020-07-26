@@ -19,10 +19,10 @@ package androidx.compose.ui.viewinterop
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Recomposer
+import androidx.compose.ui.platform.LifecycleOwnerAmbient
+import androidx.compose.ui.platform.setContent
 import androidx.lifecycle.LifecycleOwner
 import androidx.test.filters.MediumTest
-import androidx.ui.core.LifecycleOwnerAmbient
-import androidx.ui.core.setContent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before

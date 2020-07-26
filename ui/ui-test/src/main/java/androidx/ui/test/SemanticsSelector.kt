@@ -16,7 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsNode
 
 /**
  * Projects the given set of nodes to a new set of nodes.

@@ -19,24 +19,21 @@
 
 package androidx.compose.ui.gesture
 
-import androidx.ui.core.Direction
-import androidx.ui.core.PointerEventPass
-import androidx.ui.core.consumeDownChange
-import androidx.ui.core.gesture.scrollorientationlocking.InternalScrollOrientationLocker
-import androidx.ui.core.gesture.scrollorientationlocking.Orientation
-import androidx.ui.core.gesture.scrollorientationlocking.ScrollOrientationLocker
-import androidx.ui.core.gesture.scrollorientationlocking.ShareScrollOrientationLockerEvent
-import androidx.ui.testutils.consume
-import androidx.ui.testutils.down
-import androidx.ui.testutils.invokeOverAllPasses
-import androidx.ui.testutils.invokeOverPasses
-import androidx.ui.testutils.moveBy
-import androidx.ui.testutils.moveTo
-import androidx.ui.testutils.up
+import androidx.compose.ui.platform.PointerEventPass
+import androidx.compose.ui.platform.consumeDownChange
+import androidx.compose.ui.gesture.scrollorientationlocking.InternalScrollOrientationLocker
+import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
+import androidx.compose.ui.gesture.scrollorientationlocking.ScrollOrientationLocker
+import androidx.compose.ui.gesture.scrollorientationlocking.ShareScrollOrientationLockerEvent
+import androidx.compose.ui.input.pointer.consume
+import androidx.compose.ui.input.pointer.down
+import androidx.compose.ui.input.pointer.invokeOverAllPasses
+import androidx.compose.ui.input.pointer.invokeOverPasses
+import androidx.compose.ui.input.pointer.moveBy
+import androidx.compose.ui.input.pointer.moveTo
+import androidx.compose.ui.input.pointer.up
 import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.unit.milliseconds
-import androidx.ui.core.gesture.DragSlopExceededGestureFilter
-import androidx.ui.core.gesture.ExperimentalPointerInput
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before

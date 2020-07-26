@@ -18,19 +18,15 @@
 
 package androidx.compose.ui.gesture.scrollorientationlocking
 
-import androidx.ui.core.CustomEvent
-import androidx.ui.core.CustomEventDispatcher
-import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PointerInputChange
-import androidx.ui.core.gesture.ExperimentalPointerInput
-import androidx.ui.testutils.down
-import androidx.ui.testutils.moveTo
-import androidx.ui.testutils.up
+import androidx.compose.ui.platform.CustomEvent
+import androidx.compose.ui.platform.CustomEventDispatcher
+import androidx.compose.ui.platform.PointerEventPass
+import androidx.compose.ui.platform.PointerInputChange
+import androidx.compose.ui.gesture.ExperimentalPointerInput
+import androidx.compose.ui.input.pointer.down
+import androidx.compose.ui.input.pointer.moveTo
+import androidx.compose.ui.input.pointer.up
 import androidx.compose.ui.unit.milliseconds
-import androidx.ui.core.gesture.scrollorientationlocking.InternalScrollOrientationLocker
-import androidx.ui.core.gesture.scrollorientationlocking.Orientation
-import androidx.ui.core.gesture.scrollorientationlocking.ScrollOrientationLocker
-import androidx.ui.core.gesture.scrollorientationlocking.ShareScrollOrientationLockerEvent
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor

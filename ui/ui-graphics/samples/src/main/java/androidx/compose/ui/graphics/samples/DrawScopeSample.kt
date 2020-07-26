@@ -18,7 +18,7 @@ package androidx.compose.ui.graphics.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.inset

@@ -26,11 +26,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.remember
 import androidx.compose.animation.asDisposableClock
-import androidx.ui.core.AnimationClockAmbient
-import androidx.ui.core.Modifier
-import androidx.ui.core.composed
-import androidx.ui.core.gesture.ScaleObserver
-import androidx.ui.core.gesture.scaleGestureFilter
+import androidx.compose.ui.platform.AnimationClockAmbient
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.gesture.ScaleObserver
+import androidx.compose.ui.gesture.scaleGestureFilter
 
 /**
  * Create and remember [ZoomableController] with default [AnimationClockObservable].

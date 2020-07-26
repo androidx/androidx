@@ -21,8 +21,8 @@ import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color

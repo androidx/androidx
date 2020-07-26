@@ -18,11 +18,11 @@ package androidx.compose.ui.layout
 
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.core.LayoutNode
-import androidx.ui.core.Measurable
-import androidx.ui.core.MeasureScope
+import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.Measurable
+import androidx.compose.ui.MeasureScope
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

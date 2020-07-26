@@ -20,8 +20,6 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.ui.core.AndroidOwner
-import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
@@ -31,13 +29,13 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.asAndroidPath
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
+import androidx.compose.ui.platform.AndroidOwner
 import androidx.ui.test.android.captureRegionToBitmap
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.height
-import androidx.compose.ui.unit.width
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import kotlin.math.roundToInt

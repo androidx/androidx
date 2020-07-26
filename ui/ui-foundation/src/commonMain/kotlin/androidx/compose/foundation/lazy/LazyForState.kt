@@ -17,15 +17,15 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.runtime.Composable
-import androidx.ui.core.Alignment
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.ExperimentalSubcomposeLayoutApi
-import androidx.ui.core.Measurable
-import androidx.ui.core.MeasureScope.MeasureResult
-import androidx.ui.core.Placeable
-import androidx.ui.core.Remeasurement
-import androidx.ui.core.RemeasurementModifier
-import androidx.ui.core.SubcomposeMeasureScope
+import androidx.compose.ui.Measurable
+import androidx.compose.ui.MeasureScope
+import androidx.compose.ui.Placeable
+import androidx.compose.ui.Remeasurement
+import androidx.compose.ui.RemeasurementModifier
+import androidx.compose.ui.layout.ExperimentalSubcomposeLayoutApi
+import androidx.compose.ui.layout.SubcomposeMeasureScope
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastForEach
@@ -256,7 +256,7 @@ internal class LazyForState<T>(val isVertical: Boolean) {
         itemContent: @Composable (T) -> Unit,
         horizontalAlignment: Alignment.Horizontal,
         verticalAlignment: Alignment.Vertical
-    ): MeasureResult = with(scope) {
+    ): MeasureScope.MeasureResult = with(scope) {
         measuredThisPass.clear()
         val maxMainAxis = if (isVertical) constraints.maxHeight else constraints.maxWidth
         val childConstraints = Constraints(

@@ -23,8 +23,6 @@ BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#toString():
 
 KotlinOperator: androidx.compose.ui.text.font.FontListFontFamily#contains(androidx.compose.ui.text.font.Font):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
-KotlinOperator: androidx.compose.ui.text.style.TextDecoration#contains(androidx.compose.ui.text.style.TextDecoration):
-    Note that adding the `operator` keyword would allow calling this method using operator syntax
 
 
 MissingBuildMethod: androidx.compose.ui.text.AnnotatedString.Builder:

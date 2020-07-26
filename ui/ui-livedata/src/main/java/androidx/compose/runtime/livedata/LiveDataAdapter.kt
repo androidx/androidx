@@ -20,11 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.onPreCommit
 import androidx.compose.runtime.state
+import androidx.compose.ui.platform.LifecycleOwnerAmbient
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import androidx.ui.core.LifecycleOwnerAmbient
 
 /**
  * Starts observing this [LiveData] and represents its values via [State]. Every time there would

@@ -28,17 +28,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.remember
 import androidx.compose.animation.asDisposableClock
-import androidx.ui.core.AnimationClockAmbient
-import androidx.ui.core.Direction
-import androidx.ui.core.Modifier
-import androidx.ui.core.composed
-import androidx.ui.core.gesture.ScrollCallback
-import androidx.ui.core.gesture.scrollGestureFilter
-import androidx.ui.core.gesture.scrollorientationlocking.Orientation
+import androidx.compose.ui.platform.AnimationClockAmbient
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.gesture.ScrollCallback
+import androidx.compose.ui.gesture.scrollGestureFilter
+import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.foundation.animation.FlingConfig
 import androidx.compose.foundation.animation.defaultFlingConfig
 import androidx.compose.foundation.animation.fling
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.gesture.Direction
 
 /**
  * Create and remember [ScrollableController] for [scrollable] with default [FlingConfig] and

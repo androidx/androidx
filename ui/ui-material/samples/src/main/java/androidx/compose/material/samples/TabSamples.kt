@@ -28,8 +28,8 @@ import androidx.compose.runtime.state
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.transition
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Border
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity

@@ -23,10 +23,10 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.LayoutCoordinates
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.core.selection.Selectable
-import androidx.ui.core.selection.Selection
+import androidx.compose.ui.selection.Selectable
+import androidx.compose.ui.selection.Selection
 import androidx.ui.test.android.createAndroidComposeRule
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle

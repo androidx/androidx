@@ -18,8 +18,8 @@ package androidx.compose.material
 
 import androidx.compose.runtime.Composable
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text

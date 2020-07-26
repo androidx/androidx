@@ -22,7 +22,7 @@ import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick

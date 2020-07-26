@@ -31,9 +31,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.state
 import androidx.compose.runtime.structuralEqualityPolicy
-import androidx.ui.core.Modifier
-import androidx.ui.core.clipToBounds
-import androidx.ui.core.drawLayer
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.drawLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp

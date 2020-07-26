@@ -27,13 +27,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.state
 import androidx.compose.animation.transition
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.DrawLayerModifier
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.core.Modifier
-import androidx.ui.core.Popup
-import androidx.ui.core.PopupPositionProvider
-import androidx.ui.core.TransformOrigin
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.ProvideTextStyle
@@ -47,6 +43,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.material.ripple.RippleIndication
+import androidx.compose.ui.DrawLayerModifier
+import androidx.compose.ui.TransformOrigin
+import androidx.compose.ui.platform.Popup
+import androidx.compose.ui.platform.PopupPositionProvider
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntBounds
 import androidx.compose.ui.unit.IntOffset

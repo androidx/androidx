@@ -17,7 +17,7 @@
 package androidx.compose.ui.layout
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.ExperimentalLayoutNodeApi
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

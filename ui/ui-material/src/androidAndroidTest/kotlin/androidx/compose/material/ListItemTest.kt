@@ -18,10 +18,10 @@ package androidx.compose.material
 
 import androidx.test.filters.SmallTest
 import androidx.compose.foundation.text.FirstBaseline
-import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.Modifier
-import androidx.ui.core.Ref
-import androidx.ui.core.onPositioned
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.Ref
+import androidx.compose.ui.onPositioned
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text

@@ -20,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.unit.dp
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.ui.test.ComposeTestRule
 
 /**

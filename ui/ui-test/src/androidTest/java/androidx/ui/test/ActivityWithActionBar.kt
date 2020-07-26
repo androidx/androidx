@@ -22,7 +22,7 @@ import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Recomposer
-import androidx.ui.core.setContent
+import androidx.compose.ui.platform.setContent
 
 // The presence of an ActionBar follows from the theme set in AndroidManifest.xml
 class ActivityWithActionBar : ComponentActivity() {

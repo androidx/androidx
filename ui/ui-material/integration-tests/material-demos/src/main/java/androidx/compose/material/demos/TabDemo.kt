@@ -18,8 +18,8 @@ package androidx.compose.material.demos
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.state
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.ui.graphics.Color

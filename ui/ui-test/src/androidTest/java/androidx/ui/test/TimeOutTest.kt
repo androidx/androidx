@@ -26,8 +26,8 @@ import androidx.test.espresso.IdlingPolicy
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
 import androidx.test.filters.LargeTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.onPositioned
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.onPositioned
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Stack

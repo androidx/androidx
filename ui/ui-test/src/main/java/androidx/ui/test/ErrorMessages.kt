@@ -16,7 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsNode
 
 /**
  * Builds error message for case where expected amount of nodes does not match reality.

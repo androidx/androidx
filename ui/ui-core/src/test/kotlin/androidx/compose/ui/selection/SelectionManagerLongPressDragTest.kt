@@ -17,14 +17,10 @@
 package androidx.compose.ui.selection
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.LayoutCoordinates
+import androidx.compose.ui.layout.LayoutCoordinates
 
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.core.selection.Selectable
-import androidx.ui.core.selection.Selection
-import androidx.ui.core.selection.SelectionManager
-import androidx.ui.core.selection.SelectionRegistrarImpl
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull

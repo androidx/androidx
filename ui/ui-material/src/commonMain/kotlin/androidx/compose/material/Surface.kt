@@ -18,18 +18,17 @@ package androidx.compose.material
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Providers
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
-import androidx.ui.core.clip
-import androidx.ui.core.drawLayer
-import androidx.ui.core.zIndex
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Border
 import androidx.compose.foundation.ContentColorAmbient
 import androidx.compose.foundation.ProvideTextStyle
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.drawBorder
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.drawLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -37,6 +36,7 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import kotlin.math.ln
 
 /**

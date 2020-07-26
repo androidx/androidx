@@ -17,8 +17,8 @@
 package androidx.compose.material.studies.rally
 
 import androidx.compose.runtime.Composable
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
