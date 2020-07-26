@@ -18,7 +18,6 @@ package androidx.compose.ui.input.key
 
 import android.view.KeyEvent
 import androidx.test.filters.SmallTest
-import androidx.ui.core.keyinput.Key
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

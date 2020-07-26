@@ -16,11 +16,9 @@
 
 package androidx.compose.ui.gesture
 
-import androidx.ui.testutils.down
-import androidx.ui.testutils.moveTo
+import androidx.compose.ui.input.pointer.down
+import androidx.compose.ui.input.pointer.moveTo
 import androidx.compose.ui.unit.milliseconds
-import androidx.ui.core.gesture.calculateAllDimensionInformation
-import androidx.ui.core.gesture.calculateScaleDifference
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

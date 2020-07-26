@@ -24,7 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Recomposer
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.compose.animation.transitionsEnabled
-import androidx.ui.core.setContent
+import androidx.compose.ui.platform.setContent
 import androidx.compose.foundation.InternalFoundationApi
 import androidx.compose.foundation.blinkingCursorEnabled
 import androidx.compose.ui.text.input.textInputServiceFactory

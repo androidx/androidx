@@ -22,8 +22,8 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.mutableStateOf
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.ui.integration.test.RandomTextGenerator
 import androidx.ui.integration.test.ToggleableTestCase

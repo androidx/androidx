@@ -17,15 +17,15 @@
 package androidx.ui.test
 
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.ui.core.AndroidOwner
-import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.LayoutNode
-import androidx.ui.core.findClosestParentNode
-import androidx.ui.core.semantics.SemanticsNode
+import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.semantics.AccessibilityRangeInfo
-import androidx.ui.semantics.SemanticsProperties
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
+import androidx.compose.ui.node.findClosestParentNode
+import androidx.compose.ui.platform.AndroidOwner
+import androidx.compose.ui.semantics.AccessibilityRangeInfo
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.unit.width

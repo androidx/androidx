@@ -21,10 +21,10 @@ import androidx.compose.runtime.emptyContent
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.runtime.state
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
-import androidx.ui.core.id
-import androidx.ui.core.layoutId
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.id
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollableColumn

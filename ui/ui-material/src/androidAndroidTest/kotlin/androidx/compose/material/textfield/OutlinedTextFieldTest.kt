@@ -21,12 +21,10 @@ import androidx.compose.runtime.Providers
 import androidx.compose.runtime.state
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.Modifier
-import androidx.ui.core.Ref
-import androidx.ui.core.TextInputServiceAmbient
-import androidx.ui.core.onPositioned
-import androidx.ui.core.positionInRoot
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.Ref
+import androidx.compose.ui.onPositioned
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
@@ -47,6 +45,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.runOnIdleWithDensity
 import androidx.compose.material.setMaterialContent
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.TextInputServiceAmbient
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule

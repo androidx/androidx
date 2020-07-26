@@ -16,9 +16,7 @@
 
 package androidx.compose.ui
 
-import androidx.ui.core.InspectableParameter
-import androidx.ui.core.Modifier
-import androidx.ui.core.zIndex
+import androidx.compose.ui.platform.InspectableParameter
 import com.google.common.truth.Truth
 import org.junit.Test
 

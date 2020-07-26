@@ -36,12 +36,12 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
-import androidx.ui.core.AnimationClockAmbient
-import androidx.ui.core.FontLoaderAmbient
-import androidx.ui.core.setContent
+import androidx.compose.ui.platform.AnimationClockAmbient
+import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.graphics.toAndroidRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.FontLoaderAmbient
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.SlotTableRecord

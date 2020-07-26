@@ -29,7 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.LargeTest
 import androidx.compose.animation.transition
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background

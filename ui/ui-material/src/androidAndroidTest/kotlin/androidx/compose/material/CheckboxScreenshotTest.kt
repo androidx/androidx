@@ -21,9 +21,9 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.selection.ToggleableState
 import androidx.compose.foundation.layout.wrapContentSize

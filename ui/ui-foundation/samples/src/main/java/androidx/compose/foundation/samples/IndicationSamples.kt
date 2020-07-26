@@ -19,7 +19,7 @@ package androidx.compose.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.IndicationAmbient
 import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.Text

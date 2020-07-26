@@ -16,12 +16,12 @@
 
 package androidx.ui.desktop
 
-import androidx.ui.core.LayoutCoordinates
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.core.selection.SelectionRegistrar
-import androidx.ui.core.selection.Selectable
+import androidx.compose.ui.selection.SelectionRegistrar
+import androidx.compose.ui.selection.Selectable
 
-// based on androidx.ui.core.selection.SelectionRegistrarImpl
+// based on androidx.compose.ui.selection.SelectionRegistrarImpl
 internal class DesktopSelectionRegistrar : SelectionRegistrar {
     internal var sorted: Boolean = false
 

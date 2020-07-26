@@ -17,10 +17,10 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Composable
-import androidx.ui.core.Alignment
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.Layout
-import androidx.ui.core.Placeable
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Placeable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp

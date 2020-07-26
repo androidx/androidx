@@ -23,7 +23,7 @@ import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.benchmarkFirstCompose
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.compose.foundation.layout.Column

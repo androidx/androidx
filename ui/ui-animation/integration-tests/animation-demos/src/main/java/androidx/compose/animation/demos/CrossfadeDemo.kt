@@ -23,8 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.state
 import androidx.compose.animation.Crossfade
-import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.tapGestureFilter
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.compose.foundation.Box
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column

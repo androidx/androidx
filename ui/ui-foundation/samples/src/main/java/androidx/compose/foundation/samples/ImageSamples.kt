@@ -19,7 +19,7 @@ package androidx.compose.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Image
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
@@ -27,13 +27,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageAsset
 import androidx.compose.ui.graphics.Paint
-import androidx.ui.core.ContentScale
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.painter.ImagePainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.foundation.layout.preferredSize
-import androidx.ui.res.loadVectorResource
+import androidx.compose.ui.res.loadVectorResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp

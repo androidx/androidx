@@ -42,36 +42,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.ui.core.AlignmentLine
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.ContentDrawScope
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.DrawLayerModifier
-import androidx.ui.core.DrawModifier
-import androidx.ui.core.HorizontalAlignmentLine
-import androidx.ui.core.InternalCoreApi
-import androidx.ui.core.IntrinsicMeasurable
-import androidx.ui.core.IntrinsicMeasureScope
-import androidx.ui.core.Layout
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.core.LayoutModifier
-import androidx.ui.core.Measurable
-import androidx.ui.core.MeasureScope
-import androidx.ui.core.Modifier
-import androidx.ui.core.Owner
-import androidx.ui.core.ParentDataModifier
-import androidx.ui.core.Ref
-import androidx.ui.core.VerticalAlignmentLine
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
-import androidx.ui.core.drawBehind
-import androidx.ui.core.drawLayer
-import androidx.ui.core.drawWithContent
-import androidx.ui.core.id
-import androidx.ui.core.layoutId
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.offset
-import androidx.ui.core.setContent
-import androidx.ui.core.zIndex
 import androidx.compose.foundation.drawBackground
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.geometry.Offset
@@ -91,10 +67,16 @@ import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.layout
-import androidx.ui.core.onPositioned
-import androidx.ui.core.positionInRoot
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.id
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.node.InternalCoreApi
+import androidx.compose.ui.node.Owner
+import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.platform.setContent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -2183,7 +2165,7 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 FixedSize(30, Modifier.background(Color.Blue).drawLatchModifier()) {
-                    JustConstraints(CombinedModifier(Color.White)) {
+                    JustConstraints(LayoutAndDrawModifier(Color.White)) {
                     }
                 }
             }
@@ -3426,7 +3408,7 @@ fun Modifier.background(model: SquareModel, isInner: Boolean) = drawBehind {
     drawRect(if (isInner) model.innerColor else model.outerColor)
 }
 
-class CombinedModifier(val color: Color) : LayoutModifier, DrawModifier {
+class LayoutAndDrawModifier(val color: Color) : LayoutModifier, DrawModifier {
 
     override fun MeasureScope.measure(
         measurable: Measurable,

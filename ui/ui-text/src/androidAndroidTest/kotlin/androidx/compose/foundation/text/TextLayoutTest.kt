@@ -21,11 +21,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
-import androidx.ui.core.Ref
-import androidx.ui.core.onPositioned
-import androidx.ui.core.setContent
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.Ref
+import androidx.compose.ui.onPositioned
+import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle

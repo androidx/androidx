@@ -17,13 +17,14 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.IntrinsicMeasurable
-import androidx.ui.core.IntrinsicMeasureScope
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.core.LayoutModifier
-import androidx.ui.core.Measurable
-import androidx.ui.core.MeasureScope
-import androidx.ui.core.Modifier
+import androidx.compose.ui.LayoutModifier
+import androidx.compose.ui.Measurable
+import androidx.compose.ui.MeasureScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
+
 /**
  * [Modifier] that changes the [LayoutDirection] of the wrapped layout to [LayoutDirection.Ltr].
  */

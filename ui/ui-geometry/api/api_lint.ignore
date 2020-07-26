@@ -9,5 +9,3 @@ KotlinOperator: androidx.compose.ui.geometry.RRect#contains(androidx.compose.ui.
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 KotlinOperator: androidx.compose.ui.geometry.Rect#contains(androidx.compose.ui.geometry.Offset):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
-KotlinOperator: androidx.compose.ui.geometry.Size#contains(androidx.compose.ui.geometry.Offset):
-    Note that adding the `operator` keyword would allow calling this method using operator syntax

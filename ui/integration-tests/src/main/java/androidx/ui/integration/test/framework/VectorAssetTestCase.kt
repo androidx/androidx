@@ -17,9 +17,9 @@
 package androidx.ui.integration.test.framework
 
 import androidx.compose.runtime.Composable
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
-import androidx.ui.core.paint
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.draw.paint
 import androidx.compose.foundation.Box
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -30,7 +30,7 @@ import androidx.compose.ui.graphics.vector.VectorAsset
 import androidx.compose.ui.graphics.vector.VectorAssetBuilder
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.foundation.layout.preferredSize
-import androidx.ui.res.vectorResource
+import androidx.compose.ui.res.vectorResource
 import androidx.ui.test.ComposeTestCase
 import androidx.compose.ui.unit.dp
 

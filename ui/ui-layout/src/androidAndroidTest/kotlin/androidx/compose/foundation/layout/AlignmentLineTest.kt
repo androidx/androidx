@@ -16,16 +16,16 @@
 
 package androidx.compose.foundation.layout
 
+import androidx.compose.ui.HorizontalAlignmentLine
 import androidx.test.filters.SmallTest
-import androidx.ui.core.HorizontalAlignmentLine
-import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
-import androidx.ui.core.Ref
-import androidx.ui.core.VerticalAlignmentLine
-import androidx.ui.core.WithConstraints
-import androidx.ui.core.onPositioned
-import androidx.ui.core.positionInRoot
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.VerticalAlignmentLine
+import androidx.compose.ui.node.Ref
+import androidx.compose.ui.WithConstraints
+import androidx.compose.ui.onPositioned
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import org.junit.Assert

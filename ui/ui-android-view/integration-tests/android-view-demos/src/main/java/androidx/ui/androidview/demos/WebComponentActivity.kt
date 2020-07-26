@@ -44,10 +44,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.state
+import androidx.compose.ui.platform.setViewContent
 import androidx.ui.androidview.WebComponent
 import androidx.ui.androidview.WebContext
-import androidx.ui.core.setViewContent
-import androidx.ui.viewinterop.emitView
+import androidx.compose.ui.viewinterop.emitView
 
 @Stable
 class WebParams {

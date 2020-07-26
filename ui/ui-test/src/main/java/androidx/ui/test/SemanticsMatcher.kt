@@ -16,8 +16,8 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsPropertyKey
 
 /**
  * Wrapper for semantics matcher lambdas that allows to build string explaining to the developer

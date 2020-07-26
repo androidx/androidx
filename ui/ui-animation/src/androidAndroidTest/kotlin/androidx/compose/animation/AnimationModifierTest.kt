@@ -25,11 +25,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.test.filters.MediumTest
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.DensityAmbient
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.core.LayoutModifier
-import androidx.ui.core.Measurable
-import androidx.ui.core.MeasureScope
+import androidx.compose.ui.LayoutModifier
+import androidx.compose.ui.Measurable
+import androidx.compose.ui.MeasureScope
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.waitForIdle

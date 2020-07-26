@@ -18,7 +18,7 @@ package androidx.compose.ui.unit.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
-import androidx.ui.core.DensityAmbient
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.dp
 
 @Sampled

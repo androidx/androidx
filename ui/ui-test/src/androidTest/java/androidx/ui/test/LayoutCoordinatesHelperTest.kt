@@ -17,11 +17,11 @@
 package androidx.ui.test
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Alignment
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.Modifier
-import androidx.ui.core.onPositioned
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.onPositioned
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.ui.geometry.Offset

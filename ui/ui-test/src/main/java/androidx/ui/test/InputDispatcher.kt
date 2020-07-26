@@ -17,10 +17,10 @@
 package androidx.ui.test
 
 import androidx.collection.SparseArrayCompat
-import androidx.ui.core.AndroidOwner
-import androidx.ui.core.Owner
+import androidx.compose.ui.node.Owner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
+import androidx.compose.ui.platform.AndroidOwner
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.android.AndroidOwnerRegistry
 import androidx.compose.ui.unit.Duration

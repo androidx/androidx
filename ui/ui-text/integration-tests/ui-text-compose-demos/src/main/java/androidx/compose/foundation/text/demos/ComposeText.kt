@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text.demos
 
 import androidx.compose.runtime.Composable
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.ui.geometry.Offset

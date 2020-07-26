@@ -26,9 +26,9 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.state
 import androidx.ui.androidview.adapters.setOnClick
-import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.core.setContent
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.platform.setContent
 import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.DemoCategory
 import androidx.compose.foundation.Box

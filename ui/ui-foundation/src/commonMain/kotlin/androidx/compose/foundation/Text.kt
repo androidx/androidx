@@ -22,11 +22,11 @@ import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.ambientOf
 import androidx.compose.runtime.structuralEqualityPolicy
-import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.useOrElse
-import androidx.ui.semantics.text
+import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.foundation.text.CoreText
 import androidx.compose.foundation.text.InlineTextContent

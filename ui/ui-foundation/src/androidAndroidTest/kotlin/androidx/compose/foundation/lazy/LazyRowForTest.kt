@@ -21,8 +21,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Stack
@@ -31,7 +31,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.layout.size
-import androidx.ui.core.Alignment
+import androidx.compose.ui.Alignment
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertPositionInRootIsEqualTo
 import androidx.ui.test.createComposeRule

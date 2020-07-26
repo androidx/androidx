@@ -20,7 +20,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.TextFieldValue

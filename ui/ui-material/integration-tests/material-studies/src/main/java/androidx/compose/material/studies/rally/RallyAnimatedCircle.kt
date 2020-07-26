@@ -23,8 +23,8 @@ import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.animation.transition
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Modifier
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size

@@ -17,7 +17,7 @@
 package androidx.compose.foundation.demos
 
 import androidx.compose.runtime.Composable
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.samples.DraggableSample
 import androidx.compose.foundation.samples.ScrollableSample
 import androidx.compose.foundation.samples.ZoomableSample

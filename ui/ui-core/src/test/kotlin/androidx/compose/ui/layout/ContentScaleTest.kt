@@ -18,7 +18,6 @@ package androidx.compose.ui.layout
 
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Size
-import androidx.ui.core.ContentScale
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

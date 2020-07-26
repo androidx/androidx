@@ -19,15 +19,15 @@ package androidx.compose.foundation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
-import androidx.ui.core.Modifier
-import androidx.ui.core.composed
-import androidx.ui.core.gesture.doubleTapGestureFilter
-import androidx.ui.core.gesture.longPressGestureFilter
-import androidx.ui.core.gesture.pressIndicatorGestureFilter
-import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.core.semantics.semantics
-import androidx.ui.semantics.disabled
-import androidx.ui.semantics.onClick
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.gesture.doubleTapGestureFilter
+import androidx.compose.ui.gesture.longPressGestureFilter
+import androidx.compose.ui.gesture.pressIndicatorGestureFilter
+import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.onClick
 
 /**
  * Configure component to receive clicks via input or accessibility "click" event.

@@ -17,8 +17,8 @@ package androidx.compose.material
 
 import androidx.compose.runtime.emptyContent
 import androidx.test.filters.LargeTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.material.samples.IconButtonSample

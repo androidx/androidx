@@ -18,7 +18,7 @@ package androidx.compose.foundation
 
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
-import androidx.ui.core.ConfigurationAmbient
+import androidx.compose.ui.platform.ConfigurationAmbient
 
 /**
  * This function should be used to help build responsive UIs that follow the system setting, to

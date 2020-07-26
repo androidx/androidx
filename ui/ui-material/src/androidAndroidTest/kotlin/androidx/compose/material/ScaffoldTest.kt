@@ -21,13 +21,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.Modifier
-import androidx.ui.core.drawShadow
-import androidx.ui.core.onPositioned
-import androidx.ui.core.positionInParent
-import androidx.ui.core.semantics.semantics
-import androidx.ui.core.testTag
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawShadow
+import androidx.compose.ui.onPositioned
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
@@ -42,6 +41,7 @@ import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.ui.layout.positionInParent
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap

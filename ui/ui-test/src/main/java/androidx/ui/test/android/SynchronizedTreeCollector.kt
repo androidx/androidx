@@ -18,13 +18,13 @@ package androidx.ui.test.android
 
 import android.view.Choreographer
 import androidx.compose.runtime.onCommit
+import androidx.compose.ui.platform.AndroidOwner
 import androidx.test.espresso.AppNotIdleException
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResourceTimeoutException
-import androidx.ui.core.AndroidOwner
-import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.core.semantics.getAllSemanticsNodes
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.getAllSemanticsNodes
 import androidx.ui.test.isOnUiThread
 import androidx.ui.test.runOnUiThread
 import java.util.concurrent.CountDownLatch

@@ -27,11 +27,11 @@ import androidx.compose.runtime.Providers
 import androidx.compose.runtime.remember
 import androidx.compose.animation.transition
 import androidx.compose.animation.animatedFloat
-import androidx.ui.core.AnimationClockAmbient
-import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.pressIndicatorGestureFilter
-import androidx.ui.core.gesture.rawDragGestureFilter
+import androidx.compose.ui.platform.AnimationClockAmbient
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.DragObserver
+import androidx.compose.ui.gesture.pressIndicatorGestureFilter
+import androidx.compose.ui.gesture.rawDragGestureFilter
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Text

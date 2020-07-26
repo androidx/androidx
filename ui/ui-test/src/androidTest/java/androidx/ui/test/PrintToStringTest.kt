@@ -18,15 +18,15 @@ package androidx.ui.test
 
 import androidx.compose.runtime.Composable
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
-import androidx.ui.semantics.disabled
-import androidx.ui.semantics.testTag
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.testTag
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
 import androidx.ui.test.util.obfuscateNodesInfo

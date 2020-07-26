@@ -18,12 +18,12 @@ package androidx.ui.desktop
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.clipboard.ClipboardManager
-import androidx.ui.core.gesture.DragObserver
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.gesture.DragObserver
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.core.selection.Selection
-import androidx.ui.core.selection.Selectable
+import androidx.compose.ui.selection.Selection
+import androidx.compose.ui.selection.Selectable
 
 internal class DesktopSelectionManager(private val selectionRegistrar: DesktopSelectionRegistrar) {
     private var dragBeginPosition = Offset.Zero

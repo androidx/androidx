@@ -22,7 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.state
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.ui.demos.common.ComposableDemo
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentColorAmbient

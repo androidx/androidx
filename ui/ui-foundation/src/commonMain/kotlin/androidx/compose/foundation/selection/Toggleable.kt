@@ -19,11 +19,11 @@ package androidx.compose.foundation.selection
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
-import androidx.ui.core.Modifier
-import androidx.ui.core.composed
-import androidx.ui.core.gesture.pressIndicatorGestureFilter
-import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.core.semantics.semantics
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.gesture.pressIndicatorGestureFilter
+import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationAmbient
 import androidx.compose.foundation.Interaction
@@ -34,9 +34,9 @@ import androidx.compose.foundation.selection.ToggleableState.Indeterminate
 import androidx.compose.foundation.selection.ToggleableState.Off
 import androidx.compose.foundation.selection.ToggleableState.On
 import androidx.compose.foundation.semantics.toggleableState
-import androidx.ui.semantics.accessibilityValue
-import androidx.ui.semantics.disabled
-import androidx.ui.semantics.onClick
+import androidx.compose.ui.semantics.accessibilityValue
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.onClick
 
 /**
  * Configure component to make it toggleable via input and accessibility events

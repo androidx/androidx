@@ -18,9 +18,7 @@ package androidx.compose.ui.selection
 
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.selection.Selectable
-import androidx.ui.core.selection.SelectionRegistrarImpl
+import androidx.compose.ui.layout.LayoutCoordinates
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever

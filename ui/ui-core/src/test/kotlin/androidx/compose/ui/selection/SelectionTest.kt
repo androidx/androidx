@@ -19,8 +19,6 @@ package androidx.compose.ui.selection
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.style.ResolvedTextDirection
-import androidx.ui.core.selection.Selectable
-import androidx.ui.core.selection.Selection
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test

@@ -20,11 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.animation.Crossfade
-import androidx.ui.core.Alignment
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.core.Modifier
-import androidx.ui.core.WithConstraints
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.WithConstraints
+import androidx.compose.ui.platform.testTag
 import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.Demo

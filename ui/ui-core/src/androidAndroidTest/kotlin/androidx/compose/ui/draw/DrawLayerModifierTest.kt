@@ -16,9 +16,9 @@
 
 package androidx.compose.ui.draw
 
-import androidx.ui.core.InspectableParameter
-import androidx.ui.core.Modifier
-import androidx.ui.core.drawLayer
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.drawLayer
+import androidx.compose.ui.platform.InspectableParameter
 import com.google.common.truth.Truth
 import org.junit.Test
 

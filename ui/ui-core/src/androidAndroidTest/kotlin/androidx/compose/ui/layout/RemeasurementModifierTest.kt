@@ -17,9 +17,9 @@
 package androidx.compose.ui.layout
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.Remeasurement
-import androidx.ui.core.RemeasurementModifier
+import androidx.compose.ui.Remeasurement
+import androidx.compose.ui.RemeasurementModifier
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

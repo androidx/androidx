@@ -25,9 +25,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.scrollorientationlocking.Orientation
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.animation.FlingConfig
 import androidx.compose.foundation.gestures.ScrollableController
 import androidx.compose.foundation.gestures.scrollable

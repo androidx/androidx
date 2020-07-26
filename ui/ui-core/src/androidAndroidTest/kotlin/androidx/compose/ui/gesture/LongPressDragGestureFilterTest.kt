@@ -20,14 +20,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.emptyContent
 import androidx.test.filters.LargeTest
-import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
-import androidx.ui.core.setContent
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.core.gesture.LongPressDragObserver
-import androidx.ui.core.gesture.longPressDragGestureFilter
+import androidx.compose.ui.platform.setContent
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.spy

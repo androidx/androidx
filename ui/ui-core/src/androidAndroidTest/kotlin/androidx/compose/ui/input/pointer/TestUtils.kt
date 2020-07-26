@@ -16,17 +16,15 @@
 
 package androidx.compose.ui.input.pointer
 
-import androidx.ui.core.InternalPointerEvent
-import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PointerId
-import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInputData
-import androidx.ui.core.PointerInputHandler
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Uptime
-import androidx.ui.core.pointerinput.PointerInputEvent
-import androidx.ui.core.pointerinput.PointerInputEventData
+import androidx.compose.ui.platform.InternalPointerEvent
+import androidx.compose.ui.platform.PointerEventPass
+import androidx.compose.ui.platform.PointerId
+import androidx.compose.ui.platform.PointerInputChange
+import androidx.compose.ui.platform.PointerInputData
+import androidx.compose.ui.platform.PointerInputHandler
 
 /**
  * This class enables Mockito to spy.

@@ -17,12 +17,10 @@
 package androidx.compose.ui.res
 
 import androidx.compose.runtime.Providers
+import androidx.compose.ui.platform.ContextAmbient
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.core.ContextAmbient
-import androidx.ui.core.test.R
-import androidx.ui.res.stringArrayResource
-import androidx.ui.res.stringResource
+import androidx.compose.ui.test.R
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule

@@ -23,8 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.ui.core.Modifier
-import androidx.ui.core.setContent
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.setContent
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.ScrollableColumn

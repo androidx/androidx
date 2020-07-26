@@ -19,10 +19,10 @@ package androidx.compose.foundation.text.selection
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.core.clipboard.ClipboardManager
-import androidx.ui.core.hapticfeedback.HapticFeedback
-import androidx.ui.core.hapticfeedback.HapticFeedbackType
-import androidx.ui.core.texttoolbar.TextToolbar
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.input.OffsetMap

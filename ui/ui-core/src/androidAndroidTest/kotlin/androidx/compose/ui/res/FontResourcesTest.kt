@@ -17,9 +17,9 @@
 package androidx.compose.ui.res
 
 import androidx.compose.runtime.Providers
+import androidx.compose.ui.platform.ContextAmbient
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.core.ContextAmbient
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.compose.ui.text.Typeface
@@ -29,11 +29,6 @@ import androidx.compose.ui.text.font.asFontFamily
 import androidx.compose.ui.text.font.font
 import androidx.compose.ui.text.font.fontFamily
 import androidx.compose.ui.text.font.test.R
-import androidx.ui.res.DeferredResource
-import androidx.ui.res.LoadingState
-import androidx.ui.res.cacheKey
-import androidx.ui.res.fontResource
-import androidx.ui.res.loadFontResource
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

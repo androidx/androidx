@@ -18,7 +18,7 @@ package androidx.ui.test.android
 
 import android.view.View
 import androidx.lifecycle.Lifecycle
-import androidx.ui.core.AndroidOwner
+import androidx.compose.ui.platform.AndroidOwner
 import java.util.Collections
 import java.util.WeakHashMap
 

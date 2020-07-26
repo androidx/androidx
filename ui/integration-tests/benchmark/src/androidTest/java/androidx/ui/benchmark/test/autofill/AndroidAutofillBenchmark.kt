@@ -24,12 +24,12 @@ import androidx.benchmark.junit4.measureRepeated
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.autofill.AutofillNode
-import androidx.ui.autofill.AutofillTree
-import androidx.ui.autofill.AutofillType
-import androidx.ui.core.AutofillTreeAmbient
-import androidx.ui.core.ViewAmbient
+import androidx.compose.ui.autofill.AutofillNode
+import androidx.compose.ui.autofill.AutofillTree
+import androidx.compose.ui.autofill.AutofillType
+import androidx.compose.ui.platform.ViewAmbient
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.platform.AutofillTreeAmbient
 import androidx.ui.test.createComposeRule
 import org.junit.Before
 import org.junit.Rule

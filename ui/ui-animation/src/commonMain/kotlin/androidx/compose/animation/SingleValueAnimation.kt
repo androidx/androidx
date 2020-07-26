@@ -26,7 +26,7 @@ import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
-import androidx.ui.core.AnimationClockAmbient
+import androidx.compose.ui.platform.AnimationClockAmbient
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color

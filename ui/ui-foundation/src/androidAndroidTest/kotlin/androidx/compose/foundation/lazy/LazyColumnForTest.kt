@@ -22,9 +22,9 @@ import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.setValue
 import androidx.test.filters.LargeTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.TouchSlop
-import androidx.ui.core.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.TouchSlop
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
@@ -38,7 +38,7 @@ import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.ui.core.Alignment
+import androidx.compose.ui.Alignment
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertIsDisplayed

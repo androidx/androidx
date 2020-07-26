@@ -33,11 +33,11 @@ import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
-import androidx.ui.core.Modifier
-import androidx.ui.core.ViewAmbient
-import androidx.ui.core.semantics.semantics
-import androidx.ui.core.setContent
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.semantics.dialog
+import androidx.compose.ui.platform.ViewAmbient
+import androidx.compose.ui.platform.setContent
 
 /**
  * Opens a dialog with the given content.

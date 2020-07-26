@@ -19,15 +19,9 @@ package androidx.compose.ui.input.pointer
 import android.view.MotionEvent
 import android.view.View
 import androidx.test.filters.SmallTest
-import androidx.ui.core.PointerEvent
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.testutils.down
-import androidx.ui.testutils.moveTo
-import androidx.ui.testutils.up
+import androidx.compose.ui.platform.PointerEvent
 import androidx.compose.ui.unit.milliseconds
-import androidx.ui.node.emptyCancelMotionEventScope
-import androidx.ui.node.toCancelMotionEventScope
-import androidx.ui.node.toMotionEventScope
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

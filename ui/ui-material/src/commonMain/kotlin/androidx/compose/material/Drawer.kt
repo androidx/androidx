@@ -20,12 +20,12 @@ import androidx.compose.animation.core.SpringSpec
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.state
-import androidx.ui.core.DensityAmbient
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.ui.core.Modifier
-import androidx.ui.core.WithConstraints
-import androidx.ui.core.gesture.scrollorientationlocking.Orientation
-import androidx.ui.core.gesture.tapGestureFilter
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.WithConstraints
+import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
+import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.graphics.Shape

@@ -18,7 +18,7 @@ package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Border
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.drawBorder

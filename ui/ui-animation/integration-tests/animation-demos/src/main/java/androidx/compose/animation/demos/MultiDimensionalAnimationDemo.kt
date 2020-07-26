@@ -26,7 +26,7 @@ import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.RectPropKey
 import androidx.compose.animation.transition
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.geometry.Offset

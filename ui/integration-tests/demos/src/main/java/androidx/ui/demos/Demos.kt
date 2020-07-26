@@ -18,7 +18,7 @@ package androidx.ui.demos
 
 import androidx.ui.androidview.demos.AndroidViewDemos
 import androidx.compose.animation.demos.AnimationDemos
-import androidx.ui.core.demos.CoreDemos
+import androidx.compose.ui.demos.CoreDemos
 import androidx.ui.demos.common.DemoCategory
 import androidx.compose.foundation.demos.FoundationDemos
 import androidx.compose.foundation.layout.demos.LayoutDemos

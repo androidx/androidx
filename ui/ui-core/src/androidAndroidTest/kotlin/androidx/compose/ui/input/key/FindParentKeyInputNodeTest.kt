@@ -20,7 +20,6 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.graphics.Color
-import androidx.ui.core.keyinput.KeyInputModifier
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat

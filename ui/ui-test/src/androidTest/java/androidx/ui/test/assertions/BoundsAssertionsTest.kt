@@ -17,10 +17,10 @@
 package androidx.ui.test.assertions
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.core.clipToBounds
-import androidx.ui.core.testTag
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color

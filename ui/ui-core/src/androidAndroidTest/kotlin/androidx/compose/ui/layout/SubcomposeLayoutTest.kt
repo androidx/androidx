@@ -27,11 +27,9 @@ import androidx.compose.runtime.onDispose
 import androidx.compose.ui.background
 import androidx.compose.ui.draw.assertColor
 import androidx.test.filters.SmallTest
-import androidx.ui.core.ExperimentalSubcomposeLayoutApi
-import androidx.ui.core.Modifier
-import androidx.ui.core.SubcomposeLayout
-import androidx.ui.core.testTag
-import androidx.ui.core.zIndex
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.graphics.Color
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsDisplayed

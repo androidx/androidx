@@ -17,14 +17,13 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.foundation.Box
+import androidx.compose.ui.FocusModifier2
 import androidx.test.filters.SmallTest
-import androidx.ui.core.focus.ExperimentalFocus
-import androidx.ui.core.focus.FocusModifier2
-import androidx.ui.core.focus.FocusState2.Active
-import androidx.ui.core.focus.FocusState2.ActiveParent
-import androidx.ui.core.focus.FocusState2.Captured
-import androidx.ui.core.focus.FocusState2.Disabled
-import androidx.ui.core.focus.FocusState2.Inactive
+import androidx.compose.ui.focus.FocusState2.Active
+import androidx.compose.ui.focus.FocusState2.ActiveParent
+import androidx.compose.ui.focus.FocusState2.Captured
+import androidx.compose.ui.focus.FocusState2.Disabled
+import androidx.compose.ui.focus.FocusState2.Inactive
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat

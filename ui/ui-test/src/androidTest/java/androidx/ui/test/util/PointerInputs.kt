@@ -16,14 +16,14 @@
 
 package androidx.ui.test.util
 
-import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PointerId
-import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInputData
-import androidx.ui.core.gesture.util.VelocityTracker
-import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.core.pointerinput.PointerInputModifier
+import androidx.compose.ui.gesture.util.VelocityTracker
+import androidx.compose.ui.input.pointer.PointerInputFilter
+import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.PointerEventPass
+import androidx.compose.ui.platform.PointerId
+import androidx.compose.ui.platform.PointerInputChange
+import androidx.compose.ui.platform.PointerInputData
 import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Uptime

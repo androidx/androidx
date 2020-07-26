@@ -15,7 +15,7 @@
  */
 package androidx.ui.desktop.examples.example2
 
-import androidx.ui.core.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color

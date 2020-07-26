@@ -16,20 +16,18 @@
 
 package androidx.compose.ui.gesture
 
-import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PointerId
-import androidx.ui.core.anyPositionChangeConsumed
-import androidx.ui.testutils.consume
-import androidx.ui.testutils.down
-import androidx.ui.testutils.invokeOverAllPasses
-import androidx.ui.testutils.invokeOverPasses
-import androidx.ui.testutils.moveBy
-import androidx.ui.testutils.moveTo
-import androidx.ui.testutils.up
+import androidx.compose.ui.platform.PointerEventPass
+import androidx.compose.ui.platform.PointerId
+import androidx.compose.ui.platform.anyPositionChangeConsumed
+import androidx.compose.ui.input.pointer.consume
+import androidx.compose.ui.input.pointer.down
+import androidx.compose.ui.input.pointer.invokeOverAllPasses
+import androidx.compose.ui.input.pointer.invokeOverPasses
+import androidx.compose.ui.input.pointer.moveBy
+import androidx.compose.ui.input.pointer.moveTo
+import androidx.compose.ui.input.pointer.up
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.milliseconds
-import androidx.ui.core.gesture.RawScaleGestureFilter
-import androidx.ui.core.gesture.RawScaleObserver
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test

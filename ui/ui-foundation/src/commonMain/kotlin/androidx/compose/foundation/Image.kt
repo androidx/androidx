@@ -18,19 +18,19 @@ package androidx.compose.foundation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.core.clipToBounds
-import androidx.ui.core.paint
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.ImageAsset
-import androidx.ui.core.ContentScale
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.ImagePainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.VectorAsset
 import androidx.compose.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.layout.ContentScale
 
 /**
  * A composable that lays out and draws a given [ImageAsset]. This will attempt to

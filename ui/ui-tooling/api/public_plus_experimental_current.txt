@@ -11,10 +11,10 @@ package androidx.ui.tooling {
     method public final java.util.Collection<java.lang.Object> getData();
     method public final Object? getKey();
     method public final androidx.ui.tooling.SourceLocation? getLocation();
-    method public java.util.List<androidx.ui.core.ModifierInfo> getModifierInfo();
+    method public java.util.List<androidx.compose.ui.node.ModifierInfo> getModifierInfo();
     method public final String? getName();
     method public java.util.List<androidx.ui.tooling.ParameterInformation> getParameters();
-    property public java.util.List<androidx.ui.core.ModifierInfo> modifierInfo;
+    property public java.util.List<androidx.compose.ui.node.ModifierInfo> modifierInfo;
     property public java.util.List<androidx.ui.tooling.ParameterInformation> parameters;
   }
 
@@ -32,7 +32,7 @@ package androidx.ui.tooling {
   }
 
   public final class NodeGroup extends androidx.ui.tooling.Group {
-    ctor public NodeGroup(Object? key, Object node, androidx.compose.ui.unit.IntBounds box, java.util.Collection<?> data, java.util.List<androidx.ui.core.ModifierInfo> modifierInfo, java.util.Collection<? extends androidx.ui.tooling.Group> children);
+    ctor public NodeGroup(Object? key, Object node, androidx.compose.ui.unit.IntBounds box, java.util.Collection<?> data, java.util.List<androidx.compose.ui.node.ModifierInfo> modifierInfo, java.util.Collection<? extends androidx.ui.tooling.Group> children);
     method public Object getNode();
   }
 

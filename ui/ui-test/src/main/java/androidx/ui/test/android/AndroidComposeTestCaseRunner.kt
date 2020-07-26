@@ -34,8 +34,8 @@ import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.dispatch.MonotonicFrameClock
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.ui.core.AndroidOwner
-import androidx.ui.core.setContent
+import androidx.compose.ui.platform.AndroidOwner
+import androidx.compose.ui.platform.setContent
 import androidx.ui.test.ComposeBenchmarkScope
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.setupContent

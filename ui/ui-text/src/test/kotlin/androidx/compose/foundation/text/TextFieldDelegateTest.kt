@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.LayoutCoordinates
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect

@@ -34,7 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.preference.PreferenceManager
-import androidx.ui.core.setContent
+import androidx.compose.ui.platform.setContent
 import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.Demo
 import androidx.ui.demos.common.DemoCategory

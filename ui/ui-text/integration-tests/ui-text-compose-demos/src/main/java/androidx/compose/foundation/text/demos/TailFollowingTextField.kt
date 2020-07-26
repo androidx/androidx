@@ -26,9 +26,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
-import androidx.ui.core.clipToBounds
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue

@@ -27,12 +27,9 @@ import androidx.compose.ui.assertRect
 import androidx.compose.ui.background
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.ui.core.DrawLayerModifier
-import androidx.ui.core.Modifier
-import androidx.ui.core.clip
-import androidx.ui.core.clipToBounds
-import androidx.ui.core.drawBehind
-import androidx.ui.core.setContent
+import androidx.compose.ui.DrawLayerModifier
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.drawBehind
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.RRect
@@ -46,6 +43,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.runOnUiThreadIR
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.waitAndScreenShot

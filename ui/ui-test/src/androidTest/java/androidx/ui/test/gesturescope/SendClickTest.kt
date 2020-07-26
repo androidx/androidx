@@ -20,12 +20,12 @@ import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.MediumTest
-import androidx.ui.core.changedToUp
-import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.core.pointerinput.PointerInputModifier
+import androidx.compose.ui.input.pointer.PointerInputFilter
+import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.platform.changedToUp
 import androidx.ui.test.ActivityWithActionBar
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.performGesture

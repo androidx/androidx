@@ -25,8 +25,8 @@ import androidx.compose.runtime.invalidate
 import androidx.compose.runtime.key
 import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
-import androidx.ui.core.Modifier
-import androidx.ui.core.drawOpacity
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawOpacity
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.ui.util.fastForEach
 

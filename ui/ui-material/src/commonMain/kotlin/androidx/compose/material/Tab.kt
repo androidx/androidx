@@ -29,13 +29,11 @@ import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.transition
 import androidx.compose.ui.unit.Constraints
-import androidx.ui.core.ExperimentalSubcomposeLayoutApi
-import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
-import androidx.ui.core.Placeable
-import androidx.ui.core.SubcomposeLayout
-import androidx.ui.core.id
-import androidx.ui.core.layoutId
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.Placeable
+import androidx.compose.ui.layout.id
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentColorAmbient
 import androidx.compose.foundation.ContentGravity
@@ -56,6 +54,8 @@ import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.material.TabRow.TabPosition
 import androidx.compose.foundation.text.FirstBaseline
 import androidx.compose.foundation.text.LastBaseline
+import androidx.compose.ui.layout.ExperimentalSubcomposeLayoutApi
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
