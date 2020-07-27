@@ -126,8 +126,32 @@ class TextFieldSelectionManagerTest {
         manager.longPressDragObserver.onLongPress(dragBeginPosition)
 
         assertThat(state.selectionIsOn).isTrue()
-        assertThat(state.updatingSelection).isFalse()
+        assertThat(state.showFloatingToolbar).isTrue()
         assertThat(value.selection).isEqualTo(fakeTextRange)
+        verify(
+            hapticFeedback,
+            times(1)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
+
+    @Test
+    fun TextFieldSelectionManager_longPressDragObserver_onLongPress_blank() {
+        // Setup
+        val fakeLineNumber = 0
+        val fakeLineEnd = text.length
+        whenever(state.layoutResult!!.getLineForVerticalPosition(dragBeginPosition.y))
+            .thenReturn(fakeLineNumber)
+        whenever(state.layoutResult!!.getLineLeft(fakeLineNumber))
+            .thenReturn(dragBeginPosition.x + 1.0f)
+        whenever(state.layoutResult!!.getLineEnd(fakeLineNumber)).thenReturn(fakeLineEnd)
+
+        // Act
+        manager.longPressDragObserver.onLongPress(dragBeginPosition)
+
+        // Assert
+        assertThat(state.selectionIsOn).isTrue()
+        assertThat(state.showFloatingToolbar).isTrue()
+        assertThat(value.selection).isEqualTo(TextRange(fakeLineEnd))
         verify(
             hapticFeedback,
             times(1)
@@ -140,7 +164,7 @@ class TextFieldSelectionManagerTest {
         manager.longPressDragObserver.onDrag(dragDistance)
 
         assertThat(value.selection).isEqualTo(TextRange(0, text.length))
-        assertThat(state.updatingSelection).isTrue()
+        assertThat(state.showFloatingToolbar).isFalse()
         verify(
             hapticFeedback,
             times(2)
@@ -154,7 +178,7 @@ class TextFieldSelectionManagerTest {
 
         manager.longPressDragObserver.onStop(Offset.Zero)
 
-        assertThat(state.updatingSelection).isFalse()
+        assertThat(state.showFloatingToolbar).isTrue()
     }
 
     @Test
@@ -162,7 +186,7 @@ class TextFieldSelectionManagerTest {
         manager.handleDragObserver(isStartHandle = true).onStart(Offset.Zero)
 
         assertThat(state.draggingHandle).isTrue()
-        assertThat(state.updatingSelection).isFalse()
+        assertThat(state.showFloatingToolbar).isFalse()
         verify(spyLambda, times(0)).invoke(any())
         verify(
             hapticFeedback,
@@ -175,7 +199,7 @@ class TextFieldSelectionManagerTest {
         manager.handleDragObserver(isStartHandle = false).onStart(Offset.Zero)
 
         assertThat(state.draggingHandle).isTrue()
-        assertThat(state.updatingSelection).isFalse()
+        assertThat(state.showFloatingToolbar).isFalse()
         verify(spyLambda, times(0)).invoke(any())
         verify(
             hapticFeedback,
@@ -190,7 +214,7 @@ class TextFieldSelectionManagerTest {
         val result = manager.handleDragObserver(isStartHandle = true).onDrag(dragDistance)
 
         assertThat(result).isEqualTo(dragDistance)
-        assertThat(state.updatingSelection).isTrue()
+        assertThat(state.showFloatingToolbar).isFalse()
         assertThat(value.selection).isEqualTo(TextRange(dragOffset, "Hello".length))
         verify(
             hapticFeedback,
@@ -205,7 +229,7 @@ class TextFieldSelectionManagerTest {
         val result = manager.handleDragObserver(isStartHandle = false).onDrag(dragDistance)
 
         assertThat(result).isEqualTo(dragDistance)
-        assertThat(state.updatingSelection).isTrue()
+        assertThat(state.showFloatingToolbar).isFalse()
         assertThat(value.selection).isEqualTo(TextRange(0, dragOffset))
         verify(
             hapticFeedback,
@@ -221,7 +245,7 @@ class TextFieldSelectionManagerTest {
         manager.handleDragObserver(false).onStop(Offset.Zero)
 
         assertThat(state.draggingHandle).isFalse()
-        assertThat(state.updatingSelection).isFalse()
+        assertThat(state.showFloatingToolbar).isTrue()
         verify(
             hapticFeedback,
             times(0)
@@ -340,5 +364,20 @@ class TextFieldSelectionManagerTest {
         manager.showSelectionToolbar()
 
         verify(textToolbar, times(1)).showMenu(any(), isNull(), any(), isNull())
+    }
+
+    @Test
+    fun isTextChanged_text_changed_return_true() {
+        manager.longPressDragObserver.onLongPress(dragBeginPosition)
+        manager.value = TextFieldValue(text + text)
+
+        assertThat(manager.isTextChanged()).isTrue()
+    }
+
+    @Test
+    fun isTextChanged_text_unchange_return_false() {
+        manager.longPressDragObserver.onLongPress(dragBeginPosition)
+
+        assertThat(manager.isTextChanged()).isFalse()
     }
 }
