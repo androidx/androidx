@@ -39,6 +39,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public final class SurfaceOrientedMeteringPointFactoryTest {
     private static final float WIDTH = 480;
@@ -56,8 +58,8 @@ public final class SurfaceOrientedMeteringPointFactoryTest {
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.shutdown().get();
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test

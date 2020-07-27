@@ -40,6 +40,8 @@ import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Contains tests for {@link androidx.camera.core.CameraX} which varies use case combinations to
@@ -63,8 +65,8 @@ public final class UseCaseCombinationTest {
     }
 
     @After
-    public void tearDown() throws InterruptedException, ExecutionException {
-        CameraX.shutdown().get();
+    public void tearDown() throws InterruptedException, ExecutionException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     /**

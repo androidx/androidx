@@ -66,6 +66,7 @@ import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -120,8 +121,8 @@ public class TextureViewMeteringPointFactoryTest {
     }
 
     @After
-    public void tearDown() throws InterruptedException, ExecutionException {
-        CameraX.shutdown().get();
+    public void tearDown() throws InterruptedException, ExecutionException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test
