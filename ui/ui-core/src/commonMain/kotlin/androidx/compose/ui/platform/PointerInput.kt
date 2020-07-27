@@ -129,7 +129,7 @@ data class ConsumedData(
  * The enumeration of passes where [PointerInputChange] traverses up and down the UI tree.
  */
 enum class PointerEventPass {
-    InitialDown, PreUp, PreDown, PostUp, PostDown
+    InitialDown, PostUp, PostDown
 }
 
 /**
