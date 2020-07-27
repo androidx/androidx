@@ -51,7 +51,7 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
             setUpTest(orientation).apply {
                 setAdapterSync(adapterProvider.provider(items))
 
-                verifyViewPagerContent(items) // sanity check
+                verifyViewPagerContent(items) // quick check
 
                 actions.forEach { action ->
                     if (items.isNotEmpty()) {
