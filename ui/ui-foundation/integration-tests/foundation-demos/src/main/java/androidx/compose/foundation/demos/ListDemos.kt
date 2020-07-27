@@ -35,10 +35,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.lazy.LazyColumnFor
+import androidx.compose.foundation.lazy.LazyColumnForIndexed
 import androidx.compose.foundation.lazy.LazyRowFor
+import androidx.compose.foundation.lazy.LazyRowForIndexed
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.random.Random
@@ -46,7 +49,8 @@ import kotlin.random.Random
 val LazyListDemos = listOf(
     ComposableDemo("Simple column") { LazyColumnDemo() },
     ComposableDemo("Add/remove items") { ListAddRemoveItemsDemo() },
-    ComposableDemo("Horizontal list") { LazyRowItemsDemo() }
+    ComposableDemo("Horizontal list") { LazyRowItemsDemo() },
+    ComposableDemo("List with indexes") { ListWithIndexSample() }
 )
 
 @Composable
@@ -118,6 +122,19 @@ private fun Square(index: Int) {
         gravity = ContentGravity.Center
     ) {
         Text(index.toString())
+    }
+}
+
+@Composable
+private fun ListWithIndexSample() {
+    val friends = listOf("Alex", "John", "Danny", "Sam")
+    Column {
+        LazyRowForIndexed(friends, Modifier.fillMaxWidth()) { index, friend ->
+            Text("$friend at index $index", Modifier.padding(16.dp))
+        }
+        LazyColumnForIndexed(friends, Modifier.fillMaxWidth()) { index, friend ->
+            Text("$friend at index $index", Modifier.padding(16.dp))
+        }
     }
 }
 
