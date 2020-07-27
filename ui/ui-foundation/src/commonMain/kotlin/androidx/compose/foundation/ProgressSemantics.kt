@@ -27,17 +27,17 @@ import androidx.compose.ui.util.format
 import kotlin.math.roundToInt
 
 /**
- * Contains the [Semantics] required for a determinate progress indicator, that represents progress
+ * Contains the [semantics] required for a determinate progress indicator, that represents progress
  * ranging from 0.0 to 1.0.
  *
- * @sample androidx.compose.foundation.samples.DeterminateProgressSample
+ * @sample androidx.compose.foundation.samples.DeterminateProgressSemanticsSample
  *
  * @param progress The progress of this progress indicator, where 0.0 represents no progress and 1.0
  * represents full progress
  * @throws IllegalArgumentException when the progress is not within range
  */
 @Stable
-fun Modifier.determinateProgressIndicator(
+fun Modifier.progressSemantics(
     @FloatRange(from = 0.0, to = 1.0) progress: Float
 ): Modifier {
     if (progress !in 0f..1f) {
@@ -55,4 +55,19 @@ fun Modifier.determinateProgressIndicator(
         accessibilityValue = Strings.TemplatePercent.format(percent)
         accessibilityValueRange = AccessibilityRangeInfo(progress, 0f..1f)
     }
+}
+
+/**
+ * Contains the [semantics] required for an indeterminate progress indicator, that represents the
+ * fact of the in-progress operation.
+ *
+ * If you need determinate progress 0.0 to 1.0, consider using overload with the progress
+ * parameter.
+ *
+ * @sample androidx.compose.foundation.samples.IndeterminateProgressSemanticsSample
+ *
+ */
+@Stable
+fun Modifier.progressSemantics(): Modifier {
+    return semantics { accessibilityValue = Strings.InProgress }
 }

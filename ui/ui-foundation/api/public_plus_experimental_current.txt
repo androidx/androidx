@@ -30,13 +30,13 @@ package androidx.compose.foundation {
 
   public final class BoxKt {
     method @androidx.compose.runtime.Composable public static void Box-qeZOqCs(androidx.compose.ui.Modifier modifier = Modifier, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, long backgroundColor = Color.Transparent, androidx.compose.foundation.Border? border = null, float padding = elvis {
-    var var41192ecf: androidx.compose.ui.unit.Dp = border?.size
-    if (var41192ecf != null) var41192ecf else 0.dp
+    var var41192b72: androidx.compose.ui.unit.Dp = border?.size
+    if (var41192b72 != null) var41192b72 else 0.dp
 }, float paddingStart = Dp.Unspecified, float paddingTop = Dp.Unspecified, float paddingEnd = Dp.Unspecified, float paddingBottom = Dp.Unspecified, androidx.compose.ui.Alignment gravity = ContentGravity.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children = emptyContent());
   }
 
   public final class CanvasKt {
-    method @androidx.compose.runtime.Composable public static void Canvas(androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> onCanvas);
+    method @androidx.compose.runtime.Composable public static void Canvas(androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> onDraw);
   }
 
   public final class ClickableKt {
@@ -56,10 +56,6 @@ package androidx.compose.foundation {
 
   public final class DarkThemeKt {
     method @androidx.compose.runtime.Composable public static boolean isSystemInDarkTheme();
-  }
-
-  public final class DeterminateProgressIndicatorKt {
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier determinateProgressIndicator(androidx.compose.ui.Modifier, @FloatRange(from=0.0, to=1.0) float progress);
   }
 
   public final class DrawBorder implements androidx.compose.ui.DrawModifier {
@@ -126,6 +122,11 @@ package androidx.compose.foundation {
   }
 
   @kotlin.RequiresOptIn(message="This API is internal to library.") @kotlin.annotation.Target(allowedTargets={AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER}) public @interface InternalFoundationApi {
+  }
+
+  public final class ProgressSemanticsKt {
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier progressSemantics(androidx.compose.ui.Modifier, @FloatRange(from=0.0, to=1.0) float progress);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier progressSemantics(androidx.compose.ui.Modifier);
   }
 
   public final class ScrollKt {

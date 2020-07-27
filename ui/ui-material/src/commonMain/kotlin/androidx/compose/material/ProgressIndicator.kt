@@ -25,15 +25,13 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.repeatable
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.runtime.Composable
 import androidx.compose.animation.transition
-import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Strings
-import androidx.compose.foundation.determinateProgressIndicator
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.progressSemantics
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -41,10 +39,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vectormath.degrees
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredSize
-import androidx.compose.ui.semantics.accessibilityValue
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.annotation.FloatRange
 import kotlin.math.abs
@@ -65,7 +62,8 @@ fun LinearProgressIndicator(
 ) {
     val backgroundColor = color.copy(alpha = BackgroundOpacity)
     Canvas(
-        modifier.determinateProgressIndicator(progress)
+        modifier
+            .progressSemantics(progress)
             .preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)
     ) {
         val strokeWidth = ProgressIndicatorConstants.DefaultStrokeWidth.toPx()
@@ -95,11 +93,11 @@ fun LinearProgressIndicator(
     val secondLineHead = state[SecondLineHeadProp]
     val secondLineTail = state[SecondLineTailProp]
     val backgroundColor = color.copy(alpha = BackgroundOpacity)
-    Canvas(modifier
-        // TODO(b/154875304) create IndeterminateProgressIndicator in foundation and move the
-        //  semantics there
-        .semantics { accessibilityValue = Strings.InProgress }
-        .preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)) {
+    Canvas(
+        modifier
+            .progressSemantics()
+            .preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)
+    ) {
         val strokeWidth = ProgressIndicatorConstants.DefaultStrokeWidth.toPx()
         drawLinearIndicatorBackground(backgroundColor, strokeWidth)
         if (firstLineHead - firstLineTail > 0) {
@@ -166,7 +164,7 @@ fun CircularProgressIndicator(
     }
     Canvas(
         modifier
-            .determinateProgressIndicator(progress)
+            .progressSemantics(progress)
             .padding(CircularIndicatorPadding)
             .preferredSize(CircularIndicatorDiameter)
     ) {
@@ -214,9 +212,7 @@ fun CircularProgressIndicator(
 
     Canvas(
         modifier
-            // TODO(b/154875304) create IndeterminateProgressIndicator in foundation and move the
-            //  semantics there
-            .semantics { accessibilityValue = Strings.InProgress }
+            .progressSemantics()
             .padding(CircularIndicatorPadding)
             .preferredSize(CircularIndicatorDiameter)
     ) {
