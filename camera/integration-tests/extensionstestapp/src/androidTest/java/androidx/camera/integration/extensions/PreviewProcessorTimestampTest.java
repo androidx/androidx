@@ -83,6 +83,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Tests that the {@link androidx.camera.extensions.impl.PreviewImageProcessorImpl} properly
@@ -209,8 +210,8 @@ public class PreviewProcessorTimestampTest {
     }
 
     @After
-    public void cleanUp() throws InterruptedException, ExecutionException {
-        CameraX.shutdown().get();
+    public void cleanUp() throws InterruptedException, ExecutionException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     private HandlerThread mProcessingHandlerThread;

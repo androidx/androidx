@@ -96,6 +96,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -151,8 +152,8 @@ public final class Camera2CameraControlTest {
     }
 
     @After
-    public void tearDown() throws Exception {
-        CameraX.shutdown().get();
+    public void tearDown() throws InterruptedException, ExecutionException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
         if (mHandlerThread != null) {
             mHandlerThread.quitSafely();
         }

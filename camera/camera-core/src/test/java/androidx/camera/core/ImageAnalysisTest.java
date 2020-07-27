@@ -56,6 +56,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Unit test for {@link ImageAnalysis}.
@@ -111,9 +113,9 @@ public class ImageAnalysisTest {
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
         mImageProxiesReceived.clear();
-        CameraX.shutdown().get();
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
         if (mBackgroundThread != null) {
             mBackgroundThread.quitSafely();
         }
