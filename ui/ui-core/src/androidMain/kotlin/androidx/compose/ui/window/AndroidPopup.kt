@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
+package androidx.compose.ui.window
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -40,6 +40,8 @@ import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.onPositioned
+import androidx.compose.ui.platform.ViewAmbient
+import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntBounds

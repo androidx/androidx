@@ -1,10 +1,6 @@
 // Signature format: 3.0
 package androidx.compose.foundation {
 
-  public final class AndroidDialogKt {
-    method @androidx.compose.runtime.Composable public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
   public final class BackgroundKt {
     method public static androidx.compose.ui.Modifier background(androidx.compose.ui.Modifier, androidx.compose.ui.graphics.Brush brush, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f);
     method public static androidx.compose.ui.Modifier background-1xq40Q0(androidx.compose.ui.Modifier, long color, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
@@ -325,18 +321,15 @@ package androidx.compose.foundation.semantics {
 
   public final class FoundationSemanticsProperties {
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getInMutuallyExclusiveGroup();
-    method public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getIsDialog();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getSelected();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.foundation.selection.ToggleableState> getToggleableState();
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> InMutuallyExclusiveGroup;
-    property public final androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> IsDialog;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Selected;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.foundation.selection.ToggleableState> ToggleableState;
     field public static final androidx.compose.foundation.semantics.FoundationSemanticsProperties INSTANCE;
   }
 
   public final class FoundationSemanticsPropertiesKt {
-    method public static void dialog(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static boolean getInMutuallyExclusiveGroup(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static boolean getSelected(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.compose.foundation.selection.ToggleableState getToggleableState(androidx.compose.ui.semantics.SemanticsPropertyReceiver);

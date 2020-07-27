@@ -80,6 +80,7 @@ kotlin {
         androidAndroidTest.dependencies {
             implementation "androidx.fragment:fragment:1.2.4"
             implementation "androidx.appcompat:appcompat:1.1.0"
+            implementation(ANDROIDX_TEST_UIAUTOMATOR)
             implementation(ANDROIDX_TEST_RULES)
             implementation(ANDROIDX_TEST_RUNNER)
             implementation(ESPRESSO_CORE)

@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.enforce
 import androidx.compose.ui.unit.hasFixedHeight
 import androidx.compose.ui.unit.hasFixedWidth
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.Popup
+import androidx.compose.ui.window.Popup
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.unit.Dp

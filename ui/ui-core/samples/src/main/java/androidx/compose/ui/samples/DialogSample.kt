@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.samples
+package androidx.compose.ui.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.state
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.Box
-import androidx.compose.foundation.Dialog
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 
 @Sampled
 @Composable
