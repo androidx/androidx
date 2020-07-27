@@ -2982,15 +2982,15 @@ public abstract class FragmentManager implements FragmentResultOwner {
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
             int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
         if (mStartIntentSenderForResult != null) {
-            IntentSenderRequest request =
-                    new IntentSenderRequest.Builder(intent).setFillInIntent(fillInIntent)
-                            .setFlags(flagsValues, flagsMask).build();
             if (options != null) {
                 if (fillInIntent == null) {
                     fillInIntent = new Intent();
                 }
                 fillInIntent.putExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE, options);
             }
+            IntentSenderRequest request =
+                    new IntentSenderRequest.Builder(intent).setFillInIntent(fillInIntent)
+                            .setFlags(flagsValues, flagsMask).build();
             LaunchedFragmentInfo info = new LaunchedFragmentInfo(f.mWho, requestCode);
             mLaunchedFragments.addLast(info);
             mStartIntentSenderForResult.launch(request);

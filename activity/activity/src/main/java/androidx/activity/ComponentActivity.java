@@ -161,6 +161,12 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
             // Start activity path
             Intent intent = contract.createIntent(activity, input);
+            Bundle optionsBundle = null;
+            if (intent.hasExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE)) {
+                optionsBundle = intent.getBundleExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
+            } else if (options != null) {
+                optionsBundle = options.toBundle();
+            }
             if (ACTION_REQUEST_PERMISSIONS.equals(intent.getAction())) {
 
                 // requestPermissions path
@@ -187,10 +193,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 IntentSenderRequest request =
                         intent.getParcelableExtra(EXTRA_INTENT_SENDER_REQUEST);
                 try {
+                    // startIntentSenderForResult path
                     ActivityCompat.startIntentSenderForResult(activity, request.getIntentSender(),
-                            requestCode, request.getFillInIntent(),
-                            request.getFlagsMask(), request.getFlagsValues(), 0,
-                            options != null ? options.toBundle() : null);
+                            requestCode, request.getFillInIntent(), request.getFlagsMask(),
+                            request.getFlagsValues(), 0, optionsBundle);
                 } catch (final IntentSender.SendIntentException e) {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
@@ -203,12 +209,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
             } else {
                 // startActivityForResult path
-                Bundle optionsBundle = null;
-                if (intent.hasExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE)) {
-                    optionsBundle = intent.getBundleExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
-                } else if (options != null) {
-                    optionsBundle = options.toBundle();
-                }
                 ActivityCompat.startActivityForResult(activity, intent, requestCode, optionsBundle);
             }
         }
