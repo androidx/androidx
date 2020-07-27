@@ -26,6 +26,7 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ExperimentalSubcomposeLayoutApi
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -33,6 +34,11 @@ import androidx.compose.ui.unit.dp
 
 /**
  * A vertically scrolling list that only composes and lays out the currently visible items.
+ *
+ * See [LazyColumnForIndexed] if you need to have both item and index params in [itemContent].
+ * See [LazyRowFor] if you are looking for a horizontally scrolling version.
+ *
+ * @sample androidx.compose.foundation.samples.LazyColumnForSample
  *
  * @param items the backing list of data to display
  * @param modifier the modifier to apply to this layout
@@ -44,6 +50,7 @@ import androidx.compose.ui.unit.dp
  * which will be stacked vertically. Note that [LazyColumnFor] can start scrolling incorrectly
  * if you emit nothing and then lazily recompose with the real content, so even if you load the
  * content asynchronously please reserve some space for the item, for example using [Spacer].
+ * Use [LazyColumnForIndexed] if you need to have both index and item params.
  */
 @Composable
 fun <T> LazyColumnFor(
@@ -54,13 +61,66 @@ fun <T> LazyColumnFor(
     itemContent: @Composable (T) -> Unit
 ) {
     LazyFor(
-        items = items,
+        itemsCount = items.size,
         modifier = modifier,
         contentPadding = contentPadding,
         horizontalGravity = horizontalGravity,
-        itemContent = itemContent,
         isVertical = true
-    )
+    ) { index ->
+        val item = items[index]
+        {
+            key(index) {
+                itemContent(item)
+            }
+        }
+    }
+}
+
+/**
+ * A vertically scrolling list that only composes and lays out the currently visible items.
+ *
+ * It is the variant of [LazyColumnFor] which provides both index and item as params for
+ * [itemContent].
+ *
+ * See [LazyRowForIndexed] if you are looking for a horizontally scrolling version.
+ *
+ * @sample androidx.compose.foundation.samples.LazyColumnForIndexedSample
+ *
+ * @param items the backing list of data to display
+ * @param modifier the modifier to apply to this layout
+ * @param contentPadding convenience param to specify a padding around the whole content. This will
+ * add padding for the content after it has been clipped, which is not possible via [modifier]
+ * param. Note that it is *not* a padding applied for each item's content
+ * @param horizontalGravity the horizontal gravity applied to the items
+ * @param itemContent emits the UI for an item from [items] list. It has two params: first one is
+ * an index in the [items] list, and the second one is the item at this index from [items] list.
+ * May emit any number of components, which will be stacked vertically. Note that
+ * [LazyColumnForIndexed] can start scrolling incorrectly if you emit nothing and then lazily
+ * recompose with the real content, so even if you load the content asynchronously please reserve
+ * some space for the item, for example using [Spacer].
+ */
+@Composable
+fun <T> LazyColumnForIndexed(
+    items: List<T>,
+    modifier: Modifier = Modifier,
+    contentPadding: InnerPadding = InnerPadding(0.dp),
+    horizontalGravity: Alignment.Horizontal = Alignment.Start,
+    itemContent: @Composable (index: Int, item: T) -> Unit
+) {
+    LazyFor(
+        itemsCount = items.size,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        horizontalGravity = horizontalGravity,
+        isVertical = true
+    ) { index ->
+        val item = items[index]
+        {
+            key(index) {
+                itemContent(index, item)
+            }
+        }
+    }
 }
 
 @Deprecated(
@@ -87,6 +147,11 @@ fun <T> LazyColumnItems(
 /**
  * A horizontally scrolling list that only composes and lays out the currently visible items.
  *
+ * See [LazyRowForIndexed] if you need to have both item and index params in [itemContent].
+ * See [LazyColumnFor] if you are looking for a vertically scrolling version.
+ *
+ * @sample androidx.compose.foundation.samples.LazyRowForSample
+ *
  * @param items the backing list of data to display
  * @param modifier the modifier to apply to this layout
  * @param contentPadding convenience param to specify a padding around the whole content. This will
@@ -97,6 +162,7 @@ fun <T> LazyColumnItems(
  * which will be stacked horizontally. Note that [LazyRowFor] can start scrolling incorrectly
  * if you emit nothing and then lazily recompose with the real content, so even if you load the
  * content asynchronously please reserve some space for the item, for example using [Spacer].
+ * Use [LazyRowForIndexed] if you need to have both index and item params.
  */
 @Composable
 fun <T> LazyRowFor(
@@ -107,13 +173,65 @@ fun <T> LazyRowFor(
     itemContent: @Composable (T) -> Unit
 ) {
     LazyFor(
-        items = items,
+        itemsCount = items.size,
         modifier = modifier,
         contentPadding = contentPadding,
-        itemContent = itemContent,
         verticalGravity = verticalGravity,
         isVertical = false
-    )
+    ) { index ->
+        val item = items[index]
+        {
+            key(index) {
+                itemContent(item)
+            }
+        }
+    }
+}
+
+/**
+ * A horizontally scrolling list that only composes and lays out the currently visible items.
+ *
+ * It is the variant of [LazyRowFor] which provides both index and item as params for [itemContent].
+ *
+ * See [LazyColumnForIndexed] if you are looking for a vertically scrolling version.
+ *
+ * @sample androidx.compose.foundation.samples.LazyRowForIndexedSample
+ *
+ * @param items the backing list of data to display
+ * @param modifier the modifier to apply to this layout
+ * @param contentPadding convenience param to specify a padding around the whole content. This will
+ * add padding for the content after it has been clipped, which is not possible via [modifier]
+ * param. Note that it is *not* a padding applied for each item's content
+ * @param verticalGravity the vertical gravity applied to the items
+ * @param itemContent emits the UI for an item from [items] list. It has two params: first one is
+ * an index in the [items] list, and the second one is the item at this index from [items] list.
+ * May emit any number of components, which will be stacked horizontally. Note that
+ * [LazyRowForIndexed] can start scrolling incorrectly if you emit nothing and then lazily
+ * recompose with the real content, so even if you load the content asynchronously please reserve
+ * some space for the item, for example using [Spacer].
+ */
+@Composable
+fun <T> LazyRowForIndexed(
+    items: List<T>,
+    modifier: Modifier = Modifier,
+    contentPadding: InnerPadding = InnerPadding(0.dp),
+    verticalGravity: Alignment.Vertical = Alignment.Top,
+    itemContent: @Composable (index: Int, item: T) -> Unit
+) {
+    LazyFor(
+        itemsCount = items.size,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        verticalGravity = verticalGravity,
+        isVertical = false
+    ) { index ->
+        val item = items[index]
+        {
+            key(index) {
+                itemContent(index, item)
+            }
+        }
+    }
 }
 
 @Deprecated(
@@ -137,18 +255,19 @@ fun <T> LazyRowItems(
     )
 }
 
+@Suppress("NOTHING_TO_INLINE")
 @Composable
 @OptIn(ExperimentalSubcomposeLayoutApi::class)
-private fun <T> LazyFor(
-    items: List<T>,
+private inline fun LazyFor(
+    itemsCount: Int,
     modifier: Modifier = Modifier,
     contentPadding: InnerPadding,
-    itemContent: @Composable (T) -> Unit,
     horizontalGravity: Alignment.Horizontal = Alignment.Start,
     verticalGravity: Alignment.Vertical = Alignment.Top,
-    isVertical: Boolean
+    isVertical: Boolean,
+    noinline itemContentFactory: (Int) -> @Composable () -> Unit
 ) {
-    val state = remember { LazyForState<T>(isVertical = isVertical) }
+    val state = remember { LazyForState(isVertical = isVertical) }
     SubcomposeLayout<DataIndex>(
         modifier
             .scrollable(
@@ -159,6 +278,13 @@ private fun <T> LazyFor(
             .padding(contentPadding)
             .then(state.remeasurementModifier)
     ) { constraints ->
-        state.measure(this, constraints, items, itemContent, horizontalGravity, verticalGravity)
+        state.measure(
+            this,
+            constraints,
+            horizontalGravity,
+            verticalGravity,
+            itemsCount,
+            itemContentFactory
+        )
     }
 }
