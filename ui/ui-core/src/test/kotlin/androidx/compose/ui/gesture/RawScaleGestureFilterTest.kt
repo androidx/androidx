@@ -652,8 +652,6 @@ class RawScaleGestureFilterTest {
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             )
         )
@@ -686,8 +684,6 @@ class RawScaleGestureFilterTest {
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             )
         )
@@ -738,8 +734,6 @@ class RawScaleGestureFilterTest {
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             )
         )
@@ -772,8 +766,6 @@ class RawScaleGestureFilterTest {
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             )
         )
@@ -822,8 +814,6 @@ class RawScaleGestureFilterTest {
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             )
         )
@@ -858,8 +848,6 @@ class RawScaleGestureFilterTest {
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             )
         )
@@ -892,8 +880,6 @@ class RawScaleGestureFilterTest {
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             )
         )
@@ -926,8 +912,6 @@ class RawScaleGestureFilterTest {
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             )
         )
@@ -960,8 +944,6 @@ class RawScaleGestureFilterTest {
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             )
         )
@@ -994,8 +976,6 @@ class RawScaleGestureFilterTest {
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             )
         )
