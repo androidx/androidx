@@ -67,7 +67,6 @@ import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
-import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -270,7 +269,7 @@ public final class ImageAnalysis extends UseCase {
      * {@link ImageAnalysis.Builder#setTargetRotation(int)}, or dynamically by calling
      * {@link ImageAnalysis#setTargetRotation(int)}. If not set, the target rotation defaults to
      * the value of {@link Display#getRotation()} of the default display at the time the use case
-     * is created.
+     * is created. The use case is fully created once it has been attached to a camera.
      * </p>
      *
      * @return The rotation of the intended target for images.
@@ -313,21 +312,15 @@ public final class ImageAnalysis extends UseCase {
      * make sure the suitable resolution can be selected when the use case is bound.
      *
      * <p>If not set here or by configuration, the target rotation will default to the value of
-     * {@link Display#getRotation()} of the default display at the time the
-     * use case is created.
+     * {@link Display#getRotation()} of the default display at the time the use case is created.
+     * The use case is fully created once it has been attached to a camera.
      *
      * @param rotation Target rotation of the output image, expressed as one of
      *                 {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
      *                 {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
      */
     public void setTargetRotation(@RotationValue int rotation) {
-        ImageAnalysisConfig oldConfig = (ImageAnalysisConfig) getUseCaseConfig();
-        Builder builder = Builder.fromConfig(oldConfig);
-        int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
-        if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
-            UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, rotation);
-            updateUseCaseConfig(builder.getUseCaseConfig());
-
+        if (setTargetRotationInternal(rotation)) {
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
             // For now we'll just update the relative rotation value.
             // Attempt to get the camera ID and update the relative rotation. If we can't, we
@@ -461,6 +454,18 @@ public final class ImageAnalysis extends UseCase {
         }
 
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
+        return Builder.fromConfig((ImageAnalysisConfig) getUseCaseConfig());
     }
 
     /**
@@ -846,7 +851,7 @@ public final class ImageAnalysis extends UseCase {
          *
          * <p>If not set, the target rotation will default to the value of
          * {@link android.view.Display#getRotation()} of the default display at the time the
-         * use case is created.
+         * use case is created. The use case is fully created once it has been attached to a camera.
          *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
