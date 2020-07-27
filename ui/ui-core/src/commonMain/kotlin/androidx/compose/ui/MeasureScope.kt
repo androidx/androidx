@@ -26,14 +26,6 @@ import androidx.compose.ui.unit.LayoutDirection
  */
 abstract class MeasureScope : IntrinsicMeasureScope() {
     /**
-     * Measures the layout with [constraints], returning a [Placeable]
-     * layout that has its new size. A [Measurable] can only be measured
-     * once inside a layout pass. The layout will inherit the layout
-     * direction from its parent layout.
-     */
-    fun Measurable.measure(constraints: Constraints) = measure(constraints, layoutDirection)
-
-    /**
      * Interface holding the size and alignment lines of the measured layout, as well as the
      * children positioning logic.
      * [placeChildren] is the function used for positioning children. [Placeable.place] should
@@ -46,7 +38,7 @@ abstract class MeasureScope : IntrinsicMeasureScope() {
         val width: Int
         val height: Int
         val alignmentLines: Map<AlignmentLine, Int>
-        fun placeChildren(layoutDirection: LayoutDirection)
+        fun placeChildren()
     }
 
     /**
@@ -73,13 +65,13 @@ abstract class MeasureScope : IntrinsicMeasureScope() {
         override val width = width
         override val height = height
         override val alignmentLines = alignmentLines
-        override fun placeChildren(layoutDirection: LayoutDirection) {
+        override fun placeChildren() {
             with(InnerPlacementScope) {
-                this.parentLayoutDirection = layoutDirection
                 val previousParentWidth = parentWidth
-                parentWidth = width
+                val previousLayoutDirection = parentLayoutDirection
+                updateValuesForRtlMirroring(layoutDirection, width)
                 placementBlock()
-                parentWidth = previousParentWidth
+                updateValuesForRtlMirroring(previousLayoutDirection, previousParentWidth)
             }
         }
     }
@@ -87,7 +79,17 @@ abstract class MeasureScope : IntrinsicMeasureScope() {
     internal companion object {
         object InnerPlacementScope : Placeable.PlacementScope() {
             override var parentLayoutDirection = LayoutDirection.Ltr
+                private set
             override var parentWidth = 0
+                private set
+
+            fun updateValuesForRtlMirroring(
+                parentLayoutDirection: LayoutDirection,
+                parentWidth: Int
+            ) {
+                this.parentLayoutDirection = parentLayoutDirection
+                this.parentWidth = parentWidth
+            }
         }
     }
 }
@@ -95,9 +97,4 @@ abstract class MeasureScope : IntrinsicMeasureScope() {
 /**
  * A function for performing layout measurement.
  */
-typealias MeasureBlock2 =
-        MeasureScope.(List<Measurable>, Constraints) -> MeasureScope.MeasureResult
-
-@Deprecated("Use MeasureBlock2 instead")
-typealias MeasureBlock =
-        MeasureScope.(List<Measurable>, Constraints, LayoutDirection) -> MeasureScope.MeasureResult
+typealias MeasureBlock = MeasureScope.(List<Measurable>, Constraints) -> MeasureScope.MeasureResult

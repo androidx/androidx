@@ -19,15 +19,17 @@ package androidx.compose.material.textfield
 import android.os.Build
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
-import androidx.compose.foundation.layout.rtl
 import androidx.compose.material.GOLDEN_MATERIAL
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.setMaterialContent
+import androidx.compose.runtime.Providers
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.ui.test.captureToBitmap
@@ -102,12 +104,14 @@ class OutlinedTextFieldScreenshotTest {
     @Test
     fun outlinedTextField_focused_rtl() {
         composeTestRule.setMaterialContent {
-            Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag).rtl) {
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = { Text("Label") }
-                )
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Box(Modifier.semantics(mergeAllDescendants = true) {}.testTag(TextFieldTag)) {
+                    OutlinedTextField(
+                        value = "",
+                        onValueChange = {},
+                        label = { Text("Label") }
+                    )
+                }
             }
         }
 

@@ -17,6 +17,7 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Constraints
@@ -25,7 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -231,67 +234,69 @@ class StackTest : LayoutTest() {
         val childPosition = Array(9) { Ref<Offset>() }
         show {
             Stack(Modifier.wrapContentSize(Alignment.TopStart)) {
-                Stack(
-                    Modifier.rtl
-                        .preferredSize(tripleSizeDp)
-                        .onPositioned { coordinates: LayoutCoordinates ->
-                            stackSize.value = coordinates.size
-                            positionedLatch.countDown()
+                Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                    Stack(
+                        Modifier
+                            .preferredSize(tripleSizeDp)
+                            .onPositioned { coordinates: LayoutCoordinates ->
+                                stackSize.value = coordinates.size
+                                positionedLatch.countDown()
+                            }
+                    ) {
+                        Stack(
+                            Modifier.gravity(Alignment.TopStart)
+                                .preferredSize(sizeDp, sizeDp)
+                                .saveLayoutInfo(childSize[0], childPosition[0], positionedLatch)
+                        ) {
                         }
-                ) {
-                    Stack(
-                        Modifier.gravity(Alignment.TopStart)
-                            .preferredSize(sizeDp, sizeDp)
-                            .saveLayoutInfo(childSize[0], childPosition[0], positionedLatch)
-                    ) {
-                    }
-                    Stack(
-                        Modifier.gravity(Alignment.TopCenter)
-                            .preferredSize(sizeDp)
-                            .saveLayoutInfo(childSize[1], childPosition[1], positionedLatch)
-                    ) {
-                    }
-                    Stack(
-                        Modifier.gravity(Alignment.TopEnd)
-                            .preferredSize(sizeDp)
-                            .saveLayoutInfo(childSize[2], childPosition[2], positionedLatch)
-                    ) {
-                    }
-                    Stack(
-                        Modifier.gravity(Alignment.CenterStart)
-                            .preferredSize(sizeDp)
-                            .saveLayoutInfo(childSize[3], childPosition[3], positionedLatch)
-                    ) {
-                    }
-                    Stack(
-                        Modifier.gravity(Alignment.Center)
-                            .preferredSize(sizeDp)
-                            .saveLayoutInfo(childSize[4], childPosition[4], positionedLatch)
-                    ) {
-                    }
-                    Stack(
-                        Modifier.gravity(Alignment.CenterEnd)
-                            .preferredSize(sizeDp)
-                            .saveLayoutInfo(childSize[5], childPosition[5], positionedLatch)
-                    ) {
-                    }
-                    Stack(
-                        Modifier.gravity(Alignment.BottomStart)
-                            .preferredSize(sizeDp)
-                            .saveLayoutInfo(childSize[6], childPosition[6], positionedLatch)
-                    ) {
-                    }
-                    Stack(
-                        Modifier.gravity(Alignment.BottomCenter)
-                            .preferredSize(sizeDp)
-                            .saveLayoutInfo(childSize[7], childPosition[7], positionedLatch)
-                    ) {
-                    }
-                    Stack(
-                        Modifier.gravity(Alignment.BottomEnd)
-                            .preferredSize(sizeDp)
-                            .saveLayoutInfo(childSize[8], childPosition[8], positionedLatch)
-                    ) {
+                        Stack(
+                            Modifier.gravity(Alignment.TopCenter)
+                                .preferredSize(sizeDp)
+                                .saveLayoutInfo(childSize[1], childPosition[1], positionedLatch)
+                        ) {
+                        }
+                        Stack(
+                            Modifier.gravity(Alignment.TopEnd)
+                                .preferredSize(sizeDp)
+                                .saveLayoutInfo(childSize[2], childPosition[2], positionedLatch)
+                        ) {
+                        }
+                        Stack(
+                            Modifier.gravity(Alignment.CenterStart)
+                                .preferredSize(sizeDp)
+                                .saveLayoutInfo(childSize[3], childPosition[3], positionedLatch)
+                        ) {
+                        }
+                        Stack(
+                            Modifier.gravity(Alignment.Center)
+                                .preferredSize(sizeDp)
+                                .saveLayoutInfo(childSize[4], childPosition[4], positionedLatch)
+                        ) {
+                        }
+                        Stack(
+                            Modifier.gravity(Alignment.CenterEnd)
+                                .preferredSize(sizeDp)
+                                .saveLayoutInfo(childSize[5], childPosition[5], positionedLatch)
+                        ) {
+                        }
+                        Stack(
+                            Modifier.gravity(Alignment.BottomStart)
+                                .preferredSize(sizeDp)
+                                .saveLayoutInfo(childSize[6], childPosition[6], positionedLatch)
+                        ) {
+                        }
+                        Stack(
+                            Modifier.gravity(Alignment.BottomCenter)
+                                .preferredSize(sizeDp)
+                                .saveLayoutInfo(childSize[7], childPosition[7], positionedLatch)
+                        ) {
+                        }
+                        Stack(
+                            Modifier.gravity(Alignment.BottomEnd)
+                                .preferredSize(sizeDp)
+                                .saveLayoutInfo(childSize[8], childPosition[8], positionedLatch)
+                        ) {
+                        }
                     }
                 }
             }

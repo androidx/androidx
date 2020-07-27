@@ -20,7 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RestrictTo
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.Measurable
 import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Modifier
@@ -123,8 +122,7 @@ internal fun AndroidViewHolder<out View>.toLayoutNode(): LayoutNode {
         override fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
-            constraints: Constraints,
-            layoutDirection: LayoutDirection
+            constraints: Constraints
         ): MeasureScope.MeasureResult {
             if (constraints.minWidth != 0) {
                 getChildAt(0).minimumWidth = constraints.minWidth

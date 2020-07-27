@@ -22,6 +22,7 @@ import androidx.test.filters.SmallTest
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.foundation.text.FirstBaseline
+import androidx.compose.runtime.Providers
 import androidx.compose.ui.HorizontalAlignmentLine
 import androidx.compose.ui.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -32,8 +33,10 @@ import androidx.compose.ui.WithConstraints
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -3531,22 +3534,24 @@ class RowColumnTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childPosition = arrayOf(Offset.Zero, Offset.Zero)
         show {
-            Row(Modifier.fillMaxWidth().rtl) {
-                Container(
-                    Modifier.preferredSize(sizeDp).onPositioned { coordinates: LayoutCoordinates ->
-                        childPosition[0] = coordinates.positionInRoot
-                        drawLatch.countDown()
-                    }
-                ) {
-                }
-
-                Container(
-                    Modifier.preferredSize(sizeDp * 2)
-                        .onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[1] = coordinates.positionInRoot
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Row(Modifier.fillMaxWidth()) {
+                    Container(
+                        Modifier.preferredSize(sizeDp).onPositioned { coordinates ->
+                            childPosition[0] = coordinates.positionInRoot
                             drawLatch.countDown()
                         }
-                ) {
+                    ) {
+                    }
+
+                    Container(
+                        Modifier.preferredSize(sizeDp * 2)
+                            .onPositioned { coordinates: LayoutCoordinates ->
+                                childPosition[1] = coordinates.positionInRoot
+                                drawLatch.countDown()
+                            }
+                    ) {
+                    }
                 }
             }
         }
@@ -3573,26 +3578,27 @@ class RowColumnTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .rtl
-                    .onPositioned { coordinates ->
-                        parentLayoutCoordinates = coordinates
-                        drawLatch.countDown()
-                    },
-                horizontalArrangement = Arrangement.Center
-            ) {
-                for (i in 0 until childPosition.size) {
-                    Container(
-                        width = sizeDp,
-                        height = sizeDp,
-                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                            childLayoutCoordinates[i] = coordinates
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onPositioned { coordinates ->
+                            parentLayoutCoordinates = coordinates
                             drawLatch.countDown()
                         },
-                        children = emptyContent()
-                    )
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    for (i in 0 until childPosition.size) {
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            },
+                            children = emptyContent()
+                        )
+                    }
                 }
             }
         }
@@ -3628,26 +3634,27 @@ class RowColumnTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .rtl
-                    .onPositioned { coordinates: LayoutCoordinates ->
-                        parentLayoutCoordinates = coordinates
-                        drawLatch.countDown()
-                    },
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                for (i in childPosition.indices) {
-                    Container(
-                        width = sizeDp,
-                        height = sizeDp,
-                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                            childLayoutCoordinates[i] = coordinates
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            parentLayoutCoordinates = coordinates
                             drawLatch.countDown()
                         },
-                        children = emptyContent()
-                    )
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    for (i in childPosition.indices) {
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            },
+                            children = emptyContent()
+                        )
+                    }
                 }
             }
         }
@@ -3682,26 +3689,27 @@ class RowColumnTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .rtl
-                    .onPositioned { coordinates ->
-                        parentLayoutCoordinates = coordinates
-                        drawLatch.countDown()
-                    },
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                for (i in childPosition.indices) {
-                    Container(
-                        width = sizeDp,
-                        height = sizeDp,
-                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                            childLayoutCoordinates[i] = coordinates
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onPositioned { coordinates ->
+                            parentLayoutCoordinates = coordinates
                             drawLatch.countDown()
                         },
-                        children = emptyContent()
-                    )
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    for (i in childPosition.indices) {
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            },
+                            children = emptyContent()
+                        )
+                    }
                 }
             }
         }
@@ -3734,26 +3742,27 @@ class RowColumnTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .rtl
-                    .onPositioned { coordinates ->
-                        parentLayoutCoordinates = coordinates
-                        drawLatch.countDown()
-                    },
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                for (i in 0 until childPosition.size) {
-                    Container(
-                        width = sizeDp,
-                        height = sizeDp,
-                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                            childLayoutCoordinates[i] = coordinates
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onPositioned { coordinates ->
+                            parentLayoutCoordinates = coordinates
                             drawLatch.countDown()
                         },
-                        children = emptyContent()
-                    )
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    for (i in 0 until childPosition.size) {
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            },
+                            children = emptyContent()
+                        )
+                    }
                 }
             }
         }
@@ -3783,25 +3792,27 @@ class RowColumnTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childPosition = arrayOf(Offset.Zero, Offset.Zero)
         show {
-            Row(
-                Modifier.fillMaxWidth().rtl,
-                horizontalArrangement = Arrangement.End
-            ) {
-                Container(
-                    Modifier.preferredSize(sizeDp).onPositioned { coordinates: LayoutCoordinates ->
-                        childPosition[0] = coordinates.positionInRoot
-                        drawLatch.countDown()
-                    }
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                }
-
-                Container(
-                    Modifier.preferredSize(sizeDp * 2)
-                        .onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[1] = coordinates.positionInRoot
+                    Container(
+                        Modifier.preferredSize(sizeDp).onPositioned { coordinates ->
+                            childPosition[0] = coordinates.positionInRoot
                             drawLatch.countDown()
                         }
-                ) {
+                    ) {
+                    }
+
+                    Container(
+                        Modifier.preferredSize(sizeDp * 2)
+                            .onPositioned { coordinates: LayoutCoordinates ->
+                                childPosition[1] = coordinates.positionInRoot
+                                drawLatch.countDown()
+                            }
+                    ) {
+                    }
                 }
             }
         }
@@ -3825,28 +3836,30 @@ class RowColumnTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childPosition = arrayOf(Offset.Zero, Offset.Zero)
         show {
-            Row(
-                Modifier.fillMaxWidth().rtl,
-                horizontalArrangement = customHorizontalArrangement
-            ) {
-                Container(
-                    width = sizeDp,
-                    height = sizeDp,
-                    modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                        childPosition[0] = coordinates.positionInRoot
-                        drawLatch.countDown()
-                    }
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = customHorizontalArrangement
                 ) {
-                }
+                    Container(
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                            childPosition[0] = coordinates.positionInRoot
+                            drawLatch.countDown()
+                        },
+                        children = emptyContent()
+                    )
 
-                Container(
-                    width = (sizeDp * 2),
-                    height = (sizeDp * 2),
-                    modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                        childPosition[1] = coordinates.positionInRoot
-                        drawLatch.countDown()
-                    }
-                ) {
+                    Container(
+                        width = (sizeDp * 2),
+                        height = (sizeDp * 2),
+                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                            childPosition[1] = coordinates.positionInRoot
+                            drawLatch.countDown()
+                        },
+                        children = emptyContent()
+                    )
                 }
             }
         }
@@ -3870,22 +3883,24 @@ class RowColumnTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childPosition = arrayOf(Offset.Zero, Offset.Zero)
         show {
-            Column(Modifier.fillMaxWidth().rtl) {
-                Container(
-                    Modifier.preferredSize(sizeDp).onPositioned { coordinates: LayoutCoordinates ->
-                        childPosition[0] = coordinates.positionInRoot
-                        drawLatch.countDown()
-                    }
-                ) {
-                }
-
-                Container(
-                    Modifier.preferredSize(sizeDp * 2)
-                        .onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[1] = coordinates.positionInRoot
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Column(Modifier.fillMaxWidth()) {
+                    Container(
+                        Modifier.preferredSize(sizeDp).onPositioned { coordinates ->
+                            childPosition[0] = coordinates.positionInRoot
                             drawLatch.countDown()
                         }
-                ) {
+                    ) {
+                    }
+
+                    Container(
+                        Modifier.preferredSize(sizeDp * 2)
+                            .onPositioned { coordinates: LayoutCoordinates ->
+                                childPosition[1] = coordinates.positionInRoot
+                                drawLatch.countDown()
+                            }
+                    ) {
+                    }
                 }
             }
         }
@@ -3913,25 +3928,27 @@ class RowColumnTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childPosition = arrayOf(Offset.Zero, Offset.Zero)
         show {
-            Column(Modifier.fillMaxWidth().rtl) {
-                Container(
-                    Modifier.preferredSize(sizeDp)
-                        .gravity(Alignment.End)
-                        .onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[0] = coordinates.positionInRoot
-                            drawLatch.countDown()
-                        }
-                ) {
-                }
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Column(Modifier.fillMaxWidth()) {
+                    Container(
+                        Modifier.preferredSize(sizeDp)
+                            .gravity(Alignment.End)
+                            .onPositioned { coordinates: LayoutCoordinates ->
+                                childPosition[0] = coordinates.positionInRoot
+                                drawLatch.countDown()
+                            }
+                    ) {
+                    }
 
-                Container(
-                    Modifier.preferredSize(sizeDp * 2)
-                        .gravity(Alignment.End)
-                        .onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[1] = coordinates.positionInRoot
-                            drawLatch.countDown()
-                        }
-                ) {
+                    Container(
+                        Modifier.preferredSize(sizeDp * 2)
+                            .gravity(Alignment.End)
+                            .onPositioned { coordinates: LayoutCoordinates ->
+                                childPosition[1] = coordinates.positionInRoot
+                                drawLatch.countDown()
+                            }
+                    ) {
+                    }
                 }
             }
         }
@@ -3950,25 +3967,27 @@ class RowColumnTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childPosition = arrayOf(Offset.Zero, Offset.Zero)
         show {
-            Column(Modifier.fillMaxWidth().rtl) {
-                Container(
-                    Modifier.preferredSize(sizeDp)
-                        .alignWithSiblings { it.width }
-                        .onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[0] = coordinates.positionInRoot
-                            drawLatch.countDown()
-                        }
-                ) {
-                }
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Column(Modifier.fillMaxWidth()) {
+                    Container(
+                        Modifier.preferredSize(sizeDp)
+                            .alignWithSiblings { it.width }
+                            .onPositioned { coordinates: LayoutCoordinates ->
+                                childPosition[0] = coordinates.positionInRoot
+                                drawLatch.countDown()
+                            }
+                    ) {
+                    }
 
-                Container(
-                    Modifier.preferredSize(sizeDp)
-                        .alignWithSiblings { it.width / 2 }
-                        .onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[1] = coordinates.positionInRoot
-                            drawLatch.countDown()
-                        }
-                ) {
+                    Container(
+                        Modifier.preferredSize(sizeDp)
+                            .alignWithSiblings { it.width / 2 }
+                            .onPositioned { coordinates: LayoutCoordinates ->
+                                childPosition[1] = coordinates.positionInRoot
+                                drawLatch.countDown()
+                            }
+                    ) {
+                    }
                 }
             }
         }
@@ -3978,7 +3997,10 @@ class RowColumnTest : LayoutTest() {
         waitForDraw(root)
         val rootWidth = root.width
 
-        assertEquals(Offset((rootWidth - size.toFloat()), 0f), childPosition[0])
+        assertEquals(
+            Offset((rootWidth - size.toFloat()), 0f),
+            childPosition[0]
+        )
         assertEquals(
             Offset(
                 (rootWidth - size.toFloat() * 1.5f).roundToInt().toFloat(),
@@ -3997,7 +4019,8 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = Array(3) { Offset.Zero }
-        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        val childLayoutCoordinates =
+            arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Row(
@@ -4024,14 +4047,21 @@ class RowColumnTest : LayoutTest() {
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
+        calculateChildPositions(
+            childPosition,
+            parentLayoutCoordinates,
+            childLayoutCoordinates
+        )
 
         val root = findOwnerView()
         waitForDraw(root)
 
         assertEquals(Offset(0f, 0f), childPosition[0])
         assertEquals(Offset(size.toFloat(), 0f), childPosition[1])
-        assertEquals(Offset(size.toFloat() * 2, 0f), childPosition[2])
+        assertEquals(
+            Offset(size.toFloat() * 2, 0f),
+            childPosition[2]
+        )
     }
 
     @Test
@@ -4041,42 +4071,52 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = Array(3) { Offset.Zero }
-        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        val childLayoutCoordinates =
+            arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .rtl
-                    .onPositioned { coordinates: LayoutCoordinates ->
-                        parentLayoutCoordinates = coordinates
-                        drawLatch.countDown()
-                    },
-                horizontalArrangement = AbsoluteArrangement.Left
-            ) {
-                for (i in childPosition.indices) {
-                    Container(
-                        width = sizeDp,
-                        height = sizeDp,
-                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                            childLayoutCoordinates[i] = coordinates
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            parentLayoutCoordinates = coordinates
                             drawLatch.countDown()
                         },
-                        children = emptyContent()
-                    )
+                    horizontalArrangement = AbsoluteArrangement.Left
+                ) {
+                    for (i in childPosition.indices) {
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                                childLayoutCoordinates[i] =
+                                    coordinates
+                                drawLatch.countDown()
+                            },
+                            children = emptyContent()
+                        )
+                    }
                 }
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
+        calculateChildPositions(
+            childPosition,
+            parentLayoutCoordinates,
+            childLayoutCoordinates
+        )
 
         val root = findOwnerView()
         waitForDraw(root)
 
         assertEquals(Offset(0f, 0f), childPosition[0])
         assertEquals(Offset(size.toFloat(), 0f), childPosition[1])
-        assertEquals(Offset(size.toFloat() * 2, 0f), childPosition[2])
+        assertEquals(
+            Offset(size.toFloat() * 2, 0f),
+            childPosition[2]
+        )
     }
 
     @Test
@@ -4086,7 +4126,8 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = Array(3) { Offset.Zero }
-        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        val childLayoutCoordinates =
+            arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Row(
@@ -4113,14 +4154,27 @@ class RowColumnTest : LayoutTest() {
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
+        calculateChildPositions(
+            childPosition,
+            parentLayoutCoordinates,
+            childLayoutCoordinates
+        )
 
         val root = findOwnerView()
         waitForDraw(root)
 
-        assertEquals(Offset((root.width - size.toFloat() * 3), 0f), childPosition[0])
-        assertEquals(Offset((root.width - size.toFloat() * 2), 0f), childPosition[1])
-        assertEquals(Offset((root.width - size.toFloat()), 0f), childPosition[2])
+        assertEquals(
+            Offset((root.width - size.toFloat() * 3), 0f),
+            childPosition[0]
+        )
+        assertEquals(
+            Offset((root.width - size.toFloat() * 2), 0f),
+            childPosition[1]
+        )
+        assertEquals(
+            Offset((root.width - size.toFloat()), 0f),
+            childPosition[2]
+        )
     }
 
     @Test
@@ -4130,42 +4184,58 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = Array(3) { Offset.Zero }
-        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        val childLayoutCoordinates =
+            arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .rtl
-                    .onPositioned { coordinates: LayoutCoordinates ->
-                        parentLayoutCoordinates = coordinates
-                        drawLatch.countDown()
-                    },
-                horizontalArrangement = AbsoluteArrangement.Right
-            ) {
-                for (i in childPosition.indices) {
-                    Container(
-                        width = sizeDp,
-                        height = sizeDp,
-                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                            childLayoutCoordinates[i] = coordinates
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            parentLayoutCoordinates = coordinates
                             drawLatch.countDown()
                         },
-                        children = emptyContent()
-                    )
+                    horizontalArrangement = AbsoluteArrangement.Right
+                ) {
+                    for (i in childPosition.indices) {
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                                childLayoutCoordinates[i] =
+                                    coordinates
+                                drawLatch.countDown()
+                            },
+                            children = emptyContent()
+                        )
+                    }
                 }
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
+        calculateChildPositions(
+            childPosition,
+            parentLayoutCoordinates,
+            childLayoutCoordinates
+        )
 
         val root = findOwnerView()
         waitForDraw(root)
 
-        assertEquals(Offset((root.width - size.toFloat() * 3), 0f), childPosition[0])
-        assertEquals(Offset((root.width - size.toFloat() * 2), 0f), childPosition[1])
-        assertEquals(Offset((root.width - size.toFloat()), 0f), childPosition[2])
+        assertEquals(
+            Offset((root.width - size.toFloat() * 3), 0f),
+            childPosition[0]
+        )
+        assertEquals(
+            Offset((root.width - size.toFloat() * 2), 0f),
+            childPosition[1]
+        )
+        assertEquals(
+            Offset((root.width - size.toFloat()), 0f),
+            childPosition[2]
+        )
     }
 
     @Test
@@ -4175,7 +4245,8 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = Array(3) { Offset.Zero }
-        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        val childLayoutCoordinates =
+            arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Row(
@@ -4202,15 +4273,27 @@ class RowColumnTest : LayoutTest() {
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
+        calculateChildPositions(
+            childPosition,
+            parentLayoutCoordinates,
+            childLayoutCoordinates
+        )
 
         val root = findOwnerView()
         waitForDraw(root)
 
         val extraSpace = root.width - size * 3
-        assertEquals(Offset((extraSpace / 2f).roundToInt().toFloat(), 0f), childPosition[0])
         assertEquals(
-            Offset(((extraSpace / 2f) + size.toFloat()).roundToInt().toFloat(), 0f),
+            Offset(
+                (extraSpace / 2f).roundToInt().toFloat(),
+                0f
+            ), childPosition[0]
+        )
+        assertEquals(
+            Offset(
+                ((extraSpace / 2f) + size.toFloat()).roundToInt().toFloat(),
+                0f
+            ),
             childPosition[1]
         )
         assertEquals(
@@ -4229,43 +4312,58 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = Array(3) { Offset.Zero }
-        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        val childLayoutCoordinates =
+            arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .rtl
-                    .onPositioned { coordinates ->
-                        parentLayoutCoordinates = coordinates
-                        drawLatch.countDown()
-                    },
-                horizontalArrangement = AbsoluteArrangement.Center
-            ) {
-                for (i in 0 until childPosition.size) {
-                    Container(
-                        width = sizeDp,
-                        height = sizeDp,
-                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                            childLayoutCoordinates[i] = coordinates
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onPositioned { coordinates ->
+                            parentLayoutCoordinates = coordinates
                             drawLatch.countDown()
                         },
-                        children = emptyContent()
-                    )
+                    horizontalArrangement = AbsoluteArrangement.Center
+                ) {
+                    for (i in 0 until childPosition.size) {
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                                childLayoutCoordinates[i] =
+                                    coordinates
+                                drawLatch.countDown()
+                            },
+                            children = emptyContent()
+                        )
+                    }
                 }
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
+        calculateChildPositions(
+            childPosition,
+            parentLayoutCoordinates,
+            childLayoutCoordinates
+        )
 
         val root = findOwnerView()
         waitForDraw(root)
 
         val extraSpace = root.width - size * 3
-        assertEquals(Offset((extraSpace / 2f).roundToInt().toFloat(), 0f), childPosition[0])
         assertEquals(
-            Offset(((extraSpace / 2f) + size.toFloat()).roundToInt().toFloat(), 0f),
+            Offset(
+                (extraSpace / 2f).roundToInt().toFloat(),
+                0f
+            ), childPosition[0]
+        )
+        assertEquals(
+            Offset(
+                ((extraSpace / 2f) + size.toFloat()).roundToInt().toFloat(),
+                0f
+            ),
             childPosition[1]
         )
         assertEquals(
@@ -4284,7 +4382,8 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = Array(3) { Offset.Zero }
-        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        val childLayoutCoordinates =
+            arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Row(
@@ -4311,7 +4410,11 @@ class RowColumnTest : LayoutTest() {
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
+        calculateChildPositions(
+            childPosition,
+            parentLayoutCoordinates,
+            childLayoutCoordinates
+        )
 
         val root = findOwnerView()
         waitForDraw(root)
@@ -4321,68 +4424,90 @@ class RowColumnTest : LayoutTest() {
             Offset(gap.roundToInt().toFloat(), 0f), childPosition[0]
         )
         assertEquals(
-            Offset((size.toFloat() + gap * 2f).roundToInt().toFloat(), 0f),
+            Offset(
+                (size.toFloat() + gap * 2f).roundToInt().toFloat(),
+                0f
+            ),
             childPosition[1]
         )
         assertEquals(
-            Offset((size.toFloat() * 2f + gap * 3f).roundToInt().toFloat(), 0f),
+            Offset(
+                (size.toFloat() * 2f + gap * 3f).roundToInt().toFloat(),
+                0f
+            ),
             childPosition[2]
         )
     }
 
     @Test
-    fun testRow_Row_absoluteArrangementSpaceEvenly() = with(density) {
-        val size = 100
-        val sizeDp = size.toDp()
+    fun testRow_Row_absoluteArrangementSpaceEvenly() =
+        with(density) {
+            val size = 100
+            val sizeDp = size.toDp()
 
-        val drawLatch = CountDownLatch(4)
-        val childPosition = Array(3) { Offset.Zero }
-        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        var parentLayoutCoordinates: LayoutCoordinates? = null
-        show {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .rtl
-                    .onPositioned { coordinates: LayoutCoordinates ->
-                        parentLayoutCoordinates = coordinates
-                        drawLatch.countDown()
-                    },
-                horizontalArrangement = AbsoluteArrangement.SpaceEvenly
-            ) {
-                for (i in childPosition.indices) {
-                    Container(
-                        width = sizeDp,
-                        height = sizeDp,
-                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                            childLayoutCoordinates[i] = coordinates
-                            drawLatch.countDown()
-                        },
-                        children = emptyContent()
-                    )
+            val drawLatch = CountDownLatch(4)
+            val childPosition = Array(3) { Offset.Zero }
+            val childLayoutCoordinates =
+                arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+            var parentLayoutCoordinates: LayoutCoordinates? = null
+            show {
+                Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onPositioned { coordinates: LayoutCoordinates ->
+                                parentLayoutCoordinates =
+                                    coordinates
+                                drawLatch.countDown()
+                            },
+                        horizontalArrangement = AbsoluteArrangement.SpaceEvenly
+                    ) {
+                        for (i in childPosition.indices) {
+                            Container(
+                                width = sizeDp,
+                                height = sizeDp,
+                                modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                                    childLayoutCoordinates[i] =
+                                        coordinates
+                                    drawLatch.countDown()
+                                },
+                                children = emptyContent()
+                            )
+                        }
+                    }
                 }
             }
+            assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+            calculateChildPositions(
+                childPosition,
+                parentLayoutCoordinates,
+                childLayoutCoordinates
+            )
+
+            val root = findOwnerView()
+            waitForDraw(root)
+
+            val gap = (root.width - size.toFloat() * 3f) / 4f
+            assertEquals(
+                Offset(gap.roundToInt().toFloat(), 0f),
+                childPosition[0]
+            )
+            assertEquals(
+                Offset(
+                    (size.toFloat() + gap * 2f).roundToInt().toFloat(),
+                    0f
+                ),
+                childPosition[1]
+            )
+            assertEquals(
+                Offset(
+                    (size.toFloat() * 2f + gap * 3f).roundToInt().toFloat(),
+                    0f
+                ),
+                childPosition[2]
+            )
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-
-        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
-
-        val root = findOwnerView()
-        waitForDraw(root)
-
-        val gap = (root.width - size.toFloat() * 3f) / 4f
-        assertEquals(
-            Offset(gap.roundToInt().toFloat(), 0f), childPosition[0]
-        )
-        assertEquals(
-            Offset((size.toFloat() + gap * 2f).roundToInt().toFloat(), 0f),
-            childPosition[1]
-        )
-        assertEquals(
-            Offset((size.toFloat() * 2f + gap * 3f).roundToInt().toFloat(), 0f),
-            childPosition[2]
-        )
-    }
 
     @Test
     fun testRow_absoluteArrangementSpaceBetween() = with(density) {
@@ -4391,7 +4516,8 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = Array(3) { Offset.Zero }
-        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        val childLayoutCoordinates =
+            arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Row(
@@ -4418,7 +4544,11 @@ class RowColumnTest : LayoutTest() {
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
+        calculateChildPositions(
+            childPosition,
+            parentLayoutCoordinates,
+            childLayoutCoordinates
+        )
 
         val root = findOwnerView()
         waitForDraw(root)
@@ -4426,66 +4556,87 @@ class RowColumnTest : LayoutTest() {
         val gap = (root.width - size.toFloat() * 3) / 2
         assertEquals(Offset(0f, 0f), childPosition[0])
         assertEquals(
-            Offset((gap + size.toFloat()).roundToInt().toFloat(), 0f),
+            Offset(
+                (gap + size.toFloat()).roundToInt().toFloat(),
+                0f
+            ),
             childPosition[1]
         )
         assertEquals(
-            Offset((gap * 2 + size.toFloat() * 2).roundToInt().toFloat(), 0f),
+            Offset(
+                (gap * 2 + size.toFloat() * 2).roundToInt().toFloat(),
+                0f
+            ),
             childPosition[2]
         )
     }
 
     @Test
-    fun testRow_Row_absoluteArrangementSpaceBetween() = with(density) {
-        val size = 100
-        val sizeDp = size.toDp()
+    fun testRow_Row_absoluteArrangementSpaceBetween() =
+        with(density) {
+            val size = 100
+            val sizeDp = size.toDp()
 
-        val drawLatch = CountDownLatch(4)
-        val childPosition = Array(3) { Offset.Zero }
-        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        var parentLayoutCoordinates: LayoutCoordinates? = null
-        show {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .rtl
-                    .onPositioned { coordinates ->
-                        parentLayoutCoordinates = coordinates
-                        drawLatch.countDown()
-                    },
-                horizontalArrangement = AbsoluteArrangement.SpaceBetween
-            ) {
-                for (i in childPosition.indices) {
-                    Container(
-                        width = sizeDp,
-                        height = sizeDp,
-                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                            childLayoutCoordinates[i] = coordinates
-                            drawLatch.countDown()
-                        },
-                        children = emptyContent()
-                    )
+            val drawLatch = CountDownLatch(4)
+            val childPosition = Array(3) { Offset.Zero }
+            val childLayoutCoordinates =
+                arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+            var parentLayoutCoordinates: LayoutCoordinates? = null
+            show {
+                Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onPositioned { coordinates ->
+                                parentLayoutCoordinates =
+                                    coordinates
+                                drawLatch.countDown()
+                            },
+                        horizontalArrangement = AbsoluteArrangement.SpaceBetween
+                    ) {
+                        for (i in childPosition.indices) {
+                            Container(
+                                width = sizeDp,
+                                height = sizeDp,
+                                modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                                    childLayoutCoordinates[i] =
+                                        coordinates
+                                    drawLatch.countDown()
+                                },
+                                children = emptyContent()
+                            )
+                        }
+                    }
                 }
             }
+            assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+            calculateChildPositions(
+                childPosition,
+                parentLayoutCoordinates,
+                childLayoutCoordinates
+            )
+
+            val root = findOwnerView()
+            waitForDraw(root)
+
+            val gap = (root.width - size.toFloat() * 3) / 2
+            assertEquals(Offset(0f, 0f), childPosition[0])
+            assertEquals(
+                Offset(
+                    (gap + size.toFloat()).roundToInt().toFloat(),
+                    0f
+                ),
+                childPosition[1]
+            )
+            assertEquals(
+                Offset(
+                    (gap * 2 + size.toFloat() * 2).roundToInt().toFloat(),
+                    0f
+                ),
+                childPosition[2]
+            )
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-
-        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
-
-        val root = findOwnerView()
-        waitForDraw(root)
-
-        val gap = (root.width - size.toFloat() * 3) / 2
-        assertEquals(Offset(0f, 0f), childPosition[0])
-        assertEquals(
-            Offset((gap + size.toFloat()).roundToInt().toFloat(), 0f),
-            childPosition[1]
-        )
-        assertEquals(
-            Offset((gap * 2 + size.toFloat() * 2).roundToInt().toFloat(), 0f),
-            childPosition[2]
-        )
-    }
 
     @Test
     fun testRow_absoluteArrangementSpaceAround() = with(density) {
@@ -4494,7 +4645,8 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = Array(3) { Offset.Zero }
-        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        val childLayoutCoordinates =
+            arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Row(
@@ -4521,74 +4673,107 @@ class RowColumnTest : LayoutTest() {
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
+        calculateChildPositions(
+            childPosition,
+            parentLayoutCoordinates,
+            childLayoutCoordinates
+        )
 
         val root = findOwnerView()
         waitForDraw(root)
 
         val gap = (root.width.toFloat() - size * 3) / 3
-        assertEquals(Offset((gap / 2f).roundToInt().toFloat(), 0f), childPosition[0])
         assertEquals(
-            Offset(((gap * 3 / 2) + size.toFloat()).roundToInt().toFloat(), 0f),
+            Offset((gap / 2f).roundToInt().toFloat(), 0f),
+            childPosition[0]
+        )
+        assertEquals(
+            Offset(
+                ((gap * 3 / 2) + size.toFloat()).roundToInt().toFloat(),
+                0f
+            ),
             childPosition[1]
         )
         assertEquals(
-            Offset(((gap * 5 / 2) + size.toFloat() * 2).roundToInt().toFloat(), 0f),
+            Offset(
+                ((gap * 5 / 2) + size.toFloat() * 2).roundToInt().toFloat(),
+                0f
+            ),
             childPosition[2]
         )
     }
 
     @Test
-    fun testRow_Rtl_absoluteArrangementSpaceAround() = with(density) {
-        val size = 100
-        val sizeDp = size.toDp()
+    fun testRow_Rtl_absoluteArrangementSpaceAround() =
+        with(density) {
+            val size = 100
+            val sizeDp = size.toDp()
 
-        val drawLatch = CountDownLatch(4)
-        val childPosition = Array(3) { Offset.Zero }
-        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        var parentLayoutCoordinates: LayoutCoordinates? = null
-        show {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .rtl
-                    .onPositioned { coordinates ->
-                        parentLayoutCoordinates = coordinates
-                        drawLatch.countDown()
-                    },
-                horizontalArrangement = AbsoluteArrangement.SpaceAround
-            ) {
-                for (i in 0 until childPosition.size) {
-                    Container(
-                        width = sizeDp,
-                        height = sizeDp,
-                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                            childLayoutCoordinates[i] = coordinates
-                            drawLatch.countDown()
-                        },
-                        children = emptyContent()
-                    )
+            val drawLatch = CountDownLatch(4)
+            val childPosition = Array(3) { Offset.Zero }
+            val childLayoutCoordinates =
+                arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+            var parentLayoutCoordinates: LayoutCoordinates? = null
+            show {
+                Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onPositioned { coordinates ->
+                                parentLayoutCoordinates =
+                                    coordinates
+                                drawLatch.countDown()
+                            },
+                        horizontalArrangement = AbsoluteArrangement.SpaceAround
+                    ) {
+                        for (i in 0 until childPosition.size) {
+                            Container(
+                                width = sizeDp,
+                                height = sizeDp,
+                                modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                                    childLayoutCoordinates[i] =
+                                        coordinates
+                                    drawLatch.countDown()
+                                },
+                                children = emptyContent()
+                            )
+                        }
+                    }
                 }
             }
+            assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+            calculateChildPositions(
+                childPosition,
+                parentLayoutCoordinates,
+                childLayoutCoordinates
+            )
+
+            val root = findOwnerView()
+            waitForDraw(root)
+
+            val gap = (root.width.toFloat() - size * 3) / 3
+            assertEquals(
+                Offset(
+                    (gap / 2f).roundToInt().toFloat(),
+                    0f
+                ), childPosition[0]
+            )
+            assertEquals(
+                Offset(
+                    ((gap * 3 / 2) + size.toFloat()).roundToInt().toFloat(),
+                    0f
+                ),
+                childPosition[1]
+            )
+            assertEquals(
+                Offset(
+                    ((gap * 5 / 2) + size.toFloat() * 2).roundToInt().toFloat(),
+                    0f
+                ),
+                childPosition[2]
+            )
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-
-        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
-
-        val root = findOwnerView()
-        waitForDraw(root)
-
-        val gap = (root.width.toFloat() - size * 3) / 3
-        assertEquals(Offset((gap / 2f).roundToInt().toFloat(), 0f), childPosition[0])
-        assertEquals(
-            Offset(((gap * 3 / 2) + size.toFloat()).roundToInt().toFloat(), 0f),
-            childPosition[1]
-        )
-        assertEquals(
-            Offset(((gap * 5 / 2) + size.toFloat() * 2).roundToInt().toFloat(), 0f),
-            childPosition[2]
-        )
-    }
     // endregion
 }
 
@@ -4603,14 +4788,21 @@ private fun BaselineTestLayout(
     modifier: Modifier,
     children: @Composable () -> Unit
 ) {
-    Layout(children = children, modifier = modifier, measureBlock = { _, constraints ->
-        val widthPx = max(width.toIntPx(), constraints.minWidth)
-        val heightPx = max(height.toIntPx(), constraints.minHeight)
-        layout(
-            widthPx, heightPx,
-            mapOf(TestHorizontalLine to baseline.toIntPx(), TestVerticalLine to baseline.toIntPx())
-        ) {}
-    })
+    Layout(
+        children = children,
+        modifier = modifier,
+        measureBlock = { _, constraints ->
+            val widthPx = max(width.toIntPx(), constraints.minWidth)
+            val heightPx =
+                max(height.toIntPx(), constraints.minHeight)
+            layout(
+                widthPx, heightPx,
+                mapOf(
+                    TestHorizontalLine to baseline.toIntPx(),
+                    TestVerticalLine to baseline.toIntPx()
+                )
+            ) {}
+        })
 }
 
 // Center composable function is deprected whereas FlexTest tests heavily depend on it.
@@ -4619,7 +4811,12 @@ private fun Center(children: @Composable () -> Unit) {
     Layout(children) { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
-        val placeable = measurable?.measure(constraints.copy(minWidth = 0, minHeight = 0))
+        val placeable = measurable?.measure(
+            constraints.copy(
+                minWidth = 0,
+                minHeight = 0
+            )
+        )
 
         // The layout is as large as possible for bounded constraints,
         // or wrap content otherwise.
@@ -4637,7 +4834,10 @@ private fun Center(children: @Composable () -> Unit) {
         layout(layoutWidth, layoutHeight) {
             if (placeable != null) {
                 val position = Alignment.Center.align(
-                    IntSize(layoutWidth - placeable.width, layoutHeight - placeable.height)
+                    IntSize(
+                        layoutWidth - placeable.width,
+                        layoutHeight - placeable.height
+                    )
                 )
                 placeable.place(position.x, position.y)
             }

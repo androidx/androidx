@@ -24,7 +24,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Strings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Stack
-import androidx.compose.foundation.layout.rtl
+import androidx.compose.runtime.Providers
+import androidx.compose.ui.platform.LayoutDirectionAmbient
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsEnabled
@@ -181,12 +183,14 @@ class SwitchTest {
         composeTestRule.setMaterialContent {
 
             // Stack is needed because otherwise the control will be expanded to fill its parent
-            Stack(Modifier.rtl) {
-                Switch(
-                    modifier = Modifier.testTag(defaultSwitchTag),
-                    checked = state.value,
-                    onCheckedChange = { state.value = it }
-                )
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Stack {
+                    Switch(
+                        modifier = Modifier.testTag(defaultSwitchTag),
+                        checked = state.value,
+                        onCheckedChange = { state.value = it }
+                    )
+                }
             }
         }
 

@@ -25,6 +25,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -93,3 +94,8 @@ val TextToolbarAmbient = staticAmbientOf<TextToolbar>()
  * The ambient to provide functionality related to URL, e.g. open URI.
  */
 val UriHandlerAmbient = staticAmbientOf<UriHandler>()
+
+/**
+ * The ambient to provide the layout direction.
+ */
+val LayoutDirectionAmbient = staticAmbientOf<LayoutDirection>()

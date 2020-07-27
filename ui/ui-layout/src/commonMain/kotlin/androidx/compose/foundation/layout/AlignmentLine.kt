@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.Layout
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.AlignmentLine
 import androidx.compose.ui.HorizontalAlignmentLine
@@ -131,8 +130,7 @@ private data class AlignmentLineOffset(
     }
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(
             // Loose constraints perpendicular on the alignment line.

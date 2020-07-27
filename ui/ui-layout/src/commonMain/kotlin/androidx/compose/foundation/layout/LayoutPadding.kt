@@ -161,8 +161,7 @@ private data class PaddingModifier(
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
         val horizontal = start.toIntPx() + end.toIntPx()
         val vertical = top.toIntPx() + bottom.toIntPx()

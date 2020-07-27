@@ -37,7 +37,6 @@ import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.transition
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.Layout
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Modifier
@@ -358,8 +357,7 @@ internal fun Modifier.iconPadding(start: Dp = 0.dp, end: Dp = 0.dp) =
     this.then(object : LayoutModifier {
         override fun MeasureScope.measure(
             measurable: Measurable,
-            constraints: Constraints,
-            layoutDirection: LayoutDirection
+            constraints: Constraints
         ): MeasureScope.MeasureResult {
             val horizontal = start.toIntPx() + end.toIntPx()
             val placeable = measurable.measure(constraints.offset(-horizontal))

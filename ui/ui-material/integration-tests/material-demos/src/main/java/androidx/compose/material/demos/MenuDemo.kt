@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.foundation.layout.Stack
-import androidx.compose.foundation.layout.ltr
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.IconButton
@@ -42,7 +41,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun MenuDemo() {
-    Stack(Modifier.ltr) {
+    Stack {
         for (i in 0..10) {
             for (j in 0..10) {
                 MenuInstance(

@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.compose.material.internal.fixedThresholds
 import androidx.compose.material.internal.stateDraggable
+import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -119,7 +120,7 @@ fun ModalDrawerLayout(
 
         val anchors = listOf(minValue to DrawerState.Closed, maxValue to DrawerState.Opened)
         val drawerPosition = state { maxValue }
-        val isRtl = layoutDirection == LayoutDirection.Rtl
+        val isRtl = LayoutDirectionAmbient.current == LayoutDirection.Rtl
         Stack(Modifier.stateDraggable(
             state = drawerState,
             onStateChange = onStateChange,

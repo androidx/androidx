@@ -24,7 +24,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.AnimationClockAmbient
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.Measurable
 import androidx.compose.ui.MeasureScope
@@ -74,8 +73,7 @@ private class SizeAnimationModifier(
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
 
         val placeable = measurable.measure(constraints)

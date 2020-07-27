@@ -21,7 +21,6 @@ import androidx.ui.demos.common.DemoCategory
 import androidx.compose.foundation.layout.samples.SimpleFlowRow
 
 val LayoutDemos = DemoCategory("Layout", listOf(
-    ComposableDemo("Complex layout") { ComplexLayoutDemo() },
     DemoCategory("ConstraintLayout", listOf(
         ComposableDemo("With inline (modifier based) DSL") { DemoInlineDSL() },
         ComposableDemo("With ConstraintSet DSL") { DemoConstraintSet() }

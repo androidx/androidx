@@ -31,7 +31,6 @@ import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.animation.asDisposableClock
 import androidx.compose.ui.platform.AnimationClockAmbient
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.MeasureScope
@@ -389,8 +388,7 @@ private data class ScrollingLayoutModifier(
 ) : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
         val childConstraints = constraints.copy(
             maxHeight = if (isVertical) Constraints.Infinity else constraints.maxHeight,

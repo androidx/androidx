@@ -59,9 +59,8 @@ internal fun createDelegate(
         }
     })
     if (firstMeasureCompleted) {
-        delegate.updateRootParams(
-            defaultRootConstraints(),
-            LayoutDirection.Ltr
+        delegate.updateRootConstraints(
+            defaultRootConstraints()
         )
         Truth.assertThat(delegate.measureAndLayout()).isTrue()
     }
@@ -252,11 +251,9 @@ internal class MeasureInMeasureBlock : SmartMeasureBlock() {
     override fun measure(
         measureScope: MeasureScope,
         measurables: List<Measurable>,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
         measuresCount++
-        measuredLayoutDirection = layoutDirection
         preMeasureCallback?.invoke()
         preMeasureCallback = null
         val childConstraints = if (size == null) {
@@ -266,7 +263,7 @@ internal class MeasureInMeasureBlock : SmartMeasureBlock() {
             constraints.copy(maxWidth = size, maxHeight = size)
         }
         val placeables = measurables.map {
-            it.measure(childConstraints, childrenLayoutDirection ?: layoutDirection)
+            it.measure(childConstraints)
         }
         if (queryAlignmentLinesDuringMeasure) {
             placeables.forEach { it[TestAlignmentLine] }
@@ -316,11 +313,9 @@ internal class MeasureInLayoutBlock : SmartMeasureBlock() {
     override fun measure(
         measureScope: MeasureScope,
         measurables: List<Measurable>,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
         measuresCount++
-        measuredLayoutDirection = layoutDirection
         preMeasureCallback?.invoke()
         preMeasureCallback = null
         val childConstraints = if (size == null) {
@@ -334,7 +329,7 @@ internal class MeasureInLayoutBlock : SmartMeasureBlock() {
             preLayoutCallback = null
             layoutsCount++
             measurables.forEach {
-                it.measure(childConstraints, childrenLayoutDirection ?: layoutDirection)
+                it.measure(childConstraints)
                     .place(0, 0)
             }
         }
@@ -356,11 +351,9 @@ internal class NoMeasureBlock : SmartMeasureBlock() {
     override fun measure(
         measureScope: MeasureScope,
         measurables: List<Measurable>,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
         measuresCount++
-        measuredLayoutDirection = layoutDirection
         preMeasureCallback?.invoke()
         preMeasureCallback = null
 
@@ -380,8 +373,7 @@ internal class SpyLayoutModifier : LayoutModifier {
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
         measuresCount++
         return layout(constraints.maxWidth, constraints.maxHeight) {

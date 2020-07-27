@@ -34,7 +34,6 @@ import androidx.compose.ui.platform.NativeRectF
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.PxBounds
 import androidx.compose.ui.unit.minus
 import androidx.compose.ui.unit.plus
@@ -52,8 +51,8 @@ internal abstract class LayoutNodeWrapper(
 
     /**
      * The scope used to measure the wrapped. InnerPlaceables are using the MeasureScope
-     * of the LayoutNode. ModifiedLayoutNode2s are using their own instances MeasureScopes.
-     * For fewer allocations, everything else is reusing the measure scope of their wrapped.
+     * of the LayoutNode. For fewer allocations, everything else is reusing the measure scope of
+     * their wrapped.
      */
     abstract val measureScope: MeasureScope
 
@@ -113,20 +112,14 @@ internal abstract class LayoutNodeWrapper(
     /**
      * Measures the modified child.
      */
-    abstract fun performMeasure(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
-    ): Placeable
+    abstract fun performMeasure(constraints: Constraints): Placeable
 
     /**
      * Measures the modified child.
      */
-    final override fun measure(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
-    ): Placeable {
+    final override fun measure(constraints: Constraints): Placeable {
         measurementConstraints = constraints
-        return performMeasure(constraints, layoutDirection)
+        return performMeasure(constraints)
     }
 
     /**

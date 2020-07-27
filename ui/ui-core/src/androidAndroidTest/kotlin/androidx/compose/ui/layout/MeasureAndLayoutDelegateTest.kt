@@ -19,7 +19,6 @@ package androidx.compose.ui.layout
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.node.LayoutNode.LayoutState
 import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
 import com.google.common.truth.Truth.assertThat
@@ -969,26 +968,7 @@ class MeasureAndLayoutDelegateTest {
         }
     }
 
-    // Rtl
-
-    @Test
-    fun changeDirectionForChildren() {
-        val root = root {
-            add(node())
-        }
-
-        val delegate = createDelegate(root)
-
-        assertRemeasured(root, withDirection = LayoutDirection.Ltr) {
-            assertRemeasured(root.first, withDirection = LayoutDirection.Rtl) {
-                root.childrenDirection = LayoutDirection.Rtl
-                delegate.requestRemeasure(root)
-                assertThat(delegate.measureAndLayout()).isFalse()
-            }
-        }
-    }
-
-    // Updating root constraints / layout direction
+    // Updating root constraints
 
     @Test
     fun changingParentParamsToTheSameValue_noRemeasures() {
@@ -1003,9 +983,8 @@ class MeasureAndLayoutDelegateTest {
         assertNotRemeasured(root) {
             assertNotRemeasured(root.first) {
                 assertNotRemeasured(root.first.first) {
-                    delegate.updateRootParams(
-                        defaultRootConstraints(),
-                        LayoutDirection.Ltr
+                    delegate.updateRootConstraints(
+                        defaultRootConstraints()
                     )
                     assertThat(delegate.measureAndLayout()).isFalse()
                 }
@@ -1026,9 +1005,8 @@ class MeasureAndLayoutDelegateTest {
         assertRemeasured(root) {
             assertRemeasured(root.first) {
                 assertRemeasured(root.first.first) {
-                    delegate.updateRootParams(
-                        Constraints(maxWidth = DifferentSize, maxHeight = DifferentSize),
-                        LayoutDirection.Ltr
+                    delegate.updateRootConstraints(
+                        Constraints(maxWidth = DifferentSize, maxHeight = DifferentSize)
                     )
                     assertThat(delegate.measureAndLayout()).isTrue()
                 }
@@ -1049,58 +1027,10 @@ class MeasureAndLayoutDelegateTest {
 
         assertRemeasured(root.first) {
             assertNotRemeasured(root.first.first) {
-                delegate.updateRootParams(
-                    Constraints(maxWidth = DifferentSize, maxHeight = DifferentSize),
-                    LayoutDirection.Ltr
+                delegate.updateRootConstraints(
+                    Constraints(maxWidth = DifferentSize, maxHeight = DifferentSize)
                 )
                 assertThat(delegate.measureAndLayout()).isTrue()
-            }
-        }
-    }
-
-    @Test
-    fun changingParentDirection_remeasureSubTree() {
-        val root = root {
-            add(node {
-                add(node())
-            })
-        }
-
-        val delegate = createDelegate(root)
-
-        assertRemeasured(root, withDirection = LayoutDirection.Rtl) {
-            assertRemeasured(root.first, withDirection = LayoutDirection.Rtl) {
-                assertRemeasured(root.first.first, withDirection = LayoutDirection.Rtl) {
-                    delegate.updateRootParams(
-                        defaultRootConstraints(),
-                        LayoutDirection.Rtl
-                    )
-                    assertThat(delegate.measureAndLayout()).isFalse()
-                }
-            }
-        }
-    }
-
-    @Test
-    fun changingParentDirection_remeasureOnlyAffectedNodes() {
-        val root = root {
-            add(node {
-                childrenDirection = LayoutDirection.Rtl
-                add(node())
-            })
-        }
-
-        val delegate = createDelegate(root)
-
-        assertRemeasured(root, withDirection = LayoutDirection.Rtl) {
-            assertRemeasured(root.first, withDirection = LayoutDirection.Rtl) {
-                assertNotRemeasured(root.first.first) {
-                    delegate.updateRootParams(
-                        defaultRootConstraints(),
-                        LayoutDirection.Rtl
-                    )
-                    assertThat(delegate.measureAndLayout()).isFalse()
-                }
             }
         }
     }

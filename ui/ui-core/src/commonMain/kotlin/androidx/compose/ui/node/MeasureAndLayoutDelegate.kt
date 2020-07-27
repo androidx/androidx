@@ -25,7 +25,6 @@ import androidx.compose.ui.node.LayoutNode.UsageByParent.InLayoutBlock
 import androidx.compose.ui.node.LayoutNode.UsageByParent.InMeasureBlock
 import androidx.compose.ui.node.LayoutNode.UsageByParent.NotUsed
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.isZero
 import androidx.compose.ui.util.fastForEach
 
@@ -78,17 +77,14 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     private val postponedMeasureRequests = mutableListOf<LayoutNode>()
 
     private var rootConstraints = Constraints.fixed(width = 0, height = 0)
-    private var rootLayoutDirection = LayoutDirection.Ltr
 
     /**
      * @param constraints The constraints to measure the root [LayoutNode] with
-     * @param layoutDirection The layout direction to measure the root [LayoutNode] with
      */
-    fun updateRootParams(constraints: Constraints, layoutDirection: LayoutDirection) {
-        if (rootConstraints != constraints || rootLayoutDirection != layoutDirection) {
+    fun updateRootConstraints(constraints: Constraints) {
+        if (rootConstraints != constraints) {
             require(!duringMeasureLayout)
             rootConstraints = constraints
-            rootLayoutDirection = layoutDirection
             root.layoutState = NeedsRemeasure
             relayoutNodes.add(root)
         }
@@ -169,7 +165,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
 
     private fun doRemeasure(layoutNode: LayoutNode): Boolean {
         val sizeChanged = if (layoutNode === root) {
-            layoutNode.remeasure(rootConstraints, rootLayoutDirection)
+            layoutNode.remeasure(rootConstraints)
         } else {
             layoutNode.remeasure()
         }
