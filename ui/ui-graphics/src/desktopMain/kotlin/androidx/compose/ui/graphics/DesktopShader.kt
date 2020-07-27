@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@ import androidx.compose.ui.geometry.Offset
 import org.jetbrains.skija.FilterTileMode
 import org.jetbrains.skija.GradientStyle
 
-internal fun DesktopLinearGradientShader(
+actual typealias Shader = org.jetbrains.skija.Shader
+
+internal actual fun ActualLinearGradientShader(
     from: Offset,
     to: Offset,
     colors: List<Color>,
@@ -28,14 +30,13 @@ internal fun DesktopLinearGradientShader(
     tileMode: TileMode
 ): Shader {
     validateColorStops(colors, colorStops)
-    val skijaShader = org.jetbrains.skija.Shader.makeLinearGradient(
+    return Shader.makeLinearGradient(
         from.x, from.y, to.x, to.y, colors.toIntArray(), colorStops?.toFloatArray(),
         GradientStyle(tileMode.toSkijaRect(), true, identityMatrix33())
     )
-    return Shader(skijaShader)
 }
 
-internal fun DesktopRadialGradientShader(
+internal actual fun ActualRadialGradientShader(
     center: Offset,
     radius: Float,
     colors: List<Color>,
@@ -43,7 +44,7 @@ internal fun DesktopRadialGradientShader(
     tileMode: TileMode
 ): Shader {
     validateColorStops(colors, colorStops)
-    val skijaShader = org.jetbrains.skija.Shader.makeRadialGradient(
+    return Shader.makeRadialGradient(
         center.x,
         center.y,
         radius,
@@ -51,18 +52,17 @@ internal fun DesktopRadialGradientShader(
         colorStops?.toFloatArray(),
         GradientStyle(tileMode.toSkijaRect(), true, identityMatrix33())
     )
-    return Shader(skijaShader)
 }
 
 @Suppress("UNUSED_PARAMETER")
-internal fun DesktopImageShader(
+internal actual fun ActualImageShader(
     image: ImageAsset,
     tileModeX: TileMode,
     tileModeY: TileMode
 ): Shader {
     // TODO(demin): implement ImageShader
     println("ImageShader not implemented yet")
-    return Shader()
+    return Shader(0)
 }
 
 private fun List<Color>.toIntArray(): IntArray =

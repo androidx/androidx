@@ -38,8 +38,8 @@ import org.jetbrains.skija.paragraph.DecorationStyle as SkDecorationStyle
 import org.jetbrains.skija.FontStyle as SkFontStyle
 import org.jetbrains.skija.Paint as SkPaint
 
-@Suppress("unused", "UNUSED_PARAMETER")
-internal /*actual*/ fun ActualParagraphIntrinsics(
+@Suppress("UNUSED_PARAMETER")
+internal actual fun ActualParagraphIntrinsics(
     text: String,
     style: TextStyle,
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,

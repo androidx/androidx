@@ -34,6 +34,8 @@ dependencies {
 
 kotlin {
     android()
+    jvm("desktop")
+
     sourceSets {
         commonMain.dependencies {
             implementation(KOTLIN_STDLIB_COMMON)

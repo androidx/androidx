@@ -16,33 +16,10 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.Publish
 import androidx.build.SupportConfigKt
-import java.nio.file.Files
-import java.nio.file.FileSystems
-import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-import com.android.build.api.attributes.BuildTypeAttr
-import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.attributes.Attribute
-import org.gradle.api.attributes.Usage
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import java.io.BufferedInputStream
-import java.io.BufferedOutputStream
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import java.util.regex.Pattern
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
-
 import static androidx.build.dependencies.DependenciesKt.*
-import static androidx.build.dependencies.DependenciesKt.TRUTH
 
 plugins {
     id("AndroidXPlugin")
@@ -55,41 +32,9 @@ repositories {
     // mavenLocal()
 }
 
-configurations {
-    ui_components
-    compose_compiler_jar
-}
-
-AttributeContainer attrContainer = configurations.ui_components.getAttributes();
-attrContainer.attribute(
-        BuildTypeAttr.ATTRIBUTE,project.getObjects().named(BuildTypeAttr.class, "release")
-)
-attrContainer.attribute(
-        Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)
-)
-attrContainer.attribute(
-        Attribute.of("org.jetbrains.kotlin.platform.type", KotlinPlatformType.class), KotlinPlatformType.jvm
-)
-
 dependencies {
-    ui_components "androidx.lifecycle:lifecycle-common:2.3.0-alpha04"
-    ui_components "androidx.lifecycle:lifecycle-runtime:2.3.0-alpha04"
-    ui_components "androidx.lifecycle:lifecycle-viewmodel:2.3.0-alpha04"
-    ui_components "androidx.core:core:1.2.0"
-    ui_components "androidx.arch.core:core-common:2.1.0"
-    ui_components "org.jogamp.jogl:jogl-all:2.4.0-rc-20200306"
-    ui_components "org.jogamp.jogl:jogl-all-natives-linux-amd64:2.4.0-rc-20200306"
-    ui_components "org.jogamp.jogl:jogl-all-natives-macosx-universal:2.4.0-rc-20200306"
-    ui_components "org.jogamp.gluegen:gluegen-rt:2.4.0-rc-20200306"
-    ui_components "org.jogamp.gluegen:gluegen-rt-natives-linux-amd64:2.4.0-rc-20200306"
-    ui_components "org.jogamp.gluegen:gluegen-rt-natives-macosx-universal:2.4.0-rc-20200306"
-
-    compose_compiler_jar project(":compose:compose-compiler")
-
     kotlinPlugin project(path: ":compose:compose-compiler")
 }
-
-def composeClassDir = "${project.rootProject.buildDir}/desktop/compose-libs/"
 
 kotlin {
     jvm()
@@ -98,10 +43,9 @@ kotlin {
         commonMain.dependencies {
             api(KOTLIN_STDLIB_COMMON)
             api project(":compose:runtime:runtime")
-        }
-
-        jvmMain {
-            resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
+            api project(":compose:ui:ui")
+            api project(":compose:foundation:foundation")
+            api project(":compose:material:material")
         }
 
         jvmMain.dependencies {
@@ -111,24 +55,20 @@ kotlin {
 
             api(SKIJA)
 
-            api project(":compose:desktop:desktop:android-emu")
-
-            api fileTree(composeClassDir)
-
             implementation(KOTLIN_COROUTINES_SWING)
-            implementation "androidx.lifecycle:lifecycle-common:2.3.0-alpha01"
-            implementation "androidx.lifecycle:lifecycle-runtime:2.3.0-alpha01"
-
-            // TODO: this is a bit ugly. We introduce dependency here, but in fact
-            // manually copy it later, as run task will have .aar in the classpath.
-            implementation "androidx.core:core:1.0.0"
-            implementation "androidx.lifecycle:lifecycle-runtime:2.3.0-alpha01"
+            implementation "org.jogamp.jogl:jogl-all:2.4.0-rc-20200306"
+            implementation "org.jogamp.jogl:jogl-all-natives-linux-amd64:2.4.0-rc-20200306"
+            implementation "org.jogamp.jogl:jogl-all-natives-macosx-universal:2.4.0-rc-20200306"
+            implementation "org.jogamp.gluegen:gluegen-rt:2.4.0-rc-20200306"
+            implementation "org.jogamp.gluegen:gluegen-rt-natives-linux-amd64:2.4.0-rc-20200306"
+            implementation "org.jogamp.gluegen:gluegen-rt-natives-macosx-universal:2.4.0-rc-20200306"
 
             // TODO: move to jvmTest
             implementation(JUNIT)
         }
 
         jvmTest {
+            resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
             resources.srcDirs += "src/jvmTest/res"
             dependencies {
                 implementation(TRUTH)
@@ -137,204 +77,11 @@ kotlin {
     }
 }
 
-def uiComponents = [
-        ":compose:android-view:android-view",
-        ":compose:animation:animation",
-        ":compose:animation:animation-core",
-        ":compose:ui:ui",
-        ":compose:foundation:foundation",
-        ":compose:ui:ui-geometry",
-        ":compose:ui:ui-graphics",
-        ":compose:foundation:foundation-layout",
-        ":compose:runtime:runtime-livedata",
-        ":compose:runtime:runtime-saved-instance-state",
-        ":compose:foundation:foundation-text",
-        ":compose:ui:ui-text-android",
-        ":compose:ui:ui-text",
-        ":compose:ui:ui-unit",
-        ":compose:ui:ui-util",
-        ":compose:material:material"
-]
-
-// Returns the artifact name (project name) from a project path
-static String uiComponentArtifactName(String component) {
-    return component.tokenize(':').last()
-}
-
-void makeLinkOrCopy(String from, String to) {
-    def fromPath = Paths.get(from)
-    def toPath = Paths.get(to)
-    Files.deleteIfExists(toPath)
-    try {
-        Files.createSymbolicLink(toPath, fromPath)
-    } catch (UnsupportedOperationException uoe) {
-        Files.copy(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING)
-    }
-}
-
-def copyToJar(File source, String outPath) {
-    if (source.name.endsWith(".jar")) {
-        makeLinkOrCopy(source.getAbsolutePath(), outPath)
-        return
-    }
-
-    byte[] buffer = new byte[2048]
-
-    FileInputStream fis = new FileInputStream(source)
-    BufferedInputStream bis = new BufferedInputStream(fis)
-    ZipInputStream stream = new ZipInputStream(bis)
-    ZipEntry entry = null
-    while ((entry = stream.getNextEntry()) != null) {
-        if (!entry.name.equals("classes.jar")) continue
-        FileOutputStream fos = new FileOutputStream(outPath + ".jar")
-        BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.size())
-        int len = 0
-        while ((len = stream.read(buffer)) > 0) {
-            bos.write(buffer, 0, len)
-        }
-        bos.close()
-        fos.close()
-    }
-    stream.close()
-    bis.close()
-    fis.close()
-}
-
-// Find in dependencies first (BFS) task's output ending with `name`.
-String findInDeps(Task root, Closure<Boolean> matcher) {
-    // Do BFS by deps.
-    def queue = new java.util.ArrayDeque<Task>()
-    def seen = new java.util.HashSet<Task>()
-    queue.addLast(root)
-    while (queue.size() > 0) {
-        def task = queue.pop()
-        seen.add(task)
-        def classes = task.outputs.files.files.find { matcher(it.absolutePath) }
-        if (classes != null) {
-            return classes.absolutePath
-        }
-        task.taskDependencies.getDependencies(task).each {
-            if (!seen.contains(it))
-                queue.addLast(it)
-        }
-    }
-    return null
-}
-
-java.nio.file.FileSystem getFS(URI uri) {
-    try {
-        def result = FileSystems.getFileSystem(uri)
-        return result
-    } catch (java.nio.file.FileSystemNotFoundException e) {
-        def env = new HashMap<String, String>()
-        return FileSystems.newFileSystem(uri, env)
-    }
-}
-
-void addToJar(String jarName, String entryName, String entryContentPath) {
-    def jarPath = Paths.get(jarName)
-    def uri = URI.create("jar:" + jarPath.toUri())
-    def fs = getFS(uri)
-    def pathInZipFile = fs.getPath("/" + entryName)
-    Files.copy(Paths.get(entryContentPath), pathInZipFile, StandardCopyOption.REPLACE_EXISTING)
-    fs.close()
-}
-
-project.tasks.register("extractJars").configure {
-    inputs.files(project.provider {
-        def result = []
-        uiComponents.each { component ->
-            def depProject = project(component)
-            def task = depProject.tasks.named("assemble").get()
-            def srcJar = findInDeps(task, { absolutePath ->
-                def componentPath = component.replaceAll(":", "/")
-                absolutePath.endsWith("classes.jar") && absolutePath.contains(componentPath)
-            })
-            result.add(file(srcJar))
-        }
-        configurations.ui_components.getIncoming().artifactView(
-                { config ->
-                    config.attributes({container ->
-                        // ... container.attribute(Attribute.of("artifactType", String.class), "android-classes")
-                    })
-                })
-                .getArtifacts().getArtifactFiles().each { component ->
-                    result.add(component)
-                }
-        def runtimeProject = project(":compose:runtime:runtime")
-        def runtimeJar = findInDeps(runtimeProject.tasks.named("assemble").get(), {
-            absolutePath ->
-            Pattern.matches(".*/runtime-desktop.*.jar", absolutePath)
-        })
-        if (runtimeJar == null)
-            throw new Error("cannot find runtime.jar")
-        result.add(file(runtimeJar))
-
-        return result
-    })
-
-    outputs.files(project.provider {
-        def result = [fileTree(dir: composeClassDir, include: [])]
-        uiComponents.each { component ->
-            result.add(file(composeClassDir + uiComponentArtifactName(component) + ".jar"))
-        }
-        configurations.ui_components.getIncoming().artifactView(
-                { config ->
-                    config.attributes({container ->
-                        // ... container.attribute(Attribute.of("artifactType", String.class), "android-classes")
-                    })
-                })
-                .getArtifacts().getArtifactFiles().each { component ->
-                    result.add(file(composeClassDir + component.name))
-                }
-        return result
-    })
-
-    doLast {
-        // Find all JAR files matching components.
-        file(composeClassDir).mkdir()
-        uiComponents.each { component ->
-            def depProject = project(component)
-            def task = depProject.tasks.named("assemble").get()
-            def srcJar = findInDeps(task, { absolutePath ->
-                def componentPath = component.replaceAll(":", "/")
-                absolutePath.endsWith("classes.jar") && absolutePath.contains(componentPath)
-            })
-            if (srcJar == null) {
-                throw new Error("cannot find classes.jar in "+ task)
-            } else {
-                def destJar = composeClassDir + uiComponentArtifactName(component) + ".jar"
-                makeLinkOrCopy(srcJar, destJar)
-            }
-        }
-
-        configurations.ui_components.getIncoming().artifactView(
-                { config ->
-                    config.attributes({container ->
-                        // ... container.attribute(Attribute.of("artifactType", String.class), "android-classes")
-                    })
-                })
-                .getArtifacts().getArtifactFiles().each { component ->
-            copyToJar(
-                    component,
-                    composeClassDir + component.name
-            )
-        };
-    }
-}
-
-extractJars.configure {
-    uiComponents.each { component ->
-        extractJars.dependsOn(component + ":assemble")
-    }
-}
-
 tasks.findByName("jvmTest").configure {
     systemProperties['GOLDEN_PATH'] = project.rootDir.absolutePath + "/../../../golden"
 }
 
 tasks.withType(KotlinCompile).configureEach {
-    dependsOn("extractJars")
     kotlinOptions {
         useIR = true
     }
@@ -342,10 +89,6 @@ tasks.withType(KotlinCompile).configureEach {
 project.tasks.register("jar", Jar).configure {
     baseName = "desktop"
     from { kotlin.jvm().compilations["main"].output.allOutputs }
-}
-
-clean.doFirst {
-    delete composeClassDir
 }
 
 rootProject.tasks.getByName("buildOnServer").configure {

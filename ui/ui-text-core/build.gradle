@@ -30,6 +30,8 @@ plugins {
 
 kotlin {
     android()
+    jvm("desktop")
+
     sourceSets {
         commonMain.dependencies {
             implementation(KOTLIN_STDLIB_COMMON)
@@ -45,6 +47,12 @@ kotlin {
         jvmMain.dependencies {
             implementation(KOTLIN_STDLIB)
         }
+
+        desktopMain.dependencies {
+            implementation(SKIJA)
+        }
+
+        desktopMain.dependsOn jvmMain
 
         androidMain.dependencies {
             api "androidx.annotation:annotation:1.1.0"

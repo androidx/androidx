@@ -13,21 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.desktop
+package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.onActive
+import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.ui.desktop.AppFrame
+import androidx.ui.desktop.AppManager
+import androidx.ui.desktop.AppWindowAmbient
+import androidx.ui.desktop.Dialog
+import androidx.ui.desktop.setContent
 import java.awt.Dimension
 import java.awt.Toolkit
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import javax.swing.JFrame
 import javax.swing.WindowConstants
-import androidx.compose.runtime.onActive
-import androidx.compose.runtime.onDispose
 
 @Composable
 fun Dialog(
@@ -77,7 +82,9 @@ class AppDialog : AppFrame {
         this.height = size.height
         this.x = position.x
         this.y = position.y
-        this.onDismissEvent = onDismissEvent
+        if (onDismissEvent != null) {
+            onDismissEvents.add(onDismissEvent)
+        }
         isCentered = centered
 
         AppManager.addWindow(this)
@@ -126,7 +133,7 @@ class AppDialog : AppFrame {
 
         window!!.addWindowListener(object : WindowAdapter() {
             override fun windowClosing(windowevent: WindowEvent) {
-                onDismissEvent?.invoke()
+                onDismissEvents.forEach { it.invoke() }
             }
         })
 

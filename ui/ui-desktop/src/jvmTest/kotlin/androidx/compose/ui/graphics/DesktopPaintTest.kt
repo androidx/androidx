@@ -38,7 +38,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
         assertEquals(StrokeJoin.round, paint.strokeJoin)
         assertEquals(true, paint.isAntiAlias)
         assertEquals(FilterQuality.none, paint.filterQuality)
-        assertEquals(BlendMode.srcOver, paint.blendMode)
+        assertEquals(BlendMode.SrcOver, paint.blendMode)
         assertEquals(null, paint.colorFilter)
         assertEquals(null, paint.shader)
     }
@@ -48,7 +48,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
         canvas.drawRect(left = 0f, top = 0f, right = 16f, bottom = 16f, paint = redPaint)
         canvas.drawRect(left = 4f, top = 4f, right = 12f, bottom = 12f, paint = Paint().apply {
             color = Color.Blue
-            blendMode = BlendMode.plus
+            blendMode = BlendMode.Plus
         })
 
         screenshotRule.snap(surface)
@@ -59,7 +59,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
         canvas.drawRect(left = 0f, top = 0f, right = 16f, bottom = 16f, paint = redPaint)
         canvas.drawRect(left = 4f, top = 4f, right = 12f, bottom = 12f, paint = Paint().apply {
             color = Color.Gray
-            blendMode = BlendMode.multiply
+            blendMode = BlendMode.Multiply
         })
 
         screenshotRule.snap(surface)
@@ -73,7 +73,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             image = imageFromResource("androidx/ui/desktop/test.png"),
             topLeftOffset = Offset(2f, 4f),
             paint = Paint().apply {
-                colorFilter = ColorFilter(Color.Blue, BlendMode.plus)
+                colorFilter = ColorFilter(Color.Blue, BlendMode.Plus)
             }
         )
 

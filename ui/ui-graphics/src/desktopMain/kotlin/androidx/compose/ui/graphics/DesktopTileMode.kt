@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package androidx.compose.ui.graphics
 
-import androidx.compose.runtime.Composable
+actual typealias NativeTileMode = TileMode
 
-// TODO(demin): move Dialog from ui-desktop module
-@Composable
-actual fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit) {
-    TODO("not implemented")
-}
+actual fun TileMode.toNativeTileMode(): NativeTileMode = this

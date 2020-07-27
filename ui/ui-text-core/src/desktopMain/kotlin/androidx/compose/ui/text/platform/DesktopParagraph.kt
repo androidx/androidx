@@ -41,8 +41,8 @@ import org.jetbrains.skija.Rect as SkRect
 import java.nio.charset.Charset
 import kotlin.math.floor
 
-@Suppress("unused", "UNUSED_PARAMETER")
-internal /*actual*/ fun ActualParagraph(
+@Suppress("UNUSED_PARAMETER")
+internal actual fun ActualParagraph(
     text: String,
     style: TextStyle,
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,
@@ -66,8 +66,8 @@ internal /*actual*/ fun ActualParagraph(
     constraints
 )
 
-@Suppress("unused", "UNUSED_PARAMETER")
-internal /*actual*/ fun ActualParagraph(
+@Suppress("UNUSED_PARAMETER")
+internal actual fun ActualParagraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     maxLines: Int,
     ellipsis: Boolean,
@@ -273,6 +273,6 @@ internal class DesktopParagraph(
     }
 
     override fun paint(canvas: Canvas) {
-        para.paint(canvas.nativeCanvas.skijaCanvas, 0.0f, 0.0f)
+        para.paint(canvas.nativeCanvas, 0.0f, 0.0f)
     }
 }

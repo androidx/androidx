@@ -27,8 +27,8 @@ import org.jetbrains.skija.Image
  */
 fun Image.asImageAsset(): ImageAsset = DesktopImageAsset(this)
 
-@Suppress("unused", "UNUSED_PARAMETER")
-/* actual */ internal fun ActualImageAsset(
+@Suppress("UNUSED_PARAMETER")
+internal actual fun ActualImageAsset(
     width: Int,
     height: Int,
     config: ImageAssetConfig,

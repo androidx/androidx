@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.compose.ui.platform
+
+package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 
-// TODO(demin): move Popup from ui-desktop module
+// TODO(demin): move Dialog from ui-desktop module
 @Composable
-internal actual fun ActualPopup(
-    popupPositionProvider: PopupPositionProvider,
-    isFocusable: Boolean,
-    onDismissRequest: (() -> Unit)?,
-    children: @Composable () -> Unit
-) {
+actual fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit) {
     TODO("not implemented")
 }

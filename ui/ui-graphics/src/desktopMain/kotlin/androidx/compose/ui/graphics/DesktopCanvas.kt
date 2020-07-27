@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.graphics
 
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
@@ -31,28 +30,17 @@ import org.jetbrains.skija.Matrix33 as SkijaMatrix33
 import org.jetbrains.skija.RRect as SkijaRRect
 import org.jetbrains.skija.Rect as SkijaRect
 
+actual typealias NativeCanvas = org.jetbrains.skija.Canvas
+
 @Suppress("UNUSED_PARAMETER")
-fun DesktopCanvas(image: ImageAsset): Canvas {
+internal actual fun ActualCanvas(image: ImageAsset): Canvas {
     TODO("Canvas(image: ImageAsset) isn't implemented yet")
 }
 
-@OptIn(InternalComposeApi::class)
-internal class DesktopInternalCanvasHolder : InternalCanvasHolder {
-    private val _canvas = DesktopCanvas(android.graphics.Canvas())
-    override val canvas: Canvas get() = _canvas
+actual val Canvas.nativeCanvas: NativeCanvas get() = (this as DesktopCanvas).skija
 
-    override var internalCanvas: NativeCanvas
-        get() = _canvas.nativeCanvas
-        set(value) {
-            _canvas.nativeCanvas = value
-        }
-}
-
-val Canvas.nativeCanvas: NativeCanvas get() = (this as DesktopCanvas).nativeCanvas
-
-class DesktopCanvas(var nativeCanvas: NativeCanvas) : Canvas {
-    private val skija get() = nativeCanvas.skijaCanvas
-    private val Paint.skija get() = asFrameworkPaint().skijaPaint
+class DesktopCanvas(val skija: org.jetbrains.skija.Canvas) : Canvas {
+    private val Paint.skija get() = (this as DesktopPaint).skija
 
     override fun save() {
         skija.save()

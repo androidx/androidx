@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.desktop.core
+package androidx.compose.ui.window
 
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.emptyContent
 import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ViewAmbient
-import androidx.ui.desktop.view.LayoutScope
 import androidx.compose.ui.gesture.tapGestureFilter
-import androidx.compose.foundation.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.platform.DesktopOwner
+import androidx.compose.ui.platform.DesktopOwnersAmbient
+import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 
@@ -37,10 +38,7 @@ fun Popup(
     onDismissRequest: (() -> Unit)? = null,
     children: @Composable () -> Unit = emptyContent()
 ) {
-    PopupLayout(
-        alignment = alignment,
-        offset = offset
-    ) {
+    PopupLayout {
         Box(
             modifier = Modifier.fillMaxSize().tapGestureFilter {
                 if (isFocusable) {
@@ -61,17 +59,14 @@ fun Popup(
 }
 
 @Composable
-private fun PopupLayout(
-    alignment: Alignment = Alignment.TopStart,
-    offset: IntOffset = IntOffset(0, 0),
-    children: @Composable () -> Unit
-) {
-    val view = ViewAmbient.current
-    val layout = remember { LayoutScope(view, view.context) }
-    layout.setLayoutParams(alignment, offset)
-    layout.setContent(content = children)
-
+private fun PopupLayout(children: @Composable () -> Unit) {
+    val owners = DesktopOwnersAmbient.current
+    val layout = remember {
+        val owner = DesktopOwner(owners)
+        owner.setContent(children)
+        owner
+    }
     onDispose {
-        layout.dismiss()
+        layout.dispose()
     }
 }

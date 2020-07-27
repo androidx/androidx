@@ -18,12 +18,14 @@ package androidx.compose.animation.core
 
 import androidx.compose.runtime.dispatch.DesktopUiDispatcher
 
-class DesktopAnimationClock(fps: Int, private val dispatcher: DesktopUiDispatcher) :
-    androidx.ui.desktop.BaseAnimationClock() {
+actual class DefaultAnimationClock(
+    fps: Int,
+    private val dispatcher: DesktopUiDispatcher
+) : BaseAnimationClock() {
 
     // TODO: detect actual display refresh rate? what to do with displays with
     //  different refresh rates?
-    constructor() : this(60, DesktopUiDispatcher.Dispatcher)
+    actual constructor() : this(60, DesktopUiDispatcher.Dispatcher)
 
     val delay = 1_000 / fps
 

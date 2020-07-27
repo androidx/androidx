@@ -30,6 +30,7 @@ plugins {
 
 kotlin {
     android()
+    jvm("desktop")
 
     sourceSets {
         commonMain.dependencies {
@@ -37,12 +38,16 @@ kotlin {
 
             implementation project(":compose:runtime:runtime")
         }
+
         jvmMain.dependencies {
             implementation(KOTLIN_STDLIB)
         }
+
         androidMain.dependencies {
             api "androidx.annotation:annotation:1.1.0"
         }
+
+        desktopMain.dependsOn jvmMain
 
         commonTest.dependencies {
             implementation kotlin("test-junit")

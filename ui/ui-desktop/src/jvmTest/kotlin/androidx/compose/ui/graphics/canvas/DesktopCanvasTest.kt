@@ -205,7 +205,7 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
 
         canvas.withSaveLayer(
             Rect(left = 4f, top = 8f, right = 12f, bottom = 16f), redPaint.apply {
-                blendMode = BlendMode.plus
+                blendMode = BlendMode.Plus
             }
         ) {
             canvas.drawLine(Offset(4f, 0f), Offset(4f, 16f), bluePaint)

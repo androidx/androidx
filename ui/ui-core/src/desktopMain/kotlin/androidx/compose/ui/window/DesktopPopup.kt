@@ -13,41 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.desktop
+package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 
-abstract class AppFrame {
-
-    var locked = false
-
-    var title = ""
-        protected set
-
-    var width = 0
-        protected set
-
-    var height = 0
-        protected set
-
-    var x = 0
-        protected set
-
-    var y = 0
-        protected set
-
-    var isCentered: Boolean = true
-        protected set
-
-    val onDismissEvents = mutableListOf<() -> Unit>()
-
-    abstract fun setPosition(x: Int, y: Int)
-
-    abstract fun setWindowCentered()
-
-    abstract fun setSize(width: Int, height: Int)
-
-    abstract fun show(content: @Composable () -> Unit)
-
-    abstract fun close()
+// TODO(demin): move Popup from ui-desktop module
+@Composable
+internal actual fun ActualPopup(
+    popupPositionProvider: PopupPositionProvider,
+    isFocusable: Boolean,
+    onDismissRequest: (() -> Unit)?,
+    children: @Composable () -> Unit
+) {
+    TODO("not implemented")
 }

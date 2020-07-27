@@ -24,11 +24,14 @@ import org.jetbrains.skija.PaintMode as SkijaPaintMode
 import org.jetbrains.skija.PaintStrokeCap as SkijaPaintStrokeCap
 import org.jetbrains.skija.PaintStrokeJoin as SkijaPaintStrokeJoin
 
-class DesktopPaint : Paint {
-    private var nativePaint = android.graphics.Paint()
-    private val skija get() = nativePaint.skijaPaint
+actual typealias NativePaint = org.jetbrains.skija.Paint
 
-    override fun asFrameworkPaint(): NativePaint = nativePaint
+actual fun Paint(): Paint = DesktopPaint()
+
+class DesktopPaint : Paint {
+    internal val skija = org.jetbrains.skija.Paint()
+
+    override fun asFrameworkPaint(): NativePaint = skija
 
     override var alpha: Float
         get() = alphaInt / 255f
@@ -98,7 +101,7 @@ class DesktopPaint : Paint {
 
     override var shader: Shader? = null
         set(value) {
-            skija.shader = value?.skija
+            skija.shader = value
             field = value
         }
 
@@ -117,7 +120,7 @@ class DesktopPaint : Paint {
 
     override var nativePathEffect: NativePathEffect? = null
         set(value) {
-            skija.pathEffect = value?.skija
+            skija.pathEffect = value
             field = value
         }
 
@@ -177,3 +180,5 @@ class DesktopPaint : Paint {
         FilterQuality.High -> SkijaFilterQuality.HIGH
     }
 }
+
+actual fun BlendMode.isSupported(): Boolean = true

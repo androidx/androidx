@@ -22,7 +22,12 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.vectormath.degrees
 import org.jetbrains.skija.Matrix33
 import org.jetbrains.skija.PathDirection
+import org.jetbrains.skija.PathEffect
 import org.jetbrains.skija.PathFillMode
+
+actual fun Path(): Path = DesktopPath()
+
+actual typealias NativePathEffect = PathEffect
 
 /**
  * @Throws UnsupportedOperationException if this Path is not backed by an org.jetbrains.skija.Path
