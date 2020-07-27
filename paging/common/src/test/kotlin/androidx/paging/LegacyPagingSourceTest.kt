@@ -78,6 +78,10 @@ class LegacyPagingSourceTest {
         }
         val pagingSource = LegacyPagingSource { dataSource }
 
+        // Check that jumpingSupported is disabled.
+        assertFalse { pagingSource.jumpingSupported }
+
+        // Check that invalidation propagates successfully in both directions.
         val refreshKey = pagingSource.getRefreshKey(fakePagingState)
         assertEquals("fakeData".hashCode(), refreshKey)
 
@@ -117,6 +121,10 @@ class LegacyPagingSourceTest {
         }
         val pagingSource = LegacyPagingSource { dataSource }
 
+        // Check that jumpingSupported is disabled.
+        assertFalse { pagingSource.jumpingSupported }
+
+        // Check that invalidation propagates successfully in both directions.
         val refreshKey = pagingSource.getRefreshKey(fakePagingState)
         assertEquals(refreshKey, null)
 
@@ -132,6 +140,9 @@ class LegacyPagingSourceTest {
     @Test
     fun positional() {
         val pagingSource = LegacyPagingSource { createTestPositionalDataSource() }
+
+        // Check that jumpingSupported is enabled.
+        assertTrue { pagingSource.jumpingSupported }
 
         assertEquals(
             3,
