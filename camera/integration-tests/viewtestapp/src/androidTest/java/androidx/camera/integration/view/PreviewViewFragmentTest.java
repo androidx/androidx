@@ -122,6 +122,29 @@ public final class PreviewViewFragmentTest {
     }
 
     @Test
+    public void checkPreviewUpdatedAfterToggleCameraTwiceAndStopResume() {
+        // This is to test that after toggling between the front and back camera the front camera
+        // will still be working after stopping and resuming the lifecycle state.
+
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+
+        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
+
+        // Toggle camera. This is to toggle the camera from back to front.
+        onView(withId(R.id.toggle_camera)).perform(click());
+
+        // Toggle camera twice. This is to toggle the camera from front to back.
+        onView(withId(R.id.toggle_camera)).perform(click());
+
+        // Stop the fragment
+        scenario.moveToState(Lifecycle.State.CREATED);
+        // Resume the fragment
+        scenario.moveToState(Lifecycle.State.RESUMED);
+        assertPreviewUpdating(scenario);
+    }
+
+    @Test
     public void checkPreviewNotUpdatedAfterPreviewUnbound() {
         final FragmentScenario<PreviewViewFragment> scenario = createScenario();
         assertPreviewUpdating(scenario);
