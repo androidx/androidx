@@ -58,6 +58,9 @@ public final class AppInitializer {
     final Map<Class<?>, Object> mInitialized;
 
     @NonNull
+    final Set<Class<? extends Initializer<?>>> mDiscovered;
+
+    @NonNull
     final Context mContext;
 
     /**
@@ -67,6 +70,7 @@ public final class AppInitializer {
      */
     AppInitializer(@NonNull Context context) {
         mContext = context.getApplicationContext();
+        mDiscovered = new HashSet<>();
         mInitialized = new HashMap<>();
     }
 
@@ -98,6 +102,17 @@ public final class AppInitializer {
     @SuppressWarnings("unused")
     public <T> T initializeComponent(@NonNull Class<? extends Initializer<T>> component) {
         return doInitialize(component, new HashSet<Class<?>>());
+    }
+
+    /**
+     * Returns <code>true</code> if the {@link Initializer} was eagerly initialized..
+     *
+     * @param component The {@link Initializer} class to check
+     * @return <code>true</code> if the {@link Initializer} was eagerly initialized.
+     */
+    public boolean isEagerlyInitialized(@NonNull Class<? extends Initializer<?>> component) {
+        // If discoverAndInitialize() was never called, then nothing was eagerly initialized.
+        return mDiscovered.contains(component);
     }
 
     @NonNull
@@ -176,6 +191,7 @@ public final class AppInitializer {
                         if (Initializer.class.isAssignableFrom(clazz)) {
                             Class<? extends Initializer<?>> component =
                                     (Class<? extends Initializer<?>>) clazz;
+                            mDiscovered.add(component);
                             if (StartupLogger.DEBUG) {
                                 StartupLogger.i(String.format("Discovered %s", key));
                             }
