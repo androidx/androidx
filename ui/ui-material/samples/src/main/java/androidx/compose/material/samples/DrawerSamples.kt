@@ -17,9 +17,6 @@
 package androidx.compose.material.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Text
@@ -29,30 +26,33 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.material.BottomDrawerLayout
-import androidx.compose.material.BottomDrawerState
+import androidx.compose.material.BottomDrawerValue
 import androidx.compose.material.Button
-import androidx.compose.material.DrawerState
+import androidx.compose.material.DrawerValue
 import androidx.compose.material.ModalDrawerLayout
+import androidx.compose.material.rememberBottomDrawerState
+import androidx.compose.material.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable
 fun ModalDrawerSample() {
-    val (state, onStateChange) = state { DrawerState.Closed }
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val appContentText =
-        if (state == DrawerState.Closed) {
-            ">>> Pull to open >>>"
+        if (drawerState.isClosed) {
+            ">>> Pull to open>>>"
         } else {
             "<<< Swipe to close <<<"
         }
     ModalDrawerLayout(
-        drawerState = state,
-        onStateChange = onStateChange,
+        drawerState = drawerState,
         drawerContent = {
-            YourDrawerContent(onClose = { onStateChange(DrawerState.Closed) })
+            YourDrawerContent(onClose = { drawerState.close() })
         },
         bodyContent = {
-            YourAppContent(appContentText, onOpen = { onStateChange(DrawerState.Opened) })
+            YourAppContent(appContentText, onOpen = { drawerState.open() })
         }
     )
 }
@@ -60,21 +60,20 @@ fun ModalDrawerSample() {
 @Sampled
 @Composable
 fun BottomDrawerSample() {
-    val (state, onStateChange) = state { BottomDrawerState.Closed }
+    val drawerState = rememberBottomDrawerState(BottomDrawerValue.Closed)
     val appContentText =
-        if (state == BottomDrawerState.Closed) {
+        if (drawerState.isClosed) {
             "▲▲▲ Pull to open ▲▲▲"
         } else {
             "▼▼▼ Drag down to close ▼▼▼"
         }
     BottomDrawerLayout(
-        drawerState = state,
-        onStateChange = onStateChange,
+        drawerState = drawerState,
         drawerContent = {
-            YourDrawerContent(onClose = { onStateChange(BottomDrawerState.Closed) })
+            YourDrawerContent(onClose = { drawerState.close() })
         },
         bodyContent = {
-            YourAppContent(appContentText, onOpen = { onStateChange(BottomDrawerState.Opened) })
+            YourAppContent(appContentText, onOpen = { drawerState.open() })
         }
     )
 }

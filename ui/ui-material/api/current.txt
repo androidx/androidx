@@ -19,12 +19,25 @@ package androidx.compose.material {
     method @androidx.compose.runtime.Composable public static void TopAppBar-ye6PvEY(androidx.compose.ui.Modifier modifier = Modifier, long backgroundColor = MaterialTheme.colors.primarySurface, long contentColor = contentColorFor(backgroundColor), float elevation = androidx.compose.material.AppBarKt.TopAppBarElevation, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
   }
 
-  public enum BottomDrawerState {
-    method public static androidx.compose.material.BottomDrawerState valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.compose.material.BottomDrawerState[] values();
-    enum_constant public static final androidx.compose.material.BottomDrawerState Closed;
-    enum_constant public static final androidx.compose.material.BottomDrawerState Expanded;
-    enum_constant public static final androidx.compose.material.BottomDrawerState Opened;
+  public final class BottomDrawerState extends androidx.compose.material.SwipeableState<androidx.compose.material.BottomDrawerValue> {
+    ctor public BottomDrawerState(androidx.compose.material.BottomDrawerValue initialValue, androidx.compose.animation.core.AnimationClockObservable clock, kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomDrawerValue,java.lang.Boolean> confirmStateChange);
+    method public void close(kotlin.jvm.functions.Function0<kotlin.Unit>? onClosed = null);
+    method public void expand(kotlin.jvm.functions.Function0<kotlin.Unit>? onExpanded = null);
+    method public boolean isClosed();
+    method public boolean isExpanded();
+    method public boolean isOpen();
+    method public void open(kotlin.jvm.functions.Function0<kotlin.Unit>? onOpened = null);
+    property public final boolean isClosed;
+    property public final boolean isExpanded;
+    property public final boolean isOpen;
+  }
+
+  public enum BottomDrawerValue {
+    method public static androidx.compose.material.BottomDrawerValue valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.compose.material.BottomDrawerValue[] values();
+    enum_constant public static final androidx.compose.material.BottomDrawerValue Closed;
+    enum_constant public static final androidx.compose.material.BottomDrawerValue Expanded;
+    enum_constant public static final androidx.compose.material.BottomDrawerValue Open;
   }
 
   public final class BottomNavigationKt {
@@ -112,15 +125,27 @@ package androidx.compose.material {
   }
 
   public final class DrawerKt {
-    method @androidx.compose.runtime.Composable public static void BottomDrawerLayout-cIpOu6M(androidx.compose.material.BottomDrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomDrawerState,kotlin.Unit> onStateChange, boolean gesturesEnabled = true, androidx.compose.ui.graphics.Shape drawerShape = large, float drawerElevation = DrawerConstants.DefaultElevation, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
-    method @androidx.compose.runtime.Composable public static void ModalDrawerLayout-T3JXCKk(androidx.compose.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.compose.material.DrawerState,kotlin.Unit> onStateChange, boolean gesturesEnabled = true, androidx.compose.ui.graphics.Shape drawerShape = large, float drawerElevation = DrawerConstants.DefaultElevation, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
+    method @androidx.compose.runtime.Composable public static void BottomDrawerLayout-frgukrE(androidx.compose.material.BottomDrawerState drawerState = rememberBottomDrawerState(BottomDrawerValue.Closed), boolean gesturesEnabled = true, androidx.compose.ui.graphics.Shape drawerShape = large, float drawerElevation = DrawerConstants.DefaultElevation, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
+    method @androidx.compose.runtime.Composable public static void ModalDrawerLayout-_Tz54Oo(androidx.compose.material.DrawerState drawerState = rememberDrawerState(DrawerValue.Closed), boolean gesturesEnabled = true, androidx.compose.ui.graphics.Shape drawerShape = large, float drawerElevation = DrawerConstants.DefaultElevation, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
+    method @androidx.compose.runtime.Composable public static androidx.compose.material.BottomDrawerState rememberBottomDrawerState(androidx.compose.material.BottomDrawerValue initialValue, kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomDrawerValue,java.lang.Boolean> confirmStateChange = { return true });
+    method @androidx.compose.runtime.Composable public static androidx.compose.material.DrawerState rememberDrawerState(androidx.compose.material.DrawerValue initialValue, kotlin.jvm.functions.Function1<? super androidx.compose.material.DrawerValue,java.lang.Boolean> confirmStateChange = { return true });
   }
 
-  public enum DrawerState {
-    method public static androidx.compose.material.DrawerState valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.compose.material.DrawerState[] values();
-    enum_constant public static final androidx.compose.material.DrawerState Closed;
-    enum_constant public static final androidx.compose.material.DrawerState Opened;
+  public final class DrawerState extends androidx.compose.material.SwipeableState<androidx.compose.material.DrawerValue> {
+    ctor public DrawerState(androidx.compose.material.DrawerValue initialValue, androidx.compose.animation.core.AnimationClockObservable clock, kotlin.jvm.functions.Function1<? super androidx.compose.material.DrawerValue,java.lang.Boolean> confirmStateChange);
+    method public void close(kotlin.jvm.functions.Function0<kotlin.Unit>? onClosed = null);
+    method public boolean isClosed();
+    method public boolean isOpen();
+    method public void open(kotlin.jvm.functions.Function0<kotlin.Unit>? onOpened = null);
+    property public final boolean isClosed;
+    property public final boolean isOpen;
+  }
+
+  public enum DrawerValue {
+    method public static androidx.compose.material.DrawerValue valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.compose.material.DrawerValue[] values();
+    enum_constant public static final androidx.compose.material.DrawerValue Closed;
+    enum_constant public static final androidx.compose.material.DrawerValue Open;
   }
 
   @androidx.compose.runtime.Immutable public interface Emphasis {
@@ -227,23 +252,19 @@ package androidx.compose.material {
   }
 
   public final class ScaffoldKt {
-    method @androidx.compose.runtime.Composable public static void Scaffold-_B-Z858(androidx.compose.material.ScaffoldState scaffoldState = remember({ 
-    return <init>()
-}), kotlin.jvm.functions.Function0<kotlin.Unit>? topBar = null, kotlin.jvm.functions.Function0<kotlin.Unit>? bottomBar = null, kotlin.jvm.functions.Function0<kotlin.Unit>? floatingActionButton = null, androidx.compose.material.Scaffold.FabPosition floatingActionButtonPosition = androidx.compose.material.Scaffold.FabPosition.End, boolean isFloatingActionButtonDocked = false, kotlin.jvm.functions.Function0<kotlin.Unit>? drawerContent = null, androidx.compose.ui.graphics.Shape drawerShape = large, float drawerElevation = DrawerConstants.DefaultElevation, long backgroundColor = MaterialTheme.colors.background, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.InnerPadding,kotlin.Unit> bodyContent);
+    method @androidx.compose.runtime.Composable public static void Scaffold-_B-Z858(androidx.compose.material.ScaffoldState scaffoldState = rememberScaffoldState(), kotlin.jvm.functions.Function0<kotlin.Unit>? topBar = null, kotlin.jvm.functions.Function0<kotlin.Unit>? bottomBar = null, kotlin.jvm.functions.Function0<kotlin.Unit>? floatingActionButton = null, androidx.compose.material.Scaffold.FabPosition floatingActionButtonPosition = androidx.compose.material.Scaffold.FabPosition.End, boolean isFloatingActionButtonDocked = false, kotlin.jvm.functions.Function0<kotlin.Unit>? drawerContent = null, androidx.compose.ui.graphics.Shape drawerShape = large, float drawerElevation = DrawerConstants.DefaultElevation, long backgroundColor = MaterialTheme.colors.background, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.InnerPadding,kotlin.Unit> bodyContent);
+    method @androidx.compose.runtime.Composable public static androidx.compose.material.ScaffoldState rememberScaffoldState(androidx.compose.material.DrawerState drawerState = rememberDrawerState(DrawerValue.Closed), boolean isDrawerGesturesEnabled = true);
   }
 
   @androidx.compose.runtime.Stable public final class ScaffoldState {
     ctor public ScaffoldState(androidx.compose.material.DrawerState drawerState, boolean isDrawerGesturesEnabled);
-    ctor public ScaffoldState();
     method public androidx.compose.ui.geometry.Size? getBottomBarSize();
     method public androidx.compose.material.DrawerState getDrawerState();
     method public androidx.compose.ui.geometry.Size? getFloatingActionButtonSize();
     method public androidx.compose.ui.geometry.Size? getTopBarSize();
     method public boolean isDrawerGesturesEnabled();
     method public void setDrawerGesturesEnabled(boolean p);
-    method public void setDrawerState(androidx.compose.material.DrawerState p);
     property public final androidx.compose.ui.geometry.Size? bottomBarSize;
-    property public final androidx.compose.material.DrawerState drawerState;
     property public final androidx.compose.ui.geometry.Size? floatingActionButtonSize;
     property public final boolean isDrawerGesturesEnabled;
     property public final androidx.compose.ui.geometry.Size? topBarSize;
@@ -276,6 +297,47 @@ package androidx.compose.material {
   public final class SurfaceKt {
     method @androidx.compose.runtime.Composable public static void Surface-bO96-ZE(androidx.compose.ui.Modifier modifier = Modifier, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, long color = MaterialTheme.colors.surface, long contentColor = contentColorFor(color), androidx.compose.foundation.Border? border = null, float elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static long getPrimarySurface(androidx.compose.material.ColorPalette);
+  }
+
+  @androidx.compose.runtime.Immutable public final class SwipeProgress<T> {
+    ctor public SwipeProgress(T! from, T! to, @FloatRange(from=null, to=null) float progress);
+    method public T! component1();
+    method public T! component2();
+    method public float component3();
+    method @androidx.compose.runtime.Immutable public androidx.compose.material.SwipeProgress<T> copy(T! from, T! to, float progress);
+    method public T! getFrom();
+    method public float getProgress();
+    method public T! getTo();
+  }
+
+  public final class SwipeableKt {
+    method @androidx.compose.material.ExperimentalMaterialApi public static kotlin.jvm.functions.Function3<androidx.compose.ui.unit.Density,java.lang.Float,java.lang.Float,java.lang.Float> fixedThresholds-0680j_4(float offset);
+    method @androidx.compose.material.ExperimentalMaterialApi public static kotlin.jvm.functions.Function3<androidx.compose.ui.unit.Density,java.lang.Float,java.lang.Float,java.lang.Float> fractionalThresholds(@FloatRange(from=0.0, to=1.0) float fraction);
+    method @androidx.compose.material.ExperimentalMaterialApi public static <T> androidx.compose.ui.Modifier swipeable(androidx.compose.ui.Modifier, androidx.compose.material.SwipeableState<T> state, java.util.Map<java.lang.Float,? extends T> anchors, kotlin.jvm.functions.Function3<? super androidx.compose.ui.unit.Density,? super java.lang.Float,? super java.lang.Float,java.lang.Float> thresholds, androidx.compose.ui.gesture.scrollorientationlocking.Orientation orientation, boolean enabled = true, boolean reverseDirection = false, float minValue = elvis {
+    var varf5a37ed0: <ErrorType> = anchors.keys.<anonymous class>()
+    if (varf5a37ed0 != null) varf5a37ed0 else Float.NEGATIVE_INFINITY
+}, float maxValue = elvis {
+    var var1e0457e5: <ErrorType> = anchors.keys.<anonymous class>()
+    if (var1e0457e5 != null) var1e0457e5 else Float.POSITIVE_INFINITY
+}, androidx.compose.foundation.InteractionState? interactionState = null);
+  }
+
+  @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Stable public class SwipeableState<T> {
+    ctor public SwipeableState(T! initialValue, androidx.compose.animation.core.AnimationClockObservable clock, internal kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange, internal androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec);
+    method @androidx.compose.material.ExperimentalMaterialApi public final void animateTo(T? targetValue, androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim = animationSpec, kotlin.jvm.functions.Function2<? super androidx.compose.animation.core.AnimationEndReason,? super T,kotlin.Unit>? onEnd = null);
+    method public final androidx.compose.runtime.State<java.lang.Float> getOffset();
+    method public final float getSwipeDirection();
+    method public final androidx.compose.material.SwipeProgress<T> getSwipeProgress();
+    method public final T! getSwipeTarget();
+    method public final T! getValue();
+    method public final boolean isAnimationRunning();
+    method @androidx.compose.material.ExperimentalMaterialApi public final void snapTo(T? targetValue);
+    property public final boolean isAnimationRunning;
+    property public final androidx.compose.runtime.State<java.lang.Float> offset;
+    property public final float swipeDirection;
+    property public final androidx.compose.material.SwipeProgress<T> swipeProgress;
+    property public final T! swipeTarget;
+    property public final T! value;
   }
 
   public final class SwitchKt {
@@ -354,13 +416,6 @@ package androidx.compose.material {
   }
 
   public final class TypographyKt {
-  }
-
-}
-
-package androidx.compose.material.internal {
-
-  public final class StateDraggableKt {
   }
 
 }
