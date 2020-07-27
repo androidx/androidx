@@ -38,9 +38,9 @@ fun BottomNavigationSample() {
         items.forEachIndexed { index, item ->
             BottomNavigationItem(
                 icon = { Icon(Icons.Filled.Favorite) },
-                text = { Text(item) },
+                label = { Text(item) },
                 selected = selectedItem == index,
-                onSelected = { selectedItem = index }
+                onSelect = { selectedItem = index }
             )
         }
     }
@@ -55,9 +55,9 @@ fun BottomNavigationWithOnlySelectedLabelsSample() {
         items.forEachIndexed { index, item ->
             BottomNavigationItem(
                 icon = { Icon(Icons.Filled.Favorite) },
-                text = { Text(item) },
+                label = { Text(item) },
                 selected = selectedItem == index,
-                onSelected = { selectedItem = index },
+                onSelect = { selectedItem = index },
                 alwaysShowLabels = false
             )
         }

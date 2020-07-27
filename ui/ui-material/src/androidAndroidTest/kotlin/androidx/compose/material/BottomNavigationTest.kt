@@ -82,9 +82,9 @@ class BottomNavigationTest {
                     repeat(4) { index ->
                         BottomNavigationItem(
                             icon = { Icon(Icons.Filled.Favorite) },
-                            text = { Text("Item $index") },
+                            label = { Text("Item $index") },
                             selected = index == 0,
-                            onSelected = {},
+                            onSelect = {},
                             modifier = Modifier.onPositioned { coords: LayoutCoordinates ->
                                 itemCoords[index] = coords
                             }
@@ -123,11 +123,11 @@ class BottomNavigationTest {
                                 Modifier.testTag("icon")
                             )
                         },
-                        text = {
+                        label = {
                             Text("ItemText")
                         },
                         selected = true,
-                        onSelected = {}
+                        onSelect = {}
                     )
                 }
             }
@@ -169,11 +169,11 @@ class BottomNavigationTest {
                                 Modifier.testTag("icon")
                             )
                         },
-                        text = {
+                        label = {
                             Text("ItemText")
                         },
                         selected = false,
-                        onSelected = {},
+                        onSelect = {},
                         alwaysShowLabels = false
                     )
                 }
@@ -204,9 +204,9 @@ class BottomNavigationTest {
                                 Modifier.testTag("icon")
                             )
                         },
-                        text = {},
+                        label = {},
                         selected = false,
-                        onSelected = {}
+                        onSelect = {}
                     )
                 }
             }
