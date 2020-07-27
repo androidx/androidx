@@ -29,6 +29,9 @@ import androidx.compose.ui.text.style.ResolvedTextDirection
 import org.jetbrains.skija.paragraph.LineMetrics
 import org.jetbrains.skija.paragraph.RectHeightMode
 import org.jetbrains.skija.paragraph.RectWidthMode
+import org.jetbrains.skija.paragraph.TextBox
+import org.jetbrains.skija.Rect as SkRect
+import java.nio.charset.Charset
 import kotlin.math.floor
 
 internal class DesktopParagraph(
@@ -45,6 +48,9 @@ internal class DesktopParagraph(
     init {
         para.layout(constraints.width)
     }
+
+    private val text: String
+        get() = paragraphIntrinsics.text
 
     override val width: Float
         get() = para.getMaxWidth()
@@ -91,18 +97,13 @@ internal class DesktopParagraph(
         return path
     }
 
-    override fun getCursorRect(offset: Int): Rect {
-        val cursorWidth = 4.0f
-        val horizontal = getHorizontalPosition(offset, true)
-        val line = getLineForOffset(offset)
-
-        return Rect(
-            horizontal - 0.5f * cursorWidth,
-            getLineTop(line),
-            horizontal + 0.5f * cursorWidth,
-            getLineBottom(line)
-        )
-    }
+    private val cursorWidth = 2.0f
+    override fun getCursorRect(offset: Int) =
+        getBoxForwardByOffset(offset)?.let { box ->
+            Rect(box.rect.left, box.rect.top, box.rect.left + cursorWidth, box.rect.bottom)
+        } ?: getBoxBackwardByOffset(offset)?.let { box ->
+            Rect(box.rect.right, box.rect.top, box.rect.right + cursorWidth, box.rect.bottom)
+        } ?: Rect(0f, 0f, cursorWidth, para.height)
 
     override fun getLineLeft(lineIndex: Int): Float {
         println("Paragraph.getLineLeft $lineIndex")
@@ -125,13 +126,16 @@ internal class DesktopParagraph(
         } ?: 0f
 
     private fun lineMetricsForOffset(offset: Int): LineMetrics? {
+        // For some reasons SkParagraph Line metrics use (UTF-8) byte offsets for start and end
+        // indexes
+        val byteOffset = text.substring(0, offset).toByteArray(Charset.forName("UTF-8")).size
         val metrics = para.lineMetrics
         for (line in metrics) {
-            if (offset <= line.endIndex) {
+            if (byteOffset < line.endIndex) {
                 return line
             }
         }
-        return null
+        return metrics.last()
     }
 
     override fun getLineHeight(lineIndex: Int) = para.lineMetrics[lineIndex].height.toFloat()
@@ -162,23 +166,53 @@ internal class DesktopParagraph(
     }
 
     override fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float {
-        val metrics = lineMetricsForOffset(offset)
-
-        return when {
-            metrics == null -> 0f
-            metrics.startIndex.toInt() == offset || metrics.startIndex == metrics.endIndex -> 0f
-            metrics.endIndex.toInt() == offset -> {
-                para.getRectsForRange(offset - 1, offset, RectHeightMode.MAX, RectWidthMode.MAX)
-                    .first()
-                    .rect.right
-            }
-            else -> {
-                para.getRectsForRange(
-                    offset, offset + 1, RectHeightMode.MAX, RectWidthMode.MAX
-                ).first().rect.left
-            }
+        return if (usePrimaryDirection) {
+            getHorizontalPositionForward(offset) ?: getHorizontalPositionBackward(offset) ?: 0f
+        } else {
+            getHorizontalPositionBackward(offset) ?: getHorizontalPositionForward(offset) ?: 0f
         }
     }
+
+    private fun getBoxForwardByOffset(offset: Int): TextBox? {
+        var to = offset + 1
+        while (to <= text.length) {
+            val box = para.getRectsForRange(
+                offset, to,
+                RectHeightMode.STRUT, RectWidthMode.TIGHT
+            ).firstOrNull()
+            if (box != null) {
+                return box
+            }
+            to += 1
+        }
+        return null
+    }
+
+    private fun getBoxBackwardByOffset(offset: Int): TextBox? {
+        var from = offset - 1
+        while (from >= 0) {
+            val box = para.getRectsForRange(
+                from, offset,
+                RectHeightMode.STRUT, RectWidthMode.TIGHT
+            ).firstOrNull()
+            when {
+                (box == null) -> from -= 1
+                (text.get(from) == '\n') -> {
+                    val bottom = box.rect.bottom + box.rect.bottom - box.rect.top
+                    val rect = SkRect(0f, box.rect.bottom, 0f, bottom)
+                    return TextBox(rect, box.direction)
+                }
+                else -> return box
+            }
+        }
+        return null
+    }
+
+    private fun getHorizontalPositionForward(from: Int) =
+        getBoxForwardByOffset(from)?.rect?.left
+
+    private fun getHorizontalPositionBackward(to: Int) =
+        getBoxBackwardByOffset(to)?.rect?.right
 
     override fun getParagraphDirection(offset: Int): ResolvedTextDirection =
         ResolvedTextDirection.Ltr
@@ -191,10 +225,7 @@ internal class DesktopParagraph(
     }
 
     override fun getBoundingBox(offset: Int) =
-        para.getRectsForRange(
-            offset, offset + 1, RectHeightMode.MAX, RectWidthMode
-                .MAX
-        ).first().rect.toAndroidX()
+        getBoxForwardByOffset(offset)!!.rect.toAndroidX()
 
     override fun getWordBoundary(offset: Int): TextRange {
         println("Paragraph.getWordBoundary $offset")
