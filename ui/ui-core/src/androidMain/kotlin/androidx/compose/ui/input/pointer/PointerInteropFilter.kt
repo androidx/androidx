@@ -84,8 +84,8 @@ class RequestDisallowInterceptTouchEvent : (Boolean) -> Unit {
 }
 
 /**
- * Similar to [pointerInteropFilter] above, but connects directly to an [AndroidViewHolder] for
- * more seamless interop with Android.
+ * Similar to the 2 argument overload of [pointerInteropFilter], but connects
+ * directly to an [AndroidViewHolder] for more seamless interop with Android.
  */
 internal fun Modifier.pointerInteropFilter(view: AndroidViewHolder<out View>): Modifier {
     val filter = PointerInteropFilter()
