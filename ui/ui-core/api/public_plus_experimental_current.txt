@@ -664,17 +664,17 @@ package androidx.compose.ui.gesture {
 
 package androidx.compose.ui.gesture.customevents {
 
-  public final class DelayUpEvent implements androidx.compose.ui.platform.CustomEvent {
+  @androidx.compose.ui.gesture.ExperimentalPointerInput public final class DelayUpEvent implements androidx.compose.ui.platform.CustomEvent {
     ctor public DelayUpEvent(androidx.compose.ui.gesture.customevents.DelayUpMessage message, java.util.Set<androidx.compose.ui.platform.PointerId> pointers);
     method public androidx.compose.ui.gesture.customevents.DelayUpMessage component1();
     method public java.util.Set<androidx.compose.ui.platform.PointerId> component2();
-    method public androidx.compose.ui.gesture.customevents.DelayUpEvent copy(androidx.compose.ui.gesture.customevents.DelayUpMessage message, java.util.Set<androidx.compose.ui.platform.PointerId> pointers);
+    method @androidx.compose.ui.gesture.ExperimentalPointerInput public androidx.compose.ui.gesture.customevents.DelayUpEvent copy(androidx.compose.ui.gesture.customevents.DelayUpMessage message, java.util.Set<androidx.compose.ui.platform.PointerId> pointers);
     method public androidx.compose.ui.gesture.customevents.DelayUpMessage getMessage();
     method public java.util.Set<androidx.compose.ui.platform.PointerId> getPointers();
     method public void setMessage(androidx.compose.ui.gesture.customevents.DelayUpMessage p);
   }
 
-  public enum DelayUpMessage {
+  @androidx.compose.ui.gesture.ExperimentalPointerInput public enum DelayUpMessage {
     method public static androidx.compose.ui.gesture.customevents.DelayUpMessage valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.compose.ui.gesture.customevents.DelayUpMessage[] values();
     enum_constant public static final androidx.compose.ui.gesture.customevents.DelayUpMessage DelayUp;

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalPointerInput::class)
+
 package androidx.compose.ui.gesture
 
 import androidx.compose.runtime.remember
