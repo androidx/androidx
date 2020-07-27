@@ -84,7 +84,6 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.ThreadConfig;
-import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -443,6 +442,18 @@ public class VideoCapture extends UseCase {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
+        return Builder.fromConfig((VideoCaptureConfig) getUseCaseConfig());
+    }
+
     private void releaseCameraSurface(final boolean releaseVideoEncoder) {
         if (mDeferrableSurface == null) {
             return;
@@ -455,9 +466,9 @@ public class VideoCapture extends UseCase {
         mDeferrableSurface.close();
         mDeferrableSurface.getTerminationFuture().addListener(
                 () -> {
-                        if (releaseVideoEncoder && videoEncoder != null) {
-                            videoEncoder.release();
-                        }
+                    if (releaseVideoEncoder && videoEncoder != null) {
+                        videoEncoder.release();
+                    }
                 }, CameraXExecutors.mainThreadExecutor());
 
         if (releaseVideoEncoder) {
@@ -477,15 +488,7 @@ public class VideoCapture extends UseCase {
      * @param rotation Desired rotation of the output video.
      */
     public void setTargetRotation(@RotationValue int rotation) {
-        VideoCaptureConfig oldConfig = (VideoCaptureConfig) getUseCaseConfig();
-        Builder builder = Builder.fromConfig(oldConfig);
-        int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
-        if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
-            UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, rotation);
-            updateUseCaseConfig(builder.getUseCaseConfig());
-
-            // TODO(b/122846516): Update session configuration and possibly reconfigure session.
-        }
+        setTargetRotationInternal(rotation);
     }
 
     /**
@@ -1105,7 +1108,6 @@ public class VideoCapture extends UseCase {
          *
          * @param videoFrameRate The requested interval in seconds.
          * @return The current Builder.
-         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1120,7 +1122,6 @@ public class VideoCapture extends UseCase {
          *
          * @param bitRate The requested bit rate in bits per second.
          * @return The current Builder.
-         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1135,7 +1136,6 @@ public class VideoCapture extends UseCase {
          *
          * @param interval The requested interval in seconds.
          * @return The current Builder.
-         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1150,7 +1150,6 @@ public class VideoCapture extends UseCase {
          *
          * @param bitRate The requested bit rate in bits/s.
          * @return The current Builder.
-         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1165,7 +1164,6 @@ public class VideoCapture extends UseCase {
          *
          * @param sampleRate The requested sample rate in bits/s.
          * @return The current Builder.
-         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1180,7 +1178,6 @@ public class VideoCapture extends UseCase {
          *
          * @param channelCount The requested number of audio channels.
          * @return The current Builder.
-         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1195,7 +1192,6 @@ public class VideoCapture extends UseCase {
          *
          * @param source The audio source. Currently only AudioSource.MIC is supported.
          * @return The current Builder.
-         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1210,7 +1206,6 @@ public class VideoCapture extends UseCase {
          *
          * @param minBufferSize The requested audio minimum buffer size, in bytes.
          * @return The current Builder.
-         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1281,7 +1276,6 @@ public class VideoCapture extends UseCase {
          * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
          *                    height.
          * @return The current Builder.
-         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1309,7 +1303,6 @@ public class VideoCapture extends UseCase {
          * @param aspectRatio A {@link AspectRatio} representing the ratio of the
          *                    target's width and height.
          * @return The current Builder.
-         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1328,11 +1321,11 @@ public class VideoCapture extends UseCase {
          * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
          *
          * <p>If not set, the target rotation will default to the value of
-         * {@link Display#getRotation()} of the default display at the time the use case is created.
+         * {@link Display#getRotation()} of the default display at the time the use case is
+         * created. The use case is fully created once it has been attached to a camera.
          *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
-         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1360,7 +1353,6 @@ public class VideoCapture extends UseCase {
          *
          * @param resolution The target resolution to choose from supported output sizes list.
          * @return The current Builder.
-         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1380,7 +1372,6 @@ public class VideoCapture extends UseCase {
          *
          * @param resolution The default resolution to choose from supported output sizes list.
          * @return The current Builder.
-         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1419,7 +1410,6 @@ public class VideoCapture extends UseCase {
          *
          * @param executor The executor which will be used for background tasks.
          * @return the current Builder.
-         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
