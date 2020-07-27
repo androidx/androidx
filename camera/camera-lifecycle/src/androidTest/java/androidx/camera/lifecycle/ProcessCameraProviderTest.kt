@@ -323,7 +323,7 @@ class ProcessCameraProviderTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun exception_withDestroyedLifecycle() {
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
 
@@ -332,7 +332,9 @@ class ProcessCameraProviderTest {
 
             lifecycleOwner0.destroy()
 
-            provider.bindToLifecycle(lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA)
+            assertThrows<IllegalArgumentException> {
+                provider.bindToLifecycle(lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA)
+            }
         }
     }
 
@@ -355,7 +357,7 @@ class ProcessCameraProviderTest {
         }
     }
 
-    @Test(expected = java.lang.IllegalArgumentException::class)
+    @Test
     fun bindUseCases_withDifferentLensFacingButSameLifecycleOwner() {
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
 
@@ -367,7 +369,13 @@ class ProcessCameraProviderTest {
 
             provider.bindToLifecycle(lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA, useCase0)
 
-            provider.bindToLifecycle(lifecycleOwner0, CameraSelector.DEFAULT_FRONT_CAMERA, useCase1)
+            assertThrows<IllegalArgumentException> {
+                provider.bindToLifecycle(
+                    lifecycleOwner0,
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    useCase1
+                )
+            }
         }
     }
 
@@ -391,7 +399,7 @@ class ProcessCameraProviderTest {
         }
     }
 
-    @Test(expected = java.lang.IllegalArgumentException::class)
+    @Test
     fun bindUseCases_withNotExistedLensFacingCamera() {
         val cameraFactoryProvider =
             CameraFactory.Provider { _: Context?, _: CameraThreadConfig? ->
@@ -425,7 +433,13 @@ class ProcessCameraProviderTest {
 
             // The front camera is not defined, we should get the IllegalArgumentException when it
             // tries to get the camera.
-            provider.bindToLifecycle(lifecycleOwner0, CameraSelector.DEFAULT_FRONT_CAMERA, useCase)
+            assertThrows<IllegalArgumentException> {
+                provider.bindToLifecycle(
+                    lifecycleOwner0,
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    useCase
+                )
+            }
         }
     }
 
