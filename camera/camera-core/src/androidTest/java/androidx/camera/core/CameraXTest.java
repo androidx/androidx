@@ -235,22 +235,6 @@ public final class CameraXTest {
         assertThat(context).isNotNull();
     }
 
-    @Test
-    public void checkHasCameraTrueForExistentCamera() throws CameraInfoUnavailableException {
-        initCameraX();
-        assertThat(CameraX.hasCamera(
-                new CameraSelector.Builder().requireLensFacing(
-                        CameraSelector.LENS_FACING_BACK).build())).isTrue();
-    }
-
-    @Test
-    public void checkHasCameraFalseForNonexistentCamera() throws CameraInfoUnavailableException {
-        initCameraX();
-        assertThat(CameraX.hasCamera(new CameraSelector.Builder().requireLensFacing(
-                CameraSelector.LENS_FACING_BACK).requireLensFacing(
-                CameraSelector.LENS_FACING_FRONT).build())).isFalse();
-    }
-
     private void initCameraX() {
         CameraX.initialize(mContext, mConfigBuilder.build());
     }

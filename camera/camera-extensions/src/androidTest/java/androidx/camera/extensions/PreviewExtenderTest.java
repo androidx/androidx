@@ -51,6 +51,7 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.Preview;
+import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
@@ -58,6 +59,7 @@ import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
+import androidx.camera.testing.CameraAvailabilityUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.test.core.app.ApplicationProvider;
@@ -87,6 +89,7 @@ public class PreviewExtenderTest {
     private static final String EXTENSION_AVAILABLE_CAMERA_ID = "0";
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private final Context mContext = ApplicationProvider.getApplicationContext();
+    private CameraRepository mCameraRepository;
 
     private static final SurfaceTextureProvider.SurfaceTextureCallback
             NO_OP_SURFACE_TEXTURE_CALLBACK =
@@ -113,7 +116,9 @@ public class PreviewExtenderTest {
         assumeTrue(CameraUtil.deviceHasCamera());
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
 
-        CameraX.initialize(mContext, Camera2Config.defaultConfig());
+        CameraX.initialize(mContext, Camera2Config.defaultConfig()).get();
+        CameraX cameraX = CameraX.getOrCreateInstance(mContext).get();
+        mCameraRepository = cameraX.getCameraRepository();
 
         assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
     }
@@ -305,7 +310,8 @@ public class PreviewExtenderTest {
         // getSupportedResolutions supported since version 1.1
         assumeTrue(ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0);
 
-        @CameraSelector.LensFacing int lensFacing = CameraX.getDefaultLensFacing();
+        @CameraSelector.LensFacing int lensFacing =
+                CameraAvailabilityUtil.getDefaultLensFacing(mCameraRepository);
         Preview.Builder configBuilder = new Preview.Builder();
 
         PreviewExtenderImpl mockPreviewExtenderImpl = mock(PreviewExtenderImpl.class);

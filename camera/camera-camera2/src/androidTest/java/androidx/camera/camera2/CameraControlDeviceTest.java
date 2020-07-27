@@ -36,6 +36,7 @@ import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.testing.CameraAvailabilityUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
@@ -96,7 +97,10 @@ public class CameraControlDeviceTest {
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
         CameraX.initialize(context, cameraXConfig).get();
 
-        assumeTrue(CameraX.hasCamera(mCameraSelector));
+        CameraX cameraX = CameraX.getOrCreateInstance(context).get();
+
+        assumeTrue(CameraAvailabilityUtil.hasCamera(cameraX.getCameraRepository(),
+                mCameraSelector));
 
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1, 1);
         mMeteringPoint1 = factory.createPoint(0, 0);

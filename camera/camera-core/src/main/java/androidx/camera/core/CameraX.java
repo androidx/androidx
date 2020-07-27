@@ -49,8 +49,6 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -123,27 +121,6 @@ public final class CameraX {
     }
 
     /**
-     * Checks if the device supports at least one camera that meets the requirements from a
-     * {@link CameraSelector}.
-     *
-     * @param cameraSelector the {@link CameraSelector} that filters available cameras.
-     * @return true if the device has at least one available camera, otherwise false.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public static boolean hasCamera(@NonNull CameraSelector cameraSelector) {
-        CameraX cameraX = checkInitialized();
-
-        try {
-            cameraSelector.select(cameraX.getCameraRepository().getCameras());
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * Returns the camera id for a camera defined by the given {@link CameraSelector}.
      *
      * @param cameraSelector the camera selector
@@ -158,34 +135,6 @@ public final class CameraX {
         CameraX cameraX = checkInitialized();
 
         return cameraSelector.select(cameraX.getCameraRepository().getCameras());
-    }
-
-    /**
-     * Gets the default lens facing, or throws a {@link IllegalStateException} if there is no
-     * available camera.
-     *
-     * @return The default lens facing.
-     * @throws IllegalStateException if unable to find a camera with available lens facing.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @CameraSelector.LensFacing
-    public static int getDefaultLensFacing() {
-        checkInitialized();
-
-        Integer lensFacingCandidate = null;
-        List<Integer> lensFacingList = Arrays.asList(CameraSelector.LENS_FACING_BACK,
-                CameraSelector.LENS_FACING_FRONT);
-        for (Integer lensFacing : lensFacingList) {
-            if (hasCamera(new CameraSelector.Builder().requireLensFacing(lensFacing).build())) {
-                lensFacingCandidate = lensFacing;
-                break;
-            }
-        }
-        if (lensFacingCandidate == null) {
-            throw new IllegalStateException("Unable to get default lens facing.");
-        }
-        return lensFacingCandidate;
     }
 
     /**
