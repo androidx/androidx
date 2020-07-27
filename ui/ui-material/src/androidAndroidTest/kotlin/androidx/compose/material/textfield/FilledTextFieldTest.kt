@@ -89,7 +89,7 @@ class FilledTextFieldTest {
     private val ExpectedPadding = 16.dp
     private val IconPadding = 12.dp
     private val ExpectedBaselineOffset = 20.dp
-    private val TopPaddingFilledTextfield = 3.dp
+    private val TopPaddingFilledTextfield = 4.dp
     private val IconColorAlpha = 0.54f
     private val TextfieldTag = "textField"
 
