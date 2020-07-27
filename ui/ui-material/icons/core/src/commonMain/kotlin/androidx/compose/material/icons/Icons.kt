@@ -104,7 +104,7 @@ inline fun materialIcon(
 ).block().build()
 
 /**
- * Adds a vector path to this icon with sane Material defaults.
+ * Adds a vector path to this icon with Material defaults.
  *
  * @param fillAlpha fill alpha for this path
  * @param strokeAlpha stroke alpha for this path
