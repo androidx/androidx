@@ -21,12 +21,11 @@ package androidx.compose.ui.gesture
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.gesture.scrollorientationlocking.ScrollOrientationLocker
 import androidx.compose.ui.gesture.util.VelocityTracker
 import androidx.compose.ui.input.pointer.PointerInputFilter
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.CustomEvent
 import androidx.compose.ui.platform.CustomEventDispatcher
 import androidx.compose.ui.platform.PointerEventPass
@@ -39,6 +38,7 @@ import androidx.compose.ui.platform.changedToUpIgnoreConsumed
 import androidx.compose.ui.platform.consumeDownChange
 import androidx.compose.ui.platform.consumePositionChange
 import androidx.compose.ui.platform.positionChange
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 
@@ -200,6 +200,7 @@ internal class RawDragGestureFilter : PointerInputFilter() {
 
         if (pass == PointerEventPass.PostUp) {
 
+            // Get the changes for pointers that are relevant to us due to orientation locking.
             val applicableChanges =
                 with(orientation) {
                     if (this != null) {
@@ -212,6 +213,9 @@ internal class RawDragGestureFilter : PointerInputFilter() {
             // Handle up changes, which includes removing individual pointer VelocityTrackers
             // and potentially calling onStop().
             if (changesToReturn.fastAny { it.changedToUpIgnoreConsumed() }) {
+
+                // TODO(b/162269614): Should be update to only have one velocity tracker that
+                //  tracks the average change overtime, instead of one for each finger.
 
                 var velocityTracker: VelocityTracker? = null
 
@@ -251,7 +255,8 @@ internal class RawDragGestureFilter : PointerInputFilter() {
                 }
             }
 
-            // For each new pointer that has been added, start tracking information about it.
+            // Handle down changes: for each new pointer that has been added, start tracking
+            // information about it.
             if (changesToReturn.fastAny { it.changedToDownIgnoreConsumed() }) {
                 changesToReturn.fastForEach {
                     // If a pointer has changed to down, we should start tracking information
@@ -268,14 +273,8 @@ internal class RawDragGestureFilter : PointerInputFilter() {
                     }
                 }
             }
-        }
 
-        // This if block is run for both PostUp and PostDown to allow for the detector to
-        // respond to modified changes after ancestors may have modified them.  (This allows
-        // for things like dragging an ancestor scrolling container, while keeping a pointer on
-        // a descendant scrolling container, and the descendant scrolling container keeping the
-        // descendant still.)
-        if (pass == PointerEventPass.PostUp || pass == PointerEventPass.PostDown) {
+            // Handle moved changes.
 
             var (movedChanges, otherChanges) = changesToReturn.partition {
                 it.current.down && !it.changedToDownIgnoreConsumed()
@@ -283,24 +282,19 @@ internal class RawDragGestureFilter : PointerInputFilter() {
 
             movedChanges.fastForEach {
                 // TODO(shepshapard): handle the case that the pointerTrackingData is null,
-                // either with an exception or a logged error, or something else.
-                val velocityTracker = velocityTrackers[it.id]
-
-                if (velocityTracker != null) {
-
-                    // Add information to the velocity tracker only during one pass.
-                    // TODO(shepshapard): VelocityTracker needs to be updated to not accept
-                    // position information, but rather vector information about movement.
-                    if (pass == PointerEventPass.PostUp) {
-                        velocityTracker.addPosition(
-                            it.current.uptime!!,
-                            it.current.position!!
-                        )
-                    }
-                }
+                //  either with an exception or a logged error, or something else.
+                // TODO(shepshapard): VelocityTracker needs to be updated to not accept
+                //  position information, but rather vector information about movement.
+                // TODO(b/162269614): Should be update to only have one velocity tracker that
+                //  tracks the average change overtime, instead of one for each finger.
+                velocityTrackers[it.id]?.addPosition(
+                    it.current.uptime!!,
+                    it.current.position!!
+                )
             }
 
-            // Check to see if we are already started so we don't have to call canStartDragging again.
+            // Check to see if we are already started so we don't have to call canStartDragging
+            // again.
             val canStart = !started && canStartDragging?.invoke() ?: true
 
             // At this point, check to see if we have started, and if we have, we may
@@ -344,14 +338,11 @@ internal class RawDragGestureFilter : PointerInputFilter() {
                         downPositions.clear()
                     }
 
-                    // Only need to do this during the first pass that we care about (PostUp).
-                    if (pass == PointerEventPass.PostUp) {
-                        orientation?.let {
-                            scrollOrientationLocker.attemptToLockPointers(
-                                movedChanges,
-                                it
-                            )
-                        }
+                    orientation?.let {
+                        scrollOrientationLocker.attemptToLockPointers(
+                            movedChanges,
+                            it
+                        )
                     }
 
                     val consumed = dragObserver.onDrag(
