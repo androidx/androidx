@@ -20,6 +20,8 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.gesture.PointerCoords
+import androidx.compose.ui.gesture.PointerProperties
 import androidx.compose.ui.platform.PointerEvent
 import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
@@ -404,18 +406,6 @@ class PointerInteropUtilsTest {
         assertEquals(actual, expected)
     }
 }
-
-private fun PointerProperties(id: Int = 0, toolType: Int = MotionEvent.TOOL_TYPE_UNKNOWN) =
-    MotionEvent.PointerProperties().apply {
-        this.id = id
-        this.toolType = toolType
-    }
-
-private fun PointerCoords(x: Float = 0f, y: Float = 0f) =
-    MotionEvent.PointerCoords().apply {
-        this.x = x
-        this.y = y
-    }
 
 private fun MotionEvent(
     eventTime: Long,
