@@ -22,6 +22,7 @@ import androidx.test.filters.SmallTest
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.drawBehind
 import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
@@ -312,6 +313,31 @@ class InspectableTests : ToolingTest() {
         }
 
         assertFalse(displayed)
+    }
+
+    @Test // regression test for b/161839910
+    fun textParametersAreCorrect() {
+        val slotTableRecord = SlotTableRecord.create()
+
+        show {
+            Inspectable(slotTableRecord) {
+                Text("Test")
+            }
+        }
+        val tree = slotTableRecord.store.first().asTree()
+        val list = tree.asList()
+        val parameters = list.filter {
+            it.parameters.isNotEmpty() && it.key.let {
+                it is String && it.contains("InspectableTests")
+            }
+        }
+        val names = parameters.first().parameters.map { it.name }
+        assertEquals(
+            "text, modifier, color, fontSize, fontStyle, fontWeight, fontFamily, " +
+                "letterSpacing, textDecoration, textAlign, lineHeight, overflow, softWrap, " +
+                "maxLines, inlineContent, onTextLayout, style",
+            names.joinToString()
+        )
     }
 }
 

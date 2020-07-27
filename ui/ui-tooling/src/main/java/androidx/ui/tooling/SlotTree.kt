@@ -289,7 +289,7 @@ private fun parseParameters(parameters: String): List<Parameter> {
             val minAddAmount = 4
             val amountToAdd = if (missing < minAddAmount) minAddAmount else missing
             repeat(amountToAdd) {
-                expectedSortedIndex.add(it + lastAdded)
+                expectedSortedIndex.add(it + lastAdded + 1)
             }
             lastAdded += amountToAdd
         }
@@ -553,6 +553,7 @@ private const val parameterPrefix = "${'$'}"
 private const val internalFieldPrefix = parameterPrefix + parameterPrefix
 private const val defaultFieldName = "${internalFieldPrefix}default"
 private const val changedFieldName = "${internalFieldPrefix}changed"
+private const val jacocoDataField = "${parameterPrefix}jacoco"
 private const val recomposeScopeNameSuffix = ".RecomposeScope"
 
 private fun extractParameterInfo(
@@ -579,7 +580,8 @@ private fun extractParameterInfo(
                             val fields = blockClass.declaredFields
                                 .filter {
                                     it.name.startsWith(parameterPrefix) &&
-                                            !it.name.startsWith(internalFieldPrefix)
+                                            !it.name.startsWith(internalFieldPrefix) &&
+                                            !it.name.startsWith(jacocoDataField)
                                 }.sortedBy { it.name }
                             val parameters = mutableListOf<ParameterInformation>()
                             val parametersMetadata = context?.parameters ?: emptyList()
