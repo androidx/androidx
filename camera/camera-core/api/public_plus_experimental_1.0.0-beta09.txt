@@ -269,6 +269,7 @@ package androidx.camera.core {
     method public int getTargetRotation();
     method @UiThread public void setSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.SurfaceProvider?);
     method @UiThread public void setSurfaceProvider(androidx.camera.core.Preview.SurfaceProvider?);
+    method @androidx.camera.core.ExperimentalUseCaseGroup public void setTargetRotation(int);
   }
 
   public static final class Preview.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.Preview> {
@@ -291,9 +292,10 @@ package androidx.camera.core {
 
   public final class SurfaceRequest {
     method public void addRequestCancellationListener(java.util.concurrent.Executor, Runnable);
-    method @androidx.camera.core.ExperimentalUseCaseGroup public android.graphics.Rect getCropRect();
+    method @androidx.camera.core.ExperimentalUseCaseGroup public void clearTransformationInfoListener();
     method public android.util.Size getResolution();
     method public void provideSurface(android.view.Surface, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.core.SurfaceRequest.Result!>);
+    method @androidx.camera.core.ExperimentalUseCaseGroup public void setTransformationInfoListener(java.util.concurrent.Executor, androidx.camera.core.SurfaceRequest.TransformationInfoListener);
     method public boolean willNotProvideSurface();
   }
 
@@ -305,6 +307,15 @@ package androidx.camera.core {
     field public static final int RESULT_SURFACE_ALREADY_PROVIDED = 3; // 0x3
     field public static final int RESULT_SURFACE_USED_SUCCESSFULLY = 0; // 0x0
     field public static final int RESULT_WILL_NOT_PROVIDE_SURFACE = 4; // 0x4
+  }
+
+  @androidx.camera.core.ExperimentalUseCaseGroup @com.google.auto.value.AutoValue public abstract static class SurfaceRequest.TransformationInfo {
+    method public abstract android.graphics.Rect getCropRect();
+    method public abstract int getRotationDegrees();
+  }
+
+  @androidx.camera.core.ExperimentalUseCaseGroup public static interface SurfaceRequest.TransformationInfoListener {
+    method public void onTransformationInfoUpdate(androidx.camera.core.SurfaceRequest.TransformationInfo);
   }
 
   public class TorchState {

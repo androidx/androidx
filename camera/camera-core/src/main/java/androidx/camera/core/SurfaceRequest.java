@@ -17,16 +17,21 @@
 package androidx.camera.core;
 
 import android.annotation.SuppressLint;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.hardware.camera2.CameraCharacteristics;
 import android.util.Size;
 import android.view.Surface;
+import android.view.SurfaceView;
+import android.view.TextureView;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -56,7 +61,6 @@ public final class SurfaceRequest {
 
     private final Size mResolution;
     private final Camera mCamera;
-    private final Rect mViewPortRect;
 
     // For the camera to retrieve the surface from the user
     @SuppressWarnings("WeakerAccess") /*synthetic accessor */
@@ -73,6 +77,14 @@ public final class SurfaceRequest {
 
     private DeferrableSurface mInternalDeferrableSurface;
 
+    @Nullable
+    private TransformationInfo mTransformationInfo;
+    @Nullable
+    private TransformationInfoListener mTransformationInfoListener;
+    // Executor for calling TransformationUpdateListener.
+    @Nullable
+    private Executor mTransformationInfoExecutor;
+
     /**
      * Creates a new surface request with the given resolution, the {@link Camera} and the crop
      * rect.
@@ -82,14 +94,10 @@ public final class SurfaceRequest {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public SurfaceRequest(
             @NonNull Size resolution,
-            @NonNull Camera camera,
-            @Nullable Rect viewPortRect) {
+            @NonNull Camera camera) {
         super();
         mResolution = resolution;
         mCamera = camera;
-        // Use full surface rect if viewPortRect is null.
-        mViewPortRect = viewPortRect != null ? viewPortRect : new Rect(0, 0, resolution.getWidth(),
-                resolution.getHeight());
 
         // To ensure concurrency and ordering, operations are chained. Completion can only be
         // triggered externally by the top-level completer (mSurfaceCompleter). The other future
@@ -243,25 +251,6 @@ public final class SurfaceRequest {
     }
 
     /**
-     * Returns the crop rect rectangle.
-     *
-     * <p> The returned value dictates how the {@link Surface} provided in
-     * {@link #provideSurface(Surface, Executor, Consumer)} should be displayed. The crop
-     * rectangle specifies the region of valid pixels in the buffer, using coordinates from (0,
-     * 0) to the (width, height) of {@link #getResolution()}. The caller should arrange the UI so
-     * that only the valid region is visible to app users.
-     *
-     * <p> If {@link Preview} is configured with a {@link ViewPort}, this value is calculated
-     * based on the configuration of {@link ViewPort}; if not, it returns the full rect of the
-     * buffer.
-     */
-    @ExperimentalUseCaseGroup
-    @NonNull
-    public Rect getCropRect() {
-        return mViewPortRect;
-    }
-
-    /**
      * Completes the request for a {@link Surface} if it has not already been
      * completed or cancelled.
      *
@@ -396,6 +385,57 @@ public final class SurfaceRequest {
     }
 
     /**
+     * Updates the {@link TransformationInfo} associated with this {@link SurfaceRequest}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalUseCaseGroup
+    void updateTransformationInfo(@NonNull TransformationInfo transformationInfo) {
+        mTransformationInfo = transformationInfo;
+        TransformationInfoListener listener = mTransformationInfoListener;
+        if (listener != null) {
+            mTransformationInfoExecutor.execute(
+                    () -> listener.onTransformationInfoUpdate(
+                            transformationInfo));
+
+        }
+    }
+
+    /**
+     * Sets a listener to receive updates on transformation info.
+     *
+     * <p> Sets a listener to receive the transformation info associated with this
+     * {@link SurfaceRequest} when it changes or becomes available. The listener is called
+     * immediately if transformation info is available at the time of setting.
+     *
+     * @param executor The executor used to notify the listener.
+     * @param listener the listener which will be called when transformation info changes.
+     * @see TransformationInfoListener
+     * @see TransformationInfo
+     */
+    @ExperimentalUseCaseGroup
+    public void setTransformationInfoListener(@NonNull Executor executor,
+            @NonNull TransformationInfoListener listener) {
+        mTransformationInfoListener = listener;
+        mTransformationInfoExecutor = executor;
+        TransformationInfo transformationInfo = mTransformationInfo;
+        if (transformationInfo != null) {
+            executor.execute(() -> listener.onTransformationInfoUpdate(
+                    transformationInfo));
+        }
+    }
+
+    /**
+     * Clears the {@link TransformationInfoListener} set via {@link #setTransformationInfoListener}.
+     */
+    @ExperimentalUseCaseGroup
+    public void clearTransformationInfoListener() {
+        mTransformationInfoListener = null;
+        mTransformationInfoExecutor = null;
+    }
+
+    /**
      * An exception used to signal that the camera has cancelled a request for a {@link Surface}.
      *
      * <p>This may be set on the {@link ListenableFuture} returned by
@@ -409,6 +449,31 @@ public final class SurfaceRequest {
         RequestCancelledException(@NonNull String message, @NonNull Throwable cause) {
             super(message, cause);
         }
+    }
+
+    /**
+     * Listener that receives updates of the {@link TransformationInfo} associated with the
+     * {@link SurfaceRequest}.
+     */
+    @ExperimentalUseCaseGroup
+    public interface TransformationInfoListener {
+
+        /**
+         * Called when the {@link TransformationInfo} is updated.
+         *
+         * <p> This is called when the transformation info becomes available or is updated.
+         * The rotation degrees is updated after calling {@link Preview#setTargetRotation}, and the
+         * crop rect is updated after changing the {@link ViewPort} associated with the
+         * {@link Preview}.
+         *
+         * @param transformationInfo apply the transformation info to transform {@link Preview}
+         * @see TransformationInfo
+         * @see Preview#setTargetRotation(int)
+         * @see Preview.Builder#setTargetRotation(int)
+         * @see CameraCharacteristics#SENSOR_ORIENTATION
+         * @see ViewPort
+         */
+        void onTransformationInfoUpdate(@NonNull TransformationInfo transformationInfo);
     }
 
     /**
@@ -528,6 +593,102 @@ public final class SurfaceRequest {
 
         // Ensure Result can't be subclassed outside the package
         Result() {
+        }
+    }
+
+    /**
+     * Transformation associated the preview output.
+     *
+     * <p> The {@link TransformationInfo} can be used transform the {@link Surface} provided via
+     * {@link SurfaceRequest#provideSurface}. The info is based on the camera sensor rotation,
+     * preview target rotation and the {@link ViewPort} associated with the {@link Preview}. The
+     * application of the info depends on the source of the {@link Surface}. For detailed example,
+     * please check out the source code of PreviewView in androidx.camera.view artifact.
+     *
+     * <p> The info is also needed to transform coordinates across use cases. In a face detection
+     * example, one common scenario is running a face detection algorithm against a
+     * {@link ImageAnalysis} use case, and highlight the detected face in the preview. Below is
+     * a code sample to get the transformation {@link Matrix} based on the {@link ImageProxy} from
+     * {@link ImageAnalysis} and the {@link TransformationInfo} from {@link Preview}:
+     *
+     * <pre><code>
+     *     // Get rotation transformation.
+     *     val transformation = Matrix()
+     *     transformation.setRotate(info.getRotationDegrees())
+     *
+     *     // Get rotated crop rect and cropping transformation.
+     *     val rotatedRect = new RectF()
+     *     rotation.mapRect(rotatedRect, RectF(imageProxy.getCropRect()))
+     *     rotatedRect.sort()
+     *     val cropTransformation = Matrix()
+     *     cropTransformation.setRectToRect(
+     *          RectF(imageProxy.getCropRect()), rotatedRect, ScaleToFit.FILL)
+     *
+     *     // Concatenate the rotation and cropping transformations.
+     *     transformation.postConcat(cropTransformation)
+     * </code></pre>
+     *
+     * @see Preview#setTargetRotation(int)
+     * @see Preview.Builder#setTargetRotation(int)
+     * @see CameraCharacteristics#SENSOR_ORIENTATION
+     * @see ViewPort
+     */
+    @ExperimentalUseCaseGroup
+    @AutoValue
+    public abstract static class TransformationInfo {
+
+        /**
+         * Returns the crop rect rectangle.
+         *
+         * <p> The returned value dictates how the {@link Surface} provided in
+         * {@link SurfaceRequest#provideSurface} should be displayed. The crop
+         * rectangle specifies the region of valid pixels in the buffer, using coordinates from (0,
+         * 0) to the (width, height) of {@link SurfaceRequest#getResolution}. The caller should
+         * arrange the UI so that only the valid region is visible to app users.
+         *
+         * <p> If {@link Preview} is configured with a {@link ViewPort}, this value is calculated
+         * based on the configuration of {@link ViewPort}; if not, it returns the full rect of the
+         * buffer. For code sample on how to apply the crop rect, please see {@link ViewPort#FIT}.
+         *
+         * @see ViewPort
+         */
+        @NonNull
+        public abstract Rect getCropRect();
+
+        /**
+         * Returns the rotation needed to transform the output from sensor to the target
+         * rotation.
+         *
+         * <p> This is a clockwise rotation in degrees that needs to be applied to the sensor
+         * buffer. The rotation will be determined by {@link CameraCharacteristics},
+         * {@link Preview#setTargetRotation(int)} and
+         * {@link Preview.Builder#setTargetRotation(int)}. This value is useful for transforming
+         * coordinates across use cases.
+         *
+         * <p> This value is most useful for transforming coordinates across use cases, e.g. in
+         * preview, highlighting a pattern detected in image analysis. For correcting
+         * the preview itself, usually the source of the {@link Surface} handles the rotation
+         * without needing this value. For {@link SurfaceView}, it automatically corrects the
+         * preview to match the display rotation. For {@link TextureView}, the only additional
+         * rotation needed is the display rotation. For detailed example, please check out the
+         * source code of PreviewView in androidx.camera .view artifact.
+         *
+         * @return The rotation in degrees which will be a value in {0, 90, 180, 270}.
+         * @see Preview#setTargetRotation(int)
+         * @see Preview#getTargetRotation()
+         * @see ViewPort
+         */
+        @ImageOutputConfig.RotationDegreesValue
+        public abstract int getRotationDegrees();
+
+        @NonNull
+        static TransformationInfo of(@NonNull Rect cropRect,
+                @ImageOutputConfig.RotationDegreesValue int rotationDegrees) {
+            return new AutoValue_SurfaceRequest_TransformationInfo(cropRect, rotationDegrees);
+        }
+
+        // Hides public constructor.
+        TransformationInfo() {
         }
     }
 }

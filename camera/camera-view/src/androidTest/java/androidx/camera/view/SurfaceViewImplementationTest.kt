@@ -70,7 +70,7 @@ class SurfaceViewImplementationTest {
         mParent = FrameLayout(context)
         setContentView(mParent)
 
-        mSurfaceRequest = SurfaceRequest(ANY_SIZE, FakeCamera(), null)
+        mSurfaceRequest = SurfaceRequest(ANY_SIZE, FakeCamera())
         mImplementation = SurfaceViewImplementation()
         mImplementation.init(mParent, PreviewTransform())
     }

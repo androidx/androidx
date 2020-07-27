@@ -25,6 +25,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.AspectRatio;
+import androidx.camera.core.ExperimentalUseCaseGroup;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -318,5 +319,14 @@ public interface ImageOutputConfig extends ReadableConfig {
     @IntDef({Surface.ROTATION_0, Surface.ROTATION_90, Surface.ROTATION_180, Surface.ROTATION_270})
     @Retention(RetentionPolicy.SOURCE)
     @interface RotationValue {
+    }
+
+    /**
+     * Valid integer rotation degrees values.
+     */
+    @IntDef({0, 90, 180, 270})
+    @Retention(RetentionPolicy.SOURCE)
+    @ExperimentalUseCaseGroup
+    @interface RotationDegreesValue {
     }
 }

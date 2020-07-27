@@ -25,6 +25,7 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
@@ -51,7 +52,9 @@ import java.util.concurrent.ExecutionException
 @SmallTest
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, shadows = [ShadowCameraX::class])
+@Config(
+    minSdk = Build.VERSION_CODES.LOLLIPOP, shadows = [ShadowCameraX::class]
+)
 class PreviewTest {
 
     @Before
@@ -79,19 +82,35 @@ class PreviewTest {
     }
 
     @Test
-    fun viewPortCropSize() {
-        val expectedSurfaceRequest = bindToLifecycleAndGetSurfaceRequest(
+    fun viewPortSet_cropRectIsBasedOnViewPort() {
+        val transformationInfo = bindToLifecycleAndGetTransformationInfo(
             ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
         )
         // The expected value is based on fitting the 1:1 view port into a rect with the size of
         // FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.
         val expectedPadding = (FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.width -
                 FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height) / 2
-        assertThat(expectedSurfaceRequest.cropRect).isEqualTo(
+        assertThat(transformationInfo.cropRect).isEqualTo(
             Rect(
                 expectedPadding,
                 0,
                 FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.width - expectedPadding,
+                FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height
+            )
+        )
+    }
+
+    @Test
+    fun viewPortNotSet_cropRectIsFullSurface() {
+        val transformationInfo = bindToLifecycleAndGetTransformationInfo(
+            null
+        )
+
+        assertThat(transformationInfo.cropRect).isEqualTo(
+            Rect(
+                0,
+                0,
+                FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.width,
                 FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height
             )
         )
@@ -120,7 +139,7 @@ class PreviewTest {
     }
 
     @Test
-    fun setSurfaceProviderAfterAttachment_receivesSurfaceRequest() {
+    fun setSurfaceProviderAfterAttachment_receivesSurfaceProviderCallbacks() {
         // Arrange: attach Preview without a SurfaceProvider.
         val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
         val cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
@@ -129,32 +148,64 @@ class PreviewTest {
         )
         cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(preview))
 
-        // Unsent pending SurfaceRequest created by pipeline.
-        val pendingSurfaceRequest = preview.mPendingSurfaceRequest
+        // Get pending SurfaceRequest created by pipeline.
+        val pendingSurfaceRequest = preview.mCurrentSurfaceRequest
         var receivedSurfaceRequest: SurfaceRequest? = null
+        var receivedTransformationInfo: SurfaceRequest.TransformationInfo? = null
 
         // Act: set a SurfaceProvider after attachment.
-        preview.setSurfaceProvider { receivedSurfaceRequest = it }
+        preview.setSurfaceProvider { request ->
+            request.setTransformationInfoListener(
+                CameraXExecutors.directExecutor(),
+                SurfaceRequest.TransformationInfoListener {
+                    receivedTransformationInfo = it
+                })
+            receivedSurfaceRequest = request
+        }
         shadowOf(getMainLooper()).idle()
-        // Assert: received a SurfaceRequest.
+
+        // Assert: received SurfaceRequest is the pending SurfaceRequest.
         assertThat(receivedSurfaceRequest).isSameInstanceAs(pendingSurfaceRequest)
+        assertThat(receivedTransformationInfo).isNotNull()
 
         // Act: set a different SurfaceProvider.
-        preview.setSurfaceProvider { receivedSurfaceRequest = it }
+        preview.setSurfaceProvider { request ->
+            request.setTransformationInfoListener(
+                CameraXExecutors.directExecutor(),
+                SurfaceRequest.TransformationInfoListener {
+                    receivedTransformationInfo = it
+                })
+            receivedSurfaceRequest = request
+        }
         shadowOf(getMainLooper()).idle()
+
         // Assert: received a different SurfaceRequest.
         assertThat(receivedSurfaceRequest).isNotSameInstanceAs(pendingSurfaceRequest)
     }
 
     private fun bindToLifecycleAndGetSurfaceRequest(): SurfaceRequest {
-        return bindToLifecycleAndGetSurfaceRequest(null)
+        return bindToLifecycleAndGetResult(null).first
     }
 
-    private fun bindToLifecycleAndGetSurfaceRequest(viewPort: ViewPort?): SurfaceRequest {
+    private fun bindToLifecycleAndGetTransformationInfo(viewPort: ViewPort?):
+            SurfaceRequest.TransformationInfo {
+        return bindToLifecycleAndGetResult(viewPort).second
+    }
+
+    private fun bindToLifecycleAndGetResult(viewPort: ViewPort?): Pair<SurfaceRequest,
+            SurfaceRequest.TransformationInfo> {
         // Arrange.
         val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
         var surfaceRequest: SurfaceRequest? = null
-        preview.setSurfaceProvider { surfaceRequest = it }
+        var transformationInfo: SurfaceRequest.TransformationInfo? = null
+        preview.setSurfaceProvider { request ->
+            request.setTransformationInfoListener(
+                CameraXExecutors.directExecutor(),
+                SurfaceRequest.TransformationInfoListener {
+                    transformationInfo = it
+                })
+            surfaceRequest = request
+        }
 
         // Act.
         val cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
@@ -165,6 +216,6 @@ class PreviewTest {
         cameraUseCaseAdapter.setViewPort(viewPort)
         cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(preview))
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        return surfaceRequest!!
+        return Pair(surfaceRequest!!, transformationInfo!!)
     }
 }
