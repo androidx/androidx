@@ -37,7 +37,7 @@ import androidx.annotation.RestrictTo;
  *     try {
  *         int quotient = dividend / divisor;
  *     } catch (ArithmeticException exception) {
- *         Logger.eIfEnabled(TAG, "Divide operation error", exception);
+ *         Logger.e(TAG, "Divide operation error", exception);
  *     }
  * </pre>
  * <p> If an action has to be performed alongside logging, or if building the log message is costly,
