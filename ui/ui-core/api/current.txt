@@ -480,17 +480,14 @@ package androidx.compose.ui.focus {
     enum_constant @Deprecated public static final androidx.compose.ui.focus.FocusDetailedState Inactive;
   }
 
-  public interface FocusManager {
-    method public void blur(androidx.compose.ui.focus.FocusNode client);
-    method public void registerObserver(androidx.compose.ui.focus.FocusNode node, kotlin.jvm.functions.Function2<? super androidx.compose.ui.focus.FocusNode,? super androidx.compose.ui.focus.FocusNode,kotlin.Unit> observer);
-    method public void requestFocus(androidx.compose.ui.focus.FocusNode client);
+  @Deprecated public interface FocusManager {
   }
 
   public final class FocusManagerKt {
   }
 
-  public final class FocusNode {
-    ctor public FocusNode();
+  @Deprecated public final class FocusNode {
+    ctor @Deprecated public FocusNode();
   }
 
   public final class FocusNodeUtilsKt {
