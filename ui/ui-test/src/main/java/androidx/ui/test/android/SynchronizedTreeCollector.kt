@@ -102,7 +102,7 @@ internal object SynchronizedTreeCollector {
     }
 
     private fun runEspressoOnIdle() {
-        fun rethrowWithMoreInfo(e: Throwable, wasMasterTimeout: Boolean) {
+        fun rethrowWithMoreInfo(e: Throwable, wasGlobalTimeout: Boolean) {
             var diagnosticInfo = ""
             val listOfIdlingResources = mutableListOf<String>()
             IdlingRegistry.getInstance().resources.forEach { resource ->
@@ -115,7 +115,7 @@ internal object SynchronizedTreeCollector {
                 listOfIdlingResources.add(resource.name)
             }
             if (diagnosticInfo.isNotEmpty()) {
-                val prefix = if (wasMasterTimeout) {
+                val prefix = if (wasGlobalTimeout) {
                     "Global time out"
                 } else {
                     "Idling resource timed out"
@@ -132,14 +132,14 @@ internal object SynchronizedTreeCollector {
         try {
             Espresso.onIdle()
         } catch (e: Throwable) {
-            // Happens on the global time out, usually when master idling time out is less
+            // Happens on the global time out, usually when global idling time out is less
             // or equal to dynamic idling time out or when the timeout is not due to individual
             // idling resource. This does not necessary mean that it can't be due to idling
             // resource being busy. So we try to check if it failed due to compose being busy and
             // add some extra information to the developer.
             val appNotIdleMaybe = tryToFindCause<AppNotIdleException>(e)
             if (appNotIdleMaybe != null) {
-                rethrowWithMoreInfo(appNotIdleMaybe, wasMasterTimeout = true)
+                rethrowWithMoreInfo(appNotIdleMaybe, wasGlobalTimeout = true)
             }
 
             // Happens on idling resource taking too long. Espresso gives out which resources caused
@@ -147,7 +147,7 @@ internal object SynchronizedTreeCollector {
             // resource and give more info if we can.
             val resourceNotIdleMaybe = tryToFindCause<IdlingResourceTimeoutException>(e)
             if (resourceNotIdleMaybe != null) {
-                rethrowWithMoreInfo(resourceNotIdleMaybe, wasMasterTimeout = false)
+                rethrowWithMoreInfo(resourceNotIdleMaybe, wasGlobalTimeout = false)
             }
 
             // No match, rethrow
