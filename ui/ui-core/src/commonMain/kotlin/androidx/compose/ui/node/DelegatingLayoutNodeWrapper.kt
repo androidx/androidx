@@ -95,24 +95,21 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
         if (wrappedBy?.isShallowPlacing == true) return
 
         with(InnerPlacementScope) {
-            this.parentLayoutDirection = measureScope.layoutDirection
-            val previousParentWidth = parentWidth
-            parentWidth = measuredSize.width
-            measureResult.placeChildren(measureScope.layoutDirection)
-            parentWidth = previousParentWidth
+            val previousParentWidth = this.parentWidth
+            val previousLayoutDirection = this.parentLayoutDirection
+            updateValuesForRtlMirroring(measureScope.layoutDirection, measuredSize.width)
+            measureResult.placeChildren()
+            updateValuesForRtlMirroring(previousLayoutDirection, previousParentWidth)
         }
     }
 
-    override fun performMeasure(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
-    ): Placeable {
-        val placeable = wrapped.measure(constraints, layoutDirection)
+    override fun performMeasure(constraints: Constraints): Placeable {
+        val placeable = wrapped.measure(constraints)
         measureResult = object : MeasureScope.MeasureResult {
             override val width: Int = wrapped.measureResult.width
             override val height: Int = wrapped.measureResult.height
             override val alignmentLines: Map<AlignmentLine, Int> = emptyMap()
-            override fun placeChildren(layoutDirection: LayoutDirection) {
+            override fun placeChildren() {
                 with(InnerPlacementScope) {
                     placeable.placeAbsolute(-apparentToRealOffset)
                 }
@@ -167,17 +164,13 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
         return if (wrapper !== this) wrapper else null
     }
 
-    override fun minIntrinsicWidth(height: Int, layoutDirection: LayoutDirection) =
-        wrapped.minIntrinsicWidth(height, layoutDirection)
+    override fun minIntrinsicWidth(height: Int) = wrapped.minIntrinsicWidth(height)
 
-    override fun maxIntrinsicWidth(height: Int, layoutDirection: LayoutDirection) =
-        wrapped.maxIntrinsicWidth(height, layoutDirection)
+    override fun maxIntrinsicWidth(height: Int) = wrapped.maxIntrinsicWidth(height)
 
-    override fun minIntrinsicHeight(width: Int, layoutDirection: LayoutDirection) =
-        wrapped.minIntrinsicHeight(width, layoutDirection)
+    override fun minIntrinsicHeight(width: Int) = wrapped.minIntrinsicHeight(width)
 
-    override fun maxIntrinsicHeight(width: Int, layoutDirection: LayoutDirection) =
-        wrapped.maxIntrinsicHeight(width, layoutDirection)
+    override fun maxIntrinsicHeight(width: Int) = wrapped.maxIntrinsicHeight(width)
 
     override val parentData: Any? get() = wrapped.parentData
 
@@ -191,6 +184,13 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
 }
 
 internal object InnerPlacementScope : Placeable.PlacementScope() {
-    override var parentWidth = 0
     override var parentLayoutDirection = LayoutDirection.Ltr
+        private set
+    override var parentWidth = 0
+        private set
+
+    fun updateValuesForRtlMirroring(parentLayoutDirection: LayoutDirection, parentWidth: Int) {
+        this.parentLayoutDirection = parentLayoutDirection
+        this.parentWidth = parentWidth
+    }
 }

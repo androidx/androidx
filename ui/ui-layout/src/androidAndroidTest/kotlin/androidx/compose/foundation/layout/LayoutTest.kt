@@ -160,10 +160,10 @@ open class LayoutTest {
                 ) { measurables, _ ->
                     val measurable = measurables.first()
                     test(
-                        { h -> measurable.minIntrinsicWidth(h, layoutDirection) },
-                        { w -> measurable.minIntrinsicHeight(w, layoutDirection) },
-                        { h -> measurable.maxIntrinsicWidth(h, layoutDirection) },
-                        { w -> measurable.maxIntrinsicHeight(w, layoutDirection) }
+                        { h -> measurable.minIntrinsicWidth(h) },
+                        { w -> measurable.minIntrinsicHeight(w) },
+                        { h -> measurable.maxIntrinsicWidth(h) },
+                        { w -> measurable.maxIntrinsicHeight(w) }
                     )
                     layoutLatch.countDown()
                     layout(0, 0) {}

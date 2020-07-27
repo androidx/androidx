@@ -23,7 +23,6 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.WithConstraints
 import androidx.compose.ui.platform.testTag
 import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.ComposableDemo
@@ -50,6 +49,7 @@ import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -173,14 +173,12 @@ private fun DemoAppBar(
 private object AppBarIcons {
     @Composable
     fun Back(onClick: () -> Unit) {
-        WithConstraints {
-            val icon = when (layoutDirection) {
-                LayoutDirection.Ltr -> Icons.Filled.ArrowBack
-                LayoutDirection.Rtl -> Icons.Filled.ArrowForward
-            }
-            IconButton(onClick = onClick) {
-                Icon(icon)
-            }
+        val icon = when (LayoutDirectionAmbient.current) {
+            LayoutDirection.Ltr -> Icons.Filled.ArrowBack
+            LayoutDirection.Rtl -> Icons.Filled.ArrowForward
+        }
+        IconButton(onClick = onClick) {
+            Icon(icon)
         }
     }
 

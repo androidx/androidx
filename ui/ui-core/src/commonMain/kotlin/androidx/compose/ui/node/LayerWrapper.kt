@@ -27,7 +27,6 @@ import androidx.compose.ui.platform.NativeMatrix
 import androidx.compose.ui.platform.NativeRectF
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.LayoutDirection
 
 internal class LayerWrapper(
     wrapped: LayoutNodeWrapper,
@@ -67,11 +66,8 @@ internal class LayerWrapper(
     // TODO (njawad): This cache matrix is not thread safe
     private var inverseMatrixCache: NativeMatrix? = null
 
-    override fun performMeasure(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
-    ): Placeable {
-        val placeable = super.performMeasure(constraints, layoutDirection)
+    override fun performMeasure(constraints: Constraints): Placeable {
+        val placeable = super.performMeasure(constraints)
         layer.resize(measuredSize)
         return placeable
     }

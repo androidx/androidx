@@ -388,8 +388,7 @@ private data class FillModifier(
 ) : LayoutModifier, InspectableParameter {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
         val wrappedConstraints = Constraints(
             minWidth = if (constraints.hasBoundedWidth && direction != Direction.Vertical) {
@@ -443,8 +442,7 @@ private data class SizeModifier(
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
         val wrappedConstraints = targetConstraints.let { targetConstraints ->
             if (enforceIncoming) {
@@ -486,36 +484,32 @@ private data class SizeModifier(
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int,
-        layoutDirection: LayoutDirection
-    ) = measurable.minIntrinsicWidth(height, layoutDirection).let {
+        height: Int
+    ) = measurable.minIntrinsicWidth(height).let {
         val constraints = targetConstraints
         constraints.constrainWidth(it)
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int,
-        layoutDirection: LayoutDirection
-    ) = measurable.maxIntrinsicWidth(height, layoutDirection).let {
+        height: Int
+    ) = measurable.maxIntrinsicWidth(height).let {
         val constraints = targetConstraints
         constraints.constrainWidth(it)
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int,
-        layoutDirection: LayoutDirection
-    ) = measurable.minIntrinsicHeight(width, layoutDirection).let {
+        width: Int
+    ) = measurable.minIntrinsicHeight(width).let {
         val constraints = targetConstraints
         constraints.constrainHeight(it)
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int,
-        layoutDirection: LayoutDirection
-    ) = measurable.maxIntrinsicHeight(width, layoutDirection).let {
+        width: Int
+    ) = measurable.maxIntrinsicHeight(width).let {
         val constraints = targetConstraints
         constraints.constrainHeight(it)
     }
@@ -584,8 +578,7 @@ private data class AlignmentModifier(
 ) : LayoutModifier, InspectableParameter {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
         val wrappedConstraints = when (direction) {
             Direction.Both -> constraints.copy(minWidth = 0, minHeight = 0)
@@ -624,8 +617,7 @@ private data class UnspecifiedConstraintsModifier(
 ) : LayoutModifier, InspectableParameter {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
         val wrappedConstraints = Constraints(
             if (minWidth != Dp.Unspecified && constraints.minWidth == 0) {
@@ -649,32 +641,28 @@ private data class UnspecifiedConstraintsModifier(
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int,
-        layoutDirection: LayoutDirection
+        height: Int
     ) = measurable.minIntrinsicWidth(height).coerceAtLeast(
         if (minWidth != Dp.Unspecified) minWidth.toIntPx() else 0
     )
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int,
-        layoutDirection: LayoutDirection
+        height: Int
     ) = measurable.maxIntrinsicWidth(height).coerceAtLeast(
         if (minWidth != Dp.Unspecified) minWidth.toIntPx() else 0
     )
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int,
-        layoutDirection: LayoutDirection
+        width: Int
     ) = measurable.minIntrinsicHeight(width).coerceAtLeast(
         if (minHeight != Dp.Unspecified) minHeight.toIntPx() else 0
     )
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int,
-        layoutDirection: LayoutDirection
+        width: Int
     ) = measurable.maxIntrinsicHeight(width).coerceAtLeast(
         if (minHeight != Dp.Unspecified) minHeight.toIntPx() else 0
     )

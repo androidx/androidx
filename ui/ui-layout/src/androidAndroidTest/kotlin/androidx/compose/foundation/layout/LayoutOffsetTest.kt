@@ -25,7 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.onPositioned
 import androidx.compose.foundation.Box
+import androidx.compose.runtime.Providers
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LayoutDirectionAmbient
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdle
@@ -88,20 +91,21 @@ class LayoutOffsetTest : LayoutTest() {
         var positionX = 0
         var positionY = 0
         composeTestRule.setContent {
-            Stack(
-                Modifier.testTag("stack")
-                    .rtl
-                    .wrapContentSize(Alignment.TopEnd)
-                    .preferredWidth(containerWidth)
-                    .wrapContentSize(Alignment.TopStart)
-                    .offset(offsetX, offsetY)
-                    .onPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.positionInRoot.x.roundToInt()
-                        positionY = coordinates.positionInRoot.y.roundToInt()
-                    }
-            ) {
-                // TODO(popam): this box should not be needed after b/154758475 is fixed.
-                Box(Modifier.size(boxSize.toDp()))
+            Providers((LayoutDirectionAmbient provides LayoutDirection.Rtl)) {
+                Stack(
+                    Modifier.testTag("stack")
+                        .wrapContentSize(Alignment.TopEnd)
+                        .preferredWidth(containerWidth)
+                        .wrapContentSize(Alignment.TopStart)
+                        .offset(offsetX, offsetY)
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            positionX = coordinates.positionInRoot.x.roundToInt()
+                            positionY = coordinates.positionInRoot.y.roundToInt()
+                        }
+                ) {
+                    // TODO(popam): this box should not be needed after b/154758475 is fixed.
+                    Box(Modifier.size(boxSize.toDp()))
+                }
             }
         }
 
@@ -147,20 +151,21 @@ class LayoutOffsetTest : LayoutTest() {
         var positionX = 0f
         var positionY = 0f
         composeTestRule.setContent {
-            Stack(
-                Modifier.testTag("stack")
-                    .rtl
-                    .wrapContentSize(Alignment.TopEnd)
-                    .preferredWidth(containerWidth)
-                    .wrapContentSize(Alignment.TopStart)
-                    .offsetPx(state { offsetX }, state { offsetY })
-                    .onPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.positionInRoot.x
-                        positionY = coordinates.positionInRoot.y
-                    }
-            ) {
-                // TODO(popam): this box should not be needed after b/154758475 is fixed.
-                Box(Modifier.size(boxSize.toDp()))
+            Providers((LayoutDirectionAmbient provides LayoutDirection.Rtl)) {
+                Stack(
+                    Modifier.testTag("stack")
+                        .wrapContentSize(Alignment.TopEnd)
+                        .preferredWidth(containerWidth)
+                        .wrapContentSize(Alignment.TopStart)
+                        .offsetPx(state { offsetX }, state { offsetY })
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            positionX = coordinates.positionInRoot.x
+                            positionY = coordinates.positionInRoot.y
+                        }
+                ) {
+                    // TODO(popam): this box should not be needed after b/154758475 is fixed.
+                    Box(Modifier.size(boxSize.toDp()))
+                }
             }
         }
 

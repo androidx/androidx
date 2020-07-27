@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.layout
 
-import androidx.compose.ui.unit.LayoutDirection
-
 /**
  * A part of the composition that can be measured. This represents a layout.
  * The instance should never be stored.
@@ -32,33 +30,29 @@ interface IntrinsicMeasurable {
      * Calculates the minimum width that the layout can be such that
      * the content of the layout will be painted correctly.
      */
-    fun minIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int
+    fun minIntrinsicWidth(height: Int): Int
 
     /**
      * Calculates the smallest width beyond which increasing the width never
      * decreases the height.
      */
-    fun maxIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int
+    fun maxIntrinsicWidth(height: Int): Int
 
     /**
      * Calculates the minimum height that the layout can be such that
      * the content of the layout will be painted correctly.
      */
-    fun minIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int
+    fun minIntrinsicHeight(width: Int): Int
 
     /**
      * Calculates the smallest height beyond which increasing the height never
      * decreases the width.
      */
-    fun maxIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int
+    fun maxIntrinsicHeight(width: Int): Int
 }
 
 /**
  * A function for performing intrinsic measurement.
  */
-typealias IntrinsicMeasureBlock2 =
-        IntrinsicMeasureScope.(List<IntrinsicMeasurable>, Int) -> Int
-
-@Deprecated("Use IntrinsicMeasureBlock2 instead")
 typealias IntrinsicMeasureBlock =
-        IntrinsicMeasureScope.(List<IntrinsicMeasurable>, Int, LayoutDirection) -> Int
+        IntrinsicMeasureScope.(List<IntrinsicMeasurable>, Int) -> Int

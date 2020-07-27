@@ -578,11 +578,6 @@ package androidx.compose.foundation.layout {
     method @androidx.compose.runtime.Stable public static androidx.ui.core.Modifier aspectRatio(androidx.ui.core.Modifier, @FloatRange(from=0.0, to=3.4E38, fromInclusive=false) float ratio);
   }
 
-  public final class LayoutDirectionsKt {
-    method public static androidx.ui.core.Modifier getLtr(androidx.ui.core.Modifier);
-    method public static androidx.ui.core.Modifier getRtl(androidx.ui.core.Modifier);
-  }
-
   public final class LayoutOffsetKt {
     method @androidx.compose.runtime.Stable public static androidx.ui.core.Modifier offset-K6IzfrQ(androidx.ui.core.Modifier, float x = 0.dp, float y = 0.dp);
     method public static androidx.ui.core.Modifier offsetPx(androidx.ui.core.Modifier, androidx.compose.runtime.State<java.lang.Float> x = mutableStateOf(0.0), androidx.compose.runtime.State<java.lang.Float> y = mutableStateOf(0.0));

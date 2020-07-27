@@ -18,11 +18,12 @@ package androidx.compose.foundation.layout
 
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.foundation.text.CoreText
 import androidx.compose.foundation.text.CoreTextField
+import androidx.compose.runtime.Providers
+import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import com.google.common.truth.Truth.assertThat
@@ -37,20 +38,21 @@ import java.util.concurrent.TimeUnit
 class TextLayoutDirectionModifierTest : LayoutTest() {
 
     @Test
-    fun test_CoreTextField_RtlModifier_changesDirectionTo_Rtl() {
+    fun test_CoreTextField_RtlLayoutDirection_changesDirectionTo_Rtl() {
         val latch = CountDownLatch(1)
         var layoutDirection: LayoutDirection? = null
 
         show {
-            CoreTextField(
-                value = TextFieldValue("..."),
-                modifier = Modifier.rtl,
-                onValueChange = {},
-                onTextLayout = { result ->
-                    layoutDirection = result.layoutInput.layoutDirection
-                    latch.countDown()
-                }
-            )
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                CoreTextField(
+                    value = TextFieldValue("..."),
+                    onValueChange = {},
+                    onTextLayout = { result ->
+                        layoutDirection = result.layoutInput.layoutDirection
+                        latch.countDown()
+                    }
+                )
+            }
         }
 
         assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue()
@@ -59,21 +61,22 @@ class TextLayoutDirectionModifierTest : LayoutTest() {
     }
 
     @Test
-    fun test_CoreText_RtlModifier_changesDirectionTo_Rtl() {
+    fun test_CoreText_RtlLayoutDirection_changesDirectionTo_Rtl() {
         val latch = CountDownLatch(1)
         var layoutDirection: LayoutDirection? = null
         show {
-            CoreText(
-                text = AnnotatedString("..."),
-                modifier = Modifier.rtl,
-                style = TextStyle.Default,
-                softWrap = true,
-                overflow = TextOverflow.Clip,
-                maxLines = 1,
-                inlineContent = mapOf()
-            ) { result ->
-                layoutDirection = result.layoutInput.layoutDirection
-                latch.countDown()
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                CoreText(
+                    text = AnnotatedString("..."),
+                    style = TextStyle.Default,
+                    softWrap = true,
+                    overflow = TextOverflow.Clip,
+                    maxLines = 1,
+                    inlineContent = mapOf()
+                ) { result ->
+                    layoutDirection = result.layoutInput.layoutDirection
+                    latch.countDown()
+                }
             }
         }
 

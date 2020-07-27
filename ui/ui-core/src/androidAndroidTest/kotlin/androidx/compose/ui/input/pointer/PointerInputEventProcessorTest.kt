@@ -18,7 +18,6 @@ package androidx.compose.ui.input.pointer
 
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNodeWrapper
 import androidx.compose.ui.Measurable
@@ -2692,13 +2691,13 @@ private fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Mo
             override fun measure(
                 measureScope: MeasureScope,
                 measurables: List<Measurable>,
-                constraints: Constraints,
-                layoutDirection: LayoutDirection
+                constraints: Constraints
             ): MeasureScope.MeasureResult =
                 measureScope.layout(x2 - x, y2 - y) {}
         }
         attach(mockOwner())
-        remeasure(Constraints(), layoutDirection)
+        layoutState = LayoutNode.LayoutState.NeedsRemeasure
+        remeasure(Constraints())
         var wrapper: LayoutNodeWrapper? = outerLayoutNodeWrapper
         while (wrapper != null) {
             wrapper.measureResult = innerLayoutNodeWrapper.measureResult

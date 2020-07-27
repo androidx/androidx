@@ -26,14 +26,13 @@ import androidx.compose.runtime.setValue
 import androidx.test.filters.MediumTest
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.Measurable
 import androidx.compose.ui.MeasureScope
+import androidx.compose.ui.unit.dp
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.waitForIdle
-import androidx.compose.ui.unit.dp
 import junit.framework.TestCase.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -98,8 +97,7 @@ private class TestModifier : LayoutModifier {
     var height: Int = 0
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(constraints)
         width = placeable.width

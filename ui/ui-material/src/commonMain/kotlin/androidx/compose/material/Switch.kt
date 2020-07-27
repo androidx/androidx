@@ -25,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.WithConstraints
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Interaction
@@ -45,6 +44,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.material.internal.stateDraggable
 import androidx.compose.material.ripple.RippleIndication
+import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.unit.dp
 
 /**
@@ -71,40 +71,38 @@ fun Switch(
     val maxBound = with(DensityAmbient.current) { ThumbPathLength.toPx() }
     val thumbPosition = state { if (checked) maxBound else minBound }
     val interactionState = remember { InteractionState() }
-    WithConstraints {
-        val isRtl = layoutDirection == LayoutDirection.Rtl
-        Stack(
-            modifier
-                .toggleable(
-                    value = checked,
-                    onValueChange = onCheckedChange,
-                    enabled = enabled,
-                    interactionState = interactionState,
-                    indication = null
-                )
-                .stateDraggable(
-                    state = checked,
-                    onStateChange = onCheckedChange,
-                    anchorsToState = listOf(minBound to false, maxBound to true),
-                    animationSpec = AnimationSpec,
-                    orientation = Orientation.Horizontal,
-                    reverseDirection = isRtl,
-                    minValue = minBound,
-                    maxValue = maxBound,
-                    enabled = enabled,
-                    interactionState = interactionState,
-                    onNewValue = { thumbPosition.value = it }
-                )
-                .padding(DefaultSwitchPadding)
-        ) {
-            SwitchImpl(
-                checked = checked,
+    val isRtl = LayoutDirectionAmbient.current == LayoutDirection.Rtl
+    Stack(
+        modifier
+            .toggleable(
+                value = checked,
+                onValueChange = onCheckedChange,
                 enabled = enabled,
-                checkedColor = color,
-                thumbValue = thumbPosition,
-                interactionState = interactionState
+                interactionState = interactionState,
+                indication = null
             )
-        }
+            .stateDraggable(
+                state = checked,
+                onStateChange = onCheckedChange,
+                anchorsToState = listOf(minBound to false, maxBound to true),
+                animationSpec = AnimationSpec,
+                orientation = Orientation.Horizontal,
+                reverseDirection = isRtl,
+                minValue = minBound,
+                maxValue = maxBound,
+                enabled = enabled,
+                interactionState = interactionState,
+                onNewValue = { thumbPosition.value = it }
+            )
+            .padding(DefaultSwitchPadding)
+    ) {
+        SwitchImpl(
+            checked = checked,
+            enabled = enabled,
+            checkedColor = color,
+            thumbValue = thumbPosition,
+            interactionState = interactionState
+        )
     }
 }
 

@@ -17,6 +17,7 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Constraints
@@ -27,8 +28,10 @@ import androidx.compose.ui.node.Ref
 import androidx.compose.ui.unit.enforce
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -124,26 +127,28 @@ class LayoutAlignTest : LayoutTest() {
         val childSize = Array(3) { Ref<IntSize>() }
         val childPosition = Array(3) { Ref<Offset>() }
         show {
-            Stack(Modifier.rtl) {
-                Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.TopStart)) {
-                    Stack(
-                        Modifier.preferredSize(sizeDp)
-                            .saveLayoutInfo(childSize[0], childPosition[0], positionedLatch)
-                    ) {
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Stack(Modifier.fillMaxSize()) {
+                    Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.TopStart)) {
+                        Stack(
+                            Modifier.preferredSize(sizeDp)
+                                .saveLayoutInfo(childSize[0], childPosition[0], positionedLatch)
+                        ) {
+                        }
                     }
-                }
-                Stack(Modifier.fillMaxSize().wrapContentHeight(Alignment.CenterVertically)) {
-                    Stack(
-                        Modifier.preferredSize(sizeDp)
-                            .saveLayoutInfo(childSize[1], childPosition[1], positionedLatch)
-                    ) {
+                    Stack(Modifier.fillMaxSize().wrapContentHeight(Alignment.CenterVertically)) {
+                        Stack(
+                            Modifier.preferredSize(sizeDp)
+                                .saveLayoutInfo(childSize[1], childPosition[1], positionedLatch)
+                        ) {
+                        }
                     }
-                }
-                Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
-                    Stack(
-                        Modifier.preferredSize(sizeDp)
-                            .saveLayoutInfo(childSize[2], childPosition[2], positionedLatch)
-                    ) {
+                    Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
+                        Stack(
+                            Modifier.preferredSize(sizeDp)
+                                .saveLayoutInfo(childSize[2], childPosition[2], positionedLatch)
+                        ) {
+                        }
                     }
                 }
             }

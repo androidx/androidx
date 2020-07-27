@@ -57,6 +57,7 @@ import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidthIn
 import androidx.compose.material.ripple.RippleIndication
 import androidx.compose.ui.WithConstraints
+import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.semantics.AccessibilityRangeInfo
 import androidx.compose.ui.semantics.accessibilityValue
 import androidx.compose.ui.semantics.accessibilityValueRange
@@ -117,7 +118,7 @@ fun Slider(
     position.onValueChange = onValueChange
     position.scaledValue = value
     WithConstraints(modifier.sliderSemantics(value, position, onValueChange, valueRange, steps)) {
-        val isRtl = layoutDirection == LayoutDirection.Rtl
+        val isRtl = LayoutDirectionAmbient.current == LayoutDirection.Rtl
         val maxPx = constraints.maxWidth.toFloat()
         val minPx = 0f
         position.setBounds(minPx, maxPx)

@@ -31,9 +31,9 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
-import androidx.compose.foundation.layout.rtl
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Providers
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
@@ -41,8 +41,10 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Rule
@@ -126,17 +128,19 @@ class BoxTest {
         val bottom = 8.dp
         composeTestRule.setContent {
             SemanticsParent {
-                Box(
-                    Modifier.preferredSize(size).rtl,
-                    paddingStart = start,
-                    paddingEnd = end,
-                    paddingTop = top,
-                    paddingBottom = bottom
-                ) {
-                    Box(Modifier.fillMaxSize().onPositioned {
-                        childSize = it.size
-                        childPosition = it.positionInRoot
-                    })
+                Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                    Box(
+                        Modifier.preferredSize(size),
+                        paddingStart = start,
+                        paddingEnd = end,
+                        paddingTop = top,
+                        paddingBottom = bottom
+                    ) {
+                        Box(Modifier.fillMaxSize().onPositioned {
+                            childSize = it.size
+                            childPosition = it.positionInRoot
+                        })
+                    }
                 }
             }
         }
@@ -235,13 +239,15 @@ class BoxTest {
         var childPosition: Offset? = null
         composeTestRule.setContent {
             SemanticsParent {
-                Box(
-                    modifier = Modifier.preferredSize(size).rtl,
-                    gravity = AbsoluteAlignment.TopLeft
-                ) {
-                    Box(Modifier.size(childSize).onPositioned {
-                        childPosition = it.positionInRoot
-                    })
+                Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                    Box(
+                        modifier = Modifier.preferredSize(size),
+                        gravity = AbsoluteAlignment.TopLeft
+                    ) {
+                        Box(Modifier.size(childSize).onPositioned {
+                            childPosition = it.positionInRoot
+                        })
+                    }
                 }
             }
         }

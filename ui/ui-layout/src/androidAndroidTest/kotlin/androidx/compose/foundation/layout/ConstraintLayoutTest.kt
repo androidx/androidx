@@ -23,12 +23,15 @@ import androidx.compose.ui.node.Ref
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.onPositioned
 import androidx.compose.foundation.Box
+import androidx.compose.runtime.Providers
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.test.waitForIdle
 import androidx.compose.ui.unit.dp
 import org.junit.Assert
@@ -495,38 +498,40 @@ class ConstraintLayoutTest : LayoutTest() {
         val position = Array(3) { Ref<Offset>() }
 
         composeTestRule.setContent {
-            ConstraintLayout(Modifier.rtl.fillMaxSize()) {
-                val (box0, box1, box2) = createRefs()
-                Box(Modifier
-                    .constrainAs(box0) {
-                        centerTo(parent)
-                    }
-                    .preferredSize(boxSize.toDp(), boxSize.toDp())
-                    .onPositioned {
-                        position[0].value = it.positionInRoot
-                    }
-                )
-                val half = createGuidelineFromAbsoluteLeft(fraction = 0.5f)
-                Box(Modifier
-                    .constrainAs(box1) {
-                        start.linkTo(half, margin = offset.toDp())
-                        bottom.linkTo(box0.top)
-                    }
-                    .preferredSize(boxSize.toDp(), boxSize.toDp())
-                    .onPositioned {
-                        position[1].value = it.positionInRoot
-                    }
-                )
-                Box(Modifier
-                    .constrainAs(box2) {
-                        start.linkTo(parent.start, margin = offset.toDp())
-                        bottom.linkTo(parent.bottom, margin = offset.toDp())
-                    }
-                    .preferredSize(boxSize.toDp(), boxSize.toDp())
-                    .onPositioned {
-                        position[2].value = it.positionInRoot
-                    }
-                )
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                ConstraintLayout(Modifier.fillMaxSize()) {
+                    val (box0, box1, box2) = createRefs()
+                    Box(Modifier
+                        .constrainAs(box0) {
+                            centerTo(parent)
+                        }
+                        .preferredSize(boxSize.toDp(), boxSize.toDp())
+                        .onPositioned {
+                            position[0].value = it.positionInRoot
+                        }
+                    )
+                    val half = createGuidelineFromAbsoluteLeft(fraction = 0.5f)
+                    Box(Modifier
+                        .constrainAs(box1) {
+                            start.linkTo(half, margin = offset.toDp())
+                            bottom.linkTo(box0.top)
+                        }
+                        .preferredSize(boxSize.toDp(), boxSize.toDp())
+                        .onPositioned {
+                            position[1].value = it.positionInRoot
+                        }
+                    )
+                    Box(Modifier
+                        .constrainAs(box2) {
+                            start.linkTo(parent.start, margin = offset.toDp())
+                            bottom.linkTo(parent.bottom, margin = offset.toDp())
+                        }
+                        .preferredSize(boxSize.toDp(), boxSize.toDp())
+                        .onPositioned {
+                            position[2].value = it.positionInRoot
+                        }
+                    )
+                }
             }
         }
 
@@ -609,27 +614,29 @@ class ConstraintLayoutTest : LayoutTest() {
 
         val position = Array(8) { 0f }
         composeTestRule.setContent {
-            ConstraintLayout(Modifier.size(size).rtl) {
-                val guidelines = arrayOf(
-                    createGuidelineFromStart(offset),
-                    createGuidelineFromAbsoluteLeft(offset),
-                    createGuidelineFromEnd(offset),
-                    createGuidelineFromAbsoluteRight(offset),
-                    createGuidelineFromStart(0.25f),
-                    createGuidelineFromAbsoluteLeft(0.25f),
-                    createGuidelineFromEnd(0.25f),
-                    createGuidelineFromAbsoluteRight(0.25f)
-                )
-
-                guidelines.forEachIndexed { index, guideline ->
-                    val ref = createRef()
-                    Box(Modifier.size(1.dp)
-                        .constrainAs(ref) {
-                            absoluteLeft.linkTo(guideline)
-                        }.onPositioned {
-                            position[index] = it.positionInParent.x
-                        }
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                ConstraintLayout(Modifier.size(size)) {
+                    val guidelines = arrayOf(
+                        createGuidelineFromStart(offset),
+                        createGuidelineFromAbsoluteLeft(offset),
+                        createGuidelineFromEnd(offset),
+                        createGuidelineFromAbsoluteRight(offset),
+                        createGuidelineFromStart(0.25f),
+                        createGuidelineFromAbsoluteLeft(0.25f),
+                        createGuidelineFromEnd(0.25f),
+                        createGuidelineFromAbsoluteRight(0.25f)
                     )
+
+                    guidelines.forEachIndexed { index, guideline ->
+                        val ref = createRef()
+                        Box(Modifier.size(1.dp)
+                            .constrainAs(ref) {
+                                absoluteLeft.linkTo(guideline)
+                            }.onPositioned {
+                                position[index] = it.positionInParent.x
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -703,37 +710,39 @@ class ConstraintLayoutTest : LayoutTest() {
 
         val position = Array(4) { 0f }
         composeTestRule.setContent {
-            ConstraintLayout(Modifier.size(size).rtl) {
-                val (box1, box2) = createRefs()
-                val guideline1 = createGuidelineFromAbsoluteLeft(offset)
-                val guideline2 = createGuidelineFromAbsoluteRight(offset)
-                Box(Modifier.size(1.toDp())
-                    .constrainAs(box1) {
-                        absoluteLeft.linkTo(guideline1)
-                    }
-                )
-                Box(Modifier.size(1.toDp())
-                    .constrainAs(box2) {
-                        absoluteLeft.linkTo(guideline2)
-                    }
-                )
-
-                val barriers = arrayOf(
-                    createStartBarrier(box1, box2),
-                    createAbsoluteLeftBarrier(box1, box2),
-                    createEndBarrier(box1, box2),
-                    createAbsoluteRightBarrier(box1, box2)
-                )
-
-                barriers.forEachIndexed { index, barrier ->
-                    val ref = createRef()
-                    Box(Modifier.size(1.dp)
-                        .constrainAs(ref) {
-                            absoluteLeft.linkTo(barrier)
-                        }.onPositioned {
-                            position[index] = it.positionInParent.x
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                ConstraintLayout(Modifier.size(size)) {
+                    val (box1, box2) = createRefs()
+                    val guideline1 = createGuidelineFromAbsoluteLeft(offset)
+                    val guideline2 = createGuidelineFromAbsoluteRight(offset)
+                    Box(Modifier.size(1.toDp())
+                        .constrainAs(box1) {
+                            absoluteLeft.linkTo(guideline1)
                         }
                     )
+                    Box(Modifier.size(1.toDp())
+                        .constrainAs(box2) {
+                            absoluteLeft.linkTo(guideline2)
+                        }
+                    )
+
+                    val barriers = arrayOf(
+                        createStartBarrier(box1, box2),
+                        createAbsoluteLeftBarrier(box1, box2),
+                        createEndBarrier(box1, box2),
+                        createAbsoluteRightBarrier(box1, box2)
+                    )
+
+                    barriers.forEachIndexed { index, barrier ->
+                        val ref = createRef()
+                        Box(Modifier.size(1.dp)
+                            .constrainAs(ref) {
+                                absoluteLeft.linkTo(barrier)
+                            }.onPositioned {
+                                position[index] = it.positionInParent.x
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -821,43 +830,45 @@ class ConstraintLayoutTest : LayoutTest() {
 
         val position = Array(16) { 0f }
         composeTestRule.setContent {
-            ConstraintLayout(Modifier.size(size).rtl) {
-                val box = createRef()
-                val guideline = createGuidelineFromAbsoluteLeft(offset)
-                Box(Modifier.size(1.toDp())
-                    .constrainAs(box) {
-                        absoluteLeft.linkTo(guideline)
-                    }
-                )
-
-                val anchors = listOf<ConstrainScope.() -> Unit>(
-                    { start.linkTo(box.start) },
-                    { absoluteLeft.linkTo(box.start) },
-                    { start.linkTo(box.absoluteLeft) },
-                    { absoluteLeft.linkTo(box.absoluteLeft) },
-                    { end.linkTo(box.start) },
-                    { absoluteRight.linkTo(box.start) },
-                    { end.linkTo(box.absoluteLeft) },
-                    { absoluteRight.linkTo(box.absoluteLeft) },
-                    { start.linkTo(box.end) },
-                    { absoluteLeft.linkTo(box.end) },
-                    { start.linkTo(box.absoluteRight) },
-                    { absoluteLeft.linkTo(box.absoluteRight) },
-                    { end.linkTo(box.end) },
-                    { absoluteRight.linkTo(box.end) },
-                    { end.linkTo(box.absoluteRight) },
-                    { absoluteRight.linkTo(box.absoluteRight) }
-                )
-
-                anchors.forEachIndexed { index, anchor ->
-                    val ref = createRef()
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                ConstraintLayout(Modifier.size(size)) {
+                    val box = createRef()
+                    val guideline = createGuidelineFromAbsoluteLeft(offset)
                     Box(Modifier.size(1.toDp())
-                        .constrainAs(ref) {
-                            anchor()
-                        }.onPositioned {
-                            position[index] = it.positionInParent.x
+                        .constrainAs(box) {
+                            absoluteLeft.linkTo(guideline)
                         }
                     )
+
+                    val anchors = listOf<ConstrainScope.() -> Unit>(
+                        { start.linkTo(box.start) },
+                        { absoluteLeft.linkTo(box.start) },
+                        { start.linkTo(box.absoluteLeft) },
+                        { absoluteLeft.linkTo(box.absoluteLeft) },
+                        { end.linkTo(box.start) },
+                        { absoluteRight.linkTo(box.start) },
+                        { end.linkTo(box.absoluteLeft) },
+                        { absoluteRight.linkTo(box.absoluteLeft) },
+                        { start.linkTo(box.end) },
+                        { absoluteLeft.linkTo(box.end) },
+                        { start.linkTo(box.absoluteRight) },
+                        { absoluteLeft.linkTo(box.absoluteRight) },
+                        { end.linkTo(box.end) },
+                        { absoluteRight.linkTo(box.end) },
+                        { end.linkTo(box.absoluteRight) },
+                        { absoluteRight.linkTo(box.absoluteRight) }
+                    )
+
+                    anchors.forEachIndexed { index, anchor ->
+                        val ref = createRef()
+                        Box(Modifier.size(1.toDp())
+                            .constrainAs(ref) {
+                                anchor()
+                            }.onPositioned {
+                                position[index] = it.positionInParent.x
+                            }
+                        )
+                    }
                 }
             }
         }

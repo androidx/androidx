@@ -23,7 +23,6 @@ import androidx.compose.ui.node.LayoutNode.LayoutState
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 
 @OptIn(ExperimentalLayoutNodeApi::class)
 internal class OuterMeasurablePlaceable(
@@ -33,8 +32,6 @@ internal class OuterMeasurablePlaceable(
 
     private var measuredOnce = false
     val lastConstraints: Constraints? get() = if (measuredOnce) measurementConstraints else null
-    var lastLayoutDirection: LayoutDirection? = null
-        private set
     var lastPosition: IntOffset? = null
         private set
     private val lastProvidedAlignmentLines = mutableMapOf<AlignmentLine, Int>()
@@ -51,7 +48,7 @@ internal class OuterMeasurablePlaceable(
     /**
      * The function to be executed when the parent layout measures its children.
      */
-    override fun measure(constraints: Constraints, layoutDirection: LayoutDirection): Placeable {
+    override fun measure(constraints: Constraints): Placeable {
         // when we measure the root it is like the virtual parent is currently laying out
         val parentState = layoutNode.parent?.layoutState ?: LayoutState.LayingOut
         layoutNode.measuredByParent = when (parentState) {
@@ -62,14 +59,14 @@ internal class OuterMeasurablePlaceable(
                         "Parents state is $parentState"
             )
         }
-        remeasure(constraints, layoutDirection)
+        remeasure(constraints)
         return this
     }
 
     /**
      * Return true if the measured size has been changed
      */
-    fun remeasure(constraints: Constraints, layoutDirection: LayoutDirection): Boolean {
+    fun remeasure(constraints: Constraints): Boolean {
         val owner = layoutNode.requireOwner()
         val iteration = owner.measureIteration
         val parent = layoutNode.parent
@@ -82,17 +79,15 @@ internal class OuterMeasurablePlaceable(
         }
         measureIteration = owner.measureIteration
         if (layoutNode.layoutState == LayoutState.NeedsRemeasure ||
-            measurementConstraints != constraints ||
-            lastLayoutDirection != layoutDirection
+            measurementConstraints != constraints
         ) {
             measuredOnce = true
             layoutNode.layoutState = LayoutState.Measuring
             measurementConstraints = constraints
-            lastLayoutDirection = layoutDirection
             lastProvidedAlignmentLines.clear()
             lastProvidedAlignmentLines.putAll(layoutNode.providedAlignmentLines)
             owner.observeMeasureModelReads(layoutNode) {
-                outerWrapper.measure(constraints, layoutDirection)
+                outerWrapper.measure(constraints)
             }
             layoutNode.layoutState = LayoutState.NeedsRelayout
             if (layoutNode.providedAlignmentLines != lastProvidedAlignmentLines) {
@@ -127,15 +122,11 @@ internal class OuterMeasurablePlaceable(
         place(checkNotNull(lastPosition))
     }
 
-    override fun minIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int =
-        outerWrapper.minIntrinsicWidth(height, layoutDirection)
+    override fun minIntrinsicWidth(height: Int): Int = outerWrapper.minIntrinsicWidth(height)
 
-    override fun maxIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int =
-        outerWrapper.maxIntrinsicWidth(height, layoutDirection)
+    override fun maxIntrinsicWidth(height: Int): Int = outerWrapper.maxIntrinsicWidth(height)
 
-    override fun minIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
-        outerWrapper.minIntrinsicHeight(width, layoutDirection)
+    override fun minIntrinsicHeight(width: Int): Int = outerWrapper.minIntrinsicHeight(width)
 
-    override fun maxIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
-        outerWrapper.maxIntrinsicHeight(width, layoutDirection)
+    override fun maxIntrinsicHeight(width: Int): Int = outerWrapper.maxIntrinsicHeight(width)
 }

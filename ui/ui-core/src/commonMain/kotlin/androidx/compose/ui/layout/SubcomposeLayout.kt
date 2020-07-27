@@ -37,6 +37,7 @@ import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.LayoutEmitHelper
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNode.LayoutState
+import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.platform.subcomposeInto
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
@@ -86,6 +87,7 @@ fun <T> SubcomposeLayout(
             set(Unit, state.setRoot)
             set(materialized, LayoutEmitHelper.setModifier)
             set(measureBlock, state.setMeasureBlock)
+            set(LayoutDirectionAmbient.current, LayoutEmitHelper.setLayoutDirection)
         }
     )
 
@@ -205,8 +207,7 @@ private class SubcomposeLayoutState<T> : SubcomposeMeasureScope<T>(),
         override fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
-            constraints: Constraints,
-            layoutDirection: LayoutDirection
+            constraints: Constraints
         ): MeasureResult {
             this@SubcomposeLayoutState.layoutDirection = measureScope.layoutDirection
             this@SubcomposeLayoutState.density = measureScope.density
@@ -222,9 +223,9 @@ private class SubcomposeLayoutState<T> : SubcomposeMeasureScope<T>(),
                 override val alignmentLines: Map<AlignmentLine, Int>
                     get() = result.alignmentLines
 
-                override fun placeChildren(layoutDirection: LayoutDirection) {
+                override fun placeChildren() {
                     currentIndex = indexAfterMeasure
-                    result.placeChildren(layoutDirection)
+                    result.placeChildren()
                     disposeAfterIndex(currentIndex)
                 }
             }

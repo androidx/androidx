@@ -30,7 +30,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.rtl
+import androidx.compose.runtime.Providers
+import androidx.compose.ui.platform.LayoutDirectionAmbient
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.test.GestureScope
 import androidx.ui.test.assertIsEqualTo
 import androidx.ui.test.assertLeftPositionInRootIsEqualTo
@@ -51,8 +53,6 @@ import androidx.ui.test.swipeLeft
 import androidx.ui.test.swipeRight
 import androidx.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.height
-import androidx.compose.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
 import org.junit.Rule
@@ -365,14 +365,16 @@ class DrawerTest {
         val drawerState = mutableStateOf(DrawerState.Closed)
         composeTestRule.setMaterialContent {
             // emulate click on the screen
-            Box(Modifier.testTag("Drawer").rtl) {
-                ModalDrawerLayout(drawerState.value, { drawerState.value = it },
-                    drawerContent = {
-                        Box(Modifier.fillMaxSize().background(color = Color.Magenta))
-                    },
-                    bodyContent = {
-                        Box(Modifier.fillMaxSize().background(color = Color.Red))
-                    })
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Box(Modifier.testTag("Drawer")) {
+                    ModalDrawerLayout(drawerState.value, { drawerState.value = it },
+                        drawerContent = {
+                            Box(Modifier.fillMaxSize().background(color = Color.Magenta))
+                        },
+                        bodyContent = {
+                            Box(Modifier.fillMaxSize().background(color = Color.Red))
+                        })
+                }
             }
         }
 

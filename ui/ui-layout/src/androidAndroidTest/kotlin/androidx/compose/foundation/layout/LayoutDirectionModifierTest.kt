@@ -17,14 +17,14 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
 import androidx.compose.runtime.emptyContent
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.Layout
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.Ref
-import androidx.compose.ui.platform.ConfigurationAmbient
-import androidx.compose.ui.platform.localeLayoutDirection
+import androidx.compose.ui.platform.LayoutDirectionAmbient
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -44,13 +44,12 @@ class LayoutDirectionModifierTest : LayoutTest() {
         val resultLayoutDirection = Ref<LayoutDirection>()
 
         show {
-            Layout(
-                children = @Composable {},
-                modifier = Modifier.rtl
-            ) { _, _ ->
-                resultLayoutDirection.value = layoutDirection
-                latch.countDown()
-                layout(0, 0) {}
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Layout(children = @Composable {}) { _, _ ->
+                    resultLayoutDirection.value = layoutDirection
+                    latch.countDown()
+                    layout(0, 0) {}
+                }
             }
         }
 
@@ -65,19 +64,21 @@ class LayoutDirectionModifierTest : LayoutTest() {
 
         show {
             @OptIn(ExperimentalLayout::class)
-            Layout(
-                children = @Composable {},
-                modifier = Modifier.preferredWidth(IntrinsicSize.Max).rtl,
-                minIntrinsicWidthMeasureBlock = { _, _ -> 0 },
-                minIntrinsicHeightMeasureBlock = { _, _ -> 0 },
-                maxIntrinsicWidthMeasureBlock = { _, _ ->
-                    resultLayoutDirection = this.layoutDirection
-                    latch.countDown()
-                    0
-                },
-                maxIntrinsicHeightMeasureBlock = { _, _ -> 0 }
-            ) { _, _ ->
-                layout(0, 0) {}
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Layout(
+                    children = @Composable {},
+                    modifier = Modifier.preferredWidth(IntrinsicSize.Max),
+                    minIntrinsicWidthMeasureBlock = { _, _ -> 0 },
+                    minIntrinsicHeightMeasureBlock = { _, _ -> 0 },
+                    maxIntrinsicWidthMeasureBlock = { _, _ ->
+                        resultLayoutDirection = this.layoutDirection
+                        latch.countDown()
+                        0
+                    },
+                    maxIntrinsicHeightMeasureBlock = { _, _ -> 0 }
+                ) { _, _ ->
+                    layout(0, 0) {}
+                }
             }
         }
 
@@ -92,15 +93,16 @@ class LayoutDirectionModifierTest : LayoutTest() {
         val resultLayoutDirection = Ref<LayoutDirection>()
 
         show {
-            Stack(Modifier.rtl) {
-                val restoreModifier = when (ConfigurationAmbient.current.localeLayoutDirection) {
-                    LayoutDirection.Ltr -> Modifier.ltr
-                    LayoutDirection.Rtl -> Modifier.rtl
-                }
-                Layout(emptyContent(), restoreModifier) { _, _ ->
-                    resultLayoutDirection.value = layoutDirection
-                    latch.countDown()
-                    layout(0, 0) {}
+            val initialLayoutDirection = LayoutDirectionAmbient.current
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Stack {
+                    Providers(LayoutDirectionAmbient provides initialLayoutDirection) {
+                        Layout(emptyContent()) { _, _ ->
+                            resultLayoutDirection.value = layoutDirection
+                            latch.countDown()
+                            layout(0, 0) {}
+                        }
+                    }
                 }
             }
         }

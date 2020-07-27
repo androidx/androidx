@@ -49,7 +49,6 @@ import androidx.compose.ui.AlignmentLine
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.Measurable
@@ -744,8 +743,7 @@ class AndroidViewCompatTest {
     fun LayoutConstraints(childConstraints: Constraints) = object : LayoutModifier {
         override fun MeasureScope.measure(
             measurable: Measurable,
-            constraints: Constraints,
-            layoutDirection: LayoutDirection
+            constraints: Constraints
         ): MeasureScope.MeasureResult {
             val placeable = measurable.measure(childConstraints)
             return layout(placeable.width, placeable.height) {
@@ -772,14 +770,13 @@ class AndroidViewCompatTest {
         override fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
-            constraints: Constraints,
-            layoutDirection: LayoutDirection
+            constraints: Constraints
         ): MeasureScope.MeasureResult {
             return object : MeasureScope.MeasureResult {
                 override val width = 0
                 override val height = 0
                 override val alignmentLines: Map<AlignmentLine, Int> get() = mapOf()
-                override fun placeChildren(layoutDirection: LayoutDirection) {}
+                override fun placeChildren() {}
             }
         }
     }

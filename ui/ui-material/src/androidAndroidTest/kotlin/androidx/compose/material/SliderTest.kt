@@ -29,8 +29,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.layout.DpConstraints
-import androidx.compose.foundation.layout.ltr
-import androidx.compose.foundation.layout.rtl
+import androidx.compose.runtime.Providers
+import androidx.compose.ui.platform.LayoutDirectionAmbient
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.assertWidthIsEqualTo
@@ -125,7 +126,7 @@ class SliderTest {
         composeTestRule
             .setMaterialContent {
                 Slider(
-                    modifier = Modifier.testTag(tag).ltr,
+                    modifier = Modifier.testTag(tag),
                     value = state.value,
                     onValueChange = { state.value = it }
                 )
@@ -156,7 +157,7 @@ class SliderTest {
         composeTestRule
             .setMaterialContent {
                 Slider(
-                    modifier = Modifier.testTag(tag).ltr,
+                    modifier = Modifier.testTag(tag),
                     value = state.value,
                     onValueChange = { state.value = it }
                 )
@@ -185,11 +186,13 @@ class SliderTest {
 
         composeTestRule
             .setMaterialContent {
-                Slider(
-                    modifier = Modifier.testTag(tag).rtl,
-                    value = state.value,
-                    onValueChange = { state.value = it }
-                )
+                Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                    Slider(
+                        modifier = Modifier.testTag(tag),
+                        value = state.value,
+                        onValueChange = { state.value = it }
+                    )
+                }
             }
 
         runOnUiThread {
@@ -217,11 +220,13 @@ class SliderTest {
 
         composeTestRule
             .setMaterialContent {
-                Slider(
-                    modifier = Modifier.testTag(tag).rtl,
-                    value = state.value,
-                    onValueChange = { state.value = it }
-                )
+                Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                    Slider(
+                        modifier = Modifier.testTag(tag),
+                        value = state.value,
+                        onValueChange = { state.value = it }
+                    )
+                }
             }
 
         runOnUiThread {

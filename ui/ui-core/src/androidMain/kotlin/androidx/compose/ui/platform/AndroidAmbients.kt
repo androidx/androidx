@@ -130,6 +130,7 @@ internal fun ProvideCommonAmbients(
         TextToolbarAmbient provides owner.textToolbar,
         UiSavedStateRegistryAmbient provides owner.savedStateRegistry,
         UriHandlerAmbient provides uriHandler,
+        LayoutDirectionAmbient provides owner.layoutDirection,
         children = content
     )
 }
