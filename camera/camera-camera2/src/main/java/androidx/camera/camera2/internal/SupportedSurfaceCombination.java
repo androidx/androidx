@@ -37,7 +37,6 @@ import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraUnavailableException;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SurfaceCombination;
@@ -46,6 +45,7 @@ import androidx.camera.core.impl.SurfaceConfig.ConfigSize;
 import androidx.camera.core.impl.SurfaceConfig.ConfigType;
 import androidx.camera.core.impl.SurfaceSizeDefinition;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -441,8 +441,26 @@ final class SupportedSurfaceCombination {
     }
 
     private boolean isRotationNeeded(int targetRotation) {
-        int sensorRotationDegrees = CameraX.getCameraInfo(mCameraId).getSensorRotationDegrees(
-                targetRotation);
+        Integer sensorOrientation =
+                mCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+        Preconditions.checkNotNull(sensorOrientation, "Camera HAL in bad state, unable to "
+                + "retrieve the SENSOR_ORIENTATION");
+        int relativeRotationDegrees =
+                CameraOrientationUtil.surfaceRotationToDegrees(targetRotation);
+
+        // Currently this assumes that a back-facing camera is always opposite to the screen.
+        // This may not be the case for all devices, so in the future we may need to handle that
+        // scenario.
+        Integer lensFacing = mCharacteristics.get(CameraCharacteristics.LENS_FACING);
+        Preconditions.checkNotNull(lensFacing, "Camera HAL in bad state, unable to retrieve the "
+                + "LENS_FACING");
+
+        boolean isOppositeFacingScreen = CameraCharacteristics.LENS_FACING_BACK == lensFacing;
+
+        int sensorRotationDegrees = CameraOrientationUtil.getRelativeImageRotation(
+                relativeRotationDegrees,
+                sensorOrientation,
+                isOppositeFacingScreen);
         return sensorRotationDegrees == 90 || sensorRotationDegrees == 270;
     }
 
