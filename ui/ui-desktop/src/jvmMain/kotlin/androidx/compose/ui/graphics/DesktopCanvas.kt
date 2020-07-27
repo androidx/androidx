@@ -48,7 +48,9 @@ internal class DesktopInternalCanvasHolder : InternalCanvasHolder {
         }
 }
 
-class DesktopCanvas(override var nativeCanvas: NativeCanvas) : Canvas {
+val Canvas.nativeCanvas: NativeCanvas get() = (this as DesktopCanvas).nativeCanvas
+
+class DesktopCanvas(var nativeCanvas: NativeCanvas) : Canvas {
     private val skija get() = nativeCanvas.skijaCanvas
     private val Paint.skija get() = asFrameworkPaint().skijaPaint
 
@@ -121,7 +123,7 @@ class DesktopCanvas(override var nativeCanvas: NativeCanvas) : Canvas {
         skija.clipRect(SkijaRect.makeLTRB(left, top, right, bottom), clipOp.toSkija())
     }
 
-    fun clipRoundRect(rect: RRect, clipOp: ClipOp = ClipOp.intersect) {
+    fun clipRoundRect(rect: RRect, clipOp: ClipOp = ClipOp.Intersect) {
         skija.clipRRect(rect.toSkijaRRect(), clipOp.toSkija())
     }
 
@@ -242,13 +244,13 @@ class DesktopCanvas(override var nativeCanvas: NativeCanvas) : Canvas {
         when (pointMode) {
             // Draw a line between each pair of points, each point has at most one line
             // If the number of points is odd, then the last point is ignored.
-            PointMode.lines -> drawLines(points, paint, 2)
+            PointMode.Lines -> drawLines(points, paint, 2)
 
             // Connect each adjacent point with a line
-            PointMode.polygon -> drawLines(points, paint, 1)
+            PointMode.Polygon -> drawLines(points, paint, 1)
 
             // Draw a point at each provided coordinate
-            PointMode.points -> drawPoints(points, paint)
+            PointMode.Points -> drawPoints(points, paint)
         }
     }
 
@@ -302,9 +304,9 @@ class DesktopCanvas(override var nativeCanvas: NativeCanvas) : Canvas {
             throw IllegalArgumentException("points must have an even number of values")
         }
         when (pointMode) {
-            PointMode.lines -> drawRawLines(points, paint, 2)
-            PointMode.polygon -> drawRawLines(points, paint, 1)
-            PointMode.points -> drawRawPoints(points, paint, 2)
+            PointMode.Lines -> drawRawLines(points, paint, 2)
+            PointMode.Polygon -> drawRawLines(points, paint, 1)
+            PointMode.Points -> drawRawPoints(points, paint, 2)
         }
     }
 
@@ -357,7 +359,7 @@ class DesktopCanvas(override var nativeCanvas: NativeCanvas) : Canvas {
     }
 
     private fun ClipOp.toSkija() = when (this) {
-        ClipOp.difference -> SkijaClipMode.DIFFERENCE
-        ClipOp.intersect -> SkijaClipMode.INTERSECT
+        ClipOp.Difference -> SkijaClipMode.DIFFERENCE
+        ClipOp.Intersect -> SkijaClipMode.INTERSECT
     }
 }

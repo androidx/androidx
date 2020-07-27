@@ -164,12 +164,12 @@ fun Canvas.scale(sx: Float, sy: Float = sx, pivotX: Float, pivotY: Float) {
     translate(-pivotX, -pivotY)
 }
 
-interface Canvas {
+/**
+ * Return an instance of the native primitive that implements the Canvas interface
+ */
+expect val Canvas.nativeCanvas: NativeCanvas
 
-    /**
-     * Return an instance of the native primitive that implements the Canvas interface
-     */
-    val nativeCanvas: NativeCanvas
+interface Canvas {
 
     /**
      * Saves a copy of the current transform and clip on the save stack.
@@ -316,11 +316,11 @@ interface Canvas {
      * in incorrect blending at the clip boundary. See [saveLayer] for a
      * discussion of how to address that.
      *
-     * Use [ClipOp.difference] to subtract the provided rectangle from the
+     * Use [ClipOp.Difference] to subtract the provided rectangle from the
      * current clip.
      */
     @Suppress("DEPRECATION")
-    fun clipRect(rect: Rect, clipOp: ClipOp = ClipOp.intersect) =
+    fun clipRect(rect: Rect, clipOp: ClipOp = ClipOp.Intersect) =
         clipRect(rect.left, rect.top, rect.right, rect.bottom, clipOp)
 
     /**
@@ -333,7 +333,7 @@ interface Canvas {
      * in incorrect blending at the clip boundary. See [saveLayer] for a
      * discussion of how to address that.
      *
-     * Use [ClipOp.difference] to subtract the provided rectangle from the
+     * Use [ClipOp.Difference] to subtract the provided rectangle from the
      * current clip.
      *
      * @param left Left bound of the clip region
@@ -346,7 +346,7 @@ interface Canvas {
         top: Float,
         right: Float,
         bottom: Float,
-        clipOp: ClipOp = ClipOp.intersect
+        clipOp: ClipOp = ClipOp.Intersect
     )
 
     /**
@@ -358,7 +358,7 @@ interface Canvas {
      * in incorrect blending at the clip boundary. See [saveLayer] for a
      * discussion of how to address that.
      */
-    fun clipPath(path: Path, clipOp: ClipOp = ClipOp.intersect)
+    fun clipPath(path: Path, clipOp: ClipOp = ClipOp.Intersect)
 
     /**
      * Draws a line between the given points using the given paint. The line is
@@ -561,9 +561,9 @@ interface Canvas {
      */
     fun drawImageRect(
         image: ImageAsset,
-        srcOffset: IntOffset = IntOffset.Origin,
+        srcOffset: IntOffset = IntOffset.Zero,
         srcSize: IntSize = IntSize(image.width, image.height),
-        dstOffset: IntOffset = IntOffset.Origin,
+        dstOffset: IntOffset = IntOffset.Zero,
         dstSize: IntSize = srcSize,
         paint: Paint
     )

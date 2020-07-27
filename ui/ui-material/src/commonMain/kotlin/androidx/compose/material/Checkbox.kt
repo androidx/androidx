@@ -229,7 +229,7 @@ private fun DrawScope.drawCheck(
     strokeWidthPx: Float,
     drawingCache: CheckDrawingCache
 ) {
-    val stroke = Stroke(width = strokeWidthPx, cap = StrokeCap.square)
+    val stroke = Stroke(width = strokeWidthPx, cap = StrokeCap.Square)
     val width = size.width
     val checkCrossX = 0.4f
     val checkCrossY = 0.7f

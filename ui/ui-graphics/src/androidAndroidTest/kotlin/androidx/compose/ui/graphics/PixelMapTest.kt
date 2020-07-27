@@ -32,16 +32,16 @@ class PixelMapTest {
         val canvas = Canvas(imageAsset)
         val paint = Paint().apply { this.color = Color.Red }
 
-        canvas.drawRect(Rect.fromLTRB(0.0f, 0.0f, 50.0f, 50.0f), paint)
+        canvas.drawRect(Rect(0.0f, 0.0f, 50.0f, 50.0f), paint)
 
         paint.color = Color.Blue
-        canvas.drawRect(Rect.fromLTRB(50.0f, 0.0f, 100.0f, 50.0f), paint)
+        canvas.drawRect(Rect(50.0f, 0.0f, 100.0f, 50.0f), paint)
 
         paint.color = Color.Green
-        canvas.drawRect(Rect.fromLTRB(0.0f, 50.0f, 50.0f, 100.0f), paint)
+        canvas.drawRect(Rect(0.0f, 50.0f, 50.0f, 100.0f), paint)
 
         paint.color = Color.Yellow
-        canvas.drawRect(Rect.fromLTRB(50.0f, 50.0f, 100.0f, 100.0f), paint)
+        canvas.drawRect(Rect(50.0f, 50.0f, 100.0f, 100.0f), paint)
         return imageAsset
     }
 

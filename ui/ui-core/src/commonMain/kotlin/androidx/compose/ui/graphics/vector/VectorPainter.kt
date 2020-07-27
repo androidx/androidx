@@ -109,7 +109,7 @@ fun VectorPainter(asset: VectorAsset): VectorPainter {
 class VectorPainter internal constructor() : Painter() {
 
     internal var vector by mutableStateOf<VectorComponent?>(null)
-    internal var size by mutableStateOf(Size.zero)
+    internal var size by mutableStateOf(Size.Zero)
 
     private var currentAlpha: Float = 1.0f
     private var currentColorFilter: ColorFilter? = null

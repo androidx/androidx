@@ -109,7 +109,7 @@ class TextFieldSelectionManagerTest {
         whenever(state.layoutResult!!.getWordBoundary(dragOffset)).thenReturn(dragTextRange)
         whenever(state.layoutResult!!.getBidiRunDirection(any()))
             .thenReturn(ResolvedTextDirection.Ltr)
-        whenever(state.layoutResult!!.getBoundingBox(any())).thenReturn(Rect.zero)
+        whenever(state.layoutResult!!.getBoundingBox(any())).thenReturn(Rect.Zero)
     }
 
     @Test

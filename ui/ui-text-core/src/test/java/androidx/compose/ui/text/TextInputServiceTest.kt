@@ -16,7 +16,9 @@
 
 package androidx.compose.ui.text
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.KeyboardType
@@ -199,7 +201,7 @@ class TextInputServiceTest {
             {}, // onEditCommand
             {}) // onImeActionPerformed
 
-        val dummyRect = Rect.fromLTWH(0f, 0f, 100f, 100f)
+        val dummyRect = Rect(Offset.Zero, Size(100f, 100f))
         textInputService.notifyFocusedRect(firstToken, dummyRect)
         verify(platformService, times(1)).notifyFocusedRect(eq(dummyRect))
     }
@@ -225,7 +227,7 @@ class TextInputServiceTest {
             {}, // onEditCommand
             {}) // onImeActionPerformed
 
-        val dummyRect = Rect.fromLTWH(0f, 0f, 100f, 100f)
+        val dummyRect = Rect(Offset.Zero, Size(100f, 100f))
         textInputService.notifyFocusedRect(firstToken, dummyRect)
         verify(platformService, never()).notifyFocusedRect(any())
     }

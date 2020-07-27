@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.util.annotation.FloatRange
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.RRect
@@ -36,10 +37,12 @@ sealed class Outline {
     /**
      * Rectangular area.
      */
+    @Immutable
     data class Rectangle(val rect: Rect) : Outline()
     /**
      * Rectangular area with rounded corners.
      */
+    @Immutable
     data class Rounded(val rrect: RRect) : Outline() {
 
         /**

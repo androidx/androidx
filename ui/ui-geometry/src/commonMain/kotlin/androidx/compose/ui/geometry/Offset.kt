@@ -58,10 +58,9 @@ inline fun Offset(x: Float, y: Float) = Offset(packFloats(x, y))
  * Creates an offset. The first argument sets [x], the horizontal component,
  * and the second sets [y], the vertical component.
  */
-// TODO njawad make this an inline class again once the fix for b/155690960 has been picked
-//   up by the compose kotlin compiler
+// TODO b/162284207 njawad make this an inline class
 @Immutable
-/* inline */ data class Offset(@PublishedApi internal val packedValue: Long) {
+/* inline */ class Offset(@PublishedApi internal val packedValue: Long) {
 
     @Stable
     val x: Float
@@ -71,11 +70,30 @@ inline fun Offset(x: Float, y: Float) = Offset(packFloats(x, y))
     val y: Float
         get() = unpackFloat2(packedValue)
 
+    @Stable
+    operator fun component1(): Float = x
+
+    @Stable
+    operator fun component2(): Float = y
+
     /**
      * Returns a copy of this Offset instance optionally overriding the
      * x or y parameter
      */
     fun copy(x: Float = this.x, y: Float = this.y) = Offset(x, y)
+
+    @Stable
+    override fun equals(other: Any?): Boolean {
+        if (other !is Offset) {
+            return false
+        }
+        return other.packedValue == packedValue
+    }
+
+    @Stable
+    override fun hashCode(): Int {
+        return packedValue.hashCode()
+    }
 
     companion object {
         /**

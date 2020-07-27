@@ -422,7 +422,7 @@ internal class AndroidComposeView constructor(
         }
     }
 
-    private var globalPosition: IntOffset = IntOffset.Origin
+    private var globalPosition: IntOffset = IntOffset.Zero
 
     private val tmpPositionArray = intArrayOf(0, 0)
 

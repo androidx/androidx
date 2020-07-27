@@ -207,7 +207,7 @@ private data class BottomAppBarCutoutShape(
 
     override fun createOutline(size: Size, density: Density): Outline {
         val boundingRectangle = Path().apply {
-            addRect(Rect.fromLTRB(0f, 0f, size.width, size.height))
+            addRect(Rect(0f, 0f, size.width, size.height))
         }
         val path = Path().apply {
             addCutoutShape(density)

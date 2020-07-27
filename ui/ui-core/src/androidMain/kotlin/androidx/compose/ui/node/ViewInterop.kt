@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.drawBehind
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.graphics.drawscope.drawCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.AndroidOwner

@@ -372,7 +372,7 @@ internal class TextFieldSelectionManager() {
             return Rect(left, top, right, bottom)
         }
 
-        return Rect.zero
+        return Rect.Zero
     }
 
     private fun updateSelection(

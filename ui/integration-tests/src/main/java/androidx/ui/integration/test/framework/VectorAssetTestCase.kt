@@ -111,8 +111,8 @@ class ProgrammaticVectorTestCase : VectorAssetTestCase() {
             stroke = null,
             strokeAlpha = 1f,
             strokeLineWidth = 1f,
-            strokeLineCap = StrokeCap.butt,
-            strokeLineJoin = StrokeJoin.bevel,
+            strokeLineCap = StrokeCap.Butt,
+            strokeLineJoin = StrokeJoin.Bevel,
             strokeLineMiter = 1f
         )
     }.build()

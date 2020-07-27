@@ -93,7 +93,7 @@ class DesktopPathTest : DesktopGraphicsTest() {
     @Test
     fun fillTypeEvenOdd() {
         val path = Path().apply {
-            fillType = PathFillType.evenOdd
+            fillType = PathFillType.EvenOdd
             addRect(Rect(0f, 0f, 8f, 8f))
             addRect(Rect(4f, 4f, 12f, 12f))
         }

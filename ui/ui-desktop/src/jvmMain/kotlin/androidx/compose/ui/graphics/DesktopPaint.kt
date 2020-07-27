@@ -60,7 +60,7 @@ class DesktopPaint : Paint {
             field = value
         }
 
-    override var style: PaintingStyle = PaintingStyle.fill
+    override var style: PaintingStyle = PaintingStyle.Fill
         set(value) {
             skija.mode = value.toSkija()
             field = value
@@ -72,13 +72,13 @@ class DesktopPaint : Paint {
             skija.strokeWidth = value
         }
 
-    override var strokeCap: StrokeCap = StrokeCap.butt
+    override var strokeCap: StrokeCap = StrokeCap.Butt
         set(value) {
             skija.strokeCap = value.toSkija()
             field = value
         }
 
-    override var strokeJoin: StrokeJoin = StrokeJoin.round
+    override var strokeJoin: StrokeJoin = StrokeJoin.Round
         set(value) {
             skija.strokeJoin = value.toSkija()
             field = value
@@ -90,7 +90,7 @@ class DesktopPaint : Paint {
             field = value
         }
 
-    override var filterQuality: FilterQuality = FilterQuality.none
+    override var filterQuality: FilterQuality = FilterQuality.None
         set(value) {
             skija.filterQuality = value.toSkija()
             field = value
@@ -154,26 +154,26 @@ class DesktopPaint : Paint {
     }
 
     private fun PaintingStyle.toSkija() = when (this) {
-        PaintingStyle.fill -> SkijaPaintMode.FILL
-        PaintingStyle.stroke -> SkijaPaintMode.STROKE
+        PaintingStyle.Fill -> SkijaPaintMode.FILL
+        PaintingStyle.Stroke -> SkijaPaintMode.STROKE
     }
 
     private fun StrokeCap.toSkija() = when (this) {
-        StrokeCap.butt -> SkijaPaintStrokeCap.BUTT
-        StrokeCap.round -> SkijaPaintStrokeCap.ROUND
-        StrokeCap.square -> SkijaPaintStrokeCap.SQUARE
+        StrokeCap.Butt -> SkijaPaintStrokeCap.BUTT
+        StrokeCap.Round -> SkijaPaintStrokeCap.ROUND
+        StrokeCap.Square -> SkijaPaintStrokeCap.SQUARE
     }
 
     private fun StrokeJoin.toSkija() = when (this) {
-        StrokeJoin.miter -> SkijaPaintStrokeJoin.MITER
-        StrokeJoin.round -> SkijaPaintStrokeJoin.ROUND
-        StrokeJoin.bevel -> SkijaPaintStrokeJoin.BEVEL
+        StrokeJoin.Miter -> SkijaPaintStrokeJoin.MITER
+        StrokeJoin.Round -> SkijaPaintStrokeJoin.ROUND
+        StrokeJoin.Bevel -> SkijaPaintStrokeJoin.BEVEL
     }
 
     private fun FilterQuality.toSkija() = when (this) {
-        FilterQuality.none -> SkijaFilterQuality.NONE
-        FilterQuality.low -> SkijaFilterQuality.LOW
-        FilterQuality.medium -> SkijaFilterQuality.MEDIUM
-        FilterQuality.high -> SkijaFilterQuality.HIGH
+        FilterQuality.None -> SkijaFilterQuality.NONE
+        FilterQuality.Low -> SkijaFilterQuality.LOW
+        FilterQuality.Medium -> SkijaFilterQuality.MEDIUM
+        FilterQuality.High -> SkijaFilterQuality.HIGH
     }
 }

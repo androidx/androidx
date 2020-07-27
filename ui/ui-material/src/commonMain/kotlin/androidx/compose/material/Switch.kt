@@ -144,7 +144,7 @@ private fun DrawScope.drawTrack(trackColor: Color, trackWidth: Float, strokeWidt
         Offset(strokeRadius, center.y),
         Offset(trackWidth - strokeRadius, center.y),
         strokeWidth,
-        StrokeCap.round
+        StrokeCap.Round
     )
 }
 

@@ -391,7 +391,7 @@ fun RRect.withRadius(radius: Radius): RRect = RRect(
 fun RRect.shrink(delta: Float): RRect = grow(-delta)
 
 /** The bounding box of this rounded rectangle (the rectangle with no rounded corners). */
-fun RRect.outerRect(): Rect = Rect.fromLTRB(left, top, right, bottom)
+fun RRect.outerRect(): Rect = Rect(left, top, right, bottom)
 
 /**
  * The non-rounded rectangle that is constrained by the smaller of the two
@@ -407,7 +407,7 @@ fun RRect.safeInnerRect(): Rect {
     val rightRadius = max(topRightRadiusX, bottomRightRadiusX)
     val bottomRadius = max(bottomRightRadiusY, bottomLeftRadiusY)
 
-    return Rect.fromLTRB(
+    return Rect(
         left + leftRadius * insetFactor,
         top + topRadius * insetFactor,
         right - rightRadius * insetFactor,
@@ -428,7 +428,7 @@ fun RRect.middleRect(): Rect {
     val topRadius = max(topLeftRadiusY, topRightRadiusY)
     val rightRadius = max(topRightRadiusX, bottomRightRadiusX)
     val bottomRadius = max(bottomRightRadiusY, bottomLeftRadiusY)
-    return Rect.fromLTRB(
+    return Rect(
         left + leftRadius,
         top + topRadius,
         right - rightRadius,
@@ -445,7 +445,7 @@ fun RRect.middleRect(): Rect {
 fun RRect.wideMiddleRect(): Rect {
     val topRadius = max(topLeftRadiusY, topRightRadiusY)
     val bottomRadius = max(bottomRightRadiusY, bottomLeftRadiusY)
-    return Rect.fromLTRB(
+    return Rect(
         left,
         top + topRadius,
         right,
@@ -462,7 +462,7 @@ fun RRect.wideMiddleRect(): Rect {
 fun RRect.tallMiddleRect(): Rect {
     val leftRadius = max(bottomLeftRadiusX, topLeftRadiusX)
     val rightRadius = max(topRightRadiusX, bottomRightRadiusX)
-    return Rect.fromLTRB(
+    return Rect(
         left + leftRadius,
         top,
         right - rightRadius,

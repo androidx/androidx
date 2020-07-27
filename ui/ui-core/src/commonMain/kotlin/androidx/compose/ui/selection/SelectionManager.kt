@@ -286,11 +286,11 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * handle's horizontal coordinates, and the right is the rightmost handle's coordinates.
      */
     private fun getContentRect(): Rect {
-        val selection = selection ?: return Rect.zero
+        val selection = selection ?: return Rect.Zero
         val startLayoutCoordinates =
-            selection.start.selectable.getLayoutCoordinates() ?: return Rect.zero
+            selection.start.selectable.getLayoutCoordinates() ?: return Rect.Zero
         val endLayoutCoordinates =
-            selection.end.selectable.getLayoutCoordinates() ?: return Rect.zero
+            selection.end.selectable.getLayoutCoordinates() ?: return Rect.Zero
 
         val localLayoutCoordinates = containerLayoutCoordinates
         if (localLayoutCoordinates != null && localLayoutCoordinates.isAttached) {
@@ -344,7 +344,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 bottom
             )
         }
-        return Rect.zero
+        return Rect.Zero
     }
 
     // This is for PressGestureDetector to cancel the selection.

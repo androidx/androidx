@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics.painter
 
+import androidx.compose.ui.geometry.Offset
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -51,9 +52,9 @@ class ImagePainterTest {
             this.color = Color.Blue
         }
 
-        canvas.drawRect(Rect.fromLTWH(0.0f, 0.0f, 100.0f, 100.0f), paint)
+        canvas.drawRect(Rect(Offset.Zero, Size(100.0f, 100.0f)), paint)
         paint.color = Color.Red
-        canvas.drawRect(Rect.fromLTWH(25.0f, 25.0f, 50.0f, 50.0f), paint)
+        canvas.drawRect(Rect(Offset(25.0f, 25.0f), Size(50.0f, 50.0f)), paint)
         return src
     }
 
@@ -64,7 +65,7 @@ class ImagePainterTest {
             this.color = Color.White
         }
         dstCanvas.drawRect(
-            Rect.fromLTWH(0.0f, 0.0f, 200.0f, 200.0f),
+            Rect(Offset.Zero, Size(200.0f, 200.0f)),
             dstPaint
         )
         return dst
@@ -135,7 +136,7 @@ class ImagePainterTest {
         val canvas = Canvas(dst)
 
         val topLeftPainter = ImagePainter(srcImage,
-            srcOffset = IntOffset.Origin,
+            srcOffset = IntOffset.Zero,
             srcSize = IntSize(50, 50)
         )
 

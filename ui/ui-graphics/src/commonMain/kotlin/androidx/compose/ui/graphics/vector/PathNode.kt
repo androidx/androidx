@@ -16,29 +16,46 @@
 
 package androidx.compose.ui.graphics.vector
 
+import androidx.compose.runtime.Immutable
+
 /**
  * Class representing a singular path command in a vector.
  *
  * @property isCurve whether this command is a curve command
  * @property isQuad whether this command is a quad command
  */
+@Immutable
 sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false) {
     // RelativeClose and Close are considered the same internally, so we represent both with Close
     // for simplicity and to make equals comparisons robust.
+    @Immutable
     object Close : PathNode()
 
+    @Immutable
     data class RelativeMoveTo(val dx: Float, val dy: Float) : PathNode()
+
+    @Immutable
     data class MoveTo(val x: Float, val y: Float) : PathNode()
 
+    @Immutable
     data class RelativeLineTo(val dx: Float, val dy: Float) : PathNode()
+
+    @Immutable
     data class LineTo(val x: Float, val y: Float) : PathNode()
 
+    @Immutable
     data class RelativeHorizontalTo(val dx: Float) : PathNode()
+
+    @Immutable
     data class HorizontalTo(val x: Float) : PathNode()
 
+    @Immutable
     data class RelativeVerticalTo(val dy: Float) : PathNode()
+
+    @Immutable
     data class VerticalTo(val y: Float) : PathNode()
 
+    @Immutable
     data class RelativeCurveTo(
         val dx1: Float,
         val dy1: Float,
@@ -48,6 +65,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
         val dy3: Float
     ) : PathNode(isCurve = true)
 
+    @Immutable
     data class CurveTo(
         val x1: Float,
         val y1: Float,
@@ -57,6 +75,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
         val y3: Float
     ) : PathNode(isCurve = true)
 
+    @Immutable
     data class RelativeReflectiveCurveTo(
         val dx1: Float,
         val dy1: Float,
@@ -64,6 +83,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
         val dy2: Float
     ) : PathNode(isCurve = true)
 
+    @Immutable
     data class ReflectiveCurveTo(
         val x1: Float,
         val y1: Float,
@@ -71,6 +91,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
         val y2: Float
     ) : PathNode(isCurve = true)
 
+    @Immutable
     data class RelativeQuadTo(
         val dx1: Float,
         val dy1: Float,
@@ -78,6 +99,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
         val dy2: Float
     ) : PathNode(isQuad = true)
 
+    @Immutable
     data class QuadTo(
         val x1: Float,
         val y1: Float,
@@ -85,16 +107,19 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
         val y2: Float
     ) : PathNode(isQuad = true)
 
+    @Immutable
     data class RelativeReflectiveQuadTo(
         val dx: Float,
         val dy: Float
     ) : PathNode(isQuad = true)
 
+    @Immutable
     data class ReflectiveQuadTo(
         val x: Float,
         val y: Float
     ) : PathNode(isQuad = true)
 
+    @Immutable
     data class RelativeArcTo(
         val horizontalEllipseRadius: Float,
         val verticalEllipseRadius: Float,
@@ -105,6 +130,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
         val arcStartDy: Float
     ) : PathNode()
 
+    @Immutable
     data class ArcTo(
         val horizontalEllipseRadius: Float,
         val verticalEllipseRadius: Float,

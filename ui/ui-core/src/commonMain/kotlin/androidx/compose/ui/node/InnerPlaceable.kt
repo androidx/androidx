@@ -174,7 +174,7 @@ internal class InnerPlaceable(
         val innerBoundsPaint = Paint().also { paint ->
             paint.color = Color.Red
             paint.strokeWidth = 1f
-            paint.style = PaintingStyle.stroke
+            paint.style = PaintingStyle.Stroke
         }
 
         private fun callHitTest(

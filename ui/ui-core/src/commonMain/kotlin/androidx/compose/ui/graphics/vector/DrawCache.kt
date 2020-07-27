@@ -39,10 +39,10 @@ import androidx.compose.ui.unit.toSize
  */
 internal class DrawCache {
 
-    @PublishedApi internal lateinit var cachedImage: ImageAsset
-    private lateinit var cachedCanvas: Canvas
-    private lateinit var scopeDensity: Density
-    private lateinit var layoutDirection: LayoutDirection
+    @PublishedApi internal var cachedImage: ImageAsset? = null
+    private var cachedCanvas: Canvas? = null
+    private var scopeDensity: Density? = null
+    private var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     private val cacheScope = CacheDrawScope()
 
@@ -59,19 +59,24 @@ internal class DrawCache {
     ) {
         this.scopeDensity = density
         this.layoutDirection = layoutDirection
-        val isInitialized = ::cachedImage.isInitialized
-        if (!isInitialized ||
-            size.width > cachedImage.width ||
-            size.height > cachedImage.height
+        var targetImage = cachedImage
+        var targetCanvas = cachedCanvas
+        if (targetImage == null ||
+            targetCanvas == null ||
+            size.width > targetImage.width ||
+            size.height > targetImage.height
         ) {
-            cachedImage = ImageAsset(size.width, size.height)
-            cachedCanvas = Canvas(cachedImage)
+            targetImage = ImageAsset(size.width, size.height)
+            targetCanvas = Canvas(targetImage)
+
+            cachedImage = targetImage
+            cachedCanvas = targetCanvas
         }
-        cacheScope.drawInto(cachedCanvas, size.toSize()) {
+        cacheScope.drawInto(targetCanvas, size.toSize()) {
             cacheScope.clear()
             block()
         }
-        cachedImage.prepareToDraw()
+        targetImage.prepareToDraw()
     }
 
     /**
@@ -82,11 +87,12 @@ internal class DrawCache {
         alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null
     ) {
-        check(::cachedImage.isInitialized) {
+        val targetImage = cachedImage
+        check(targetImage != null) {
             "drawCachedImage must be invoked first before attempting to draw the result " +
                     "into another destination"
         }
-        target.drawImage(cachedImage, Offset.Zero, alpha = alpha, colorFilter = colorFilter)
+        target.drawImage(targetImage, Offset.Zero, alpha = alpha, colorFilter = colorFilter)
     }
 
     /**
@@ -104,10 +110,10 @@ internal class DrawCache {
             get() = this@DrawCache.layoutDirection
 
         override val density: Float
-            get() = this@DrawCache.scopeDensity.density
+            get() = this@DrawCache.scopeDensity!!.density
 
         override val fontScale: Float
-            get() = this@DrawCache.scopeDensity.fontScale
+            get() = this@DrawCache.scopeDensity!!.fontScale
 
         /**
          * Helper method to clear contents of the draw environment from the given bounds of the

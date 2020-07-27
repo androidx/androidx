@@ -20,27 +20,30 @@ package androidx.compose.ui.graphics
 //
 // See [Paint.filterQuality].
 enum class FilterQuality {
-    // This list comes from Skia's SkFilterQuality.h and the values (order) should
-    // be kept in sync.
 
-    // Fastest possible filtering, albeit also the lowest quality.
-    //
-    // Typically this implies nearest-neighbour filtering.
-    none,
+    /**
+     * Fastest possible filtering, albeit also the lowest quality
+     * Typically this implies nearest-neighbour filtering.
+     */
+    None,
 
-    // Better quality than [none], faster than [medium].
-    //
-    // Typically this implies bilinear interpolation.
-    low,
+    /**
+     * Better quality than [None], faster than [Medium].
+     * Typically this implies bilinear interpolation.
+     */
+    Low,
 
-    // Better quality than [low], faster than [high].
-    //
-    // Typically this implies a combination of bilinear interpolation and
-    // pyramidal parametric prefiltering (mipmaps).
-    medium,
+    /**
+     * Better quality than [Low], faster than [High].
+     *
+     * Typically this implies a combination of bilinear interpolation and
+     * pyramidal parametric prefiltering (mipmaps).
+     */
+    Medium,
 
-    // Best possible quality filtering, albeit also the slowest.
-    //
-    // Typically this implies bicubic interpolation or better.
-    high,
+    /**
+     * Best possible quality filtering, albeit also the slowest.
+     * Typically this implies bicubic interpolation or better.
+     */
+    High,
 }

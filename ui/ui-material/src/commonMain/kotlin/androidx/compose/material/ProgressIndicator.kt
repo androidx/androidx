@@ -160,7 +160,7 @@ fun CircularProgressIndicator(
     strokeWidth: Dp = ProgressIndicatorConstants.DefaultStrokeWidth
 ) {
     val stroke = with(DensityAmbient.current) {
-        Stroke(width = strokeWidth.toPx(), cap = StrokeCap.butt)
+        Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Butt)
     }
     Canvas(
         modifier
@@ -189,7 +189,7 @@ fun CircularProgressIndicator(
     strokeWidth: Dp = ProgressIndicatorConstants.DefaultStrokeWidth
 ) {
     val stroke = with(DensityAmbient.current) {
-        Stroke(width = strokeWidth.toPx(), cap = StrokeCap.square)
+        Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Square)
     }
     val state = transition(
         definition = CircularIndeterminateTransition,

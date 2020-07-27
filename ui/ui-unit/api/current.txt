@@ -272,13 +272,17 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable public final class IntOffset {
-    ctor public IntOffset(internal long value);
-    method @androidx.compose.runtime.Stable public inline operator int component1();
-    method @androidx.compose.runtime.Stable public inline operator int component2();
+    ctor public IntOffset(internal long packedValue);
+    method @androidx.compose.runtime.Stable public operator int component1();
+    method @androidx.compose.runtime.Stable public operator int component2();
+    method public androidx.compose.ui.unit.IntOffset copy(int x = this.x, int y = this.y);
+    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntOffset div(float operand);
     method public int getX();
     method public int getY();
     method @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.IntOffset minus(androidx.compose.ui.unit.IntOffset other);
     method @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.IntOffset plus(androidx.compose.ui.unit.IntOffset other);
+    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntOffset rem(int operand);
+    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntOffset times(float operand);
     method @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.IntOffset unaryMinus();
     property public final int x;
     property public final int y;
@@ -286,8 +290,10 @@ package androidx.compose.ui.unit {
   }
 
   public static final class IntOffset.Companion {
-    method public androidx.compose.ui.unit.IntOffset getOrigin();
-    property public final androidx.compose.ui.unit.IntOffset Origin;
+    method @Deprecated public androidx.compose.ui.unit.IntOffset getOrigin();
+    method public androidx.compose.ui.unit.IntOffset getZero();
+    property @Deprecated public final androidx.compose.ui.unit.IntOffset Origin;
+    property public final androidx.compose.ui.unit.IntOffset Zero;
   }
 
   public final class IntOffsetKt {

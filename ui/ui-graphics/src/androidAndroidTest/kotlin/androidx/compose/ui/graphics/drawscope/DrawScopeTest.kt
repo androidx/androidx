@@ -50,7 +50,7 @@ class DrawScopeTest {
             this.color = Color.White
         }
         dstCanvas.drawRect(
-            Rect.fromLTWH(0.0f, 0.0f, 200.0f, 200.0f),
+            Rect(Offset.Zero, Size(200.0f, 200.0f)),
             dstPaint
         )
         return dst
@@ -662,14 +662,14 @@ class DrawScopeTest {
                     start,
                     end,
                     strokeWidth,
-                    StrokeCap.round
+                    StrokeCap.Round
                 )
             },
             { canvas ->
                 canvas.drawLine(start, end, Paint().apply {
                     this.color = Color.Cyan
                     this.strokeWidth = strokeWidth
-                    this.strokeCap = StrokeCap.round
+                    this.strokeCap = StrokeCap.Round
                 })
             }
         )
@@ -684,14 +684,14 @@ class DrawScopeTest {
                     start,
                     end,
                     strokeWidth,
-                    StrokeCap.round
+                    StrokeCap.Round
                 )
             },
             { canvas ->
                 canvas.drawLine(start, end, Paint().apply {
                     this.color = Color.Cyan
                     this.strokeWidth = strokeWidth
-                    this.strokeCap = StrokeCap.round
+                    this.strokeCap = StrokeCap.Round
                 })
             }
         )
@@ -717,20 +717,20 @@ class DrawScopeTest {
             {
                 drawPoints(
                     points,
-                    PointMode.points,
+                    PointMode.Points,
                     Color.Magenta,
                     strokeWidth = 15.0f,
-                    cap = StrokeCap.butt
+                    cap = StrokeCap.Butt
                 )
             },
             { canvas ->
                 canvas.drawPoints(
-                    PointMode.points,
+                    PointMode.Points,
                     points,
                     Paint().apply {
                         this.color = Color.Magenta
                         this.strokeWidth = 15.0f
-                        this.strokeCap = StrokeCap.butt
+                        this.strokeCap = StrokeCap.Butt
                     }
                 )
             }
@@ -743,20 +743,20 @@ class DrawScopeTest {
             {
                 drawPoints(
                     points,
-                    PointMode.points,
+                    PointMode.Points,
                     SolidColor(Color.Magenta),
                     strokeWidth = 15.0f,
-                    cap = StrokeCap.butt
+                    cap = StrokeCap.Butt
                 )
             },
             { canvas ->
                 canvas.drawPoints(
-                    PointMode.points,
+                    PointMode.Points,
                     points,
                     Paint().apply {
                         this.color = Color.Magenta
                         this.strokeWidth = 15.0f
-                        this.strokeCap = StrokeCap.butt
+                        this.strokeCap = StrokeCap.Butt
                     }
                 )
             }
