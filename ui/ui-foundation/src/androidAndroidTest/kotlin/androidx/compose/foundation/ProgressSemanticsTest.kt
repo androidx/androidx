@@ -36,7 +36,7 @@ import org.junit.runners.JUnit4
 
 @MediumTest
 @RunWith(JUnit4::class)
-class DeterminateProgressTest {
+class ProgressSemanticsTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -51,7 +51,7 @@ class DeterminateProgressTest {
                 Box(
                     Modifier
                         .testTag(tag)
-                        .determinateProgressIndicator(progress.value)
+                        .progressSemantics(progress.value)
                         .preferredSize(50.dp)
                         .background(color = Color.Cyan)
                 )
@@ -76,5 +76,24 @@ class DeterminateProgressTest {
         onNodeWithTag(tag)
             .assertValueEquals("50 percent")
             .assertRangeInfoEquals(AccessibilityRangeInfo(0.5f, 0f..1f))
+    }
+
+    @Test
+    fun indeterminateProgress_testSemantics() {
+        val tag = "linear"
+
+        composeTestRule
+            .setContent {
+                Box(
+                    Modifier
+                        .testTag(tag)
+                        .progressSemantics()
+                        .preferredSize(50.dp)
+                        .background(color = Color.Cyan)
+                )
+            }
+
+        onNodeWithTag(tag)
+            .assertValueEquals(Strings.InProgress)
     }
 }

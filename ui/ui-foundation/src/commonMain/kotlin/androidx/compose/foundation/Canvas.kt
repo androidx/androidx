@@ -25,17 +25,17 @@ import androidx.compose.ui.drawBehind
 
 /**
  * Component that allow you to specify an area on the screen and perform canvas drawing on this
- * area. You MUST specify size with modifier, whether with exact sizes via [LayoutSize] modifier,
- * or relative to parent, via [LayoutSize.Fill], [ColumnScope.LayoutWeight], etc. If parent
+ * area. You MUST specify size with modifier, whether with exact sizes via [Modifier.size]
+ * modifier, or relative to parent, via [Modifier.fillMaxSize], [ColumnScope.weight], etc. If parent
  * wraps this child, only exact sizes must be specified.
  *
  * @sample androidx.compose.foundation.samples.CanvasSample
  *
  * @param modifier mandatory modifier to specify size strategy for this composable
- * @param onCanvas lambda that will be called to perform drawing. Note that this lambda will be
+ * @param onDraw lambda that will be called to perform drawing. Note that this lambda will be
  * called during draw stage, you have no access to composition scope, meaning that [Composable]
  * function invocation inside it will result to runtime exception
  */
 @Composable
-fun Canvas(modifier: Modifier, onCanvas: DrawScope.() -> Unit) =
-    Spacer(modifier.drawBehind(onCanvas))
+fun Canvas(modifier: Modifier, onDraw: DrawScope.() -> Unit) =
+    Spacer(modifier.drawBehind(onDraw))
