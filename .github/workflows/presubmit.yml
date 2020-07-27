@@ -2,8 +2,8 @@ name: AndroidX Presubmits
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  pull_request_review_comment:
-    types: [created, edited]
+  pull_request_review:
+    types: [submitted, edited]
   workflow_dispatch:
 
 jobs:
