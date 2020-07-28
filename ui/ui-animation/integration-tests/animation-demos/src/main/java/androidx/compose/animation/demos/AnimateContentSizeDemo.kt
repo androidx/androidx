@@ -72,7 +72,7 @@ fun text() {
         .clickable { short = !short }
         .padding(20.dp)
         .wrapContentSize()
-        .animateContentSize()
+        .animateContentSize { startSize, endSize -> println("$startSize -> $endSize") }
     ) {
         Text(
             if (short) {

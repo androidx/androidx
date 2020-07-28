@@ -23,17 +23,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.Measurable
 import androidx.compose.ui.MeasureScope
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.MediumTest
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.waitForIdle
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertNotNull
+import junit.framework.TestCase.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,12 +60,22 @@ class AnimationModifierTest {
 
         var density = 0f
         val testModifier by mutableStateOf(TestModifier())
+        var animationStartSize: IntSize? = null
+        var animationEndSize: IntSize? = null
 
         composeTestRule.clockTestRule.pauseClock()
         composeTestRule.setContent {
             Box(
                 testModifier
-                    .animateContentSize(tween(200, easing = LinearOutSlowInEasing))
+                    .animateContentSize(
+                        tween(
+                            200,
+                            easing = LinearOutSlowInEasing
+                        )
+                    ) { startSize, endSize ->
+                        animationStartSize = startSize
+                        animationEndSize = endSize
+                    }
                     .size(width.dp, height.dp)
             )
             density = DensityAmbient.current.density
@@ -85,6 +98,20 @@ class AnimationModifierTest {
                 density * (startHeight * (1 - fraction) + endHeight * fraction),
                 testModifier.height.toFloat(), 1f
             )
+
+            if (i == 200) {
+                assertNotNull(animationStartSize)
+                assertEquals(
+                    animationStartSize!!.width.toFloat(),
+                    startWidth * density, 1f
+                )
+                assertEquals(
+                    animationStartSize!!.height.toFloat(),
+                    startHeight * density, 1f
+                )
+            } else {
+                assertNull(animationEndSize)
+            }
 
             composeTestRule.clockTestRule.advanceClock(20)
             waitForIdle()
