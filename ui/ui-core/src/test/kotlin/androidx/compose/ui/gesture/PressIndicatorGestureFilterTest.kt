@@ -457,7 +457,9 @@ class PressIndicatorGestureFilterTest {
         var pointer = down(0, 0.milliseconds)
         pointer = filter::onPointerInput.invokeOverPasses(
             pointer,
-            PointerEventPass.InitialDown
+            PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown
         )
         assertThat(pointer.consumed.downChange, `is`(false))
 

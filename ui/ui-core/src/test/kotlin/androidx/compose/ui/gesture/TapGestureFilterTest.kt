@@ -398,7 +398,9 @@ class TapGestureFilterTest {
         var pointerEventChange = pointer.up(100.milliseconds)
         pointerEventChange = filter::onPointerInput.invokeOverPasses(
             pointerEventChange,
-            PointerEventPass.InitialDown
+            PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown
         )
         assertThat(pointerEventChange.consumed.downChange, `is`(false))
 

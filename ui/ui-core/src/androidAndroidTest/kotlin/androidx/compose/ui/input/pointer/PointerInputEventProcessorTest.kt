@@ -466,7 +466,7 @@ class PointerInputEventProcessorTest {
         verify(pointerInputFilter)
             .onPointerInput(eq(listOf(input)), eq(PointerEventPass.InitialDown), any())
         verify(pointerInputFilter)
-            .onPointerInput(eq(listOf(output)), eq(PointerEventPass.PostUp), any())
+            .onPointerInput(eq(listOf(output)), eq(PointerEventPass.PreUp), any())
     }
 
     @Test
@@ -1664,7 +1664,7 @@ class PointerInputEventProcessorTest {
         pointerInputEventProcessor.process(down)
 
         // Assert
-        verify(pointerInputFilter2, times(3)).onPointerEvent(any(), any(), any())
+        verify(pointerInputFilter2, times(5)).onPointerEvent(any(), any(), any())
         verify(pointerInputFilter1, never()).onPointerEvent(any(), any(), any())
     }
 
