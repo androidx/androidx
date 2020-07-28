@@ -127,7 +127,7 @@ class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
             // then
             test.assertBasicState(targetPage)
             val pageSize = test.viewPager.pageSize
-            recorder.scrollEvents.assertValueSanity(currentPage, targetPage, pageSize)
+            recorder.scrollEvents.assertValueCorrectness(currentPage, targetPage, pageSize)
             recorder.scrollEvents.assertLastCorrect(targetPage)
             recorder.selectEvents.assertSelected(listOf(targetPage))
 
@@ -200,7 +200,7 @@ class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
         }
     }
 
-    private fun List<OnPageScrolledEvent>.assertValueSanity(
+    private fun List<OnPageScrolledEvent>.assertValueCorrectness(
         initialPage: Int,
         otherPage: Int,
         pageSize: Int

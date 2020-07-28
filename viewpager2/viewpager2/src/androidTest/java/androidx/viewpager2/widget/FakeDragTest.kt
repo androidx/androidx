@@ -370,7 +370,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
             assertThat(test.viewPager.isFakeDragging, equalTo(false))
             assertThat(fakeDragger.isInterrupted, equalTo(false))
             recorder.apply {
-                scrollEvents.assertValueSanity(
+                scrollEvents.assertValueCorrectness(
                     initialPage,
                     min(pageCount - 1, expectedFinalPageWithOffset + 1 /* for peeking */),
                     test.viewPager.pageSize
@@ -443,7 +443,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
             assertThat(test.viewPager.isFakeDragging, equalTo(false))
             assertThat(fakeDragger.isInterrupted, equalTo(false))
             recorder.apply {
-                scrollEvents.assertValueSanity(initialPage, expectedFinalPage,
+                scrollEvents.assertValueCorrectness(initialPage, expectedFinalPage,
                     test.viewPager.pageSize)
                 assertFirstEvents(SETTLING)
                 assertLastEvents(expectedFinalPage)
@@ -530,7 +530,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
                 // test assertions
                 test.assertBasicState(expectedFinalPage)
                 recorder.apply {
-                    scrollEvents.assertValueSanity(initialPage,
+                    scrollEvents.assertValueCorrectness(initialPage,
                         expectedFinalPage + referencePageOffset, test.viewPager.pageSize)
                     assertFirstEvents(DRAGGING)
                     assertLastEvents(expectedFinalPage)
@@ -678,7 +678,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         )
     }
 
-    private fun List<OnPageScrolledEvent>.assertValueSanity(
+    private fun List<OnPageScrolledEvent>.assertValueCorrectness(
         initialPage: Int,
         otherPage: Int,
         pageSize: Int
