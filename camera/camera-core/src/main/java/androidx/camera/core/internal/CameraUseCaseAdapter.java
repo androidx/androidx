@@ -269,7 +269,7 @@ public final class CameraUseCaseAdapter {
     public void detachUseCases() {
         synchronized (mLock) {
             if (mAttached) {
-                mCameraInternal.detachUseCases(mUseCases);
+                mCameraInternal.detachUseCases(new ArrayList<>(mUseCases));
                 mAttached = false;
             }
         }
