@@ -727,12 +727,12 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                 }
             }
 
-            RoutingSessionInfo newSessionInfo = builder.build();
+            mSessionInfo = builder.build();
             if ((mFlags & (SESSION_FLAG_MR2 | SESSION_FLAG_DYNAMIC))
                     == (SESSION_FLAG_MR2 | SESSION_FLAG_DYNAMIC) && groupRoute != null) {
-                updateMemberRouteControllers(groupRoute.getId(), sessionInfo, newSessionInfo);
+                updateMemberRouteControllers(groupRoute.getId(), sessionInfo, mSessionInfo);
             }
-            notifySessionUpdated(newSessionInfo);
+            notifySessionUpdated(mSessionInfo);
         }
 
         public void release() {
