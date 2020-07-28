@@ -25,36 +25,46 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXUiPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("kotlin-multiplatform")
 }
 
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
+}
 
-    api "androidx.activity:activity:1.2.0-alpha02"
+kotlin {
+    android()
+    sourceSets {
+        commonMain.dependencies {
+            implementation(KOTLIN_STDLIB_COMMON)
+            implementation project(":compose:runtime:runtime")
+            implementation project(":compose:animation:animation")
+            implementation project(":compose:foundation:foundation")
+            implementation project(":compose:foundation:foundation-layout")
+            implementation project(":compose:ui:ui-util")
+            implementation project(":compose:foundation:foundation-text")
+            implementation project(":compose:runtime:runtime-saved-instance-state")
+        }
 
-    implementation(KOTLIN_STDLIB)
-    implementation(ANDROIDX_TEST_RULES)
-    implementation(ANDROIDX_TEST_RUNNER)
-    api(ANDROIDX_TEST_EXT_JUNIT)
-    implementation(ESPRESSO_CORE)
-    implementation(JUNIT)
+        androidMain.dependencies {
+            api "androidx.activity:activity:1.2.0-alpha02"
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            api(ANDROIDX_TEST_EXT_JUNIT)
+            implementation(ESPRESSO_CORE)
+            implementation(JUNIT)
+        }
 
-    api project(":compose:ui:ui")
+        test.dependencies {
+            implementation(TRUTH)
+        }
 
-    implementation project(":compose:runtime:runtime")
-    implementation project(":compose:animation:animation")
-    implementation project(":compose:foundation:foundation")
-    implementation project(":compose:foundation:foundation-layout")
-    implementation project(":compose:ui:ui-util")
-    implementation project(":compose:foundation:foundation-text")
-    implementation project(":compose:runtime:runtime-saved-instance-state")
-
-    testImplementation(TRUTH)
-
-    androidTestImplementation(TRUTH)
-    androidTestImplementation project(":compose:ui:ui")
-    androidTestImplementation project(':compose:material:material')
+        androidAndroidTest.dependencies {
+            implementation(TRUTH)
+            implementation project(":compose:ui:ui")
+            implementation project(':compose:material:material')
+        }
+    }
 }
 
 android {
