@@ -951,14 +951,21 @@ class PostponedTransitionTest {
             // start the postponed transition
             fragment.startPostponedEnterTransition()
 
-            try {
-                // This should trigger an IllegalStateException
+            if (FragmentManager.USE_STATE_MANAGER) {
+                // This should succeed since onResume() is called outside of the
+                // transaction completing
                 fm.executePendingTransactions()
-                fail("commitNow() while executing a transaction should cause an" +
-                        " IllegalStateException")
-            } catch (e: IllegalStateException) {
-                assertThat(e)
-                    .hasMessageThat().contains("FragmentManager is already executing transactions")
+            } else {
+                try {
+                    // This should trigger an IllegalStateException
+                    fm.executePendingTransactions()
+                    fail("commitNow() while executing a transaction should cause an" +
+                            " IllegalStateException")
+                } catch (e: IllegalStateException) {
+                    assertThat(e)
+                        .hasMessageThat()
+                        .contains("FragmentManager is already executing transactions")
+                }
             }
         }
     }
