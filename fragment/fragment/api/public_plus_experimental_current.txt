@@ -115,8 +115,8 @@ package androidx.fragment.app {
     method @CallSuper @MainThread public void onViewStateRestored(android.os.Bundle?);
     method public void postponeEnterTransition();
     method public final void postponeEnterTransition(long, java.util.concurrent.TimeUnit);
-    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
-    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
+    method @MainThread public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method @MainThread public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
     method public void registerForContextMenu(android.view.View);
     method @Deprecated public final void requestPermissions(String![], int);
     method public final androidx.fragment.app.FragmentActivity requireActivity();
