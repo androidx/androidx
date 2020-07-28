@@ -29,11 +29,14 @@ import org.jetbrains.skija.FramebufferFormat
 import org.jetbrains.skija.Surface
 import org.jetbrains.skija.SurfaceColorFormat
 import org.jetbrains.skija.SurfaceOrigin
+import java.awt.event.InputMethodEvent
+import java.awt.event.InputMethodListener
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
+import java.awt.im.InputMethodRequests
 import java.nio.IntBuffer
 import javax.swing.JDialog
 import javax.swing.JFrame
@@ -70,6 +73,16 @@ interface SkiaRenderer {
     fun onKeyTyped(char: Char)
     fun onKeyPressed(code: Int, char: Char)
     fun onKeyReleased(code: Int, char: Char)
+
+    fun inputMethodRequests(): InputMethodRequests?
+    fun onInputMethodTextChanged(event: InputMethodEvent)
+}
+
+internal class SkijaCanvas(
+    val frame: SkiaFrame,
+    capabilities: GLCapabilities
+) : GLCanvas(capabilities) {
+    override fun getInputMethodRequests() = frame.renderer!!.inputMethodRequests()
 }
 
 class Window : JFrame, SkiaFrame {
@@ -198,9 +211,19 @@ private fun initCanvas(frame: SkiaFrame, vsync: Boolean = false): GLCanvas {
     val capabilities = GLCapabilities(profile)
     // We cannot rely on double buffering.
     capabilities.doubleBuffered = false
-    val glCanvas = GLCanvas(capabilities)
+    val glCanvas = SkijaCanvas(frame, capabilities)
 
     val skijaState = SkijaState()
+
+    glCanvas.addInputMethodListener(object : InputMethodListener {
+        override fun caretPositionChanged(p0: InputMethodEvent?) {
+            TODO("Implement input method caret change")
+        }
+
+        override fun inputMethodTextChanged(event: InputMethodEvent) {
+            frame.renderer!!.onInputMethodTextChanged(event)
+        }
+    })
 
     glCanvas.addMouseListener(object : MouseAdapter() {
         override fun mouseClicked(event: MouseEvent) {

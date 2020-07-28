@@ -20,6 +20,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ProvidedValue
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.dispatch.DesktopUiDispatcher
@@ -82,15 +83,14 @@ class LayoutScope {
         layout = object : ViewGroup(context) {}
     }
 
-    internal lateinit var platformInputService: DesktopPlatformInput
-        private set
-
     private fun redraw(glCanvas: GLCanvas) {
         glCanvas.display()
     }
 
-    fun setContent(content: @Composable () -> Unit) {
-        platformInputService = DesktopPlatformInput()
+    internal fun setContent(
+        platformInputService: DesktopPlatformInput? = null,
+        content: @Composable () -> Unit
+    ) {
         ViewTreeLifecycleOwner.set(layout, object : LifecycleOwner {
             val lifecycleRegistry = LifecycleRegistry(this).apply {
                 currentState = Lifecycle.State.RESUMED
@@ -101,12 +101,12 @@ class LayoutScope {
             throw IllegalStateException("ViewModels creation is not supported")
         })
         LayoutScopeGlobal.addLayoutScope(this)
+        val providers = mutableListOf<ProvidedValue<*>>(FontLoaderAmbient provides FontLoader())
+        platformInputService?.let {
+            providers.add(TextInputServiceAmbient provides TextInputService(it))
+        }
         layout.setContent(Recomposer.current(), null, @Composable {
-            Providers(
-                TextInputServiceAmbient provides TextInputService(
-                    platformInputService),
-                FontLoaderAmbient provides FontLoader()
-            ) {
+            Providers(*providers.toTypedArray()) {
                 DesktopSelectionContainer(children = content)
             }
         })
