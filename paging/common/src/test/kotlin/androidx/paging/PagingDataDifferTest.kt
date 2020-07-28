@@ -178,6 +178,7 @@ class PagingDataDifferTest {
         // from affecting the expected events.
         val listUpdates = mutableListOf<Boolean>()
         val listUpdateJob = launch {
+            @Suppress("DEPRECATION")
             differ.dataRefreshFlow.collect { listUpdates.add(it) }
         }
 
@@ -207,6 +208,7 @@ class PagingDataDifferTest {
         // Start listening for ListUpdates before collecting from differ to prevent conflation
         // from affecting the expected events.
         val listUpdates = mutableListOf<Boolean>()
+        @Suppress("DEPRECATION")
         differ.addDataRefreshListener { listUpdates.add(it) }
 
         val job = launch {

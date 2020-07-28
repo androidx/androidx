@@ -273,6 +273,11 @@ class AsyncPagingDataDiffer<T : Any> @JvmOverloads constructor(
      * displayed. The [Boolean] that is emitted is `true` if the new [PagingData] is empty,
      * `false` otherwise.
      */
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        "dataRefreshFlow is now redundant with the information passed from loadStateFlow," +
+                " peek, and snapshot APIs, and will be removed in a future alpha version"
+    )
     @ExperimentalPagingApi
     val dataRefreshFlow: Flow<Boolean> = differBase.dataRefreshFlow
 
@@ -284,8 +289,14 @@ class AsyncPagingDataDiffer<T : Any> @JvmOverloads constructor(
      *
      * @see removeDataRefreshListener
      */
+    @Deprecated(
+        "dataRefreshListener is now redundant with the information passed from " +
+                "loadStateListener, peek, and snapshot APIs, and will be removed in a future " +
+                "alpha version"
+    )
     @ExperimentalPagingApi
     fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
+        @Suppress("DEPRECATION")
         differBase.addDataRefreshListener(listener)
     }
 
@@ -296,8 +307,14 @@ class AsyncPagingDataDiffer<T : Any> @JvmOverloads constructor(
      *
      * @see addDataRefreshListener
      */
+    @Deprecated(
+        "dataRefreshListener is now redundant with the information passed from " +
+                "loadStateListener, peek, and snapshot APIs, and will be removed in a future " +
+                "alpha version"
+    )
     @ExperimentalPagingApi
     fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
+        @Suppress("DEPRECATION")
         differBase.removeDataRefreshListener(listener)
     }
 }

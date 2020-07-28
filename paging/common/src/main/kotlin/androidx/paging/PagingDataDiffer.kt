@@ -285,6 +285,10 @@ abstract class PagingDataDiffer<T : Any>(
      * displayed. The [Boolean] that is emitted is `true` if the new [PagingData] is empty,
      * `false` otherwise.
      */
+    @Deprecated(
+        "dataRefreshFlow is now redundant with the information passed from loadStateFlow," +
+                " peek, and snapshot APIs, and will be removed in a future alpha version"
+    )
     @ExperimentalPagingApi
     @OptIn(FlowPreview::class)
     val dataRefreshFlow: Flow<Boolean> = _dataRefreshCh.asFlow()
@@ -293,6 +297,7 @@ abstract class PagingDataDiffer<T : Any>(
         @OptIn(ExperimentalCoroutinesApi::class)
         addLoadStateListener { _loadStateCh.offer(it) }
         @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
+        @Suppress("DEPRECATION")
         addDataRefreshListener { _dataRefreshCh.offer(it) }
     }
 
@@ -334,6 +339,11 @@ abstract class PagingDataDiffer<T : Any>(
      *
      * @see removeDataRefreshListener
      */
+    @Deprecated(
+        "dataRefreshListener is now redundant with the information passed from " +
+                "loadStateListener, peek, and snapshot APIs, and will be removed in a future " +
+                "alpha version"
+    )
     @ExperimentalPagingApi
     fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
         dataRefreshedListeners.add(listener)
@@ -346,6 +356,11 @@ abstract class PagingDataDiffer<T : Any>(
      *
      * @see addDataRefreshListener
      */
+    @Deprecated(
+        "dataRefreshListener is now redundant with the information passed from " +
+                "loadStateListener, peek, and snapshot APIs, and will be removed in a future " +
+                "alpha version"
+    )
     @ExperimentalPagingApi
     fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
         dataRefreshedListeners.remove(listener)
