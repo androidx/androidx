@@ -125,7 +125,7 @@ public class WebViewApkTest {
         // message.
         Assume.assumeTrue("Did not receive a WebView version as an instrumentation argument",
                 expectedWebViewVersionString != null);
-        // Convert to a WebViewVersion as a sanity check to ensure these are well-formed
+        // Convert to a WebViewVersion to ensure these are well-formed
         // Chromium-style version strings.
         WebViewVersion expectedWebViewVersion = new WebViewVersion(expectedWebViewVersionString);
         WebViewVersion actualWebViewVersion = getInstalledWebViewVersionFromPackage();
