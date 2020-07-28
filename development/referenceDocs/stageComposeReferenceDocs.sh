@@ -41,13 +41,13 @@ cd $refDocDir
 # pwd is now frameworks/support/development/referenceDocs/out/compose-ref-docs
 unzip dokkaTipOfTreeDocs-0.zip
 rm reference/java -rf
-rm reference/kotlin/package-list -f
 rm reference/kotlin/sample -rf
 rm reference/kotlin/androidx/annotation -rf
 rm reference/kotlin/androidx/benchmark -rf
 rm reference/kotlin/androidx/tracing -rf
 rm -rf reference/kotlin/androidx/ui/androidview
 rm -rf reference/kotlin/androidx/ui/core/samples
+mv reference/kotlin/package-list reference/kotlin/androidx/ui/.
 mv reference/kotlin/androidx/_toc.yaml reference/kotlin/androidx/ui/.
 mv reference/kotlin/androidx/packages.html reference/kotlin/androidx/ui/.
 mv reference/kotlin/androidx/classes.html reference/kotlin/androidx/ui/.
