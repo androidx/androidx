@@ -1,7 +1,7 @@
 // Signature format: 3.0
 package androidx.wear.input {
 
-  public class DeviceWearableButtonsProvider implements androidx.wear.input.WearableButtonsProvider {
+  public final class DeviceWearableButtonsProvider implements androidx.wear.input.WearableButtonsProvider {
     ctor public DeviceWearableButtonsProvider();
     method public int[]? getAvailableButtonKeyCodes(android.content.Context);
     method public android.os.Bundle getButtonInfo(android.content.Context, int);
@@ -11,7 +11,7 @@ package androidx.wear.input {
     method public static int getButtonCount(android.content.Context);
     method public static android.graphics.drawable.Drawable? getButtonIcon(android.content.Context, int);
     method public static androidx.wear.input.WearableButtons.ButtonInfo? getButtonInfo(android.content.Context, int);
-    method public static CharSequence getButtonLabel(android.content.Context, int);
+    method public static CharSequence? getButtonLabel(android.content.Context, int);
   }
 
   public static final class WearableButtons.ButtonInfo {

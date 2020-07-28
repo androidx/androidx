@@ -28,7 +28,7 @@ import com.google.android.wearable.input.WearableInputDevice;
  * Default implementation of {@link WearableButtonsProvider}, that reads the button locations from
  * the platform.
  */
-public class DeviceWearableButtonsProvider implements WearableButtonsProvider {
+public final class DeviceWearableButtonsProvider implements WearableButtonsProvider {
 
     @NonNull
     @Override
