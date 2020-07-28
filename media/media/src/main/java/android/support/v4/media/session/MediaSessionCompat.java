@@ -957,7 +957,7 @@ public class MediaSessionCompat {
      * <p>
      * Note: This is only valid while in a request callback, such as {@link Callback#onPlay}.
      * <p>
-     * Note: From API 21 to 23, this method returns a dummy {@link RemoteUserInfo} which has
+     * Note: From API 21 to 23, this method returns a fake {@link RemoteUserInfo} which has
      * following values:
      * <ul>
      *     <li>Package name is {@link MediaSessionManager.RemoteUserInfo#LEGACY_CONTROLLER}.</li>

@@ -1100,7 +1100,7 @@ public final class MediaBrowserCompat {
         public void disconnect() {
             // It's ok to call this any state, because allowing this lets apps not have
             // to check isConnected() unnecessarily. They won't appreciate the extra
-            // assertions for this. We do everything we can here to go back to a sane state.
+            // assertions for this. We do everything we can here to go back to a valid state.
             mState = CONNECT_STATE_DISCONNECTING;
             mHandler.post(new Runnable() {
                 @Override
