@@ -18,8 +18,6 @@ package androidx.compose.ui.graphics.vector.compat
 
 import android.content.res.Resources
 import android.util.AttributeSet
-import androidx.core.content.res.ComplexColorCompat
-import androidx.core.content.res.TypedArrayUtils
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ShaderBrush
@@ -38,6 +36,8 @@ import androidx.compose.ui.graphics.vector.PathNode
 import androidx.compose.ui.graphics.vector.VectorAssetBuilder
 import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.unit.dp
+import androidx.core.content.res.ComplexColorCompat
+import androidx.core.content.res.TypedArrayUtils
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 
@@ -276,21 +276,22 @@ internal fun XmlPullParser.parsePath(
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_STROKE_WIDTH, 1.0f
     )
 
-    // TODO (njawad) handle trim paths + fill rule
-//    val trimPathEnd = TypedArrayUtils.getNamedFloat(
-//        a, this, "trimPathEnd",
-//        AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_END, 1.0f
-//    )
-//    val trimPathOffset = TypedArrayUtils.getNamedFloat(
-//        a, this, "trimPathOffset",
-//        AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_OFFSET,
-//        0.0f
-//    )
-//    val trimPathStart = TypedArrayUtils.getNamedFloat(
-//        a, this, "trimPathStart",
-//        AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_START,
-//        0.0f
-//    )
+    val trimPathEnd = TypedArrayUtils.getNamedFloat(
+        a, this, "trimPathEnd",
+        AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_END, 1.0f
+    )
+    val trimPathOffset = TypedArrayUtils.getNamedFloat(
+        a, this, "trimPathOffset",
+        AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_OFFSET,
+        0.0f
+    )
+    val trimPathStart = TypedArrayUtils.getNamedFloat(
+        a, this, "trimPathStart",
+        AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_START,
+        0.0f
+    )
+
+    // TODO(njawad) handle fill rule
 //    val fillRule = TypedArrayUtils.getNamedInt(
 //        a, this, "fillType",
 //        AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_FILLTYPE,
@@ -312,7 +313,11 @@ internal fun XmlPullParser.parsePath(
         strokeLineWidth,
         strokeLineCap,
         strokeLineJoin,
-        strokeMiterLimit)
+        strokeMiterLimit,
+        trimPathStart,
+        trimPathEnd,
+        trimPathOffset
+    )
 }
 
 @SuppressWarnings("RestrictedApi")
@@ -344,9 +349,11 @@ internal fun XmlPullParser.parseClipPath(
     val name: String = a.getString(
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_NAME
     ) ?: ""
-    val pathData = addPathNodes(a.getString(
-        AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_PATH_DATA
-    ))
+    val pathData = addPathNodes(
+        a.getString(
+            AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_PATH_DATA
+        )
+    )
     a.recycle()
 
     // <clip-path> is parsed out as an additional VectorGroup.
