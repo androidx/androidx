@@ -147,12 +147,11 @@ public class PreviewProcessorTimestampTest {
 
         assumeTrue(androidx.camera.testing.CameraUtil.deviceHasCamera());
 
-        Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig config = Camera2Config.defaultConfig();
-        CameraX.initialize(context, config);
+        CameraX.initialize(mContext, config);
 
         ListenableFuture<ExtensionsManager.ExtensionsAvailability> availability =
-                ExtensionsManager.init();
+                ExtensionsManager.init(mContext);
         ExtensionsManager.ExtensionsAvailability extensionsAvailability = availability.get(1,
                 TimeUnit.SECONDS);
         assumeTrue(extensionsAvailability
