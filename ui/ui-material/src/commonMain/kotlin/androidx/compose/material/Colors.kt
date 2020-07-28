@@ -33,10 +33,10 @@ import androidx.compose.ui.graphics.useOrElse
  * Collection of colors in the
  * [Material color specification](https://material.io/design/color/the-color-system.html#color-theme-creation)
  *
- * To create a light set of colors, use [lightColorPalette]
- * To create a dark set of colors, use [darkColorPalette]
+ * To create a light set of colors, use [lightColors]
+ * To create a dark set of colors, use [darkColors]
  */
-interface ColorPalette {
+interface Colors {
     /**
      * The primary color is the color displayed most frequently across your app’s screens and
      * components.
@@ -94,7 +94,7 @@ interface ColorPalette {
      */
     val onError: Color
     /**
-     * Whether this ColorPalette is considered as a 'light' or 'dark' set of colors. This affects
+     * Whether this Colors is considered as a 'light' or 'dark' set of colors. This affects
      * default behavior for some components: for example, in a light theme a [TopAppBar] will use
      * [primary] by default for its background color, when in a dark theme it will use [surface].
      */
@@ -106,9 +106,9 @@ interface ColorPalette {
  * [Material color specification](https://material.io/design/color/the-color-system.html#color-theme-creation)
  * using the default light theme values.
  *
- * @see darkColorPalette
+ * @see darkColors
  */
-fun lightColorPalette(
+fun lightColors(
     primary: Color = Color(0xFF6200EE),
     primaryVariant: Color = Color(0xFF3700B3),
     secondary: Color = Color(0xFF03DAC6),
@@ -121,7 +121,7 @@ fun lightColorPalette(
     onBackground: Color = Color.Black,
     onSurface: Color = Color.Black,
     onError: Color = Color.White
-): ColorPalette = ObservableColorPalette(
+): Colors = ObservableColors(
     primary,
     primaryVariant,
     secondary,
@@ -142,9 +142,9 @@ fun lightColorPalette(
  * [Material color specification](https://material.io/design/color/the-color-system.html#color-theme-creation)
  * using the default dark theme values.
  *
- * @see lightColorPalette
+ * @see lightColors
  */
-fun darkColorPalette(
+fun darkColors(
     primary: Color = Color(0xFFBB86FC),
     primaryVariant: Color = Color(0xFF3700B3),
     secondary: Color = Color(0xFF03DAC6),
@@ -156,7 +156,7 @@ fun darkColorPalette(
     onBackground: Color = Color.White,
     onSurface: Color = Color.White,
     onError: Color = Color.Black
-): ColorPalette = ObservableColorPalette(
+): Colors = ObservableColors(
     primary,
     primaryVariant,
     secondary,
@@ -175,18 +175,18 @@ fun darkColorPalette(
 )
 
 /**
- * Tries to match [color] to a color in this ColorPalette, and then returns the corresponding
+ * Tries to match [color] to a color in this Colors, and then returns the corresponding
  * `on` color.
  *
- * For example, when [color] is [ColorPalette.primary], this will return
- * [ColorPalette.onPrimary]. If [color] is not present in the theme, this will return `null`.
+ * For example, when [color] is [Colors.primary], this will return
+ * [Colors.onPrimary]. If [color] is not present in the theme, this will return `null`.
  *
  * @return the matching `on` color for [color]. If [color] is not part of the theme's
- * [ColorPalette], then returns [Color.Unset].
+ * [Colors], then returns [Color.Unset].
  *
  * @see contentColorFor
  */
-fun ColorPalette.contentColorFor(color: Color): Color {
+fun Colors.contentColorFor(color: Color): Color {
     return when (color) {
         primary -> onPrimary
         primaryVariant -> onPrimary
@@ -200,31 +200,31 @@ fun ColorPalette.contentColorFor(color: Color): Color {
 }
 
 /**
- * Tries to match [color] to a color in the current [ColorPalette], and then returns the
+ * Tries to match [color] to a color in the current [Colors], and then returns the
  * corresponding `on` color. If [color] can not be matched to the palette, then this will return
  * the existing value for [contentColor] at this point in the tree.
  *
- * @see ColorPalette.contentColorFor
+ * @see Colors.contentColorFor
  */
 @Composable
 fun contentColorFor(color: Color) =
     MaterialTheme.colors.contentColorFor(color).useOrElse { contentColor() }
 
 /**
- * Default observable backing implementation for [ColorPalette].
+ * Default observable backing implementation for [Colors].
  *
  * Typically we would just change the value of the [ColorAmbient] ambient when the theme changes, but
  * in the case of wide-reaching data such as colors in the [MaterialTheme], this will cause almost
  * every UI component on a screen to be recomposed. In reality, we only want to recompose
  * components that consume the specific color(s) that have been changed - so this default
  * implementation is intended to be memoized in the ambient, and then when a new immutable
- * [ColorPalette] is provided, we can simply diff and update any values that need to be changed.
+ * [Colors] is provided, we can simply diff and update any values that need to be changed.
  * Because the internal values are provided by an State delegate class, components consuming the
  * specific color will be recomposed, while everything else will remain the same. This allows for
  * large performance improvements when the theme is being changed, especially if it is being
  * animated.
  */
-private class ObservableColorPalette(
+private class ObservableColors(
     primary: Color,
     primaryVariant: Color,
     secondary: Color,
@@ -238,22 +238,22 @@ private class ObservableColorPalette(
     onSurface: Color,
     onError: Color,
     isLight: Boolean
-) : ColorPalette {
+) : Colors {
 
-    constructor(colorPalette: ColorPalette) : this(
-        primary = colorPalette.primary,
-        primaryVariant = colorPalette.primaryVariant,
-        secondary = colorPalette.secondary,
-        secondaryVariant = colorPalette.secondaryVariant,
-        background = colorPalette.background,
-        surface = colorPalette.surface,
-        error = colorPalette.error,
-        onPrimary = colorPalette.onPrimary,
-        onSecondary = colorPalette.onSecondary,
-        onBackground = colorPalette.onBackground,
-        onSurface = colorPalette.onSurface,
-        onError = colorPalette.onError,
-        isLight = colorPalette.isLight
+    constructor(colors: Colors) : this(
+        primary = colors.primary,
+        primaryVariant = colors.primaryVariant,
+        secondary = colors.secondary,
+        secondaryVariant = colors.secondaryVariant,
+        background = colors.background,
+        surface = colors.surface,
+        error = colors.error,
+        onPrimary = colors.onPrimary,
+        onSecondary = colors.onSecondary,
+        onBackground = colors.onBackground,
+        onSurface = colors.onSurface,
+        onError = colors.onError,
+        isLight = colors.isLight
     )
 
     override var primary by mutableStateOf(primary, structuralEqualityPolicy())
@@ -272,10 +272,10 @@ private class ObservableColorPalette(
 }
 
 /**
- * Updates the internal values of the given [ObservableColorPalette] with values from the [other]
- * [ColorPalette].
+ * Updates the internal values of the given [ObservableColors] with values from the [other]
+ * [Colors].
  */
-private fun ObservableColorPalette.updateColorsFrom(other: ColorPalette): ObservableColorPalette {
+private fun ObservableColors.updateColorsFrom(other: Colors): ObservableColors {
     primary = other.primary
     primaryVariant = other.primaryVariant
     secondary = other.secondary
@@ -293,23 +293,23 @@ private fun ObservableColorPalette.updateColorsFrom(other: ColorPalette): Observ
 }
 
 /**
- * Memoizes and mutates the given [colorPalette] if it is an [ObservableColorPalette], otherwise
- * just provides the given palette in the [ColorAmbient] [Ambient].
+ * Memoizes and mutates the given [colors] if it is an [ObservableColors], otherwise
+ * just provides the given [colors] through the [ColorAmbient] [Ambient].
  */
 @Composable
-internal fun ProvideColorPalette(colorPalette: ColorPalette, content: @Composable () -> Unit) {
-    val palette = when (colorPalette) {
-        is ObservableColorPalette -> {
-            (remember { ObservableColorPalette(colorPalette) }).updateColorsFrom(colorPalette)
+internal fun ProvideColors(colors: Colors, content: @Composable () -> Unit) {
+    val palette = when (colors) {
+        is ObservableColors -> {
+            (remember { ObservableColors(colors) }).updateColorsFrom(colors)
         }
-        else -> colorPalette
+        else -> colors
     }
     Providers(ColorAmbient provides palette, children = content)
 }
 
 /**
- * Ambient used to pass [ColorPalette] down the tree.
+ * Ambient used to pass [Colors] down the tree.
  *
  * To retrieve the current value of this ambient, use [MaterialTheme.colors].
  */
-internal val ColorAmbient = staticAmbientOf { lightColorPalette() }
+internal val ColorAmbient = staticAmbientOf { lightColors() }

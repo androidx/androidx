@@ -21,17 +21,17 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.state
 import androidx.compose.ui.graphics.Color
-import androidx.compose.material.ColorPalette
+import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.lightColorPalette
+import androidx.compose.material.lightColors
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
 
 /**
  * Generic test case for asserting / benchmarking recomposition performance when reading values
- * from a [ColorPalette] provided through [MaterialTheme].
+ * from a [Colors] provided through [MaterialTheme].
  */
-sealed class ColorPaletteTestCase : ComposeTestCase, ToggleableTestCase {
+sealed class ColorsTestCase : ComposeTestCase, ToggleableTestCase {
     private var primaryState: MutableState<Color>? = null
 
     private val primaryTracker = CompositionTracker()
@@ -42,7 +42,7 @@ sealed class ColorPaletteTestCase : ComposeTestCase, ToggleableTestCase {
         val primary = state { Color.Red }
         primaryState = primary
 
-        val palette = createPalette(primary.value)
+        val palette = createColors(primary.value)
 
         App(palette, primaryTracker = primaryTracker, secondaryTracker = secondaryTracker)
     }
@@ -53,31 +53,31 @@ sealed class ColorPaletteTestCase : ComposeTestCase, ToggleableTestCase {
         }
     }
 
-    abstract fun createPalette(primary: Color): ColorPalette
+    abstract fun createColors(primary: Color): Colors
 
     val primaryCompositions get() = primaryTracker.compositions
     val secondaryCompositions get() = secondaryTracker.compositions
 }
 
 /**
- * Test case using the default observable [ColorPalette] that will be memoized and mutated when
+ * Test case using the default observable [Colors] that will be memoized and mutated when
  * incoming values change, causing only functions consuming the specific changed color to recompose.
  */
-class ObservableColorPaletteTestCase : ColorPaletteTestCase() {
-    override fun createPalette(primary: Color): ColorPalette {
-        return lightColorPalette(primary = primary)
+class ObservableColorsTestCase : ColorsTestCase() {
+    override fun createColors(primary: Color): Colors {
+        return lightColors(primary = primary)
     }
 }
 
 /**
- * Test case using an immutable [ColorPalette], that will cause a new value to be assigned to the
+ * Test case using an immutable [Colors], that will cause a new value to be assigned to the
  * ambient every time we change this object, causing everything consuming this ambient to recompose.
  */
-class ImmutableColorPaletteTestCase : ColorPaletteTestCase() {
-    override fun createPalette(primary: Color): ColorPalette =
-        ImmutableColorPalette(primary = primary)
+class ImmutableColorsTestCase : ColorsTestCase() {
+    override fun createColors(primary: Color): Colors =
+        ImmutableColors(primary = primary)
 
-    private class ImmutableColorPalette(override val primary: Color) : ColorPalette {
+    private class ImmutableColors(override val primary: Color) : Colors {
         override val secondary = Color.Black
         override val primaryVariant = Color.Black
         override val secondaryVariant = Color.Black
@@ -95,11 +95,11 @@ class ImmutableColorPaletteTestCase : ColorPaletteTestCase() {
 
 @Composable
 private fun App(
-    colorPalette: ColorPalette,
+    colors: Colors,
     primaryTracker: CompositionTracker,
     secondaryTracker: CompositionTracker
 ) {
-    MaterialTheme(colorPalette) {
+    MaterialTheme(colors) {
         CheapPrimaryColorConsumer(primaryTracker)
         ExpensiveSecondaryColorConsumer(secondaryTracker)
         CheapPrimaryColorConsumer(primaryTracker)

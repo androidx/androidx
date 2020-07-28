@@ -23,20 +23,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.ColorPalette
-import androidx.compose.material.darkColorPalette
-import androidx.compose.material.lightColorPalette
+import androidx.compose.material.Colors
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
 
 /**
- * Wrapper class that contains a light and dark [ColorPalette], to allow saving and
+ * Wrapper class that contains a light and dark [Colors], to allow saving and
  * restoring the entire light / dark theme to and from [SharedPreferences].
  */
 @Stable
-class DemoColorPalette {
-    var lightColors: ColorPalette by mutableStateOf(lightColorPalette())
-    var darkColors: ColorPalette by mutableStateOf(darkColorPalette())
+class DemoColors {
+    var light: Colors by mutableStateOf(lightColors())
+    var dark: Colors by mutableStateOf(darkColors())
 
     @Composable
     val colors
-        get() = if (isSystemInDarkTheme()) darkColors else lightColors
+        get() = if (isSystemInDarkTheme()) dark else light
 }

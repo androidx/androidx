@@ -29,7 +29,7 @@ import org.junit.runners.Parameterized
 @Suppress("unused")
 @MediumTest
 @RunWith(Parameterized::class)
-class EmphasisTest(private val colors: ColorPalette, private val debugParameterName: String) {
+class EmphasisTest(private val colors: Colors, private val debugParameterName: String) {
     private val ReducedContrastHighEmphasisAlpha = 0.87f
     private val ReducedContrastMediumEmphasisAlpha = 0.60f
     private val ReducedContrastDisabledEmphasisAlpha = 0.38f
@@ -41,9 +41,9 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{1}")
-        fun initColorPalette() = arrayOf(
-            arrayOf(lightColorPalette(), "Light theme"),
-            arrayOf(darkColorPalette(), "Dark theme")
+        fun initColors() = arrayOf(
+            arrayOf(lightColors(), "Light theme"),
+            arrayOf(darkColors(), "Dark theme")
         )
     }
 

@@ -47,8 +47,8 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.GOLDEN_MATERIAL
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.material.darkColorPalette
-import androidx.compose.material.lightColorPalette
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
 import androidx.ui.test.ComposeTestRule
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
@@ -656,9 +656,9 @@ private fun ComposeTestRule.setRippleContent(
     contentColor: Color
 ) {
     setContent {
-        val colorPalette = if (lightTheme) lightColorPalette() else darkColorPalette()
+        val colors = if (lightTheme) lightColors() else darkColors()
 
-        MaterialTheme(colorPalette) {
+        MaterialTheme(colors) {
             Surface(contentColor = contentColor) {
                 Box(Modifier.fillMaxSize(), gravity = ContentGravity.Center) {
                     RippleBox(interactionState, RippleIndication(bounded))

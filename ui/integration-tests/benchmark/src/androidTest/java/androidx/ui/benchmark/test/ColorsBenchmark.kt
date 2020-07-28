@@ -19,32 +19,32 @@ package androidx.ui.benchmark.test
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
-import androidx.compose.material.ColorPalette
-import androidx.ui.integration.test.material.ImmutableColorPaletteTestCase
-import androidx.ui.integration.test.material.ObservableColorPaletteTestCase
+import androidx.compose.material.Colors
+import androidx.ui.integration.test.material.ImmutableColorsTestCase
+import androidx.ui.integration.test.material.ObservableColorsTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 /**
- * Benchmark to compare performance of the default observable [ColorPalette] that will be memoized
- * and mutated when incoming values change, compared to a simple immutable [ColorPalette] that
+ * Benchmark to compare performance of the default observable [Colors] that will be memoized
+ * and mutated when incoming values change, compared to a simple immutable [Colors] that
  * will cause all consumers to be recomposed whenever its value changes.
  */
 @LargeTest
 @RunWith(JUnit4::class)
-class ColorPaletteBenchmark {
+class ColorsBenchmark {
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun observablePalette_recompose() {
-        benchmarkRule.toggleStateBenchmarkRecompose { ObservableColorPaletteTestCase() }
+        benchmarkRule.toggleStateBenchmarkRecompose { ObservableColorsTestCase() }
     }
 
     @Test
     fun immutablePalette_recompose() {
-        benchmarkRule.toggleStateBenchmarkRecompose { ImmutableColorPaletteTestCase() }
+        benchmarkRule.toggleStateBenchmarkRecompose { ImmutableColorsTestCase() }
     }
 }
