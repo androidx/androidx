@@ -505,6 +505,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         mSessionManager.stop();
         mPlayer.release();
         mMediaSession.release();
+        mMediaRouter.removeCallback(mMediaRouterCB);
         super.onDestroy();
     }
 
