@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -53,6 +54,9 @@ inline fun PathData(block: PathBuilder.() -> Unit): List<PathNode> =
 const val DefaultPathName = ""
 const val DefaultStrokeLineWidth = 0.0f
 const val DefaultStrokeLineMiter = 4.0f
+const val DefaultTrimPathStart = 0.0f
+const val DefaultTrimPathEnd = 1.0f
+const val DefaultTrimPathOffset = 0.0f
 
 val DefaultStrokeLineCap = StrokeCap.butt
 val DefaultStrokeLineJoin = StrokeJoin.miter
@@ -234,12 +238,44 @@ internal data class PathComponent(val name: String) : VNode() {
             }
         }
 
+    var trimPathStart: Float = DefaultTrimPathStart
+        set(value) {
+            if (field != value) {
+                field = value
+                isTrimPathDirty = true
+                invalidate()
+            }
+        }
+
+    var trimPathEnd: Float = DefaultTrimPathEnd
+        set(value) {
+            if (field != value) {
+                field = value
+                isTrimPathDirty = true
+                invalidate()
+            }
+        }
+
+    var trimPathOffset: Float = DefaultTrimPathOffset
+        set(value) {
+            if (field != value) {
+                field = value
+                isTrimPathDirty = true
+                invalidate()
+            }
+        }
+
     private var isPathDirty = true
     private var isStrokeDirty = true
+    private var isTrimPathDirty = true
 
     private var strokeStyle: Stroke? = null
 
     private val path = Path()
+
+    private val renderPath = Path()
+
+    private val pathMeasure: PathMeasure by lazy(LazyThreadSafetyMode.NONE) { PathMeasure() }
 
     private val parser = PathParser()
 
@@ -247,15 +283,37 @@ internal data class PathComponent(val name: String) : VNode() {
         parser.clear()
         path.reset()
         parser.addPathNodes(pathData).toPath(path)
+        updateRenderPath()
+    }
+
+    private fun updateRenderPath() {
+        renderPath.reset()
+        if (trimPathStart == DefaultTrimPathStart && trimPathEnd == DefaultTrimPathEnd) {
+            renderPath.addPath(path)
+        } else {
+            pathMeasure.setPath(path, false)
+            val length = pathMeasure.length
+            val start = ((trimPathStart + trimPathOffset) % 1f) * length
+            val end = ((trimPathEnd + trimPathOffset) % 1f) * length
+            if (start > end) {
+                pathMeasure.getSegment(start, length, renderPath, true)
+                pathMeasure.getSegment(0f, end, renderPath, true)
+            } else {
+                pathMeasure.getSegment(start, end, renderPath, true)
+            }
+        }
     }
 
     override fun DrawScope.draw() {
         if (isPathDirty) {
             updatePath()
-            isPathDirty = false
+        } else if (isTrimPathDirty) {
+            updateRenderPath()
         }
+        isPathDirty = false
+        isTrimPathDirty = false
 
-        fill?.let { drawPath(path, brush = it, alpha = fillAlpha) }
+        fill?.let { drawPath(renderPath, brush = it, alpha = fillAlpha) }
         stroke?.let {
             var targetStroke = strokeStyle
             if (isStrokeDirty || targetStroke == null) {
@@ -264,7 +322,7 @@ internal data class PathComponent(val name: String) : VNode() {
                 strokeStyle = targetStroke
                 isStrokeDirty = false
             }
-            drawPath(path, brush = it, alpha = strokeAlpha, style = targetStroke)
+            drawPath(renderPath, brush = it, alpha = strokeAlpha, style = targetStroke)
         }
     }
 

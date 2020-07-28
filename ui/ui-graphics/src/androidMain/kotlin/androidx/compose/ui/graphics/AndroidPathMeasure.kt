@@ -16,23 +16,30 @@
 
 package androidx.compose.ui.graphics
 
-internal class AndroidPathMeasure() : PathMeasure {
-    private val measure = android.graphics.PathMeasure()
+actual fun PathMeasure(): PathMeasure = AndroidPathMeasure(android.graphics.PathMeasure())
 
-    override fun setPath(path: Path, forceClosed: Boolean) {
-        measure.setPath(path.asAndroidPath(), forceClosed)
-    }
+class AndroidPathMeasure internal constructor(
+    private val internalPathMeasure: android.graphics.PathMeasure
+) : PathMeasure {
+
+    override val length: Float
+        get() = internalPathMeasure.length
 
     override fun getSegment(
         startDistance: Float,
         stopDistance: Float,
-        path: Path,
+        destination: Path,
         startWithMoveTo: Boolean
-    ): Boolean =
-        measure.getSegment(startDistance, stopDistance, path.asAndroidPath(), startWithMoveTo)
+    ): Boolean {
+        return internalPathMeasure.getSegment(
+            startDistance,
+            stopDistance,
+            destination.asAndroidPath(),
+            startWithMoveTo
+        )
+    }
 
-    override val length: Float
-        get() = measure.length
+    override fun setPath(path: Path?, forceClosed: Boolean) {
+        internalPathMeasure.setPath(path?.asAndroidPath(), forceClosed)
+    }
 }
-
-actual fun PathMeasure(): PathMeasure = AndroidPathMeasure()
