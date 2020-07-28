@@ -621,9 +621,16 @@ public final class MediaRouter {
      *     // addCallback() again in order to tell the media router that it no longer
      *     // needs to invest effort trying to discover routes of these kinds for now.
      *     public void onStop() {
-     *         super.onStop();
-     *
      *         mRouter.addCallback(mSelector, mCallback, &#47;* flags= *&#47; 0);
+     *
+     *         super.onStop();
+     *     }
+     *
+     *     // Remove the callback when the activity is destroyed.
+     *     public void onDestroy() {
+     *         mRouter.removeCallback(mCallback);
+     *
+     *         super.onDestroy();
      *     }
      *
      *     private final class MyCallback extends MediaRouter.Callback {
