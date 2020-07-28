@@ -440,7 +440,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         }
 
         ListenableFuture<ExtensionsManager.ExtensionsAvailability> availability =
-                ExtensionsManager.init();
+                ExtensionsManager.init(getApplicationContext());
 
         Futures.addCallback(availability,
                 new FutureCallback<ExtensionsManager.ExtensionsAvailability>() {
