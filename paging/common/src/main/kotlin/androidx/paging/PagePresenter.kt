@@ -58,6 +58,14 @@ internal class PagePresenter<T : Any>(
         return getFromStorage(localIndex)
     }
 
+    fun snapshot(): ItemSnapshotList<T> {
+        return ItemSnapshotList(
+            placeholdersBefore,
+            placeholdersAfter,
+            pages.flatMap { it.data }
+        )
+    }
+
     override fun getFromStorage(localIndex: Int): T {
         var pageIndex = 0
         var indexInPage = localIndex

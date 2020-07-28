@@ -225,6 +225,12 @@ abstract class PagingDataDiffer<T : Any>(
     }
 
     /**
+     * Returns a new [ItemSnapshotList] representing the currently presented items, including any
+     * placeholders if they are enabled.
+     */
+    fun snapshot(): ItemSnapshotList<T> = presenter.snapshot()
+
+    /**
      * Retry any failed load requests that would result in a [LoadState.Error] update to this
      * [PagingDataDiffer].
      *
