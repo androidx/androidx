@@ -29,7 +29,6 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.os.Parcelable
 import android.util.Log
 import android.util.SparseArray
 import android.view.MotionEvent
@@ -76,7 +75,6 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.text.input.TextInputServiceAndroid
 import androidx.compose.ui.text.input.textInputServiceFactory
-import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry
 import androidx.compose.ui.DrawLayerModifier
 import androidx.compose.ui.FocusModifier2
 import androidx.compose.ui.Modifier
@@ -94,6 +92,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.trace
 import androidx.compose.ui.RootMeasureBlocks
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import java.lang.reflect.Method
 import android.view.KeyEvent as AndroidKeyEvent
 
@@ -103,15 +103,21 @@ import android.view.KeyEvent as AndroidKeyEvent
  * @param context Context to use to create a View
  * @param lifecycleOwner Current [LifecycleOwner]. When it is not provided we will try to get the
  * owner using [ViewTreeLifecycleOwner] when we will be attached.
+ * @param viewModelStoreOwner Current [ViewModelStoreOwner]. When it is not provided we will try
+ * to get the owner using [ViewTreeViewModelStoreOwner] when we will be attached.
+ * @param savedStateRegistryOwner Current [SavedStateRegistryOwner]. When it is not provided we will try
+ * to get the owner using [ViewTreeSavedStateRegistryOwner] when we will be attached.
  */
 fun AndroidOwner(
     context: Context,
     lifecycleOwner: LifecycleOwner? = null,
-    viewModelStoreOwner: ViewModelStoreOwner? = null
+    viewModelStoreOwner: ViewModelStoreOwner? = null,
+    savedStateRegistryOwner: SavedStateRegistryOwner? = null
 ): AndroidOwner = AndroidComposeView(
     context,
     lifecycleOwner,
-    viewModelStoreOwner
+    viewModelStoreOwner,
+    savedStateRegistryOwner
 )
 
 @OptIn(
@@ -123,7 +129,8 @@ fun AndroidOwner(
 internal class AndroidComposeView constructor(
     context: Context,
     initialLifecycleOwner: LifecycleOwner?,
-    initialViewModelStoreOwner: ViewModelStoreOwner?
+    initialViewModelStoreOwner: ViewModelStoreOwner?,
+    initialSavedStateRegistryOwner: SavedStateRegistryOwner?
 ) : ViewGroup(context), AndroidOwner {
 
     override val view: View = this
@@ -377,7 +384,6 @@ internal class AndroidComposeView constructor(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        savedStateDelegate.stopWaitingForStateRestoration()
         trace("AndroidOwner:onMeasure") {
             val (minWidth, maxWidth) = convertMeasureSpec(widthMeasureSpec)
             val (minHeight, maxHeight) = convertMeasureSpec(heightMeasureSpec)
@@ -499,10 +505,12 @@ internal class AndroidComposeView constructor(
     }
 
     override var viewTreeOwners: AndroidOwner.ViewTreeOwners? =
-        if (initialLifecycleOwner != null && initialViewModelStoreOwner != null) {
+        if (initialLifecycleOwner != null && initialViewModelStoreOwner != null &&
+            initialSavedStateRegistryOwner != null) {
             AndroidOwner.ViewTreeOwners(
                 initialLifecycleOwner,
-                initialViewModelStoreOwner
+                initialViewModelStoreOwner,
+                initialSavedStateRegistryOwner
             )
         } else {
             null
@@ -548,12 +556,19 @@ internal class AndroidComposeView constructor(
                 ViewTreeViewModelStoreOwner.get(this) ?: throw IllegalStateException(
                     "Composed into the View which doesn't propagate ViewTreeViewModelStoreOwner!"
                 )
+            val savedStateRegistryOwner =
+                ViewTreeSavedStateRegistryOwner.get(this) ?: throw IllegalStateException(
+                    "Composed into the View which doesn't propagate" +
+                            "ViewTreeSavedStateRegistryOwner!"
+                )
             val viewTreeOwners = AndroidOwner.ViewTreeOwners(
                 lifecycleOwner = lifecycleOwner,
-                viewModelStoreOwner = viewModelStoreOwner
+                viewModelStoreOwner = viewModelStoreOwner,
+                savedStateRegistryOwner = savedStateRegistryOwner
             )
             this.viewTreeOwners = viewTreeOwners
             onViewTreeOwnersAvailable?.invoke(viewTreeOwners)
+            onViewTreeOwnersAvailable = null
         }
         viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
         viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
@@ -642,39 +657,6 @@ internal class AndroidComposeView constructor(
         density = Density(context)
         layoutDirection = context.resources.configuration.localeLayoutDirection
         configurationChangeObserver()
-    }
-
-    private val savedStateDelegate = SavedStateDelegate {
-        // When AndroidComposeView is composed into some ViewGroup we just add ourself as a child
-        // for this ViewGroup. And we don't have any id on AndroidComposeView as we can't make it
-        // unique, but we require this parent ViewGroup to have an unique id for the saved
-        // instance state mechanism to work (similarly to how it works without Compose).
-        // When we composed into Activity our parent is the ViewGroup with android.R.id.content.
-        (parent as? View)?.id ?: View.NO_ID
-    }
-
-    /**
-     * The current instance of [UiSavedStateRegistry]. If it's null you can wait for it to became
-     * available using [setOnSavedStateRegistryAvailable].
-     */
-    override val savedStateRegistry: UiSavedStateRegistry?
-        get() = savedStateDelegate.savedStateRegistry
-
-    /**
-     * Allows other components to be notified when the [UiSavedStateRegistry] became available.
-     */
-    override fun setOnSavedStateRegistryAvailable(callback: (UiSavedStateRegistry) -> Unit) {
-        savedStateDelegate.setOnSaveRegistryAvailable(callback)
-    }
-
-    override fun dispatchSaveInstanceState(container: SparseArray<Parcelable>) {
-        val superState = super.onSaveInstanceState()!!
-        savedStateDelegate.dispatchSaveInstanceState(container, superState)
-    }
-
-    override fun dispatchRestoreInstanceState(container: SparseArray<Parcelable>) {
-        val superState = savedStateDelegate.dispatchRestoreInstanceState(container)
-        onRestoreInstanceState(superState)
     }
 
     private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O

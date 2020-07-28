@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.assertTextEquals
 import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.runOnUiThread
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -102,9 +103,10 @@ class ComposeViewTest {
 
     @Test
     fun disposeOnLifecycleDestroyed() {
-        val lco = TestLifecycleOwner()
+        val lco = runOnUiThread { TestLifecycleOwner().apply {
+            registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        } }
         var composeViewCapture: ComposeView? = null
-        lco.registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
         composeTestRule.activityRule.scenario.onActivity { activity ->
             val composeView = ComposeView(activity).also {
                 ViewTreeLifecycleOwner.set(it, lco)

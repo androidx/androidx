@@ -16,7 +16,6 @@
   -->
 
 <resources>
-    <item name="compose_saved_states_map" type="id"/>
     <item name="accessibility_custom_action_0" type="id" />
     <item name="accessibility_custom_action_1" type="id"/>
     <item name="accessibility_custom_action_2" type="id"/>

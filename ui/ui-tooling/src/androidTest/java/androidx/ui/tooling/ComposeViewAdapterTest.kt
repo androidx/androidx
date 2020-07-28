@@ -167,6 +167,14 @@ class ComposeViewAdapterTest {
         )
     }
 
+    @Test
+    fun uiSavedStateRegistryUsedInsidePreview() {
+        assertRendersCorrectly(
+            "androidx.ui.tooling.SimpleComposablePreviewKt",
+            "UiSavedStateRegistryPreview"
+        )
+    }
+
     companion object {
         class TestActivity : Activity() {
             override fun onCreate(savedInstanceState: Bundle?) {

@@ -24,7 +24,6 @@ import android.graphics.Picture
 import android.graphics.RenderNode
 import android.os.Build
 import android.util.DisplayMetrics
-import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -121,11 +120,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         }
 
         composition = activity.setContent(recomposer) { testCase!!.emitContent() }
-        val ownerView = findAndroidOwner(activity)!!.view
-        // AndroidOwner is postponing the composition till the saved state will be restored.
-        // We will emulate the restoration of the empty state to trigger the real composition.
-        ownerView.restoreHierarchyState(SparseArray())
-        view = ownerView
+        view = findAndroidOwner(activity)!!.view
         @OptIn(ExperimentalComposeApi::class)
         Snapshot.notifyObjectsInitialized()
         simulationState = SimulationState.EmitContentDone

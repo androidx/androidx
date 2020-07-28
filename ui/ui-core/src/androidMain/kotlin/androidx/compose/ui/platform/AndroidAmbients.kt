@@ -25,7 +25,9 @@ import androidx.compose.runtime.Providers
 import androidx.compose.runtime.ambientOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.neverEqualPolicy
+import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistryAmbient
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.state
 import androidx.compose.runtime.staticAmbientOf
@@ -64,7 +66,9 @@ val ViewModelStoreOwnerAmbient = staticAmbientOf<ViewModelStoreOwner>()
 
 @Composable
 internal fun ProvideAndroidAmbients(owner: AndroidOwner, content: @Composable () -> Unit) {
-    val context = owner.view.context
+    val view = owner.view
+    val context = view.context
+
     var configuration by state(
         @OptIn(ExperimentalComposeApi::class)
         neverEqualPolicy()
@@ -85,10 +89,18 @@ internal fun ProvideAndroidAmbients(owner: AndroidOwner, content: @Composable ()
         "Called when the ViewTreeOwnersAvailability is not yet in Available state"
     )
 
+    val uiSavedStateRegistry = remember {
+        DisposableUiSavedStateRegistry(view, viewTreeOwners.savedStateRegistryOwner)
+    }
+    onDispose {
+        uiSavedStateRegistry.dispose()
+    }
+
     Providers(
         ConfigurationAmbient provides configuration,
         ContextAmbient provides context,
         LifecycleOwnerAmbient provides viewTreeOwners.lifecycleOwner,
+        UiSavedStateRegistryAmbient provides uiSavedStateRegistry,
         ViewAmbient provides owner.view,
         ViewModelStoreOwnerAmbient provides viewTreeOwners.viewModelStoreOwner
     ) {

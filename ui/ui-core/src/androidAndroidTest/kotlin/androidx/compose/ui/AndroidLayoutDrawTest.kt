@@ -22,7 +22,6 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.util.SparseArray
 import android.view.PixelCopy
 import android.view.View
 import android.view.ViewGroup
@@ -2407,9 +2406,6 @@ class AndroidLayoutDrawTest {
                     FixedSize(8)
                 }
             }
-
-            val composeView = activityTestRule.findAndroidComposeView()
-            composeView.restoreHierarchyState(SparseArray())
             composition.dispose()
         }
     }
