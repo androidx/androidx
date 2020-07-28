@@ -2616,6 +2616,7 @@ class AndroidLayoutDrawTest {
 
     // When some content is drawn on the parent's layer through a modifier, when the modifier
     // changes, it should invalidate the parent layer, not layer of the LayoutNode.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun invalidateParentLayer() {
         var color by mutableStateOf(Color.Red)
@@ -2640,6 +2641,7 @@ class AndroidLayoutDrawTest {
 
     // When zindex has changed, the parent should be invalidated, even if all drawing is done
     // within a modifier layer.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun invalidateParentLayerZIndex() {
         var zIndex by mutableStateOf(0f)
