@@ -118,42 +118,48 @@ fun BottomNavigation(
  * labels if not selected is controlled by [alwaysShowLabels].
  *
  * @param icon icon for this item, typically this will be a [androidx.compose.foundation.Icon]
- * @param text optional text for this item
  * @param selected whether this item is selected
- * @param onSelected the callback to be invoked when this item is selected
+ * @param onSelect the callback to be invoked when this item is selected
  * @param modifier optional [Modifier] for this item
+ * @param label optional text label for this item
  * @param alwaysShowLabels whether to always show labels for this item. If false, labels will
  * only be shown when this item is selected.
- * @param activeColor the color of the text and icon when this item is selected
- * @param inactiveColor the color of the text and icon when this item is not selected
+ * @param selectedContentColor the color of the text label and icon when this item is selected
+ * @param unselectedContentColor the color of the text label and icon when this item is not selected
  */
 @Composable
 fun BottomNavigationItem(
     icon: @Composable () -> Unit,
-    text: @Composable () -> Unit = emptyContent(),
     selected: Boolean,
-    onSelected: () -> Unit,
+    onSelect: () -> Unit,
     modifier: Modifier = Modifier,
+    label: @Composable () -> Unit = emptyContent(),
     alwaysShowLabels: Boolean = true,
-    activeColor: Color = contentColor(),
-    inactiveColor: Color = EmphasisAmbient.current.medium.applyEmphasis(activeColor)
+    selectedContentColor: Color = contentColor(),
+    unselectedContentColor: Color = EmphasisAmbient.current.medium.applyEmphasis(
+        selectedContentColor
+    )
 ) {
-    val styledText = @Composable {
+    val styledLabel = @Composable {
         val style = MaterialTheme.typography.caption.copy(textAlign = TextAlign.Center)
-        ProvideTextStyle(style, children = text)
+        ProvideTextStyle(style, children = label)
     }
     // TODO This composable has magic behavior within a Row; reconsider this behavior later
     Box(with(RowScope) {
         modifier
-            .selectable(selected = selected, onClick = onSelected)
+            .selectable(selected = selected, onClick = onSelect)
             .weight(1f)
     }, gravity = ContentGravity.Center) {
-        BottomNavigationTransition(activeColor, inactiveColor, selected) { progress ->
+        BottomNavigationTransition(
+            selectedContentColor,
+            unselectedContentColor,
+            selected
+        ) { progress ->
             val animationProgress = if (alwaysShowLabels) 1f else progress
 
             BottomNavigationItemBaselineLayout(
                 icon = icon,
-                text = styledText,
+                label = styledLabel,
                 iconPositionAnimationProgress = animationProgress
             )
         }
@@ -163,7 +169,7 @@ fun BottomNavigationItem(
 /**
  * Transition that animates [contentColor] between [inactiveColor] and [activeColor], depending
  * on [selected]. This component also provides the animation fraction as a parameter to [content],
- * to allow animating the position of the icon and the scale of the text alongside this color
+ * to allow animating the position of the icon and the scale of the label alongside this color
  * animation.
  *
  * @param activeColor [contentColor] when this item is [selected]
@@ -195,45 +201,45 @@ private fun BottomNavigationTransition(
  * Base layout for a [BottomNavigationItem]
  *
  * @param icon icon for this item
- * @param text text for this item
- * @param iconPositionAnimationProgress progress of the animation the controls icon position,
+ * @param label text label for this item
+ * @param iconPositionAnimationProgress progress of the animation that controls icon position,
  * where 0 represents its unselected position and 1 represents its selected position. If both the
- * [icon] and [text] should be shown at all times, this will always be 1, as the icon position
+ * [icon] and [label] should be shown at all times, this will always be 1, as the icon position
  * should remain constant.
  */
 @Composable
 private fun BottomNavigationItemBaselineLayout(
     icon: @Composable () -> Unit,
-    text: @Composable () -> Unit,
+    label: @Composable () -> Unit,
     @FloatRange(from = 0.0, to = 1.0) iconPositionAnimationProgress: Float
 ) {
     Layout(
         {
             Box(Modifier.layoutId("icon"), children = icon)
             Box(
-                Modifier.layoutId("text").drawOpacity(iconPositionAnimationProgress),
+                Modifier.layoutId("label").drawOpacity(iconPositionAnimationProgress),
                 paddingStart = BottomNavigationItemHorizontalPadding,
                 paddingEnd = BottomNavigationItemHorizontalPadding,
-                children = text
+                children = label
             )
         }
     ) { measurables, constraints ->
         val iconPlaceable = measurables.first { it.id == "icon" }.measure(constraints)
 
-        val textPlaceable = measurables.first { it.id == "text" }.measure(
-            // Measure with loose constraints for height as we don't want the text to take up more
+        val labelPlaceable = measurables.first { it.id == "label" }.measure(
+            // Measure with loose constraints for height as we don't want the label to take up more
             // space than it needs
             constraints.copy(minHeight = 0)
         )
 
-        // If the text is empty, just place the icon.
-        if (textPlaceable.width <= BottomNavigationItemHorizontalPadding.toIntPx() * 2 &&
-            textPlaceable.height == 0
+        // If the label is empty, just place the icon.
+        if (labelPlaceable.width <= BottomNavigationItemHorizontalPadding.toIntPx() * 2 &&
+            labelPlaceable.height == 0
         ) {
             placeIcon(iconPlaceable, constraints)
         } else {
-            placeTextAndIcon(
-                textPlaceable,
+            placeLabelAndIcon(
+                labelPlaceable,
                 iconPlaceable,
                 constraints,
                 iconPositionAnimationProgress
@@ -257,27 +263,27 @@ private fun MeasureScope.placeIcon(
 }
 
 /**
- * Places the provided [textPlaceable] and [iconPlaceable] in the correct position, depending on
+ * Places the provided [labelPlaceable] and [iconPlaceable] in the correct position, depending on
  * [iconPositionAnimationProgress].
  *
  * When [iconPositionAnimationProgress] is 0, [iconPlaceable] will be placed in the center, as with
- * [placeIcon], and [textPlaceable] will not be shown.
+ * [placeIcon], and [labelPlaceable] will not be shown.
  *
  * When [iconPositionAnimationProgress] is 1, [iconPlaceable] will be placed near the top of item,
- * and [textPlaceable] will be placed at the bottom of the item, according to the spec.
+ * and [labelPlaceable] will be placed at the bottom of the item, according to the spec.
  *
  * When [iconPositionAnimationProgress] is animating between these values, [iconPlaceable] will be
  * placed at an interpolated position between its centered position and final resting position.
  *
- * @param textPlaceable text placeable inside this item
+ * @param labelPlaceable text label placeable inside this item
  * @param iconPlaceable icon placeable inside this item
  * @param constraints constraints of the item
  * @param iconPositionAnimationProgress the progress of the icon position animation, where 0
- * represents centered icon and no text, and 1 represents top aligned icon with text.
+ * represents centered icon and no label, and 1 represents top aligned icon with label.
  * Values between 0 and 1 interpolate the icon position so we can smoothly move the icon.
  */
-private fun MeasureScope.placeTextAndIcon(
-    textPlaceable: Placeable,
+private fun MeasureScope.placeLabelAndIcon(
+    labelPlaceable: Placeable,
     iconPlaceable: Placeable,
     constraints: Constraints,
     @FloatRange(from = 0.0, to = 1.0) iconPositionAnimationProgress: Float
@@ -285,13 +291,13 @@ private fun MeasureScope.placeTextAndIcon(
     val height = constraints.maxHeight
 
     // TODO: consider multiple lines of text here, not really supported by spec but we should
-    // have a better strategy than overlapping the icon and text
-    val baseline = requireNotNull(textPlaceable[LastBaseline]) { "No text baselines found" }
+    // have a better strategy than overlapping the icon and label
+    val baseline = labelPlaceable[LastBaseline]
 
     val baselineOffset = CombinedItemTextBaseline.toIntPx()
 
-    // Text should be [baselineOffset] from the bottom
-    val textY = height - baseline - baselineOffset
+    // Label should be [baselineOffset] from the bottom
+    val labelY = height - baseline - baselineOffset
 
     val unselectedIconY = (height - iconPlaceable.height) / 2
 
@@ -299,9 +305,9 @@ private fun MeasureScope.placeTextAndIcon(
     // [baselineOffset] from the bottom
     val selectedIconY = height - (baselineOffset * 2) - iconPlaceable.height
 
-    val containerWidth = max(textPlaceable.width, iconPlaceable.width)
+    val containerWidth = max(labelPlaceable.width, iconPlaceable.width)
 
-    val textX = (containerWidth - textPlaceable.width) / 2
+    val labelX = (containerWidth - labelPlaceable.width) / 2
     val iconX = (containerWidth - iconPlaceable.width) / 2
 
     // How far the icon needs to move between unselected and selected states
@@ -314,7 +320,7 @@ private fun MeasureScope.placeTextAndIcon(
 
     return layout(containerWidth, height) {
         if (iconPositionAnimationProgress != 0f) {
-            textPlaceable.place(textX, textY + offset)
+            labelPlaceable.place(labelX, labelY + offset)
         }
         iconPlaceable.place(iconX, selectedIconY + offset)
     }
