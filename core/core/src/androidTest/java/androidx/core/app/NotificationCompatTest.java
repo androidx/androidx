@@ -24,6 +24,7 @@ import static androidx.core.app.NotificationCompat.GROUP_ALERT_ALL;
 import static androidx.core.app.NotificationCompat.GROUP_ALERT_CHILDREN;
 import static androidx.core.app.NotificationCompat.GROUP_ALERT_SUMMARY;
 import static androidx.core.app.NotificationCompat.GROUP_KEY_SILENT;
+import static androidx.core.app.NotificationTester.assertNotificationEquals;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -66,6 +67,7 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
@@ -168,7 +170,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     @Test
     public void testSettingsText() {
         String settingsText = "testSettingsText";
-        Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+        Notification n = new NotificationCompat.Builder(mContext)
                 .setSettingsText(settingsText)
                 .build();
         if (Build.VERSION.SDK_INT >= 26) {
@@ -178,28 +180,256 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testContentTitle() {
+        Notification n = new NotificationCompat.Builder(mContext)
+                .setContentTitle("testContentTitle")
+                .build();
+        assertEquals("testContentTitle", NotificationCompat.getContentTitle(n));
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testContentText() {
+        Notification n = new NotificationCompat.Builder(mContext)
+                .setContentText("testContentText")
+                .build();
+        assertEquals("testContentText", NotificationCompat.getContentText(n));
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testContentInfo() {
+        Notification n = new NotificationCompat.Builder(mContext)
+                .setContentInfo("testContentInfo")
+                .build();
+        assertEquals("testContentInfo", NotificationCompat.getContentInfo(n));
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testSubText() {
+        Notification n = new NotificationCompat.Builder(mContext)
+                .setSubText("testSubText")
+                .build();
+        assertEquals("testSubText", NotificationCompat.getSubText(n));
+    }
+
+    @Test
+    public void testActions() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+        Notification nWith = builder.addAction(0, "testAction", null).build();
+        assertEquals(1, NotificationCompat.getActionCount(nWith));
+        NotificationCompat.Action action = NotificationCompat.getAction(nWith, 0);
+        assertNotNull(action);
+        assertEquals("testAction", action.getTitle());
+
+        Notification nWithout = builder.clearActions().build();
+        assertEquals(0, NotificationCompat.getActionCount(nWithout));
+
+        // Validate that the clear did not mutate the first notification
+        assertEquals(1, NotificationCompat.getActionCount(nWith));
+    }
+
+    @Test
+    public void testInvisibleActions() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+        Notification nWith = builder.addInvisibleAction(0, "testAction", null)
+                .build();
+        List<NotificationCompat.Action> actions = NotificationCompat.getInvisibleActions(nWith);
+
+        if (Build.VERSION.SDK_INT < 21) {
+            assertEquals(0, actions.size());
+            return;
+        }
+
+        assertEquals(1, actions.size());
+        assertEquals("testAction", actions.get(0).getTitle());
+
+        Notification nWithout = builder.clearInvisibleActions().build();
+        assertEquals(Collections.EMPTY_LIST, NotificationCompat.getInvisibleActions(nWithout));
+
+        // Validate that the clear did not mutate the first notification
+        assertEquals(1, NotificationCompat.getInvisibleActions(nWith).size());
+    }
+
     @Test
     public void testShowWhen() {
         // NOTE: It's very difficult to unit test the built notification on JellyBean because
         // there was no extras field and the only affect is that the RemoteViews object has some
         // different internal state.  However, this unit test still validates that the
         // notification is built successfully (without throwing an exception).
-        {
-            Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
-                    .setShowWhen(true)
-                    .build();
-            if (Build.VERSION.SDK_INT >= 19) {
-                assertTrue(n.extras.getBoolean(NotificationCompat.EXTRA_SHOW_WHEN));
-            }
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+
+        // test true
+        Notification nTrue = builder.setShowWhen(true).build();
+        if (Build.VERSION.SDK_INT >= 19) {
+            assertTrue(NotificationCompat.getShowWhen(nTrue));
         }
-        {
-            Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
-                    .setShowWhen(false)
-                    .build();
-            if (Build.VERSION.SDK_INT >= 19) {
-                assertFalse(n.extras.getBoolean(NotificationCompat.EXTRA_SHOW_WHEN));
-            }
+
+        // test false
+        Notification nFalse = builder.setShowWhen(false).build();
+        if (Build.VERSION.SDK_INT >= 19) {
+            assertFalse(NotificationCompat.getShowWhen(nFalse));
         }
+    }
+
+    @Test
+    public void testUsesChronometer() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+
+        // test true
+        Notification nTrue = builder.setUsesChronometer(true).build();
+        if (Build.VERSION.SDK_INT >= 19) {
+            assertTrue(NotificationCompat.getUsesChronometer(nTrue));
+        }
+
+        // test false
+        Notification nFalse = builder.setUsesChronometer(false).build();
+        if (Build.VERSION.SDK_INT >= 19) {
+            assertFalse(NotificationCompat.getUsesChronometer(nFalse));
+        }
+    }
+
+    @Test
+    public void testOnlyAlertOnce() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+
+        // test true
+        Notification nTrue = builder.setOnlyAlertOnce(true).build();
+        assertTrue(NotificationCompat.getOnlyAlertOnce(nTrue));
+
+        // test false
+        Notification nFalse = builder.setOnlyAlertOnce(false).build();
+        assertFalse(NotificationCompat.getOnlyAlertOnce(nFalse));
+    }
+
+    @Test
+    public void testAutoCancel() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+
+        // test true
+        Notification nTrue = builder.setAutoCancel(true).build();
+        assertTrue(NotificationCompat.getAutoCancel(nTrue));
+
+        // test false
+        Notification nFalse = builder.setAutoCancel(false).build();
+        assertFalse(NotificationCompat.getAutoCancel(nFalse));
+    }
+
+    @Test
+    public void testOngoing() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+
+        // test true
+        Notification nTrue = builder.setOngoing(true).build();
+        assertTrue(NotificationCompat.getOngoing(nTrue));
+
+        // test false
+        Notification nFalse = builder.setOngoing(false).build();
+        assertFalse(NotificationCompat.getOngoing(nFalse));
+    }
+
+    @Test
+    public void testColor() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+
+        Notification notification = builder.setColor(Color.GREEN).build();
+        if (Build.VERSION.SDK_INT >= 21) {
+            assertEquals(Color.GREEN, NotificationCompat.getColor(notification));
+        } else {
+            assertEquals(Color.TRANSPARENT, NotificationCompat.getColor(notification));
+        }
+    }
+
+    @Test
+    public void testVisibility() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+
+        Notification n = builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC).build();
+        if (Build.VERSION.SDK_INT >= 21) {
+            assertEquals(NotificationCompat.VISIBILITY_PUBLIC,
+                    NotificationCompat.getVisibility(n));
+        } else {
+            assertEquals(NotificationCompat.VISIBILITY_PRIVATE,
+                    NotificationCompat.getVisibility(n));
+        }
+    }
+
+    @Test
+    public void testPublicVersion() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+        Notification pub = builder.setContentTitle("public title").build();
+        Notification priv = builder.setContentTitle("private title").setPublicVersion(pub).build();
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            assertNull(NotificationCompat.getPublicVersion(pub));
+            assertNotSame(pub, NotificationCompat.getPublicVersion(priv));
+            assertNotificationEquals(pub, NotificationCompat.getPublicVersion(priv));
+        } else {
+            assertNull(NotificationCompat.getPublicVersion(pub));
+            assertNull(NotificationCompat.getPublicVersion(priv));
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testRecoverBuilder_fromMinimalPlatform() {
+        Notification original = new Notification.Builder(mContext).build();
+        Notification recovered = NotificationCompat.Builder.recoverBuilder(mContext, original)
+                .build();
+        assertEquals(original.toString(), recovered.toString());
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testRecoverBuilder_fromSimpleCompat() {
+        Notification original = new NotificationCompat.Builder(mContext, "channelId")
+                .setContentTitle("contentTitle")
+                .setContentText("contentText")
+                .setNumber(3)
+                .build();
+        Notification recovered = NotificationCompat.Builder.recoverBuilder(mContext, original)
+                .build();
+        assertNotificationEquals(original, recovered);
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testRecoverBuilder_fromMessagingStyledCompat() {
+        Person person1 = new Person.Builder()
+                .setName("personName1")
+                .setBot(true)
+                .setImportant(true)
+                .build();
+        Person person2 = new Person.Builder()
+                .setName("personName2")
+                .setBot(true)
+                .setImportant(true)
+                .build();
+        Bundle testBundle = new Bundle();
+        testBundle.putString("testExtraKey", "testExtraValue");
+        Notification original = new NotificationCompat.Builder(mContext, "channelId")
+                .setContentTitle("contentTitle")
+                .setContentText("contentText")
+                .setContentInfo("contentInfo")
+                .setSubText("subText")
+                .setNumber(3)
+                .setProgress(10, 1, false)
+                .setSettingsText("settingsText")
+                .setLocalOnly(true)
+                .setAutoCancel(true)
+                .setStyle(new NotificationCompat.MessagingStyle(person1)
+                        .addMessage("Message 1", 123, person1)
+                        .addMessage("Message 2", 234, person2))
+                .addPerson(person1)
+                .addPerson(person2)
+                .addExtras(testBundle)
+                .build();
+        Notification recovered = NotificationCompat.Builder.recoverBuilder(mContext, original)
+                .build();
+        assertNotificationEquals(original, recovered);
     }
 
     @Test
@@ -365,7 +595,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     @Test
     public void testNotificationChannel() throws Throwable {
         String channelId = "new ID";
-        Notification n  = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+        Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
                 .setChannelId(channelId)
                 .build();
         if (Build.VERSION.SDK_INT >= 26) {
@@ -378,7 +608,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     @Test
     public void testNotificationChannel_assignedFromBuilder() throws Throwable {
         String channelId = "new ID";
-        Notification n  = new NotificationCompat.Builder(mActivityTestRule.getActivity(), channelId)
+        Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity(), channelId)
                 .build();
         if (Build.VERSION.SDK_INT >= 26) {
             assertEquals(channelId, NotificationCompat.getChannelId(n));
@@ -391,8 +621,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void testNotificationActionBuilder_assignsColorized() throws Throwable {
         Notification n = newNotificationBuilder().setColorized(true).build();
         if (Build.VERSION.SDK_INT >= 26) {
-            Bundle extras = NotificationCompat.getExtras(n);
-            assertTrue(Boolean.TRUE.equals(extras.get(EXTRA_COLORIZED)));
+            assertEquals(Boolean.TRUE, n.extras.get(EXTRA_COLORIZED));
         }
     }
 
@@ -400,8 +629,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void testNotificationActionBuilder_unassignesColorized() throws Throwable {
         Notification n = newNotificationBuilder().setColorized(false).build();
         if (Build.VERSION.SDK_INT >= 26) {
-            Bundle extras = NotificationCompat.getExtras(n);
-            assertTrue(Boolean.FALSE.equals(extras.get(EXTRA_COLORIZED)));
+            assertEquals(Boolean.FALSE, n.extras.get(EXTRA_COLORIZED));
         }
     }
 
@@ -409,8 +637,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void testNotificationActionBuilder_doesntAssignColorized() throws Throwable {
         Notification n = newNotificationBuilder().build();
         if (Build.VERSION.SDK_INT >= 26) {
-            Bundle extras = NotificationCompat.getExtras(n);
-            assertFalse(extras.containsKey(EXTRA_COLORIZED));
+            assertFalse(n.extras.containsKey(EXTRA_COLORIZED));
         }
     }
 
@@ -567,7 +794,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void testNotificationWearableExtenderAction_drawableIcon() throws Throwable {
         NotificationCompat.Action a =
                 new NotificationCompat.Action.Builder(android.R.drawable.ic_delete, "title", null)
-                .build();
+                        .build();
         NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
                 .addAction(a);
         Notification notification = newNotificationBuilder().extend(extender).build();
@@ -687,7 +914,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
         Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
                 .setGroupAlertBehavior(GROUP_ALERT_CHILDREN)
-                .setVibrate(new long[] {235})
+                .setVibrate(new long[]{235})
                 .setSound(Uri.EMPTY)
                 .setDefaults(DEFAULT_ALL)
                 .setGroup("grouped")
@@ -696,7 +923,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
         Notification n2 = new NotificationCompat.Builder(mActivityTestRule.getActivity())
                 .setGroupAlertBehavior(GROUP_ALERT_SUMMARY)
-                .setVibrate(new long[] {235})
+                .setVibrate(new long[]{235})
                 .setSound(Uri.EMPTY)
                 .setDefaults(DEFAULT_ALL)
                 .setGroup("grouped")
@@ -734,7 +961,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void testSetNotificationSilent() {
 
         Notification nSummary = new NotificationCompat.Builder(mActivityTestRule.getActivity())
-                .setVibrate(new long[] {235})
+                .setVibrate(new long[]{235})
                 .setSound(Uri.EMPTY)
                 .setDefaults(DEFAULT_ALL)
                 .setGroupSummary(true)
@@ -743,7 +970,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .build();
 
         Notification nChild = new NotificationCompat.Builder(mActivityTestRule.getActivity())
-                .setVibrate(new long[] {235})
+                .setVibrate(new long[]{235})
                 .setSound(Uri.EMPTY)
                 .setDefaults(DEFAULT_ALL)
                 .setGroupSummary(false)
@@ -781,7 +1008,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         final String groupKey = "grouped";
 
         Notification nSummary = new NotificationCompat.Builder(mActivityTestRule.getActivity())
-                .setVibrate(new long[] {235})
+                .setVibrate(new long[]{235})
                 .setSound(Uri.EMPTY)
                 .setDefaults(DEFAULT_ALL)
                 .setGroupSummary(true)
@@ -791,7 +1018,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .build();
 
         Notification nChild = new NotificationCompat.Builder(mActivityTestRule.getActivity())
-                .setVibrate(new long[] {235})
+                .setVibrate(new long[]{235})
                 .setSound(Uri.EMPTY)
                 .setDefaults(DEFAULT_ALL)
                 .setGroupSummary(false)
@@ -814,7 +1041,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void testSetNotificationSilent_notSilenced() throws Throwable {
 
         Notification nSummary = new NotificationCompat.Builder(mActivityTestRule.getActivity())
-                .setVibrate(new long[] {235})
+                .setVibrate(new long[]{235})
                 .setSound(Uri.EMPTY)
                 .setDefaults(DEFAULT_ALL)
                 .setGroup("grouped")
@@ -822,7 +1049,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .build();
 
         Notification nChild = new NotificationCompat.Builder(mActivityTestRule.getActivity())
-                .setVibrate(new long[] {235})
+                .setVibrate(new long[]{235})
                 .setSound(Uri.EMPTY)
                 .setDefaults(DEFAULT_ALL)
                 .setGroup("grouped")
@@ -851,7 +1078,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void testGroupAlertBehavior_doesNotMuteIncorrectGroupNotifications() throws Throwable {
         Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
                 .setGroupAlertBehavior(GROUP_ALERT_SUMMARY)
-                .setVibrate(new long[] {235})
+                .setVibrate(new long[]{235})
                 .setSound(Uri.EMPTY)
                 .setDefaults(DEFAULT_ALL)
                 .setGroup("grouped")
@@ -860,7 +1087,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
         Notification n2 = new NotificationCompat.Builder(mActivityTestRule.getActivity())
                 .setGroupAlertBehavior(GROUP_ALERT_CHILDREN)
-                .setVibrate(new long[] {235})
+                .setVibrate(new long[]{235})
                 .setSound(Uri.EMPTY)
                 .setDefaults(DEFAULT_ALL)
                 .setGroup("grouped")
@@ -868,7 +1095,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .build();
 
         Notification n3 = new NotificationCompat.Builder(mActivityTestRule.getActivity())
-                .setVibrate(new long[] {235})
+                .setVibrate(new long[]{235})
                 .setSound(Uri.EMPTY)
                 .setDefaults(DEFAULT_ALL)
                 .setGroup("grouped")
@@ -900,7 +1127,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void testGroupAlertBehavior_doesNotMuteNonGroupNotifications() throws Throwable {
         Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
                 .setGroupAlertBehavior(GROUP_ALERT_CHILDREN)
-                .setVibrate(new long[] {235})
+                .setVibrate(new long[]{235})
                 .setSound(Uri.EMPTY)
                 .setDefaults(DEFAULT_ALL)
                 .setGroup(null)
@@ -1464,8 +1691,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
         NotificationCompat.Action action = new NotificationCompat.Action.Builder(
                 R.drawable.notification_bg, "Test Title", pendingIntent)
-                        .setContextual(true)
-                        .build();
+                .setContextual(true)
+                .build();
         Notification notification = newNotificationBuilder().addAction(action).build();
         NotificationCompat.Action result = NotificationCompat.getAction(notification, 0);
 
@@ -1590,39 +1817,51 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
     @Test
     public void testPeopleField() {
-        final Person person = new Person.Builder().setName("test name").setKey("key").build();
+        final Person person1 = new Person.Builder().setName("test name").setKey("key").build();
         final Person person2 = new Person.Builder()
                 .setName("test name 2").setKey("key 2").setImportant(true).build();
 
-        final Notification notification = new NotificationCompat.Builder(mContext, "test channel")
-                .addPerson("self name")
-                .addPerson(person)
-                .addPerson(person2)
-                .build();
+        final NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(mContext, "test channel")
+                        .addPerson("test:selfUri")
+                        .addPerson(person1)
+                        .addPerson(person2);
+
+        final Notification notification = builder.build();
+
+        // before testing the notification we've built with people, test the clearPeople() method
+        final Notification notificationWithoutPeople = builder.clearPeople().build();
+        if (Build.VERSION.SDK_INT >= 19) {
+            assertNull(notificationWithoutPeople.extras.get(NotificationCompat.EXTRA_PEOPLE));
+            assertNull(notificationWithoutPeople.extras.get(NotificationCompat.EXTRA_PEOPLE_LIST));
+        }
 
         if (Build.VERSION.SDK_INT >= 29) {
+            assertNull(notificationWithoutPeople.extras.get(NotificationCompat.EXTRA_PEOPLE));
             final ArrayList<android.app.Person> peopleList =
                     notification.extras.getParcelableArrayList(Notification.EXTRA_PEOPLE_LIST);
             final ArraySet<android.app.Person> people = new ArraySet<>(peopleList);
             final ArraySet<android.app.Person> expected = new ArraySet<>();
-            expected.add(new Person.Builder().setUri("self name").build().toAndroidPerson());
-            expected.add(person.toAndroidPerson());
+            expected.add(new Person.Builder().setUri("test:selfUri").build().toAndroidPerson());
+            expected.add(person1.toAndroidPerson());
             expected.add(person2.toAndroidPerson());
             assertEquals(expected, people);
         } else if (Build.VERSION.SDK_INT >= 28) {
+            assertNull(notificationWithoutPeople.extras.get(NotificationCompat.EXTRA_PEOPLE));
             // Person#equals is not implemented in API 28, so comparing uri manually
             final ArrayList<android.app.Person> peopleList =
                     notification.extras.getParcelableArrayList(Notification.EXTRA_PEOPLE_LIST);
             final ArraySet<String> people = new ArraySet<>();
             for (android.app.Person p : peopleList) {
-                people.add(p.getUri());
+                people.add(p.getName() + "\t" + p.getUri());
             }
             final ArraySet<String> expected = new ArraySet<>();
-            expected.add("self name");
-            expected.add(person.toAndroidPerson().getUri());
-            expected.add(person2.toAndroidPerson().getUri());
+            expected.add("null\ttest:selfUri");
+            expected.add("test name\tnull");
+            expected.add("test name 2\tnull");
             assertEquals(expected, people);
         } else if (Build.VERSION.SDK_INT >= 19) {
+            assertNull(notificationWithoutPeople.extras.get(NotificationCompat.EXTRA_PEOPLE_LIST));
             final String[] peopleArray =
                     notification.extras.getStringArray(Notification.EXTRA_PEOPLE);
             if (peopleArray == null) {
@@ -1633,9 +1872,27 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
             final ArraySet<String> expected = new ArraySet<>();
             expected.add("name:test name");
             expected.add("name:test name 2");
-            expected.add("self name");
+            expected.add("test:selfUri");
             assertEquals(expected, people);
         }
+
+        // Test the getter as well
+        final ArraySet<String> people = new ArraySet<>();
+        for (Person person : NotificationCompat.getPeople(notification)) {
+            people.add(person.getName() + "\t" + person.getUri());
+        }
+        final ArraySet<String> expected = new ArraySet<>();
+        if (Build.VERSION.SDK_INT >= 28) {
+            expected.add("test name\tnull");
+            expected.add("test name 2\tnull");
+            expected.add("null\ttest:selfUri");
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            // On older platforms, the name is converted into a URI
+            expected.add("null\tname:test name");
+            expected.add("null\tname:test name 2");
+            expected.add("null\ttest:selfUri");
+        }
+        assertEquals(expected, people);
     }
 
     // Add the @Test annotation to enable this test. This test is disabled by default as it's not a
@@ -1701,9 +1958,9 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
     private static RemoteInput newDataOnlyRemoteInput() {
         return new RemoteInput.Builder(DATA_RESULT_KEY)
-            .setAllowFreeFormInput(false)
-            .setAllowDataType("mimeType", true)
-            .build();
+                .setAllowFreeFormInput(false)
+                .setAllowDataType("mimeType", true)
+                .build();
     }
 
     private static RemoteInput newTextRemoteInput() {
