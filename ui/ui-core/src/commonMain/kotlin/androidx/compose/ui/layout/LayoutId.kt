@@ -35,16 +35,6 @@ import androidx.compose.ui.unit.Density
 fun Modifier.layoutId(id: Any) = this.then(LayoutId(id))
 
 /**
- * Tag the element with [tag] to identify the element within its parent.
- */
-@Stable
-@Deprecated(
-    "tag has been deprecated, layoutId should be used instead.",
-    ReplaceWith("layoutId(tag)", "androidx.compose.ui.layout.layoutId")
-)
-fun Modifier.tag(tag: Any) = this.then(LayoutId(tag))
-
-/**
  * A [ParentDataModifier] which tags the target with the given [id]. The provided tag
  * will act as parent data, and can be used for example by parent layouts to associate
  * composable children to [Measurable]s when doing layout, as shown below.
@@ -71,14 +61,6 @@ interface LayoutIdParentData {
     val id: Any
 }
 
-@Deprecated(
-    "LayoutTagParentData is deprecated, use LayoutIdParentData instead.",
-    ReplaceWith("LayoutIdParentData", "androidx.compose.ui.layout.LayoutIdParentData")
-)
-interface LayoutTagParentData {
-    val tag: Any
-}
-
 /**
  * Retrieves the tag associated to a composable with the [Modifier.layoutId] modifier.
  * For a parent data value to be returned by this property when not using the [Modifier.layoutId]
@@ -88,11 +70,4 @@ interface LayoutTagParentData {
  * @sample androidx.compose.ui.samples.LayoutTagChildrenUsage
  */
 val Measurable.id: Any?
-    get() = (parentData as? LayoutIdParentData)?.id
-
-@Deprecated(
-    "tag is deprecated, use id instead.",
-    ReplaceWith("id", "androidx.compose.ui.layout.id")
-)
-val Measurable.tag: Any?
     get() = (parentData as? LayoutIdParentData)?.id
