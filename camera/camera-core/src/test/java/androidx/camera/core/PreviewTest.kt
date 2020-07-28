@@ -117,6 +117,31 @@ class PreviewTest {
         assertThat(preview.targetRotation).isEqualTo(Surface.ROTATION_180)
     }
 
+    @Test
+    fun setSurfaceProviderAfterAttachment_receivesSurfaceRequest() {
+        // Arrange: attach Preview without a SurfaceProvider.
+        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
+        val cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
+            ApplicationProvider
+                .getApplicationContext<Context>(), CameraSelector.DEFAULT_BACK_CAMERA
+        )
+        cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(preview))
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        // Unsent pending SurfaceRequest created by pipeline.
+        val pendingSurfaceRequest = preview.mPendingSurfaceRequest
+        var receivedSurfaceRequest: SurfaceRequest? = null
+
+        // Act: set a SurfaceProvider after attachment.
+        preview.setSurfaceProvider { receivedSurfaceRequest = it }
+        // Assert: received a SurfaceRequest.
+        assertThat(receivedSurfaceRequest).isSameInstanceAs(pendingSurfaceRequest)
+
+        // Act: set a different SurfaceProvider.
+        preview.setSurfaceProvider { receivedSurfaceRequest = it }
+        // Assert: received a different SurfaceRequest.
+        assertThat(receivedSurfaceRequest).isNotSameInstanceAs(pendingSurfaceRequest)
+    }
+
     private fun bindToLifecycleAndGetSurfaceRequest(): SurfaceRequest {
         return bindToLifecycleAndGetSurfaceRequest(null)
     }
