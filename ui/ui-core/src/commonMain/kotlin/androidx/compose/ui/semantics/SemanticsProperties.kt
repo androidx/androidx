@@ -80,6 +80,12 @@ object SemanticsProperties {
      */
     val IsPopup = SemanticsPropertyKey<Unit>("IsPopup")
 
+    /**
+     * Whether this element is a Dialog. Not to be confused with if this element is _part of_ a
+     * Dialog.
+     */
+    val IsDialog = SemanticsPropertyKey<Unit>("IsDialog")
+
     // TODO(b/138172781): Move to FoundationSemanticsProperties
     /**
      * Test tag attached to this semantics node.
@@ -306,6 +312,13 @@ fun SemanticsPropertyReceiver.hidden() {
  */
 fun SemanticsPropertyReceiver.popup() {
     this[SemanticsProperties.IsPopup] = Unit
+}
+
+/**
+ * Whether this element is a Dialog. Not to be confused with if this element is _part of_ a Dialog.
+ */
+fun SemanticsPropertyReceiver.dialog() {
+    this[SemanticsProperties.IsDialog] = Unit
 }
 
 // TODO(b/138172781): Move to FoundationSemanticsProperties.kt

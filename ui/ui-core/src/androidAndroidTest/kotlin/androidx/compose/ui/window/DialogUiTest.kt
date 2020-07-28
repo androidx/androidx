@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.compose.foundation
+package androidx.compose.ui.window
 
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.ambientOf
 import androidx.compose.runtime.state
@@ -23,6 +25,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
 import androidx.compose.ui.Modifier
+import androidx.test.espresso.Espresso
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
@@ -99,7 +102,9 @@ class DialogUiTest {
             val showDialog = state { true }
 
             if (showDialog.value) {
-                Dialog(onCloseRequest = { showDialog.value = false }) {
+                Dialog(onCloseRequest = {
+                    showDialog.value = false
+                }) {
                     Text(defaultText)
                 }
             }
@@ -144,7 +149,9 @@ class DialogUiTest {
             val showDialog = state { true }
 
             if (showDialog.value) {
-                Dialog(onCloseRequest = { showDialog.value = false }) {
+                Dialog(onCloseRequest = {
+                    showDialog.value = false
+                }) {
                     Text(defaultText)
                 }
             }
@@ -153,7 +160,7 @@ class DialogUiTest {
         onNodeWithText(defaultText).assertIsDisplayed()
 
         // Click the back button to dismiss the Dialog
-        UiDevice.getInstance(getInstrumentation()).pressBack()
+        Espresso.pressBack()
 
         onNodeWithText(defaultText).assertDoesNotExist()
     }
@@ -176,7 +183,7 @@ class DialogUiTest {
         onNodeWithText(defaultText).assertIsDisplayed()
 
         // Click the back button to try to dismiss the dialog
-        UiDevice.getInstance(getInstrumentation()).pressBack()
+        Espresso.pressBack()
 
         // The Dialog should still be visible
         onNodeWithText(defaultText).assertIsDisplayed()

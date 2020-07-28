@@ -24,7 +24,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.Popup
+import androidx.compose.ui.window.Popup
 import androidx.compose.ui.unit.dp
 
 @Sampled

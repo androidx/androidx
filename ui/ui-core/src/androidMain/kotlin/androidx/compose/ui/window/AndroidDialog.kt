@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package androidx.compose.ui.window
 
 import android.app.Dialog
 import android.view.MotionEvent
@@ -35,9 +35,13 @@ import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.foundation.semantics.dialog
+import androidx.compose.ui.Layout
 import androidx.compose.ui.platform.ViewAmbient
 import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.semantics.dialog
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMaxBy
 
 /**
  * Opens a dialog with the given content.
@@ -48,7 +52,7 @@ import androidx.compose.ui.platform.setContent
  *
  * Example usage:
  *
- * @sample androidx.compose.foundation.samples.DialogSample
+ * @sample androidx.compose.ui.samples.DialogSample
  *
  * @param onCloseRequest Executes when the user tries to dismiss the Dialog.
  * @param children The content to be displayed inside the dialog.
@@ -60,7 +64,12 @@ actual fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit) 
     @OptIn(ExperimentalComposeApi::class)
     val recomposer = currentComposer.recomposer
     // The recomposer can't change.
-    val dialog = remember(view) { DialogWrapper(view, recomposer) }
+    val dialog = remember(view) {
+        DialogWrapper(
+            view,
+            recomposer
+        )
+    }
     dialog.onCloseRequest = onCloseRequest
 
     onActive {
@@ -77,7 +86,10 @@ actual fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit) 
         dialog.setContent(composition) {
             // TODO(b/159900354): draw a scrim and add margins around the Compose Dialog, and
             //  consume clicks so they can't pass through to the underlying UI
-            Box(Modifier.semantics { this.dialog() }, children = children)
+            DialogLayout(
+                Modifier.semantics { this.dialog() },
+                children
+            )
         }
     }
 }
@@ -126,5 +138,23 @@ private class DialogWrapper(
 
     override fun onBackPressed() {
         onCloseRequest()
+    }
+}
+
+@Composable
+private fun DialogLayout(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Layout(
+        children = content,
+        modifier = modifier
+    ) { measurables, constraints ->
+        val placeables = measurables.fastMap { it.measure(constraints) }
+        val width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth
+        val height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
+        layout(width, height) {
+            placeables.fastForEach { it.place(0, 0) }
+        }
     }
 }

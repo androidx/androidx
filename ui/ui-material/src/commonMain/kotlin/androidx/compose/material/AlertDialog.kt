@@ -21,7 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
-import androidx.compose.foundation.Dialog
+import androidx.compose.ui.window.Dialog
 import androidx.compose.foundation.ProvideTextStyle
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.layout.Arrangement

@@ -255,10 +255,10 @@ fun isNotHidden(): SemanticsMatcher =
  * This only checks if the node itself is a dialog, not if it is _part of_ a dialog. Use
  * `hasAnyAncestorThat(isDialog())` for that.
  *
- * @see FoundationSemanticsProperties.IsDialog
+ * @see SemanticsProperties.IsDialog
  */
 fun isDialog(): SemanticsMatcher =
-    SemanticsMatcher.keyIsDefined(FoundationSemanticsProperties.IsDialog)
+    SemanticsMatcher.keyIsDefined(SemanticsProperties.IsDialog)
 
 /** Returns whether the node is a popup.
  *

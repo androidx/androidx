@@ -1942,10 +1942,6 @@ package androidx.compose.ui.platform {
     method public androidx.lifecycle.ViewModelStoreOwner getViewModelStoreOwner();
   }
 
-  public final class AndroidPopupKt {
-    method @org.jetbrains.annotations.TestOnly public static boolean isPopupLayout(android.view.View view, String? testTag = null);
-  }
-
   public final class AndroidUriHandler implements androidx.compose.ui.platform.UriHandler {
     ctor public AndroidUriHandler(android.content.Context context);
     method public void openUri(String uri);
@@ -2074,15 +2070,6 @@ package androidx.compose.ui.platform {
     method public static androidx.compose.ui.geometry.Offset positionChangeIgnoreConsumed(androidx.compose.ui.platform.PointerInputChange);
     method public static boolean positionChanged(androidx.compose.ui.platform.PointerInputChange);
     method public static boolean positionChangedIgnoreConsumed(androidx.compose.ui.platform.PointerInputChange);
-  }
-
-  public final class PopupKt {
-    method @androidx.compose.runtime.Composable public static void Popup(androidx.compose.ui.Alignment alignment = Alignment.TopStart, androidx.compose.ui.unit.IntOffset offset = IntOffset(0, 0), boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method @androidx.compose.runtime.Composable public static void Popup(androidx.compose.ui.platform.PopupPositionProvider popupPositionProvider, boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  @androidx.compose.runtime.Immutable public interface PopupPositionProvider {
-    method public androidx.compose.ui.unit.IntOffset calculatePosition(androidx.compose.ui.unit.IntBounds parentGlobalBounds, androidx.compose.ui.unit.IntBounds windowGlobalBounds, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.unit.IntSize popupContentSize);
   }
 
   public final class SavedStateDelegateKt {
@@ -2389,6 +2376,7 @@ package androidx.compose.ui.semantics {
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getDisabled();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getFocused();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getHidden();
+    method public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getIsDialog();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getIsPopup();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.String> getTestTag();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.text.AnnotatedString> getText();
@@ -2399,6 +2387,7 @@ package androidx.compose.ui.semantics {
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> Disabled;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Focused;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> Hidden;
+    property public final androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> IsDialog;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> IsPopup;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.String> TestTag;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.text.AnnotatedString> Text;
@@ -2407,6 +2396,7 @@ package androidx.compose.ui.semantics {
   }
 
   public final class SemanticsPropertiesKt {
+    method public static void dialog(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static void disabled(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static String getAccessibilityLabel(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static String getAccessibilityValue(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
@@ -2476,6 +2466,27 @@ package androidx.compose.ui.viewinterop {
   public final class ViewModelKt {
     method @androidx.compose.runtime.Composable public static <VM extends androidx.lifecycle.ViewModel> VM viewModel(Class<VM> modelClass, String? key = null, androidx.lifecycle.ViewModelProvider.Factory? factory = null);
     method @androidx.compose.runtime.Composable public static inline <reified VM extends androidx.lifecycle.ViewModel> VM! viewModel(String key = null, androidx.lifecycle.ViewModelProvider.Factory? factory = null);
+  }
+
+}
+
+package androidx.compose.ui.window {
+
+  public final class AndroidDialogKt {
+    method @androidx.compose.runtime.Composable public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class AndroidPopupKt {
+    method @org.jetbrains.annotations.TestOnly public static boolean isPopupLayout(android.view.View view, String? testTag = null);
+  }
+
+  public final class PopupKt {
+    method @androidx.compose.runtime.Composable public static void Popup(androidx.compose.ui.Alignment alignment = Alignment.TopStart, androidx.compose.ui.unit.IntOffset offset = IntOffset(0, 0), boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.runtime.Composable public static void Popup(androidx.compose.ui.window.PopupPositionProvider popupPositionProvider, boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  @androidx.compose.runtime.Immutable public interface PopupPositionProvider {
+    method public androidx.compose.ui.unit.IntOffset calculatePosition(androidx.compose.ui.unit.IntBounds parentGlobalBounds, androidx.compose.ui.unit.IntBounds windowGlobalBounds, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.unit.IntSize popupContentSize);
   }
 
 }

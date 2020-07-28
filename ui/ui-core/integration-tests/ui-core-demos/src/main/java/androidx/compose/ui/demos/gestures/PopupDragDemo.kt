@@ -33,7 +33,7 @@ import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.dragGestureFilter
-import androidx.compose.ui.platform.Popup
+import androidx.compose.ui.window.Popup
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 
@@ -55,7 +55,10 @@ fun PopupDragDemo() {
 
     Column {
         Text("That is a pop up with a dragGestureFilter on it.  You can drag it around!")
-        Popup(alignment = Alignment.TopStart, offset = offset.value.round()) {
+        Popup(
+            alignment = Alignment.TopStart,
+            offset = offset.value.round()
+        ) {
             Stack {
                 Box(
                     Modifier
