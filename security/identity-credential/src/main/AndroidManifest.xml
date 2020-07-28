@@ -14,5 +14,5 @@
      limitations under the License.
 -->
 <manifest package="androidx.security.identity.credential"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    >
 </manifest>
