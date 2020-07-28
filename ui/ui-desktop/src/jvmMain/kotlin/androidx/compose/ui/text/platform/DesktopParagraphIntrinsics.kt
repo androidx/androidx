@@ -1,19 +1,19 @@
 /*
-* Copyright 2020 The Android Open Source Project
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-package androidx.ui.desktop
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package androidx.compose.ui.text.platform
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -26,11 +26,29 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
-import kotlin.math.ceil
 import org.jetbrains.skija.paragraph.Paragraph
 import org.jetbrains.skija.paragraph.ParagraphBuilder
 import org.jetbrains.skija.paragraph.ParagraphStyle
+import kotlin.math.ceil
 import org.jetbrains.skija.paragraph.TextStyle as SkTextStyle
+
+@Suppress("unused", "UNUSED_PARAMETER")
+internal /*actual*/ fun ActualParagraphIntrinsics(
+    text: String,
+    style: TextStyle,
+    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    placeholders: List<AnnotatedString.Range<Placeholder>>,
+    density: Density,
+    resourceLoader: Font.ResourceLoader
+): ParagraphIntrinsics =
+    DesktopParagraphIntrinsics(
+        text,
+        style,
+        spanStyles,
+        placeholders,
+        density,
+        resourceLoader
+    )
 
 internal class DesktopParagraphIntrinsics(
     val text: String,

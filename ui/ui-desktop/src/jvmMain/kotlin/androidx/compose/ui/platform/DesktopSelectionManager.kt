@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.ui.desktop
+package androidx.compose.ui.platform
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.platform.ClipboardManager
-import androidx.compose.ui.gesture.DragObserver
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.selection.Selection
+import androidx.compose.ui.gesture.DragObserver
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.selection.Selectable
+import androidx.compose.ui.selection.Selection
 
 internal class DesktopSelectionManager(private val selectionRegistrar: DesktopSelectionRegistrar) {
     private var dragBeginPosition = Offset.Zero

@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.desktop
+package androidx.compose.ui.platform
 
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.input.BackspaceKeyEditOp
 import androidx.compose.ui.text.input.CommitTextEditOp
 import androidx.compose.ui.text.input.EditOperation
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.MoveCursorEditOp
 import androidx.compose.ui.text.input.PlatformTextInputService
-import androidx.compose.ui.geometry.Rect
-
+import androidx.compose.ui.text.input.TextFieldValue
 import java.awt.event.KeyEvent
 
 internal class DesktopPlatformInput : PlatformTextInputService {
