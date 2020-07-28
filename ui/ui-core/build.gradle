@@ -34,6 +34,7 @@ dependencies {
 
 kotlin {
     android()
+
     sourceSets {
         commonMain.dependencies {
             implementation(KOTLIN_STDLIB_COMMON)
@@ -52,7 +53,6 @@ kotlin {
         }
 
         androidMain.dependencies {
-            implementation(KOTLIN_STDLIB)
             // we don't use these dependencies but we need to ensure at least these versions are used if
             // the user adds these dependencies as otherwise AppCompatActivity and Fragment will not
             // propagate ViewTree*Owners we are relying on and we will crash.
@@ -63,6 +63,12 @@ kotlin {
             implementation "androidx.autofill:autofill:1.0.0"
             implementation(KOTLIN_COROUTINES_ANDROID)
         }
+
+        jvmMain.dependencies {
+            implementation(KOTLIN_STDLIB)
+        }
+
+        androidMain.dependsOn jvmMain
 
         test.dependencies {
             implementation(ANDROIDX_TEST_RULES)

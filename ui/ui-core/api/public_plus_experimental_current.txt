@@ -1999,6 +1999,9 @@ package androidx.compose.ui.platform {
     method public static androidx.compose.runtime.ProvidableAmbient<java.lang.Boolean> getInspectionMode();
   }
 
+  public final class JvmActualsKt {
+  }
+
   public final class ParameterElement {
     ctor public ParameterElement(String name, Object? value);
     method public String component1();

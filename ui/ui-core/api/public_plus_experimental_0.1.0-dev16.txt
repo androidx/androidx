@@ -568,6 +568,9 @@ package androidx.ui.core {
     property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
   }
 
+  public final class JvmActualsKt {
+  }
+
   public interface LayoutCoordinates {
     method public androidx.compose.ui.unit.PxBounds childBoundingBox(androidx.ui.core.LayoutCoordinates child);
     method public androidx.compose.ui.geometry.Offset childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.compose.ui.geometry.Offset childLocal);
