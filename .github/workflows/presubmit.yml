@@ -28,6 +28,7 @@ jobs:
         uses: tikurahul/github-workflow-webhook-action@master
         with:
           url: 'https://androidx.dev/github/androidX/presubmit/hook'
+          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
           payload: '{ "platform": "${{ matrix.os }}", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "started"}'
       - name: Setup Java environment based on setup-java
         uses: actions/setup-java@v1
@@ -90,5 +91,5 @@ jobs:
         uses: tikurahul/github-workflow-webhook-action@master
         with:
           url: 'https://androidx.dev/github/androidX/presubmit/hook'
-          # TODO: extract the state of the build on server step
+          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
           payload: '{ "platform": "${{ matrix.os }}", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": ${{ steps.gradlew_bos_outputs.outputs.success }} }'
