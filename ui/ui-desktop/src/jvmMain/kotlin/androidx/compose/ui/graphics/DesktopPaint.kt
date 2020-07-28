@@ -54,7 +54,7 @@ class DesktopPaint : Paint {
             skija.color = color.toArgb()
         }
 
-    override var blendMode: BlendMode = BlendMode.srcOver
+    override var blendMode: BlendMode = BlendMode.SrcOver
         set(value) {
             skija.blendMode = value.toSkija()
             field = value
@@ -122,35 +122,35 @@ class DesktopPaint : Paint {
         }
 
     private fun BlendMode.toSkija() = when (this) {
-        BlendMode.clear -> SkijaBlendMode.CLEAR
-        BlendMode.src -> SkijaBlendMode.SRC
-        BlendMode.dst -> SkijaBlendMode.DST
-        BlendMode.srcOver -> SkijaBlendMode.SRC_OVER
-        BlendMode.dstOver -> SkijaBlendMode.DST_OVER
-        BlendMode.srcIn -> SkijaBlendMode.SRC_IN
-        BlendMode.dstIn -> SkijaBlendMode.DST_IN
-        BlendMode.srcOut -> SkijaBlendMode.SRC_OUT
-        BlendMode.dstOut -> SkijaBlendMode.DST_OUT
-        BlendMode.srcATop -> SkijaBlendMode.SRC_ATOP
-        BlendMode.dstATop -> SkijaBlendMode.DST_ATOP
-        BlendMode.xor -> SkijaBlendMode.XOR
-        BlendMode.plus -> SkijaBlendMode.PLUS
-        BlendMode.modulate -> SkijaBlendMode.MODULATE
-        BlendMode.screen -> SkijaBlendMode.SCREEN
-        BlendMode.overlay -> SkijaBlendMode.OVERLAY
-        BlendMode.darken -> SkijaBlendMode.DARKEN
-        BlendMode.lighten -> SkijaBlendMode.LIGHTEN
-        BlendMode.colorDodge -> SkijaBlendMode.COLOR_DODGE
-        BlendMode.colorBurn -> SkijaBlendMode.COLOR_BURN
-        BlendMode.hardLight -> SkijaBlendMode.HARD_LIGHT
-        BlendMode.softLight -> SkijaBlendMode.SOFT_LIGHT
-        BlendMode.difference -> SkijaBlendMode.DIFFERENCE
-        BlendMode.exclusion -> SkijaBlendMode.EXCLUSION
-        BlendMode.multiply -> SkijaBlendMode.MULTIPLY
-        BlendMode.hue -> SkijaBlendMode.HUE
-        BlendMode.saturation -> SkijaBlendMode.SATURATION
-        BlendMode.color -> SkijaBlendMode.COLOR
-        BlendMode.luminosity -> SkijaBlendMode.LUMINOSITY
+        BlendMode.Clear -> SkijaBlendMode.CLEAR
+        BlendMode.Src -> SkijaBlendMode.SRC
+        BlendMode.Dst -> SkijaBlendMode.DST
+        BlendMode.SrcOver -> SkijaBlendMode.SRC_OVER
+        BlendMode.DstOver -> SkijaBlendMode.DST_OVER
+        BlendMode.SrcIn -> SkijaBlendMode.SRC_IN
+        BlendMode.DstIn -> SkijaBlendMode.DST_IN
+        BlendMode.SrcOut -> SkijaBlendMode.SRC_OUT
+        BlendMode.DstOut -> SkijaBlendMode.DST_OUT
+        BlendMode.SrcAtop -> SkijaBlendMode.SRC_ATOP
+        BlendMode.DstAtop -> SkijaBlendMode.DST_ATOP
+        BlendMode.Xor -> SkijaBlendMode.XOR
+        BlendMode.Plus -> SkijaBlendMode.PLUS
+        BlendMode.Modulate -> SkijaBlendMode.MODULATE
+        BlendMode.Screen -> SkijaBlendMode.SCREEN
+        BlendMode.Overlay -> SkijaBlendMode.OVERLAY
+        BlendMode.Darken -> SkijaBlendMode.DARKEN
+        BlendMode.Lighten -> SkijaBlendMode.LIGHTEN
+        BlendMode.ColorDodge -> SkijaBlendMode.COLOR_DODGE
+        BlendMode.ColorBurn -> SkijaBlendMode.COLOR_BURN
+        BlendMode.Hardlight -> SkijaBlendMode.HARD_LIGHT
+        BlendMode.Softlight -> SkijaBlendMode.SOFT_LIGHT
+        BlendMode.Difference -> SkijaBlendMode.DIFFERENCE
+        BlendMode.Exclusion -> SkijaBlendMode.EXCLUSION
+        BlendMode.Multiply -> SkijaBlendMode.MULTIPLY
+        BlendMode.Hue -> SkijaBlendMode.HUE
+        BlendMode.Saturation -> SkijaBlendMode.SATURATION
+        BlendMode.Color -> SkijaBlendMode.COLOR
+        BlendMode.Luminosity -> SkijaBlendMode.LUMINOSITY
     }
 
     private fun PaintingStyle.toSkija() = when (this) {

@@ -60,7 +60,7 @@ const val DefaultTrimPathOffset = 0.0f
 
 val DefaultStrokeLineCap = StrokeCap.butt
 val DefaultStrokeLineJoin = StrokeJoin.miter
-val DefaultTintBlendMode = BlendMode.srcIn
+val DefaultTintBlendMode = BlendMode.SrcIn
 val DefaultTintColor = Color.Transparent
 
 fun addPathNodes(pathStr: String?): List<PathNode> =

@@ -1124,7 +1124,7 @@ abstract class DrawScope : Density {
          * This ensures that content is drawn on top of the pixels
          * in the destination
          */
-        val DefaultBlendMode: BlendMode = BlendMode.srcOver
+        val DefaultBlendMode: BlendMode = BlendMode.SrcOver
     }
 }
 

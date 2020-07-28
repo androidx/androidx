@@ -40,6 +40,6 @@ data class ColorFilter(
          * Helper method to create a [ColorFilter] that tints contents to the specified color
          */
         @Stable
-        fun tint(color: Color): ColorFilter = ColorFilter(color, BlendMode.srcIn)
+        fun tint(color: Color): ColorFilter = ColorFilter(color, BlendMode.SrcIn)
     }
 }

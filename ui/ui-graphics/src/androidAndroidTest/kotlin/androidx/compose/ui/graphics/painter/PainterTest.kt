@@ -195,7 +195,7 @@ class PainterTest {
     fun testColorFilter() {
         val p = object : Painter() {
 
-            var colorFilter: ColorFilter? = ColorFilter(Color.Red, BlendMode.srcIn)
+            var colorFilter: ColorFilter? = ColorFilter(Color.Red, BlendMode.SrcIn)
 
             override fun applyColorFilter(colorFilter: ColorFilter?): Boolean {
                 this.colorFilter = colorFilter
@@ -216,7 +216,7 @@ class PainterTest {
             p,
             Canvas(image),
             size,
-            colorFilter = ColorFilter(Color.Blue, BlendMode.srcIn)
+            colorFilter = ColorFilter(Color.Blue, BlendMode.SrcIn)
         )
         assertEquals(Color.Blue, image.toPixelMap()[50, 50])
     }
