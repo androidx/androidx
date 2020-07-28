@@ -262,7 +262,7 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
                         else SortOrder.DESC
                 scrollEvents.assertPositionSorted(sortOrder)
                 scrollEvents.assertOffsetSorted(sortOrder)
-                scrollEvents.assertValueSanity(initialPage, targetPage, viewPager.pageSize)
+                scrollEvents.assertValueCorrectness(initialPage, targetPage, viewPager.pageSize)
                 scrollEvents.assertLastCorrect(targetPage)
                 scrollEvents.assertMaxShownPages()
             }
@@ -389,7 +389,7 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
         }
     }
 
-    private fun List<OnPageScrolledEvent>.assertValueSanity(
+    private fun List<OnPageScrolledEvent>.assertValueCorrectness(
         initialPage: Int,
         otherPage: Int,
         pageSize: Int
