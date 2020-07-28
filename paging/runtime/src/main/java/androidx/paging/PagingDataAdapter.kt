@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.annotation.IntRange
 import androidx.lifecycle.Lifecycle
 import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.AdapterListUpdateCallback
@@ -150,7 +151,23 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
         differ.refresh()
     }
 
-    protected fun getItem(position: Int) = differ.getItem(position)
+    /**
+     * Returns the presented item at the specified position, notifying Paging of the item access to
+     * trigger any loads necessary to fulfill [prefetchDistance][PagingConfig.prefetchDistance].
+     *
+     * @param position Index of the presented item to return, including placeholders.
+     * @return The presented item at [position], `null` if it is a placeholder
+     */
+    protected fun getItem(@IntRange(from = 0) position: Int) = differ.getItem(position)
+
+    /**
+     * Returns the presented item at the specified position, without notifying Paging of the item
+     * access that would normally trigger page loads.
+     *
+     * @param index Index of the presented item to return, including placeholders.
+     * @return The presented item at position [index], `null` if it is a placeholder.
+     */
+    fun peek(@IntRange(from = 0) index: Int) = differ.peek(index)
 
     override fun getItemCount() = differ.itemCount
 

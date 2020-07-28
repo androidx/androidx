@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.annotation.IntRange
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
 import androidx.paging.LoadType.REFRESH
@@ -198,15 +199,26 @@ class AsyncPagingDataDiffer<T : Any> @JvmOverloads constructor(
      * Note that this operates on both loaded items and null padding within the PagedList.
      *
      * @param index Index of item to get, must be >= 0, and < [itemCount]
-     * @return The item, or null, if a null placeholder is at the specified position.
+     * @return The item, or `null`, if a `null` placeholder is at the specified position.
      */
-    fun getItem(index: Int): T? {
+    fun getItem(@IntRange(from = 0) index: Int): T? {
         try {
             inGetItem = true
             return differBase[index]
         } finally {
             inGetItem = false
         }
+    }
+
+    /**
+     * Returns the presented item at the specified position, without notifying Paging of the item
+     * access that would normally trigger page loads.
+     *
+     * @param index Index of the presented item to return, including placeholders.
+     * @return The presented item at position [index], `null` if it is a placeholder
+     */
+    fun peek(@IntRange(from = 0) index: Int): T? {
+        return differBase.peek(index)
     }
 
     /**

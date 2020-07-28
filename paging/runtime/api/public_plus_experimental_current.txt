@@ -30,9 +30,10 @@ package androidx.paging {
     method @androidx.paging.ExperimentalPagingApi public void addDataRefreshListener(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> listener);
     method public void addLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
     method public kotlinx.coroutines.flow.Flow<java.lang.Boolean> getDataRefreshFlow();
-    method public T? getItem(int index);
+    method public T? getItem(@IntRange(from=0) int index);
     method public int getItemCount();
     method public kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates> getLoadStateFlow();
+    method public T? peek(@IntRange(from=0) int index);
     method public void refresh();
     method @androidx.paging.ExperimentalPagingApi public void removeDataRefreshListener(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> listener);
     method public void removeLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
@@ -106,10 +107,11 @@ package androidx.paging {
     method @androidx.paging.ExperimentalPagingApi public final void addDataRefreshListener(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> listener);
     method public final void addLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
     method public final kotlinx.coroutines.flow.Flow<java.lang.Boolean> getDataRefreshFlow();
-    method protected final T? getItem(int position);
+    method protected final T? getItem(@IntRange(from=0) int position);
     method public int getItemCount();
     method public final long getItemId(int position);
     method public final kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates> getLoadStateFlow();
+    method public final T? peek(@IntRange(from=0) int index);
     method public final void refresh();
     method @androidx.paging.ExperimentalPagingApi public final void removeDataRefreshListener(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> listener);
     method public final void removeLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
