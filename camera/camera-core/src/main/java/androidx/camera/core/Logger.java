@@ -61,7 +61,7 @@ public final class Logger {
     /** On API levels strictly below 24, the log tag's length must not exceed 23 characters. */
     private static final int MAX_TAG_LENGTH = 23;
 
-    private static final int DEFAULT_MIN_LOG_LEVEL = Log.INFO;
+    private static final int DEFAULT_MIN_LOG_LEVEL = Log.DEBUG;
     private static int sMinLogLevel = DEFAULT_MIN_LOG_LEVEL;
 
     private Logger() {
