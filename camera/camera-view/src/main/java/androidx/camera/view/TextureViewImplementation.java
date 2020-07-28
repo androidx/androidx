@@ -87,10 +87,8 @@ final class TextureViewImplementation extends PreviewViewImplementation {
         }
 
         mSurfaceRequest = surfaceRequest;
-
         surfaceRequest.addRequestCancellationListener(
-                ContextCompat.getMainExecutor(mTextureView.getContext()),
-                () -> {
+                ContextCompat.getMainExecutor(mTextureView.getContext()), () -> {
                     if (mSurfaceRequest != null && mSurfaceRequest == surfaceRequest) {
                         mSurfaceRequest = null;
                         mSurfaceReleaseFuture = null;
@@ -121,33 +119,35 @@ final class TextureViewImplementation extends PreviewViewImplementation {
             @Override
             public void onSurfaceTextureAvailable(@NonNull final SurfaceTexture surfaceTexture,
                     final int width, final int height) {
-                Log.d(TAG, "SurfaceTexture available. Size: " + width +  "x" + height);
+                Log.d(TAG, "SurfaceTexture available. Size: " + width + "x" + height);
                 mSurfaceTexture = surfaceTexture;
-                tryToProvidePreviewSurface();
+
+                // If a new SurfaceTexture becomes available yet the camera is still using a
+                // previous SurfaceTexture, invalidate its surface to notify the camera to
+                // request a new surface.
+                if (mSurfaceReleaseFuture != null) {
+                    Preconditions.checkNotNull(mSurfaceRequest);
+                    Log.d(TAG, "Surface invalidated " + mSurfaceRequest);
+                    mSurfaceRequest.getDeferrableSurface().close();
+                } else {
+                    tryToProvidePreviewSurface();
+                }
             }
 
             @Override
             public void onSurfaceTextureSizeChanged(@NonNull final SurfaceTexture surfaceTexture,
                     final int width, final int height) {
-                Log.d(TAG, "SurfaceTexture size changed: " + width +  "x" + height);
+                Log.d(TAG, "SurfaceTexture size changed: " + width + "x" + height);
             }
 
-            /**
-             * If a surface has been provided to the camera (meaning
-             * {@link TextureViewImplementation#mSurfaceRequest} is null), but the camera
-             * is still using it (meaning {@link TextureViewImplementation#mSurfaceReleaseFuture} is
-             * not null), a listener must be added to
-             * {@link TextureViewImplementation#mSurfaceReleaseFuture} to ensure the surface
-             * is properly released after the camera is done using it.
-             *
-             * @param surfaceTexture The {@link SurfaceTexture} about to be destroyed.
-             * @return false if the camera is not done with the surface, true otherwise.
-             */
             @Override
             public boolean onSurfaceTextureDestroyed(@NonNull final SurfaceTexture surfaceTexture) {
-                Log.d(TAG, "SurfaceTexture destroyed");
                 mSurfaceTexture = null;
-                if (mSurfaceRequest == null && mSurfaceReleaseFuture != null) {
+
+                // If the camera is still using the surface, prevent the TextureView from
+                // releasing the SurfaceTexture, and instead manually handle it once the camera's
+                // no longer using the Surface.
+                if (mSurfaceReleaseFuture != null) {
                     Futures.addCallback(mSurfaceReleaseFuture,
                             new FutureCallback<Result>() {
                                 @Override
@@ -156,7 +156,10 @@ final class TextureViewImplementation extends PreviewViewImplementation {
                                                     != Result.RESULT_SURFACE_ALREADY_PROVIDED,
                                             "Unexpected result from SurfaceRequest. Surface was "
                                                     + "provided twice.");
+
+                                    Log.d(TAG, "SurfaceTexture about to manually be destroyed");
                                     surfaceTexture.release();
+
                                     if (mDetachedSurfaceTexture != null) {
                                         mDetachedSurfaceTexture = null;
                                     }
@@ -172,6 +175,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
                     mDetachedSurfaceTexture = surfaceTexture;
                     return false;
                 } else {
+                    Log.d(TAG, "SurfaceTexture about to be destroyed");
                     return true;
                 }
             }
@@ -187,13 +191,15 @@ final class TextureViewImplementation extends PreviewViewImplementation {
             }
         });
 
-        // Even though PreviewView calls `removeAllViews()` before calling init(), it should be
-        // called again here in case `getPreviewSurfaceProvider()` is called more than once on
-        // the same TextureViewImplementation instance.
         mParent.removeAllViews();
         mParent.addView(mTextureView);
     }
 
+    /**
+     * Provides a {@link Surface} for preview to the camera only if the {@link TextureView}'s
+     * {@link SurfaceTexture} is available, and the {@link SurfaceRequest} was received from the
+     * camera.
+     */
     @SuppressWarnings("WeakerAccess")
     void tryToProvidePreviewSurface() {
         if (mResolution == null || mSurfaceTexture == null || mSurfaceRequest == null) {
@@ -201,16 +207,18 @@ final class TextureViewImplementation extends PreviewViewImplementation {
         }
 
         mSurfaceTexture.setDefaultBufferSize(mResolution.getWidth(), mResolution.getHeight());
-
         final Surface surface = new Surface(mSurfaceTexture);
-        final ListenableFuture<Result> surfaceReleaseFuture =
-                CallbackToFutureAdapter.getFuture(completer -> {
+
+        final SurfaceRequest surfaceRequest = mSurfaceRequest;
+        final ListenableFuture<Result> surfaceReleaseFuture = CallbackToFutureAdapter.getFuture(
+                completer -> {
                     Log.d(TAG, "Surface set on Preview.");
                     mSurfaceRequest.provideSurface(surface,
                             CameraXExecutors.directExecutor(), completer::set);
                     return "provideSurface[request=" + mSurfaceRequest + " surface=" + surface
                             + "]";
                 });
+
         mSurfaceReleaseFuture = surfaceReleaseFuture;
         mSurfaceReleaseFuture.addListener(() -> {
             Log.d(TAG, "Safe to release surface.");
@@ -219,9 +227,11 @@ final class TextureViewImplementation extends PreviewViewImplementation {
             if (mSurfaceReleaseFuture == surfaceReleaseFuture) {
                 mSurfaceReleaseFuture = null;
             }
+            if (mSurfaceRequest == surfaceRequest) {
+                mSurfaceRequest = null;
+            }
         }, ContextCompat.getMainExecutor(mTextureView.getContext()));
 
-        mSurfaceRequest = null;
         onSurfaceProvided();
     }
 
