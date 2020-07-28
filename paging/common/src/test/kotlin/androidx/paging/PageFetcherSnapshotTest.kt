@@ -1354,6 +1354,134 @@ class PageFetcherSnapshotTest {
     }
 
     @Test
+    fun retry_errorDoesNotEnableHints() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pageSource = object : PagingSource<Int, Int>() {
+                var nextResult: LoadResult<Int, Int>? = null
+                override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
+                    val result = nextResult
+                    nextResult = null
+                    return result ?: LoadResult.Error(LOAD_ERROR)
+                }
+            }
+            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryCh.asFlow())
+
+            collectPagerData(pager) { pageEvents, _ ->
+                // Successful REFRESH
+                pageSource.nextResult = Page(
+                    data = listOf(0, 1),
+                    prevKey = -1,
+                    nextKey = 1,
+                    itemsBefore = 50,
+                    itemsAfter = 48
+                )
+                advanceUntilIdle()
+                assertThat(pageEvents.newEvents()).isEqualTo(
+                    listOf<PageEvent<Int>>(
+                        LoadStateUpdate(REFRESH, false, Loading),
+                        Refresh(
+                            pages = listOf(TransformablePage(listOf(0, 1))),
+                            placeholdersBefore = 50,
+                            placeholdersAfter = 48,
+                            combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+                        )
+                    )
+                )
+
+                // Hint to trigger APPEND
+                pager.accessHint(
+                    ViewportHint(
+                        pageOffset = 0,
+                        indexInPage = 1,
+                        presentedItemsBefore = 1,
+                        presentedItemsAfter = 0,
+                        originalPageOffsetFirst = 0,
+                        originalPageOffsetLast = 0
+                    )
+                )
+                advanceUntilIdle()
+                assertThat(pageEvents.newEvents()).isEqualTo(
+                    listOf<PageEvent<Int>>(
+                        LoadStateUpdate(APPEND, false, Loading),
+                        LoadStateUpdate(APPEND, false, Error(LOAD_ERROR))
+                    )
+                )
+
+                // Retry failed APPEND
+                retryCh.offer(Unit)
+                advanceUntilIdle()
+                assertThat(pageEvents.newEvents()).isEqualTo(
+                    listOf<PageEvent<Int>>(
+                        LoadStateUpdate(APPEND, false, Loading),
+                        LoadStateUpdate(APPEND, false, Error(LOAD_ERROR))
+                    )
+                )
+
+                // This hint should be ignored even though in the non-error state it would
+                // re-emit for APPEND due to greater presenterIndex value.
+                pager.accessHint(
+                    ViewportHint(
+                        pageOffset = 0,
+                        indexInPage = 2,
+                        presentedItemsBefore = 2,
+                        presentedItemsAfter = -1,
+                        originalPageOffsetFirst = 0,
+                        originalPageOffsetLast = 0
+                    )
+                )
+                advanceUntilIdle()
+                assertThat(pageEvents.newEvents()).isEqualTo(listOf<PageEvent<Int>>())
+
+                // Hint to trigger PREPEND
+                pager.accessHint(
+                    ViewportHint(
+                        pageOffset = 0,
+                        indexInPage = 0,
+                        presentedItemsBefore = 0,
+                        presentedItemsAfter = 1,
+                        originalPageOffsetFirst = 0,
+                        originalPageOffsetLast = 0
+                    )
+                )
+                advanceUntilIdle()
+                assertThat(pageEvents.newEvents()).isEqualTo(
+                    listOf<PageEvent<Int>>(
+                        LoadStateUpdate(PREPEND, false, Loading),
+                        LoadStateUpdate(PREPEND, false, Error(LOAD_ERROR))
+                    )
+                )
+
+                // Retry failed hints, both PREPEND and APPEND should trigger.
+                retryCh.offer(Unit)
+                advanceUntilIdle()
+                assertThat(pageEvents.newEvents()).isEqualTo(
+                    listOf<PageEvent<Int>>(
+                        LoadStateUpdate(PREPEND, false, Loading),
+                        LoadStateUpdate(APPEND, false, Loading),
+                        LoadStateUpdate(PREPEND, false, Error(LOAD_ERROR)),
+                        LoadStateUpdate(APPEND, false, Error(LOAD_ERROR))
+                    )
+                )
+
+                // This hint should be ignored even though in the non-error state it would
+                // re-emit for PREPEND due to smaller presenterIndex value.
+                pager.accessHint(
+                    ViewportHint(
+                        pageOffset = 0,
+                        indexInPage = -1,
+                        presentedItemsBefore = 0,
+                        presentedItemsAfter = 2,
+                        originalPageOffsetFirst = 0,
+                        originalPageOffsetLast = 0
+                    )
+                )
+                advanceUntilIdle()
+                assertThat(pageEvents.newEvents()).isEqualTo(listOf<PageEvent<Int>>())
+            }
+        }
+    }
+
+    @Test
     fun retryRefresh() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
