@@ -930,8 +930,16 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         if (reorderingAllowed) {
             // reordering allowed fragment3 to get a transition so we should wait for it to finish
             fragment3.waitForTransition()
-            fragment2.returnTransition.verifyAndClearTransition {
-                exitingViews += listOf(midGreen, midBlue)
+            if (FragmentManager.USE_STATE_MANAGER) {
+                // When USE_STATE_MANAGER, the last operation sets the direction.
+                // In this case, the forward direction since we did a replace() after the pop
+                fragment2.exitTransition.verifyAndClearTransition {
+                    exitingViews += listOf(midGreen, midBlue)
+                }
+            } else {
+                fragment2.returnTransition.verifyAndClearTransition {
+                    exitingViews += listOf(midGreen, midBlue)
+                }
             }
             val endGreen = activityRule.findGreen()
             val endBlue = activityRule.findBlue()
@@ -980,18 +988,36 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         // It does not transition properly for ordered transactions, though.
         if (reorderingAllowed) {
-            fragment1.returnTransition.verifyAndClearTransition {
-                exitingViews += startGreen
-            }
+            // reordering allowed fragment3 to get a transition so we should wait for it to finish
+            fragment2.waitForTransition()
+
             val endGreen = activityRule.findGreen()
             val endBlue = activityRule.findBlue()
+            val endGreenBounds = endGreen.boundsOnScreen
+
+            if (FragmentManager.USE_STATE_MANAGER) {
+                // When USE_STATE_MANAGER, the last operation sets the direction.
+                // In this case, the forward direction since we did a replace() after the pop
+                fragment1.exitTransition.verifyAndClearTransition {
+                    epicenter = endGreenBounds
+                    exitingViews += startGreen
+                }
+            } else {
+                fragment1.returnTransition.verifyAndClearTransition {
+                    exitingViews += startGreen
+                }
+            }
             fragment2.enterTransition.verifyAndClearTransition {
                 epicenter = startGreenBounds
                 enteringViews += endGreen
             }
             fragment2.sharedElementEnter.verifyAndClearTransition {
-                // In this case, we can't find an epicenter
-                epicenter = Rect()
+                if (FragmentManager.USE_STATE_MANAGER) {
+                    epicenter = endGreenBounds
+                } else {
+                    // In this case, we can't find an epicenter
+                    epicenter = Rect()
+                }
                 exitingViews += startBlue
                 enteringViews += endBlue
             }
