@@ -407,22 +407,22 @@ public class RemoteMediaSession {
          * Service app will automatically create a playlist of size {@param size},
          * and sets the list to the player.
          *
-         * Each item's media ID will be {@link TestUtils#getMediaIdInDummyList(int)}.
+         * Each item's media ID will be {@link TestUtils#getMediaIdInFakeList(int)}.
          */
-        public void createAndSetDummyPlaylist(int size) {
+        public void createAndSetFakePlaylist(int size) {
             try {
-                mBinder.createAndSetDummyPlaylist(mSessionId, size);
+                mBinder.createAndSetFakePlaylist(mSessionId, size);
             } catch (RemoteException ex) {
-                Log.e(TAG, "Failed to call createAndSetDummyPlaylist()");
+                Log.e(TAG, "Failed to call createAndSetFakePlaylist()");
             }
         }
 
-        public void setPlaylistWithDummyItem(List<MediaItem> playlist) {
+        public void setPlaylistWithFakeItem(List<MediaItem> playlist) {
             try {
-                mBinder.setPlaylistWithDummyItem(
+                mBinder.setPlaylistWithFakeItem(
                         mSessionId, MediaTestUtils.convertToParcelImplList(playlist));
             } catch (RemoteException ex) {
-                Log.e(TAG, "Failed to call setPlaylistWithDummyItem()");
+                Log.e(TAG, "Failed to call setPlaylistWithFakeItem()");
             }
         }
 
