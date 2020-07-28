@@ -38,15 +38,15 @@ import androidx.compose.ui.platform.setContent
 import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.Demo
 import androidx.ui.demos.common.DemoCategory
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.material.ColorPalette
+import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.darkColorPalette
-import androidx.compose.material.lightColorPalette
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
 import androidx.compose.runtime.savedinstancestate.Saver
 import androidx.compose.runtime.savedinstancestate.listSaver
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
+import androidx.compose.ui.graphics.Color
 
 /**
  * Main [Activity] containing all Compose related demos.
@@ -65,7 +65,7 @@ class DemoActivity : ComponentActivity() {
                 Navigator(AllDemosCategory, onBackPressedDispatcher, activityStarter)
             }
             val demoColors = remember {
-                DemoColorPalette().also {
+                DemoColors().also {
                     lifecycle.addObserver(LifecycleEventObserver { _, event ->
                         if (event == Lifecycle.Event.ON_RESUME) {
                             it.loadColorsFromSharedPreferences(this)
@@ -109,7 +109,7 @@ class DemoActivity : ComponentActivity() {
 
 @Composable
 private fun DemoTheme(
-    demoColors: DemoColorPalette,
+    demoColors: DemoColors,
     window: Window,
     children: @Composable () -> Unit
 ) {
@@ -124,7 +124,7 @@ private fun DemoTheme(
     }
 }
 
-private val ColorPalette.darkenedPrimary: Int
+private val Colors.darkenedPrimary: Int
     get() = with(primary) {
         copy(
             red = red * 0.75f,
@@ -252,16 +252,16 @@ private class FilterMode(backDispatcher: OnBackPressedDispatcher, initialValue: 
 }
 
 /**
- * Returns a [DemoColorPalette] from the values saved to [SharedPreferences]. If a given color is
- * not present in the [SharedPreferences], its default value as defined in [ColorPalette]
+ * Returns a [DemoColors] from the values saved to [SharedPreferences]. If a given color is
+ * not present in the [SharedPreferences], its default value as defined in [Colors]
  * will be returned.
  */
-fun DemoColorPalette.loadColorsFromSharedPreferences(context: Context) {
+fun DemoColors.loadColorsFromSharedPreferences(context: Context) {
     val sharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(context)
 
-    fun getColorsFromSharedPreferences(isLightTheme: Boolean): ColorPalette {
-        val function = if (isLightTheme) ::reflectLightColorPalette else ::reflectDarkColorPalette
+    fun getColorsFromSharedPreferences(isLightTheme: Boolean): Colors {
+        val function = if (isLightTheme) ::reflectLightColors else ::reflectDarkColors
         val parametersToSet = function.parameters.mapNotNull { parameter ->
             val savedValue = sharedPreferences.getString(parameter.name + isLightTheme, "")
             if (savedValue.isNullOrBlank()) {
@@ -275,16 +275,16 @@ fun DemoColorPalette.loadColorsFromSharedPreferences(context: Context) {
         return function.callBy(parametersToSet)
     }
 
-    lightColors = getColorsFromSharedPreferences(true)
-    darkColors = getColorsFromSharedPreferences(false)
+    light = getColorsFromSharedPreferences(true)
+    dark = getColorsFromSharedPreferences(false)
 }
 
 /**
  * TODO: remove after b/154329050 is fixed
  * Inline classes don't play well with reflection, so we want boxed classes for our
- * call to [lightColorPalette].
+ * call to [lightColors].
  */
-internal fun reflectLightColorPalette(
+internal fun reflectLightColors(
     primary: Long = 0xFF6200EE,
     primaryVariant: Long = 0xFF3700B3,
     secondary: Long = 0xFF03DAC6,
@@ -297,7 +297,7 @@ internal fun reflectLightColorPalette(
     onBackground: Long = 0xFF000000,
     onSurface: Long = 0xFF000000,
     onError: Long = 0xFFFFFFFF
-) = lightColorPalette(
+) = lightColors(
     primary = Color(primary),
     primaryVariant = Color(primaryVariant),
     secondary = Color(secondary),
@@ -315,9 +315,9 @@ internal fun reflectLightColorPalette(
 /**
  * TODO: remove after b/154329050 is fixed
  * Inline classes don't play well with reflection, so we want boxed classes for our
- * call to [darkColorPalette].
+ * call to [darkColors].
  */
-internal fun reflectDarkColorPalette(
+internal fun reflectDarkColors(
     primary: Long = 0xFFBB86FC,
     primaryVariant: Long = 0xFF3700B3,
     secondary: Long = 0xFF03DAC6,
@@ -329,7 +329,7 @@ internal fun reflectDarkColorPalette(
     onBackground: Long = 0xFFFFFFFF,
     onSurface: Long = 0xFFFFFFFF,
     onError: Long = 0xFF000000
-) = darkColorPalette(
+) = darkColors(
     primary = Color(primary),
     primaryVariant = Color(primaryVariant),
     secondary = Color(secondary),

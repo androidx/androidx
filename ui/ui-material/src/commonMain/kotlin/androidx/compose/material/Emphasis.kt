@@ -61,8 +61,8 @@ interface Emphasis {
  *
  * By default, the [Emphasis] implementation for each level varies depending on the color being
  * emphasized (typically [contentColor]). This ensures that the [Emphasis] has the correct
- * contrast for the background they are on, as [ColorPalette.primary] surfaces typically require
- * higher contrast for the content color than [ColorPalette.surface] surfaces to ensure they are
+ * contrast for the background they are on, as [Colors.primary] surfaces typically require
+ * higher contrast for the content color than [Colors.surface] surfaces to ensure they are
  * accessible.
  *
  * This typically should not be customized as the default implementation is optimized for

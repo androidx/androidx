@@ -28,9 +28,9 @@ import androidx.preference.PreferenceManager
 import androidx.preference.plusAssign
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.material.ColorPalette
-import androidx.compose.material.darkColorPalette
-import androidx.compose.material.lightColorPalette
+import androidx.compose.material.Colors
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
 import kotlin.reflect.full.memberProperties
 
 /**
@@ -79,12 +79,12 @@ class DemoSettingsActivity : AppCompatActivity() {
                 title = "Light colors"
                 screen += this
             }
-            // Create new ColorPalette to resolve defaults
-            lightColorPalette().forEachColorProperty { name, color ->
+            // Create new Colors to resolve defaults
+            lightColors().forEachColorProperty { name, color ->
                 light += EditTextPreference(context).apply {
                     key = name + true
                     title = name
-                    // set the default value to be the default for ColorPalette
+                    // set the default value to be the default for Colors
                     setDefaultValue(Integer.toHexString(color.toArgb()))
                     summaryProvider = EditTextPreference.SimpleSummaryProvider.getInstance()
                 }
@@ -95,11 +95,11 @@ class DemoSettingsActivity : AppCompatActivity() {
                 screen += this
             }
 
-            darkColorPalette().forEachColorProperty { name, color ->
+            darkColors().forEachColorProperty { name, color ->
                 dark += EditTextPreference(context).apply {
                     key = name + false
                     title = name
-                    // set the default value to be the default for ColorPalette
+                    // set the default value to be the default for Colors
                     setDefaultValue(Integer.toHexString(color.toArgb()))
                     summaryProvider = EditTextPreference.SimpleSummaryProvider.getInstance()
                 }
@@ -110,14 +110,14 @@ class DemoSettingsActivity : AppCompatActivity() {
 }
 
 /**
- * Iterates over each color present in a given [ColorPalette].
+ * Iterates over each color present in a given [Colors].
  *
  * @param action the action to take on each property, where name is the name of the property,
- * such as 'primary' for [ColorPalette.primary], and color is the resolved [Color] of the
+ * such as 'primary' for [Colors.primary], and color is the resolved [Color] of the
  * property.
  */
-private fun ColorPalette.forEachColorProperty(action: (name: String, color: Color) -> Unit) {
-    ColorPalette::class.memberProperties.forEach { property ->
+private fun Colors.forEachColorProperty(action: (name: String, color: Color) -> Unit) {
+    Colors::class.memberProperties.forEach { property ->
         val name = property.name
         val color = property.get(this) as? Color ?: return@forEach
         action(name, color)
@@ -125,16 +125,16 @@ private fun ColorPalette.forEachColorProperty(action: (name: String, color: Colo
 }
 
 /**
- * Persists the current [DemoColorPalette] to [SharedPreferences].
+ * Persists the current [DemoColors] to [SharedPreferences].
  */
-private fun DemoColorPalette.saveColors(context: Context) {
-    lightColors.forEachColorProperty { name, color ->
+private fun DemoColors.saveColors(context: Context) {
+    light.forEachColorProperty { name, color ->
         PreferenceManager.getDefaultSharedPreferences(context)
             .edit()
             .putString(name + true, Integer.toHexString(color.toArgb()))
             .apply()
     }
-    darkColors.forEachColorProperty { name, color ->
+    dark.forEachColorProperty { name, color ->
         PreferenceManager.getDefaultSharedPreferences(context)
             .edit()
             .putString(name + false, Integer.toHexString(color.toArgb()))
@@ -143,15 +143,15 @@ private fun DemoColorPalette.saveColors(context: Context) {
 }
 
 /**
- * Generates a [DemoColorPalette] with random [ColorPalette.primary], [ColorPalette.onPrimary],
- * [ColorPalette.secondary] and [ColorPalette.onSecondary] as random dark-on-light or light-on-dark
+ * Generates a [DemoColors] with random [Colors.primary], [Colors.onPrimary],
+ * [Colors.secondary] and [Colors.onSecondary] as random dark-on-light or light-on-dark
  * pairs. Other colors are kept from the baseline.
  */
-private fun generateRandomPalette(): DemoColorPalette {
-    return DemoColorPalette().apply {
+private fun generateRandomPalette(): DemoColors {
+    return DemoColors().apply {
         val (lightPrimary, lightOnPrimary) = generateColorPair(true)
         val (lightSecondary, lightOnSecondary) = generateColorPair(true)
-        lightColors = lightColorPalette(
+        light = lightColors(
             primary = lightPrimary,
             secondary = lightSecondary,
             onPrimary = lightOnPrimary,
@@ -159,7 +159,7 @@ private fun generateRandomPalette(): DemoColorPalette {
         )
         val (darkPrimary, darkOnPrimary) = generateColorPair(false)
         val (darkSecondary, darkOnSecondary) = generateColorPair(false)
-        darkColors = darkColorPalette(
+        dark = darkColors(
             primary = darkPrimary,
             secondary = darkSecondary,
             onPrimary = darkOnPrimary,

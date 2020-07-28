@@ -20,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Typography
-import androidx.compose.material.darkColorPalette
+import androidx.compose.material.darkColors
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -31,7 +31,7 @@ val rallyGreen = Color(0xFF1EB980)
 
 @Composable
 fun RallyTheme(content: @Composable () -> Unit) {
-    val colors = darkColorPalette(
+    val colors = darkColors(
         primary = Color.White,
         surface = Color(0xFF26282F),
         onSurface = Color.White,
@@ -105,7 +105,7 @@ fun RallyTheme(content: @Composable () -> Unit) {
 
 @Composable
 fun RallyDialogThemeOverlay(content: @Composable () -> Unit) {
-    val dialogColors = darkColorPalette(
+    val dialogColors = darkColors(
         primary = Color.White,
         surface = Color(0xFF1E1E1E),
         onSurface = Color.White

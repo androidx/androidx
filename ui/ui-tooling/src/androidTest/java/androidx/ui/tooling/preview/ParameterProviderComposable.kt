@@ -20,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Text
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material.Button
-import androidx.compose.material.ColorPalette
+import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 
@@ -44,7 +44,7 @@ fun OneIntParameter(parameter: Integer) {
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @Preview
 @Composable
-fun ColorPaletteParameter(parameter: ColorPalette) {
+fun ColorsParameter(parameter: Colors) {
     MaterialTheme(colors = parameter) {
         Button(onClick = {}) {
             Text("Hello colors")

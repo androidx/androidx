@@ -18,8 +18,8 @@ package androidx.ui.integration.test
 
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assertNoPendingChanges
-import androidx.ui.integration.test.material.ImmutableColorPaletteTestCase
-import androidx.ui.integration.test.material.ObservableColorPaletteTestCase
+import androidx.ui.integration.test.material.ImmutableColorsTestCase
+import androidx.ui.integration.test.material.ObservableColorsTestCase
 import androidx.ui.test.ExperimentalTesting
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doFramesUntilNoChangesPending
@@ -30,19 +30,19 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 /**
- * Test to ensure correctness of [ObservableColorPaletteTestCase] and
- * [ImmutableColorPaletteTestCase].
+ * Test to ensure correctness of [ObservableColorsTestCase] and
+ * [ImmutableColorsTestCase].
  */
 @MediumTest
 @RunWith(JUnit4::class)
 @OptIn(ExperimentalTesting::class)
-class ColorPaletteTest {
+class ColorsTest {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
 
     @Test
     fun testObservablePalette() {
-        val testCase = ObservableColorPaletteTestCase()
+        val testCase = ObservableColorsTestCase()
         composeTestRule
             .forGivenTestCase(testCase)
             .performTestWithEventsControl {
@@ -66,7 +66,7 @@ class ColorPaletteTest {
 
     @Test
     fun testImmutablePalette() {
-        val testCase = ImmutableColorPaletteTestCase()
+        val testCase = ImmutableColorsTestCase()
         composeTestRule
             .forGivenTestCase(testCase)
             .performTestWithEventsControl {
