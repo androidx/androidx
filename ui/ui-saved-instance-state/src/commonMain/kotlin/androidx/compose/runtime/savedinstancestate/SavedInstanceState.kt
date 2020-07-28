@@ -20,8 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.state
+import androidx.compose.runtime.structuralEqualityPolicy
 
 /**
  * Used to introduce a state value of type [T] into a composition.
@@ -58,7 +58,7 @@ fun <T> savedInstanceState(
     vararg inputs: Any?,
     saver: Saver<T, out Any> = autoSaver(),
     key: String? = null,
-    policy: SnapshotMutationPolicy<T> = referentialEqualityPolicy(),
+    policy: SnapshotMutationPolicy<T> = structuralEqualityPolicy(),
     init: () -> T
 ): MutableState<T> = rememberSavedInstanceState(
     *inputs,
