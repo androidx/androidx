@@ -509,6 +509,7 @@ package androidx.core.app {
   }
 
   public static class NotificationCompat.Builder {
+    ctor @RequiresApi(19) public NotificationCompat.Builder(android.content.Context, android.app.Notification);
     ctor public NotificationCompat.Builder(android.content.Context, String);
     ctor @Deprecated public NotificationCompat.Builder(android.content.Context);
     method public androidx.core.app.NotificationCompat.Builder addAction(int, CharSequence?, android.app.PendingIntent?);
@@ -528,7 +529,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Extender);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getBigContentView();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.core.app.NotificationCompat.BubbleMetadata? getBubbleMetadata();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getColor();
+    method @ColorInt @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getColor();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getContentView();
     method public android.os.Bundle getExtras();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getHeadsUpContentView();
@@ -536,7 +537,6 @@ package androidx.core.app {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getPriority();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public long getWhenIfShowing();
     method protected static CharSequence? limitCharSequenceLength(CharSequence?);
-    method @RequiresApi(19) public static androidx.core.app.NotificationCompat.Builder recoverBuilder(android.content.Context, android.app.Notification);
     method public androidx.core.app.NotificationCompat.Builder setAllowSystemGeneratedContextualActions(boolean);
     method public androidx.core.app.NotificationCompat.Builder setAutoCancel(boolean);
     method public androidx.core.app.NotificationCompat.Builder setBadgeIconType(@androidx.core.app.NotificationCompat.BadgeIconType int);

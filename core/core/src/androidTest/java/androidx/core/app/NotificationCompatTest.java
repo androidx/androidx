@@ -375,29 +375,27 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
     @SdkSuppress(minSdkVersion = 19)
     @Test
-    public void testRecoverBuilder_fromMinimalPlatform() {
+    public void testBuilderFromNotification_fromMinimalPlatform() {
         Notification original = new Notification.Builder(mContext).build();
-        Notification recovered = NotificationCompat.Builder.recoverBuilder(mContext, original)
-                .build();
+        Notification recovered = new NotificationCompat.Builder(mContext, original).build();
         assertEquals(original.toString(), recovered.toString());
     }
 
     @SdkSuppress(minSdkVersion = 19)
     @Test
-    public void testRecoverBuilder_fromSimpleCompat() {
+    public void testBuilderFromNotification_fromSimpleCompat() {
         Notification original = new NotificationCompat.Builder(mContext, "channelId")
                 .setContentTitle("contentTitle")
                 .setContentText("contentText")
                 .setNumber(3)
                 .build();
-        Notification recovered = NotificationCompat.Builder.recoverBuilder(mContext, original)
-                .build();
+        Notification recovered = new NotificationCompat.Builder(mContext, original).build();
         assertNotificationEquals(original, recovered);
     }
 
     @SdkSuppress(minSdkVersion = 19)
     @Test
-    public void testRecoverBuilder_fromMessagingStyledCompat() {
+    public void testBuilderFromNotification_fromMessagingStyledCompat() {
         Person person1 = new Person.Builder()
                 .setName("personName1")
                 .setBot(true)
@@ -427,8 +425,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .addPerson(person2)
                 .addExtras(testBundle)
                 .build();
-        Notification recovered = NotificationCompat.Builder.recoverBuilder(mContext, original)
-                .build();
+        Notification recovered = new NotificationCompat.Builder(mContext, original).build();
         assertNotificationEquals(original, recovered);
     }
 
@@ -834,7 +831,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void testNotificationSmallIcon() {
         IconCompat icon = IconCompat.createWithResource(mContext,
                 R.drawable.notification_action_background);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, null);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
 
         builder.setSmallIcon(icon);
 
