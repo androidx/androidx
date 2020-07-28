@@ -149,14 +149,20 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
             assertThat(onBackStackChangedTimes).isEqualTo(2)
             assertThat(fragment.requireView()).isEqualTo(view1)
         } else {
-            // If reorder is not allowed we will get the exit Transition and the fragment will be
-            // added with a different view.
+            // If reorder is not allowed we will get the exit Transition
             fragment.waitForTransition()
             fragment.exitTransition.verifyAndClearTransition {
                 exitingViews += listOf(green, blue)
             }
             assertThat(onBackStackChangedTimes).isEqualTo(3)
-            assertThat(fragment.requireView()).isNotEqualTo(view1)
+            if (FragmentManager.USE_STATE_MANAGER) {
+                // When using FragmentStateManager, the Fragment does not go all the way through
+                // to destroying the view before coming back up, so the view instances will
+                // still match
+                assertThat(fragment.requireView()).isEqualTo(view1)
+            } else {
+                assertThat(fragment.requireView()).isNotEqualTo(view1)
+            }
         }
         verifyNoOtherTransitions(fragment)
     }
@@ -774,7 +780,9 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val endBlue = activityRule.findBlue()
         val endGreen = activityRule.findGreen()
 
-        if (reorderingAllowed) {
+        // FragmentStateManager is able to build the correct transition
+        // whether you use reordering or not
+        if (FragmentManager.USE_STATE_MANAGER || reorderingAllowed) {
             fragment1.exitTransition.verifyAndClearTransition {
                 exitingViews += listOf(startGreen, startBlue)
             }
@@ -1021,7 +1029,10 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val midBlue = activityRule.findBlue()
         val midRed = activityRule.findRed()
         val midGreenBounds = midGreen.boundsOnScreen
-        if (reorderingAllowed) {
+
+        // FragmentStateManager is able to build the correct transition
+        // whether you use reordering or not
+        if (FragmentManager.USE_STATE_MANAGER || reorderingAllowed) {
             fragment2.sharedElementEnter.verifyAndClearTransition {
                 epicenter = startGreenBounds
                 exitingViews += startGreen
