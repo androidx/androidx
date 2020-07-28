@@ -458,12 +458,16 @@ class RawDragGestureFilterTest {
         var result = filter::onPointerInput.invokeOverPasses(
             change,
             PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
             PointerEventPass.PostUp
         )
         dragObserver.dragConsume = Offset.Zero
         result = filter::onPointerInput.invokeOverPasses(
             result,
             PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
             PointerEventPass.PostUp
         )
 
@@ -521,6 +525,8 @@ class RawDragGestureFilterTest {
         var result = filter::onPointerInput.invokeOverPasses(
             change,
             PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
             PointerEventPass.PostUp
         )
         dragObserver.dragConsume = Offset.Zero
@@ -608,6 +614,8 @@ class RawDragGestureFilterTest {
         // Act / Verify 1
         filter::onPointerInput.invokeOverPasses(
             down,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
             PointerEventPass.PostUp,
             PointerEventPass.PostDown
         )

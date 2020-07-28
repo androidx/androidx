@@ -3524,6 +3524,8 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(move, motionEvent = motionEvent2),
             PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
             PointerEventPass.PostUp
         )
 
@@ -3633,6 +3635,8 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(moveB, motionEvent = motionEvent4),
             PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
             PointerEventPass.PostUp
         )
 
@@ -3678,6 +3682,8 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(move, motionEvent = motionEvent2),
             PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
             PointerEventPass.PostUp
         )
 
@@ -3863,6 +3869,8 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(moveConsumed, motionEvent = motionEvent2),
             PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
             PointerEventPass.PostUp
         )
 
@@ -3928,6 +3936,8 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(aMove2, bMoveConsumed, motionEvent = motionEvent3),
             PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
             PointerEventPass.PostUp
         )
 
@@ -4143,6 +4153,8 @@ class PointerInteropFilterTest {
         val actual1 = pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(move, motionEvent = motionEvent2),
             PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
             PointerEventPass.PostUp
         )
 
@@ -4401,6 +4413,8 @@ private fun PointerEventHandler.invokeOverAllPasses(
     pointerEvent,
     listOf(
         PointerEventPass.InitialDown,
+        PointerEventPass.PreUp,
+        PointerEventPass.PreDown,
         PointerEventPass.PostUp,
         PointerEventPass.PostDown
     ),
