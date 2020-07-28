@@ -298,22 +298,20 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                         transitionImpl.cloneTransition(
                                 transitionInfo.getSharedElementTransition()));
                 Fragment sharedElementFragment = transitionInfo.getOperation().getFragment();
-                ArrayList<String> exitingNames;
-                ArrayList<String> enteringNames;
+                ArrayList<String> exitingNames = sharedElementFragment
+                        .getSharedElementSourceNames();
+                ArrayList<String> enteringNames = sharedElementFragment
+                        .getSharedElementTargetNames();
                 SharedElementCallback exitingCallback;
                 SharedElementCallback enteringCallback;
                 if (!isPop) {
-                    // Forward transitions have the source shared elements exiting
-                    // and the target shared elements entering
-                    exitingNames = sharedElementFragment.getSharedElementSourceNames();
-                    enteringNames = sharedElementFragment.getSharedElementTargetNames();
+                    // Forward transitions have firstOut fragment exiting and the
+                    // lastIn fragment entering
                     exitingCallback = firstOut.getFragment().getExitTransitionCallback();
                     enteringCallback = lastIn.getFragment().getEnterTransitionCallback();
                 } else {
-                    // A pop is the reverse: the target elements are now the ones exiting
-                    // and the source shared elements are entering
-                    exitingNames = sharedElementFragment.getSharedElementTargetNames();
-                    enteringNames = sharedElementFragment.getSharedElementSourceNames();
+                    // A pop is the reverse: the firstOut fragment is entering and the
+                    // lastIn fragment is exiting
                     exitingCallback = firstOut.getFragment().getEnterTransitionCallback();
                     enteringCallback = lastIn.getFragment().getExitTransitionCallback();
                 }
