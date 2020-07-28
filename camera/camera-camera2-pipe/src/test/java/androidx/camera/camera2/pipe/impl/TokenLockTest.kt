@@ -78,7 +78,7 @@ class TokenLockTest {
     }
 
     @Test
-    fun tokenLockHandlesRequestsThatTimeOut() = runBlocking<Unit> {
+    fun tokenLockHandlesRequestsThatTimeOut() = runBlocking {
         val tokenLock = TokenLockImpl(2)
         val token1 = tokenLock.acquire(1)
 
@@ -100,7 +100,7 @@ class TokenLockTest {
     }
 
     @Test
-    fun tokenLockSuspendsWithAsync() = runBlocking<Unit> {
+    fun tokenLockSuspendsWithAsync() = runBlocking {
         val tokenLock = TokenLockImpl(2)
         val token1 = tokenLock.acquire(1)
         val token2 = tokenLock.acquire(1)
@@ -115,7 +115,7 @@ class TokenLockTest {
     }
 
     @Test
-    fun tokenLockIsFair() = runBlocking<Unit> {
+    fun tokenLockIsFair() = runBlocking {
         val tokenLock = TokenLockImpl(3)
         val token1 = tokenLock.acquire(2)
         assertThat(tokenLock.available).isEqualTo(1)
@@ -164,7 +164,7 @@ class TokenLockTest {
     }
 
     @Test
-    fun cancelingSuspendedJobReleasesPendingRequest() = runBlocking<Unit> {
+    fun cancelingSuspendedJobReleasesPendingRequest() = runBlocking {
         val tokenLock = TokenLockImpl(3)
         val token1 = tokenLock.acquire(1)
         val token2 = tokenLock.acquire(1)
@@ -186,7 +186,7 @@ class TokenLockTest {
     }
 
     @Test
-    fun closingTokenLockCausesPendingRequestsToThrow() = runBlocking<Unit> {
+    fun closingTokenLockCausesPendingRequestsToThrow() = runBlocking {
         val tokenLock = TokenLockImpl(1)
         val token1 = tokenLock.acquire(1)
         val token2Job = async { tokenLock.acquire(1) }
