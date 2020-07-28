@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.animation
 
+import android.view.ViewConfiguration
 import androidx.compose.animation.core.FloatDecayAnimationSpec
 import androidx.compose.ui.unit.Density
 import kotlin.math.sign
@@ -25,7 +26,10 @@ import kotlin.math.sign
  */
 class AndroidFlingDecaySpec(density: Density) : FloatDecayAnimationSpec {
 
-    private val flingCalculator = AndroidFlingCalculator(density)
+    private val flingCalculator = AndroidFlingCalculator(
+        ViewConfiguration.getScrollFriction(),
+        density
+    )
 
     override val absVelocityThreshold: Float get() = 0f
 

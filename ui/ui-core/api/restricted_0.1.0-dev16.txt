@@ -620,6 +620,9 @@ package androidx.ui.core {
     method @androidx.compose.runtime.Stable public long toSp-0680j_4(float);
   }
 
+  public final class JvmActualsKt {
+  }
+
   public interface LayoutCoordinates {
     method public androidx.compose.ui.unit.PxBounds childBoundingBox(androidx.ui.core.LayoutCoordinates child);
     method public androidx.compose.ui.geometry.Offset childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.compose.ui.geometry.Offset childLocal);

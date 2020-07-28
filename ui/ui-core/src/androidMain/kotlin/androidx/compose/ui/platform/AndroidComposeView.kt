@@ -79,12 +79,8 @@ import androidx.compose.ui.text.input.textInputServiceFactory
 import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry
 import androidx.compose.ui.DrawLayerModifier
 import androidx.compose.ui.FocusModifier2
-import androidx.compose.ui.Measurable
-import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.drawLayer
-import androidx.compose.ui.layout.IntrinsicMeasurable
-import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutNode
@@ -96,10 +92,9 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.trace
+import androidx.compose.ui.RootMeasureBlocks
 import java.lang.reflect.Method
-import kotlin.math.max
 import android.view.KeyEvent as AndroidKeyEvent
 
 /***
@@ -709,64 +704,6 @@ internal class AndroidComposeView constructor(
             } catch (e: Exception) {
                 return false
             }
-        }
-
-        private val RootMeasureBlocks = object : LayoutNode.MeasureBlocks {
-            override fun measure(
-                measureScope: MeasureScope,
-                measurables: List<Measurable>,
-                constraints: Constraints
-            ): MeasureScope.MeasureResult {
-                return when {
-                    measurables.isEmpty() -> measureScope.layout(0, 0) {}
-                    measurables.size == 1 -> {
-                        val placeable = measurables[0].measure(constraints)
-                        measureScope.layout(placeable.width, placeable.height) {
-                            placeable.place(0, 0)
-                        }
-                    }
-                    else -> {
-                        val placeables = measurables.map {
-                            it.measure(constraints)
-                        }
-                        var maxWidth = 0
-                        var maxHeight = 0
-                        placeables.fastForEach { placeable ->
-                            maxWidth = max(placeable.width, maxWidth)
-                            maxHeight = max(placeable.height, maxHeight)
-                        }
-                        measureScope.layout(maxWidth, maxHeight) {
-                            placeables.fastForEach { placeable ->
-                                placeable.place(0, 0)
-                            }
-                        }
-                    }
-                }
-            }
-
-            override fun minIntrinsicWidth(
-                intrinsicMeasureScope: IntrinsicMeasureScope,
-                measurables: List<IntrinsicMeasurable>,
-                h: Int
-            ) = error("Undefined intrinsics block and it is required")
-
-            override fun minIntrinsicHeight(
-                intrinsicMeasureScope: IntrinsicMeasureScope,
-                measurables: List<IntrinsicMeasurable>,
-                w: Int
-            ) = error("Undefined intrinsics block and it is required")
-
-            override fun maxIntrinsicWidth(
-                intrinsicMeasureScope: IntrinsicMeasureScope,
-                measurables: List<IntrinsicMeasurable>,
-                h: Int
-            ) = error("Undefined intrinsics block and it is required")
-
-            override fun maxIntrinsicHeight(
-                intrinsicMeasureScope: IntrinsicMeasureScope,
-                measurables: List<IntrinsicMeasurable>,
-                w: Int
-            ) = error("Undefined intrinsics block and it is required")
         }
     }
 }
