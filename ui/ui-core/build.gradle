@@ -141,11 +141,9 @@ afterEvaluate {
         def erroneousExtendsFrom = [
             "androidTest$scope",
             "androidTestDebug$scope",
-            "androidTestRelease$scope"
             ].collect { configurations[it] }
         [
             "androidDebugUnitTest$scope",
-            "androidReleaseUnitTest$scope",
             "test$scope",
             "testDebug$scope",
             "testRelease$scope"
