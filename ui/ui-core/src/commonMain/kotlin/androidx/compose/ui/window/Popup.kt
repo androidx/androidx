@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
+package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -55,7 +55,10 @@ fun Popup(
     children: @Composable () -> Unit
 ) {
     val popupPositioner = remember(alignment, offset) {
-        AlignmentOffsetPositionProvider(alignment, offset)
+        AlignmentOffsetPositionProvider(
+            alignment,
+            offset
+        )
     }
 
     Popup(
@@ -88,7 +91,10 @@ internal fun DropdownPopup(
     children: @Composable () -> Unit
 ) {
     val popupPositioner = remember(dropDownAlignment, offset) {
-        DropdownPositionProvider(dropDownAlignment, offset)
+        DropdownPositionProvider(
+            dropDownAlignment,
+            offset
+        )
     }
 
     Popup(
@@ -122,7 +128,12 @@ fun Popup(
     isFocusable: Boolean = false,
     onDismissRequest: (() -> Unit)? = null,
     children: @Composable () -> Unit
-) = ActualPopup(popupPositionProvider, isFocusable, onDismissRequest, children)
+) = ActualPopup(
+    popupPositionProvider,
+    isFocusable,
+    onDismissRequest,
+    children
+)
 
 @Composable
 internal expect fun ActualPopup(

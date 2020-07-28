@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 
@@ -27,7 +27,7 @@ import androidx.compose.runtime.Composable
  *
  * Example usage:
  *
- * @sample androidx.compose.foundation.samples.DialogSample
+ * @sample androidx.compose.ui.samples.DialogSample
  *
  * @param onCloseRequest Executes when the user tries to dismiss the Dialog.
  * @param children The content to be displayed inside the dialog.

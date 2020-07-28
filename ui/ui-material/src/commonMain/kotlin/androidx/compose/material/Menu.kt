@@ -45,8 +45,8 @@ import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.material.ripple.RippleIndication
 import androidx.compose.ui.DrawLayerModifier
 import androidx.compose.ui.TransformOrigin
-import androidx.compose.ui.platform.Popup
-import androidx.compose.ui.platform.PopupPositionProvider
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntBounds
 import androidx.compose.ui.unit.IntOffset
