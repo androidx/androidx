@@ -18,7 +18,7 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.RRect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.vectormath.degrees
 
@@ -160,19 +160,19 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
         internalPath.addArc(rectF, startAngleDegrees, sweepAngleDegrees)
     }
 
-    override fun addRRect(rrect: RRect) {
-        rectF.set(rrect.left, rrect.top, rrect.right, rrect.bottom)
-        radii[0] = rrect.topLeftRadiusX
-        radii[1] = rrect.topLeftRadiusY
+    override fun addRoundRect(roundRect: RoundRect) {
+        rectF.set(roundRect.left, roundRect.top, roundRect.right, roundRect.bottom)
+        radii[0] = roundRect.topLeftRadiusX
+        radii[1] = roundRect.topLeftRadiusY
 
-        radii[2] = rrect.topRightRadiusX
-        radii[3] = rrect.topRightRadiusY
+        radii[2] = roundRect.topRightRadiusX
+        radii[3] = roundRect.topRightRadiusY
 
-        radii[4] = rrect.bottomRightRadiusX
-        radii[5] = rrect.bottomRightRadiusY
+        radii[4] = roundRect.bottomRightRadiusX
+        radii[5] = roundRect.bottomRightRadiusY
 
-        radii[6] = rrect.bottomLeftRadiusX
-        radii[7] = rrect.bottomLeftRadiusY
+        radii[6] = roundRect.bottomLeftRadiusX
+        radii[7] = roundRect.bottomLeftRadiusY
         internalPath.addRoundRect(rectF, radii, android.graphics.Path.Direction.CCW)
     }
 

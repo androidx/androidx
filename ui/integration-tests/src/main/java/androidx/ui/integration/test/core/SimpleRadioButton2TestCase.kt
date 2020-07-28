@@ -63,7 +63,7 @@ private fun Outline.offset(size: Float): Outline {
     val offset = Offset(size, size)
     return when (this) {
         is Outline.Rectangle -> Outline.Rectangle(rect.shift(offset))
-        is Outline.Rounded -> Outline.Rounded(rrect.shift(offset))
+        is Outline.Rounded -> Outline.Rounded(roundRect.shift(offset))
         is Outline.Generic -> Outline.Generic(Path().apply {
             addPath(path)
             shift(offset)

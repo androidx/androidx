@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.shape
 
-import androidx.compose.ui.geometry.RRect
 import androidx.compose.ui.geometry.Radius
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
@@ -51,7 +51,7 @@ class RoundedCornerShape(
         Outline.Rectangle(size.toRect())
     } else {
         Outline.Rounded(
-            RRect(
+            RoundRect(
                 rect = size.toRect(),
                 topLeft = topLeft.toRadius(),
                 topRight = topRight.toRadius(),

@@ -179,11 +179,11 @@ class DrawBorder internal constructor(
                 return
             } else if (outline is Outline.Rectangle) {
                 drawRoundRectBorder(borderSize, outline.rect, 0f, brush)
-            } else if (outline is Outline.Rounded && outline.rrect.isSimple) {
-                val radius = outline.rrect.bottomLeftRadiusY
+            } else if (outline is Outline.Rounded && outline.roundRect.isSimple) {
+                val radius = outline.roundRect.bottomLeftRadiusY
                 drawRoundRectBorder(
                     borderSize,
-                    outline.rrect.outerRect(),
+                    outline.roundRect.outerRect(),
                     radius,
                     brush
                 )

@@ -19,7 +19,7 @@ package androidx.compose.ui.graphics
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.util.annotation.FloatRange
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.RRect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Radius
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -43,10 +43,10 @@ sealed class Outline {
      * Rectangular area with rounded corners.
      */
     @Immutable
-    data class Rounded(val rrect: RRect) : Outline() {
+    data class Rounded(val roundRect: RoundRect) : Outline() {
 
         /**
-         * Optional Path to be created for the RRect if the corner radii are not identical
+         * Optional Path to be created for the RoundRect if the corner radii are not identical
          * This is because Canvas has a built in API for drawing round rectangles with the
          * same corner radii in all 4 corners. However, if each corner has a different
          * corner radii, a path must be drawn instead
@@ -54,8 +54,8 @@ sealed class Outline {
         internal val roundRectPath: Path?
 
         init {
-            roundRectPath = if (!rrect.hasSameCornerRadius()) {
-                Path().apply { addRRect(rrect) }
+            roundRectPath = if (!roundRect.hasSameCornerRadius()) {
+                Path().apply { addRoundRect(roundRect) }
             } else {
                 null
             }
@@ -74,7 +74,7 @@ sealed class Outline {
  */
 fun Path.addOutline(outline: Outline) = when (outline) {
     is Outline.Rectangle -> addRect(outline.rect)
-    is Outline.Rounded -> addRRect(outline.rrect)
+    is Outline.Rounded -> addRoundRect(outline.roundRect)
     is Outline.Generic -> addPath(outline.path)
 }
 
@@ -167,14 +167,14 @@ private fun Rect.topLeft(): Offset = Offset(left, top)
 private fun Rect.size(): Size = Size(width, height)
 
 /**
- * Convenience method to obtain an Offset from the RRect's top and left parameters
+ * Convenience method to obtain an Offset from the RoundRect's top and left parameters
  */
-private fun RRect.topLeft(): Offset = Offset(left, top)
+private fun RoundRect.topLeft(): Offset = Offset(left, top)
 
 /**
- * Convenience method to obtain a Size from the RRect's width and height parameters
+ * Convenience method to obtain a Size from the RoundRect's width and height parameters
  */
-private fun RRect.size(): Size = Size(width, height)
+private fun RoundRect.size(): Size = Size(width, height)
 
 /**
  * Helper method that allows for delegation of appropriate drawing call based on type of
@@ -183,7 +183,7 @@ private fun RRect.size(): Size = Size(width, height)
 private inline fun DrawScope.drawOutlineHelper(
     outline: Outline,
     drawRectBlock: DrawScope.(rect: Rect) -> Unit,
-    drawRoundedRectBlock: DrawScope.(rrect: RRect) -> Unit,
+    drawRoundedRectBlock: DrawScope.(rrect: RoundRect) -> Unit,
     drawPathBlock: DrawScope.(path: Path) -> Unit
 ) = when (outline) {
         is Outline.Rectangle -> drawRectBlock(outline.rect)
@@ -196,7 +196,7 @@ private inline fun DrawScope.drawOutlineHelper(
             if (path != null) {
                 drawPathBlock(path)
             } else {
-                drawRoundedRectBlock(outline.rrect)
+                drawRoundedRectBlock(outline.roundRect)
             }
         }
         is Outline.Generic -> drawPathBlock(outline.path)
@@ -220,12 +220,12 @@ fun Canvas.drawOutline(outline: Outline, paint: Paint) = when (outline) {
             drawPath(path, paint)
         } else {
             drawRoundRect(
-                left = outline.rrect.left,
-                top = outline.rrect.top,
-                right = outline.rrect.right,
-                bottom = outline.rrect.bottom,
-                radiusX = outline.rrect.bottomLeftRadiusX,
-                radiusY = outline.rrect.bottomLeftRadiusY,
+                left = outline.roundRect.left,
+                top = outline.roundRect.top,
+                right = outline.roundRect.right,
+                bottom = outline.roundRect.bottom,
+                radiusX = outline.roundRect.bottomLeftRadiusX,
+                radiusY = outline.roundRect.bottomLeftRadiusY,
                 paint = paint)
         }
     }
@@ -233,11 +233,11 @@ fun Canvas.drawOutline(outline: Outline, paint: Paint) = when (outline) {
 }
 
 /**
- * Convenience method to determine if the corner radii of the RRect are identical
+ * Convenience method to determine if the corner radii of the RoundRect are identical
  * in each of the corners. That is the x radius and the y radius are the same for each corner,
  * however, the x and y can be different
  */
-private fun RRect.hasSameCornerRadius(): Boolean {
+private fun RoundRect.hasSameCornerRadius(): Boolean {
     val sameRadiusX = bottomLeftRadiusX == bottomRightRadiusX &&
             bottomRightRadiusX == topRightRadiusX &&
             topRightRadiusX == topLeftRadiusX
