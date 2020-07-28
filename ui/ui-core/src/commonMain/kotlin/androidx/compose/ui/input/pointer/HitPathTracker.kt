@@ -136,12 +136,6 @@ internal class HitPathTracker {
             root.dispatchChanges(
                 internalPointerEvent,
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp
-            ) || dispatchHit
-        dispatchHit =
-            root.dispatchChanges(
-                internalPointerEvent,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             ) || dispatchHit
         dispatchHit =
@@ -177,13 +171,6 @@ internal class HitPathTracker {
             event,
             associatedPointers,
             PointerEventPass.InitialDown,
-            PointerEventPass.PreUp,
-            dispatchingNode
-        )
-        root.dispatchCustomEvent(
-            event,
-            associatedPointers,
-            PointerEventPass.PreDown,
             PointerEventPass.PostUp,
             dispatchingNode
         )

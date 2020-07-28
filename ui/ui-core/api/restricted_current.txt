@@ -2093,8 +2093,6 @@ package androidx.compose.ui.platform {
     enum_constant public static final androidx.compose.ui.platform.PointerEventPass InitialDown;
     enum_constant public static final androidx.compose.ui.platform.PointerEventPass PostDown;
     enum_constant public static final androidx.compose.ui.platform.PointerEventPass PostUp;
-    enum_constant public static final androidx.compose.ui.platform.PointerEventPass PreDown;
-    enum_constant public static final androidx.compose.ui.platform.PointerEventPass PreUp;
   }
 
   public final inline class PointerId {
