@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core
+package androidx.compose.ui
 
 class R {
     class id {

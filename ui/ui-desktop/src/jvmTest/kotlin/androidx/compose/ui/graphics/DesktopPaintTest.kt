@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.graphics
 
-import androidx.ui.TestResources.testImageAsset
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -71,7 +70,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
         canvas.drawRect(left = 0f, top = 0f, right = 16f, bottom = 16f, paint = redPaint)
 
         canvas.drawImage(
-            image = testImageAsset("androidx/ui/desktop/test.png"),
+            image = imageFromResource("androidx/ui/desktop/test.png"),
             topLeftOffset = Offset(2f, 4f),
             paint = Paint().apply {
                 colorFilter = ColorFilter(Color.Blue, BlendMode.plus)
@@ -84,7 +83,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
     @Test
     fun filterQuality() {
         canvas.drawImageRect(
-            image = testImageAsset("androidx/ui/desktop/test.png"),
+            image = imageFromResource("androidx/ui/desktop/test.png"),
             srcOffset = IntOffset(0, 2),
             srcSize = IntSize(2, 4),
             dstOffset = IntOffset(0, 4),
@@ -92,7 +91,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             paint = redPaint
         )
         canvas.drawImageRect(
-            image = testImageAsset("androidx/ui/desktop/test.png"),
+            image = imageFromResource("androidx/ui/desktop/test.png"),
             srcOffset = IntOffset(0, 2),
             srcSize = IntSize(2, 4),
             dstOffset = IntOffset(4, 4),
@@ -102,7 +101,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             }
         )
         canvas.drawImageRect(
-            image = testImageAsset("androidx/ui/desktop/test.png"),
+            image = imageFromResource("androidx/ui/desktop/test.png"),
             srcOffset = IntOffset(0, 2),
             srcSize = IntSize(2, 4),
             dstOffset = IntOffset(8, 4),

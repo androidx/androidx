@@ -15,10 +15,6 @@
  */
 package androidx.ui.desktop
 
-import androidx.compose.animation.core.AnimationClockObserver
-import androidx.compose.runtime.dispatch.DesktopUiDispatcher
-import androidx.compose.ui.text.platform.paragraphActualFactory
-import androidx.compose.ui.text.platform.paragraphIntrinsicsActualFactory
 import com.jogamp.opengl.GL
 import com.jogamp.opengl.GLAutoDrawable
 import com.jogamp.opengl.GLCapabilities
@@ -30,7 +26,6 @@ import org.jetbrains.skija.Canvas
 import org.jetbrains.skija.ColorSpace
 import org.jetbrains.skija.Context
 import org.jetbrains.skija.FramebufferFormat
-import org.jetbrains.skija.Library
 import org.jetbrains.skija.Surface
 import org.jetbrains.skija.SurfaceColorFormat
 import org.jetbrains.skija.SurfaceOrigin
@@ -103,18 +98,9 @@ class Window : JFrame, SkiaFrame {
 }
 
 class Dialog : JDialog, SkiaFrame {
-    @OptIn(androidx.compose.ui.text.android.InternalPlatformTextApi::class)
     companion object {
         init {
-            Library.load("/", "skija")
-            // Until https://github.com/Kotlin/kotlinx.coroutines/issues/2039 is resolved
-            // we have to set this property manually for coroutines to work.
-            System.getProperties().setProperty("kotlinx.coroutines.fast.service.loader", "false")
-
-            @Suppress("DEPRECATION_ERROR")
-            paragraphIntrinsicsActualFactory = ::DesktopParagraphIntrinsics
-            @Suppress("DEPRECATION_ERROR")
-            paragraphActualFactory = ::DesktopParagraph
+            initCompose()
         }
     }
 
@@ -287,37 +273,4 @@ private fun initCanvas(frame: SkiaFrame, vsync: Boolean = false): GLCanvas {
     })
 
     return glCanvas
-}
-
-internal class DesktopAnimationClock(fps: Int, val dispatcher: DesktopUiDispatcher) :
-    BaseAnimationClock() {
-    val delay = 1_000 / fps
-
-    @Volatile
-    private var scheduled = false
-    private fun frameCallback(time: Long) {
-        scheduled = false
-        dispatchTime(time / 1000000)
-    }
-
-    override fun subscribe(observer: AnimationClockObserver) {
-        super.subscribe(observer)
-        scheduleIfNeeded()
-    }
-
-    override fun dispatchTime(frameTimeMillis: Long) {
-        super.dispatchTime(frameTimeMillis)
-        scheduleIfNeeded()
-    }
-
-    private fun scheduleIfNeeded() {
-        when {
-            scheduled -> return
-            !hasObservers() -> return
-            else -> {
-                scheduled = true
-                dispatcher.scheduleCallbackWithDelay(delay, ::frameCallback)
-            }
-        }
-    }
 }

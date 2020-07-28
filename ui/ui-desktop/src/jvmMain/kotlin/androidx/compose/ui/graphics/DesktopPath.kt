@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,8 +38,6 @@ inline fun Path.asDesktopPath(): org.jetbrains.skija.Path =
 class DesktopPath(
     val internalPath: org.jetbrains.skija.Path = org.jetbrains.skija.Path()
 ) : Path {
-    private val radii = FloatArray(8)
-
     override var fillType: PathFillType
         get() {
             if (internalPath.fillMode == PathFillMode.EVEN_ODD) {
@@ -112,7 +110,7 @@ class DesktopPath(
         forceMoveTo: Boolean
     ) {
         internalPath.arcTo(
-            rect.toSkija(),
+            rect.toSkijaRect(),
             startAngleDegrees,
             sweepAngleDegrees,
             forceMoveTo
@@ -120,11 +118,11 @@ class DesktopPath(
     }
 
     override fun addRect(rect: Rect) {
-        internalPath.addRect(rect.toSkija(), PathDirection.COUNTER_CLOCKWISE)
+        internalPath.addRect(rect.toSkijaRect(), PathDirection.COUNTER_CLOCKWISE)
     }
 
     override fun addOval(oval: Rect) {
-        internalPath.addOval(oval.toSkija(), PathDirection.COUNTER_CLOCKWISE)
+        internalPath.addOval(oval.toSkijaRect(), PathDirection.COUNTER_CLOCKWISE)
     }
 
     override fun addArcRad(oval: Rect, startAngleRadians: Float, sweepAngleRadians: Float) {
@@ -132,28 +130,11 @@ class DesktopPath(
     }
 
     override fun addArc(oval: Rect, startAngleDegrees: Float, sweepAngleDegrees: Float) {
-        internalPath.addArc(oval.toSkija(), startAngleDegrees, sweepAngleDegrees)
+        internalPath.addArc(oval.toSkijaRect(), startAngleDegrees, sweepAngleDegrees)
     }
 
     override fun addRRect(rrect: RRect) {
-        radii[0] = rrect.topLeftRadiusX
-        radii[1] = rrect.topLeftRadiusY
-
-        radii[2] = rrect.topRightRadiusX
-        radii[3] = rrect.topRightRadiusY
-
-        radii[4] = rrect.bottomRightRadiusX
-        radii[5] = rrect.bottomRightRadiusY
-
-        radii[6] = rrect.bottomLeftRadiusX
-        radii[7] = rrect.bottomLeftRadiusY
-
-        internalPath.addRRect(
-            org.jetbrains.skija.RRect.makeComplexLTRB(
-                rrect.left, rrect.top, rrect.right, rrect.bottom, radii
-            ),
-            PathDirection.COUNTER_CLOCKWISE
-        )
+        internalPath.addRRect(rrect.toSkijaRRect(), PathDirection.COUNTER_CLOCKWISE)
     }
 
     override fun addPath(path: Path, offset: Offset) {
@@ -187,6 +168,7 @@ class DesktopPath(
         path2: Path,
         operation: PathOperation
     ): Boolean {
+        // TODO(demin): implement Path.op
         println("Path.op not implemented yet")
         return false
     }

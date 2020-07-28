@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.desktop
+package androidx.compose.ui.text.platform
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.DesktopPath
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.toAndroidX
+import androidx.compose.ui.graphics.toComposeRect
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphConstraints
 import androidx.compose.ui.text.ParagraphIntrinsics
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.unit.Density
 import org.jetbrains.skija.paragraph.LineMetrics
 import org.jetbrains.skija.paragraph.RectHeightMode
 import org.jetbrains.skija.paragraph.RectWidthMode
@@ -33,6 +39,44 @@ import org.jetbrains.skija.paragraph.TextBox
 import org.jetbrains.skija.Rect as SkRect
 import java.nio.charset.Charset
 import kotlin.math.floor
+
+@Suppress("unused", "UNUSED_PARAMETER")
+internal /*actual*/ fun ActualParagraph(
+    text: String,
+    style: TextStyle,
+    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    placeholders: List<AnnotatedString.Range<Placeholder>>,
+    maxLines: Int,
+    ellipsis: Boolean,
+    constraints: ParagraphConstraints,
+    density: Density,
+    resourceLoader: Font.ResourceLoader
+): Paragraph = DesktopParagraph(
+    DesktopParagraphIntrinsics(
+        text,
+        style,
+        spanStyles,
+        placeholders,
+        density,
+        resourceLoader
+    ),
+    maxLines,
+    ellipsis,
+    constraints
+)
+
+@Suppress("unused", "UNUSED_PARAMETER")
+internal /*actual*/ fun ActualParagraph(
+    paragraphIntrinsics: ParagraphIntrinsics,
+    maxLines: Int,
+    ellipsis: Boolean,
+    constraints: ParagraphConstraints
+): Paragraph = DesktopParagraph(
+    paragraphIntrinsics as DesktopParagraphIntrinsics,
+    maxLines,
+    ellipsis,
+    constraints
+)
 
 internal class DesktopParagraph(
     intrinsics: ParagraphIntrinsics,
@@ -225,7 +269,7 @@ internal class DesktopParagraph(
     }
 
     override fun getBoundingBox(offset: Int) =
-        getBoxForwardByOffset(offset)!!.rect.toAndroidX()
+        getBoxForwardByOffset(offset)!!.rect.toComposeRect()
 
     override fun getWordBoundary(offset: Int): TextRange {
         println("Paragraph.getWordBoundary $offset")

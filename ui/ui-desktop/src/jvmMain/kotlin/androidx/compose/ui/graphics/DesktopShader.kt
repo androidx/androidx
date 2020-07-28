@@ -30,7 +30,7 @@ internal fun DesktopLinearGradientShader(
     validateColorStops(colors, colorStops)
     val skijaShader = org.jetbrains.skija.Shader.makeLinearGradient(
         from.x, from.y, to.x, to.y, colors.toIntArray(), colorStops?.toFloatArray(),
-        GradientStyle(tileMode.toSkija(), true, identityMatrix33())
+        GradientStyle(tileMode.toSkijaRect(), true, identityMatrix33())
     )
     return Shader(skijaShader)
 }
@@ -49,7 +49,7 @@ internal fun DesktopRadialGradientShader(
         radius,
         colors.toIntArray(),
         colorStops?.toFloatArray(),
-        GradientStyle(tileMode.toSkija(), true, identityMatrix33())
+        GradientStyle(tileMode.toSkijaRect(), true, identityMatrix33())
     )
     return Shader(skijaShader)
 }
@@ -60,6 +60,7 @@ internal fun DesktopImageShader(
     tileModeX: TileMode,
     tileModeY: TileMode
 ): Shader {
+    // TODO(demin): implement ImageShader
     println("ImageShader not implemented yet")
     return Shader()
 }
@@ -83,7 +84,7 @@ private fun validateColorStops(colors: List<Color>, colorStops: List<Float>?) {
     }
 }
 
-private fun TileMode.toSkija() = when (this) {
+private fun TileMode.toSkijaRect() = when (this) {
     TileMode.Clamp -> FilterTileMode.CLAMP
     TileMode.Repeated -> FilterTileMode.REPEAT
     TileMode.Mirror -> FilterTileMode.MIRROR
