@@ -40,7 +40,7 @@ import androidx.ui.test.performClick
 import androidx.ui.test.onAllNodes
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
-import androidx.ui.test.getBoundsInRoot
+import androidx.ui.test.getUnclippedBoundsInRoot
 import androidx.ui.test.isInMutuallyExclusiveGroup
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
@@ -133,9 +133,9 @@ class BottomNavigationTest {
             }
         }
 
-        val itemBounds = onNodeWithTag("item").getBoundsInRoot()
-        val iconBounds = onNodeWithTag("icon", useUnmergedTree = true).getBoundsInRoot()
-        val textBounds = onNodeWithText("ItemText").getBoundsInRoot()
+        val itemBounds = onNodeWithTag("item").getUnclippedBoundsInRoot()
+        val iconBounds = onNodeWithTag("icon", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val textBounds = onNodeWithText("ItemText").getUnclippedBoundsInRoot()
 
         // Distance from the bottom to the text baseline and from the text baseline to the
         // bottom of the icon
@@ -184,8 +184,8 @@ class BottomNavigationTest {
         // is false
         onNodeWithText("ItemText", useUnmergedTree = true).assertIsNotDisplayed()
 
-        val itemBounds = onNodeWithTag("item").getBoundsInRoot()
-        val iconBounds = onNodeWithTag("icon", useUnmergedTree = true).getBoundsInRoot()
+        val itemBounds = onNodeWithTag("item").getUnclippedBoundsInRoot()
+        val iconBounds = onNodeWithTag("icon", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
@@ -212,8 +212,8 @@ class BottomNavigationTest {
             }
         }
 
-        val itemBounds = onNodeWithTag("item").getBoundsInRoot()
-        val iconBounds = onNodeWithTag("icon", useUnmergedTree = true).getBoundsInRoot()
+        val itemBounds = onNodeWithTag("item").getUnclippedBoundsInRoot()
+        val iconBounds = onNodeWithTag("icon", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         // The icon should be centered in the item, as there is no text placeable provided
         onNodeWithTag("icon", useUnmergedTree = true)

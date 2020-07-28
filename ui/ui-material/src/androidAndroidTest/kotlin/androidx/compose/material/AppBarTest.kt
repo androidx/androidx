@@ -33,7 +33,7 @@ import androidx.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
-import androidx.ui.test.getBoundsInRoot
+import androidx.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -91,8 +91,8 @@ class AppBarTest {
             }
         }
 
-        val appBarBounds = onNodeWithTag("bar").getBoundsInRoot()
-        val titleBounds = onNodeWithTag("title").getBoundsInRoot()
+        val appBarBounds = onNodeWithTag("bar").getUnclippedBoundsInRoot()
+        val titleBounds = onNodeWithTag("title").getUnclippedBoundsInRoot()
         val appBarBottomEdgeY = appBarBounds.top + appBarBounds.height
 
         onNodeWithTag("navigationIcon")
@@ -132,7 +132,7 @@ class AppBarTest {
             }
         }
 
-        val appBarBounds = onNodeWithTag("bar").getBoundsInRoot()
+        val appBarBounds = onNodeWithTag("bar").getUnclippedBoundsInRoot()
 
         onNodeWithTag("title")
             // Title should now be placed 16.dp from the start, as there is no navigation icon
@@ -181,7 +181,7 @@ class AppBarTest {
             }
         }
 
-        val appBarBounds = onNodeWithTag("bar").getBoundsInRoot()
+        val appBarBounds = onNodeWithTag("bar").getUnclippedBoundsInRoot()
         val appBarBottomEdgeY = appBarBounds.top + appBarBounds.height
 
         onNodeWithTag("icon")
