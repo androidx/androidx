@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performGesture
-import androidx.ui.test.performPartialGesture
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.down
@@ -322,7 +321,7 @@ class DraggableTest {
         }
 
         onNodeWithTag(draggableBoxTag)
-            .performPartialGesture {
+            .performGesture {
                 down(Offset(size.width / 4f, size.height / 2f))
                 moveBy(Offset(size.width / 2f, 0f))
             }
@@ -332,7 +331,7 @@ class DraggableTest {
         }
 
         onNodeWithTag(draggableBoxTag)
-            .performPartialGesture {
+            .performGesture {
                 up()
             }
 
@@ -366,7 +365,7 @@ class DraggableTest {
         }
 
         onNodeWithTag(draggableBoxTag)
-            .performPartialGesture {
+            .performGesture {
                 down(Offset(size.width / 4f, size.height / 2f))
                 moveBy(Offset(size.width / 2f, 0f))
             }

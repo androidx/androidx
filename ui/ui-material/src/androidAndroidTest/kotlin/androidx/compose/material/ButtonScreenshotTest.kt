@@ -28,7 +28,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performPartialGesture
+import androidx.ui.test.performGesture
 import androidx.ui.test.onNode
 import androidx.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
@@ -90,7 +90,7 @@ class ButtonScreenshotTest {
 
         // Start ripple
         onNode(hasClickAction())
-            .performPartialGesture { down(center) }
+            .performGesture { down(center) }
 
         // Let ripple propagate
         waitForIdle()
