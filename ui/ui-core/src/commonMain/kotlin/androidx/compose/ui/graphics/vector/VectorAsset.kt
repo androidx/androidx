@@ -225,5 +225,23 @@ data class VectorPath(
     /**
      * Specifies the miter limit for a stroked path, the default is 4
      */
-    val strokeLineMiter: Float = DefaultStrokeLineMiter
+    val strokeLineMiter: Float = DefaultStrokeLineMiter,
+
+    /**
+     * Specifies the fraction of the path to trim from the start, in the range from 0 to 1.
+     * The default is 0.
+     */
+    val trimPathStart: Float = DefaultTrimPathStart,
+
+    /**
+     * Specifies the fraction of the path to trim from the end, in the range from 0 to 1.
+     * The default is 1.
+     */
+    val trimPathEnd: Float = DefaultTrimPathEnd,
+
+    /**
+     * Specifies the offset of the trim region (allows showed region to include the start and end),
+     * in the range from 0 to 1. The default is 0.
+     */
+    val trimPathOffset: Float = DefaultTrimPathOffset
 ) : VectorNode()

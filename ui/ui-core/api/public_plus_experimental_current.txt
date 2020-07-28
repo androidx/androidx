@@ -758,7 +758,7 @@ package androidx.compose.ui.graphics.vector {
   }
 
   public final class VectorAssetBuilder {
-    method public androidx.compose.ui.graphics.vector.VectorAssetBuilder addPath(java.util.List<? extends androidx.compose.ui.graphics.vector.PathNode> pathData, String name = "", androidx.compose.ui.graphics.Brush? fill = null, float fillAlpha = 1.0f, androidx.compose.ui.graphics.Brush? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.compose.ui.graphics.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.compose.ui.graphics.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f);
+    method public androidx.compose.ui.graphics.vector.VectorAssetBuilder addPath(java.util.List<? extends androidx.compose.ui.graphics.vector.PathNode> pathData, String name = "", androidx.compose.ui.graphics.Brush? fill = null, float fillAlpha = 1.0f, androidx.compose.ui.graphics.Brush? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.compose.ui.graphics.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.compose.ui.graphics.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f, float trimPathStart = 0.0f, float trimPathEnd = 1.0f, float trimPathOffset = 0.0f);
     method public androidx.compose.ui.graphics.vector.VectorAsset build();
     method public float getDefaultHeight();
     method public float getDefaultWidth();
@@ -837,9 +837,12 @@ package androidx.compose.ui.graphics.vector {
   }
 
   public final class VectorPath extends androidx.compose.ui.graphics.vector.VectorNode {
-    ctor public VectorPath(String name, java.util.List<? extends androidx.compose.ui.graphics.vector.PathNode> pathData, androidx.compose.ui.graphics.Brush? fill, float fillAlpha, androidx.compose.ui.graphics.Brush? stroke, float strokeAlpha, float strokeLineWidth, androidx.compose.ui.graphics.StrokeCap strokeLineCap, androidx.compose.ui.graphics.StrokeJoin strokeLineJoin, float strokeLineMiter);
+    ctor public VectorPath(String name, java.util.List<? extends androidx.compose.ui.graphics.vector.PathNode> pathData, androidx.compose.ui.graphics.Brush? fill, float fillAlpha, androidx.compose.ui.graphics.Brush? stroke, float strokeAlpha, float strokeLineWidth, androidx.compose.ui.graphics.StrokeCap strokeLineCap, androidx.compose.ui.graphics.StrokeJoin strokeLineJoin, float strokeLineMiter, float trimPathStart, float trimPathEnd, float trimPathOffset);
     method public String component1();
     method public float component10();
+    method public float component11();
+    method public float component12();
+    method public float component13();
     method public java.util.List<androidx.compose.ui.graphics.vector.PathNode> component2();
     method public androidx.compose.ui.graphics.Brush? component3();
     method public float component4();
@@ -848,7 +851,7 @@ package androidx.compose.ui.graphics.vector {
     method public float component7();
     method public androidx.compose.ui.graphics.StrokeCap component8();
     method public androidx.compose.ui.graphics.StrokeJoin component9();
-    method public androidx.compose.ui.graphics.vector.VectorPath copy(String name, java.util.List<? extends androidx.compose.ui.graphics.vector.PathNode> pathData, androidx.compose.ui.graphics.Brush? fill, float fillAlpha, androidx.compose.ui.graphics.Brush? stroke, float strokeAlpha, float strokeLineWidth, androidx.compose.ui.graphics.StrokeCap strokeLineCap, androidx.compose.ui.graphics.StrokeJoin strokeLineJoin, float strokeLineMiter);
+    method public androidx.compose.ui.graphics.vector.VectorPath copy(String name, java.util.List<? extends androidx.compose.ui.graphics.vector.PathNode> pathData, androidx.compose.ui.graphics.Brush? fill, float fillAlpha, androidx.compose.ui.graphics.Brush? stroke, float strokeAlpha, float strokeLineWidth, androidx.compose.ui.graphics.StrokeCap strokeLineCap, androidx.compose.ui.graphics.StrokeJoin strokeLineJoin, float strokeLineMiter, float trimPathStart, float trimPathEnd, float trimPathOffset);
     method public androidx.compose.ui.graphics.Brush? getFill();
     method public float getFillAlpha();
     method public String getName();
@@ -859,6 +862,9 @@ package androidx.compose.ui.graphics.vector {
     method public androidx.compose.ui.graphics.StrokeJoin getStrokeLineJoin();
     method public float getStrokeLineMiter();
     method public float getStrokeLineWidth();
+    method public float getTrimPathEnd();
+    method public float getTrimPathOffset();
+    method public float getTrimPathStart();
   }
 
 }

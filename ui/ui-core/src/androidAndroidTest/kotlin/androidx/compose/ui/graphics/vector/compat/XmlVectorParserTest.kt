@@ -55,6 +55,11 @@ class XmlVectorParserTest {
         val node = asset.root.iterator().next() as VectorPath
         assertEquals(Color(0xFFFF0000), (node.fill as SolidColor).value)
 
+        val delta = 0.001f
+        assertEquals(0.2f, node.trimPathStart, delta)
+        assertEquals(0.8f, node.trimPathEnd, delta)
+        assertEquals(0.1f, node.trimPathOffset, delta)
+
         val path = node.pathData
         assertEquals(5, path.size)
 
