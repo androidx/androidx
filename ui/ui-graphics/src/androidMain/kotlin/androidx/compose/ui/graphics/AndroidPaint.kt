@@ -17,6 +17,8 @@
 package androidx.compose.ui.graphics
 
 import androidx.compose.runtime.InternalComposeApi
+import android.graphics.PorterDuffXfermode
+import android.os.Build
 
 actual typealias NativePaint = android.graphics.Paint
 
@@ -27,7 +29,7 @@ actual fun Paint(): Paint = GraphicsFactory.paint()
 class AndroidPaint : Paint {
 
     private var internalPaint = makeNativePaint()
-    private var _blendMode = BlendMode.srcOver
+    private var _blendMode = BlendMode.SrcOver
     private var internalShader: Shader? = null
     private var internalColorFilter: ColorFilter? = null
 
@@ -119,8 +121,14 @@ class AndroidPaint : Paint {
 internal fun makeNativePaint() =
     android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
 
-internal fun NativePaint.setNativeBlendMode(value: BlendMode) {
-    this.xfermode = android.graphics.PorterDuffXfermode(value.toPorterDuffMode())
+internal fun NativePaint.setNativeBlendMode(mode: BlendMode) {
+    if (Build.VERSION.SDK_INT >= 29) {
+        // All blend modes supported in Q
+        this.blendMode = mode.toAndroidBlendMode()
+    } else {
+        // Else fall back on platform alternatives
+        this.xfermode = PorterDuffXfermode(mode.toPorterDuffMode())
+    }
 }
 
 internal fun NativePaint.setNativeColorFilter(value: ColorFilter?) {

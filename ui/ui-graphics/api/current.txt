@@ -2,6 +2,7 @@
 package androidx.compose.ui.graphics {
 
   public final class AndroidBlendModeKt {
+    method public static boolean isSupported(androidx.compose.ui.graphics.BlendMode);
   }
 
   public final class AndroidCanvasKt {
@@ -126,35 +127,35 @@ package androidx.compose.ui.graphics {
   public enum BlendMode {
     method public static androidx.compose.ui.graphics.BlendMode valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.compose.ui.graphics.BlendMode[] values();
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode clear;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode color;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode colorBurn;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode colorDodge;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode darken;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode difference;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode dst;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode dstATop;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode dstIn;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode dstOut;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode dstOver;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode exclusion;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode hardLight;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode hue;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode lighten;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode luminosity;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode modulate;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode multiply;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode overlay;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode plus;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode saturation;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode screen;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode softLight;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode src;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode srcATop;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode srcIn;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode srcOut;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode srcOver;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode xor;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Clear;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Color;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode ColorBurn;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode ColorDodge;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Darken;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Difference;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Dst;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode DstAtop;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode DstIn;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode DstOut;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode DstOver;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Exclusion;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Hardlight;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Hue;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Lighten;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Luminosity;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Modulate;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Multiply;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Overlay;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Plus;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Saturation;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Screen;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Softlight;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Src;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode SrcAtop;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode SrcIn;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode SrcOut;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode SrcOver;
+    enum_constant public static final androidx.compose.ui.graphics.BlendMode Xor;
   }
 
   public abstract sealed class Brush {
