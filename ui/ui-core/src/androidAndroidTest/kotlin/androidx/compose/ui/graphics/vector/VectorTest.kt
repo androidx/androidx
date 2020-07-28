@@ -148,6 +148,20 @@ class VectorTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testVectorTrimPath() {
+        rule.setContent {
+            VectorTrim()
+        }
+
+        takeScreenShot(200).apply {
+            assertEquals(Color.Yellow.toArgb(), getPixel(25, 100))
+            assertEquals(Color.Blue.toArgb(), getPixel(100, 100))
+            assertEquals(Color.Yellow.toArgb(), getPixel(175, 100))
+        }
+    }
+
     @Composable
     private fun VectorTint(
         size: Int = 200,
@@ -229,6 +243,47 @@ class VectorTest {
                         fill = SolidColor(Color.Black)
                     )
                 }
+            },
+            alignment = alignment
+        )
+        AtLeastSize(size = minimumSize, modifier = background) {
+        }
+    }
+
+    @Composable
+    private fun VectorTrim(
+        size: Int = 200,
+        minimumSize: Int = size,
+        alignment: Alignment = Alignment.Center
+    ) {
+        val sizePx = size.toFloat()
+        val sizeDp = (size / DensityAmbient.current.density).dp
+        val background = Modifier.paint(
+            VectorPainter(
+                defaultWidth = sizeDp,
+                defaultHeight = sizeDp
+            ) { _, _ ->
+                Path(
+                    pathData = PathData {
+                        lineTo(sizePx, 0.0f)
+                        lineTo(sizePx, sizePx)
+                        lineTo(0.0f, sizePx)
+                        close()
+                    },
+                    fill = SolidColor(Color.Blue)
+                )
+                // A thick stroke
+                Path(
+                    pathData = PathData {
+                        moveTo(0.0f, sizePx / 2)
+                        lineTo(sizePx, sizePx / 2)
+                    },
+                    stroke = SolidColor(Color.Yellow),
+                    strokeLineWidth = sizePx / 2,
+                    trimPathStart = 0.25f,
+                    trimPathEnd = 0.75f,
+                    trimPathOffset = 0.5f
+                )
             },
             alignment = alignment
         )

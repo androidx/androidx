@@ -101,6 +101,13 @@ package androidx.compose.ui.graphics {
     method public static androidx.compose.ui.graphics.Path asComposePath(android.graphics.Path);
   }
 
+  public final class AndroidPathMeasure implements androidx.compose.ui.graphics.PathMeasure {
+    method public float getLength();
+    method public boolean getSegment(float startDistance, float stopDistance, androidx.compose.ui.graphics.Path destination, boolean startWithMoveTo);
+    method public void setPath(androidx.compose.ui.graphics.Path? path, boolean forceClosed);
+    property public float length;
+  }
+
   public final class AndroidPathMeasureKt {
     method public static androidx.compose.ui.graphics.PathMeasure PathMeasure();
   }
@@ -516,8 +523,8 @@ package androidx.compose.ui.graphics {
 
   public interface PathMeasure {
     method public float getLength();
-    method public boolean getSegment(float startDistance, float stopDistance, androidx.compose.ui.graphics.Path path, boolean startWithMoveTo);
-    method public void setPath(androidx.compose.ui.graphics.Path path, boolean forceClosed);
+    method public boolean getSegment(float startDistance, float stopDistance, androidx.compose.ui.graphics.Path destination, boolean startWithMoveTo = true);
+    method public void setPath(androidx.compose.ui.graphics.Path? path, boolean forceClosed);
     property public abstract float length;
   }
 
