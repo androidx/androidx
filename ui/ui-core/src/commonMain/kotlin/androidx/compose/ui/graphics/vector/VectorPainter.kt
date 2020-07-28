@@ -182,7 +182,10 @@ private fun RenderVectorGroup(group: VectorGroup) {
                 strokeLineWidth = vectorNode.strokeLineWidth,
                 strokeLineCap = vectorNode.strokeLineCap,
                 strokeLineJoin = vectorNode.strokeLineJoin,
-                strokeLineMiter = vectorNode.strokeLineMiter
+                strokeLineMiter = vectorNode.strokeLineMiter,
+                trimPathStart = vectorNode.trimPathStart,
+                trimPathEnd = vectorNode.trimPathEnd,
+                trimPathOffset = vectorNode.trimPathOffset
             )
         } else if (vectorNode is VectorGroup) {
             Group(
