@@ -35,8 +35,8 @@ import java.lang.annotation.Target;
  * <pre>
  * {@literal @}Dao
  * interface MyDao {
- *     {@literal @}Query("SELECT * FROM User")
- *     public List<NameAndLastName> getAll();
+ *     {@literal @Query("SELECT * FROM User")}
+ *     {@literal public List<NameAndLastName> getAll();}
  * }
  * class NameAndLastName {
  *     public String name;
@@ -51,9 +51,9 @@ import java.lang.annotation.Target;
  * <pre>
  * {@literal @}Dao
  * interface MyDao {
- *     {@literal @}RewriteQueriesToDropUnusedColumns
- *     {@literal @}Query("SELECT * FROM User")
- *     public List<NameAndLastName> getAll();
+ *     {@literal @RewriteQueriesToDropUnusedColumns}
+ *     {@literal @Query("SELECT * FROM User")}
+ *     {@literal public List<NameAndLastName> getAll();}
  * }
  * </pre>
  * At compile time, Room will convert this query to {@code SELECT name, lastName FROM (SELECT *
