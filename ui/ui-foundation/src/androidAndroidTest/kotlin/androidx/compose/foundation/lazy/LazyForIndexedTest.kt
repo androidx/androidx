@@ -17,8 +17,6 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.Text
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredWidth
@@ -43,7 +41,7 @@ class LazyForIndexedTest {
 
         composeTestRule.setContent {
             LazyColumnForIndexed(items, Modifier.preferredHeight(200.dp)) { index, item ->
-                Text("${index}x$item", Modifier.fillMaxWidth().height(100.dp))
+                Text("${index}x$item", Modifier.fillParentMaxWidth().height(100.dp))
             }
         }
 
@@ -60,7 +58,7 @@ class LazyForIndexedTest {
 
         composeTestRule.setContent {
             LazyRowForIndexed(items, Modifier.preferredWidth(200.dp)) { index, item ->
-                Text("${index}x$item", Modifier.fillMaxHeight().width(100.dp))
+                Text("${index}x$item", Modifier.fillParentMaxHeight().width(100.dp))
             }
         }
 

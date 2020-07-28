@@ -58,7 +58,7 @@ fun <T> LazyColumnFor(
     modifier: Modifier = Modifier,
     contentPadding: InnerPadding = InnerPadding(0.dp),
     horizontalGravity: Alignment.Horizontal = Alignment.Start,
-    itemContent: @Composable (T) -> Unit
+    itemContent: @Composable LazyItemScope.(T) -> Unit
 ) {
     LazyFor(
         itemsCount = items.size,
@@ -105,7 +105,7 @@ fun <T> LazyColumnForIndexed(
     modifier: Modifier = Modifier,
     contentPadding: InnerPadding = InnerPadding(0.dp),
     horizontalGravity: Alignment.Horizontal = Alignment.Start,
-    itemContent: @Composable (index: Int, item: T) -> Unit
+    itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
 ) {
     LazyFor(
         itemsCount = items.size,
@@ -139,9 +139,10 @@ fun <T> LazyColumnItems(
         items = items,
         modifier = modifier,
         contentPadding = contentPadding,
-        horizontalGravity = horizontalGravity,
-        itemContent = itemContent
-    )
+        horizontalGravity = horizontalGravity
+    ) {
+        itemContent(it)
+    }
 }
 
 /**
@@ -170,7 +171,7 @@ fun <T> LazyRowFor(
     modifier: Modifier = Modifier,
     contentPadding: InnerPadding = InnerPadding(0.dp),
     verticalGravity: Alignment.Vertical = Alignment.Top,
-    itemContent: @Composable (T) -> Unit
+    itemContent: @Composable LazyItemScope.(T) -> Unit
 ) {
     LazyFor(
         itemsCount = items.size,
@@ -216,7 +217,7 @@ fun <T> LazyRowForIndexed(
     modifier: Modifier = Modifier,
     contentPadding: InnerPadding = InnerPadding(0.dp),
     verticalGravity: Alignment.Vertical = Alignment.Top,
-    itemContent: @Composable (index: Int, item: T) -> Unit
+    itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
 ) {
     LazyFor(
         itemsCount = items.size,
@@ -250,9 +251,10 @@ fun <T> LazyRowItems(
         items = items,
         modifier = modifier,
         contentPadding = contentPadding,
-        itemContent = itemContent,
         verticalGravity = verticalGravity
-    )
+    ) {
+        itemContent(it)
+    }
 }
 
 @Suppress("NOTHING_TO_INLINE")
@@ -265,7 +267,7 @@ private inline fun LazyFor(
     horizontalGravity: Alignment.Horizontal = Alignment.Start,
     verticalGravity: Alignment.Vertical = Alignment.Top,
     isVertical: Boolean,
-    noinline itemContentFactory: (Int) -> @Composable () -> Unit
+    noinline itemContentFactory: LazyItemScope.(Int) -> @Composable () -> Unit
 ) {
     val state = remember { LazyForState(isVertical = isVertical) }
     SubcomposeLayout<DataIndex>(

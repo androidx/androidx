@@ -58,6 +58,8 @@ import androidx.ui.test.waitForIdle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.ui.test.assertHeightIsEqualTo
+import androidx.ui.test.assertWidthIsEqualTo
 import com.google.common.collect.Range
 import com.google.common.truth.IntegerSubject
 import com.google.common.truth.Truth
@@ -301,11 +303,13 @@ class LazyColumnForTest {
                     .testTag(LazyColumnForTag)
             ) {
                 if (it == 3) {
-                    Spacer(Modifier.testTag(thirdTag)
-                        .fillMaxWidth()
-                        .preferredHeight(if (thirdHasSize) 60.dp else 0.dp))
+                    Spacer(
+                        Modifier.testTag(thirdTag)
+                            .fillParentMaxWidth()
+                            .preferredHeight(if (thirdHasSize) 60.dp else 0.dp)
+                    )
                 } else {
-                    Spacer(Modifier.fillMaxWidth().preferredHeight(60.dp))
+                    Spacer(Modifier.fillParentMaxWidth().preferredHeight(60.dp))
                 }
             }
         }
@@ -346,7 +350,7 @@ class LazyColumnForTest {
                     bottom = 50.dp
                 )
             ) {
-                Spacer(Modifier.fillMaxWidth().preferredHeight(50.dp).testTag(itemTag))
+                Spacer(Modifier.fillParentMaxWidth().preferredHeight(50.dp).testTag(itemTag))
             }
         }
 
@@ -491,6 +495,75 @@ class LazyColumnForTest {
 
         onNodeWithTag(secondItemTag)
             .assertPositionInRootIsEqualTo(30.dp, 50.dp)
+    }
+
+    @Test
+    fun itemFillingParentWidth() {
+        composeTestRule.setContent {
+            LazyColumnFor(
+                items = listOf(0),
+                modifier = Modifier.size(width = 100.dp, height = 150.dp)
+            ) {
+                Spacer(Modifier.fillParentMaxWidth().height(50.dp).testTag(firstItemTag))
+            }
+        }
+
+        onNodeWithTag(firstItemTag)
+            .assertWidthIsEqualTo(100.dp)
+            .assertHeightIsEqualTo(50.dp)
+    }
+
+    @Test
+    fun itemFillingParentHeight() {
+        composeTestRule.setContent {
+            LazyColumnFor(
+                items = listOf(0),
+                modifier = Modifier.size(width = 100.dp, height = 150.dp)
+            ) {
+                Spacer(Modifier.width(50.dp).fillParentMaxHeight().testTag(firstItemTag))
+            }
+        }
+
+        onNodeWithTag(firstItemTag)
+            .assertWidthIsEqualTo(50.dp)
+            .assertHeightIsEqualTo(150.dp)
+    }
+
+    @Test
+    fun itemFillingParentSize() {
+        composeTestRule.setContent {
+            LazyColumnFor(
+                items = listOf(0),
+                modifier = Modifier.size(width = 100.dp, height = 150.dp)
+            ) {
+                Spacer(Modifier.fillParentMaxSize().testTag(firstItemTag))
+            }
+        }
+
+        onNodeWithTag(firstItemTag)
+            .assertWidthIsEqualTo(100.dp)
+            .assertHeightIsEqualTo(150.dp)
+    }
+
+    @Test
+    fun itemFillingParentSizeParentResized() {
+        var parentSize by mutableStateOf(100.dp)
+        composeTestRule.setContent {
+            LazyColumnFor(
+                items = listOf(0),
+                modifier = Modifier.size(parentSize)
+            ) {
+                Spacer(Modifier.fillParentMaxSize().testTag(firstItemTag))
+            }
+        }
+
+        runOnIdle {
+            parentSize = 150.dp
+        }
+
+        onNodeWithTag(firstItemTag)
+            .assertWidthIsEqualTo(150.dp)
+            .assertHeightIsEqualTo(150.dp)
     }
 }
 

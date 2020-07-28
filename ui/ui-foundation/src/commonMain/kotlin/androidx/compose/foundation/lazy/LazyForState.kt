@@ -16,21 +16,28 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.Measurable
 import androidx.compose.ui.MeasureScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.Placeable
 import androidx.compose.ui.Remeasurement
 import androidx.compose.ui.RemeasurementModifier
 import androidx.compose.ui.layout.ExperimentalSubcomposeLayoutApi
 import androidx.compose.ui.layout.SubcomposeMeasureScope
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastSumBy
+import androidx.compose.ui.unit.Dp
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -96,6 +103,11 @@ internal class LazyForState(val isVertical: Boolean) {
         }
     }
 
+    /**
+     * The cached instance of the scope to be used for composing items.
+     */
+    private var itemScope = InitialLazyItemsScopeImpl
+
     private val Placeable.mainAxisSize get() = if (isVertical) height else width
     private val Placeable.crossAxisSize get() = if (!isVertical) height else width
 
@@ -123,7 +135,7 @@ internal class LazyForState(val isVertical: Boolean) {
     private fun SubcomposeMeasureScope<DataIndex>.consumePendingScroll(
         childConstraints: Constraints,
         itemsCount: Int,
-        itemContentFactory: (Int) -> @Composable () -> Unit
+        itemContentFactory: LazyItemScope.(Int) -> @Composable () -> Unit
     ) {
         val scrollDirection = ScrollDirection(isForward = scrollToBeConsumed < 0f)
 
@@ -201,7 +213,7 @@ internal class LazyForState(val isVertical: Boolean) {
         childConstraints: Constraints,
         scrollDirection: ScrollDirection,
         itemsCount: Int,
-        itemContentFactory: (Int) -> @Composable () -> Unit
+        itemContentFactory: LazyItemScope.(Int) -> @Composable () -> Unit
     ): Boolean {
         val nextItemIndex = if (scrollDirection.isForward) {
             if (itemsCount > lastComposedItem.value + 1) {
@@ -247,6 +259,17 @@ internal class LazyForState(val isVertical: Boolean) {
     }
 
     /**
+     * Updates the [itemScope] with the last [constraints] we got from the parent
+     */
+    private fun Density.updateItemScope(constraints: Constraints) {
+        val width = constraints.maxWidth.toDp()
+        val height = constraints.maxHeight.toDp()
+        if (width != itemScope.maxWidth || height != itemScope.maxHeight) {
+            itemScope = LazyItemScopeImpl(width, height)
+        }
+    }
+
+    /**
      * Measures and positions currently visible items using [itemContentFactory] for subcomposing.
      */
     fun measure(
@@ -255,8 +278,9 @@ internal class LazyForState(val isVertical: Boolean) {
         horizontalAlignment: Alignment.Horizontal,
         verticalAlignment: Alignment.Vertical,
         itemsCount: Int,
-        itemContentFactory: (Int) -> @Composable () -> Unit
+        itemContentFactory: LazyItemScope.(Int) -> @Composable () -> Unit
     ): MeasureScope.MeasureResult = with(scope) {
+        updateItemScope(constraints)
         measuredThisPass.clear()
         val maxMainAxis = if (isVertical) constraints.maxHeight else constraints.maxWidth
         val childConstraints = Constraints(
@@ -345,6 +369,21 @@ internal class LazyForState(val isVertical: Boolean) {
 
     private fun SubcomposeMeasureScope<DataIndex>.composeChildForDataIndex(
         dataIndex: DataIndex,
-        itemContentFactory: (Int) -> @Composable () -> Unit
-    ): List<Measurable> = subcompose(dataIndex, itemContentFactory(dataIndex.value))
+        itemContentFactory: LazyItemScope.(Int) -> @Composable () -> Unit
+    ): List<Measurable> = subcompose(dataIndex, itemScope.itemContentFactory(dataIndex.value))
+}
+
+/**
+ * Pre-allocated initial value for [LazyItemScopeImpl] to not have it nullable and avoid using
+ * late init.
+ */
+private val InitialLazyItemsScopeImpl = LazyItemScopeImpl(0.dp, 0.dp)
+
+private data class LazyItemScopeImpl(
+    val maxWidth: Dp,
+    val maxHeight: Dp
+) : LazyItemScope {
+    override fun Modifier.fillParentMaxSize() = size(maxWidth, maxHeight)
+    override fun Modifier.fillParentMaxWidth() = width(maxWidth)
+    override fun Modifier.fillParentMaxHeight() = height(maxHeight)
 }
