@@ -21,19 +21,21 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.util.Range;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.WorkerThread;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.ExposureState;
+import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.concurrent.Executor;
 
 /**
  * Implementation of Exposure compensation control.
@@ -54,22 +56,21 @@ public class ExposureControl {
 
     private static final int DEFAULT_EXPOSURE_COMPENSATION = 0;
 
-    private final Object mLock = new Object();
-
     @NonNull
     private final Camera2CameraControl mCameraControl;
 
     @NonNull
     private final ExposureStateImpl mExposureStateImpl;
 
-    @GuardedBy("mLock")
+    @NonNull
+    @CameraExecutor
+    private final Executor mExecutor;
+
     private boolean mIsActive = false;
 
     @Nullable
-    @GuardedBy("mLock")
     private CallbackToFutureAdapter.Completer<Integer> mRunningCompleter;
     @Nullable
-    @GuardedBy("mLock")
     private Camera2CameraControl.CaptureResultListener mRunningCaptureResultListener;
 
     /**
@@ -79,12 +80,15 @@ public class ExposureControl {
      *
      * @param cameraControl         Camera control.
      * @param cameraCharacteristics The {@link CameraCharacteristics} of the camera.
+     * @param executor              the camera executor used to run camera task.
      */
     ExposureControl(@NonNull Camera2CameraControl cameraControl,
-            @NonNull CameraCharacteristics cameraCharacteristics) {
+            @NonNull CameraCharacteristics cameraCharacteristics,
+            @CameraExecutor @NonNull Executor executor) {
         mCameraControl = cameraControl;
         mExposureStateImpl = new ExposureStateImpl(cameraCharacteristics,
                 DEFAULT_EXPOSURE_COMPENSATION);
+        mExecutor = executor;
     }
 
     /**
@@ -94,18 +98,17 @@ public class ExposureControl {
      * {@link #setExposureCompensationIndex(int)} task with
      * {@link CameraControl.OperationCanceledException}.
      */
+    @ExecutedBy("mExecutor")
     void setActive(boolean isActive) {
-        synchronized (mLock) {
-            if (isActive == mIsActive) {
-                return;
-            }
+        if (isActive == mIsActive) {
+            return;
+        }
 
-            mIsActive = isActive;
+        mIsActive = isActive;
 
-            if (!mIsActive) {
-                mExposureStateImpl.setExposureCompensationIndex(DEFAULT_EXPOSURE_COMPENSATION);
-                clearRunningTask();
-            }
+        if (!mIsActive) {
+            mExposureStateImpl.setExposureCompensationIndex(DEFAULT_EXPOSURE_COMPENSATION);
+            clearRunningTask();
         }
     }
 
@@ -113,13 +116,10 @@ public class ExposureControl {
      * Called by {@link Camera2CameraControl} to append the CONTROL_AE_EXPOSURE_COMPENSATION option
      * to the shared options. It applies to all repeating requests and single requests.
      */
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     void setCaptureRequestOption(@NonNull Camera2ImplConfig.Builder configBuilder) {
-        synchronized (mLock) {
-            configBuilder.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION,
-                    mExposureStateImpl.getExposureCompensationIndex());
-        }
+        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION,
+                mExposureStateImpl.getExposureCompensationIndex());
     }
 
     @NonNull
@@ -128,31 +128,31 @@ public class ExposureControl {
     }
 
     @NonNull
-    @WorkerThread
     ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
+        if (!mExposureStateImpl.isExposureCompensationSupported()) {
+            return Futures.immediateFailedFuture(new IllegalArgumentException(
+                    "ExposureCompensation is not supported"));
+        }
+
+        Range<Integer> range = mExposureStateImpl.getExposureCompensationRange();
+        if (!range.contains(exposure)) {
+            return Futures.immediateFailedFuture(new IllegalArgumentException(
+                    "Requested ExposureCompensation " + exposure + " is not within"
+                            + " valid range [" + range.getUpper() + ".." + range.getLower() + "]"));
+        }
+
+        // Set the new exposure value to the ExposureState immediately.
+        mExposureStateImpl.setExposureCompensationIndex(exposure);
+
         return Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(
                 completer -> {
-                    synchronized (mLock) {
+                    mExecutor.execute(() -> {
                         if (!mIsActive) {
+                            mExposureStateImpl.setExposureCompensationIndex(
+                                    DEFAULT_EXPOSURE_COMPENSATION);
                             completer.setException(new CameraControl.OperationCanceledException(
                                     "Camera is not active."));
-                            return "setExposureCompensation[" + exposure + "]";
-                        }
-
-                        if (!mExposureStateImpl.isExposureCompensationSupported()) {
-                            completer.setException(new IllegalArgumentException(
-                                    "ExposureCompensation is not supported"));
-                            return "setExposureCompensation[" + exposure + "]";
-
-                        }
-
-                        Range<Integer> range = mExposureStateImpl.getExposureCompensationRange();
-                        if (!range.contains(exposure)) {
-                            completer.setException(new IllegalArgumentException(
-                                    "Requested ExposureCompensation " + exposure + " is not within"
-                                            + " valid range [" + range.getUpper() + ".."
-                                            + range.getLower() + "]"));
-                            return "setExposureCompensation[" + exposure + "]";
+                            return;
                         }
 
                         clearRunningTask();
@@ -203,27 +203,25 @@ public class ExposureControl {
                         mRunningCompleter = completer;
 
                         mCameraControl.addCaptureResultListener(mRunningCaptureResultListener);
-                        mExposureStateImpl.setExposureCompensationIndex(exposure);
                         mCameraControl.updateSessionConfig();
+                    });
 
-                        return "setExposureCompensationIndex[" + exposure + "]";
-                    }
+                    return "setExposureCompensationIndex[" + exposure + "]";
                 }));
     }
 
+    @ExecutedBy("mExecutor")
     private void clearRunningTask() {
-        synchronized (mLock) {
-            if (mRunningCompleter != null) {
-                mRunningCompleter.setException(
-                        new CameraControl.OperationCanceledException(
-                                "Cancelled by another setExposureCompensationIndex()"));
-                mRunningCompleter = null;
-            }
+        if (mRunningCompleter != null) {
+            mRunningCompleter.setException(
+                    new CameraControl.OperationCanceledException(
+                            "Cancelled by another setExposureCompensationIndex()"));
+            mRunningCompleter = null;
+        }
 
-            if (mRunningCaptureResultListener != null) {
-                mCameraControl.removeCaptureResultListener(mRunningCaptureResultListener);
-                mRunningCaptureResultListener = null;
-            }
+        if (mRunningCaptureResultListener != null) {
+            mCameraControl.removeCaptureResultListener(mRunningCaptureResultListener);
+            mRunningCaptureResultListener = null;
         }
     }
 }

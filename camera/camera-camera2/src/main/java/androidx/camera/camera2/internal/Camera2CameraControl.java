@@ -151,7 +151,7 @@ final class Camera2CameraControl implements CameraControlInternal {
         // CameraCaptureCallback efficiently.
         mSessionConfigBuilder.addRepeatingCameraCaptureCallback(mCameraCaptureCallbackSet);
 
-        mExposureControl = new ExposureControl(this, mCameraCharacteristics);
+        mExposureControl = new ExposureControl(this, mCameraCharacteristics, mExecutor);
         mFocusMeteringControl = new FocusMeteringControl(this, scheduler, mExecutor);
         mZoomControl = new ZoomControl(this, mCameraCharacteristics, mExecutor);
         mTorchControl = new TorchControl(this, mCameraCharacteristics, mExecutor);
@@ -382,6 +382,10 @@ final class Camera2CameraControl implements CameraControlInternal {
     @Override
     @ExperimentalExposureCompensation
     public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
+        if (!isControlInUse()) {
+            return Futures.immediateFailedFuture(
+                    new OperationCanceledException("Camera is not active."));
+        }
         return mExposureControl.setExposureCompensationIndex(exposure);
     }
 

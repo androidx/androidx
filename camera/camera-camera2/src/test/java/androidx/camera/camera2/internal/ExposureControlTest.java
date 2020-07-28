@@ -86,7 +86,8 @@ public class ExposureControlTest {
                 CameraXExecutors.directExecutor(),
                 updateCallback));
 
-        mExposureControl = new ExposureControl(mCamera2CameraControl, cameraCharacteristics);
+        mExposureControl = new ExposureControl(mCamera2CameraControl, cameraCharacteristics,
+                CameraXExecutors.directExecutor());
         mExposureControl.setActive(true);
     }
 
@@ -187,7 +188,8 @@ public class ExposureControlTest {
                 CameraXExecutors.directExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class)));
 
-        mExposureControl = new ExposureControl(mCamera2CameraControl, cameraCharacteristics);
+        mExposureControl = new ExposureControl(mCamera2CameraControl, cameraCharacteristics,
+                CameraXExecutors.directExecutor());
         mExposureControl.setActive(true);
 
         ListenableFuture<Integer> future = mExposureControl.setExposureCompensationIndex(1);
