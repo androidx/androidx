@@ -449,7 +449,8 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     // Now set the transition's targets to only the firstOut Fragment's views
                     // It'll be swapped to the lastIn Fragment's views after the
                     // transition is started
-                    transitionImpl.addTargets(sharedElementTransition, sharedElementFirstOutViews);
+                    transitionImpl.setSharedElementTargets(sharedElementTransition,
+                            nonExistentView, sharedElementFirstOutViews);
                 }
             }
         }
