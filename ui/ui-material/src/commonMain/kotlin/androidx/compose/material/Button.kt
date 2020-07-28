@@ -53,8 +53,8 @@ import androidx.compose.ui.unit.dp
  *
  * The default text style for internal [Text] components will be set to [Typography.button]. Text
  * color will try to match the correlated color for the background color. For example if the
- * background color is set to [ColorPalette.primary] then the text will by default use
- * [ColorPalette.onPrimary].
+ * background color is set to [Colors.primary] then the text will by default use
+ * [Colors.onPrimary].
  *
  * @sample androidx.compose.material.samples.ButtonSample
  *
@@ -145,8 +145,8 @@ fun Button(
  *
  * The default text style for internal [Text] components will be set to [Typography.button]. Text
  * color will try to match the correlated color for the background color. For example if the
- * background color is set to [ColorPalette.primary] then the text will by default use
- * [ColorPalette.onPrimary].
+ * background color is set to [Colors.primary] then the text will by default use
+ * [Colors.onPrimary].
  *
  * @sample androidx.compose.material.samples.OutlinedButtonSample
  *
@@ -206,8 +206,8 @@ inline fun OutlinedButton(
  *
  * The default text style for internal [Text] components will be set to [Typography.button]. Text
  * color will try to match the correlated color for the background color. For example if the
- * background color is set to [ColorPalette.primary] then the text will by default use
- * [ColorPalette.onPrimary].
+ * background color is set to [Colors.primary] then the text will by default use
+ * [Colors.onPrimary].
  *
  * @sample androidx.compose.material.samples.TextButtonSample
  *

@@ -40,12 +40,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.material.BottomAppBar
-import androidx.compose.material.ColorPalette
+import androidx.compose.material.Colors
 import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.TopAppBar
-import androidx.compose.material.lightColorPalette
+import androidx.compose.material.lightColors
 import androidx.compose.ui.unit.dp
 import kotlin.math.round
 
@@ -68,7 +68,7 @@ class DynamicThemeActivity : ComponentActivity() {
         }
     }
 
-    private val ColorPalette.darkenedPrimary: Int
+    private val Colors.darkenedPrimary: Int
         get() {
             return with(primary) {
                 copy(
@@ -83,7 +83,7 @@ class DynamicThemeActivity : ComponentActivity() {
 private typealias ScrollFraction = MutableState<Float>
 
 @Composable
-private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalette) {
+private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: Colors) {
     MaterialTheme(palette) {
         val scrollState = rememberScrollState()
         val fraction =
@@ -134,14 +134,14 @@ private fun Card(index: Int) {
     }
 }
 
-private fun interpolateTheme(fraction: Float): ColorPalette {
+private fun interpolateTheme(fraction: Float): Colors {
     val interpolatedFraction = FastOutSlowInEasing(fraction)
 
     val primary = lerp(Color(0xFF6200EE), Color(0xFF303030), interpolatedFraction)
     val secondary = lerp(Color(0xFF03DAC6), Color(0xFFBB86FC), interpolatedFraction)
     val background = lerp(Color.White, Color(0xFF121212), interpolatedFraction)
 
-    return lightColorPalette(
+    return lightColors(
         primary = primary,
         secondary = secondary,
         background = background

@@ -57,9 +57,9 @@ import kotlin.math.ln
  * this Surface will use this color by default.
  *
  * If no [contentColor] is set, this surface will try and match its background color to a color
- * defined in the theme [ColorPalette], and return the corresponding `onFoo` color. For example,
- * if the [color] of this surface is [ColorPalette.surface], [contentColor] will be set to
- * [ColorPalette.onSurface]. If [color] is not part of the theme palette, [contentColor] will keep
+ * defined in the theme [Colors], and return the corresponding `onFoo` color. For example,
+ * if the [color] of this surface is [Colors.surface], [contentColor] will be set to
+ * [Colors.onSurface]. If [color] is not part of the theme palette, [contentColor] will keep
  * the same value set above this Surface.
  *
  * To modify these default style values used by text, use [ProvideTextStyle] or explicitly
@@ -104,15 +104,15 @@ fun Surface(
 }
 
 /**
- * primarySurface represents the background color of components that are [ColorPalette.primary]
- * in light theme, and [ColorPalette.surface] in dark theme, such as [androidx.compose.material.TabRow]
+ * primarySurface represents the background color of components that are [Colors.primary]
+ * in light theme, and [Colors.surface] in dark theme, such as [androidx.compose.material.TabRow]
  * and [androidx.compose.material.TopAppBar]. This is to reduce brightness of large surfaces in dark
  * theme, aiding contrast and readability. See
  * [Dark Theme](https://material.io/design/color/dark-theme.html#custom-application).
  *
- * @return [ColorPalette.primary] if in light theme, else [ColorPalette.surface]
+ * @return [Colors.primary] if in light theme, else [Colors.surface]
  */
-val ColorPalette.primarySurface: Color get() = if (isLight) primary else surface
+val Colors.primarySurface: Color get() = if (isLight) primary else surface
 
 /**
  * A simple layout which just reserves a space for a [Surface].
@@ -139,7 +139,7 @@ private fun SurfaceLayout(modifier: Modifier = Modifier, children: @Composable (
 
 /**
  * If in a light theme, returns [color]. If in dark theme, applies an elevation overlay if [color]
- * is equal to ColorPalette.surface, else returns [color]
+ * is equal to [Colors.surface], else returns [color]
  */
 @Composable
 private fun getBackgroundColorForElevation(color: Color, elevation: Dp): Color {

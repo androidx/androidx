@@ -16,9 +16,9 @@
 
 package androidx.ui.tooling.preview
 
-import androidx.compose.material.ColorPalette
-import androidx.compose.material.darkColorPalette
-import androidx.compose.material.lightColorPalette
+import androidx.compose.material.Colors
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
 import androidx.ui.tooling.ComposeViewAdapterTest
 import androidx.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.ui.tooling.preview.datasource.LoremIpsum
@@ -74,17 +74,17 @@ class PreviewParameterTest {
         }
     }
 
-    private class MyColorPaletteProvider : CollectionPreviewParameterProvider<ColorPalette>(
-        listOf(lightColorPalette(), darkColorPalette())
+    private class MyColorsProvider : CollectionPreviewParameterProvider<Colors>(
+        listOf(lightColors(), darkColors())
     )
 
     @Test
-    fun checkColorPaletteProvider() {
+    fun checkColorsProvider() {
         activityTestRule.runOnUiThread {
             composeViewAdapter.init(
                 "androidx.ui.tooling.preview.ParameterProviderComposableKt",
-                "ColorPaletteParameter",
-                parameterProvider = MyColorPaletteProvider::class,
+                "ColorsParameter",
+                parameterProvider = MyColorsProvider::class,
                 debugViewInfos = true
             )
         }

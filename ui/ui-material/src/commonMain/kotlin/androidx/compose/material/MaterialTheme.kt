@@ -34,7 +34,7 @@ import androidx.compose.material.ripple.RippleIndication
  * typography defined in the [Material Type Scale spec](https://material.io/design/typography/the-type-system.html#type-scale),
  * and shapes defined in the [Shape scheme](https://material.io/design/shape/applying-shape-to-ui.html#shape-scheme).
  *
- * All values may be set by providing this component with the [colors][ColorPalette],
+ * All values may be set by providing this component with the [colors][Colors],
  * [typography][Typography], and [shapes][Shapes] attributes. Use this to configure the overall
  * theme of elements within this MaterialTheme.
  *
@@ -51,12 +51,12 @@ import androidx.compose.material.ripple.RippleIndication
  */
 @Composable
 fun MaterialTheme(
-    colors: ColorPalette = MaterialTheme.colors,
+    colors: Colors = MaterialTheme.colors,
     typography: Typography = MaterialTheme.typography,
     shapes: Shapes = MaterialTheme.shapes,
     content: @Composable () -> Unit
 ) {
-    ProvideColorPalette(colors) {
+    ProvideColors(colors) {
         val indicationFactory: @Composable () -> Indication = remember { { RippleIndication() } }
         Providers(
             IndicationAmbient provides indicationFactory,
@@ -74,12 +74,12 @@ fun MaterialTheme(
  */
 object MaterialTheme {
     /**
-     * Retrieves the current [ColorPalette] at the call site's position in the hierarchy.
+     * Retrieves the current [Colors] at the call site's position in the hierarchy.
      *
      * @sample androidx.compose.material.samples.ThemeColorSample
      */
     @Composable
-    val colors: ColorPalette
+    val colors: Colors
         get() = ColorAmbient.current
 
     /**

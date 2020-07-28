@@ -75,7 +75,7 @@ import java.util.Locale
 /**
  * Demo that shows picking a color from a color wheel, which then dynamically updates
  * the color of a [TopAppBar]. This pattern could also be used to update the value of a
- * ColorPalette, updating the overall theme for an application.
+ * Colors, updating the overall theme for an application.
  */
 @Composable
 fun ColorPickerDemo() {

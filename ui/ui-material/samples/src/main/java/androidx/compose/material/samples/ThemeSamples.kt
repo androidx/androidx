@@ -29,8 +29,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Typography
-import androidx.compose.material.darkColorPalette
-import androidx.compose.material.lightColorPalette
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
@@ -38,11 +38,11 @@ import androidx.compose.ui.unit.sp
 @Sampled
 @Composable
 fun MaterialThemeSample() {
-    val lightColors = lightColorPalette(
+    val lightColors = lightColors(
         primary = Color(0xFF1EB980)
     )
 
-    val darkColors = darkColorPalette(
+    val darkColors = darkColors(
         primary = Color(0xFF66ffc7)
     )
 

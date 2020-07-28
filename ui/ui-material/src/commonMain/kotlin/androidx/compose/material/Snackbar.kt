@@ -222,20 +222,20 @@ private fun OneRowSnackbar(
 /**
  * Provides a best-effort 'primary' color to be used as the primary color inside a [Snackbar].
  * Given that [Snackbar]s have an 'inverted' theme, i.e in a light theme they appear dark, and
- * in a dark theme they appear light, just using [ColorPalette.primary] will not work, and has
+ * in a dark theme they appear light, just using [Colors.primary] will not work, and has
  * incorrect contrast.
  *
  * If your light theme has a corresponding dark theme, you should instead directly use
- * [ColorPalette.primary] from the dark theme when in a light theme, and use
- * [ColorPalette.primaryVariant] from the dark theme when in a dark theme.
+ * [Colors.primary] from the dark theme when in a light theme, and use
+ * [Colors.primaryVariant] from the dark theme when in a dark theme.
  *
- * When in a light theme, this function applies a color overlay to [ColorPalette.primary] from
+ * When in a light theme, this function applies a color overlay to [Colors.primary] from
  * [colors] to attempt to reduce the contrast, and when in a dark theme this function uses
- * [ColorPalette.primaryVariant].
+ * [Colors.primaryVariant].
  *
- * @param colors the [ColorPalette] to calculate the Snackbar primary color for
+ * @param colors the [Colors] to calculate the Snackbar primary color for
  */
-fun snackbarPrimaryColorFor(colors: ColorPalette): Color {
+fun snackbarPrimaryColorFor(colors: Colors): Color {
     return if (colors.isLight) {
         val primary = colors.primary
         val overlayColor = colors.surface.copy(alpha = 0.6f)
