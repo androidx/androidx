@@ -47,7 +47,7 @@ fun List<PointerInputChange>.anyPointersInBounds(bounds: IntSize) =
                 it.current.position.y < bounds.height
     }
 
-internal class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
+internal data class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
     PointerInputModifier
 
 /**
