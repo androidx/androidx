@@ -308,6 +308,12 @@ package androidx.ui.test {
     method public static boolean performKeyPress(androidx.ui.test.SemanticsNodeInteraction, androidx.compose.ui.input.key.KeyEvent2 keyEvent);
   }
 
+  public interface LayeredComposeTestCase extends androidx.ui.test.ComposeTestCase {
+    method @androidx.compose.runtime.Composable public default void emitContent();
+    method @androidx.compose.runtime.Composable public void emitContentWrappers(kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public void emitMeasuredContent();
+  }
+
   public final class OutputKt {
     method public static void printToLog(androidx.ui.test.SemanticsNodeInteraction, String tag, @IntRange(from=0) int maxDepth = 2147483647);
     method public static void printToLog(androidx.ui.test.SemanticsNodeInteractionCollection, String tag, @IntRange(from=0) int maxDepth = 0);

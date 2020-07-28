@@ -19,10 +19,6 @@ package androidx.compose.ui
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.benchmarkDrawPerf
-import androidx.ui.benchmark.benchmarkFirstCompose
-import androidx.ui.benchmark.benchmarkFirstDraw
-import androidx.ui.benchmark.benchmarkFirstLayout
-import androidx.ui.benchmark.benchmarkFirstMeasure
 import androidx.ui.benchmark.benchmarkLayoutPerf
 import androidx.ui.benchmark.toggleStateBenchmarkDraw
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
@@ -32,6 +28,10 @@ import androidx.ui.integration.test.core.text.TextBasicTestCase
 import androidx.ui.integration.test.TextBenchmarkTestRule
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.ui.benchmark.benchmarkFirstComposeFast
+import androidx.ui.benchmark.benchmarkFirstDrawFast
+import androidx.ui.benchmark.benchmarkFirstLayoutFast
+import androidx.ui.benchmark.benchmarkFirstMeasureFast
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -83,7 +83,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun first_compose() {
-        benchmarkRule.benchmarkFirstCompose(textCaseFactory)
+        benchmarkRule.benchmarkFirstComposeFast(textCaseFactory)
     }
 
     /**
@@ -93,7 +93,7 @@ class TextBasicBenchmark(
     @Test
     fun first_measure() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstMeasure {
+            benchmarkRule.benchmarkFirstMeasureFast {
                 TextBasicTestCase(textGenerator.nextParagraph(textLength), width, fontSize)
             }
         }
@@ -105,7 +105,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun first_layout() {
-        benchmarkRule.benchmarkFirstLayout(textCaseFactory)
+        benchmarkRule.benchmarkFirstLayoutFast(textCaseFactory)
     }
 
     /**
@@ -113,7 +113,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun first_draw() {
-        benchmarkRule.benchmarkFirstDraw(textCaseFactory)
+        benchmarkRule.benchmarkFirstDrawFast(textCaseFactory)
     }
 
     /**
