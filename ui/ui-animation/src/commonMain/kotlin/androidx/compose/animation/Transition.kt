@@ -18,6 +18,7 @@ package androidx.compose.animation
 
 import androidx.compose.animation.core.AnimationClockObservable
 import androidx.compose.animation.core.AnimationVector
+import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.PropKey
 import androidx.compose.animation.core.TransitionAnimation
 import androidx.compose.animation.core.TransitionDefinition
@@ -69,6 +70,7 @@ import androidx.compose.ui.platform.AnimationClockAmbient
  * @see [TransitionDefinition]
  */
 // TODO: The list of params is getting a bit long. Consider grouping them.
+@OptIn(InternalAnimationApi::class)
 @Composable
 fun <T> transition(
     definition: TransitionDefinition<T>,
@@ -104,8 +106,13 @@ fun <T> transition(
 var transitionsEnabled = true
 
 // TODO(Doris): Use Clock idea instead of TransitionModel with pulse
+/**
+ * This class is marked as internal animation API to allow access from tools
+ * @suppress
+ */
 @Stable
-private class TransitionModel<T>(
+@InternalAnimationApi
+class TransitionModel<T>(
     transitionDef: TransitionDefinition<T>,
     initState: T,
     clock: AnimationClockObservable,
@@ -113,7 +120,8 @@ private class TransitionModel<T>(
 ) : TransitionState {
 
     private var animationPulse by mutableStateOf(0L)
-    internal val anim: TransitionAnimation<T> =
+    @InternalAnimationApi
+    val anim: TransitionAnimation<T> =
         TransitionAnimation(transitionDef, clock, initState, label).apply {
             onUpdate = {
                 animationPulse++

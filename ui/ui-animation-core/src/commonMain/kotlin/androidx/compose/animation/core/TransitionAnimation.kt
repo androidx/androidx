@@ -81,8 +81,10 @@ class TransitionAnimation<T>(
             > = mutableMapOf()
     private var startVelocityMap: MutableMap<PropKey<Any, AnimationVector>, Any> = mutableMapOf()
 
-    // Named class for animation clock observer to help with tools' reflection.
-    /** @suppress */
+    /**
+     * Named class for animation clock observer to help with tools' reflection.
+     * @suppress
+     */
     @InternalAnimationApi
     inner class TransitionAnimationClockObserver : AnimationClockObserver {
         // This API is intended for tools' use only. Hence the @InternalAnimationApi.
@@ -93,7 +95,13 @@ class TransitionAnimation<T>(
         }
     }
 
-    private val animationClockObserver: AnimationClockObserver = TransitionAnimationClockObserver()
+    /**
+     * This should be private. It's marked as InternalAnimationApi to give ui-tooling access to the
+     * observer.
+     * @suppress
+     */
+    @InternalAnimationApi
+    val animationClockObserver: AnimationClockObserver = TransitionAnimationClockObserver()
 
     // TODO("Create a more efficient code path for default only transition def")
 
