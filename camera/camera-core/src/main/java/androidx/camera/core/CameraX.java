@@ -33,7 +33,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
-import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.CameraThreadConfig;
@@ -187,23 +186,6 @@ public final class CameraX {
             throw new IllegalStateException("Unable to get default lens facing.");
         }
         return lensFacingCandidate;
-    }
-
-    /**
-     * Returns the camera info for the camera with the given camera id.
-     *
-     * @param cameraId the internal id of the camera
-     * @return the camera info if it can be retrieved for the given id.
-     * @throws IllegalArgumentException if unable to access cameras, perhaps due to
-     *                                  insufficient permissions.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public static CameraInfoInternal getCameraInfo(@NonNull String cameraId) {
-        CameraX cameraX = checkInitialized();
-
-        return cameraX.getCameraRepository().getCamera(cameraId).getCameraInfoInternal();
     }
 
     /**
