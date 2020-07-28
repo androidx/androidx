@@ -460,6 +460,7 @@ package androidx.core.app {
   }
 
   public static class NotificationCompat.Builder {
+    ctor @RequiresApi(19) public NotificationCompat.Builder(android.content.Context, android.app.Notification);
     ctor public NotificationCompat.Builder(android.content.Context, String);
     ctor @Deprecated public NotificationCompat.Builder(android.content.Context);
     method public androidx.core.app.NotificationCompat.Builder addAction(int, CharSequence?, android.app.PendingIntent?);
@@ -480,7 +481,6 @@ package androidx.core.app {
     method public android.os.Bundle getExtras();
     method @Deprecated public android.app.Notification getNotification();
     method protected static CharSequence? limitCharSequenceLength(CharSequence?);
-    method @RequiresApi(19) public static androidx.core.app.NotificationCompat.Builder recoverBuilder(android.content.Context, android.app.Notification);
     method public androidx.core.app.NotificationCompat.Builder setAllowSystemGeneratedContextualActions(boolean);
     method public androidx.core.app.NotificationCompat.Builder setAutoCancel(boolean);
     method public androidx.core.app.NotificationCompat.Builder setBadgeIconType(int);
