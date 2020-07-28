@@ -16,31 +16,29 @@
 
 package androidx.compose.material.samples
 
-import androidx.compose.animation.core.TweenSpec
 import androidx.annotation.Sampled
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.animation.animatedFloat
-import androidx.compose.ui.Modifier
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.material.BottomAppBar
-import androidx.compose.material.DrawerState
 import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
-import androidx.compose.material.ScaffoldState
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.rememberScaffoldState
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -56,7 +54,7 @@ private val colors = listOf(
 @Sampled
 @Composable
 fun SimpleScaffoldWithTopBar() {
-    val scaffoldState = remember { ScaffoldState() }
+    val scaffoldState = rememberScaffoldState()
     Scaffold(
         scaffoldState = scaffoldState,
         drawerContent = { Text("Drawer content") },
@@ -65,7 +63,7 @@ fun SimpleScaffoldWithTopBar() {
                 title = { Text("Simple Scaffold Screen") },
                 navigationIcon = {
                     IconButton(onClick = {
-                        scaffoldState.drawerState = DrawerState.Opened
+                        scaffoldState.drawerState.open()
                     }) {
                         Icon(Icons.Filled.Menu)
                     }
@@ -95,7 +93,7 @@ fun SimpleScaffoldWithTopBar() {
 @Sampled
 @Composable
 fun ScaffoldWithBottomBarAndCutout() {
-    val scaffoldState = remember { ScaffoldState() }
+    val scaffoldState = rememberScaffoldState()
 
     // Consider negative values to mean 'cut corner' and positive values to mean 'round corner'
     val sharpEdgePercent = -50f
@@ -131,7 +129,7 @@ fun ScaffoldWithBottomBarAndCutout() {
         bottomBar = {
             BottomAppBar(cutoutShape = fabShape) {
                 IconButton(onClick = {
-                    scaffoldState.drawerState = DrawerState.Opened
+                    scaffoldState.drawerState.open()
                 }) {
                     Icon(Icons.Filled.Menu)
                 }

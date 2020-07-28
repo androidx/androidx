@@ -17,34 +17,32 @@
 package androidx.compose.material
 
 import androidx.compose.animation.core.TweenSpec
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.state
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Interaction
 import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.indication
-import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.StackScope
 import androidx.compose.foundation.layout.offsetPx
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize
-import androidx.compose.material.internal.stateDraggable
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ripple.RippleIndication
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.platform.LayoutDirectionAmbient
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
 /**
@@ -60,6 +58,7 @@ import androidx.compose.ui.unit.dp
  * @param color main color of the track and trumb when the Switch is checked
  */
 @Composable
+@OptIn(ExperimentalMaterialApi::class)
 fun Switch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -69,7 +68,7 @@ fun Switch(
 ) {
     val minBound = 0f
     val maxBound = with(DensityAmbient.current) { ThumbPathLength.toPx() }
-    val thumbPosition = state { if (checked) maxBound else minBound }
+    val swipeableState = swipeableStateFor(checked, onCheckedChange, AnimationSpec)
     val interactionState = remember { InteractionState() }
     val isRtl = LayoutDirectionAmbient.current == LayoutDirection.Rtl
     Stack(
@@ -81,18 +80,14 @@ fun Switch(
                 interactionState = interactionState,
                 indication = null
             )
-            .stateDraggable(
-                state = checked,
-                onStateChange = onCheckedChange,
-                anchorsToState = listOf(minBound to false, maxBound to true),
-                animationSpec = AnimationSpec,
+            .swipeable(
+                state = swipeableState,
+                anchors = mapOf(minBound to false, maxBound to true),
+                thresholds = fractionalThresholds(0.5f),
                 orientation = Orientation.Horizontal,
-                reverseDirection = isRtl,
-                minValue = minBound,
-                maxValue = maxBound,
                 enabled = enabled,
-                interactionState = interactionState,
-                onNewValue = { thumbPosition.value = it }
+                reverseDirection = isRtl,
+                interactionState = interactionState
             )
             .padding(DefaultSwitchPadding)
     ) {
@@ -100,7 +95,7 @@ fun Switch(
             checked = checked,
             enabled = enabled,
             checkedColor = color,
-            thumbValue = thumbPosition,
+            thumbValue = swipeableState.offset,
             interactionState = interactionState
         )
     }

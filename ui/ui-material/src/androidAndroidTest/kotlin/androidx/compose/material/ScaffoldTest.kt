@@ -17,22 +17,10 @@
 package androidx.compose.material
 
 import android.os.Build
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawShadow
-import androidx.compose.ui.onPositioned
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.DpConstraints
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Stack
@@ -41,21 +29,33 @@ import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawShadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInParent
-import androidx.ui.test.assertHeightIsEqualTo
-import androidx.ui.test.assertWidthIsEqualTo
-import androidx.ui.test.captureToBitmap
-import androidx.ui.test.createComposeRule
-import androidx.ui.test.performGesture
-import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdle
-import androidx.ui.test.runOnUiThread
-import androidx.ui.test.swipeLeft
-import androidx.ui.test.swipeRight
+import androidx.compose.ui.onPositioned
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.unit.width
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
+import androidx.ui.test.assertHeightIsEqualTo
+import androidx.ui.test.assertWidthIsEqualTo
+import androidx.ui.test.captureToBitmap
+import androidx.ui.test.createComposeRule
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.performGesture
+import androidx.ui.test.runOnIdle
+import androidx.ui.test.runOnUiThread
+import androidx.ui.test.swipeLeft
+import androidx.ui.test.swipeRight
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
 import org.junit.Rule
@@ -174,8 +174,9 @@ class ScaffoldTest {
     @Ignore("unignore once animation sync is ready (b/147291885)")
     fun scaffold_drawer_gestures() {
         var drawerChildPosition: Offset = Offset.Zero
-        val scaffoldState = ScaffoldState(isDrawerGesturesEnabled = false)
-        composeTestRule.setMaterialContent {
+        lateinit var scaffoldState: ScaffoldState
+        composeTestRule.setContent {
+            scaffoldState = rememberScaffoldState(isDrawerGesturesEnabled = false)
             Box(Modifier.testTag(scaffoldTag)) {
                 Scaffold(
                     scaffoldState = scaffoldState,
@@ -227,8 +228,9 @@ class ScaffoldTest {
     @Ignore("unignore once animation sync is ready (b/147291885)")
     fun scaffold_drawer_manualControl() {
         var drawerChildPosition: Offset = Offset.Zero
-        val scaffoldState = ScaffoldState()
-        composeTestRule.setMaterialContent {
+        lateinit var scaffoldState: ScaffoldState
+        composeTestRule.setContent {
+            scaffoldState = rememberScaffoldState()
             Box(Modifier.testTag(scaffoldTag)) {
                 Scaffold(
                     scaffoldState = scaffoldState,
@@ -254,11 +256,11 @@ class ScaffoldTest {
         }
         assertThat(drawerChildPosition.x).isLessThan(0f)
         runOnUiThread {
-            scaffoldState.drawerState = DrawerState.Opened
+            scaffoldState.drawerState.open()
         }
         assertThat(drawerChildPosition.x).isLessThan(0f)
         runOnUiThread {
-            scaffoldState.drawerState = DrawerState.Closed
+            scaffoldState.drawerState.close()
         }
         assertThat(drawerChildPosition.x).isLessThan(0f)
     }
@@ -381,8 +383,9 @@ class ScaffoldTest {
     fun scaffold_geometry_fabSize() {
         lateinit var fabSize: IntSize
         val showFab = mutableStateOf(true)
-        val scaffoldState = ScaffoldState()
+        lateinit var scaffoldState: ScaffoldState
         composeTestRule.setContent {
+            scaffoldState = rememberScaffoldState()
             val fab: @Composable (() -> Unit)? = if (showFab.value) {
                 @Composable {
                     FloatingActionButton(
@@ -419,8 +422,9 @@ class ScaffoldTest {
     fun scaffold_geometry_bottomBarSize() {
         lateinit var bottomBarSize: IntSize
         val showBottom = mutableStateOf(true)
-        val scaffoldState = ScaffoldState()
+        lateinit var scaffoldState: ScaffoldState
         composeTestRule.setContent {
+            scaffoldState = rememberScaffoldState()
             val bottom: @Composable (() -> Unit)? = if (showBottom.value) {
                 @Composable {
                     Box(Modifier
@@ -456,8 +460,9 @@ class ScaffoldTest {
     fun scaffold_geometry_topBarSize() {
         lateinit var topBarSize: IntSize
         val showTop = mutableStateOf(true)
-        val scaffoldState = ScaffoldState()
+        lateinit var scaffoldState: ScaffoldState
         composeTestRule.setContent {
+            scaffoldState = rememberScaffoldState()
             val top: @Composable (() -> Unit)? = if (showTop.value) {
                 @Composable {
                     Box(Modifier
@@ -494,8 +499,9 @@ class ScaffoldTest {
         lateinit var bottomBarSize: IntSize
         lateinit var innerPadding: InnerPadding
 
-        val scaffoldState = ScaffoldState()
+        lateinit var scaffoldState: ScaffoldState
         composeTestRule.setContent {
+            scaffoldState = rememberScaffoldState()
             Scaffold(
                 scaffoldState = scaffoldState,
                 bottomBar = {
@@ -525,8 +531,9 @@ class ScaffoldTest {
         lateinit var bottomBarSize: IntSize
         lateinit var geometry: ScaffoldGeometry
 
-        val scaffoldState = ScaffoldState()
+        lateinit var scaffoldState: ScaffoldState
         composeTestRule.setContent {
+            scaffoldState = rememberScaffoldState()
             Scaffold(
                 scaffoldState = scaffoldState,
                 bottomBar = {
