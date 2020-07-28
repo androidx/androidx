@@ -39,7 +39,7 @@ import androidx.ui.test.assertIsOn
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
-import androidx.ui.test.performPartialGesture
+import androidx.ui.test.performGesture
 import androidx.ui.test.onNode
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
@@ -197,14 +197,14 @@ class ToggleableTest {
         }
 
         onNodeWithText("ToggleableText")
-            .performPartialGesture { down(center) }
+            .performGesture { down(center) }
 
         runOnIdle {
             assertThat(interactionState.value).contains(Interaction.Pressed)
         }
 
         onNodeWithText("ToggleableText")
-            .performPartialGesture { up() }
+            .performGesture { up() }
 
         runOnIdle {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
@@ -235,7 +235,7 @@ class ToggleableTest {
         }
 
         onNodeWithText("ToggleableText")
-            .performPartialGesture { down(center) }
+            .performGesture { down(center) }
 
         runOnIdle {
             assertThat(interactionState.value).contains(Interaction.Pressed)

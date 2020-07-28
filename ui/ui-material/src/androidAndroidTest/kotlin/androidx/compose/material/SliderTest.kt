@@ -40,7 +40,7 @@ import androidx.ui.test.center
 import androidx.ui.test.centerX
 import androidx.ui.test.centerY
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performPartialGesture
+import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.left
 import androidx.ui.test.right
@@ -139,7 +139,7 @@ class SliderTest {
         var expected = 0f
 
         onNodeWithTag(tag)
-            .performPartialGesture {
+            .performGesture {
                 down(center)
                 moveBy(Offset(100f, 0f))
                 up()
@@ -170,7 +170,7 @@ class SliderTest {
         var expected = 0f
 
         onNodeWithTag(tag)
-            .performPartialGesture {
+            .performGesture {
                 down(Offset(centerX + 50, centerY))
                 up()
                 expected = calculateFraction(left, right, centerX + 50)
@@ -202,7 +202,7 @@ class SliderTest {
         var expected = 0f
 
         onNodeWithTag(tag)
-            .performPartialGesture {
+            .performGesture {
                 down(center)
                 moveBy(Offset(100f, 0f))
                 up()
@@ -236,7 +236,7 @@ class SliderTest {
         var expected = 0f
 
         onNodeWithTag(tag)
-            .performPartialGesture {
+            .performGesture {
                 down(Offset(centerX + 50, centerY))
                 up()
                 expected = calculateFraction(left, right, centerX - 50)

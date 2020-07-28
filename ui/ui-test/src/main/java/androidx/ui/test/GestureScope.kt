@@ -49,7 +49,52 @@ private const val edgeFuzzFactor = 0.083f
  */
 private val doubleClickDelay = 145.milliseconds
 
-sealed class BaseGestureScope(node: SemanticsNode) {
+/**
+ * The receiver scope for injecting gestures on the [semanticsNode] identified by the
+ * corresponding [SemanticsNodeInteraction]. Gestures can be injected by calling methods defined
+ * on [GestureScope], such as [click] or [swipe]. The [SemanticsNodeInteraction] can be found by
+ * one of the finder methods such as [onNodeWithTag].
+ *
+ * The functions in [GestureScope] can roughly be divided into two groups: full gestures and
+ * partial gestures. Partial gestures are the ones that send individual touch events: [down],
+ * [move], [up] and [cancel]. Full gestures are all the other functions, like [click],
+ * [doubleClick], [swipe], etc. See the documentation of [down] for more information about
+ * partial gestures. Normally, if you accidentally try to execute a full gesture while in the
+ * middle of a partial gesture, an [IllegalStateException] or [IllegalArgumentException] will be
+ * thrown. However, you might want to do this on purpose, for testing multi-touch gestures, where
+ * one finger might tap the screen while another is making a gesture. In that case, make sure the
+ * partial gesture uses a non-default pointer id.
+ *
+ * Next to the functions, [GestureScope] also exposes several properties that allow you to get
+ * [coordinates][Offset] within a node, like the [top left corner][topLeft], its [center], or
+ * 20% to the left of the right edge and 10% below the top edge ([percentOffset]).
+ *
+ * Example usage:
+ * ```
+ * onNodeWithTag("myWidget")
+ *    .performGesture {
+ *        click(center)
+ *    }
+ *
+ * onNodeWithTag("myWidget")
+ *    // Perform an L-shaped gesture
+ *    .performGesture {
+ *        down(topLeft)
+ *        move(topLeft + percentOffset(0f, .1f))
+ *        move(topLeft + percentOffset(0f, .2f))
+ *        move(topLeft + percentOffset(0f, .3f))
+ *        move(topLeft + percentOffset(0f, .4f))
+ *        move(centerLeft)
+ *        move(centerLeft + percentOffset(.1f, 0f))
+ *        move(centerLeft + percentOffset(.2f, 0f))
+ *        move(centerLeft + percentOffset(.3f, 0f))
+ *        move(centerLeft + percentOffset(.4f, 0f))
+ *        move(center)
+ *        up()
+ *    }
+ * ```
+ */
+class GestureScope(node: SemanticsNode) {
     // TODO(b/133217292): Better error: explain which gesture couldn't be performed
     private var _semanticsNode: SemanticsNode? = node
     internal val semanticsNode
@@ -79,19 +124,19 @@ sealed class BaseGestureScope(node: SemanticsNode) {
 /**
  * Returns the size of the node we're interacting with
  */
-val BaseGestureScope.size: IntSize
+val GestureScope.size: IntSize
     get() = semanticsNode.size
 
 /**
  * Shorthand for `size.width`
  */
-inline val BaseGestureScope.width: Int
+inline val GestureScope.width: Int
     get() = size.width
 
 /**
  * Shorthand for `size.height`
  */
-inline val BaseGestureScope.height: Int
+inline val GestureScope.height: Int
     get() = size.height
 
 /**
@@ -99,7 +144,7 @@ inline val BaseGestureScope.height: Int
  * node's local coordinate system, where (0, 0) is the top left corner of the node.
  */
 @Suppress("unused")
-inline val BaseGestureScope.left: Float
+inline val GestureScope.left: Float
     get() = 0f
 
 /**
@@ -107,21 +152,21 @@ inline val BaseGestureScope.left: Float
  * node's local coordinate system, where (0, 0) is the top left corner of the node.
  */
 @Suppress("unused")
-inline val BaseGestureScope.top: Float
+inline val GestureScope.top: Float
     get() = 0f
 
 /**
  * Returns the x-coordinate for the center of the node we're interacting with, in the
  * node's local coordinate system, where (0, 0) is the top left corner of the node.
  */
-inline val BaseGestureScope.centerX: Float
+inline val GestureScope.centerX: Float
     get() = width / 2f
 
 /**
  * Returns the y-coordinate for the center of the node we're interacting with, in the
  * node's local coordinate system, where (0, 0) is the top left corner of the node.
  */
-inline val BaseGestureScope.centerY: Float
+inline val GestureScope.centerY: Float
     get() = height / 2f
 
 /**
@@ -130,7 +175,7 @@ inline val BaseGestureScope.centerY: Float
  * Note that, unless `width == 0`, `right != width`. In particular, `right == width - 1f`, because
  * pixels are 0-based. If `width == 0`, `right == 0` too.
  */
-inline val BaseGestureScope.right: Float
+inline val GestureScope.right: Float
     get() = width.let { if (it == 0) 0f else it - 1f }
 
 /**
@@ -139,7 +184,7 @@ inline val BaseGestureScope.right: Float
  * Note that, unless `height == 0`, `bottom != height`. In particular, `bottom == height - 1f`,
  * because pixels are 0-based. If `height == 0`, `bottom == 0` too.
  */
-inline val BaseGestureScope.bottom: Float
+inline val GestureScope.bottom: Float
     get() = height.let { if (it == 0) 0f else it - 1f }
 
 /**
@@ -147,14 +192,14 @@ inline val BaseGestureScope.bottom: Float
  * local coordinate system, where (0, 0) is the top left corner of the node.
  */
 @Suppress("unused")
-val BaseGestureScope.topLeft: Offset
+val GestureScope.topLeft: Offset
     get() = Offset(left, top)
 
 /**
  * Returns the center of the top edge of the node we're interacting with, in the node's
  * local coordinate system, where (0, 0) is the top left corner of the node.
  */
-val BaseGestureScope.topCenter: Offset
+val GestureScope.topCenter: Offset
     get() = Offset(centerX, top)
 
 /**
@@ -162,21 +207,21 @@ val BaseGestureScope.topCenter: Offset
  * local coordinate system, where (0, 0) is the top left corner of the node. Note that
  * `topRight.x != width`, see [right].
  */
-val BaseGestureScope.topRight: Offset
+val GestureScope.topRight: Offset
     get() = Offset(right, top)
 
 /**
  * Returns the center of the left edge of the node we're interacting with, in the
  * node's local coordinate system, where (0, 0) is the top left corner of the node.
  */
-val BaseGestureScope.centerLeft: Offset
+val GestureScope.centerLeft: Offset
     get() = Offset(left, centerY)
 
 /**
  * Returns the center of the node we're interacting with, in the node's
  * local coordinate system, where (0, 0) is the top left corner of the node.
  */
-val BaseGestureScope.center: Offset
+val GestureScope.center: Offset
     get() = Offset(centerX, centerY)
 
 /**
@@ -184,7 +229,7 @@ val BaseGestureScope.center: Offset
  * node's local coordinate system, where (0, 0) is the top left corner of the node.
  * Note that `centerRight.x != width`, see [right].
  */
-val BaseGestureScope.centerRight: Offset
+val GestureScope.centerRight: Offset
     get() = Offset(right, centerY)
 
 /**
@@ -192,7 +237,7 @@ val BaseGestureScope.centerRight: Offset
  * local coordinate system, where (0, 0) is the top left corner of the node. Note that
  * `bottomLeft.y != height`, see [bottom].
  */
-val BaseGestureScope.bottomLeft: Offset
+val GestureScope.bottomLeft: Offset
     get() = Offset(left, bottom)
 
 /**
@@ -200,7 +245,7 @@ val BaseGestureScope.bottomLeft: Offset
  * local coordinate system, where (0, 0) is the top left corner of the node. Note that
  * `bottomCenter.y != height`, see [bottom].
  */
-val BaseGestureScope.bottomCenter: Offset
+val GestureScope.bottomCenter: Offset
     get() = Offset(centerX, bottom)
 
 /**
@@ -208,7 +253,7 @@ val BaseGestureScope.bottomCenter: Offset
  * local coordinate system, where (0, 0) is the top left corner of the node. Note that
  * `bottomRight.x != width` and `bottomRight.y != height`, see [right] and [bottom].
  */
-val BaseGestureScope.bottomRight: Offset
+val GestureScope.bottomRight: Offset
     get() = Offset(right, bottom)
 
 /**
@@ -221,7 +266,7 @@ val BaseGestureScope.bottomRight: Offset
  * `bottomRight - percentOffset(.2f, .1f)` is a point 20% to the left and 10% to the top of the
  * bottom right corner.
  */
-fun BaseGestureScope.percentOffset(
+fun GestureScope.percentOffset(
     @FloatRange(from = -1.0, to = 1.0) x: Float = 0f,
     @FloatRange(from = -1.0, to = 1.0) y: Float = 0f
 ): Offset {
@@ -234,28 +279,10 @@ fun BaseGestureScope.percentOffset(
  *
  * @param position A position in local coordinates
  */
-fun BaseGestureScope.localToGlobal(position: Offset): Offset {
+fun GestureScope.localToGlobal(position: Offset): Offset {
     @OptIn(ExperimentalLayoutNodeApi::class)
     return semanticsNode.componentNode.coordinates.localToGlobal(position)
 }
-
-/**
- * The receiver scope for injecting gestures on the [semanticsNode] identified by the
- * corresponding [SemanticsNodeInteraction]. Gestures can be injected by calling methods defined
- * on [GestureScope], such as [swipeUp]. The [SemanticsNodeInteraction] can be found by one
- * of the finder methods such as [onNodeWithTag].
- *
- * Example usage:
- * ```
- * onNodeWithTag("myWidget")
- *    .performGesture {
- *        sendSwipeUp()
- *    }
- * ```
- */
-class GestureScope internal constructor(
-    semanticsNode: SemanticsNode
-) : BaseGestureScope(semanticsNode)
 
 /**
  * Performs a click gesture at the given [position] on the associated node, or in the center
@@ -544,25 +571,6 @@ private fun createFunctionForVelocity(
 }
 
 /**
- * The receiver scope for injecting partial gestures on the [semanticsNode] identified by the
- * corresponding [SemanticsNodeInteraction]. Gestures can be injected by calling methods defined
- * on [PartialGestureScope], such as [down]. The [SemanticsNodeInteraction] can be found by
- * one of the finder methods such as [onNodeWithTag].
- *
- * Example usage:
- * ```
- * val position = Offset(10.px, 10.px)
- * onNodeWithTag("myWidget")
- *    .performPartialGesture { sendDown(position) }
- *    .assertIsDisplayed()
- *    .performPartialGesture { sendUp(position) }
- * ```
- */
-class PartialGestureScope internal constructor(
-    semanticsNode: SemanticsNode
-) : BaseGestureScope(semanticsNode)
-
-/**
  * Sends a down event for the pointer with the given [pointerId] at [position] on the associated
  * node. The [position] is in the node's local coordinate system, where (0, 0) is
  * the top left corner of the node.
@@ -572,7 +580,7 @@ class PartialGestureScope internal constructor(
  * given pointer is already down, an [IllegalArgumentException] will be thrown.
  *
  * This gesture is considered _partial_, because the entire gesture can be spread over several
- * invocations of [performPartialGesture]. An entire gesture starts with a [down][down] event,
+ * invocations of [performGesture]. An entire gesture starts with a [down][down] event,
  * followed by several down, move or up events, and ends with an [up][up] or a
  * [cancel][cancel] event. Movement can be expressed with [moveTo] and [moveBy] to
  * move a single pointer at a time, or [movePointerTo] and [movePointerBy] to move multiple
@@ -586,7 +594,7 @@ class PartialGestureScope internal constructor(
  * cancel event will contain the up to date position of all pointers. Move and cancel events will
  * advance the event time by 10 milliseconds.
  *
- * Because partial gestures don't have to be defined all in the same [performPartialGesture] block,
+ * Because partial gestures don't have to be defined all in the same [performGesture] block,
  * keep in mind that while the gesture is not complete, all code you execute in between
  * blocks that progress the gesture, will be executed while imaginary fingers are actively
  * touching the screen.
@@ -597,7 +605,7 @@ class PartialGestureScope internal constructor(
  * @param pointerId The id of the pointer, can be any number not yet in use by another pointer
  * @param position The position of the down event, in the node's local coordinate system
  */
-fun PartialGestureScope.down(pointerId: Int, position: Offset) {
+fun GestureScope.down(pointerId: Int, position: Offset) {
     val globalPosition = localToGlobal(position)
     inputDispatcher.sendDown(pointerId, globalPosition)
 }
@@ -613,7 +621,7 @@ fun PartialGestureScope.down(pointerId: Int, position: Offset) {
  *
  * @param position The position of the down event, in the node's local coordinate system
  */
-fun PartialGestureScope.down(position: Offset) {
+fun GestureScope.down(position: Offset) {
     down(0, position)
 }
 
@@ -627,7 +635,7 @@ fun PartialGestureScope.down(position: Offset) {
  * @param pointerId The id of the pointer to move, as supplied in [down]
  * @param position The new position of the pointer, in the node's local coordinate system
  */
-fun PartialGestureScope.moveTo(pointerId: Int, position: Offset) {
+fun GestureScope.moveTo(pointerId: Int, position: Offset) {
     movePointerTo(pointerId, position)
     move()
 }
@@ -641,7 +649,7 @@ fun PartialGestureScope.moveTo(pointerId: Int, position: Offset) {
  *
  * @param position The new position of the pointer, in the node's local coordinate system
  */
-fun PartialGestureScope.moveTo(position: Offset) {
+fun GestureScope.moveTo(position: Offset) {
     moveTo(0, position)
 }
 
@@ -656,7 +664,7 @@ fun PartialGestureScope.moveTo(position: Offset) {
  * @param pointerId The id of the pointer to move, as supplied in [down]
  * @param position The new position of the pointer, in the node's local coordinate system
  */
-fun PartialGestureScope.movePointerTo(pointerId: Int, position: Offset) {
+fun GestureScope.movePointerTo(pointerId: Int, position: Offset) {
     val globalPosition = localToGlobal(position)
     inputDispatcher.movePointer(pointerId, globalPosition)
 }
@@ -672,7 +680,7 @@ fun PartialGestureScope.movePointerTo(pointerId: Int, position: Offset) {
  * pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's last
  * x-position, and subtract 10.px from the pointer's last y-position.
  */
-fun PartialGestureScope.moveBy(pointerId: Int, delta: Offset) {
+fun GestureScope.moveBy(pointerId: Int, delta: Offset) {
     movePointerBy(pointerId, delta)
     move()
 }
@@ -687,7 +695,7 @@ fun PartialGestureScope.moveBy(pointerId: Int, delta: Offset) {
  * pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's last
  * x-position, and subtract 10.px from the pointer's last y-position.
  */
-fun PartialGestureScope.moveBy(delta: Offset) {
+fun GestureScope.moveBy(delta: Offset) {
     moveBy(0, delta)
 }
 
@@ -702,7 +710,7 @@ fun PartialGestureScope.moveBy(delta: Offset) {
  * pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's last
  * x-position, and subtract 10.px from the pointer's last y-position.
  */
-fun PartialGestureScope.movePointerBy(pointerId: Int, delta: Offset) {
+fun GestureScope.movePointerBy(pointerId: Int, delta: Offset) {
     // Ignore currentPosition of null here, let movePointer generate the error
     val globalPosition =
         (inputDispatcher.getCurrentPosition(pointerId) ?: Offset.Zero) + delta
@@ -714,7 +722,7 @@ fun PartialGestureScope.movePointerBy(pointerId: Int, delta: Offset) {
  * batching movement of multiple pointers together, which can be done with [movePointerTo] and
  * [movePointerBy].
  */
-fun PartialGestureScope.move() {
+fun GestureScope.move() {
     inputDispatcher.sendMove()
 }
 
@@ -726,7 +734,7 @@ fun PartialGestureScope.move() {
  *
  * @param pointerId The id of the pointer to lift up, as supplied in [down]
  */
-fun PartialGestureScope.up(pointerId: Int = 0) {
+fun GestureScope.up(pointerId: Int = 0) {
     inputDispatcher.sendUp(pointerId)
 }
 
@@ -734,7 +742,7 @@ fun PartialGestureScope.up(pointerId: Int = 0) {
  * Sends a cancel event to cancel the current partial gesture. The cancel event contains the
  * current position of all active pointers.
  */
-fun PartialGestureScope.cancel() {
+fun GestureScope.cancel() {
     inputDispatcher.sendCancel()
 }
 
@@ -896,7 +904,7 @@ fun GestureScope.sendSwipeRight() = swipeRight()
  * given pointer is already down, an [IllegalArgumentException] will be thrown.
  *
  * This gesture is considered _partial_, because the entire gesture can be spread over several
- * invocations of [performPartialGesture]. An entire gesture starts with a [down][sendDown] event,
+ * invocations of [performGesture]. An entire gesture starts with a [down][sendDown] event,
  * followed by several down, move or up events, and ends with an [up][sendUp] or a
  * [cancel][sendCancel] event. Movement can be expressed with [sendMoveTo] and [sendMoveBy] to
  * move a single pointer at a time, or [movePointerTo] and [movePointerBy] to move multiple
@@ -910,7 +918,7 @@ fun GestureScope.sendSwipeRight() = swipeRight()
  * cancel event will contain the up to date position of all pointers. Move and cancel events will
  * advance the event time by 10 milliseconds.
  *
- * Because partial gestures don't have to be defined all in the same [performPartialGesture] block,
+ * Because partial gestures don't have to be defined all in the same [performGesture] block,
  * keep in mind that while the gesture is not complete, all code you execute in between
  * blocks that progress the gesture, will be executed while imaginary fingers are actively
  * touching the screen.
@@ -923,7 +931,7 @@ fun GestureScope.sendSwipeRight() = swipeRight()
  */
 @Deprecated("Renamed to down",
     replaceWith = ReplaceWith("down(pointerId, position)"))
-fun PartialGestureScope.sendDown(pointerId: Int, position: Offset) = down(pointerId, position)
+fun GestureScope.sendDown(pointerId: Int, position: Offset) = down(pointerId, position)
 
 /**
  * Sends a down event for the default pointer at [position] on the associated component. The
@@ -938,7 +946,7 @@ fun PartialGestureScope.sendDown(pointerId: Int, position: Offset) = down(pointe
  */
 @Deprecated("Renamed to down",
     replaceWith = ReplaceWith("down(position)"))
-fun PartialGestureScope.sendDown(position: Offset) = down(position)
+fun GestureScope.sendDown(position: Offset) = down(position)
 
 /**
  * Sends a move event on the associated component, with the position of the pointer with the
@@ -952,7 +960,7 @@ fun PartialGestureScope.sendDown(position: Offset) = down(position)
  */
 @Deprecated("Renamed to moveTo",
     replaceWith = ReplaceWith("moveTo(pointerId, position)"))
-fun PartialGestureScope.sendMoveTo(pointerId: Int, position: Offset) = moveTo(pointerId, position)
+fun GestureScope.sendMoveTo(pointerId: Int, position: Offset) = moveTo(pointerId, position)
 
 /**
  * Sends a move event on the associated component, with the position of the default pointer
@@ -965,7 +973,7 @@ fun PartialGestureScope.sendMoveTo(pointerId: Int, position: Offset) = moveTo(po
  */
 @Deprecated("Renamed to moveTo",
     replaceWith = ReplaceWith("moveTo(position)"))
-fun PartialGestureScope.sendMoveTo(position: Offset) = moveTo(position)
+fun GestureScope.sendMoveTo(position: Offset) = moveTo(position)
 
 /**
  * Sends a move event on the associated component, with the position of the pointer with the
@@ -980,7 +988,7 @@ fun PartialGestureScope.sendMoveTo(position: Offset) = moveTo(position)
  */
 @Deprecated("Renamed to moveBy",
     replaceWith = ReplaceWith("moveBy(pointerId, delta)"))
-fun PartialGestureScope.sendMoveBy(pointerId: Int, delta: Offset) = moveBy(pointerId, delta)
+fun GestureScope.sendMoveBy(pointerId: Int, delta: Offset) = moveBy(pointerId, delta)
 
 /**
  * Sends a move event on the associated component, with the position of the default pointer
@@ -994,7 +1002,7 @@ fun PartialGestureScope.sendMoveBy(pointerId: Int, delta: Offset) = moveBy(point
  */
 @Deprecated("Renamed to moveBy",
     replaceWith = ReplaceWith("moveBy(delta)"))
-fun PartialGestureScope.sendMoveBy(delta: Offset) = moveBy(delta)
+fun GestureScope.sendMoveBy(delta: Offset) = moveBy(delta)
 
 /**
  * Sends a move event without updating any of the pointer positions. This can be useful when
@@ -1003,7 +1011,7 @@ fun PartialGestureScope.sendMoveBy(delta: Offset) = moveBy(delta)
  */
 @Deprecated("Renamed to move",
     replaceWith = ReplaceWith("move()"))
-fun PartialGestureScope.sendMove() = move()
+fun GestureScope.sendMove() = move()
 
 /**
  * Sends an up event for the pointer with the given [pointerId], or the default pointer if
@@ -1015,7 +1023,7 @@ fun PartialGestureScope.sendMove() = move()
  */
 @Deprecated("Renamed to up",
     replaceWith = ReplaceWith("up(pointerId)"))
-fun PartialGestureScope.sendUp(pointerId: Int = 0) = up(pointerId)
+fun GestureScope.sendUp(pointerId: Int = 0) = up(pointerId)
 
 /**
  * Sends a cancel event to cancel the current partial gesture. The cancel event contains the
@@ -1023,4 +1031,4 @@ fun PartialGestureScope.sendUp(pointerId: Int = 0) = up(pointerId)
  */
 @Deprecated("Renamed to cancel",
     replaceWith = ReplaceWith("cancel()"))
-fun PartialGestureScope.sendCancel() = cancel()
+fun GestureScope.sendCancel() = cancel()

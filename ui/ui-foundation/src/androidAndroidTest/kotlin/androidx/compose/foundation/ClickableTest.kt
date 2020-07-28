@@ -37,7 +37,6 @@ import androidx.ui.test.click
 import androidx.ui.test.doubleClick
 import androidx.ui.test.down
 import androidx.ui.test.longClick
-import androidx.ui.test.performPartialGesture
 import androidx.ui.test.up
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -338,14 +337,14 @@ class ClickableTest {
         }
 
         onNodeWithTag("myClickable")
-            .performPartialGesture { down(center) }
+            .performGesture { down(center) }
 
         runOnIdle {
             assertThat(interactionState.value).contains(Interaction.Pressed)
         }
 
         onNodeWithTag("myClickable")
-            .performPartialGesture { up() }
+            .performGesture { up() }
 
         runOnIdle {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
@@ -375,7 +374,7 @@ class ClickableTest {
         }
 
         onNodeWithTag("myClickable")
-            .performPartialGesture { down(center) }
+            .performGesture { down(center) }
 
         runOnIdle {
             assertThat(interactionState.value).contains(Interaction.Pressed)
