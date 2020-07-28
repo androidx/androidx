@@ -78,7 +78,8 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction assertWidthIsAtLeast-7iZCdLk(androidx.ui.test.SemanticsNodeInteraction, float expectedMinWidth);
     method public static androidx.ui.test.SemanticsNodeInteraction assertWidthIsEqualTo-7iZCdLk(androidx.ui.test.SemanticsNodeInteraction, float expectedWidth);
     method public static float getAlignmentLinePosition(androidx.ui.test.SemanticsNodeInteraction, androidx.compose.ui.AlignmentLine line);
-    method public static androidx.compose.ui.unit.Bounds getBoundsInRoot(androidx.ui.test.SemanticsNodeInteraction);
+    method @Deprecated public static androidx.compose.ui.unit.Bounds getBoundsInRoot(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.compose.ui.unit.Bounds getUnclippedBoundsInRoot(androidx.ui.test.SemanticsNodeInteraction);
   }
 
   public interface ComposeBenchmarkScope<T> extends androidx.ui.test.ComposeExecutionControl {

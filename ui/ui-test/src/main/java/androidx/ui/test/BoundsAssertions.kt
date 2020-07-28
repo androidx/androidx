@@ -37,7 +37,7 @@ private const val floatTolerance = 0.5f
  * @throws AssertionError if comparison fails.
  */
 fun SemanticsNodeInteraction.assertWidthIsEqualTo(expectedWidth: Dp): SemanticsNodeInteraction {
-    return withBoundsInRoot {
+    return withUnclippedBoundsInRoot {
         it.width.toDp().assertIsEqualTo(expectedWidth, "width")
     }
 }
@@ -48,7 +48,7 @@ fun SemanticsNodeInteraction.assertWidthIsEqualTo(expectedWidth: Dp): SemanticsN
  * @throws AssertionError if comparison fails.
  */
 fun SemanticsNodeInteraction.assertHeightIsEqualTo(expectedHeight: Dp): SemanticsNodeInteraction {
-    return withBoundsInRoot {
+    return withUnclippedBoundsInRoot {
         it.height.toDp().assertIsEqualTo(expectedHeight, "height")
     }
 }
@@ -58,7 +58,7 @@ fun SemanticsNodeInteraction.assertHeightIsEqualTo(expectedHeight: Dp): Semantic
  * @throws AssertionError if comparison fails.
  */
 fun SemanticsNodeInteraction.assertWidthIsAtLeast(expectedMinWidth: Dp): SemanticsNodeInteraction {
-    return withBoundsInRoot {
+    return withUnclippedBoundsInRoot {
         isAtLeastOrThrow("width", it.width, expectedMinWidth)
     }
 }
@@ -71,7 +71,7 @@ fun SemanticsNodeInteraction.assertWidthIsAtLeast(expectedMinWidth: Dp): Semanti
 fun SemanticsNodeInteraction.assertHeightIsAtLeast(
     expectedMinHeight: Dp
 ): SemanticsNodeInteraction {
-    return withBoundsInRoot {
+    return withUnclippedBoundsInRoot {
         isAtLeastOrThrow("height", it.height, expectedMinHeight)
     }
 }
@@ -79,9 +79,9 @@ fun SemanticsNodeInteraction.assertHeightIsAtLeast(
 /**
 * Returns the bounds of the layout of this node. The bounds are relative to the root composable.
 */
-fun SemanticsNodeInteraction.getBoundsInRoot(): Bounds {
+fun SemanticsNodeInteraction.getUnclippedBoundsInRoot(): Bounds {
     lateinit var bounds: Bounds
-    withBoundsInRoot {
+    withUnclippedBoundsInRoot {
         bounds = Bounds(
             left = it.left.toDp(),
             top = it.top.toDp(),
@@ -90,6 +90,17 @@ fun SemanticsNodeInteraction.getBoundsInRoot(): Bounds {
         )
     }
     return bounds
+}
+
+/**
+ * Returns the bounds of the layout of this node. The bounds are relative to the root composable.
+ */
+@Deprecated(
+    message = "Renamed to getUnclippedBoundsInRoot()",
+    replaceWith = ReplaceWith("getUnclippedBoundsInRoot()")
+)
+fun SemanticsNodeInteraction.getBoundsInRoot(): Bounds {
+    return getUnclippedBoundsInRoot()
 }
 
 /**
@@ -105,7 +116,7 @@ fun SemanticsNodeInteraction.assertPositionInRootIsEqualTo(
     expectedLeft: Dp,
     expectedTop: Dp
 ): SemanticsNodeInteraction {
-    return withBoundsInRoot {
+    return withUnclippedBoundsInRoot {
         it.left.toDp().assertIsEqualTo(expectedLeft, "left")
         it.top.toDp().assertIsEqualTo(expectedTop, "top")
     }
@@ -122,7 +133,7 @@ fun SemanticsNodeInteraction.assertPositionInRootIsEqualTo(
 fun SemanticsNodeInteraction.assertTopPositionInRootIsEqualTo(
     expectedTop: Dp
 ): SemanticsNodeInteraction {
-    return withBoundsInRoot {
+    return withUnclippedBoundsInRoot {
         it.top.toDp().assertIsEqualTo(expectedTop, "top")
     }
 }
@@ -138,7 +149,7 @@ fun SemanticsNodeInteraction.assertTopPositionInRootIsEqualTo(
 fun SemanticsNodeInteraction.assertLeftPositionInRootIsEqualTo(
     expectedTop: Dp
 ): SemanticsNodeInteraction {
-    return withBoundsInRoot {
+    return withUnclippedBoundsInRoot {
         it.left.toDp().assertIsEqualTo(expectedTop, "left")
     }
 }
@@ -220,7 +231,7 @@ private fun <R> SemanticsNodeInteraction.withDensity(
     return operation.invoke(density, node)
 }
 
-private fun SemanticsNodeInteraction.withBoundsInRoot(
+private fun SemanticsNodeInteraction.withUnclippedBoundsInRoot(
     assertion: Density.(PxBounds) -> Unit
 ): SemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to retrieve bounds of the node.")

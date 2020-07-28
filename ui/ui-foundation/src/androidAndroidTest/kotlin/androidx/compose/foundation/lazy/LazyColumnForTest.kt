@@ -47,7 +47,7 @@ import androidx.ui.test.assertPositionInRootIsEqualTo
 import androidx.ui.test.center
 import androidx.ui.test.onChildren
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.getBoundsInRoot
+import androidx.ui.test.getUnclippedBoundsInRoot
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
@@ -351,7 +351,7 @@ class LazyColumnForTest {
         }
 
         var itemBounds = onNodeWithTag(itemTag)
-            .getBoundsInRoot()
+            .getUnclippedBoundsInRoot()
 
         assertThat(itemBounds.top.toIntPx()).isWithin1PixelFrom(50.dp.toIntPx())
         assertThat(itemBounds.bottom.toIntPx()).isWithin1PixelFrom(100.dp.toIntPx())
@@ -363,7 +363,7 @@ class LazyColumnForTest {
             .scrollBy(y = 51.dp, density = composeTestRule.density)
 
         itemBounds = onNodeWithTag(itemTag)
-            .getBoundsInRoot()
+            .getUnclippedBoundsInRoot()
 
         assertThat(itemBounds.top.toIntPx()).isWithin1PixelFrom(0)
         assertThat(itemBounds.bottom.toIntPx()).isWithin1PixelFrom(50.dp.toIntPx())
@@ -398,7 +398,7 @@ class LazyColumnForTest {
             .assertIsDisplayed()
 
         var lazyColumnBounds = onNodeWithTag(LazyColumnForTag)
-            .getBoundsInRoot()
+            .getUnclippedBoundsInRoot()
 
         Truth.assertThat(lazyColumnBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
         Truth.assertThat(lazyColumnBounds.right.toIntPx()).isWithin1PixelFrom(50.dp.toIntPx())
@@ -418,7 +418,7 @@ class LazyColumnForTest {
             .assertIsDisplayed()
 
         lazyColumnBounds = onNodeWithTag(LazyColumnForTag)
-            .getBoundsInRoot()
+            .getUnclippedBoundsInRoot()
 
         Truth.assertThat(lazyColumnBounds.left.toIntPx()).isWithin1PixelFrom(0.dp.toIntPx())
         Truth.assertThat(lazyColumnBounds.right.toIntPx()).isWithin1PixelFrom(70.dp.toIntPx())
@@ -451,7 +451,7 @@ class LazyColumnForTest {
             .assertIsDisplayed()
 
         val lazyColumnBounds = onNodeWithTag(LazyColumnForTag)
-            .getBoundsInRoot()
+            .getUnclippedBoundsInRoot()
 
         with(composeTestRule.density) {
             // Verify the width of the column
