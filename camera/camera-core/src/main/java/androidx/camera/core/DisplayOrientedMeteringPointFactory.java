@@ -24,7 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CameraInfoInternal;
-import androidx.camera.core.impl.CameraInternal;
 
 /**
  * A {@link MeteringPointFactory} that can convert a {@link View} (x, y) into a
@@ -54,17 +53,16 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
     private final float mWidth;
     /** The logical height of FoV in current display orientation */
     private final float mHeight;
-    /** Lens facing is required for correctly adjusted for front camera */
-    private final CameraSelector mCameraSelector;
+
     /** {@link Display} used for detecting display orientation */
     @NonNull
     private final Display mDisplay;
     @NonNull
-    private final CameraInfoInternal mCameraInfo;
+    private final CameraInfo mCameraInfo;
 
     /**
      * Creates a {@link DisplayOrientedMeteringPointFactory} for converting View (x, y) into a
-     * {@link MeteringPoint} based on the current display's rotation and {@link CameraSelector}.
+     * {@link MeteringPoint} based on the current display's rotation and {@link CameraInfo}.
      *
      * <p>The width/height of this factory forms a coordinate left-top (0, 0) - right-bottom
      * (width, height) which represents the full camera preview FOV in the display's
@@ -76,7 +74,8 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
      *
      * @param display        {@link Display} to get the orientation from. This should be the
      *                       current display where camera preview is showing.
-     * @param cameraSelector current cameraSelector to choose camera.
+     * @param cameraInfo     the information for the {@link Camera} to generate the metering
+     *                       point for
      * @param width          the width of the coordinate which are mapped to the full camera preview
      *                       FOV in given display's orientation.
      * @param height         the height of the coordinate which are mapped to the full camera
@@ -84,23 +83,22 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
      *                       FOV in given display's orientation.
      */
     public DisplayOrientedMeteringPointFactory(@NonNull Display display,
-            @NonNull CameraSelector cameraSelector, float width, float height) {
+            @NonNull CameraInfo cameraInfo, float width, float height) {
         mWidth = width;
         mHeight = height;
-        mCameraSelector = cameraSelector;
         mDisplay = display;
-        try {
-            CameraInternal camera = CameraX.getCameraWithCameraSelector(mCameraSelector);
-            mCameraInfo = camera.getCameraInfoInternal();
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(
-                    "Unable to get camera id for the CameraSelector.", e);
-        }
+        mCameraInfo = cameraInfo;
     }
 
     @Nullable
     private Integer getLensFacing() {
-        return mCameraInfo.getLensFacing();
+        // This assumes CameraInfo is an instance of CameraInfoInternal which contains lens
+        // facing information. A Camera may not be simply of a single lens facing type so that is
+        // why it isn't exposed directly through CameraInfo.
+        if (mCameraInfo instanceof CameraInfoInternal) {
+            return ((CameraInfoInternal) mCameraInfo).getLensFacing();
+        }
+        return null;
     }
 
     /**
