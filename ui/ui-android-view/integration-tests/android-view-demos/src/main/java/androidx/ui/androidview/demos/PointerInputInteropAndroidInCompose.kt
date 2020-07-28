@@ -25,8 +25,6 @@ import androidx.ui.androidview.adapters.setOnClick
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.gesture.tapGestureFilter
-import androidx.ui.demos.common.ComposableDemo
-import androidx.ui.demos.common.DemoCategory
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.ScrollableRow
@@ -40,7 +38,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.state
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.unit.dp
+import androidx.ui.demos.common.ComposableDemo
+import androidx.ui.demos.common.DemoCategory
 import androidx.compose.ui.viewinterop.AndroidView
 
 val AndroidInComposeDemos = DemoCategory("Android In Compose Interop", listOf(
@@ -55,6 +58,9 @@ val AndroidInComposeDemos = DemoCategory("Android In Compose Interop", listOf(
     },
     ComposableDemo("2 ScrollViews as separate children of Compose") {
         TwoAndroidScrollViewsInCompose()
+    },
+    ComposableDemo("MotionEventPointerInputFilter") {
+        PointerInteropFilterDemo()
     }
 ))
 
@@ -245,8 +251,8 @@ private fun TwoAndroidScrollViewsInCompose() {
     Column {
         Text(
             "Below are two Android Scrollviews that are nested in two different children of " +
-                    "Compose. The user should be able to scroll each independently at the same " +
-                    "time, but given that we currently don't split motion, this is not work."
+                "Compose. The user should be able to scroll each independently at the same " +
+                "time, but given that we currently don't split motion, this is not work."
         )
         Row {
             AndroidView(
@@ -263,6 +269,29 @@ private fun TwoAndroidScrollViewsInCompose() {
                 },
                 Modifier.weight(1f)
             )
+        }
+    }
+}
+
+@Composable
+private fun PointerInteropFilterDemo() {
+
+    val motionEventString: MutableState<String> = state { "Touch here!" }
+
+    Column {
+        Text("Demonstrates the functionality of pointerInteropFilter.")
+        Text("Touch the grey space below and it will be updated with the String representation of" +
+            " the MotionEvent that the pointerInteropFilter outputs.")
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(androidx.compose.ui.graphics.Color.Gray)
+                .pointerInteropFilter { newMotionEvent ->
+                    motionEventString.value = newMotionEvent.toString()
+                    true
+                }
+        ) {
+            Text(motionEventString.value)
         }
     }
 }

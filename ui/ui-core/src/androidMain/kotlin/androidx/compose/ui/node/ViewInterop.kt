@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.drawBehind
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.graphics.drawscope.drawCanvas
-import androidx.compose.ui.input.pointer.pointerInteropModifier
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.AndroidOwner
 import androidx.compose.ui.util.fastFirstOrNull
@@ -99,7 +99,7 @@ internal fun AndroidViewHolder<out View>.toLayoutNode(): LayoutNode {
     // Prepare layout node that proxies measure and layout passes to the View.
     val layoutNode = LayoutNode()
     val coreModifier = Modifier
-        .pointerInteropModifier(this)
+        .pointerInteropFilter(this)
         .drawBehind {
             drawCanvas { canvas, _ -> draw(canvas.nativeCanvas) }
         }.onPositioned {

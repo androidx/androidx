@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.input.pointer
 
-import android.content.Context
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
@@ -25,8 +24,10 @@ import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
 import android.view.MotionEvent.TOOL_TYPE_UNKNOWN
-import android.view.View
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.gesture.PointerCoords
+import androidx.compose.ui.gesture.PointerProperties
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.platform.PointerEvent
 import androidx.compose.ui.platform.PointerEventPass
@@ -36,8 +37,10 @@ import androidx.compose.ui.platform.consumeDownChange
 import androidx.ui.test.android.createAndroidComposeRule
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.milliseconds
-import androidx.compose.ui.viewinterop.AndroidViewHolder
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -50,15 +53,23 @@ class PointerInteropFilterTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-    private lateinit var mockViewGroup: MockViewGroup
     private lateinit var pointerInteropFilter: PointerInteropFilter
+    private val dispatchedMotionEvents = mutableListOf<MotionEvent>()
+    private val disallowInterceptRequester = RequestDisallowInterceptTouchEvent()
+    private var retVal = true
 
     @Before
     fun setup() {
-        lateinit var activity: ComponentActivity
-        composeTestRule.activityRule.scenario.onActivity { activity = it }
-        mockViewGroup = MockViewGroup(activity)
-        pointerInteropFilter = PointerInteropFilter(mockViewGroup)
+        pointerInteropFilter = PointerInteropFilter()
+        pointerInteropFilter.pointerInputFilter.layoutCoordinates = mock {
+            on { localToRoot(any()) } doReturn Offset(0f, 0f)
+        }
+
+        pointerInteropFilter.onTouchEvent = { motionEvent ->
+            dispatchedMotionEvents.add(motionEvent)
+            retVal
+        }
+        pointerInteropFilter.requestDisallowInterceptTouchEvent = disallowInterceptRequester
     }
 
     // Verification of correct MotionEvents being dispatched (when no events are cancel)
@@ -80,8 +91,8 @@ class PointerInteropFilterTest {
             pointerEventOf(down, motionEvent = expected)
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
-        assertThat(mockViewGroup.dispatchedMotionEvents[0]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(1)
+        assertThat(dispatchedMotionEvents[0]).isSameInstanceAs(expected)
     }
 
     @Test
@@ -114,8 +125,8 @@ class PointerInteropFilterTest {
             pointerEventOf(up, motionEvent = expected)
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(2)
-        assertThat(mockViewGroup.dispatchedMotionEvents[1]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(2)
+        assertThat(dispatchedMotionEvents[1]).isSameInstanceAs(expected)
     }
 
     @Test
@@ -165,8 +176,8 @@ class PointerInteropFilterTest {
 
         // Assert
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(2)
-        assertThat(mockViewGroup.dispatchedMotionEvents[1]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(2)
+        assertThat(dispatchedMotionEvents[1]).isSameInstanceAs(expected)
     }
 
     @Test
@@ -215,8 +226,8 @@ class PointerInteropFilterTest {
 
         // Assert
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(2)
-        assertThat(mockViewGroup.dispatchedMotionEvents[1]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(2)
+        assertThat(dispatchedMotionEvents[1]).isSameInstanceAs(expected)
     }
 
     @Test
@@ -287,8 +298,8 @@ class PointerInteropFilterTest {
 
         // Assert
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(3)
-        assertThat(mockViewGroup.dispatchedMotionEvents[2]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(3)
+        assertThat(dispatchedMotionEvents[2]).isSameInstanceAs(expected)
     }
 
     @Test
@@ -358,8 +369,8 @@ class PointerInteropFilterTest {
 
         // Assert
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(3)
-        assertThat(mockViewGroup.dispatchedMotionEvents[2]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(3)
+        assertThat(dispatchedMotionEvents[2]).isSameInstanceAs(expected)
     }
 
     @Test
@@ -392,8 +403,8 @@ class PointerInteropFilterTest {
             pointerEventOf(move, motionEvent = expected)
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(2)
-        assertThat(mockViewGroup.dispatchedMotionEvents[1]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(2)
+        assertThat(dispatchedMotionEvents[1]).isSameInstanceAs(expected)
     }
 
     @Test
@@ -465,8 +476,8 @@ class PointerInteropFilterTest {
 
         // Assert
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(3)
-        assertThat(mockViewGroup.dispatchedMotionEvents[2]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(3)
+        assertThat(dispatchedMotionEvents[2]).isSameInstanceAs(expected)
     }
 
     @Test
@@ -537,8 +548,8 @@ class PointerInteropFilterTest {
 
         // Assert
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(3)
-        assertThat(mockViewGroup.dispatchedMotionEvents[2]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(3)
+        assertThat(dispatchedMotionEvents[2]).isSameInstanceAs(expected)
     }
 
     // Verification of correct cancel events being dispatched
@@ -573,8 +584,8 @@ class PointerInteropFilterTest {
             pointerEventOf(upConsumed, motionEvent = expected)
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(2)
-        assertThat(mockViewGroup.dispatchedMotionEvents[1]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(2)
+        assertThat(dispatchedMotionEvents[1]).isSameInstanceAs(expected)
     }
 
     @Test
@@ -623,8 +634,8 @@ class PointerInteropFilterTest {
 
         // Assert
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(2)
-        assertThat(mockViewGroup.dispatchedMotionEvents[1]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(2)
+        assertThat(dispatchedMotionEvents[1]).isSameInstanceAs(expected)
     }
 
     @Test
@@ -695,8 +706,8 @@ class PointerInteropFilterTest {
 
         // Assert
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(3)
-        assertThat(mockViewGroup.dispatchedMotionEvents[2]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(3)
+        assertThat(dispatchedMotionEvents[2]).isSameInstanceAs(expected)
     }
 
     @Test
@@ -729,8 +740,8 @@ class PointerInteropFilterTest {
             pointerEventOf(moveConsumed, motionEvent = expected)
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(2)
-        assertThat(mockViewGroup.dispatchedMotionEvents[1]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(2)
+        assertThat(dispatchedMotionEvents[1]).isSameInstanceAs(expected)
     }
 
     @Test
@@ -802,8 +813,8 @@ class PointerInteropFilterTest {
 
         // Assert
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(3)
-        assertThat(mockViewGroup.dispatchedMotionEvents[2]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(3)
+        assertThat(dispatchedMotionEvents[2]).isSameInstanceAs(expected)
     }
 
     // Verification of no longer dispatching to children once we have consumed events
@@ -825,7 +836,7 @@ class PointerInteropFilterTest {
             pointerEventOf(downConsumed, motionEvent = motionEvent1)
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
     }
 
     @Test
@@ -873,7 +884,7 @@ class PointerInteropFilterTest {
             pointerEventOf(aUp, motionEvent = motionEvent3)
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
     }
 
     @Test
@@ -938,7 +949,7 @@ class PointerInteropFilterTest {
             pointerEventOf(aMove3, bUp, motionEvent = motionEvent4)
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
     }
 
     @Test
@@ -1003,7 +1014,7 @@ class PointerInteropFilterTest {
             pointerEventOf(bMove2, cDown, motionEvent = motionEvent4)
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
     }
 
     @Test
@@ -1056,7 +1067,7 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(move1Consumed, motionEvent = motionEvent2)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(move2, motionEvent = motionEvent3)
         )
@@ -1064,7 +1075,7 @@ class PointerInteropFilterTest {
             pointerEventOf(up, motionEvent = motionEvent4)
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
     }
 
     @Test
@@ -1136,7 +1147,7 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aMove1, bDownConsumed, motionEvent = motionEvent2)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aMove2, bMove, motionEvent = motionEvent3)
         )
@@ -1148,7 +1159,7 @@ class PointerInteropFilterTest {
         )
 
         // Assert
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
     }
 
     @Test
@@ -1204,8 +1215,8 @@ class PointerInteropFilterTest {
             pointerEventOf(bDown, motionEvent = expected)
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
-        assertThat(mockViewGroup.dispatchedMotionEvents[0]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(1)
+        assertThat(dispatchedMotionEvents[0]).isSameInstanceAs(expected)
     }
 
     @Test
@@ -1275,7 +1286,7 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aDownConsumed, motionEvent = motionEvent1)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aMove1, bDown, motionEvent = motionEvent2)
         )
@@ -1290,8 +1301,8 @@ class PointerInteropFilterTest {
         )
 
         // Assert
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
-        assertThat(mockViewGroup.dispatchedMotionEvents[0]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(1)
+        assertThat(dispatchedMotionEvents[0]).isSameInstanceAs(expected)
     }
 
     // Verification no longer dispatching to children due to the child returning false for
@@ -1332,12 +1343,12 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(6f, 7f))
             )
 
-        mockViewGroup.returnValue = false
+        retVal = false
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aDown, motionEvent = motionEvent1)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aMove, motionEvent = motionEvent2)
         )
@@ -1345,7 +1356,7 @@ class PointerInteropFilterTest {
             pointerEventOf(aUp, motionEvent = motionEvent3)
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
     }
 
     @Test
@@ -1400,14 +1411,14 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(6f, 7f), PointerCoords(22f, 23f))
             )
 
-        mockViewGroup.returnValue = false
+        retVal = false
 
         // Act
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aDown, motionEvent = motionEvent1)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aMove1, bDown, motionEvent = motionEvent2)
         )
@@ -1420,7 +1431,7 @@ class PointerInteropFilterTest {
 
         // Assert
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
     }
 
     @Test
@@ -1472,12 +1483,12 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(23f, 24f), PointerCoords(52f, 53f))
             )
 
-        mockViewGroup.returnValue = false
+        retVal = false
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aDown, motionEvent = motionEvent1)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aMove1, bDown, motionEvent = motionEvent2)
         )
@@ -1488,7 +1499,7 @@ class PointerInteropFilterTest {
             pointerEventOf(bMove2, cDown, motionEvent = motionEvent4)
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
     }
 
     @Test
@@ -1540,11 +1551,11 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(down, motionEvent = motionEvent1)
         )
-        mockViewGroup.returnValue = false
+        retVal = false
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(move1, motionEvent = motionEvent2)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(move2, motionEvent = motionEvent3)
         )
@@ -1552,7 +1563,7 @@ class PointerInteropFilterTest {
             pointerEventOf(up, motionEvent = motionEvent4)
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
     }
 
     @Test
@@ -1621,11 +1632,11 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aDown, motionEvent = motionEvent1)
         )
-        mockViewGroup.returnValue = false
+        retVal = false
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aMove1, bDown, motionEvent = motionEvent2)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aMove2, bMove, motionEvent = motionEvent3)
         )
@@ -1637,7 +1648,7 @@ class PointerInteropFilterTest {
         )
 
         // Assert
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
     }
 
     @Test
@@ -1665,7 +1676,7 @@ class PointerInteropFilterTest {
             )
 
         val bDown = down(11, 12.milliseconds, 13f, 14f)
-        mockViewGroup.returnValue = false
+        retVal = false
         val expected =
             MotionEvent(
                 12,
@@ -1683,7 +1694,7 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aDown, motionEvent = motionEvent1)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aUp, motionEvent = motionEvent2)
         )
@@ -1691,8 +1702,8 @@ class PointerInteropFilterTest {
             pointerEventOf(bDown, motionEvent = expected)
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
-        assertThat(mockViewGroup.dispatchedMotionEvents[0]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(1)
+        assertThat(dispatchedMotionEvents[0]).isSameInstanceAs(expected)
     }
 
     @Test
@@ -1759,11 +1770,11 @@ class PointerInteropFilterTest {
 
         // Act
 
-        mockViewGroup.returnValue = false
+        retVal = false
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aDown, motionEvent = motionEvent1)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aMove1, bDown, motionEvent = motionEvent2)
         )
@@ -1778,8 +1789,8 @@ class PointerInteropFilterTest {
         )
 
         // Assert
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
-        assertThat(mockViewGroup.dispatchedMotionEvents[0]).isSameInstanceAs(expected)
+        assertThat(dispatchedMotionEvents).hasSize(1)
+        assertThat(dispatchedMotionEvents[0]).isSameInstanceAs(expected)
     }
 
     // Verification of correct consumption due to the return value of View.dispatchTouchEvent(...).
@@ -1798,7 +1809,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        mockViewGroup.returnValue = false
+        retVal = false
 
         val actual =
             pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
@@ -1821,7 +1832,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        mockViewGroup.returnValue = true
+        retVal = true
         val expected = down.consumeAllChanges()
 
         val actual =
@@ -1854,12 +1865,12 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        mockViewGroup.returnValue = true
+        retVal = true
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(down, motionEvent = motionEvent1)
         )
 
-        mockViewGroup.returnValue = false
+        retVal = false
         val actual = pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(up, motionEvent = motionEvent2)
         )
@@ -1891,7 +1902,7 @@ class PointerInteropFilterTest {
             )
 
         val expected = up.consumeAllChanges()
-        mockViewGroup.returnValue = true
+        retVal = true
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(down, motionEvent = motionEvent1)
         )
@@ -1932,7 +1943,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(10f, 11f))
             )
 
-        mockViewGroup.returnValue = true
+        retVal = true
 
         val expected = listOf(aMove, bDown)
 
@@ -1942,7 +1953,7 @@ class PointerInteropFilterTest {
 
         // Act
 
-        mockViewGroup.returnValue = false
+        retVal = false
         val actual =
             pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
                 pointerEventOf(aMove, bDown, motionEvent = motionEvent2)
@@ -1981,7 +1992,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(10f, 11f))
             )
 
-        mockViewGroup.returnValue = true
+        retVal = true
 
         val expected = listOf(aMove.consumeAllChanges(), bDown.consumeAllChanges())
 
@@ -2041,7 +2052,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(10f, 11f))
             )
 
-        mockViewGroup.returnValue = true
+        retVal = true
 
         val expected = listOf(aMove2, bUp)
 
@@ -2054,7 +2065,7 @@ class PointerInteropFilterTest {
 
         // Act
 
-        mockViewGroup.returnValue = false
+        retVal = false
         val actual =
             pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
                 pointerEventOf(aMove2, bUp, motionEvent = motionEvent3)
@@ -2105,7 +2116,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(10f, 11f))
             )
 
-        mockViewGroup.returnValue = true
+        retVal = true
 
         val expected = listOf(aMove2.consumeAllChanges(), bUp.consumeAllChanges())
 
@@ -2150,12 +2161,12 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(8f, 9f))
             )
-        mockViewGroup.returnValue = true
+        retVal = true
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(down, motionEvent = motionEvent1)
         )
 
-        mockViewGroup.returnValue = false
+        retVal = false
         val actual =
             pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
                 pointerEventOf(move, motionEvent = motionEvent2)
@@ -2186,7 +2197,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(8f, 9f))
             )
-        mockViewGroup.returnValue = true
+        retVal = true
         val expected = move.consumeAllChanges()
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(down, motionEvent = motionEvent1)
@@ -2252,7 +2263,7 @@ class PointerInteropFilterTest {
                 )
             )
 
-        mockViewGroup.returnValue = true
+        retVal = true
 
         val expected = listOf(aMove2, bMove1)
 
@@ -2265,7 +2276,7 @@ class PointerInteropFilterTest {
 
         // Act
 
-        mockViewGroup.returnValue = false
+        retVal = false
         val actual =
             pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
                 pointerEventOf(aMove2, bMove1, motionEvent = motionEvent3)
@@ -2328,7 +2339,7 @@ class PointerInteropFilterTest {
                 )
             )
 
-        mockViewGroup.returnValue = true
+        retVal = true
 
         val expected = listOf(aMove2.consumeAllChanges(), bMove1.consumeAllChanges())
 
@@ -2377,7 +2388,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(6f, 7f))
             )
-        mockViewGroup.returnValue = true
+        retVal = true
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aDownConsumed, motionEvent = motionEvent1)
@@ -2417,7 +2428,7 @@ class PointerInteropFilterTest {
                     PointerCoords(3f, 4f)
                 )
             )
-        mockViewGroup.returnValue = true
+        retVal = true
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aDownConsumed, motionEvent = motionEvent1)
@@ -2770,7 +2781,7 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aDownConsumed, motionEvent = motionEvent1)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aMove1, bDown, motionEvent = motionEvent2)
         )
@@ -2813,12 +2824,12 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(6f, 7f))
             )
-        mockViewGroup.returnValue = false
+        retVal = false
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aDown, motionEvent = motionEvent1)
         )
-        mockViewGroup.returnValue = true
+        retVal = true
         val actual =
             pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
                 pointerEventOf(aMove, motionEvent = motionEvent2)
@@ -2850,12 +2861,12 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        mockViewGroup.returnValue = false
+        retVal = false
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aDown, motionEvent = motionEvent1)
         )
-        mockViewGroup.returnValue = true
+        retVal = true
         val actual =
             pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
                 pointerEventOf(aUp, motionEvent = motionEvent2)
@@ -2892,7 +2903,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(13f, 14f))
             )
 
-        mockViewGroup.returnValue = false
+        retVal = false
 
         val expected = listOf(aMove1, bDown)
 
@@ -2901,7 +2912,7 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aDown, motionEvent = motionEvent1)
         )
-        mockViewGroup.returnValue = true
+        retVal = true
         val actual =
             pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
                 pointerEventOf(aMove1, bDown, motionEvent = motionEvent2)
@@ -2952,7 +2963,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(22f, 23f), PointerCoords(24f, 25f))
             )
 
-        mockViewGroup.returnValue = false
+        retVal = false
 
         val expected = listOf(aMove2, bMove1)
 
@@ -2964,7 +2975,7 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aMove1, bDown, motionEvent = motionEvent2)
         )
-        mockViewGroup.returnValue = true
+        retVal = true
         val actual =
             pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
                 pointerEventOf(aMove2, bMove1, motionEvent = motionEvent3)
@@ -3015,7 +3026,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(13f, 14f))
             )
 
-        mockViewGroup.returnValue = false
+        retVal = false
 
         val expected = listOf(aMove2, bUp)
 
@@ -3027,7 +3038,7 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aMove1, bDown, motionEvent = motionEvent2)
         )
-        mockViewGroup.returnValue = true
+        retVal = true
         val actual =
             pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
                 pointerEventOf(aMove2, bUp, motionEvent = motionEvent3)
@@ -3087,7 +3098,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(23f, 24f), PointerCoords(52f, 53f))
             )
 
-        mockViewGroup.returnValue = false
+        retVal = false
 
         val expected = listOf(bMove2, cDown)
 
@@ -3100,7 +3111,7 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aUp, bMove1, motionEvent = motionEvent3)
         )
-        mockViewGroup.returnValue = true
+        retVal = true
         val actual =
             pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
                 pointerEventOf(bMove2, cDown, motionEvent = motionEvent4)
@@ -3145,11 +3156,11 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(down, motionEvent = motionEvent1)
         )
-        mockViewGroup.returnValue = false
+        retVal = false
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(move1, motionEvent = motionEvent2)
         )
-        mockViewGroup.returnValue = true
+        retVal = true
         val actual = pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(move2, motionEvent = motionEvent3)
         )
@@ -3193,11 +3204,11 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(down, motionEvent = motionEvent1)
         )
-        mockViewGroup.returnValue = false
+        retVal = false
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(move1, motionEvent = motionEvent2)
         )
-        mockViewGroup.returnValue = true
+        retVal = true
         val actual =
             pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
                 pointerEventOf(up, motionEvent = motionEvent3)
@@ -3251,11 +3262,11 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aDown, motionEvent = motionEvent1)
         )
-        mockViewGroup.returnValue = false
+        retVal = false
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aMove1, bDown, motionEvent = motionEvent2)
         )
-        mockViewGroup.returnValue = true
+        retVal = true
         val actual =
             pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
                 pointerEventOf(aMove2, bMove, motionEvent = motionEvent3)
@@ -3310,11 +3321,11 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aDown, motionEvent = motionEvent1)
         )
-        mockViewGroup.returnValue = false
+        retVal = false
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(aMove1, bDown, motionEvent = motionEvent2)
         )
-        mockViewGroup.returnValue = true
+        retVal = true
         val actual =
             pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
                 pointerEventOf(aMove2, bUp, motionEvent = motionEvent3)
@@ -3344,7 +3355,7 @@ class PointerInteropFilterTest {
             PointerEventPass.InitialDown
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
+        assertThat(dispatchedMotionEvents).hasSize(1)
     }
 
     @Test
@@ -3378,7 +3389,7 @@ class PointerInteropFilterTest {
             PointerEventPass.InitialDown
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(2)
+        assertThat(dispatchedMotionEvents).hasSize(2)
     }
 
     @Test
@@ -3422,7 +3433,7 @@ class PointerInteropFilterTest {
 
         // Assert
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(2)
+        assertThat(dispatchedMotionEvents).hasSize(2)
     }
 
     @Test
@@ -3481,7 +3492,7 @@ class PointerInteropFilterTest {
 
         // Assert
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(3)
+        assertThat(dispatchedMotionEvents).hasSize(3)
     }
 
     @Test
@@ -3509,7 +3520,7 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(down, motionEvent = motionEvent1)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(move, motionEvent = motionEvent2),
             PointerEventPass.InitialDown,
@@ -3518,14 +3529,14 @@ class PointerInteropFilterTest {
             PointerEventPass.PostUp
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(move, motionEvent = motionEvent2),
             PointerEventPass.PostDown
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
+        assertThat(dispatchedMotionEvents).hasSize(1)
     }
 
     @Test
@@ -3554,16 +3565,16 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(down, motionEvent = motionEvent1)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
 
-        mockViewGroup.requestDisallowInterceptTouchEvent(true)
+        disallowInterceptRequester.invoke(true)
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(move, motionEvent = motionEvent2),
             PointerEventPass.InitialDown
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
+        assertThat(dispatchedMotionEvents).hasSize(1)
     }
 
     @Test
@@ -3612,14 +3623,14 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(downA, motionEvent = motionEvent1)
         )
-        mockViewGroup.requestDisallowInterceptTouchEvent(true)
+        disallowInterceptRequester.invoke(true)
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(upA, motionEvent = motionEvent2)
         )
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(downB, motionEvent = motionEvent3)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(moveB, motionEvent = motionEvent4),
@@ -3629,14 +3640,14 @@ class PointerInteropFilterTest {
             PointerEventPass.PostUp
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(moveB, motionEvent = motionEvent4),
             PointerEventPass.PostDown
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
+        assertThat(dispatchedMotionEvents).hasSize(1)
     }
 
     @Test
@@ -3664,9 +3675,9 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(down, motionEvent = motionEvent1)
         )
-        mockViewGroup.requestDisallowInterceptTouchEvent(true)
-        mockViewGroup.requestDisallowInterceptTouchEvent(false)
-        mockViewGroup.dispatchedMotionEvents.clear()
+        disallowInterceptRequester.invoke(true)
+        disallowInterceptRequester.invoke(false)
+        dispatchedMotionEvents.clear()
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(move, motionEvent = motionEvent2),
@@ -3676,14 +3687,14 @@ class PointerInteropFilterTest {
             PointerEventPass.PostUp
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(move, motionEvent = motionEvent2),
             PointerEventPass.PostDown
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
+        assertThat(dispatchedMotionEvents).hasSize(1)
     }
 
     @Test
@@ -3717,7 +3728,7 @@ class PointerInteropFilterTest {
             PointerEventPass.InitialDown
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(2)
+        assertThat(dispatchedMotionEvents).hasSize(2)
     }
 
     @Test
@@ -3767,7 +3778,7 @@ class PointerInteropFilterTest {
 
         // Assert
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(2)
+        assertThat(dispatchedMotionEvents).hasSize(2)
     }
 
     @Test
@@ -3826,7 +3837,7 @@ class PointerInteropFilterTest {
 
         // Assert
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(3)
+        assertThat(dispatchedMotionEvents).hasSize(3)
     }
 
     @Test
@@ -3863,14 +3874,14 @@ class PointerInteropFilterTest {
             PointerEventPass.PostUp
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
+        assertThat(dispatchedMotionEvents).hasSize(1)
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(moveConsumed, motionEvent = motionEvent2),
             PointerEventPass.PostDown
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(2)
+        assertThat(dispatchedMotionEvents).hasSize(2)
     }
 
     @Test
@@ -3932,7 +3943,7 @@ class PointerInteropFilterTest {
 
         // Assert 1
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(2)
+        assertThat(dispatchedMotionEvents).hasSize(2)
 
         // Act 2
 
@@ -3943,7 +3954,7 @@ class PointerInteropFilterTest {
 
         // Assert 2
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(3)
+        assertThat(dispatchedMotionEvents).hasSize(3)
     }
 
     @Test
@@ -4175,8 +4186,8 @@ class PointerInteropFilterTest {
 
         pointerInteropFilter.pointerInputFilter.onCancel()
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(2)
-        val cancelEvent = mockViewGroup.dispatchedMotionEvents[1]
+        assertThat(dispatchedMotionEvents).hasSize(2)
+        val cancelEvent = dispatchedMotionEvents[1]
 
         assertThat(cancelEvent.actionMasked).isEqualTo(ACTION_CANCEL)
         assertThat(cancelEvent.actionIndex).isEqualTo(0)
@@ -4196,7 +4207,7 @@ class PointerInteropFilterTest {
     @Test
     fun onCancel_noPointers_cancelNotDispatched() {
         pointerInteropFilter.pointerInputFilter.onCancel()
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
     }
 
     @Test
@@ -4216,10 +4227,10 @@ class PointerInteropFilterTest {
             pointerEventOf(downConsumed, motionEvent = motionEvent1)
         )
 
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter.onCancel()
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
     }
 
     @Test
@@ -4234,15 +4245,15 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        mockViewGroup.returnValue = false
+        retVal = false
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(down, motionEvent = motionEvent1)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter.onCancel()
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
     }
 
     @Test
@@ -4274,10 +4285,10 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(up, motionEvent = motionEvent2)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter.onCancel()
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+        assertThat(dispatchedMotionEvents).hasSize(0)
     }
 
     @Test
@@ -4296,10 +4307,10 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(down, motionEvent = motionEvent1)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter.onCancel()
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
+        assertThat(dispatchedMotionEvents).hasSize(1)
     }
 
     @Test
@@ -4318,11 +4329,11 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(down, motionEvent = motionEvent1)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter.onCancel()
         pointerInteropFilter.pointerInputFilter.onCancel()
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
+        assertThat(dispatchedMotionEvents).hasSize(1)
     }
 
     @Test
@@ -4351,40 +4362,21 @@ class PointerInteropFilterTest {
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(down1, motionEvent = motionEvent1)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter.onCancel()
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
-        mockViewGroup.dispatchedMotionEvents.clear()
+        assertThat(dispatchedMotionEvents).hasSize(1)
+        dispatchedMotionEvents.clear()
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
             pointerEventOf(down2, motionEvent = motionEvent2)
         )
-        mockViewGroup.dispatchedMotionEvents.clear()
+        dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter.onCancel()
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
-    }
-}
-
-internal class MockViewGroup(context: Context) : AndroidViewHolder<View>(context) {
-    var dispatchedMotionEvents = mutableListOf<MotionEvent>()
-    var returnValue = true
-
-    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        dispatchedMotionEvents.add(ev!!)
-        return returnValue
+        assertThat(dispatchedMotionEvents).hasSize(1)
     }
 }
 
 // Private helper functions
-
-private fun PointerProperties(id: Int) =
-    MotionEvent.PointerProperties().apply { this.id = id }
-
-private fun PointerCoords(x: Float, y: Float) =
-    MotionEvent.PointerCoords().apply {
-        this.x = x
-        this.y = y
-    }
 
 private fun MotionEvent(
     eventTime: Int,
