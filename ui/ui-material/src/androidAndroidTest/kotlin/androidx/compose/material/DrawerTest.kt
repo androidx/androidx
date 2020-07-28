@@ -419,12 +419,15 @@ class DrawerTest {
                     })
             }
         }
+        val isLandscape = rootWidth() > rootHeight()
 
         onNodeWithTag("Drawer")
             .performGesture { swipeUp() }
 
         runOnIdle {
-            assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Expanded)
+            assertThat(drawerState.value).isEqualTo(
+                if (isLandscape) BottomDrawerValue.Open else BottomDrawerValue.Expanded
+            )
         }
 
         onNodeWithTag("Drawer")
@@ -452,6 +455,7 @@ class DrawerTest {
             }
         }
         val threshold = with (composeTestRule.density) { BottomDrawerThreshold.toPx() }
+        val isLandscape = rootWidth() > rootHeight()
 
         onNodeWithTag("Drawer")
             .performGesture { swipeUpBy(threshold / 2) }
@@ -467,32 +471,34 @@ class DrawerTest {
             assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Open)
         }
 
-        onNodeWithTag("Drawer")
-            .performGesture { swipeUpBy(threshold / 2) }
+        if (!isLandscape) {
+            onNodeWithTag("Drawer")
+                .performGesture { swipeUpBy(threshold / 2) }
 
-        runOnIdle {
-            assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Open)
-        }
+            runOnIdle {
+                assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Open)
+            }
 
-        onNodeWithTag("Drawer")
-            .performGesture { swipeUpBy(threshold) }
+            onNodeWithTag("Drawer")
+                .performGesture { swipeUpBy(threshold) }
 
-        runOnIdle {
-            assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Expanded)
-        }
+            runOnIdle {
+                assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Expanded)
+            }
 
-        onNodeWithTag("Drawer")
-            .performGesture { swipeDownBy(threshold / 2) }
+            onNodeWithTag("Drawer")
+                .performGesture { swipeDownBy(threshold / 2) }
 
-        runOnIdle {
-            assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Expanded)
-        }
+            runOnIdle {
+                assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Expanded)
+            }
 
-        onNodeWithTag("Drawer")
-            .performGesture { swipeDownBy(threshold) }
+            onNodeWithTag("Drawer")
+                .performGesture { swipeDownBy(threshold) }
 
-        runOnIdle {
-            assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Open)
+            runOnIdle {
+                assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Open)
+            }
         }
 
         onNodeWithTag("Drawer")
