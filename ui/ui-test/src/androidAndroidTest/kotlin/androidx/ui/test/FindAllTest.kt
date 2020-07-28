@@ -16,12 +16,13 @@
 
 package androidx.ui.test
 
-import androidx.compose.runtime.state
-import androidx.test.filters.MediumTest
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Checkbox
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.test.filters.MediumTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,8 +59,8 @@ class FindAllTest {
     @Test
     fun findAllTest_twoComponents_toggleBoth() {
         composeTestRule.setContent {
-            val (checked1, onCheckedChange1) = state { false }
-            val (checked2, onCheckedChange2) = state { false }
+            val (checked1, onCheckedChange1) = remember { mutableStateOf(false) }
+            val (checked2, onCheckedChange2) = remember { mutableStateOf(false) }
             MaterialTheme {
                 Surface {
                     Column {
@@ -110,8 +111,8 @@ class FindAllTest {
         composeTestRule.setContent {
             MaterialTheme {
                 Surface {
-                    val (checked1, onCheckedChange1) = state { false }
-                    val (checked2, onCheckedChange2) = state { false }
+                    val (checked1, onCheckedChange1) = remember { mutableStateOf(false) }
+                    val (checked2, onCheckedChange2) = remember { mutableStateOf(false) }
 
                     Column {
                         Checkbox(
@@ -141,7 +142,7 @@ class FindAllTest {
         composeTestRule.setContent {
             MaterialTheme {
                 Surface {
-                    val (checked, onCheckedChange) = state { false }
+                    val (checked, onCheckedChange) = remember { mutableStateOf(false) }
 
                     Column {
                         Checkbox(
@@ -188,7 +189,7 @@ class FindAllTest {
         composeTestRule.setContent {
             MaterialTheme {
                 Surface {
-                    val (checked, onCheckedChange) = state { false }
+                    val (checked, onCheckedChange) = remember { mutableStateOf(false) }
 
                     Column {
                         Checkbox(

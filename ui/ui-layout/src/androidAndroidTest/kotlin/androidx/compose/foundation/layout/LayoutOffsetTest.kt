@@ -17,22 +17,23 @@
 package androidx.compose.foundation.layout
 
 import android.os.Build
-import androidx.compose.runtime.state
-import androidx.test.filters.SmallTest
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.onPositioned
 import androidx.compose.foundation.Box
 import androidx.compose.runtime.Providers
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.LayoutDirectionAmbient
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.test.filters.SmallTest
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdle
-import androidx.compose.ui.unit.dp
 import org.junit.Assert
 import org.junit.Assume
 import org.junit.Before
@@ -186,7 +187,10 @@ class LayoutOffsetTest : LayoutTest() {
             Stack(
                 Modifier.testTag("stack")
                     .wrapContentSize(Alignment.TopStart)
-                    .offsetPx(state { offsetX }, state { offsetY })
+                    .offsetPx(
+                        remember { mutableStateOf(offsetX) },
+                        remember { mutableStateOf(offsetY) }
+                    )
                     .onPositioned { coordinates: LayoutCoordinates ->
                         positionX = coordinates.positionInRoot.x
                         positionY = coordinates.positionInRoot.y
@@ -217,7 +221,10 @@ class LayoutOffsetTest : LayoutTest() {
                         .wrapContentSize(Alignment.TopEnd)
                         .preferredWidth(containerWidth)
                         .wrapContentSize(Alignment.TopStart)
-                        .offsetPx(state { offsetX }, state { offsetY })
+                        .offsetPx(
+                            remember { mutableStateOf(offsetX) },
+                            remember { mutableStateOf(offsetY) }
+                        )
                         .onPositioned { coordinates: LayoutCoordinates ->
                             positionX = coordinates.positionInRoot.x
                             positionY = coordinates.positionInRoot.y
@@ -249,7 +256,10 @@ class LayoutOffsetTest : LayoutTest() {
             Stack(
                 Modifier.testTag("stack")
                     .wrapContentSize(Alignment.TopStart)
-                    .absoluteOffsetPx(state { offsetX }, state { offsetY })
+                    .absoluteOffsetPx(
+                        remember { mutableStateOf(offsetX) },
+                        remember { mutableStateOf(offsetY) }
+                    )
                     .onPositioned { coordinates: LayoutCoordinates ->
                         positionX = coordinates.positionInRoot.x
                         positionY = coordinates.positionInRoot.y
@@ -280,7 +290,10 @@ class LayoutOffsetTest : LayoutTest() {
                         .wrapContentSize(Alignment.TopEnd)
                         .preferredWidth(containerWidth)
                         .wrapContentSize(Alignment.TopStart)
-                        .absoluteOffsetPx(state { offsetX }, state { offsetY })
+                        .absoluteOffsetPx(
+                            remember { mutableStateOf(offsetX) },
+                            remember { mutableStateOf(offsetY) }
+                        )
                         .onPositioned { coordinates: LayoutCoordinates ->
                             positionX = coordinates.positionInRoot.x
                             positionY = coordinates.positionInRoot.y

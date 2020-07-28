@@ -16,28 +16,27 @@
 
 package androidx.compose.animation.demos
 
+import androidx.compose.animation.ColorPropKey
+import androidx.compose.animation.RectPropKey
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.state
-import androidx.compose.runtime.structuralEqualityPolicy
-import androidx.compose.animation.ColorPropKey
-import androidx.compose.animation.RectPropKey
 import androidx.compose.animation.transition
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.fillMaxSize
 
 @Composable
 fun MultiDimensionalAnimationDemo() {
-    val currentState = state { AnimState.Collapsed }
+    val currentState = remember { mutableStateOf(AnimState.Collapsed) }
     val onClick = {
         // Cycle through states when clicked.
         currentState.value = when (currentState.value) {
@@ -47,8 +46,8 @@ fun MultiDimensionalAnimationDemo() {
         }
     }
 
-    val width = state(policy = structuralEqualityPolicy()) { 0f }
-    val height = state(policy = structuralEqualityPolicy()) { 0f }
+    val width = remember { mutableStateOf(0f) }
+    val height = remember { mutableStateOf(0f) }
     val state = transition(
         definition = remember(width.value, height.value) {
             createTransDef(width.value, height.value)

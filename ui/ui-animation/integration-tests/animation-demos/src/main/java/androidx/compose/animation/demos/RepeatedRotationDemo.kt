@@ -21,28 +21,29 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.repeatable
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
 import androidx.compose.animation.transition
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Text
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
 fun RepeatedRotationDemo() {
-    val state = state { RotationStates.Original }
+    val state = remember { mutableStateOf(RotationStates.Original) }
     Column(
         Modifier.fillMaxSize()
             .wrapContentSize(Alignment.Center),

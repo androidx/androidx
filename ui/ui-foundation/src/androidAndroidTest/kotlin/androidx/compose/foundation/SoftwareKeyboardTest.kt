@@ -16,20 +16,21 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Providers
-import androidx.compose.runtime.state
-import androidx.test.filters.SmallTest
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.TextInputServiceAmbient
+import androidx.compose.ui.text.SoftwareKeyboardController
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputService
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.platform.TextInputServiceAmbient
+import androidx.test.filters.SmallTest
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.onNode
 import androidx.ui.test.performClick
 import androidx.ui.test.runOnIdle
-import androidx.compose.ui.text.SoftwareKeyboardController
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -60,7 +61,7 @@ class SoftwareKeyboardTest {
             Providers(
                 TextInputServiceAmbient provides textInputService
             ) {
-                val state = state { TextFieldValue("") }
+                val state = remember { mutableStateOf(TextFieldValue("")) }
                 BaseTextField(
                     value = state.value,
                     modifier = Modifier.fillMaxSize(),

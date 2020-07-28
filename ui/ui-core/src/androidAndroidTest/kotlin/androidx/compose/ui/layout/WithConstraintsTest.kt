@@ -20,6 +20,8 @@ package androidx.compose.ui.layout
 
 import android.graphics.Bitmap
 import android.os.Build
+import androidx.compose.foundation.layout.Constraints
+import androidx.compose.foundation.layout.DpConstraints
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.emptyContent
@@ -28,40 +30,37 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.test.filters.SdkSuppress
-import androidx.test.filters.SmallTest
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.Layout
 import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.Measurable
 import androidx.compose.ui.MeasureBlock
 import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.WithConstraints
-import androidx.compose.ui.drawBehind
-import androidx.compose.ui.onPositioned
-import androidx.compose.ui.test.TestActivity
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.VectorPainter
-import androidx.compose.foundation.layout.Constraints
-import androidx.compose.foundation.layout.DpConstraints
 import androidx.compose.ui.Padding
 import androidx.compose.ui.Scroller
 import androidx.compose.ui.SquareModel
+import androidx.compose.ui.WithConstraints
 import androidx.compose.ui.assertRect
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.onPositioned
+import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.runOnUiThreadIR
+import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.waitAndScreenShot
-import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
-import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.platform.setContent
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -421,7 +420,7 @@ class WithConstraintsTest {
                         // this replicates the popular pattern we currently use
                         // where we save some data calculated in the measuring block
                         // and then use it in the next composition frame
-                        var model by state { false }
+                        var model by remember { mutableStateOf(false) }
                         Layout({
                             if (model) {
                                 latch.countDown()
@@ -498,7 +497,7 @@ class WithConstraintsTest {
         val drawlatch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContent {
-                val state = state { false }
+                val state = remember { mutableStateOf(false) }
                 var lastLayoutValue: Boolean = false
                 val drawModifier = Modifier.drawBehind {
                     // this verifies the layout was remeasured before being drawn
@@ -580,7 +579,7 @@ class WithConstraintsTest {
     fun triggerRootRemeasureWhileRootIsLayouting() {
         rule.runOnUiThread {
             activity.setContent {
-                val state = state { 0 }
+                val state = remember { mutableStateOf(0) }
                 ContainerChildrenAffectsParentSize(100, 100) {
                     WithConstraints {
                         Layout(

@@ -16,19 +16,20 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Border
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Text
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.longPressGestureFilter
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.dp
 
 /**
@@ -62,8 +63,8 @@ private fun LongPressableContainer(
     val defaultColor = DefaultBackgroundColor
     val pressedColor = PressedColor
 
-    val currentColor = state { defaultColor }
-    val pressed = state { false }
+    val currentColor = remember { mutableStateOf(defaultColor) }
+    val pressed = remember { mutableStateOf(false) }
 
     val onLongPress: (Offset) -> Unit = {
         currentColor.value = currentColor.value.next()

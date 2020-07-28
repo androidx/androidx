@@ -20,26 +20,27 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Recomposer
 import androidx.compose.foundation.Box
-import androidx.compose.runtime.state
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.setContent
-import androidx.ui.demos.common.ComposableDemo
-import androidx.ui.demos.common.DemoCategory
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Button
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ContextAmbient
+import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.ui.demos.common.ComposableDemo
+import androidx.ui.demos.common.DemoCategory
 
 // TODO(b/158099918): Add this demo to AndroidViewDemos.kt once b/158099918 has been resolved.
 @Suppress("unused")
@@ -105,7 +106,7 @@ fun ComposeInAndroidInComposeEtcTargetingDemo() {
 
 @Composable
 fun colorButton() {
-    val state = state { false }
+    val state = remember { mutableStateOf(false) }
     val color =
         if (state.value) {
             Color.Red

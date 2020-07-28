@@ -16,17 +16,18 @@
 
 package androidx.compose.material
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.state
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Strings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.runtime.Providers
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LayoutDirectionAmbient
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.test.filters.MediumTest
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsEnabled
@@ -35,13 +36,12 @@ import androidx.ui.test.assertIsOn
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.performClick
 import androidx.ui.test.performGesture
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.swipeLeft
 import androidx.ui.test.swipeRight
-import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -83,7 +83,7 @@ class SwitchTest {
     @Test
     fun switch_toggle() {
         composeTestRule.setMaterialContent {
-            val (checked, onChecked) = state { false }
+            val (checked, onChecked) = remember { mutableStateOf(false) }
 
             // Stack is needed because otherwise the control will be expanded to fill its parent
             Stack {
@@ -103,7 +103,7 @@ class SwitchTest {
     @Test
     fun switch_toggleTwice() {
         composeTestRule.setMaterialContent {
-            val (checked, onChecked) = state { false }
+            val (checked, onChecked) = remember { mutableStateOf(false) }
 
             // Stack is needed because otherwise the control will be expanded to fill its parent
             Stack {
@@ -125,7 +125,7 @@ class SwitchTest {
     @Test
     fun switch_uncheckableWithNoLambda() {
         composeTestRule.setMaterialContent {
-            val (checked, _) = state { false }
+            val (checked, _) = remember { mutableStateOf(false) }
             Switch(
                 modifier = Modifier.testTag(defaultSwitchTag),
                 checked = checked,

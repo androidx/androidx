@@ -24,14 +24,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
 import androidx.compose.runtime.staticAmbientOf
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.graphics.Color
 import androidx.test.filters.MediumTest
-import androidx.ui.test.assertNoPendingChanges
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ExperimentalTesting
+import androidx.ui.test.assertNoPendingChanges
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doFramesUntilNoChangesPending
 import org.junit.Assert
@@ -109,7 +108,7 @@ private sealed class ThemeTestCase : ComposeTestCase, ToggleableTestCase {
 
     @Composable
     override fun emitContent() {
-        val primary = state { Color.Red }
+        val primary = remember { mutableStateOf(Color.Red) }
         primaryState = primary
 
         val palette = createTheme(primary.value)

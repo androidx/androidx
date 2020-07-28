@@ -16,18 +16,19 @@
 
 package androidx.compose.foundation.text.demos
 
-import androidx.compose.runtime.Composable
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.compose.runtime.state
+import androidx.compose.ui.text.SoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.SoftwareKeyboardController
-import androidx.compose.ui.text.TextStyle
 
 private val KEYBOARD_TYPES = listOf(
     Pair(KeyboardType.Text, "Text"),
@@ -82,7 +83,7 @@ private fun EditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified
 ) {
-    val controller = state<SoftwareKeyboardController?> { null }
+    val controller = remember { mutableStateOf<SoftwareKeyboardController?>(null) }
     val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     BaseTextField(
         value = state.value,

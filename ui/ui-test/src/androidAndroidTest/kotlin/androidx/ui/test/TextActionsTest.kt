@@ -16,15 +16,16 @@
 
 package androidx.ui.test
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.test.filters.MediumTest
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.expectErrorMessageStartsWith
@@ -50,7 +51,7 @@ class TextActionsTest {
         onImeActionPerformed: (ImeAction) -> Unit = {},
         textCallback: (String) -> Unit = {}
     ) {
-        val state = state { TextFieldValue("") }
+        val state = remember { mutableStateOf(TextFieldValue("")) }
         BaseTextField(
             modifier = Modifier.testTag(fieldTag),
             value = state.value,

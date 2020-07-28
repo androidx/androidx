@@ -16,17 +16,18 @@
 
 package androidx.compose.foundation.text.demos
 
-import androidx.compose.runtime.Composable
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.compose.runtime.state
 import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 
 @Composable
@@ -55,7 +56,7 @@ private fun TextFieldWithFocusId(focusModifier: FocusModifier, nextFocusModifier
     val state = savedInstanceState(saver = TextFieldValue.Saver) {
         TextFieldValue("Focus Transition Test")
     }
-    val focused = state { false }
+    val focused = remember { mutableStateOf(false) }
     val color = if (focused.value) {
         Color.Red
     } else {

@@ -18,12 +18,13 @@ package androidx.compose.foundation.samples
 
 import android.util.Log
 import androidx.annotation.Sampled
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.longPressGestureFilter
 import androidx.compose.foundation.ClickableText
 import androidx.compose.foundation.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.longPressGestureFilter
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -52,7 +53,7 @@ fun LongClickableText(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     onLongClick: (offset: Int) -> Unit
 ) {
-    val layoutResult = state<TextLayoutResult?> { null }
+    val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
     val gesture = Modifier.longPressGestureFilter(
         onLongPress = { pos ->
             layoutResult.value?.let { layout ->

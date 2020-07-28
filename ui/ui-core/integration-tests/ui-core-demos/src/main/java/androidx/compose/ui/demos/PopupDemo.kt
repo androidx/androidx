@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.demos
 
-import androidx.compose.runtime.Composable
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
@@ -36,21 +35,23 @@ import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.runtime.state
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.window.Popup
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 
 @Composable
 fun PopupDemo() {
-    val exampleIndex = state { 0 }
+    val exampleIndex = remember { mutableStateOf(0) }
     val totalExamples = 8
 
     Column {
@@ -127,7 +128,7 @@ fun PopupDemo() {
 
 @Composable
 private fun ColumnScope.PopupToggle() {
-    val showPopup = state { true }
+    val showPopup = remember { mutableStateOf(true) }
 
     Column(Modifier.gravity(Alignment.CenterHorizontally)) {
         Box(Modifier.preferredSize(100.dp)) {
@@ -163,9 +164,9 @@ private fun ColumnScope.PopupWithChangingContent() {
     Column(Modifier.gravity(Alignment.CenterHorizontally)) {
         val heightSize = 120.dp
         val widthSize = 160.dp
-        val popupContentState = state { 0 }
+        val popupContentState = remember { mutableStateOf(0) }
         val totalContentExamples = 2
-        val popupCounter = state { 0 }
+        val popupCounter = remember { mutableStateOf(0) }
 
         Box(Modifier.preferredSize(widthSize, heightSize), backgroundColor = Color.Gray) {
             Popup(Alignment.Center) {
@@ -201,10 +202,10 @@ private fun ColumnScope.PopupWithChangingContent() {
 private fun ColumnScope.PopupWithChangingParent() {
     val containerWidth = 400.dp
     val containerHeight = 200.dp
-    val parentGravity = state { ContentGravity.TopStart }
-    val parentWidth = state { 80.dp }
-    val parentHeight = state { 60.dp }
-    val parentSizeChanged = state { false }
+    val parentGravity = remember { mutableStateOf(ContentGravity.TopStart) }
+    val parentWidth = remember { mutableStateOf(80.dp) }
+    val parentHeight = remember { mutableStateOf(60.dp) }
+    val parentSizeChanged = remember { mutableStateOf(false) }
 
     Column(Modifier.gravity(Alignment.CenterHorizontally)) {
         Box(
@@ -255,8 +256,8 @@ private fun ColumnScope.PopupAlignmentDemo() {
     Column(Modifier.gravity(Alignment.CenterHorizontally)) {
         val heightSize = 200.dp
         val widthSize = 400.dp
-        val counter = state { 0 }
-        val popupAlignment = state { Alignment.TopStart }
+        val counter = remember { mutableStateOf(0) }
+        val popupAlignment = remember { mutableStateOf(Alignment.TopStart) }
         Box(
             modifier = Modifier.preferredSize(widthSize, heightSize),
             backgroundColor = Color.Red,
@@ -299,11 +300,11 @@ private fun ColumnScope.PopupWithEditText() {
         val widthSize = 190.dp
         val heightSize = 120.dp
         val editLineSize = 150.dp
-        val showEmail = state {
-            "Enter your email in the white rectangle and click outside"
+        val showEmail = remember {
+            mutableStateOf("Enter your email in the white rectangle and click outside")
         }
-        val email = state { "email" }
-        val showPopup = state { true }
+        val email = remember { mutableStateOf("email") }
+        val showPopup = remember { mutableStateOf(true) }
 
         Text(text = showEmail.value)
 
@@ -338,10 +339,10 @@ private fun ColumnScope.PopupWithEditText() {
 @Composable
 private fun ColumnScope.PopupWithChangingSize() {
     Column(Modifier.gravity(Alignment.CenterHorizontally)) {
-        val showPopup = state { true }
+        val showPopup = remember { mutableStateOf(true) }
         val heightSize = 120.dp
         val widthSize = 160.dp
-        val rectangleState = state { 0 }
+        val rectangleState = remember { mutableStateOf(0) }
 
         Spacer(Modifier.preferredHeight(15.dp))
         Box(
@@ -447,7 +448,7 @@ private fun EditLine(
     initialText: String = "",
     color: Color = Color.White
 ) {
-    val state = state { TextFieldValue(initialText) }
+    val state = remember { mutableStateOf(TextFieldValue(initialText)) }
     BaseTextField(
         value = state.value,
         modifier = modifier.background(color = color),

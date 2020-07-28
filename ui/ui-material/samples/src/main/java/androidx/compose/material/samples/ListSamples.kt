@@ -17,21 +17,22 @@
 package androidx.compose.material.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.contentColor
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ImageAsset
-import androidx.compose.ui.graphics.vector.VectorAsset
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Divider
 import androidx.compose.material.ListItem
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ImageAsset
+import androidx.compose.ui.graphics.vector.VectorAsset
 
 @Sampled
 @Composable
@@ -113,7 +114,7 @@ fun TwoLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset) {
             icon = { Image(icon40x40, colorFilter = ColorFilter.tint(contentColor())) }
         )
         Divider()
-        var checked by state { false }
+        var checked by remember { mutableStateOf(false) }
         ListItem(
             text = { Text("Two line list item") },
             secondaryText = { Text("Secondary text") },
@@ -236,7 +237,7 @@ fun TwoLineRtlLtrListItems(icon40x40: ImageAsset) {
             secondaryText = { Text("Secondary text") },
             icon = { Image(icon40x40, colorFilter = ColorFilter.tint(contentColor())) },
             trailing = {
-                var checked by state { false }
+                var checked by remember { mutableStateOf(false) }
                 Checkbox(checked, onCheckedChange = { checked = !checked })
             },
             onClick = {}

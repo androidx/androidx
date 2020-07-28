@@ -16,22 +16,27 @@
 
 package androidx.compose.foundation.text.demos
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.emptyContent
 import androidx.compose.foundation.BaseTextField
-import androidx.compose.runtime.state
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.Layout
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.id
-import androidx.compose.ui.layout.layoutId
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.id
+import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMap
@@ -40,12 +45,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.intl.LocaleList
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.toUpperCase
+import androidx.compose.ui.unit.Constraints
 import kotlin.math.roundToInt
 
 /**
@@ -322,7 +323,7 @@ private fun HintEditText(hintText: @Composable () -> Unit) {
 @OptIn(ExperimentalFoundationApi::class)
 private fun CustomCursorTextField(cursor: @Composable () -> Unit) {
     val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    val layoutResult = state<TextLayoutResult?> { null }
+    val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
     Layout({
         BaseTextField(
             modifier = Modifier.layoutId("inputField"),

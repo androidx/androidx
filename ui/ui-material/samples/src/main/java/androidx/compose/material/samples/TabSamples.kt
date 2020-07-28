@@ -16,20 +16,12 @@
 
 package androidx.compose.material.samples
 
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.transitionDefinition
 import androidx.annotation.Sampled
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.emptyContent
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.DpPropKey
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.transition
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Border
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
@@ -37,8 +29,6 @@ import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.drawBorder
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Stack
@@ -49,17 +39,27 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable
 fun TextTabs() {
-    var state by state { 0 }
+    var state by remember { mutableStateOf(0) }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3 WITH LOTS OF TEXT")
     Column {
         TabRow(items = titles, selectedIndex = state) { index, text ->
@@ -75,7 +75,7 @@ fun TextTabs() {
 
 @Composable
 fun IconTabs() {
-    var state by state { 0 }
+    var state by remember { mutableStateOf(0) }
     val icons = listOf(Icons.Filled.Favorite, Icons.Filled.Favorite, Icons.Filled.Favorite)
     Column {
         TabRow(items = icons, selectedIndex = state) { index, icon ->
@@ -91,7 +91,7 @@ fun IconTabs() {
 
 @Composable
 fun TextAndIconTabs() {
-    var state by state { 0 }
+    var state by remember { mutableStateOf(0) }
     val titlesAndIcons = listOf(
         "TAB 1" to Icons.Filled.Favorite,
         "TAB 2" to Icons.Filled.Favorite,
@@ -116,7 +116,7 @@ fun TextAndIconTabs() {
 
 @Composable
 fun ScrollingTextTabs() {
-    var state by state { 0 }
+    var state by remember { mutableStateOf(0) }
     val titles = listOf(
         "TAB 1",
         "TAB 2",
@@ -144,7 +144,7 @@ fun ScrollingTextTabs() {
 @Sampled
 @Composable
 fun FancyTabs() {
-    var state by state { 0 }
+    var state by remember { mutableStateOf(0) }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
     Column {
         TabRow(items = titles, selectedIndex = state) { index, title ->
@@ -161,7 +161,7 @@ fun FancyTabs() {
 @Sampled
 @Composable
 fun FancyIndicatorTabs() {
-    var state by state { 0 }
+    var state by remember { mutableStateOf(0) }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
 
     // Reuse the default transition, and provide our custom indicator as its child
@@ -190,7 +190,7 @@ fun FancyIndicatorTabs() {
 @Sampled
 @Composable
 fun FancyIndicatorContainerTabs() {
-    var state by state { 0 }
+    var state by remember { mutableStateOf(0) }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
 
     val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
@@ -215,7 +215,7 @@ fun FancyIndicatorContainerTabs() {
 
 @Composable
 fun ScrollingFancyIndicatorContainerTabs() {
-    var state by state { 0 }
+    var state by remember { mutableStateOf(0) }
     val titles = listOf(
         "TAB 1",
         "TAB 2",

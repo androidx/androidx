@@ -16,20 +16,21 @@
 
 package androidx.compose.animation.demos
 
+import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.core.FloatPropKey
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.transitionDefinition
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.transition
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.pressIndicatorGestureFilter
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.gesture.pressIndicatorGestureFilter
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.fillMaxSize
 
 private const val halfSize = 200f
 
@@ -59,7 +60,7 @@ private val definition = transitionDefinition<ComponentState> {
 
 @Composable
 fun GestureBasedAnimationDemo() {
-    val toState = state { ComponentState.Released }
+    val toState = remember { mutableStateOf(ComponentState.Released) }
     val pressIndicator =
         Modifier.pressIndicatorGestureFilter(
             onStart = { toState.value = ComponentState.Pressed },

@@ -16,33 +16,33 @@
 
 package androidx.compose.material.ripple
 
+import androidx.compose.animation.AnimatedFloatModel
+import androidx.compose.animation.asDisposableClock
 import androidx.compose.animation.core.AnimationClockObservable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.state
-import androidx.compose.runtime.structuralEqualityPolicy
-import androidx.compose.animation.AnimatedFloatModel
-import androidx.compose.animation.asDisposableClock
-import androidx.compose.ui.platform.AnimationClockAmbient
-import androidx.compose.ui.ContentDrawScope
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationInstance
 import androidx.compose.foundation.Interaction
 import androidx.compose.foundation.InteractionState
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.structuralEqualityPolicy
+import androidx.compose.ui.ContentDrawScope
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.useOrElse
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
+import androidx.compose.ui.platform.AnimationClockAmbient
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.nativeClass
@@ -80,7 +80,7 @@ fun RippleIndication(
     val theme = RippleThemeAmbient.current
     val clock = AnimationClockAmbient.current.asDisposableClock()
     val resolvedColor = color.useOrElse { theme.defaultColor() }
-    val colorState = state(structuralEqualityPolicy()) { resolvedColor }
+    val colorState = remember { mutableStateOf(resolvedColor, structuralEqualityPolicy()) }
     colorState.value = resolvedColor
     val interactionOpacity = theme.rippleOpacity()
     return remember(bounded, radius, theme, clock) {

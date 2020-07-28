@@ -17,32 +17,33 @@
 package androidx.compose.ui.input.pointer
 
 import android.os.Build
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.emptyContent
-import androidx.compose.runtime.state
-import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.TransformOrigin
 import androidx.compose.ui.drawBehind
 import androidx.compose.ui.drawLayer
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.pressIndicatorGestureFilter
-import androidx.compose.ui.platform.testTag
-import androidx.compose.foundation.Box
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performGesture
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.down
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.unit.dp
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.performGesture
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -65,7 +66,7 @@ class LayerTouchTransformTest {
         val testTag = "transformedComposable"
         var latch: CountDownLatch? = null
         rule.setContent {
-            val pressed = state { false }
+            val pressed = remember { mutableStateOf(false) }
             val onStart: (Offset) -> Unit = {
                 pressed.value = true
             }

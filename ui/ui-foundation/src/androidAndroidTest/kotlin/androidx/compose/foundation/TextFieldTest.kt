@@ -20,29 +20,30 @@
 package androidx.compose.foundation
 
 import android.os.Build
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.Providers
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Providers
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.compose.runtime.state
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.FocusModifier
-import androidx.compose.ui.text.AnnotatedString
-import androidx.test.filters.SdkSuppress
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focusState
-import androidx.compose.ui.onPositioned
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.TextInputServiceAmbient
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.CommitTextEditOp
@@ -52,8 +53,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextFieldValue.Companion.Saver
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.length
-import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.unit.dp
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import androidx.ui.test.SemanticsMatcher
 import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.assert
@@ -62,16 +64,15 @@ import androidx.ui.test.assertShape
 import androidx.ui.test.assertTextEquals
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performClick
-import androidx.ui.test.onNode
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasImeAction
 import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.isFocused
 import androidx.ui.test.isNotFocused
+import androidx.ui.test.onNode
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.performClick
 import androidx.ui.test.performSemanticsAction
 import androidx.ui.test.runOnIdle
-import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -103,7 +104,7 @@ class TextFieldTest {
 
         lateinit var focusModifier: FocusModifier
         composeTestRule.setContent {
-            val state = state { TextFieldValue("") }
+            val state = remember { mutableStateOf(TextFieldValue("")) }
             Providers(
                 TextInputServiceAmbient provides inputService
             ) {
@@ -126,7 +127,7 @@ class TextFieldTest {
 
     @Composable
     private fun TextFieldApp() {
-        val state = state { TextFieldValue("") }
+        val state = remember { mutableStateOf(TextFieldValue("")) }
         BaseTextField(
             value = state.value,
             modifier = Modifier.fillMaxSize(),
@@ -196,7 +197,7 @@ class TextFieldTest {
 
     @Composable
     private fun OnlyDigitsApp() {
-        val state = state { TextFieldValue("") }
+        val state = remember { mutableStateOf(TextFieldValue("")) }
         BaseTextField(
             value = state.value,
             modifier = Modifier.fillMaxSize(),
@@ -280,7 +281,7 @@ class TextFieldTest {
             Providers(
                 TextInputServiceAmbient provides textInputService
             ) {
-                val state = state { TextFieldValue("") }
+                val state = remember { mutableStateOf(TextFieldValue("")) }
                 BaseTextField(
                     value = state.value,
                     modifier = Modifier.fillMaxSize(),
@@ -483,7 +484,7 @@ class TextFieldTest {
     @Test
     fun semantics_clickAction() {
         composeTestRule.setContent {
-            var value by state { TextFieldValue() }
+            var value by remember { mutableStateOf(TextFieldValue()) }
             BaseTextField(
                 modifier = Modifier.testTag("textField"),
                 value = value,
@@ -501,7 +502,7 @@ class TextFieldTest {
     @Test
     fun semantics_setTextSetSelectionActions() {
         composeTestRule.setContent {
-            var value by state { TextFieldValue() }
+            var value by remember { mutableStateOf(TextFieldValue()) }
             BaseTextField(
                 modifier = Modifier.testTag("textField"),
                 value = value,

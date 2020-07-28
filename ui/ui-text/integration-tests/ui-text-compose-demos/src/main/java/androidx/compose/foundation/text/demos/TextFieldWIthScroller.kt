@@ -16,23 +16,26 @@
 
 package androidx.compose.foundation.text.demos
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.ScrollableColumn
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
 fun TextFieldWithScrollerDemo() {
     ScrollableColumn {
-        val state = state {
-            TextFieldValue(
-                text = List(100) { "Line: $it" }.joinToString("\n")
+        val state = remember {
+            mutableStateOf(
+                TextFieldValue(
+                    text = List(100) { "Line: $it" }.joinToString("\n")
+                )
             )
         }
         BaseTextField(

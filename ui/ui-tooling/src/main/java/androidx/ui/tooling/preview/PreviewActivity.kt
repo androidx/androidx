@@ -20,12 +20,13 @@ import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.currentComposer
-import androidx.compose.runtime.state
-import androidx.compose.ui.platform.setContent
 import androidx.compose.foundation.Text
 import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.Scaffold
+import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.setContent
 
 /**
  * Activity used to run `@Composable` previews from Android Studio.
@@ -98,7 +99,7 @@ class PreviewActivity : ComponentActivity() {
         // cycle through all the values.
         if (previewParameters.size > 1) {
             setContent {
-                val index = state { 0 }
+                val index = remember { mutableStateOf(0) }
 
                 Scaffold(bodyContent = {
                     invokeComposableViaReflection(

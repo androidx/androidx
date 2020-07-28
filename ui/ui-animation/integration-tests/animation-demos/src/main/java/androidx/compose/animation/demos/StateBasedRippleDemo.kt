@@ -24,18 +24,18 @@ import androidx.compose.animation.core.TransitionState
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.state
 import androidx.compose.animation.transition
-import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.pressIndicatorGestureFilter
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.gesture.pressIndicatorGestureFilter
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -48,7 +48,7 @@ fun StateBasedRippleDemo() {
 @Composable
 private fun RippleRect() {
     val radius = with(DensityAmbient.current) { TargetRadius.toPx() }
-    val toState = state { ButtonStatus.Initial }
+    val toState = remember { mutableStateOf(ButtonStatus.Initial) }
     val rippleTransDef = remember { createTransDef(radius) }
     val onPress: (Offset) -> Unit = { position ->
         down.x = position.x

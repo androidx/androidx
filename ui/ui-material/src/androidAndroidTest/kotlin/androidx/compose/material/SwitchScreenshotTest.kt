@@ -17,29 +17,30 @@
 package androidx.compose.material
 
 import android.os.Build
-import androidx.compose.runtime.state
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LayoutDirectionAmbient
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
-import androidx.compose.foundation.Box
-import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.runtime.Providers
-import androidx.compose.ui.platform.LayoutDirectionAmbient
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performClick
-import androidx.ui.test.performGesture
+import androidx.ui.test.down
+import androidx.ui.test.isToggleable
 import androidx.ui.test.onNode
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.isToggleable
-import androidx.ui.test.down
+import androidx.ui.test.performClick
+import androidx.ui.test.performGesture
 import androidx.ui.test.waitForIdle
 import org.junit.Rule
 import org.junit.Test
@@ -156,7 +157,7 @@ class SwitchScreenshotTest {
     @Test
     fun switchTest_unchecked_animateToChecked() {
         composeTestRule.setMaterialContent {
-            val isChecked = state { false }
+            val isChecked = remember { mutableStateOf(false) }
             Box(wrapperModifier) {
                 Switch(
                     checked = isChecked.value,
@@ -180,7 +181,7 @@ class SwitchScreenshotTest {
     @Test
     fun switchTest_checked_animateToUnchecked() {
         composeTestRule.setMaterialContent {
-            val isChecked = state { true }
+            val isChecked = remember { mutableStateOf(true) }
             Box(wrapperModifier) {
                 Switch(
                     checked = isChecked.value,

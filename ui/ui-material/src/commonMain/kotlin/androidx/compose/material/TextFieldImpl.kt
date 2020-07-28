@@ -19,59 +19,58 @@
 
 package androidx.compose.material
 
+import androidx.compose.animation.ColorPropKey
+import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.core.FloatPropKey
 import androidx.compose.animation.core.TransitionSpec
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.transition
+import androidx.compose.foundation.BaseTextField
+import androidx.compose.foundation.ContentColorAmbient
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ProvideTextStyle
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.rememberScrollableController
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.savedinstancestate.Saver
+import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.stateFor
 import androidx.compose.runtime.structuralEqualityPolicy
-import androidx.compose.animation.ColorPropKey
-import androidx.compose.animation.DpPropKey
-import androidx.compose.animation.transition
-import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.Layout
 import androidx.compose.ui.LayoutModifier
+import androidx.compose.ui.Measurable
 import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Placeable
-import androidx.compose.ui.node.Ref
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focusState
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
-import androidx.compose.ui.unit.offset
-import androidx.compose.foundation.ContentColorAmbient
-import androidx.compose.foundation.ProvideTextStyle
-import androidx.compose.foundation.BaseTextField
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.rememberScrollableController
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.node.Ref
+import androidx.compose.ui.text.SoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredSizeIn
-import androidx.compose.runtime.savedinstancestate.Saver
-import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
-import androidx.compose.ui.FocusModifier
-import androidx.compose.ui.Measurable
-import androidx.compose.ui.focus.FocusState
-import androidx.compose.ui.focusState
-import androidx.compose.ui.text.SoftwareKeyboardController
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.lerp
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.annotation.VisibleForTesting
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -112,12 +111,14 @@ internal fun TextFieldImpl(
     val focusModifier = FocusModifier()
     val keyboardController: Ref<SoftwareKeyboardController> = remember { Ref() }
 
-    val inputState = stateFor(value.text, focusModifier.focusState) {
-        when {
-            focusModifier.focusState == FocusState.Focused -> InputPhase.Focused
-            value.text.isEmpty() -> InputPhase.UnfocusedEmpty
-            else -> InputPhase.UnfocusedNotEmpty
-        }
+    val inputState = remember(value.text, focusModifier.focusState) {
+        mutableStateOf(
+            when {
+                focusModifier.focusState == FocusState.Focused -> InputPhase.Focused
+                value.text.isEmpty() -> InputPhase.UnfocusedEmpty
+                else -> InputPhase.UnfocusedNotEmpty
+            }
+        )
     }
 
     val decoratedPlaceholder: @Composable (() -> Unit)? =

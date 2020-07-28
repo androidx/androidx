@@ -16,23 +16,24 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.emptyContent
-import androidx.compose.runtime.state
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.ScrollCallback
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.gesture.ScrollCallback
 import androidx.compose.ui.gesture.scrollGestureFilter
+import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -66,8 +67,8 @@ fun ScrollableBox(
     children: @Composable () -> Unit = emptyContent()
 ) {
 
-    val color = state { idleColor }
-    val offsetPx = state { 0f }
+    val color = remember { mutableStateOf(idleColor) }
+    val offsetPx = remember { mutableStateOf(0f) }
 
     val offsetDp = with(DensityAmbient.current) {
         offsetPx.value.toDp()

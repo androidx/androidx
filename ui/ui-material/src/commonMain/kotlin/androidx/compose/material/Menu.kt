@@ -20,16 +20,7 @@ import androidx.compose.animation.core.FloatPropKey
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
 import androidx.compose.animation.transition
-import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.ProvideTextStyle
@@ -43,18 +34,27 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.material.ripple.RippleIndication
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.DrawLayerModifier
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.TransformOrigin
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntBounds
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Position
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
 import kotlin.math.max
 import kotlin.math.min
 
@@ -94,14 +94,14 @@ fun DropdownMenu(
     dropdownModifier: Modifier = Modifier,
     dropdownContent: @Composable ColumnScope.() -> Unit
 ) {
-    var visibleMenu by state { expanded }
+    var visibleMenu by remember { mutableStateOf(expanded) }
     if (expanded) visibleMenu = true
 
     Box(toggleModifier) {
         toggle()
 
         if (visibleMenu) {
-            var transformOrigin by state { TransformOrigin.Center }
+            var transformOrigin by remember { mutableStateOf(TransformOrigin.Center) }
             val density = DensityAmbient.current
             val popupPositionProvider = DropdownMenuPositionProvider(
                 dropdownOffset,

@@ -16,30 +16,31 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.Layout
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.ScrollCallback
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.foundation.Border
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.drawBorder
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.Direction
+import androidx.compose.ui.gesture.ScrollCallback
 import androidx.compose.ui.gesture.doubleTapGestureFilter
 import androidx.compose.ui.gesture.longPressGestureFilter
 import androidx.compose.ui.gesture.pressIndicatorGestureFilter
 import androidx.compose.ui.gesture.scrollGestureFilter
+import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
@@ -76,8 +77,8 @@ fun NestedScrollingDemo() {
  */
 @Composable
 private fun Scrollable(children: @Composable () -> Unit) {
-    val offset = state { 0f }
-    val maxOffset = state { 0f }
+    val offset = remember { mutableStateOf(0f) }
+    val maxOffset = remember { mutableStateOf(0f) }
 
     val scrollObserver = object : ScrollCallback {
         override fun onScroll(scrollDistance: Float): Float {
@@ -136,8 +137,8 @@ private fun Pressable(
     val pressedColor = PressedColor
     val defaultColor = DefaultBackgroundColor
 
-    val color = state { defaultColor }
-    val showPressed = state { false }
+    val color = remember { mutableStateOf(defaultColor) }
+    val showPressed = remember { mutableStateOf(false) }
 
     val onPress: (Offset) -> Unit = {
         showPressed.value = true

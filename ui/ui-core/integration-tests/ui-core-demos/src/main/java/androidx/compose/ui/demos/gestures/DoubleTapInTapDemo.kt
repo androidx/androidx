@@ -16,30 +16,31 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.drawBorder
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.doubleTapGestureFilter
 import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun DoubleTapInTapDemo() {
     val defaultColor = Grey
 
-    val innerColor = state { defaultColor }
-    val outerColor = state { defaultColor }
+    val innerColor = remember { mutableStateOf(defaultColor) }
+    val outerColor = remember { mutableStateOf(defaultColor) }
 
     val onTap: (Offset) -> Unit = {
         outerColor.value = outerColor.value.next()

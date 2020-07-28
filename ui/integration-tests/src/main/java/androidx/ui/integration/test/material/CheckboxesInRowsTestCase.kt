@@ -16,19 +16,20 @@
 
 package androidx.ui.integration.test.material
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.state
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Text
-import androidx.ui.integration.test.ToggleableTestCase
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Checkbox
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.test.ComposeTestCase
 
 /**
@@ -66,7 +67,7 @@ class CheckboxesInRowsTestCase(
 
     @Composable
     fun CheckboxWithState(modifier: Modifier = Modifier) {
-        val state = state { false }
+        val state = remember { mutableStateOf(false) }
         states.add(state)
         Checkbox(
             checked = state.value,

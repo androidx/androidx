@@ -17,18 +17,19 @@
 package androidx.compose.material.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
 import androidx.compose.foundation.Text
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 @Sampled
 @Composable
 fun SliderSample() {
-    var sliderPosition by state { 0f }
+    var sliderPosition by remember { mutableStateOf(0f) }
     Text(text = sliderPosition.toString())
     Slider(value = sliderPosition, onValueChange = { sliderPosition = it })
 }
@@ -36,7 +37,7 @@ fun SliderSample() {
 @Sampled
 @Composable
 fun StepsSliderSample() {
-    var sliderPosition by state { 0f }
+    var sliderPosition by remember { mutableStateOf(0f) }
     Text(text = sliderPosition.toString())
     Slider(
         value = sliderPosition,

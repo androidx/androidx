@@ -17,17 +17,18 @@
 package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.gestures.rememberScrollableController
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,7 +38,7 @@ import kotlin.math.roundToInt
 @Composable
 fun ScrollableSample() {
     // actual composable state
-    val offset = state { 0f }
+    val offset = remember { mutableStateOf(0f) }
     // state for Scrollable, describes how to consume scrolling delta and update offset
     Box(
         Modifier

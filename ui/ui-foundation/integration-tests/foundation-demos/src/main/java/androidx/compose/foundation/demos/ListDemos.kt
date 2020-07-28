@@ -16,14 +16,6 @@
 
 package androidx.compose.foundation.demos
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Providers
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.compose.ui.Modifier
-import androidx.ui.demos.common.ComposableDemo
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentColorAmbient
 import androidx.compose.foundation.ContentGravity
@@ -31,8 +23,6 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.currentTextStyle
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -41,17 +31,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.ExperimentalLazyDsl
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.foundation.lazy.LazyColumnForIndexed
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.LazyRowFor
 import androidx.compose.foundation.lazy.LazyRowForIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.lazy.ExperimentalLazyDsl
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.ui.demos.common.ComposableDemo
 import kotlin.random.Random
 
 val LazyListDemos = listOf(
@@ -84,8 +84,8 @@ private fun LazyColumnDemo() {
 
 @Composable
 private fun ListAddRemoveItemsDemo() {
-    var numItems by state { 0 }
-    var offset by state { 0 }
+    var numItems by remember { mutableStateOf(0) }
+    var offset by remember { mutableStateOf(0) }
     Column {
         Row {
             val buttonModifier = Modifier.padding(8.dp)

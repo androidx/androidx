@@ -31,23 +31,22 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.viewinterop.emitView
+import androidx.ui.androidview.WebComponent
+import androidx.ui.androidview.WebContext
 import androidx.ui.androidview.adapters.dp
 import androidx.ui.androidview.adapters.setControlledText
 import androidx.ui.androidview.adapters.setLayoutHeight
 import androidx.ui.androidview.adapters.setLayoutWeight
 import androidx.ui.androidview.adapters.setLayoutWidth
-import androidx.ui.androidview.adapters.setOnClick
 import androidx.ui.androidview.adapters.setOnTextChanged
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.compose.ui.platform.setContent
-import androidx.ui.androidview.WebComponent
-import androidx.ui.androidview.WebContext
-import androidx.compose.ui.viewinterop.emitView
 
 @Stable
 class WebParams {
@@ -87,7 +86,7 @@ fun renderViews(webParams: WebParams = WebParams(), webContext: WebContext) {
         Log.d("WebCompAct", "renderViews")
     }
 
-    val displayedUrl = state { "https://www.google.com" }
+    val displayedUrl = remember { mutableStateOf("https://www.google.com") }
 
     fun updateDisplayedUrl(newValue: String?) {
         if (!newValue.isNullOrBlank() && newValue != displayedUrl.value) {

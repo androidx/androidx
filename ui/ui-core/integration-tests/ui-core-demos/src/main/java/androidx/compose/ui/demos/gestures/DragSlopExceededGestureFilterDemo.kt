@@ -16,19 +16,20 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.dragSlopExceededGestureFilter
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.gesture.Direction
+import androidx.compose.ui.gesture.dragSlopExceededGestureFilter
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 /**
@@ -40,7 +41,7 @@ fun DragSlopExceededGestureFilterDemo() {
     val verticalColor = Color(0xfff44336)
     val horizontalColor = Color(0xff2196f3)
 
-    val orientationVertical = state { true }
+    val orientationVertical = remember { mutableStateOf(true) }
 
     // This would be more efficient if onTouchSlopExceeded were memoized because it's
     // value doesn't need to change for each new composition.  Like this, every time

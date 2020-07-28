@@ -22,23 +22,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.Composition
-import androidx.compose.runtime.Recomposer
-import androidx.compose.runtime.state
-import androidx.ui.androidview.adapters.setOnClick
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.tapGestureFilter
-import androidx.compose.ui.platform.setContent
-import androidx.ui.demos.common.ActivityDemo
-import androidx.ui.demos.common.DemoCategory
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.ScrollableRow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -48,7 +36,20 @@ import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composition
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.dp
+import androidx.ui.androidview.adapters.setOnClick
+import androidx.ui.demos.common.ActivityDemo
+import androidx.ui.demos.common.DemoCategory
 
 val ComposeInAndroidDemos = DemoCategory(
     "Compose in Android Interop", listOf(
@@ -150,7 +151,7 @@ open class ComposeTapInAndroidTap : ComponentActivity() {
 
         composition = container.setContent(Recomposer.current()) {
 
-            val currentColor = state { Color.LightGray }
+            val currentColor = remember { mutableStateOf(Color.LightGray) }
 
             val tap =
                 Modifier.tapGestureFilter {
@@ -196,7 +197,7 @@ open class ComposeTapInAndroidScroll : ComponentActivity() {
         val container = findViewById<ViewGroup>(R.id.container)
         composition = container.setContent(Recomposer.current()) {
 
-            val currentColor = state { Color.LightGray }
+            val currentColor = remember { mutableStateOf(Color.LightGray) }
 
             Box(
                 Modifier
