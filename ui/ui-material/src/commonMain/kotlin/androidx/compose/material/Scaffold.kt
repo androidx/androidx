@@ -16,6 +16,13 @@
 
 package androidx.compose.material
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Scaffold.FabPosition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.Stable
@@ -27,23 +34,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticAmbientOf
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.boundsInParent
-import androidx.compose.ui.onPositioned
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.InnerPadding
-import androidx.compose.foundation.layout.Stack
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold.FabPosition
+import androidx.compose.ui.layout.boundsInParent
+import androidx.compose.ui.onPositioned
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.PxBounds
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.toSize
@@ -55,20 +55,14 @@ import androidx.compose.ui.zIndex
  * Contains basic screen state, e.g. Drawer configuration, as well as sizes of components after
  * layout has happened
  *
- * @param drawerState initial state of the Drawer in [Scaffold].
+ * @param drawerState the drawer state
  * @param isDrawerGesturesEnabled whether or not drawer can be interacted with via gestures
  */
 @Stable
 class ScaffoldState(
-    drawerState: DrawerState = DrawerState.Closed,
+    val drawerState: DrawerState,
     isDrawerGesturesEnabled: Boolean = true
 ) {
-
-    /**
-     * drawer state position. Change this value to programmatically open or close drawer sheet
-     * in Scaffold (if set).
-     */
-    var drawerState by mutableStateOf(drawerState)
 
     /**
      * Whether or not drawer sheet in scaffold (if set) can be interacted by gestures.
@@ -98,6 +92,20 @@ class ScaffoldState(
         get() = scaffoldGeometry.fabBounds?.toSize()
 
     internal val scaffoldGeometry = ScaffoldGeometry()
+}
+
+/**
+ * Creates a [ScaffoldState] with the default animation clock and memoizes it.
+ *
+ * @param drawerState the drawer state
+ * @param isDrawerGesturesEnabled whether or not drawer can be interacted with via gestures
+ */
+@Composable
+fun rememberScaffoldState(
+    drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
+    isDrawerGesturesEnabled: Boolean = true
+): ScaffoldState {
+    return remember { ScaffoldState(drawerState, isDrawerGesturesEnabled) }
 }
 
 @Stable
@@ -168,7 +176,7 @@ object Scaffold {
  */
 @Composable
 fun Scaffold(
-    scaffoldState: ScaffoldState = remember { ScaffoldState() },
+    scaffoldState: ScaffoldState = rememberScaffoldState(),
     topBar: @Composable (() -> Unit)? = null,
     bottomBar: @Composable (() -> Unit)? = null,
     floatingActionButton: @Composable (() -> Unit)? = null,
@@ -205,7 +213,6 @@ fun Scaffold(
     if (drawerContent != null) {
         ModalDrawerLayout(
             drawerState = scaffoldState.drawerState,
-            onStateChange = { scaffoldState.drawerState = it },
             gesturesEnabled = scaffoldState.isDrawerGesturesEnabled,
             drawerContent = { ScaffoldSlot(content = drawerContent) },
             drawerShape = drawerShape,
