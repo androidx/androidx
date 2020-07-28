@@ -882,15 +882,13 @@ public class NotificationCompat {
          * equivalent to the given one, such that updates can be made to an existing notification
          * with the NotitifactionCompat.Builder API.
          */
-        @NonNull
         @RequiresApi(19)
-        @SuppressLint("BuilderSetStyle")  // This API is copied from Notification.Builder
-        public static Builder recoverBuilder(@NonNull Context context,
+        public Builder(@NonNull Context context,
                 @NonNull Notification notification) {
+            this(context, getChannelId(notification));
             final Bundle extras = notification.extras;
             final Style style = Style.extractStyleFromNotification(notification);
-            final Builder builder = new Builder(context, getChannelId(notification))
-                    .setContentTitle(NotificationCompat.getContentTitle(notification))
+            this.setContentTitle(NotificationCompat.getContentTitle(notification))
                     .setContentText(NotificationCompat.getContentText(notification))
                     .setContentInfo(NotificationCompat.getContentInfo(notification))
                     .setSubText(NotificationCompat.getSubText(notification))
@@ -939,13 +937,13 @@ public class NotificationCompat {
 
             // Avoid the setter which requires wrapping/unwrapping IconCompat and extra null checks
             if (Build.VERSION.SDK_INT >= 23) {
-                builder.mSmallIcon = notification.getSmallIcon();
+                this.mSmallIcon = notification.getSmallIcon();
             }
 
             // Add actions from the notification.
             if (notification.actions != null && notification.actions.length != 0) {
                 for (Notification.Action action : notification.actions) {
-                    builder.addAction(Action.Builder.fromAndroidAction(action).build());
+                    this.addAction(Action.Builder.fromAndroidAction(action).build());
                 }
             }
             // Add invisible actions from the notification.
@@ -954,7 +952,7 @@ public class NotificationCompat {
                         NotificationCompat.getInvisibleActions(notification);
                 if (!invisibleActions.isEmpty()) {
                     for (Action invisibleAction : invisibleActions) {
-                        builder.addInvisibleAction(invisibleAction);
+                        this.addInvisibleAction(invisibleAction);
                     }
                 }
             }
@@ -963,7 +961,7 @@ public class NotificationCompat {
             String[] people = notification.extras.getStringArray(EXTRA_PEOPLE);
             if (people != null && people.length != 0) {
                 for (String person : people) {
-                    builder.addPerson(person);
+                    this.addPerson(person);
                 }
             }
             // Add modern Person list
@@ -972,7 +970,7 @@ public class NotificationCompat {
                         notification.extras.getParcelableArrayList(EXTRA_PEOPLE_LIST);
                 if (peopleList != null && !peopleList.isEmpty()) {
                     for (android.app.Person person : peopleList) {
-                        builder.addPerson(Person.fromAndroidPerson(person));
+                        this.addPerson(Person.fromAndroidPerson(person));
                     }
                 }
             }
@@ -981,16 +979,15 @@ public class NotificationCompat {
             // only be called if there is a value in the notification extras to be set
             if (Build.VERSION.SDK_INT >= 24) {
                 if (extras.containsKey(EXTRA_CHRONOMETER_COUNT_DOWN)) {
-                    builder.setChronometerCountDown(
+                    this.setChronometerCountDown(
                             extras.getBoolean(EXTRA_CHRONOMETER_COUNT_DOWN));
                 }
             }
             if (Build.VERSION.SDK_INT >= 26) {
                 if (extras.containsKey(EXTRA_COLORIZED)) {
-                    builder.setColorized(extras.getBoolean(EXTRA_COLORIZED));
+                    this.setColorized(extras.getBoolean(EXTRA_COLORIZED));
                 }
             }
-            return builder;
         }
 
         /** Remove all extras which have been parsed by the rest of the copy process */
@@ -1070,7 +1067,7 @@ public class NotificationCompat {
          */
         @Deprecated
         public Builder(@NonNull Context context) {
-            this(context, null);
+            this(context, (String) null);
         }
 
         /**
@@ -2374,6 +2371,7 @@ public class NotificationCompat {
          *
          * @hide
          */
+        @ColorInt
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public int getColor() {
             return mColor;
