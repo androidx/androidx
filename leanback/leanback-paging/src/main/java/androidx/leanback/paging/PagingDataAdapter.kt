@@ -119,7 +119,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
 
     /**
      * Constructs an adapter
-     * * @param presenter [PresenterSelector]
+     * @param presenterSelector [PresenterSelector]
      * @param diffCallback The [DiffUtil.ItemCallback] instance to compare items in the list.
      * @param mainDispatcher The [CoroutineDispatcher] to be used for foreground operations
      * @param workerDispatcher The [CoroutineDispatcher] to be used for computing diff
@@ -188,8 +188,8 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      *  [PagingDataAdapter].
      *
      * [LoadState.Error] can be generated from two types of load requests:
-     *  * [PagingSource.load] returning [PagingSource.LoadResult.Error]
-     *  * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
+     * [PagingSource.load] returning [PagingSource.LoadResult.Error]
+     * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
      */
     fun retry() {
         differ.retry()
@@ -260,7 +260,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      * Returns the item for the given position. It will return null
      * if placeholders are enabled and data is not yet loaded.
      */
-    override fun get(position: Int): Any? {
+    override fun get(position: Int): T? {
         return differ.getItem(position)
     }
 
