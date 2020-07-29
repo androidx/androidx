@@ -40,10 +40,13 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.foundation.lazy.LazyColumnForIndexed
 import androidx.compose.foundation.lazy.LazyRowFor
 import androidx.compose.foundation.lazy.LazyRowForIndexed
+import androidx.compose.ui.platform.LayoutDirectionAmbient
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.random.Random
@@ -53,7 +56,8 @@ val LazyListDemos = listOf(
     ComposableDemo("Add/remove items") { ListAddRemoveItemsDemo() },
     ComposableDemo("Horizontal list") { LazyRowItemsDemo() },
     ComposableDemo("List with indexes") { ListWithIndexSample() },
-    ComposableDemo("Pager-like list") { PagerLikeDemo() }
+    ComposableDemo("Pager-like list") { PagerLikeDemo() },
+    ComposableDemo("Rtl list") { RtlListDemo() }
 )
 
 @Composable
@@ -137,6 +141,20 @@ private fun ListWithIndexSample() {
         }
         LazyColumnForIndexed(friends, Modifier.fillMaxWidth()) { index, friend ->
             Text("$friend at index $index", Modifier.padding(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun RtlListDemo() {
+    Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+        LazyRowForIndexed((0..100).toList(), Modifier.fillMaxWidth()) { index, item ->
+            Text(
+                "$item", Modifier
+                    .size(100.dp)
+                    .background(if (index % 2 == 0) Color.LightGray else Color.Transparent)
+                    .padding(16.dp)
+            )
         }
     }
 }
