@@ -57,7 +57,7 @@ class LayoutOffsetTest : LayoutTest() {
     }
 
     @Test
-    fun positionIsModified() = with(density) {
+    fun offset_positionIsModified() = with(density) {
         val offsetX = 10.dp
         val offsetY = 20.dp
         var positionX = 0
@@ -83,7 +83,7 @@ class LayoutOffsetTest : LayoutTest() {
     }
 
     @Test
-    fun positionIsModified_rtl() = with(density) {
+    fun offset_positionIsModified_rtl() = with(density) {
         val containerWidth = 30.dp
         val boxSize = 1
         val offsetX = 10.dp
@@ -103,7 +103,7 @@ class LayoutOffsetTest : LayoutTest() {
                             positionY = coordinates.positionInRoot.y.roundToInt()
                         }
                 ) {
-                    // TODO(popam): this box should not be needed after b/154758475 is fixed.
+                    // TODO(soboleva): this box should not be needed after b/154758475 is fixed.
                     Box(Modifier.size(boxSize.toDp()))
                 }
             }
@@ -117,7 +117,67 @@ class LayoutOffsetTest : LayoutTest() {
     }
 
     @Test
-    fun positionIsModified_px() = with(density) {
+    fun absoluteOffset_positionModified() = with(density) {
+        val offsetX = 10.dp
+        val offsetY = 20.dp
+        var positionX = 0
+        var positionY = 0
+        composeTestRule.setContent {
+            Stack(
+                Modifier.testTag("stack")
+                    .wrapContentSize(Alignment.TopStart)
+                    .absoluteOffset(offsetX, offsetY)
+                    .onPositioned { coordinates: LayoutCoordinates ->
+                        positionX = coordinates.positionInRoot.x.roundToInt()
+                        positionY = coordinates.positionInRoot.y.roundToInt()
+                    }
+            ) {
+            }
+        }
+
+        onNodeWithTag("stack").assertExists()
+        runOnIdle {
+            assertEquals(offsetX.toIntPx(), positionX)
+            assertEquals(offsetY.toIntPx(), positionY)
+        }
+    }
+
+    @Test
+    fun absoluteOffset_positionModified_rtl() = with(density) {
+        val containerWidth = 30.dp
+        val boxSize = 1
+        val offsetX = 10.dp
+        val offsetY = 20.dp
+        var positionX = 0
+        var positionY = 0
+        composeTestRule.setContent {
+            Providers((LayoutDirectionAmbient provides LayoutDirection.Rtl)) {
+                Stack(
+                    Modifier.testTag("stack")
+                        .wrapContentSize(Alignment.TopEnd)
+                        .preferredWidth(containerWidth)
+                        .wrapContentSize(Alignment.TopStart)
+                        .absoluteOffset(offsetX, offsetY)
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            positionX = coordinates.positionInRoot.x.roundToInt()
+                            positionY = coordinates.positionInRoot.y.roundToInt()
+                        }
+                ) {
+                    // TODO(soboleva): this box should not be needed after b/154758475 is fixed.
+                    Box(Modifier.size(boxSize.toDp()))
+                }
+            }
+        }
+
+        onNodeWithTag("stack").assertExists()
+        runOnIdle {
+            assertEquals(containerWidth.toIntPx() - boxSize + offsetX.toIntPx(), positionX)
+            assertEquals(offsetY.toIntPx(), positionY)
+        }
+    }
+
+    @Test
+    fun offsetPx_positionIsModified() = with(density) {
         val offsetX = 10f
         val offsetY = 20f
         var positionX = 0f
@@ -143,7 +203,7 @@ class LayoutOffsetTest : LayoutTest() {
     }
 
     @Test
-    fun positionIsModified_px_rtl() = with(density) {
+    fun offsetPx_positionIsModified_rtl() = with(density) {
         val containerWidth = 30.dp
         val boxSize = 1f
         val offsetX = 10f
@@ -163,7 +223,7 @@ class LayoutOffsetTest : LayoutTest() {
                             positionY = coordinates.positionInRoot.y
                         }
                 ) {
-                    // TODO(popam): this box should not be needed after b/154758475 is fixed.
+                    // TODO(soboleva): this box should not be needed after b/154758475 is fixed.
                     Box(Modifier.size(boxSize.toDp()))
                 }
             }
@@ -173,6 +233,69 @@ class LayoutOffsetTest : LayoutTest() {
         runOnIdle {
             Assert.assertEquals(
                 containerWidth.toIntPx() - offsetX.roundToInt() - boxSize,
+                positionX
+            )
+            Assert.assertEquals(offsetY, positionY)
+        }
+    }
+
+    @Test
+    fun absoluteOffsetPx_positionIsModified() = with(density) {
+        val offsetX = 10f
+        val offsetY = 20f
+        var positionX = 0f
+        var positionY = 0f
+        composeTestRule.setContent {
+            Stack(
+                Modifier.testTag("stack")
+                    .wrapContentSize(Alignment.TopStart)
+                    .absoluteOffsetPx(state { offsetX }, state { offsetY })
+                    .onPositioned { coordinates: LayoutCoordinates ->
+                        positionX = coordinates.positionInRoot.x
+                        positionY = coordinates.positionInRoot.y
+                    }
+            ) {
+            }
+        }
+
+        onNodeWithTag("stack").assertExists()
+        runOnIdle {
+            Assert.assertEquals(offsetX, positionX)
+            Assert.assertEquals(offsetY, positionY)
+        }
+    }
+
+    @Test
+    fun absoluteOffsetPx_positionIsModified_rtl() = with(density) {
+        val containerWidth = 30.dp
+        val boxSize = 1f
+        val offsetX = 10f
+        val offsetY = 20f
+        var positionX = 0f
+        var positionY = 0f
+        composeTestRule.setContent {
+            Providers((LayoutDirectionAmbient provides LayoutDirection.Rtl)) {
+                Stack(
+                    Modifier.testTag("stack")
+                        .wrapContentSize(Alignment.TopEnd)
+                        .preferredWidth(containerWidth)
+                        .wrapContentSize(Alignment.TopStart)
+                        .absoluteOffsetPx(state { offsetX }, state { offsetY })
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            positionX = coordinates.positionInRoot.x
+                            positionY = coordinates.positionInRoot.y
+                        }
+                ) {
+                    // TODO(soboleva): this box should not be needed after b/154758475 is fixed.
+                    Box(Modifier.size(boxSize.toDp()))
+                }
+            }
+        }
+
+        onNodeWithTag("stack").assertExists()
+        runOnIdle {
+            Assert.assertEquals(
+                containerWidth.toIntPx() - boxSize + offsetX.roundToInt(),
                 positionX
             )
             Assert.assertEquals(offsetY, positionY)
