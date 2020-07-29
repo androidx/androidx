@@ -66,7 +66,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 @VersionedParcelize(jetifyAs = "android.support.v4.media.AudioAttributesCompat")
 public class AudioAttributesCompat implements VersionedParcelable {
-    private static final String TAG = "AudioAttributesCompat";
+    static final String TAG = "AudioAttributesCompat";
 
     /**
      * Content type value to use when the content type is unknown, or other than the ones defined.
@@ -468,11 +468,19 @@ public class AudioAttributesCompat implements VersionedParcelable {
         }
 
         /**
-         * Create an {@link AudioAttributesCompat} that best approximates the specified {@link
-         * AudioManager} stream type constant.
+         * Sets attributes as inferred from the legacy stream types.
+         *
+         * <p>Warning: do not use this method in combination with setting any other attributes such
+         * as usage, content type, or flags, as this method will overwrite (the more accurate)
+         * information describing the use case previously set in the Builder.
+         * In general, avoid using it and prefer setting usage and content type directly with
+         * {@link #setUsage(int)} and {@link #setContentType(int)}.
+         *
+         * <p>Use this method when building an {@link AudioAttributes} instance to initialize some
+         * of the attributes by information derived from a legacy stream type.
          *
          * @param streamType one of <code>AudioManager.STREAM_*</code>
-         * @return this same Builder
+         * @return this same Builder instance.
          */
         public Builder setLegacyStreamType(int streamType) {
             mBuilderImpl.setLegacyStreamType(streamType);

@@ -23,6 +23,7 @@ import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_SONIFICATION;
 import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_SPEECH;
 import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_UNKNOWN;
 import static androidx.media.AudioAttributesCompat.INVALID_STREAM_TYPE;
+import static androidx.media.AudioAttributesCompat.TAG;
 import static androidx.media.AudioAttributesCompat.USAGE_ALARM;
 import static androidx.media.AudioAttributesCompat.USAGE_ASSISTANCE_ACCESSIBILITY;
 import static androidx.media.AudioAttributesCompat.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
@@ -40,6 +41,9 @@ import static androidx.media.AudioAttributesCompat.USAGE_UNKNOWN;
 import static androidx.media.AudioAttributesCompat.USAGE_VIRTUAL_SOURCE;
 import static androidx.media.AudioAttributesCompat.USAGE_VOICE_COMMUNICATION;
 import static androidx.media.AudioAttributesCompat.USAGE_VOICE_COMMUNICATION_SIGNALLING;
+
+import android.media.AudioManager;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -264,7 +268,78 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
                                 + "type that was used for audio playback");
             }
             mLegacyStream = streamType;
+            return setInternalLegacyStreamType(streamType);
+        }
+
+        private Builder setInternalLegacyStreamType(int streamType) {
+            switch (streamType) {
+                case AudioManager.STREAM_VOICE_CALL:
+                    mContentType = CONTENT_TYPE_SPEECH;
+                    break;
+                case AudioManagerHidden.STREAM_SYSTEM_ENFORCED:
+                    mFlags |= AudioAttributesCompat.FLAG_AUDIBILITY_ENFORCED;
+                    // intended fall through, attributes in common with STREAM_SYSTEM
+                case AudioManager.STREAM_SYSTEM:
+                    mContentType = CONTENT_TYPE_SONIFICATION;
+                    break;
+                case AudioManager.STREAM_RING:
+                    mContentType = CONTENT_TYPE_SONIFICATION;
+                    break;
+                case AudioManager.STREAM_MUSIC:
+                    mContentType = CONTENT_TYPE_MUSIC;
+                    break;
+                case AudioManager.STREAM_ALARM:
+                    mContentType = CONTENT_TYPE_SONIFICATION;
+                    break;
+                case AudioManager.STREAM_NOTIFICATION:
+                    mContentType = CONTENT_TYPE_SONIFICATION;
+                    break;
+                case AudioManagerHidden.STREAM_BLUETOOTH_SCO:
+                    mContentType = CONTENT_TYPE_SPEECH;
+                    mFlags |= AudioAttributesCompat.FLAG_SCO;
+                    break;
+                case AudioManager.STREAM_DTMF:
+                    mContentType = CONTENT_TYPE_SONIFICATION;
+                    break;
+                case AudioManagerHidden.STREAM_TTS:
+                    mContentType = CONTENT_TYPE_SONIFICATION;
+                    break;
+                case AudioManager.STREAM_ACCESSIBILITY:
+                    mContentType = CONTENT_TYPE_SPEECH;
+                    break;
+                default:
+                    Log.e(TAG, "Invalid stream type " + streamType + " for AudioAttributesCompat");
+            }
+            mUsage = usageForStreamType(streamType);
             return this;
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static int usageForStreamType(int streamType) {
+        switch (streamType) {
+            case AudioManager.STREAM_VOICE_CALL:
+                return USAGE_VOICE_COMMUNICATION;
+            case AudioManagerHidden.STREAM_SYSTEM_ENFORCED:
+            case AudioManager.STREAM_SYSTEM:
+                return USAGE_ASSISTANCE_SONIFICATION;
+            case AudioManager.STREAM_RING:
+                return USAGE_NOTIFICATION_RINGTONE;
+            case AudioManager.STREAM_MUSIC:
+                return USAGE_MEDIA;
+            case AudioManager.STREAM_ALARM:
+                return USAGE_ALARM;
+            case AudioManager.STREAM_NOTIFICATION:
+                return USAGE_NOTIFICATION;
+            case AudioManagerHidden.STREAM_BLUETOOTH_SCO:
+                return USAGE_VOICE_COMMUNICATION;
+            case AudioManager.STREAM_DTMF:
+                return USAGE_VOICE_COMMUNICATION_SIGNALLING;
+            case AudioManager.STREAM_ACCESSIBILITY:
+                return USAGE_ASSISTANCE_ACCESSIBILITY;
+            case AudioManagerHidden.STREAM_TTS:
+            default:
+                return USAGE_UNKNOWN;
         }
     }
 }
