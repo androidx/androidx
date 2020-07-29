@@ -242,7 +242,7 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
                     mContentType = contentType;
                     break;
                 default:
-                    mUsage = CONTENT_TYPE_UNKNOWN;
+                    mContentType = CONTENT_TYPE_UNKNOWN;
             }
             return this;
         }
