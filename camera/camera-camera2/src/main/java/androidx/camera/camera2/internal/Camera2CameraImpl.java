@@ -300,9 +300,9 @@ final class Camera2CameraImpl implements CameraInternal {
     @ExecutedBy("mExecutor")
     private void configAndClose(boolean abortInFlightCaptures) {
 
-        final CaptureSession dummySession = new CaptureSession();
+        final CaptureSession noOpSession = new CaptureSession();
 
-        mConfiguringForClose.add(dummySession);  // Make mCameraDevice is not closed and existed.
+        mConfiguringForClose.add(noOpSession);  // Make mCameraDevice is not closed and existed.
         resetCaptureSession(abortInFlightCaptures);
 
         final SurfaceTexture surfaceTexture = new SurfaceTexture(0);
@@ -317,24 +317,24 @@ final class Camera2CameraImpl implements CameraInternal {
         builder.addNonRepeatingSurface(new ImmediateSurface(surface));
         builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         debugLog("Start configAndClose.");
-        ListenableFuture<Void> openDummyCaptureSession = dummySession.open(builder.build(),
+        ListenableFuture<Void> openNoOpCaptureSession = noOpSession.open(builder.build(),
                 Preconditions.checkNotNull(mCameraDevice), mCaptureSessionOpenerBuilder.build());
-        openDummyCaptureSession.addListener(() -> {
+        openNoOpCaptureSession.addListener(() -> {
             // Release the no-op Session and continue closing camera when in correct state.
-            releaseDummySession(dummySession, closeAndCleanupRunner);
+            releaseNoOpSession(noOpSession, closeAndCleanupRunner);
         }, mExecutor);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mExecutor")
-    void releaseDummySession(CaptureSession dummySession, Runnable closeAndCleanupRunner) {
-        // Config complete and remove the dummySession from the mConfiguringForClose map
-        // after resetCaptureSession and before release the dummySession.
-        mConfiguringForClose.remove(dummySession);
+    void releaseNoOpSession(CaptureSession noOpSession, Runnable closeAndCleanupRunner) {
+        // Config complete and remove the noOpSession from the mConfiguringForClose map
+        // after resetCaptureSession and before release the noOpSession.
+        mConfiguringForClose.remove(noOpSession);
 
         // Don't need to abort captures since there are none submitted for this session.
         ListenableFuture<Void> releaseFuture = releaseSession(
-                dummySession, /*abortInFlightCaptures=*/false);
+                noOpSession, /*abortInFlightCaptures=*/false);
 
         // Add a listener to clear the no-op surfaces
         releaseFuture.addListener(closeAndCleanupRunner, CameraXExecutors.directExecutor());
