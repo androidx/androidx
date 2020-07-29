@@ -288,10 +288,9 @@ internal class AndroidParagraph constructor(
 
     override fun getLineEnd(lineIndex: Int): Int = layout.getLineEnd(lineIndex)
 
-    override fun getLineEllipsisOffset(lineIndex: Int): Int =
-        layout.getLineEllipsisOffset(lineIndex)
+    override fun getLineVisibleEnd(lineIndex: Int): Int = layout.getLineVisibleEnd(lineIndex)
 
-    override fun getLineEllipsisCount(lineIndex: Int): Int = layout.getLineEllipsisCount(lineIndex)
+    override fun isLineEllipsized(lineIndex: Int): Boolean = layout.isLineEllipsized(lineIndex)
 
     override fun getLineForOffset(offset: Int): Int = layout.getLineForOffset(offset)
 

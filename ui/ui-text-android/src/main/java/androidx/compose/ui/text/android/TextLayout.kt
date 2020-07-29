@@ -246,6 +246,15 @@ class TextLayout constructor(
             layout.text.length
         }
 
+    fun getLineVisibleEnd(lineIndex: Int): Int =
+        if (layout.getEllipsisStart(lineIndex) == 0) { // no ellipsis
+            layout.getLineVisibleEnd(lineIndex)
+        } else {
+            layout.getLineStart(lineIndex) + layout.getEllipsisStart(lineIndex)
+        }
+
+    fun isLineEllipsized(lineIndex: Int) = layout.getEllipsisStart(lineIndex) != 0
+
     fun getLineEllipsisOffset(lineIndex: Int): Int = layout.getEllipsisStart(lineIndex)
 
     fun getLineEllipsisCount(lineIndex: Int): Int = layout.getEllipsisCount(lineIndex)
