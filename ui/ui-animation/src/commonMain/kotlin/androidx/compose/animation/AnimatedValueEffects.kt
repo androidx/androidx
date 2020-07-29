@@ -87,7 +87,7 @@ fun animatedColor(
     remember(disposableClock) {
         AnimatedValueModel(
             initialValue = initVal,
-            typeConverter = ColorToVectorConverter(initVal.colorSpace),
+            typeConverter = (Color.VectorConverter)(initVal.colorSpace),
             clock = disposableClock
         )
     }

@@ -25,15 +25,15 @@ import org.junit.runners.JUnit4
 class TypeConverterTest {
     @Test
     fun testFloatToVectorConverter() {
-        verifyFloatConverter(FloatToVectorConverter)
+        verifyFloatConverter(Float.VectorConverter)
         verifyFloatConverter(FloatPropKey().typeConverter)
         verifyFloatConverter(AnimatedFloat(5f, ManualAnimationClock(0L)).typeConverter)
     }
 
     @Test
     fun testIntToVectorConverter() {
-        assertEquals(100f, IntToVectorConverter.convertToVector(100).value)
-        assertEquals(5, IntToVectorConverter.convertFromVector(AnimationVector1D(5f)))
+        assertEquals(100f, Int.VectorConverter.convertToVector(100).value)
+        assertEquals(5, Int.VectorConverter.convertFromVector(AnimationVector1D(5f)))
 
         assertEquals(30f, IntPropKey().typeConverter.convertToVector(30).value)
         assertEquals(22, IntPropKey().typeConverter.convertFromVector(AnimationVector1D(22f)))

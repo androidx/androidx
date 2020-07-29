@@ -261,7 +261,7 @@ abstract class AnimatedFloat(
     clock: AnimationClockObservable,
     visibilityThreshold: Float = Spring.DefaultDisplacementThreshold
 ) : BaseAnimatedValue<Float, AnimationVector1D>(
-    FloatToVectorConverter, clock, visibilityThreshold
+    Float.VectorConverter, clock, visibilityThreshold
 ) {
 
     /**

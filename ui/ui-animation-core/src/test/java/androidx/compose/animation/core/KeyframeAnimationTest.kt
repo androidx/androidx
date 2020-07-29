@@ -52,7 +52,7 @@ class KeyframeAnimationTest {
             0.5f at 200
             0.8f at 300
             end at fullTime
-        }.vectorize(FloatToVectorConverter)
+        }.vectorize(Float.VectorConverter)
 
         assertThat(animation.at(0)).isEqualTo(start)
         assertThat(animation.at(250)).isEqualTo(0.65f)
@@ -66,7 +66,7 @@ class KeyframeAnimationTest {
             durationMillis = fullTime
             1f at 0
             0f at fullTime
-        }.vectorize(FloatToVectorConverter)
+        }.vectorize(Float.VectorConverter)
 
         assertThat(animation.at(0)).isEqualTo(1f)
         assertThat(animation.at(fullTime.toLong())).isEqualTo(0f)
@@ -79,7 +79,7 @@ class KeyframeAnimationTest {
             durationMillis = 100
             0f at 0 with easing
             1f at durationMillis
-        }.vectorize(FloatToVectorConverter)
+        }.vectorize(Float.VectorConverter)
 
         assertThat(animation.at(31)).isEqualTo(easing(0.31f))
     }
@@ -91,7 +91,7 @@ class KeyframeAnimationTest {
             durationMillis = 200
             1f at 100 with easing
             2f at durationMillis
-        }.vectorize(FloatToVectorConverter)
+        }.vectorize(Float.VectorConverter)
 
         assertThat(animation.at(140)).isEqualTo(1f + easing(0.4f))
     }
@@ -102,7 +102,7 @@ class KeyframeAnimationTest {
             durationMillis = 100
             0.5f at 50 with FastOutSlowInEasing
             1f at durationMillis
-        }.vectorize(FloatToVectorConverter)
+        }.vectorize(Float.VectorConverter)
 
         assertThat(animation.at(25)).isEqualTo(0.25f)
     }
