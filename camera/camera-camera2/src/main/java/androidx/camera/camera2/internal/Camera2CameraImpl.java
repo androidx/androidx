@@ -1371,17 +1371,17 @@ final class Camera2CameraImpl implements CameraInternal {
             switch (mState) {
                 case RELEASING:
                 case CLOSING:
-                    Log.e(
-                            TAG,
-                            "CameraDevice.onError(): "
-                                    + cameraDevice.getId()
-                                    + " with error: "
-                                    + getErrorMessage(error));
+                    Log.e(TAG, String.format("CameraDevice.onError(): %s failed with %s while "
+                                    + "in %s state. Will finish closing camera.",
+                                    cameraDevice.getId(), getErrorMessage(error), mState.name()));
                     closeCamera(/*abortInFlightCaptures=*/false);
                     break;
                 case OPENING:
                 case OPENED:
                 case REOPENING:
+                    Log.d(TAG, String.format("CameraDevice.onError(): %s failed with %s while "
+                                    + "in %s state. Will attempt recovering from error.",
+                            cameraDevice.getId(), getErrorMessage(error), mState.name()));
                     handleErrorOnOpen(cameraDevice, error);
                     break;
                 default:
@@ -1404,6 +1404,8 @@ final class Camera2CameraImpl implements CameraInternal {
                 case CameraDevice.StateCallback.ERROR_CAMERA_IN_USE:
                     // Attempt to reopen the camera again. If there are no cameras available,
                     // this will wait for the next available camera.
+                    Log.d(TAG, String.format("Attempt to reopen camera[%s] after error[%s]",
+                            cameraDevice.getId(), getErrorMessage(error)));
                     reopenCameraAfterError();
                     break;
                 default:
@@ -1413,7 +1415,8 @@ final class Camera2CameraImpl implements CameraInternal {
                             "Error observed on open (or opening) camera device "
                                     + cameraDevice.getId()
                                     + ": "
-                                    + getErrorMessage(error));
+                                    + getErrorMessage(error)
+                                    + " closing camera.");
                     setState(InternalState.CLOSING);
                     closeCamera(/*abortInFlightCaptures=*/false);
                     break;
