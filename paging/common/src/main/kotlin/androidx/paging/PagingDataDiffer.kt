@@ -292,8 +292,8 @@ abstract class PagingDataDiffer<T : Any>(
      * `false` otherwise.
      */
     @Deprecated(
-        "dataRefreshFlow is now redundant with the information passed from loadStateFlow," +
-                " peek, and snapshot APIs, and will be removed in a future alpha version"
+        "dataRefreshFlow is now redundant with the information passed from loadStateFlow and " +
+                "getItemCount, and will be removed in a future alpha version"
     )
     @ExperimentalPagingApi
     @OptIn(FlowPreview::class)
@@ -346,9 +346,8 @@ abstract class PagingDataDiffer<T : Any>(
      * @see removeDataRefreshListener
      */
     @Deprecated(
-        "dataRefreshListener is now redundant with the information passed from " +
-                "loadStateListener, peek, and snapshot APIs, and will be removed in a future " +
-                "alpha version"
+        "dataRefreshListener is now redundant with the information passed from loadStateListener " +
+                "and getItemCount, and will be removed in a future alpha version"
     )
     @ExperimentalPagingApi
     fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
@@ -363,9 +362,8 @@ abstract class PagingDataDiffer<T : Any>(
      * @see addDataRefreshListener
      */
     @Deprecated(
-        "dataRefreshListener is now redundant with the information passed from " +
-                "loadStateListener, peek, and snapshot APIs, and will be removed in a future " +
-                "alpha version"
+        "dataRefreshListener is now redundant with the information passed from loadStateListener " +
+                "and getItemCount, and will be removed in a future alpha version"
     )
     @ExperimentalPagingApi
     fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
