@@ -73,7 +73,7 @@ public final class ContextAwareHelper {
 
     /**
      * Dispatch the callback of {@link OnContextAvailableListener#onContextAvailable} to
-     * all currently added listeners.
+     * all currently added listeners in the order they were added.
      *
      * @param context The {@link Context} the {@link ContextAware} object is now associated with.
      * @param savedInstanceState The saved instance state, if any.
