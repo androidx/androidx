@@ -18,7 +18,6 @@ package androidx.ui.test
 
 import android.os.Build
 import androidx.activity.ComponentActivity
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.compose.ui.Modifier
@@ -31,9 +30,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize
-import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.ui.test.android.createAndroidComposeRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -58,9 +57,7 @@ class BitmapCapturingTest(val config: TestConfig) {
     }
 
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule(
-        ActivityScenarioRule(config.activityClass)
-    )
+    val composeTestRule = createAndroidComposeRule(config.activityClass)
 
     private val rootTag = "Root"
     private val tag11 = "Rect11"

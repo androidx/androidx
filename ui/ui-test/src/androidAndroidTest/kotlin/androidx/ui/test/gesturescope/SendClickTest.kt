@@ -18,7 +18,6 @@ package androidx.ui.test.gesturescope
 
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.MediumTest
 import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.input.pointer.PointerInputModifier
@@ -27,7 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.platform.changedToUp
 import androidx.ui.test.ActivityWithActionBar
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.runOnIdle
@@ -87,10 +86,7 @@ class SendClickTest(private val config: TestConfig) {
     }
 
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule(
-        ActivityScenarioRule(config.activityClass),
-        disableTransitions = true
-    )
+    val composeTestRule = createAndroidComposeRule(config.activityClass, disableTransitions = true)
 
     private val recordedClicks = mutableListOf<ClickData>()
     private val expectedClickPosition =

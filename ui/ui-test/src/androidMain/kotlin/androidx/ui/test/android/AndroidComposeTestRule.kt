@@ -43,7 +43,8 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * Factory method to provide android specific implementation of [createComposeRule].
+ * Factory method to provide android specific implementation of [createComposeRule], for a given
+ * activity class type [T].
  *
  * This method is useful for tests that require a custom Activity. This is usually the case for
  * app tests. Make sure that you add the provided activity into your app's manifest file (usually
@@ -66,6 +67,27 @@ inline fun <reified T : ComponentActivity> createAndroidComposeRule(
         disableBlinkingCursor = disableBlinkingCursor
     )
 }
+
+/**
+ * Factory method to provide android specific implementation of [createComposeRule], for a given
+ * [activityClass].
+ *
+ * This method is useful for tests that require a custom Activity. This is usually the case for
+ * app tests. Make sure that you add the provided activity into your app's manifest file (usually
+ * in main/AndroidManifest.xml).
+ *
+ * If you don't care about specific activity and just want to test composables in general, see
+ * [createComposeRule].
+ */
+fun <T : ComponentActivity> createAndroidComposeRule(
+    activityClass: Class<T>,
+    disableTransitions: Boolean = false,
+    disableBlinkingCursor: Boolean = true
+): AndroidComposeTestRule<T> = AndroidComposeTestRule(
+    ActivityScenarioRule(activityClass),
+    disableTransitions,
+    disableBlinkingCursor
+)
 
 /**
  * Factory method to provide android specific implementation of [createComposeRule].
