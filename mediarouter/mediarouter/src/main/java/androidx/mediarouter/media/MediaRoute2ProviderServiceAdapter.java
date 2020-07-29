@@ -156,7 +156,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             controller = new DynamicGroupRouteControllerProxy(routeId, routeController);
         }
 
-        SessionRecord sessionRecord = new SessionRecord(controller, sessionFlags);
+        SessionRecord sessionRecord = new SessionRecord(controller, requestId, sessionFlags);
         String sessionId = assignSessionId(sessionRecord);
 
         RoutingSessionInfo.Builder builder =
@@ -175,13 +175,12 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         }
 
         RoutingSessionInfo sessionInfo = builder.build();
+        sessionRecord.setSessionInfo(sessionInfo);
 
         if ((sessionFlags & SessionRecord.SESSION_FLAG_GROUP) != 0) {
             sessionRecord.updateMemberRouteControllers(routeId, /*oldSession=*/null,
                     sessionInfo);
         }
-
-        sessionRecord.notifySessionCreated(requestId, sessionInfo);
 
         mServiceImpl.setDynamicRoutesChangedListener(controller);
     }
@@ -474,7 +473,8 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             controller = new DynamicGroupRouteControllerProxy(routeId, routeController);
         }
 
-        SessionRecord sessionRecord = new SessionRecord(controller, sessionFlags, clientRecord);
+        SessionRecord sessionRecord = new SessionRecord(controller, REQUEST_ID_NONE,
+                sessionFlags, clientRecord);
 
         String sessionId = assignSessionId(sessionRecord);
         mSessionIdMap.put(controllerId, sessionId);
@@ -486,8 +486,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                         .setVolumeHandling(descriptor.getVolumeHandling())
                         .setVolume(descriptor.getVolume())
                         .setVolumeMax(descriptor.getVolumeMax());
-
-        sessionRecord.notifySessionCreated(REQUEST_ID_NONE, builder.build());
+        sessionRecord.setSessionInfo(builder.build());
     }
 
     void notifyRouteControllerRemoved(int controllerId) {
@@ -620,22 +619,25 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
          */
         static final int SESSION_FLAG_DYNAMIC = 1 << 2;
 
-        private final DynamicGroupRouteController mController;
         private final Map<String, RouteController> mRouteIdToControllerMap = new ArrayMap<>();
+        private final DynamicGroupRouteController mController;
+        private final long mRequestId;
+        private final int mFlags;
         private final WeakReference<ClientRecord> mClientRecord;
 
-        private int mFlags;
+        private boolean mIsCreated = false;
         private boolean mIsReleased;
         private RoutingSessionInfo mSessionInfo;
         String mSessionId;
 
-        SessionRecord(DynamicGroupRouteController controller, int flags) {
-            this(controller, flags, null);
+        SessionRecord(DynamicGroupRouteController controller, long requestId, int flags) {
+            this(controller, requestId, flags, null);
         }
 
-        SessionRecord(DynamicGroupRouteController controller, int flags,
+        SessionRecord(DynamicGroupRouteController controller, long requestId, int flags,
                 ClientRecord clientRecord) {
             mController = controller;
+            mRequestId = requestId;
             mFlags = flags;
             mClientRecord = new WeakReference<>(clientRecord);
         }
@@ -657,7 +659,11 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             return mRouteIdToControllerMap.get(routeId);
         }
 
-        public void notifySessionCreated(long requestId, @NonNull RoutingSessionInfo sessionInfo) {
+        void setSessionInfo(@NonNull RoutingSessionInfo sessionInfo) {
+            if (mSessionInfo != null) {
+                Log.w(TAG, "setSessionInfo: This shouldn't be called after sesionInfo is set");
+                return;
+            }
             Messenger messenger = new Messenger(new IncomingHandler(
                     MediaRoute2ProviderServiceAdapter.this, mSessionId));
 
@@ -669,7 +675,6 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                     sessionInfo.getName() != null ? sessionInfo.getName().toString() : null);
 
             mSessionInfo = builder.setControlHints(controlHints).build();
-            MediaRoute2ProviderServiceAdapter.this.notifySessionCreated(requestId, mSessionInfo);
         }
 
         public void updateSessionInfo(@Nullable MediaRouteDescriptor groupRoute,
@@ -700,6 +705,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                     controlHints = new Bundle();
                 }
                 controlHints.putString(MediaRouter2Utils.KEY_SESSION_NAME, groupRoute.getName());
+                controlHints.putBundle(MediaRouter2Utils.KEY_GROUP_ROUTE, groupRoute.asBundle());
                 builder.setControlHints(controlHints);
             }
 
@@ -732,7 +738,12 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                     == (SESSION_FLAG_MR2 | SESSION_FLAG_DYNAMIC) && groupRoute != null) {
                 updateMemberRouteControllers(groupRoute.getId(), sessionInfo, mSessionInfo);
             }
-            notifySessionUpdated(mSessionInfo);
+
+            if (!mIsCreated) {
+                notifySessionCreated();
+            } else {
+                notifySessionUpdated(mSessionInfo);
+            }
         }
 
         public void release() {
@@ -771,6 +782,15 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                     releaseRouteControllerByRouteId(routeId);
                 }
             }
+        }
+
+        private void notifySessionCreated() {
+            if (mIsCreated) {
+                Log.w(TAG, "notifySessionCreated: Routing session is already created.");
+                return;
+            }
+            mIsCreated = true;
+            MediaRoute2ProviderServiceAdapter.this.notifySessionCreated(mRequestId, mSessionInfo);
         }
 
         private RouteController getOrCreateRouteController(String routeId, String routeGroupId) {
