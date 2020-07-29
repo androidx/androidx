@@ -65,7 +65,7 @@ class AndroidProcessKeyInputTest(val keyEventAction: Int) {
     fun onKeyEvent_triggered() {
         // Arrange.
         lateinit var ownerView: View
-        lateinit var receivedKeyEvent: KeyEvent2
+        lateinit var receivedKeyEvent: KeyEvent
         val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             ownerView = ViewAmbient.current

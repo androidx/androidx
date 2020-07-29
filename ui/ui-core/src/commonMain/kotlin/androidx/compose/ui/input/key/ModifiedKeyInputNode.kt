@@ -31,7 +31,7 @@ internal class ModifiedKeyInputNode(wrapped: LayoutNodeWrapper, modifier: KeyInp
 
     override fun findNextKeyInputWrapper() = this
 
-    fun propagatePreviewKeyEvent(keyEvent: KeyEvent2): Boolean {
+    fun propagatePreviewKeyEvent(keyEvent: KeyEvent): Boolean {
         // We first propagate the preview key event to the parent.
         val consumed = findParentKeyInputNode()?.propagatePreviewKeyEvent(keyEvent)
         if (consumed == true) return consumed
@@ -40,7 +40,7 @@ internal class ModifiedKeyInputNode(wrapped: LayoutNodeWrapper, modifier: KeyInp
         return modifier.onPreviewKeyEvent?.invoke(keyEvent) ?: false
     }
 
-    fun propagateKeyEvent(keyEvent: KeyEvent2): Boolean {
+    fun propagateKeyEvent(keyEvent: KeyEvent): Boolean {
         // We attempt to consume the key event first.
         val consumed = modifier.onKeyEvent?.invoke(keyEvent)
         if (consumed == true) return consumed

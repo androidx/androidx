@@ -22,11 +22,11 @@ import com.google.common.truth.Truth
 import android.view.KeyEvent as AndroidKeyEvent
 
 /**
- * The [KeyEvent][KeyEvent2] is usually created by the system. This function creates an instance
- * of [KeyEvent][KeyEvent2] that can be used in tests.
+ * The [KeyEvent] is usually created by the system. This function creates an instance of
+ * [KeyEvent] that can be used in tests.
  */
 @OptIn(ExperimentalKeyInput::class)
-fun keyEvent(key: Key, keyEventType: KeyEventType, androidMetaKeys: Int = 0): KeyEvent2 {
+fun keyEvent(key: Key, keyEventType: KeyEventType, androidMetaKeys: Int = 0): KeyEvent {
     val action = when (keyEventType) {
         KeyEventType.KeyDown -> ACTION_DOWN
         KeyEventType.KeyUp -> ACTION_UP
@@ -41,7 +41,7 @@ fun keyEvent(key: Key, keyEventType: KeyEventType, androidMetaKeys: Int = 0): Ke
  *  overriding the equals() function.  So we use this util function to compare KeyEvents.
  */
 @OptIn(ExperimentalKeyInput::class)
-fun KeyEvent2.assertEqualTo(expected: KeyEvent2) {
+fun KeyEvent.assertEqualTo(expected: KeyEvent) {
     Truth.assertThat(key).isEqualTo(expected.key)
     Truth.assertThat(type).isEqualTo(expected.type)
 }

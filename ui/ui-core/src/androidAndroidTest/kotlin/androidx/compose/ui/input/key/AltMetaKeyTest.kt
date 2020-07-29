@@ -73,7 +73,7 @@ class AltMetaKeyTest {
         assertThat(keyEvent.isRightAltPressed).isTrue()
     }
 
-    private fun testKeyEvent(androidMetaKeys: Int = 0): KeyEvent2 {
+    private fun testKeyEvent(androidMetaKeys: Int = 0): KeyEvent {
         return keyEvent(Key.A, KeyEventType.KeyDown, androidMetaKeys)
     }
 }
