@@ -877,7 +877,6 @@ public final class MediaRouter {
 
     /**
      * Ensures that calls into the media router are on the correct thread.
-     * It pays to be a little paranoid when global state invariants are at risk.
      */
     static void checkCallingThread() {
         if (Looper.myLooper() != Looper.getMainLooper()) {
