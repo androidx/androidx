@@ -25,20 +25,33 @@ import androidx.compose.ui.Measurable
 import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 /**
- * Offset the content by ([x] dp, [y] dp). The offsets can be positive as well as non positive.
+ * Offset the content by ([x] dp, [y] dp). The offsets can be positive as well as non-positive.
  *
  * Example usage:
  * @sample androidx.compose.foundation.layout.samples.LayoutOffsetModifier
  */
 @Stable
-fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) = this.then(OffsetModifier(x, y))
+fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) = this.then(OffsetModifier(x, y, true))
 
 /**
- * Offset the content by ([x] px, [y]px). The offsets can be positive as well as non positive.
+ * Offset the content by ([x] dp, [y] dp). The offsets can be positive as well as non-positive.
+ * The offsets are applied without regard to the current [LayoutDirection], see [Modifier
+ * .offset] to apply relative offsets.
+ *
+ * Example usage:
+ * @sample androidx.compose.foundation.layout.samples.LayoutAbsoluteOffsetModifier
+ */
+@Stable
+fun Modifier.absoluteOffset(x: Dp = 0.dp, y: Dp = 0.dp) =
+    this.then(OffsetModifier(x, y, false))
+
+/**
+ * Offset the content by ([x] px, [y] px). The offsets can be positive as well as non-positive.
  * This modifier is designed to be used for offsets that change, possibly due to user interactions.
  *
  * Example usage:
@@ -47,28 +60,55 @@ fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) = this.then(OffsetModifier(x, y)
 fun Modifier.offsetPx(
     x: State<Float> = mutableStateOf(0f),
     y: State<Float> = mutableStateOf(0f)
-) = this.then(OffsetPxModifier(x, y))
+) = this.then(OffsetPxModifier(x, y, true))
 
-private data class OffsetModifier(val x: Dp, val y: Dp) : LayoutModifier {
+/**
+ * Offset the content by ([x] px, [y] px). The offsets can be positive as well as non-positive.
+ * This modifier is designed to be used for offsets that change, possibly due to user interactions.
+ *
+ * The offsets are applied without regard to the current [LayoutDirection]. To apply relative
+ * offsets, use [Modifier.offsetPx] instead.
+ *
+ * Example usage:
+ * @sample androidx.compose.foundation.layout.samples.LayoutAbsoluteOffsetPxModifier
+ */
+fun Modifier.absoluteOffsetPx(
+    x: State<Float> = mutableStateOf(0f),
+    y: State<Float> = mutableStateOf(0f)
+) = this.then(OffsetPxModifier(x, y, false))
+
+private data class OffsetModifier(val x: Dp, val y: Dp, val rtlAware: Boolean) : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) {
-            placeable.place(x.toIntPx(), y.toIntPx())
+            if (rtlAware) {
+                placeable.place(x.toIntPx(), y.toIntPx())
+            } else {
+                placeable.placeAbsolute(x.toIntPx(), y.toIntPx())
+            }
         }
     }
 }
 
-private data class OffsetPxModifier(val x: State<Float>, val y: State<Float>) : LayoutModifier {
+private data class OffsetPxModifier(
+    val x: State<Float>,
+    val y: State<Float>,
+    val rtlAware: Boolean
+) : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) {
-            placeable.place(x.value.roundToInt(), y.value.roundToInt())
+            if (rtlAware) {
+                placeable.place(x.value.roundToInt(), y.value.roundToInt())
+            } else {
+                placeable.placeAbsolute(x.value.roundToInt(), y.value.roundToInt())
+            }
         }
     }
 }

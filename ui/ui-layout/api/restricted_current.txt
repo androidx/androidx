@@ -579,6 +579,8 @@ package androidx.compose.foundation.layout {
   }
 
   public final class LayoutOffsetKt {
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier absoluteOffset-S2lCeAQ(androidx.compose.ui.Modifier, float x = 0.dp, float y = 0.dp);
+    method public static androidx.compose.ui.Modifier absoluteOffsetPx(androidx.compose.ui.Modifier, androidx.compose.runtime.State<java.lang.Float> x = mutableStateOf(0.0), androidx.compose.runtime.State<java.lang.Float> y = mutableStateOf(0.0));
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier offset-S2lCeAQ(androidx.compose.ui.Modifier, float x = 0.dp, float y = 0.dp);
     method public static androidx.compose.ui.Modifier offsetPx(androidx.compose.ui.Modifier, androidx.compose.runtime.State<java.lang.Float> x = mutableStateOf(0.0), androidx.compose.runtime.State<java.lang.Float> y = mutableStateOf(0.0));
   }
