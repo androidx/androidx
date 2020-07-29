@@ -59,8 +59,10 @@ import java.util.concurrent.Executors;
 // TODO(b/148046169): This class header needs a detailed example/tutorial.
 // TODO(b/149787478): Rename this class to AppSearch.
 public class AppSearchManager {
+    /** The default empty database name.*/
+    public static final String DEFAULT_DATABASE_NAME = "";
 
-    private final String mInstanceName;
+    private final String mDatabaseName;
     private final Context mContext;
     private final AppSearchImpl mAppSearchImpl;
     // Never call Executor.shutdownNow(), it will cancel the futures it's returned. And since
@@ -69,28 +71,62 @@ public class AppSearchManager {
     // mutate requests will need to gain write lock and query requests need to gain read lock.
     private final ExecutorService mExecutorService = Executors.newCachedThreadPool();
 
-    /** Gets the an instance of {@link AppSearchManager} */
-    @NonNull
-    public static ListenableFuture<AppSearchResult<AppSearchManager>> getInstance(
-            @NonNull String instanceName, @NonNull Context context) {
-        AppSearchManager appSearchManager = new AppSearchManager(instanceName, context);
-        return appSearchManager.initialize();
+    /** Builder class for {@link AppSearchManager} objects. */
+    public static final class Builder {
+        private final Context mContext;
+        private String mDatabaseName = DEFAULT_DATABASE_NAME;
+        private boolean mBuilt = false;
+
+        /** Constructs a new Builder with default settings using the provided {@code context}. */
+        public Builder(@NonNull Context context) {
+            Preconditions.checkNotNull(context);
+            mContext = context;
+        }
+
+        /**
+         * Sets the name of the database to create or open.
+         *
+         * <p>Databases with different names are fully separate with distinct types, namespaces, and
+         * data.
+         *
+         * <p>If not specified, defaults to {@link #DEFAULT_DATABASE_NAME}.
+         */
+        @NonNull
+        public Builder setDatabaseName(@NonNull String databaseName) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(databaseName);
+            mDatabaseName = databaseName;
+            return this;
+        }
+
+        /**
+         * Connects to the AppSearch database per this builder's configuration, and asynchronously
+         * returns the initialized instance.
+         */
+        @NonNull
+        public ListenableFuture<AppSearchResult<AppSearchManager>> build() {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mBuilt = true;
+            AppSearchManager appSearchManager = new AppSearchManager(mDatabaseName, mContext);
+            return appSearchManager.initialize();
+        }
     }
 
     /**
      * Gets a instance of {@link AppSearchManager} with the name of it.
-     * <p>Documents, schemas and types are fully isolated between different instances.
      *
-     * @param instanceName  The name of this instance.
+     * <p>Documents, schemas and types are fully isolated between different databases.
+     *
+     * @param databaseName The name of this database.
      * @param context The context to initialize the instance in.
      */
-    private AppSearchManager(@NonNull String instanceName, @NonNull Context context) {
-        mInstanceName = instanceName;
+    AppSearchManager(@NonNull String databaseName, @NonNull Context context) {
+        mDatabaseName = databaseName;
         mContext = context;
         mAppSearchImpl = AppSearchImpl.getInstance(mContext);
     }
 
-    private ListenableFuture<AppSearchResult<AppSearchManager>> initialize() {
+    ListenableFuture<AppSearchResult<AppSearchManager>> initialize() {
         if (mAppSearchImpl.isInitialized()) {
             // Already initialized, nothing to do.
             ResolvableFuture<AppSearchResult<AppSearchManager>> resolvableFuture =
@@ -261,7 +297,7 @@ public class AppSearchManager {
                 schemaProtoBuilder.addTypes(schema.getProto());
             }
             try {
-                mAppSearchImpl.setSchema(mInstanceName, schemaProtoBuilder.build(),
+                mAppSearchImpl.setSchema(mDatabaseName, schemaProtoBuilder.build(),
                         request.mForceOverride);
                 return AppSearchResult.newSuccessfulResult(/*value=*/ null);
             } catch (Throwable t) {
@@ -376,7 +412,7 @@ public class AppSearchManager {
             for (int i = 0; i < request.mDocuments.size(); i++) {
                 GenericDocument document = request.mDocuments.get(i);
                 try {
-                    mAppSearchImpl.putDocument(mInstanceName, document.getProto());
+                    mAppSearchImpl.putDocument(mDatabaseName, document.getProto());
                     resultBuilder.setSuccess(document.getUri(), /*result=*/ null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(document.getUri(), throwableToFailedResult(t));
@@ -467,7 +503,7 @@ public class AppSearchManager {
             for (String uri : request.mUris) {
                 try {
                     DocumentProto documentProto =
-                            mAppSearchImpl.getDocument(mInstanceName, request.mNamespace, uri);
+                            mAppSearchImpl.getDocument(mDatabaseName, request.mNamespace, uri);
                     try {
                         GenericDocument document = new GenericDocument(documentProto);
                         resultBuilder.setSuccess(uri, document);
@@ -536,7 +572,7 @@ public class AppSearchManager {
             try {
                 SearchSpecProto searchSpecProto = searchSpec.getSearchSpecProto();
                 searchSpecProto = searchSpecProto.toBuilder().setQuery(queryExpression).build();
-                SearchResultProto searchResultProto = mAppSearchImpl.query(mInstanceName,
+                SearchResultProto searchResultProto = mAppSearchImpl.query(mDatabaseName,
                         searchSpecProto, searchSpec.getResultSpecProto(),
                         searchSpec.getScoringSpecProto());
 
@@ -626,7 +662,7 @@ public class AppSearchManager {
                     new AppSearchBatchResult.Builder<>();
             for (String uri : request.mUris) {
                 try {
-                    mAppSearchImpl.remove(mInstanceName, request.mNamespace, uri);
+                    mAppSearchImpl.remove(mDatabaseName, request.mNamespace, uri);
                     resultBuilder.setSuccess(uri, /*result= */null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(uri, throwableToFailedResult(t));
@@ -673,7 +709,7 @@ public class AppSearchManager {
             for (int i = 0; i < schemaTypes.size(); i++) {
                 String schemaType = schemaTypes.get(i);
                 try {
-                    mAppSearchImpl.removeByType(mInstanceName, schemaType);
+                    mAppSearchImpl.removeByType(mDatabaseName, schemaType);
                     resultBuilder.setSuccess(schemaType, /*result=*/ null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(schemaType, throwableToFailedResult(t));
@@ -720,7 +756,7 @@ public class AppSearchManager {
             for (int i = 0; i < namespaces.size(); i++) {
                 String namespace = namespaces.get(i);
                 try {
-                    mAppSearchImpl.removeByNamespace(mInstanceName, namespace);
+                    mAppSearchImpl.removeByNamespace(mDatabaseName, namespace);
                     resultBuilder.setSuccess(namespace, /*result=*/ null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(namespace, throwableToFailedResult(t));
@@ -739,7 +775,7 @@ public class AppSearchManager {
     public ListenableFuture<AppSearchResult<Void>> removeAll() {
         return execute(() -> {
             try {
-                mAppSearchImpl.removeAll(mInstanceName);
+                mAppSearchImpl.removeAll(mDatabaseName);
                 return AppSearchResult.newSuccessfulResult(null);
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
