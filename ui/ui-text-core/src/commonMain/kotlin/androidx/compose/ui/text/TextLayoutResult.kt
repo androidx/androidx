@@ -161,12 +161,37 @@ data class TextLayoutResult internal constructor(
     fun getLineStart(lineIndex: Int): Int = multiParagraph.getLineStart(lineIndex)
 
     /**
-     * Returns the end offset of the given line, exclusive.
+     * Returns the end offset of the given line
+     *
+     * If ellipsis happens on the given line, this returns the end of text since ellipsized
+     * characters are counted into the same line.
      *
      * @param lineIndex the line number
-     * @return the end offset of the line.
+     * @return an exclusive end offset of the line.
+     * @see getLineVisibleEnd
      */
     fun getLineEnd(lineIndex: Int): Int = multiParagraph.getLineEnd(lineIndex)
+
+    /**
+     * Returns the end of visible offset of the given line.
+     *
+     * If no ellipsis happens on the given line, this returns the line end offset with excluding
+     * trailing whitespaces.
+     * If ellipsis happens on the given line, this returns the offset that ellipsis started, i.e.
+     * the exclusive not ellipsized last character.
+     * @param lineIndex a 0 based line index
+     * @return an exclusive line end offset that is visible on the display
+     * @see getLineEnd
+     */
+    fun getLineVisibleEnd(lineIndex: Int): Int = multiParagraph.getLineVisibleEnd(lineIndex)
+
+    /**
+     * Returns true if ellipsis happens on the given line, otherwise returns false
+     *
+     * @param lineIndex a 0 based line index
+     * @return true if ellipsis happens on the given line, otherwise false
+     */
+    fun isLineEllipsized(lineIndex: Int): Boolean = multiParagraph.isLineEllipsized(lineIndex)
 
     /**
      * Returns the top y coordinate of the given line.

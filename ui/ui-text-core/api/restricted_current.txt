@@ -85,8 +85,6 @@ package androidx.compose.ui.text {
     method public float getLastBaseline();
     method public float getLineBottom(int lineIndex);
     method public int getLineCount();
-    method public int getLineEllipsisCount(int lineIndex);
-    method public int getLineEllipsisOffset(int lineIndex);
     method public int getLineEnd(int lineIndex);
     method public int getLineForOffset(int offset);
     method public int getLineForVerticalPosition(float vertical);
@@ -95,6 +93,7 @@ package androidx.compose.ui.text {
     method public float getLineRight(int lineIndex);
     method public int getLineStart(int lineIndex);
     method public float getLineTop(int lineIndex);
+    method public int getLineVisibleEnd(int lineIndex);
     method public float getLineWidth(int lineIndex);
     method public float getMaxIntrinsicWidth();
     method public int getMaxLines();
@@ -105,6 +104,7 @@ package androidx.compose.ui.text {
     method public java.util.List<androidx.compose.ui.geometry.Rect> getPlaceholderRects();
     method public float getWidth();
     method public androidx.compose.ui.text.TextRange getWordBoundary(int offset);
+    method public boolean isLineEllipsized(int lineIndex);
     method public void paint(androidx.compose.ui.graphics.Canvas canvas);
     property public final boolean didExceedMaxLines;
     property public final float firstBaseline;
@@ -144,8 +144,6 @@ package androidx.compose.ui.text {
     method public float getLastBaseline();
     method public float getLineBottom(int lineIndex);
     method public int getLineCount();
-    method public int getLineEllipsisCount(int lineIndex);
-    method public int getLineEllipsisOffset(int lineIndex);
     method public int getLineEnd(int lineIndex);
     method public int getLineForOffset(int offset);
     method public int getLineForVerticalPosition(float vertical);
@@ -154,6 +152,7 @@ package androidx.compose.ui.text {
     method public float getLineRight(int lineIndex);
     method public int getLineStart(int lineIndex);
     method public float getLineTop(int lineIndex);
+    method public int getLineVisibleEnd(int lineIndex);
     method public float getLineWidth(int lineIndex);
     method public float getMaxIntrinsicWidth();
     method public float getMinIntrinsicWidth();
@@ -163,6 +162,7 @@ package androidx.compose.ui.text {
     method public java.util.List<androidx.compose.ui.geometry.Rect> getPlaceholderRects();
     method public float getWidth();
     method public androidx.compose.ui.text.TextRange getWordBoundary(int offset);
+    method public boolean isLineEllipsized(int lineIndex);
     method public void paint(androidx.compose.ui.graphics.Canvas canvas);
     property public abstract boolean didExceedMaxLines;
     property public abstract float firstBaseline;
@@ -345,12 +345,14 @@ package androidx.compose.ui.text {
     method public float getLineRight(int lineIndex);
     method public int getLineStart(int lineIndex);
     method public float getLineTop(int lineIndex);
+    method public int getLineVisibleEnd(int lineIndex);
     method public int getOffsetForPosition(androidx.compose.ui.geometry.Offset position);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.compose.ui.geometry.Rect> getPlaceholderRects();
     method public androidx.compose.ui.unit.IntSize getSize();
     method public androidx.compose.ui.text.TextRange getWordBoundary(int offset);
+    method public boolean isLineEllipsized(int lineIndex);
     property public final boolean didOverflowHeight;
     property public final boolean didOverflowWidth;
     property public final float firstBaseline;
