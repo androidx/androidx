@@ -40,6 +40,7 @@ import android.util.Log;
 import android.view.Display;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -724,6 +725,7 @@ public final class MediaRouter {
     /**
      * Sets a listener for receiving events when the selected route is about to be changed.
      */
+    @MainThread
     public void setOnPrepareTransferListener(@Nullable OnPrepareTransferListener listener) {
         checkCallingThread();
         sGlobal.mOnPrepareTransferListener = listener;
@@ -2237,6 +2239,7 @@ public final class MediaRouter {
          * the media continues to be played on the previous route.
          */
         @Nullable
+        @MainThread
         ListenableFuture<Void> onPrepareTransfer(@NonNull RouteInfo fromRoute,
                 @NonNull RouteInfo toRoute);
     }
