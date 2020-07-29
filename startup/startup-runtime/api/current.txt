@@ -4,6 +4,7 @@ package androidx.startup {
   public final class AppInitializer {
     method public static androidx.startup.AppInitializer getInstance(android.content.Context);
     method public <T> T initializeComponent(Class<? extends androidx.startup.Initializer<T!>>);
+    method public boolean isEagerlyInitialized(Class<? extends androidx.startup.Initializer<?>>);
   }
 
   public interface Initializer<T> {
