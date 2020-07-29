@@ -31,6 +31,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -45,7 +46,7 @@ class FragmentActivityResultTest {
     fun registerActivityResultInOnAttach() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
-                val fragment = RegisterInOnAttachFragment()
+                val fragment = RegisterInLifecycleCallbackFragment(Fragment.ATTACHED)
 
                 supportFragmentManager.beginTransaction()
                     .add(androidx.fragment.test.R.id.content, fragment)
@@ -60,13 +61,35 @@ class FragmentActivityResultTest {
     fun registerActivityResultInOnCreate() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
-                val fragment = RegisterInOnCreateFragment()
+                val fragment = RegisterInLifecycleCallbackFragment(Fragment.CREATED)
 
                 supportFragmentManager.beginTransaction()
                     .add(androidx.fragment.test.R.id.content, fragment)
                     .commitNow()
 
                 assertThat(fragment.launchedCounter).isEqualTo(1)
+            }
+        }
+    }
+
+    @Test
+    fun registerActivityResultInOnStart() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            withActivity {
+                val fragment = RegisterInLifecycleCallbackFragment(Fragment.STARTED)
+
+                try {
+                    supportFragmentManager.beginTransaction()
+                        .add(androidx.fragment.test.R.id.content, fragment)
+                        .commitNow()
+                    fail("Registering for activity result after onCreate() should fail")
+                } catch (e: IllegalStateException) {
+                    assertThat(e).hasMessageThat().contains("Fragment $fragment is attempting to " +
+                            "registerForActivityResult after being created. Fragments must call " +
+                            "registerForActivityResult() before they are created (i.e. " +
+                            "initialization, onAttach(), or onCreate())."
+                    )
+                }
             }
         }
     }
@@ -150,7 +173,7 @@ class DoubleActivityResultFragment : Fragment() {
     }
 }
 
-class RegisterInOnAttachFragment : Fragment() {
+class RegisterInLifecycleCallbackFragment(val state: Int) : Fragment() {
     private val registry = object : ActivityResultRegistry() {
         override fun <I : Any?, O : Any?> onLaunch(
             requestCode: Int,
@@ -166,42 +189,32 @@ class RegisterInOnAttachFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        launcher = registerForActivityResult(
-            StartActivityForResult(),
-            registry
-        ) { launchedCounter++ }
+        if (state == ATTACHED) {
+            launcher = registerForActivityResult(
+                StartActivityForResult(),
+                registry
+            ) { launchedCounter++ }
+        }
     }
-
-    override fun onStart() {
-        super.onStart()
-        launcher.launch(Intent())
-    }
-}
-
-class RegisterInOnCreateFragment : Fragment() {
-    private val registry = object : ActivityResultRegistry() {
-        override fun <I : Any?, O : Any?> onLaunch(
-            requestCode: Int,
-            contract: ActivityResultContract<I, O>,
-            input: I,
-            options: ActivityOptionsCompat?
-        ) { dispatchResult(requestCode, Activity.RESULT_OK, Intent()) }
-    }
-
-    lateinit var launcher: ActivityResultLauncher<Intent>
-
-    var launchedCounter = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        launcher = registerForActivityResult(
-            StartActivityForResult(),
-            registry
-        ) { launchedCounter++ }
+        if (state == CREATED) {
+            launcher = registerForActivityResult(
+                StartActivityForResult(),
+                registry
+            ) { launchedCounter++ }
+        }
     }
 
     override fun onStart() {
         super.onStart()
+        if (state == STARTED) {
+            launcher = registerForActivityResult(
+                StartActivityForResult(),
+                registry
+            ) { launchedCounter++ }
+        }
         launcher.launch(Intent())
     }
 }
