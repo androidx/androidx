@@ -73,9 +73,10 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
     @Override
     synchronized void open() {
         super.open();
-        mCachedImage = null;
-        mPostedImageTimestamp.set(-1);
-        mPostedImage.set(null);
+        if (mCachedImage != null) {
+            mCachedImage.close();
+            mCachedImage = null;
+        }
     }
 
     @Override
