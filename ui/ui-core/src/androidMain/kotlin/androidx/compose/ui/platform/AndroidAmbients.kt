@@ -33,7 +33,6 @@ import androidx.compose.runtime.state
 import androidx.compose.runtime.staticAmbientOf
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
-import kotlinx.coroutines.Dispatchers
 
 /**
  * The Android [Configuration]. The [Configuration] is useful for determining how to organize the
@@ -107,7 +106,6 @@ internal fun ProvideAndroidAmbients(owner: AndroidOwner, content: @Composable ()
         ProvideCommonAmbients(
             owner = owner,
             uriHandler = uriHandler,
-            coroutineContext = Dispatchers.Main,
             content = content
         )
     }

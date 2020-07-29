@@ -25,7 +25,6 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.compositionFor
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.LayoutNode
-import kotlinx.coroutines.Dispatchers
 
 @OptIn(ExperimentalComposeApi::class)
 fun DesktopOwner.setContent(content: @Composable () -> Unit): Composition {
@@ -49,7 +48,6 @@ private fun ProvideDesktopAmbients(owner: DesktopOwner, content: @Composable () 
         ProvideCommonAmbients(
             owner = owner,
             uriHandler = DesktopUriHandler(),
-            coroutineContext = Dispatchers.Main,
             content = content
         )
     }
