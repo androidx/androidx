@@ -15,6 +15,10 @@ package androidx.compose.ui.unit {
     method public float getLeft();
     method public float getRight();
     method public float getTop();
+    field public static final androidx.compose.ui.unit.Bounds.Companion Companion;
+  }
+
+  public static final class Bounds.Companion {
   }
 
   @androidx.compose.runtime.Immutable public final class Constraints {
@@ -344,6 +348,10 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public static inline operator long minus-IsWn59c(long $this, long other);
     method @androidx.compose.runtime.Stable public static inline operator long plus-IsWn59c(long $this, long other);
     method @androidx.compose.runtime.Stable public static String toString-impl(long $this);
+    field public static final androidx.compose.ui.unit.Position.Companion Companion;
+  }
+
+  public static final class Position.Companion {
   }
 
   @androidx.compose.runtime.Immutable public final class PxBounds {
@@ -357,6 +365,10 @@ package androidx.compose.ui.unit {
     method public float getLeft();
     method public float getRight();
     method public float getTop();
+    field public static final androidx.compose.ui.unit.PxBounds.Companion Companion;
+  }
+
+  public static final class PxBounds.Companion {
   }
 
   @androidx.compose.runtime.Immutable public final inline class PxCubed implements java.lang.Comparable<androidx.compose.ui.unit.PxCubed> {

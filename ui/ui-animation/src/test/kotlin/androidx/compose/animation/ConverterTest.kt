@@ -23,6 +23,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
@@ -34,7 +35,7 @@ import kotlin.random.Random
 class ConverterTest {
     @Test
     fun testColorConverter() {
-        val converter = ColorToVectorConverter(ColorSpaces.Srgb)
+        val converter = (Color.VectorConverter)(ColorSpaces.Srgb)
         assertEquals(converter.convertFromVector(AnimationVector4D(1f, 1f, 0f, 0f)), Color.Red)
         assertEquals(converter.convertToVector(Color.Green), AnimationVector4D(1f, 0f, 1f, 0f))
         assertEquals(converter.convertFromVector(AnimationVector4D(0f, 0f, 0f, 1f)),
@@ -43,9 +44,11 @@ class ConverterTest {
 
     @Test
     fun testRectConverter() {
-        assertEquals(RectToVectorConverter.convertToVector(Rect(1f, 2f, 3f, 4f)),
+        assertEquals(
+            Rect.VectorConverter.convertToVector(Rect(1f, 2f, 3f, 4f)),
             AnimationVector4D(1f, 2f, 3f, 4f))
-        assertEquals(RectToVectorConverter.convertFromVector(
+        assertEquals(
+            Rect.VectorConverter.convertFromVector(
             AnimationVector4D(-400f, -300f, -200f, -100f)),
             Rect(-400f, -300f, -200f, -100f))
     }
@@ -53,10 +56,10 @@ class ConverterTest {
     @Test
     fun testDpConverter() {
         val value = Random.nextFloat()
-        assertEquals(DpToVectorConverter.convertFromVector(AnimationVector1D(value)), value.dp)
+        assertEquals(Dp.VectorConverter.convertFromVector(AnimationVector1D(value)), value.dp)
 
         val value2 = Random.nextFloat()
-        assertEquals(DpToVectorConverter.convertToVector(value2.dp), AnimationVector1D(value2))
+        assertEquals(Dp.VectorConverter.convertToVector(value2.dp), AnimationVector1D(value2))
     }
 
     @Test
@@ -64,8 +67,8 @@ class ConverterTest {
         val x = Random.nextFloat()
         val y = Random.nextFloat()
         assertEquals(Offset(x, y),
-            OffsetToVectorConverter.convertFromVector(AnimationVector2D(x, y)))
+            Offset.VectorConverter.convertFromVector(AnimationVector2D(x, y)))
         assertEquals(AnimationVector2D(x, y),
-            OffsetToVectorConverter.convertToVector(Offset(x, y)))
+            Offset.VectorConverter.convertToVector(Offset(x, y)))
     }
 }

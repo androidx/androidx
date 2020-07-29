@@ -19,9 +19,10 @@ package androidx.compose.animation
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.AnimationVector4D
-import androidx.compose.animation.core.FloatToVectorConverter
 import androidx.compose.animation.core.PropKey
 import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -33,7 +34,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Position
 import androidx.compose.ui.unit.PxBounds
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
@@ -43,7 +43,7 @@ import kotlin.math.roundToInt
  * @param label Label for distinguishing different prop keys in Android Studio.
  */
 class PxPropKey(override val label: String = "PxPropKey") : PropKey<Float, AnimationVector1D> {
-    override val typeConverter = FloatToVectorConverter
+    override val typeConverter = Float.VectorConverter
 }
 
 /**
@@ -52,7 +52,7 @@ class PxPropKey(override val label: String = "PxPropKey") : PropKey<Float, Anima
  * @param label Label for distinguishing different prop keys in Android Studio.
  */
 class DpPropKey(override val label: String = "DpPropKey") : PropKey<Dp, AnimationVector1D> {
-    override val typeConverter = DpToVectorConverter
+    override val typeConverter = Dp.VectorConverter
 }
 
 /**
@@ -63,7 +63,7 @@ class DpPropKey(override val label: String = "DpPropKey") : PropKey<Dp, Animatio
 class OffsetPropKey(
     override val label: String = "OffsetPropKey"
 ) : PropKey<Offset, AnimationVector2D> {
-    override val typeConverter = OffsetToVectorConverter
+    override val typeConverter = Offset.VectorConverter
 }
 
 /**
@@ -75,7 +75,7 @@ class ColorPropKey(
     colorSpace: ColorSpace = ColorSpaces.Srgb,
     override val label: String = "ColorPropKey"
 ) : PropKey<Color, AnimationVector4D> {
-    override val typeConverter = ColorToVectorConverter(colorSpace)
+    override val typeConverter = (Color.VectorConverter)(colorSpace)
 }
 
 /**
@@ -86,7 +86,7 @@ class ColorPropKey(
 class RectPropKey(
     override val label: String = "RectPropKey"
 ) : PropKey<Rect, AnimationVector4D> {
-    override val typeConverter = RectToVectorConverter
+    override val typeConverter = Rect.VectorConverter
 }
 
 /**
@@ -94,7 +94,7 @@ class RectPropKey(
  * a [AnimationVector4D], and convert a [AnimationVector4D]) back to a [Color] in the given
  * [ColorSpace].
  */
-val ColorToVectorConverter: (colorSpace: ColorSpace) -> TwoWayConverter<Color, AnimationVector4D> =
+private val ColorToVector: (colorSpace: ColorSpace) -> TwoWayConverter<Color, AnimationVector4D> =
     { colorSpace ->
         TwoWayConverter(
             convertToVector = {
@@ -119,7 +119,7 @@ val ColorToVectorConverter: (colorSpace: ColorSpace) -> TwoWayConverter<Color, A
 /**
  * A type converter that converts a [Rect] to a [AnimationVector4D], and vice versa.
  */
-val RectToVectorConverter: TwoWayConverter<Rect, AnimationVector4D> =
+private val RectToVector: TwoWayConverter<Rect, AnimationVector4D> =
     TwoWayConverter(
         convertToVector = {
             AnimationVector4D(it.left, it.top, it.right, it.bottom)
@@ -132,7 +132,7 @@ val RectToVectorConverter: TwoWayConverter<Rect, AnimationVector4D> =
 /**
  * A type converter that converts a [Dp] to a [AnimationVector1D], and vice versa.
  */
-val DpToVectorConverter: TwoWayConverter<Dp, AnimationVector1D> = TwoWayConverter(
+private val DpToVector: TwoWayConverter<Dp, AnimationVector1D> = TwoWayConverter(
     convertToVector = { AnimationVector1D(it.value) },
     convertFromVector = { Dp(it.value) }
 )
@@ -140,7 +140,7 @@ val DpToVectorConverter: TwoWayConverter<Dp, AnimationVector1D> = TwoWayConverte
 /**
  * A type converter that converts a [Position] to a [AnimationVector2D], and vice versa.
  */
-val PositionToVectorConverter: TwoWayConverter<Position, AnimationVector2D> =
+private val PositionToVector: TwoWayConverter<Position, AnimationVector2D> =
     TwoWayConverter(
         convertToVector = { AnimationVector2D(it.x.value, it.y.value) },
         convertFromVector = { Position(it.v1.dp, it.v2.dp) }
@@ -149,7 +149,7 @@ val PositionToVectorConverter: TwoWayConverter<Position, AnimationVector2D> =
 /**
  * A type converter that converts a [Size] to a [AnimationVector2D], and vice versa.
  */
-val SizeToVectorConverter: TwoWayConverter<Size, AnimationVector2D> =
+private val SizeToVector: TwoWayConverter<Size, AnimationVector2D> =
     TwoWayConverter(
         convertToVector = { AnimationVector2D(it.width, it.height) },
         convertFromVector = { Size(it.v1, it.v2) }
@@ -158,36 +158,37 @@ val SizeToVectorConverter: TwoWayConverter<Size, AnimationVector2D> =
 /**
  * A type converter that converts a [Bounds] to a [AnimationVector4D], and vice versa.
  */
-val BoundsToVectorConverter: TwoWayConverter<Bounds, AnimationVector4D> =
+private val BoundsToVector: TwoWayConverter<Bounds, AnimationVector4D> =
     TwoWayConverter(
         convertToVector = {
-            AnimationVector4D(it.left.value, it.top.value, it.right.value, it.bottom.value) },
+            AnimationVector4D(it.left.value, it.top.value, it.right.value, it.bottom.value)
+        },
         convertFromVector = { Bounds(it.v1.dp, it.v2.dp, it.v3.dp, it.v4.dp) }
     )
 
 /**
  * A type converter that converts a [Offset] to a [AnimationVector2D], and vice versa.
  */
-val OffsetToVectorConverter: TwoWayConverter<Offset, AnimationVector2D> =
+private val OffsetToVector: TwoWayConverter<Offset, AnimationVector2D> =
     TwoWayConverter(
         convertToVector = { AnimationVector2D(it.x, it.y) },
         convertFromVector = { Offset(it.v1, it.v2) }
     )
-
 /**
  * A type converter that converts a [PxBounds] to a [AnimationVector4D], and vice versa.
  */
-val PxBoundsToVectorConverter: TwoWayConverter<PxBounds, AnimationVector4D> =
+private val PxBoundsToVector: TwoWayConverter<PxBounds, AnimationVector4D> =
     TwoWayConverter(
         convertToVector = {
-            AnimationVector4D(it.left, it.top, it.right, it.bottom) },
+            AnimationVector4D(it.left, it.top, it.right, it.bottom)
+        },
         convertFromVector = { PxBounds(it.v1, it.v2, it.v3, it.v4) }
     )
 
 /**
  * A type converter that converts a [IntOffset] to a [AnimationVector2D], and vice versa.
  */
-val IntPxPositionToVectorConverter: TwoWayConverter<IntOffset, AnimationVector2D> =
+private val IntOffsetToVector: TwoWayConverter<IntOffset, AnimationVector2D> =
     TwoWayConverter(
         convertToVector = { AnimationVector2D(it.x.toFloat(), it.y.toFloat()) },
         convertFromVector = { IntOffset(it.v1.roundToInt(), it.v2.roundToInt()) }
@@ -196,10 +197,139 @@ val IntPxPositionToVectorConverter: TwoWayConverter<IntOffset, AnimationVector2D
 /**
  * A type converter that converts a [IntSize] to a [AnimationVector2D], and vice versa.
  */
-val IntSizeToVectorConverter: TwoWayConverter<IntSize, AnimationVector2D> =
+private val IntSizeToVector: TwoWayConverter<IntSize, AnimationVector2D> =
     TwoWayConverter(
         { AnimationVector2D(it.width.toFloat(), it.height.toFloat()) },
         { IntSize(it.v1.roundToInt(), it.v2.roundToInt()) }
     )
 
-// TODO: Figure out a better API to expose these converters. These may not be easy to remember.
+/**
+ * A lambda that takes a [ColorSpace] and returns a converter that can both convert a [Color] to
+ * a [AnimationVector4D], and convert a [AnimationVector4D]) back to a [Color] in the given
+ * [ColorSpace].
+ */
+val Color.Companion.VectorConverter:
+            (colorSpace: ColorSpace) -> TwoWayConverter<Color, AnimationVector4D>
+    get() = ColorToVector
+
+/**
+ * A lambda that takes a [ColorSpace] and returns a converter that can both convert a [Color] to
+ * a [AnimationVector4D], and convert a [AnimationVector4D]) back to a [Color] in the given
+ * [ColorSpace].
+ */
+@Deprecated("", ReplaceWith("Color.VectorConverter"))
+val ColorToVectorConverter: (colorSpace: ColorSpace) -> TwoWayConverter<Color, AnimationVector4D> =
+    Color.VectorConverter
+
+/**
+ * A type converter that converts a [Rect] to a [AnimationVector4D], and vice versa.
+ */
+val Rect.Companion.VectorConverter: TwoWayConverter<Rect, AnimationVector4D>
+    get() = RectToVector
+
+/**
+ * A type converter that converts a [Rect] to a [AnimationVector4D], and vice versa.
+ */
+@Deprecated("", ReplaceWith("Rect.VectorConverter"))
+val RectToVectorConverter: TwoWayConverter<Rect, AnimationVector4D> = Rect.VectorConverter
+
+/**
+ * A type converter that converts a [Dp] to a [AnimationVector1D], and vice versa.
+ */
+val Dp.Companion.VectorConverter: TwoWayConverter<Dp, AnimationVector1D>
+    get() = DpToVector
+
+/**
+ * A type converter that converts a [Dp] to a [AnimationVector1D], and vice versa.
+ */
+@Deprecated("", ReplaceWith("Dp.VectorConverter"))
+val DpToVectorConverter: TwoWayConverter<Dp, AnimationVector1D> = Dp.VectorConverter
+
+/**
+ * A type converter that converts a [Position] to a [AnimationVector2D], and vice versa.
+ */
+val Position.Companion.VectorConverter: TwoWayConverter<Position, AnimationVector2D>
+    get() = PositionToVector
+
+/**
+ * A type converter that converts a [Position] to a [AnimationVector2D], and vice versa.
+ */
+@Deprecated("", ReplaceWith("Position.VectorConverter"))
+val PositionToVectorConverter: TwoWayConverter<Position, AnimationVector2D> =
+    Position.VectorConverter
+
+/**
+ * A type converter that converts a [Size] to a [AnimationVector2D], and vice versa.
+ */
+val Size.Companion.VectorConverter: TwoWayConverter<Size, AnimationVector2D>
+    get() = SizeToVector
+
+/**
+ * A type converter that converts a [Size] to a [AnimationVector2D], and vice versa.
+ */
+@Deprecated("", ReplaceWith("Size.VectorConverter"))
+val SizeToVectorConverter: TwoWayConverter<Size, AnimationVector2D> =
+    Size.VectorConverter
+/**
+ * A type converter that converts a [Bounds] to a [AnimationVector4D], and vice versa.
+ */
+val Bounds.Companion.VectorConverter: TwoWayConverter<Bounds, AnimationVector4D>
+    get() = BoundsToVector
+
+/**
+ * A type converter that converts a [Bounds] to a [AnimationVector4D], and vice versa.
+ */
+@Deprecated("", ReplaceWith("Bounds.VectorConverter"))
+val BoundsToVectorConverter: TwoWayConverter<Bounds, AnimationVector4D> =
+    Bounds.VectorConverter
+
+/**
+ * A type converter that converts a [Offset] to a [AnimationVector2D], and vice versa.
+ */
+val Offset.Companion.VectorConverter: TwoWayConverter<Offset, AnimationVector2D>
+    get() = OffsetToVector
+
+/**
+ * A type converter that converts a [Offset] to a [AnimationVector2D], and vice versa.
+ */
+@Deprecated("", ReplaceWith("Offset.VectorConverter"))
+val OffsetToVectorConverter: TwoWayConverter<Offset, AnimationVector2D> =
+    Offset.VectorConverter
+
+/**
+ * A type converter that converts a [PxBounds] to a [AnimationVector4D], and vice versa.
+ */
+val PxBounds.Companion.VectorConverter: TwoWayConverter<PxBounds, AnimationVector4D>
+    get() = PxBoundsToVector
+
+/**
+ * A type converter that converts a [PxBounds] to a [AnimationVector4D], and vice versa.
+ */
+@Deprecated("", ReplaceWith("PxBounds.VectorConverter"))
+val PxBoundsToVectorConverter: TwoWayConverter<PxBounds, AnimationVector4D> =
+    PxBounds.VectorConverter
+
+/**
+ * A type converter that converts a [IntOffset] to a [AnimationVector2D], and vice versa.
+ */
+val IntOffset.Companion.VectorConverter: TwoWayConverter<IntOffset, AnimationVector2D>
+    get() = IntOffsetToVector
+
+/**
+ * A type converter that converts a [IntOffset] to a [AnimationVector2D], and vice versa.
+ */
+@Deprecated("", ReplaceWith("IntOffset.VectorConverter"))
+val IntPxPositionToVectorConverter: TwoWayConverter<IntOffset, AnimationVector2D> =
+    IntOffset.VectorConverter
+
+/**
+ * A type converter that converts a [IntSize] to a [AnimationVector2D], and vice versa.
+ */
+val IntSize.Companion.VectorConverter: TwoWayConverter<IntSize, AnimationVector2D>
+    get() = IntSizeToVector
+
+/**
+ * A type converter that converts a [IntSize] to a [AnimationVector2D], and vice versa.
+ */
+@Deprecated("", ReplaceWith("IntSize.VectorConverter"))
+val IntSizeToVectorConverter: TwoWayConverter<IntSize, AnimationVector2D> = IntSize.VectorConverter

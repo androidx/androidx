@@ -71,16 +71,26 @@ package androidx.compose.animation {
   }
 
   public final class PropertyKeysKt {
-    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.Bounds,androidx.compose.animation.core.AnimationVector4D> getBoundsToVectorConverter();
-    method public static kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.colorspace.ColorSpace,androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D>> getColorToVectorConverter();
-    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.Dp,androidx.compose.animation.core.AnimationVector1D> getDpToVectorConverter();
-    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.IntOffset,androidx.compose.animation.core.AnimationVector2D> getIntPxPositionToVectorConverter();
-    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.IntSize,androidx.compose.animation.core.AnimationVector2D> getIntSizeToVectorConverter();
-    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.geometry.Offset,androidx.compose.animation.core.AnimationVector2D> getOffsetToVectorConverter();
-    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.Position,androidx.compose.animation.core.AnimationVector2D> getPositionToVectorConverter();
-    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.PxBounds,androidx.compose.animation.core.AnimationVector4D> getPxBoundsToVectorConverter();
-    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.geometry.Rect,androidx.compose.animation.core.AnimationVector4D> getRectToVectorConverter();
-    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.geometry.Size,androidx.compose.animation.core.AnimationVector2D> getSizeToVectorConverter();
+    method @Deprecated public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.Bounds,androidx.compose.animation.core.AnimationVector4D> getBoundsToVectorConverter();
+    method @Deprecated public static kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.colorspace.ColorSpace,androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D>> getColorToVectorConverter();
+    method @Deprecated public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.Dp,androidx.compose.animation.core.AnimationVector1D> getDpToVectorConverter();
+    method @Deprecated public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.IntOffset,androidx.compose.animation.core.AnimationVector2D> getIntPxPositionToVectorConverter();
+    method @Deprecated public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.IntSize,androidx.compose.animation.core.AnimationVector2D> getIntSizeToVectorConverter();
+    method @Deprecated public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.geometry.Offset,androidx.compose.animation.core.AnimationVector2D> getOffsetToVectorConverter();
+    method @Deprecated public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.Position,androidx.compose.animation.core.AnimationVector2D> getPositionToVectorConverter();
+    method @Deprecated public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.PxBounds,androidx.compose.animation.core.AnimationVector4D> getPxBoundsToVectorConverter();
+    method @Deprecated public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.geometry.Rect,androidx.compose.animation.core.AnimationVector4D> getRectToVectorConverter();
+    method @Deprecated public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.geometry.Size,androidx.compose.animation.core.AnimationVector2D> getSizeToVectorConverter();
+    method public static kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.colorspace.ColorSpace,androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D>> getVectorConverter(androidx.compose.ui.graphics.Color.Companion);
+    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.geometry.Rect,androidx.compose.animation.core.AnimationVector4D> getVectorConverter(androidx.compose.ui.geometry.Rect.Companion);
+    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.Dp,androidx.compose.animation.core.AnimationVector1D> getVectorConverter(androidx.compose.ui.unit.Dp.Companion);
+    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.Position,androidx.compose.animation.core.AnimationVector2D> getVectorConverter(androidx.compose.ui.unit.Position.Companion);
+    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.geometry.Size,androidx.compose.animation.core.AnimationVector2D> getVectorConverter(androidx.compose.ui.geometry.Size.Companion);
+    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.Bounds,androidx.compose.animation.core.AnimationVector4D> getVectorConverter(androidx.compose.ui.unit.Bounds.Companion);
+    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.geometry.Offset,androidx.compose.animation.core.AnimationVector2D> getVectorConverter(androidx.compose.ui.geometry.Offset.Companion);
+    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.PxBounds,androidx.compose.animation.core.AnimationVector4D> getVectorConverter(androidx.compose.ui.unit.PxBounds.Companion);
+    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.IntOffset,androidx.compose.animation.core.AnimationVector2D> getVectorConverter(androidx.compose.ui.unit.IntOffset.Companion);
+    method public static androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.unit.IntSize,androidx.compose.animation.core.AnimationVector2D> getVectorConverter(androidx.compose.ui.unit.IntSize.Companion);
   }
 
   public final class PxPropKey implements androidx.compose.animation.core.PropKey<java.lang.Float,androidx.compose.animation.core.AnimationVector1D> {
@@ -102,13 +112,13 @@ package androidx.compose.animation {
   public final class SingleValueAnimationKt {
     method @androidx.compose.runtime.Composable public static float animate(float target, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animSpec = androidx.compose.animation.SingleValueAnimationKt.defaultAnimation, float visibilityThreshold = 0.01f, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>? endListener = null);
     method @androidx.compose.runtime.Composable public static androidx.compose.ui.unit.Bounds animate(androidx.compose.ui.unit.Bounds target, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.unit.Bounds> animSpec = remember({ 
-    return <init>(BoundsToVectorConverter.invoke(DpVisibilityThreshold4D))
+    return <init>(Bounds.VectorConverter.invoke(DpVisibilityThreshold4D))
 }), kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Bounds,kotlin.Unit>? endListener = null);
     method @androidx.compose.runtime.Composable public static androidx.compose.ui.geometry.Offset animate(androidx.compose.ui.geometry.Offset target, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset> animSpec = remember({ 
     return <init>(Offset(PxVisibilityThreshold, PxVisibilityThreshold))
 }), kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? endListener = null);
     method @androidx.compose.runtime.Composable public static androidx.compose.ui.unit.PxBounds animate(androidx.compose.ui.unit.PxBounds target, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.unit.PxBounds> animSpec = remember({ 
-    return <init>(PxBoundsToVectorConverter.invoke(PxVisibilityThreshold4D))
+    return <init>(PxBounds.VectorConverter.invoke(PxVisibilityThreshold4D))
 }), kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.PxBounds,kotlin.Unit>? endListener = null);
     method @androidx.compose.runtime.Composable public static int animate(int target, androidx.compose.animation.core.AnimationSpec<java.lang.Integer> animSpec = remember({ 
     return <init>(1)

@@ -32,7 +32,7 @@ class SnapAnimationTest {
             0f,
             0f,
             AnimationVector(0f),
-            FloatToVectorConverter
+            Float.VectorConverter
         )
 
         assertThat(animation.at(0)).isEqualTo(1f)

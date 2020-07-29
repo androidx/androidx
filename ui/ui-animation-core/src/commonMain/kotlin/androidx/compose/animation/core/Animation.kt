@@ -274,7 +274,7 @@ internal class DecayAnimation(
     private val target: Float = anim.getTarget(startValue, startVelocity)
     private val velocityVector: AnimationVector1D = AnimationVector1D(0f)
     override val converter: TwoWayConverter<Float, AnimationVector1D>
-        get() = FloatToVectorConverter
+        get() = Float.VectorConverter
 
     override fun getValue(playTime: Long): Float {
         if (!isFinished(playTime)) {

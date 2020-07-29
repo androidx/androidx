@@ -20,9 +20,9 @@ import androidx.compose.animation.core.AnimationEndReason
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.AnimationVector4D
-import androidx.compose.animation.core.IntToVectorConverter
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
@@ -130,7 +130,7 @@ fun animate(
     animSpec: AnimationSpec<Color> = remember { SpringSpec() },
     endListener: ((Color) -> Unit)? = null
 ): Color {
-    val converter = remember(target.colorSpace) { ColorToVectorConverter(target.colorSpace) }
+    val converter = remember(target.colorSpace) { (Color.VectorConverter)(target.colorSpace) }
     return animate(target, converter, animSpec, endListener = endListener)
 }
 
@@ -157,7 +157,7 @@ fun animate(
     },
     endListener: ((Dp) -> Unit)? = null
 ): Dp {
-    return animate(target, DpToVectorConverter, animSpec, endListener = endListener)
+    return animate(target, Dp.VectorConverter, animSpec, endListener = endListener)
 }
 
 /**
@@ -187,7 +187,7 @@ fun animate(
     endListener: ((Position) -> Unit)? = null
 ): Position {
     return animate(
-        target, PositionToVectorConverter, animSpec, endListener = endListener
+        target, Position.VectorConverter, animSpec, endListener = endListener
     )
 }
 
@@ -215,7 +215,7 @@ fun animate(
     },
     endListener: ((Size) -> Unit)? = null
 ): Size {
-    return animate(target, SizeToVectorConverter, animSpec, endListener = endListener)
+    return animate(target, Size.VectorConverter, animSpec, endListener = endListener)
 }
 
 /**
@@ -239,7 +239,7 @@ fun animate(
     target: Bounds,
     animSpec: AnimationSpec<Bounds> = remember {
         SpringSpec(
-            visibilityThreshold = BoundsToVectorConverter.convertFromVector
+            visibilityThreshold = Bounds.VectorConverter.convertFromVector
                 (DpVisibilityThreshold4D)
         )
     },
@@ -247,7 +247,7 @@ fun animate(
 ): Bounds {
     return animate(
         target,
-        BoundsToVectorConverter,
+        Bounds.VectorConverter,
         animSpec,
         endListener = endListener
     )
@@ -278,7 +278,7 @@ fun animate(
     endListener: ((Offset) -> Unit)? = null
 ): Offset {
     return animate(
-        target, OffsetToVectorConverter, animSpec, endListener = endListener
+        target, Offset.VectorConverter, animSpec, endListener = endListener
     )
 }
 
@@ -304,13 +304,13 @@ fun animate(
     animSpec: AnimationSpec<PxBounds> = remember {
         SpringSpec(
             visibilityThreshold =
-            PxBoundsToVectorConverter.convertFromVector(PxVisibilityThreshold4D)
+            PxBounds.VectorConverter.convertFromVector(PxVisibilityThreshold4D)
         )
     },
     endListener: ((PxBounds) -> Unit)? = null
 ): PxBounds {
     return animate(
-        target, PxBoundsToVectorConverter, animSpec, endListener = endListener
+        target, PxBounds.VectorConverter, animSpec, endListener = endListener
     )
 }
 
@@ -336,7 +336,7 @@ fun animate(
     endListener: ((Int) -> Unit)? = null
 ): Int {
     return animate(
-        target, IntToVectorConverter, animSpec, endListener = endListener
+        target, Int.VectorConverter, animSpec, endListener = endListener
     )
 }
 
@@ -362,7 +362,7 @@ fun animate(
     endListener: ((IntOffset) -> Unit)? = null
 ): IntOffset {
     return animate(
-        target, IntPxPositionToVectorConverter, animSpec, endListener = endListener
+        target, IntOffset.VectorConverter, animSpec, endListener = endListener
     )
 }
 
@@ -388,7 +388,7 @@ fun animate(
     endListener: ((IntSize) -> Unit)? = null
 ): IntSize {
     return animate(
-        target, IntSizeToVectorConverter, animSpec, endListener = endListener
+        target, IntSize.VectorConverter, animSpec, endListener = endListener
     )
 }
 

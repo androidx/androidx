@@ -117,7 +117,7 @@ private class SizeAnimationModifier(
             }
         } ?: AnimData(
             AnimatedValueModel(
-                targetSize, IntSizeToVectorConverter, clock, IntSize(1, 1)
+                targetSize, IntSize.VectorConverter, clock, IntSize(1, 1)
             ), targetSize
         )
 
