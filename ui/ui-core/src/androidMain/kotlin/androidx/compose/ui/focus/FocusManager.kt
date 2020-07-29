@@ -16,89 +16,39 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.util.fastForEach
-
+// TODO(b/162206799): Delete this after Dev 16.
 /**
  * An object for focusable object.
  *
  * Any component that will have input focus must implement this FocusNode.
  */
+@Deprecated(
+    message = "Please use Modifier.focus() instead",
+    level = DeprecationLevel.ERROR
+)
 class FocusNode
 
+// TODO(b/162206799): Delete this after Dev 16.
 /**
  * A callback interface for focus transition
  *
  * The callback is called when the focused node has changed with the previously focused node and
  * currently focused node.
  */
-typealias FocusTransitionObserver = (FocusNode?, FocusNode?) -> Unit
+@Deprecated(
+    message = "Please use Modifier.focusObserver() instead",
+    level = DeprecationLevel.ERROR
+)
+typealias FocusTransitionObserver = () -> Unit
 
+// TODO(b/162206799): Delete this after Dev 16.
 /**
  * Interface of manager of focused composable.
  *
  * Focus manager keeps tracking the input focused node and provides focus transitions.
  */
-interface FocusManager {
-    /**
-     * Request the input focus
-     *
-     * @param client A focusable client.
-     */
-    fun requestFocus(client: FocusNode)
-
-    /**
-     * Release the focus if given focus node is focused
-     *
-     * @param client A focusable client.
-     */
-    fun blur(client: FocusNode)
-
-    /**
-     * Observe focus transition for the passed [FocusNode].
-     *
-     * The observer is called AFTER the focus transition happens. So there is no way of
-     * preventing focus gain or focus lose.
-     */
-    fun registerObserver(node: FocusNode, observer: FocusTransitionObserver)
-}
-
-/**
- * Manages focused composable and available.
- */
-internal class FocusManagerImpl : FocusManager {
-    /**
-     * The focused client. Maybe null if nothing is focused.
-     */
-    private var focusedClient: FocusNode? = null
-
-    private val observerMap = mutableMapOf<FocusNode, MutableList<FocusTransitionObserver>>()
-
-    override fun requestFocus(client: FocusNode) {
-        val currentFocus = focusedClient
-        if (currentFocus == client) {
-            return // focus in to the same component. Do nothing.
-        }
-        focusedClient = client
-
-        callFocusTransition(currentFocus, client)
-    }
-
-    override fun blur(client: FocusNode) {
-        if (focusedClient == client) {
-            focusedClient = null
-            callFocusTransition(client, null)
-        }
-    }
-
-    private fun callFocusTransition(fromNode: FocusNode?, toNode: FocusNode?) {
-        // We create new list so that we can safely call them even if somebody register observer
-        // during calling callbacks.
-        val observers = observerMap[fromNode].orEmpty() + observerMap[toNode].orEmpty()
-
-        observers.fastForEach { it(fromNode, toNode) }
-    }
-
-    override fun registerObserver(node: FocusNode, observer: FocusTransitionObserver) {
-        observerMap.getOrPut(node, { mutableListOf() }).add(observer)
-    }
-}
+@Deprecated(
+    message = "Please use Modifier.focus() instead",
+    level = DeprecationLevel.ERROR
+)
+interface FocusManager
