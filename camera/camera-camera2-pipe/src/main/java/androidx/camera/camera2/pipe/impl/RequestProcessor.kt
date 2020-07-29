@@ -285,7 +285,7 @@ class StandardRequestProcessor(
                 }
             }
 
-            // Sanity check to make sure we add at least one surface. This should be guaranteed
+            // Soundness check to make sure we add at least one surface. This should be guaranteed
             // because we are supposed to exit early and return false if we cannot map at least one
             // surface per request.
             check(hasSurface)
