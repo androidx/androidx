@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.compose.foundation.gestures.ScrollableController
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -89,6 +90,12 @@ internal class LazyForState(val isVertical: Boolean) {
     val onScrollDelta: (Float) -> Float = { onScroll(it) }
 
     /**
+     * The ScrollableController instance. We keep it as we need to call stopAnimation on it once
+     * we reached the end of the list.
+     */
+    var scrollableController: ScrollableController? = null
+
+    /**
      * The [Remeasurement] object associated with our layout. It allows us to remeasure
      * synchronously during scroll.
      */
@@ -128,6 +135,7 @@ internal class LazyForState(val isVertical: Boolean) {
             // We did not consume all of it - return the rest to be consumed elsewhere (e.g.,
             // nested scrolling)
             scrollToBeConsumed = 0f // We're not consuming the rest, give it back
+            scrollableController!!.stopAnimation()
             return scrollConsumed
         }
     }
