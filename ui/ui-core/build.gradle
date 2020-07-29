@@ -53,15 +53,18 @@ kotlin {
         }
 
         androidMain.dependencies {
-            // we don't use these dependencies but we need to ensure at least these versions are used if
-            // the user adds these dependencies as otherwise AppCompatActivity and Fragment will not
-            // propagate ViewTree*Owners we are relying on and we will crash.
-            implementation "androidx.fragment:fragment:1.3.0-alpha05"
-            implementation "androidx.appcompat:appcompat:1.3.0-alpha01"
+            implementation(KOTLIN_STDLIB)
             api "androidx.annotation:annotation:1.1.0"
             api "androidx.activity:activity:1.2.0-alpha02"
             implementation "androidx.autofill:autofill:1.0.0"
             implementation(KOTLIN_COROUTINES_ANDROID)
+
+            // we don't use these dependencies but we need to ensure at least these versions are
+            // used if the user adds these dependencies as otherwise AppCompatActivity and Fragment
+            // will not propagate ViewTree*Owners we are relying on and we will crash.
+            // TODO: remove these dependencies at some point: b/161814404
+            implementation "androidx.fragment:fragment:1.3.0-alpha07"
+            implementation "androidx.appcompat:appcompat:1.3.0-alpha01"
         }
 
         jvmMain.dependencies {

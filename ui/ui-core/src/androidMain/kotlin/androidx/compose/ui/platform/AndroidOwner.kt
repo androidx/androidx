@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.Owner
+import androidx.savedstate.SavedStateRegistryOwner
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -90,6 +91,10 @@ interface AndroidOwner : Owner {
         /**
          * The [ViewModelStoreOwner] associated with this owner.
          */
-        val viewModelStoreOwner: ViewModelStoreOwner
+        val viewModelStoreOwner: ViewModelStoreOwner,
+        /**
+         * The [SavedStateRegistryOwner] associated with this owner.
+         */
+        val savedStateRegistryOwner: SavedStateRegistryOwner
     )
 }

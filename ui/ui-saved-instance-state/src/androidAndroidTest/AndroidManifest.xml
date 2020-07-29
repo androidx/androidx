@@ -25,5 +25,6 @@
         <activity android:name="androidx.compose.runtime.savedinstancestate.RecreationTest1Activity" />
         <activity android:name="androidx.compose.runtime.savedinstancestate.RecreationTest2Activity" />
         <activity android:name="androidx.compose.runtime.savedinstancestate.RecreationTest3Activity" />
+        <activity android:name="androidx.compose.runtime.savedinstancestate.RecreationTest4Activity" />
     </application>
 </manifest>

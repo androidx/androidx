@@ -46,6 +46,7 @@ import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntBounds
 import androidx.compose.ui.unit.round
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -183,6 +184,7 @@ private class PopupLayout(
         id = android.R.id.content
         ViewTreeLifecycleOwner.set(this, ViewTreeLifecycleOwner.get(composeView))
         ViewTreeViewModelStoreOwner.set(this, ViewTreeViewModelStoreOwner.get(composeView))
+        ViewTreeSavedStateRegistryOwner.set(this, ViewTreeSavedStateRegistryOwner.get(composeView))
     }
 
     private fun Rect.toIntBounds() = IntBounds(

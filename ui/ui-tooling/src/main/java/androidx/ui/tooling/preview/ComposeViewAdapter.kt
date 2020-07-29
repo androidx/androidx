@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.DashPathEffect
 import android.graphics.Paint
+import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
 import android.widget.FrameLayout
@@ -31,7 +32,6 @@ import androidx.compose.runtime.Providers
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.currentComposer
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
@@ -51,6 +51,10 @@ import androidx.ui.tooling.preview.animation.PreviewAnimationClock
 import androidx.compose.ui.unit.IntBounds
 import androidx.compose.ui.unit.PxBounds
 import androidx.compose.ui.unit.toRect
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import kotlin.reflect.KClass
 
 const val TOOLS_NS_URI = "http://schemas.android.com/tools"
@@ -270,7 +274,8 @@ internal class ComposeViewAdapter : FrameLayout {
         debugViewInfos: Boolean = false,
         animationClockStartTime: Long = -1
     ) {
-        ViewTreeLifecycleOwner.set(this, FakeLifecycleOwner)
+        ViewTreeLifecycleOwner.set(this, FakeSavedStateRegistryOwnerOwner)
+        ViewTreeSavedStateRegistryOwner.set(this, FakeSavedStateRegistryOwnerOwner)
         ViewTreeViewModelStoreOwner.set(this, FakeViewModelStoreOwner)
         this.debugPaintBounds = debugPaintBounds
         this.debugViewInfos = debugViewInfos
@@ -363,12 +368,18 @@ internal class ComposeViewAdapter : FrameLayout {
         )
     }
 
-    private val FakeLifecycleOwner = object : LifecycleOwner {
-        val lifecycleRegistry = LifecycleRegistry(this).apply {
-            currentState = Lifecycle.State.RESUMED
+    private val FakeSavedStateRegistryOwnerOwner = object : SavedStateRegistryOwner {
+        private val lifecycle = LifecycleRegistry(this)
+        private val controller = SavedStateRegistryController.create(this).apply {
+            performRestore(Bundle())
         }
 
-        override fun getLifecycle() = lifecycleRegistry
+        init {
+            lifecycle.currentState = Lifecycle.State.RESUMED
+        }
+
+        override fun getSavedStateRegistry(): SavedStateRegistry = controller.savedStateRegistry
+        override fun getLifecycle(): Lifecycle = lifecycle
     }
 
     private val FakeViewModelStoreOwner = ViewModelStoreOwner {

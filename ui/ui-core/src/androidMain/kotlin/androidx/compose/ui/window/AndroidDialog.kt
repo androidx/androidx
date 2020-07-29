@@ -42,6 +42,7 @@ import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 
 /**
  * Opens a dialog with the given content.
@@ -109,6 +110,10 @@ private class DialogWrapper(
         setContentView(frameLayout)
         ViewTreeLifecycleOwner.set(frameLayout, ViewTreeLifecycleOwner.get(composeView))
         ViewTreeViewModelStoreOwner.set(frameLayout, ViewTreeViewModelStoreOwner.get(composeView))
+        ViewTreeSavedStateRegistryOwner.set(
+            frameLayout,
+            ViewTreeSavedStateRegistryOwner.get(composeView)
+        )
     }
 
     // TODO(b/159900354): Make the Android Dialog full screen and the scrim fully transparent

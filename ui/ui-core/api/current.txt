@@ -1816,7 +1816,6 @@ package androidx.compose.ui.node {
     method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method public long getMeasureIteration();
     method public androidx.compose.ui.node.LayoutNode getRoot();
-    method public androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry? getSavedStateRegistry();
     method public androidx.compose.ui.semantics.SemanticsOwner getSemanticsOwner();
     method public boolean getShowLayoutBounds();
     method public androidx.compose.ui.text.input.TextInputService getTextInputService();
@@ -1833,7 +1832,6 @@ package androidx.compose.ui.node {
     method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public boolean requestFocus();
     method @androidx.compose.ui.input.key.ExperimentalKeyInput public boolean sendKeyEvent(androidx.compose.ui.input.key.KeyEvent keyEvent);
-    method public void setOnSavedStateRegistryAvailable(kotlin.jvm.functions.Function1<? super androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry,kotlin.Unit> callback);
     method @androidx.compose.ui.node.InternalCoreApi public void setShowLayoutBounds(boolean p);
     property public abstract androidx.compose.ui.autofill.Autofill? autofill;
     property public abstract androidx.compose.ui.autofill.AutofillTree autofillTree;
@@ -1844,7 +1842,6 @@ package androidx.compose.ui.node {
     property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
     property public abstract long measureIteration;
     property public abstract androidx.compose.ui.node.LayoutNode root;
-    property public abstract androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry? savedStateRegistry;
     property public abstract androidx.compose.ui.semantics.SemanticsOwner semanticsOwner;
     property public abstract boolean showLayoutBounds;
     property public abstract androidx.compose.ui.text.input.TextInputService textInputService;
@@ -1925,7 +1922,7 @@ package androidx.compose.ui.platform {
   }
 
   public final class AndroidComposeViewKt {
-    method public static androidx.compose.ui.platform.AndroidOwner AndroidOwner(android.content.Context context, androidx.lifecycle.LifecycleOwner? lifecycleOwner = null, androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner = null);
+    method public static androidx.compose.ui.platform.AndroidOwner AndroidOwner(android.content.Context context, androidx.lifecycle.LifecycleOwner? lifecycleOwner = null, androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner = null, androidx.savedstate.SavedStateRegistryOwner? savedStateRegistryOwner = null);
   }
 
   public interface AndroidOwner extends androidx.compose.ui.node.Owner {
@@ -1942,8 +1939,9 @@ package androidx.compose.ui.platform {
   }
 
   public static final class AndroidOwner.ViewTreeOwners {
-    ctor public AndroidOwner.ViewTreeOwners(androidx.lifecycle.LifecycleOwner lifecycleOwner, androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner);
+    ctor public AndroidOwner.ViewTreeOwners(androidx.lifecycle.LifecycleOwner lifecycleOwner, androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, androidx.savedstate.SavedStateRegistryOwner savedStateRegistryOwner);
     method public androidx.lifecycle.LifecycleOwner getLifecycleOwner();
+    method public androidx.savedstate.SavedStateRegistryOwner getSavedStateRegistryOwner();
     method public androidx.lifecycle.ViewModelStoreOwner getViewModelStoreOwner();
   }
 
@@ -1985,6 +1983,9 @@ package androidx.compose.ui.platform {
   }
 
   public final class DebugUtilsKt {
+  }
+
+  public final class DisposableUiSavedStateRegistryKt {
   }
 
   public interface InspectableParameter {
@@ -2075,9 +2076,6 @@ package androidx.compose.ui.platform {
     method public static androidx.compose.ui.geometry.Offset positionChangeIgnoreConsumed(androidx.compose.ui.platform.PointerInputChange);
     method public static boolean positionChanged(androidx.compose.ui.platform.PointerInputChange);
     method public static boolean positionChangedIgnoreConsumed(androidx.compose.ui.platform.PointerInputChange);
-  }
-
-  public final class SavedStateDelegateKt {
   }
 
   public final class SubcompositionKt {

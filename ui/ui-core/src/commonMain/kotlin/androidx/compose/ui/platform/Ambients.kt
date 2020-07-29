@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.ambientOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistryAmbient
 import androidx.compose.runtime.staticAmbientOf
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
@@ -129,7 +128,6 @@ internal fun ProvideCommonAmbients(
         HapticFeedBackAmbient provides owner.hapticFeedBack,
         TextInputServiceAmbient provides owner.textInputService,
         TextToolbarAmbient provides owner.textToolbar,
-        UiSavedStateRegistryAmbient provides owner.savedStateRegistry,
         UriHandlerAmbient provides uriHandler,
         LayoutDirectionAmbient provides owner.layoutDirection,
         children = content

@@ -25,7 +25,6 @@ import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.text.input.TextInputService
-import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry
 import androidx.compose.ui.DrawLayerModifier
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.unit.Density
@@ -72,17 +71,6 @@ interface Owner {
      * The [Autofill] class can be used to perform autofill operations. It is used as an ambient.
      */
     val autofill: Autofill?
-
-    /**
-     * The current instance of [UiSavedStateRegistry]. If it's null you can wait for it to became
-     * available using [setOnSavedStateRegistryAvailable].
-     */
-    val savedStateRegistry: UiSavedStateRegistry?
-
-    /**
-     * Allows other components to be notified when the [UiSavedStateRegistry] became available.
-     */
-    fun setOnSavedStateRegistryAvailable(callback: (UiSavedStateRegistry) -> Unit)
 
     val density: Density
 
