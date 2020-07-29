@@ -56,15 +56,19 @@ fun MaterialTheme(
     shapes: Shapes = MaterialTheme.shapes,
     content: @Composable () -> Unit
 ) {
-    ProvideColors(colors) {
-        val indicationFactory: @Composable () -> Indication = remember { { RippleIndication() } }
-        Providers(
-            IndicationAmbient provides indicationFactory,
-            TypographyAmbient provides typography,
-            ShapesAmbient provides shapes
-        ) {
-            ProvideTextStyle(value = typography.body1, children = content)
-        }
+    val rememberedColors = remember {
+        // TODO: b/162450508 remove the unnecessary .copy() here when it isn't needed to ensure that
+        // we don't skip the updateColorsFrom call
+        colors.copy()
+    }.apply { updateColorsFrom(colors) }
+    val indicationFactory: @Composable () -> Indication = remember { { RippleIndication() } }
+    Providers(
+        ColorAmbient provides rememberedColors,
+        IndicationAmbient provides indicationFactory,
+        TypographyAmbient provides typography,
+        ShapesAmbient provides shapes
+    ) {
+        ProvideTextStyle(value = typography.body1, children = content)
     }
 }
 
