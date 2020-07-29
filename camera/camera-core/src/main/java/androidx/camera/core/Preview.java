@@ -737,7 +737,8 @@ public final class Preview extends UseCase {
          *
          * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
          * ratio which may differ from the request, possibly due to device constraints.
-         * Application code should check the resulting output's resolution.
+         * Application code should check the resulting output's resolution and the resulting apsect
+         * ratio may not be exactly as requested.
          *
          * <p>This method can be used to request an aspect ratio that is not from the standard set
          * of aspect ratios defined in the {@link AspectRatio}.
@@ -771,7 +772,8 @@ public final class Preview extends UseCase {
          *
          * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
          * ratio which may differ from the request, possibly due to device constraints.
-         * Application code should check the resulting output's resolution.
+         * Application code should check the resulting output's resolution and the resulting aspect
+         * ratio may not be exactly as requested.
          *
          * <p>For Preview, the value will be used to calculate the suggested resolution size in
          * {@link SurfaceRequest#getResolution()}.
