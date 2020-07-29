@@ -253,6 +253,7 @@ class BiometricTestActivity : FragmentActivity() {
         private const val KEY_LOG_TEXT = "key_log_text"
         private const val KEY_NAME = "mySecretKey"
         private const val KEYSTORE_INSTANCE = "AndroidKeyStore"
+        private const val LATCH_AWAIT_TIMEOUT_SEC = 10L
         private const val PAYLOAD = "hello"
 
         /**
