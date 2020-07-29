@@ -16,6 +16,9 @@
 
 package androidx.compose.ui.focus
 
+import androidx.compose.runtime.collection.ExperimentalCollectionApi
+import androidx.compose.runtime.collection.MutableVector
+import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.node.ModifiedFocusRequesterNode
 
 private val focusRequesterNotInitialized = "FocusRequester is not initialized. One reason for " +
@@ -23,27 +26,26 @@ private val focusRequesterNotInitialized = "FocusRequester is not initialized. O
         "not be made during composition, but should be made in response to some event."
 
 /**
- * The [FocusRequester] is used in conjunction with [Modifier.focusRequester][focusRequester] to
- * send requests for focus state change.
+ * The [FocusRequester] is used in conjunction with
+ * [Modifier.focusRequester][androidx.compose.ui.focusRequester] to send requests for focus state
+ * change.
  *
- * @see focusRequester
+ * @see androidx.compose.ui.focusRequester
  */
+@OptIn(ExperimentalCollectionApi::class)
 @ExperimentalFocus
 class FocusRequester {
 
-    // TODO(b/161183156): Add support for multiple focus requester nodes.
-    //  ie. the same focus requester can be used in multiple focusRequesterModifiers.
-    internal var focusRequesterNode: ModifiedFocusRequesterNode? = null
+    internal val focusRequesterNodes: MutableVector<ModifiedFocusRequesterNode> = mutableVectorOf()
 
     /**
-     * Use this function to request focus. If the system grants focus to the component associated
+     * Use this function to request focus. If the system grants focus to a component associated
      * with this [FocusRequester], its [state][FocusState2] will be set to
      * [Active][FocusState2.Active].
      */
     fun requestFocus() {
-        val focusRequesterNode = focusRequesterNode
-        checkNotNull(focusRequesterNode) { focusRequesterNotInitialized }
-        focusRequesterNode.findFocusNode()?.requestFocus()
+        check(focusRequesterNodes.isNotEmpty()) { focusRequesterNotInitialized }
+        focusRequesterNodes.forEach { it.findFocusNode()?.requestFocus() }
     }
 
     /**
@@ -55,27 +57,47 @@ class FocusRequester {
      * component is in the [Captured][FocusState2.Captured] state, all focus requests from
      * other components are declined.
      *
-     * @return true if the focus was successfully captured. false otherwise.
+     * @return true if the focus was successfully captured by one of the
+     * [focus][androidx.compose.ui.focus] modifiers associated with this [FocusRequester].
+     * false otherwise.
      */
     fun captureFocus(): Boolean {
-        val focusRequesterNode = focusRequesterNode
-        checkNotNull(focusRequesterNode) { focusRequesterNotInitialized }
-        return focusRequesterNode.findFocusNode()?.captureFocus() ?: false
+        check(focusRequesterNodes.isNotEmpty()) { focusRequesterNotInitialized }
+        var success = false
+        focusRequesterNodes.forEach {
+            it.findFocusNode()?.apply {
+                if (captureFocus()) {
+                    success = true
+                }
+            }
+        }
+        return success
     }
 
     /**
-     * Use this function to send a request to release focus when the component is in a
-     * [Captured][FocusState2.Captured] state.
+     * Use this function to send a request to release focus when one of the components associated
+     * with this [FocusRequester] is in a [Captured][FocusState2.Captured] state.
      *
-     * When the node is in the [Captured] state, it rejects all requests to clear focus. Calling
-     * [freeFocus] puts the node in the [Active] state, where it is no longer preventing other
+     * When the node is in the [Captured][FocusState2.Captured] state, it rejects all requests to clear focus. Calling
+     * [freeFocus] puts the node in the [Active][FocusState2.Active] state, where it is no longer
+     * preventing other
      * nodes from requesting focus.
      *
-     * @return true if the focus was successfully released. false otherwise.
+     * @return true if the focus was successfully released. i.e. At the end of this operation,
+     * one of the components associated with this
+     * [focusRequester][androidx.compose.ui.focusRequester] is in the [Active][FocusState2.Active]
+     * state. false otherwise.
      */
     fun freeFocus(): Boolean {
-        val focusRequesterNode = focusRequesterNode
-        checkNotNull(focusRequesterNode) { focusRequesterNotInitialized }
-        return focusRequesterNode.findFocusNode()?.freeFocus() ?: false
+        check(focusRequesterNodes.isNotEmpty()) { focusRequesterNotInitialized }
+        var success = false
+        focusRequesterNodes.forEach {
+            it.findFocusNode()?.apply {
+                if (freeFocus()) {
+                    success = true
+                }
+            }
+        }
+        return success
     }
 }

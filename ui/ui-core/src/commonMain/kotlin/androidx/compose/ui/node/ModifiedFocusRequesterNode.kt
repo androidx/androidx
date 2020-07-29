@@ -16,14 +16,27 @@
 
 package androidx.compose.ui.node
 
+import androidx.compose.runtime.collection.ExperimentalCollectionApi
 import androidx.compose.ui.FocusRequesterModifier
 import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.FocusRequester
 
-@OptIn(ExperimentalFocus::class)
+@OptIn(
+    ExperimentalCollectionApi::class,
+    ExperimentalFocus::class
+)
 internal class ModifiedFocusRequesterNode(
     wrapped: LayoutNodeWrapper,
     modifier: FocusRequesterModifier
 ) : DelegatingLayoutNodeWrapper<FocusRequesterModifier>(wrapped, modifier) {
+
+    private var focusRequester: FocusRequester? = null
+        set(value) {
+            // Check if this focus requester node is associated with another focusRequester.
+            field?.focusRequesterNodes?.remove(this)
+            field = value
+            field?.focusRequesterNodes?.add(this)
+        }
 
     // Searches for the focus node associated with this focus requester node.
     internal fun findFocusNode(): ModifiedFocusNode2? {
@@ -34,16 +47,16 @@ internal class ModifiedFocusRequesterNode(
 
     override fun onModifierChanged() {
         super.onModifierChanged()
-        modifier.focusRequester.focusRequesterNode = this
+        focusRequester = modifier.focusRequester
     }
 
     override fun attach() {
         super.attach()
-        modifier.focusRequester.focusRequesterNode = this
+        focusRequester = modifier.focusRequester
     }
 
     override fun detach() {
-        modifier.focusRequester.focusRequesterNode = null
+        focusRequester = null
         super.detach()
     }
 }
