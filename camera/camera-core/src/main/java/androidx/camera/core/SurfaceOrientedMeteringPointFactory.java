@@ -47,7 +47,7 @@ import androidx.annotation.RestrictTo;
 public class SurfaceOrientedMeteringPointFactory extends MeteringPointFactory {
     /** the width of the area in surface orientation */
     private final float mWidth;
-    /** he height of the area in surface orientation */
+    /** The height of the area in surface orientation */
     private final float mHeight;
 
     /**
