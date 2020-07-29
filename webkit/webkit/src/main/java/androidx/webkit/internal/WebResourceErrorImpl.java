@@ -22,7 +22,6 @@ import android.webkit.WebResourceError;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.WebResourceErrorCompat;
-import androidx.webkit.WebViewFeature;
 
 import org.chromium.support_lib_boundary.WebResourceErrorBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
@@ -80,8 +79,7 @@ public class WebResourceErrorImpl extends WebResourceErrorCompat {
     @SuppressLint("NewApi")
     @Override
     public int getErrorCode() {
-        final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE);
+        final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_RESOURCE_ERROR_GET_CODE;
         if (feature.isSupportedByFramework()) {
             return getFrameworksImpl().getErrorCode();
         } else if (feature.isSupportedByWebView()) {
@@ -95,8 +93,8 @@ public class WebResourceErrorImpl extends WebResourceErrorCompat {
     @SuppressLint("NewApi")
     @Override
     public CharSequence getDescription() {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.getFeature(
-                        WebViewFeature.WEB_RESOURCE_ERROR_GET_DESCRIPTION);
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.WEB_RESOURCE_ERROR_GET_DESCRIPTION;
         if (feature.isSupportedByFramework()) {
             return getFrameworksImpl().getDescription();
         } else if (feature.isSupportedByWebView()) {

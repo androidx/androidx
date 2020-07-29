@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
-import androidx.webkit.WebViewFeature;
 
 import org.chromium.support_lib_boundary.WebMessagePortBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
@@ -74,8 +73,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
     @SuppressLint("NewApi")
     @Override
     public void postMessage(@NonNull WebMessageCompat message) {
-        final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.WEB_MESSAGE_PORT_POST_MESSAGE);
+        final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_POST_MESSAGE;
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().postMessage(compatToFrameworkMessage(message));
         } else if (feature.isSupportedByWebView()) {
@@ -90,8 +88,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
     @SuppressLint("NewApi")
     @Override
     public void close() {
-        final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.WEB_MESSAGE_PORT_CLOSE);
+        final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_CLOSE;
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().close();
         } else if (feature.isSupportedByWebView()) {
@@ -104,8 +101,8 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
     @SuppressLint("NewApi")
     @Override
     public void setWebMessageCallback(@NonNull final WebMessageCallbackCompat callback) {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.getFeature(
-                WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK);
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK;
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
                 @Override
@@ -128,8 +125,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
     @Override
     public void setWebMessageCallback(Handler handler,
             @NonNull final WebMessageCallbackCompat callback) {
-        final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL);
+        final WebViewFeatureInternal feature = WebViewFeatureInternal.CREATE_WEB_MESSAGE_CHANNEL;
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
                 @Override

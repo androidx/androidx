@@ -453,7 +453,6 @@ public class WebViewFeature {
      * @return whether the feature is supported given the current platform SDK and webview version
      */
     public static boolean isFeatureSupported(@NonNull @WebViewSupportFeature String feature) {
-        WebViewFeatureInternal webviewFeature = WebViewFeatureInternal.getFeature(feature);
-        return webviewFeature.isSupportedByFramework() || webviewFeature.isSupportedByWebView();
+        return WebViewFeatureInternal.isSupported(feature);
     }
 }
