@@ -270,11 +270,13 @@ private inline fun LazyFor(
     noinline itemContentFactory: LazyItemScope.(Int) -> @Composable () -> Unit
 ) {
     val state = remember { LazyForState(isVertical = isVertical) }
+    val scrollController = rememberScrollableController(consumeScrollDelta = state.onScrollDelta)
+    state.scrollableController = scrollController
     SubcomposeLayout<DataIndex>(
         modifier
             .scrollable(
                 orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
-                controller = rememberScrollableController(consumeScrollDelta = state.onScrollDelta)
+                controller = scrollController
             )
             .clipToBounds()
             .padding(contentPadding)
