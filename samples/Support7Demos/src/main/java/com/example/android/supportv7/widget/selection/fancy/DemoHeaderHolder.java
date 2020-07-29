@@ -21,12 +21,12 @@ import android.widget.TextView;
 
 import com.example.android.supportv7.R;
 
-final class FancyHeaderHolder extends FancyHolder {
+final class DemoHeaderHolder extends DemoHolder {
 
     private static final String HEADER_TAG = "I'm a header";
     public final TextView mLabel;
 
-    FancyHeaderHolder(LinearLayout layout) {
+    DemoHeaderHolder(LinearLayout layout) {
         super(layout);
         layout.setTag(HEADER_TAG);
         mLabel = layout.findViewById(R.id.label);

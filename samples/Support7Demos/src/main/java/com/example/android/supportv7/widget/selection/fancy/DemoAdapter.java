@@ -36,7 +36,7 @@ import com.example.android.supportv7.R;
 import java.util.HashMap;
 import java.util.Map;
 
-final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> {
+final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
 
     public static final int TYPE_HEADER = 1;
     public static final int TYPE_ITEM = 2;
@@ -54,7 +54,7 @@ final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> 
         }
     };
 
-    FancySelectionDemoAdapter(Context context) {
+    DemoAdapter(Context context) {
         mContext = context;
         mKeyProvider = new KeyProvider("cheeses", Cheeses.sCheeseStrings);
 
@@ -98,13 +98,13 @@ final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> 
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FancyHolder holder, int position) {
-        if (holder instanceof FancyHeaderHolder) {
+    public void onBindViewHolder(@NonNull DemoHolder holder, int position) {
+        if (holder instanceof DemoHeaderHolder) {
             Uri uri = mKeyProvider.getKey(position);
-            ((FancyHeaderHolder) holder).update(uri.getPathSegments().get(0));
-        } else if (holder instanceof FancyItemHolder) {
+            ((DemoHeaderHolder) holder).update(uri.getPathSegments().get(0));
+        } else if (holder instanceof DemoItemHolder) {
             Uri uri = mKeyProvider.getKey(position);
-            ((FancyItemHolder) holder).update(uri, uri.getPathSegments().get(1),
+            ((DemoItemHolder) holder).update(uri, uri.getPathSegments().get(1),
                     mSelTest.isSelected(uri));
         }
     }
@@ -122,13 +122,13 @@ final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> 
     }
 
     @Override
-    public FancyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public DemoHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
             case TYPE_HEADER:
-                return new FancyHeaderHolder(
+                return new DemoHeaderHolder(
                         inflateLayout(mContext, parent, R.layout.selection_demo_list_header));
             case TYPE_ITEM:
-                return new FancyItemHolder(
+                return new DemoItemHolder(
                         inflateLayout(mContext, parent, R.layout.selection_demo_list_item));
         }
         throw new RuntimeException("Unsupported view type" + viewType);
@@ -145,7 +145,19 @@ final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> 
         boolean isSelected(Uri id);
     }
 
-    private static final class KeyProvider extends ItemKeyProvider<Uri> {
+    /**
+     * When ever possible provide the selection library with a
+     * "SCOPED_MAPPED" ItemKeyProvider. This enables the selection
+     * library to provide ChromeOS friendly features such as mouse-driven
+     * band selection.
+     *
+     * Background: SCOPED_MAPPED providers allow the library to access
+     * an item's key or position independently of how the data is
+     * represented in the RecyclerView. This is useful in that it
+     * allows the library to operate on items that are not currently laid
+     * out in RecyclerView.
+     */
+    static final class KeyProvider extends ItemKeyProvider<Uri> {
 
         private final Uri[] mUris;
         private final Map<Uri, Integer> mPositions;

@@ -191,7 +191,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> implements R
     private Selection<K> clearSelectionQuietly() {
         mRange = null;
 
-        MutableSelection<K> prevSelection = new MutableSelection();
+        MutableSelection<K> prevSelection = new MutableSelection<>();
         if (hasSelection()) {
             copySelection(prevSelection);
             mSelection.clear();

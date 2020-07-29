@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.supportv7.widget.selection.simple;
+package com.example.android.supportv7.widget.selection.single;
 
 import static androidx.core.util.Preconditions.checkArgument;
 
@@ -32,7 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.R;
 
-final class SimpleSelectionDemoAdapter extends RecyclerView.Adapter<DemoHolder> {
+final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
 
     private static final String TAG = "SelectionDemos";
     private final Context mContext;
@@ -41,7 +41,7 @@ final class SimpleSelectionDemoAdapter extends RecyclerView.Adapter<DemoHolder> 
     // asks SelectionTracker.
     private SelectionTest mSelTest;
 
-    SimpleSelectionDemoAdapter(Context context) {
+    DemoAdapter(Context context) {
         mContext = context;
         mSelTest = id -> {
             throw new IllegalStateException(

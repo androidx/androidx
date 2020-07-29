@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package com.example.android.supportv7.widget.selection.simple;
+package com.example.android.supportv7.widget.selection.single;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
-import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.SelectionPredicates;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.SelectionTracker.SelectionObserver;
@@ -37,9 +32,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.android.supportv7.R;
 
 /**
- * RecyclerView Selection library simple demo activity.
+ * RecyclerView Selection library single-selection mode demo activity.
  */
-public class SimpleSelectionDemoActivity extends AppCompatActivity {
+public class SingleStableIdSelectionDemoActivity extends AppCompatActivity {
 
     private static final String TAG = "SelectionDemos";
 
@@ -58,26 +53,23 @@ public class SimpleSelectionDemoActivity extends AppCompatActivity {
         recView.setLayoutManager(mLayout);
 
         mAdapter = new DemoAdapter(this);
-        // The adapter is paired with a key provider that supports
-        // the native RecyclerView stableId. For this to work correctly
-        // the adapter must report that it supports stable ids.
+
+        // For StableIdKeyProvider (used below) to work correctly the adapter must
+        // have stable ids enabled.
         mAdapter.setHasStableIds(true);
 
         recView.setAdapter(mAdapter);
 
-        // keyProvider depends on mAdapter.setHasStableIds(true).
-        ItemKeyProvider<Long> keyProvider = new StableIdKeyProvider(recView);
-
         SelectionTracker.Builder<Long> builder = new SelectionTracker.Builder<>(
-                "simple-demo",
+                "single-stableid-demo",
                 recView,
-                keyProvider,
+                new StableIdKeyProvider(recView),
                 new DemoDetailsLookup(recView),
                 StorageStrategy.createLongStorage());
 
         mSelectionTracker = builder
-                .withSelectionPredicate(SelectionPredicates.createSelectAnything())
-                .withOnItemActivatedListener(new OnItemActivatedListener(this))
+                // Can a single item.
+                .withSelectionPredicate(SelectionPredicates.createSelectSingleAnything())
                 .build();
 
         // Lazily bind SelectionTracker. Allows us to defer initialization of the
@@ -116,10 +108,6 @@ public class SimpleSelectionDemoActivity extends AppCompatActivity {
         }
     }
 
-    private static void toast(Context context, String msg) {
-        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-    }
-
     @Override
     protected void onDestroy() {
         mSelectionTracker.clearSelection();
@@ -130,23 +118,5 @@ public class SimpleSelectionDemoActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         mAdapter.loadData();
-    }
-
-    // Implementation of MouseInputHandler.Callbacks allows handling
-    // of higher level events, like onActivated.
-    private static final class OnItemActivatedListener implements
-            androidx.recyclerview.selection.OnItemActivatedListener<Long> {
-
-        private final Context mContext;
-
-        OnItemActivatedListener(Context context) {
-            mContext = context;
-        }
-
-        @Override
-        public boolean onItemActivated(@NonNull ItemDetails<Long> item, @NonNull MotionEvent e) {
-            toast(mContext, "Activate item: " + item.getSelectionKey());
-            return true;
-        }
     }
 }
