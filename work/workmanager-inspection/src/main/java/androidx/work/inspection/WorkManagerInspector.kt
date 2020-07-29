@@ -28,6 +28,7 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.work.WorkManager
+import androidx.work.impl.WorkContinuationImpl
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command.OneOfCase.TRACK_WORK_MANAGER
@@ -54,11 +55,25 @@ class WorkManagerInspector(
     private val workManager: WorkManagerImpl
     private val executor = Executors.newSingleThreadExecutor()
 
+    private val stackTraceMap = mutableMapOf<String, Array<StackTraceElement>>()
+
     init {
         workManager = environment.findInstances(Application::class.java).first()
             .let { application -> WorkManager.getInstance(application) as WorkManagerImpl }
         Handler(Looper.getMainLooper()).post {
             lifecycleRegistry.currentState = Lifecycle.State.STARTED
+        }
+
+        environment.registerEntryHook(
+            WorkContinuationImpl::class.java,
+            "enqueue()Landroidx/work/Operation;"
+        ) { obj, _ ->
+            val stackTrace = Throwable().stackTrace
+            executor.submit {
+                (obj as? WorkContinuationImpl)?.allIds?.forEach { id ->
+                    stackTraceMap[id] = stackTrace.prune()
+                }
+            }
         }
     }
 
@@ -110,6 +125,18 @@ class WorkManagerInspector(
         }
     }
 
+    /**
+     * Prune internal [StackTraceElement]s with classes from work manager libraries.
+     */
+    private fun Array<StackTraceElement>.prune(): Array<StackTraceElement> {
+        // Find the first element outside work manager libraries.
+        val validIndex = indexOfFirst {
+            !it.className.startsWith("androidx.work")
+        }
+
+        return toList().subList(validIndex, size).toTypedArray()
+    }
+
     private fun createWorkInfoProto(id: String): WorkManagerInspectorProtocol.WorkInfo {
         val workInfoBuilder = WorkManagerInspectorProtocol.WorkInfo.newBuilder()
         val workSpec = workManager.workDatabase.workSpecDao().getWorkSpec(id)
@@ -124,6 +151,12 @@ class WorkManagerInspector(
         workManager.getWorkInfoById(UUID.fromString(id)).let {
             workInfoBuilder.addAllTags(it.get().tags)
         }
+
+        val workStackBuilder = WorkManagerInspectorProtocol.CallStack.newBuilder()
+        stackTraceMap[id]?.let { stack ->
+            workStackBuilder.addAllFrames(stack.map { it.toProto() })
+        }
+        workInfoBuilder.callStack = workStackBuilder.build()
 
         return workInfoBuilder.build()
     }
