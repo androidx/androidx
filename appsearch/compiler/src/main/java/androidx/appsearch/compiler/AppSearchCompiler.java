@@ -35,19 +35,17 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 
-/**
- * Processes AppSearchDocument annotations.
- */
+/** Processes AppSearchDocument annotations. */
 @SupportedAnnotationTypes({IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedOptions({DocumentProcessor.OUTPUT_DIR_OPTION})
-public class DocumentProcessor extends AbstractProcessor {
+@SupportedOptions({AppSearchCompiler.OUTPUT_DIR_OPTION})
+public class AppSearchCompiler extends AbstractProcessor {
     /**
      * This property causes us to write output to a different folder instead of the usual filer
      * location. It should only be used for testing.
      */
     @VisibleForTesting
-    static final String OUTPUT_DIR_OPTION = "AppSearch.DocumentProcessor.OutputDir";
+    static final String OUTPUT_DIR_OPTION = "AppSearchCompiler.OutputDir";
 
     private Messager mMessager;
 

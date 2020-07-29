@@ -37,7 +37,7 @@ dependencies {
     testImplementation(GOOGLE_COMPILE_TESTING)
 }
 
-tasks.findByName('compileJava').dependsOn(":appsearch:appsearch::jarDebug")
+tasks.findByName('compileJava').dependsOn(":appsearch:appsearch:jarDebug")
 
 androidx {
     name = 'AndroidX AppSearch Compiler'

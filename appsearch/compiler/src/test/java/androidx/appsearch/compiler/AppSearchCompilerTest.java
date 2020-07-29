@@ -39,8 +39,8 @@ import java.util.logging.Logger;
 
 import javax.tools.JavaFileObject;
 
-public class DocumentProcessorTest {
-    private static final Logger LOG = Logger.getLogger(DocumentProcessor.class.getSimpleName());
+public class AppSearchCompilerTest {
+    private static final Logger LOG = Logger.getLogger(AppSearchCompilerTest.class.getSimpleName());
 
     @Rule
     public TemporaryFolder mTemporaryFolder = new TemporaryFolder();
@@ -683,10 +683,10 @@ public class DocumentProcessorTest {
         // test-controlled path which is then diffed.
         String outputDirFlag = String.format(
                 "-A%s=%s",
-                DocumentProcessor.OUTPUT_DIR_OPTION,
+                AppSearchCompiler.OUTPUT_DIR_OPTION,
                 mGenFilesDir.getAbsolutePath());
         return Compiler.javac()
-                .withProcessors(new DocumentProcessor())
+                .withProcessors(new AppSearchCompiler())
                 .withOptions(outputDirFlag)
                 .compile(jfo);
     }
