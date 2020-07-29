@@ -222,6 +222,12 @@ class AsyncPagingDataDiffer<T : Any> @JvmOverloads constructor(
     }
 
     /**
+     * Returns a new [ItemSnapshotList] representing the currently presented items, including any
+     * placeholders if they are enabled.
+     */
+    fun snapshot(): ItemSnapshotList<T> = differBase.snapshot()
+
+    /**
      * Get the number of items currently presented by this Differ. This value can be directly
      * returned to [androidx.recyclerview.widget.RecyclerView.Adapter.getItemCount].
      *
