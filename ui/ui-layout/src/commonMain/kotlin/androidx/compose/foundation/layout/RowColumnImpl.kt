@@ -35,6 +35,7 @@ import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
@@ -1024,14 +1025,21 @@ private fun intrinsicCrossAxisSize(
     children.fastForEach { child ->
         val weight = child.data.weight
         if (weight == 0f) {
-            val mainAxisSpace = child.mainAxisSize(Constraints.Infinity)
+            // Ask the child how much main axis space it wants to occupy. This cannot be more
+            // than the remaining available space.
+            val mainAxisSpace = min(
+                child.mainAxisSize(Constraints.Infinity),
+                mainAxisAvailable - fixedSpace
+            )
             fixedSpace += mainAxisSpace
+            // Now that the assigned main axis space is known, ask about the cross axis space.
             crossAxisMax = max(crossAxisMax, child.crossAxisSize(mainAxisSpace))
         } else if (weight > 0f) {
             totalWeight += weight
         }
     }
 
+    // For weighted children, calculate how much main axis space weight=1 would represent.
     val weightUnitSpace = if (totalWeight == 0f) {
         0
     } else if (mainAxisAvailable == Constraints.Infinity) {
@@ -1042,6 +1050,7 @@ private fun intrinsicCrossAxisSize(
 
     children.fastForEach { child ->
         val weight = child.data.weight
+        // Now the main axis for weighted children is known, so ask about the cross axis space.
         if (weight > 0f) {
             crossAxisMax = max(
                 crossAxisMax,
