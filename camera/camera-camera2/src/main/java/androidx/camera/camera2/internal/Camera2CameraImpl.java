@@ -193,6 +193,7 @@ final class Camera2CameraImpl implements CameraInternal {
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
         mObservableState.postValue(State.CLOSED);
         mCaptureSessionRepository = new CaptureSessionRepository(mExecutor);
+        mCaptureSession = new CaptureSession();
 
         try {
             CameraCharacteristics cameraCharacteristics =
@@ -209,8 +210,6 @@ final class Camera2CameraImpl implements CameraInternal {
         mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(mExecutor,
                 executorScheduler, schedulerHandler, mCaptureSessionRepository,
                 mCameraInfoInternal.getSupportedHardwareLevel());
-
-        mCaptureSession = new CaptureSession();
 
         mCameraAvailability = new CameraAvailability(cameraId);
 
