@@ -3456,6 +3456,62 @@ class RowColumnTest : LayoutTest() {
             )
         }
     }
+
+    @Test
+    fun testRow_withWIHOChild_hasCorrectIntrinsicMeasurements() = with(density) {
+        val dividerWidth = 10.dp
+        val rowWidth = 40.dp
+
+        val positionedLatch = CountDownLatch(1)
+        show {
+            @OptIn(ExperimentalLayout::class)
+            Row(Modifier.width(rowWidth).preferredHeight(IntrinsicSize.Min)) {
+                Container(Modifier.width(dividerWidth).fillMaxHeight().onPositioned {
+                    assertEquals(it.size.height, (rowWidth.toIntPx() - dividerWidth.toIntPx()) / 2)
+                    positionedLatch.countDown()
+                }) {}
+                Layout(
+                    children = {},
+                    minIntrinsicWidthMeasureBlock = { _, _ -> rowWidth.toIntPx() / 10 },
+                    maxIntrinsicWidthMeasureBlock = { _, _ -> rowWidth.toIntPx() * 2 },
+                    minIntrinsicHeightMeasureBlock = { _, w -> w / 2 },
+                    maxIntrinsicHeightMeasureBlock = { _, w -> w / 2 }
+                ) { _, constraints -> layout(constraints.maxWidth, constraints.maxWidth / 2) {} }
+            }
+        }
+
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun testColumn_withHIWOChild_hasCorrectIntrinsicMeasurements() = with(density) {
+        val dividerHeight = 10.dp
+        val columnHeight = 40.dp
+
+        val positionedLatch = CountDownLatch(1)
+        show {
+            @OptIn(ExperimentalLayout::class)
+            Column(Modifier.height(columnHeight).preferredWidth(IntrinsicSize.Min)) {
+                Container(Modifier.height(dividerHeight).fillMaxWidth().onPositioned {
+                    assertEquals(
+                        it.size.width,
+                        (columnHeight.toIntPx() - dividerHeight.toIntPx()) / 2
+                    )
+                    positionedLatch.countDown()
+                }) {}
+                Layout(
+                    children = {},
+                    minIntrinsicWidthMeasureBlock = { _, h -> h / 2 },
+                    maxIntrinsicWidthMeasureBlock = { _, h -> h / 2 },
+                    minIntrinsicHeightMeasureBlock = { _, _ -> columnHeight.toIntPx() / 10 },
+                    maxIntrinsicHeightMeasureBlock = { _, _ -> columnHeight.toIntPx() * 2 }
+                ) { _, constraints -> layout(constraints.maxHeight / 2, constraints.maxHeight) {} }
+            }
+        }
+
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+    }
+
     // endregion
 
     // region Modifiers specific tests
