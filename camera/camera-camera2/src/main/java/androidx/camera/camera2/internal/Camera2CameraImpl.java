@@ -295,7 +295,7 @@ final class Camera2CameraImpl implements CameraInternal {
         }
     }
 
-    // Configure the camera with a dummy capture session in order to clear the
+    // Configure the camera with a no-op capture session in order to clear the
     // previous session. This should be released immediately after being configured.
     @ExecutedBy("mExecutor")
     private void configAndClose(boolean abortInFlightCaptures) {
@@ -320,7 +320,7 @@ final class Camera2CameraImpl implements CameraInternal {
         ListenableFuture<Void> openDummyCaptureSession = dummySession.open(builder.build(),
                 Preconditions.checkNotNull(mCameraDevice), mCaptureSessionOpenerBuilder.build());
         openDummyCaptureSession.addListener(() -> {
-            // Release the dummy Session and continue closing camera when in correct state.
+            // Release the no-op Session and continue closing camera when in correct state.
             releaseDummySession(dummySession, closeAndCleanupRunner);
         }, mExecutor);
     }
@@ -336,7 +336,7 @@ final class Camera2CameraImpl implements CameraInternal {
         ListenableFuture<Void> releaseFuture = releaseSession(
                 dummySession, /*abortInFlightCaptures=*/false);
 
-        // Add a listener to clear the dummy surfaces
+        // Add a listener to clear the no-op surfaces
         releaseFuture.addListener(closeAndCleanupRunner, CameraXExecutors.directExecutor());
     }
 
