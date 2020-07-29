@@ -548,7 +548,7 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
         // TODO(shepshapard): Replace everything is costly, we should be able to simply change
         //  data in place here and prevent it from being changed when dispatched to
         //  PointerInputFilters.
-        if (position != IntOffset.Origin) {
+        if (position != IntOffset.Zero) {
             changes.replaceEverything {
                 it.copy(
                     current = it.current.copy(position = it.current.position?.plus(position)),

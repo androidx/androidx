@@ -89,7 +89,7 @@ internal class ModifiedLayoutNode(
         val modifierBoundsPaint = Paint().also { paint ->
             paint.color = Color.Blue
             paint.strokeWidth = 1f
-            paint.style = PaintingStyle.stroke
+            paint.style = PaintingStyle.Stroke
         }
     }
 }

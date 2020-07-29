@@ -17,6 +17,7 @@
 package androidx.compose.ui.graphics.vector
 
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.Size.Companion.Unspecified
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -58,8 +59,8 @@ const val DefaultTrimPathStart = 0.0f
 const val DefaultTrimPathEnd = 1.0f
 const val DefaultTrimPathOffset = 0.0f
 
-val DefaultStrokeLineCap = StrokeCap.butt
-val DefaultStrokeLineJoin = StrokeJoin.miter
+val DefaultStrokeLineCap = StrokeCap.Butt
+val DefaultStrokeLineJoin = StrokeJoin.Miter
 val DefaultTintBlendMode = BlendMode.SrcIn
 val DefaultTintColor = Color.Transparent
 
@@ -105,21 +106,17 @@ internal class VectorComponent(
 
     var viewportWidth: Float = viewportWidth
         set(value) {
-            if (field != value) {
-                field = value
-                isDirty = true
-            }
+            field = value
+            isDirty = true
         }
 
     var viewportHeight: Float = viewportHeight
         set(value) {
-            if (field != value) {
-                field = value
-                isDirty = true
-            }
+            field = value
+            isDirty = true
         }
 
-    private var previousDrawSize: Size = Size.UnspecifiedSize
+    private var previousDrawSize: Size = Unspecified
 
     /**
      * Cached lambda used to avoid allocating the lambda on each draw invocation
@@ -164,78 +161,60 @@ internal data class PathComponent(val name: String) : VNode() {
 
     var fill: Brush? = null
         set(value) {
-            if (field != value) {
-                field = value
-                invalidate()
-            }
+            field = value
+            invalidate()
         }
 
     var fillAlpha: Float = 1.0f
         set(value) {
-            if (field != value) {
-                field = value
-                invalidate()
-            }
+            field = value
+            invalidate()
         }
 
     var pathData: List<PathNode> = EmptyPath
         set(value) {
-            if (field != value) {
-                field = value
-                isPathDirty = true
-                invalidate()
-            }
+            field = value
+            isPathDirty = true
+            invalidate()
         }
 
     var strokeAlpha: Float = 1.0f
         set(value) {
-            if (field != value) {
-                field = value
-                invalidate()
-            }
+            field = value
+            invalidate()
         }
 
     var strokeLineWidth: Float = DefaultStrokeLineWidth
         set(value) {
-            if (field != value) {
-                field = value
-                invalidate()
-            }
+            field = value
+            invalidate()
         }
 
     var stroke: Brush? = null
         set(value) {
-            if (field != value) {
-                field = value
-                invalidate()
-            }
+            field = value
+            invalidate()
         }
 
     var strokeLineCap: StrokeCap = DefaultStrokeLineCap
         set(value) {
-            if (field != value) {
-                field = value
-                isStrokeDirty = true
-                invalidate()
-            }
+            field = value
+            isStrokeDirty = true
+            invalidate()
         }
 
     var strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin
         set(value) {
-            if (field != value) {
-                field = value
-                isStrokeDirty = true
-                invalidate()
-            }
+            field = value
+            isStrokeDirty = true
+            invalidate()
         }
 
     var strokeLineMiter: Float = DefaultStrokeLineMiter
         set(value) {
-            if (field != value) {
-                field = value
-                isStrokeDirty = true
-                invalidate()
-            }
+            field = value
+            isStrokeDirty = true
+            invalidate()
         }
 
     var trimPathStart: Float = DefaultTrimPathStart
@@ -339,11 +318,9 @@ internal data class GroupComponent(val name: String = DefaultGroupName) : VNode(
 
     var clipPathData: List<PathNode> = EmptyPath
         set(value) {
-            if (field != value) {
-                field = value
-                isClipPathDirty = true
-                invalidate()
-            }
+            field = value
+            isClipPathDirty = true
+            invalidate()
         }
 
     private val willClipPath: Boolean
@@ -386,65 +363,51 @@ internal data class GroupComponent(val name: String = DefaultGroupName) : VNode(
 
     var rotation: Float = DefaultRotation
         set(value) {
-            if (field != value) {
-                field = value
-                isMatrixDirty = true
-                invalidate()
-            }
+            field = value
+            isMatrixDirty = true
+            invalidate()
         }
 
     var pivotX: Float = DefaultPivotX
         set(value) {
-            if (field != value) {
-                field = value
-                isMatrixDirty = true
-                invalidate()
-            }
+            field = value
+            isMatrixDirty = true
+            invalidate()
         }
 
     var pivotY: Float = DefaultPivotY
         set(value) {
-            if (field != value) {
-                field = value
-                isMatrixDirty = true
-                invalidate()
-            }
+            field = value
+            isMatrixDirty = true
+            invalidate()
         }
 
     var scaleX: Float = DefaultScaleX
         set(value) {
-            if (field != value) {
-                field = value
-                isMatrixDirty = true
-                invalidate()
-            }
+            field = value
+            isMatrixDirty = true
+            invalidate()
         }
 
     var scaleY: Float = DefaultScaleY
         set(value) {
-            if (field != value) {
-                field = value
-                isMatrixDirty = true
-                invalidate()
-            }
+            field = value
+            isMatrixDirty = true
+            invalidate()
         }
 
     var translationX: Float = DefaultTranslationX
         set(value) {
-            if (field != value) {
-                field = value
-                isMatrixDirty = true
-                invalidate()
-            }
+            field = value
+            isMatrixDirty = true
+            invalidate()
         }
 
     var translationY: Float = DefaultTranslationY
         set(value) {
-            if (field != value) {
-                field = value
-                isMatrixDirty = true
-                invalidate()
-            }
+            field = value
+            isMatrixDirty = true
+            invalidate()
         }
 
     private var isMatrixDirty = true

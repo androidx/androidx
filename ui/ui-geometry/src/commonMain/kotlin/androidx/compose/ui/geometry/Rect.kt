@@ -54,6 +54,8 @@ data class Rect(
 
     companion object {
         /** Construct a rectangle from its left, top, right, and bottom edges. */
+        @Deprecated("Use Rect constructor instead", ReplaceWith("Rect(left, top, right, bottom)",
+            "androidx.compose.ui.geometry"))
         @Stable
         fun fromLTRB(left: Float, top: Float, right: Float, bottom: Float): Rect {
             return Rect(left, top, right, bottom)
@@ -66,6 +68,9 @@ data class Rect(
          * To construct a [Rect] from an [Offset] and a [Size], you can use the
          * rectangle constructor operator `&`. See [Offset.&].
          */
+        @Deprecated("Use Rect(Offset, Size) instead",
+            ReplaceWith("Rect(Offset(left, top), Size(width, height))",
+                "androidx.compose.ui.geometry"))
         @Stable
         fun fromLTWH(left: Float, top: Float, width: Float, height: Float): Rect {
             return Rect(left, top, left + width, top + height)
@@ -76,6 +81,8 @@ data class Rect(
          *
          * The `center` argument is assumed to be an offset from the origin.
          */
+        @Deprecated("Use Rect(Offset, Float) instead",
+            ReplaceWith("Rect(center, radius)", "androidx.compose.ui.geometry"))
         @Stable
         fun fromCircle(center: Offset, radius: Float): Rect {
             return Rect(
@@ -91,6 +98,8 @@ data class Rect(
          * them as vectors from the origin.
          */
         @Stable
+        @Deprecated("Use Rect(a, b) instead",
+            ReplaceWith("Rect(a, b)", "androidx.compose.ui.geometry"))
         fun fromPoints(a: Offset, b: Offset): Rect {
             return Rect(
                 min(a.x, b.x),
@@ -102,72 +111,51 @@ data class Rect(
 
         /** A rectangle with left, top, right, and bottom edges all at zero. */
         @Stable
-        val zero: Rect = Rect(0.0f, 0.0f, 0.0f, 0.0f)
-
-        val _giantScalar: Float = 1e7f // matches kGiantRect from default_layer_builder.cc
-
-        /**
-         * A rectangle that covers the entire coordinate space.
-         *
-         * This covers the space from -1e7,-1e7 to 1e7, 1e7.
-         * This is the space over which graphics operations are valid.
-         */
-        val largest: Rect =
-            fromLTRB(
-                -_giantScalar,
-                -_giantScalar,
-                _giantScalar,
-                _giantScalar
-            )
+        val Zero: Rect = Rect(0.0f, 0.0f, 0.0f, 0.0f)
     }
 
     /** The distance between the left and right edges of this rectangle. */
     @Stable
-    val width = right - left
+    val width: Float
+        get() { return right - left }
 
     /** The distance between the top and bottom edges of this rectangle. */
     @Stable
-    val height = bottom - top
-
-    // static const int _kDataSize = 4;
-    // final Float32List _value = new Float32List(_kDataSize);
-    // double get left => _value[0];
-    // double get top => _value[1];
-    //
-    // double get right => _value[2];
-    /** The offset of the bottom edge of this rectangle from the y axis. */
-    // double get bottom => _value[3];
+    val height: Float
+        get() { return bottom - top }
 
     /**
      * The distance between the upper-left corner and the lower-right corner of
      * this rectangle.
      */
-    fun getSize() = Size(width, height)
+    @Stable
+    val size: Size
+        get() = Size(width, height)
 
     /** Whether any of the coordinates of this rectangle are equal to positive infinity. */
     // included for consistency with Offset and Size
     @Stable
-    fun isInfinite(): Boolean {
-        return left >= Float.POSITIVE_INFINITY ||
+    val isInfinite: Boolean
+        get() = left >= Float.POSITIVE_INFINITY ||
                 top >= Float.POSITIVE_INFINITY ||
                 right >= Float.POSITIVE_INFINITY ||
                 bottom >= Float.POSITIVE_INFINITY
-    }
 
     /** Whether all coordinates of this rectangle are finite. */
     @Stable
-    fun isFinite(): Boolean =
-            left.isFinite() &&
-            top.isFinite() &&
-            right.isFinite() &&
-            bottom.isFinite()
+    val isFinite: Boolean
+        get() = left.isFinite() &&
+                top.isFinite() &&
+                right.isFinite() &&
+                bottom.isFinite()
 
     /**
      * Whether this rectangle encloses a non-zero area. Negative areas are
      * considered empty.
      */
     @Stable
-    fun isEmpty(): Boolean = left >= right || top >= bottom
+    val isEmpty: Boolean
+        get() = left >= right || top >= bottom
 
     /**
      * Returns a new rectangle translated by the given offset.
@@ -177,7 +165,7 @@ data class Rect(
      */
     @Stable
     fun shift(offset: Offset): Rect {
-        return fromLTRB(left + offset.x, top + offset.y, right + offset.x, bottom + offset.y)
+        return Rect(left + offset.x, top + offset.y, right + offset.x, bottom + offset.y)
     }
 
     /**
@@ -189,7 +177,7 @@ data class Rect(
      */
     @Stable
     fun translate(translateX: Float, translateY: Float): Rect {
-        return fromLTRB(
+        return Rect(
             left + translateX,
             top + translateY,
             right + translateX,
@@ -200,7 +188,7 @@ data class Rect(
     /** Returns a new rectangle with edges moved outwards by the given delta. */
     @Stable
     fun inflate(delta: Float): Rect {
-        return fromLTRB(left - delta, top - delta, right + delta, bottom + delta)
+        return Rect(left - delta, top - delta, right + delta, bottom + delta)
     }
 
     /** Returns a new rectangle with edges moved inwards by the given delta. */
@@ -215,7 +203,7 @@ data class Rect(
      */
     @Stable
     fun intersect(other: Rect): Rect {
-        return fromLTRB(
+        return Rect(
             max(left, other.left),
             max(top, other.top),
             min(right, other.right),
@@ -228,7 +216,7 @@ data class Rect(
      * rectangle and the given rectangle.
      */
     fun expandToInclude(other: Rect): Rect {
-        return fromLTRB(
+        return Rect(
             min(left, other.left),
             min(top, other.top),
             max(right, other.right),
@@ -237,11 +225,11 @@ data class Rect(
     }
 
     fun join(other: Rect): Rect {
-        if (other.isEmpty()) {
+        if (other.isEmpty) {
             // return this if the other params are empty
             return this
         }
-        if (isEmpty()) {
+        if (isEmpty) {
             // if we are empty, just take other
             return other
         }
@@ -276,28 +264,32 @@ data class Rect(
      *
      * See also [Size.topLeft].
      */
-    fun getTopLeft(): Offset = Offset(left, top)
+    val topLeft: Offset
+        get() = Offset(left, top)
 
     /**
      * The offset to the center of the top edge of this rectangle.
      *
      * See also [Size.topCenter].
      */
-    fun getTopCenter(): Offset = Offset(left + width / 2.0f, top)
+    val topCenter: Offset
+        get() = Offset(left + width / 2.0f, top)
 
     /**
      * The offset to the intersection of the top and right edges of this rectangle.
      *
      * See also [Size.topRight].
      */
-    fun getTopRight(): Offset = Offset(right, top)
+    val topRight: Offset
+        get() = Offset(right, top)
 
     /**
      * The offset to the center of the left edge of this rectangle.
      *
      * See also [Size.centerLeft].
      */
-    fun getCenterLeft(): Offset = Offset(left, top + height / 2.0f)
+    val centerLeft: Offset
+        get() = Offset(left, top + height / 2.0f)
 
     /**
      * The offset to the point halfway between the left and right and the top and
@@ -305,35 +297,40 @@ data class Rect(
      *
      * See also [Size.center].
      */
-    fun getCenter(): Offset = Offset(left + width / 2.0f, top + height / 2.0f)
+    val center: Offset
+        get() = Offset(left + width / 2.0f, top + height / 2.0f)
 
     /**
      * The offset to the center of the right edge of this rectangle.
      *
      * See also [Size.centerLeft].
      */
-    fun getCenterRight(): Offset = Offset(right, top + height / 2.0f)
+    val centerRight: Offset
+        get() = Offset(right, top + height / 2.0f)
 
     /**
      * The offset to the intersection of the bottom and left edges of this rectangle.
      *
      * See also [Size.bottomLeft].
      */
-    fun getBottomLeft(): Offset = Offset(left, bottom)
+    val bottomLeft: Offset
+        get() = Offset(left, bottom)
 
     /**
      * The offset to the center of the bottom edge of this rectangle.
      *
      * See also [Size.bottomLeft].
      */
-    fun getBottomCenter(): Offset = Offset(left + width / 2.0f, bottom)
+    val bottomCenter: Offset
+        get() { return Offset(left + width / 2.0f, bottom) }
 
     /**
      * The offset to the intersection of the bottom and right edges of this rectangle.
      *
      * See also [Size.bottomRight].
      */
-    fun getBottomRight(): Offset = Offset(right, bottom)
+    val bottomRight: Offset
+        get() { return Offset(right, bottom) }
 
     /**
      * Whether the point specified by the given offset (which is assumed to be
@@ -355,6 +352,52 @@ data class Rect(
 }
 
 /**
+ * Construct a rectangle from its left and top edges as well as its width and height.
+ * @param offset Offset to represent the top and left parameters of the Rect
+ * @param size Size to determine the width and height of this [Rect].
+ * @return Rect with [Rect.left] and [Rect.top] configured to [Offset.x] and [Offset.y] as
+ * [Rect.right] and [Rect.bottom] to [Offset.x] + [Size.width] and [Offset.y] + [Size.height]
+ * respectively
+ */
+@Stable
+fun Rect(offset: Offset, size: Size): Rect =
+    Rect(
+        offset.x,
+        offset.y,
+        offset.x + size.width,
+        offset.y + size.height
+    )
+
+/**
+ * Construct the smallest rectangle that encloses the given offsets, treating
+ * them as vectors from the origin.
+ * @param topLeft Offset representing the left and top edges of the rectangle
+ * @param bottomRight Offset representing the bottom and right edges of the rectangle
+ */
+@Stable
+fun Rect(topLeft: Offset, bottomRight: Offset): Rect =
+    Rect(
+        topLeft.x,
+        topLeft.y,
+        bottomRight.x,
+        bottomRight.y
+    )
+
+/**
+ * Construct a rectangle that bounds the given circle
+ * @param center Offset that represents the center of the circle
+ * @param radius Radius of the circle to enclose
+ */
+@Stable
+fun Rect(center: Offset, radius: Float): Rect =
+    Rect(
+        center.x - radius,
+        center.x + radius,
+        center.y - radius,
+        center.y + radius
+    )
+
+/**
  * Linearly interpolate between two rectangles.
  *
  * The [fraction] argument represents position on the timeline, with 0.0 meaning
@@ -371,7 +414,7 @@ data class Rect(
  */
 @Stable
 fun lerp(start: Rect, stop: Rect, fraction: Float): Rect {
-    return Rect.fromLTRB(
+    return Rect(
         lerp(start.left, stop.left, fraction),
         lerp(start.top, stop.top, fraction),
         lerp(start.right, stop.right, fraction),

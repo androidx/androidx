@@ -55,19 +55,19 @@ private const val SHAPE_CLIP_PATH = "clip-path"
 private const val SHAPE_GROUP = "group"
 private const val SHAPE_PATH = "path"
 
-private fun getStrokeLineCap(id: Int, defValue: StrokeCap = StrokeCap.butt): StrokeCap =
+private fun getStrokeLineCap(id: Int, defValue: StrokeCap = StrokeCap.Butt): StrokeCap =
     when (id) {
-        LINECAP_BUTT -> StrokeCap.butt
-        LINECAP_ROUND -> StrokeCap.round
-        LINECAP_SQUARE -> StrokeCap.square
+        LINECAP_BUTT -> StrokeCap.Butt
+        LINECAP_ROUND -> StrokeCap.Round
+        LINECAP_SQUARE -> StrokeCap.Square
         else -> defValue
     }
 
-private fun getStrokeLineJoin(id: Int, defValue: StrokeJoin = StrokeJoin.miter): StrokeJoin =
+private fun getStrokeLineJoin(id: Int, defValue: StrokeJoin = StrokeJoin.Miter): StrokeJoin =
     when (id) {
-        LINEJOIN_MITER -> StrokeJoin.miter
-        LINEJOIN_ROUND -> StrokeJoin.round
-        LINEJOIN_BEVEL -> StrokeJoin.bevel
+        LINEJOIN_MITER -> StrokeJoin.Miter
+        LINEJOIN_ROUND -> StrokeJoin.Round
+        LINEJOIN_BEVEL -> StrokeJoin.Bevel
         else -> defValue
     }
 
@@ -240,7 +240,7 @@ internal fun XmlPullParser.parsePath(
         "strokeLineCap",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_STROKE_LINE_CAP, -1
     )
-    val strokeLineCap = getStrokeLineCap(lineCap, StrokeCap.butt)
+    val strokeLineCap = getStrokeLineCap(lineCap, StrokeCap.Butt)
     val lineJoin = TypedArrayUtils.getNamedInt(
         a,
         this,
@@ -248,7 +248,7 @@ internal fun XmlPullParser.parsePath(
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_STROKE_LINE_JOIN, -1
     )
     val strokeLineJoin =
-        getStrokeLineJoin(lineJoin, StrokeJoin.bevel)
+        getStrokeLineJoin(lineJoin, StrokeJoin.Bevel)
     val strokeMiterLimit = TypedArrayUtils.getNamedFloat(
         a,
         this,

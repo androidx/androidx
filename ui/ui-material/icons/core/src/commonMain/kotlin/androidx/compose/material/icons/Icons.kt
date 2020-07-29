@@ -124,8 +124,8 @@ inline fun VectorAssetBuilder.materialPath(
         stroke = null,
         strokeAlpha = strokeAlpha,
         strokeLineWidth = 1f,
-        strokeLineCap = StrokeCap.butt,
-        strokeLineJoin = StrokeJoin.bevel,
+        strokeLineCap = StrokeCap.Butt,
+        strokeLineJoin = StrokeJoin.Bevel,
         strokeLineMiter = 1f,
         pathBuilder = pathBuilder
     )

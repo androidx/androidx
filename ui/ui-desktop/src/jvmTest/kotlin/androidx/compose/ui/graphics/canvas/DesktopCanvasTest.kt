@@ -262,7 +262,7 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
                 top = 4f,
                 right = 12f,
                 bottom = 12f,
-                clipOp = ClipOp.intersect
+                clipOp = ClipOp.Intersect
             )
             canvas.drawRect(left = -4f, top = -4f, right = 20f, bottom = 20f, paint = redPaint)
         }

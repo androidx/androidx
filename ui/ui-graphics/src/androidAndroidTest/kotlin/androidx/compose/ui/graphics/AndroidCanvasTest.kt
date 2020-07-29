@@ -25,9 +25,11 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.compose.ui.geometry.Offset
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.ui.test.captureToBitmap
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -90,7 +92,7 @@ class AndroidCanvasTest {
         val imageAsset = ImageAsset(width, height)
         val canvas = Canvas(imageAsset)
         val paint = Paint().apply { this.color = bg }
-        val rect = Rect.fromLTWH(0.0f, 0.0f, width.toFloat(), height.toFloat())
+        val rect = Rect(Offset.Zero, Size(width.toFloat(), height.toFloat()))
         with(canvas) {
             drawRect(rect, paint)
             withSave {
@@ -122,7 +124,7 @@ class AndroidCanvasTest {
         val imageAsset = ImageAsset(width, height)
         val canvas = Canvas(imageAsset)
         val paint = Paint().apply { this.color = bg }
-        val rect = Rect.fromLTWH(0.0f, 0.0f, width.toFloat(), height.toFloat())
+        val rect = Rect(Offset(0.0f, 0.0f), Size(width.toFloat(), height.toFloat()))
         with(canvas) {
             drawRect(rect, paint)
             withSave {
@@ -168,7 +170,7 @@ class AndroidCanvasTest {
         val imageAsset = ImageAsset(width, height)
         val canvas = Canvas(imageAsset)
         val paint = Paint().apply { this.color = bg }
-        val rect = Rect.fromLTWH(0.0f, 0.0f, width.toFloat(), height.toFloat())
+        val rect = Rect(Offset(0.0f, 0.0f), Size(width.toFloat(), height.toFloat()))
         with(canvas) {
             drawRect(rect, paint)
             withSave {
@@ -206,14 +208,14 @@ class AndroidCanvasTest {
         val imageAsset = ImageAsset(width, height)
         val canvas = Canvas(imageAsset)
         val paint = Paint().apply { this.color = bg }
-        val rect = Rect.fromLTWH(0.0f, 0.0f, width.toFloat(), height.toFloat())
+        val rect = Rect(Offset(0.0f, 0.0f), Size(width.toFloat(), height.toFloat()))
         with(canvas) {
             drawRect(rect, paint)
             withSave {
                 rotate(180.0f, 100.0f, 100.0f)
                 paint.color = fg
                 drawRect(
-                    Rect.fromLTRB(100.0f, 100.0f, 200.0f, 200.0f),
+                    Rect(100.0f, 100.0f, 200.0f, 200.0f),
                     paint
                 )
             }
@@ -241,14 +243,14 @@ class AndroidCanvasTest {
         val imageAsset = ImageAsset(width, height)
         val canvas = Canvas(imageAsset)
         val paint = Paint().apply { this.color = bg }
-        val rect = Rect.fromLTWH(0.0f, 0.0f, width.toFloat(), height.toFloat())
+        val rect = Rect(Offset(0.0f, 0.0f), Size(width.toFloat(), height.toFloat()))
         with(canvas) {
             drawRect(rect, paint)
             withSave {
                 rotate(-45.0f)
                 paint.color = fg
                 drawRect(
-                    Rect.fromLTRB(0.0f, 0.0f, 100.0f, 100.0f),
+                    Rect(0.0f, 0.0f, 100.0f, 100.0f),
                     paint
                 )
             }

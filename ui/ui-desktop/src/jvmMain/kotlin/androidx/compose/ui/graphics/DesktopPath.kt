@@ -41,15 +41,15 @@ class DesktopPath(
     override var fillType: PathFillType
         get() {
             if (internalPath.fillMode == PathFillMode.EVEN_ODD) {
-                return PathFillType.evenOdd
+                return PathFillType.EvenOdd
             } else {
-                return PathFillType.nonZero
+                return PathFillType.NonZero
             }
         }
 
         set(value) {
             internalPath.fillMode =
-                if (value == PathFillType.evenOdd) {
+                if (value == PathFillType.EvenOdd) {
                     PathFillMode.EVEN_ODD
                 } else {
                     PathFillMode.WINDING

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
@@ -196,12 +197,7 @@ class TextFieldDelegate {
 
             textInputService.notifyFocusedRect(
                 token,
-                Rect.fromLTWH(
-                    globalLT.x,
-                    globalLT.y,
-                    bbox.width,
-                    bbox.height
-                )
+                Rect(Offset(globalLT.x, globalLT.y), Size(bbox.width, bbox.height))
             )
         }
 

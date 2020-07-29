@@ -286,8 +286,8 @@ package androidx.compose.ui.unit {
   }
 
   public static final class IntOffset.Companion {
-    method public androidx.compose.ui.unit.IntOffset getOrigin();
-    property public final androidx.compose.ui.unit.IntOffset Origin;
+    method public androidx.compose.ui.unit.IntOffset getZero();
+    property public final androidx.compose.ui.unit.IntOffset Zero;
   }
 
   public final class IntOffsetKt {

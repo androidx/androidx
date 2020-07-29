@@ -30,7 +30,7 @@ class RectTest {
 
     @Test
     fun `rect accessors`() {
-        val r = Rect.fromLTRB(1.0f, 3.0f, 5.0f, 7.0f)
+        val r = Rect(1.0f, 3.0f, 5.0f, 7.0f)
         assertEquals(1.0f, r.left, DELTA)
         assertEquals(3.0f, r.top, DELTA)
         assertEquals(5.0f, r.right, DELTA)
@@ -39,7 +39,7 @@ class RectTest {
 
     @Test
     fun `rect created by width and height`() {
-        val r = Rect.fromLTWH(1.0f, 3.0f, 5.0f, 7.0f)
+        val r = Rect(Offset(1.0f, 3.0f), Size(5.0f, 7.0f))
         assertEquals(1.0f, r.left, DELTA)
         assertEquals(3.0f, r.top, DELTA)
         assertEquals(6.0f, r.right, DELTA)
@@ -48,8 +48,8 @@ class RectTest {
 
     @Test
     fun `rect intersection`() {
-        val r1 = Rect.fromLTRB(0.0f, 0.0f, 100.0f, 100.0f)
-        val r2 = Rect.fromLTRB(50.0f, 50.0f, 200.0f, 200.0f)
+        val r1 = Rect(0.0f, 0.0f, 100.0f, 100.0f)
+        val r2 = Rect(50.0f, 50.0f, 200.0f, 200.0f)
         val r3 = r1.intersect(r2)
         assertEquals(50.0f, r3.left, DELTA)
         assertEquals(50.0f, r3.top, DELTA)

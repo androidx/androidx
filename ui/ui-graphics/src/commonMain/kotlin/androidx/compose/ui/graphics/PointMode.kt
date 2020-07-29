@@ -27,7 +27,7 @@ enum class PointMode {
     /**
      * Draw each point separately.
      *
-     * If the [Paint.strokeCap] is [StrokeCap.round], then each point is drawn
+     * If the [Paint.strokeCap] is [StrokeCap.Round], then each point is drawn
      * as a circle with the diameter of the [Paint.strokeWidth], filled as
      * described by the [Paint] (ignoring [Paint.style]).
      *
@@ -35,7 +35,7 @@ enum class PointMode {
      * length [Paint.strokeWidth], filled as described by the [Paint] (ignoring
      * [Paint.style]).
      */
-    points,
+    Points,
 
     /**
      * Draw each sequence of two points as a line segment.
@@ -45,7 +45,7 @@ enum class PointMode {
      * The lines are stroked as described by the [Paint] (ignoring
      * [Paint.style]).
      */
-    lines,
+    Lines,
 
     /**
      * Draw the entire sequence of point as one line.
@@ -53,5 +53,5 @@ enum class PointMode {
      * The lines are stroked as described by the [Paint] (ignoring
      * [Paint.style]).
      */
-    polygon
+    Polygon
 }

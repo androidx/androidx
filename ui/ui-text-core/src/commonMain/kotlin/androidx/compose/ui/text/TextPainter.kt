@@ -16,7 +16,9 @@
 
 package androidx.compose.ui.text
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.text.style.TextOverflow
 
@@ -33,7 +35,7 @@ object TextPainter {
         if (needClipping) {
             val width = textLayoutResult.size.width.toFloat()
             val height = textLayoutResult.size.height.toFloat()
-            val bounds = Rect.fromLTWH(0f, 0f, width, height)
+            val bounds = Rect(Offset.Zero, Size(width, height))
             canvas.save()
             canvas.clipRect(bounds)
         }

@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.DrawLayerModifier
 import androidx.compose.ui.TransformOrigin
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.node.OwnedLayer
 
 /**

@@ -56,15 +56,15 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
     override var fillType: PathFillType
         get() {
             if (internalPath.fillType == android.graphics.Path.FillType.EVEN_ODD) {
-                return PathFillType.evenOdd
+                return PathFillType.EvenOdd
             } else {
-                return PathFillType.nonZero
+                return PathFillType.NonZero
             }
         }
 
         set(value) {
             internalPath.fillType =
-                if (value == PathFillType.evenOdd) {
+                if (value == PathFillType.EvenOdd) {
                     android.graphics.Path.FillType.EVEN_ODD
                 } else {
                     android.graphics.Path.FillType.WINDING

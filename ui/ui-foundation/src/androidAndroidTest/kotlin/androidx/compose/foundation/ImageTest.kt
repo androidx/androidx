@@ -37,6 +37,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.res.loadVectorResource
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
@@ -81,12 +83,7 @@ class ImageTest {
         Canvas(image).apply {
             paint.color = bgColor
             drawRect(
-                Rect.fromLTWH(
-                    0.0f,
-                    0.0f,
-                    imageWidth.toFloat(),
-                    imageHeight.toFloat()
-                ),
+                Rect(Offset.Zero, Size(imageWidth.toFloat(), imageHeight.toFloat())),
                 paint
             )
 

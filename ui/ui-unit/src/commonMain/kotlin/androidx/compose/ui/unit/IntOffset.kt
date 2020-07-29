@@ -25,33 +25,40 @@ import androidx.compose.ui.util.lerp
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
+import kotlin.math.roundToInt
 
 /**
  * A two-dimensional position using [Int] pixels for units
  */
 @Immutable
 /*inline*/ class IntOffset(
-    @PublishedApi internal val value: Long
+    @PublishedApi internal val packedValue: Long
 ) {
     /**
      * The horizontal aspect of the position in [Int] pixels.
      */
     @Stable
     val x: Int
-        get() = unpackInt1(value)
+        get() = unpackInt1(packedValue)
 
     /**
      * The vertical aspect of the position in [Int] pixels.
      */
     @Stable
     val y: Int
-        get() = unpackInt2(value)
+        get() = unpackInt2(packedValue)
 
     @Stable
-    inline operator fun component1(): Int = x
+    operator fun component1(): Int = x
 
     @Stable
-    inline operator fun component2(): Int = y
+    operator fun component2(): Int = y
+
+    /**
+     * Returns a copy of this IntOffset instance optionally overriding the
+     * x or y parameter
+     */
+    fun copy(x: Int = this.x, y: Int = this.y) = IntOffset(x, y)
 
     /**
      * Subtract a [IntOffset] from another one.
@@ -73,6 +80,42 @@ import androidx.compose.ui.util.unpackInt2
     @Stable
     inline operator fun unaryMinus() = IntOffset(-x, -y)
 
+    /**
+     * Multiplication operator.
+     *
+     * Returns an IntOffset whose coordinates are the coordinates of the
+     * left-hand-side operand (an IntOffset) multiplied by the scalar
+     * right-hand-side operand (a Float). The result is rounded to the nearest integer.
+     */
+    @Stable
+    operator fun times(operand: Float): IntOffset = IntOffset(
+        (x * operand).roundToInt(),
+        (y * operand).roundToInt()
+    )
+
+    /**
+     * Division operator.
+     *
+     * Returns an IntOffset whose coordinates are the coordinates of the
+     * left-hand-side operand (an IntOffset) divided by the scalar right-hand-side
+     * operand (a Float). The result is rounded to the nearest integer.
+     */
+    @Stable
+    operator fun div(operand: Float): IntOffset = IntOffset(
+        (x / operand).roundToInt(),
+        (y / operand).roundToInt()
+    )
+
+    /**
+     * Modulo (remainder) operator.
+     *
+     * Returns an IntOffset whose coordinates are the remainder of dividing the
+     * coordinates of the left-hand-side operand (an IntOffset) by the scalar
+     * right-hand-side operand (an Int).
+     */
+    @Stable
+    operator fun rem(operand: Int) = IntOffset(x % operand, y % operand)
+
     @Stable
     override fun toString(): String = "($x, $y)"
 
@@ -81,16 +124,20 @@ import androidx.compose.ui.util.unpackInt2
         if (other !is IntOffset) {
             return false
         }
-        return other.value == value
+        return other.packedValue == packedValue
     }
 
     @Stable
     override fun hashCode(): Int {
-        return value.hashCode()
+        return packedValue.hashCode()
     }
 
     companion object {
-        val Origin = IntOffset(0, 0)
+        val Zero = IntOffset(0, 0)
+
+        @Deprecated("Use IntOffset.Zero instead", ReplaceWith("Zero",
+            "androidx.compose.ui.unit.IntOffset"))
+        val Origin = Zero
     }
 }
 

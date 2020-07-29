@@ -45,7 +45,7 @@ data class ColorPainter(val color: Color) : Painter() {
     }
 
     /**
-     * Drawing a color does not have an intrinsic size, return [Size.UnspecifiedSize] here
+     * Drawing a color does not have an intrinsic size, return [Size.Unspecified] here
      */
-    override val intrinsicSize: Size = Size.UnspecifiedSize
+    override val intrinsicSize: Size = Size.Unspecified
 }

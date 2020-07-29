@@ -30,7 +30,7 @@ expect class NativePathEffect
     /**
      * Determines how the interior of this path is calculated.
      *
-     * Defaults to the non-zero winding rule, [PathFillType.nonZero].
+     * Defaults to the non-zero winding rule, [PathFillType.NonZero].
      */
     var fillType: PathFillType
 
@@ -165,7 +165,7 @@ expect class NativePathEffect
      * Adds a new subpath that consists of a curve that forms the
      * ellipse that fills the given rectangle.
      *
-     * To add a circle, pass an appropriate rectangle as `oval`. [Rect.fromCircle]
+     * To add a circle, pass an appropriate rectangle as `oval`. [Rect]
      * can be used to easily describe the circle's center [Offset] and radius.
      */
     fun addOval(oval: Rect)

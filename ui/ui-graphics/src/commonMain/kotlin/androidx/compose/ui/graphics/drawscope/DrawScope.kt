@@ -167,14 +167,14 @@ inline fun DrawScope.scale(
  * Reduces the clip region to the intersection of the current clip and the
  * given rectangle indicated by the given left, top, right and bottom bounds.
  *
- * Use [ClipOp.difference] to subtract the provided rectangle from the
+ * Use [ClipOp.Difference] to subtract the provided rectangle from the
  * current clip.
  *
  * @param left Left bound of the rectangle to clip
  * @param top Top bound of the rectangle to clip
  * @param right Right bound ofthe rectangle to clip
  * @param bottom Bottom bound of the rectangle to clip
- * @param clipOp Clipping operation to conduct on the given bounds, defaults to [ClipOp.intersect]
+ * @param clipOp Clipping operation to conduct on the given bounds, defaults to [ClipOp.Intersect]
  * @param block Lambda callback with this CanvasScope as a receiver scope to issue drawing commands
  * within the provided clip
  */
@@ -183,7 +183,7 @@ inline fun DrawScope.clipRect(
     top: Float = 0.0f,
     right: Float = size.width,
     bottom: Float = size.height,
-    clipOp: ClipOp = ClipOp.intersect,
+    clipOp: ClipOp = ClipOp.Intersect,
     block: DrawScope.() -> Unit
 ) = withTransform({ clipRect(left, top, right, bottom, clipOp) }, block)
 
@@ -192,13 +192,13 @@ inline fun DrawScope.clipRect(
  * given rounded rectangle.
  *
  * @param path Shape to clip drawing content within
- * @param clipOp Clipping operation to conduct on the given bounds, defaults to [ClipOp.intersect]
+ * @param clipOp Clipping operation to conduct on the given bounds, defaults to [ClipOp.Intersect]
  * @param block Lambda callback with this CanvasScope as a receiver scope to issue drawing commands
  * within the provided clip
  */
 inline fun DrawScope.clipPath(
     path: Path,
-    clipOp: ClipOp = ClipOp.intersect,
+    clipOp: ClipOp = ClipOp.Intersect,
     block: DrawScope.() -> Unit
 ) = withTransform({ clipPath(path, clipOp) }, block)
 
@@ -252,7 +252,7 @@ inline fun DrawScope.withTransform(
 @DrawScopeMarker
 abstract class DrawScope : Density {
 
-    @PublishedApi internal lateinit var canvas: Canvas
+    @PublishedApi internal var canvas: Canvas = EmptyCanvas()
 
     @PublishedApi internal val transform = object : DrawTransform {
 
@@ -317,18 +317,14 @@ abstract class DrawScope : Density {
      * This is lazily allocated on the first drawing command that uses the [Fill] [DrawStyle]
      * and re-used across subsequent calls
      */
-    private val fillPaint: Paint by lazy(LazyThreadSafetyMode.NONE) {
-        Paint().apply { style = PaintingStyle.fill }
-    }
+    private var fillPaint: Paint? = null
 
     /**
      * Internal [Paint] used only for drawing stroked shapes with a color or gradient
      * This is lazily allocated on the first drawing command that uses the [Stroke] [DrawStyle]
      * and re-used across subsequent calls
      */
-    private val strokePaint: Paint by lazy(LazyThreadSafetyMode.NONE) {
-        Paint().apply { style = PaintingStyle.stroke }
-    }
+    private var strokePaint: Paint? = null
 
     /**
      * Center of the current bounds of the drawing environment
@@ -339,7 +335,7 @@ abstract class DrawScope : Density {
     /**
      * Provides the dimensions of the current drawing environment
      */
-    var size: Size = Size.zero
+    var size: Size = Size.Zero
         private set
 
     /**
@@ -380,7 +376,7 @@ abstract class DrawScope : Density {
                 strokeWidth,
                 Stroke.DefaultMiter,
                 cap,
-                StrokeJoin.miter,
+                StrokeJoin.Miter,
                 pathEffect,
                 alpha,
                 colorFilter,
@@ -421,7 +417,7 @@ abstract class DrawScope : Density {
                 strokeWidth,
                 Stroke.DefaultMiter,
                 cap,
-                StrokeJoin.miter,
+                StrokeJoin.Miter,
                 pathEffect,
                 alpha,
                 colorFilter,
@@ -538,9 +534,9 @@ abstract class DrawScope : Density {
      */
     fun drawImage(
         image: ImageAsset,
-        srcOffset: IntOffset = IntOffset.Origin,
+        srcOffset: IntOffset = IntOffset.Zero,
         srcSize: IntSize = IntSize(image.width, image.height),
-        dstOffset: IntOffset = IntOffset.Origin,
+        dstOffset: IntOffset = IntOffset.Zero,
         dstSize: IntSize = srcSize,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
@@ -890,7 +886,7 @@ abstract class DrawScope : Density {
         pointMode: PointMode,
         color: Color,
         strokeWidth: Float = Stroke.HairlineWidth,
-        cap: StrokeCap = StrokeCap.butt,
+        cap: StrokeCap = StrokeCap.Butt,
         pathEffect: NativePathEffect? = null,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
@@ -903,7 +899,7 @@ abstract class DrawScope : Density {
                 strokeWidth,
                 Stroke.DefaultMiter,
                 cap,
-                StrokeJoin.miter,
+                StrokeJoin.Miter,
                 pathEffect,
                 alpha,
                 colorFilter,
@@ -932,7 +928,7 @@ abstract class DrawScope : Density {
         pointMode: PointMode,
         brush: Brush,
         strokeWidth: Float = Stroke.HairlineWidth,
-        cap: StrokeCap = StrokeCap.butt,
+        cap: StrokeCap = StrokeCap.Butt,
         pathEffect: NativePathEffect? = null,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
@@ -945,7 +941,7 @@ abstract class DrawScope : Density {
             strokeWidth,
             Stroke.DefaultMiter,
             cap,
-            StrokeJoin.miter,
+            StrokeJoin.Miter,
             pathEffect,
             alpha,
             colorFilter,
@@ -968,16 +964,14 @@ abstract class DrawScope : Density {
         // to a separate Layer/RenderNode only to draw that content back into the original Canvas
         // If there is no previous canvas that was being drawin into, this ends up reseting this
         // parameter back to null defensively
-        val previousCanvas = if (this::canvas.isInitialized) this.canvas else null
+        val previousCanvas = this.canvas
         this.canvas = canvas
         setSize(size)
         canvas.save()
         this.block()
         canvas.restore()
         setSize(previousSize)
-        if (previousCanvas != null) {
-            this.canvas = previousCanvas
-        }
+        this.canvas = previousCanvas
     }
 
     /**
@@ -997,23 +991,42 @@ abstract class DrawScope : Density {
     }
 
     /**
+     * Helper method to instantiate the paint object on first usage otherwise
+     * return the previously allocated Paint used for drawing filled regions
+     */
+    private fun obtainFillPaint(): Paint =
+        fillPaint ?: Paint().apply { style = PaintingStyle.Fill }.also {
+            fillPaint = it
+        }
+
+    /**
+     * Helper method to instantiate the paint object on first usage otherwise
+     * return the previously allocated Paint used for drawing strokes
+     */
+    private fun obtainStrokePaint(): Paint =
+        strokePaint ?: Paint().apply { style = PaintingStyle.Stroke }.also {
+            strokePaint = it
+        }
+
+    /**
      * Selects the appropriate [Paint] object based on the style
      * and applies the underlying [DrawStyle] parameters
      */
     private fun selectPaint(drawStyle: DrawStyle): Paint =
         when (drawStyle) {
-            Fill -> fillPaint
-            is Stroke -> strokePaint.apply {
-                with(drawStyle) {
-                    strokeWidth = width
-                    strokeCap = cap
-                    strokeMiterLimit = miter
-                    strokeJoin = join
+            Fill -> obtainFillPaint()
+            is Stroke -> obtainStrokePaint()
+                .apply {
+                    with(drawStyle) {
+                        if (strokeWidth != width) strokeWidth = width
+                        if (strokeCap != cap) strokeCap = cap
+                        if (strokeMiterLimit != miter) strokeMiterLimit = miter
+                        if (strokeJoin != join) strokeJoin = join
 
-                    // TODO b/154550525 add PathEffect to Paint if necessary
-                    nativePathEffect = pathEffect
+                        // TODO b/154550525 add PathEffect to Paint if necessary
+                        nativePathEffect = pathEffect
+                    }
                 }
-            }
         }
 
     /**
@@ -1067,7 +1080,7 @@ abstract class DrawScope : Density {
         colorFilter: ColorFilter?,
         blendMode: BlendMode
     ) =
-        strokePaint.apply {
+        obtainStrokePaint().apply {
             // Modulate the color alpha directly
             // instead of configuring a separate alpha parameter
             val targetColor = color.modulate(alpha)
@@ -1092,7 +1105,7 @@ abstract class DrawScope : Density {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = strokePaint.apply {
+    ) = obtainStrokePaint().apply {
             if (brush != null) {
                 brush.applyTo(this, alpha)
             } else if (this.alpha != alpha) {
@@ -1156,15 +1169,15 @@ data class Stroke(
 
     /**
      * Return the paint's Cap, controlling how the start and end of stroked
-     * lines and paths are treated. The default is [StrokeCap.butt]
+     * lines and paths are treated. The default is [StrokeCap.Butt]
      */
-    val cap: StrokeCap = StrokeCap.butt,
+    val cap: StrokeCap = StrokeCap.Butt,
 
     /**
      * Set's the treatment where lines and curve segments join on a stroked path.
-     * The default is [StrokeJoin.miter]
+     * The default is [StrokeJoin.Miter]
      */
-    val join: StrokeJoin = StrokeJoin.miter,
+    val join: StrokeJoin = StrokeJoin.Miter,
 
     /**
      * Effect to apply to the stroke, null indicates a solid stroke line is to be drawn
@@ -1186,11 +1199,11 @@ data class Stroke(
         /**
          * Default cap used for line endings
          */
-        val DefaultCap = StrokeCap.butt
+        val DefaultCap = StrokeCap.Butt
 
         /**
          * Default join style used for connections between line and curve segments
          */
-        val DefaultJoin = StrokeJoin.miter
+        val DefaultJoin = StrokeJoin.Miter
     }
 }

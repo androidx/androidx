@@ -163,14 +163,14 @@ internal fun NativePaint.setNativeColor(value: Color) {
 internal fun NativePaint.setNativeStyle(value: PaintingStyle) {
     // TODO(njawad): Platform also supports Paint.Style.FILL_AND_STROKE)
     this.style = when (value) {
-        PaintingStyle.stroke -> android.graphics.Paint.Style.STROKE
+        PaintingStyle.Stroke -> android.graphics.Paint.Style.STROKE
         else -> android.graphics.Paint.Style.FILL
     }
 }
 
 internal fun NativePaint.getNativeStyle() = when (this.style) {
-    android.graphics.Paint.Style.STROKE -> PaintingStyle.stroke
-    else -> PaintingStyle.fill
+    android.graphics.Paint.Style.STROKE -> PaintingStyle.Stroke
+    else -> PaintingStyle.Fill
 }
 
 internal fun NativePaint.getNativeStrokeWidth(): Float =
@@ -181,33 +181,33 @@ internal fun NativePaint.setNativeStrokeWidth(value: Float) {
 }
 
 internal fun NativePaint.getNativeStrokeCap(): StrokeCap = when (this.strokeCap) {
-    android.graphics.Paint.Cap.BUTT -> StrokeCap.butt
-    android.graphics.Paint.Cap.ROUND -> StrokeCap.round
-    android.graphics.Paint.Cap.SQUARE -> StrokeCap.square
-    else -> StrokeCap.butt
+    android.graphics.Paint.Cap.BUTT -> StrokeCap.Butt
+    android.graphics.Paint.Cap.ROUND -> StrokeCap.Round
+    android.graphics.Paint.Cap.SQUARE -> StrokeCap.Square
+    else -> StrokeCap.Butt
 }
 
 internal fun NativePaint.setNativeStrokeCap(value: StrokeCap) {
     this.strokeCap = when (value) {
-        StrokeCap.square -> android.graphics.Paint.Cap.SQUARE
-        StrokeCap.round -> android.graphics.Paint.Cap.ROUND
-        StrokeCap.butt -> android.graphics.Paint.Cap.BUTT
+        StrokeCap.Square -> android.graphics.Paint.Cap.SQUARE
+        StrokeCap.Round -> android.graphics.Paint.Cap.ROUND
+        StrokeCap.Butt -> android.graphics.Paint.Cap.BUTT
     }
 }
 
 internal fun NativePaint.getNativeStrokeJoin(): StrokeJoin =
     when (this.strokeJoin) {
-        android.graphics.Paint.Join.MITER -> StrokeJoin.miter
-        android.graphics.Paint.Join.BEVEL -> StrokeJoin.bevel
-        android.graphics.Paint.Join.ROUND -> StrokeJoin.round
-        else -> StrokeJoin.miter
+        android.graphics.Paint.Join.MITER -> StrokeJoin.Miter
+        android.graphics.Paint.Join.BEVEL -> StrokeJoin.Bevel
+        android.graphics.Paint.Join.ROUND -> StrokeJoin.Round
+        else -> StrokeJoin.Miter
     }
 
 internal fun NativePaint.setNativeStrokeJoin(value: StrokeJoin) {
     this.strokeJoin = when (value) {
-        StrokeJoin.miter -> android.graphics.Paint.Join.MITER
-        StrokeJoin.bevel -> android.graphics.Paint.Join.BEVEL
-        StrokeJoin.round -> android.graphics.Paint.Join.ROUND
+        StrokeJoin.Miter -> android.graphics.Paint.Join.MITER
+        StrokeJoin.Bevel -> android.graphics.Paint.Join.BEVEL
+        StrokeJoin.Round -> android.graphics.Paint.Join.ROUND
     }
 }
 
@@ -220,18 +220,18 @@ internal fun NativePaint.setNativeStrokeMiterLimit(value: Float) {
 
 internal fun NativePaint.getNativeFilterQuality(): FilterQuality =
     if (!this.isFilterBitmap) {
-        FilterQuality.none
+        FilterQuality.None
     } else {
-        // TODO(njawad): Align with Framework APIs)
+        // TODO b/162284721 (njawad): Align with Framework APIs)
         // Framework only supports bilinear filtering which maps to FilterQuality.low
         // FilterQuality.medium and FilterQuailty.high refer to a combination of
         // bilinear interpolation, pyramidal parameteric prefiltering (mipmaps) as well as
         // bicubic interpolation respectively
-        FilterQuality.low
+        FilterQuality.Low
     }
 
 internal fun NativePaint.setNativeFilterQuality(value: FilterQuality) {
-    this.isFilterBitmap = value != FilterQuality.none
+    this.isFilterBitmap = value != FilterQuality.None
 }
 
 internal fun NativePaint.setNativeShader(value: Shader?) {
