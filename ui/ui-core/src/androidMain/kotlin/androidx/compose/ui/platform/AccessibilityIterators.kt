@@ -406,7 +406,8 @@ internal class AccessibilityIterators {
         }
 
         private fun getLineEdgeIndex(lineNumber: Int, direction: ResolvedTextDirection): Int {
-            val paragraphDirection = layoutResult.getParagraphDirection(lineNumber)
+            val lineStart = layoutResult.getLineStart(lineNumber)
+            val paragraphDirection = layoutResult.getParagraphDirection(lineStart)
             return if (direction != paragraphDirection) {
                 layoutResult.getLineStart(lineNumber)
             } else {
@@ -523,7 +524,8 @@ internal class AccessibilityIterators {
         }
 
         private fun getLineEdgeIndex(lineNumber: Int, direction: ResolvedTextDirection): Int {
-            val paragraphDirection = layoutResult.getParagraphDirection(lineNumber)
+            val lineStart = layoutResult.getLineStart(lineNumber)
+            val paragraphDirection = layoutResult.getParagraphDirection(lineStart)
             return if (direction != paragraphDirection) {
                 layoutResult.getLineStart(lineNumber)
             } else {
