@@ -629,7 +629,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         }
 
         RemoteMediaSession session = mRemoteSession;
-        session.getMockPlayer().createAndSetDummyPlaylist(/* size= */ 1);
+        session.getMockPlayer().createAndSetFakePlaylist(/* size= */ 1);
         session.getMockPlayer().setCurrentMediaItem(/* index= */ 0);
 
         MediaController controller = createController(session.getToken());

@@ -578,7 +578,6 @@ public class MockPlayer extends SessionPlayer {
 
     void notifyVideoSizeChanged(final VideoSize videoSize) {
         mVideoSize = videoSize;
-        final MediaItem dummyItem = TestUtils.createMediaItem("onVideoSizeChanged");
 
         List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
         for (Pair<PlayerCallback, Executor> pair : callbacks) {

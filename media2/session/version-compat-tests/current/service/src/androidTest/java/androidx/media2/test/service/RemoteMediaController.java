@@ -151,14 +151,14 @@ public class RemoteMediaController {
      * Client app will automatically create a playlist of size {@param size},
      * and call MediaController#setPlaylist() with the list.
      *
-     * Each item's media ID will be {@link TestUtils#getMediaIdInDummyList(int)}.
+     * Each item's media ID will be {@link TestUtils#getMediaIdInFakeList(int)}.
      */
-    public void createAndSetDummyPlaylist(int size, @Nullable MediaMetadata metadata) {
+    public void createAndSetFakePlaylist(int size, @Nullable MediaMetadata metadata) {
         try {
-            mBinder.createAndSetDummyPlaylist(mControllerId, size,
+            mBinder.createAndSetFakePlaylist(mControllerId, size,
                     MediaParcelUtils.toParcelable(metadata));
         } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call createAndSetDummyPlaylist()");
+            Log.e(TAG, "Failed to call createAndSetFakePlaylist()");
         }
     }
 

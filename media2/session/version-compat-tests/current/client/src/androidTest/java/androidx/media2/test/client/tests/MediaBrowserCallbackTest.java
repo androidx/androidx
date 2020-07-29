@@ -229,7 +229,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         List<MediaItem> list = result.getMediaItems();
         assertEquals(LONG_LIST_COUNT, list.size());
         for (int i = 0; i < result.getMediaItems().size(); i++) {
-            assertEquals(TestUtils.getMediaIdInDummyList(i), list.get(i).getMediaId());
+            assertEquals(TestUtils.getMediaIdInFakeList(i), list.get(i).getMediaId());
         }
     }
 
@@ -320,7 +320,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         assertEquals(RESULT_SUCCESS, result.getResultCode());
         List<MediaItem> list = result.getMediaItems();
         for (int i = 0; i < list.size(); i++) {
-            assertEquals(TestUtils.getMediaIdInDummyList(i), list.get(i).getMediaId());
+            assertEquals(TestUtils.getMediaIdInFakeList(i), list.get(i).getMediaId());
         }
     }
 

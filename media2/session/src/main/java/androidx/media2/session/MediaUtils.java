@@ -124,7 +124,6 @@ public class MediaUtils {
 
         // Invert METADATA_COMPAT_KEY_TO_METADATA_KEY to create METADATA_KEY_TO_METADATA_COMPAT_KEY.
         for (Map.Entry<String, String> entry : METADATA_COMPAT_KEY_TO_METADATA_KEY.entrySet()) {
-            // Sanity check..
             if (METADATA_KEY_TO_METADATA_COMPAT_KEY.containsKey(entry.getValue())) {
                 throw new RuntimeException("Shouldn't map to the same value");
             }

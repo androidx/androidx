@@ -200,7 +200,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             mMediaButtonIntent = PendingIntent.getBroadcast(
                     context, 0 /* requestCode */, intent, 0 /* flags */);
 
-            // Creates a dummy ComponentName for MediaSessionCompat in pre-L.
+            // Creates a fake ComponentName for MediaSessionCompat in pre-L.
             // TODO: Replace this with the MediaButtonReceiver class.
             mbrComponent = new ComponentName(context, context.getClass());
 
@@ -1622,7 +1622,6 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         @Override
         public void onMetadataChanged(@NonNull MediaItem currentMediaItem,
                 @Nullable MediaMetadata currentMediaItemMetadata) {
-            // Sanity check, just in case.
             final MediaSessionImplBase session = getSession();
             if (session == null) {
                 return;
@@ -1745,7 +1744,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
                             .build();
                 }
                 if (metadataWithDurationUpdate != null) {
-                    // Note: Don't do sanity check whether the currentMediaItemMetadata is still the
+                    // Note: Don't check whether the currentMediaItemMetadata is still the
                     // currentMediaItem's metadata. Do best effort for not missing any notification
                     // changes.
                     // Note that updated metadata will be notified anyway via later
