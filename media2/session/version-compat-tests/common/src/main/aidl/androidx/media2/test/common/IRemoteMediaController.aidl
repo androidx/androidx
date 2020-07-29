@@ -34,7 +34,7 @@ interface IRemoteMediaController {
     void seekTo(String controllerId, long pos);
     void setPlaybackSpeed(String controllerId, float speed);
     void setPlaylist(String controllerId, in List<String> list, in ParcelImpl metadata);
-    void createAndSetDummyPlaylist(String controllerId, int size, in ParcelImpl metadata);
+    void createAndSetFakePlaylist(String controllerId, int size, in ParcelImpl metadata);
     void setMediaItem(String controllerId, in String mediaId);
     void setMediaUri(String controllerId,  in Uri uri, in Bundle extras);
     void updatePlaylistMetadata(String controllerId, in ParcelImpl metadata);

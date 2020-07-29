@@ -230,7 +230,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
                     list.add(builder
                             .setMetadata(new MediaMetadata.Builder()
                                     .putString(MediaMetadata.METADATA_KEY_MEDIA_ID,
-                                            TestUtils.getMediaIdInDummyList(i))
+                                            TestUtils.getMediaIdInFakeList(i))
                                     .putLong(MediaMetadata.METADATA_KEY_BROWSABLE,
                                             MediaMetadata.BROWSABLE_TYPE_NONE)
                                     .putLong(MediaMetadata.METADATA_KEY_PLAYABLE, 1)
@@ -283,7 +283,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
                 List<MediaItem> list = new ArrayList<>(LONG_LIST_COUNT);
                 MediaItem.Builder builder = new MediaItem.Builder();
                 for (int i = 0; i < LONG_LIST_COUNT; i++) {
-                    list.add(createMediaItem(TestUtils.getMediaIdInDummyList(i)));
+                    list.add(createMediaItem(TestUtils.getMediaIdInFakeList(i)));
                 }
                 return new LibraryResult(RESULT_SUCCESS, list, null);
             } else if (SEARCH_QUERY_EMPTY_RESULT.equals(query)) {
