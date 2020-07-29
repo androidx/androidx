@@ -1531,7 +1531,7 @@ package androidx.compose.ui.input.key {
     property public final int ZoomOut;
   }
 
-  @androidx.compose.ui.input.key.ExperimentalKeyInput public interface KeyEvent2 {
+  @androidx.compose.ui.input.key.ExperimentalKeyInput public interface KeyEvent {
     method public int getKey();
     method public androidx.compose.ui.input.key.KeyEventType getType();
     method public default boolean isAltPressed();
@@ -1544,6 +1544,9 @@ package androidx.compose.ui.input.key {
     property public abstract androidx.compose.ui.input.key.KeyEventType type;
   }
 
+  @Deprecated public interface KeyEvent2 {
+  }
+
   @androidx.compose.ui.input.key.ExperimentalKeyInput public enum KeyEventType {
     method public static androidx.compose.ui.input.key.KeyEventType valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.compose.ui.input.key.KeyEventType[] values();
@@ -1553,8 +1556,8 @@ package androidx.compose.ui.input.key {
   }
 
   public final class KeyInputModifierKt {
-    method @androidx.compose.ui.input.key.ExperimentalKeyInput public static androidx.compose.ui.Modifier keyInputFilter(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.input.key.KeyEvent2,java.lang.Boolean> onKeyEvent);
-    method @androidx.compose.ui.input.key.ExperimentalKeyInput public static androidx.compose.ui.Modifier previewKeyInputFilter(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.input.key.KeyEvent2,java.lang.Boolean> onPreviewKeyEvent);
+    method @androidx.compose.ui.input.key.ExperimentalKeyInput public static androidx.compose.ui.Modifier keyInputFilter(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.input.key.KeyEvent,java.lang.Boolean> onKeyEvent);
+    method @androidx.compose.ui.input.key.ExperimentalKeyInput public static androidx.compose.ui.Modifier previewKeyInputFilter(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.input.key.KeyEvent,java.lang.Boolean> onPreviewKeyEvent);
   }
 
 }
@@ -1888,7 +1891,7 @@ package androidx.compose.ui.node {
     method public void onSemanticsChange();
     method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public boolean requestFocus();
-    method @androidx.compose.ui.input.key.ExperimentalKeyInput public boolean sendKeyEvent(androidx.compose.ui.input.key.KeyEvent2 keyEvent);
+    method @androidx.compose.ui.input.key.ExperimentalKeyInput public boolean sendKeyEvent(androidx.compose.ui.input.key.KeyEvent keyEvent);
     method public void setOnSavedStateRegistryAvailable(kotlin.jvm.functions.Function1<? super androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry,kotlin.Unit> callback);
     method @androidx.compose.ui.node.InternalCoreApi public void setShowLayoutBounds(boolean p);
     property public abstract androidx.compose.ui.autofill.Autofill? autofill;

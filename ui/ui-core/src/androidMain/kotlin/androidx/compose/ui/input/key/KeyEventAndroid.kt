@@ -27,7 +27,7 @@ import androidx.compose.ui.input.key.KeyEventType.Unknown
 import android.view.KeyEvent as AndroidKeyEvent
 
 @OptIn(ExperimentalKeyInput::class)
-internal inline class KeyEventAndroid(val keyEvent: AndroidKeyEvent) : KeyEvent2 {
+internal inline class KeyEventAndroid(val keyEvent: AndroidKeyEvent) : KeyEvent {
 
     override val key: Key
         get() = Key(keyEvent.keyCode)

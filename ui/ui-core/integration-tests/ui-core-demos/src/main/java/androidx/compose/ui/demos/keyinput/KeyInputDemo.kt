@@ -25,7 +25,7 @@ import androidx.compose.ui.focus.ExperimentalFocus
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.key.ExperimentalKeyInput
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent2
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.foundation.Text
 import androidx.compose.ui.graphics.Color
@@ -93,7 +93,7 @@ private fun CenteredRow(children: @Composable RowScope.() -> Unit) {
 }
 
 @OptIn(ExperimentalKeyInput::class)
-private val KeyEvent2.value: String?
+private val KeyEvent.value: String?
     get() {
         if (type != KeyEventType.KeyUp) return null
         return when (key) {

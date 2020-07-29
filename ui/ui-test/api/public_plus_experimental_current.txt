@@ -305,7 +305,7 @@ package androidx.ui.test {
   }
 
   public final class KeyInputHelpersKt {
-    method public static boolean performKeyPress(androidx.ui.test.SemanticsNodeInteraction, androidx.compose.ui.input.key.KeyEvent2 keyEvent);
+    method public static boolean performKeyPress(androidx.ui.test.SemanticsNodeInteraction, androidx.compose.ui.input.key.KeyEvent keyEvent);
   }
 
   public interface LayeredComposeTestCase extends androidx.ui.test.ComposeTestCase {
