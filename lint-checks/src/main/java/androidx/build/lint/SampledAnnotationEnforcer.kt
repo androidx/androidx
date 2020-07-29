@@ -461,7 +461,7 @@ internal fun PsiElement.findAllSampleLinks(): List<String> {
 internal fun PsiDirectory.getAllKtFiles(): List<PsiFile> {
     val psiFiles = mutableListOf<PsiFile>()
     accept(object : KtTreeVisitorVoid() {
-        override fun visitFile(file: PsiFile?) {
+        override fun visitFile(file: PsiFile) {
             psiFiles.addIfNotNull(file as? KtFile)
         }
     })
