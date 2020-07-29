@@ -3486,7 +3486,7 @@ class ParagraphIntegrationTest {
             val actualPath = paragraph.getPathForRange(0, 2)
 
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff).isEqualTo(Rect.zero)
+            assertThat(diff).isEqualTo(Rect.Zero)
         }
     }
 
@@ -3530,7 +3530,7 @@ class ParagraphIntegrationTest {
             val actualPath = paragraph.getPathForRange(1, 6)
 
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff).isEqualTo(Rect.zero)
+            assertThat(diff).isEqualTo(Rect.Zero)
         }
     }
 
@@ -3577,7 +3577,7 @@ class ParagraphIntegrationTest {
                 paragraph.getPathForRange(selectionLTRStart, textLTR.length + selectionRTLEnd)
 
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff).isEqualTo(Rect.zero)
+            assertThat(diff).isEqualTo(Rect.Zero)
         }
     }
 
@@ -3594,7 +3594,7 @@ class ParagraphIntegrationTest {
 
         val actualPath = paragraph.getPathForRange(1, 1)
 
-        assertThat(actualPath.getBounds()).isEqualTo(Rect.zero)
+        assertThat(actualPath.getBounds()).isEqualTo(Rect.Zero)
     }
 
     @Test
@@ -3610,7 +3610,7 @@ class ParagraphIntegrationTest {
 
         val actualPath = paragraph.getPathForRange(0, 0)
 
-        assertThat(actualPath.getBounds()).isEqualTo(Rect.zero)
+        assertThat(actualPath.getBounds()).isEqualTo(Rect.Zero)
     }
 
     @Test
@@ -3635,7 +3635,7 @@ class ParagraphIntegrationTest {
             val actualPath = paragraph.getPathForRange(1, text.length)
 
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff).isEqualTo(Rect.zero)
+            assertThat(diff).isEqualTo(Rect.Zero)
         }
     }
 
@@ -3661,7 +3661,7 @@ class ParagraphIntegrationTest {
             val actualPath = paragraph.getPathForRange(1, text.length - 1)
 
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff).isEqualTo(Rect.zero)
+            assertThat(diff).isEqualTo(Rect.Zero)
         }
     }
 
@@ -3687,7 +3687,7 @@ class ParagraphIntegrationTest {
             val actualPath = paragraph.getPathForRange(1, 2)
 
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff).isEqualTo(Rect.zero)
+            assertThat(diff).isEqualTo(Rect.Zero)
         }
     }
 
@@ -3721,7 +3721,7 @@ class ParagraphIntegrationTest {
             val actualPath = paragraph.getPathForRange(1, text.length - 1)
 
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff).isEqualTo(Rect.zero)
+            assertThat(diff).isEqualTo(Rect.Zero)
         }
     }
 
@@ -3748,7 +3748,7 @@ class ParagraphIntegrationTest {
 
             assertThat(lineLeft).isEqualTo(lineRight)
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff).isEqualTo(Rect.zero)
+            assertThat(diff).isEqualTo(Rect.Zero)
         }
     }
 
@@ -3775,7 +3775,7 @@ class ParagraphIntegrationTest {
 
             assertThat(lineLeft).isEqualTo(lineRight)
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff).isEqualTo(Rect.zero)
+            assertThat(diff).isEqualTo(Rect.Zero)
         }
     }
 

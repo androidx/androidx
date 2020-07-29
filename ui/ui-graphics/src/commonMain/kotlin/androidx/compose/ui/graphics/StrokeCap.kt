@@ -16,19 +16,25 @@
 
 package androidx.compose.ui.graphics
 
-// Styles to use for line endings.
-//
-// See [Paint.strokeCap].
-// These enum values must be kept in sync with SkPaint::Cap.
+/**
+ * Styles to use for line endings.
+ * See [Paint.strokeCap].
+ */
 enum class StrokeCap {
-    // Begin and end contours with a flat edge and no extension.
-    butt,
+    /**
+     * Begin and end contours with a flat edge and no extension.
+     */
+    Butt,
 
-    // Begin and end contours with a semi-circle extension.
-    round,
+    /**
+     * Begin and end contours with a semi-circle extension.
+     */
+    Round,
 
-    // Begin and end contours with a half square extension. This is
-    // similar to extending each contour by half the stroke width (as
-    // given by [Paint.strokeWidth]).
-    square
+    /**
+     * Begin and end contours with a half square extension. This is
+     * similar to extending each contour by half the stroke width (as
+     * given by [Paint.strokeWidth]).
+     */
+    Square
 }

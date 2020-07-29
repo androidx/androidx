@@ -41,7 +41,7 @@ import kotlin.math.roundToInt
  */
 data class ImagePainter(
     private val image: ImageAsset,
-    private val srcOffset: IntOffset = IntOffset.Origin,
+    private val srcOffset: IntOffset = IntOffset.Zero,
     private val srcSize: IntSize = IntSize(image.width, image.height)
 ) : Painter() {
 

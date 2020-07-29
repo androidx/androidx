@@ -39,8 +39,6 @@ fun Size(width: Float, height: Float) = Size(packFloats(width, height))
  *
  * You can think of this as an [Offset] from the origin.
  */
-// TODO njawad make this an inline class again once the fix for b/155690960 has been picked
-//   up by the compose kotlin compiler
 @Immutable
 inline class Size(@PublishedApi internal val packedValue: Long) {
 
@@ -51,6 +49,14 @@ inline class Size(@PublishedApi internal val packedValue: Long) {
     @Stable
     val height: Float
         get() = unpackFloat2(packedValue)
+
+    @Suppress("NOTHING_TO_INLINE")
+    @Stable
+    inline operator fun component1(): Float = width
+
+    @Suppress("NOTHING_TO_INLINE")
+    @Stable
+    inline operator fun component2(): Float = height
 
     /**
      * Returns a copy of this Size instance optionally overriding the
@@ -70,50 +76,10 @@ inline class Size(@PublishedApi internal val packedValue: Long) {
         }
 
         /**
-         * Creates a square [Size] whose [width] and [height] are the given dimension.
-         *
-         * See also:
-         *
-         *  * [new Size.fromRadius], which is more convenient when the available size
-         *    is the radius of a circle.
-         */
-        fun square(dimension: Float): Size {
-            return Size(dimension, dimension)
-        }
-
-        /**
-         * Creates a [Size] with the given [width] and an infinite [height].
-         */
-        fun fromWidth(width: Float): Size {
-            return Size(width, Float.POSITIVE_INFINITY)
-        }
-
-        /**
-         * Creates a [Size] with the given [height] and an infinite [width].
-         */
-        fun fromHeight(height: Float): Size {
-            return Size(Float.POSITIVE_INFINITY, height)
-        }
-
-        /**
-         * Creates a square [Size] whose [width] and [height] are twice the given
-         * dimension.
-         *
-         * This is a square that contains a circle with the given radius.
-         *
-         * See also:
-         *
-         *  * [new Size.square], which creates a square with the given dimension.
-         */
-        fun fromRadius(radius: Float): Size {
-            return Size(radius * 2.0f, radius * 2.0f)
-        }
-
-        /**
          * An empty size, one with a zero width and a zero height.
          */
         @Stable
-        val zero = Size(0.0f, 0.0f)
+        val Zero = Size(0.0f, 0.0f)
 
         /**
          * A size whose [width] and [height] are infinite.
@@ -124,7 +90,20 @@ inline class Size(@PublishedApi internal val packedValue: Long) {
          *  * [isFinite], which checks whether both dimensions are finite.
          */
         @Stable
-        val UnspecifiedSize = Size(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+        val Unspecified = Size(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+
+        /**
+         * A size whose [width] and [height] are infinite.
+         *
+         * See also:
+         *
+         *  * [isInfinite], which checks whether either dimension is infinite.
+         *  * [isFinite], which checks whether both dimensions are finite.
+         */
+        @Deprecated("Use Unspecified instead",
+            ReplaceWith("Unspecified", "androidx.compose.ui.geometry"))
+        @Stable
+        val UnspecifiedSize = Unspecified
     }
 
     /**
@@ -385,7 +364,7 @@ inline operator fun Double.times(size: Size) = size * this.toFloat()
  */
 @Stable
 fun Size.toRect(): Rect {
-    return Rect(0f, 0f, width, height)
+    return Rect(Offset.Zero, this)
 }
 
 /**

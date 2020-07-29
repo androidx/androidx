@@ -16,21 +16,27 @@
 
 package androidx.compose.ui.graphics
 
-// Styles to use for line joins.
-//
-// This only affects line joins for polygons drawn by [Canvas.drawPath] and
-// rectangles, not points drawn as lines with [Canvas.drawPoints].
-//
-// See [Paint.strokeJoin].
-// These enum values must be kept in sync with SkPaint::Join.
+/**
+ * Styles to use for line joins.
+ *
+ * This only affects line joins for polygons drawn by [Canvas.drawPath] and
+ * rectangles, not points drawn as lines with [Canvas.drawPoints].
+ * See [Paint.strokeJoin].
+ */
 enum class StrokeJoin {
-    // Joins between line segments form sharp corners.
-    miter,
+    /**
+     * Joins between line segments form sharp corners.
+     */
+    Miter,
 
-    // Joins between line segments are semi-circular.
-    round,
+    /**
+     * Joins between line segments are semi-circular.
+     */
+    Round,
 
-    // Joins between line segments connect the corners of the butt ends of the
-    // line segments to give a beveled appearance.
-    bevel
+    /**
+     * Joins between line segments connect the corners of the butt ends of the
+     * line segments to give a beveled appearance.
+     */
+    Bevel
 }

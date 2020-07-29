@@ -33,7 +33,7 @@ enum class PathFillType {
      *
      * See: <https://en.wikipedia.org/wiki/Nonzero-rule>
      */
-    nonZero,
+    NonZero,
 
     /**
      * The interior is defined by an odd number of edge crossings.
@@ -43,12 +43,8 @@ enum class PathFillType {
      *
      * See: <https://en.wikipedia.org/wiki/Even-odd_rule>
      */
-    evenOdd
+    EvenOdd
 
-    // TODO(njawad): Android supports INVERSE_WINDING which is similar to nonZero but on
-    // the outside of the path)
-    // TODO(njawad): Android supports INVERSE_EVEN_ODD which is similar to evenOdd but on
-    // the outside of the path)
-    // Flutter does not support either of these, we should probably support them in Compose for
-    // consistency
+    // TODO b/162283938 (njawad) Android support inverse winding and inverse even odd. Should we
+    //  add these to compose as well?
 }

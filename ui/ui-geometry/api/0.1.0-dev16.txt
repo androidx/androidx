@@ -3,11 +3,16 @@ package androidx.compose.ui.geometry {
 
   @androidx.compose.runtime.Immutable public final class Offset {
     ctor public Offset(internal long packedValue);
+    method @androidx.compose.Stable public inline operator float component1();
+    method @androidx.compose.Stable public inline operator float component2();
     method public androidx.compose.ui.geometry.Offset copy(float x = this.x, float y = this.y);
     method @androidx.compose.runtime.Immutable public androidx.compose.ui.geometry.Offset copy(long packedValue);
     method @androidx.compose.runtime.Stable public operator androidx.compose.ui.geometry.Offset div(float operand);
     method @androidx.compose.runtime.Stable public float getDistance();
     method @androidx.compose.runtime.Stable public float getDistanceSquared();
+    method @androidx.compose.Stable public operator androidx.compose.ui.geometry.Offset div(float operand);
+    method @androidx.compose.Stable public float getDistance();
+    method @androidx.compose.Stable public float getDistanceSquared();
     method public float getX();
     method public float getY();
     method @androidx.compose.runtime.Stable public boolean isValid();
@@ -26,19 +31,6 @@ package androidx.compose.ui.geometry {
     method public androidx.compose.ui.geometry.Offset getZero();
     property public final androidx.compose.ui.geometry.Offset Infinite;
     property public final androidx.compose.ui.geometry.Offset Zero;
-  }
-
-  public interface OffsetBase {
-    method public float getDx();
-    method public float getDy();
-    method public default boolean isFinite();
-    method public default boolean isGreaterOrEqThan(androidx.compose.ui.geometry.OffsetBase other);
-    method public default boolean isGreaterThan(androidx.compose.ui.geometry.OffsetBase other);
-    method public default boolean isInfinite();
-    method public default boolean isLessOrEqThan(androidx.compose.ui.geometry.OffsetBase other);
-    method public default boolean isLessThan(androidx.compose.ui.geometry.OffsetBase other);
-    property public abstract float dx;
-    property public abstract float dy;
   }
 
   public final class OffsetKt {

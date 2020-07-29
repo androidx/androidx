@@ -626,11 +626,11 @@ fun Matrix4.transformPoint(point: Offset): Offset {
  * 0.0 before computing its bounding rect.
  */
 fun Matrix4.transformRect(rect: Rect): Rect {
-    val point1 = transformPoint(rect.getTopLeft())
-    val point2 = transformPoint(rect.getTopRight())
-    val point3 = transformPoint(rect.getBottomLeft())
-    val point4 = transformPoint(rect.getBottomRight())
-    return Rect.fromLTRB(
+    val point1 = transformPoint(rect.topLeft)
+    val point2 = transformPoint(rect.topRight)
+    val point3 = transformPoint(rect.bottomLeft)
+    val point4 = transformPoint(rect.bottomRight)
+    return Rect(
         min4(point1.x, point2.x, point3.x, point4.x),
         min4(point1.y, point2.y, point3.y, point4.y),
         max4(point1.x, point2.x, point3.x, point4.x),

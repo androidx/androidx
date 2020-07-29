@@ -22,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.paint
+import androidx.compose.runtime.emptyContent
+import androidx.compose.ui.Layout
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.ImageAsset
@@ -149,7 +151,9 @@ fun Image(
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null
 ) {
-    Box(
+    // Explicitly use a simple Layout implementation here as Spacer squashes any non fixed
+    // constraint with zero
+    Layout(emptyContent(),
         modifier.clipToBounds().paint(
             painter,
             alignment = alignment,
@@ -157,5 +161,7 @@ fun Image(
             alpha = alpha,
             colorFilter = colorFilter
         )
-    )
+    ) { _, constraints ->
+        layout(constraints.minWidth, constraints.minHeight) {}
+    }
 }

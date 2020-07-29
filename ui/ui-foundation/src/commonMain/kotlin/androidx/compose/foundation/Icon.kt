@@ -97,7 +97,7 @@ fun Icon(
 
 private fun Modifier.defaultSizeFor(painter: Painter) =
     this.then(
-        if (painter.intrinsicSize == Size.UnspecifiedSize) {
+        if (painter.intrinsicSize == Size.Unspecified) {
             DefaultIconSizeModifier
         } else {
             Modifier

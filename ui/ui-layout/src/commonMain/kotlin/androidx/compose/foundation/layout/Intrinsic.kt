@@ -152,7 +152,7 @@ private interface PreferredIntrinsicSizeModifier : LayoutModifier {
             ).enforce(constraints)
         )
         return layout(placeable.width, placeable.height) {
-            placeable.place(IntOffset.Origin)
+            placeable.place(IntOffset.Zero)
         }
     }
 

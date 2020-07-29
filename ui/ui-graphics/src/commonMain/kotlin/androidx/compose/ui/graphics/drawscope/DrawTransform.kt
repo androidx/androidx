@@ -87,7 +87,7 @@ interface DrawTransform {
      * Reduces the clip region to the intersection of the current clip and the
      * given rectangle indicated by the given left, top, right and bottom bounds
      *
-     * Use [ClipOp.difference] to subtract the provided rectangle from the
+     * Use [ClipOp.Difference] to subtract the provided rectangle from the
      * current clip.
      *
      * @param left Left bound of the rectangle to clip
@@ -101,7 +101,7 @@ interface DrawTransform {
         top: Float = 0.0f,
         right: Float = size.width,
         bottom: Float = size.height,
-        clipOp: ClipOp = ClipOp.intersect
+        clipOp: ClipOp = ClipOp.Intersect
     )
 
     /**
@@ -109,9 +109,9 @@ interface DrawTransform {
      * given rounded rectangle.
      *
      * @param path Shape to clip drawing content within
-     * @param clipOp Clipping operation to conduct on the given bounds, defaults to [ClipOp.intersect]
+     * @param clipOp Clipping operation to conduct on the given bounds, defaults to [ClipOp.Intersect]
      */
-    fun clipPath(path: Path, clipOp: ClipOp = ClipOp.intersect)
+    fun clipPath(path: Path, clipOp: ClipOp = ClipOp.Intersect)
 
     /**
      * Translate the coordinate space by the given delta in pixels in both the x and y coordinates

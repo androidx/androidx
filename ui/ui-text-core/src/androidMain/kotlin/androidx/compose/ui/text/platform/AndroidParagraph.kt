@@ -48,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.util.annotation.VisibleForTesting
 import java.util.Locale as JavaLocale
 

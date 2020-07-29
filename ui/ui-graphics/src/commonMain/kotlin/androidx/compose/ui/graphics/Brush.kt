@@ -16,12 +16,16 @@
 
 package androidx.compose.ui.graphics
 
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 
+@Immutable
 sealed class Brush {
     abstract fun applyTo(p: Paint, alpha: Float)
 }
 
+@Immutable
 data class SolidColor(val value: Color) : Brush() {
     override fun applyTo(p: Paint, alpha: Float) {
         p.alpha = DefaultAlpha
@@ -50,6 +54,7 @@ typealias ColorStop = Pair<Float, Color>
  * )
  * ```
  */
+@Stable
 fun LinearGradient(
     colors: List<Color>,
     startX: Float,
@@ -83,6 +88,7 @@ fun LinearGradient(
  * )
  * ```
  */
+@Stable
 fun LinearGradient(
     vararg colorStops: ColorStop,
     startX: Float,
@@ -114,6 +120,7 @@ fun LinearGradient(
  * )
  * ```
  */
+@Stable
 fun RadialGradient(
     vararg colorStops: ColorStop,
     centerX: Float,
@@ -141,6 +148,7 @@ fun RadialGradient(
  * )
  * ```
  */
+@Stable
 fun RadialGradient(
     colors: List<Color>,
     centerX: Float,
@@ -161,6 +169,7 @@ fun RadialGradient(
  *
  * ```
  */
+@Stable
 fun VerticalGradient(
     colors: List<Color>,
     startY: Float,
@@ -189,6 +198,7 @@ fun VerticalGradient(
  * )
  * ```
  */
+@Stable
 fun VerticalGradient(
     vararg colorStops: ColorStop,
     startY: Float,
@@ -216,6 +226,7 @@ fun VerticalGradient(
  * )
  * ```
  */
+@Stable
 fun HorizontalGradient(
     colors: List<Color>,
     startX: Float,
@@ -245,6 +256,7 @@ fun HorizontalGradient(
  * )
  * ```
  */
+@Stable
 fun HorizontalGradient(
     vararg colorStops: ColorStop,
     startX: Float,
@@ -263,6 +275,7 @@ fun HorizontalGradient(
 /**
  * Brush implementation used to apply a linear gradient on a given [Paint]
  */
+@Immutable
 data class LinearGradient internal constructor(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
@@ -284,6 +297,7 @@ data class LinearGradient internal constructor(
 /**
  * Brush implementation used to apply a radial gradient on a given [Paint]
  */
+@Immutable
 data class RadialGradient internal constructor(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
@@ -304,6 +318,7 @@ data class RadialGradient internal constructor(
 /**
  * Brush implementation that wraps and applies a the provided shader to a [Paint]
  */
+@Immutable
 open class ShaderBrush(val shader: Shader) : Brush() {
     final override fun applyTo(p: Paint, alpha: Float) {
         if (p.color != Color.Black) p.color = Color.Black

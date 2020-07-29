@@ -3,8 +3,9 @@ package androidx.compose.ui.geometry {
 
   @androidx.compose.runtime.Immutable public final class Offset {
     ctor public Offset(internal long packedValue);
+    method @androidx.compose.runtime.Stable public operator float component1();
+    method @androidx.compose.runtime.Stable public operator float component2();
     method public androidx.compose.ui.geometry.Offset copy(float x = this.x, float y = this.y);
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.geometry.Offset copy(long packedValue);
     method @androidx.compose.runtime.Stable public operator androidx.compose.ui.geometry.Offset div(float operand);
     method @androidx.compose.runtime.Stable public float getDistance();
     method @androidx.compose.runtime.Stable public float getDistanceSquared();
@@ -26,19 +27,6 @@ package androidx.compose.ui.geometry {
     method public androidx.compose.ui.geometry.Offset getZero();
     property public final androidx.compose.ui.geometry.Offset Infinite;
     property public final androidx.compose.ui.geometry.Offset Zero;
-  }
-
-  public interface OffsetBase {
-    method public float getDx();
-    method public float getDy();
-    method public default boolean isFinite();
-    method public default boolean isGreaterOrEqThan(androidx.compose.ui.geometry.OffsetBase other);
-    method public default boolean isGreaterThan(androidx.compose.ui.geometry.OffsetBase other);
-    method public default boolean isInfinite();
-    method public default boolean isLessOrEqThan(androidx.compose.ui.geometry.OffsetBase other);
-    method public default boolean isLessThan(androidx.compose.ui.geometry.OffsetBase other);
-    property public abstract float dx;
-    property public abstract float dy;
   }
 
   public final class OffsetKt {
@@ -180,34 +168,46 @@ package androidx.compose.ui.geometry {
     method public float getWidth();
     method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect inflate(float delta);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect intersect(androidx.compose.ui.geometry.Rect other);
-    method @androidx.compose.runtime.Stable public boolean isEmpty();
-    method @androidx.compose.runtime.Stable public boolean isFinite();
-    method @androidx.compose.runtime.Stable public boolean isInfinite();
+    method public boolean isEmpty();
+    method public boolean isFinite();
+    method public boolean isInfinite();
     method public androidx.compose.ui.geometry.Rect join(androidx.compose.ui.geometry.Rect other);
     method public boolean overlaps(androidx.compose.ui.geometry.Rect other);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect shift(androidx.compose.ui.geometry.Offset offset);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect translate(float translateX, float translateY);
+    property public final androidx.compose.ui.geometry.Offset bottomCenter;
+    property public final androidx.compose.ui.geometry.Offset bottomLeft;
+    property public final androidx.compose.ui.geometry.Offset bottomRight;
+    property public final androidx.compose.ui.geometry.Offset center;
+    property public final androidx.compose.ui.geometry.Offset centerLeft;
+    property public final androidx.compose.ui.geometry.Offset centerRight;
     property public final float height;
+    property public final boolean isEmpty;
+    property public final boolean isFinite;
+    property public final boolean isInfinite;
     property public final float maxDimension;
     property public final float minDimension;
+    property public final long size;
+    property public final androidx.compose.ui.geometry.Offset topCenter;
+    property public final androidx.compose.ui.geometry.Offset topLeft;
+    property public final androidx.compose.ui.geometry.Offset topRight;
     property public final float width;
     field public static final androidx.compose.ui.geometry.Rect.Companion Companion;
   }
 
   public static final class Rect.Companion {
-    method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect fromCircle(androidx.compose.ui.geometry.Offset center, float radius);
-    method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect fromLTRB(float left, float top, float right, float bottom);
-    method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect fromLTWH(float left, float top, float width, float height);
-    method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect fromPoints(androidx.compose.ui.geometry.Offset a, androidx.compose.ui.geometry.Offset b);
-    method public androidx.compose.ui.geometry.Rect getLargest();
+    method @Deprecated @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect fromCircle(androidx.compose.ui.geometry.Offset center, float radius);
+    method @Deprecated @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect fromLTRB(float left, float top, float right, float bottom);
+    method @Deprecated @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect fromLTWH(float left, float top, float width, float height);
+    method @Deprecated @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect fromPoints(androidx.compose.ui.geometry.Offset a, androidx.compose.ui.geometry.Offset b);
     method public androidx.compose.ui.geometry.Rect getZero();
-    method public float get_giantScalar();
-    property public final float _giantScalar;
-    property public final androidx.compose.ui.geometry.Rect largest;
-    property public final androidx.compose.ui.geometry.Rect zero;
+    property public final androidx.compose.ui.geometry.Rect Zero;
   }
 
   public final class RectKt {
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect Rect(androidx.compose.ui.geometry.Offset topLeft, androidx.compose.ui.geometry.Offset bottomRight);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect Rect(androidx.compose.ui.geometry.Offset center, float radius);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect Rect-MrV732k(androidx.compose.ui.geometry.Offset offset, long size);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect lerp(androidx.compose.ui.geometry.Rect start, androidx.compose.ui.geometry.Rect stop, float fraction);
   }
 
@@ -219,6 +219,8 @@ package androidx.compose.ui.geometry {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Offset center-impl(long $this, androidx.compose.ui.geometry.Offset origin = Offset.Zero);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Offset centerLeft-impl(long $this, androidx.compose.ui.geometry.Offset origin);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Offset centerRight-impl(long $this, androidx.compose.ui.geometry.Offset origin);
+    method @androidx.compose.runtime.Stable public static inline operator float component1-impl(long $this);
+    method @androidx.compose.runtime.Stable public static inline operator float component2-impl(long $this);
     method public static long constructor-impl(internal long packedValue);
     method @androidx.compose.runtime.Stable public static boolean contains-impl(long $this, androidx.compose.ui.geometry.Offset offset);
     method public static long copy-impl(long $this, float width = this.width, float height = this.height);
@@ -247,14 +249,12 @@ package androidx.compose.ui.geometry {
 
   public static final class Size.Companion {
     method @Deprecated public long copy-uvyYCjk(long source);
-    method public long fromHeight(float height);
-    method public long fromRadius(float radius);
-    method public long fromWidth(float width);
-    method public long getUnspecifiedSize();
+    method public long getUnspecified();
+    method @Deprecated public long getUnspecifiedSize();
     method public long getZero();
-    method public long square(float dimension);
-    property public final long UnspecifiedSize;
-    property public final long zero;
+    property public final long Unspecified;
+    property @Deprecated public final long UnspecifiedSize;
+    property public final long Zero;
   }
 
   public final class SizeKt {

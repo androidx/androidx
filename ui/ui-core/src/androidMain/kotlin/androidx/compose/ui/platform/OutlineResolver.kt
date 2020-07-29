@@ -42,7 +42,7 @@ internal class OutlineResolver(private val density: Density) {
     /**
      * The size of the layer. This is used in generating the [Outline] from the [Shape].
      */
-    private var size: Size = Size.zero
+    private var size: Size = Size.Zero
 
     /**
      * The [Shape] of the Outline of the Layer.

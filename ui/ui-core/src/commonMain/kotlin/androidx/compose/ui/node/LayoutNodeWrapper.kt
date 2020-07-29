@@ -74,7 +74,7 @@ internal abstract class LayoutNodeWrapper(
             measuredSize = IntSize(measureResult.width, measureResult.height)
         }
 
-    var position: IntOffset = IntOffset.Origin
+    var position: IntOffset = IntOffset.Zero
         internal set(value) {
             if (invalidateLayerOnBoundsChange && value != field) {
                 findLayer()?.invalidate()

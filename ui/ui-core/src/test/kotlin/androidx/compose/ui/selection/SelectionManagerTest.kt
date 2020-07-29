@@ -377,7 +377,7 @@ class SelectionManagerTest {
         selectionManager.showSelectionToolbar()
 
         verify(textToolbar, times(1)).showMenu(
-            eq(Rect.zero),
+            eq(Rect.Zero),
             any(),
             isNull(),
             isNull()

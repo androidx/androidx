@@ -1645,7 +1645,7 @@ class LayoutNodeTest {
 
 @ExperimentalLayoutNodeApi
 internal fun mockOwner(
-    position: IntOffset = IntOffset.Origin,
+    position: IntOffset = IntOffset.Zero,
     targetRoot: LayoutNode = LayoutNode()
 ): Owner =
     @Suppress("UNCHECKED_CAST")

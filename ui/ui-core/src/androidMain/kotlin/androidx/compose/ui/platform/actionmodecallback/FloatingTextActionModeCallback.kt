@@ -20,7 +20,6 @@ import android.annotation.TargetApi
 import android.graphics.Rect
 import android.os.Build
 import android.view.ActionMode
-import android.view.ActionMode.Callback
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -29,7 +28,7 @@ import android.view.View
 internal class FloatingTextActionModeCallback(
     private val callback: ActionMode.Callback
 ) : ActionMode.Callback2() {
-    private var rect: androidx.compose.ui.geometry.Rect = androidx.compose.ui.geometry.Rect.zero
+    private var rect: androidx.compose.ui.geometry.Rect = androidx.compose.ui.geometry.Rect.Zero
 
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
         return callback.onActionItemClicked(mode, item)

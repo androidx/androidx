@@ -24,8 +24,8 @@ package androidx.compose.ui.graphics
  */
 enum class ClipOp {
     /** Subtract the new region from the existing region. */
-    difference,
+    Difference,
 
     /** Intersect the new region from the existing region. */
-    intersect
+    Intersect
 }

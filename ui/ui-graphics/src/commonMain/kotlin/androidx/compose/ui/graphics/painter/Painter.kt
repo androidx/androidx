@@ -15,6 +15,7 @@
  */
 package androidx.compose.ui.graphics.painter
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -149,7 +150,7 @@ abstract class Painter {
     /**
      * Return the intrinsic size of the [Painter].
      * If the there is no intrinsic size (i.e. filling bounds with an arbitrary color) return
-     * [Size.UnspecifiedSize].
+     * [Size.Unspecified].
      * If there is no intrinsic size in a single dimension, return [Size] with
      * [Float.POSITIVE_INFINITY] in the desired dimension.
      * If a [Painter] does not have an intrinsic size, it will always draw within the full
@@ -200,7 +201,7 @@ abstract class Painter {
             if (alpha > 0.0f && size.width > 0 && size.height > 0) {
                 if (useLayer) {
                     val layerRect =
-                        Rect.fromLTWH(0.0f, 0.0f, size.width, size.height)
+                        Rect(Offset.Zero, Size(size.width, size.height))
                     // TODO (b/154550724) njawad replace with RenderNode/Layer API usage
                     drawCanvas { canvas, _ ->
                         canvas.withSaveLayer(layerRect, obtainPaint()) {

@@ -166,7 +166,7 @@ class MultiParagraphIntegrationTest {
             )
 
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff).isEqualTo(Rect.zero)
+            assertThat(diff).isEqualTo(Rect.Zero)
         }
     }
 

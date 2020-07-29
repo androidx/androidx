@@ -2661,7 +2661,7 @@ abstract class TestOwner : Owner {
         get() = LayoutNode()
 
     override fun calculatePosition(): IntOffset {
-        return position ?: IntOffset.Origin
+        return position ?: IntOffset.Zero
     }
 }
 
@@ -2709,7 +2709,7 @@ private fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Mo
 
 @ExperimentalLayoutNodeApi
 private fun mockOwner(
-    position: IntOffset = IntOffset.Origin,
+    position: IntOffset = IntOffset.Zero,
     targetRoot: LayoutNode = LayoutNode()
 ): Owner =
     @Suppress("UNCHECKED_CAST")

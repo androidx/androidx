@@ -253,23 +253,23 @@ private fun Track(
             sliderStart,
             sliderEnd,
             trackStrokeWidth,
-            StrokeCap.round
+            StrokeCap.Round
         )
         val sliderValue = Offset(
             sliderStart.x + (sliderEnd.x - sliderStart.x) * positionFraction,
             center.y
         )
 
-        drawLine(color, sliderStart, sliderValue, trackStrokeWidth, StrokeCap.round)
+        drawLine(color, sliderStart, sliderValue, trackStrokeWidth, StrokeCap.Round)
         tickFractions.groupBy { it > positionFraction }.forEach { (afterFraction, list) ->
             drawPoints(
                 list.map {
                     Offset(lerp(sliderStart, sliderEnd, it).x, center.y)
                 },
-                PointMode.points,
+                PointMode.Points,
                 if (afterFraction) inactiveTickColor else activeTickColor,
                 trackStrokeWidth,
-                StrokeCap.round
+                StrokeCap.Round
             )
         }
     }
