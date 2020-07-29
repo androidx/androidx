@@ -176,7 +176,7 @@ public final class TrustedWebActivityServiceConnection {
      * @throws SecurityException If verification with the TrustedWebActivityService fails.
      */
     @SuppressWarnings("NullAway")  // TODO: b/142938599
-    @Nullable
+    @NonNull
     public Bundle sendExtraCommand(@NonNull String commandName, @NonNull Bundle args,
             @Nullable TrustedWebActivityCallback callback) throws RemoteException {
         ITrustedWebActivityCallback callbackBinder = wrapCallback(callback);

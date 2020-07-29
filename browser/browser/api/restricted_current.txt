@@ -83,7 +83,7 @@ package androidx.browser.customtabs {
   public class CustomTabsCallback {
     ctor public CustomTabsCallback();
     method public void extraCallback(String, android.os.Bundle?);
-    method public android.os.Bundle? extraCallbackWithResult(String, android.os.Bundle?);
+    method public android.os.Bundle extraCallbackWithResult(String, android.os.Bundle?);
     method public void onMessageChannelReady(android.os.Bundle?);
     method public void onNavigationEvent(int, android.os.Bundle?);
     method public void onPostMessage(String, android.os.Bundle?);
@@ -180,7 +180,7 @@ package androidx.browser.customtabs {
   public abstract class CustomTabsService extends android.app.Service {
     ctor public CustomTabsService();
     method protected boolean cleanUpSession(androidx.browser.customtabs.CustomTabsSessionToken);
-    method protected abstract android.os.Bundle? extraCommand(String, android.os.Bundle?);
+    method protected abstract android.os.Bundle extraCommand(String, android.os.Bundle?);
     method protected abstract boolean mayLaunchUrl(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri?, android.os.Bundle?, java.util.List<android.os.Bundle!>?);
     method protected abstract boolean newSession(androidx.browser.customtabs.CustomTabsSessionToken);
     method public android.os.IBinder onBind(android.content.Intent?);
@@ -196,6 +196,7 @@ package androidx.browser.customtabs {
     field public static final String CATEGORY_TRUSTED_WEB_ACTIVITY_IMMERSIVE_MODE = "androidx.browser.trusted.category.ImmersiveMode";
     field public static final String CATEGORY_WEB_SHARE_TARGET_V2 = "androidx.browser.trusted.category.WebShareTargetV2";
     field public static final int FILE_PURPOSE_TRUSTED_WEB_ACTIVITY_SPLASH_IMAGE = 1; // 0x1
+    field public static final String KEY_SUCCESS = "androidx.browser.customtabs.SUCCESS";
     field public static final String KEY_URL = "android.support.customtabs.otherurls.URL";
     field public static final int RELATION_HANDLE_ALL_URLS = 2; // 0x2
     field public static final int RELATION_USE_AS_ORIGIN = 1; // 0x1
@@ -353,13 +354,14 @@ package androidx.browser.trusted {
     method @BinderThread public boolean onAreNotificationsEnabled(String);
     method @MainThread public final android.os.IBinder? onBind(android.content.Intent?);
     method @BinderThread public void onCancelNotification(String, int);
-    method @BinderThread public android.os.Bundle? onExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallbackRemote?);
+    method @BinderThread public android.os.Bundle onExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallbackRemote?);
     method @BinderThread public android.os.Bundle onGetSmallIconBitmap();
     method @BinderThread public int onGetSmallIconId();
     method @BinderThread public boolean onNotifyNotificationWithChannel(String, int, android.app.Notification, String);
     method @MainThread public final boolean onUnbind(android.content.Intent?);
     field public static final String ACTION_TRUSTED_WEB_ACTIVITY_SERVICE = "android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE";
     field public static final String KEY_SMALL_ICON_BITMAP = "android.support.customtabs.trusted.SMALL_ICON_BITMAP";
+    field public static final String KEY_SUCCESS = "androidx.browser.trusted.SUCCESS";
     field public static final String META_DATA_NAME_SMALL_ICON = "android.support.customtabs.trusted.SMALL_ICON";
     field public static final int SMALL_ICON_NOT_SET = -1; // 0xffffffff
   }
@@ -371,7 +373,7 @@ package androidx.browser.trusted {
     method public android.graphics.Bitmap? getSmallIconBitmap() throws android.os.RemoteException;
     method public int getSmallIconId() throws android.os.RemoteException;
     method public boolean notify(String, int, android.app.Notification, String) throws android.os.RemoteException;
-    method public android.os.Bundle? sendExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallback?) throws android.os.RemoteException;
+    method public android.os.Bundle sendExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallback?) throws android.os.RemoteException;
   }
 
   public final class TrustedWebActivityServiceConnectionPool {

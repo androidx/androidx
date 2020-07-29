@@ -353,7 +353,7 @@ public class CustomTabsClient {
             public Bundle extraCallbackWithResult(@NonNull String callbackName,
                     @Nullable Bundle args)
                     throws RemoteException {
-                if (callback == null) return null;
+                if (callback == null) return Bundle.EMPTY;
                 return callback.extraCallbackWithResult(callbackName, args);
             }
 

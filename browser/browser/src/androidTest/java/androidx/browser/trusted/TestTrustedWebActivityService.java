@@ -62,12 +62,12 @@ public class TestTrustedWebActivityService extends TrustedWebActivityService {
         return sTokenStore;
     }
 
-    @Nullable
+    @NonNull
     @Override
     public Bundle onExtraCommand(@NonNull String commandName, @NonNull Bundle args,
             @Nullable TrustedWebActivityCallbackRemote callbackRemote) {
-        if (!commandName.equals(DOUBLE_NUMBER_COMMAND)) return null;
-        if (args == null) return null;
+        if (!commandName.equals(DOUBLE_NUMBER_COMMAND)) return Bundle.EMPTY;
+        if (args == null) return Bundle.EMPTY;
 
         int number = args.getInt(DOUBLE_NUMBER_ARG, 0);
 
@@ -78,7 +78,6 @@ public class TestTrustedWebActivityService extends TrustedWebActivityService {
             try {
                 callbackRemote.runExtraCallback(DOUBLE_NUMBER_COMMAND, result);
             } catch (RemoteException e) {
-                return null;
             }
         }
         return result;
