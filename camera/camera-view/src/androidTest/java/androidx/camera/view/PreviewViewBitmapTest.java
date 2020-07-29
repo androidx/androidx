@@ -87,7 +87,7 @@ public class PreviewViewBitmapTest {
     @Test
     public void bitmapIsNull_whenPreviewNotDisplaying_textureView() {
         // Arrange
-        final PreviewView previewView = setUpPreviewView(ImplementationMode.TEXTURE_VIEW);
+        final PreviewView previewView = setUpPreviewView(ImplementationMode.COMPATIBLE);
 
         // Act
         startPreview(previewView);
@@ -100,7 +100,7 @@ public class PreviewViewBitmapTest {
     @Test
     public void bitmapIsNull_whenPreviewNotDisplaying_surfaceView() {
         // Arrange
-        final PreviewView previewView = setUpPreviewView(ImplementationMode.SURFACE_VIEW);
+        final PreviewView previewView = setUpPreviewView(ImplementationMode.PERFORMANCE);
 
         // Act
         startPreview(previewView);
@@ -113,7 +113,7 @@ public class PreviewViewBitmapTest {
     @Test
     public void bitmapNotNull_whenPreviewIsDisplaying_textureView() throws Throwable {
         // Arrange
-        final PreviewView previewView = setUpPreviewView(ImplementationMode.TEXTURE_VIEW);
+        final PreviewView previewView = setUpPreviewView(ImplementationMode.COMPATIBLE);
 
         // Act
         startPreview(previewView);
@@ -127,7 +127,7 @@ public class PreviewViewBitmapTest {
     @Test
     public void bitmapNotNull_whenPreviewIsDisplaying_surfaceView() throws Throwable {
         // Arrange
-        final PreviewView previewView = setUpPreviewView(ImplementationMode.SURFACE_VIEW);
+        final PreviewView previewView = setUpPreviewView(ImplementationMode.PERFORMANCE);
 
         // Act
         startPreview(previewView);
@@ -140,37 +140,37 @@ public class PreviewViewBitmapTest {
 
     @Test
     public void bitmapHasSameSizeAsPreviewView_fillStart_textureView() throws Throwable {
-        bitmapHasSameSizeAsPreviewView(ImplementationMode.TEXTURE_VIEW,
+        bitmapHasSameSizeAsPreviewView(ImplementationMode.COMPATIBLE,
                 PreviewView.ScaleType.FILL_START);
     }
 
     @Test
     public void bitmapHasSameSizeAsPreviewView_fillCenter_textureView() throws Throwable {
-        bitmapHasSameSizeAsPreviewView(ImplementationMode.TEXTURE_VIEW,
+        bitmapHasSameSizeAsPreviewView(ImplementationMode.COMPATIBLE,
                 PreviewView.ScaleType.FILL_CENTER);
     }
 
     @Test
     public void bitmapHasSameSizeAsPreviewView_fillEnd_textureView() throws Throwable {
-        bitmapHasSameSizeAsPreviewView(ImplementationMode.TEXTURE_VIEW,
+        bitmapHasSameSizeAsPreviewView(ImplementationMode.COMPATIBLE,
                 PreviewView.ScaleType.FILL_END);
     }
 
     @Test
     public void bitmapHasSameSizeAsPreviewView_fillStart_surfaceView() throws Throwable {
-        bitmapHasSameSizeAsPreviewView(ImplementationMode.SURFACE_VIEW,
+        bitmapHasSameSizeAsPreviewView(ImplementationMode.PERFORMANCE,
                 PreviewView.ScaleType.FILL_START);
     }
 
     @Test
     public void bitmapHasSameSizeAsPreviewView_fillCenter_surfaceView() throws Throwable {
-        bitmapHasSameSizeAsPreviewView(ImplementationMode.SURFACE_VIEW,
+        bitmapHasSameSizeAsPreviewView(ImplementationMode.PERFORMANCE,
                 PreviewView.ScaleType.FILL_CENTER);
     }
 
     @Test
     public void bitmapHasSameSizeAsPreviewView_fillEnd_surfaceView() throws Throwable {
-        bitmapHasSameSizeAsPreviewView(ImplementationMode.SURFACE_VIEW,
+        bitmapHasSameSizeAsPreviewView(ImplementationMode.PERFORMANCE,
                 PreviewView.ScaleType.FILL_END);
     }
 
@@ -192,37 +192,37 @@ public class PreviewViewBitmapTest {
 
     @Test
     public void bitmapSmallerInSizeThanPreviewView_fitStart_textureView() throws Throwable {
-        bitmapSmallerInSizeThanPreviewView(ImplementationMode.TEXTURE_VIEW,
+        bitmapSmallerInSizeThanPreviewView(ImplementationMode.COMPATIBLE,
                 PreviewView.ScaleType.FIT_START);
     }
 
     @Test
     public void bitmapSmallerInSizeThanPreviewView_fitCenter_textureView() throws Throwable {
-        bitmapSmallerInSizeThanPreviewView(ImplementationMode.TEXTURE_VIEW,
+        bitmapSmallerInSizeThanPreviewView(ImplementationMode.COMPATIBLE,
                 PreviewView.ScaleType.FIT_CENTER);
     }
 
     @Test
     public void bitmapSmallerInSizeThanPreviewView_fitEnd_textureView() throws Throwable {
-        bitmapSmallerInSizeThanPreviewView(ImplementationMode.TEXTURE_VIEW,
+        bitmapSmallerInSizeThanPreviewView(ImplementationMode.COMPATIBLE,
                 PreviewView.ScaleType.FIT_END);
     }
 
     @Test
     public void bitmapSmallerInSizeThanPreviewView_fitStart_surfaceView() throws Throwable {
-        bitmapSmallerInSizeThanPreviewView(ImplementationMode.SURFACE_VIEW,
+        bitmapSmallerInSizeThanPreviewView(ImplementationMode.PERFORMANCE,
                 PreviewView.ScaleType.FIT_START);
     }
 
     @Test
     public void bitmapSmallerInSizeThanPreviewView_fitCenter_surfaceView() throws Throwable {
-        bitmapSmallerInSizeThanPreviewView(ImplementationMode.SURFACE_VIEW,
+        bitmapSmallerInSizeThanPreviewView(ImplementationMode.PERFORMANCE,
                 PreviewView.ScaleType.FIT_CENTER);
     }
 
     @Test
     public void bitmapSmallerInSizeThanPreviewView_fitEnd_surfaceView() throws Throwable {
-        bitmapSmallerInSizeThanPreviewView(ImplementationMode.SURFACE_VIEW,
+        bitmapSmallerInSizeThanPreviewView(ImplementationMode.PERFORMANCE,
                 PreviewView.ScaleType.FIT_END);
     }
 
@@ -254,7 +254,7 @@ public class PreviewViewBitmapTest {
             @NonNull PreviewView.ScaleType scaleType) {
         final Context context = ApplicationProvider.getApplicationContext();
         final PreviewView previewView = new PreviewView(context);
-        previewView.setPreferredImplementationMode(mode);
+        previewView.setImplementationMode(mode);
         previewView.setScaleType(scaleType);
         runOnMainThread(() -> mActivityRule.getActivity().setContentView(previewView));
         return previewView;
