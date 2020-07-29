@@ -31,9 +31,25 @@ interface KeyEvent2 {
     val key: Key
 
     /**
-     * the [type][KeyEventType] of key event.
+     * The [type][KeyEventType] of key event.
      */
     val type: KeyEventType
+
+    /**
+     * Indicates whether the left Alt key is pressed.
+     */
+    val isLeftAltPressed: Boolean
+
+    /**
+     * Indicates whether the right Alt key is pressed.
+     */
+    val isRightAltPressed: Boolean
+
+    /**
+     * Indicates whether the Alt key is pressed.
+     */
+    val isAltPressed: Boolean
+        get() = isLeftAltPressed || isRightAltPressed
 }
 
 /**

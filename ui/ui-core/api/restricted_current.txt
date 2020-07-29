@@ -1537,6 +1537,12 @@ package androidx.compose.ui.input.key {
   @androidx.compose.ui.input.key.ExperimentalKeyInput public interface KeyEvent2 {
     method public int getKey();
     method public androidx.compose.ui.input.key.KeyEventType getType();
+    method public default boolean isAltPressed();
+    method public boolean isLeftAltPressed();
+    method public boolean isRightAltPressed();
+    property public default boolean isAltPressed;
+    property public abstract boolean isLeftAltPressed;
+    property public abstract boolean isRightAltPressed;
     property public abstract int key;
     property public abstract androidx.compose.ui.input.key.KeyEventType type;
   }

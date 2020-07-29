@@ -2022,8 +2022,14 @@ package androidx.ui.core.keyinput {
   }
 
   @androidx.ui.core.keyinput.ExperimentalKeyInput public interface KeyEvent2 {
+    method public default boolean getAlt();
+    method public boolean getAltLeft();
+    method public boolean getAltRight();
     method public int getKey();
     method public androidx.ui.core.keyinput.KeyEventType getType();
+    property public default boolean alt;
+    property public abstract boolean altLeft;
+    property public abstract boolean altRight;
     property public abstract int key;
     property public abstract androidx.ui.core.keyinput.KeyEventType type;
   }
