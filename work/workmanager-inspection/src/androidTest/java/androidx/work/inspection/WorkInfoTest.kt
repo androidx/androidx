@@ -139,4 +139,23 @@ class WorkInfoTest {
             assertThat(event.workUpdated.id).isEqualTo(request.stringId)
         }
     }
+
+    @Test
+    fun runEntryHook_getCallStackWithWorkAddedEvent() = runBlocking {
+        inspectWorkManager()
+        val request = OneTimeWorkRequestBuilder<EmptyWorker>().build()
+        val workContinuation = testEnvironment.workManager.beginWith(request)
+        // a call stack should be recorded from WorkManagerInspector.
+        testEnvironment.consumeRegisteredHooks()
+            .first()
+            .asEntryHook
+            .onEntry(workContinuation, listOf())
+        workContinuation.enqueue()
+
+        testEnvironment.receiveEvent().let { event ->
+            val workInfo = event.workAdded.work
+            assertThat(workInfo.callStack.framesList[0].fileName)
+                .isEqualTo("ContinuationImpl.kt")
+        }
+    }
 }
