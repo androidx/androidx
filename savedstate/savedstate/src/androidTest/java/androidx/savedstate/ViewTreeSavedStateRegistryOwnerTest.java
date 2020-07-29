@@ -43,14 +43,14 @@ public class ViewTreeSavedStateRegistryOwnerTest {
     @Test
     public void setGetSameView() {
         final View v = new View(InstrumentationRegistry.getInstrumentation().getContext());
-        final SavedStateRegistryOwner dummyOwner = new DummyOwner();
+        final SavedStateRegistryOwner fakeOwner = new FakeOwner();
 
         assertNull("initial SavedStateRegistryOwner expects null",
                 ViewTreeSavedStateRegistryOwner.get(v));
 
-        ViewTreeSavedStateRegistryOwner.set(v, dummyOwner);
+        ViewTreeSavedStateRegistryOwner.set(v, fakeOwner);
 
-        assertEquals("get the SavedStateRegistryOwner set directly", dummyOwner,
+        assertEquals("get the SavedStateRegistryOwner set directly", fakeOwner,
                 ViewTreeSavedStateRegistryOwner.get(v));
     }
 
@@ -70,13 +70,13 @@ public class ViewTreeSavedStateRegistryOwnerTest {
         assertNull("initial SavedStateRegistryOwner expects null",
                 ViewTreeSavedStateRegistryOwner.get(child));
 
-        final SavedStateRegistryOwner dummyOwner = new DummyOwner();
-        ViewTreeSavedStateRegistryOwner.set(root, dummyOwner);
+        final SavedStateRegistryOwner fakeOwner = new FakeOwner();
+        ViewTreeSavedStateRegistryOwner.set(root, fakeOwner);
 
-        assertEquals("root sees owner", dummyOwner, ViewTreeSavedStateRegistryOwner.get(root));
-        assertEquals("direct child sees owner", dummyOwner,
+        assertEquals("root sees owner", fakeOwner, ViewTreeSavedStateRegistryOwner.get(root));
+        assertEquals("direct child sees owner", fakeOwner,
                 ViewTreeSavedStateRegistryOwner.get(parent));
-        assertEquals("grandchild sees owner", dummyOwner,
+        assertEquals("grandchild sees owner", fakeOwner,
                 ViewTreeSavedStateRegistryOwner.get(child));
     }
 
@@ -96,20 +96,20 @@ public class ViewTreeSavedStateRegistryOwnerTest {
         assertNull("initial SavedStateRegistryOwner expects null",
                 ViewTreeSavedStateRegistryOwner.get(child));
 
-        final SavedStateRegistryOwner rootDummyOwner = new DummyOwner();
-        ViewTreeSavedStateRegistryOwner.set(root, rootDummyOwner);
+        final SavedStateRegistryOwner rootFakeOwner = new FakeOwner();
+        ViewTreeSavedStateRegistryOwner.set(root, rootFakeOwner);
 
-        final SavedStateRegistryOwner parentDummyOwner = new DummyOwner();
-        ViewTreeSavedStateRegistryOwner.set(parent, parentDummyOwner);
+        final SavedStateRegistryOwner parentFakeOwner = new FakeOwner();
+        ViewTreeSavedStateRegistryOwner.set(parent, parentFakeOwner);
 
-        assertEquals("root sees owner", rootDummyOwner, ViewTreeSavedStateRegistryOwner.get(root));
-        assertEquals("direct child sees owner", parentDummyOwner,
+        assertEquals("root sees owner", rootFakeOwner, ViewTreeSavedStateRegistryOwner.get(root));
+        assertEquals("direct child sees owner", parentFakeOwner,
                 ViewTreeSavedStateRegistryOwner.get(parent));
-        assertEquals("grandchild sees owner", parentDummyOwner,
+        assertEquals("grandchild sees owner", parentFakeOwner,
                 ViewTreeSavedStateRegistryOwner.get(child));
     }
 
-    static class DummyOwner implements SavedStateRegistryOwner {
+    static class FakeOwner implements SavedStateRegistryOwner {
         @NonNull
         @Override
         public Lifecycle getLifecycle() {
