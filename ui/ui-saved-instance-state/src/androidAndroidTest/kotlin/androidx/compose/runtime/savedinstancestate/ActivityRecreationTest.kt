@@ -17,6 +17,7 @@
 package androidx.compose.runtime.savedinstancestate
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -28,6 +29,8 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.MediumTest
 import androidx.compose.ui.platform.setContent
 import androidx.compose.runtime.savedinstancestate.test.R
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -99,6 +102,36 @@ class ActivityRecreationTest {
             assertThat(it.array2).isEqualTo(intArrayOf(2))
         }
     }
+
+    @Test
+    fun valuesStoredInTwoFragmentsRestored() {
+        val activityScenario: ActivityScenario<RecreationTest4Activity> =
+            ActivityScenario.launch(RecreationTest4Activity::class.java)
+
+        activityScenario.moveToState(Lifecycle.State.RESUMED)
+
+        activityScenario.onActivity {
+            val array1 = it.findFragment(R.id.child1).array
+            val array2 = it.findFragment(R.id.child2).array
+            assertThat(array1).isEqualTo(intArrayOf(0))
+            assertThat(array2).isEqualTo(intArrayOf(0))
+            // change the value, so we can assert this change will be restored
+            array1[0] = 1
+            array2[0] = 2
+        }
+
+        activityScenario.recreate()
+
+        activityScenario.onActivity {
+            val array1 = it.findFragment(R.id.child1).array
+            val array2 = it.findFragment(R.id.child2).array
+            assertThat(array1).isEqualTo(intArrayOf(1))
+            assertThat(array2).isEqualTo(intArrayOf(2))
+        }
+    }
+
+    private fun FragmentActivity.findFragment(id: Int) =
+        supportFragmentManager.findFragmentById(id) as TestFragment
 }
 
 class RecreationTest1Activity : ComponentActivity() {
@@ -151,6 +184,49 @@ class RecreationTest3Activity : ComponentActivity() {
         }
         child2.setContent(Recomposer.current()) {
             array2 = rememberSavedInstanceState(key = "key") { intArrayOf(0) }
+        }
+    }
+}
+
+class RecreationTest4Activity : FragmentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val linear = LinearLayout(this)
+        linear.orientation = LinearLayout.VERTICAL
+        val params = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup
+                .LayoutParams.WRAP_CONTENT, 1f
+        )
+        val child1 = FrameLayout(this)
+        child1.id = R.id.child1
+        linear.addView(child1, params)
+        val child2 = FrameLayout(this)
+        child2.id = R.id.child2
+        linear.addView(child2, params)
+        setContentView(linear)
+
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.child1, TestFragment())
+                .replace(R.id.child2, TestFragment())
+                .commitNow()
+        }
+    }
+}
+
+class TestFragment : Fragment() {
+
+    lateinit var array: IntArray
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ) = FrameLayout(container?.context ?: requireContext()).apply {
+        setContent(Recomposer.current()) {
+            array = rememberSavedInstanceState(key = "key") { intArrayOf(0) }
         }
     }
 }

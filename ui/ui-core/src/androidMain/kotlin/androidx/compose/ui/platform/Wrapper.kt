@@ -33,6 +33,7 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.SlotTable
 import androidx.compose.runtime.compositionFor
 import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.emptyContent
 import androidx.compose.ui.R
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.LayoutNode
@@ -145,7 +146,7 @@ fun ComponentActivity.setContent(
     val composeView: AndroidOwner = window.decorView
         .findViewById<ViewGroup>(android.R.id.content)
         .getChildAt(0) as? AndroidOwner
-        ?: AndroidOwner(this, this).also {
+        ?: AndroidOwner(this, this, this).also {
             setContentView(it.view, DefaultLayoutParams)
         }
     return doSetContent(composeView, recomposer, null, content)
@@ -237,16 +238,17 @@ private class WrappedComposition(
 
     private var disposed = false
     private var addedToLifecycle: Lifecycle? = null
+    private var contentWaitingForCreated: @Composable () -> Unit = emptyContent()
 
     override fun setContent(content: @Composable () -> Unit) {
         owner.setOnViewTreeOwnersAvailable {
             if (!disposed) {
+                val lifecycle = it.lifecycleOwner.lifecycle
                 if (addedToLifecycle == null) {
-                    val lifecycle = it.lifecycleOwner.lifecycle
                     lifecycle.addObserver(this)
                     addedToLifecycle = lifecycle
                 }
-                if (owner.savedStateRegistry != null) {
+                if (lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
                     original.setContent {
                         @Suppress("UNCHECKED_CAST")
                         (owner.view.getTag(R.id.inspection_slot_table_set) as?
@@ -262,13 +264,7 @@ private class WrappedComposition(
                         }
                     }
                 } else {
-                    // TODO(Andrey) unify setOnSavedStateRegistryAvailable and
-                    //  whenViewTreeOwnersAvailable so we will postpone until we have everything.
-                    //  we should migrate to androidx SavedStateRegistry first
-                    // we will postpone the composition until composeView restores the state.
-                    owner.setOnSavedStateRegistryAvailable {
-                        if (!disposed) setContent(content)
-                    }
+                    contentWaitingForCreated = content
                 }
             }
         }
@@ -286,6 +282,11 @@ private class WrappedComposition(
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         if (event == Lifecycle.Event.ON_DESTROY) {
             dispose()
+        } else if (event == Lifecycle.Event.ON_CREATE) {
+            if (!disposed) {
+                setContent(contentWaitingForCreated)
+                contentWaitingForCreated = emptyContent()
+            }
         }
     }
 }

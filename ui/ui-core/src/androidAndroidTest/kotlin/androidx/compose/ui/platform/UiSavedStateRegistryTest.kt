@@ -25,96 +25,78 @@ import android.text.SpannableString
 import android.util.Size
 import android.util.SizeF
 import android.util.SparseArray
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleRegistry
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.test.annotation.UiThreadTest
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import java.io.Serializable
 
 @SmallTest
-@RunWith(JUnit4::class)
-class SavedStateDelegateTest {
+@RunWith(AndroidJUnit4::class)
+class DisposableUiSavedStateRegistryTest {
 
     private val ContainerKey = 100
     private val SaveKey = "key"
     private val SaveValue = 5
 
+    @UiThreadTest
     @Test
     fun simpleSaveAndRestore() {
-        val delegateToSave = SavedStateDelegate { ContainerKey }
-        delegateToSave.stopWaitingForStateRestoration()
-        delegateToSave.savedStateRegistry!!.registerProvider(SaveKey) { SaveValue }
-        val stateArray = SparseArray<Parcelable>()
-        delegateToSave.dispatchSaveInstanceState(stateArray, Bundle())
+        val owner1 = TestOwner()
+        var registry = DisposableUiSavedStateRegistry(ContainerKey, owner1)
+        registry.registerProvider(SaveKey) { SaveValue }
+        val bundle = owner1.save()
 
-        val delegateToRestore = SavedStateDelegate { ContainerKey }
-        delegateToRestore.dispatchRestoreInstanceState(stateArray)
-        val restoredValue = delegateToRestore.savedStateRegistry!!.consumeRestored(SaveKey)
+        val owner2 = TestOwner(bundle)
+        registry = DisposableUiSavedStateRegistry(ContainerKey, owner2)
+        val restoredValue = registry.consumeRestored(SaveKey)
         assertEquals(SaveValue, restoredValue)
     }
 
+    @UiThreadTest
     @Test
     fun saveAndRestoreWhenTwoParentsShareTheSameStateArray() {
+        val owner1 = TestOwner()
         // This emulates two different AndroidComposeViews used inside the same Activity
         val parentKey1 = 1
         val value1 = 1
         val parentKey2 = 2
         val value2 = 2
-        val stateArray = SparseArray<Parcelable>()
 
         // save first view
-        val delegateToSave1 = SavedStateDelegate { parentKey1 }
-        delegateToSave1.stopWaitingForStateRestoration()
-        delegateToSave1.savedStateRegistry!!.registerProvider(SaveKey) { value1 }
-        delegateToSave1.dispatchSaveInstanceState(stateArray, Bundle())
+        val registryToSave1 = DisposableUiSavedStateRegistry(parentKey1, owner1)
+        registryToSave1.registerProvider(SaveKey) { value1 }
 
         // save second view
-        val delegateToSave2 = SavedStateDelegate { parentKey2 }
-        delegateToSave2.stopWaitingForStateRestoration()
-        delegateToSave2.savedStateRegistry!!.registerProvider(SaveKey) { value2 }
-        delegateToSave2.dispatchSaveInstanceState(stateArray, Bundle())
+        val registryToSave2 = DisposableUiSavedStateRegistry(parentKey2, owner1)
+        registryToSave2.registerProvider(SaveKey) { value2 }
+
+        val owner2 = TestOwner(owner1.save())
 
         // restore first view
-        val delegateToRestore1 = SavedStateDelegate { parentKey1 }
-        delegateToRestore1.dispatchRestoreInstanceState(stateArray)
-        val restoredValue1 = delegateToRestore1.savedStateRegistry!!.consumeRestored(SaveKey)
+        val registryToRestore1 = DisposableUiSavedStateRegistry(parentKey1, owner2)
+        val restoredValue1 = registryToRestore1.consumeRestored(SaveKey)
         assertEquals(value1, restoredValue1)
 
         // restore second view
-        val delegateToRestore2 = SavedStateDelegate { parentKey2 }
-        delegateToRestore2.dispatchRestoreInstanceState(stateArray)
-        val restoredValue2 = delegateToRestore2.savedStateRegistry!!.consumeRestored(SaveKey)
+        val registryToRestore2 = DisposableUiSavedStateRegistry(parentKey2, owner2)
+        val restoredValue2 = registryToRestore2.consumeRestored(SaveKey)
         assertEquals(value2, restoredValue2)
     }
 
-    @Test
-    fun onRegistryReadyCalledAfterStopWaitingForStateRestoration() {
-        var called = false
-        val delegate = SavedStateDelegate { ContainerKey }
-        delegate.setOnSaveRegistryAvailable { called = true }
-
-        delegate.stopWaitingForStateRestoration()
-        assertTrue(called)
-    }
-
-    @Test
-    fun onRegistryReadyCalledAfterDispatchRestoreInstanceState() {
-        var called = false
-        val delegate = SavedStateDelegate { ContainerKey }
-        delegate.setOnSaveRegistryAvailable { called = true }
-
-        delegate.dispatchRestoreInstanceState(SparseArray())
-        assertTrue(called)
-    }
-
+    @UiThreadTest
     @Test
     fun typesSupportedByBaseBundleCanBeSaved() {
-        val delegate = SavedStateDelegate { ContainerKey }
-        delegate.stopWaitingForStateRestoration()
-        val registry = delegate.savedStateRegistry!!
+        val registry = DisposableUiSavedStateRegistry(ContainerKey, TestOwner())
 
         assertTrue(registry.canBeSaved(true))
         assertTrue(registry.canBeSaved(true.asBoxed()))
@@ -130,11 +112,10 @@ class SavedStateDelegateTest {
         assertTrue(registry.canBeSaved(arrayOf("string")))
     }
 
+    @UiThreadTest
     @Test
     fun typesSupportedByBundleCanBeSaved() {
-        val delegate = SavedStateDelegate { ContainerKey }
-        delegate.stopWaitingForStateRestoration()
-        val registry = delegate.savedStateRegistry!!
+        val registry = DisposableUiSavedStateRegistry(ContainerKey, TestOwner())
 
         assertTrue(registry.canBeSaved(Binder()))
         assertTrue(registry.canBeSaved(Bundle()))
@@ -163,11 +144,10 @@ class SavedStateDelegateTest {
         assertTrue(registry.canBeSaved(arrayListOf("String")))
     }
 
+    @UiThreadTest
     @Test
     fun customTypeCantBeSaved() {
-        val delegate = SavedStateDelegate { ContainerKey }
-        delegate.stopWaitingForStateRestoration()
-        val registry = delegate.savedStateRegistry!!
+        val registry = DisposableUiSavedStateRegistry(ContainerKey, TestOwner())
 
         assertFalse(registry.canBeSaved(CustomClass()))
     }
@@ -197,8 +177,28 @@ private class CustomParcelable(parcel: Parcel? = null) : Parcelable {
         @Suppress("unused")
         @JvmField
         val CREATOR = object : Parcelable.Creator<CustomParcelable> {
-                override fun createFromParcel(parcel: Parcel) = CustomParcelable(parcel)
-                override fun newArray(size: Int) = arrayOfNulls<CustomParcelable?>(size)
-            }
+            override fun createFromParcel(parcel: Parcel) = CustomParcelable(parcel)
+            override fun newArray(size: Int) = arrayOfNulls<CustomParcelable?>(size)
+        }
+    }
+}
+
+private class TestOwner(
+    restoredBundle: Bundle? = null
+) : SavedStateRegistryOwner {
+
+    private val lifecycle = LifecycleRegistry(this)
+    private val controller = SavedStateRegistryController.create(this).apply {
+        performRestore(restoredBundle ?: Bundle())
+    }
+    init {
+        lifecycle.currentState = Lifecycle.State.RESUMED
+    }
+
+    override fun getSavedStateRegistry(): SavedStateRegistry = controller.savedStateRegistry
+    override fun getLifecycle(): Lifecycle = lifecycle
+
+    fun save() = Bundle().apply {
+        controller.performSave(this)
     }
 }

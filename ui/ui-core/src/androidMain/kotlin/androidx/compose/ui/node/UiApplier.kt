@@ -81,7 +81,9 @@ class UiApplier(
                                 adapter?.didInsert(instance, parent)
                             }
                             is LayoutNode -> {
-                                val composeView = AndroidComposeView(parent.context, null, null)
+                                val composeView = AndroidComposeView(
+                                    parent.context, null, null, null
+                                )
                                 parent.addView(composeView, index)
                                 composeView.root.insertAt(0, instance)
                             }

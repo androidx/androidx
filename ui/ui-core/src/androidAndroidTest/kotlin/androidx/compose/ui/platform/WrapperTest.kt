@@ -33,6 +33,7 @@ import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.test.filters.MediumTest
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.ui.test.runOnUiThread
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -90,7 +91,9 @@ class WrapperTest {
         val composedLatch = CountDownLatch(1)
         val disposeLatch = CountDownLatch(1)
 
-        val owner = RegistryOwner()
+        val owner = runOnUiThread {
+            RegistryOwner()
+        }
 
         activityTestRule.runOnUiThread {
             val view = FrameLayout(activity)
@@ -116,7 +119,9 @@ class WrapperTest {
 
     @Test
     fun detachedFromLifecycleWhenDisposed() {
-        val owner = RegistryOwner()
+        val owner = runOnUiThread {
+            RegistryOwner()
+        }
         var composition: Composition? = null
         val composedLatch = CountDownLatch(1)
 

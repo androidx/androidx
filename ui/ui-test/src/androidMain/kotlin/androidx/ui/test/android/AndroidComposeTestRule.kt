@@ -17,8 +17,6 @@
 package androidx.ui.test.android
 
 import android.util.DisplayMetrics
-import android.util.SparseArray
-import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Recomposer
@@ -139,10 +137,6 @@ class AndroidComposeTestRule<T : ComponentActivity>(
                 Recomposer.current(),
                 composable
             )
-            val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
-            // AndroidComposeView is postponing the composition till the saved state is restored.
-            // We will emulate the restoration of the empty state to trigger the real composition.
-            contentViewGroup.getChildAt(0).restoreHierarchyState(SparseArray())
             disposeContentHook = {
                 composition.dispose()
             }
