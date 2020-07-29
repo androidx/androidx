@@ -24,17 +24,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.emptyContent
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.ui.test.GestureScope
-import androidx.ui.test.assertIsEqualTo
 import androidx.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.ui.test.assertWidthIsEqualTo
@@ -53,14 +50,10 @@ import androidx.ui.test.swipeLeft
 import androidx.ui.test.swipeRight
 import androidx.ui.test.swipeUp
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -84,20 +77,16 @@ class DrawerTest {
 
     @Test
     fun modalDrawer_testOffset_whenClosed() {
-        var position: Offset? = null
         composeTestRule.setMaterialContent {
             val drawerState = rememberDrawerState(DrawerValue.Closed)
             ModalDrawerLayout(drawerState, drawerContent = {
-                Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
-                    position = coords.localToRoot(Offset.Zero)
-                })
+                Box(Modifier.fillMaxSize().testTag("content"))
             }, bodyContent = emptyContent())
         }
 
         val width = rootWidth()
-        composeTestRule.runOnIdleWithDensity {
-            position!!.x.toDp().assertIsEqualTo(-width)
-        }
+        onNodeWithTag("content")
+            .assertLeftPositionInRootIsEqualTo(-width)
     }
 
     @Test
@@ -124,76 +113,54 @@ class DrawerTest {
 
         val width = rootWidth()
         val height = rootHeight()
-        val expectedHeight = if (width > height) 0.dp else (height / 2)
+        val expectedTop = if (width > height) 0.dp else (height / 2)
         onNodeWithTag("content")
-            .assertTopPositionInRootIsEqualTo(expectedHeight)
+            .assertTopPositionInRootIsEqualTo(expectedTop)
     }
 
     @Test
     fun bottomDrawer_testOffset_whenClosed() {
-        var position: Offset? = null
         composeTestRule.setMaterialContent {
             val drawerState = rememberBottomDrawerState(BottomDrawerValue.Closed)
             BottomDrawerLayout(drawerState, drawerContent = {
-                Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
-                    position = coords.localToRoot(Offset.Zero)
-                })
+                Box(Modifier.fillMaxSize().testTag("content"))
             }, bodyContent = emptyContent())
         }
 
         val height = rootHeight()
-        composeTestRule.runOnIdleWithDensity {
-            position!!.y.toDp().assertIsEqualTo(height)
-        }
+        onNodeWithTag("content")
+            .assertTopPositionInRootIsEqualTo(height)
     }
 
     @Test
-    @Ignore("failing in postsubmit, fix in b/148751721")
+    @LargeTest
     fun modalDrawer_openAndClose() {
-        var contentWidth: Int? = null
-        var openedLatch: CountDownLatch? = null
-        var closedLatch: CountDownLatch? = CountDownLatch(1)
         lateinit var drawerState: DrawerState
         composeTestRule.setMaterialContent {
             drawerState = rememberDrawerState(DrawerValue.Closed)
-            ModalDrawerLayout(drawerState,
-                drawerContent = {
-                    Box(
-                        Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
-                            val pos = info.localToGlobal(Offset.Zero)
-                            if (pos.x == 0.0f) {
-                                // If fully opened, mark the openedLatch if present
-                                openedLatch?.countDown()
-                            } else if (-pos.x.roundToInt() == contentWidth) {
-                                // If fully closed, mark the closedLatch if present
-                                closedLatch?.countDown()
-                            }
-                        }
-                    )
-                },
-                bodyContent = {
-                    Box(Modifier.fillMaxSize()
-                        .onPositioned { contentWidth = it.size.width })
-                })
+            ModalDrawerLayout(drawerState, drawerContent = {
+                Box(Modifier.fillMaxSize().testTag("drawer"))
+            }, bodyContent = emptyContent())
         }
-        // Drawer should start in closed state
-        assertThat(closedLatch!!.await(5, TimeUnit.SECONDS)).isTrue()
 
-        // When the drawer state is set to Open
-        openedLatch = CountDownLatch(1)
+        val width = rootWidth()
+
+        // Drawer should start in closed state
+        onNodeWithTag("drawer").assertLeftPositionInRootIsEqualTo(-width)
+
+        // When the drawer state is set to Opened
         runOnIdle {
             drawerState.open()
         }
         // Then the drawer should be opened
-        assertThat(openedLatch.await(5, TimeUnit.SECONDS)).isTrue()
+        onNodeWithTag("drawer").assertLeftPositionInRootIsEqualTo(0.dp)
 
         // When the drawer state is set to Closed
-        closedLatch = CountDownLatch(1)
         runOnIdle {
             drawerState.close()
         }
         // Then the drawer should be closed
-        assertThat(closedLatch.await(5, TimeUnit.SECONDS)).isTrue()
+        onNodeWithTag("drawer").assertLeftPositionInRootIsEqualTo(-width)
     }
 
     @Test
@@ -242,54 +209,37 @@ class DrawerTest {
     }
 
     @Test
-    @Ignore("failing in postsubmit, fix in b/148751721")
+    @LargeTest
     fun bottomDrawer_openAndClose() {
-        var contentHeight: Int? = null
-        var openedHeight: Int? = null
-        var openedLatch: CountDownLatch? = null
-        var closedLatch: CountDownLatch? = CountDownLatch(1)
         lateinit var drawerState: BottomDrawerState
         composeTestRule.setMaterialContent {
             drawerState = rememberBottomDrawerState(BottomDrawerValue.Closed)
-            BottomDrawerLayout(drawerState,
-                drawerContent = {
-                    Box(Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
-                        val pos = info.localToGlobal(Offset.Zero)
-                        if (pos.y.roundToInt() == openedHeight) {
-                            // If fully opened, mark the openedLatch if present
-                            openedLatch?.countDown()
-                        } else if (pos.y.roundToInt() == contentHeight) {
-                            // If fully closed, mark the closedLatch if present
-                            closedLatch?.countDown()
-                        }
-                    })
-                },
-                bodyContent = {
-                    Box(Modifier.fillMaxSize().onPositioned {
-                        contentHeight = it.size.height
-                        openedHeight = (it.size.height * BottomDrawerOpenFraction).roundToInt()
-                    })
-                }
-            )
+            BottomDrawerLayout(drawerState, drawerContent = {
+                Box(Modifier.fillMaxSize().testTag("drawer"))
+            }, bodyContent = emptyContent())
         }
-        // Drawer should start in closed state
-        assertThat(closedLatch!!.await(5, TimeUnit.SECONDS)).isTrue()
 
-        // When the drawer state is set to Open
-        openedLatch = CountDownLatch(1)
+        val width = rootWidth()
+        val height = rootHeight()
+        val topWhenOpened = if (width > height) 0.dp else (height / 2)
+        val topWhenClosed = height
+
+        // Drawer should start in closed state
+        onNodeWithTag("drawer").assertTopPositionInRootIsEqualTo(topWhenClosed)
+
+        // When the drawer state is set to Opened
         runOnIdle {
             drawerState.open()
         }
         // Then the drawer should be opened
-        assertThat(openedLatch.await(5, TimeUnit.SECONDS)).isTrue()
+        onNodeWithTag("drawer").assertTopPositionInRootIsEqualTo(topWhenOpened)
 
         // When the drawer state is set to Closed
-        closedLatch = CountDownLatch(1)
         runOnIdle {
             drawerState.close()
         }
         // Then the drawer should be closed
-        assertThat(closedLatch.await(5, TimeUnit.SECONDS)).isTrue()
+        onNodeWithTag("drawer").assertTopPositionInRootIsEqualTo(topWhenClosed)
     }
 
     @Test
