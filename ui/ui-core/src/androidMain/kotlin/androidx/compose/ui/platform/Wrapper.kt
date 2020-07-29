@@ -53,6 +53,14 @@ import java.util.WeakHashMap
  */
 // TODO: Remove this API when View/LayoutNode mixed trees work
 @OptIn(ExperimentalComposeApi::class)
+@Deprecated(
+    "setViewContent was deprecated - use setContent instead",
+    ReplaceWith(
+        "setContent(Recomposer.current(), parent, composable)",
+        "androidx.compose.ui.platform.setContent",
+        "androidx.compose.runtime.Recomposer"
+    )
+)
 fun ViewGroup.setViewContent(
     parent: CompositionReference? = null,
     composable: @Composable () -> Unit
@@ -80,6 +88,14 @@ fun ViewGroup.setViewContent(
  * @see Activity.setContentView
  */
 // TODO: Remove this API when View/LayoutNode mixed trees work
+@Deprecated(
+    "setViewContent was deprecated - use setContent instead",
+    ReplaceWith(
+        "setContent(composable)",
+        "androidx.compose.ui.platform.setContent",
+        "androidx.compose.runtime.Recomposer"
+    )
+)
 fun Activity.setViewContent(composable: @Composable () -> Unit): Composition {
     // TODO(lmr): add ambients here, or remove API entirely if we can
     // If there is already a FrameLayout in the root, we assume we want to compose
@@ -90,6 +106,7 @@ fun Activity.setViewContent(composable: @Composable () -> Unit): Composition {
         .findViewById<ViewGroup>(android.R.id.content)
         .getChildAt(0) as? ViewGroup
         ?: FrameLayout(this).also { setContentView(it) }
+    @Suppress("DEPRECATION")
     return root.setViewContent(null, composable)
 }
 
