@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// suppress for deprecation of onChildPositioned
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Composable

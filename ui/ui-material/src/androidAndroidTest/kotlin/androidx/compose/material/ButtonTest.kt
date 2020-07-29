@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// suppression needed for onChildPositioned import
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.material
 
 import android.os.Build

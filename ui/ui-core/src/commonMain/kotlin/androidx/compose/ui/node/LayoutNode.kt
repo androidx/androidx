@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// need file suppression for OnChildPositionedModifier deprecation
+@file:Suppress("DEPRECATION")
 package androidx.compose.ui.node
 
 import androidx.compose.runtime.collection.ExperimentalCollectionApi
