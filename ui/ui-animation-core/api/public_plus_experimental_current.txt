@@ -285,6 +285,25 @@ package androidx.compose.animation.core {
     property public final boolean hasObservers;
   }
 
+  public final class ManualFrameClock implements androidx.compose.runtime.dispatch.MonotonicFrameClock {
+    ctor @Deprecated public ManualFrameClock(long initialTime, internal boolean dispatchOnSubscribe);
+    ctor public ManualFrameClock(long initialTime);
+    method public void advanceClock(long nanos);
+    method public long getCurrentTime();
+    method public suspend <R> Object? withFrameNanos(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R> p);
+    property public final long currentTime;
+  }
+
+  public final class ManualFrameClockKt {
+    method public static void advanceClockMillis(androidx.compose.animation.core.ManualFrameClock, long millis);
+  }
+
+  public final class MonotonicFrameAnimationClock implements androidx.compose.animation.core.AnimationClockObservable {
+    ctor public MonotonicFrameAnimationClock(kotlinx.coroutines.CoroutineScope scope);
+    method public void subscribe(androidx.compose.animation.core.AnimationClockObserver observer);
+    method public void unsubscribe(androidx.compose.animation.core.AnimationClockObserver observer);
+  }
+
   public interface MutableTransitionState {
     method public operator <T, V extends androidx.compose.animation.core.AnimationVector> void set(androidx.compose.animation.core.PropKey<T,V> propKey, T? prop);
   }
