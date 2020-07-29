@@ -20,7 +20,12 @@ import android.os.Handler
 import android.os.Looper
 import androidx.compose.animation.core.ExponentialDecay
 import androidx.compose.animation.core.ManualAnimationClock
+import androidx.compose.animation.core.ManualFrameClock
+import androidx.compose.animation.core.MonotonicFrameAnimationClock
+import androidx.compose.animation.core.advanceClockMillis
+import androidx.compose.runtime.dispatch.AndroidUiDispatcher
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -46,6 +51,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -62,9 +70,12 @@ class ScrollableTest {
 
     private val scrollableBoxTag = "scrollableBox"
 
+    private lateinit var recomposer: Recomposer
+
     @Test
-    fun scrollable_horizontalScroll() {
-        val clocks = ManualAnimationClock(0L)
+    fun scrollable_horizontalScroll() = runBlocking {
+        @Suppress("DEPRECATION")
+        val clock = ManualFrameClock(0L, true)
         var total = 0f
         val controller = ScrollableController(
             consumeScrollDelta = {
@@ -72,7 +83,9 @@ class ScrollableTest {
                 it
             },
             flingConfig = FlingConfig(decayAnimation = ExponentialDecay()),
-            animationClock = clocks
+            animationClock = MonotonicFrameAnimationClock(
+                CoroutineScope(coroutineContext + AndroidUiDispatcher.Main + clock)
+            )
         )
         setScrollableContent {
             Modifier.scrollable(
@@ -87,7 +100,7 @@ class ScrollableTest {
                 duration = 100.milliseconds
             )
         }
-        advanceClockAndAwaitAnimation(controller, clocks)
+        advanceClockAndAwaitAnimation(clock)
 
         val lastTotal = runOnIdle {
             assertThat(total).isGreaterThan(0)
@@ -100,7 +113,7 @@ class ScrollableTest {
                 duration = 100.milliseconds
             )
         }
-        advanceClockAndAwaitAnimation(controller, clocks)
+        advanceClockAndAwaitAnimation(clock)
 
         runOnIdle {
             assertThat(total).isEqualTo(lastTotal)
@@ -112,7 +125,7 @@ class ScrollableTest {
                 duration = 100.milliseconds
             )
         }
-        advanceClockAndAwaitAnimation(controller, clocks)
+        advanceClockAndAwaitAnimation(clock)
         runOnIdle {
             assertThat(total).isLessThan(0.01f)
         }
@@ -571,6 +584,7 @@ class ScrollableTest {
 
     private fun setScrollableContent(scrollableModifierFactory: @Composable () -> Modifier) {
         composeTestRule.setContent {
+            recomposer = Recomposer.current()
             Stack {
                 val scrollable = scrollableModifierFactory()
                 Box(
@@ -607,5 +621,12 @@ class ScrollableTest {
             clock.clockTimeMillis += 5000
         }
         awaitScrollAnimation(controller)
+    }
+
+    private suspend fun advanceClockAndAwaitAnimation(clock: ManualFrameClock) {
+        withContext(AndroidUiDispatcher.Main) {
+            clock.advanceClockMillis(5000L)
+        }
+        recomposer.awaitIdle()
     }
 }
