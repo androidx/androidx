@@ -45,4 +45,7 @@
     <!-- Error message for when the user has not set up a secure PIN, pattern, or password on this
     device. Generally not shown to the user. [CHAR LIMIT=NONE] -->
     <string name="generic_error_no_device_credential">No PIN, pattern, or password set.</string>
+    <!-- Error message for when the app requests PIN, pattern, or password authentication on a
+    device without Keyguard. Generally not shown to the user. [CHAR LIMIT=NONE] -->
+    <string name="generic_error_no_keyguard">This device does not support PIN, pattern, or password.</string>
 </resources>

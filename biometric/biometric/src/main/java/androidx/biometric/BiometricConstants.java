@@ -98,7 +98,7 @@ public interface BiometricConstants {
     int ERROR_NO_BIOMETRICS = 11;
 
     /**
-     * The device does not have a biometric sensor.
+     * The device does not have the required authentication hardware.
      */
     int ERROR_HW_NOT_PRESENT = 12;
 
