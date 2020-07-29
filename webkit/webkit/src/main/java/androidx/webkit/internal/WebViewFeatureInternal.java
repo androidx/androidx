@@ -27,6 +27,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.webkit.ProxyConfig;
 import androidx.webkit.ProxyController;
 import androidx.webkit.SafeBrowsingResponseCompat;
@@ -46,6 +47,7 @@ import org.chromium.support_lib_boundary.util.Features;
 
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -54,14 +56,14 @@ import java.util.concurrent.Executor;
  * Enum representing a WebView feature, this provides functionality for determining whether a
  * feature is supported by the current framework and/or WebView APK.
  */
-public enum WebViewFeatureInternal {
+public enum WebViewFeatureInternal implements ConditionallySupportedFeature {
     /**
      * This feature covers
      * {@link androidx.webkit.WebViewCompat#postVisualStateCallback(android.webkit.WebView, long,
      * androidx.webkit.WebViewCompat.VisualStateCallback)}, and
      * {@link WebViewClientCompat#onPageCommitVisible(android.webkit.WebView, String)}.
      */
-    VISUAL_STATE_CALLBACK_FEATURE(WebViewFeature.VISUAL_STATE_CALLBACK,
+    VISUAL_STATE_CALLBACK(WebViewFeature.VISUAL_STATE_CALLBACK,
             Features.VISUAL_STATE_CALLBACK, Build.VERSION_CODES.M),
 
     /**
@@ -400,17 +402,41 @@ public enum WebViewFeatureInternal {
     }
 
     /**
-     * Return the {@link WebViewFeatureInternal} corresponding to {@param feature}.
+     * Return whether a public feature is supported by any internal features defined in this enum.
      */
-    @NonNull
-    public static WebViewFeatureInternal getFeature(@NonNull @WebViewFeature.WebViewSupportFeature
-            String publicFeatureValue) {
-        for (WebViewFeatureInternal internalFeature : WebViewFeatureInternal.values()) {
-            if (internalFeature.mPublicFeatureValue.equals(publicFeatureValue)) {
-                return internalFeature;
+    public static boolean isSupported(
+            @NonNull @WebViewFeature.WebViewSupportFeature String publicFeatureValue) {
+        Set<ConditionallySupportedFeature> features = new HashSet<>();
+        for (WebViewFeatureInternal feature : WebViewFeatureInternal.values()) {
+            features.add(feature);
+        }
+        return isSupported(publicFeatureValue, features);
+    }
+
+    /**
+     * Return whether a public feature is supported by any {@link ConditionallySupportedFeature}s
+     * defined in {@code internalFeatures}.
+     *
+     * @throws RuntimeException if {@code publicFeatureValue} is not matched in
+     *      {@code internalFeatures}
+     */
+    @VisibleForTesting
+    public static boolean isSupported(
+            @NonNull @WebViewFeature.WebViewSupportFeature String publicFeatureValue,
+            @NonNull Collection<ConditionallySupportedFeature> internalFeatures) {
+        Set<ConditionallySupportedFeature> matchingFeatures = new HashSet<>();
+        for (ConditionallySupportedFeature feature : internalFeatures) {
+            if (feature.getPublicFeatureName().equals(publicFeatureValue)) {
+                matchingFeatures.add(feature);
             }
         }
-        throw new RuntimeException("Unknown feature " + publicFeatureValue);
+        if (matchingFeatures.isEmpty()) {
+            throw new RuntimeException("Unknown feature " + publicFeatureValue);
+        }
+        for (ConditionallySupportedFeature feature : matchingFeatures) {
+            if (feature.isSupported()) return true;
+        }
+        return false;
     }
 
     /**
@@ -430,6 +456,17 @@ public enum WebViewFeatureInternal {
     public boolean isSupportedByWebView() {
         return BoundaryInterfaceReflectionUtil.containsFeature(
                 LAZY_HOLDER.WEBVIEW_APK_FEATURES, mInternalFeatureValue);
+    }
+
+    @Override
+    @NonNull
+    public String getPublicFeatureName() {
+        return mPublicFeatureValue;
+    }
+
+    @Override
+    public boolean isSupported() {
+        return isSupportedByFramework() || isSupportedByWebView();
     }
 
     private static class LAZY_HOLDER {
