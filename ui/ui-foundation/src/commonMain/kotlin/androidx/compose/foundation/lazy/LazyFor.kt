@@ -30,6 +30,8 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ExperimentalSubcomposeLayoutApi
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.platform.LayoutDirectionAmbient
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
 /**
@@ -272,10 +274,12 @@ private inline fun LazyFor(
     val state = remember { LazyForState(isVertical = isVertical) }
     val scrollController = rememberScrollableController(consumeScrollDelta = state.onScrollDelta)
     state.scrollableController = scrollController
+    val reverseDirection = LayoutDirectionAmbient.current == LayoutDirection.Rtl && !isVertical
     SubcomposeLayout<DataIndex>(
         modifier
             .scrollable(
                 orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
+                reverseDirection = reverseDirection,
                 controller = scrollController
             )
             .clipToBounds()

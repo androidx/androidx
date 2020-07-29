@@ -31,7 +31,10 @@ import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.Providers
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LayoutDirectionAmbient
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertPositionInRootIsEqualTo
 import androidx.ui.test.createComposeRule
@@ -392,5 +395,29 @@ class LazyRowForTest {
         onNodeWithTag(firstItemTag)
             .assertWidthIsEqualTo(150.dp)
             .assertHeightIsEqualTo(150.dp)
+    }
+
+    @Test
+    fun scrollsLeftInRtl() {
+        val items = (1..4).map { it.toString() }
+
+        composeTestRule.setContent {
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Stack(Modifier.preferredWidth(100.dp)) {
+                    LazyRowFor(items, Modifier.testTag(LazyRowForTag)) {
+                        Spacer(Modifier.preferredWidth(101.dp).fillParentMaxHeight().testTag(it))
+                    }
+                }
+            }
+        }
+
+        onNodeWithTag(LazyRowForTag)
+            .scrollBy(x = (-150).dp, density = composeTestRule.density)
+
+        onNodeWithTag("1")
+            .assertDoesNotExist()
+
+        onNodeWithTag("2")
+            .assertIsDisplayed()
     }
 }
