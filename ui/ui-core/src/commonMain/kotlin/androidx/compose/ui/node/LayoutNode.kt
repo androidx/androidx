@@ -308,6 +308,9 @@ class LayoutNode : Measurable, Remeasurement {
         }
         this.owner = owner
         this.depth = (parent?.depth ?: -1) + 1
+        if (outerSemantics != null) {
+            owner.onSemanticsChange()
+        }
         owner.onAttach(this)
         _foldedChildren.forEach { child ->
             child.attach(owner)
