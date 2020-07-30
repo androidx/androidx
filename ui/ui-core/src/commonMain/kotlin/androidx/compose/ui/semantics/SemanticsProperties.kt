@@ -66,7 +66,8 @@ object SemanticsProperties {
     val Focused = SemanticsPropertyKey<Boolean>("Focused")
 
     /**
-     * Whether this semantics node is hidden.
+     * Whether this semantics node is hidden. A hidden node is a node that is not visible for
+     * accessibility. It will still be shown, but it will be skipped by accessibility services.
      *
      * @see SemanticsPropertyReceiver.hidden
      */
@@ -296,7 +297,8 @@ fun SemanticsPropertyReceiver.disabled() {
 var SemanticsPropertyReceiver.focused by SemanticsProperties.Focused
 
 /**
- * Whether this semantics node is hidden.
+ * Whether this semantics node is hidden. A hidden node is a node that is not visible for
+ * accessibility.
  *
  * @See SemanticsProperties.Hidden
  */

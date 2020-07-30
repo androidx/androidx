@@ -230,7 +230,8 @@ fun isInMutuallyExclusiveGroup(): SemanticsMatcher =
     SemanticsMatcher.expectValue(FoundationSemanticsProperties.InMutuallyExclusiveGroup, true)
 
 /**
- * Returns whether the node is hidden.
+ * Returns whether the node is hidden. A hidden node is a node that is not visible for
+ * accessibility. It will still be shown, but it will be skipped by accessibility services.
  *
  * This checks only the property of the node itself. Ignoring parents visibility.
  *
@@ -240,7 +241,8 @@ fun isHidden(): SemanticsMatcher =
     SemanticsMatcher.keyIsDefined(SemanticsProperties.Hidden)
 
 /**
- * Returns whether the node is not hidden.
+ * Returns whether the node is not hidden. A hidden node is a node that is not visible for
+ * accessibility. It will still be shown, but it will be skipped by accessibility services.
  *
  * This checks only the property of the node itself. Ignoring parents visibility.
  *
