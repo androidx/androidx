@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">Ylhäällä</string>
+  <string name="buttons_round_top_right">Yläoikealla</string>
+  <string name="buttons_round_center_right">Keskellä oikealla</string>
+  <string name="buttons_round_bottom_right">Alaoikealla</string>
+  <string name="buttons_round_bottom_center">Alhaalla</string>
+  <string name="buttons_round_bottom_left">Alavasemmalla</string>
+  <string name="buttons_round_center_left">Keskellä vasemmalla</string>
+  <string name="buttons_round_top_left">Ylävasemmalla</string>
+  <string name="buttons_round_top_right_upper">Yläoikealla ylempänä</string>
+  <string name="buttons_round_top_right_lower">Yläoikealla alempana</string>
+  <string name="buttons_round_bottom_right_upper">Alaoikealla ylempänä</string>
+  <string name="buttons_round_bottom_right_lower">Alaoikealla alempana</string>
+  <string name="buttons_round_bottom_left_lower">Alavasemmalla alempana</string>
+  <string name="buttons_round_bottom_left_upper">Alavasemmalla ylempänä</string>
+  <string name="buttons_round_top_left_lower">Ylävasemmalla alempana</string>
+  <string name="buttons_round_top_left_upper">Ylävasemmalla oikealla</string>
+  <string name="buttons_rect_left_top">Vasemmalla ylhäällä</string>
+  <string name="buttons_rect_left_center">Keskellä vasemmalla</string>
+  <string name="buttons_rect_left_bottom">Vasemmalla alhaalla</string>
+  <string name="buttons_rect_right_top">Oikealla ylhäällä</string>
+  <string name="buttons_rect_right_center">Keskellä oikealla</string>
+  <string name="buttons_rect_right_bottom">Oikealla alhaalla</string>
+  <string name="buttons_rect_top_left">Ylävasemmalla</string>
+  <string name="buttons_rect_top_center">Yläreunassa</string>
+  <string name="buttons_rect_top_right">Yläoikealla</string>
+  <string name="buttons_rect_bottom_left">Alavasemmalla</string>
+  <string name="buttons_rect_bottom_center">Alareunassa</string>
+  <string name="buttons_rect_bottom_right">Alaoikealla</string>
+</resources>

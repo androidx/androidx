@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">正上方</string>
+  <string name="buttons_round_top_right">右上方</string>
+  <string name="buttons_round_center_right">正右方</string>
+  <string name="buttons_round_bottom_right">右下方</string>
+  <string name="buttons_round_bottom_center">正下方</string>
+  <string name="buttons_round_bottom_left">左下方</string>
+  <string name="buttons_round_center_left">正左方</string>
+  <string name="buttons_round_top_left">左上方</string>
+  <string name="buttons_round_top_right_upper">右上方靠上的位置</string>
+  <string name="buttons_round_top_right_lower">右上方靠下的位置</string>
+  <string name="buttons_round_bottom_right_upper">右下方靠上的位置</string>
+  <string name="buttons_round_bottom_right_lower">右下方靠下的位置</string>
+  <string name="buttons_round_bottom_left_lower">左下方靠下的位置</string>
+  <string name="buttons_round_bottom_left_upper">左下方靠上的位置</string>
+  <string name="buttons_round_top_left_lower">左上方靠下的位置</string>
+  <string name="buttons_round_top_left_upper">左上方靠上的位置</string>
+  <string name="buttons_rect_left_top">上方靠左</string>
+  <string name="buttons_rect_left_center">正左方</string>
+  <string name="buttons_rect_left_bottom">下方靠左</string>
+  <string name="buttons_rect_right_top">上方靠右</string>
+  <string name="buttons_rect_right_center">正右方</string>
+  <string name="buttons_rect_right_bottom">下方靠右</string>
+  <string name="buttons_rect_top_left">左上方</string>
+  <string name="buttons_rect_top_center">正上方</string>
+  <string name="buttons_rect_top_right">右上方</string>
+  <string name="buttons_rect_bottom_left">左下方</string>
+  <string name="buttons_rect_bottom_center">正下方</string>
+  <string name="buttons_rect_bottom_right">右下方</string>
+</resources>

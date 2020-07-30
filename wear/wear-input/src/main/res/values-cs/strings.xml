@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">Nahoře</string>
+  <string name="buttons_round_top_right">Vpravo nahoře</string>
+  <string name="buttons_round_center_right">Vpravo uprostřed</string>
+  <string name="buttons_round_bottom_right">Vpravo dole</string>
+  <string name="buttons_round_bottom_center">Dole</string>
+  <string name="buttons_round_bottom_left">Vlevo dole</string>
+  <string name="buttons_round_center_left">Vlevo uprostřed</string>
+  <string name="buttons_round_top_left">Vlevo nahoře</string>
+  <string name="buttons_round_top_right_upper">Vpravo nahoře, výše</string>
+  <string name="buttons_round_top_right_lower">Vpravo nahoře, níže</string>
+  <string name="buttons_round_bottom_right_upper">Vpravo dole, výše</string>
+  <string name="buttons_round_bottom_right_lower">Vpravo dole, níže</string>
+  <string name="buttons_round_bottom_left_lower">Vlevo dole, níže</string>
+  <string name="buttons_round_bottom_left_upper">Vlevo dole, výše</string>
+  <string name="buttons_round_top_left_lower">Vlevo nahoře, níže</string>
+  <string name="buttons_round_top_left_upper">Vlevo nahoře, výše</string>
+  <string name="buttons_rect_left_top">Nahoře, vlevo</string>
+  <string name="buttons_rect_left_center">Vlevo uprostřed</string>
+  <string name="buttons_rect_left_bottom">Dole, vlevo</string>
+  <string name="buttons_rect_right_top">Nahoře, vpravo</string>
+  <string name="buttons_rect_right_center">Vpravo uprostřed</string>
+  <string name="buttons_rect_right_bottom">Dole, vpravo</string>
+  <string name="buttons_rect_top_left">Vlevo nahoře</string>
+  <string name="buttons_rect_top_center">Nahoře</string>
+  <string name="buttons_rect_top_right">Vpravo nahoře</string>
+  <string name="buttons_rect_bottom_left">Vlevo dole</string>
+  <string name="buttons_rect_bottom_center">Dole</string>
+  <string name="buttons_rect_bottom_right">Vpravo dole</string>
+</resources>

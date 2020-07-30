@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">Boven</string>
+  <string name="buttons_round_top_right">Rechtsboven</string>
+  <string name="buttons_round_center_right">Middenrechts</string>
+  <string name="buttons_round_bottom_right">Rechtsonder</string>
+  <string name="buttons_round_bottom_center">Middenonder</string>
+  <string name="buttons_round_bottom_left">Linksonder</string>
+  <string name="buttons_round_center_left">Middenlinks</string>
+  <string name="buttons_round_top_left">Linksboven</string>
+  <string name="buttons_round_top_right_upper">Rechtsboven, bovenste deel</string>
+  <string name="buttons_round_top_right_lower">Rechtsboven, onderste deel</string>
+  <string name="buttons_round_bottom_right_upper">Rechtsonder, bovenste deel</string>
+  <string name="buttons_round_bottom_right_lower">Rechtsonder, onderste deel</string>
+  <string name="buttons_round_bottom_left_lower">Linksonder, onderste deel</string>
+  <string name="buttons_round_bottom_left_upper">Linksonder, bovenste deel</string>
+  <string name="buttons_round_top_left_lower">Linksboven, onderste deel</string>
+  <string name="buttons_round_top_left_upper">Linksboven, bovenste deel</string>
+  <string name="buttons_rect_left_top">Boven, linkerzijde</string>
+  <string name="buttons_rect_left_center">Middenlinks</string>
+  <string name="buttons_rect_left_bottom">Onder, linkerzijde</string>
+  <string name="buttons_rect_right_top">Boven, rechterzijde</string>
+  <string name="buttons_rect_right_center">Middenrechts</string>
+  <string name="buttons_rect_right_bottom">Onder, rechterzijde</string>
+  <string name="buttons_rect_top_left">Linksboven</string>
+  <string name="buttons_rect_top_center">Boven</string>
+  <string name="buttons_rect_top_right">Rechtsboven</string>
+  <string name="buttons_rect_bottom_left">Linksonder</string>
+  <string name="buttons_rect_bottom_center">Middenonder</string>
+  <string name="buttons_rect_bottom_right">Rechtsonder</string>
+</resources>

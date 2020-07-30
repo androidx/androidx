@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">Na górze</string>
+  <string name="buttons_round_top_right">Na górze po prawej</string>
+  <string name="buttons_round_center_right">Na środku po prawej</string>
+  <string name="buttons_round_bottom_right">Na dole po prawej</string>
+  <string name="buttons_round_bottom_center">Na dole</string>
+  <string name="buttons_round_bottom_left">Na dole po lewej</string>
+  <string name="buttons_round_center_left">Na środku po lewej</string>
+  <string name="buttons_round_top_left">Na górze po lewej</string>
+  <string name="buttons_round_top_right_upper">Na górze po prawej, wyżej</string>
+  <string name="buttons_round_top_right_lower">Na górze po prawej, niżej</string>
+  <string name="buttons_round_bottom_right_upper">Na dole po prawej, wyżej</string>
+  <string name="buttons_round_bottom_right_lower">Na dole po prawej, niżej</string>
+  <string name="buttons_round_bottom_left_lower">Na dole po lewej, niżej</string>
+  <string name="buttons_round_bottom_left_upper">Na dole po lewej, wyżej</string>
+  <string name="buttons_round_top_left_lower">Na górze po lewej, niżej</string>
+  <string name="buttons_round_top_left_upper">Na górze po lewej, wyżej</string>
+  <string name="buttons_rect_left_top">Na górze po lewej</string>
+  <string name="buttons_rect_left_center">Na środku po lewej</string>
+  <string name="buttons_rect_left_bottom">Na dole po lewej</string>
+  <string name="buttons_rect_right_top">Na górze po prawej</string>
+  <string name="buttons_rect_right_center">Na środku po prawej</string>
+  <string name="buttons_rect_right_bottom">Na dole po prawej</string>
+  <string name="buttons_rect_top_left">W lewym górnym rogu</string>
+  <string name="buttons_rect_top_center">Na górze</string>
+  <string name="buttons_rect_top_right">W prawym górnym rogu</string>
+  <string name="buttons_rect_bottom_left">W lewym dolnym rogu</string>
+  <string name="buttons_rect_bottom_center">Na dole</string>
+  <string name="buttons_rect_bottom_right">W prawym dolnym rogu</string>
+</resources>

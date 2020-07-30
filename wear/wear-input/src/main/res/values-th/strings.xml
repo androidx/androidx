@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">บน</string>
+  <string name="buttons_round_top_right">บนขวา</string>
+  <string name="buttons_round_center_right">กลางขวา</string>
+  <string name="buttons_round_bottom_right">ล่างขวา</string>
+  <string name="buttons_round_bottom_center">ล่าง</string>
+  <string name="buttons_round_bottom_left">ล่างซ้าย</string>
+  <string name="buttons_round_center_left">กลางซ้าย</string>
+  <string name="buttons_round_top_left">บนซ้าย</string>
+  <string name="buttons_round_top_right_upper">บนขวา ส่วนบน</string>
+  <string name="buttons_round_top_right_lower">บนขวา ส่วนล่าง</string>
+  <string name="buttons_round_bottom_right_upper">ล่างขวา ส่วนบน</string>
+  <string name="buttons_round_bottom_right_lower">ล่างขวา ส่วนล่าง</string>
+  <string name="buttons_round_bottom_left_lower">ล่างซ้าย ส่วนล่าง</string>
+  <string name="buttons_round_bottom_left_upper">ล่างซ้าย ส่วนบน</string>
+  <string name="buttons_round_top_left_lower">บนซ้าย ส่วนล่าง</string>
+  <string name="buttons_round_top_left_upper">บนซ้าย ส่วนบน</string>
+  <string name="buttons_rect_left_top">บน ฝั่งซ้าย</string>
+  <string name="buttons_rect_left_center">กลางซ้าย</string>
+  <string name="buttons_rect_left_bottom">ล่าง ฝั่งซ้าย</string>
+  <string name="buttons_rect_right_top">บน ฝั่งขวา</string>
+  <string name="buttons_rect_right_center">กลางขวา</string>
+  <string name="buttons_rect_right_bottom">ล่าง ฝั่งขวา</string>
+  <string name="buttons_rect_top_left">บนซ้าย</string>
+  <string name="buttons_rect_top_center">บน</string>
+  <string name="buttons_rect_top_right">บนขวา</string>
+  <string name="buttons_rect_bottom_left">ล่างซ้าย</string>
+  <string name="buttons_rect_bottom_center">ล่าง</string>
+  <string name="buttons_rect_bottom_right">ล่างขวา</string>
+</resources>
