@@ -597,7 +597,7 @@ class ButtonTest {
     @Test
     fun minHeightAndMinWidthCanBeOverridden() {
         composeTestRule.setMaterialContent {
-            Button(onClick = {}, padding = InnerPadding(), modifier = Modifier.widthIn(20.dp)
+            Button(onClick = {}, contentPadding = InnerPadding(), modifier = Modifier.widthIn(20.dp)
                 .heightIn(15.dp).testTag("button")) {
                 Spacer(Modifier.size(10.dp))
             }
