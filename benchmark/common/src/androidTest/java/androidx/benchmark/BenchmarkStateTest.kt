@@ -105,7 +105,7 @@ class BenchmarkStateTest {
         assertFailsWith<IllegalStateException> { state.pauseTiming() }
     }
 
-    @SdkSuppress(minSdkVersion = 21)
+    @SdkSuppress(minSdkVersion = 24)
     @Test
     fun priorityJitThread() {
         assertEquals(

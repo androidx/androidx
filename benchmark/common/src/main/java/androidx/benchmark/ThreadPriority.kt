@@ -45,8 +45,8 @@ internal object ThreadPriority {
     val JIT_INITIAL_PRIORITY: Int
 
     init {
-        if (Build.VERSION.SDK_INT > 21) {
-            // JIT thread expected to exist on M+ devices
+        if (Build.VERSION.SDK_INT >= 24) {
+            // JIT thread expected to exist on N+ devices
             val tidsToNames = File(TASK_PATH).listFiles()?.associateBy(
                 {
                     // tid
