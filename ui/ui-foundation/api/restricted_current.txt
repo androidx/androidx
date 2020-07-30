@@ -291,9 +291,6 @@ package androidx.compose.foundation.lazy {
   }
 
   @androidx.compose.runtime.Stable public interface LazyItemScope {
-    method @Deprecated public default androidx.compose.ui.Modifier fillMaxHeight(androidx.compose.ui.Modifier);
-    method @Deprecated public default androidx.compose.ui.Modifier fillMaxSize(androidx.compose.ui.Modifier);
-    method @Deprecated public default androidx.compose.ui.Modifier fillMaxWidth(androidx.compose.ui.Modifier);
     method public androidx.compose.ui.Modifier fillParentMaxHeight(androidx.compose.ui.Modifier);
     method public androidx.compose.ui.Modifier fillParentMaxSize(androidx.compose.ui.Modifier);
     method public androidx.compose.ui.Modifier fillParentMaxWidth(androidx.compose.ui.Modifier);

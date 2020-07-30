@@ -30,6 +30,9 @@ interface LazyItemScope {
      * measurement constraints by setting the [minimum width][Constraints.minWidth] to be equal to the
      * [maximum width][Constraints.maxWidth] and the [minimum height][Constraints.minHeight] to be
      * equal to the [maximum height][Constraints.maxHeight].
+     *
+     * Regular [Modifier.fillMaxSize] can't work inside the scrolling layouts as the items are
+     * measured with [Constraints.Infinity] as the constraints for the main axis.
      */
     fun Modifier.fillParentMaxSize(): Modifier
 
@@ -38,10 +41,8 @@ interface LazyItemScope {
      * by setting the [minimum width][Constraints.minWidth] to be equal to the
      * [maximum width][Constraints.maxWidth].
      *
-     * It intentionally shadows the modifier with the same signature from
-     * [androidx.compose.foundation.layout] as the original one can't work inside the scrolling
-     * content as the content is measured with [Constraints.Infinity] as the constraints for the
-     * main axis.
+     * Regular [Modifier.fillMaxWidth] can't work inside the scrolling horizontally layouts as the
+     * items are measured with [Constraints.Infinity] as the constraints for the main axis.
      */
     fun Modifier.fillParentMaxWidth(): Modifier
 
@@ -49,33 +50,9 @@ interface LazyItemScope {
      * Have the content fill the [Constraints.maxHeight] of the incoming measurement constraints
      * by setting the [minimum height][Constraints.minHeight] to be equal to the
      * [maximum height][Constraints.maxHeight].
+     *
+     * Regular [Modifier.fillMaxHeight] can't work inside the scrolling vertically layouts as the
+     * items are measured with [Constraints.Infinity] as the constraints for the main axis.
      */
     fun Modifier.fillParentMaxHeight(): Modifier
-
-    @Deprecated(
-        "Modifier.fillMaxSize() can't work inside the scrolling layout like " +
-                "LazyColumn/Row as the items are measured with Constraints.Infinity as the " +
-                "constraints for the main axis. Please use instead Modifier.fillParentMaxSize() " +
-                "available inside the scope",
-        ReplaceWith("fillParentMaxSize()")
-    )
-    fun Modifier.fillMaxSize(): Modifier = fillParentMaxSize()
-
-    @Deprecated(
-        "Modifier.fillMaxWidth() can't work inside the scrolling layout like " +
-                "LazyRow as the items are measured with Constraints.Infinity as the " +
-                "constraints for the main axis. Please use instead Modifier.fillParentMaxWidth() " +
-                "available inside the scope",
-        ReplaceWith("fillParentMaxWidth()")
-    )
-    fun Modifier.fillMaxWidth(): Modifier = fillParentMaxWidth()
-
-    @Deprecated(
-        "Modifier.fillMaxHeight() can't work inside the scrolling layout like " +
-                "LazyColumn as the items are measured with Constraints.Infinity as the " +
-                "constraints for the main axis. Please use instead" +
-                "Modifier.fillParentMaxHeight() available inside the scope",
-        ReplaceWith("fillParentMaxHeight()")
-    )
-    fun Modifier.fillMaxHeight(): Modifier = fillParentMaxHeight()
 }
