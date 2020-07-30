@@ -36,7 +36,6 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_USE_CASE_EVENT_CALL
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 
 import android.media.ImageReader;
-import android.util.Log;
 import android.util.Pair;
 import android.util.Size;
 import android.view.Display;
@@ -48,7 +47,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -319,23 +318,7 @@ public final class ImageAnalysis extends UseCase {
      */
     public void setTargetRotation(@RotationValue int rotation) {
         if (setTargetRotationInternal(rotation)) {
-            // TODO(b/122846516): Update session configuration and possibly reconfigure session.
-            // For now we'll just update the relative rotation value.
-            // Attempt to get the camera ID and update the relative rotation. If we can't, we
-            // probably
-            // don't yet have permission, so we will try again in onSuggestedResolutionUpdated().
-            // Old
-            // configuration lens facing should match new configuration.
-            try {
-                tryUpdateRelativeRotation();
-            } catch (Exception e) {
-                // Likely don't yet have permissions. This is expected if this method is called
-                // before
-                // this use case becomes active. That's OK though since we've updated the use case
-                // configuration. We'll try to update relative rotation again in
-                // onSuggestedResolutionUpdated().
-                Log.w(TAG, "Unable to get camera id for the use case.");
-            }
+            tryUpdateRelativeRotation();
         }
     }
 
@@ -484,12 +467,14 @@ public final class ImageAnalysis extends UseCase {
         return suggestedResolution;
     }
 
+    /**
+     * Updates relative rotation if attached to a camera. No-op otherwise.
+     */
     private void tryUpdateRelativeRotation() {
-        ImageOutputConfig config = (ImageOutputConfig) getUseCaseConfig();
-        CameraInfoInternal cameraInfoInternal = getCamera().getCameraInfoInternal();
-        mImageAnalysisAbstractAnalyzer.setRelativeRotation(
-                cameraInfoInternal.getSensorRotationDegrees(
-                        config.getTargetRotation(Surface.ROTATION_0)));
+        CameraInternal cameraInternal = getCamera();
+        if (cameraInternal != null) {
+            mImageAnalysisAbstractAnalyzer.setRelativeRotation(getRelativeRotation(cameraInternal));
+        }
     }
 
     /**

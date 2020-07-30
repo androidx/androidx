@@ -76,7 +76,6 @@ import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResult.EmptyCameraCaptureResult;
-import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
@@ -748,13 +747,9 @@ public final class ImageCapture extends UseCase {
             return;
         }
 
-        CameraInfoInternal cameraInfoInternal = attachedCamera.getCameraInfoInternal();
-        int relativeRotation = cameraInfoInternal.getSensorRotationDegrees(
-                ((ImageCaptureConfig) getUseCaseConfig()).getTargetRotation(Surface.ROTATION_0));
-
-        mImageCaptureRequestProcessor.sendRequest(
-                new ImageCaptureRequest(relativeRotation, getJpegQuality(), mCropAspectRatio,
-                        getViewPortCropRect(), callbackExecutor, callback));
+        mImageCaptureRequestProcessor.sendRequest(new ImageCaptureRequest(
+                getRelativeRotation(attachedCamera), getJpegQuality(), mCropAspectRatio,
+                getViewPortCropRect(), callbackExecutor, callback));
     }
 
     /**
