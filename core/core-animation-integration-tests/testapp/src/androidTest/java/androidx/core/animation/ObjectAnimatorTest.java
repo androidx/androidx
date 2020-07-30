@@ -289,7 +289,7 @@ public class ObjectAnimatorTest {
     @UiThreadTest
     @Test
     public void testNullObject() {
-        final ObjectAnimator anim = ObjectAnimator.ofFloat(null, "dummyValue", 0f, 1f);
+        final ObjectAnimator anim = ObjectAnimator.ofFloat(null, "noOpValue", 0f, 1f);
         anim.setDuration(300);
         anim.start();
 
