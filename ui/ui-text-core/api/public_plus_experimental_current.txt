@@ -913,13 +913,9 @@ package androidx.compose.ui.text.platform {
   }
 
   public final class AndroidParagraphIntrinsicsKt {
-    method @Deprecated public static kotlin.jvm.functions.Function6<java.lang.String,androidx.compose.ui.text.TextStyle,java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.SpanStyle>>,java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>>,androidx.compose.ui.unit.Density,androidx.compose.ui.text.font.Font.ResourceLoader,androidx.compose.ui.text.ParagraphIntrinsics> getParagraphIntrinsicsActualFactory();
-    method @Deprecated public static void setParagraphIntrinsicsActualFactory(kotlin.jvm.functions.Function6<? super java.lang.String,? super androidx.compose.ui.text.TextStyle,? super java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.SpanStyle>>,? super java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>>,? super androidx.compose.ui.unit.Density,? super androidx.compose.ui.text.font.Font.ResourceLoader,? extends androidx.compose.ui.text.ParagraphIntrinsics> p);
   }
 
   public final class AndroidParagraphKt {
-    method @Deprecated public static kotlin.jvm.functions.Function4<androidx.compose.ui.text.ParagraphIntrinsics,java.lang.Integer,java.lang.Boolean,androidx.compose.ui.text.ParagraphConstraints,androidx.compose.ui.text.Paragraph> getParagraphActualFactory();
-    method @Deprecated public static void setParagraphActualFactory(kotlin.jvm.functions.Function4<? super androidx.compose.ui.text.ParagraphIntrinsics,? super java.lang.Integer,? super java.lang.Boolean,? super androidx.compose.ui.text.ParagraphConstraints,? extends androidx.compose.ui.text.Paragraph> p);
   }
 
   public final class AndroidStringDelegateKt {

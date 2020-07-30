@@ -40,10 +40,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import androidx.ui.desktop.AppManager
 import androidx.ui.desktop.AppWindow
-import androidx.ui.desktop.Dialog
-import androidx.ui.desktop.core.Popup
+import androidx.compose.ui.window.Dialog
 
 @Composable
 fun content() {

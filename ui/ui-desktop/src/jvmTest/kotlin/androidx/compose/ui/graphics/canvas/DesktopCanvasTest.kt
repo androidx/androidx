@@ -124,36 +124,36 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
         canvas.drawLine(Offset(-4f, -4f), Offset(4f, 4f), Paint().apply {
             color = Color.Red
             strokeWidth = 1f
-            strokeCap = StrokeCap.butt
+            strokeCap = StrokeCap.Butt
         })
         canvas.drawLine(Offset(8f, 4f), Offset(8f, 12f), Paint().apply {
             color = Color.Blue
             strokeWidth = 4f
-            strokeCap = StrokeCap.butt
+            strokeCap = StrokeCap.Butt
         })
         canvas.drawLine(Offset(12f, 4f), Offset(12f, 12f), Paint().apply {
             color = Color.Green
             strokeWidth = 4f
-            strokeCap = StrokeCap.round
+            strokeCap = StrokeCap.Round
         })
         canvas.drawLine(Offset(4f, 4f), Offset(4f, 12f), Paint().apply {
             color = Color.Black.copy(alpha = 0.5f)
             strokeWidth = 4f
-            strokeCap = StrokeCap.square
+            strokeCap = StrokeCap.Square
         })
 
         // should draw antialiased two-pixel line
         canvas.drawLine(Offset(4f, 4f), Offset(4f, 12f), Paint().apply {
             color = Color.Yellow
             strokeWidth = 1f
-            strokeCap = StrokeCap.butt
+            strokeCap = StrokeCap.Butt
         })
 
         // should draw aliased one-pixel line
         canvas.drawLine(Offset(4f, 4f), Offset(4f, 12f), Paint().apply {
             color = Color.Yellow
             strokeWidth = 1f
-            strokeCap = StrokeCap.butt
+            strokeCap = StrokeCap.Butt
             isAntiAlias = false
         })
 
@@ -161,7 +161,7 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
         canvas.drawLine(Offset(4f, 4f), Offset(4f, 12f), Paint().apply {
             color = Color.Yellow
             strokeWidth = 0f
-            strokeCap = StrokeCap.butt
+            strokeCap = StrokeCap.Butt
             isAntiAlias = false
         })
 
@@ -205,7 +205,7 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
 
         canvas.withSaveLayer(
             Rect(left = 4f, top = 8f, right = 12f, bottom = 16f), redPaint.apply {
-                blendMode = BlendMode.plus
+                blendMode = BlendMode.Plus
             }
         ) {
             canvas.drawLine(Offset(4f, 0f), Offset(4f, 16f), bluePaint)
@@ -269,7 +269,7 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
 
         canvas.drawRect(left = 4f, top = 0f, right = 8f, bottom = 4f, paint = bluePaint)
 
-        canvas.clipRect(left = 2f, top = 2f, right = 14f, bottom = 14f, clipOp = ClipOp.difference)
+        canvas.clipRect(left = 2f, top = 2f, right = 14f, bottom = 14f, clipOp = ClipOp.Difference)
         canvas.drawRect(left = -4f, top = -4f, right = 20f, bottom = 20f, paint = greenPaint)
 
         screenshotRule.snap(surface)

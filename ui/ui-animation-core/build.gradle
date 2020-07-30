@@ -34,6 +34,8 @@ dependencies {
 
 kotlin {
     android()
+    jvm("desktop")
+
     sourceSets {
         commonMain.dependencies {
             implementation project(":compose:ui:ui-util")
@@ -42,6 +44,10 @@ kotlin {
         }
         androidMain.dependencies {
             api "androidx.annotation:annotation:1.1.0"
+            implementation (KOTLIN_STDLIB)
+        }
+        desktopMain.dependencies {
+            implementation project(":compose:runtime:runtime-dispatch")
             implementation (KOTLIN_STDLIB)
         }
 

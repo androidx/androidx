@@ -34,6 +34,8 @@ dependencies {
 
 kotlin {
     android()
+    jvm("desktop")
+
     sourceSets {
         commonMain.dependencies {
             implementation(KOTLIN_STDLIB_COMMON)
@@ -52,6 +54,11 @@ kotlin {
 
         androidMain.dependencies {
             api "androidx.annotation:annotation:1.1.0"
+        }
+
+        desktopMain.dependencies {
+            implementation(KOTLIN_STDLIB)
+            implementation(SKIJA)
         }
 
         test.dependencies {

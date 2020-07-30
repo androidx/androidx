@@ -18,21 +18,6 @@
 
 package androidx.ui.desktop
 
-import androidx.compose.animation.core.rootAnimationClockFactory
-import androidx.compose.animation.core.DesktopAnimationClock
-import androidx.compose.runtime.InternalComposeApi
-import androidx.compose.ui.graphics.DesktopCanvas
-import androidx.compose.ui.graphics.DesktopImageShader
-import androidx.compose.ui.graphics.DesktopInternalCanvasHolder
-import androidx.compose.ui.graphics.DesktopPath
-import androidx.compose.ui.graphics.DesktopLinearGradientShader
-import androidx.compose.ui.graphics.DesktopPaint
-import androidx.compose.ui.graphics.DesktopRadialGradientShader
-import androidx.compose.ui.graphics.GraphicsFactory
-import androidx.compose.ui.text.platform.DesktopParagraph
-import androidx.compose.ui.text.platform.DesktopParagraphIntrinsics
-import androidx.compose.ui.text.platform.paragraphActualFactory
-import androidx.compose.ui.text.platform.paragraphIntrinsicsActualFactory
 import org.jetbrains.skija.Library
 
 /**
@@ -55,25 +40,11 @@ fun initCompose() {
     ComposeInit
 }
 
-@OptIn(androidx.compose.ui.text.android.InternalPlatformTextApi::class, InternalComposeApi::class)
 private object ComposeInit {
     init {
         Library.load("/", "skija")
         // Until https://github.com/Kotlin/kotlinx.coroutines/issues/2039 is resolved
         // we have to set this property manually for coroutines to work.
         System.getProperties().setProperty("kotlinx.coroutines.fast.service.loader", "false")
-
-        GraphicsFactory.nativeCanvas = ::DesktopCanvas
-        GraphicsFactory.imageCanvas = ::DesktopCanvas
-        GraphicsFactory.canvasHolder = ::DesktopInternalCanvasHolder
-        GraphicsFactory.paint = ::DesktopPaint
-        GraphicsFactory.path = { DesktopPath() }
-        GraphicsFactory.Shader.linear = ::DesktopLinearGradientShader
-        GraphicsFactory.Shader.radial = ::DesktopRadialGradientShader
-        GraphicsFactory.Shader.image = ::DesktopImageShader
-        paragraphIntrinsicsActualFactory = ::DesktopParagraphIntrinsics
-        paragraphActualFactory = ::DesktopParagraph
-        @OptIn(androidx.compose.animation.core.InternalAnimationApi::class)
-        rootAnimationClockFactory = ::DesktopAnimationClock
     }
 }

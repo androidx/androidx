@@ -15,6 +15,8 @@
  */
 package androidx.ui.desktop
 
+import androidx.compose.ui.window.AppDialog
+
 object AppManager {
 
     val defaultActionOnWindowsEmpty: () -> Unit = { System.exit(0) }

@@ -17,7 +17,6 @@
 package androidx.compose.ui.graphics
 
 import android.graphics.Matrix
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.vectormath.Matrix4
@@ -32,60 +31,27 @@ actual typealias NativeCanvas = android.graphics.Canvas
  * Create a new Canvas instance that targets its drawing commands
  * to the provided [ImageAsset]
  */
-@Suppress("DEPRECATION_ERROR")
-@OptIn(InternalComposeApi::class)
 internal actual fun ActualCanvas(image: ImageAsset): Canvas =
-    GraphicsFactory.imageCanvas(image)
-
-@Suppress("DEPRECATION_ERROR")
-@OptIn(InternalComposeApi::class)
-fun Canvas(c: android.graphics.Canvas): Canvas =
-    GraphicsFactory.nativeCanvas(c)
-
-internal fun AndroidImageCanvas(image: ImageAsset): Canvas =
     AndroidCanvas().apply {
         internalCanvas = android.graphics.Canvas(image.asAndroidBitmap())
     }
 
-internal fun AndroidNativeCanvas(c: android.graphics.Canvas): Canvas =
+fun Canvas(c: android.graphics.Canvas): Canvas =
     AndroidCanvas().apply { internalCanvas = c }
 
 /**
  * Holder class that is used to issue scoped calls to a [Canvas] from the framework
  * equivalent canvas without having to allocate an object on each draw call
  */
-@Suppress("DEPRECATION_ERROR")
-@OptIn(InternalComposeApi::class)
 class CanvasHolder {
-    // TODO(demin): revert to the previous CanvasHolder implementation after we have real desktop
-    // implementation of :compose:ui:ui module
-    @PublishedApi internal val internalHolder = GraphicsFactory.canvasHolder()
+    @PublishedApi internal val androidCanvas = AndroidCanvas()
 
     inline fun drawInto(targetCanvas: android.graphics.Canvas, block: Canvas.() -> Unit) {
-        val previousCanvas = internalHolder.internalCanvas
-        internalHolder.internalCanvas = targetCanvas
-        internalHolder.canvas.block()
-        internalHolder.internalCanvas = previousCanvas
+        val previousCanvas = androidCanvas.internalCanvas
+        androidCanvas.internalCanvas = targetCanvas
+        androidCanvas.block()
+        androidCanvas.internalCanvas = previousCanvas
     }
-}
-
-@InternalComposeApi
-@OptIn(InternalComposeApi::class)
-interface InternalCanvasHolder {
-    val canvas: Canvas
-    var internalCanvas: NativeCanvas
-}
-
-@OptIn(InternalComposeApi::class)
-internal class AndroidInternalCanvasHolder : InternalCanvasHolder {
-    private val _canvas = AndroidCanvas()
-    override val canvas: Canvas get() = _canvas
-
-    override var internalCanvas: NativeCanvas
-        get() = _canvas.internalCanvas
-        set(value) {
-            _canvas.internalCanvas = value
-        }
 }
 
 /**

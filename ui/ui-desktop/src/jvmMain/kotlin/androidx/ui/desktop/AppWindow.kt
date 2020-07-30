@@ -15,10 +15,10 @@
  */
 package androidx.ui.desktop
 
-import androidx.compose.runtime.ambientOf
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.emptyContent
 import androidx.compose.runtime.Providers
+import androidx.compose.runtime.ambientOf
+import androidx.compose.runtime.emptyContent
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import java.awt.Dimension
@@ -62,7 +62,9 @@ class AppWindow : AppFrame {
         this.height = size.height
         this.x = position.x
         this.y = position.y
-        this.onDismissEvent = onDismissEvent
+        if (onDismissEvent != null) {
+            onDismissEvents.add(onDismissEvent)
+        }
         isCentered = centered
 
         AppManager.addWindow(this)
@@ -108,7 +110,7 @@ class AppWindow : AppFrame {
 
         window!!.addWindowListener(object : WindowAdapter() {
             override fun windowClosing(windowevent: WindowEvent) {
-                onDismissEvent?.invoke()
+                onDismissEvents.forEach { it.invoke() }
                 window?.dispose()
             }
         })
