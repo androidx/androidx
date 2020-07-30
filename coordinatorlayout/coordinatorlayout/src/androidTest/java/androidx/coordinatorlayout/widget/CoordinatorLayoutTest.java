@@ -431,13 +431,13 @@ public class CoordinatorLayoutTest {
     public void testDodgeInsetBeforeLayout() throws Throwable {
         final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
 
-        // Add a dummy view, which will be used to trigger a hierarchy change.
-        final View dummy = new View(col.getContext());
+        // Add a no-op view, which will be used to trigger a hierarchy change.
+        final View noOpView = new View(col.getContext());
 
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                col.addView(dummy);
+                col.addView(noOpView);
             }
         });
 
@@ -467,7 +467,7 @@ public class CoordinatorLayoutTest {
                 col.measure(widthSpec, heightSpec);
 
                 // Force a hierarchy change.
-                col.removeView(dummy);
+                col.removeView(noOpView);
             }
         });
 
