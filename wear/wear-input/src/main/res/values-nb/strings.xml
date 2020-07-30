@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">Øverst</string>
+  <string name="buttons_round_top_right">Øverst til høyre</string>
+  <string name="buttons_round_center_right">I midten til høyre</string>
+  <string name="buttons_round_bottom_right">Nederst til høyre</string>
+  <string name="buttons_round_bottom_center">Nederst</string>
+  <string name="buttons_round_bottom_left">Nederst til venstre</string>
+  <string name="buttons_round_center_left">I midten til venstre</string>
+  <string name="buttons_round_top_left">Øverst til venstre</string>
+  <string name="buttons_round_top_right_upper">Oppe til høyre</string>
+  <string name="buttons_round_top_right_lower">Til høyre, over midtpunktet</string>
+  <string name="buttons_round_bottom_right_upper">Til høyre, under midtpunktet</string>
+  <string name="buttons_round_bottom_right_lower">Nede til høyre</string>
+  <string name="buttons_round_bottom_left_lower">Nede til venstre</string>
+  <string name="buttons_round_bottom_left_upper">Til venstre, under midtpunktet</string>
+  <string name="buttons_round_top_left_lower">Til venstre, over midtpunktet</string>
+  <string name="buttons_round_top_left_upper">Oppe til venstre</string>
+  <string name="buttons_rect_left_top">Øverst, venstre side</string>
+  <string name="buttons_rect_left_center">I midten til venstre</string>
+  <string name="buttons_rect_left_bottom">Nederst, venstre side</string>
+  <string name="buttons_rect_right_top">Øverst, høyre side</string>
+  <string name="buttons_rect_right_center">I midten til høyre</string>
+  <string name="buttons_rect_right_bottom">Nederst, høyre side</string>
+  <string name="buttons_rect_top_left">Øverst til venstre</string>
+  <string name="buttons_rect_top_center">Øverst</string>
+  <string name="buttons_rect_top_right">Øverst til høyre</string>
+  <string name="buttons_rect_bottom_left">Nederst til venstre</string>
+  <string name="buttons_rect_bottom_center">Nederst</string>
+  <string name="buttons_rect_bottom_right">Nederst til høyre</string>
+</resources>

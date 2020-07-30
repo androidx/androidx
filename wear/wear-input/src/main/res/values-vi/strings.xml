@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">Trên cùng</string>
+  <string name="buttons_round_top_right">Trên cùng bên phải</string>
+  <string name="buttons_round_center_right">Ở giữa bên phải</string>
+  <string name="buttons_round_bottom_right">Dưới cùng bên phải</string>
+  <string name="buttons_round_bottom_center">Dưới cùng</string>
+  <string name="buttons_round_bottom_left">Dưới cùng bên trái</string>
+  <string name="buttons_round_center_left">Ở giữa bên trái</string>
+  <string name="buttons_round_top_left">Trên cùng bên trái</string>
+  <string name="buttons_round_top_right_upper">Trên cùng bên phải, phía trên</string>
+  <string name="buttons_round_top_right_lower">Trên cùng bên phải, phía dưới</string>
+  <string name="buttons_round_bottom_right_upper">Dưới cùng bên phải, phía trên</string>
+  <string name="buttons_round_bottom_right_lower">Dưới cùng bên phải, phía dưới</string>
+  <string name="buttons_round_bottom_left_lower">Dưới cùng bên trái, phía dưới</string>
+  <string name="buttons_round_bottom_left_upper">Dưới cùng bên trái, phía trên</string>
+  <string name="buttons_round_top_left_lower">Trên cùng bên trái, phía dưới</string>
+  <string name="buttons_round_top_left_upper">Trên cùng bên trái, phía trên</string>
+  <string name="buttons_rect_left_top">Trên cùng, bên trái</string>
+  <string name="buttons_rect_left_center">Ở giữa bên trái</string>
+  <string name="buttons_rect_left_bottom">Dưới cùng, bên trái</string>
+  <string name="buttons_rect_right_top">Trên cùng, bên phải</string>
+  <string name="buttons_rect_right_center">Ở giữa bên phải</string>
+  <string name="buttons_rect_right_bottom">Dưới cùng, bên phải</string>
+  <string name="buttons_rect_top_left">Trên cùng bên trái</string>
+  <string name="buttons_rect_top_center">Trên cùng</string>
+  <string name="buttons_rect_top_right">Trên cùng bên phải</string>
+  <string name="buttons_rect_bottom_left">Dưới cùng bên trái</string>
+  <string name="buttons_rect_bottom_center">Dưới cùng</string>
+  <string name="buttons_rect_bottom_right">Dưới cùng bên phải</string>
+</resources>
