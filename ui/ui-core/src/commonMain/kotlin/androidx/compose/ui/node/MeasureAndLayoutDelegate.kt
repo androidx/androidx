@@ -243,7 +243,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      */
     fun dispatchOnPositionedCallbacks(forceDispatch: Boolean = false) {
         if (forceDispatch) {
-            onPositionedDispatcher.onNodePositioned(root)
+            onPositionedDispatcher.onRootNodePositioned(root)
         }
         onPositionedDispatcher.dispatch()
     }
