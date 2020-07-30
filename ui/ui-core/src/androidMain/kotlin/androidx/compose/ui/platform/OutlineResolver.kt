@@ -18,7 +18,7 @@ package androidx.compose.ui.platform
 
 import android.graphics.Outline as AndroidOutline
 import android.os.Build
-import androidx.compose.ui.geometry.RRect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSimple
@@ -72,7 +72,7 @@ internal class OutlineResolver(private val density: Density) {
     /**
      * True when Outline cannot clip the content and the path should be used instead.
      * This is when an asymmetric rounded rect or general Path is used in the outline.
-     * This is false when a Rect or a symmetric RRect is used in the outline.
+     * This is false when a Rect or a symmetric RoundRect is used in the outline.
      */
     private var usePathForClip = false
 
@@ -136,7 +136,7 @@ internal class OutlineResolver(private val density: Density) {
             if (outlineNeeded && size.width > 0.0f && size.height > 0.0f) {
                 when (val outline = shape.createOutline(size, density)) {
                     is Outline.Rectangle -> updateCacheWithRect(outline.rect)
-                    is Outline.Rounded -> updateCacheWithRRect(outline.rrect)
+                    is Outline.Rounded -> updateCacheWithRoundRect(outline.roundRect)
                     is Outline.Generic -> updateCacheWithPath(outline.path)
                 }
             } else {
@@ -154,20 +154,20 @@ internal class OutlineResolver(private val density: Density) {
         )
     }
 
-    private fun updateCacheWithRRect(rrect: RRect) {
-        val radius = rrect.topLeftRadiusX
-        if (rrect.isSimple) {
+    private fun updateCacheWithRoundRect(roundRect: RoundRect) {
+        val radius = roundRect.topLeftRadiusX
+        if (roundRect.isSimple) {
             cachedOutline.setRoundRect(
-                rrect.left.roundToInt(),
-                rrect.top.roundToInt(),
-                rrect.right.roundToInt(),
-                rrect.bottom.roundToInt(),
+                roundRect.left.roundToInt(),
+                roundRect.top.roundToInt(),
+                roundRect.right.roundToInt(),
+                roundRect.bottom.roundToInt(),
                 radius
             )
         } else {
             val path = cachedRrectPath ?: Path().also { cachedRrectPath = it }
             path.reset()
-            path.addRRect(rrect)
+            path.addRoundRect(roundRect)
             updateCacheWithPath(path)
         }
     }

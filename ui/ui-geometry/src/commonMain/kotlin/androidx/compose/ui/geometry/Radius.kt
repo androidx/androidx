@@ -59,7 +59,7 @@ inline class Radius(@PublishedApi internal val packedValue: Long) {
         /**
          * A radius with [x] and [y] values set to zero.
          *
-         * You can use [Radius.Zero] with [RRect] to have right-angle corners.
+         * You can use [Radius.Zero] with [RoundRect] to have right-angle corners.
          */
         @Stable
         val Zero: Radius = Radius(0.0f)

@@ -18,8 +18,8 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.RRect
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.vectormath.Matrix4
 import androidx.compose.ui.graphics.vectormath.isIdentity
 import androidx.compose.ui.unit.IntOffset
@@ -123,7 +123,7 @@ class DesktopCanvas(var nativeCanvas: NativeCanvas) : Canvas {
         skija.clipRect(SkijaRect.makeLTRB(left, top, right, bottom), clipOp.toSkija())
     }
 
-    fun clipRoundRect(rect: RRect, clipOp: ClipOp = ClipOp.Intersect) {
+    fun clipRoundRect(rect: RoundRect, clipOp: ClipOp = ClipOp.Intersect) {
         skija.clipRRect(rect.toSkijaRRect(), clipOp.toSkija())
     }
 

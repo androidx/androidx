@@ -17,7 +17,7 @@
 package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.RRect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.vectormath.degrees
 
@@ -195,9 +195,16 @@ expect class NativePathEffect
     fun addArc(oval: Rect, startAngleDegrees: Float, sweepAngleDegrees: Float)
 
     /**
-     * Add a round rectangle shape to the path from the given [RRect]
+     * Add a round rectangle shape to the path from the given [RoundRect]
      */
-    fun addRRect(rrect: RRect)
+    fun addRoundRect(roundRect: RoundRect)
+
+    /**
+     * Add a round rectangle shape to the path from the given [RoundRect]
+     */
+    @Deprecated("Use addRoundRect(roundRect) instead",
+        ReplaceWith("addRoundRect(rrect)", "androidx.compose.ui.graphics"))
+    fun addRRect(rrect: RoundRect) = addRoundRect(rrect)
 
     /**
      * Adds a new subpath that consists of the given `path` offset by the given
