@@ -215,7 +215,7 @@ class CheckArtifactTask extends DefaultTask {
         result.write("fail\n")
         validatePublishTaskOutputs()
         validatePomTaskOutputs()
-        // have a dummy output to make gradle happy w/ input/output checking.
+        // have a no-op output to make gradle happy w/ input/output checking.
         result.write("ok\n")
     }
 }

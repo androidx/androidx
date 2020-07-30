@@ -43,7 +43,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *     Thread locking within the same JVM process is done via a map of String key to ReentrantLock
  *     objects.
  *   <li>
- *     Multi-process locking is done via a dummy file whose name contains the key and FileLock
+ *     Multi-process locking is done via a lock file whose name contains the key and FileLock
  *     objects.
  *
  * @hide

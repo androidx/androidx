@@ -496,10 +496,10 @@ public class MigrationTest {
                 .fallbackToDestructiveMigrationOnDowngrade()
                 .addMigrations(MIGRATION_MAX_LATEST)
                 .build();
-        // Check that two dummy values are present, confirming the database migration was successful
-        long dummyRowsCount = db.getOpenHelper().getReadableDatabase().compileStatement(
-                "SELECT count(*) FROM Dummy").simpleQueryForLong();
-        assertThat(dummyRowsCount, is(2L));
+        // Check that two values are present, confirming the database migration was successful
+        long rowsCount = db.getOpenHelper().getReadableDatabase().compileStatement(
+                "SELECT count(*) FROM NoOp").simpleQueryForLong();
+        assertThat(rowsCount, is(2L));
         db.close();
     }
 
@@ -662,7 +662,7 @@ public class MigrationTest {
      * {@link MigrationDb#LATEST_VERSION} that uses the schema file and re-creates the tables such
      * that the post-migration validation passes.
      *
-     * Additionally, it adds a table named Dummy with two rows to be able to distinguish this
+     * Additionally, it adds a table named NoOp with two rows to be able to distinguish this
      * migration from a destructive migration.
      *
      * This migration allows us to keep creating new schemas for newer tests without updating the
@@ -688,10 +688,10 @@ public class MigrationTest {
                 throw new RuntimeException(e);
             }
 
-            database.execSQL("CREATE TABLE IF NOT EXISTS `Dummy` (`id` INTEGER NOT NULL,"
+            database.execSQL("CREATE TABLE IF NOT EXISTS `NoOp` (`id` INTEGER NOT NULL,"
                     + " PRIMARY KEY(`id`))");
-            database.execSQL("INSERT INTO `Dummy` (`id`) VALUES (1)");
-            database.execSQL("INSERT INTO `Dummy` (`id`) VALUES (2)");
+            database.execSQL("INSERT INTO `NoOp` (`id`) VALUES (1)");
+            database.execSQL("INSERT INTO `NoOp` (`id`) VALUES (2)");
         }
     };
 
