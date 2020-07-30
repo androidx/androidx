@@ -81,7 +81,7 @@ dependencies {
     implementation('androidx.concurrent:concurrent-futures:1.0.0')
     implementation('androidx.core:core:1.2.0')
 
-    androidTestAnnotationProcessor project(':appsearch:appsearch-annotation')
+    androidTestAnnotationProcessor project(':appsearch:appsearch-compiler')
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
@@ -89,7 +89,7 @@ dependencies {
     androidTestImplementation("junit:junit:4.13")
 }
 
-// Create a jar for use by appsearch-annotation:test
+// Create a jar for use by appsearch-compiler:test
 android.libraryVariants.all { variant ->
     def name = variant.name
     def suffix = name.capitalize()
