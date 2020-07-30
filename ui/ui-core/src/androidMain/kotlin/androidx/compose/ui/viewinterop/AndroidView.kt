@@ -17,20 +17,15 @@
 package androidx.compose.ui.viewinterop
 
 import android.content.Context
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.currentComposer
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.materialize
 import androidx.compose.runtime.emit
-import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.node.UiApplier
 import androidx.compose.ui.platform.ContextAmbient
 
@@ -58,12 +53,12 @@ fun <T : View> AndroidView(
 ) {
     val context = ContextAmbient.current
     val materialized = currentComposer.materialize(modifier)
-    emit<AndroidViewHolder<T>, UiApplier>(
-        ctor = { AndroidViewHolder(context) },
+    emit<ViewBlockHolder<T>, UiApplier>(
+        ctor = { ViewBlockHolder(context) },
         update = {
-            set(viewBlock) { this.viewBlock = it }
+            set(Unit) { this.viewBlock = viewBlock }
             set(materialized) { this.modifier = it }
-            set(update) { this.update = update }
+            set(update) { this.updateBlock = update }
         }
     )
 }
@@ -124,101 +119,24 @@ fun AndroidView(view: View, modifier: Modifier = Modifier) = AndroidView({ view 
  */
 val NoOpUpdate: View.() -> Unit = {}
 
-// Opt in snapshot observing APIs.
-@OptIn(ExperimentalComposeApi::class)
-// Open to be mockable in tests.
-internal open class AndroidViewHolder<T : View>(context: Context) : ViewGroup(context) {
-    internal var view: T? = null
+@OptIn(InternalInteropApi::class)
+internal class ViewBlockHolder<T : View>(
+    context: Context
+) : AndroidViewHolder(context) {
+    private var typedView: T? = null
+
+    var viewBlock: ((Context) -> T)? = null
         set(value) {
-            if (value !== field) {
-                field = value
-                removeAllViews()
-                if (value != null) {
-                    addView(value)
-                    runUpdate()
-                }
+            field = value
+            if (value != null) {
+                typedView = value(context)
+                view = typedView
             }
         }
 
-    internal var viewBlock: ((Context) -> T)? = null
+    var updateBlock: (T) -> Unit = NoOpUpdate
         set(value) {
-            // Only run the lambda once.
-            if (field == null) {
-                field = value
-                if (value != null) {
-                    view = value(context)
-                }
-            }
+            field = value
+            update = { typedView?.apply(updateBlock) }
         }
-
-    internal var modifier: Modifier = Modifier
-        set(value) {
-            if (value !== field) {
-                field = value
-                onModifierChanged?.invoke(value)
-            }
-        }
-
-    internal var onModifierChanged: ((Modifier) -> Unit)? = null
-
-    internal var update: (T) -> Unit = NoOpUpdate
-        set(value) {
-            if (value !== field) {
-                field = value
-                runUpdate()
-            }
-        }
-
-    @OptIn(ExperimentalComposeApi::class)
-    private val snapshotObserver = SnapshotStateObserver { command ->
-        if (handler.looper === Looper.myLooper()) {
-            command()
-        } else {
-            handler.post(command)
-        }
-    }
-
-    private val onCommitAffectingUpdate: (AndroidViewHolder<T>) -> Unit = {
-        handler.post(runUpdate)
-    }
-
-    @OptIn(ExperimentalComposeApi::class)
-    private val runUpdate: () -> Unit = {
-        if (update !== NoOpUpdate) {
-            snapshotObserver.observeReads(this, onCommitAffectingUpdate) {
-                view?.apply(update)
-            }
-        }
-    }
-
-    internal var onRequestDisallowInterceptTouchEvent: ((Boolean) -> Unit)? = null
-
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        view?.measure(widthMeasureSpec, heightMeasureSpec)
-        setMeasuredDimension(view?.measuredWidth ?: 0, view?.measuredHeight ?: 0)
-    }
-
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        view?.layout(0, 0, r - l, b - t)
-    }
-
-    override fun getLayoutParams(): LayoutParams? {
-        return view?.layoutParams ?: LayoutParams(MATCH_PARENT, MATCH_PARENT)
-    }
-
-    override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-        onRequestDisallowInterceptTouchEvent?.invoke(disallowIntercept)
-        super.requestDisallowInterceptTouchEvent(disallowIntercept)
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        snapshotObserver.enableStateUpdatesObserving(true)
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        snapshotObserver.enableStateUpdatesObserving(false)
-        snapshotObserver.clear(this)
-    }
 }
