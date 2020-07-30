@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ScrollableTabRow
 import androidx.compose.material.Tab
 import androidx.compose.material.TabConstants.defaultTabIndicatorOffset
 import androidx.compose.material.TabPosition
@@ -63,8 +64,14 @@ fun TextTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3 WITH LOTS OF TEXT")
     Column {
-        TabRow(items = titles, selectedIndex = state) { index, text ->
-            Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
+        TabRow(selectedTabIndex = state) {
+            titles.forEachIndexed { index, title ->
+                Tab(
+                    text = { Text(title) },
+                    selected = state == index,
+                    onSelected = { state = index }
+                )
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -79,8 +86,14 @@ fun IconTabs() {
     var state by remember { mutableStateOf(0) }
     val icons = listOf(Icons.Filled.Favorite, Icons.Filled.Favorite, Icons.Filled.Favorite)
     Column {
-        TabRow(items = icons, selectedIndex = state) { index, icon ->
-            Tab(icon = { Icon(icon) }, selected = state == index, onSelected = { state = index })
+        TabRow(selectedTabIndex = state) {
+            icons.forEachIndexed { index, icon ->
+                Tab(
+                    icon = { Icon(icon) },
+                    selected = state == index,
+                    onSelected = { state = index }
+                )
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -99,13 +112,15 @@ fun TextAndIconTabs() {
         "TAB 3 WITH LOTS OF TEXT" to Icons.Filled.Favorite
     )
     Column {
-        TabRow(items = titlesAndIcons, selectedIndex = state) { index, (title, icon) ->
-            Tab(
-                text = { Text(title) },
-                icon = { Icon(icon) },
-                selected = state == index,
-                onSelected = { state = index }
-            )
+        TabRow(selectedTabIndex = state) {
+            titlesAndIcons.forEachIndexed { index, (title, icon) ->
+                Tab(
+                    text = { Text(title) },
+                    icon = { Icon(icon) },
+                    selected = state == index,
+                    onSelected = { state = index }
+                )
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -131,8 +146,14 @@ fun ScrollingTextTabs() {
         "TAB 10"
     )
     Column {
-        TabRow(items = titles, selectedIndex = state, scrollable = true) { index, text ->
-            Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
+        ScrollableTabRow(selectedTabIndex = state) {
+            titles.forEachIndexed { index, title ->
+                Tab(
+                    text = { Text(title) },
+                    selected = state == index,
+                    onSelected = { state = index }
+                )
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -148,8 +169,10 @@ fun FancyTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
     Column {
-        TabRow(items = titles, selectedIndex = state) { index, title ->
-            FancyTab(title = title, onClick = { state = index }, selected = (index == state))
+        TabRow(selectedTabIndex = state) {
+            titles.forEachIndexed { index, title ->
+                FancyTab(title = title, onClick = { state = index }, selected = (index == state))
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -172,11 +195,16 @@ fun FancyIndicatorTabs() {
 
     Column {
         TabRow(
-            items = titles,
-            selectedIndex = state,
+            selectedTabIndex = state,
             indicator = indicator
-        ) { index, text ->
-            Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
+        ) {
+            titles.forEachIndexed { index, title ->
+                Tab(
+                    text = { Text(title) },
+                    selected = state == index,
+                    onSelected = { state = index }
+                )
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -193,16 +221,21 @@ fun FancyIndicatorContainerTabs() {
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
 
     val indicator = @Composable { tabPositions: List<TabPosition> ->
-        FancyAnimatedIndicator(tabPositions = tabPositions, selectedIndex = state)
+        FancyAnimatedIndicator(tabPositions = tabPositions, selectedTabIndex = state)
     }
 
     Column {
         TabRow(
-            items = titles,
-            selectedIndex = state,
+            selectedTabIndex = state,
             indicator = indicator
-        ) { index, text ->
-            Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
+        ) {
+            titles.forEachIndexed { index, title ->
+                Tab(
+                    text = { Text(title) },
+                    selected = state == index,
+                    onSelected = { state = index }
+                )
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -228,17 +261,21 @@ fun ScrollingFancyIndicatorContainerTabs() {
         "TAB 10"
     )
     val indicator = @Composable { tabPositions: List<TabPosition> ->
-        FancyAnimatedIndicator(tabPositions = tabPositions, selectedIndex = state)
+        FancyAnimatedIndicator(tabPositions = tabPositions, selectedTabIndex = state)
     }
 
     Column {
-        TabRow(
-            items = titles,
-            selectedIndex = state,
-            indicator = indicator,
-            scrollable = true
-        ) { index, text ->
-            Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
+        ScrollableTabRow(
+            selectedTabIndex = state,
+            indicator = indicator
+        ) {
+            titles.forEachIndexed { index, title ->
+                Tab(
+                    text = { Text(title) },
+                    selected = state == index,
+                    onSelected = { state = index }
+                )
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -285,7 +322,7 @@ fun FancyIndicator(color: Color, modifier: Modifier = Modifier) {
 
 @Sampled
 @Composable
-fun FancyAnimatedIndicator(tabPositions: List<TabPosition>, selectedIndex: Int) {
+fun FancyAnimatedIndicator(tabPositions: List<TabPosition>, selectedTabIndex: Int) {
     val indicatorStart = remember { DpPropKey() }
     val indicatorEnd = remember { DpPropKey() }
     val indicatorColor = remember { ColorPropKey() }
@@ -324,7 +361,7 @@ fun FancyAnimatedIndicator(tabPositions: List<TabPosition>, selectedIndex: Int) 
         }
     }
 
-    val state = transition(transitionDefinition, selectedIndex)
+    val state = transition(transitionDefinition, selectedTabIndex)
     val offset = state[indicatorStart]
     val width = state[indicatorEnd] - state[indicatorStart]
 

@@ -122,15 +122,16 @@ class TabTest {
 
             Box(Modifier.testTag("tabRow")) {
                 TabRow(
-                    items = titles,
-                    selectedIndex = state,
+                    selectedTabIndex = state,
                     indicator = indicator
-                ) { index, text ->
-                    Tab(
-                        text = { Text(text) },
-                        selected = state == index,
-                        onSelected = { state = index }
-                    )
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            text = { Text(title) },
+                            selected = state == index,
+                            onSelected = { state = index }
+                        )
+                    }
                 }
             }
         }
@@ -164,16 +165,17 @@ class TabTest {
             Box {
                 TabRow(
                     modifier = Modifier.testTag("tabRow"),
-                    items = titles,
-                    selectedIndex = state
-                ) { index, text ->
-                    Tab(
-                        text = {
-                            Text(text, Modifier.testTag("text"))
-                        },
-                        selected = state == index,
-                        onSelected = { state = index }
-                    )
+                    selectedTabIndex = state
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            text = {
+                                Text(title, Modifier.testTag("text"))
+                            },
+                            selected = state == index,
+                            onSelected = { state = index }
+                        )
+                    }
                 }
             }
         }
@@ -200,17 +202,18 @@ class TabTest {
             Box {
                 TabRow(
                     modifier = Modifier.testTag("tabRow"),
-                    items = titles,
-                    selectedIndex = state
-                ) { index, text ->
-                    Tab(
-                        text = {
-                            Text(text, Modifier.testTag("text"))
-                        },
-                        icon = { Icon(Icons.Filled.Favorite) },
-                        selected = state == index,
-                        onSelected = { state = index }
-                    )
+                    selectedTabIndex = state
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            text = {
+                                Text(title, Modifier.testTag("text"))
+                            },
+                            icon = { Icon(Icons.Filled.Favorite) },
+                            selected = state == index,
+                            onSelected = { state = index }
+                        )
+                    }
                 }
             }
         }
@@ -237,16 +240,17 @@ class TabTest {
             Box {
                 TabRow(
                     modifier = Modifier.testTag("tabRow"),
-                    items = titles,
-                    selectedIndex = state
-                ) { index, text ->
-                    Tab(
-                        text = {
-                            Text(text, Modifier.testTag("text"), maxLines = 2)
-                        },
-                        selected = state == index,
-                        onSelected = { state = index }
-                    )
+                    selectedTabIndex = state
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            text = {
+                                Text(title, Modifier.testTag("text"), maxLines = 2)
+                            },
+                            selected = state == index,
+                            onSelected = { state = index }
+                        )
+                    }
                 }
             }
         }
@@ -268,7 +272,6 @@ class TabTest {
     @Test
     fun scrollableTabRow_indicatorPosition() {
         val indicatorHeight = 1.dp
-        val scrollableTabRowOffset = 52.dp
         val minimumTabWidth = 90.dp
 
         composeTestRule.setMaterialContent {
@@ -287,18 +290,18 @@ class TabTest {
             }
 
             Box {
-                TabRow(
+                ScrollableTabRow(
                     modifier = Modifier.testTag("tabRow"),
-                    items = titles,
-                    scrollable = true,
-                    selectedIndex = state,
+                    selectedTabIndex = state,
                     indicator = indicator
-                ) { index, text ->
-                    Tab(
-                        text = { Text(text) },
-                        selected = state == index,
-                        onSelected = { state = index }
-                    )
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            text = { Text(title) },
+                            selected = state == index,
+                            onSelected = { state = index }
+                        )
+                    }
                 }
             }
         }
@@ -309,7 +312,7 @@ class TabTest {
         onNodeWithTag("indicator")
             .assertPositionInRootIsEqualTo(
                 // Tabs in a scrollable tab row are offset 52.dp from each end
-                expectedLeft = scrollableTabRowOffset,
+                expectedLeft = TabConstants.DefaultScrollableTabRowPadding,
                 expectedTop = tabRowBounds.height - indicatorHeight
             )
 
@@ -320,7 +323,7 @@ class TabTest {
         // should be in the middle of the TabRow
         onNodeWithTag("indicator")
             .assertPositionInRootIsEqualTo(
-                expectedLeft = scrollableTabRowOffset + minimumTabWidth,
+                expectedLeft = TabConstants.DefaultScrollableTabRowPadding + minimumTabWidth,
                 expectedTop = tabRowBounds.height - indicatorHeight
             )
     }

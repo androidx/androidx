@@ -21,14 +21,12 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.emptyContent
 import androidx.compose.runtime.remember
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.animate
 import androidx.compose.animation.transition
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Placeable
@@ -38,14 +36,10 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentColorAmbient
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.ProvideTextStyle
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.ScrollableRow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.contentColor
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.preferredHeight
@@ -53,288 +47,82 @@ import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.FirstBaseline
 import androidx.compose.foundation.text.LastBaseline
-import androidx.compose.material.TabConstants.defaultTabIndicatorOffset
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.composed
-import androidx.compose.ui.layout.ExperimentalSubcomposeLayoutApi
-import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastForEachIndexed
-import androidx.compose.ui.util.fastMap
 import kotlin.math.max
 
 /**
- * A TabRow contains a row of [Tab]s, and displays an indicator underneath the currently
- * selected tab.
+ * A Tab represents a single page of content using a text label and/or icon. It represents its
+ * selected state by tinting the text label and/or image with [activeColor].
  *
- * A simple example with text tabs looks like:
+ * This should typically be used inside of a [TabRow], see the corresponding documentation for
+ * example usage.
  *
- * @sample androidx.compose.material.samples.TextTabs
+ * This Tab has slots for [text] and/or [icon] - see the other Tab overload for a generic Tab
+ * that is not opinionated about its content.
  *
- * You can also provide your own custom tab, such as:
- *
- * @sample androidx.compose.material.samples.FancyTabs
- *
- * Where the custom tab itself could look like:
- *
- * @sample androidx.compose.material.samples.FancyTab
- *
- * As well as customizing the tab, you can also provide a custom [indicator], to customize
- * the indicator displayed for a tab. [indicator] will be placed to fill the entire TabRow, so it
- * should internally take care of sizing and positioning the indicator to match changes to
- * [selectedIndex].
- *
- * For example, given an indicator that draws a rounded rectangle near the edges of the [Tab]:
- *
- * @sample androidx.compose.material.samples.FancyIndicator
- *
- * We can reuse [TabConstants.defaultTabIndicatorOffset] and just provide this indicator,
- * as we aren't changing how the size and position of the indicator changes between tabs:
- *
- * @sample androidx.compose.material.samples.FancyIndicatorTabs
- *
- * You may also want to use a custom transition, to allow you to dynamically change the
- * appearance of the indicator as it animates between tabs, such as changing its color or size.
- * [indicator] is stacked on top of the entire TabRow, so you just need to provide a custom
- * transition that animates the offset of the indicator from the start of the TabRow. For
- * example, take the following example that uses a transition to animate the offset, width, and
- * color of the same FancyIndicator from before, also adding a physics based 'spring' effect to
- * the indicator in the direction of motion:
- *
- * @sample androidx.compose.material.samples.FancyAnimatedIndicator
- *
- * We can now just pass this indicator directly to TabRow:
- *
- * @sample androidx.compose.material.samples.FancyIndicatorContainerTabs
- *
- * @param T the type of the item provided that will map to a [Tab]
- * @param items the list containing the items used to build this TabRow
- * @param selectedIndex the index of the currently selected tab
- * @param modifier optional [Modifier] for this TabRow
- * @param backgroundColor The background color for the TabRow. Use [Color.Transparent] to have
- * no color.
- * @param contentColor The preferred content color provided by this TabRow to its children.
- * Defaults to either the matching `onFoo` color for [backgroundColor], or if [backgroundColor] is
- * not a color from the theme, this will keep the same value set above this TabRow.
- * @param scrollable if the tabs should be scrollable. If `false` the tabs will take up an equal
- * amount of the space given to TabRow. If `true` the tabs will take up only as much space as they
- * need, with any excess tabs positioned off screen and able to be scrolled to.
- * @param indicator the indicator that represents which tab is currently selected. By default this
- * will be a [TabConstants.DefaultIndicator], using a [TabConstants.defaultTabIndicatorOffset]
- * modifier to animate its position. Note that this indicator will be forced to fill up the
- * entire TabRow, so you should use [TabConstants.defaultTabIndicatorOffset] or similar to
- * animate the actual drawn indicator inside this space, and provide an offset from the start.
- * @param divider the divider displayed at the bottom of the TabRow. This provides a layer of
- * separation between the TabRow and the content displayed underneath.
- * @param tab the [Tab] to be emitted for the given index and element of type [T] in [items]
+ * @param text the text label displayed in this tab
+ * @param icon the icon displayed in this tab
+ * @param selected whether this tab is selected or not
+ * @param onSelected the callback to be invoked when this tab is selected
+ * @param modifier optional [Modifier] for this tab
+ * @param activeColor the color for the content of this tab when selected
+ * @param inactiveColor the color for the content of this tab when not selected
  */
 @Composable
-fun <T> TabRow(
-    items: List<T>,
-    selectedIndex: Int,
+fun Tab(
+    text: @Composable () -> Unit = emptyContent(),
+    icon: @Composable () -> Unit = emptyContent(),
+    selected: Boolean,
+    onSelected: () -> Unit,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = MaterialTheme.colors.primarySurface,
-    contentColor: Color = contentColorFor(backgroundColor),
-    scrollable: Boolean = false,
-    indicator: @Composable (tabPositions: List<TabPosition>) -> Unit = { tabPositions ->
-        TabConstants.DefaultIndicator(
-            Modifier.defaultTabIndicatorOffset(tabPositions[selectedIndex])
-        )
-    },
-    divider: @Composable () -> Unit = {
-        TabConstants.DefaultDivider()
-    },
-    tab: @Composable (Int, T) -> Unit
+    activeColor: Color = contentColor(),
+    inactiveColor: Color = EmphasisAmbient.current.medium.applyEmphasis(activeColor)
 ) {
-    Surface(modifier = modifier, color = backgroundColor, contentColor = contentColor) {
-        // TODO: force scrollable for tabs that will be too small if they take up equal space?
-        if (scrollable) {
-            val tabs = @Composable {
-                items.fastForEachIndexed { index, item ->
-                    tab(index, item)
-                }
-            }
-            ScrollableTabRow(selectedIndex, tabs, indicator, divider)
-        } else {
-            // TODO: b/150138067 remove modifier here and use the global LayoutWeight
-            // modifier when it exists
-            val tabs = @Composable { modifier: Modifier ->
-                items.fastForEachIndexed { index, item ->
-                    Box(modifier, gravity = ContentGravity.Center) {
-                        tab(index, item)
-                    }
-                }
-            }
-            FixedTabRow(items.size, tabs, indicator, divider)
+    val styledText = @Composable {
+        val style = MaterialTheme.typography.button.copy(textAlign = TextAlign.Center)
+        ProvideTextStyle(style, children = text)
+    }
+    Tab(selected, onSelected, modifier) {
+        TabTransition(activeColor, inactiveColor, selected) {
+            TabBaselineLayout(icon = icon, text = styledText)
         }
     }
-}
-
-@OptIn(ExperimentalSubcomposeLayoutApi::class)
-@Composable
-private fun FixedTabRow(
-    tabCount: Int,
-    tabs: @Composable (Modifier) -> Unit,
-    indicatorContainer: @Composable (tabPositions: List<TabPosition>) -> Unit,
-    divider: @Composable () -> Unit
-) {
-    SubcomposeLayout<TabSlots>(Modifier.fillMaxWidth()) { constraints ->
-        val tabsPlaceable = subcompose(TabSlots.Tabs) {
-            Row {
-                tabs(Modifier.weight(1f))
-            }
-        }.first().measure(constraints)
-
-        val tabWidth = (tabsPlaceable.width / tabCount).toDp()
-        val tabPositions = List(tabCount) { index ->
-            TabPosition(tabWidth * index, tabWidth)
-        }
-
-        layout(tabsPlaceable.width, tabsPlaceable.height) {
-            tabsPlaceable.place(0, 0)
-
-            subcompose(TabSlots.Divider, divider).fastForEach {
-                val placeable = it.measure(constraints)
-                placeable.place(0, tabsPlaceable.height - placeable.height)
-            }
-
-            subcompose(TabSlots.Indicator) {
-                indicatorContainer(tabPositions)
-            }.fastForEach {
-                it.measure(Constraints.fixed(tabsPlaceable.width, tabsPlaceable.height))
-                    .place(0, 0)
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalSubcomposeLayoutApi::class)
-@Composable
-private fun ScrollableTabRow(
-    selectedIndex: Int,
-    tabs: @Composable () -> Unit,
-    indicatorContainer: @Composable (tabPositions: List<TabPosition>) -> Unit,
-    divider: @Composable () -> Unit
-) {
-    val scrollState = rememberScrollState()
-    val scrollableTabData = remember(scrollState) {
-        ScrollableTabData(
-            scrollState = scrollState,
-            selectedTab = selectedIndex
-        )
-    }
-    ScrollableRow(scrollState = scrollState, modifier = Modifier.fillMaxWidth()) {
-        SubcomposeLayout<TabSlots> { constraints ->
-            val minTabWidth = ScrollableTabRowMinimumTabWidth.toIntPx()
-            val edgeOffset = ScrollableTabRowEdgeOffset.toIntPx()
-            val tabConstraints = constraints.copy(minWidth = minTabWidth)
-
-            val tabPlaceables = subcompose(TabSlots.Tabs, tabs)
-                .fastMap { it.measure(tabConstraints) }
-
-            var layoutWidth = edgeOffset * 2
-            var layoutHeight = 0
-            tabPlaceables.fastForEach {
-                layoutWidth += it.width
-                layoutHeight = maxOf(layoutHeight, it.height)
-            }
-
-            // Position the children.
-            layout(layoutWidth, layoutHeight) {
-                // Place the tabs
-                val tabPositions = mutableListOf<TabPosition>()
-                var left = edgeOffset
-                tabPlaceables.fastForEach {
-                    it.place(left, 0)
-                    tabPositions.add(TabPosition(left = left.toDp(), width = it.width.toDp()))
-                    left += it.width
-                }
-
-                // The divider is measured with its own height, and width equal to the total width
-                // of the tab row, and then placed on top of the tabs.
-                subcompose(TabSlots.Divider, divider).fastForEach {
-                    val placeable = it.measure(
-                        constraints.copy(minWidth = layoutWidth, maxWidth = layoutWidth)
-                    )
-                    placeable.place(0, layoutHeight - placeable.height)
-                }
-
-                // The indicator container is measured to fill the entire space occupied by the tab
-                // row, and then placed on top of the divider.
-                subcompose(TabSlots.Indicator) {
-                    indicatorContainer(tabPositions)
-                }.fastForEach {
-                    it.measure(Constraints.fixed(layoutWidth, layoutHeight))
-                        .place(0, 0)
-                }
-
-                scrollableTabData.onLaidOut(
-                    density = this@SubcomposeLayout,
-                    edgeOffset = edgeOffset,
-                    tabPositions = tabPositions,
-                    selectedTab = selectedIndex
-                )
-            }
-        }
-    }
-}
-
-private enum class TabSlots {
-    Tabs,
-    Divider,
-    Indicator
 }
 
 /**
- * Class holding onto state needed for [ScrollableTabRow]
+ * Generic [Tab] overload that is not opinionated about content / color. See the other overload
+ * for a Tab that has specific slots for text and / or an icon, as well as providing the correct
+ * colors for selected / unselected states.
+ *
+ * A custom tab using this API may look like:
+ *
+ * @sample androidx.compose.material.samples.FancyTab
+ *
+ * @param selected whether this tab is selected or not
+ * @param onSelected the callback to be invoked when this tab is selected
+ * @param modifier optional [Modifier] for this tab
+ * @param content the content of this tab
  */
-private class ScrollableTabData(
-    private val scrollState: ScrollState,
-    private var selectedTab: Int
+@Composable
+fun Tab(
+    selected: Boolean,
+    onSelected: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
 ) {
-    fun onLaidOut(
-        density: Density,
-        edgeOffset: Int,
-        tabPositions: List<TabPosition>,
-        selectedTab: Int
-    ) {
-        if (this.selectedTab != selectedTab) {
-            this.selectedTab = selectedTab
-            tabPositions.getOrNull(selectedTab)?.let {
-                // Scrolls to the tab with [tabPosition], trying to place it in the center of the
-                // screen or as close to the center as possible.
-                val calculatedOffset = it.calculateTabOffset(density, edgeOffset, tabPositions)
-                scrollState.smoothScrollTo(calculatedOffset)
-            }
-        }
-    }
-
-    /**
-     * @return the offset required to horizontally center the tab inside this TabRow.
-     * If the tab is at the start / end, and there is not enough space to fully centre the tab, this
-     * will just clamp to the min / max position given the max width.
-     */
-    private fun TabPosition.calculateTabOffset(
-        density: Density,
-        edgeOffset: Int,
-        tabPositions: List<TabPosition>
-    ): Float = with(density) {
-        val totalTabRowWidth = tabPositions.last().right.toIntPx() + edgeOffset
-        val visibleWidth = totalTabRowWidth - scrollState.maxValue.toInt()
-        val tabOffset = left.toIntPx()
-        val scrollerCenter = visibleWidth / 2
-        val tabWidth = width.toIntPx()
-        val centeredTabOffset = tabOffset - (scrollerCenter - tabWidth / 2)
-        // How much space we have to scroll. If the visible width is <= to the total width, then
-        // we have no space to scroll as everything is always visible.
-        val availableSpace = (totalTabRowWidth - visibleWidth).coerceAtLeast(0)
-        return centeredTabOffset.coerceIn(0, availableSpace).toFloat()
-    }
+    Box(
+        modifier = modifier
+            .selectable(selected = selected, onClick = onSelected)
+            .fillMaxWidth(),
+        gravity = ContentGravity.Center,
+        children = content
+    )
 }
 
 /**
@@ -416,88 +204,11 @@ object TabConstants {
      * Default height for [DefaultIndicator]
      */
     val DefaultIndicatorHeight = 2.dp
-}
 
-/**
- * Data class that contains information about a tab's position on screen, used for calculating
- * where to place the indicator that shows which tab is selected.
- *
- * @property left the left edge's x position from the start of the [TabRow]
- * @property right the right edge's x position from the start of the [TabRow]
- * @property width the width of this tab
- */
-@Immutable
-data class TabPosition internal constructor(val left: Dp, val width: Dp) {
-    val right: Dp get() = left + width
-}
-
-/**
- * A Tab represents a single page of content using a text label and/or icon. It represents its
- * selected state by tinting the text label and/or image with [activeColor].
- *
- * This should typically be used inside of a [TabRow], see the corresponding documentation for
- * example usage.
- *
- * This Tab has slots for [text] and/or [icon] - see the other Tab overload for a generic Tab
- * that is not opinionated about its content.
- *
- * @param text the text label displayed in this tab
- * @param icon the icon displayed in this tab
- * @param selected whether this tab is selected or not
- * @param onSelected the callback to be invoked when this tab is selected
- * @param modifier optional [Modifier] for this tab
- * @param activeColor the color for the content of this tab when selected
- * @param inactiveColor the color for the content of this tab when not selected
- */
-@Composable
-fun Tab(
-    text: @Composable () -> Unit = emptyContent(),
-    icon: @Composable () -> Unit = emptyContent(),
-    selected: Boolean,
-    onSelected: () -> Unit,
-    modifier: Modifier = Modifier,
-    activeColor: Color = contentColor(),
-    inactiveColor: Color = EmphasisAmbient.current.medium.applyEmphasis(activeColor)
-) {
-    val styledText = @Composable {
-        val style = MaterialTheme.typography.button.copy(textAlign = TextAlign.Center)
-        ProvideTextStyle(style, children = text)
-    }
-    Tab(selected, onSelected, modifier) {
-        TabTransition(activeColor, inactiveColor, selected) {
-            TabBaselineLayout(icon = icon, text = styledText)
-        }
-    }
-}
-
-/**
- * Generic [Tab] overload that is not opinionated about content / color. See the other overload
- * for a Tab that has specific slots for text and / or an icon, as well as providing the correct
- * colors for selected / unselected states.
- *
- * A custom tab using this API may look like:
- *
- * @sample androidx.compose.material.samples.FancyTab
- *
- * @param selected whether this tab is selected or not
- * @param onSelected the callback to be invoked when this tab is selected
- * @param modifier optional [Modifier] for this tab
- * @param content the content of this tab
- */
-@Composable
-fun Tab(
-    selected: Boolean,
-    onSelected: () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .selectable(selected = selected, onClick = onSelected)
-            .fillMaxWidth(),
-        gravity = ContentGravity.Center,
-        children = content
-    )
+    /**
+     * The default padding from the starting edge before a tab in a [ScrollableTabRow].
+     */
+    val DefaultScrollableTabRowPadding = 52.dp
 }
 
 private val TabTintColor = ColorPropKey()
@@ -688,11 +399,6 @@ private fun Placeable.PlacementScope.placeTextAndIcon(
     val iconPlaceableY = textPlaceableY - iconOffset
     iconPlaceable.place(iconPlaceableX, iconPlaceableY)
 }
-
-// TabRow specifications
-// How far from the start and end of a scrollable TabRow should the first Tab be displayed
-private val ScrollableTabRowEdgeOffset = 52.dp
-private val ScrollableTabRowMinimumTabWidth = 90.dp
 
 // Tab specifications
 private val SmallTabHeight = 48.dp
