@@ -69,7 +69,7 @@ class DatabaseVerifier private constructor(
             // UUID named library files.
             synchronized(System::class.java) {
                 SQLiteJDBCLoader.initialize() // extract and loads native library
-                JDBC.isValidURL(CONNECTION_URL) // dummy call to register driver
+                JDBC.isValidURL(CONNECTION_URL) // call to register driver
             }
         }
 

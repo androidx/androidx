@@ -198,7 +198,7 @@ fun simpleRun(
     f: (TestInvocation) -> Unit
 ): CompileTester {
     return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(jfos.toList() + JavaFileObjects.forSourceLines("Dummy", "final class Dummy {}"))
+            .that(jfos.toList() + JavaFileObjects.forSourceLines("NoOp", "final class NoOp {}"))
             .apply {
                 if (classpathFiles.isNotEmpty()) {
                     withClasspath(classpathFiles)

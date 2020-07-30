@@ -291,7 +291,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         tableName: String,
         vararg fields: Field
     ): Entity {
-        val element = invocation.processingEnv.requireTypeElement("Dummy")
+        val element = invocation.processingEnv.requireTypeElement("NoOp")
         return Entity(
             element = element,
             tableName = tableName,
