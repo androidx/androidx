@@ -35,9 +35,9 @@ class AltMetaKeyTest {
         val keyEvent = testKeyEvent()
 
         // Assert.
-        assertThat(keyEvent.isAltPressed).isFalse()
-        assertThat(keyEvent.isLeftAltPressed).isFalse()
-        assertThat(keyEvent.isRightAltPressed).isFalse()
+        assertThat(keyEvent.alt.isPressed).isFalse()
+        assertThat(keyEvent.alt.isLeftAltPressed).isFalse()
+        assertThat(keyEvent.alt.isRightAltPressed).isFalse()
     }
 
     @Test
@@ -46,9 +46,9 @@ class AltMetaKeyTest {
         val keyEvent = testKeyEvent(androidMetaKeys = META_ALT_LEFT_ON)
 
         // Assert.
-        assertThat(keyEvent.isAltPressed).isTrue()
-        assertThat(keyEvent.isLeftAltPressed).isTrue()
-        assertThat(keyEvent.isRightAltPressed).isFalse()
+        assertThat(keyEvent.alt.isPressed).isTrue()
+        assertThat(keyEvent.alt.isLeftAltPressed).isTrue()
+        assertThat(keyEvent.alt.isRightAltPressed).isFalse()
     }
 
     @Test
@@ -57,9 +57,9 @@ class AltMetaKeyTest {
         val keyEvent = testKeyEvent(androidMetaKeys = META_ALT_RIGHT_ON)
 
         // Assert.
-        assertThat(keyEvent.isAltPressed).isTrue()
-        assertThat(keyEvent.isLeftAltPressed).isFalse()
-        assertThat(keyEvent.isRightAltPressed).isTrue()
+        assertThat(keyEvent.alt.isPressed).isTrue()
+        assertThat(keyEvent.alt.isLeftAltPressed).isFalse()
+        assertThat(keyEvent.alt.isRightAltPressed).isTrue()
     }
 
     @Test
@@ -68,9 +68,9 @@ class AltMetaKeyTest {
         val keyEvent = testKeyEvent(androidMetaKeys = META_ALT_LEFT_ON or META_ALT_RIGHT_ON)
 
         // Assert.
-        assertThat(keyEvent.isAltPressed).isTrue()
-        assertThat(keyEvent.isLeftAltPressed).isTrue()
-        assertThat(keyEvent.isRightAltPressed).isTrue()
+        assertThat(keyEvent.alt.isPressed).isTrue()
+        assertThat(keyEvent.alt.isLeftAltPressed).isTrue()
+        assertThat(keyEvent.alt.isRightAltPressed).isTrue()
     }
 
     private fun testKeyEvent(androidMetaKeys: Int = 0): KeyEvent {
