@@ -27,7 +27,7 @@ import java.util.concurrent.Executor;
 /**
  * Contains the list of {@link DisplayFeature}-s located within the window. For example, a hinge or
  * display fold can go across the window, in which case it might make sense to separate the
- * visual content and interactive elements into two groups, e.g. master-detail or view-controls.
+ * visual content and interactive elements into two groups, e.g. list-detail or view-controls.
  * <p>Only the features that are present within the current window bounds are reported. Their
  * positions and sizes can change if the window is moved or resized on screen.
  * @see WindowManager#registerLayoutChangeCallback(Executor, Consumer) for tracking changes in
