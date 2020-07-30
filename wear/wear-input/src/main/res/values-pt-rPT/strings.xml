@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">Parte superior</string>
+  <string name="buttons_round_top_right">Parte superior direita</string>
+  <string name="buttons_round_center_right">No centro, à direita</string>
+  <string name="buttons_round_bottom_right">Parte inferior direita</string>
+  <string name="buttons_round_bottom_center">Parte inferior</string>
+  <string name="buttons_round_bottom_left">Parte inferior esquerda</string>
+  <string name="buttons_round_center_left">No centro, à esquerda</string>
+  <string name="buttons_round_top_left">Parte superior esquerda</string>
+  <string name="buttons_round_top_right_upper">Parte superior direita, em cima</string>
+  <string name="buttons_round_top_right_lower">Parte superior direita, em baixo</string>
+  <string name="buttons_round_bottom_right_upper">Parte inferior direita, em cima</string>
+  <string name="buttons_round_bottom_right_lower">Parte inferior direita, em baixo</string>
+  <string name="buttons_round_bottom_left_lower">Parte inferior esquerda, em baixo</string>
+  <string name="buttons_round_bottom_left_upper">Parte inferior esquerda, em cima</string>
+  <string name="buttons_round_top_left_lower">Parte superior esquerda, em baixo</string>
+  <string name="buttons_round_top_left_upper">Parte superior esquerda, em cima</string>
+  <string name="buttons_rect_left_top">Parte superior, lado esquerdo</string>
+  <string name="buttons_rect_left_center">No centro, à esquerda</string>
+  <string name="buttons_rect_left_bottom">Parte inferior, lado esquerdo</string>
+  <string name="buttons_rect_right_top">Parte superior, lado direito</string>
+  <string name="buttons_rect_right_center">No centro, à direita</string>
+  <string name="buttons_rect_right_bottom">Parte inferior, lado direito</string>
+  <string name="buttons_rect_top_left">Parte superior esquerda</string>
+  <string name="buttons_rect_top_center">Parte superior</string>
+  <string name="buttons_rect_top_right">Parte superior direita</string>
+  <string name="buttons_rect_bottom_left">Parte inferior esquerda</string>
+  <string name="buttons_rect_bottom_center">Parte inferior</string>
+  <string name="buttons_rect_bottom_right">Parte inferior direita</string>
+</resources>

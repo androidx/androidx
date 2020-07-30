@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">En haut</string>
+  <string name="buttons_round_top_right">En haut à droite</string>
+  <string name="buttons_round_center_right">Au milieu, sur la droite</string>
+  <string name="buttons_round_bottom_right">En bas à droite</string>
+  <string name="buttons_round_bottom_center">En bas</string>
+  <string name="buttons_round_bottom_left">En bas à gauche</string>
+  <string name="buttons_round_center_left">Au milieu, sur la gauche</string>
+  <string name="buttons_round_top_left">En haut à gauche</string>
+  <string name="buttons_round_top_right_upper">En haut à droite, partie supérieure</string>
+  <string name="buttons_round_top_right_lower">En haut à droite, partie inférieure</string>
+  <string name="buttons_round_bottom_right_upper">En bas à droite, partie supérieure</string>
+  <string name="buttons_round_bottom_right_lower">En bas à droite, partie inférieure</string>
+  <string name="buttons_round_bottom_left_lower">En bas à gauche, partie inférieure</string>
+  <string name="buttons_round_bottom_left_upper">En bas à gauche, partie supérieure</string>
+  <string name="buttons_round_top_left_lower">En haut à gauche, partie inférieure</string>
+  <string name="buttons_round_top_left_upper">En haut à gauche, partie supérieure</string>
+  <string name="buttons_rect_left_top">En haut, côté gauche</string>
+  <string name="buttons_rect_left_center">Au milieu, sur la gauche</string>
+  <string name="buttons_rect_left_bottom">En bas, côté gauche</string>
+  <string name="buttons_rect_right_top">En haut, côté droit</string>
+  <string name="buttons_rect_right_center">Au milieu, sur la droite</string>
+  <string name="buttons_rect_right_bottom">En bas, côté droit</string>
+  <string name="buttons_rect_top_left">En haut à gauche</string>
+  <string name="buttons_rect_top_center">En haut</string>
+  <string name="buttons_rect_top_right">En haut à droite</string>
+  <string name="buttons_rect_bottom_left">En bas à gauche</string>
+  <string name="buttons_rect_bottom_center">En bas</string>
+  <string name="buttons_rect_bottom_right">En bas à droite</string>
+</resources>

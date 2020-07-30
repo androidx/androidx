@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">In alto</string>
+  <string name="buttons_round_top_right">In alto a destra</string>
+  <string name="buttons_round_center_right">Al centro a destra</string>
+  <string name="buttons_round_bottom_right">In basso a destra</string>
+  <string name="buttons_round_bottom_center">In basso</string>
+  <string name="buttons_round_bottom_left">In basso a sinistra</string>
+  <string name="buttons_round_center_left">Al centro a sinistra</string>
+  <string name="buttons_round_top_left">In alto a sinistra</string>
+  <string name="buttons_round_top_right_upper">In alto a destra (più in alto)</string>
+  <string name="buttons_round_top_right_lower">In alto a destra (più in basso)</string>
+  <string name="buttons_round_bottom_right_upper">In basso a destra (più in alto)</string>
+  <string name="buttons_round_bottom_right_lower">In basso a destra (più in basso)</string>
+  <string name="buttons_round_bottom_left_lower">In basso a sinistra (più in basso)</string>
+  <string name="buttons_round_bottom_left_upper">In basso a sinistra (più in alto)</string>
+  <string name="buttons_round_top_left_lower">In alto a sinistra (più in basso)</string>
+  <string name="buttons_round_top_left_upper">In alto a sinistra (più in alto)</string>
+  <string name="buttons_rect_left_top">In alto verso sinistra</string>
+  <string name="buttons_rect_left_center">Al centro a sinistra</string>
+  <string name="buttons_rect_left_bottom">In basso verso sinistra</string>
+  <string name="buttons_rect_right_top">In alto verso destra</string>
+  <string name="buttons_rect_right_center">Al centro a destra</string>
+  <string name="buttons_rect_right_bottom">In basso verso destra</string>
+  <string name="buttons_rect_top_left">In alto a sinistra</string>
+  <string name="buttons_rect_top_center">In alto</string>
+  <string name="buttons_rect_top_right">In alto a destra</string>
+  <string name="buttons_rect_bottom_left">In basso a sinistra</string>
+  <string name="buttons_rect_bottom_center">In basso</string>
+  <string name="buttons_rect_bottom_right">In basso a destra</string>
+</resources>

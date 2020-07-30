@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">Вверху</string>
+  <string name="buttons_round_top_right">Вверху справа</string>
+  <string name="buttons_round_center_right">В центре справа</string>
+  <string name="buttons_round_bottom_right">Внизу справа</string>
+  <string name="buttons_round_bottom_center">Внизу</string>
+  <string name="buttons_round_bottom_left">Внизу слева</string>
+  <string name="buttons_round_center_left">В центре слева</string>
+  <string name="buttons_round_top_left">Вверху слева</string>
+  <string name="buttons_round_top_right_upper">Вверху справа, выше</string>
+  <string name="buttons_round_top_right_lower">Вверху справа, ниже</string>
+  <string name="buttons_round_bottom_right_upper">Внизу справа, выше</string>
+  <string name="buttons_round_bottom_right_lower">Внизу справа, ниже</string>
+  <string name="buttons_round_bottom_left_lower">Внизу слева, ниже</string>
+  <string name="buttons_round_bottom_left_upper">Внизу слева, выше</string>
+  <string name="buttons_round_top_left_lower">Вверху слева, ниже</string>
+  <string name="buttons_round_top_left_upper">Вверху слева, выше</string>
+  <string name="buttons_rect_left_top">Вверху, левая сторона</string>
+  <string name="buttons_rect_left_center">В центре слева</string>
+  <string name="buttons_rect_left_bottom">Внизу, левая сторона</string>
+  <string name="buttons_rect_right_top">Вверху, правая сторона</string>
+  <string name="buttons_rect_right_center">В центре справа</string>
+  <string name="buttons_rect_right_bottom">Внизу, правая сторона</string>
+  <string name="buttons_rect_top_left">Вверху слева</string>
+  <string name="buttons_rect_top_center">Вверху</string>
+  <string name="buttons_rect_top_right">Вверху справа</string>
+  <string name="buttons_rect_bottom_left">Внизу слева</string>
+  <string name="buttons_rect_bottom_center">Внизу</string>
+  <string name="buttons_rect_bottom_right">Внизу справа</string>
+</resources>
