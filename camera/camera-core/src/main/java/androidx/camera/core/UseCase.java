@@ -22,6 +22,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -201,6 +202,18 @@ public abstract class UseCase {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Gets the relative rotation degrees based on the target rotation.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @IntRange(from = 0, to = 359)
+    protected int getRelativeRotation(@NonNull CameraInternal cameraInternal) {
+        return cameraInternal.getCameraInfoInternal().getSensorRotationDegrees(
+                ((ImageOutputConfig) getUseCaseConfig()).getTargetRotation(Surface.ROTATION_0));
     }
 
     /**
